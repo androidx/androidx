@@ -25,9 +25,9 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.util.LruCache;
 import android.support.v7.appcompat.R;
-import android.support.v7.graphics.drawable.TintDrawableWrapper;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.TypedValue;
@@ -157,16 +157,16 @@ public final class TintManager {
             drawable = drawable.mutate();
 
             if (arrayContains(TINT_COLOR_CONTROL_STATE_LIST, resId)) {
-
                 ColorStateList colorStateList = getColorStateListForKnownDrawableId(resId);
-
                 PorterDuff.Mode tintMode = DEFAULT_MODE;
                 if (resId == R.drawable.abc_switch_thumb_material) {
                     tintMode = PorterDuff.Mode.MULTIPLY;
                 }
 
                 if (colorStateList != null) {
-                    drawable = new TintDrawableWrapper(drawable, colorStateList, tintMode);
+                    drawable = DrawableCompat.wrap(drawable);
+                    DrawableCompat.setTintList(drawable, colorStateList);
+                    DrawableCompat.setTintMode(drawable, tintMode);
                 }
             } else if (arrayContains(CONTAINERS_WITH_TINT_CHILDREN, resId)) {
                 drawable = mResources.getDrawable(resId);

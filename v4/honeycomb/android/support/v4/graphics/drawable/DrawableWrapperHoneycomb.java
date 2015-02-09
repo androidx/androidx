@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,16 @@
 
 package android.support.v4.graphics.drawable;
 
-import android.content.res.ColorStateList;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 
-/**
- * Implementation of drawable compatibility that can call Honeycomb APIs.
- */
-class DrawableCompatHoneycomb {
+class DrawableWrapperHoneycomb extends DrawableWrapperDonut {
 
-    public static void jumpToCurrentState(Drawable drawable) {
-        drawable.jumpToCurrentState();
+    DrawableWrapperHoneycomb(Drawable drawable) {
+        super(drawable);
     }
 
-    public static Drawable wrapForTinting(Drawable drawable) {
-        if (!(drawable instanceof DrawableWrapperHoneycomb)) {
-            return new DrawableWrapperHoneycomb(drawable);
-        }
-        return drawable;
+    @Override
+    public void jumpToCurrentState() {
+        mDrawable.jumpToCurrentState();
     }
 }
