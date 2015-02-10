@@ -60,8 +60,7 @@
 
     <style name="Widget.AppCompat.ActionButton" parent="Base.Widget.AppCompat.ActionButton" />
 
-    <!-- This style has an extra indirection to properly set RTL attributes. See styles_rtl.xml -->
-    <style name="Widget.AppCompat.ActionButton.CloseMode" parent="RtlOverlay.Widget.AppCompat.ActionButton.CloseMode" />
+    <style name="Widget.AppCompat.ActionButton.CloseMode" parent="Base.Widget.AppCompat.ActionButton.CloseMode" />
 
     <style name="Widget.AppCompat.ActionButton.Overflow"
            parent="RtlOverlay.Widget.AppCompat.ActionButton.Overflow" />
