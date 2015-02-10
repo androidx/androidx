@@ -89,7 +89,7 @@ public class RowsFragment extends BaseRowFragment {
         }
 
         void animateSelect(boolean select, boolean immediate) {
-            endSelectAnimation();
+            mSelectAnimator.end();
             final float end = select ? 1 : 0;
             if (immediate) {
                 mRowPresenter.setSelectLevel(mRowViewHolder, end);
@@ -100,14 +100,6 @@ public class RowsFragment extends BaseRowFragment {
                 mSelectLevelAnimDelta = end - mSelectLevelAnimStart;
                 mSelectAnimator.start();
             }
-        }
-
-        void endAnimations() {
-            endSelectAnimation();
-        }
-
-        void endSelectAnimation() {
-            mSelectAnimator.end();
         }
 
     }
@@ -436,8 +428,7 @@ public class RowsFragment extends BaseRowFragment {
         }
         @Override
         public void onUnbind(ItemBridgeAdapter.ViewHolder vh) {
-            RowViewHolderExtra extra = (RowViewHolderExtra) vh.getExtraObject();
-            extra.endAnimations();
+            setRowViewSelected(vh, false, true);
             if (mExternalAdapterListener != null) {
                 mExternalAdapterListener.onUnbind(vh);
             }

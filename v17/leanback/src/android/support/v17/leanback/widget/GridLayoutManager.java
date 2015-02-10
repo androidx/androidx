@@ -179,10 +179,18 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             // onTargetFound() may not be called if we hit the "wall" first.
             View targetView = findViewByPosition(getTargetPosition());
             if (hasFocus() && targetView != null) {
+                mInSelection = true;
                 targetView.requestFocus();
+                mInSelection = false;
             }
-            dispatchChildSelected();
+            if (needsDispatchChildSelectedOnStop()) {
+                dispatchChildSelected();
+            }
             super.onStop();
+        }
+
+        boolean needsDispatchChildSelectedOnStop() {
+            return true;
         }
 
         @Override
@@ -210,38 +218,87 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
      */
     final class PendingMoveSmoothScroller extends GridLinearSmoothScroller {
         // -2 is a target position that LinearSmoothScroller can never find until
-        // consumePendingMoves() sets real targetPosition.
+        // consumePendingMovesXXX() sets real targetPosition.
         final static int TARGET_UNDEFINED = -2;
-
+        // whether the grid is staggered.
+        private final boolean mStaggeredGrid;
         // Number of pending movements on primary direction, negative if PREV_ITEM.
         private int mPendingMoves;
 
-        PendingMoveSmoothScroller(int initialPendingMoves) {
+        PendingMoveSmoothScroller(int initialPendingMoves, boolean staggeredGrid) {
             mPendingMoves = initialPendingMoves;
+            mStaggeredGrid = staggeredGrid;
             setTargetPosition(TARGET_UNDEFINED);
         }
 
         void increasePendingMoves() {
             if (mPendingMoves < MAX_PENDING_MOVES) {
                 mPendingMoves++;
+                if (mPendingMoves == 0) {
+                    dispatchChildSelected();
+                }
             }
         }
 
         void decreasePendingMoves() {
             if (mPendingMoves > -MAX_PENDING_MOVES) {
                 mPendingMoves--;
+                if (mPendingMoves == 0) {
+                    dispatchChildSelected();
+                }
             }
         }
 
-        void consumePendingMoves() {
-            if (mPendingMoves != 0) {
+        /**
+         * Called before laid out an item when non-staggered grid can handle pending movements
+         * by skipping "mNumRows" per movement;  staggered grid will have to wait the item
+         * has been laid out in consumePendingMovesAfterLayout().
+         */
+        void consumePendingMovesBeforeLayout() {
+            if (mStaggeredGrid || mPendingMoves == 0) {
+                return;
+            }
+            View newSelected = null;
+            int startPos = mPendingMoves > 0 ? mFocusPosition + mNumRows :
+                    mFocusPosition - mNumRows;
+            for (int pos = startPos; mPendingMoves != 0;
+                    pos = mPendingMoves > 0 ? pos + mNumRows: pos - mNumRows) {
+                View v = findViewByPosition(pos);
+                if (v == null) {
+                    break;
+                }
+                if (!canScrollTo(v)) {
+                    continue;
+                }
+                newSelected = v;
+                mFocusPosition = pos;
+                if (mPendingMoves > 0) {
+                    mPendingMoves--;
+                } else {
+                    mPendingMoves++;
+                }
+            }
+            if (newSelected != null && hasFocus()) {
+                mInSelection = true;
+                newSelected.requestFocus();
+                mInSelection = false;
+            }
+        }
+
+        /**
+         * Called after laid out an item.  Staggered grid should find view on same
+         * Row and consume pending movements.
+         */
+        void consumePendingMovesAfterLayout() {
+            if (mStaggeredGrid && mPendingMoves != 0) {
                 // consume pending moves, focus to item on the same row.
                 final int focusedRow = mGrid != null && mFocusPosition != NO_POSITION ?
                         mGrid.getLocation(mFocusPosition).row : NO_POSITION;
+                View newSelected = null;
                 for (int i = 0, count = getChildCount(); i < count && mPendingMoves != 0; i++) {
                     int index = mPendingMoves > 0 ? i : count - 1 - i;
                     final View child = getChildAt(index);
-                    if (child.getVisibility() != View.VISIBLE) {
+                    if (!canScrollTo(child)) {
                         continue;
                     }
                     int position = getPositionByIndex(index);
@@ -249,6 +306,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     if (focusedRow == NO_POSITION || (loc != null && loc.row == focusedRow)) {
                         if (mFocusPosition == NO_POSITION) {
                             mFocusPosition = position;
+                            newSelected = child;
                         } else if ((mPendingMoves > 0 && position > mFocusPosition)
                                 || (mPendingMoves < 0 && position < mFocusPosition)) {
                             mFocusPosition = position;
@@ -257,20 +315,20 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                             } else {
                                 mPendingMoves++;
                             }
-                            if (hasFocus()) {
-                                View v = findViewByPosition(mFocusPosition);
-                                if (v != null) {
-                                    v.requestFocus();
-                                }
-                                dispatchChildSelected();
-                            }
+                            newSelected = child;
                         }
                     }
+                }
+                if (newSelected != null && hasFocus()) {
+                    mInSelection = true;
+                    newSelected.requestFocus();
+                    mInSelection = false;
                 }
             }
             if (mPendingMoves == 0 || (mPendingMoves > 0 && hasCreatedLastItem())
                     || (mPendingMoves < 0 && hasCreatedFirstItem())) {
                 setTargetPosition(mFocusPosition);
+                stop();
             }
         }
 
@@ -297,11 +355,16 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
 
         @Override
+        boolean needsDispatchChildSelectedOnStop() {
+            return mPendingMoves != 0;
+        }
+
+        @Override
         protected void onStop() {
+            super.onStop();
             // if we hit wall,  need clear the remaining pending moves.
             mPendingMoves = 0;
             mPendingMoveSmoothScroller = null;
-            super.onStop();
             View v = findViewByPosition(getTargetPosition());
             if (v != null) scrollToView(v, true);
         }
@@ -353,6 +416,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     private RecyclerView.Recycler mRecycler;
 
     private boolean mInLayout = false;
+    private boolean mInFastRelayout;
     private boolean mInSelection = false;
 
     private OnChildSelectedListener mChildSelectedListener = null;
@@ -1218,9 +1282,26 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     v.setVisibility(mChildVisibility);
                 }
 
-                // View is added first or it won't be found by dispatchChildSelected.
-                if (mInLayout && index == mFocusPosition) {
-                    dispatchChildSelected();
+                if (mPendingMoveSmoothScroller != null) {
+                    mPendingMoveSmoothScroller.consumePendingMovesBeforeLayout();
+                }
+                if (!mInLayout) {
+                    // when we are appending item during scroll pass and the item's position
+                    // matches the mFocusPosition,  we should signal a childSelected event.
+                    // However if we are still running PendingMoveSmoothScroller,  we defer and
+                    // signal the event in PendingMoveSmoothScroller.onStop().  This can
+                    // avoid lots of childSelected events during a long smooth scrolling and
+                    // increase performance.
+                    if (index == mFocusPosition && (mPendingMoveSmoothScroller == null
+                            || mPendingMoveSmoothScroller.mPendingMoves == 0)) {
+                        dispatchChildSelected();
+                    }
+                } else {
+                    // during layout pass, we notify change for non fastRelayout case.
+                    // fastRelayout will dispatch event at end of onLayoutChildren()
+                    if (!mInFastRelayout && index == mFocusPosition) {
+                        dispatchChildSelected();
+                    }
                 }
                 measureChild(v);
             }
@@ -1268,7 +1349,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 }
             }
             if (!mInLayout && mPendingMoveSmoothScroller != null) {
-                mPendingMoveSmoothScroller.consumePendingMoves();
+                mPendingMoveSmoothScroller.consumePendingMovesAfterLayout();
             }
             if (mChildLaidOutListener != null) {
                 RecyclerView.ViewHolder vh = mBaseGridView.getChildViewHolder(v);
@@ -1526,8 +1607,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
         boolean hadFocus = mBaseGridView.hasFocus();
         int savedFocusPos = mFocusPosition;
-        boolean fastRelayout;
-        if (fastRelayout = layoutInit()) {
+        if (mInFastRelayout = layoutInit()) {
             fastRelayout();
             View focusView = findViewByPosition(mFocusPosition);
             if (scrollToFocus) {
@@ -1587,7 +1667,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             updateRowSecondarySizeRefresh();
         }
 
-        if (fastRelayout && mFocusPosition != savedFocusPos) {
+        // For non fastRelayout we notify selection change in createItem().
+        // For fastRelayout, only dispatch event when focus position changes.
+        if (mInFastRelayout && mFocusPosition != savedFocusPos) {
             dispatchChildSelected();
         }
 
@@ -1899,8 +1981,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     void startPositionSmoothScroller(int position) {
-        LinearSmoothScroller linearSmoothScroller =
-                new GridLinearSmoothScroller() {
+        LinearSmoothScroller linearSmoothScroller = new GridLinearSmoothScroller() {
             @Override
             public PointF computeScrollVectorForPosition(int targetPosition) {
                 if (getChildCount() == 0) {
@@ -1932,7 +2013,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             // Stop existing scroller and create a new PendingMoveSmoothScroller.
             mBaseGridView.stopScroll();
             PendingMoveSmoothScroller linearSmoothScroller = new PendingMoveSmoothScroller(
-                    forward ? 1 : -1);
+                    forward ? 1 : -1, mNumRows > 1);
             mFocusPositionOffset = 0;
             startSmoothScroll(linearSmoothScroller);
             if (linearSmoothScroller.isRunning()) {
@@ -2113,9 +2194,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             if (!mInLayout) {
                 dispatchChildSelected();
             }
-        }
-        if (mBaseGridView.isChildrenDrawingOrderEnabledInternal()) {
-            mBaseGridView.invalidate();
+            if (mBaseGridView.isChildrenDrawingOrderEnabledInternal()) {
+                mBaseGridView.invalidate();
+            }
         }
         if (view == null) {
             return;
@@ -2371,7 +2452,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 for (int i = 0, count = getChildCount(); i < count; i++) {
                     int index = movement == NEXT_ITEM ? i : count - 1 - i;
                     final View child = getChildAt(index);
-                    if (child.getVisibility() != View.VISIBLE) {
+                    if (child.getVisibility() != View.VISIBLE || !child.hasFocusable()) {
                         continue;
                     }
                     int position = getPositionByIndex(index);
@@ -2435,6 +2516,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return count == 0 || findViewByPosition(0) != null;
     }
 
+    boolean canScrollTo(View view) {
+        return view.getVisibility() == View.VISIBLE && (!hasFocus() || view.hasFocusable());
+    }
+
     @Override
     public View onFocusSearchFailed(View focused, int direction, Recycler recycler,
             RecyclerView.State state) {
@@ -2443,65 +2528,26 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         View view = null;
         int movement = getMovement(direction);
         final boolean isScroll = mBaseGridView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE;
-        // We still treat single-row (or TODO non-staggered) Grid special using position because:
-        // we know exactly if an item should be selected (based on index) *before* it is
-        // added to hierarchy. Child view can change layout when it is selected.
-        // Knowing this ahead can avoid a second layout after view is inserted into tree.
-        // We can reduce choppiness of vertical scrolling BrowseFragment where row view has
-        // different layout padding when it is selected.
-        // Multiple-rows Grid is different case:  we don't know if the item should be selected
-        // until we add it to hierarchy and measure it.  Grid algorithm choose a row to put
-        // the item based on the item size.  FocusSearch mechanism will rely which row the item
-        // is laid out then makes choice whether to select it.  This can cause a second layout
-        // if selected child has a different layout.
-        if (mNumRows == 1) {
-            if (movement == NEXT_ITEM) {
-                int newPos = mFocusPosition + mNumRows;
-                if (newPos < getItemCount() && mScrollEnabled && getChildCount() > 0) {
-                    int lastChildPos = getPosition(getChildAt(getChildCount() - 1));
-                    if (newPos < lastChildPos + mNumRows * MAX_PENDING_MOVES) {
-                        setSelectionSmooth(mBaseGridView, newPos);
-                    }
-                    view = focused;
-                } else {
-                    if (isScroll || !mFocusOutEnd) {
-                        view = focused;
-                    }
-                }
-            } else if (movement == PREV_ITEM) {
-                int newPos = mFocusPosition - mNumRows;
-                if (newPos >= 0 && mScrollEnabled && getChildCount() > 0) {
-                    int firstChildPos = getPosition(getChildAt(0));
-                    if (newPos > firstChildPos - mNumRows * MAX_PENDING_MOVES) {
-                        setSelectionSmooth(mBaseGridView, newPos);
-                    }
-                    view = focused;
-                } else {
-                    if (isScroll || !mFocusOutFront) {
-                        view = focused;
-                    }
-                }
+        saveContext(recycler, state);
+        if (movement == NEXT_ITEM) {
+            if (isScroll || !mFocusOutEnd) {
+                view = focused;
             }
-        } else if (mNumRows > 1) {
-            saveContext(recycler, state);
-            if (movement == NEXT_ITEM) {
-                if (isScroll || !mFocusOutEnd) {
-                    view = focused;
-                }
-                if (mScrollEnabled) {
-                    processPendingMovement(true);
-                }
-            } else if (movement == PREV_ITEM) {
-                if (isScroll || !mFocusOutFront) {
-                    view = focused;
-                }
-                if (mScrollEnabled) {
-                    processPendingMovement(false);
-                }
+            if (mScrollEnabled && !hasCreatedLastItem()) {
+                processPendingMovement(true);
+                view = focused;
             }
-            leaveContext();
+        } else if (movement == PREV_ITEM) {
+            if (isScroll || !mFocusOutFront) {
+                view = focused;
+            }
+            if (mScrollEnabled && !hasCreatedFirstItem()) {
+                processPendingMovement(false);
+                view = focused;
+            }
         }
-        if (DEBUG) Log.v(getTag(), "returning view " + view);
+        leaveContext();
+        if (DEBUG) Log.v(getTag(), "onFocusSearchFailed returning view " + view);
         return view;
     }
 

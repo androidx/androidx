@@ -500,4 +500,92 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         verifyBeginAligned();
     }
 
+    public void testNonFocusableHorizontal() throws Throwable {
+        final int numItems = 200;
+        final int startPos = 45;
+        final int skips = 20;
+        final int numColumns = 3;
+        final int endPos = startPos + numColumns * (skips + 1);
+
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_grid);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, numItems);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = numColumns;
+        boolean[] focusable = new boolean[numItems];
+        for (int i = 0; i < focusable.length; i++) {
+            focusable[i] = true;
+        }
+        for (int i = startPos + mNumRows, j = 0; j < skips; i += mNumRows, j++) {
+            focusable[i] = false;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS_FOCUSABLE, focusable);
+        setActivityIntent(intent);
+        mActivity = getActivity();
+        mGridView = mActivity.mGridView;
+
+        mGridView.setSelectedPositionSmooth(startPos);
+        waitForScrollIdle(mVerifyLayout);
+
+        if (mGridView.getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_RTL) {
+            sendKeys(KeyEvent.KEYCODE_DPAD_LEFT);
+        } else {
+            sendKeys(KeyEvent.KEYCODE_DPAD_RIGHT);
+        }
+        waitForScrollIdle(mVerifyLayout);
+        assertEquals(endPos, mGridView.getSelectedPosition());
+
+        if (mGridView.getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_RTL) {
+            sendKeys(KeyEvent.KEYCODE_DPAD_RIGHT);
+        } else {
+            sendKeys(KeyEvent.KEYCODE_DPAD_LEFT);
+        }
+        waitForScrollIdle(mVerifyLayout);
+        assertEquals(startPos, mGridView.getSelectedPosition());
+
+    }
+
+
+    public void testNonFocusableVertical() throws Throwable {
+        final int numItems = 200;
+        final int startPos = 44;
+        final int skips = 20;
+        final int numColumns = 3;
+        final int endPos = startPos + numColumns * (skips + 1);
+
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_grid);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, numItems);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = numColumns;
+        boolean[] focusable = new boolean[numItems];
+        for (int i = 0; i < focusable.length; i++) {
+            focusable[i] = true;
+        }
+        for (int i = startPos + mNumRows, j = 0; j < skips; i += mNumRows, j++) {
+            focusable[i] = false;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS_FOCUSABLE, focusable);
+        setActivityIntent(intent);
+        mActivity = getActivity();
+        mGridView = mActivity.mGridView;
+
+        mGridView.setSelectedPositionSmooth(startPos);
+        waitForScrollIdle(mVerifyLayout);
+
+        sendKeys(KeyEvent.KEYCODE_DPAD_DOWN);
+        waitForScrollIdle(mVerifyLayout);
+        assertEquals(endPos, mGridView.getSelectedPosition());
+
+        sendKeys(KeyEvent.KEYCODE_DPAD_UP);
+        waitForScrollIdle(mVerifyLayout);
+        assertEquals(startPos, mGridView.getSelectedPosition());
+
+    }
 }
