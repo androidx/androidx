@@ -44,8 +44,6 @@ public class CompatTextView extends TextView {
     public CompatTextView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
-        boolean allCaps = false;
-
         // First read the TextAppearance style id
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CompatTextView,
                 defStyle, 0);
@@ -54,8 +52,7 @@ public class CompatTextView extends TextView {
 
         // Now check TextAppearance's textAllCaps value
         if (ap != -1) {
-            TypedArray appearance = context.obtainStyledAttributes(ap,
-                    R.styleable.TextAppearance);
+            TypedArray appearance = context.obtainStyledAttributes(ap, R.styleable.TextAppearance);
             if (appearance.hasValue(R.styleable.TextAppearance_textAllCaps)) {
                 setAllCaps(appearance.getBoolean(R.styleable.TextAppearance_textAllCaps, false));
             }
@@ -65,11 +62,9 @@ public class CompatTextView extends TextView {
         // Now read the style's value
         a = context.obtainStyledAttributes(attrs, R.styleable.CompatTextView, defStyle, 0);
         if (a.hasValue(R.styleable.CompatTextView_textAllCaps)) {
-            allCaps = a.getBoolean(R.styleable.CompatTextView_textAllCaps, false);
+            setAllCaps(a.getBoolean(R.styleable.CompatTextView_textAllCaps, false));
         }
         a.recycle();
-
-        setAllCaps(allCaps);
     }
 
     public void setAllCaps(boolean allCaps) {
