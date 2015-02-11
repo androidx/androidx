@@ -797,20 +797,28 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
      * From {@link android.support.v4.view.LayoutInflaterFactory}
      */
     @Override
-    public View onCreateView(View parent, String name,
+    public final View onCreateView(View parent, String name,
             Context context, AttributeSet attrs) {
+        // First let the Activity's Factory try and inflate the view
+        final View view = callActivityOnCreateView(parent, name, context, attrs);
+        if (view != null) {
+            return view;
+        }
 
-        // First let the Activity's LayoutInflater.Factory try and handle it
+        // If the Factory didn't handle it, let our createView() method try
+        return createView(parent, name, context, attrs);
+    }
+
+    View callActivityOnCreateView(View parent, String name, Context context, AttributeSet attrs) {
+        // Let the Activity's LayoutInflater.Factory try and handle it
         if (mOriginalWindowCallback instanceof LayoutInflater.Factory) {
-            View result = ((LayoutInflater.Factory) mOriginalWindowCallback)
+            final View result = ((LayoutInflater.Factory) mOriginalWindowCallback)
                     .onCreateView(name, context, attrs);
             if (result != null) {
                 return result;
             }
         }
-
-        // If the Factory didn't handle it, let our createView() method try
-        return createView(parent, name, context, attrs);
+        return null;
     }
 
     private void openPanel(final PanelFeatureState st, KeyEvent event) {
