@@ -47,11 +47,6 @@
         <item name="android:paddingEnd">8dp</item>
     </style>
 
-    <style name="RtlOverlay.Widget.AppCompat.ActionButton.CloseMode" parent="Base.Widget.AppCompat.ActionButton.CloseMode">
-        <item name="android:paddingStart">8dp</item>
-        <item name="android:layout_marginEnd">16dp</item>
-    </style>
-
     <style name="RtlOverlay.Widget.AppCompat.ActionButton.Overflow" parent="Base.Widget.AppCompat.ActionButton.Overflow">
         <item name="android:paddingStart">@dimen/abc_action_bar_overflow_padding_start_material</item>
         <item name="android:paddingEnd">@dimen/abc_action_bar_overflow_padding_end_material</item>
