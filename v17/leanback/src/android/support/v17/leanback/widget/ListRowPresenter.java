@@ -296,12 +296,24 @@ public class ListRowPresenter extends RowPresenter {
      * Perform operations when a child of horizontal grid view is selected.
      */
     private void selectChildView(ViewHolder rowViewHolder, View view) {
-        ItemBridgeAdapter.ViewHolder ibh = null;
         if (view != null) {
-            ibh = (ItemBridgeAdapter.ViewHolder)
-                    rowViewHolder.mGridView.getChildViewHolder(view);
-        }
-        if (view == null) {
+            if (rowViewHolder.mExpanded && rowViewHolder.mSelected) {
+                ItemBridgeAdapter.ViewHolder ibh = (ItemBridgeAdapter.ViewHolder)
+                        rowViewHolder.mGridView.getChildViewHolder(view);
+
+                if (mHoverCardPresenterSelector != null) {
+                    rowViewHolder.mHoverCardViewSwitcher.select(rowViewHolder.mGridView, view,
+                            ibh.mItem);
+                }
+                if (getOnItemViewSelectedListener() != null) {
+                    getOnItemViewSelectedListener().onItemSelected(ibh.mHolder, ibh.mItem,
+                            rowViewHolder, rowViewHolder.mRow);
+                }
+                if (getOnItemSelectedListener() != null) {
+                    getOnItemSelectedListener().onItemSelected(ibh.mItem, rowViewHolder.mRow);
+                }
+            }
+        } else {
             if (mHoverCardPresenterSelector != null) {
                 rowViewHolder.mHoverCardViewSwitcher.unselect();
             }
@@ -311,18 +323,6 @@ public class ListRowPresenter extends RowPresenter {
             }
             if (getOnItemSelectedListener() != null) {
                 getOnItemSelectedListener().onItemSelected(null, rowViewHolder.mRow);
-            }
-        } else if (rowViewHolder.mExpanded && rowViewHolder.mSelected) {
-            if (mHoverCardPresenterSelector != null) {
-                rowViewHolder.mHoverCardViewSwitcher.select(rowViewHolder.mGridView, view,
-                        ibh.mItem);
-            }
-            if (getOnItemViewSelectedListener() != null) {
-                getOnItemViewSelectedListener().onItemSelected(ibh.mHolder, ibh.mItem,
-                        rowViewHolder, rowViewHolder.mRow);
-            }
-            if (getOnItemSelectedListener() != null) {
-                getOnItemSelectedListener().onItemSelected(ibh.mItem, rowViewHolder.mRow);
             }
         }
     }
