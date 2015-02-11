@@ -66,18 +66,20 @@ class AppCompatDelegateImplV11 extends AppCompatDelegateImplV7
         return null;
     }
 
-    @Override
-    public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
-        // First, let the Activity's LayoutInflater.Factory2 method try...
-        if (mOriginalWindowCallback instanceof LayoutInflater.Factory2) {
-            View result = ((LayoutInflater.Factory2) mOriginalWindowCallback)
-                    .onCreateView(parent, name, context, attrs);
-            if (result != null) {
-                return result;
-            }
+    View callActivityOnCreateView(View parent, String name, Context context, AttributeSet attrs) {
+        // First let super have a try, this allows FragmentActivity to inflate any support
+        // fragments
+        final View view = super.callActivityOnCreateView(parent, name, context, attrs);
+        if (view != null) {
+            return view;
         }
 
-        // Let the v7 delegate handle it
-        return super.onCreateView(parent, name, context, attrs);
+        // Now, let the Activity's LayoutInflater.Factory2 method try...
+        if (mOriginalWindowCallback instanceof LayoutInflater.Factory2) {
+            return ((LayoutInflater.Factory2) mOriginalWindowCallback)
+                    .onCreateView(parent, name, context, attrs);
+        }
+
+        return null;
     }
 }
