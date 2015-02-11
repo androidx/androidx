@@ -381,6 +381,31 @@ public class ListRowPresenter extends RowPresenter {
         return new ViewHolder(rowView, rowView.getGridView(), this);
     }
 
+    /**
+     * Dispatch item selected event using current selected item in the {@link HorizontalGridView}.
+     * The method should only be called from onRowViewSelected().
+     */
+    @Override
+    protected void dispatchItemSelectedListener(RowPresenter.ViewHolder holder, boolean selected) {
+        ViewHolder vh = (ViewHolder)holder;
+        ItemBridgeAdapter.ViewHolder itemViewHolder = (ItemBridgeAdapter.ViewHolder)
+                vh.mGridView.findViewHolderForPosition(vh.mGridView.getSelectedPosition());
+        if (itemViewHolder == null) {
+            super.dispatchItemSelectedListener(holder, selected);
+            return;
+        }
+
+        if (selected) {
+            if (getOnItemViewSelectedListener() != null) {
+                getOnItemViewSelectedListener().onItemSelected(
+                        itemViewHolder.getViewHolder(), itemViewHolder.mItem, vh, vh.getRow());
+            }
+            if (getOnItemSelectedListener() != null) {
+                getOnItemSelectedListener().onItemSelected(itemViewHolder.mItem, vh.getRow());
+            }
+        }
+    }
+
     @Override
     protected void onRowViewSelected(RowPresenter.ViewHolder holder, boolean selected) {
         super.onRowViewSelected(holder, selected);

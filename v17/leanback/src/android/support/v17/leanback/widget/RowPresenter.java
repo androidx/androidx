@@ -397,12 +397,13 @@ public abstract class RowPresenter extends Presenter {
         return mSyncActivatePolicy;
     }
 
+
     /**
-     * Subclass may override this to respond to selected state changes of a Row.
-     * Subclass may make visual changes to Row view but must not create
-     * animation on the Row view.
+     * The method is only called from onRowViewSelecetd().
+     * Default behavior is signaling row selected events with null item. Subclass of RowPresenter
+     * having child items should override this method and dispatch events with item information.
      */
-    protected void onRowViewSelected(ViewHolder vh, boolean selected) {
+    protected void dispatchItemSelectedListener(ViewHolder vh, boolean selected) {
         if (selected) {
             if (mOnItemViewSelectedListener != null) {
                 mOnItemViewSelectedListener.onItemSelected(null, null, vh, vh.getRow());
@@ -411,6 +412,15 @@ public abstract class RowPresenter extends Presenter {
                 mOnItemSelectedListener.onItemSelected(null, vh.getRow());
             }
         }
+    }
+
+    /**
+     * Subclass may override this to respond to selected state changes of a Row.
+     * Subclass may make visual changes to Row view but must not create
+     * animation on the Row view.
+     */
+    protected void onRowViewSelected(ViewHolder vh, boolean selected) {
+        dispatchItemSelectedListener(vh, selected);
         updateHeaderViewVisibility(vh);
         updateActivateStatus(vh, vh.view);
     }
