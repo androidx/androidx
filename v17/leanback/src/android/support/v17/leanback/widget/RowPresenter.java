@@ -285,7 +285,9 @@ public abstract class RowPresenter extends Presenter {
     protected void initializeRowViewHolder(ViewHolder vh) {
         vh.mInitialzed = true;
         // set clip children to false for slide transition
-        ((ViewGroup) vh.view).setClipChildren(false);
+        if (vh.view instanceof ViewGroup) {
+            ((ViewGroup) vh.view).setClipChildren(false);
+        }
         if (vh.mContainerViewHolder != null) {
             ((ViewGroup) vh.mContainerViewHolder.view).setClipChildren(false);
         }
