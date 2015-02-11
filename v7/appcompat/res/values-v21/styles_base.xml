@@ -78,6 +78,7 @@
 
     <style name="Base.Widget.AppCompat.ActionButton.CloseMode"
            parent="android:Widget.Material.ActionButton.CloseMode">
+        <item name="android:minWidth">56dp</item>
     </style>
 
     <style name="Base.Widget.AppCompat.ActionButton.Overflow"
