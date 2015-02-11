@@ -32,6 +32,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Handler;
+import android.support.v4.view.animation.FastOutLinearInInterpolator;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,7 +40,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Interpolator;
-import android.view.animation.LinearInterpolator;
+import android.view.animation.AnimationUtils;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 
@@ -108,6 +109,12 @@ public final class BackgroundManager {
     private Drawable mBackgroundDrawable;
     private int mBackgroundColor;
     private boolean mAttached;
+    private long mLastSetTime;
+
+    private final Interpolator mAccelerateInterpolator;
+    private final Interpolator mDecelerateInterpolator;
+    private final ValueAnimator mAnimator;
+    private final ValueAnimator mDimAnimator;
 
     private static class BitmapDrawable extends Drawable {
 
@@ -179,23 +186,11 @@ public final class BackgroundManager {
     private static class DrawableWrapper {
         protected int mAlpha;
         protected Drawable mDrawable;
-        protected ValueAnimator mAnimator;
-        protected boolean mAnimationPending;
-
-        private final Interpolator mInterpolator = new LinearInterpolator();
-        private final ValueAnimator.AnimatorUpdateListener mAnimationUpdateListener =
-                new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                setAlpha((Integer) animation.getAnimatedValue());
-            }
-        };
 
         public DrawableWrapper(Drawable drawable) {
             mDrawable = drawable;
             setAlpha(FULL_ALPHA);
         }
-
         public Drawable getDrawable() {
             return mDrawable;
         }
@@ -209,39 +204,6 @@ public final class BackgroundManager {
         public void setColor(int color) {
             ((ColorDrawable) mDrawable).setColor(color);
         }
-        public void fadeIn(int durationMs, int delayMs) {
-            fade(durationMs, delayMs, FULL_ALPHA);
-        }
-        public void fadeOut(int durationMs) {
-            fade(durationMs, 0, 0);
-        }
-        public void fade(int durationMs, int delayMs, int alpha) {
-            if (mAnimator != null && mAnimator.isStarted()) {
-                mAnimator.cancel();
-            }
-            mAnimator = ValueAnimator.ofInt(getAlpha(), alpha);
-            mAnimator.addUpdateListener(mAnimationUpdateListener);
-            mAnimator.setInterpolator(mInterpolator);
-            mAnimator.setDuration(durationMs);
-            mAnimator.setStartDelay(delayMs);
-            mAnimationPending = true;
-        }
-        public boolean isAnimationPending() {
-            return mAnimationPending;
-        }
-        public boolean isAnimationStarted() {
-            return mAnimator != null && mAnimator.isStarted();
-        }
-        public void startAnimation() {
-            startAnimation(null);
-        }
-        public void startAnimation(Animator.AnimatorListener listener) {
-            if (listener != null) {
-                mAnimator.addListener(listener);
-            }
-            mAnimator.start();
-            mAnimationPending = false;
-        }
     }
 
     private LayerDrawable mLayerDrawable;
@@ -252,7 +214,50 @@ public final class BackgroundManager {
     private DrawableWrapper mDimWrapper;
 
     private Drawable mThemeDrawable;
+    private Drawable mDimDrawable;
     private ChangeBackgroundRunnable mChangeRunnable;
+
+    private final Animator.AnimatorListener mAnimationListener = new Animator.AnimatorListener() {
+        @Override
+        public void onAnimationStart(Animator animation) {
+        }
+        @Override
+        public void onAnimationRepeat(Animator animation) {
+        }
+        @Override
+        public void onAnimationEnd(Animator animation) {
+            if (mChangeRunnable != null) {
+                long delayMs = getRunnableDelay();
+                if (DEBUG) Log.v(TAG, "animation ended, found change runnable delayMs " + delayMs);
+                mHandler.postDelayed(mChangeRunnable, delayMs);
+            }
+            mImageOutWrapper = null;
+        }
+        @Override
+        public void onAnimationCancel(Animator animation) {
+        }
+    };
+
+    private final ValueAnimator.AnimatorUpdateListener mAnimationUpdateListener =
+            new ValueAnimator.AnimatorUpdateListener() {
+        @Override
+        public void onAnimationUpdate(ValueAnimator animation) {
+            int fadeInAlpha = (Integer) animation.getAnimatedValue();
+            if (mImageInWrapper != null) {
+                mImageInWrapper.setAlpha(fadeInAlpha);
+            }
+        }
+    };
+
+    private final ValueAnimator.AnimatorUpdateListener mDimUpdateListener =
+            new ValueAnimator.AnimatorUpdateListener() {
+        @Override
+        public void onAnimationUpdate(ValueAnimator animation) {
+            if (mDimWrapper != null) {
+                mDimWrapper.setAlpha((Integer) animation.getAnimatedValue());
+            }
+        }
+    };
 
     /**
      * Shared memory continuity service.
@@ -375,6 +380,20 @@ public final class BackgroundManager {
         mWidthPx = mContext.getResources().getDisplayMetrics().widthPixels;
         mHandler = new Handler();
 
+        Interpolator defaultInterpolator = new FastOutLinearInInterpolator();
+        mAccelerateInterpolator = AnimationUtils.loadInterpolator(mContext,
+                android.R.anim.accelerate_interpolator);
+        mDecelerateInterpolator = AnimationUtils.loadInterpolator(mContext,
+                android.R.anim.decelerate_interpolator);
+
+        mAnimator = ValueAnimator.ofInt(0, FULL_ALPHA);
+        mAnimator.addListener(mAnimationListener);
+        mAnimator.addUpdateListener(mAnimationUpdateListener);
+        mAnimator.setInterpolator(defaultInterpolator);
+
+        mDimAnimator = new ValueAnimator();
+        mDimAnimator.addUpdateListener(mDimUpdateListener);
+
         TypedArray ta = activity.getTheme().obtainStyledAttributes(new int[] {
                 android.R.attr.windowBackground });
         mThemeDrawableResourceId = ta.getResourceId(0, -1);
@@ -467,17 +486,28 @@ public final class BackgroundManager {
 
         mLayerDrawable.setDrawableByLayerId(R.id.background_imageout, createEmptyDrawable());
 
-        mDimWrapper = new DrawableWrapper(
-                mLayerDrawable.findDrawableByLayerId(R.id.background_dim));
-
         mLayerWrapper = new DrawableWrapper(mLayerDrawable);
 
         mColorWrapper = new DrawableWrapper(
                 mLayerDrawable.findDrawableByLayerId(R.id.background_color));
+
+        updateDimWrapper();
+    }
+
+    private void updateDimWrapper() {
+        if (mDimDrawable == null) {
+            mDimDrawable = getDefaultDimLayer();
+        }
+        mDimWrapper = new DrawableWrapper(mDimDrawable.getConstantState().newDrawable(
+                mContext.getResources()).mutate());
+        if (mLayerDrawable != null) {
+            mLayerDrawable.setDrawableByLayerId(R.id.background_dim, mDimWrapper.getDrawable());
+        }
     }
 
     /**
-     * Make the background visible on the given Window.
+     * Make the background visible on the given Window.  The background manager must be attached
+     * when the background is set.
      */
     public void attach(Window window) {
         if (USE_SEPARATE_WINDOW) {
@@ -513,6 +543,13 @@ public final class BackgroundManager {
         mBgView = sceneRoot;
         mAttached = true;
         syncWithService();
+    }
+
+    /**
+     * Returns true if the background manager is currently attached; false otherwise.
+     */
+    public boolean isAttached() {
+        return mAttached;
     }
 
     /**
@@ -562,7 +599,7 @@ public final class BackgroundManager {
         mDimWrapper = null;
         mThemeDrawable = null;
         if (mChangeRunnable != null) {
-            mChangeRunnable.cancel();
+            mHandler.removeCallbacks(mChangeRunnable);
             mChangeRunnable = null;
         }
         releaseBackgroundBitmap();
@@ -570,6 +607,28 @@ public final class BackgroundManager {
 
     private void releaseBackgroundBitmap() {
         mBackgroundDrawable = null;
+    }
+
+    /**
+     * Sets the drawable used as a dim layer.
+     */
+    public void setDimLayer(Drawable drawable) {
+        mDimDrawable = drawable;
+        updateDimWrapper();
+    }
+
+    /**
+     * Returns the drawable used as a dim layer.
+     */
+    public Drawable getDimLayer() {
+        return mDimDrawable;
+    }
+
+    /**
+     * Returns the default drawable used as a dim layer.
+     */
+    public Drawable getDefaultDimLayer() {
+        return ContextCompat.getDrawable(mContext, R.color.lb_background_protection);
     }
 
     private void updateImmediate() {
@@ -626,21 +685,28 @@ public final class BackgroundManager {
         if (!mAttached) {
             throw new IllegalStateException("Must attach before setting background drawable");
         }
+        long delayMs = getRunnableDelay();
+        mLastSetTime = System.currentTimeMillis();
 
         if (mChangeRunnable != null) {
             if (sameDrawable(drawable, mChangeRunnable.mDrawable)) {
-                if (DEBUG) Log.v(TAG, "setting same drawable");
+                if (DEBUG) Log.v(TAG, "new drawable same as pending");
                 return;
             }
-            mChangeRunnable.cancel();
+            mHandler.removeCallbacks(mChangeRunnable);
         }
         mChangeRunnable = new ChangeBackgroundRunnable(drawable);
 
-        if (mImageInWrapper != null && mImageInWrapper.isAnimationStarted()) {
+        if (mAnimator.isStarted()) {
             if (DEBUG) Log.v(TAG, "animation in progress");
         } else {
-            mHandler.postDelayed(mChangeRunnable, CHANGE_BG_DELAY_MS);
+            if (DEBUG) Log.v(TAG, "posting runnable delayMs " + delayMs);
+            mHandler.postDelayed(mChangeRunnable, delayMs);
         }
+    }
+
+    private long getRunnableDelay() {
+        return Math.max(0, mLastSetTime + CHANGE_BG_DELAY_MS - System.currentTimeMillis());
     }
 
     /**
@@ -703,13 +769,10 @@ public final class BackgroundManager {
 
         if (DEBUG) Log.v(TAG, "applyBackgroundChanges drawable " + mBackgroundDrawable);
 
-        int dimAlpha = 0;
+        int dimAlpha = -1;
 
-        if (mImageOutWrapper != null && mImageOutWrapper.isAnimationPending()) {
-            if (DEBUG) Log.v(TAG, "mImageOutWrapper animation starting");
-            mImageOutWrapper.startAnimation();
-            mImageOutWrapper = null;
-            dimAlpha = DIM_ALPHA_ON_SOLID;
+        if (mImageOutWrapper != null) {
+            dimAlpha = mBackgroundColor == Color.TRANSPARENT ? 0 : DIM_ALPHA_ON_SOLID;
         }
 
         if (mImageInWrapper == null && mBackgroundDrawable != null) {
@@ -718,36 +781,22 @@ public final class BackgroundManager {
             mLayerDrawable.setDrawableByLayerId(R.id.background_imagein, mBackgroundDrawable);
             if (DEBUG) Log.v(TAG, "mImageInWrapper animation starting");
             mImageInWrapper.setAlpha(0);
-            mImageInWrapper.fadeIn(FADE_DURATION, 0);
-            mImageInWrapper.startAnimation(mImageInListener);
             dimAlpha = FULL_ALPHA;
         }
 
-        if (mDimWrapper != null && dimAlpha != 0) {
+        mAnimator.setDuration(FADE_DURATION);
+        mAnimator.start();
+
+        if (mDimWrapper != null && dimAlpha >= 0) {
             if (DEBUG) Log.v(TAG, "dimwrapper animation starting to " + dimAlpha);
-            mDimWrapper.fade(FADE_DURATION, 0, dimAlpha);
-            mDimWrapper.startAnimation();
+            mDimAnimator.cancel();
+            mDimAnimator.setIntValues(mDimWrapper.getAlpha(), dimAlpha);
+            mDimAnimator.setDuration(FADE_DURATION);
+            mDimAnimator.setInterpolator(
+                    dimAlpha == FULL_ALPHA ? mDecelerateInterpolator : mAccelerateInterpolator);
+            mDimAnimator.start();
         }
     }
-
-    private final Animator.AnimatorListener mImageInListener = new Animator.AnimatorListener() {
-        @Override
-        public void onAnimationStart(Animator animation) {
-        }
-        @Override
-        public void onAnimationRepeat(Animator animation) {
-        }
-        @Override
-        public void onAnimationEnd(Animator animation) {
-            if (mChangeRunnable != null) {
-                if (DEBUG) Log.v(TAG, "animation ended, found change runnable");
-                mChangeRunnable.run();
-            }
-        }
-        @Override
-        public void onAnimationCancel(Animator animation) {
-        }
-    };
 
     /**
      * Returns the current background color.
@@ -783,44 +832,37 @@ public final class BackgroundManager {
      */
     class ChangeBackgroundRunnable implements Runnable {
         private Drawable mDrawable;
-        private boolean mCancel;
 
         ChangeBackgroundRunnable(Drawable drawable) {
             mDrawable = drawable;
         }
 
-        public void cancel() {
-            mCancel = true;
-        }
-
         @Override
         public void run() {
-            if (!mCancel) {
-                runTask();
-            }
+            runTask();
+            mChangeRunnable = null;
         }
 
         private void runTask() {
             lazyInit();
 
             if (sameDrawable(mDrawable, mBackgroundDrawable)) {
-                if (DEBUG) Log.v(TAG, "same bitmap detected");
+                if (DEBUG) Log.v(TAG, "new drawable same as current");
                 return;
             }
 
             releaseBackgroundBitmap();
 
             if (mImageInWrapper != null) {
+                if (DEBUG) Log.v(TAG, "moving image in to image out");
                 mImageOutWrapper = new DrawableWrapper(mImageInWrapper.getDrawable());
-                mImageOutWrapper.setAlpha(mImageInWrapper.getAlpha());
-                mImageOutWrapper.fadeOut(FADE_DURATION);
+                mImageOutWrapper.setAlpha(FULL_ALPHA);
 
                 // Order is important! Setting a drawable "removes" the
                 // previous one from the view
                 mLayerDrawable.setDrawableByLayerId(R.id.background_imagein, createEmptyDrawable());
                 mLayerDrawable.setDrawableByLayerId(R.id.background_imageout,
                         mImageOutWrapper.getDrawable());
-                mImageInWrapper.setAlpha(0);
                 mImageInWrapper = null;
             }
 
@@ -828,8 +870,6 @@ public final class BackgroundManager {
             mService.setDrawable(mBackgroundDrawable);
 
             applyBackgroundChanges();
-
-            mChangeRunnable = null;
         }
     }
 
