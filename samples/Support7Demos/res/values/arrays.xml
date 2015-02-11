@@ -35,4 +35,11 @@
         <item>Button bar</item>
     </string-array>
 
+    <string-array name="alert_dialog_types">
+        <item>Simple</item>
+        <item>Simple with buttons</item>
+        <item>List (single choice)</item>
+        <item>List (multi choice)</item>
+    </string-array>
+
 </resources>
