@@ -134,13 +134,13 @@ abstract class ModernAsyncTask<Params, Progress, Result> {
                 } catch (InterruptedException e) {
                     android.util.Log.w(LOG_TAG, e);
                 } catch (ExecutionException e) {
-                    throw new RuntimeException("An error occured while executing doInBackground()",
-                            e.getCause());
+                    throw new RuntimeException(
+                            "An error occurred while executing doInBackground()", e.getCause());
                 } catch (CancellationException e) {
                     postResultIfNotInvoked(null);
                 } catch (Throwable t) {
-                    throw new RuntimeException("An error occured while executing "
-                            + "doInBackground()", t);
+                    throw new RuntimeException(
+                            "An error occurred while executing doInBackground()", t);
                 }
             }
         };
