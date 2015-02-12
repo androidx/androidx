@@ -18,6 +18,7 @@ package android.support.v7.internal.widget;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.support.v4.graphics.ColorUtils;
 import android.util.TypedValue;
@@ -29,34 +30,63 @@ class ThemeUtils {
     private static final int[] DISABLED_STATE_SET = new int[]{-android.R.attr.state_enabled};
     private static final int[] EMPTY_STATE_SET = new int[0];
 
-    static ColorStateList createDisabledStateList(Context context, int textColor) {
-        final TypedValue tv = getTypedValue();
+    private static final int[] TEMP_ARRAY = new int[1];
 
-        if (context.getTheme().resolveAttribute(android.R.attr.disabledAlpha, tv, true)) {
-            // Alter the original text color's alpha to disabledAlpha
-            final int disabledColor = ColorUtils.setAlphaComponent(textColor,
-                    Math.round(Color.alpha(textColor) * tv.getFloat()));
+    static ColorStateList createDisabledStateList(int textColor, int disabledTextColor) {
+        // Now create a new ColorStateList with the default color, and the new disabled
+        // color
+        final int[][] states = new int[2][];
+        final int[] colors = new int[2];
+        int i = 0;
 
-            // Now create a new ColorStateList with the default color, and the new disabled
-            // color
-            final int[][] states = new int[2][];
-            final int[] colors = new int[2];
-            int i = 0;
+        // Disabled state
+        states[i] = DISABLED_STATE_SET;
+        colors[i] = disabledTextColor;
+        i++;
 
-            // Disabled state
-            states[i] = DISABLED_STATE_SET;
-            colors[i] = disabledColor;
-            i++;
+        // Default state
+        states[i] = EMPTY_STATE_SET;
+        colors[i] = textColor;
+        i++;
 
-            // Default state
-            states[i] = EMPTY_STATE_SET;
-            colors[i] = textColor;
-            i++;
+        return new ColorStateList(states, colors);
+    }
 
-            return new ColorStateList(states, colors);
+    static int getThemeAttrColor(Context context, int attr) {
+        TEMP_ARRAY[0] = attr;
+        TypedArray a = context.obtainStyledAttributes(null, TEMP_ARRAY);
+        try {
+            return a.getColor(0, 0);
+        } finally {
+            a.recycle();
         }
-        // Else, we'll just create a default state list
-        return ColorStateList.valueOf(textColor);
+    }
+
+    static ColorStateList getThemeAttrColorStateList(Context context, int attr) {
+        TEMP_ARRAY[0] = attr;
+        TypedArray a = context.obtainStyledAttributes(null, TEMP_ARRAY);
+        try {
+            return a.getColorStateList(0);
+        } finally {
+            a.recycle();
+        }
+    }
+
+    static int getDisabledThemeAttrColor(Context context, int attr) {
+        final ColorStateList csl = getThemeAttrColorStateList(context, attr);
+        if (csl != null && csl.isStateful()) {
+            // If the CSL is stateful, we'll assume it has a disabled state and use it
+            return csl.getColorForState(DISABLED_STATE_SET, csl.getDefaultColor());
+        } else {
+            // Else, we'll generate the color using disabledAlpha from the theme
+
+            final TypedValue tv = getTypedValue();
+            // Now retrieve the disabledAlpha value from the theme
+            context.getTheme().resolveAttribute(android.R.attr.disabledAlpha, tv, true);
+            final float disabledAlpha = tv.getFloat();
+
+            return getThemeAttrColor(context, attr, disabledAlpha);
+        }
     }
 
     private static TypedValue getTypedValue() {
@@ -66,6 +96,12 @@ class ThemeUtils {
             TL_TYPED_VALUE.set(typedValue);
         }
         return typedValue;
+    }
+
+    static int getThemeAttrColor(Context context, int attr, float alpha) {
+        final int color = getThemeAttrColor(context, attr);
+        final int originalAlpha = Color.alpha(color);
+        return ColorUtils.setAlphaComponent(color, Math.round(originalAlpha * alpha));
     }
 
 }
