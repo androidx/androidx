@@ -127,6 +127,49 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         checkForMainThreadException();
     }
 
+    public void testCachedBorders() throws Throwable {
+        List<Config> testConfigurations = new ArrayList<Config>(mBaseVariations);
+        testConfigurations.addAll(cachedBordersTestConfigs());
+        for (Config config : testConfigurations) {
+            gridCachedBorderstTest(config);
+        }
+    }
+
+    private void gridCachedBorderstTest(Config config) throws Throwable {
+        RecyclerView recyclerView = setupBasic(config);
+        waitForFirstLayout(recyclerView);
+        final boolean vertical = config.mOrientation == GridLayoutManager.VERTICAL;
+        final int expectedSizeSum = vertical ? recyclerView.getWidth() : recyclerView.getHeight();
+        final int lastVisible = mGlm.findLastVisibleItemPosition();
+        for (int i = 0; i < lastVisible; i += config.mSpanCount) {
+            if ((i+1)*config.mSpanCount - 1 < lastVisible) {
+                int childrenSizeSum = 0;
+                for (int j = 0; j < config.mSpanCount; j++) {
+                    View child = recyclerView.getChildAt(i * config.mSpanCount + j);
+                    childrenSizeSum += vertical ? child.getWidth() : child.getHeight();
+                }
+                assertEquals(expectedSizeSum, childrenSizeSum);
+            }
+        }
+        removeRecyclerView();
+    }
+
+    private List<Config> cachedBordersTestConfigs() {
+        ArrayList<Config> configs = new ArrayList<Config>();
+        final int [] spanCounts = new int[]{88, 279, 741};
+        final int [] spanPerItem = new int[]{11, 9, 13};
+        for (int orientation : new int[]{VERTICAL, HORIZONTAL}) {
+            for (boolean reverseLayout : new boolean[]{false, true}) {
+                for (int i = 0 ; i < spanCounts.length; i++) {
+                    Config config = new Config(spanCounts[i], orientation, reverseLayout);
+                    config.mSpanPerItem = spanPerItem[i];
+                    configs.add(config);
+                }
+            }
+        }
+        return configs;
+    }
+
     public void testLayoutParams() throws Throwable {
         layoutParamsTest(GridLayoutManager.HORIZONTAL);
         removeRecyclerView();
@@ -630,6 +673,7 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         int mSpanCount;
         int mOrientation = GridLayoutManager.VERTICAL;
         int mItemCount = 1000;
+        int mSpanPerItem = 1;
         boolean mReverseLayout = false;
 
         Config(int spanCount, int itemCount) {
@@ -662,9 +706,15 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
     class GridTestAdapter extends TestAdapter {
 
         Set<Integer> mFullSpanItems = new HashSet<Integer>();
+        int mSpanPerItem = 1;
 
         GridTestAdapter(int count) {
             super(count);
+        }
+
+        GridTestAdapter(int count, int spanPerItem) {
+            super(count);
+            mSpanPerItem = spanPerItem;
         }
 
         void setFullSpan(int... items) {
@@ -677,7 +727,7 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
             glm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
                 @Override
                 public int getSpanSize(int position) {
-                    return mFullSpanItems.contains(position) ? glm.getSpanCount() : 1;
+                    return mFullSpanItems.contains(position) ? glm.getSpanCount() : mSpanPerItem;
                 }
             });
         }
