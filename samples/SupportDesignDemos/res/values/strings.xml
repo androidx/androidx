@@ -27,4 +27,7 @@
     <string name="tabs_gravity_center">Center</string>
     <string name="tabs_gravity_fill">Fill</string>
 
+    <string name="add_tab">Add tab</string>
+    <string name="remove_tab">Remove tab</string>
+
 </resources>
