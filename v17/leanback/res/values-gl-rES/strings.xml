@@ -33,9 +33,9 @@ limitations under the License.
     <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"Saltar seguinte"</string>
     <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"Saltar anterior"</string>
     <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"Máis accións"</string>
-    <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"Deseleccionar polgar cara arriba"</string>
+    <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"Anular \"Gústame\""</string>
     <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"Seleccionar polgar cara arriba"</string>
-    <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"Deseleccionar polgar cara abaixo"</string>
+    <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"Anular \"Non me gusta\""</string>
     <string name="lb_playback_controls_thumb_down_outline" msgid="2936020280629424365">"Seleccionar polgar cara abaixo"</string>
     <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"Non repetir"</string>
     <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"Repetir todo"</string>
