@@ -22,4 +22,9 @@
     <string name="fab_size_normal">Normal size</string>
     <string name="fab_size_mini">Mini size</string>
 
+    <string name="tabs_fixed">Fixed</string>
+    <string name="tabs_scrollable">Scrollable</string>
+    <string name="tabs_gravity_center">Center</string>
+    <string name="tabs_gravity_fill">Fill</string>
+
 </resources>
