@@ -54,13 +54,13 @@
                 android:id="@+id/btn_add_tab"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Add Tab"/>
+                android:text="@string/add_tab"/>
 
         <Button
                 android:id="@+id/btn_remove_tab"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Remove Tab"/>
+                android:text="@string/remove_tab"/>
 
     </LinearLayout>
 
