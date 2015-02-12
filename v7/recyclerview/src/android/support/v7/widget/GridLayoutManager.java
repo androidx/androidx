@@ -42,7 +42,10 @@ public class GridLayoutManager extends LinearLayoutManager {
      */
     static final int MAIN_DIR_SPEC =
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-
+    /**
+     * Span size have been changed but we've not done a new layout calculation.
+     */
+    boolean mPendingSpanCountChange = false;
     int mSpanCount = DEFAULT_SPAN_COUNT;
     /**
      * The size of each span
@@ -153,6 +156,9 @@ public class GridLayoutManager extends LinearLayoutManager {
             validateChildOrder();
         }
         clearPreLayoutSpanMappingCache();
+        if (!state.isPreLayout()) {
+            mPendingSpanCountChange = false;
+        }
     }
 
     private void clearPreLayoutSpanMappingCache() {
@@ -553,6 +559,7 @@ public class GridLayoutManager extends LinearLayoutManager {
         if (spanCount == mSpanCount) {
             return;
         }
+        mPendingSpanCountChange = true;
         if (spanCount < 1) {
             throw new IllegalArgumentException("Span count should be at least 1. Provided "
                     + spanCount);
@@ -732,7 +739,7 @@ public class GridLayoutManager extends LinearLayoutManager {
 
     @Override
     public boolean supportsPredictiveItemAnimations() {
-        return mPendingSavedState == null;
+        return mPendingSavedState == null && !mPendingSpanCountChange;
     }
 
     /**
