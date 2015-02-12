@@ -330,7 +330,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
 
     public RecyclerView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-
+        setFocusableInTouchMode(true);
         final int version = Build.VERSION.SDK_INT;
         mPostUpdatesOnAnimation = version >= 16;
 
