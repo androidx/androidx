@@ -76,13 +76,13 @@
                 android:id="@+id/rb_tab_fixed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Fixed"/>
+                android:text="@string/tabs_fixed"/>
 
         <RadioButton
                 android:id="@+id/rb_tab_scrollable"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Scrollable"/>
+                android:text="@string/tabs_scrollable"/>
     </RadioGroup>
 
     <RadioGroup
@@ -97,13 +97,13 @@
                 android:id="@+id/rb_tab_g_center"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Center"/>
+                android:text="@string/tabs_gravity_center"/>
 
         <RadioButton
                 android:id="@+id/rb_tab_g_fill"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Fill"/>
+                android:text="@string/tabs_gravity_fill"/>
 
     </RadioGroup>
 
