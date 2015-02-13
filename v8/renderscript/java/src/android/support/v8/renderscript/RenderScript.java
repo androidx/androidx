@@ -49,6 +49,7 @@ public class RenderScript {
     static final boolean LOG_ENABLED = false;
 
     private Context mApplicationContext;
+    private String mNativeLibDir;
 
     /*
      * We use a class initializer to allow the native code to cache some
@@ -212,9 +213,9 @@ public class RenderScript {
     // Methods below are wrapped to protect the non-threadsafe
     // lockless fifo.
 
-    native long  rsnContextCreate(long dev, int ver, int sdkVer, int contextType);
-    synchronized long nContextCreate(long dev, int ver, int sdkVer, int contextType) {
-        return rsnContextCreate(dev, ver, sdkVer, contextType);
+    native long  rsnContextCreate(long dev, int ver, int sdkVer, int contextType, String nativeLibDir);
+    synchronized long nContextCreate(long dev, int ver, int sdkVer, int contextType, String nativeLibDir) {
+        return rsnContextCreate(dev, ver, sdkVer, contextType, nativeLibDir);
     }
     native void rsnContextDestroy(long con);
     synchronized void nContextDestroy() {
@@ -981,6 +982,7 @@ public class RenderScript {
     RenderScript(Context ctx) {
         if (ctx != null) {
             mApplicationContext = ctx.getApplicationContext();
+            mNativeLibDir = mApplicationContext.getApplicationInfo().nativeLibraryDir;
         }
         mRWLock = new ReentrantReadWriteLock();
     }
@@ -1040,6 +1042,7 @@ public class RenderScript {
                 }
             }
         }
+
         if (useNative) {
             android.util.Log.v(LOG_TAG, "RS native mode");
         } else {
@@ -1075,8 +1078,9 @@ public class RenderScript {
                 useIOlib = false;
             }
         }
+
         rs.mDev = rs.nDeviceCreate();
-        rs.mContext = rs.nContextCreate(rs.mDev, 0, sdkVersion, ct.mID);
+        rs.mContext = rs.nContextCreate(rs.mDev, 0, sdkVersion, ct.mID, rs.mNativeLibDir);
         if (rs.mContext == 0) {
             throw new RSDriverException("Failed to create RS context.");
         }
