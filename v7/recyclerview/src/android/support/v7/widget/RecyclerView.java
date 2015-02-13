@@ -731,7 +731,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         // chance that LayoutManagers will re-use views.
         if (mLayout != null) {
             if (mIsAttached) {
-                mLayout.onDetachedFromWindow(this, mRecycler);
+                mLayout.dispatchDetachedFromWindow(this, mRecycler);
             }
             mLayout.setRecyclerView(null);
         }
@@ -745,7 +745,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
             }
             mLayout.setRecyclerView(this);
             if (mIsAttached) {
-                mLayout.onAttachedToWindow(this);
+                mLayout.dispatchAttachedToWindow(this);
             }
         }
         requestLayout();
@@ -1579,7 +1579,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         mIsAttached = true;
         mFirstLayoutComplete = false;
         if (mLayout != null) {
-            mLayout.onAttachedToWindow(this);
+            mLayout.dispatchAttachedToWindow(this);
         }
         mPostedAnimatorRunner = false;
     }
@@ -1595,7 +1595,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         stopScroll();
         mIsAttached = false;
         if (mLayout != null) {
-            mLayout.onDetachedFromWindow(this, mRecycler);
+            mLayout.dispatchDetachedFromWindow(this, mRecycler);
         }
         removeCallbacks(mItemAnimatorRunner);
     }
@@ -5028,6 +5028,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
 
         private boolean mRequestedSimpleAnimations = false;
 
+        private boolean mIsAttachedToWindow = false;
+
         void setRecyclerView(RecyclerView recyclerView) {
             if (recyclerView == null) {
                 mRecyclerView = null;
@@ -5098,6 +5100,63 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
             return false;
         }
 
+        void dispatchAttachedToWindow(RecyclerView view) {
+            mIsAttachedToWindow = true;
+            onAttachedToWindow(view);
+        }
+
+        void dispatchDetachedFromWindow(RecyclerView view, Recycler recycler) {
+            mIsAttachedToWindow = false;
+            onDetachedFromWindow(view, recycler);
+        }
+
+        /**
+         * Returns whether LayoutManager is currently attached to a RecyclerView which is attached
+         * to a window.
+         *
+         * @return True if this LayoutManager is controlling a RecyclerView and the RecyclerView
+         * is attached to window.
+         */
+        public boolean isAttachedToWindow() {
+            return mIsAttachedToWindow;
+        }
+
+        /**
+         * Causes the Runnable to execute on the next animation time step.
+         * The runnable will be run on the user interface thread.
+         * <p>
+         * Calling this method when LayoutManager is not attached to a RecyclerView has no effect.
+         *
+         * @param action The Runnable that will be executed.
+         *
+         * @see #removeCallbacks
+         */
+        public void postOnAnimation(Runnable action) {
+            if (mRecyclerView != null) {
+                ViewCompat.postOnAnimation(mRecyclerView, action);
+            }
+        }
+
+        /**
+         * Removes the specified Runnable from the message queue.
+         * <p>
+         * Calling this method when LayoutManager is not attached to a RecyclerView has no effect.
+         *
+         * @param action The Runnable to remove from the message handling queue
+         *
+         * @return true if RecyclerView could ask the Handler to remove the Runnable,
+         *         false otherwise. When the returned value is true, the Runnable
+         *         may or may not have been actually removed from the message queue
+         *         (for instance, if the Runnable was not in the queue already.)
+         *
+         * @see #postOnAnimation
+         */
+        public boolean removeCallbacks(Runnable action) {
+            if (mRecyclerView != null) {
+                return mRecyclerView.removeCallbacks(action);
+            }
+            return false;
+        }
         /**
          * Called when this LayoutManager is both attached to a RecyclerView and that RecyclerView
          * is attached to a window.
