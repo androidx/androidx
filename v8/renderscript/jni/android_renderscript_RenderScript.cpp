@@ -126,6 +126,7 @@ static jboolean nLoadIOSO(JNIEnv *_env, jobject _this) {
     }
     return true;
 }
+
 // ---------------------------------------------------------------------------
 
 static void
@@ -223,7 +224,6 @@ nObjDestroy(JNIEnv *_env, jobject _this, jlong con, jlong obj)
 }
 
 // ---------------------------------------------------------------------------
-
 static jlong
 nDeviceCreate(JNIEnv *_env, jobject _this)
 {
@@ -246,12 +246,23 @@ nDeviceSetConfig(JNIEnv *_env, jobject _this, jlong dev, jint p, jint value)
 }
 
 static jlong
-nContextCreate(JNIEnv *_env, jobject _this, jlong dev, jint ver, jint sdkVer, jint ct)
+nContextCreate(JNIEnv *_env, jobject _this, jlong dev, jint ver, jint sdkVer,
+               jint ct, jstring nativeLibDirJava)
 {
     LOG_API("nContextCreate");
-    return (jlong)(uintptr_t)dispatchTab.ContextCreate((RsDevice)dev, ver,
-                                                       sdkVer,
-                                                       (RsContextType)ct, 0);
+    // Access the NativeLibDir in the Java Context.
+    const char * nativeLibDir = _env->GetStringUTFChars(nativeLibDirJava, JNI_FALSE);
+    size_t length = (size_t)_env->GetStringUTFLength(nativeLibDirJava);
+
+    jlong id = (jlong)(uintptr_t)dispatchTab.ContextCreate((RsDevice)dev, ver,
+                                                           sdkVer,
+                                                           (RsContextType)ct, 0);
+    if (dispatchTab.SetNativeLibDir) {
+        dispatchTab.SetNativeLibDir((RsContext)id, nativeLibDir, length);
+    }
+
+    _env->ReleaseStringUTFChars(nativeLibDirJava, nativeLibDir);
+    return id;
 }
 
 
@@ -1325,7 +1336,7 @@ static JNINativeMethod methods[] = {
 
 
 // All methods below are thread protected in java.
-{"rsnContextCreate",                 "(JIII)J",                               (void*)nContextCreate },
+{"rsnContextCreate",                 "(JIIILjava/lang/String;)J",             (void*)nContextCreate },
 {"rsnContextFinish",                 "(J)V",                                  (void*)nContextFinish },
 {"rsnContextSetPriority",            "(JI)V",                                 (void*)nContextSetPriority },
 {"rsnContextDestroy",                "(J)V",                                  (void*)nContextDestroy },
