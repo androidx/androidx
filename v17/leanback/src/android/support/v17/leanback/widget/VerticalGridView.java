@@ -50,13 +50,10 @@ public class VerticalGridView extends BaseGridView {
 
     void setColumnWidth(TypedArray array) {
         TypedValue typedValue = array.peekValue(R.styleable.lbVerticalGridView_columnWidth);
-        int size;
-        if (typedValue != null && typedValue.type == TypedValue.TYPE_DIMENSION) {
-            size = array.getDimensionPixelSize(R.styleable.lbVerticalGridView_columnWidth, 0);
-        } else {
-            size = array.getInt(R.styleable.lbVerticalGridView_columnWidth, 0);
+        if (typedValue != null) {
+            int size = array.getLayoutDimension(R.styleable.lbVerticalGridView_columnWidth, 0);
+            setColumnWidth(size);
         }
-        setColumnWidth(size);
     }
 
     /**

@@ -18,9 +18,5 @@
     android:id="@+id/browse_title_group"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="?attr/browsePaddingTop"
-    android:paddingEnd="?attr/browsePaddingEnd"
-    android:paddingStart="?attr/browsePaddingStart"
-    android:paddingBottom="?attr/browsePaddingTop"
     style="?attr/browseTitleViewStyle" />
 

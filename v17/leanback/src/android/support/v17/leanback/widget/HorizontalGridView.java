@@ -77,13 +77,10 @@ public class HorizontalGridView extends BaseGridView {
 
     void setRowHeight(TypedArray array) {
         TypedValue typedValue = array.peekValue(R.styleable.lbHorizontalGridView_rowHeight);
-        int size;
-        if (typedValue != null && typedValue.type == TypedValue.TYPE_DIMENSION) {
-            size = array.getDimensionPixelSize(R.styleable.lbHorizontalGridView_rowHeight, 0);
-        } else {
-            size = array.getInt(R.styleable.lbHorizontalGridView_rowHeight, 0);
+        if (typedValue != null) {
+            int size = array.getLayoutDimension(R.styleable.lbHorizontalGridView_rowHeight, 0);
+            setRowHeight(size);
         }
-        setRowHeight(size);
     }
 
     /**

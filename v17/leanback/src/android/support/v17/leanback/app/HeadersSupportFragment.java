@@ -232,8 +232,10 @@ public class HeadersSupportFragment extends BaseRowSupportFragment {
         }
 
         TypedValue outValue = new TypedValue();
-        getActivity().getTheme().resolveAttribute(R.attr.defaultBrandColor, outValue, true);
-        return getResources().getColor(outValue.resourceId);
+        if (getActivity().getTheme().resolveAttribute(R.attr.defaultBrandColor, outValue, true)) {
+            return getResources().getColor(outValue.resourceId);
+        }
+        return getResources().getColor(R.color.lb_default_brand_color);
     }
 
     @Override
