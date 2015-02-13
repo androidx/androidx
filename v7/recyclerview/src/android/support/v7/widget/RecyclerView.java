@@ -133,14 +133,14 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
     private static final boolean DEBUG = false;
 
     /**
-     * On Kitkat, there is a bug which prevents DisplayList from being invalidated if a View is two
-     * levels deep(wrt to ViewHolder.itemView). DisplayList can be invalidated by setting
-     * View's visibility to INVISIBLE when View is detached. On Kitkat, Recycler recursively
-     * traverses itemView and invalidates display list for each ViewGroup that matches this
-     * criteria.
+     * On Kitkat and JB MR2, there is a bug which prevents DisplayList from being invalidated if
+     * a View is two levels deep(wrt to ViewHolder.itemView). DisplayList can be invalidated by
+     * setting View's visibility to INVISIBLE when View is detached. On Kitkat and JB MR2, Recycler
+     * recursively traverses itemView and invalidates display list for each ViewGroup that matches
+     * this criteria.
      */
-    private static final boolean FORCE_INVALIDATE_DISPLAY_LIST = Build.VERSION.SDK_INT == 19 ||
-            Build.VERSION.SDK_INT == 20;
+    private static final boolean FORCE_INVALIDATE_DISPLAY_LIST = Build.VERSION.SDK_INT == 18
+            || Build.VERSION.SDK_INT == 19 || Build.VERSION.SDK_INT == 20;
 
     private static final boolean DISPATCH_TEMP_DETACH = false;
     public static final int HORIZONTAL = 0;
