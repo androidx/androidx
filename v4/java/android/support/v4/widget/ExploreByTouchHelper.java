@@ -548,7 +548,15 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
         }
         // TODO: Check virtual view visibility.
         if (!isAccessibilityFocused(virtualViewId)) {
+            // Clear focus from the previously focused view, if applicable.
+            if (mFocusedVirtualViewId != INVALID_ID) {
+                sendEventForVirtualView(mFocusedVirtualViewId,
+                        AccessibilityEventCompat.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED);
+            }
+
+            // Set focus on the new view.
             mFocusedVirtualViewId = virtualViewId;
+
             // TODO: Only invalidate virtual view bounds.
             mView.invalidate();
             sendEventForVirtualView(virtualViewId,
