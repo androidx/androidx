@@ -1741,6 +1741,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         mChildFragmentManager = new FragmentManagerImpl();
         mChildFragmentManager.attachActivity(mActivity, new FragmentContainer() {
             @Override
+            @Nullable
             public View findViewById(int id) {
                 if (mView == null) {
                     throw new IllegalStateException("Fragment does not have a view");
