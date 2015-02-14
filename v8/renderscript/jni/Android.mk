@@ -19,7 +19,6 @@ LOCAL_CFLAGS += -DRS_COMPATIBILITY_LIB -std=c++11
 
 LOCAL_MODULE:= libRSSupportIO
 LOCAL_MODULE_TAGS := optional
-LOCAL_32_BIT_ONLY := true
 
 LOCAL_LDLIBS += -landroid
 LOCAL_NDK_STL_VARIANT := stlport_static
@@ -50,7 +49,6 @@ LOCAL_CFLAGS += -Wno-unused-parameter -U_FORTIFY_SOURCE -std=c++11
 LOCAL_MODULE:= librsjni
 LOCAL_MODULE_TAGS := optional
 LOCAL_REQUIRED_MODULES := libRSSupport
-#LOCAL_32_BIT_ONLY := true
 
 LOCAL_LDFLAGS += -ldl
 
