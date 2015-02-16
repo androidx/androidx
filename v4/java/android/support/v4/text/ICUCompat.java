@@ -18,34 +18,32 @@ package android.support.v4.text;
 
 import android.os.Build;
 
+import java.util.Locale;
+
 public class ICUCompat {
 
     interface ICUCompatImpl {
-        public String getScript(String locale);
-        public String addLikelySubtags(String locale);
+        public String maximizeAndGetScript(Locale locale);
     }
 
     static class ICUCompatImplBase implements ICUCompatImpl {
         @Override
-        public String getScript(String locale) {
+        public String maximizeAndGetScript(Locale locale) {
             return null;
-        }
-
-        @Override
-        public String addLikelySubtags(String locale) {
-            return locale;
         }
     }
 
     static class ICUCompatImplIcs implements ICUCompatImpl {
         @Override
-        public String getScript(String locale) {
-            return ICUCompatIcs.getScript(locale);
+        public String maximizeAndGetScript(Locale locale) {
+            return ICUCompatIcs.maximizeAndGetScript(locale);
         }
+    }
 
+    static class ICUCompatImplLollipop implements ICUCompatImpl {
         @Override
-        public String addLikelySubtags(String locale) {
-            return ICUCompatIcs.addLikelySubtags(locale);
+        public String maximizeAndGetScript(Locale locale) {
+            return ICUCompatApi23.maximizeAndGetScript(locale);
         }
     }
 
@@ -53,7 +51,9 @@ public class ICUCompat {
 
     static {
         final int version = Build.VERSION.SDK_INT;
-        if (version >= 14) {
+        if (version >= 21) {
+            IMPL = new ICUCompatImplLollipop();
+        } else if (version >= 14) {
             IMPL = new ICUCompatImplIcs();
         } else {
             IMPL = new ICUCompatImplBase();
@@ -61,18 +61,11 @@ public class ICUCompat {
     }
 
     /**
-     * Returns the script (language code) of a script.
+     * Returns the script for a given Locale.
      *
-     * @param locale The locale.
-     * @return a String representing the script (language code) of the locale.
-     */
-    public static String getScript(String locale) {
-        return IMPL.getScript(locale);
-    }
-
-    /**
-     * Add the likely subtags for a provided locale ID, per the algorithm described in the following
-     * CLDR technical report:
+     * If the locale isn't already in its maximal form, likely subtags for the provided locale
+     * ID are added before we determine the script. For further details, see the following CLDR
+     * technical report :
      *
      * http://www.unicode.org/reports/tr35/#Likely_Subtags
      *
@@ -87,12 +80,10 @@ public class ICUCompat {
      * "sr" maximizes to "sr_Cyrl_RS"
      * "sh" maximizes to "sr_Latn_RS" (Note this will not reverse.)
      * "zh_Hani" maximizes to "zh_Hans_CN" (Note this will not reverse.)
-
-     * @param locale The locale to maximize
      *
-     * @return the maximized locale
+     * @return
      */
-    public static String addLikelySubtags(String locale) {
-        return IMPL.addLikelySubtags(locale);
+    public static String maximizeAndGetScript(Locale locale) {
+        return IMPL.maximizeAndGetScript(locale);
     }
 }

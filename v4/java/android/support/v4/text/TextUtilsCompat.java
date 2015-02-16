@@ -74,8 +74,7 @@ public class TextUtilsCompat {
      */
     public static int getLayoutDirectionFromLocale(@Nullable Locale locale) {
         if (locale != null && !locale.equals(ROOT)) {
-            final String scriptSubtag = ICUCompat.getScript(
-                    ICUCompat.addLikelySubtags(locale.toString()));
+            final String scriptSubtag = ICUCompat.maximizeAndGetScript(locale);
             if (scriptSubtag == null) return getLayoutDirectionFromFirstChar(locale);
 
             if (scriptSubtag.equalsIgnoreCase(ARAB_SCRIPT_SUBTAG) ||

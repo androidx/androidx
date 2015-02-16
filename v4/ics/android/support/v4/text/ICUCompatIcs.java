@@ -20,6 +20,7 @@ import android.util.Log;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Locale;
 
 class ICUCompatIcs {
 
@@ -38,15 +39,27 @@ class ICUCompatIcs {
                         new Class[]{ String.class });
             }
         } catch (Exception e) {
+            sGetScriptMethod = null;
+            sAddLikelySubtagsMethod = null;
+
             // Nothing we can do here, we just log the exception
             Log.w(TAG, e);
         }
     }
 
-    public static String getScript(String locale) {
+    public static String maximizeAndGetScript(Locale locale) {
+        final String localeWithSubtags = addLikelySubtags(locale);
+        if (localeWithSubtags != null) {
+            return getScript(localeWithSubtags);
+        }
+
+        return null;
+    }
+
+    private static String getScript(String localeStr) {
         try {
             if (sGetScriptMethod != null) {
-                final Object[] args = new Object[] { locale };
+                final Object[] args = new Object[] { localeStr };
                 return (String) sGetScriptMethod.invoke(null, args);
             }
         } catch (IllegalAccessException e) {
@@ -60,10 +73,11 @@ class ICUCompatIcs {
         return null;
     }
 
-    public static String addLikelySubtags(String locale) {
+    private static String addLikelySubtags(Locale locale) {
+        final String localeStr = locale.toString();
         try {
             if (sAddLikelySubtagsMethod != null) {
-                final Object[] args = new Object[] { locale };
+                final Object[] args = new Object[] { localeStr };
                 return (String) sAddLikelySubtagsMethod.invoke(null, args);
             }
         } catch (IllegalAccessException e) {
@@ -74,6 +88,7 @@ class ICUCompatIcs {
             // Nothing we can do here, we just log the exception
             Log.w(TAG, e);
         }
-        return locale;
+
+        return localeStr;
     }
 }
