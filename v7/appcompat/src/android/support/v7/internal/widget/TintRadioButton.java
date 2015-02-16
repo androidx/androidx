@@ -17,6 +17,8 @@
 package android.support.v7.internal.widget;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.RadioButton;
 
@@ -33,6 +35,7 @@ public class TintRadioButton extends RadioButton {
     };
 
     private TintManager mTintManager;
+    private Drawable mButtonDrawable;
 
     public TintRadioButton(Context context) {
         this(context, null);
@@ -56,11 +59,30 @@ public class TintRadioButton extends RadioButton {
     }
 
     @Override
+    public void setButtonDrawable(Drawable buttonDrawable) {
+        super.setButtonDrawable(buttonDrawable);
+        mButtonDrawable = buttonDrawable;
+    }
+
+    @Override
     public void setButtonDrawable(int resid) {
         if (mTintManager != null) {
             setButtonDrawable(mTintManager.getDrawable(resid));
         } else {
             super.setButtonDrawable(resid);
         }
+    }
+
+    @Override
+    public int getCompoundPaddingLeft() {
+        int padding = super.getCompoundPaddingLeft();
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            // Before JB-MR1 the button drawable wasn't taken into account for padding. We'll
+            // workaround that here
+            if (mButtonDrawable != null) {
+                padding += mButtonDrawable.getIntrinsicWidth();
+            }
+        }
+        return padding;
     }
 }
