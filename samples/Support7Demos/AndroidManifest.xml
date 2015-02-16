@@ -176,6 +176,15 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".app.ActionBarTintIcons"
+                  android:label="@string/action_bar_tint_icons"
+                  android:theme="@style/Theme.AppCompat.Light">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".app.ActionBarSettingsActionProviderActivity"
                 android:label="@string/action_bar_settings_action_provider"
                 android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
@@ -291,6 +300,15 @@
 
         <activity android:name=".app.ToolbarActionMode"
                   android:label="@string/toolbar_action_mode"
+                  android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".app.ToolbarTintIcons"
+                  android:label="@string/toolbar_icon_tint"
                   android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

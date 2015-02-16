@@ -62,6 +62,7 @@
     <string name="appcompat_widgets_buttons">AppCompat/Widgets/Buttons</string>
     <string name="appcompat_widgets_spinners">AppCompat/Widgets/Spinners</string>
     <string name="appcompat_widgets_text_input">AppCompat/Widgets/Text Input</string>
+    <string name="action_bar_tint_icons">AppCompat/Action Bar/Tinted Icons</string>
 
     <string name="action_bar_search">Search</string>
     <string name="action_bar_add">Add</string>
@@ -132,6 +133,7 @@
     <string name="toolbar_display_options">AppCompat/Toolbar/Toolbar Display Options</string>
     <string name="toolbar_fragment_pager">AppCompat/Toolbar/Toolbar Fragment ViewPager</string>
     <string name="toolbar_action_mode">AppCompat/Toolbar/Action Mode</string>
+    <string name="toolbar_icon_tint">AppCompat/Toolbar/Tinted Icons</string>
 
     <string name="dialog_usage">AppCompat/Dialog/Dialog Usage</string>
     <string name="dialog_title">My great dialog</string>
@@ -178,5 +180,10 @@
     <string name="sorted_list_activity">Sorted List</string>
     <string name="add_new_item">Add New Item</string>
     <string name="start_action_mode">Start Action Mode</string>
+    <string name="tint_navigation">Tint navigation button</string>
+    <string name="tint_navigation_clear">Clear navigation button tint</string>
+    <string name="tint_overflow">Tint overflow button</string>
+    <string name="tint_overflow_clear">Clear overflow button tint</string>
+    <string name="dummy">Dummy item</string>
 
 </resources>
