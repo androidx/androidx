@@ -18,8 +18,11 @@ package android.support.v7.internal.view.menu;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.ActionProvider;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.view.MenuItemCompat;
@@ -46,6 +49,7 @@ public class ActionMenuItem implements SupportMenuItem {
 
     private Drawable mIconDrawable;
     private int mIconResId = NO_ICON;
+    private TintInfo mIconTintInfo;
 
     private Context mContext;
 
@@ -162,12 +166,14 @@ public class ActionMenuItem implements SupportMenuItem {
     public MenuItem setIcon(Drawable icon) {
         mIconDrawable = icon;
         mIconResId = NO_ICON;
+        applyIconTint();
         return this;
     }
 
     public MenuItem setIcon(int iconRes) {
         mIconResId = iconRes;
         mIconDrawable = ContextCompat.getDrawable(mContext, iconRes);
+        applyIconTint();
         return this;
     }
 
@@ -292,5 +298,49 @@ public class ActionMenuItem implements SupportMenuItem {
     public SupportMenuItem setSupportOnActionExpandListener(MenuItemCompat.OnActionExpandListener listener) {
         // No need to save the listener; ActionMenuItem does not support collapsing items.
         return this;
+    }
+
+    @Override
+    public MenuItem setIconTintList(ColorStateList tintList) {
+        if (mIconTintInfo == null) {
+            mIconTintInfo = new TintInfo();
+        }
+        mIconTintInfo.mTintList = tintList;
+        mIconTintInfo.mHasTintList = true;
+        applyIconTint();
+        return this;
+    }
+
+    @Override
+    public MenuItem setIconTintMode(PorterDuff.Mode tintMode) {
+        if (mIconTintInfo == null) {
+            mIconTintInfo = new TintInfo();
+        }
+        mIconTintInfo.mTintMode = tintMode;
+        mIconTintInfo.mHasTintMode = true;
+        applyIconTint();
+        return this;
+    }
+
+    private void applyIconTint() {
+        final TintInfo tintInfo = mIconTintInfo;
+        if (mIconDrawable != null && tintInfo != null) {
+            if (tintInfo.mHasTintList || tintInfo.mHasTintMode) {
+                mIconDrawable = DrawableCompat.wrap(mIconDrawable.mutate());
+                if (tintInfo.mHasTintList) {
+                    DrawableCompat.setTintList(mIconDrawable, tintInfo.mTintList);
+                }
+                if (tintInfo.mHasTintMode) {
+                    DrawableCompat.setTintMode(mIconDrawable, tintInfo.mTintMode);
+                }
+            }
+        }
+    }
+
+    private static class TintInfo {
+        ColorStateList mTintList;
+        PorterDuff.Mode mTintMode;
+        boolean mHasTintMode;
+        boolean mHasTintList;
     }
 }

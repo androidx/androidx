@@ -22,12 +22,16 @@ import org.xmlpull.v1.XmlPullParserException;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.support.v4.internal.view.SupportMenu;
 import android.support.v4.view.ActionProvider;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.appcompat.R;
+import android.support.v7.graphics.drawable.DrawableUtils;
 import android.support.v7.internal.view.menu.MenuItemImpl;
 import android.support.v7.internal.view.menu.MenuItemWrapperICS;
 import android.util.AttributeSet;
@@ -317,6 +321,11 @@ public class SupportMenuInflater extends MenuInflater {
 
         private ActionProvider itemActionProvider;
 
+        private ColorStateList itemIconTintList;
+        private boolean itemIconTintListSet;
+        private PorterDuff.Mode itemIconTintMode;
+        private boolean itemIconTintModeSet;
+
         private static final int defaultGroupId = NO_ID;
         private static final int defaultItemId = NO_ID;
         private static final int defaultItemCategory = 0;
@@ -408,6 +417,22 @@ public class SupportMenuInflater extends MenuInflater {
                 itemActionProvider = null;
             }
 
+            if (a.hasValue(R.styleable.MenuItem_iconTint)) {
+                itemIconTintList = a.getColorStateList(R.styleable.MenuItem_iconTint);
+                itemIconTintListSet = true;
+            } else {
+                itemIconTintList = null;
+                itemIconTintListSet = false;
+            }
+            if (a.hasValue(R.styleable.MenuItem_iconTintMode)) {
+                itemIconTintMode = DrawableUtils.parseTintMode(
+                        a.getInt(R.styleable.MenuItem_iconTintMode, -1), null);
+                itemIconTintModeSet = true;
+            } else {
+                itemIconTintMode = null;
+                itemIconTintModeSet = false;
+            }
+
             a.recycle();
 
             itemAdded = false;
@@ -471,6 +496,13 @@ public class SupportMenuInflater extends MenuInflater {
             }
             if (itemActionProvider != null) {
                 MenuItemCompat.setActionProvider(item, itemActionProvider);
+            }
+
+            if (itemIconTintListSet) {
+                MenuItemCompat.setIconTintList(item, itemIconTintList);
+            }
+            if (itemIconTintModeSet) {
+                MenuItemCompat.setIconTintMode(item, itemIconTintMode);
             }
         }
 

@@ -17,7 +17,13 @@
 package android.support.v7.internal.widget;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.Nullable;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
@@ -34,6 +40,11 @@ public class TintImageView extends ImageView {
     };
 
     private final TintManager mTintManager;
+
+    private ColorStateList mDrawableTintList = null;
+    private PorterDuff.Mode mDrawableTintMode = null;
+    private boolean mHasDrawableTint = false;
+    private boolean mHasDrawableTintMode = false;
 
     public TintImageView(Context context) {
         this(context, null);
@@ -67,4 +78,46 @@ public class TintImageView extends ImageView {
         // Intercept this call and instead retrieve the Drawable via the tint manager
         setImageDrawable(mTintManager.getDrawable(resId));
     }
+
+    @Override
+    public void setImageDrawable(Drawable drawable) {
+        super.setImageDrawable(drawable);
+        applyImageTint();
+    }
+
+    public void setImageTintList(@Nullable ColorStateList tint) {
+        if (Build.VERSION.SDK_INT >= 21) {
+            super.setImageTintList(tint);
+        } else {
+            mDrawableTintList = tint;
+            mHasDrawableTint = true;
+            applyImageTint();
+        }
+    }
+
+    public void setImageTintMode(@Nullable PorterDuff.Mode tintMode) {
+        if (Build.VERSION.SDK_INT >= 21) {
+            super.setImageTintMode(tintMode);
+        } else {
+            mDrawableTintMode = tintMode;
+            mHasDrawableTintMode = true;
+            applyImageTint();
+        }
+    }
+
+    private void applyImageTint() {
+        Drawable drawable = getDrawable();
+        if (drawable != null && (mHasDrawableTint || mHasDrawableTintMode)) {
+            drawable = DrawableCompat.wrap(drawable.mutate());
+            if (mHasDrawableTint) {
+                DrawableCompat.setTintList(drawable, mDrawableTintList);
+            }
+            if (mHasDrawableTintMode) {
+                DrawableCompat.setTintMode(drawable, mDrawableTintMode);
+            }
+            // Drawable may have changed, make sure we re-set
+            super.setImageDrawable(drawable);
+        }
+    }
+
 }

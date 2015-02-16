@@ -17,8 +17,10 @@
 package android.support.v7.widget;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -35,7 +37,8 @@ import android.support.v7.internal.view.menu.MenuItemImpl;
 import android.support.v7.internal.view.menu.MenuPopupHelper;
 import android.support.v7.internal.view.menu.MenuView;
 import android.support.v7.internal.view.menu.SubMenuBuilder;
-import android.support.v7.internal.widget.TintImageView;
+import android.support.v7.internal.widget.TintImageButton;
+import android.support.v7.internal.widget.TintInfo;
 import android.util.SparseBooleanArray;
 import android.view.MenuItem;
 import android.view.SoundEffectConstants;
@@ -55,7 +58,7 @@ public class ActionMenuPresenter extends BaseMenuPresenter
 
     private static final String TAG = "ActionMenuPresenter";
 
-    private View mOverflowButton;
+    private OverflowMenuButton mOverflowButton;
     private boolean mReserveOverflow;
     private boolean mReserveOverflowSet;
     private int mWidthLimit;
@@ -78,6 +81,8 @@ public class ActionMenuPresenter extends BaseMenuPresenter
 
     private OpenOverflowRunnable mPostedOpenRunnable;
     private ActionMenuPopupCallback mPopupCallback;
+
+    private TintInfo mOverflowTintInfo;
 
     final PopupPresenterCallback mPopupPresenterCallback = new PopupPresenterCallback();
     int mOpenSubMenuId;
@@ -112,6 +117,7 @@ public class ActionMenuPresenter extends BaseMenuPresenter
                 mOverflowButton = new OverflowMenuButton(mSystemContext);
                 final int spec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
                 mOverflowButton.measure(spec, spec);
+                applyOverflowTint();
             }
             width -= mOverflowButton.getMeasuredWidth();
         } else {
@@ -235,6 +241,7 @@ public class ActionMenuPresenter extends BaseMenuPresenter
         if (hasOverflow) {
             if (mOverflowButton == null) {
                 mOverflowButton = new OverflowMenuButton(mSystemContext);
+                applyOverflowTint();
             }
             ViewGroup parent = (ViewGroup) mOverflowButton.getParent();
             if (parent != mMenuView) {
@@ -549,6 +556,40 @@ public class ActionMenuPresenter extends BaseMenuPresenter
         menuView.initialize(mMenu);
     }
 
+    public void setOverflowTintList(ColorStateList tint) {
+        if (mOverflowTintInfo == null) {
+            mOverflowTintInfo = new TintInfo();
+        }
+        mOverflowTintInfo.mTintList = tint;
+        mOverflowTintInfo.mHasTintList = true;
+
+        applyOverflowTint();
+    }
+
+    public void setOverflowTintMode(PorterDuff.Mode tintMode) {
+        if (mOverflowTintInfo == null) {
+            mOverflowTintInfo = new TintInfo();
+        }
+        mOverflowTintInfo.mTintMode = tintMode;
+        mOverflowTintInfo.mHasTintMode = true;
+
+        applyOverflowTint();
+    }
+
+    private void applyOverflowTint() {
+        final TintInfo tintInfo = mOverflowTintInfo;
+        if (tintInfo != null && (tintInfo.mHasTintList || tintInfo.mHasTintMode)) {
+            if (mOverflowButton != null) {
+                if (tintInfo.mHasTintList) {
+                    mOverflowButton.setImageTintList(tintInfo.mTintList);
+                }
+                if (tintInfo.mHasTintMode) {
+                    mOverflowButton.setImageTintMode(tintInfo.mTintMode);
+                }
+            }
+        }
+    }
+
     private static class SavedState implements Parcelable {
         public int openSubMenuId;
 
@@ -581,7 +622,8 @@ public class ActionMenuPresenter extends BaseMenuPresenter
         };
     }
 
-    private class OverflowMenuButton extends TintImageView implements ActionMenuView.ActionMenuChildView {
+    private class OverflowMenuButton extends TintImageButton
+            implements ActionMenuView.ActionMenuChildView {
         private final float[] mTempPts = new float[2];
 
         public OverflowMenuButton(Context context) {

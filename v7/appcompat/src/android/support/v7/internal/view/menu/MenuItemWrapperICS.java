@@ -19,6 +19,8 @@ package android.support.v7.internal.view.menu;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v4.internal.view.SupportMenuItem;
@@ -27,6 +29,7 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.view.CollapsibleActionView;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
@@ -290,6 +293,18 @@ public class MenuItemWrapperICS extends BaseMenuWrapper<SupportMenuItem> impleme
     public MenuItem setOnActionExpandListener(MenuItem.OnActionExpandListener listener) {
         mWrappedObject.setSupportOnActionExpandListener(listener != null ?
                 new OnActionExpandListenerWrapper(listener) : null);
+        return this;
+    }
+
+    @Override
+    public MenuItem setIconTintList(ColorStateList tint) {
+        mWrappedObject.setIconTintList(tint);
+        return this;
+    }
+
+    @Override
+    public MenuItem setIconTintMode(PorterDuff.Mode tintMode) {
+        mWrappedObject.setIconTintMode(tintMode);
         return this;
     }
 

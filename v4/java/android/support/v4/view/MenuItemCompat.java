@@ -16,6 +16,10 @@
 
 package android.support.v4.view;
 
+import android.content.res.ColorStateList;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.util.Log;
 import android.view.MenuItem;
@@ -77,6 +81,8 @@ public class MenuItemCompat {
         boolean collapseActionView(MenuItem item);
         boolean isActionViewExpanded(MenuItem item);
         MenuItem setOnActionExpandListener(MenuItem item, OnActionExpandListener listener);
+        MenuItem setIconTintList(MenuItem item, ColorStateList tintList);
+        MenuItem setIconTintMode(MenuItem item, PorterDuff.Mode tintMode);
     }
 
     /**
@@ -150,12 +156,30 @@ public class MenuItemCompat {
         public MenuItem setOnActionExpandListener(MenuItem item, OnActionExpandListener listener) {
             return item;
         }
+
+        @Override
+        public MenuItem setIconTintList(MenuItem item, ColorStateList tintList) {
+            Drawable icon = item.getIcon();
+            if (icon != null) {
+                DrawableCompat.setTintList(icon, tintList);
+            }
+            return item;
+        }
+
+        @Override
+        public MenuItem setIconTintMode(MenuItem item, PorterDuff.Mode tintMode) {
+            Drawable icon = item.getIcon();
+            if (icon != null) {
+                DrawableCompat.setTintMode(icon, tintMode);
+            }
+            return item;
+        }
     }
 
     /**
      * Interface implementation for devices with at least v11 APIs.
      */
-    static class HoneycombMenuVersionImpl implements MenuVersionImpl {
+    static class HoneycombMenuVersionImpl extends BaseMenuVersionImpl {
         @Override
         public void setShowAsAction(MenuItem item, int actionEnum) {
             MenuItemCompatHoneycomb.setShowAsAction(item, actionEnum);
@@ -239,13 +263,27 @@ public class MenuItemCompat {
         }
     }
 
+    static class Api23MenuVersionImpl extends IcsMenuVersionImpl {
+        @Override
+        public MenuItem setIconTintList(MenuItem item, ColorStateList tintList) {
+            return MenuItemCompatApi23.setIconTintList(item, tintList);
+        }
+
+        @Override
+        public MenuItem setIconTintMode(MenuItem item, PorterDuff.Mode tintMode) {
+            return MenuItemCompatApi23.setIconTintMode(item, tintMode);
+        }
+    }
+
     /**
      * Select the correct implementation to use for the current platform.
      */
     static final MenuVersionImpl IMPL;
     static {
         final int version = android.os.Build.VERSION.SDK_INT;
-        if (version >= 14) {
+        if (version >= 23) {
+            IMPL = new Api23MenuVersionImpl();
+        } else if (version >= 14) {
             IMPL = new IcsMenuVersionImpl();
         } else if (version >= 11) {
             IMPL = new HoneycombMenuVersionImpl();
@@ -436,5 +474,51 @@ public class MenuItemCompat {
             return ((SupportMenuItem) item).setSupportOnActionExpandListener(listener);
         }
         return IMPL.setOnActionExpandListener(item, listener);
+    }
+
+    /**
+     * Applies a tint to the icon drawable. Does not modify the current tint
+     * mode, which is {@link PorterDuff.Mode#SRC_IN} by default.
+     * <p>
+     * Subsequent calls to {@link android.view.MenuItem#setIcon(Drawable)}
+     * will automatically mutate the drawable and apply the specified tint and tint mode.
+     * <p>
+     * Where available, this method will call directly into the framework API. Otherwise it will
+     * try to tint the icon directly using
+     * {@link DrawableCompat#setTintList(Drawable, ColorStateList)}. You should wrap the icon
+     * drawable manually using {@link DrawableCompat#wrap(Drawable)} for this to work on all
+     * API levels.
+     *
+     * @param tint the tint to apply, may be {@code null} to clear tint
+     * @return This menu item instance for call chaining
+     */
+    public static MenuItem setIconTintList(MenuItem item, ColorStateList tint) {
+        if (item instanceof SupportMenuItem) {
+            return ((SupportMenuItem) item).setIconTintList(tint);
+        } else {
+            return IMPL.setIconTintList(item, tint);
+        }
+    }
+
+    /**
+     * Specifies the blending mode used to apply the tint specified by {@link
+     * #setIconTintList(MenuItem, ColorStateList)} to the icon drawable. The default mode is {@link
+     * PorterDuff.Mode#SRC_IN}.
+     * <p>
+     * Where available, this method will call directly into the framework API. Otherwise it will
+     * try to set the mode directly on the icon using
+     * {@link DrawableCompat#setTintMode(Drawable, PorterDuff.Mode)}. You should wrap the icon
+     * drawable manually using {@link DrawableCompat#wrap(Drawable)} for this to work on all
+     * API levels.
+     *
+     * @param tintMode the blending mode used to apply the tint, may be {@code null} to clear tint
+     * @return This menu item instance for call chaining
+     */
+    public static MenuItem setIconTintMode(MenuItem item, PorterDuff.Mode tintMode) {
+        if (item instanceof SupportMenuItem) {
+            return ((SupportMenuItem) item).setIconTintMode(tintMode);
+        } else {
+            return IMPL.setIconTintMode(item, tintMode);
+        }
     }
 }
