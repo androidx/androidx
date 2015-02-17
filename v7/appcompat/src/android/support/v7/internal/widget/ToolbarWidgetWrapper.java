@@ -173,7 +173,7 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
         } else {
             mDisplayOpts = detectDisplayOptions();
             // Create a TintManager in case we need it later
-            mTintManager = new TintManager(toolbar.getContext());
+            mTintManager = TintManager.get(toolbar.getContext());
         }
 
         setDefaultNavigationContentDescription(defaultNavigationContentDescription);

@@ -54,7 +54,7 @@ public class TintEditText extends EditText implements TintableBackgroundView {
                     TINT_ATTRS, defStyleAttr, 0);
             if (a.hasValue(0)) {
                 setSupportBackgroundTintList(
-                        a.getTintManager().getColorStateList(a.getResourceId(0, -1)));
+                        a.getTintManager().getTintList(a.getResourceId(0, -1)));
             }
             a.recycle();
         }
