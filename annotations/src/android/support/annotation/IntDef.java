@@ -34,7 +34,7 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
  * <p>
  * Example:
  * <pre>{@code
- *  &#64;Retention(CLASS)
+ *  &#64;Retention(SOURCE)
  *  &#64;IntDef(&#123;NAVIGATION_MODE_STANDARD, NAVIGATION_MODE_LIST, NAVIGATION_MODE_TABS&#125;)
  *  public &#64;interface NavigationMode &#123;&#125;
  *  public static final int NAVIGATION_MODE_STANDARD = 0;
