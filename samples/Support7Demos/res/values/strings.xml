@@ -57,6 +57,7 @@
     <string name="action_bar_settings_action_provider_no_handling">Handling in onOptionsItemSelected avoided</string>
     <string name="action_bar_with_navigation_drawer">AppCompat/Action Bar/Navigation Drawer Toggle</string>
     <string name="action_bar_preferences">AppCompat/Action Bar/Preferences</string>
+    <string name="action_bar_action_mode">AppCompat/Action Bar/Action Mode</string>
     <string name="appcompat_widgets_buttons">AppCompat/Widgets/Buttons</string>
     <string name="appcompat_widgets_spinners">AppCompat/Widgets/Spinners</string>
     <string name="appcompat_widgets_text_input">AppCompat/Widgets/Text Input</string>
@@ -129,6 +130,7 @@
     <string name="toolbar_usage">AppCompat/Toolbar/Toolbar as Action Bar</string>
     <string name="toolbar_display_options">AppCompat/Toolbar/Toolbar Display Options</string>
     <string name="toolbar_fragment_pager">AppCompat/Toolbar/Toolbar Fragment ViewPager</string>
+    <string name="toolbar_action_mode">AppCompat/Toolbar/Action Mode</string>
 
     <string name="dialog_usage">AppCompat/Dialog/Dialog Usage</string>
     <string name="dialog_title">My great dialog</string>
@@ -173,5 +175,6 @@
     <string name="search_hint">Search...</string>
     <string name="sorted_list_activity">Sorted List</string>
     <string name="add_new_item">Add New Item</string>
+    <string name="start_action_mode">Start Action Mode</string>
 
 </resources>

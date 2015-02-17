@@ -213,6 +213,15 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".app.ActionBarActionMode"
+                  android:label="@string/action_bar_action_mode"
+                  android:theme="@style/Theme.Custom">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".app.AppCompatWidgetsButtons"
                   android:label="@string/appcompat_widgets_buttons"
                   android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
@@ -264,6 +273,15 @@
 
         <activity android:name=".app.ToolbarFragmentPagerMenu"
                   android:label="@string/toolbar_fragment_pager"
+                  android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".app.ToolbarActionMode"
+                  android:label="@string/toolbar_action_mode"
                   android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
