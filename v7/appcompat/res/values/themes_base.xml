@@ -463,7 +463,28 @@
     <!-- Overlay themes -->
     <style name="Base.ThemeOverlay.AppCompat" parent="" />
 
-    <style name="Base.ThemeOverlay.AppCompat.Light">
+    <style name="Platform.ThemeOverlay.AppCompat.Dark" parent="">
+        <!-- Action Bar styles -->
+        <item name="actionBarItemBackground">@drawable/abc_item_background_holo_dark</item>
+        <item name="actionDropDownStyle">@style/Widget.AppCompat.Spinner.DropDown.ActionBar</item>
+        <item name="selectableItemBackground">@drawable/abc_item_background_holo_dark</item>
+
+        <!-- SearchView styles -->
+        <item name="android:autoCompleteTextViewStyle">@style/Widget.AppCompat.AutoCompleteTextView</item>
+        <item name="android:dropDownItemStyle">@style/Widget.AppCompat.DropDownItem.Spinner</item>
+    </style>
+
+    <style name="Platform.ThemeOverlay.AppCompat.Light" parent="">
+        <item name="actionBarItemBackground">@drawable/abc_item_background_holo_light</item>
+        <item name="actionDropDownStyle">@style/Widget.AppCompat.Light.Spinner.DropDown.ActionBar</item>
+        <item name="selectableItemBackground">@drawable/abc_item_background_holo_light</item>
+
+        <!-- SearchView attributes -->
+        <item name="android:autoCompleteTextViewStyle">@style/Widget.AppCompat.Light.AutoCompleteTextView</item>
+        <item name="android:dropDownItemStyle">@style/Widget.AppCompat.DropDownItem.Spinner</item>
+    </style>
+
+    <style name="Base.ThemeOverlay.AppCompat.Light" parent="Platform.ThemeOverlay.AppCompat.Light">
         <item name="android:windowBackground">@color/background_material_light</item>
         <item name="android:colorForeground">@color/bright_foreground_material_light</item>
         <item name="android:colorForegroundInverse">@color/bright_foreground_material_dark</item>
@@ -483,16 +504,9 @@
         <item name="android:textColorHighlight">@color/highlighted_text_material_light</item>
         <item name="android:textColorLink">@color/link_text_material_light</item>
 
-        <item name="actionBarItemBackground">@drawable/abc_item_background_holo_light</item>
-        <item name="actionDropDownStyle">@style/Widget.AppCompat.Light.Spinner.DropDown.ActionBar</item>
-        <item name="selectableItemBackground">@drawable/abc_item_background_holo_light</item>
-
-        <!-- SearchView attributes -->
-        <item name="android:autoCompleteTextViewStyle">@style/Widget.AppCompat.Light.AutoCompleteTextView</item>
-        <item name="android:dropDownItemStyle">@style/Widget.AppCompat.DropDownItem.Spinner</item>
-
         <item name="colorControlNormal">?android:attr/textColorSecondary</item>
         <item name="colorControlHighlight">@color/ripple_material_light</item>
+        <item name="colorButtonNormal">@color/button_material_light</item>
         <item name="colorSwitchThumbNormal">@color/switch_thumb_material_light</item>
 
         <!-- Used by MediaRouter -->
@@ -518,17 +532,9 @@
         <item name="android:textColorHighlight">@color/highlighted_text_material_dark</item>
         <item name="android:textColorLink">@color/link_text_material_dark</item>
 
-        <!-- Action Bar styles -->
-        <item name="actionBarItemBackground">@drawable/abc_item_background_holo_dark</item>
-        <item name="actionDropDownStyle">@style/Widget.AppCompat.Spinner.DropDown.ActionBar</item>
-        <item name="selectableItemBackground">@drawable/abc_item_background_holo_dark</item>
-
-        <!-- SearchView styles -->
-        <item name="android:autoCompleteTextViewStyle">@style/Widget.AppCompat.AutoCompleteTextView</item>
-        <item name="android:dropDownItemStyle">@style/Widget.AppCompat.DropDownItem.Spinner</item>
-
         <item name="colorControlNormal">?android:attr/textColorSecondary</item>
         <item name="colorControlHighlight">@color/ripple_material_dark</item>
+        <item name="colorButtonNormal">@color/button_material_dark</item>
         <item name="colorSwitchThumbNormal">@color/switch_thumb_material_dark</item>
 
         <!-- Used by MediaRouter -->
