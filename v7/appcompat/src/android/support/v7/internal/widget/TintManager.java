@@ -18,10 +18,10 @@ package android.support.v7.internal.widget;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
-import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
@@ -29,8 +29,10 @@ import android.support.v4.util.LruCache;
 import android.support.v7.appcompat.R;
 import android.util.Log;
 import android.util.SparseArray;
-import android.util.TypedValue;
 import android.view.View;
+
+import java.lang.ref.WeakReference;
+import java.util.WeakHashMap;
 
 import static android.support.v7.internal.widget.ThemeUtils.getDisabledThemeAttrColor;
 import static android.support.v7.internal.widget.ThemeUtils.getThemeAttrColor;
@@ -43,16 +45,26 @@ public final class TintManager {
 
     static final boolean SHOULD_BE_USED = Build.VERSION.SDK_INT < 21;
 
-    private static final String TAG = TintManager.class.getSimpleName();
+    private static final String TAG = "TintManager";
     private static final boolean DEBUG = false;
+    private static final PorterDuff.Mode DEFAULT_MODE = PorterDuff.Mode.SRC_IN;
 
-    static final PorterDuff.Mode DEFAULT_MODE = PorterDuff.Mode.SRC_IN;
-
+    private static final WeakHashMap<Context, TintManager> INSTANCE_CACHE = new WeakHashMap<>();
     private static final ColorFilterLruCache COLOR_FILTER_CACHE = new ColorFilterLruCache(6);
 
     /**
      * Drawables which should be tinted with the value of {@code R.attr.colorControlNormal},
-     * using the default mode.
+     * using the default mode using a raw color filter.
+     */
+    private static final int[] COLORFILTER_TINT_COLOR_CONTROL_NORMAL = {
+            R.drawable.abc_textfield_search_default_mtrl_alpha,
+            R.drawable.abc_textfield_default_mtrl_alpha,
+            R.drawable.abc_ab_share_pack_mtrl_alpha
+    };
+
+    /**
+     * Drawables which should be tinted with the value of {@code R.attr.colorControlNormal}, using
+     * {@link DrawableCompat}'s tinting functionality.
      */
     private static final int[] TINT_COLOR_CONTROL_NORMAL = {
             R.drawable.abc_ic_ab_back_mtrl_am_alpha,
@@ -66,17 +78,14 @@ public final class TintManager {
             R.drawable.abc_ic_menu_selectall_mtrl_alpha,
             R.drawable.abc_ic_menu_paste_mtrl_am_alpha,
             R.drawable.abc_ic_menu_moreoverflow_mtrl_alpha,
-            R.drawable.abc_ic_voice_search_api_mtrl_alpha,
-            R.drawable.abc_textfield_search_default_mtrl_alpha,
-            R.drawable.abc_textfield_default_mtrl_alpha,
-            R.drawable.abc_ab_share_pack_mtrl_alpha
+            R.drawable.abc_ic_voice_search_api_mtrl_alpha
     };
 
     /**
      * Drawables which should be tinted with the value of {@code R.attr.colorControlActivated},
-     * using the default mode.
+     * using a color filter.
      */
-    private static final int[] TINT_COLOR_CONTROL_ACTIVATED = {
+    private static final int[] COLORFILTER_COLOR_CONTROL_ACTIVATED = {
             R.drawable.abc_textfield_activated_mtrl_alpha,
             R.drawable.abc_textfield_search_activated_mtrl_alpha,
             R.drawable.abc_cab_background_top_mtrl_alpha,
@@ -85,9 +94,9 @@ public final class TintManager {
 
     /**
      * Drawables which should be tinted with the value of {@code android.R.attr.colorBackground},
-     * using the {@link android.graphics.PorterDuff.Mode#MULTIPLY} mode.
+     * using the {@link android.graphics.PorterDuff.Mode#MULTIPLY} mode and a color filter.
      */
-    private static final int[] TINT_COLOR_BACKGROUND_MULTIPLY = {
+    private static final int[] COLORFILTER_COLOR_BACKGROUND_MULTIPLY = {
             R.drawable.abc_popup_background_mtrl_mult,
             R.drawable.abc_cab_background_internal_bg,
             R.drawable.abc_menu_hardkey_panel_mtrl_mult
@@ -112,87 +121,86 @@ public final class TintManager {
             R.drawable.abc_btn_borderless_material
     };
 
-    /**
-     * Drawables which contain other drawables which should be tinted. The child drawable IDs
-     * should be defined in one of the arrays above.
-     */
-    private static final int[] CONTAINERS_WITH_TINT_CHILDREN = {
-            R.drawable.abc_cab_background_top_material
-    };
-
-    private final Context mContext;
-    private final Resources mResources;
-    private final TypedValue mTypedValue;
-
-    private final SparseArray<ColorStateList> mColorStateLists;
+    private final WeakReference<Context> mContextRef;
+    private SparseArray<ColorStateList> mTintLists;
     private ColorStateList mDefaultColorStateList;
 
     /**
-     * A helper method to instantiate a {@link TintManager} and then call {@link #getDrawable(int)}.
+     * A helper method to get a {@link TintManager} and then call {@link #getDrawable(int)}.
      * This method should not be used routinely.
      */
     public static Drawable getDrawable(Context context, int resId) {
         if (isInTintList(resId)) {
-            final TintManager tm = (context instanceof TintContextWrapper)
-                    ? ((TintContextWrapper) context).getTintManager()
-                    : new TintManager(context);
-            return tm.getDrawable(resId);
+            return TintManager.get(context).getDrawable(resId);
         } else {
             return ContextCompat.getDrawable(context, resId);
         }
     }
 
-    public TintManager(Context context) {
-        mColorStateLists = new SparseArray<>();
-        mContext = context;
-        mTypedValue = new TypedValue();
-        mResources = new TintResources(context.getResources(), this);
+    /**
+     * Get a {@link android.support.v7.internal.widget.TintManager} instance.
+     */
+    public static TintManager get(Context context) {
+        TintManager tm = INSTANCE_CACHE.get(context);
+        if (tm == null) {
+            tm = new TintManager(context);
+            INSTANCE_CACHE.put(context, tm);
+        }
+        return tm;
     }
 
-    Resources getResources() {
-        return mResources;
+    private TintManager(Context context) {
+        mContextRef = new WeakReference<>(context);
     }
 
     public Drawable getDrawable(int resId) {
-        Drawable drawable = ContextCompat.getDrawable(mContext, resId);
+        final Context context = mContextRef.get();
+        if (context == null) return null;
+
+        Drawable drawable = ContextCompat.getDrawable(context, resId);
 
         if (drawable != null) {
             drawable = drawable.mutate();
 
-            if (arrayContains(TINT_COLOR_CONTROL_STATE_LIST, resId)) {
-                ColorStateList colorStateList = getColorStateListForKnownDrawableId(resId);
-                PorterDuff.Mode tintMode = DEFAULT_MODE;
-                if (resId == R.drawable.abc_switch_thumb_material) {
-                    tintMode = PorterDuff.Mode.MULTIPLY;
-                }
+            final ColorStateList tintList = getTintList(resId);
+            if (tintList != null) {
+                // First wrap the Drawable and set the tint list
+                drawable = DrawableCompat.wrap(drawable);
+                DrawableCompat.setTintList(drawable, tintList);
 
-                if (colorStateList != null) {
-                    drawable = DrawableCompat.wrap(drawable);
-                    DrawableCompat.setTintList(drawable, colorStateList);
+                // If there is a blending mode specified for the drawable, use it
+                final PorterDuff.Mode tintMode = getTintMode(resId);
+                if (tintMode != null) {
                     DrawableCompat.setTintMode(drawable, tintMode);
                 }
-            } else if (arrayContains(CONTAINERS_WITH_TINT_CHILDREN, resId)) {
-                drawable = mResources.getDrawable(resId);
+            } else if (resId == R.drawable.abc_cab_background_top_material) {
+                return new LayerDrawable(new Drawable[] {
+                        getDrawable(R.drawable.abc_cab_background_internal_bg),
+                        getDrawable(R.drawable.abc_cab_background_top_mtrl_alpha)
+                });
             } else {
-                tintDrawable(resId, drawable);
+                tintDrawableUsingColorFilter(resId, drawable);
             }
         }
         return drawable;
     }
 
-    void tintDrawable(final int resId, final Drawable drawable) {
+    final void tintDrawableUsingColorFilter(final int resId, Drawable drawable) {
+        final Context context = mContextRef.get();
+        if (context == null) return;
+
         PorterDuff.Mode tintMode = null;
         boolean colorAttrSet = false;
         int colorAttr = 0;
         int alpha = -1;
 
-        if (arrayContains(TINT_COLOR_CONTROL_NORMAL, resId)) {
+        if (arrayContains(COLORFILTER_TINT_COLOR_CONTROL_NORMAL, resId)) {
             colorAttr = R.attr.colorControlNormal;
             colorAttrSet = true;
-        } else if (arrayContains(TINT_COLOR_CONTROL_ACTIVATED, resId)) {
+        } else if (arrayContains(COLORFILTER_COLOR_CONTROL_ACTIVATED, resId)) {
             colorAttr = R.attr.colorControlActivated;
             colorAttrSet = true;
-        } else if (arrayContains(TINT_COLOR_BACKGROUND_MULTIPLY, resId)) {
+        } else if (arrayContains(COLORFILTER_COLOR_BACKGROUND_MULTIPLY, resId)) {
             colorAttr = android.R.attr.colorBackground;
             colorAttrSet = true;
             tintMode = PorterDuff.Mode.MULTIPLY;
@@ -203,19 +211,15 @@ public final class TintManager {
         }
 
         if (colorAttrSet) {
-            if (tintMode == null) {
-                tintMode = DEFAULT_MODE;
-            }
-            final int color = getThemeAttrColor(mContext, colorAttr);
-
-            tintDrawableUsingColorFilter(drawable, color, tintMode);
+            final int color = getThemeAttrColor(context, colorAttr);
+            setPorterDuffColorFilter(drawable, color, tintMode);
 
             if (alpha != -1) {
                 drawable.setAlpha(alpha);
             }
 
             if (DEBUG) {
-                Log.d(TAG, "Tinted Drawable ID: " + mResources.getResourceName(resId) +
+                Log.d(TAG, "Tinted Drawable: " + context.getResources().getResourceName(resId) +
                         " with color: #" + Integer.toHexString(color));
             }
         }
@@ -231,57 +235,72 @@ public final class TintManager {
     }
 
     private static boolean isInTintList(int drawableId) {
-        return arrayContains(TINT_COLOR_BACKGROUND_MULTIPLY, drawableId) ||
-                arrayContains(TINT_COLOR_CONTROL_NORMAL, drawableId) ||
-                arrayContains(TINT_COLOR_CONTROL_ACTIVATED, drawableId) ||
+        return arrayContains(TINT_COLOR_CONTROL_NORMAL, drawableId) ||
+                arrayContains(COLORFILTER_TINT_COLOR_CONTROL_NORMAL, drawableId) ||
+                arrayContains(COLORFILTER_COLOR_CONTROL_ACTIVATED, drawableId) ||
                 arrayContains(TINT_COLOR_CONTROL_STATE_LIST, drawableId) ||
-                arrayContains(CONTAINERS_WITH_TINT_CHILDREN, drawableId);
+                arrayContains(COLORFILTER_COLOR_BACKGROUND_MULTIPLY, drawableId) ||
+                drawableId == R.drawable.abc_cab_background_top_material;
     }
 
-    ColorStateList getColorStateList(int resId) {
-        return arrayContains(TINT_COLOR_CONTROL_STATE_LIST, resId)
-                ? getColorStateListForKnownDrawableId(resId)
-                : null;
+    final PorterDuff.Mode getTintMode(final int resId) {
+        PorterDuff.Mode mode = null;
+
+        if (resId == R.drawable.abc_switch_thumb_material) {
+            mode = PorterDuff.Mode.MULTIPLY;
+        }
+
+        return mode;
     }
 
-    private ColorStateList getColorStateListForKnownDrawableId(int resId) {
-        // Try the cache first
-        ColorStateList colorStateList = mColorStateLists.get(resId);
+    final ColorStateList getTintList(int resId) {
+        final Context context = mContextRef.get();
+        if (context == null) return null;
 
-        if (colorStateList == null) {
-            // ...if the cache did not contain a color state list, try and create
+        // Try the cache first (if it exists)
+        ColorStateList tint = mTintLists != null ? mTintLists.get(resId) : null;
+
+        if (tint == null) {
+            // ...if the cache did not contain a color state list, try and create one
             if (resId == R.drawable.abc_edit_text_material) {
-                colorStateList = createEditTextColorStateList();
+                tint = createEditTextColorStateList(context);
             } else if (resId == R.drawable.abc_switch_track_mtrl_alpha) {
-                colorStateList = createSwitchTrackColorStateList();
+                tint = createSwitchTrackColorStateList(context);
             } else if (resId == R.drawable.abc_switch_thumb_material) {
-                colorStateList = createSwitchThumbColorStateList();
+                tint = createSwitchThumbColorStateList(context);
             } else if (resId == R.drawable.abc_btn_default_mtrl_shape
                     || resId == R.drawable.abc_btn_borderless_material) {
-                colorStateList = createButtonColorStateList();
+                tint = createButtonColorStateList(context);
             } else if (resId == R.drawable.abc_spinner_mtrl_am_alpha
                     || resId == R.drawable.abc_spinner_textfield_background_material) {
-                colorStateList = createSpinnerColorStateList();
-            } else {
-                // If we don't have an explicit color state list for this Drawable, use the default
-                colorStateList = getDefaultColorStateList();
+                tint = createSpinnerColorStateList(context);
+            } else if (arrayContains(TINT_COLOR_CONTROL_NORMAL, resId)) {
+                tint = getThemeAttrColorStateList(context, R.attr.colorControlNormal);
+            } else if (arrayContains(TINT_COLOR_CONTROL_STATE_LIST, resId)) {
+                tint = getDefaultColorStateList(context);
             }
 
-            // ..and add it to the cache
-            mColorStateLists.append(resId, colorStateList);
+            if (tint != null) {
+                if (mTintLists == null) {
+                    // If our tint list cache hasn't been set up yet, create it
+                    mTintLists = new SparseArray<>();
+                }
+                // Add any newly created ColorStateList to the cache
+                mTintLists.append(resId, tint);
+            }
         }
-        return colorStateList;
+        return tint;
     }
 
-    private ColorStateList getDefaultColorStateList() {
+    private ColorStateList getDefaultColorStateList(Context context) {
         if (mDefaultColorStateList == null) {
             /**
              * Generate the default color state list which uses the colorControl attributes.
              * Order is important here. The default enabled state needs to go at the bottom.
              */
 
-            final int colorControlNormal = getThemeAttrColor(mContext, R.attr.colorControlNormal);
-            final int colorControlActivated = getThemeAttrColor(mContext,
+            final int colorControlNormal = getThemeAttrColor(context, R.attr.colorControlNormal);
+            final int colorControlActivated = getThemeAttrColor(context,
                     R.attr.colorControlActivated);
 
             final int[][] states = new int[7][];
@@ -290,7 +309,7 @@ public final class TintManager {
 
             // Disabled state
             states[i] = new int[] { -android.R.attr.state_enabled };
-            colors[i] = getDisabledThemeAttrColor(mContext, R.attr.colorControlNormal);
+            colors[i] = getDisabledThemeAttrColor(context, R.attr.colorControlNormal);
             i++;
 
             states[i] = new int[] { android.R.attr.state_focused };
@@ -323,34 +342,34 @@ public final class TintManager {
         return mDefaultColorStateList;
     }
 
-    private ColorStateList createSwitchTrackColorStateList() {
+    private ColorStateList createSwitchTrackColorStateList(Context context) {
         final int[][] states = new int[3][];
         final int[] colors = new int[3];
         int i = 0;
 
         // Disabled state
         states[i] = new int[]{-android.R.attr.state_enabled};
-        colors[i] = getThemeAttrColor(mContext, android.R.attr.colorForeground, 0.1f);
+        colors[i] = getThemeAttrColor(context, android.R.attr.colorForeground, 0.1f);
         i++;
 
         states[i] = new int[]{android.R.attr.state_checked};
-        colors[i] = getThemeAttrColor(mContext, R.attr.colorControlActivated, 0.3f);
+        colors[i] = getThemeAttrColor(context, R.attr.colorControlActivated, 0.3f);
         i++;
 
         // Default enabled state
         states[i] = new int[0];
-        colors[i] = getThemeAttrColor(mContext, android.R.attr.colorForeground, 0.3f);
+        colors[i] = getThemeAttrColor(context, android.R.attr.colorForeground, 0.3f);
         i++;
 
         return new ColorStateList(states, colors);
     }
 
-    private ColorStateList createSwitchThumbColorStateList() {
+    private ColorStateList createSwitchThumbColorStateList(Context context) {
         final int[][] states = new int[3][];
         final int[] colors = new int[3];
         int i = 0;
 
-        final ColorStateList thumbColor = getThemeAttrColorStateList(mContext,
+        final ColorStateList thumbColor = getThemeAttrColorStateList(context,
                 R.attr.colorSwitchThumbNormal);
 
         if (thumbColor != null && thumbColor.isStateful()) {
@@ -363,7 +382,7 @@ public final class TintManager {
             i++;
 
             states[i] = new int[]{android.R.attr.state_checked};
-            colors[i] = getThemeAttrColor(mContext, R.attr.colorControlActivated);
+            colors[i] = getThemeAttrColor(context, R.attr.colorControlActivated);
             i++;
 
             // Default enabled state
@@ -375,86 +394,86 @@ public final class TintManager {
 
             // Disabled state
             states[i] = new int[]{-android.R.attr.state_enabled};
-            colors[i] = getDisabledThemeAttrColor(mContext, R.attr.colorSwitchThumbNormal);
+            colors[i] = getDisabledThemeAttrColor(context, R.attr.colorSwitchThumbNormal);
             i++;
 
             states[i] = new int[]{android.R.attr.state_checked};
-            colors[i] = getThemeAttrColor(mContext, R.attr.colorControlActivated);
+            colors[i] = getThemeAttrColor(context, R.attr.colorControlActivated);
             i++;
 
             // Default enabled state
             states[i] = new int[0];
-            colors[i] = getThemeAttrColor(mContext, R.attr.colorSwitchThumbNormal);
+            colors[i] = getThemeAttrColor(context, R.attr.colorSwitchThumbNormal);
             i++;
         }
 
         return new ColorStateList(states, colors);
     }
 
-    private ColorStateList createEditTextColorStateList() {
+    private ColorStateList createEditTextColorStateList(Context context) {
         final int[][] states = new int[3][];
         final int[] colors = new int[3];
         int i = 0;
 
         // Disabled state
         states[i] = new int[]{-android.R.attr.state_enabled};
-        colors[i] = getDisabledThemeAttrColor(mContext, R.attr.colorControlNormal);
+        colors[i] = getDisabledThemeAttrColor(context, R.attr.colorControlNormal);
         i++;
 
         states[i] = new int[]{-android.R.attr.state_pressed, -android.R.attr.state_focused};
-        colors[i] = getThemeAttrColor(mContext, R.attr.colorControlNormal);
+        colors[i] = getThemeAttrColor(context, R.attr.colorControlNormal);
         i++;
 
         // Default enabled state
         states[i] = new int[0];
-        colors[i] = getThemeAttrColor(mContext, R.attr.colorControlActivated);
+        colors[i] = getThemeAttrColor(context, R.attr.colorControlActivated);
         i++;
 
         return new ColorStateList(states, colors);
     }
 
-    private ColorStateList createButtonColorStateList() {
+    private ColorStateList createButtonColorStateList(Context context) {
         final int[][] states = new int[4][];
         final int[] colors = new int[4];
         int i = 0;
 
         // Disabled state
         states[i] = new int[]{-android.R.attr.state_enabled};
-        colors[i] = getDisabledThemeAttrColor(mContext, R.attr.colorButtonNormal);
+        colors[i] = getDisabledThemeAttrColor(context, R.attr.colorButtonNormal);
         i++;
 
         states[i] = new int[]{android.R.attr.state_pressed};
-        colors[i] = getThemeAttrColor(mContext, R.attr.colorControlHighlight);
+        colors[i] = getThemeAttrColor(context, R.attr.colorControlHighlight);
         i++;
 
         states[i] = new int[]{android.R.attr.state_focused};
-        colors[i] = getThemeAttrColor(mContext, R.attr.colorControlHighlight);
+        colors[i] = getThemeAttrColor(context, R.attr.colorControlHighlight);
         i++;
 
         // Default enabled state
         states[i] = new int[0];
-        colors[i] = getThemeAttrColor(mContext, R.attr.colorButtonNormal);
+        colors[i] = getThemeAttrColor(context, R.attr.colorButtonNormal);
         i++;
 
         return new ColorStateList(states, colors);
     }
 
-    private ColorStateList createSpinnerColorStateList() {
+    private ColorStateList createSpinnerColorStateList(Context context) {
         final int[][] states = new int[3][];
         final int[] colors = new int[3];
         int i = 0;
 
         // Disabled state
         states[i] = new int[]{-android.R.attr.state_enabled};
-        colors[i] = getDisabledThemeAttrColor(mContext, R.attr.colorControlNormal);
+        colors[i] = getDisabledThemeAttrColor(context, R.attr.colorControlNormal);
         i++;
 
         states[i] = new int[]{-android.R.attr.state_pressed, -android.R.attr.state_focused};
-        colors[i] = getThemeAttrColor(mContext, R.attr.colorControlNormal);
+        colors[i] = getThemeAttrColor(context, R.attr.colorControlNormal);
         i++;
 
         states[i] = new int[0];
-        colors[i] = getThemeAttrColor(mContext, R.attr.colorControlActivated);
+        colors[i] = getThemeAttrColor(context, R.attr.colorControlActivated);
         i++;
 
         return new ColorStateList(states, colors);
@@ -485,18 +504,22 @@ public final class TintManager {
     public static void tintViewBackground(View view, TintInfo tint) {
         final Drawable background = view.getBackground();
         if (tint.mTintList != null) {
-            tintDrawableUsingColorFilter(
+            setPorterDuffColorFilter(
                     background,
                     tint.mTintList.getColorForState(view.getDrawableState(),
                             tint.mTintList.getDefaultColor()),
-                    tint.mTintMode != null ? tint.mTintMode : DEFAULT_MODE);
+                    tint.mTintMode != null ? tint.mTintMode : null);
         } else {
             background.clearColorFilter();
         }
     }
 
-    private static void tintDrawableUsingColorFilter(Drawable drawable, int color,
-            PorterDuff.Mode mode) {
+    private static void setPorterDuffColorFilter(Drawable d, int color, PorterDuff.Mode mode) {
+        if (mode == null) {
+            // If we don't have a blending mode specified, use our default
+            mode = DEFAULT_MODE;
+        }
+
         // First, lets see if the cache already contains the color filter
         PorterDuffColorFilter filter = COLOR_FILTER_CACHE.get(color, mode);
 
@@ -506,6 +529,6 @@ public final class TintManager {
             COLOR_FILTER_CACHE.put(color, mode, filter);
         }
 
-        drawable.setColorFilter(filter);
+        d.setColorFilter(filter);
     }
 }
