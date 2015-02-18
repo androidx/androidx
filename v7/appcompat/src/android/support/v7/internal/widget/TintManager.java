@@ -43,7 +43,7 @@ import static android.support.v7.internal.widget.ThemeUtils.getThemeAttrColorSta
  */
 public final class TintManager {
 
-    static final boolean SHOULD_BE_USED = Build.VERSION.SDK_INT < 21;
+    public static final boolean SHOULD_BE_USED = Build.VERSION.SDK_INT < 21;
 
     private static final String TAG = "TintManager";
     private static final boolean DEBUG = false;
@@ -185,7 +185,7 @@ public final class TintManager {
         return drawable;
     }
 
-    final void tintDrawableUsingColorFilter(final int resId, Drawable drawable) {
+    public final void tintDrawableUsingColorFilter(final int resId, Drawable drawable) {
         final Context context = mContextRef.get();
         if (context == null) return;
 
@@ -253,7 +253,7 @@ public final class TintManager {
         return mode;
     }
 
-    final ColorStateList getTintList(int resId) {
+    public final ColorStateList getTintList(int resId) {
         final Context context = mContextRef.get();
         if (context == null) return null;
 
@@ -503,12 +503,12 @@ public final class TintManager {
 
     public static void tintViewBackground(View view, TintInfo tint) {
         final Drawable background = view.getBackground();
-        if (tint.mTintList != null) {
+        if (tint.mHasTintList) {
             setPorterDuffColorFilter(
                     background,
                     tint.mTintList.getColorForState(view.getDrawableState(),
                             tint.mTintList.getDefaultColor()),
-                    tint.mTintMode != null ? tint.mTintMode : null);
+                    tint.mHasTintMode ? tint.mTintMode : null);
         } else {
             background.clearColorFilter();
         }

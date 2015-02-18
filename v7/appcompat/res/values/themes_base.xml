@@ -206,10 +206,10 @@
         <item name="toolbarStyle">@style/Widget.AppCompat.Toolbar</item>
         <item name="toolbarNavigationButtonStyle">@style/Widget.AppCompat.Toolbar.Button.Navigation</item>
 
-        <item name="android:editTextStyle">@style/Widget.AppCompat.EditText</item>
+        <item name="editTextStyle">@style/Widget.AppCompat.EditText</item>
         <item name="editTextBackground">@drawable/abc_edit_text_material</item>
         <item name="editTextColor">?android:attr/textColorPrimary</item>
-        <item name="android:autoCompleteTextViewStyle">@style/Widget.AppCompat.AutoCompleteTextView</item>
+        <item name="autoCompleteTextViewStyle">@style/Widget.AppCompat.AutoCompleteTextView</item>
 
         <!-- Color palette -->
         <item name="colorPrimaryDark">@color/primary_dark_material_dark</item>
@@ -224,15 +224,15 @@
 
         <item name="drawerArrowStyle">@style/Widget.AppCompat.DrawerArrowToggle</item>
 
-        <item name="android:checkboxStyle">@style/Widget.AppCompat.CompoundButton.CheckBox</item>
-        <item name="android:radioButtonStyle">@style/Widget.AppCompat.CompoundButton.RadioButton</item>
+        <item name="checkboxStyle">@style/Widget.AppCompat.CompoundButton.CheckBox</item>
+        <item name="radioButtonStyle">@style/Widget.AppCompat.CompoundButton.RadioButton</item>
         <item name="switchStyle">@style/Widget.AppCompat.CompoundButton.Switch</item>
 
-        <item name="android:ratingBarStyle">@style/Widget.AppCompat.RatingBar</item>
+        <item name="ratingBarStyle">@style/Widget.AppCompat.RatingBar</item>
 
         <!-- Button styles -->
-        <item name="android:buttonStyle">@style/Widget.AppCompat.Button</item>
-        <item name="android:buttonStyleSmall">@style/Widget.AppCompat.Button.Small</item>
+        <item name="buttonStyle">@style/Widget.AppCompat.Button</item>
+        <item name="buttonStyleSmall">@style/Widget.AppCompat.Button.Small</item>
         <item name="android:textAppearanceButton">@style/TextAppearance.AppCompat.Button</item>
 
         <item name="buttonBarStyle">@style/Widget.AppCompat.ButtonBar</item>
@@ -338,10 +338,10 @@
         <item name="toolbarStyle">@style/Widget.AppCompat.Toolbar</item>
         <item name="toolbarNavigationButtonStyle">@style/Widget.AppCompat.Toolbar.Button.Navigation</item>
 
-        <item name="android:editTextStyle">@style/Widget.AppCompat.EditText</item>
+        <item name="editTextStyle">@style/Widget.AppCompat.EditText</item>
         <item name="editTextBackground">@drawable/abc_edit_text_material</item>
         <item name="editTextColor">?android:attr/textColorPrimary</item>
-        <item name="android:autoCompleteTextViewStyle">@style/Widget.AppCompat.AutoCompleteTextView</item>
+        <item name="autoCompleteTextViewStyle">@style/Widget.AppCompat.AutoCompleteTextView</item>
 
         <!-- Color palette -->
         <item name="colorPrimaryDark">@color/primary_dark_material_light</item>
@@ -356,15 +356,15 @@
 
         <item name="drawerArrowStyle">@style/Widget.AppCompat.DrawerArrowToggle</item>
 
-        <item name="android:checkboxStyle">@style/Widget.AppCompat.CompoundButton.CheckBox</item>
-        <item name="android:radioButtonStyle">@style/Widget.AppCompat.CompoundButton.RadioButton</item>
+        <item name="checkboxStyle">@style/Widget.AppCompat.CompoundButton.CheckBox</item>
+        <item name="radioButtonStyle">@style/Widget.AppCompat.CompoundButton.RadioButton</item>
         <item name="switchStyle">@style/Widget.AppCompat.CompoundButton.Switch</item>
 
-        <item name="android:ratingBarStyle">@style/Widget.AppCompat.RatingBar</item>
+        <item name="ratingBarStyle">@style/Widget.AppCompat.RatingBar</item>
 
         <!-- Button styles -->
-        <item name="android:buttonStyle">@style/Widget.AppCompat.Button</item>
-        <item name="android:buttonStyleSmall">@style/Widget.AppCompat.Button.Small</item>
+        <item name="buttonStyle">@style/Widget.AppCompat.Button</item>
+        <item name="buttonStyleSmall">@style/Widget.AppCompat.Button.Small</item>
         <item name="android:textAppearanceButton">@style/TextAppearance.AppCompat.Button</item>
 
         <item name="buttonBarStyle">@style/Widget.AppCompat.ButtonBar</item>

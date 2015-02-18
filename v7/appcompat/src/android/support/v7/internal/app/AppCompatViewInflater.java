@@ -18,16 +18,17 @@ package android.support.v7.internal.app;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.v7.internal.widget.TintAutoCompleteTextView;
-import android.support.v7.internal.widget.TintButton;
-import android.support.v7.internal.widget.TintCheckBox;
-import android.support.v7.internal.widget.TintCheckedTextView;
-import android.support.v7.internal.widget.TintEditText;
-import android.support.v7.internal.widget.TintMultiAutoCompleteTextView;
-import android.support.v7.internal.widget.TintRadioButton;
-import android.support.v7.internal.widget.TintRatingBar;
-import android.support.v7.internal.widget.TintSpinner;
+import android.support.v7.widget.AppCompatAutoCompleteTextView;
+import android.support.v7.widget.AppCompatButton;
+import android.support.v7.widget.AppCompatCheckBox;
+import android.support.v7.widget.AppCompatCheckedTextView;
+import android.support.v7.widget.AppCompatEditText;
+import android.support.v7.widget.AppCompatMultiAutoCompleteTextView;
+import android.support.v7.widget.AppCompatRadioButton;
+import android.support.v7.widget.AppCompatRatingBar;
+import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.internal.widget.ViewUtils;
+import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
 import android.view.InflateException;
 import android.view.View;
@@ -46,7 +47,7 @@ import java.util.Map;
  *
  * @hide
  */
-public class TintViewInflater {
+public class AppCompatViewInflater {
 
     static final Class<?>[] sConstructorSignature = new Class[] {
             Context.class, AttributeSet.class};
@@ -56,7 +57,7 @@ public class TintViewInflater {
     private final Context mContext;
     private final Object[] mConstructorArgs = new Object[2];
 
-    public TintViewInflater(Context context) {
+    public AppCompatViewInflater(Context context) {
         mContext = context;
     }
 
@@ -77,23 +78,25 @@ public class TintViewInflater {
         // We need to 'inject' our tint aware Views in place of the standard framework versions
         switch (name) {
             case "EditText":
-                return new TintEditText(context, attrs);
+                return new AppCompatEditText(context, attrs);
             case "Spinner":
-                return new TintSpinner(context, attrs);
+                return new AppCompatSpinner(context, attrs);
             case "CheckBox":
-                return new TintCheckBox(context, attrs);
+                return new AppCompatCheckBox(context, attrs);
             case "RadioButton":
-                return new TintRadioButton(context, attrs);
+                return new AppCompatRadioButton(context, attrs);
             case "CheckedTextView":
-                return new TintCheckedTextView(context, attrs);
+                return new AppCompatCheckedTextView(context, attrs);
             case "AutoCompleteTextView":
-                return new TintAutoCompleteTextView(context, attrs);
+                return new AppCompatAutoCompleteTextView(context, attrs);
             case "MultiAutoCompleteTextView":
-                return new TintMultiAutoCompleteTextView(context, attrs);
+                return new AppCompatMultiAutoCompleteTextView(context, attrs);
             case "RatingBar":
-                return new TintRatingBar(context, attrs);
+                return new AppCompatRatingBar(context, attrs);
             case "Button":
-                return new TintButton(context, attrs);
+                return new AppCompatButton(context, attrs);
+            case "TextView":
+                return new AppCompatTextView(context, attrs);
         }
 
         if (originalContext != context) {

@@ -14,21 +14,25 @@
  * limitations under the License.
  */
 
-package android.support.v7.internal.widget;
+package android.support.v7.widget;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.DrawableRes;
+import android.support.v7.appcompat.R;
+import android.support.v7.internal.widget.TintManager;
+import android.support.v7.internal.widget.TintTypedArray;
 import android.util.AttributeSet;
-import android.widget.RadioButton;
+import android.widget.CheckBox;
 
 /**
- * An tint aware {@link android.widget.RadioButton}.
+ * A tint aware {@link android.widget.CheckBox}.
  * <p>
- * This will automatically be used when you use {@link android.widget.RadioButton} in your
- * layouts. You should only need to manually use this class when writing custom views.
+ * This will automatically be used when you use {@link android.widget.CheckBox} in your layouts.
+ * You should only need to manually use this class when writing custom views.
  */
-public class TintRadioButton extends RadioButton {
+public class AppCompatCheckBox extends CheckBox {
 
     private static final int[] TINT_ATTRS = {
             android.R.attr.button
@@ -37,15 +41,15 @@ public class TintRadioButton extends RadioButton {
     private TintManager mTintManager;
     private Drawable mButtonDrawable;
 
-    public TintRadioButton(Context context) {
+    public AppCompatCheckBox(Context context) {
         this(context, null);
     }
 
-    public TintRadioButton(Context context, AttributeSet attrs) {
-        this(context, attrs, android.R.attr.radioButtonStyle);
+    public AppCompatCheckBox(Context context, AttributeSet attrs) {
+        this(context, attrs, R.attr.checkboxStyle);
     }
 
-    public TintRadioButton(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AppCompatCheckBox(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
         if (TintManager.SHOULD_BE_USED) {
@@ -65,11 +69,11 @@ public class TintRadioButton extends RadioButton {
     }
 
     @Override
-    public void setButtonDrawable(int resid) {
+    public void setButtonDrawable(@DrawableRes int resId) {
         if (mTintManager != null) {
-            setButtonDrawable(mTintManager.getDrawable(resid));
+            setButtonDrawable(mTintManager.getDrawable(resId));
         } else {
-            super.setButtonDrawable(resid);
+            super.setButtonDrawable(resId);
         }
     }
 
@@ -85,4 +89,5 @@ public class TintRadioButton extends RadioButton {
         }
         return padding;
     }
+
 }

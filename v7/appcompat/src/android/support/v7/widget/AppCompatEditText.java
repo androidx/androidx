@@ -14,63 +14,55 @@
  * limitations under the License.
  */
 
-package android.support.v7.internal.widget;
+package android.support.v7.widget;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.support.annotation.Nullable;
 import android.support.v4.view.TintableBackgroundView;
+import android.support.v7.appcompat.R;
+import android.support.v7.internal.widget.TintContextWrapper;
+import android.support.v7.internal.widget.TintInfo;
+import android.support.v7.internal.widget.TintManager;
+import android.support.v7.internal.widget.TintTypedArray;
 import android.util.AttributeSet;
-import android.widget.AutoCompleteTextView;
+import android.widget.EditText;
 
 /**
- * An tint aware {@link android.widget.AutoCompleteTextView}.
+ * A tint aware {@link android.widget.EditText}.
  * <p>
- * This will automatically be used when you use {@link AutoCompleteTextView} in your layouts. You
- * should only need to manually use this class writing custom views.
+ * This will automatically be used when you use {@link android.widget.EditText} in your
+ * layouts. You should only need to manually use this class when writing custom views.
  */
-public class TintAutoCompleteTextView extends AutoCompleteTextView implements
-        TintableBackgroundView {
+public class AppCompatEditText extends EditText implements TintableBackgroundView {
 
     private static final int[] TINT_ATTRS = {
-            android.R.attr.background,
-            android.R.attr.popupBackground
+            android.R.attr.background
     };
 
-    private TintManager mTintManager;
     private TintInfo mBackgroundTint;
 
-    public TintAutoCompleteTextView(Context context) {
+    public AppCompatEditText(Context context) {
         this(context, null);
     }
 
-    public TintAutoCompleteTextView(Context context, AttributeSet attrs) {
-        this(context, attrs, android.R.attr.autoCompleteTextViewStyle);
+    public AppCompatEditText(Context context, AttributeSet attrs) {
+        this(TintContextWrapper.wrap(context), attrs, R.attr.editTextStyle);
     }
 
-    public TintAutoCompleteTextView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
+    public AppCompatEditText(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
 
         if (TintManager.SHOULD_BE_USED) {
             TintTypedArray a = TintTypedArray.obtainStyledAttributes(getContext(), attrs,
                     TINT_ATTRS, defStyleAttr, 0);
-            mTintManager = a.getTintManager();
-
             if (a.hasValue(0)) {
                 setSupportBackgroundTintList(
-                        mTintManager.getTintList(a.getResourceId(0, -1)));
-            }
-            if (a.hasValue(1)) {
-                setDropDownBackgroundDrawable(a.getDrawable(1));
+                        a.getTintManager().getTintList(a.getResourceId(0, -1)));
             }
             a.recycle();
         }
-    }
-
-    @Override
-    public void setDropDownBackgroundResource(int id) {
-        setDropDownBackgroundDrawable(mTintManager.getDrawable(id));
     }
 
     /**
@@ -86,6 +78,8 @@ public class TintAutoCompleteTextView extends AutoCompleteTextView implements
             mBackgroundTint = new TintInfo();
         }
         mBackgroundTint.mTintList = tint;
+        mBackgroundTint.mHasTintList = true;
+
         applySupportBackgroundTint();
     }
 
@@ -113,6 +107,8 @@ public class TintAutoCompleteTextView extends AutoCompleteTextView implements
             mBackgroundTint = new TintInfo();
         }
         mBackgroundTint.mTintMode = tintMode;
+        mBackgroundTint.mHasTintMode = true;
+
         applySupportBackgroundTint();
     }
 

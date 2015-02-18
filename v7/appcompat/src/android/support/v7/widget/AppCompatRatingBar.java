@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.v7.internal.widget;
+package android.support.v7.widget;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -30,17 +30,20 @@ import android.graphics.drawable.shapes.RoundRectShape;
 import android.graphics.drawable.shapes.Shape;
 import android.support.v4.graphics.drawable.DrawableWrapper;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.appcompat.R;
+import android.support.v7.internal.widget.TintManager;
+import android.support.v7.internal.widget.TintTypedArray;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.widget.RatingBar;
 
 /**
- * An tint aware {@link android.widget.RatingBar}.
+ * A tint aware {@link android.widget.RatingBar}.
  * <p>
  * This will automatically be used when you use {@link android.widget.RatingBar} in your
  * layouts. You should only need to manually use this class when writing custom views.
  */
-public class TintRatingBar extends RatingBar {
+public class AppCompatRatingBar extends RatingBar {
 
     private static final int[] TINT_ATTRS = {
             android.R.attr.indeterminateDrawable,
@@ -49,15 +52,15 @@ public class TintRatingBar extends RatingBar {
 
     private Bitmap mSampleTile;
 
-    public TintRatingBar(Context context) {
+    public AppCompatRatingBar(Context context) {
         this(context, null);
     }
 
-    public TintRatingBar(Context context, AttributeSet attrs) {
-        this(context, attrs, android.R.attr.ratingBarStyle);
+    public AppCompatRatingBar(Context context, AttributeSet attrs) {
+        this(context, attrs, R.attr.ratingBarStyle);
     }
 
-    public TintRatingBar(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AppCompatRatingBar(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
         if (TintManager.SHOULD_BE_USED) {
