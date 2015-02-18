@@ -1361,7 +1361,7 @@ public class WindowDecorActionBar extends ActionBar implements
 
     TintManager getTintManager() {
         if (mTintManager == null) {
-            mTintManager = new TintManager(mContext);
+            mTintManager = TintManager.get(mContext);
         }
         return mTintManager;
     }

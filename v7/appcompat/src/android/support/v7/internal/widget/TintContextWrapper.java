@@ -28,8 +28,6 @@ import android.content.res.Resources;
  */
 class TintContextWrapper extends ContextWrapper {
 
-    private final TintManager mTintManager;
-
     public static Context wrap(Context context) {
         if (!(context instanceof TintContextWrapper)) {
             context = new TintContextWrapper(context);
@@ -37,17 +35,17 @@ class TintContextWrapper extends ContextWrapper {
         return context;
     }
 
+    private Resources mResources;
+
     TintContextWrapper(Context base) {
         super(base);
-        mTintManager = new TintManager(base);
     }
 
     @Override
     public Resources getResources() {
-        return mTintManager.getResources();
-    }
-
-    final TintManager getTintManager() {
-        return mTintManager;
+        if (mResources == null) {
+            mResources = new TintResources(super.getResources(), TintManager.get(this));
+        }
+        return mResources;
     }
 }

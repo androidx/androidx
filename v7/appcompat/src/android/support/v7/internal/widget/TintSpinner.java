@@ -61,7 +61,7 @@ public class TintSpinner extends Spinner implements TintableBackgroundView {
                     TINT_ATTRS, defStyleAttr, 0);
             if (a.hasValue(0)) {
                 setSupportBackgroundTintList(
-                        a.getTintManager().getColorStateList(a.getResourceId(0, -1)));
+                        a.getTintManager().getTintList(a.getResourceId(0, -1)));
             }
             if (a.hasValue(1)) {
                 final Drawable popupBackground = a.getDrawable(1);
