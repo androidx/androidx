@@ -116,6 +116,7 @@ LOCAL_SRC_FILES:= \
 	driver/rsdScriptGroup.cpp \
 	driver/rsdType.cpp \
 	cpu_ref/rsCpuCore.cpp \
+	cpu_ref/rsCpuExecutable.cpp \
 	cpu_ref/rsCpuScript.cpp \
 	cpu_ref/rsCpuRuntimeMath.cpp \
 	cpu_ref/rsCpuRuntimeStubs.cpp \
