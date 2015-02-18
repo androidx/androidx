@@ -18,7 +18,6 @@ package android.support.v7.internal.widget;
 
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
-import android.support.v7.appcompat.R;
 
 /**
  * This class allows us to intercept calls so that we can tint resources (if applicable).
@@ -36,13 +35,14 @@ class TintResources extends ResourcesWrapper {
 
     /**
      * We intercept this call so that we tint the result (if applicable). This is needed for things
-     * like {@link DrawableContainer}s which retrieve their children via this method.
+     * like {@link android.graphics.drawable.DrawableContainer}s which retrieve their
+     * children via this method.
      */
     @Override
     public Drawable getDrawable(int id) throws NotFoundException {
         Drawable d = super.getDrawable(id);
         if (d != null) {
-            mTintManager.tintDrawable(id, d);
+            mTintManager.tintDrawableUsingColorFilter(id, d);
         }
         return d;
     }

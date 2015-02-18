@@ -59,7 +59,7 @@ public class TintAutoCompleteTextView extends AutoCompleteTextView implements
 
             if (a.hasValue(0)) {
                 setSupportBackgroundTintList(
-                        mTintManager.getColorStateList(a.getResourceId(0, -1)));
+                        mTintManager.getTintList(a.getResourceId(0, -1)));
             }
             if (a.hasValue(1)) {
                 setDropDownBackgroundDrawable(a.getDrawable(1));

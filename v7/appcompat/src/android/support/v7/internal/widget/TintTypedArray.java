@@ -179,9 +179,7 @@ public class TintTypedArray {
 
     public TintManager getTintManager() {
         if (mTintManager == null) {
-            mTintManager = (mContext instanceof TintContextWrapper)
-                    ? ((TintContextWrapper) mContext).getTintManager()
-                    : new TintManager(mContext);
+            mTintManager = TintManager.get(mContext);
         }
         return mTintManager;
     }
