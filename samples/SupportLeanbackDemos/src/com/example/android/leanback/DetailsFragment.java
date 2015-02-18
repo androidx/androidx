@@ -45,6 +45,7 @@ public class DetailsFragment extends android.support.v17.leanback.app.DetailsFra
     private ArrayObjectAdapter mRowsAdapter;
     private PhotoItem mPhotoItem;
     final CardPresenter cardPresenter = new CardPresenter();
+    private BackgroundHelper mBackgroundHelper = new BackgroundHelper();
 
     private static final int ACTION_PLAY = 1;
     private static final int ACTION_RENT = 2;
@@ -147,6 +148,8 @@ public class DetailsFragment extends android.support.v17.leanback.app.DetailsFra
                 prepareEntranceTransition();
             }
         }
+
+        mBackgroundHelper.attach(getActivity());
     }
 
     @Override

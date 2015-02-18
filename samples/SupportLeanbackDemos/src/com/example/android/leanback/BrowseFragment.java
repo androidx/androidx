@@ -40,6 +40,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
     private static final boolean USE_FIXED_ROW_HEIGHT = false;
 
     private ArrayObjectAdapter mRowsAdapter;
+    private BackgroundHelper mBackgroundHelper = new BackgroundHelper();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,6 +66,11 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
             public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
                     RowPresenter.ViewHolder rowViewHolder, Row row) {
                 Log.i(TAG, "onItemSelected: " + item + " row " + row);
+
+                if (item instanceof PhotoItem) {
+                    mBackgroundHelper.setBackground(
+                            getActivity(), ((PhotoItem) item).getImageResourceId());
+                }
             }
         });
         if (TEST_ENTRANCE_TRANSITION) {
@@ -79,6 +85,8 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                 }
             }, 2000);
         }
+
+        mBackgroundHelper.attach(getActivity());
     }
 
     private void setupRows() {
