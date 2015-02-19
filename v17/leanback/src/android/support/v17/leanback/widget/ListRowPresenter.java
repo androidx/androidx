@@ -18,6 +18,7 @@ import android.content.res.TypedArray;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.graphics.ColorOverlayDimmer;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
@@ -255,6 +256,18 @@ public class ListRowPresenter extends RowPresenter {
             @Override
             public void onChildSelected(ViewGroup parent, View view, int position, long id) {
                 selectChildView(rowViewHolder, view);
+            }
+        });
+        rowViewHolder.mGridView.setOnUnhandledKeyListener(
+                new BaseGridView.OnUnhandledKeyListener() {
+            @Override
+            public boolean onUnhandledKey(KeyEvent event) {
+                if (rowViewHolder.getOnKeyListener() != null &&
+                        rowViewHolder.getOnKeyListener().onKey(
+                                rowViewHolder.view, event.getKeyCode(), event)) {
+                    return true;
+                }
+                return false;
             }
         });
     }

@@ -163,6 +163,13 @@ abstract class BaseGridView extends RecyclerView {
         public boolean onInterceptKeyEvent(KeyEvent event);
     }
 
+    public interface OnUnhandledKeyListener {
+        /**
+         * Returns true if the key event should be consumed.
+         */
+        public boolean onUnhandledKey(KeyEvent event);
+    }
+
     protected final GridLayoutManager mLayoutManager;
 
     /**
@@ -178,6 +185,7 @@ abstract class BaseGridView extends RecyclerView {
     private OnMotionInterceptListener mOnMotionInterceptListener;
     private OnKeyInterceptListener mOnKeyInterceptListener;
     private RecyclerView.RecyclerListener mChainedRecyclerListener;
+    private OnUnhandledKeyListener mOnUnhandledKeyListener;
 
     public BaseGridView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
@@ -649,14 +657,32 @@ abstract class BaseGridView extends RecyclerView {
         mOnKeyInterceptListener = listener;
     }
 
+    /**
+     * Sets the unhandled key listener.
+     */
+    public void setOnUnhandledKeyListener(OnUnhandledKeyListener listener) {
+        mOnUnhandledKeyListener = listener;
+    }
+
+    /**
+     * Returns the unhandled key listener.
+     */
+    public OnUnhandledKeyListener getOnUnhandledKeyListener() {
+        return mOnUnhandledKeyListener;
+    }
+
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        if (mOnKeyInterceptListener != null) {
-            if (mOnKeyInterceptListener.onInterceptKeyEvent(event)) {
-                return true;
-            }
+        if (mOnKeyInterceptListener != null && mOnKeyInterceptListener.onInterceptKeyEvent(event)) {
+            return true;
         }
-        return super.dispatchKeyEvent(event);
+        if (super.dispatchKeyEvent(event)) {
+            return true;
+        }
+        if (mOnUnhandledKeyListener != null && mOnUnhandledKeyListener.onUnhandledKey(event)) {
+            return true;
+        }
+        return false;
     }
 
     @Override
