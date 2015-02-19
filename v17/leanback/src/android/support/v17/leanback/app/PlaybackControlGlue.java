@@ -7,6 +7,7 @@ import android.os.Message;
 import android.support.v17.leanback.widget.AbstractDetailsDescriptionPresenter;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ControlButtonPresenterSelector;
+import android.support.v17.leanback.widget.OnActionClickedListener;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.PlaybackControlsRow;
 import android.support.v17.leanback.widget.PlaybackControlsRowPresenter;
@@ -18,6 +19,7 @@ import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
 import android.util.Log;
 import android.view.InputEvent;
 import android.view.KeyEvent;
+import android.view.View;
 
 
 /**
@@ -35,11 +37,14 @@ import android.view.KeyEvent;
  * </p>
  *
  * <p>To use an instance of the glue layer, first construct an instance.  Constructor parameters
- * inform the glue what speed levels are supported for fast forward/rewind.  If you have your own
- * controls row you must pass it to {@link #setControlsRow}.  The row will be updated by the glue
- * layer based on the media metadata and playback state.  Alternatively, you may call
- * {@link #createControlsRowAndPresenter()} which will set a controls row and return
- * a row presenter you can use to present the row.
+ * inform the glue what speed levels are supported for fast forward/rewind.  Providing a
+ * {@link android.support.v17.leanback.app.PlaybackOverlayFragment} is optional.
+ * </p>
+ *
+ * <p>If you have your own controls row you must pass it to {@link #setControlsRow}.
+ * The row will be updated by the glue layer based on the media metadata and playback state.
+ * Alternatively, you may call {@link #createControlsRowAndPresenter()} which will set a controls
+ * row and return a row presenter you can use to present the row.
  * </p>
  *
  * <p>The helper sets a {@link android.support.v17.leanback.widget.SparseArrayObjectAdapter}
@@ -48,9 +53,17 @@ import android.view.KeyEvent;
  * deal in secondary actions so those you may add separately.
  * </p>
  *
- * <p>The helper sets an {@link android.support.v17.leanback.widget.OnItemViewClickedListener}
- * on the fragment.  To receive callbacks on clicks for elements unknown to the helper, pass
- * a listener to {@link #setOnItemViewClickedListener}.
+ * <p>Provide a click listener on your fragment and if an action is clicked, call
+ * {@link #onActionClicked}.  There is no need to call {@link #setOnItemViewClickedListener}
+ * but if you do a click listener will be installed on the fragment and recognized action clicks
+ * will be handled.  Your listener will be called only for unhandled actions.
+ * </p>
+ *
+ * <p>The helper implements a key event handler.  If you pass a
+ * {@link android.support.v17.leanback.app.PlaybackOverlayFragment} the fragment's input event
+ * handler will be set.  Otherwise, you should set the glue object as key event handler to the
+ * ViewHolder when bound by your row presenter; see
+ * {@link RowPresenter.ViewHolder#setOnKeyListener(android.view.View.OnKeyListener)}.
  * </p>
  *
  * <p>To update the controls row progress during playback, override {@link #enableProgressUpdating}
@@ -59,7 +72,7 @@ import android.view.KeyEvent;
  * </p>
  *
  */
-public abstract class PlaybackControlGlue {
+public abstract class PlaybackControlGlue implements OnActionClickedListener, View.OnKeyListener {
     /**
      * The adapter key for the first custom control on the right side
      * of the predefined primary controls.
@@ -182,7 +195,7 @@ public abstract class PlaybackControlGlue {
             if (DEBUG) Log.v(TAG, "onItemClicked " + object);
             boolean handled = false;
             if (object instanceof Action) {
-                handled = handleActionClicked((Action) object);
+                handled = dispatchAction((Action) object, null);
             }
             if (!handled && mExternalOnItemViewClickedListener != null) {
                 mExternalOnItemViewClickedListener.onItemClicked(viewHolder, object,
@@ -191,74 +204,34 @@ public abstract class PlaybackControlGlue {
         }
     };
 
-    private final PlaybackOverlayFragment.InputEventHandler mInputEventHandler =
-            new PlaybackOverlayFragment.InputEventHandler() {
-        @Override
-        public boolean handleInputEvent(InputEvent event) {
-            boolean result = false;
-            if (event instanceof KeyEvent &&
-                    ((KeyEvent) event).getAction() == KeyEvent.ACTION_DOWN) {
-                int keyCode = ((KeyEvent) event).getKeyCode();
-                switch (keyCode) {
-                    case KeyEvent.KEYCODE_DPAD_UP:
-                    case KeyEvent.KEYCODE_DPAD_DOWN:
-                    case KeyEvent.KEYCODE_DPAD_RIGHT:
-                    case KeyEvent.KEYCODE_DPAD_LEFT:
-                    case KeyEvent.KEYCODE_BACK:
-                        if (mPlaybackSpeed >= PLAYBACK_SPEED_FAST_L0 ||
-                                mPlaybackSpeed <= -PLAYBACK_SPEED_FAST_L0) {
-                            mPlaybackSpeed = PLAYBACK_SPEED_NORMAL;
-                            startPlayback(mPlaybackSpeed);
-                            updatePlaybackStatusAfterUserAction();
-                            result = (keyCode == KeyEvent.KEYCODE_BACK);
-                        }
-                        break;
-                    case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-                        if (mPlayPauseAction != null) {
-                            handleActionClicked(mPlayPauseAction);
-                            result = true;
-                        }
-                        break;
-                    case KeyEvent.KEYCODE_MEDIA_FAST_FORWARD:
-                        if (mFastForwardAction != null) {
-                            handleActionClicked(mFastForwardAction);
-                            result = true;
-                        }
-                        break;
-                    case KeyEvent.KEYCODE_MEDIA_REWIND:
-                        if (mRewindAction != null) {
-                            handleActionClicked(mRewindAction);
-                            result = true;
-                        }
-                        break;
-                    case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-                        if (mSkipPreviousAction != null) {
-                            handleActionClicked(mSkipPreviousAction);
-                            result = true;
-                        }
-                        break;
-                    case KeyEvent.KEYCODE_MEDIA_NEXT:
-                        if (mSkipNextAction != null) {
-                            handleActionClicked(mSkipNextAction);
-                            result = true;
-                        }
-                        break;
-                }
-            }
-            return result;
-        }
-    };
+    /**
+     * Constructor for the glue.
+     *
+     * @param context
+     * @param seekSpeeds Array of seek speeds for fast forward and rewind.
+     */
+    public PlaybackControlGlue(Context context, int[] seekSpeeds) {
+        this(context, null, seekSpeeds, seekSpeeds);
+    }
 
     /**
      * Constructor for the glue.
      *
-     * <p>The {@link PlaybackOverlayFragment} must be passed in.
-     * A {@link OnItemViewClickedListener} and {@link PlaybackOverlayFragment.InputEventHandler}
-     * will be set on the fragment.
-     * </p>
+     * @param context
+     * @param fastForwardSpeeds Array of seek speeds for fast forward.
+     * @param rewindSpeeds Array of seek speeds for rewind.
+     */
+    public PlaybackControlGlue(Context context,
+                               int[] fastForwardSpeeds,
+                               int[] rewindSpeeds) {
+        this(context, null, fastForwardSpeeds, rewindSpeeds);
+    }
+
+    /**
+     * Constructor for the glue.
      *
      * @param context
-     * @param fragment
+     * @param fragment Optional; if using a {@link PlaybackOverlayFragment}, pass it in.
      * @param seekSpeeds Array of seek speeds for fast forward and rewind.
      */
     public PlaybackControlGlue(Context context,
@@ -270,13 +243,8 @@ public abstract class PlaybackControlGlue {
     /**
      * Constructor for the glue.
      *
-     * <p>The {@link PlaybackOverlayFragment} must be passed in.
-     * A {@link OnItemViewClickedListener} and {@link PlaybackOverlayFragment.InputEventHandler}
-     * will be set on the fragment.
-     * </p>
-     *
      * @param context
-     * @param fragment
+     * @param fragment Optional; if using a {@link PlaybackOverlayFragment}, pass it in.
      * @param fastForwardSpeeds Array of seek speeds for fast forward.
      * @param rewindSpeeds Array of seek speeds for rewind.
      */
@@ -286,14 +254,9 @@ public abstract class PlaybackControlGlue {
                                int[] rewindSpeeds) {
         mContext = context;
         mFragment = fragment;
-        if (mFragment.getOnItemViewClickedListener() != null) {
-            throw new IllegalStateException("Fragment OnItemViewClickedListener already present");
+        if (fragment != null) {
+            attachToFragment();
         }
-        mFragment.setOnItemViewClickedListener(mOnItemViewClickedListener);
-        if (mFragment.getInputEventHandler() != null) {
-            throw new IllegalStateException("Fragment InputEventListener already present");
-        }
-        mFragment.setInputEventHandler(mInputEventHandler);
         if (fastForwardSpeeds.length == 0 || fastForwardSpeeds.length > NUMBER_OF_SEEK_SPEEDS) {
             throw new IllegalStateException("invalid fastForwardSpeeds array size");
         }
@@ -302,6 +265,22 @@ public abstract class PlaybackControlGlue {
             throw new IllegalStateException("invalid rewindSpeeds array size");
         }
         mRewindSpeeds = rewindSpeeds;
+    }
+
+    private final PlaybackOverlayFragment.InputEventHandler mOnInputEventHandler =
+            new PlaybackOverlayFragment.InputEventHandler() {
+        @Override
+        public boolean handleInputEvent(InputEvent event) {
+            if (event instanceof KeyEvent) {
+                KeyEvent keyEvent = (KeyEvent) event;
+                return onKey(null, keyEvent.getKeyCode(), keyEvent);
+            }
+            return false;
+        }
+    };
+
+    private void attachToFragment() {
+        mFragment.setInputEventHandler(mOnInputEventHandler);
     }
 
     /**
@@ -313,7 +292,8 @@ public abstract class PlaybackControlGlue {
         PlaybackControlsRow controlsRow = new PlaybackControlsRow(this);
         setControlsRow(controlsRow);
 
-        return new PlaybackControlsRowPresenter(new AbstractDetailsDescriptionPresenter() {
+        AbstractDetailsDescriptionPresenter detailsPresenter =
+                new AbstractDetailsDescriptionPresenter() {
             @Override
             protected void onBindDescription(AbstractDetailsDescriptionPresenter.ViewHolder
                                                      viewHolder, Object object) {
@@ -326,7 +306,19 @@ public abstract class PlaybackControlGlue {
                     viewHolder.getSubtitle().setText("");
                 }
             }
-        });
+        };
+        return new PlaybackControlsRowPresenter(detailsPresenter) {
+            @Override
+            protected void onBindRowViewHolder(RowPresenter.ViewHolder vh, Object item) {
+                super.onBindRowViewHolder(vh, item);
+                vh.setOnKeyListener(PlaybackControlGlue.this);
+            }
+            @Override
+            protected void onUnbindRowViewHolder(RowPresenter.ViewHolder vh) {
+                super.onUnbindRowViewHolder(vh);
+                vh.setOnKeyListener(null);
+            }
+        };
     }
 
     /**
@@ -362,7 +354,7 @@ public abstract class PlaybackControlGlue {
      */
     public void setFadingEnabled(boolean enable) {
         mFadeWhenPlaying = enable;
-        if (!mFadeWhenPlaying) {
+        if (!mFadeWhenPlaying && mFragment != null) {
             mFragment.setFadingEnabled(false);
         }
     }
@@ -378,9 +370,14 @@ public abstract class PlaybackControlGlue {
      * Set the {@link OnItemViewClickedListener} to be called if the click event
      * is not handled internally.
      * @param listener
+     * @deprecated Don't call this.  Instead set the listener on the fragment yourself,
+     * and call {@link #onActionClicked} to handle clicks.
      */
     public void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
         mExternalOnItemViewClickedListener = listener;
+        if (mFragment != null) {
+            mFragment.setOnItemViewClickedListener(mOnItemViewClickedListener);
+        }
     }
 
     /**
@@ -435,13 +432,70 @@ public abstract class PlaybackControlGlue {
         mControlsRow.setCurrentTime(position);
     }
 
-    private boolean handleActionClicked(Action action) {
+    /**
+     * Handles action clicks.  A subclass may override this add support for additional actions.
+     */
+    @Override
+    public void onActionClicked(Action action) {
+        dispatchAction(action, null);
+    }
+
+    /**
+     * Handles key events and returns true if handled.  A subclass may override this to provide
+     * additional support.
+     */
+    @Override
+    public boolean onKey(View v, int keyCode, KeyEvent event) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_DPAD_UP:
+            case KeyEvent.KEYCODE_DPAD_DOWN:
+            case KeyEvent.KEYCODE_DPAD_RIGHT:
+            case KeyEvent.KEYCODE_DPAD_LEFT:
+            case KeyEvent.KEYCODE_BACK:
+                boolean abortSeek = mPlaybackSpeed >= PLAYBACK_SPEED_FAST_L0 ||
+                        mPlaybackSpeed <= -PLAYBACK_SPEED_FAST_L0;
+                if (abortSeek) {
+                    mPlaybackSpeed = PLAYBACK_SPEED_NORMAL;
+                    startPlayback(mPlaybackSpeed);
+                    updatePlaybackStatusAfterUserAction();
+                    return keyCode == KeyEvent.KEYCODE_BACK;
+                }
+                return false;
+        }
+        Action action = mControlsRow.getActionForKeyCode(mPrimaryActionsAdapter, keyCode);
+        if (action != null) {
+            if (action == mPrimaryActionsAdapter.lookup(ACTION_PLAY_PAUSE) ||
+                    action == mPrimaryActionsAdapter.lookup(ACTION_REWIND) ||
+                    action == mPrimaryActionsAdapter.lookup(ACTION_FAST_FORWARD) ||
+                    action == mPrimaryActionsAdapter.lookup(ACTION_SKIP_TO_PREVIOUS) ||
+                    action == mPrimaryActionsAdapter.lookup(ACTION_SKIP_TO_NEXT)) {
+                if (((KeyEvent) event).getAction() == KeyEvent.ACTION_DOWN) {
+                    dispatchAction(action, (KeyEvent) event);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Called when the given action is invoked, either by click or keyevent.
+     */
+    private boolean dispatchAction(Action action, KeyEvent keyEvent) {
         boolean handled = false;
         if (action == mPlayPauseAction) {
+            boolean canPlay = keyEvent == null ||
+                    keyEvent.getKeyCode() == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE ||
+                    keyEvent.getKeyCode() == KeyEvent.KEYCODE_MEDIA_PLAY;
+            boolean canPause = keyEvent == null ||
+                    keyEvent.getKeyCode() == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE ||
+                    keyEvent.getKeyCode() == KeyEvent.KEYCODE_MEDIA_PAUSE;
             if (mPlaybackSpeed != PLAYBACK_SPEED_NORMAL) {
-                mPlaybackSpeed = PLAYBACK_SPEED_NORMAL;
-                startPlayback(mPlaybackSpeed);
-            } else {
+                if (canPlay) {
+                    mPlaybackSpeed = PLAYBACK_SPEED_NORMAL;
+                    startPlayback(mPlaybackSpeed);
+                }
+            } else if (canPause) {
                 mPlaybackSpeed = PLAYBACK_SPEED_PAUSED;
                 pausePlayback();
             }
@@ -456,15 +510,14 @@ public abstract class PlaybackControlGlue {
         } else if (action == mFastForwardAction) {
             if (mPlaybackSpeed < getMaxForwardSpeedId()) {
                 switch (mPlaybackSpeed) {
-                    case PLAYBACK_SPEED_NORMAL:
-                    case PLAYBACK_SPEED_PAUSED:
-                        mPlaybackSpeed = PLAYBACK_SPEED_FAST_L0;
-                        break;
                     case PLAYBACK_SPEED_FAST_L0:
                     case PLAYBACK_SPEED_FAST_L1:
                     case PLAYBACK_SPEED_FAST_L2:
                     case PLAYBACK_SPEED_FAST_L3:
                         mPlaybackSpeed++;
+                        break;
+                    default:
+                        mPlaybackSpeed = PLAYBACK_SPEED_FAST_L0;
                         break;
                 }
                 startPlayback(mPlaybackSpeed);
@@ -474,15 +527,14 @@ public abstract class PlaybackControlGlue {
         } else if (action == mRewindAction) {
             if (mPlaybackSpeed > -getMaxRewindSpeedId()) {
                 switch (mPlaybackSpeed) {
-                    case PLAYBACK_SPEED_NORMAL:
-                    case PLAYBACK_SPEED_PAUSED:
-                        mPlaybackSpeed = -PLAYBACK_SPEED_FAST_L0;
-                        break;
                     case -PLAYBACK_SPEED_FAST_L0:
                     case -PLAYBACK_SPEED_FAST_L1:
                     case -PLAYBACK_SPEED_FAST_L2:
                     case -PLAYBACK_SPEED_FAST_L3:
                         mPlaybackSpeed--;
+                        break;
+                    default:
+                        mPlaybackSpeed = -PLAYBACK_SPEED_FAST_L0;
                         break;
                 }
                 startPlayback(mPlaybackSpeed);
@@ -630,7 +682,7 @@ public abstract class PlaybackControlGlue {
             enableProgressUpdating(true);
         }
 
-        if (mFadeWhenPlaying) {
+        if (mFadeWhenPlaying && mFragment != null) {
             mFragment.setFadingEnabled(playbackSpeed == PLAYBACK_SPEED_NORMAL);
         }
 

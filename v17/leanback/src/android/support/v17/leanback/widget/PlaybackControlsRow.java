@@ -26,6 +26,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.view.KeyEvent;
 
 /**
  * A row of playback controls to be displayed by a {@link PlaybackControlsRowPresenter}.
@@ -183,6 +184,9 @@ public class PlaybackControlsRow extends Row {
             labels[PLAY] = context.getString(R.string.lb_playback_controls_play);
             labels[PAUSE] = context.getString(R.string.lb_playback_controls_pause);
             setLabels(labels);
+            addKeyCode(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
+            addKeyCode(KeyEvent.KEYCODE_MEDIA_PLAY);
+            addKeyCode(KeyEvent.KEYCODE_MEDIA_PAUSE);
         }
     }
 
@@ -229,6 +233,7 @@ public class PlaybackControlsRow extends Row {
             }
             setLabels(labels);
             setSecondaryLabels(labels2);
+            addKeyCode(KeyEvent.KEYCODE_MEDIA_FAST_FORWARD);
         }
     }
 
@@ -275,6 +280,7 @@ public class PlaybackControlsRow extends Row {
             }
             setLabels(labels);
             setSecondaryLabels(labels2);
+            addKeyCode(KeyEvent.KEYCODE_MEDIA_REWIND);
         }
     }
 
@@ -291,6 +297,7 @@ public class PlaybackControlsRow extends Row {
             setIcon(getStyledDrawable(context,
                     R.styleable.lbPlaybackControlsActionIcons_skip_next));
             setLabel1(context.getString(R.string.lb_playback_controls_skip_next));
+            addKeyCode(KeyEvent.KEYCODE_MEDIA_NEXT);
         }
     }
 
@@ -307,6 +314,7 @@ public class PlaybackControlsRow extends Row {
             setIcon(getStyledDrawable(context,
                     R.styleable.lbPlaybackControlsActionIcons_skip_previous));
             setLabel1(context.getString(R.string.lb_playback_controls_skip_previous));
+            addKeyCode(KeyEvent.KEYCODE_MEDIA_PREVIOUS);
         }
     }
 
@@ -727,6 +735,34 @@ public class PlaybackControlsRow extends Row {
      */
     public int getBufferedProgress() {
         return mBufferedProgressMs;
+    }
+
+    /**
+     * Returns the Action associated with the given keycode, or null if no associated action exists.
+     * Searches the primary adapter first, then the secondary adapter.
+     */
+    public Action getActionForKeyCode(int keyCode) {
+        Action action = getActionForKeyCode(getPrimaryActionsAdapter(), keyCode);
+        if (action != null) {
+            return action;
+        }
+        return getActionForKeyCode(getSecondaryActionsAdapter(), keyCode);
+    }
+
+    /**
+     * Returns the Action associated with the given keycode, or null if no associated action exists.
+     */
+    public Action getActionForKeyCode(ObjectAdapter adapter, int keyCode) {
+        if (adapter != mPrimaryActionsAdapter && adapter != mSecondaryActionsAdapter) {
+            throw new IllegalArgumentException("Invalid adapter");
+        }
+        for (int i = 0; i < adapter.size(); i++) {
+            Action action = (Action) adapter.get(i);
+            if (action.respondsToKeyCode(keyCode)) {
+                return action;
+            }
+        }
+        return null;
     }
 
     interface OnPlaybackStateChangedListener {
