@@ -19,6 +19,7 @@ import android.support.v17.leanback.widget.ControlBarPresenter.OnControlSelected
 import android.content.Context;
 import android.graphics.Color;
 import android.util.TypedValue;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -315,7 +316,7 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
         return vh;
     }
 
-    private void initRow(ViewHolder vh) {
+    private void initRow(final ViewHolder vh) {
         vh.mCardHeight = vh.mCard.getLayoutParams().height;
 
         MarginLayoutParams lp = (MarginLayoutParams) vh.mControlsDock.getLayoutParams();
@@ -334,6 +335,18 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
         if (!mSecondaryActionsHidden) {
             vh.mSecondaryControlsDock.addView(vh.mSecondaryControlsVh.view);
         }
+        ((PlaybackControlsRowView) vh.view).setOnUnhandledKeyListener(
+                new PlaybackControlsRowView.OnUnhandledKeyListener() {
+            @Override
+            public boolean onUnhandledKey(KeyEvent event) {
+                if (vh.getOnKeyListener() != null) {
+                    if (vh.getOnKeyListener().onKey(vh.view, event.getKeyCode(), event)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
     }
 
     @Override

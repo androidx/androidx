@@ -25,6 +25,7 @@ import android.support.v17.leanback.R;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -425,7 +426,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         return context.getResources().getDimensionPixelSize(resId);
     }
 
-    private void initDetailsOverview(ViewHolder vh) {
+    private void initDetailsOverview(final ViewHolder vh) {
         vh.mActionBridgeAdapter = new ActionsItemBridgeAdapter(vh);
         final View overview = vh.mOverviewFrame;
         ViewGroup.LayoutParams lp = overview.getLayoutParams();
@@ -435,6 +436,17 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         if (!getSelectEffectEnabled()) {
             vh.mOverviewFrame.setForeground(null);
         }
+        vh.mActionsRow.setOnUnhandledKeyListener(new BaseGridView.OnUnhandledKeyListener() {
+            @Override
+            public boolean onUnhandledKey(KeyEvent event) {
+                if (vh.getOnKeyListener() != null) {
+                    if (vh.getOnKeyListener().onKey(vh.view, event.getKeyCode(), event)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
     }
 
     private static int getNonNegativeWidth(Drawable drawable) {

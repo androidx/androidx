@@ -17,6 +17,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.view.KeyEvent;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -325,6 +326,22 @@ public class DetailsOverviewRow extends Row {
             }
             notifyActionsAdapterChanged();
         }
+    }
+
+    /**
+     * Returns the Action associated with the given keycode, or null if no associated action exists.
+     */
+    public Action getActionForKeyCode(int keyCode) {
+        ObjectAdapter adapter = getActionsAdapter();
+        if (adapter != null) {
+            for (int i = 0; i < adapter.size(); i++) {
+                Action action = (Action) adapter.get(i);
+                if (action.respondsToKeyCode(keyCode)) {
+                    return action;
+                }
+            }
+        }
+        return null;
     }
 
     private void verify() {
