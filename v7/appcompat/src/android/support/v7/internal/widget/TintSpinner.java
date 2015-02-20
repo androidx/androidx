@@ -102,7 +102,7 @@ public class TintSpinner extends Spinner implements TintableBackgroundView {
      */
     @Override
     public void setSupportBackgroundTintList(@Nullable ColorStateList tint) {
-        if (mBackgroundTint == null && tint != null) {
+        if (mBackgroundTint == null) {
             mBackgroundTint = new TintInfo();
         }
         mBackgroundTint.mTintList = tint;
