@@ -58,7 +58,7 @@ class DrawableCompatLollipop {
     }
 
     public static void setTintMode(Drawable drawable, PorterDuff.Mode tintMode) {
-        if (drawable instanceof GradientDrawable) {
+        if (drawable instanceof DrawableWrapperLollipop) {
             // GradientDrawable on Lollipop does not support tinting, so we'll use our compatible
             // functionality instead
             DrawableCompatBase.setTintMode(drawable, tintMode);
