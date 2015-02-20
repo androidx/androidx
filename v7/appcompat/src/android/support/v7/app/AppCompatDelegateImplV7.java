@@ -48,6 +48,7 @@ import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.MenuPresenter;
 import android.support.v7.internal.view.menu.MenuView;
 import android.support.v7.internal.widget.ActionBarContextView;
+import android.support.v7.internal.widget.ContentFrameLayout;
 import android.support.v7.internal.widget.DecorContentParent;
 import android.support.v7.internal.widget.FitWindowsViewGroup;
 import android.support.v7.internal.widget.TintManager;
@@ -369,7 +370,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
             ViewUtils.makeOptionalFitsSystemWindows(mSubDecor);
 
             final ViewGroup decorContent = (ViewGroup) mWindow.findViewById(android.R.id.content);
-            final ViewGroup abcContent = (ViewGroup) mSubDecor.findViewById(
+            final ContentFrameLayout abcContent = (ContentFrameLayout) mSubDecor.findViewById(
                     R.id.action_bar_activity_content);
 
             // There might be Views already added to the Window's content view so we need to
@@ -400,7 +401,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
                 onTitleChanged(title);
             }
 
-            applyFixedSizeWindow();
+            applyFixedSizeWindow(abcContent);
 
             onSubDecorInstalled(mSubDecor);
 
@@ -420,59 +421,30 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
 
     void onSubDecorInstalled(ViewGroup subDecor) {}
 
-    private void applyFixedSizeWindow() {
+    private void applyFixedSizeWindow(ContentFrameLayout contentFrameLayout) {
         TypedArray a = mContext.obtainStyledAttributes(R.styleable.Theme);
-
-        TypedValue mFixedWidthMajor = null;
-        TypedValue mFixedWidthMinor = null;
-        TypedValue mFixedHeightMajor = null;
-        TypedValue mFixedHeightMinor = null;
+        a.getValue(R.styleable.Theme_windowMinWidthMajor, contentFrameLayout.getMinWidthMajor());
+        a.getValue(R.styleable.Theme_windowMinWidthMinor, contentFrameLayout.getMinWidthMinor());
 
         if (a.hasValue(R.styleable.Theme_windowFixedWidthMajor)) {
-            if (mFixedWidthMajor == null) mFixedWidthMajor = new TypedValue();
-            a.getValue(R.styleable.Theme_windowFixedWidthMajor, mFixedWidthMajor);
+            a.getValue(R.styleable.Theme_windowFixedWidthMajor,
+                    contentFrameLayout.getFixedWidthMajor());
         }
         if (a.hasValue(R.styleable.Theme_windowFixedWidthMinor)) {
-            if (mFixedWidthMinor == null) mFixedWidthMinor = new TypedValue();
-            a.getValue(R.styleable.Theme_windowFixedWidthMinor, mFixedWidthMinor);
+            a.getValue(R.styleable.Theme_windowFixedWidthMinor,
+                    contentFrameLayout.getFixedWidthMinor());
         }
         if (a.hasValue(R.styleable.Theme_windowFixedHeightMajor)) {
-            if (mFixedHeightMajor == null) mFixedHeightMajor = new TypedValue();
-            a.getValue(R.styleable.Theme_windowFixedHeightMajor, mFixedHeightMajor);
+            a.getValue(R.styleable.Theme_windowFixedHeightMajor,
+                    contentFrameLayout.getFixedHeightMajor());
         }
         if (a.hasValue(R.styleable.Theme_windowFixedHeightMinor)) {
-            if (mFixedHeightMinor == null) mFixedHeightMinor = new TypedValue();
-            a.getValue(R.styleable.Theme_windowFixedHeightMinor, mFixedHeightMinor);
+            a.getValue(R.styleable.Theme_windowFixedHeightMinor,
+                    contentFrameLayout.getFixedHeightMinor());
         }
-
-        final DisplayMetrics metrics = mContext.getResources().getDisplayMetrics();
-        final boolean isPortrait = metrics.widthPixels < metrics.heightPixels;
-        int w = ViewGroup.LayoutParams.MATCH_PARENT;
-        int h = ViewGroup.LayoutParams.MATCH_PARENT;
-
-        final TypedValue tvw = isPortrait ? mFixedWidthMinor : mFixedWidthMajor;
-        if (tvw != null && tvw.type != TypedValue.TYPE_NULL) {
-            if (tvw.type == TypedValue.TYPE_DIMENSION) {
-                w = (int) tvw.getDimension(metrics);
-            } else if (tvw.type == TypedValue.TYPE_FRACTION) {
-                w = (int) tvw.getFraction(metrics.widthPixels, metrics.widthPixels);
-            }
-        }
-
-        final TypedValue tvh = isPortrait ? mFixedHeightMajor : mFixedHeightMinor;
-        if (tvh != null && tvh.type != TypedValue.TYPE_NULL) {
-            if (tvh.type == TypedValue.TYPE_DIMENSION) {
-                h = (int) tvh.getDimension(metrics);
-            } else if (tvh.type == TypedValue.TYPE_FRACTION) {
-                h = (int) tvh.getFraction(metrics.heightPixels, metrics.heightPixels);
-            }
-        }
-
-        if (w != ViewGroup.LayoutParams.MATCH_PARENT || h != ViewGroup.LayoutParams.MATCH_PARENT) {
-            mWindow.setLayout(w, h);
-        }
-
         a.recycle();
+
+        contentFrameLayout.requestLayout();
     }
 
     @Override
@@ -497,6 +469,10 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
             case Window.FEATURE_INDETERMINATE_PROGRESS:
                 throwFeatureRequestIfSubDecorInstalled();
                 mFeatureIndeterminateProgress = true;
+                return true;
+            case Window.FEATURE_NO_TITLE:
+                throwFeatureRequestIfSubDecorInstalled();
+                mWindowNoTitle = true;
                 return true;
         }
 
