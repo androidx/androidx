@@ -18,6 +18,7 @@ package com.example.android.supportv7.widget;
 import com.example.android.supportv7.Cheeses;
 import com.example.android.supportv7.R;
 import com.example.android.supportv7.widget.adapter.SimpleStringAdapter;
+import com.example.android.supportv7.widget.util.ConfigToggle;
 
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.GridLayoutManager;

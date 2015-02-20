@@ -22,6 +22,7 @@ import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import com.example.android.supportv7.R;
+import com.example.android.supportv7.widget.util.ConfigToggle;
 
 /**
  * A sample activity that uses {@link LinearLayoutManager}.
@@ -41,7 +42,7 @@ public class LinearLayoutManagerActivity extends BaseLayoutManagerActivity<Linea
     }
 
     @Override
-    BaseLayoutManagerActivity.ConfigToggle[] createConfigToggles() {
+    ConfigToggle[] createConfigToggles() {
         return new ConfigToggle[]{
                 new ConfigToggle(this, R.string.checkbox_orientation) {
                     @Override
