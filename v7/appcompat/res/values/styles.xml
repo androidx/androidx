@@ -223,6 +223,10 @@
 
     <style name="Widget.AppCompat.TextView.SpinnerItem" parent="Base.Widget.AppCompat.TextView.SpinnerItem" />
 
+    <style name="AlertDialog.AppCompat" parent="Base.AlertDialog.AppCompat" />
+
+    <style name="AlertDialog.AppCompat.Light" parent="Base.AlertDialog.AppCompat.Light" />
+
     <!-- Toolbar -->
 
     <style name="Widget.AppCompat.Toolbar" parent="Base.Widget.AppCompat.Toolbar" />
