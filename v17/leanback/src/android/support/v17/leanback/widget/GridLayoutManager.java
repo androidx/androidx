@@ -1754,13 +1754,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             if (DEBUG) Log.v(getTag(), "updating scroll maxEdge to " + maxEdge +
                     " scrollMax to " + maxScroll);
         } else {
-            // the maxScroll for currently last visible item is larger,
-            // so we must invalidate the max scroll value.
-            if (maxScroll > mWindowAlignment.mainAxis().getMaxScroll()) {
-                mWindowAlignment.mainAxis().invalidateScrollMax();
-                if (DEBUG) Log.v(getTag(), "Invalidate scrollMax since it should be "
-                        + "greater than " + maxScroll);
-            }
+            mWindowAlignment.mainAxis().invalidateScrollMax();
+            if (DEBUG) Log.v(getTag(), "Invalidate scrollMax since it should be "
+                    + "greater than " + maxScroll);
         }
     }
 
@@ -1790,13 +1786,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             if (DEBUG) Log.v(getTag(), "updating scroll minEdge to " + minEdge +
                     " scrollMin to " + minScroll);
         } else {
-            // the minScroll for currently first visible item is smaller,
-            // so we must invalidate the min scroll value.
-            if (minScroll < mWindowAlignment.mainAxis().getMinScroll()) {
-                mWindowAlignment.mainAxis().invalidateScrollMin();
-                if (DEBUG) Log.v(getTag(), "Invalidate scrollMin, since it should be "
-                        + "less than " + minScroll);
-            }
+            mWindowAlignment.mainAxis().invalidateScrollMin();
+            if (DEBUG) Log.v(getTag(), "Invalidate scrollMin, since it should be "
+                    + "less than " + minScroll);
         }
     }
 
