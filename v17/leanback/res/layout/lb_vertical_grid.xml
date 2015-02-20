@@ -17,8 +17,11 @@
 
 <android.support.v17.leanback.widget.VerticalGridView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:lb="http://schemas.android.com/apk/res-auto"
     android:id="@+id/browse_grid"
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
     android:layout_gravity="center"
+    android:clipToPadding="false"
+    lb:columnWidth="wrap_content"
     style="?attr/itemsVerticalGridStyle" />

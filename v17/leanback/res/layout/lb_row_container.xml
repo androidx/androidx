@@ -20,7 +20,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:paddingStart="?attr/browsePaddingStart"
+    style="?attr/rowHeaderDockStyle"
     android:clipToPadding="false">
 </android.support.v17.leanback.widget.NonOverlappingLinearLayout>
 </merge>

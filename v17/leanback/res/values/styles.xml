@@ -98,6 +98,10 @@
     </style>
 
     <style name="Widget.Leanback.TitleView" >
+        <item name="android:paddingTop">?attr/browsePaddingTop</item>
+        <item name="android:paddingBottom">?attr/browsePaddingTop</item>
+        <item name="android:paddingStart">?attr/browsePaddingStart</item>
+        <item name="android:paddingEnd">?attr/browsePaddingEnd</item>
     </style>
 
     <style name="Widget.Leanback.Title" />
@@ -127,7 +131,6 @@
 
     <style name="Widget.Leanback.Headers.VerticalGridView" >
         <item name="android:paddingStart">?attr/browsePaddingStart</item>
-        <item name="android:clipToPadding">false</item>
         <item name="focusOutFront">true</item>
         <item name="focusOutEnd">true</item>
         <item name="verticalMargin">@dimen/lb_browse_headers_vertical_margin</item>
@@ -145,7 +148,6 @@
 
     <style name="Widget.Leanback.Rows.VerticalGridView" >
         <item name="android:paddingBottom">?attr/browsePaddingBottom</item>
-        <item name="android:clipToPadding">false</item>
         <item name="focusOutFront">true</item>
         <item name="focusOutEnd">true</item>
         <item name="android:focusable">true</item>
@@ -153,7 +155,6 @@
     </style>
 
     <style name="Widget.Leanback.Row.HorizontalGridView">
-        <item name="android:clipToPadding">false</item>
         <item name="android:focusable">true</item>
         <item name="android:focusableInTouchMode">true</item>
         <item name="android:paddingStart">?attr/browsePaddingStart</item>
@@ -163,11 +164,9 @@
         <item name="horizontalMargin">@dimen/lb_browse_item_horizontal_margin</item>
         <item name="verticalMargin">@dimen/lb_browse_item_vertical_margin</item>
         <item name="focusOutFront">true</item>
-        <item name="rowHeight">wrap_content</item>
     </style>
 
     <style name="Widget.Leanback.GridItems.VerticalGridView">
-        <item name="android:clipToPadding">false</item>
         <item name="android:focusable">true</item>
         <item name="android:focusableInTouchMode">true</item>
         <item name="android:paddingStart">?attr/browsePaddingStart</item>
@@ -177,12 +176,15 @@
         <item name="android:gravity">center_horizontal</item>
         <item name="horizontalMargin">@dimen/lb_browse_item_horizontal_margin</item>
         <item name="verticalMargin">@dimen/lb_browse_item_vertical_margin</item>
-        <item name="columnWidth">wrap_content</item>
         <item name="focusOutFront">true</item>
     </style>
 
     <style name="Widget.Leanback.Row.Header" parent="Widget.Leanback.Header">
         <item name="android:textAppearance">@style/TextAppearance.Leanback.Row.Header</item>
+    </style>
+
+    <style name="Widget.Leanback.Row.HeaderDock">
+        <item name="android:paddingStart">?attr/browsePaddingStart</item>
     </style>
 
     <style name="TextAppearance.Leanback.Row.HoverCardTitle" parent="TextAppearance.Leanback">

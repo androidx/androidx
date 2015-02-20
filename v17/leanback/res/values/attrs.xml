@@ -223,6 +223,8 @@
         <attr name="rowHorizontalGridStyle" format="reference" />
         <!-- header style inside a row -->
         <attr name="rowHeaderStyle" format="reference" />
+        <!-- style for the layout that hosting Header inside a row -->
+        <attr name="rowHeaderDockStyle" format="reference" />
 
         <!-- hover card title style -->
         <attr name="rowHoverCardTitleStyle" format="reference" />
