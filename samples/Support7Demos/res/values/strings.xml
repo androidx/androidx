@@ -58,6 +58,7 @@
     <string name="action_bar_with_navigation_drawer">AppCompat/Action Bar/Navigation Drawer Toggle</string>
     <string name="action_bar_preferences">AppCompat/Action Bar/Preferences</string>
     <string name="action_bar_action_mode">AppCompat/Action Bar/Action Mode</string>
+    <string name="action_bar_hide_scroll">AppCompat/Action Bar/Hide on Scroll</string>
     <string name="appcompat_widgets_buttons">AppCompat/Widgets/Buttons</string>
     <string name="appcompat_widgets_spinners">AppCompat/Widgets/Spinners</string>
     <string name="appcompat_widgets_text_input">AppCompat/Widgets/Text Input</string>
