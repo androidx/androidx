@@ -36,6 +36,18 @@ public class FieldPacker {
         mAlignment = new BitSet();
     }
 
+    public FieldPacker(byte[] data) {
+        // Advance mPos to the end of the buffer, since we are copying in the
+        // full data input.
+        mPos = data.length;
+        mLen = data.length;
+        mData = data;
+        mAlignment = new BitSet();
+        // TODO: We should either have an actual FieldPacker copy constructor
+        // or drop support for computing alignment like this. As it stands,
+        // subAlign() can never work correctly for copied FieldPacker objects.
+    }
+
     public void align(int v) {
         if ((v <= 0) || ((v & (v - 1)) != 0)) {
             throw new RSIllegalArgumentException("argument must be a non-negative non-zero power of 2: " + v);
@@ -47,11 +59,29 @@ public class FieldPacker {
         }
     }
 
+    public void subalign(int v) {
+        if ((v & (v - 1)) != 0) {
+            throw new RSIllegalArgumentException("argument must be a non-negative non-zero power of 2: " + v);
+        }
+
+        while ((mPos & (v - 1)) != 0) {
+            mPos--;
+        }
+
+        if (mPos > 0) {
+            while (mAlignment.get(mPos - 1) == true) {
+                mPos--;
+                mAlignment.flip(mPos);
+            }
+        }
+
+    }
+
     public void reset() {
         mPos = 0;
     }
     public void reset(int i) {
-        if ((i < 0) || (i >= mLen)) {
+        if ((i < 0) || (i > mLen)) {
             throw new RSIllegalArgumentException("out of range argument: " + i);
         }
         mPos = i;
@@ -69,11 +99,25 @@ public class FieldPacker {
         mData[mPos++] = v;
     }
 
+    public byte subI8() {
+        subalign(1);
+        return mData[--mPos];
+    }
+
     public void addI16(short v) {
         align(2);
         mData[mPos++] = (byte)(v & 0xff);
         mData[mPos++] = (byte)(v >> 8);
     }
+
+    public short subI16() {
+        subalign(2);
+        short v = 0;
+        v = (short)((mData[--mPos] & 0xff) << 8);
+        v = (short)(v | (short)(mData[--mPos] & 0xff));
+        return v;
+    }
+
 
     public void addI32(int v) {
         align(4);
@@ -82,6 +126,17 @@ public class FieldPacker {
         mData[mPos++] = (byte)((v >> 16) & 0xff);
         mData[mPos++] = (byte)((v >> 24) & 0xff);
     }
+
+    public int subI32() {
+        subalign(4);
+        int v = 0;
+        v = ((mData[--mPos] & 0xff) << 24);
+        v = v | ((mData[--mPos] & 0xff) << 16);
+        v = v | ((mData[--mPos] & 0xff) << 8);
+        v = v | ((mData[--mPos] & 0xff));
+        return v;
+    }
+
 
     public void addI64(long v) {
         align(8);
@@ -95,8 +150,32 @@ public class FieldPacker {
         mData[mPos++] = (byte)((v >> 56) & 0xff);
     }
 
+    public long subI64() {
+        subalign(8);
+        long v = 0;
+        byte x = 0;
+        x = ((mData[--mPos]));
+        v = (long)(v | (((long)x) & 0xff) << 56l);
+        x = ((mData[--mPos]));
+        v = (long)(v | (((long)x) & 0xff) << 48l);
+        x = ((mData[--mPos]));
+        v = (long)(v | (((long)x) & 0xff) << 40l);
+        x = ((mData[--mPos]));
+        v = (long)(v | (((long)x) & 0xff) << 32l);
+        x = ((mData[--mPos]));
+        v = (long)(v | (((long)x) & 0xff) << 24l);
+        x = ((mData[--mPos]));
+        v = (long)(v | (((long)x) & 0xff) << 16l);
+        x = ((mData[--mPos]));
+        v = (long)(v | (((long)x) & 0xff) << 8l);
+        x = ((mData[--mPos]));
+        v = (long)(v | (((long)x) & 0xff));
+        return v;
+    }
+
     public void addU8(short v) {
         if ((v < 0) || (v > 0xff)) {
+            android.util.Log.e("rs", "FieldPacker.addU8( " + v + " )");
             throw new IllegalArgumentException("Saving value out of range for type");
         }
         mData[mPos++] = (byte)v;
@@ -144,8 +223,16 @@ public class FieldPacker {
         addI32(Float.floatToRawIntBits(v));
     }
 
+    public float subF32() {
+        return Float.intBitsToFloat(subI32());
+    }
+
     public void addF64(double v) {
         addI64(Double.doubleToRawLongBits(v));
+    }
+
+    public double subF64() {
+        return Double.longBitsToDouble(subI64());
     }
 
     public void addObj(BaseObj obj) {
@@ -331,10 +418,153 @@ public class FieldPacker {
         addU64(v.w);
     }
 
+
+    public Float2 subFloat2() {
+        Float2 v = new Float2();
+        v.y = subF32();
+        v.x = subF32();
+        return v;
+    }
+    public Float3 subFloat3() {
+        Float3 v = new Float3();
+        v.z = subF32();
+        v.y = subF32();
+        v.x = subF32();
+        return v;
+    }
+    public Float4 subFloat4() {
+        Float4 v = new Float4();
+        v.w = subF32();
+        v.z = subF32();
+        v.y = subF32();
+        v.x = subF32();
+        return v;
+    }
+
+    public Double2 subDouble2() {
+        Double2 v = new Double2();
+        v.y = subF64();
+        v.x = subF64();
+        return v;
+    }
+    public Double3 subDouble3() {
+        Double3 v = new Double3();
+        v.z = subF64();
+        v.y = subF64();
+        v.x = subF64();
+        return v;
+    }
+    public Double4 subDouble4() {
+        Double4 v = new Double4();
+        v.w = subF64();
+        v.z = subF64();
+        v.y = subF64();
+        v.x = subF64();
+        return v;
+    }
+
+    public Byte2 subByte2() {
+        Byte2 v = new Byte2();
+        v.y = subI8();
+        v.x = subI8();
+        return v;
+    }
+    public Byte3 subByte3() {
+        Byte3 v = new Byte3();
+        v.z = subI8();
+        v.y = subI8();
+        v.x = subI8();
+        return v;
+    }
+    public Byte4 subByte4() {
+        Byte4 v = new Byte4();
+        v.w = subI8();
+        v.z = subI8();
+        v.y = subI8();
+        v.x = subI8();
+        return v;
+    }
+
+    public Short2 subShort2() {
+        Short2 v = new Short2();
+        v.y = subI16();
+        v.x = subI16();
+        return v;
+    }
+    public Short3 subShort3() {
+        Short3 v = new Short3();
+        v.z = subI16();
+        v.y = subI16();
+        v.x = subI16();
+        return v;
+    }
+    public Short4 subShort4() {
+        Short4 v = new Short4();
+        v.w = subI16();
+        v.z = subI16();
+        v.y = subI16();
+        v.x = subI16();
+        return v;
+    }
+
+    public Int2 subInt2() {
+        Int2 v = new Int2();
+        v.y = subI32();
+        v.x = subI32();
+        return v;
+    }
+    public Int3 subInt3() {
+        Int3 v = new Int3();
+        v.z = subI32();
+        v.y = subI32();
+        v.x = subI32();
+        return v;
+    }
+    public Int4 subInt4() {
+        Int4 v = new Int4();
+        v.w = subI32();
+        v.z = subI32();
+        v.y = subI32();
+        v.x = subI32();
+        return v;
+    }
+
+    public Long2 subLong2() {
+        Long2 v = new Long2();
+        v.y = subI64();
+        v.x = subI64();
+        return v;
+    }
+    public Long3 subLong3() {
+        Long3 v = new Long3();
+        v.z = subI64();
+        v.y = subI64();
+        v.x = subI64();
+        return v;
+    }
+    public Long4 subLong4() {
+        Long4 v = new Long4();
+        v.w = subI64();
+        v.z = subI64();
+        v.y = subI64();
+        v.x = subI64();
+        return v;
+    }
+
+
+
     public void addMatrix(Matrix4f v) {
         for (int i=0; i < v.mMat.length; i++) {
             addF32(v.mMat[i]);
         }
+    }
+
+    public Matrix4f subMatrix4f() {
+        Matrix4f v = new Matrix4f();
+        for (int i = v.mMat.length - 1; i >= 0; i--) {
+            v.mMat[i] = subF32();
+        }
+        return v;
     }
 
     public void addMatrix(Matrix3f v) {
@@ -343,28 +573,341 @@ public class FieldPacker {
         }
     }
 
+    public Matrix3f subMatrix3f() {
+        Matrix3f v = new Matrix3f();
+        for (int i = v.mMat.length - 1; i >= 0; i--) {
+            v.mMat[i] = subF32();
+        }
+        return v;
+    }
+
     public void addMatrix(Matrix2f v) {
         for (int i=0; i < v.mMat.length; i++) {
             addF32(v.mMat[i]);
         }
     }
 
+    public Matrix2f subMatrix2f() {
+        Matrix2f v = new Matrix2f();
+        for (int i = v.mMat.length - 1; i >= 0; i--) {
+            v.mMat[i] = subF32();
+        }
+        return v;
+    }
+
     public void addBoolean(boolean v) {
         addI8((byte)(v ? 1 : 0));
+    }
+
+    public boolean subBoolean() {
+        byte v = subI8();
+        if (v == 1) {
+            return true;
+        }
+        return false;
     }
 
     public final byte[] getData() {
         return mData;
     }
 
+    /**
+     * Get the actual length used for the FieldPacker.
+     *
+     * @hide
+     */
     public int getPos() {
         return mPos;
+    }
+
+    private static void addToPack(FieldPacker fp, Object obj) {
+        if (obj instanceof Boolean) {
+            fp.addBoolean(((Boolean)obj).booleanValue());
+            return;
+        }
+
+        if (obj instanceof Byte) {
+            fp.addI8(((Byte)obj).byteValue());
+            return;
+        }
+
+        if (obj instanceof Short) {
+            fp.addI16(((Short)obj).shortValue());
+            return;
+        }
+
+        if (obj instanceof Integer) {
+            fp.addI32(((Integer)obj).intValue());
+            return;
+        }
+
+        if (obj instanceof Long) {
+            fp.addI64(((Long)obj).longValue());
+            return;
+        }
+
+        if (obj instanceof Float) {
+            fp.addF32(((Float)obj).floatValue());
+            return;
+        }
+
+        if (obj instanceof Double) {
+            fp.addF64(((Double)obj).doubleValue());
+            return;
+        }
+
+        if (obj instanceof Byte2) {
+            fp.addI8((Byte2)obj);
+            return;
+        }
+
+        if (obj instanceof Byte3) {
+            fp.addI8((Byte3)obj);
+            return;
+        }
+
+        if (obj instanceof Byte4) {
+            fp.addI8((Byte4)obj);
+            return;
+        }
+
+        if (obj instanceof Short2) {
+            fp.addI16((Short2)obj);
+            return;
+        }
+
+        if (obj instanceof Short3) {
+            fp.addI16((Short3)obj);
+            return;
+        }
+
+        if (obj instanceof Short4) {
+            fp.addI16((Short4)obj);
+            return;
+        }
+
+        if (obj instanceof Int2) {
+            fp.addI32((Int2)obj);
+            return;
+        }
+
+        if (obj instanceof Int3) {
+            fp.addI32((Int3)obj);
+            return;
+        }
+
+        if (obj instanceof Int4) {
+            fp.addI32((Int4)obj);
+            return;
+        }
+
+        if (obj instanceof Long2) {
+            fp.addI64((Long2)obj);
+            return;
+        }
+
+        if (obj instanceof Long3) {
+            fp.addI64((Long3)obj);
+            return;
+        }
+
+        if (obj instanceof Long4) {
+            fp.addI64((Long4)obj);
+            return;
+        }
+
+        if (obj instanceof Float2) {
+            fp.addF32((Float2)obj);
+            return;
+        }
+
+        if (obj instanceof Float3) {
+            fp.addF32((Float3)obj);
+            return;
+        }
+
+        if (obj instanceof Float4) {
+            fp.addF32((Float4)obj);
+            return;
+        }
+
+        if (obj instanceof Double2) {
+            fp.addF64((Double2)obj);
+            return;
+        }
+
+        if (obj instanceof Double3) {
+            fp.addF64((Double3)obj);
+            return;
+        }
+
+        if (obj instanceof Double4) {
+            fp.addF64((Double4)obj);
+            return;
+        }
+
+        if (obj instanceof Matrix2f) {
+            fp.addMatrix((Matrix2f)obj);
+            return;
+        }
+
+        if (obj instanceof Matrix3f) {
+            fp.addMatrix((Matrix3f)obj);
+            return;
+        }
+
+        if (obj instanceof Matrix4f) {
+            fp.addMatrix((Matrix4f)obj);
+            return;
+        }
+
+        if (obj instanceof BaseObj) {
+            fp.addObj((BaseObj)obj);
+            return;
+        }
+    }
+
+    private static int getPackedSize(Object obj) {
+        if (obj instanceof Boolean) {
+            return 1;
+        }
+
+        if (obj instanceof Byte) {
+            return 1;
+        }
+
+        if (obj instanceof Short) {
+            return 2;
+        }
+
+        if (obj instanceof Integer) {
+            return 4;
+        }
+
+        if (obj instanceof Long) {
+            return 8;
+        }
+
+        if (obj instanceof Float) {
+            return 4;
+        }
+
+        if (obj instanceof Double) {
+            return 8;
+        }
+
+        if (obj instanceof Byte2) {
+            return 2;
+        }
+
+        if (obj instanceof Byte3) {
+            return 3;
+        }
+
+        if (obj instanceof Byte4) {
+            return 4;
+        }
+
+        if (obj instanceof Short2) {
+            return 4;
+        }
+
+        if (obj instanceof Short3) {
+            return 6;
+        }
+
+        if (obj instanceof Short4) {
+            return 8;
+        }
+
+        if (obj instanceof Int2) {
+            return 8;
+        }
+
+        if (obj instanceof Int3) {
+            return 12;
+        }
+
+        if (obj instanceof Int4) {
+            return 16;
+        }
+
+        if (obj instanceof Long2) {
+            return 16;
+        }
+
+        if (obj instanceof Long3) {
+            return 24;
+        }
+
+        if (obj instanceof Long4) {
+            return 32;
+        }
+
+        if (obj instanceof Float2) {
+            return 8;
+        }
+
+        if (obj instanceof Float3) {
+            return 12;
+        }
+
+        if (obj instanceof Float4) {
+            return 16;
+        }
+
+        if (obj instanceof Double2) {
+            return 16;
+        }
+
+        if (obj instanceof Double3) {
+            return 24;
+        }
+
+        if (obj instanceof Double4) {
+            return 32;
+        }
+
+        if (obj instanceof Matrix2f) {
+            return 16;
+        }
+
+        if (obj instanceof Matrix3f) {
+            return 36;
+        }
+
+        if (obj instanceof Matrix4f) {
+            return 64;
+        }
+
+        if (obj instanceof BaseObj) {
+            if (RenderScript.sPointerSize == 8) {
+                return 32;
+            } else {
+                return 4;
+            }
+        }
+
+        return 0;
+    }
+
+    static FieldPacker createFieldPack(Object[] args) {
+        int len = 0;
+        for (Object arg : args) {
+            len += getPackedSize(arg);
+        }
+        FieldPacker fp = new FieldPacker(len);
+        for (Object arg : args) {
+            addToPack(fp, arg);
+        }
+        return fp;
     }
 
     private final byte mData[];
     private int mPos;
     private int mLen;
     private BitSet mAlignment;
+
 }
 
 
