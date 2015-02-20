@@ -414,8 +414,7 @@ public class PlaybackControlsRow extends Row {
          * @param context Context used for loading resources.
          */
         public RepeatAction(Context context) {
-            this(context, getColorFromTheme(context,
-                    R.attr.playbackControlsIconHighlightColor));
+            this(context, getIconHighlightColor(context));
         }
 
         /**
@@ -441,10 +440,12 @@ public class PlaybackControlsRow extends Row {
             BitmapDrawable repeatOneDrawable = (BitmapDrawable) getStyledDrawable(context,
                     R.styleable.lbPlaybackControlsActionIcons_repeat_one);
             drawables[NONE] = repeatDrawable;
-            drawables[ALL] = new BitmapDrawable(context.getResources(),
-                    createBitmap(repeatDrawable.getBitmap(), repeatAllColor));
-            drawables[ONE] = new BitmapDrawable(context.getResources(),
-                    createBitmap(repeatOneDrawable.getBitmap(), repeatOneColor));
+            drawables[ALL] = repeatDrawable == null ? null
+                    : new BitmapDrawable(context.getResources(),
+                            createBitmap(repeatDrawable.getBitmap(), repeatAllColor));
+            drawables[ONE] = repeatOneDrawable == null ? null
+                    : new BitmapDrawable(context.getResources(),
+                            createBitmap(repeatOneDrawable.getBitmap(), repeatOneColor));
             setDrawables(drawables);
 
             String[] labels = new String[drawables.length];
@@ -468,8 +469,7 @@ public class PlaybackControlsRow extends Row {
          * @param context Context used for loading resources.
          */
         public ShuffleAction(Context context) {
-            this(context, getColorFromTheme(context,
-                    R.attr.playbackControlsIconHighlightColor));
+            this(context, getIconHighlightColor(context));
         }
 
         /**
@@ -506,8 +506,7 @@ public class PlaybackControlsRow extends Row {
          * @param context Context used for loading resources.
          */
         public HighQualityAction(Context context) {
-            this(context, getColorFromTheme(context,
-                    R.attr.playbackControlsIconHighlightColor));
+            this(context, getIconHighlightColor(context));
         }
 
         /**
@@ -544,8 +543,7 @@ public class PlaybackControlsRow extends Row {
          * @param context Context used for loading resources.
          */
         public ClosedCaptioningAction(Context context) {
-            this(context, getColorFromTheme(context,
-                    R.attr.playbackControlsIconHighlightColor));
+            this(context, getIconHighlightColor(context));
         }
 
         /**
@@ -579,16 +577,21 @@ public class PlaybackControlsRow extends Row {
         return dst;
     }
 
-    private static int getColorFromTheme(Context context, int attributeResId) {
+    private static int getIconHighlightColor(Context context) {
         TypedValue outValue = new TypedValue();
-        context.getTheme().resolveAttribute(attributeResId, outValue, true);
-        return outValue.data;
+        if (context.getTheme().resolveAttribute(R.attr.playbackControlsIconHighlightColor,
+                outValue, true)) {
+            return outValue.data;
+        }
+        return context.getResources().getColor(R.color.lb_playback_icon_highlight_no_theme);
     }
 
     private static Drawable getStyledDrawable(Context context, int index) {
         TypedValue outValue = new TypedValue();
-        context.getTheme().resolveAttribute(
-                R.attr.playbackControlsActionIcons, outValue, false);
+        if (!context.getTheme().resolveAttribute(
+                R.attr.playbackControlsActionIcons, outValue, false)) {
+            return null;
+        }
         TypedArray array = context.getTheme().obtainStyledAttributes(outValue.data,
                 R.styleable.lbPlaybackControlsActionIcons);
         Drawable drawable = array.getDrawable(index);

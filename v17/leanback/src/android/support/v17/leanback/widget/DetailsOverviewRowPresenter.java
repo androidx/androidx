@@ -397,8 +397,10 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
 
     private int getDefaultBackgroundColor(Context context) {
         TypedValue outValue = new TypedValue();
-        context.getTheme().resolveAttribute(R.attr.defaultBrandColor, outValue, true);
-        return context.getResources().getColor(outValue.resourceId);
+        if (context.getTheme().resolveAttribute(R.attr.defaultBrandColor, outValue, true)) {
+            return context.getResources().getColor(outValue.resourceId);
+        }
+        return context.getResources().getColor(R.color.lb_default_brand_color);
     }
 
     @Override

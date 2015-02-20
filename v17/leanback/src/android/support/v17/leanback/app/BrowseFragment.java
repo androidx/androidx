@@ -660,9 +660,11 @@ public class BrowseFragment extends BaseFragment {
         super.onCreate(savedInstanceState);
         TypedArray ta = getActivity().obtainStyledAttributes(R.styleable.LeanbackTheme);
         mContainerListMarginStart = (int) ta.getDimension(
-                R.styleable.LeanbackTheme_browseRowsMarginStart, 0);
+                R.styleable.LeanbackTheme_browseRowsMarginStart, getActivity().getResources()
+                .getDimensionPixelSize(R.dimen.lb_browse_rows_margin_start));
         mContainerListAlignTop = (int) ta.getDimension(
-                R.styleable.LeanbackTheme_browseRowsMarginTop, 0);
+                R.styleable.LeanbackTheme_browseRowsMarginTop, getActivity().getResources()
+                .getDimensionPixelSize(R.dimen.lb_browse_rows_margin_top));
         ta.recycle();
 
         readArguments(getArguments());
