@@ -19,12 +19,15 @@ package com.example.android.supportv7.widget;
 import com.example.android.supportv7.Cheeses;
 import com.example.android.supportv7.R;
 import com.example.android.supportv7.widget.adapter.SimpleStringAdapter;
+import com.example.android.supportv7.widget.util.ConfigToggle;
+import com.example.android.supportv7.widget.util.ConfigViewHolder;
 
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -167,56 +170,11 @@ abstract public class BaseLayoutManagerActivity<T extends RecyclerView.LayoutMan
 
     abstract ConfigToggle[] createConfigToggles();
 
-    private class ConfigViewHolder extends RecyclerView.ViewHolder
-            implements CompoundButton.OnCheckedChangeListener {
-
-        private CheckBox mCheckBox;
-
-        private ConfigToggle mConfigToggle;
-
-        public ConfigViewHolder(View itemView) {
-            super(itemView);
-            mCheckBox = (CheckBox) itemView;
-            mCheckBox.setOnCheckedChangeListener(this);
-        }
-
-        public void bind(ConfigToggle toggle) {
-            mConfigToggle = toggle;
-            mCheckBox.setText(toggle.getText());
-            mCheckBox.setChecked(toggle.isChecked());
-        }
-
-        @Override
-        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            if (mConfigToggle != null) {
-                mConfigToggle.onChange(isChecked);
-            }
-        }
-    }
-
-
-    public abstract static class ConfigToggle {
-
-        private String mLabel;
-
-        protected ConfigToggle(Context context, int labelId) {
-            mLabel = context.getResources().getString(labelId);
-        }
-
-        public String getText() {
-            return mLabel;
-        }
-
-        abstract public boolean isChecked();
-
-        abstract public void onChange(boolean newValue);
-    }
-
-
     private RecyclerView.Adapter mConfigAdapter = new RecyclerView.Adapter<ConfigViewHolder>() {
         @Override
         public ConfigViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new ConfigViewHolder(new CheckBox(parent.getContext()));
+            return new ConfigViewHolder(LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.config_view_toggle, parent, false));
         }
 
         @Override

@@ -406,5 +406,22 @@
                   android:label="@string/palette"
                   android:theme="@style/Theme.AppCompat" />
 
+        <!-- item touch helper demo activities-->
+        <activity android:name=".widget.touch.SwipeToDismissActivity"
+                  android:label="@string/swipe_to_dismiss_activity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".widget.touch.DragAndDropActivity"
+                  android:label="@string/drag_and_drop_activity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
     </application>
+
+
 </manifest>
