@@ -383,11 +383,18 @@ public class RenderScript {
         rsnAllocationData1D(mContext, id, off, mip, count, d, sizeBytes, dt.mID);
     }
 
-    native void rsnAllocationElementData1D(long con, long id, int xoff, int mip, int compIdx, byte[] d, int sizeBytes);
+    native void rsnAllocationElementData1D(long con,long id, int xoff, int mip, int compIdx, byte[] d, int sizeBytes);
     synchronized void nAllocationElementData1D(long id, int xoff, int mip, int compIdx, byte[] d, int sizeBytes) {
         validate();
         rsnAllocationElementData1D(mContext, id, xoff, mip, compIdx, d, sizeBytes);
     }
+    /*
+    native void rsnAllocationElementData(long con,long id, int xoff, int yoff, int zoff, int mip, int compIdx, byte[] d, int sizeBytes);
+    synchronized void nAllocationElementData(long id, int xoff, int yoff, int zoff, int mip, int compIdx, byte[] d, int sizeBytes) {
+        validate();
+        rsnAllocationElementData(mContext, id, xoff, yoff, zoff, mip, compIdx, d, sizeBytes);
+    }
+    */
 
     native void rsnAllocationData2D(long con,
                                     long dstAlloc, int dstXoff, int dstYoff,
@@ -463,6 +470,17 @@ public class RenderScript {
         validate();
         rsnAllocationRead1D(mContext, id, off, mip, count, d, sizeBytes, dt.mID);
     }
+    
+    /*
+    native void rsnAllocationElementRead(long con,long id, int xoff, int yoff, int zoff,
+                                         int mip, int compIdx, Object d, int sizeBytes, int dt);
+    synchronized void nAllocationElementRead(long id, int xoff, int yoff, int zoff,
+                                             int mip, int compIdx, Object d, int sizeBytes,
+                                             Element.DataType dt) {
+        validate();
+        rsnAllocationElementRead(mContext, id, xoff, yoff, zoff, mip, compIdx, d, sizeBytes, dt.mID);
+    }
+    */
 
     native void rsnAllocationRead2D(long con, long id, int xoff, int yoff, int mip, int face,
                                     int w, int h, Object d, int sizeBytes, int dt);
@@ -471,6 +489,16 @@ public class RenderScript {
         validate();
         rsnAllocationRead2D(mContext, id, xoff, yoff, mip, face, w, h, d, sizeBytes, dt.mID);
     }
+
+    /*
+    native void rsnAllocationRead3D(long con, long id, int xoff, int yoff, int zoff, int mip,
+                                    int w, int h, int depth, Object d, int sizeBytes, int dt);
+    synchronized void nAllocationRead3D(long id, int xoff, int yoff, int zoff, int mip,
+                                        int w, int h, int depth, Object d, int sizeBytes, Element.DataType dt) {
+        validate();
+        rsnAllocationRead3D(mContext, id, xoff, yoff, zoff, mip, w, h, depth, d, sizeBytes, dt.mID);
+    }
+    */
 
     native long  rsnAllocationGetType(long con, long id);
     synchronized long nAllocationGetType(long id) {
