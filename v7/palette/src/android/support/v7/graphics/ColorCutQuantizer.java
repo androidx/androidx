@@ -54,7 +54,7 @@ final class ColorCutQuantizer {
     private static final int COMPONENT_GREEN = -2;
     private static final int COMPONENT_BLUE = -1;
 
-    private static final int QUANTIZE_WORD_WIDTH = 4;
+    private static final int QUANTIZE_WORD_WIDTH = 5;
     private static final int QUANTIZE_WORD_MASK = (1 << QUANTIZE_WORD_WIDTH) - 1;
 
     final int[] mColors;
@@ -252,7 +252,7 @@ final class ColorCutQuantizer {
         }
 
         final int getColorCount() {
-            return mUpperIndex - mLowerIndex;
+            return 1 + mUpperIndex - mLowerIndex;
         }
 
         /**
