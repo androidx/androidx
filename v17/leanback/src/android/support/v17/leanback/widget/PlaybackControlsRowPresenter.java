@@ -13,6 +13,7 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.graphics.drawable.Drawable;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.ControlBarPresenter.OnControlClickedListener;
 import android.support.v17.leanback.widget.ControlBarPresenter.OnControlSelectedListener;
@@ -26,6 +27,7 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 /**
  * A PlaybackControlsRowPresenter renders a {@link PlaybackControlsRow} to display a
@@ -52,7 +54,6 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
         final View mSpacer;
         final View mBottomSpacer;
         View mBgView;
-        int mCardHeight;
         int mControlsDockMarginStart;
         int mControlsDockMarginEnd;
         PlaybackControlsPresenter.ViewHolder mControlsVh;
@@ -322,8 +323,6 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
     }
 
     private void initRow(final ViewHolder vh) {
-        vh.mCardHeight = vh.mCard.getLayoutParams().height;
-
         MarginLayoutParams lp = (MarginLayoutParams) vh.mControlsDock.getLayoutParams();
         vh.mControlsDockMarginStart = lp.getMarginStart();
         vh.mControlsDockMarginEnd = lp.getMarginEnd();
@@ -364,15 +363,9 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
         mPlaybackControlsPresenter.enableSecondaryActions(mSecondaryActionsHidden);
 
         if (row.getItem() == null) {
-            LayoutParams lp = vh.mCard.getLayoutParams();
-            lp.height = LayoutParams.WRAP_CONTENT;
-            vh.mCard.setLayoutParams(lp);
             vh.mDescriptionDock.setVisibility(View.GONE);
             vh.mSpacer.setVisibility(View.GONE);
         } else {
-            LayoutParams lp = vh.mCard.getLayoutParams();
-            lp.height = vh.mCardHeight;
-            vh.mCard.setLayoutParams(lp);
             vh.mDescriptionDock.setVisibility(View.VISIBLE);
             if (vh.mDescriptionViewHolder != null) {
                 mDescriptionPresenter.onBindViewHolder(vh.mDescriptionViewHolder, row.getItem());
@@ -380,21 +373,13 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
             vh.mSpacer.setVisibility(View.VISIBLE);
         }
 
-        MarginLayoutParams lp = (MarginLayoutParams) vh.mControlsDock.getLayoutParams();
         if (row.getImageDrawable() == null || row.getItem() == null) {
             vh.mImageView.setImageDrawable(null);
-            vh.setBackground(vh.mControlsDock);
-            lp.setMarginStart(0);
-            lp.setMarginEnd(0);
-            mPlaybackControlsPresenter.enableTimeMargins(vh.mControlsVh, true);
+            updateCardLayout(vh, LayoutParams.WRAP_CONTENT);
         } else {
             vh.mImageView.setImageDrawable(row.getImageDrawable());
-            vh.setBackground(vh.mCard);
-            lp.setMarginStart(vh.mControlsDockMarginStart);
-            lp.setMarginEnd(vh.mControlsDockMarginEnd);
-            mPlaybackControlsPresenter.enableTimeMargins(vh.mControlsVh, false);
+            updateCardLayout(vh, vh.mImageView.getLayoutParams().height);
         }
-        vh.mControlsDock.setLayoutParams(lp);
 
         vh.mControlsBoundData.adapter = row.getPrimaryActionsAdapter();
         vh.mControlsBoundData.secondaryActionsAdapter = row.getSecondaryActionsAdapter();
@@ -412,6 +397,33 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
         mPlaybackControlsPresenter.setCurrentTime(vh.mControlsVh, row.getCurrentTime());
         mPlaybackControlsPresenter.setSecondaryProgress(vh.mControlsVh, row.getBufferedProgress());
         row.setOnPlaybackStateChangedListener(vh.mListener);
+    }
+
+    private void updateCardLayout(ViewHolder vh, int height) {
+        LayoutParams lp = vh.mCard.getLayoutParams();
+        lp.height = height;
+        vh.mCard.setLayoutParams(lp);
+
+        MarginLayoutParams mlp = (MarginLayoutParams) vh.mControlsDock.getLayoutParams();
+        LinearLayout.LayoutParams llp =
+                (LinearLayout.LayoutParams) vh.mDescriptionDock.getLayoutParams();
+
+        if (height == LayoutParams.WRAP_CONTENT) {
+            llp.height = LayoutParams.WRAP_CONTENT;
+            mlp.setMarginStart(0);
+            mlp.setMarginEnd(0);
+            vh.setBackground(vh.mControlsDock);
+            mPlaybackControlsPresenter.enableTimeMargins(vh.mControlsVh, true);
+        } else {
+            llp.height = 0;
+            llp.weight = 1;
+            mlp.setMarginStart(vh.mControlsDockMarginStart);
+            mlp.setMarginEnd(vh.mControlsDockMarginEnd);
+            vh.setBackground(vh.mCard);
+            mPlaybackControlsPresenter.enableTimeMargins(vh.mControlsVh, false);
+        }
+        vh.mDescriptionDock.setLayoutParams(llp);
+        vh.mControlsDock.setLayoutParams(mlp);
     }
 
     @Override
