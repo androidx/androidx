@@ -313,6 +313,7 @@ public class PlaybackOverlayFragment extends DetailsFragment {
                 tickle();
                 break;
             case KeyEvent.KEYCODE_BACK:
+            case KeyEvent.KEYCODE_ESCAPE:
                 // If fading enabled and controls are not hidden, back will be consumed to fade
                 // them out (even if the key was consumed by the handler).
                 if (mFadingEnabled && !controlsHidden) {
