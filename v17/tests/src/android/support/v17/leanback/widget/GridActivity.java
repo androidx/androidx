@@ -43,6 +43,7 @@ public class GridActivity extends Activity {
     public static final String EXTRA_LAYOUT_RESOURCE_ID = "layoutResourceId";
     public static final String EXTRA_NUM_ITEMS = "numItems";
     public static final String EXTRA_ITEMS = "items";
+    public static final String EXTRA_ITEMS_FOCUSABLE = "itemsFocusable";
     public static final String EXTRA_STAGGERED = "staggered";
     public static final String SELECT_ACTION = "android.test.leanback.widget.SELECT";
 
@@ -59,6 +60,7 @@ public class GridActivity extends Activity {
     int[] mGridViewLayoutSize;
     BaseGridView mGridView;
     int[] mItemLengths;
+    boolean[] mItemFocusables;
 
     private int mBoundCount;
 
@@ -86,6 +88,7 @@ public class GridActivity extends Activity {
         mLayoutId = intent.getIntExtra(EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_grid);
         mStaggered = intent.getBooleanExtra(EXTRA_STAGGERED, DEFAULT_STAGGERED);
         mItemLengths = intent.getIntArrayExtra(EXTRA_ITEMS);
+        mItemFocusables = intent.getBooleanArrayExtra(EXTRA_ITEMS_FOCUSABLE);
         if (mItemLengths == null) {
             mNumItems = intent.getIntExtra(EXTRA_NUM_ITEMS, DEFAULT_NUM_ITEMS);
             mItemLengths = new int[mNumItems];
@@ -189,8 +192,6 @@ public class GridActivity extends Activity {
             if (DEBUG) Log.v(TAG, "createViewHolder " + viewType);
             TextView textView = new TextView(parent.getContext());
             textView.setTextColor(Color.BLACK);
-            textView.setFocusable(true);
-            textView.setFocusableInTouchMode(true);
             textView.setOnFocusChangeListener(mItemFocusChangeListener);
             return new ViewHolder(textView);
         }
@@ -201,6 +202,12 @@ public class GridActivity extends Activity {
             mBoundCount++;
             ViewHolder holder = (ViewHolder) baseHolder;
             ((TextView) holder.itemView).setText("Item "+position);
+            boolean focusable = true;
+            if (mItemFocusables != null) {
+                focusable = mItemFocusables[position];
+            }
+            ((TextView) holder.itemView).setFocusable(focusable);
+            ((TextView) holder.itemView).setFocusableInTouchMode(focusable);
             holder.itemView.setBackgroundColor(Color.LTGRAY);
             if (mOrientation == BaseGridView.HORIZONTAL) {
                 holder.itemView.setLayoutParams(new ViewGroup.MarginLayoutParams(
