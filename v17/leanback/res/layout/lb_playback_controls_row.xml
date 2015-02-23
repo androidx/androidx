@@ -16,7 +16,7 @@
 -->
 
 <!-- Note: clipChildren/clipToPadding false are needed to apply shadows to child
-     views with no padding of their own. Also to allow for negative marge on description. -->
+     views with no padding of their own. Also to allow for negative margin on description. -->
 
 <android.support.v17.leanback.widget.PlaybackControlsRowView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -30,7 +30,7 @@
     <LinearLayout
         android:id="@+id/controls_card"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/lb_playback_controls_card_height"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/lb_playback_controls_margin_bottom"
         android:clipChildren="false"
         android:clipToPadding="false"
@@ -39,13 +39,13 @@
         <ImageView
             android:id="@+id/image"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="@dimen/lb_playback_controls_card_height"
             android:adjustViewBounds="true"
             android:scaleType="fitStart" />
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:clipChildren="false"
             android:clipToPadding="false"
             android:orientation="vertical" >
@@ -53,21 +53,18 @@
             <FrameLayout
                 android:id="@+id/description_dock"
                 android:layout_width="wrap_content"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/lb_playback_description_margin_end"
                 android:layout_marginStart="@dimen/lb_playback_description_margin_start"
                 android:paddingTop="@dimen/lb_playback_description_margin_top"
                 android:clipToPadding="false"
                 android:clipChildren="false"
-                android:layout_weight="1"
                 android:gravity="top" />
-
-            <!-- Space here prevents room only for title and subtitle above -->
 
             <Space
                 android:id="@+id/spacer"
                 android:layout_width="match_parent"
-                android:layout_height="12dp" />
+                android:layout_height="24dp" />
 
             <FrameLayout
                 android:id="@+id/controls_dock"
