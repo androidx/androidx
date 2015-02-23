@@ -300,8 +300,10 @@ class PlaybackControlsPresenter extends ControlBarPresenter {
     public void onUnbindViewHolder(Presenter.ViewHolder holder) {
         super.onUnbindViewHolder(holder);
         ViewHolder vh = (ViewHolder) holder;
-        vh.mMoreActionsAdapter.unregisterObserver(vh.mMoreActionsObserver);
-        vh.mMoreActionsAdapter = null;
+        if (vh.mMoreActionsAdapter != null) {
+            vh.mMoreActionsAdapter.unregisterObserver(vh.mMoreActionsObserver);
+            vh.mMoreActionsAdapter = null;
+        }
     }
 
     int getChildMarginBigger(Context context) {
