@@ -227,6 +227,7 @@ abstract class StaggeredGrid extends Grid {
         Location oldFirstLoc = mFirstIndex >= 0 ? getLocation(mFirstIndex) : null;
         int oldFirstEdge = mProvider.getEdge(mFirstIndex);
         Location loc = new Location(rowIndex, 0, 0);
+        mLocations.addFirst(loc);
         Object item;
         if (mPendingItem != null) {
             loc.size = mPendingItemSize;
@@ -240,7 +241,6 @@ abstract class StaggeredGrid extends Grid {
         if (mLastVisibleIndex < 0) {
             mLastVisibleIndex = itemIndex;
         }
-        mLocations.addFirst(loc);
         int thisEdge = !mReversedFlow ? edge - loc.size : edge + loc.size;
         if (oldFirstLoc != null) {
             oldFirstLoc.offset = oldFirstEdge - thisEdge;
@@ -355,6 +355,7 @@ abstract class StaggeredGrid extends Grid {
             offset = location - mProvider.getEdge(mLastVisibleIndex);
         }
         Location loc = new Location(rowIndex, offset, 0);
+        mLocations.addLast(loc);
         Object item;
         if (mPendingItem != null) {
             loc.size = mPendingItemSize;
@@ -364,7 +365,7 @@ abstract class StaggeredGrid extends Grid {
             loc.size = mProvider.createItem(itemIndex, true, mTmpItem);
             item = mTmpItem[0];
         }
-        if (mLocations.size() == 0) {
+        if (mLocations.size() == 1) {
             mFirstIndex = mFirstVisibleIndex = mLastVisibleIndex = itemIndex;
         } else {
             if (mLastVisibleIndex < 0) {
@@ -373,7 +374,6 @@ abstract class StaggeredGrid extends Grid {
                 mLastVisibleIndex++;
             }
         }
-        mLocations.addLast(loc);
         mProvider.addItem(item, itemIndex, loc.size, rowIndex, location);
         return loc.size;
     }
