@@ -15,12 +15,13 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.graphics.Bitmap;
 import android.support.v17.leanback.app.HeadersFragment;
+import android.support.v17.leanback.R;
 import android.test.AndroidTestCase;
 import android.widget.FrameLayout;
 import android.view.View;
-
-import junit.framework.Assert;
+import android.view.ViewGroup.LayoutParams;
 
 public class PresenterTest extends AndroidTestCase {
 
@@ -31,7 +32,7 @@ public class PresenterTest extends AndroidTestCase {
         new ListRowPresenter(FocusHighlight.ZOOM_FACTOR_XSMALL);
         try {
             new ListRowPresenter(100);
-            Assert.fail("Should have thrown exception");
+            fail("Should have thrown exception");
         } catch (IllegalArgumentException exception) {
         }
     }
@@ -41,25 +42,67 @@ public class PresenterTest extends AndroidTestCase {
         Presenter.ViewHolder vh = p.onCreateViewHolder(new FrameLayout(getContext()));
         p.onBindViewHolder(vh, null);
         expectedVisibility = p.isNullItemVisibilityGone() ? View.GONE : View.VISIBLE;
-        Assert.assertTrue(vh.view.getVisibility() == expectedVisibility);
+        assertTrue("Header visibility",
+                vh.view.getVisibility() == expectedVisibility);
         p.onBindViewHolder(vh, new Row(null));
-        Assert.assertTrue(vh.view.getVisibility() == expectedVisibility);
+        assertTrue("Header visibility",
+                vh.view.getVisibility() == expectedVisibility);
         p.onBindViewHolder(vh, new Row(new HeaderItem("")));
-        Assert.assertTrue(vh.view.getVisibility() == View.VISIBLE);
+        assertTrue("Header visibility",
+                vh.view.getVisibility() == View.VISIBLE);
     }
 
     public void testHeaderPresenter() throws Throwable {
         HeadersFragment hf = new HeadersFragment();
         PresenterSelector ps = hf.getPresenterSelector();
         Presenter p = ps.getPresenter(new Object());
-        Assert.assertTrue(p instanceof RowHeaderPresenter);
-        Assert.assertFalse(((RowHeaderPresenter) p).isNullItemVisibilityGone());
+        assertTrue("Row header instance",
+                p instanceof RowHeaderPresenter);
+        assertFalse("isNullItemVisibilityGone",
+                ((RowHeaderPresenter) p).isNullItemVisibilityGone());
         testHeaderPresenter((RowHeaderPresenter) p);
 
         ListRowPresenter lrp = new ListRowPresenter();
-        Assert.assertTrue(lrp.getHeaderPresenter() instanceof RowHeaderPresenter);
+        assertTrue("Row header instance",
+                lrp.getHeaderPresenter() instanceof RowHeaderPresenter);
         RowHeaderPresenter rhp = (RowHeaderPresenter) lrp.getHeaderPresenter();
-        Assert.assertTrue(rhp.isNullItemVisibilityGone());
+        assertTrue("isNullItemVisibilityGone",
+                rhp.isNullItemVisibilityGone());
         testHeaderPresenter(rhp);
+    }
+
+    public void testPlaybackControlsRowPresenter() {
+        Presenter detailsPresenter = new AbstractDetailsDescriptionPresenter() {
+            @Override
+            protected void onBindDescription(ViewHolder vh, Object item) {
+                vh.getTitle().setText("The quick brown fox jumped over the lazy dog");
+                vh.getSubtitle().setText("Subtitle");
+            }
+        };
+        PlaybackControlsRowPresenter controlsRowPresenter = new PlaybackControlsRowPresenter(
+                detailsPresenter);
+        PlaybackControlsRowPresenter.ViewHolder vh = (PlaybackControlsRowPresenter.ViewHolder)
+                controlsRowPresenter.onCreateViewHolder(new FrameLayout(getContext()));
+
+        Object item = new Object();
+        PlaybackControlsRow controlsRow = new PlaybackControlsRow(item);
+
+        controlsRowPresenter.onBindRowViewHolder(vh, controlsRow);
+        assertEquals("Controls card right panel layout height",
+                vh.view.findViewById(R.id.controls_card_right_panel).getLayoutParams().height,
+                LayoutParams.WRAP_CONTENT);
+        assertEquals("Description dock layout height",
+                vh.view.findViewById(R.id.description_dock).getLayoutParams().height,
+                LayoutParams.WRAP_CONTENT);
+        controlsRowPresenter.onUnbindRowViewHolder(vh);
+
+        controlsRow.setImageBitmap(
+                getContext(), Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888));
+        controlsRowPresenter.onBindRowViewHolder(vh, controlsRow);
+        AssertHelper.assertGreaterThan("Controls card right panel layout height",
+                vh.view.findViewById(R.id.controls_card_right_panel).getLayoutParams().height, 0);
+        assertEquals("Description dock layout height",
+                vh.view.findViewById(R.id.description_dock).getLayoutParams().height, 0);
+        controlsRowPresenter.onUnbindRowViewHolder(vh);
     }
 }
