@@ -53,14 +53,14 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
     private AppCompatDelegate mDelegate;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         getDelegate().installViewFactory();
         super.onCreate(savedInstanceState);
         getDelegate().onCreate(savedInstanceState);
     }
 
     @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         getDelegate().onPostCreate(savedInstanceState);
     }
@@ -72,6 +72,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
      *
      * @return The Activity's ActionBar, or null if it does not have one.
      */
+    @Nullable
     public ActionBar getSupportActionBar() {
         return getDelegate().getSupportActionBar();
     }
@@ -348,6 +349,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
      *
      * @return a new Intent targeting the defined parent activity of sourceActivity
      */
+    @Nullable
     public Intent getSupportParentActivityIntent() {
         return NavUtils.getParentActivityIntent(this);
     }
