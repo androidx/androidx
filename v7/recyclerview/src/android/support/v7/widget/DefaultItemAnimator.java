@@ -192,12 +192,14 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
     private void animateRemoveImpl(final ViewHolder holder) {
         final View view = holder.itemView;
         final ViewPropertyAnimatorCompat animation = ViewCompat.animate(view);
+        mRemoveAnimations.add(holder);
         animation.setDuration(getRemoveDuration())
                 .alpha(0).setListener(new VpaListenerAdapter() {
             @Override
             public void onAnimationStart(View view) {
                 dispatchRemoveStarting(holder);
             }
+
             @Override
             public void onAnimationEnd(View view) {
                 animation.setListener(null);
@@ -207,7 +209,6 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
                 dispatchFinishedWhenDone();
             }
         }).start();
-        mRemoveAnimations.add(holder);
     }
 
     @Override
@@ -220,8 +221,8 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
 
     private void animateAddImpl(final ViewHolder holder) {
         final View view = holder.itemView;
-        mAddAnimations.add(holder);
         final ViewPropertyAnimatorCompat animation = ViewCompat.animate(view);
+        mAddAnimations.add(holder);
         animation.alpha(1).setDuration(getAddDuration()).
                 setListener(new VpaListenerAdapter() {
                     @Override
@@ -279,8 +280,8 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
         // TODO: make EndActions end listeners instead, since end actions aren't called when
         // vpas are canceled (and can't end them. why?)
         // need listener functionality in VPACompat for this. Ick.
-        mMoveAnimations.add(holder);
         final ViewPropertyAnimatorCompat animation = ViewCompat.animate(view);
+        mMoveAnimations.add(holder);
         animation.setDuration(getMoveDuration()).setListener(new VpaListenerAdapter() {
             @Override
             public void onAnimationStart(View view) {
@@ -335,9 +336,9 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
         final ViewHolder newHolder = changeInfo.newHolder;
         final View newView = newHolder != null ? newHolder.itemView : null;
         if (view != null) {
-            mChangeAnimations.add(changeInfo.oldHolder);
             final ViewPropertyAnimatorCompat oldViewAnim = ViewCompat.animate(view).setDuration(
                     getChangeDuration());
+            mChangeAnimations.add(changeInfo.oldHolder);
             oldViewAnim.translationX(changeInfo.toX - changeInfo.fromX);
             oldViewAnim.translationY(changeInfo.toY - changeInfo.fromY);
             oldViewAnim.alpha(0).setListener(new VpaListenerAdapter() {
@@ -359,8 +360,8 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
             }).start();
         }
         if (newView != null) {
-            mChangeAnimations.add(changeInfo.newHolder);
             final ViewPropertyAnimatorCompat newViewAnimation = ViewCompat.animate(newView);
+            mChangeAnimations.add(changeInfo.newHolder);
             newViewAnimation.translationX(0).translationY(0).setDuration(getChangeDuration()).
                     alpha(1).setListener(new VpaListenerAdapter() {
                 @Override
