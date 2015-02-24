@@ -47,6 +47,7 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
     public class ViewHolder extends RowPresenter.ViewHolder {
         public final Presenter.ViewHolder mDescriptionViewHolder;
         final ViewGroup mCard;
+        final ViewGroup mCardRightPanel;
         final ImageView mImageView;
         final ViewGroup mDescriptionDock;
         final ViewGroup mControlsDock;
@@ -77,6 +78,7 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
         ViewHolder(View rootView, Presenter descriptionPresenter) {
             super(rootView);
             mCard = (ViewGroup) rootView.findViewById(R.id.controls_card);
+            mCardRightPanel = (ViewGroup) rootView.findViewById(R.id.controls_card_right_panel);
             mImageView = (ImageView) rootView.findViewById(R.id.image);
             mDescriptionDock = (ViewGroup) rootView.findViewById(R.id.description_dock);
             mControlsDock = (ViewGroup) rootView.findViewById(R.id.controls_dock);
@@ -400,9 +402,9 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
     }
 
     private void updateCardLayout(ViewHolder vh, int height) {
-        LayoutParams lp = vh.mCard.getLayoutParams();
+        LayoutParams lp = vh.mCardRightPanel.getLayoutParams();
         lp.height = height;
-        vh.mCard.setLayoutParams(lp);
+        vh.mCardRightPanel.setLayoutParams(lp);
 
         MarginLayoutParams mlp = (MarginLayoutParams) vh.mControlsDock.getLayoutParams();
         LinearLayout.LayoutParams llp =
