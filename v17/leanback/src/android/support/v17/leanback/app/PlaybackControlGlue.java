@@ -452,13 +452,14 @@ public abstract class PlaybackControlGlue implements OnActionClickedListener, Vi
             case KeyEvent.KEYCODE_DPAD_RIGHT:
             case KeyEvent.KEYCODE_DPAD_LEFT:
             case KeyEvent.KEYCODE_BACK:
+            case KeyEvent.KEYCODE_ESCAPE:
                 boolean abortSeek = mPlaybackSpeed >= PLAYBACK_SPEED_FAST_L0 ||
                         mPlaybackSpeed <= -PLAYBACK_SPEED_FAST_L0;
                 if (abortSeek) {
                     mPlaybackSpeed = PLAYBACK_SPEED_NORMAL;
                     startPlayback(mPlaybackSpeed);
                     updatePlaybackStatusAfterUserAction();
-                    return keyCode == KeyEvent.KEYCODE_BACK;
+                    return keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_ESCAPE;
                 }
                 return false;
         }
