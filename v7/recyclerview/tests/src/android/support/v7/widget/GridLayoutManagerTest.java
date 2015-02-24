@@ -127,6 +127,67 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         checkForMainThreadException();
     }
 
+    public void testRTL() throws Throwable {
+        for (boolean changeRtlAfter : new boolean[]{false, true}) {
+            for (boolean oneLine : new boolean[]{false, true}) {
+                for (Config config : mBaseVariations) {
+                    rtlTest(config, changeRtlAfter, oneLine);
+                    removeRecyclerView();
+                }
+            }
+        }
+    }
+
+    void rtlTest(Config config, boolean changeRtlAfter, boolean oneLine) throws Throwable {
+        if (oneLine && config.mOrientation != VERTICAL) {
+            return;// nothing to test
+        }
+        if (config.mSpanCount == 1) {
+            config.mSpanCount = 2;
+        }
+        String logPrefix = config + ", changeRtlAfterLayout:" + changeRtlAfter + ", oneLine:" + oneLine;
+        config.mItemCount = 5;
+        if (oneLine) {
+            config.mSpanCount = config.mItemCount + 1;
+        } else {
+            config.mSpanCount = Math.min(config.mItemCount - 1, config.mSpanCount);
+        }
+
+        RecyclerView rv = setupBasic(config);
+        if (changeRtlAfter) {
+            waitForFirstLayout(rv);
+            mGlm.expectLayout(1);
+            mGlm.setFakeRtl(true);
+            mGlm.waitForLayout(2);
+        } else {
+            mGlm.mFakeRTL = true;
+            waitForFirstLayout(rv);
+        }
+
+        assertEquals("view should become rtl", true, mGlm.isLayoutRTL());
+        OrientationHelper helper = OrientationHelper.createHorizontalHelper(mGlm);
+        View child0 = mGlm.findViewByPosition(0);
+        final int secondChildPos = config.mOrientation == VERTICAL ? 1
+                : config.mSpanCount;
+        View child1 = mGlm.findViewByPosition(secondChildPos);
+        assertNotNull(logPrefix + " child position 0 should be laid out", child0);
+        assertNotNull(
+                logPrefix + " second child position " + (secondChildPos) + " should be laid out",
+                child1);
+        if (config.mOrientation == VERTICAL || !config.mReverseLayout) {
+            assertTrue(logPrefix + " second child should be to the left of first child",
+                    helper.getDecoratedStart(child0) >= helper.getDecoratedEnd(child1));
+            assertEquals(logPrefix + " first child should be right aligned",
+                    helper.getDecoratedEnd(child0), helper.getEndAfterPadding());
+        } else {
+            assertTrue(logPrefix + " first child should be to the left of second child",
+                    helper.getDecoratedStart(child1) >= helper.getDecoratedEnd(child0));
+            assertEquals(logPrefix + " first child should be left aligned",
+                    helper.getDecoratedStart(child0), helper.getStartAfterPadding());
+        }
+        checkForMainThreadException();
+    }
+
     public void testLayoutParams() throws Throwable {
         layoutParamsTest(GridLayoutManager.HORIZONTAL);
         removeRecyclerView();
@@ -591,6 +652,8 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
 
         List<Callback> mCallbacks = new ArrayList<Callback>();
 
+        Boolean mFakeRTL;
+
         public WrappedGridLayoutManager(Context context, int spanCount) {
             super(context, spanCount);
         }
@@ -598,6 +661,20 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         public WrappedGridLayoutManager(Context context, int spanCount, int orientation,
                 boolean reverseLayout) {
             super(context, spanCount, orientation, reverseLayout);
+        }
+
+        @Override
+        protected boolean isLayoutRTL() {
+            return mFakeRTL == null ? super.isLayoutRTL() : mFakeRTL;
+        }
+
+        public void setFakeRtl(Boolean fakeRtl) {
+            mFakeRTL = fakeRtl;
+            try {
+                requestLayoutOnUIThread(mRecyclerView);
+            } catch (Throwable throwable) {
+                postExceptionToInstrumentation(throwable);
+            }
         }
 
         @Override
