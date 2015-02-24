@@ -191,6 +191,7 @@ final class BackStackState implements Parcelable {
 final class BackStackRecord extends FragmentTransaction implements
         FragmentManager.BackStackEntry, Runnable {
     static final String TAG = FragmentManagerImpl.TAG;
+    static final boolean SUPPORTS_TRANSITIONS = Build.VERSION.SDK_INT >= 21;
 
     final FragmentManagerImpl mManager;
 
@@ -517,7 +518,7 @@ final class BackStackRecord extends FragmentTransaction implements
 
     @Override
     public FragmentTransaction addSharedElement(View sharedElement, String name) {
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (SUPPORTS_TRANSITIONS) {
             String transitionName = FragmentTransitionCompat21.getTransitionName(sharedElement);
             if (transitionName == null) {
                 throw new IllegalArgumentException("Unique transitionNames are required for all" +
@@ -651,7 +652,7 @@ final class BackStackRecord extends FragmentTransaction implements
         TransitionState state = null;
         SparseArray<Fragment> firstOutFragments = null;
         SparseArray<Fragment> lastInFragments = null;
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (SUPPORTS_TRANSITIONS) {
             firstOutFragments = new SparseArray<Fragment>();
             lastInFragments = new SparseArray<Fragment>();
 
@@ -878,12 +879,14 @@ final class BackStackRecord extends FragmentTransaction implements
             dump("  ", null, pw, null);
         }
 
-        if (state == null) {
-            if (firstOutFragments.size() != 0 || lastInFragments.size() != 0) {
-                state = beginTransition(firstOutFragments, lastInFragments, true);
+        if (SUPPORTS_TRANSITIONS) {
+            if (state == null) {
+                if (firstOutFragments.size() != 0 || lastInFragments.size() != 0) {
+                    state = beginTransition(firstOutFragments, lastInFragments, true);
+                }
+            } else if (!doStateMove) {
+                setNameOverrides(state, mSharedElementTargetNames, mSharedElementSourceNames);
             }
-        } else if (!doStateMove) {
-            setNameOverrides(state, mSharedElementTargetNames, mSharedElementSourceNames);
         }
 
         bumpBackStackNesting(-1);
