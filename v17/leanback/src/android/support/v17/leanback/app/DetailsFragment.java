@@ -49,9 +49,9 @@ public class DetailsFragment extends BaseFragment {
 
     private ObjectAdapter mAdapter;
     private int mContainerListAlignTop;
-    private OnItemSelectedListener mExternalOnItemSelectedListener;
+    private OnItemSelectedListener mOnItemSelectedListener;
     private OnItemClickedListener mOnItemClickedListener;
-    private OnItemViewSelectedListener mExternalOnItemViewSelectedListener;
+    private OnItemViewSelectedListener mOnItemViewSelectedListener;
     private OnItemViewClickedListener mOnItemViewClickedListener;
     private int mSelectedPosition = -1;
 
@@ -81,7 +81,12 @@ public class DetailsFragment extends BaseFragment {
      * @deprecated Use {@link #setOnItemViewSelectedListener(OnItemViewSelectedListener)}
      */
     public void setOnItemSelectedListener(OnItemSelectedListener listener) {
-        mExternalOnItemSelectedListener = listener;
+        if (mOnItemSelectedListener != null) {
+            mOnItemSelectedListener = listener;
+            if (mRowsFragment != null) {
+                mRowsFragment.setOnItemSelectedListener(mOnItemSelectedListener);
+            }
+        }
     }
 
     /**
@@ -89,9 +94,11 @@ public class DetailsFragment extends BaseFragment {
      * @deprecated Use {@link #setOnItemViewClickedListener(OnItemViewClickedListener)}
      */
     public void setOnItemClickedListener(OnItemClickedListener listener) {
-        mOnItemClickedListener = listener;
-        if (mRowsFragment != null) {
-            mRowsFragment.setOnItemClickedListener(listener);
+        if (mOnItemClickedListener != listener) {
+            mOnItemClickedListener = listener;
+            if (mRowsFragment != null) {
+                mRowsFragment.setOnItemClickedListener(listener);
+            }
         }
     }
 
@@ -99,16 +106,23 @@ public class DetailsFragment extends BaseFragment {
      * Sets an item selection listener.
      */
     public void setOnItemViewSelectedListener(OnItemViewSelectedListener listener) {
-        mExternalOnItemViewSelectedListener = listener;
+        if (mOnItemViewSelectedListener != listener) {
+            mOnItemViewSelectedListener = listener;
+            if (mRowsFragment != null) {
+                mRowsFragment.setOnItemViewSelectedListener(mOnItemViewSelectedListener);
+            }
+        }
     }
 
     /**
      * Sets an item Clicked listener.
      */
     public void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
-        mOnItemViewClickedListener = listener;
-        if (mRowsFragment != null) {
-            mRowsFragment.setOnItemViewClickedListener(listener);
+        if (mOnItemViewClickedListener != listener) {
+            mOnItemViewClickedListener = listener;
+            if (mRowsFragment != null) {
+                mRowsFragment.setOnItemViewClickedListener(listener);
+            }
         }
     }
 
@@ -147,8 +161,8 @@ public class DetailsFragment extends BaseFragment {
                     .replace(R.id.fragment_dock, mRowsFragment).commit();
         }
         mRowsFragment.setAdapter(mAdapter);
-        mRowsFragment.setOnItemSelectedListener(mExternalOnItemSelectedListener);
-        mRowsFragment.setOnItemViewSelectedListener(mExternalOnItemViewSelectedListener);
+        mRowsFragment.setOnItemSelectedListener(mOnItemSelectedListener);
+        mRowsFragment.setOnItemViewSelectedListener(mOnItemViewSelectedListener);
         mRowsFragment.setOnItemClickedListener(mOnItemClickedListener);
         mRowsFragment.setOnItemViewClickedListener(mOnItemViewClickedListener);
         mSceneAfterEntranceTransition = sTransitionHelper.createScene((ViewGroup) view,
