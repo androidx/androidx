@@ -8,15 +8,9 @@ dependencies {
 
 android {
     compileSdkVersion 7
-    buildToolsVersion "19.0.1"
 
     defaultConfig {
         minSdkVersion 7
-    }
-
-    sourceSets {
-        main.manifest.srcFile 'AndroidManifest.xml'
-        main.java.srcDir 'src'
     }
 
     lintOptions {
