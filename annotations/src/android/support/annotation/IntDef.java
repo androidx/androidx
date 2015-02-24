@@ -23,7 +23,6 @@ import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.RetentionPolicy.CLASS;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 /**
@@ -52,7 +51,7 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
  *      value = &#123;NAVIGATION_MODE_STANDARD, NAVIGATION_MODE_LIST, NAVIGATION_MODE_TABS&#125;)
  * }</pre>
  */
-@Retention(CLASS)
+@Retention(SOURCE)
 @Target({ANNOTATION_TYPE})
 public @interface IntDef {
     /** Defines the allowed constants for this element */

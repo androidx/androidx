@@ -22,7 +22,6 @@ import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.RetentionPolicy.CLASS;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 /**
@@ -45,7 +44,7 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
  *  public abstract Object getSystemService(&#64;ServiceName String name);
  * }</pre>
  */
-@Retention(CLASS)
+@Retention(SOURCE)
 @Target({ANNOTATION_TYPE})
 public @interface StringDef {
     /** Defines the allowed constants for this element */

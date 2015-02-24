@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,32 @@
  */
 package android.support.annotation;
 
-import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
+import static java.lang.annotation.ElementType.CONSTRUCTOR;
 import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
 import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.PACKAGE;
+import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
 /**
- * Denotes that an integer parameter, field or method return value is expected
- * to be a menu resource reference.
+ * Denotes that the annotated element should not be removed when
+ * the code is minified at build time. This is typically used
+ * on methods and classes that are accessed only via reflection
+ * so a compiler may think that the code is unused.
+ * <p>
+ * Example:
+ * <pre>{@code
+ *  &#64;Keep
+ *  public void foo() {
+ *      ...
+ *  }
+ * }</pre>
  */
-@Documented
 @Retention(CLASS)
-@Target({METHOD, PARAMETER, FIELD, LOCAL_VARIABLE})
-public @interface MenuRes {
+@Target({PACKAGE,TYPE,ANNOTATION_TYPE,CONSTRUCTOR,METHOD,FIELD})
+public @interface Keep {
 }

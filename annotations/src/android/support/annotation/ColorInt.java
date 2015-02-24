@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package android.support.annotation;
 
-import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -26,11 +25,16 @@ import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
 /**
- * Denotes that an integer parameter, field or method return value is expected
- * to be a menu resource reference.
+ * Denotes that the annotated element represents a packed color
+ * int, {@code AARRGGBB}. If applied to an int array, every element
+ * in the array represents a color integer.
+ * <p>
+ * Example:
+ * <pre>{@code
+ *  public abstract void setTextColor(&#64;ColorInt int color);
+ * }</pre>
  */
-@Documented
 @Retention(CLASS)
-@Target({METHOD, PARAMETER, FIELD, LOCAL_VARIABLE})
-public @interface MenuRes {
+@Target({PARAMETER,METHOD,LOCAL_VARIABLE,FIELD})
+public @interface ColorInt {
 }
