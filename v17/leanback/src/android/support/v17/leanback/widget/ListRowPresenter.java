@@ -16,7 +16,6 @@ package android.support.v17.leanback.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.v17.leanback.R;
-import android.support.v17.leanback.graphics.ColorOverlayDimmer;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -139,7 +138,8 @@ public class ListRowPresenter extends RowPresenter {
     private int mRowHeight;
     private int mExpandedRowHeight;
     private PresenterSelector mHoverCardPresenterSelector;
-    private int mZoomFactor;
+    private int mFocusZoomFactor;
+    private boolean mUseFocusDimmer;
     private boolean mShadowEnabled = true;
     private int mBrowseRowsFadingEdgeLength = -1;
     private boolean mRoundedCornersEnabled = true;
@@ -151,7 +151,8 @@ public class ListRowPresenter extends RowPresenter {
 
     /**
      * Constructs a ListRowPresenter with defaults.
-     * Uses {@link FocusHighlight#ZOOM_FACTOR_MEDIUM} for focus zooming.
+     * Uses {@link FocusHighlight#ZOOM_FACTOR_MEDIUM} for focus zooming and
+     * disabled dimming on focus.
      */
     public ListRowPresenter() {
         this(FocusHighlight.ZOOM_FACTOR_MEDIUM);
@@ -160,18 +161,35 @@ public class ListRowPresenter extends RowPresenter {
     /**
      * Constructs a ListRowPresenter with the given parameters.
      *
-     * @param zoomFactor Controls the zoom factor used when an item view is focused. One of
+     * @param focusZoomFactor Controls the zoom factor used when an item view is focused. One of
      *         {@link FocusHighlight#ZOOM_FACTOR_NONE},
      *         {@link FocusHighlight#ZOOM_FACTOR_SMALL},
      *         {@link FocusHighlight#ZOOM_FACTOR_XSMALL},
      *         {@link FocusHighlight#ZOOM_FACTOR_MEDIUM},
      *         {@link FocusHighlight#ZOOM_FACTOR_LARGE}
+     * Dimming on focus defaults to disabled.
      */
-    public ListRowPresenter(int zoomFactor) {
-        if (!FocusHighlightHelper.isValidZoomIndex(zoomFactor)) {
+    public ListRowPresenter(int focusZoomFactor) {
+        this(focusZoomFactor, false);
+    }
+
+    /**
+     * Constructs a ListRowPresenter with the given parameters.
+     *
+     * @param focusZoomFactor Controls the zoom factor used when an item view is focused. One of
+     *         {@link FocusHighlight#ZOOM_FACTOR_NONE},
+     *         {@link FocusHighlight#ZOOM_FACTOR_SMALL},
+     *         {@link FocusHighlight#ZOOM_FACTOR_XSMALL},
+     *         {@link FocusHighlight#ZOOM_FACTOR_MEDIUM},
+     *         {@link FocusHighlight#ZOOM_FACTOR_LARGE}
+     * @param useFocusDimmer determines if the FocusHighlighter will use the dimmer
+     */
+    public ListRowPresenter(int focusZoomFactor, boolean useFocusDimmer) {
+        if (!FocusHighlightHelper.isValidZoomIndex(focusZoomFactor)) {
             throw new IllegalArgumentException("Unhandled zoom factor");
         }
-        mZoomFactor = zoomFactor;
+        mFocusZoomFactor = focusZoomFactor;
+        mUseFocusDimmer = useFocusDimmer;
     }
 
     /**
@@ -214,8 +232,22 @@ public class ListRowPresenter extends RowPresenter {
     /**
      * Returns the zoom factor used for focus highlighting.
      */
-    public final int getZoomFactor() {
-        return mZoomFactor;
+    public final int getFocusZoomFactor() {
+        return mFocusZoomFactor;
+    }
+    /**
+     * Returns the zoom factor used for focus highlighting.
+     * @deprecated use {@link #getFocusZoomFactor} instead.
+     */
+    @Deprecated public final int getZoomFactor() {
+        return mFocusZoomFactor;
+    }
+
+    /**
+     * Returns true if the focus dimmer is used for focus highlighting; false otherwise.
+     */
+    public final boolean isFocusDimmerUsed() {
+        return mUseFocusDimmer;
     }
 
     private ItemBridgeAdapter.Wrapper mCardWrapper = new ItemBridgeAdapter.Wrapper() {
@@ -248,7 +280,7 @@ public class ListRowPresenter extends RowPresenter {
             ShadowOverlayContainer.prepareParentForShadow(rowViewHolder.mGridView);
         }
         FocusHighlightHelper.setupBrowseItemFocusHighlight(rowViewHolder.mItemBridgeAdapter,
-                mZoomFactor, false);
+                mFocusZoomFactor, mUseFocusDimmer);
         rowViewHolder.mGridView.setFocusDrawingOrderEnabled(!isUsingZOrder());
         rowViewHolder.mGridView.setOnChildSelectedListener(
                 new OnChildSelectedListener() {
