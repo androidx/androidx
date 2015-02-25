@@ -19,8 +19,10 @@ import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
-import android.support.v17.leanback.widget.OnItemClickedListener;
+import android.support.v17.leanback.widget.OnItemViewClickedListener;
+import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
+import android.support.v17.leanback.widget.RowPresenter;
 import android.util.Log;
 import android.view.View;
 import android.os.Handler;
@@ -37,9 +39,9 @@ public class BrowseAnimationFragment extends
 
     static class Item {
         final String mText;
-        final OnItemClickedListener mAction;
+        final OnItemViewClickedListener mAction;
 
-        Item(String text, OnItemClickedListener action) {
+        Item(String text, OnItemViewClickedListener action) {
             mText = text;
             mAction = action;
         }
@@ -69,7 +71,7 @@ public class BrowseAnimationFragment extends
         });
 
         setupRows();
-        setOnItemClickedListener(new ItemClickedListener());
+        setOnItemViewClickedListener(new ItemViewClickedListener());
     }
 
     private void setupRows() {
@@ -86,9 +88,10 @@ public class BrowseAnimationFragment extends
         switch (sRand.nextInt(15)) {
         default:
         case 0:
-            return new Item("Remove Item before", new OnItemClickedListener() {
+            return new Item("Remove Item before", new OnItemViewClickedListener() {
                     @Override
-                public void onItemClicked(Object item, Row row) {
+                public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                        RowPresenter.ViewHolder rowViewHolder, Row row) {
                     ArrayObjectAdapter adapter = ((ArrayObjectAdapter) ((ListRow) row)
                             .getAdapter());
                     int index = adapter.indexOf(item);
@@ -100,9 +103,10 @@ public class BrowseAnimationFragment extends
                 }
             });
         case 1:
-            return new Item("Remove Item after", new OnItemClickedListener() {
+            return new Item("Remove Item after", new OnItemViewClickedListener() {
                     @Override
-                public void onItemClicked(Object item, Row row) {
+                public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                        RowPresenter.ViewHolder rowViewHolder, Row row) {
                     ArrayObjectAdapter adapter = ((ArrayObjectAdapter) ((ListRow) row)
                             .getAdapter());
                     int index = adapter.indexOf(item);
@@ -114,9 +118,10 @@ public class BrowseAnimationFragment extends
                 }
             });
         case 2:
-            return new Item("Remove Item", new OnItemClickedListener() {
+            return new Item("Remove Item", new OnItemViewClickedListener() {
                     @Override
-                public void onItemClicked(Object item, Row row) {
+                public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                        RowPresenter.ViewHolder rowViewHolder, Row row) {
                     ArrayObjectAdapter adapter = ((ArrayObjectAdapter) ((ListRow) row)
                             .getAdapter());
                     int index = adapter.indexOf(item);
@@ -126,18 +131,20 @@ public class BrowseAnimationFragment extends
                 }
             });
         case 3:
-            return new Item("Remove all Items", new OnItemClickedListener() {
+            return new Item("Remove all Items", new OnItemViewClickedListener() {
                     @Override
-                public void onItemClicked(Object item, Row row) {
+                public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                        RowPresenter.ViewHolder rowViewHolder, Row row) {
                     ArrayObjectAdapter adapter = ((ArrayObjectAdapter) ((ListRow) row)
                             .getAdapter());
                     adapter.clear();
                 }
             });
         case 4:
-            return new Item("add item before", new OnItemClickedListener() {
+            return new Item("add item before", new OnItemViewClickedListener() {
                     @Override
-                public void onItemClicked(Object item, Row row) {
+                public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                        RowPresenter.ViewHolder rowViewHolder, Row row) {
                     ArrayObjectAdapter adapter = ((ArrayObjectAdapter) ((ListRow) row)
                             .getAdapter());
                     int index = adapter.indexOf(item);
@@ -147,9 +154,10 @@ public class BrowseAnimationFragment extends
                 }
             });
         case 5:
-            return new Item("add item after", new OnItemClickedListener() {
+            return new Item("add item after", new OnItemViewClickedListener() {
                     @Override
-                public void onItemClicked(Object item, Row row) {
+                public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                        RowPresenter.ViewHolder rowViewHolder, Row row) {
                     ArrayObjectAdapter adapter = ((ArrayObjectAdapter) ((ListRow) row)
                             .getAdapter());
                     int index = adapter.indexOf(item);
@@ -160,9 +168,10 @@ public class BrowseAnimationFragment extends
             });
         case 6:
             return new Item("add random items before",
-                    new OnItemClickedListener() {
+                    new OnItemViewClickedListener() {
                             @Override
-                        public void onItemClicked(Object item, Row row) {
+                        public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                                RowPresenter.ViewHolder rowViewHolder, Row row) {
                             ArrayObjectAdapter adapter = ((ArrayObjectAdapter) ((ListRow) row)
                                     .getAdapter());
                             int index = adapter.indexOf(item);
@@ -176,9 +185,10 @@ public class BrowseAnimationFragment extends
                     });
         case 7:
             return new Item("add random items after",
-                    new OnItemClickedListener() {
+                    new OnItemViewClickedListener() {
                             @Override
-                        public void onItemClicked(Object item, Row row) {
+                        public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                                RowPresenter.ViewHolder rowViewHolder, Row row) {
                             ArrayObjectAdapter adapter = ((ArrayObjectAdapter) ((ListRow) row)
                                     .getAdapter());
                             int index = adapter.indexOf(item);
@@ -192,9 +202,10 @@ public class BrowseAnimationFragment extends
                         }
                     });
         case 8:
-            return new Item("add row before", new OnItemClickedListener() {
+            return new Item("add row before", new OnItemViewClickedListener() {
                     @Override
-                public void onItemClicked(Object item, Row row) {
+                public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                        RowPresenter.ViewHolder rowViewHolder, Row row) {
                     int index = mRowsAdapter.indexOf(row);
                     if (index >= 0) {
                         int headerId = sRand.nextInt();
@@ -204,9 +215,10 @@ public class BrowseAnimationFragment extends
                 }
             });
         case 9:
-            return new Item("add row after", new OnItemClickedListener() {
+            return new Item("add row after", new OnItemViewClickedListener() {
                     @Override
-                public void onItemClicked(Object item, Row row) {
+                public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                        RowPresenter.ViewHolder rowViewHolder, Row row) {
                     int index = mRowsAdapter.indexOf(row);
                     if (index >= 0) {
                         int headerId = sRand.nextInt();
@@ -217,16 +229,18 @@ public class BrowseAnimationFragment extends
                 }
             });
         case 10:
-            return new Item("delete row", new OnItemClickedListener() {
+            return new Item("delete row", new OnItemViewClickedListener() {
                     @Override
-                public void onItemClicked(Object item, Row row) {
+                public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                        RowPresenter.ViewHolder rowViewHolder, Row row) {
                     mRowsAdapter.remove(row);
                 }
             });
         case 11:
-            return new Item("delete row before", new OnItemClickedListener() {
+            return new Item("delete row before", new OnItemViewClickedListener() {
                     @Override
-                public void onItemClicked(Object item, Row row) {
+                public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                        RowPresenter.ViewHolder rowViewHolder, Row row) {
                     int index = mRowsAdapter.indexOf(row);
                     if (index > 0) {
                         mRowsAdapter.removeItems(index - 1, 1);
@@ -234,9 +248,10 @@ public class BrowseAnimationFragment extends
                 }
             });
         case 12:
-            return new Item("delete row after", new OnItemClickedListener() {
+            return new Item("delete row after", new OnItemViewClickedListener() {
                     @Override
-                public void onItemClicked(Object item, Row row) {
+                public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                        RowPresenter.ViewHolder rowViewHolder, Row row) {
                     int index = mRowsAdapter.indexOf(row);
                     if (index < mRowsAdapter.size() - 1) {
                         mRowsAdapter.removeItems(index + 1, 1);
@@ -244,9 +259,10 @@ public class BrowseAnimationFragment extends
                 }
             });
         case 13:
-            return new Item("Replace Item before", new OnItemClickedListener() {
+            return new Item("Replace Item before", new OnItemViewClickedListener() {
                     @Override
-                public void onItemClicked(Object item, Row row) {
+                public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                        RowPresenter.ViewHolder rowViewHolder, Row row) {
                     ArrayObjectAdapter adapter = ((ArrayObjectAdapter) ((ListRow) row)
                             .getAdapter());
                     int index = adapter.indexOf(item);
@@ -258,9 +274,10 @@ public class BrowseAnimationFragment extends
                 }
             });
         case 14:
-            return new Item("Remove all then re-add", new OnItemClickedListener() {
+            return new Item("Remove all then re-add", new OnItemViewClickedListener() {
                     @Override
-                public void onItemClicked(Object item, Row row) {
+                public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                        RowPresenter.ViewHolder rowViewHolder, Row row) {
                     final ArrayObjectAdapter adapter = ((ArrayObjectAdapter) ((ListRow) row)
                             .getAdapter());
                    adapter.clear();
@@ -284,10 +301,11 @@ public class BrowseAnimationFragment extends
         return new ListRow(header, listRowAdapter);
     }
 
-    private final class ItemClickedListener implements OnItemClickedListener {
+    private final class ItemViewClickedListener implements OnItemViewClickedListener {
         @Override
-        public void onItemClicked(Object item, Row row) {
-            ((Item) item).mAction.onItemClicked(item, row);
+        public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                RowPresenter.ViewHolder rowViewHolder, Row row) {
+            ((Item) item).mAction.onItemClicked(itemViewHolder, item, rowViewHolder, row);
         }
     }
 }
