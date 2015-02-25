@@ -1,0 +1,19 @@
+package android.support.v17.preference {
+
+  public abstract class BaseLeanbackPreferenceFragment extends android.support.v14.preference.PreferenceFragment {
+    ctor public BaseLeanbackPreferenceFragment();
+  }
+
+  public abstract class LeanbackPreferenceFragment extends android.support.v17.preference.BaseLeanbackPreferenceFragment {
+    ctor public LeanbackPreferenceFragment();
+  }
+
+  public abstract class LeanbackSettingsFragment extends android.app.Fragment {
+    ctor public LeanbackSettingsFragment();
+    method public abstract void onPreferenceStartInitialScreen();
+    method public void startImmersiveFragment(android.app.Fragment, java.lang.String);
+    method public void startPreferenceFragment(android.app.Fragment, java.lang.String);
+  }
+
+}
+

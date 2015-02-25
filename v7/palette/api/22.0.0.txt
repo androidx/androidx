@@ -1,0 +1,38 @@
+package android.support.v7.graphics {
+
+  public final class Palette {
+    method public static android.support.v7.graphics.Palette from(java.util.List<android.support.v7.graphics.Palette.Swatch>);
+    method public static android.support.v7.graphics.Palette generate(android.graphics.Bitmap);
+    method public static android.support.v7.graphics.Palette generate(android.graphics.Bitmap, int);
+    method public static android.os.AsyncTask<android.graphics.Bitmap, java.lang.Void, android.support.v7.graphics.Palette> generateAsync(android.graphics.Bitmap, android.support.v7.graphics.Palette.PaletteAsyncListener);
+    method public static android.os.AsyncTask<android.graphics.Bitmap, java.lang.Void, android.support.v7.graphics.Palette> generateAsync(android.graphics.Bitmap, int, android.support.v7.graphics.Palette.PaletteAsyncListener);
+    method public int getDarkMutedColor(int);
+    method public android.support.v7.graphics.Palette.Swatch getDarkMutedSwatch();
+    method public int getDarkVibrantColor(int);
+    method public android.support.v7.graphics.Palette.Swatch getDarkVibrantSwatch();
+    method public int getLightMutedColor(int);
+    method public android.support.v7.graphics.Palette.Swatch getLightMutedSwatch();
+    method public int getLightVibrantColor(int);
+    method public android.support.v7.graphics.Palette.Swatch getLightVibrantSwatch();
+    method public int getMutedColor(int);
+    method public android.support.v7.graphics.Palette.Swatch getMutedSwatch();
+    method public java.util.List<android.support.v7.graphics.Palette.Swatch> getSwatches();
+    method public int getVibrantColor(int);
+    method public android.support.v7.graphics.Palette.Swatch getVibrantSwatch();
+  }
+
+  public static abstract interface Palette.PaletteAsyncListener {
+    method public abstract void onGenerated(android.support.v7.graphics.Palette);
+  }
+
+  public static final class Palette.Swatch {
+    ctor public Palette.Swatch(int, int);
+    method public int getBodyTextColor();
+    method public float[] getHsl();
+    method public int getPopulation();
+    method public int getRgb();
+    method public int getTitleTextColor();
+  }
+
+}
+

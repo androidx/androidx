@@ -198,12 +198,36 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v4
 LOCAL_SDK_VERSION := 4
-
 LOCAL_AIDL_INCLUDES := frameworks/support/v4/java
-
 LOCAL_SRC_FILES := $(call all-java-files-under, java) \
     $(call all-Iaidl-files-under, java)
-
-
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4-api23
 include $(BUILD_STATIC_JAVA_LIBRARY)
+
+# API Check
+# ---------------------------------------------
+support_module := $(LOCAL_MODULE)
+support_module_api_dir := $(LOCAL_PATH)/api
+support_module_src_files := $(LOCAL_SRC_FILES)
+support_module_java_libraries := android-support-v4
+support_module_java_packages := \
+    android.support.v4.accessibilityservice \
+    android.support.v4.app \
+    android.support.v4.content \
+    android.support.v4.database \
+    android.support.v4.graphics \
+    android.support.v4.graphics.drawable \
+    android.support.v4.hardware.display \
+    android.support.v4.media \
+    android.support.v4.media.session \
+    android.support.v4.net \
+    android.support.v4.os \
+    android.support.v4.print \
+    android.support.v4.provider \
+    android.support.v4.text \
+    android.support.v4.util \
+    android.support.v4.view \
+    android.support.v4.view.accessibility \
+    android.support.v4.view.animation \
+    android.support.v4.widget
+include $(SUPPORT_API_CHECK)

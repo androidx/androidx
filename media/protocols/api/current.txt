@@ -1,0 +1,278 @@
+package android.support.media.protocols {
+
+  public class MediaPlayerProtocol extends android.support.media.protocols.MediaRouteProtocol {
+    ctor public MediaPlayerProtocol(android.os.IBinder);
+    method public void load(android.support.media.protocols.MediaPlayerProtocol.MediaInfo, boolean, long, android.os.Bundle);
+    method public void pause(android.os.Bundle);
+    method public void play(android.os.Bundle);
+    method public void requestStatus(android.os.Bundle);
+    method public void seek(long, int, android.os.Bundle);
+    method public void setActiveMediaTracks(long[], android.os.Bundle);
+    method public void setStreamMute(boolean, android.os.Bundle);
+    method public void setStreamVolume(int, android.os.Bundle);
+    method public void setTextTrackStyle(android.support.media.protocols.MediaPlayerProtocol.TextTrackStyle, android.os.Bundle);
+    method public void stop(android.os.Bundle);
+    field public static final int RESUME_STATE_PAUSE = 2; // 0x2
+    field public static final int RESUME_STATE_PLAY = 1; // 0x1
+    field public static final int RESUME_STATE_UNCHANGED = 0; // 0x0
+  }
+
+  public static abstract class MediaPlayerProtocol.Callback extends android.support.media.protocols.MediaRouteProtocol.Callback {
+    ctor public MediaPlayerProtocol.Callback();
+    method public void onStatusUpdated(android.support.media.protocols.MediaPlayerProtocol.MediaStatus, android.os.Bundle);
+  }
+
+  public static final class MediaPlayerProtocol.MediaInfo {
+    ctor public MediaPlayerProtocol.MediaInfo(java.lang.String, int, java.lang.String);
+    method public static android.support.media.protocols.MediaPlayerProtocol.MediaInfo fromBundle(android.os.Bundle);
+    method public java.lang.String getContentId();
+    method public java.lang.String getContentType();
+    method public android.os.Bundle getExtras();
+    method public java.util.List<android.support.media.protocols.MediaPlayerProtocol.MediaTrack> getMediaTracks();
+    method public android.support.media.protocols.MediaPlayerProtocol.MediaMetadata getMetadata();
+    method public long getStreamDuration();
+    method public int getStreamType();
+    method public android.support.media.protocols.MediaPlayerProtocol.TextTrackStyle getTextTrackStyle();
+    method public void setExtras(android.os.Bundle);
+    method public void setMediaTracks(java.util.List<android.support.media.protocols.MediaPlayerProtocol.MediaTrack>);
+    method public void setMetadata(android.support.media.protocols.MediaPlayerProtocol.MediaMetadata);
+    method public void setStreamDuration(long);
+    method public void setTextTrackStyle(android.support.media.protocols.MediaPlayerProtocol.TextTrackStyle);
+    method public android.os.Bundle toBundle();
+    field public static final int STREAM_TYPE_BUFFERED = 1; // 0x1
+    field public static final int STREAM_TYPE_INVALID = -1; // 0xffffffff
+    field public static final int STREAM_TYPE_LIVE = 2; // 0x2
+    field public static final int STREAM_TYPE_NONE = 0; // 0x0
+  }
+
+  public static final class MediaPlayerProtocol.MediaMetadata {
+    ctor public MediaPlayerProtocol.MediaMetadata();
+    ctor public MediaPlayerProtocol.MediaMetadata(int);
+    method public void addImage(android.support.media.protocols.MediaPlayerProtocol.WebImage);
+    method public void clear();
+    method public void clearImages();
+    method public boolean containsKey(java.lang.String);
+    method public static android.support.media.protocols.MediaPlayerProtocol.MediaMetadata fromBundle(android.os.Bundle);
+    method public java.util.Calendar getDate(java.lang.String);
+    method public double getDouble(java.lang.String);
+    method public java.util.List<android.support.media.protocols.MediaPlayerProtocol.WebImage> getImages();
+    method public int getInt(java.lang.String);
+    method public int getMediaType();
+    method public java.lang.String getString(java.lang.String);
+    method public boolean hasImages();
+    method public java.util.Set<java.lang.String> keySet();
+    method public void putDate(java.lang.String, java.util.Calendar);
+    method public void putDouble(java.lang.String, double);
+    method public void putInt(java.lang.String, int);
+    method public void putString(java.lang.String, java.lang.String);
+    method public android.os.Bundle toBundle();
+    field public static final java.lang.String KEY_ALBUM_ARTIST = "android.support.media.protocols.metadata.ALBUM_ARTIST";
+    field public static final java.lang.String KEY_ALBUM_TITLE = "android.support.media.protocols.metadata.ALBUM_TITLE";
+    field public static final java.lang.String KEY_ARTIST = "android.support.media.protocols.metadata.ARTIST";
+    field public static final java.lang.String KEY_BROADCAST_DATE = "android.support.media.protocols.metadata.BROADCAST_DATE";
+    field public static final java.lang.String KEY_COMPOSER = "android.support.media.protocols.metadata.COMPOSER";
+    field public static final java.lang.String KEY_CREATION_DATE = "android.support.media.protocols.metadata.CREATION_DATE";
+    field public static final java.lang.String KEY_DISC_NUMBER = "android.support.media.protocols.metadata.DISC_NUMBER";
+    field public static final java.lang.String KEY_EPISODE_NUMBER = "android.support.media.protocols.metadata.EPISODE_NUMBER";
+    field public static final java.lang.String KEY_HEIGHT = "android.support.media.protocols.metadata.HEIGHT";
+    field public static final java.lang.String KEY_LOCATION_LATITUDE = "android.support.media.protocols.metadata.LOCATION_LATITUDE";
+    field public static final java.lang.String KEY_LOCATION_LONGITUDE = "android.support.media.protocols.metadata.LOCATION_LONGITUDE";
+    field public static final java.lang.String KEY_LOCATION_NAME = "android.support.media.protocols.metadata.LOCATION_NAME";
+    field public static final java.lang.String KEY_RELEASE_DATE = "android.support.media.protocols.metadata.RELEASE_DATE";
+    field public static final java.lang.String KEY_SEASON_NUMBER = "android.support.media.protocols.metadata.SEASON_NUMBER";
+    field public static final java.lang.String KEY_SERIES_TITLE = "android.support.media.protocols.metadata.SERIES_TITLE";
+    field public static final java.lang.String KEY_STUDIO = "android.support.media.protocols.metadata.STUDIO";
+    field public static final java.lang.String KEY_SUBTITLE = "android.support.media.protocols.metadata.SUBTITLE";
+    field public static final java.lang.String KEY_TITLE = "android.support.media.protocols.metadata.TITLE";
+    field public static final java.lang.String KEY_TRACK_NUMBER = "android.support.media.protocols.metadata.TRACK_NUMBER";
+    field public static final java.lang.String KEY_WIDTH = "android.support.media.protocols.metadata.WIDTH";
+    field public static final int MEDIA_TYPE_GENERIC = 0; // 0x0
+    field public static final int MEDIA_TYPE_MOVIE = 1; // 0x1
+    field public static final int MEDIA_TYPE_MUSIC_TRACK = 3; // 0x3
+    field public static final int MEDIA_TYPE_PHOTO = 4; // 0x4
+    field public static final int MEDIA_TYPE_TV_SHOW = 2; // 0x2
+    field public static final int MEDIA_TYPE_USER = 100; // 0x64
+  }
+
+  public static final class MediaPlayerProtocol.MediaStatus {
+    ctor public MediaPlayerProtocol.MediaStatus(long, android.support.media.protocols.MediaPlayerProtocol.MediaInfo);
+    method public static android.support.media.protocols.MediaPlayerProtocol.MediaStatus fromBundle(android.os.Bundle);
+    method public long[] getActiveTrackIds();
+    method public android.os.Bundle getExtras();
+    method public int getIdleReason();
+    method public android.support.media.protocols.MediaPlayerProtocol.MediaInfo getMediaInfo();
+    method public long getMediaSessionId();
+    method public double getPlaybackRate();
+    method public int getPlayerState();
+    method public long getStreamPosition();
+    method public double getStreamVolume();
+    method public boolean isMediaCommandSupported(long);
+    method public boolean isMute();
+    method public void setActiveTrackIds(long[]);
+    method public void setExtras(android.os.Bundle);
+    method public void setIdleReason(int);
+    method public void setMute(boolean);
+    method public void setPlaybackRate(double);
+    method public void setPlayerState(int);
+    method public void setStreamPosition(long);
+    method public void setStreamVolume(double);
+    method public void setSupportedMediaCommands(long);
+    method public android.os.Bundle toBundle();
+    field public static final long COMMAND_PAUSE = 1L; // 0x1L
+    field public static final long COMMAND_SEEK = 2L; // 0x2L
+    field public static final long COMMAND_SET_VOLUME = 4L; // 0x4L
+    field public static final long COMMAND_SKIP_BACKWARD = 32L; // 0x20L
+    field public static final long COMMAND_SKIP_FORWARD = 16L; // 0x10L
+    field public static final long COMMAND_TOGGLE_MUTE = 8L; // 0x8L
+    field public static final int IDLE_REASON_CANCELED = 2; // 0x2
+    field public static final int IDLE_REASON_ERROR = 4; // 0x4
+    field public static final int IDLE_REASON_FINISHED = 1; // 0x1
+    field public static final int IDLE_REASON_INTERRUPTED = 3; // 0x3
+    field public static final int IDLE_REASON_NONE = 0; // 0x0
+    field public static final int PLAYER_STATE_BUFFERING = 4; // 0x4
+    field public static final int PLAYER_STATE_IDLE = 1; // 0x1
+    field public static final int PLAYER_STATE_PAUSED = 3; // 0x3
+    field public static final int PLAYER_STATE_PLAYING = 2; // 0x2
+    field public static final int PLAYER_STATE_UNKNOWN = 0; // 0x0
+  }
+
+  public static final class MediaPlayerProtocol.MediaTrack {
+    ctor public MediaPlayerProtocol.MediaTrack(long, int);
+    method public static android.support.media.protocols.MediaPlayerProtocol.MediaTrack fromBundle(android.os.Bundle);
+    method public java.lang.String getContentId();
+    method public java.lang.String getContentType();
+    method public android.os.Bundle getExtras();
+    method public long getId();
+    method public java.lang.String getLanguage();
+    method public java.lang.String getName();
+    method public int getSubtype();
+    method public int getType();
+    method public void setContentId(java.lang.String);
+    method public void setContentType(java.lang.String);
+    method public void setExtras(android.os.Bundle);
+    method public void setLanguage(java.lang.String);
+    method public void setName(java.lang.String);
+    method public void setSubtype(int);
+    method public android.os.Bundle toBundle();
+    field public static final int SUBTYPE_CAPTIONS = 2; // 0x2
+    field public static final int SUBTYPE_CHAPTERS = 4; // 0x4
+    field public static final int SUBTYPE_DESCRIPTIONS = 3; // 0x3
+    field public static final int SUBTYPE_METADATA = 5; // 0x5
+    field public static final int SUBTYPE_NONE = 0; // 0x0
+    field public static final int SUBTYPE_SUBTITLES = 1; // 0x1
+    field public static final int SUBTYPE_UNKNOWN = -1; // 0xffffffff
+    field public static final int TYPE_AUDIO = 2; // 0x2
+    field public static final int TYPE_TEXT = 1; // 0x1
+    field public static final int TYPE_UNKNOWN = 0; // 0x0
+    field public static final int TYPE_VIDEO = 3; // 0x3
+  }
+
+  public static abstract class MediaPlayerProtocol.Stub extends android.support.media.protocols.MediaRouteProtocol.Stub {
+    ctor public MediaPlayerProtocol.Stub(android.os.Handler);
+    method public void onLoad(android.support.media.protocols.MediaPlayerProtocol.MediaInfo, boolean, long, android.os.Bundle);
+    method public void onPause(android.os.Bundle);
+    method public void onPlay(android.os.Bundle);
+    method public void onRequestStatus(android.os.Bundle);
+    method public void onSeek(long, int, android.os.Bundle);
+    method public void onSetActiveMediaTracks(long[], android.os.Bundle);
+    method public void onSetStreamMute(boolean, android.os.Bundle);
+    method public void onSetStreamVolume(int, android.os.Bundle);
+    method public void onSetTextTrackStyle(android.support.media.protocols.MediaPlayerProtocol.TextTrackStyle, android.os.Bundle);
+    method public void onStop(android.os.Bundle);
+    method public void sendStatusUpdatedEvent(android.support.media.protocols.MediaPlayerProtocol.MediaStatus, android.os.Bundle);
+  }
+
+  public static final class MediaPlayerProtocol.TextTrackStyle {
+    ctor public MediaPlayerProtocol.TextTrackStyle();
+    method public static android.support.media.protocols.MediaPlayerProtocol.TextTrackStyle fromBundle(android.os.Bundle);
+    method public static android.support.media.protocols.MediaPlayerProtocol.TextTrackStyle fromSystemSettings(android.content.Context);
+    method public int getBackgroundColor();
+    method public int getEdgeColor();
+    method public int getEdgeType();
+    method public android.os.Bundle getExtras();
+    method public java.lang.String getFontFamily();
+    method public int getFontGenericFamily();
+    method public float getFontScale();
+    method public int getFontStyle();
+    method public int getForegroundColor();
+    method public int getWindowColor();
+    method public int getWindowCornerRadius();
+    method public int getWindowType();
+    method public void setBackgroundColor(int);
+    method public void setEdgeColor(int);
+    method public void setEdgeType(int);
+    method public void setExtras(android.os.Bundle);
+    method public void setFontFamily(java.lang.String);
+    method public void setFontGenericFamily(int);
+    method public void setFontScale(float);
+    method public void setFontStyle(int);
+    method public void setForegroundColor(int);
+    method public void setWindowColor(int);
+    method public void setWindowCornerRadius(int);
+    method public void setWindowType(int);
+    method public android.os.Bundle toBundle();
+    field public static final int COLOR_UNSPECIFIED = 0; // 0x0
+    field public static final float DEFAULT_FONT_SCALE = 1.0f;
+    field public static final int EDGE_TYPE_DEPRESSED = 4; // 0x4
+    field public static final int EDGE_TYPE_DROP_SHADOW = 2; // 0x2
+    field public static final int EDGE_TYPE_NONE = 0; // 0x0
+    field public static final int EDGE_TYPE_OUTLINE = 1; // 0x1
+    field public static final int EDGE_TYPE_RAISED = 3; // 0x3
+    field public static final int EDGE_TYPE_UNSPECIFIED = -1; // 0xffffffff
+    field public static final int FONT_FAMILY_CASUAL = 4; // 0x4
+    field public static final int FONT_FAMILY_CURSIVE = 5; // 0x5
+    field public static final int FONT_FAMILY_MONOSPACED_SANS_SERIF = 1; // 0x1
+    field public static final int FONT_FAMILY_MONOSPACED_SERIF = 3; // 0x3
+    field public static final int FONT_FAMILY_SANS_SERIF = 0; // 0x0
+    field public static final int FONT_FAMILY_SERIF = 2; // 0x2
+    field public static final int FONT_FAMILY_SMALL_CAPITALS = 6; // 0x6
+    field public static final int FONT_FAMILY_UNSPECIFIED = -1; // 0xffffffff
+    field public static final int FONT_STYLE_BOLD = 1; // 0x1
+    field public static final int FONT_STYLE_BOLD_ITALIC = 3; // 0x3
+    field public static final int FONT_STYLE_ITALIC = 2; // 0x2
+    field public static final int FONT_STYLE_NORMAL = 0; // 0x0
+    field public static final int FONT_STYLE_UNSPECIFIED = -1; // 0xffffffff
+    field public static final int WINDOW_TYPE_NONE = 0; // 0x0
+    field public static final int WINDOW_TYPE_NORMAL = 1; // 0x1
+    field public static final int WINDOW_TYPE_ROUNDED = 2; // 0x2
+    field public static final int WINDOW_TYPE_UNSPECIFIED = -1; // 0xffffffff
+  }
+
+  public static final class MediaPlayerProtocol.WebImage {
+    ctor public MediaPlayerProtocol.WebImage(android.net.Uri) throws java.lang.IllegalArgumentException;
+    ctor public MediaPlayerProtocol.WebImage(android.net.Uri, int, int) throws java.lang.IllegalArgumentException;
+    method public static android.support.media.protocols.MediaPlayerProtocol.WebImage fromBundle(android.os.Bundle);
+    method public int getHeight();
+    method public android.net.Uri getUrl();
+    method public int getWidth();
+    method public android.os.Bundle toBundle();
+  }
+
+  public abstract class MediaRouteProtocol {
+    ctor public MediaRouteProtocol(android.os.IBinder);
+    method public void sendRequest(java.lang.String, android.os.Bundle);
+    method public void setCallback(android.support.media.protocols.MediaRouteProtocol.Callback, android.os.Handler);
+    field public static final java.lang.String ERROR_DISCONNECTED = "android.support.errors.DISCONNECTED";
+    field public static final java.lang.String ERROR_UNKNOWN = "android.support.errors.UNKNOWN";
+    field public static final java.lang.String ERROR_UNSUPPORTED_OPERATION = "android.support.errors.UNSUPPORTED_OPERATION";
+  }
+
+  public static abstract class MediaRouteProtocol.Callback {
+    ctor public MediaRouteProtocol.Callback();
+    method public void onError(java.lang.String, android.os.Bundle);
+    method public void onEvent(java.lang.String, android.os.Bundle);
+  }
+
+  public static abstract class MediaRouteProtocol.Stub implements android.os.IInterface {
+    ctor public MediaRouteProtocol.Stub(android.os.Handler);
+    method public android.os.IBinder asBinder();
+    method public void close();
+    method public void onClientAttached();
+    method public void onClientDetached();
+    method public void onRequest(java.lang.String, android.os.Bundle) throws java.lang.UnsupportedOperationException;
+    method public boolean sendError(java.lang.String, android.os.Bundle);
+    method public boolean sendEvent(java.lang.String, android.os.Bundle);
+  }
+
+}
+
