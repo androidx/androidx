@@ -76,8 +76,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
 
         @Override
         public void onBind(final ItemBridgeAdapter.ViewHolder ibvh) {
-            if (getOnItemViewClickedListener() != null || getOnItemClickedListener() != null
-                    || mActionClickedListener != null) {
+            if (getOnItemViewClickedListener() != null || mActionClickedListener != null) {
                 ibvh.getPresenter().setOnClickListener(
                         ibvh.getViewHolder(), new View.OnClickListener() {
                             @Override
@@ -96,8 +95,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         }
         @Override
         public void onUnbind(final ItemBridgeAdapter.ViewHolder ibvh) {
-            if (getOnItemViewClickedListener() != null || getOnItemClickedListener() != null
-                    || mActionClickedListener != null) {
+            if (getOnItemViewClickedListener() != null || mActionClickedListener != null) {
                 ibvh.getPresenter().setOnClickListener(ibvh.getViewHolder(), null);
             }
         }
@@ -195,17 +193,11 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
                     mActionsRow.getChildViewHolder(view) :
                     mActionsRow.findViewHolderForPosition(mActionsRow.getSelectedPosition()));
             if (ibvh == null) {
-                if (getOnItemSelectedListener() != null) {
-                    getOnItemSelectedListener().onItemSelected(null, getRow());
-                }
                 if (getOnItemViewSelectedListener() != null) {
                     getOnItemViewSelectedListener().onItemSelected(null, null,
                             ViewHolder.this, getRow());
                 }
             } else {
-                if (getOnItemSelectedListener() != null) {
-                    getOnItemSelectedListener().onItemSelected(ibvh.getItem(), getRow());
-                }
                 if (getOnItemViewSelectedListener() != null) {
                     getOnItemViewSelectedListener().onItemSelected(ibvh.getViewHolder(), ibvh.getItem(),
                             ViewHolder.this, getRow());
