@@ -1,0 +1,529 @@
+package android.support.v7.app {
+
+  public abstract class ActionBar {
+    ctor public ActionBar();
+    method public abstract void addOnMenuVisibilityListener(android.support.v7.app.ActionBar.OnMenuVisibilityListener);
+    method public abstract deprecated void addTab(android.support.v7.app.ActionBar.Tab);
+    method public abstract deprecated void addTab(android.support.v7.app.ActionBar.Tab, boolean);
+    method public abstract deprecated void addTab(android.support.v7.app.ActionBar.Tab, int);
+    method public abstract deprecated void addTab(android.support.v7.app.ActionBar.Tab, int, boolean);
+    method public abstract android.view.View getCustomView();
+    method public abstract int getDisplayOptions();
+    method public float getElevation();
+    method public abstract int getHeight();
+    method public int getHideOffset();
+    method public abstract deprecated int getNavigationItemCount();
+    method public abstract deprecated int getNavigationMode();
+    method public abstract deprecated int getSelectedNavigationIndex();
+    method public abstract deprecated android.support.v7.app.ActionBar.Tab getSelectedTab();
+    method public abstract java.lang.CharSequence getSubtitle();
+    method public abstract deprecated android.support.v7.app.ActionBar.Tab getTabAt(int);
+    method public abstract deprecated int getTabCount();
+    method public android.content.Context getThemedContext();
+    method public abstract java.lang.CharSequence getTitle();
+    method public abstract void hide();
+    method public boolean isHideOnContentScrollEnabled();
+    method public abstract boolean isShowing();
+    method public abstract deprecated android.support.v7.app.ActionBar.Tab newTab();
+    method public abstract deprecated void removeAllTabs();
+    method public abstract void removeOnMenuVisibilityListener(android.support.v7.app.ActionBar.OnMenuVisibilityListener);
+    method public abstract deprecated void removeTab(android.support.v7.app.ActionBar.Tab);
+    method public abstract deprecated void removeTabAt(int);
+    method public abstract deprecated void selectTab(android.support.v7.app.ActionBar.Tab);
+    method public abstract void setBackgroundDrawable(android.graphics.drawable.Drawable);
+    method public abstract void setCustomView(android.view.View);
+    method public abstract void setCustomView(android.view.View, android.support.v7.app.ActionBar.LayoutParams);
+    method public abstract void setCustomView(int);
+    method public abstract void setDisplayHomeAsUpEnabled(boolean);
+    method public abstract void setDisplayOptions(int);
+    method public abstract void setDisplayOptions(int, int);
+    method public abstract void setDisplayShowCustomEnabled(boolean);
+    method public abstract void setDisplayShowHomeEnabled(boolean);
+    method public abstract void setDisplayShowTitleEnabled(boolean);
+    method public abstract void setDisplayUseLogoEnabled(boolean);
+    method public void setElevation(float);
+    method public void setHideOffset(int);
+    method public void setHideOnContentScrollEnabled(boolean);
+    method public void setHomeActionContentDescription(java.lang.CharSequence);
+    method public void setHomeActionContentDescription(int);
+    method public void setHomeAsUpIndicator(android.graphics.drawable.Drawable);
+    method public void setHomeAsUpIndicator(int);
+    method public void setHomeButtonEnabled(boolean);
+    method public abstract void setIcon(int);
+    method public abstract void setIcon(android.graphics.drawable.Drawable);
+    method public abstract deprecated void setListNavigationCallbacks(android.widget.SpinnerAdapter, android.support.v7.app.ActionBar.OnNavigationListener);
+    method public abstract void setLogo(int);
+    method public abstract void setLogo(android.graphics.drawable.Drawable);
+    method public abstract deprecated void setNavigationMode(int);
+    method public abstract deprecated void setSelectedNavigationItem(int);
+    method public void setSplitBackgroundDrawable(android.graphics.drawable.Drawable);
+    method public void setStackedBackgroundDrawable(android.graphics.drawable.Drawable);
+    method public abstract void setSubtitle(java.lang.CharSequence);
+    method public abstract void setSubtitle(int);
+    method public abstract void setTitle(java.lang.CharSequence);
+    method public abstract void setTitle(int);
+    method public abstract void show();
+    field public static final int DISPLAY_HOME_AS_UP = 4; // 0x4
+    field public static final int DISPLAY_SHOW_CUSTOM = 16; // 0x10
+    field public static final int DISPLAY_SHOW_HOME = 2; // 0x2
+    field public static final int DISPLAY_SHOW_TITLE = 8; // 0x8
+    field public static final int DISPLAY_USE_LOGO = 1; // 0x1
+    field public static final deprecated int NAVIGATION_MODE_LIST = 1; // 0x1
+    field public static final deprecated int NAVIGATION_MODE_STANDARD = 0; // 0x0
+    field public static final deprecated int NAVIGATION_MODE_TABS = 2; // 0x2
+  }
+
+  public static class ActionBar.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
+    ctor public ActionBar.LayoutParams(android.content.Context, android.util.AttributeSet);
+    ctor public ActionBar.LayoutParams(int, int);
+    ctor public ActionBar.LayoutParams(int, int, int);
+    ctor public ActionBar.LayoutParams(int);
+    ctor public ActionBar.LayoutParams(android.support.v7.app.ActionBar.LayoutParams);
+    ctor public ActionBar.LayoutParams(android.view.ViewGroup.LayoutParams);
+    field public int gravity;
+  }
+
+  public static abstract interface ActionBar.OnMenuVisibilityListener {
+    method public abstract void onMenuVisibilityChanged(boolean);
+  }
+
+  public static abstract deprecated interface ActionBar.OnNavigationListener {
+    method public abstract boolean onNavigationItemSelected(int, long);
+  }
+
+  public static abstract deprecated class ActionBar.Tab {
+    ctor public ActionBar.Tab();
+    method public abstract java.lang.CharSequence getContentDescription();
+    method public abstract android.view.View getCustomView();
+    method public abstract android.graphics.drawable.Drawable getIcon();
+    method public abstract int getPosition();
+    method public abstract java.lang.Object getTag();
+    method public abstract java.lang.CharSequence getText();
+    method public abstract void select();
+    method public abstract android.support.v7.app.ActionBar.Tab setContentDescription(int);
+    method public abstract android.support.v7.app.ActionBar.Tab setContentDescription(java.lang.CharSequence);
+    method public abstract android.support.v7.app.ActionBar.Tab setCustomView(android.view.View);
+    method public abstract android.support.v7.app.ActionBar.Tab setCustomView(int);
+    method public abstract android.support.v7.app.ActionBar.Tab setIcon(android.graphics.drawable.Drawable);
+    method public abstract android.support.v7.app.ActionBar.Tab setIcon(int);
+    method public abstract android.support.v7.app.ActionBar.Tab setTabListener(android.support.v7.app.ActionBar.TabListener);
+    method public abstract android.support.v7.app.ActionBar.Tab setTag(java.lang.Object);
+    method public abstract android.support.v7.app.ActionBar.Tab setText(java.lang.CharSequence);
+    method public abstract android.support.v7.app.ActionBar.Tab setText(int);
+    field public static final int INVALID_POSITION = -1; // 0xffffffff
+  }
+
+  public static abstract deprecated interface ActionBar.TabListener {
+    method public abstract void onTabReselected(android.support.v7.app.ActionBar.Tab, android.support.v4.app.FragmentTransaction);
+    method public abstract void onTabSelected(android.support.v7.app.ActionBar.Tab, android.support.v4.app.FragmentTransaction);
+    method public abstract void onTabUnselected(android.support.v7.app.ActionBar.Tab, android.support.v4.app.FragmentTransaction);
+  }
+
+  public class ActionBarActivity extends android.support.v4.app.FragmentActivity {
+    ctor public ActionBarActivity();
+    method public final android.support.v4.app.ActionBarDrawerToggle.Delegate getDrawerToggleDelegate();
+    method public android.support.v7.app.ActionBar getSupportActionBar();
+    method public android.content.Intent getSupportParentActivityIntent();
+    method public android.support.v7.app.ActionBarDrawerToggle.Delegate getV7DrawerToggleDelegate();
+    method public final void onContentChanged();
+    method public void onCreateSupportNavigateUpTaskStack(android.support.v4.app.TaskStackBuilder);
+    method public final boolean onMenuItemSelected(int, android.view.MenuItem);
+    method public void onPrepareSupportNavigateUpTaskStack(android.support.v4.app.TaskStackBuilder);
+    method public void onSupportActionModeFinished(android.support.v7.view.ActionMode);
+    method public void onSupportActionModeStarted(android.support.v7.view.ActionMode);
+    method public void onSupportContentChanged();
+    method public boolean onSupportNavigateUp();
+    method public void setSupportActionBar(android.support.v7.widget.Toolbar);
+    method public void setSupportProgress(int);
+    method public void setSupportProgressBarIndeterminate(boolean);
+    method public void setSupportProgressBarIndeterminateVisibility(boolean);
+    method public void setSupportProgressBarVisibility(boolean);
+    method public android.support.v7.view.ActionMode startSupportActionMode(android.support.v7.view.ActionMode.Callback);
+    method public void supportNavigateUpTo(android.content.Intent);
+    method public boolean supportRequestWindowFeature(int);
+    method public boolean supportShouldUpRecreateTask(android.content.Intent);
+  }
+
+  public class ActionBarDrawerToggle implements android.support.v4.widget.DrawerLayout.DrawerListener {
+    ctor public ActionBarDrawerToggle(android.app.Activity, android.support.v4.widget.DrawerLayout, int, int);
+    ctor public ActionBarDrawerToggle(android.app.Activity, android.support.v4.widget.DrawerLayout, android.support.v7.widget.Toolbar, int, int);
+    method public android.view.View.OnClickListener getToolbarNavigationClickListener();
+    method public boolean isDrawerIndicatorEnabled();
+    method public void onConfigurationChanged(android.content.res.Configuration);
+    method public void onDrawerClosed(android.view.View);
+    method public void onDrawerOpened(android.view.View);
+    method public void onDrawerSlide(android.view.View, float);
+    method public void onDrawerStateChanged(int);
+    method public boolean onOptionsItemSelected(android.view.MenuItem);
+    method public void setDrawerIndicatorEnabled(boolean);
+    method public void setHomeAsUpIndicator(android.graphics.drawable.Drawable);
+    method public void setHomeAsUpIndicator(int);
+    method public void setToolbarNavigationClickListener(android.view.View.OnClickListener);
+    method public void syncState();
+  }
+
+  public static abstract interface ActionBarDrawerToggle.Delegate {
+    method public abstract android.content.Context getActionBarThemedContext();
+    method public abstract android.graphics.drawable.Drawable getThemeUpIndicator();
+    method public abstract boolean isNavigationVisible();
+    method public abstract void setActionBarDescription(int);
+    method public abstract void setActionBarUpIndicator(android.graphics.drawable.Drawable, int);
+  }
+
+  public static abstract interface ActionBarDrawerToggle.DelegateProvider {
+    method public abstract android.support.v7.app.ActionBarDrawerToggle.Delegate getDrawerToggleDelegate();
+  }
+
+}
+
+package android.support.v7.view {
+
+  public abstract class ActionMode {
+    ctor public ActionMode();
+    method public abstract void finish();
+    method public abstract android.view.View getCustomView();
+    method public abstract android.view.Menu getMenu();
+    method public abstract android.view.MenuInflater getMenuInflater();
+    method public abstract java.lang.CharSequence getSubtitle();
+    method public java.lang.Object getTag();
+    method public abstract java.lang.CharSequence getTitle();
+    method public boolean getTitleOptionalHint();
+    method public abstract void invalidate();
+    method public boolean isTitleOptional();
+    method public abstract void setCustomView(android.view.View);
+    method public abstract void setSubtitle(java.lang.CharSequence);
+    method public abstract void setSubtitle(int);
+    method public void setTag(java.lang.Object);
+    method public abstract void setTitle(java.lang.CharSequence);
+    method public abstract void setTitle(int);
+    method public void setTitleOptionalHint(boolean);
+  }
+
+  public static abstract interface ActionMode.Callback {
+    method public abstract boolean onActionItemClicked(android.support.v7.view.ActionMode, android.view.MenuItem);
+    method public abstract boolean onCreateActionMode(android.support.v7.view.ActionMode, android.view.Menu);
+    method public abstract void onDestroyActionMode(android.support.v7.view.ActionMode);
+    method public abstract boolean onPrepareActionMode(android.support.v7.view.ActionMode, android.view.Menu);
+  }
+
+  public abstract interface CollapsibleActionView {
+    method public abstract void onActionViewCollapsed();
+    method public abstract void onActionViewExpanded();
+  }
+
+}
+
+package android.support.v7.widget {
+
+  public class ActionMenuView extends android.support.v7.widget.LinearLayoutCompat {
+    ctor public ActionMenuView(android.content.Context);
+    ctor public ActionMenuView(android.content.Context, android.util.AttributeSet);
+    method public void dismissPopupMenus();
+    method public android.view.Menu getMenu();
+    method public int getPopupTheme();
+    method public boolean hideOverflowMenu();
+    method public boolean isOverflowMenuShowing();
+    method public void onConfigurationChanged(android.content.res.Configuration);
+    method public void onDetachedFromWindow();
+    method public void setOnMenuItemClickListener(android.support.v7.widget.ActionMenuView.OnMenuItemClickListener);
+    method public void setPopupTheme(int);
+    method public boolean showOverflowMenu();
+  }
+
+  public static class ActionMenuView.LayoutParams extends android.support.v7.widget.LinearLayoutCompat.LayoutParams {
+    ctor public ActionMenuView.LayoutParams(android.content.Context, android.util.AttributeSet);
+    ctor public ActionMenuView.LayoutParams(android.view.ViewGroup.LayoutParams);
+    ctor public ActionMenuView.LayoutParams(android.support.v7.widget.ActionMenuView.LayoutParams);
+    ctor public ActionMenuView.LayoutParams(int, int);
+    field public int cellsUsed;
+    field public boolean expandable;
+    field public int extraPixels;
+    field public boolean isOverflowButton;
+    field public boolean preventEdgeOffset;
+  }
+
+  public static abstract interface ActionMenuView.OnMenuItemClickListener {
+    method public abstract boolean onMenuItemClick(android.view.MenuItem);
+  }
+
+  public class LinearLayoutCompat extends android.view.ViewGroup {
+    ctor public LinearLayoutCompat(android.content.Context);
+    ctor public LinearLayoutCompat(android.content.Context, android.util.AttributeSet);
+    ctor public LinearLayoutCompat(android.content.Context, android.util.AttributeSet, int);
+    method public int getBaselineAlignedChildIndex();
+    method public android.graphics.drawable.Drawable getDividerDrawable();
+    method public int getDividerPadding();
+    method public int getOrientation();
+    method public int getShowDividers();
+    method public float getWeightSum();
+    method public boolean isBaselineAligned();
+    method public boolean isMeasureWithLargestChildEnabled();
+    method protected void onLayout(boolean, int, int, int, int);
+    method public void setBaselineAligned(boolean);
+    method public void setBaselineAlignedChildIndex(int);
+    method public void setDividerDrawable(android.graphics.drawable.Drawable);
+    method public void setDividerPadding(int);
+    method public void setGravity(int);
+    method public void setHorizontalGravity(int);
+    method public void setMeasureWithLargestChildEnabled(boolean);
+    method public void setOrientation(int);
+    method public void setShowDividers(int);
+    method public void setVerticalGravity(int);
+    method public void setWeightSum(float);
+    field public static final int HORIZONTAL = 0; // 0x0
+    field public static final int SHOW_DIVIDER_BEGINNING = 1; // 0x1
+    field public static final int SHOW_DIVIDER_END = 4; // 0x4
+    field public static final int SHOW_DIVIDER_MIDDLE = 2; // 0x2
+    field public static final int SHOW_DIVIDER_NONE = 0; // 0x0
+    field public static final int VERTICAL = 1; // 0x1
+  }
+
+  public static class LinearLayoutCompat.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
+    ctor public LinearLayoutCompat.LayoutParams(android.content.Context, android.util.AttributeSet);
+    ctor public LinearLayoutCompat.LayoutParams(int, int);
+    ctor public LinearLayoutCompat.LayoutParams(int, int, float);
+    ctor public LinearLayoutCompat.LayoutParams(android.view.ViewGroup.LayoutParams);
+    ctor public LinearLayoutCompat.LayoutParams(android.view.ViewGroup.MarginLayoutParams);
+    ctor public LinearLayoutCompat.LayoutParams(android.support.v7.widget.LinearLayoutCompat.LayoutParams);
+    field public int gravity;
+    field public float weight;
+  }
+
+  public class ListPopupWindow {
+    ctor public ListPopupWindow(android.content.Context);
+    ctor public ListPopupWindow(android.content.Context, android.util.AttributeSet);
+    ctor public ListPopupWindow(android.content.Context, android.util.AttributeSet, int);
+    ctor public ListPopupWindow(android.content.Context, android.util.AttributeSet, int, int);
+    method public void clearListSelection();
+    method public android.view.View.OnTouchListener createDragToOpenListener(android.view.View);
+    method public void dismiss();
+    method public android.view.View getAnchorView();
+    method public int getAnimationStyle();
+    method public android.graphics.drawable.Drawable getBackground();
+    method public int getHeight();
+    method public int getHorizontalOffset();
+    method public int getInputMethodMode();
+    method public android.widget.ListView getListView();
+    method public int getPromptPosition();
+    method public java.lang.Object getSelectedItem();
+    method public long getSelectedItemId();
+    method public int getSelectedItemPosition();
+    method public android.view.View getSelectedView();
+    method public int getSoftInputMode();
+    method public int getVerticalOffset();
+    method public int getWidth();
+    method public boolean isInputMethodNotNeeded();
+    method public boolean isModal();
+    method public boolean isShowing();
+    method public boolean onKeyDown(int, android.view.KeyEvent);
+    method public boolean onKeyPreIme(int, android.view.KeyEvent);
+    method public boolean onKeyUp(int, android.view.KeyEvent);
+    method public boolean performItemClick(int);
+    method public void postShow();
+    method public void setAdapter(android.widget.ListAdapter);
+    method public void setAnchorView(android.view.View);
+    method public void setAnimationStyle(int);
+    method public void setBackgroundDrawable(android.graphics.drawable.Drawable);
+    method public void setContentWidth(int);
+    method public void setDropDownGravity(int);
+    method public void setHeight(int);
+    method public void setHorizontalOffset(int);
+    method public void setInputMethodMode(int);
+    method public void setListSelector(android.graphics.drawable.Drawable);
+    method public void setModal(boolean);
+    method public void setOnDismissListener(android.widget.PopupWindow.OnDismissListener);
+    method public void setOnItemClickListener(android.widget.AdapterView.OnItemClickListener);
+    method public void setOnItemSelectedListener(android.widget.AdapterView.OnItemSelectedListener);
+    method public void setPromptPosition(int);
+    method public void setPromptView(android.view.View);
+    method public void setSelection(int);
+    method public void setSoftInputMode(int);
+    method public void setVerticalOffset(int);
+    method public void setWidth(int);
+    method public void show();
+    field public static final int INPUT_METHOD_FROM_FOCUSABLE = 0; // 0x0
+    field public static final int INPUT_METHOD_NEEDED = 1; // 0x1
+    field public static final int INPUT_METHOD_NOT_NEEDED = 2; // 0x2
+    field public static final int MATCH_PARENT = -1; // 0xffffffff
+    field public static final int POSITION_PROMPT_ABOVE = 0; // 0x0
+    field public static final int POSITION_PROMPT_BELOW = 1; // 0x1
+    field public static final int WRAP_CONTENT = -2; // 0xfffffffe
+  }
+
+  public class PopupMenu {
+    ctor public PopupMenu(android.content.Context, android.view.View);
+    ctor public PopupMenu(android.content.Context, android.view.View, int);
+    ctor public PopupMenu(android.content.Context, android.view.View, int, int, int);
+    method public void dismiss();
+    method public android.view.View.OnTouchListener getDragToOpenListener();
+    method public android.view.Menu getMenu();
+    method public android.view.MenuInflater getMenuInflater();
+    method public void inflate(int);
+    method public void setOnDismissListener(android.support.v7.widget.PopupMenu.OnDismissListener);
+    method public void setOnMenuItemClickListener(android.support.v7.widget.PopupMenu.OnMenuItemClickListener);
+    method public void show();
+  }
+
+  public static abstract interface PopupMenu.OnDismissListener {
+    method public abstract void onDismiss(android.support.v7.widget.PopupMenu);
+  }
+
+  public static abstract interface PopupMenu.OnMenuItemClickListener {
+    method public abstract boolean onMenuItemClick(android.view.MenuItem);
+  }
+
+  public class SearchView extends android.support.v7.widget.LinearLayoutCompat implements android.support.v7.view.CollapsibleActionView {
+    ctor public SearchView(android.content.Context);
+    ctor public SearchView(android.content.Context, android.util.AttributeSet);
+    ctor public SearchView(android.content.Context, android.util.AttributeSet, int);
+    method public int getImeOptions();
+    method public int getInputType();
+    method public int getMaxWidth();
+    method public java.lang.CharSequence getQuery();
+    method public java.lang.CharSequence getQueryHint();
+    method public android.support.v4.widget.CursorAdapter getSuggestionsAdapter();
+    method public boolean isIconfiedByDefault();
+    method public boolean isIconified();
+    method public boolean isQueryRefinementEnabled();
+    method public boolean isSubmitButtonEnabled();
+    method public void onActionViewCollapsed();
+    method public void onActionViewExpanded();
+    method public void setIconified(boolean);
+    method public void setIconifiedByDefault(boolean);
+    method public void setImeOptions(int);
+    method public void setInputType(int);
+    method public void setMaxWidth(int);
+    method public void setOnCloseListener(android.support.v7.widget.SearchView.OnCloseListener);
+    method public void setOnQueryTextFocusChangeListener(android.view.View.OnFocusChangeListener);
+    method public void setOnQueryTextListener(android.support.v7.widget.SearchView.OnQueryTextListener);
+    method public void setOnSearchClickListener(android.view.View.OnClickListener);
+    method public void setOnSuggestionListener(android.support.v7.widget.SearchView.OnSuggestionListener);
+    method public void setQuery(java.lang.CharSequence, boolean);
+    method public void setQueryHint(java.lang.CharSequence);
+    method public void setQueryRefinementEnabled(boolean);
+    method public void setSearchableInfo(android.app.SearchableInfo);
+    method public void setSubmitButtonEnabled(boolean);
+    method public void setSuggestionsAdapter(android.support.v4.widget.CursorAdapter);
+  }
+
+  public static abstract interface SearchView.OnCloseListener {
+    method public abstract boolean onClose();
+  }
+
+  public static abstract interface SearchView.OnQueryTextListener {
+    method public abstract boolean onQueryTextChange(java.lang.String);
+    method public abstract boolean onQueryTextSubmit(java.lang.String);
+  }
+
+  public static abstract interface SearchView.OnSuggestionListener {
+    method public abstract boolean onSuggestionClick(int);
+    method public abstract boolean onSuggestionSelect(int);
+  }
+
+  public class ShareActionProvider extends android.support.v4.view.ActionProvider {
+    ctor public ShareActionProvider(android.content.Context);
+    method public android.view.View onCreateActionView();
+    method public void setOnShareTargetSelectedListener(android.support.v7.widget.ShareActionProvider.OnShareTargetSelectedListener);
+    method public void setShareHistoryFileName(java.lang.String);
+    method public void setShareIntent(android.content.Intent);
+    field public static final java.lang.String DEFAULT_SHARE_HISTORY_FILE_NAME = "share_history.xml";
+  }
+
+  public static abstract interface ShareActionProvider.OnShareTargetSelectedListener {
+    method public abstract boolean onShareTargetSelected(android.support.v7.widget.ShareActionProvider, android.content.Intent);
+  }
+
+  public class SwitchCompat extends android.widget.CompoundButton {
+    ctor public SwitchCompat(android.content.Context);
+    ctor public SwitchCompat(android.content.Context, android.util.AttributeSet);
+    ctor public SwitchCompat(android.content.Context, android.util.AttributeSet, int);
+    method public boolean getShowText();
+    method public boolean getSplitTrack();
+    method public int getSwitchMinWidth();
+    method public int getSwitchPadding();
+    method public java.lang.CharSequence getTextOff();
+    method public java.lang.CharSequence getTextOn();
+    method public android.graphics.drawable.Drawable getThumbDrawable();
+    method public int getThumbTextPadding();
+    method public android.graphics.drawable.Drawable getTrackDrawable();
+    method public void onMeasure(int, int);
+    method public void setShowText(boolean);
+    method public void setSplitTrack(boolean);
+    method public void setSwitchMinWidth(int);
+    method public void setSwitchPadding(int);
+    method public void setSwitchTextAppearance(android.content.Context, int);
+    method public void setSwitchTypeface(android.graphics.Typeface, int);
+    method public void setSwitchTypeface(android.graphics.Typeface);
+    method public void setTextOff(java.lang.CharSequence);
+    method public void setTextOn(java.lang.CharSequence);
+    method public void setThumbDrawable(android.graphics.drawable.Drawable);
+    method public void setThumbResource(int);
+    method public void setThumbTextPadding(int);
+    method public void setTrackDrawable(android.graphics.drawable.Drawable);
+    method public void setTrackResource(int);
+  }
+
+  public class Toolbar extends android.view.ViewGroup {
+    ctor public Toolbar(android.content.Context);
+    ctor public Toolbar(android.content.Context, android.util.AttributeSet);
+    ctor public Toolbar(android.content.Context, android.util.AttributeSet, int);
+    method public void collapseActionView();
+    method public void dismissPopupMenus();
+    method public int getContentInsetEnd();
+    method public int getContentInsetLeft();
+    method public int getContentInsetRight();
+    method public int getContentInsetStart();
+    method public android.graphics.drawable.Drawable getLogo();
+    method public java.lang.CharSequence getLogoDescription();
+    method public android.view.Menu getMenu();
+    method public java.lang.CharSequence getNavigationContentDescription();
+    method public android.graphics.drawable.Drawable getNavigationIcon();
+    method public int getPopupTheme();
+    method public java.lang.CharSequence getSubtitle();
+    method public java.lang.CharSequence getTitle();
+    method public boolean hasExpandedActionView();
+    method public boolean hideOverflowMenu();
+    method public void inflateMenu(int);
+    method public boolean isOverflowMenuShowing();
+    method protected void onLayout(boolean, int, int, int, int);
+    method public void setContentInsetsAbsolute(int, int);
+    method public void setContentInsetsRelative(int, int);
+    method public void setLogo(int);
+    method public void setLogo(android.graphics.drawable.Drawable);
+    method public void setLogoDescription(int);
+    method public void setLogoDescription(java.lang.CharSequence);
+    method public void setNavigationContentDescription(int);
+    method public void setNavigationContentDescription(java.lang.CharSequence);
+    method public void setNavigationIcon(int);
+    method public void setNavigationIcon(android.graphics.drawable.Drawable);
+    method public void setNavigationOnClickListener(android.view.View.OnClickListener);
+    method public void setOnMenuItemClickListener(android.support.v7.widget.Toolbar.OnMenuItemClickListener);
+    method public void setPopupTheme(int);
+    method public void setSubtitle(int);
+    method public void setSubtitle(java.lang.CharSequence);
+    method public void setSubtitleTextAppearance(android.content.Context, int);
+    method public void setSubtitleTextColor(int);
+    method public void setTitle(int);
+    method public void setTitle(java.lang.CharSequence);
+    method public void setTitleTextAppearance(android.content.Context, int);
+    method public void setTitleTextColor(int);
+    method public boolean showOverflowMenu();
+  }
+
+  public static class Toolbar.LayoutParams extends android.support.v7.app.ActionBar.LayoutParams {
+    ctor public Toolbar.LayoutParams(android.content.Context, android.util.AttributeSet);
+    ctor public Toolbar.LayoutParams(int, int);
+    ctor public Toolbar.LayoutParams(int, int, int);
+    ctor public Toolbar.LayoutParams(int);
+    ctor public Toolbar.LayoutParams(android.support.v7.widget.Toolbar.LayoutParams);
+    ctor public Toolbar.LayoutParams(android.support.v7.app.ActionBar.LayoutParams);
+    ctor public Toolbar.LayoutParams(android.view.ViewGroup.MarginLayoutParams);
+    ctor public Toolbar.LayoutParams(android.view.ViewGroup.LayoutParams);
+  }
+
+  public static abstract interface Toolbar.OnMenuItemClickListener {
+    method public abstract boolean onMenuItemClick(android.view.MenuItem);
+  }
+
+}
+

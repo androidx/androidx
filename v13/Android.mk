@@ -41,3 +41,13 @@ LOCAL_SRC_FILES := $(call all-java-files-under, java)
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4 \
         android-support-v13-ics-mr1
 include $(BUILD_STATIC_JAVA_LIBRARY)
+
+
+# API Check
+# ---------------------------------------------
+support_module := $(LOCAL_MODULE)
+support_module_api_dir := $(LOCAL_PATH)/api
+support_module_src_files := $(LOCAL_SRC_FILES)
+support_module_java_libraries := $(LOCAL_JAVA_LIBRARIES) android-support-v13
+support_module_java_packages := android.support.v13.app
+include $(SUPPORT_API_CHECK)
