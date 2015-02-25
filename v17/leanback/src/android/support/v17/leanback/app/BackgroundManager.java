@@ -213,7 +213,6 @@ public final class BackgroundManager {
     private DrawableWrapper mColorWrapper;
     private DrawableWrapper mDimWrapper;
 
-    private Drawable mThemeDrawable;
     private Drawable mDimDrawable;
     private ChangeBackgroundRunnable mChangeRunnable;
 
@@ -486,6 +485,8 @@ public final class BackgroundManager {
 
         mLayerDrawable.setDrawableByLayerId(R.id.background_imageout, createEmptyDrawable());
 
+        mLayerDrawable.setDrawableByLayerId(R.id.background_theme, getThemeDrawable());
+
         mLayerWrapper = new DrawableWrapper(mLayerDrawable);
 
         mColorWrapper = new DrawableWrapper(
@@ -590,6 +591,7 @@ public final class BackgroundManager {
         if (mLayerDrawable != null) {
             mLayerDrawable.setDrawableByLayerId(R.id.background_imagein, createEmptyDrawable());
             mLayerDrawable.setDrawableByLayerId(R.id.background_imageout, createEmptyDrawable());
+            mLayerDrawable.setDrawableByLayerId(R.id.background_theme, createEmptyDrawable());
             mLayerDrawable = null;
         }
         mLayerWrapper = null;
@@ -597,7 +599,6 @@ public final class BackgroundManager {
         mImageOutWrapper = null;
         mColorWrapper = null;
         mDimWrapper = null;
-        mThemeDrawable = null;
         if (mChangeRunnable != null) {
             mHandler.removeCallbacks(mChangeRunnable);
             mChangeRunnable = null;
@@ -639,9 +640,6 @@ public final class BackgroundManager {
             mDimWrapper.setAlpha(mBackgroundColor == Color.TRANSPARENT ? 0 : DIM_ALPHA_ON_SOLID);
         }
         showWallpaper(mBackgroundColor == Color.TRANSPARENT);
-
-        mThemeDrawable = getThemeDrawable();
-        mLayerDrawable.setDrawableByLayerId(R.id.background_theme, mThemeDrawable);
 
         if (mBackgroundDrawable == null) {
             mLayerDrawable.setDrawableByLayerId(R.id.background_imagein, createEmptyDrawable());
