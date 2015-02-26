@@ -20,7 +20,6 @@ import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
-import android.support.v17.leanback.widget.OnItemClickedListener;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.SearchOrbView;
 import android.util.Log;
