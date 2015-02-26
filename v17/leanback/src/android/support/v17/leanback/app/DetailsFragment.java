@@ -15,8 +15,6 @@ package android.support.v17.leanback.app;
 
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.ObjectAdapter;
-import android.support.v17.leanback.widget.OnItemClickedListener;
-import android.support.v17.leanback.widget.OnItemSelectedListener;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.Presenter;
@@ -49,8 +47,6 @@ public class DetailsFragment extends BaseFragment {
 
     private ObjectAdapter mAdapter;
     private int mContainerListAlignTop;
-    private OnItemSelectedListener mOnItemSelectedListener;
-    private OnItemClickedListener mOnItemClickedListener;
     private OnItemViewSelectedListener mOnItemViewSelectedListener;
     private OnItemViewClickedListener mOnItemViewClickedListener;
     private int mSelectedPosition = -1;
@@ -78,32 +74,6 @@ public class DetailsFragment extends BaseFragment {
 
     /**
      * Sets an item selection listener.
-     * @deprecated Use {@link #setOnItemViewSelectedListener(OnItemViewSelectedListener)}
-     */
-    public void setOnItemSelectedListener(OnItemSelectedListener listener) {
-        if (mOnItemSelectedListener != null) {
-            mOnItemSelectedListener = listener;
-            if (mRowsFragment != null) {
-                mRowsFragment.setOnItemSelectedListener(mOnItemSelectedListener);
-            }
-        }
-    }
-
-    /**
-     * Sets an item Clicked listener.
-     * @deprecated Use {@link #setOnItemViewClickedListener(OnItemViewClickedListener)}
-     */
-    public void setOnItemClickedListener(OnItemClickedListener listener) {
-        if (mOnItemClickedListener != listener) {
-            mOnItemClickedListener = listener;
-            if (mRowsFragment != null) {
-                mRowsFragment.setOnItemClickedListener(listener);
-            }
-        }
-    }
-
-    /**
-     * Sets an item selection listener.
      */
     public void setOnItemViewSelectedListener(OnItemViewSelectedListener listener) {
         if (mOnItemViewSelectedListener != listener) {
@@ -124,14 +94,6 @@ public class DetailsFragment extends BaseFragment {
                 mRowsFragment.setOnItemViewClickedListener(listener);
             }
         }
-    }
-
-    /**
-     * Returns the item Clicked listener.
-     * @deprecated Use {@link #getOnItemViewClickedListener()}
-     */
-    public OnItemClickedListener getOnItemClickedListener() {
-        return mOnItemClickedListener;
     }
 
     /**
@@ -161,9 +123,7 @@ public class DetailsFragment extends BaseFragment {
                     .replace(R.id.fragment_dock, mRowsFragment).commit();
         }
         mRowsFragment.setAdapter(mAdapter);
-        mRowsFragment.setOnItemSelectedListener(mOnItemSelectedListener);
         mRowsFragment.setOnItemViewSelectedListener(mOnItemViewSelectedListener);
-        mRowsFragment.setOnItemClickedListener(mOnItemClickedListener);
         mRowsFragment.setOnItemViewClickedListener(mOnItemViewClickedListener);
         mSceneAfterEntranceTransition = sTransitionHelper.createScene((ViewGroup) view,
                 new Runnable() {
