@@ -25,6 +25,8 @@ import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.TitleView;
 import android.support.v17.leanback.widget.VerticalGridPresenter;
 import android.support.v17.leanback.widget.ObjectAdapter;
+import android.support.v17.leanback.widget.OnItemClickedListener;
+import android.support.v17.leanback.widget.OnItemSelectedListener;
 import android.support.v17.leanback.widget.SearchOrbView;
 import android.support.v4.view.ViewCompat;
 import android.app.Fragment;
@@ -55,6 +57,8 @@ public class VerticalGridFragment extends Fragment {
     private ObjectAdapter mAdapter;
     private VerticalGridPresenter mGridPresenter;
     private VerticalGridPresenter.ViewHolder mGridViewHolder;
+    private OnItemSelectedListener mOnItemSelectedListener;
+    private OnItemClickedListener mOnItemClickedListener;
     private OnItemViewSelectedListener mOnItemViewSelectedListener;
     private OnItemViewClickedListener mOnItemViewClickedListener;
     private View.OnClickListener mExternalOnSearchClickedListener;
@@ -120,6 +124,9 @@ public class VerticalGridFragment extends Fragment {
         if (mOnItemViewClickedListener != null) {
             mGridPresenter.setOnItemViewClickedListener(mOnItemViewClickedListener);
         }
+        if (mOnItemClickedListener != null) {
+            mGridPresenter.setOnItemClickedListener(mOnItemClickedListener);
+        }
     }
 
     /**
@@ -152,6 +159,9 @@ public class VerticalGridFragment extends Fragment {
             int position = mGridViewHolder.getGridView().getSelectedPosition();
             if (DEBUG) Log.v(TAG, "grid selected position " + position);
             gridOnItemSelected(position);
+            if (mOnItemSelectedListener != null) {
+                mOnItemSelectedListener.onItemSelected(item, row);
+            }
             if (mOnItemViewSelectedListener != null) {
                 mOnItemViewSelectedListener.onItemSelected(itemViewHolder, item,
                         rowViewHolder, row);
@@ -168,6 +178,14 @@ public class VerticalGridFragment extends Fragment {
             }
         }
     };
+
+    /**
+     * Sets an item selection listener.
+     * @deprecated Use {@link #setOnItemViewSelectedListener(OnItemViewSelectedListener)}
+     */
+    public void setOnItemSelectedListener(OnItemSelectedListener listener) {
+        mOnItemSelectedListener = listener;
+    }
 
     /**
      * Sets an item selection listener.
@@ -198,6 +216,25 @@ public class VerticalGridFragment extends Fragment {
             sTransitionHelper.runTransition(mSceneWithoutTitle, mTitleUpTransition);
             mShowingTitle = false;
         }
+    }
+
+    /**
+     * Sets an item clicked listener.
+     * @deprecated Use {@link #setOnItemViewClickedListener(OnItemViewClickedListener)}
+     */
+    public void setOnItemClickedListener(OnItemClickedListener listener) {
+        mOnItemClickedListener = listener;
+        if (mGridPresenter != null) {
+            mGridPresenter.setOnItemClickedListener(mOnItemClickedListener);
+        }
+    }
+
+    /**
+     * Returns the item clicked listener.
+     * @deprecated Use {@link #getOnItemViewClickedListener()}
+     */
+    public OnItemClickedListener getOnItemClickedListener() {
+        return mOnItemClickedListener;
     }
 
     /**

@@ -98,11 +98,17 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
                 return;
             }
             if (mSelectedViewHolder == null) {
+                if (getOnItemSelectedListener() != null) {
+                    getOnItemSelectedListener().onItemSelected(null, getRow());
+                }
                 if (getOnItemViewSelectedListener() != null) {
                     getOnItemViewSelectedListener().onItemSelected(null, null,
                             ViewHolder.this, getRow());
                 }
             } else {
+                if (getOnItemSelectedListener() != null) {
+                    getOnItemSelectedListener().onItemSelected(mSelectedItem, getRow());
+                }
                 if (getOnItemViewSelectedListener() != null) {
                     getOnItemViewSelectedListener().onItemSelected(mSelectedViewHolder, mSelectedItem,
                             ViewHolder.this, getRow());
@@ -174,6 +180,9 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
         public void onControlClicked(Presenter.ViewHolder itemViewHolder, Object item,
                 ControlBarPresenter.BoundData data) {
             ViewHolder vh = ((BoundData) data).mRowViewHolder;
+            if (getOnItemClickedListener() != null) {
+                getOnItemClickedListener().onItemClicked(item, vh.getRow());
+            }
             if (getOnItemViewClickedListener() != null) {
                 getOnItemViewClickedListener().onItemClicked(itemViewHolder, item,
                         vh, vh.getRow());
