@@ -511,7 +511,7 @@ public class GridLayoutManager extends LinearLayoutManager {
             diff = -1;
         }
         if (mOrientation == VERTICAL && isLayoutRTL()) { // start from last span
-            span = consumedSpanCount - 1;
+            span = mSpanCount - 1;
             spanDiff = -1;
         } else {
             span = 0;
