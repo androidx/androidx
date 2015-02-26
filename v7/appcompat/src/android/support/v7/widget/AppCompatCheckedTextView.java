@@ -43,7 +43,7 @@ public class AppCompatCheckedTextView extends CheckedTextView {
     }
 
     public AppCompatCheckedTextView(Context context, AttributeSet attrs) {
-        this(context, attrs, R.attr.checkedTextViewStyle);
+        this(context, attrs, android.R.attr.checkedTextViewStyle);
     }
 
     public AppCompatCheckedTextView(Context context, AttributeSet attrs, int defStyleAttr) {
