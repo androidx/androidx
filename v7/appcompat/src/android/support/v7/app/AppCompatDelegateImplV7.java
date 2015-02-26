@@ -38,7 +38,7 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewConfigurationCompat;
 import android.support.v4.view.WindowInsetsCompat;
 import android.support.v7.appcompat.R;
-import android.support.v7.internal.app.TintViewInflater;
+import android.support.v7.internal.app.AppCompatViewInflater;
 import android.support.v7.internal.app.ToolbarActionBar;
 import android.support.v7.internal.app.WindowDecorActionBar;
 import android.support.v7.internal.view.ContextThemeWrapper;
@@ -136,7 +136,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
     private Rect mTempRect1;
     private Rect mTempRect2;
 
-    private TintViewInflater mTintViewInflater;
+    private AppCompatViewInflater mAppCompatViewInflater;
 
     AppCompatDelegateImplV7(Context context, Window window, AppCompatCallback callback) {
         super(context, window, callback);
@@ -745,8 +745,8 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
             @NonNull AttributeSet attrs) {
         final boolean isPre21 = Build.VERSION.SDK_INT < 21;
 
-        if (mTintViewInflater == null) {
-            mTintViewInflater = new TintViewInflater(mContext);
+        if (mAppCompatViewInflater == null) {
+            mAppCompatViewInflater = new AppCompatViewInflater(mContext);
         }
 
         // We only want the View to inherit it's context from the parent if it is from the
@@ -754,7 +754,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
         final boolean inheritContext = isPre21 && mSubDecorInstalled && parent != null
                 && parent.getId() != android.R.id.content;
 
-        return mTintViewInflater.createView(parent, name, context, attrs,
+        return mAppCompatViewInflater.createView(parent, name, context, attrs,
                 inheritContext, isPre21);
     }
 
