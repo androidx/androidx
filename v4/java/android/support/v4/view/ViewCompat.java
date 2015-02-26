@@ -376,6 +376,8 @@ public class ViewCompat {
         boolean dispatchNestedFling(View view, float velocityX, float velocityY, boolean consumed);
         boolean dispatchNestedPreFling(View view, float velocityX, float velocityY);
         boolean isLaidOut(View view);
+        int combineMeasuredStates(int curState, int newState);
+        public float getZ(View view);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -926,6 +928,16 @@ public class ViewCompat {
         public boolean isLaidOut(View view) {
             return ViewCompatBase.isLaidOut(view);
         }
+
+        @Override
+        public int combineMeasuredStates(int curState, int newState) {
+            return curState | newState;
+        }
+
+        @Override
+        public float getZ(View view) {
+            return getTranslationZ(view) + getElevation(view);
+        }
     }
 
     static class EclairMr1ViewCompatImpl extends BaseViewCompatImpl {
@@ -1104,6 +1116,11 @@ public class ViewCompat {
         @Override
         public void setActivated(View view, boolean activated) {
             ViewCompatHC.setActivated(view, activated);
+        }
+
+        @Override
+        public int combineMeasuredStates(int curState, int newState) {
+            return ViewCompatHC.combineMeasuredStates(curState, newState);
         }
     }
 
@@ -1457,6 +1474,11 @@ public class ViewCompat {
         @Override
         public WindowInsetsCompat dispatchApplyWindowInsets(View v, WindowInsetsCompat insets) {
             return ViewCompatLollipop.dispatchApplyWindowInsets(v, insets);
+        }
+
+        @Override
+        public float getZ(View view) {
+            return ViewCompatLollipop.getZ(view);
         }
     }
 
@@ -2084,6 +2106,18 @@ public class ViewCompat {
      */
     public static int getMeasuredState(View view) {
         return IMPL.getMeasuredState(view);
+    }
+
+    /**
+     * Merge two states as returned by {@link #getMeasuredState(View)}.
+     * @param curState The current state as returned from a view or the result
+     * of combining multiple views.
+     * @param newState The new view state to combine.
+     * @return Returns a new integer reflecting the combination of the two
+     * states.
+     */
+    public static int combineMeasuredStates(int curState, int newState) {
+        return IMPL.combineMeasuredStates(curState, newState);
     }
 
     /**
@@ -2913,5 +2947,16 @@ public class ViewCompat {
      */
     public static boolean isLaidOut(View view) {
         return IMPL.isLaidOut(view);
+    }
+
+    /**
+     * The visual z position of this view, in pixels. This is equivalent to the
+     * {@link #setTranslationZ(View, float) translationZ} property plus the current
+     * {@link #getElevation(View) elevation} property.
+     *
+     * @return The visual z position of this view, in pixels.
+     */
+    public static float getZ(View view) {
+        return IMPL.getZ(view);
     }
 }

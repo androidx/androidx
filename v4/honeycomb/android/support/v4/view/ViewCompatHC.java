@@ -156,4 +156,8 @@ class ViewCompatHC {
     public static void setActivated(View view, boolean activated) {
         view.setActivated(activated);
     }
+
+    public static int combineMeasuredStates(int curState, int newState) {
+        return View.combineMeasuredStates(curState, newState);
+    }
 }
