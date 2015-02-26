@@ -14,19 +14,23 @@
  * limitations under the License.
  */
 
-package android.support.v7.internal.widget;
+package android.support.v7.widget;
 
 import android.content.Context;
+import android.support.annotation.DrawableRes;
+import android.support.v7.appcompat.R;
+import android.support.v7.internal.widget.TintManager;
+import android.support.v7.internal.widget.TintTypedArray;
 import android.util.AttributeSet;
 import android.widget.CheckedTextView;
 
 /**
- * An tint aware {@link android.widget.CheckedTextView}.
+ * A tint aware {@link android.widget.CheckedTextView}.
  * <p>
  * This will automatically be used when you use {@link android.widget.CheckedTextView} in your
  * layouts. You should only need to manually use this class when writing custom views.
  */
-public class TintCheckedTextView extends CheckedTextView {
+public class AppCompatCheckedTextView extends CheckedTextView {
 
     private static final int[] TINT_ATTRS = {
             android.R.attr.checkMark
@@ -34,15 +38,15 @@ public class TintCheckedTextView extends CheckedTextView {
 
     private TintManager mTintManager;
 
-    public TintCheckedTextView(Context context) {
+    public AppCompatCheckedTextView(Context context) {
         this(context, null);
     }
 
-    public TintCheckedTextView(Context context, AttributeSet attrs) {
-        this(context, attrs, android.R.attr.checkedTextViewStyle);
+    public AppCompatCheckedTextView(Context context, AttributeSet attrs) {
+        this(context, attrs, R.attr.checkedTextViewStyle);
     }
 
-    public TintCheckedTextView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AppCompatCheckedTextView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
         if (TintManager.SHOULD_BE_USED) {
@@ -56,11 +60,11 @@ public class TintCheckedTextView extends CheckedTextView {
     }
 
     @Override
-    public void setCheckMarkDrawable(int resid) {
+    public void setCheckMarkDrawable(@DrawableRes int resId) {
         if (mTintManager != null) {
-            setCheckMarkDrawable(mTintManager.getDrawable(resid));
+            setCheckMarkDrawable(mTintManager.getDrawable(resId));
         } else {
-            super.setCheckMarkDrawable(resid);
+            super.setCheckMarkDrawable(resId);
         }
     }
 

@@ -26,24 +26,20 @@ import android.os.Build;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
-import android.support.v7.internal.text.AllCapsTransformationMethod;
-import android.support.v7.internal.widget.CompatTextView;
 import android.support.v7.widget.ActionMenuView;
+import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.ListPopupWindow;
 import android.text.TextUtils;
-import android.text.method.TransformationMethod;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
-import java.util.Locale;
-
 /**
  * @hide
  */
-public class ActionMenuItemView extends CompatTextView
+public class ActionMenuItemView extends AppCompatTextView
         implements MenuView.ItemView, View.OnClickListener, View.OnLongClickListener,
         ActionMenuView.ActionMenuChildView {
 

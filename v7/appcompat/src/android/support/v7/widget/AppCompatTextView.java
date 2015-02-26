@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,40 +14,39 @@
  * limitations under the License.
  */
 
-package android.support.v7.internal.widget;
+package android.support.v7.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Rect;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.text.AllCapsTransformationMethod;
-import android.text.method.TransformationMethod;
 import android.util.AttributeSet;
-import android.view.View;
 import android.widget.TextView;
 
-import java.util.Locale;
-
 /**
- * @hide
+ * A {@link android.widget.TextView} which supports compatible features on older version of the
+ * platform.
+ * <p>
+ * This will automatically be used when you use {@link android.widget.TextView} in your
+ * layouts. You should only need to manually use this class when writing custom views.
  */
-public class CompatTextView extends TextView {
+public class AppCompatTextView extends TextView {
 
-    public CompatTextView(Context context) {
+    public AppCompatTextView(Context context) {
         this(context, null);
     }
 
-    public CompatTextView(Context context, AttributeSet attrs) {
+    public AppCompatTextView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public CompatTextView(Context context, AttributeSet attrs, int defStyle) {
+    public AppCompatTextView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
         // First read the TextAppearance style id
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CompatTextView,
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.AppCompatTextView,
                 defStyle, 0);
-        final int ap = a.getResourceId(R.styleable.CompatTextView_android_textAppearance, -1);
+        final int ap = a.getResourceId(R.styleable.AppCompatTextView_android_textAppearance, -1);
         a.recycle();
 
         // Now check TextAppearance's textAllCaps value
@@ -60,9 +59,9 @@ public class CompatTextView extends TextView {
         }
 
         // Now read the style's value
-        a = context.obtainStyledAttributes(attrs, R.styleable.CompatTextView, defStyle, 0);
-        if (a.hasValue(R.styleable.CompatTextView_textAllCaps)) {
-            setAllCaps(a.getBoolean(R.styleable.CompatTextView_textAllCaps, false));
+        a = context.obtainStyledAttributes(attrs, R.styleable.AppCompatTextView, defStyle, 0);
+        if (a.hasValue(R.styleable.AppCompatTextView_textAllCaps)) {
+            setAllCaps(a.getBoolean(R.styleable.AppCompatTextView_textAllCaps, false));
         }
         a.recycle();
     }
@@ -72,10 +71,10 @@ public class CompatTextView extends TextView {
     }
 
     @Override
-    public void setTextAppearance(Context context, int resid) {
-        super.setTextAppearance(context, resid);
+    public void setTextAppearance(Context context, int resId) {
+        super.setTextAppearance(context, resId);
 
-        TypedArray appearance = context.obtainStyledAttributes(resid, R.styleable.TextAppearance);
+        TypedArray appearance = context.obtainStyledAttributes(resId, R.styleable.TextAppearance);
         if (appearance.hasValue(R.styleable.TextAppearance_textAllCaps)) {
             setAllCaps(appearance.getBoolean(R.styleable.TextAppearance_textAllCaps, false));
         }

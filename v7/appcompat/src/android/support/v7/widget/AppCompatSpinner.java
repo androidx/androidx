@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.v7.internal.widget;
+package android.support.v7.widget;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -24,6 +24,10 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.v4.view.TintableBackgroundView;
+import android.support.v7.appcompat.R;
+import android.support.v7.internal.widget.TintInfo;
+import android.support.v7.internal.widget.TintManager;
+import android.support.v7.internal.widget.TintTypedArray;
 import android.util.AttributeSet;
 import android.widget.ListPopupWindow;
 import android.widget.Spinner;
@@ -31,12 +35,12 @@ import android.widget.Spinner;
 import java.lang.reflect.Field;
 
 /**
- * An tint aware {@link android.widget.Spinner}.
+ * A tint aware {@link android.widget.Spinner}.
  * <p>
  * This will automatically be used when you use {@link android.widget.Spinner} in your
  * layouts. You should only need to manually use this class when writing custom views.
  */
-public class TintSpinner extends Spinner implements TintableBackgroundView {
+public class AppCompatSpinner extends Spinner implements TintableBackgroundView {
 
     private static final int[] TINT_ATTRS = {
             android.R.attr.background,
@@ -45,15 +49,15 @@ public class TintSpinner extends Spinner implements TintableBackgroundView {
 
     private TintInfo mBackgroundTint;
 
-    public TintSpinner(Context context) {
+    public AppCompatSpinner(Context context) {
         this(context, null);
     }
 
-    public TintSpinner(Context context, AttributeSet attrs) {
-        this(context, attrs, android.R.attr.spinnerStyle);
+    public AppCompatSpinner(Context context, AttributeSet attrs) {
+        this(context, attrs, R.attr.spinnerStyle);
     }
 
-    public TintSpinner(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AppCompatSpinner(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
         if (TintManager.SHOULD_BE_USED) {
@@ -106,6 +110,8 @@ public class TintSpinner extends Spinner implements TintableBackgroundView {
             mBackgroundTint = new TintInfo();
         }
         mBackgroundTint.mTintList = tint;
+        mBackgroundTint.mHasTintList = true;
+
         applySupportBackgroundTint();
     }
 
@@ -133,6 +139,8 @@ public class TintSpinner extends Spinner implements TintableBackgroundView {
             mBackgroundTint = new TintInfo();
         }
         mBackgroundTint.mTintMode = tintMode;
+        mBackgroundTint.mHasTintMode = true;
+
         applySupportBackgroundTint();
     }
 

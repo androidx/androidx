@@ -19,6 +19,7 @@ package android.support.v7.internal.widget;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 
 /**
  * A {@link android.content.ContextWrapper} which returns a tint-aware
@@ -26,7 +27,7 @@ import android.content.res.Resources;
  *
  * @hide
  */
-class TintContextWrapper extends ContextWrapper {
+public class TintContextWrapper extends ContextWrapper {
 
     public static Context wrap(Context context) {
         if (!(context instanceof TintContextWrapper)) {
@@ -37,7 +38,7 @@ class TintContextWrapper extends ContextWrapper {
 
     private Resources mResources;
 
-    TintContextWrapper(Context base) {
+    private TintContextWrapper(Context base) {
         super(base);
     }
 
@@ -47,5 +48,32 @@ class TintContextWrapper extends ContextWrapper {
             mResources = new TintResources(super.getResources(), TintManager.get(this));
         }
         return mResources;
+    }
+
+    /**
+     * This class allows us to intercept calls so that we can tint resources (if applicable).
+     */
+    static class TintResources extends ResourcesWrapper {
+
+        private final TintManager mTintManager;
+
+        public TintResources(Resources resources, TintManager tintManager) {
+            super(resources);
+            mTintManager = tintManager;
+        }
+
+        /**
+         * We intercept this call so that we tint the result (if applicable). This is needed for
+         * things like {@link android.graphics.drawable.DrawableContainer}s which can retrieve
+         * their children via this method.
+         */
+        @Override
+        public Drawable getDrawable(int id) throws NotFoundException {
+            Drawable d = super.getDrawable(id);
+            if (d != null) {
+                mTintManager.tintDrawableUsingColorFilter(id, d);
+            }
+            return d;
+        }
     }
 }
