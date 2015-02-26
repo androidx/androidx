@@ -160,7 +160,10 @@ public final class TintManager {
         Drawable drawable = ContextCompat.getDrawable(context, resId);
 
         if (drawable != null) {
-            drawable = drawable.mutate();
+            if (Build.VERSION.SDK_INT >= 8) {
+                // Mutate can cause NPEs on 2.1
+                drawable = drawable.mutate();
+            }
 
             final ColorStateList tintList = getTintList(resId);
             if (tintList != null) {
