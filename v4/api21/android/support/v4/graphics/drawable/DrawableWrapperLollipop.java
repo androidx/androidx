@@ -16,10 +16,8 @@
 
 package android.support.v4.graphics.drawable;
 
-import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Outline;
-import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 
@@ -37,21 +35,6 @@ class DrawableWrapperLollipop extends DrawableWrapperKitKat {
     @Override
     public void setHotspotBounds(int left, int top, int right, int bottom) {
         mDrawable.setHotspotBounds(left, top, right, bottom);
-    }
-
-    @Override
-    public void setTint(int tint) {
-        mDrawable.setTint(tint);
-    }
-
-    @Override
-    public void setTintList(ColorStateList tint) {
-        mDrawable.setTintList(tint);
-    }
-
-    @Override
-    public void setTintMode(PorterDuff.Mode tintMode) {
-        mDrawable.setTintMode(tintMode);
     }
 
     @Override
