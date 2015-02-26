@@ -70,7 +70,7 @@ import android.view.ViewGroup;
  * </ul>
  *
  * <h3>User events</h3>
- * RowPresenter provides {@link OnItemViewSelectedListener} and {@link OnItemViewClickedListener}.
+ * RowPresenter provides {@link OnItemSelectedListener} and {@link OnItemClickedListener}.
  * If a subclass wants to add its own {@link View.OnFocusChangeListener} or
  * {@link View.OnClickListener}, it must do that in {@link #createRowViewHolder(ViewGroup)}
  * to be properly chained by the library.  Adding View listeners after
@@ -244,6 +244,8 @@ public abstract class RowPresenter extends Presenter {
     }
 
     private RowHeaderPresenter mHeaderPresenter = new RowHeaderPresenter();
+    private OnItemSelectedListener mOnItemSelectedListener;
+    private OnItemClickedListener mOnItemClickedListener;
     private OnItemViewSelectedListener mOnItemViewSelectedListener;
     private OnItemViewClickedListener mOnItemViewClickedListener;
 
@@ -422,6 +424,9 @@ public abstract class RowPresenter extends Presenter {
             if (mOnItemViewSelectedListener != null) {
                 mOnItemViewSelectedListener.onItemSelected(null, null, vh, vh.getRow());
             }
+            if (mOnItemSelectedListener != null) {
+                mOnItemSelectedListener.onItemSelected(null, vh.getRow());
+            }
         }
     }
 
@@ -570,6 +575,42 @@ public abstract class RowPresenter extends Presenter {
             mHeaderPresenter.onViewDetachedFromWindow(vh.mHeaderViewHolder);
         }
         cancelAnimationsRecursive(vh.view);
+    }
+
+    /**
+     * Set the listener for item or row selection. A RowPresenter fires a row
+     * selection event with a null item. Subclasses (e.g. {@link ListRowPresenter})
+     * can fire a selection event with the selected item.
+     */
+    public final void setOnItemSelectedListener(OnItemSelectedListener listener) {
+        mOnItemSelectedListener = listener;
+    }
+
+    /**
+     * Get the listener for item or row selection.
+     */
+    public final OnItemSelectedListener getOnItemSelectedListener() {
+        return mOnItemSelectedListener;
+    }
+
+    /**
+     * Set the listener for item click events. A RowPresenter does not use this
+     * listener, but a subclass may fire an item click event if it has the concept
+     * of an item. The {@link OnItemClickedListener} will override any
+     * {@link View.OnClickListener} that an item's Presenter sets during
+     * {@link Presenter#onCreateViewHolder(ViewGroup)}. So in general, you
+     * should choose to use an OnItemClickedListener or a {@link
+     * View.OnClickListener}, but not both.
+     */
+    public final void setOnItemClickedListener(OnItemClickedListener listener) {
+        mOnItemClickedListener = listener;
+    }
+
+    /**
+     * Get the listener for item click events.
+     */
+    public final OnItemClickedListener getOnItemClickedListener() {
+        return mOnItemClickedListener;
     }
 
     /**

@@ -25,7 +25,7 @@ import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.FocusHighlightHelper;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.PresenterSelector;
-import android.support.v17.leanback.widget.OnItemViewSelectedListener;
+import android.support.v17.leanback.widget.OnItemSelectedListener;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowHeaderPresenter;
 import android.support.v17.leanback.widget.SinglePresenterSelector;
@@ -45,11 +45,7 @@ public class HeadersSupportFragment extends BaseRowSupportFragment {
         void onHeaderClicked();
     }
 
-    interface OnHeaderViewSelectedListener {
-        void onHeaderSelected(RowHeaderPresenter.ViewHolder viewHolder, Row row);
-    }
-
-    private OnHeaderViewSelectedListener mOnHeaderViewSelectedListener;
+    private OnItemSelectedListener mOnItemSelectedListener;
     private OnHeaderClickedListener mOnHeaderClickedListener;
     private boolean mHeadersEnabled = true;
     private boolean mHeadersGone = false;
@@ -67,8 +63,8 @@ public class HeadersSupportFragment extends BaseRowSupportFragment {
         mOnHeaderClickedListener = listener;
     }
 
-    public void setOnHeaderViewSelectedListener(OnHeaderViewSelectedListener listener) {
-        mOnHeaderViewSelectedListener = listener;
+    public void setOnItemSelectedListener(OnItemSelectedListener listener) {
+        mOnItemSelectedListener = listener;
     }
 
     @Override
@@ -78,19 +74,12 @@ public class HeadersSupportFragment extends BaseRowSupportFragment {
 
     @Override
     void onRowSelected(ViewGroup parent, View view, int position, long id) {
-        VerticalGridView listView = getVerticalGridView();
-        if (listView == null) {
-            return;
-        }
-        if (mOnHeaderViewSelectedListener != null) {
-            ItemBridgeAdapter.ViewHolder vh = view == null ? null :
-                (ItemBridgeAdapter.ViewHolder) listView.getChildViewHolder(view);
-            if (vh != null && position >= 0) {
+        if (mOnItemSelectedListener != null) {
+            if (position >= 0) {
                 Row row = (Row) getAdapter().get(position);
-                mOnHeaderViewSelectedListener.onHeaderSelected(
-                        (RowHeaderPresenter.ViewHolder) vh.getViewHolder(), row);
+                mOnItemSelectedListener.onItemSelected(null, row);
             } else {
-                mOnHeaderViewSelectedListener.onHeaderSelected(null, null);
+                mOnItemSelectedListener.onItemSelected(null, null);
             }
         }
     }
