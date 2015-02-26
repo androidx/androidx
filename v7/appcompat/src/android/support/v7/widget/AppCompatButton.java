@@ -14,24 +14,33 @@
  * limitations under the License.
  */
 
-package android.support.v7.internal.widget;
+package android.support.v7.widget;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.content.res.TypedArray;
 import android.graphics.PorterDuff;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.v4.view.TintableBackgroundView;
+import android.support.v7.appcompat.R;
+import android.support.v7.internal.text.AllCapsTransformationMethod;
+import android.support.v7.internal.widget.ThemeUtils;
+import android.support.v7.internal.widget.TintInfo;
+import android.support.v7.internal.widget.TintManager;
+import android.support.v7.internal.widget.TintTypedArray;
 import android.util.AttributeSet;
+import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Button;
 
 /**
- * An tint aware {@link android.widget.Button}.
+ * A tint aware {@link android.widget.Button}.
  * <p>
  * This will automatically be used when you use {@link android.widget.Button} in your layouts. You
  * should only need to manually use this class when writing custom views.
  */
-public class TintButton extends Button implements TintableBackgroundView {
+public class AppCompatButton extends Button implements TintableBackgroundView {
 
     private static final int[] TINT_ATTRS = {
             android.R.attr.background
@@ -39,15 +48,15 @@ public class TintButton extends Button implements TintableBackgroundView {
 
     private TintInfo mBackgroundTint;
 
-    public TintButton(Context context) {
+    public AppCompatButton(Context context) {
         this(context, null);
     }
 
-    public TintButton(Context context, AttributeSet attrs) {
-        this(context, attrs, android.R.attr.buttonStyle);
+    public AppCompatButton(Context context, AttributeSet attrs) {
+        this(context, attrs, R.attr.buttonStyle);
     }
 
-    public TintButton(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AppCompatButton(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
         if (TintManager.SHOULD_BE_USED) {
@@ -59,6 +68,28 @@ public class TintButton extends Button implements TintableBackgroundView {
             }
             a.recycle();
         }
+
+        // First read the TextAppearance style id
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.AppCompatTextView,
+                defStyleAttr, 0);
+        final int ap = a.getResourceId(R.styleable.AppCompatTextView_android_textAppearance, -1);
+        a.recycle();
+
+        // Now check TextAppearance's textAllCaps value
+        if (ap != -1) {
+            TypedArray appearance = context.obtainStyledAttributes(ap, R.styleable.TextAppearance);
+            if (appearance.hasValue(R.styleable.TextAppearance_textAllCaps)) {
+                setAllCaps(appearance.getBoolean(R.styleable.TextAppearance_textAllCaps, false));
+            }
+            appearance.recycle();
+        }
+
+        // Now read the style's value
+        a = context.obtainStyledAttributes(attrs, R.styleable.AppCompatTextView, defStyleAttr, 0);
+        if (a.hasValue(R.styleable.AppCompatTextView_textAllCaps)) {
+            setAllCaps(a.getBoolean(R.styleable.AppCompatTextView_textAllCaps, false));
+        }
+        a.recycle();
 
         final ColorStateList textColors = getTextColors();
         if (textColors != null && !textColors.isStateful()) {
@@ -97,6 +128,8 @@ public class TintButton extends Button implements TintableBackgroundView {
             mBackgroundTint = new TintInfo();
         }
         mBackgroundTint.mTintList = tint;
+        mBackgroundTint.mHasTintList = true;
+
         applySupportBackgroundTint();
     }
 
@@ -124,6 +157,8 @@ public class TintButton extends Button implements TintableBackgroundView {
             mBackgroundTint = new TintInfo();
         }
         mBackgroundTint.mTintMode = tintMode;
+        mBackgroundTint.mHasTintMode = true;
+
         applySupportBackgroundTint();
     }
 
@@ -149,6 +184,33 @@ public class TintButton extends Button implements TintableBackgroundView {
         if (getBackground() != null && mBackgroundTint != null) {
             TintManager.tintViewBackground(this, mBackgroundTint);
         }
+    }
+
+    @Override
+    public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
+        super.onInitializeAccessibilityEvent(event);
+        event.setClassName(Button.class.getName());
+    }
+
+    @Override
+    public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
+        super.onInitializeAccessibilityNodeInfo(info);
+        info.setClassName(Button.class.getName());
+    }
+
+    public void setAllCaps(boolean allCaps) {
+        setTransformationMethod(allCaps ? new AllCapsTransformationMethod(getContext()) : null);
+    }
+
+    @Override
+    public void setTextAppearance(Context context, int resId) {
+        super.setTextAppearance(context, resId);
+
+        TypedArray appearance = context.obtainStyledAttributes(resId, R.styleable.TextAppearance);
+        if (appearance.hasValue(R.styleable.TextAppearance_textAllCaps)) {
+            setAllCaps(appearance.getBoolean(R.styleable.TextAppearance_textAllCaps, false));
+        }
+        appearance.recycle();
     }
 
 }

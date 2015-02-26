@@ -23,10 +23,10 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
-import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.view.ActionBarPolicy;
+import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.LinearLayoutCompat;
 import android.text.TextUtils;
 import android.text.TextUtils.TruncateAt;
@@ -41,7 +41,6 @@ import android.view.animation.Interpolator;
 import android.widget.BaseAdapter;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -482,7 +481,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
                 final boolean hasText = !TextUtils.isEmpty(text);
                 if (hasText) {
                     if (mTextView == null) {
-                        TextView textView = new CompatTextView(getContext(), null,
+                        TextView textView = new AppCompatTextView(getContext(), null,
                                 R.attr.actionBarTabTextStyle);
                         textView.setEllipsize(TruncateAt.END);
                         LayoutParams lp = new LayoutParams(LayoutParams.WRAP_CONTENT,
