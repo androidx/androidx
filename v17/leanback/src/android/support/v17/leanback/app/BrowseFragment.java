@@ -24,13 +24,12 @@ import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
+import android.support.v17.leanback.widget.RowHeaderPresenter;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.TitleView;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.ObjectAdapter;
-import android.support.v17.leanback.widget.OnItemSelectedListener;
-import android.support.v17.leanback.widget.OnItemClickedListener;
 import android.support.v17.leanback.widget.SearchOrbView;
 import android.support.v4.view.ViewCompat;
 import android.util.Log;
@@ -50,7 +49,6 @@ import android.view.ViewTreeObserver;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 /**
@@ -236,9 +234,7 @@ public class BrowseFragment extends BaseFragment {
     private boolean mRowScaleEnabled = true;
     private SearchOrbView.Colors mSearchAffordanceColors;
     private boolean mSearchAffordanceColorSet;
-    private OnItemSelectedListener mExternalOnItemSelectedListener;
     private OnClickListener mExternalOnSearchClickedListener;
-    private OnItemClickedListener mOnItemClickedListener;
     private OnItemViewSelectedListener mExternalOnItemViewSelectedListener;
     private OnItemViewClickedListener mOnItemViewClickedListener;
     private int mSelectedPosition = -1;
@@ -333,17 +329,6 @@ public class BrowseFragment extends BaseFragment {
     }
 
     /**
-     * Sets an item selection listener. This listener will be called when an
-     * item or row is selected by a user.
-     *
-     * @param listener The listener to call when an item or row is selected.
-     * @deprecated Use {@link #setOnItemViewSelectedListener(OnItemViewSelectedListener)}
-     */
-    public void setOnItemSelectedListener(OnItemSelectedListener listener) {
-        mExternalOnItemSelectedListener = listener;
-    }
-
-    /**
      * Sets an item selection listener.
      */
     public void setOnItemViewSelectedListener(OnItemViewSelectedListener listener) {
@@ -355,33 +340,6 @@ public class BrowseFragment extends BaseFragment {
      */
     public OnItemViewSelectedListener getOnItemViewSelectedListener() {
         return mExternalOnItemViewSelectedListener;
-    }
-
-    /**
-     * Sets an item clicked listener on the fragment.
-     *
-     * <p>OnItemClickedListener will override {@link View.OnClickListener} that
-     * an item presenter may set during
-     * {@link Presenter#onCreateViewHolder(ViewGroup)}. So in general, you
-     * should choose to use an {@link OnItemClickedListener} or a
-     * {@link View.OnClickListener} on your item views, but not both.
-     *
-     * @param listener The listener to call when an item is clicked.
-     * @deprecated Use {@link #setOnItemViewClickedListener(OnItemViewClickedListener)}
-     */
-    public void setOnItemClickedListener(OnItemClickedListener listener) {
-        mOnItemClickedListener = listener;
-        if (mRowsFragment != null) {
-            mRowsFragment.setOnItemClickedListener(listener);
-        }
-    }
-
-    /**
-     * Returns the item clicked listener.
-     * @deprecated Use {@link #getOnItemViewClickedListener()}
-     */
-    public OnItemClickedListener getOnItemClickedListener() {
-        return mOnItemClickedListener;
     }
 
     /**
@@ -717,11 +675,9 @@ public class BrowseFragment extends BaseFragment {
         mHeadersFragment.setAdapter(mAdapter);
 
         mRowsFragment.enableRowScaling(mRowScaleEnabled);
-        mRowsFragment.setOnItemSelectedListener(mRowSelectedListener);
         mRowsFragment.setOnItemViewSelectedListener(mRowViewSelectedListener);
-        mHeadersFragment.setOnItemSelectedListener(mHeaderSelectedListener);
+        mHeadersFragment.setOnHeaderViewSelectedListener(mHeaderViewSelectedListener);
         mHeadersFragment.setOnHeaderClickedListener(mHeaderClickedListener);
-        mRowsFragment.setOnItemClickedListener(mOnItemClickedListener);
         mRowsFragment.setOnItemViewClickedListener(mOnItemViewClickedListener);
 
         View root = inflater.inflate(R.layout.lb_browse_fragment, container, false);
@@ -885,18 +841,10 @@ public class BrowseFragment extends BaseFragment {
         }
     };
 
-    private OnItemSelectedListener mRowSelectedListener = new OnItemSelectedListener() {
+    private HeadersFragment.OnHeaderViewSelectedListener mHeaderViewSelectedListener =
+            new HeadersFragment.OnHeaderViewSelectedListener() {
         @Override
-        public void onItemSelected(Object item, Row row) {
-            if (mExternalOnItemSelectedListener != null) {
-                mExternalOnItemSelectedListener.onItemSelected(item, row);
-            }
-        }
-    };
-
-    private OnItemSelectedListener mHeaderSelectedListener = new OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(Object item, Row row) {
+        public void onHeaderSelected(RowHeaderPresenter.ViewHolder viewHolder, Row row) {
             int position = mHeadersFragment.getVerticalGridView().getSelectedPosition();
             if (DEBUG) Log.v(TAG, "header selected position " + position);
             onRowSelected(position);
