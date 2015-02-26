@@ -14,21 +14,25 @@
  * limitations under the License.
  */
 
-package android.support.v7.internal.widget;
+package android.support.v7.widget;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.DrawableRes;
+import android.support.v7.appcompat.R;
+import android.support.v7.internal.widget.TintManager;
+import android.support.v7.internal.widget.TintTypedArray;
 import android.util.AttributeSet;
-import android.widget.CheckBox;
+import android.widget.RadioButton;
 
 /**
- * An tint aware {@link android.widget.CheckBox}.
+ * A tint aware {@link android.widget.RadioButton}.
  * <p>
- * This will automatically be used when you use {@link android.widget.CheckBox} in your layouts.
- * You should only need to manually use this class when writing custom views.
+ * This will automatically be used when you use {@link android.widget.RadioButton} in your
+ * layouts. You should only need to manually use this class when writing custom views.
  */
-public class TintCheckBox extends CheckBox {
+public class AppCompatRadioButton extends RadioButton {
 
     private static final int[] TINT_ATTRS = {
             android.R.attr.button
@@ -37,15 +41,15 @@ public class TintCheckBox extends CheckBox {
     private TintManager mTintManager;
     private Drawable mButtonDrawable;
 
-    public TintCheckBox(Context context) {
+    public AppCompatRadioButton(Context context) {
         this(context, null);
     }
 
-    public TintCheckBox(Context context, AttributeSet attrs) {
-        this(context, attrs, android.R.attr.checkboxStyle);
+    public AppCompatRadioButton(Context context, AttributeSet attrs) {
+        this(context, attrs, R.attr.radioButtonStyle);
     }
 
-    public TintCheckBox(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AppCompatRadioButton(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
         if (TintManager.SHOULD_BE_USED) {
@@ -65,7 +69,7 @@ public class TintCheckBox extends CheckBox {
     }
 
     @Override
-    public void setButtonDrawable(int resid) {
+    public void setButtonDrawable(@DrawableRes int resid) {
         if (mTintManager != null) {
             setButtonDrawable(mTintManager.getDrawable(resid));
         } else {
@@ -85,5 +89,4 @@ public class TintCheckBox extends CheckBox {
         }
         return padding;
     }
-
 }

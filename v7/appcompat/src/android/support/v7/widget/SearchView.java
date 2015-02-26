@@ -39,7 +39,6 @@ import android.speech.RecognizerIntent;
 import android.support.v4.view.KeyEventCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v7.appcompat.R;
-import android.support.v7.internal.widget.TintAutoCompleteTextView;
 import android.support.v7.internal.widget.TintManager;
 import android.support.v7.internal.widget.TintTypedArray;
 import android.support.v7.internal.widget.ViewUtils;
@@ -1626,7 +1625,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
      * Local subclass for AutoCompleteTextView.
      * @hide
      */
-    public static class SearchAutoComplete extends TintAutoCompleteTextView {
+    public static class SearchAutoComplete extends AppCompatAutoCompleteTextView {
 
         private int mThreshold;
         private SearchView mSearchView;
