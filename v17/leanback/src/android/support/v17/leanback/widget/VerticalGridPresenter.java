@@ -81,7 +81,8 @@ public class VerticalGridPresenter extends Presenter {
     }
 
     private int mNumColumns = -1;
-    private int mZoomFactor;
+    private int mFocusZoomFactor;
+    private boolean mUseFocusDimmer;
     private boolean mShadowEnabled = true;
     private OnItemClickedListener mOnItemClickedListener;
     private OnItemSelectedListener mOnItemSelectedListener;
@@ -89,12 +90,44 @@ public class VerticalGridPresenter extends Presenter {
     private OnItemViewClickedListener mOnItemViewClickedListener;
     private boolean mRoundedCornersEnabled = true;
 
+    /**
+     * Constructs a VerticalGridPresenter with defaults.
+     * Uses {@link FocusHighlight#ZOOM_FACTOR_MEDIUM} for focus zooming and
+     * enabled dimming on focus.
+     */
     public VerticalGridPresenter() {
         this(FocusHighlight.ZOOM_FACTOR_LARGE);
     }
 
-    public VerticalGridPresenter(int zoomFactor) {
-        mZoomFactor = zoomFactor;
+    /**
+     * Constructs a VerticalGridPresenter with the given parameters.
+     *
+     * @param focusZoomFactor Controls the zoom factor used when an item view is focused. One of
+     *         {@link FocusHighlight#ZOOM_FACTOR_NONE},
+     *         {@link FocusHighlight#ZOOM_FACTOR_SMALL},
+     *         {@link FocusHighlight#ZOOM_FACTOR_XSMALL},
+     *         {@link FocusHighlight#ZOOM_FACTOR_MEDIUM},
+     *         {@link FocusHighlight#ZOOM_FACTOR_LARGE}
+     * enabled dimming on focus.
+     */
+    public VerticalGridPresenter(int focusZoomFactor) {
+        this(focusZoomFactor, true);
+    }
+
+    /**
+     * Constructs a VerticalGridPresenter with the given parameters.
+     *
+     * @param focusZoomFactor Controls the zoom factor used when an item view is focused. One of
+     *         {@link FocusHighlight#ZOOM_FACTOR_NONE},
+     *         {@link FocusHighlight#ZOOM_FACTOR_SMALL},
+     *         {@link FocusHighlight#ZOOM_FACTOR_XSMALL},
+     *         {@link FocusHighlight#ZOOM_FACTOR_MEDIUM},
+     *         {@link FocusHighlight#ZOOM_FACTOR_LARGE}
+     * @param useFocusDimmer determines if the FocusHighlighter will use the dimmer
+     */
+    public VerticalGridPresenter(int focusZoomFactor, boolean useFocusDimmer) {
+        mFocusZoomFactor = focusZoomFactor;
+        mUseFocusDimmer = useFocusDimmer;
     }
 
     /**
@@ -171,6 +204,21 @@ public class VerticalGridPresenter extends Presenter {
         return isUsingDefaultShadow() && getShadowEnabled();
     }
 
+    /**
+     * Returns the zoom factor used for focus highlighting.
+     */
+    public final int getFocusZoomFactor() {
+        return mFocusZoomFactor;
+    }
+
+    /**
+     * Returns true if the focus dimmer is used for focus highlighting; false otherwise.
+     */
+    public final boolean isFocusDimmerUsed() {
+        return mUseFocusDimmer;
+    }
+
+
     @Override
     public final ViewHolder onCreateViewHolder(ViewGroup parent) {
         ViewHolder vh = createGridViewHolder(parent);
@@ -229,7 +277,7 @@ public class VerticalGridPresenter extends Presenter {
         }
         vh.getGridView().setFocusDrawingOrderEnabled(!isUsingZOrder());
         FocusHighlightHelper.setupBrowseItemFocusHighlight(vh.mItemBridgeAdapter,
-                mZoomFactor, true);
+                mFocusZoomFactor, mUseFocusDimmer);
 
         final ViewHolder gridViewHolder = vh;
         vh.getGridView().setOnChildSelectedListener(new OnChildSelectedListener() {
