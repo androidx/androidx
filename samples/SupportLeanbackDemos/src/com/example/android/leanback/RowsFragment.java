@@ -16,6 +16,8 @@ package com.example.android.leanback;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v17.leanback.widget.TitleHelper;
+import android.support.v17.leanback.widget.TitleView;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
@@ -35,10 +37,6 @@ import android.view.ViewGroup;
 
 public class RowsFragment extends android.support.v17.leanback.app.RowsFragment {
 
-    public static interface OnRowsFirstLineSelectedListener {
-        void onSelectedFirstRow(boolean firstRow);
-    }
-
     private static final String TAG = "leanback.RowsFragment";
 
     private static final int NUM_ROWS = 10;
@@ -46,7 +44,11 @@ public class RowsFragment extends android.support.v17.leanback.app.RowsFragment 
     private static final boolean USE_FIXED_ROW_HEIGHT = false;
 
     private ArrayObjectAdapter mRowsAdapter;
-    private OnRowsFirstLineSelectedListener mCallback;
+    private TitleHelper mTitleHelper;
+
+    public void setTitleHelper(TitleHelper titleHelper) {
+        mTitleHelper = titleHelper;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -60,26 +62,12 @@ public class RowsFragment extends android.support.v17.leanback.app.RowsFragment 
             public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
                     RowPresenter.ViewHolder rowViewHolder, Row row) {
                 Log.i(TAG, "onItemSelected: " + item + " row " + row);
-                if (mCallback == null) {
-                    return;
-                }
-                if (mRowsAdapter != null && mRowsAdapter.size() > 0 && row != null &&
-                        row != mRowsAdapter.get(0)) {
-                    mCallback.onSelectedFirstRow(false);
-                } else {
-                    mCallback.onSelectedFirstRow(true);
+                if (mTitleHelper != null) {
+                    mTitleHelper.showTitle(getAdapter() == null || getAdapter().size() == 0 ||
+                            getAdapter().get(0) == row);
                 }
             }
         });
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        // This makes sure that the container activity has implemented
-        if (activity instanceof OnRowsFirstLineSelectedListener) {
-            mCallback = (OnRowsFirstLineSelectedListener) activity;
-        }
     }
 
     private void setupRows() {

@@ -15,22 +15,12 @@
      limitations under the License.
 -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v17.leanback.widget.BrowseFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/rows_frame"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-  <TextView
-      android:id="@+id/rows_title"
-      android:text="RowsFragment"
-      style="?attr/browseTitleTextStyle"
-      android:paddingStart="?attr/browsePaddingStart"
-      android:paddingEnd="?attr/browsePaddingEnd"
-      android:paddingTop="?attr/browsePaddingTop"
-      android:paddingBottom="10dp"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content" />
   <fragment
       android:name="com.example.android.leanback.RowsFragment"
       android:id="@+id/main_rows_fragment"
@@ -38,4 +28,9 @@
       android:layout_height="match_parent"
   />
 
-</FrameLayout>
+    <android.support.v17.leanback.widget.TitleView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</android.support.v17.leanback.widget.BrowseFrameLayout>
