@@ -63,8 +63,10 @@ public class AppCompatButton extends Button implements TintableBackgroundView {
             TintTypedArray a = TintTypedArray.obtainStyledAttributes(getContext(), attrs,
                     TINT_ATTRS, defStyleAttr, 0);
             if (a.hasValue(0)) {
-                setSupportBackgroundTintList(
-                        a.getTintManager().getTintList(a.getResourceId(0, -1)));
+                ColorStateList tint = a.getTintManager().getTintList(a.getResourceId(0, -1));
+                if (tint != null) {
+                    setSupportBackgroundTintList(tint);
+                }
             }
             a.recycle();
         }

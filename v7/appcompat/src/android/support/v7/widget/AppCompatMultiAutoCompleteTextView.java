@@ -64,7 +64,10 @@ public class AppCompatMultiAutoCompleteTextView extends MultiAutoCompleteTextVie
             mTintManager = a.getTintManager();
 
             if (a.hasValue(0)) {
-                setSupportBackgroundTintList(mTintManager.getTintList(a.getResourceId(0, -1)));
+                ColorStateList tint = a.getTintManager().getTintList(a.getResourceId(0, -1));
+                if (tint != null) {
+                    setSupportBackgroundTintList(tint);
+                }
             }
             if (a.hasValue(1)) {
                 setDropDownBackgroundDrawable(a.getDrawable(1));
