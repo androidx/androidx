@@ -188,11 +188,11 @@ public class Toolbar extends ViewGroup {
         this(context, null);
     }
 
-    public Toolbar(Context context, AttributeSet attrs) {
+    public Toolbar(Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, R.attr.toolbarStyle);
     }
 
-    public Toolbar(Context context, AttributeSet attrs, int defStyleAttr) {
+    public Toolbar(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         // We manually themify the context here so that we don't break apps which only
         // use app:theme when running on >= Lollipop
         super(ViewUtils.themifyContext(context, attrs, false, true), attrs, defStyleAttr);
