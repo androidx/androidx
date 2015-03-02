@@ -15,13 +15,12 @@
      limitations under the License.
 -->
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <View
+    <android.support.v17.leanback.widget.NonOverlappingView
         android:id="@+id/lb_shadow_normal"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/lb_card_shadow_normal" />
-    <View
+    <android.support.v17.leanback.widget.NonOverlappingView
         android:id="@+id/lb_shadow_focused"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
