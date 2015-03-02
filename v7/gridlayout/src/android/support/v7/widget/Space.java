@@ -17,78 +17,24 @@
 package android.support.v7.widget;
 
 import android.content.Context;
-import android.graphics.Canvas;
 import android.util.AttributeSet;
-import android.view.View;
-import android.view.ViewGroup;
 
 /**
- * Space is a lightweight View subclass that may be used to create gaps between components
- * in general purpose layouts.
+ * @deprecated Use {@link android.support.v4.widget.Space} instead.
  */
-public final class Space extends View {
-    /**
-     * {@inheritDoc}
-     */
+@Deprecated
+public final class Space extends android.support.v4.widget.Space {
+
+    public Space(Context context) {
+        super(context);
+    }
+
+    public Space(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
     public Space(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        if (getVisibility() == VISIBLE) {
-            setVisibility(INVISIBLE);
-        }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public Space(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Space(Context context) {
-        //noinspection NullableProblems
-        this(context, null);
-    }
-
-    /**
-     * Draw nothing.
-     *
-     * @param canvas an unused parameter.
-     */
-    @Override
-    public void draw(Canvas canvas) {
-    }
-
-    /**
-     * Compare to: {@link View#getDefaultSize(int, int)}
-     * If mode is AT_MOST, return the child size instead of the parent size
-     * (unless it is too big).
-     */
-    private static int getDefaultSize2(int size, int measureSpec) {
-        int result = size;
-        int specMode = MeasureSpec.getMode(measureSpec);
-        int specSize = MeasureSpec.getSize(measureSpec);
-
-        switch (specMode) {
-            case MeasureSpec.UNSPECIFIED:
-                result = size;
-                break;
-            case MeasureSpec.AT_MOST:
-                result = Math.min(size, specSize);
-                break;
-            case MeasureSpec.EXACTLY:
-                result = specSize;
-                break;
-        }
-        return result;
-    }
-
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        setMeasuredDimension(
-                getDefaultSize2(getSuggestedMinimumWidth(), widthMeasureSpec),
-                getDefaultSize2(getSuggestedMinimumHeight(), heightMeasureSpec));
-    }
 }
