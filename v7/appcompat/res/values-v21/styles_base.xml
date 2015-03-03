@@ -122,7 +122,6 @@
     </style>
 
     <style name="Base.Widget.AppCompat.ListView" parent="android:Widget.Material.ListView" />
-    <style name="Base.Widget.AppCompat.ListView.DropDown" />
     <style name="Base.Widget.AppCompat.ListView.Menu" />
 
     <!-- Popup Menu -->
