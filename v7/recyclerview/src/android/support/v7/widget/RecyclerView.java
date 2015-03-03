@@ -697,6 +697,23 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
     }
 
     /**
+     * <p>Return the offset of the RecyclerView's text baseline from the its top
+     * boundary. If the LayoutManager of this RecyclerView does not support baseline alignment,
+     * this method returns -1.</p>
+     *
+     * @return the offset of the baseline within the RecyclerView's bounds or -1
+     *         if baseline alignment is not supported
+     */
+    @Override
+    public int getBaseline() {
+        if (mLayout != null) {
+            return mLayout.getBaseline();
+        } else {
+            return super.getBaseline();
+        }
+    }
+
+    /**
      * Set the {@link LayoutManager} that this RecyclerView will use.
      *
      * <p>In contrast to other adapter-backed views such as {@link android.widget.ListView}
@@ -5403,6 +5420,16 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
             for (int i = childCount - 1; i >= 0; i--) {
                 mChildHelper.removeViewAt(i);
             }
+        }
+
+        /**
+         * Returns offset of the RecyclerView's text baseline from the its top boundary.
+         *
+         * @return The offset of the RecyclerView's text baseline from the its top boundary; -1 if
+         * there is no baseline.
+         */
+        public int getBaseline() {
+            return -1;
         }
 
         /**
