@@ -16,7 +16,6 @@
 package android.support.v17.leanback.widget;
 
 import android.support.v17.leanback.tests.R;
-
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -587,5 +586,89 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         waitForScrollIdle(mVerifyLayout);
         assertEquals(startPos, mGridView.getSelectedPosition());
 
+    }
+
+    public void testTransferFocusable() throws Throwable {
+        final int numItems = 200;
+        final int numColumns = 3;
+        final int startPos = 1;
+
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_grid);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, numItems);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = numColumns;
+        boolean[] focusable = new boolean[numItems];
+        for (int i = 0; i < focusable.length; i++) {
+            focusable[i] = true;
+        }
+        for (int i = 0; i < startPos; i++) {
+            focusable[i] = false;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS_FOCUSABLE, focusable);
+        setActivityIntent(intent);
+        mActivity = getActivity();
+        mGridView = mActivity.mGridView;
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mActivity.changeArraySize(0);
+            }
+        });
+        Thread.sleep(500);
+        assertTrue(mGridView.isFocused());
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mActivity.changeArraySize(numItems);
+            }
+        });
+        Thread.sleep(500);
+        assertTrue(mGridView.getLayoutManager().findViewByPosition(startPos).hasFocus());
+    }
+
+    public void testTransferFocusable2() throws Throwable {
+        final int numItems = 200;
+        final int numColumns = 3;
+        final int startPos = 10;
+
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_grid);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, numItems);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, true);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = numColumns;
+        boolean[] focusable = new boolean[numItems];
+        for (int i = 0; i < focusable.length; i++) {
+            focusable[i] = true;
+        }
+        for (int i = 0; i < startPos; i++) {
+            focusable[i] = false;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS_FOCUSABLE, focusable);
+        setActivityIntent(intent);
+        mActivity = getActivity();
+        mGridView = mActivity.mGridView;
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mActivity.changeArraySize(0);
+            }
+        });
+        Thread.sleep(500);
+        assertTrue(mGridView.isFocused());
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mActivity.changeArraySize(numItems);
+            }
+        });
+        Thread.sleep(500);
+        assertTrue(mGridView.getLayoutManager().findViewByPosition(startPos).hasFocus());
     }
 }
