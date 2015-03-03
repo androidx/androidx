@@ -417,6 +417,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     private boolean mInLayout = false;
     private boolean mInFastRelayout;
+    /**
+     * During full layout pass, when GridView had focus: onLayoutChildren will
+     * skip non-focusable child and adjust mFocusPosition.
+     */
+    private boolean mInLayoutSearchFocus;
     private boolean mInSelection = false;
 
     private OnChildSelectedListener mChildSelectedListener = null;
@@ -1296,10 +1301,18 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                             || mPendingMoveSmoothScroller.mPendingMoves == 0)) {
                         dispatchChildSelected();
                     }
-                } else {
-                    // during layout pass, we notify change for non fastRelayout case.
-                    // fastRelayout will dispatch event at end of onLayoutChildren()
-                    if (!mInFastRelayout && index == mFocusPosition) {
+                } else if (!mInFastRelayout) {
+                    // fastRelayout will dispatch event at end of onLayoutChildren().
+                    // For full layout, two situations here:
+                    // 1. mInLayoutSearchFocus is false, dispatchChildSelected() at mFocusPosition.
+                    // 2. mInLayoutSearchFocus is true:  dispatchChildSelected() on first child
+                    //    equal to or after mFocusPosition that can take focus.
+                    if (!mInLayoutSearchFocus && index == mFocusPosition) {
+                        dispatchChildSelected();
+                    } else if (mInLayoutSearchFocus && index >= mFocusPosition
+                            && v.hasFocusable()) {
+                        mFocusPosition = index;
+                        mInLayoutSearchFocus = false;
                         dispatchChildSelected();
                     }
                 }
@@ -1617,6 +1630,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 focusView.requestFocus();
             }
         } else {
+            mInLayoutSearchFocus = hadFocus;
             if (mFocusPosition != NO_POSITION) {
                 // appends items till focus position.
                 while (appendOneColumnVisibleItems()
@@ -1667,9 +1681,12 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             updateRowSecondarySizeRefresh();
         }
 
-        // For non fastRelayout we notify selection change in createItem().
         // For fastRelayout, only dispatch event when focus position changes.
         if (mInFastRelayout && mFocusPosition != savedFocusPos) {
+            dispatchChildSelected();
+        } else if (!mInFastRelayout && mInLayoutSearchFocus) {
+            // For full layout we dispatchChildSelected() in createItem() unless searched all
+            // children and found none is focusable then dispatchChildSelected() here.
             dispatchChildSelected();
         }
 
