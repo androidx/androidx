@@ -1544,6 +1544,13 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             if (mPruneChild) {
                 // in regular prune child mode, we just append items up to edge limit
                 appendVisibleItems();
+                if (mFocusPosition >= 0 && mFocusPosition <= savedLastPos) {
+                    // make sure add focus view back:  the view might be outside edge limit
+                    // when there is delta in onLayoutChildren().
+                    while (mGrid.getLastVisibleIndex() < mFocusPosition) {
+                        mGrid.appendOneColumnVisibleItems();
+                    }
+                }
             } else {
                 // prune disabled(e.g. in RowsFragment transition): append all removed items
                 while (mGrid.appendOneColumnVisibleItems()
