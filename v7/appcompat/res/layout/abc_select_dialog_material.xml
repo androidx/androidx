@@ -25,10 +25,11 @@
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:cacheColorHint="@null"
-      android:listSelector="?attr/listDividerAlertDialog"
+      android:divider="?attr/listDividerAlertDialog"
       android:scrollbars="vertical"
       android:overScrollMode="ifContentScrolls"
       android:fadingEdge="none"
       android:paddingTop="@dimen/abc_dialog_list_padding_vertical_material"
       android:paddingBottom="@dimen/abc_dialog_list_padding_vertical_material"
-      android:clipToPadding="false" />
+      android:clipToPadding="false"
+      style="@style/Widget.AppCompat.ListView" />

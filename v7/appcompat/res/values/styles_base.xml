@@ -213,8 +213,12 @@
         <item name="android:gravity">center_vertical</item>
     </style>
 
-    <style name="Base.Widget.AppCompat.ListView.DropDown" parent="android:Widget.ListView">
+    <style name="Base.Widget.AppCompat.ListView" parent="android:Widget.ListView">
         <item name="android:listSelector">?attr/listChoiceBackgroundIndicator</item>
+        <item name="android:divider">?attr/dividerHorizontal</item>
+    </style>
+
+    <style name="Base.Widget.AppCompat.ListView.DropDown">
         <item name="android:divider">@null</item>
     </style>
 
