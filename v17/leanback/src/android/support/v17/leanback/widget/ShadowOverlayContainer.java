@@ -52,6 +52,7 @@ public class ShadowOverlayContainer extends ViewGroup {
     private View mColorDimOverlay;
     private Object mShadowImpl;
     private View mWrappedView;
+    private boolean mRoundedCorners;
     private static final Rect sTempRect = new Rect();
 
     public ShadowOverlayContainer(Context context) {
@@ -101,14 +102,15 @@ public class ShadowOverlayContainer extends ViewGroup {
         mInitialized = true;
         if (hasShadow) {
             mShadowImpl = ShadowHelper.getInstance().addShadow(this, roundedCorners);
-        } else if (roundedCorners) {
-            RoundedRectHelper.getInstance().setRoundedRectBackground(this,
-                    android.graphics.Color.TRANSPARENT);
         }
+        mRoundedCorners = roundedCorners;
         if (hasColorDimOverlay) {
             mColorDimOverlay = LayoutInflater.from(getContext())
                     .inflate(R.layout.lb_card_color_overlay, this, false);
             addView(mColorDimOverlay);
+            if (roundedCorners) {
+                RoundedRectHelper.getInstance().setClipToRoundedOutline(mColorDimOverlay, true);
+            }
         }
     }
 
@@ -148,6 +150,9 @@ public class ShadowOverlayContainer extends ViewGroup {
             addView(view);
         }
         mWrappedView = view;
+        if (mRoundedCorners) {
+            RoundedRectHelper.getInstance().setClipToRoundedOutline(mWrappedView, true);
+        }
     }
 
     @Override
