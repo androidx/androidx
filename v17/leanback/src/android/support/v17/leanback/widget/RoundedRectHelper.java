@@ -34,6 +34,13 @@ final class RoundedRectHelper {
     }
 
     /**
+     * Sets or removes a rounded rectangle outline on the given view.
+     */
+    public void setClipToRoundedOutline(View view, boolean clip) {
+        mImpl.setClipToRoundedOutline(view, clip);
+    }
+
+    /**
      * Sets a rounded rectangle background on the given view, and clips the view to the
      * background.  If clipping isn't supported on the android runtime, a simple rectangle
      * background is set instead.
@@ -55,6 +62,7 @@ final class RoundedRectHelper {
     }
 
     static interface Impl {
+        public void setClipToRoundedOutline(View view, boolean clip);
         public void setRoundedRectBackground(View view, int color);
         public void clearBackground(View view);
     }
@@ -63,6 +71,11 @@ final class RoundedRectHelper {
      * Implementation used prior to L.
      */
     private static final class StubImpl implements Impl {
+        @Override
+        public void setClipToRoundedOutline(View view, boolean clip) {
+            // Not supported
+        }
+
         @Override
         public void setRoundedRectBackground(View view, int color) {
             // We could set a rounded rect background, but we don't
@@ -81,6 +94,11 @@ final class RoundedRectHelper {
      * Implementation used on api 21 (and above).
      */
     private static final class Api21Impl implements Impl {
+        @Override
+        public void setClipToRoundedOutline(View view, boolean clip) {
+            RoundedRectHelperApi21.setClipToRoundedOutline(view, clip);
+        }
+
         @Override
         public void setRoundedRectBackground(View view, int color) {
             RoundedRectHelperApi21.setRoundedRectBackground(view, color);
