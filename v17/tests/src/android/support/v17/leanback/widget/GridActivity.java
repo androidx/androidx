@@ -45,10 +45,12 @@ public class GridActivity extends Activity {
     public static final String EXTRA_ITEMS = "items";
     public static final String EXTRA_ITEMS_FOCUSABLE = "itemsFocusable";
     public static final String EXTRA_STAGGERED = "staggered";
+    public static final String EXTRA_REQUEST_LAYOUT_ONFOCUS = "requestLayoutOnFocus";
     public static final String SELECT_ACTION = "android.test.leanback.widget.SELECT";
 
     static final int DEFAULT_NUM_ITEMS = 100;
     static final boolean DEFAULT_STAGGERED = true;
+    static final boolean DEFAULT_REQUEST_LAYOUT_ONFOCUS = false;
 
     private static final boolean DEBUG = false;
 
@@ -56,6 +58,7 @@ public class GridActivity extends Activity {
     int mOrientation;
     int mNumItems;
     boolean mStaggered;
+    boolean mRequestLayoutOnFocus;
 
     int[] mGridViewLayoutSize;
     BaseGridView mGridView;
@@ -87,8 +90,18 @@ public class GridActivity extends Activity {
 
         mLayoutId = intent.getIntExtra(EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_grid);
         mStaggered = intent.getBooleanExtra(EXTRA_STAGGERED, DEFAULT_STAGGERED);
+        mRequestLayoutOnFocus = intent.getBooleanExtra(EXTRA_REQUEST_LAYOUT_ONFOCUS,
+                DEFAULT_REQUEST_LAYOUT_ONFOCUS);
         mItemLengths = intent.getIntArrayExtra(EXTRA_ITEMS);
         mItemFocusables = intent.getBooleanArrayExtra(EXTRA_ITEMS_FOCUSABLE);
+
+        super.onCreate(savedInstanceState);
+
+        if (DEBUG) Log.v(TAG, "onCreate " + this);
+
+        RecyclerView.Adapter adapter = new MyAdapter();
+
+        View view = createView();
         if (mItemLengths == null) {
             mNumItems = intent.getIntExtra(EXTRA_NUM_ITEMS, DEFAULT_NUM_ITEMS);
             mItemLengths = new int[mNumItems];
@@ -102,14 +115,6 @@ public class GridActivity extends Activity {
         } else {
             mNumItems = mItemLengths.length;
         }
-
-        super.onCreate(savedInstanceState);
-
-        if (DEBUG) Log.v(TAG, "onCreate " + this);
-
-        RecyclerView.Adapter adapter = new MyAdapter();
-
-        View view = createView();
 
         mGridView.setAdapter(new MyAdapter());
         setContentView(view);
@@ -135,6 +140,11 @@ public class GridActivity extends Activity {
                 v.setBackgroundColor(Color.YELLOW);
             } else {
                 v.setBackgroundColor(Color.LTGRAY);
+            }
+            if (mRequestLayoutOnFocus) {
+                RecyclerView.ViewHolder vh = mGridView.getChildViewHolder(v);
+                int position = vh.getAdapterPosition();
+                updateSize(v, position);
             }
         }
     };
@@ -209,19 +219,28 @@ public class GridActivity extends Activity {
             ((TextView) holder.itemView).setFocusable(focusable);
             ((TextView) holder.itemView).setFocusableInTouchMode(focusable);
             holder.itemView.setBackgroundColor(Color.LTGRAY);
-            if (mOrientation == BaseGridView.HORIZONTAL) {
-                holder.itemView.setLayoutParams(new ViewGroup.MarginLayoutParams(
-                        mItemLengths[position], 80));
-            } else {
-                holder.itemView.setLayoutParams(new ViewGroup.MarginLayoutParams(
-                        240, mItemLengths[position]));
-            }
+            updateSize(holder.itemView, position);
         }
 
         @Override
         public int getItemCount() {
             return mNumItems;
         }
+    }
+
+    void updateSize(View view, int position) {
+        ViewGroup.LayoutParams p = view.getLayoutParams();
+        if (p == null) {
+            p = new ViewGroup.LayoutParams(0, 0);
+        }
+        if (mOrientation == BaseGridView.HORIZONTAL) {
+            p.width = mItemLengths[position] + (mRequestLayoutOnFocus && view.hasFocus() ? 1 : 0);
+            p.height = 80;
+        } else {
+            p.width = 240;
+            p.height = mItemLengths[position] + (mRequestLayoutOnFocus && view.hasFocus() ? 1 : 0);
+        }
+        view.setLayoutParams(p);
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

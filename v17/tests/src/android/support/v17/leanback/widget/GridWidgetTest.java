@@ -671,4 +671,36 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         Thread.sleep(500);
         assertTrue(mGridView.getLayoutManager().findViewByPosition(startPos).hasFocus());
     }
+
+    public void testNonFocusableLose() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear);
+        int[] items = new int[300];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 480;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        intent.putExtra(GridActivity.EXTRA_REQUEST_LAYOUT_ONFOCUS, true);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+        int pressDown = 15;
+
+        setActivityIntent(intent);
+        mActivity = getActivity();
+        mGridView = mActivity.mGridView;
+
+        mGridView.setSelectedPositionSmooth(0);
+        Thread.sleep(100);
+
+        for (int i = 0; i < pressDown; i++) {
+            sendKeys(KeyEvent.KEYCODE_DPAD_DOWN);
+        }
+        waitForScrollIdle(mVerifyLayout);
+        assertFalse(mGridView.isFocused());
+
+    }
+
 }
