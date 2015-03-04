@@ -15,6 +15,7 @@ package android.support.v17.leanback.app;
 
 import java.lang.ref.WeakReference;
 
+import android.support.annotation.ColorInt;
 import android.support.v17.leanback.R;
 import android.animation.Animator;
 import android.animation.ValueAnimator;
@@ -657,7 +658,7 @@ public final class BackgroundManager {
      * Set the background to the given color. The timing for when this becomes
      * visible in the app is undefined and may take place after a small delay.
      */
-    public void setColor(int color) {
+    public void setColor(@ColorInt int color) {
         if (DEBUG) Log.v(TAG, "setColor " + Integer.toHexString(color));
 
         mBackgroundColor = color;
@@ -799,6 +800,7 @@ public final class BackgroundManager {
     /**
      * Returns the current background color.
      */
+    @ColorInt
     public final int getColor() {
         return mBackgroundColor;
     }

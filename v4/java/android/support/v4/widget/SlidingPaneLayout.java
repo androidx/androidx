@@ -29,6 +29,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.MotionEventCompat;
@@ -297,13 +298,14 @@ public class SlidingPaneLayout extends ViewGroup {
      *
      * @param color An ARGB-packed color value
      */
-    public void setSliderFadeColor(int color) {
+    public void setSliderFadeColor(@ColorInt int color) {
         mSliderFadeColor = color;
     }
 
     /**
      * @return The ARGB-packed color value used to fade the sliding pane
      */
+    @ColorInt
     public int getSliderFadeColor() {
         return mSliderFadeColor;
     }
@@ -314,13 +316,14 @@ public class SlidingPaneLayout extends ViewGroup {
      *
      * @param color An ARGB-packed color value
      */
-    public void setCoveredFadeColor(int color) {
+    public void setCoveredFadeColor(@ColorInt int color) {
         mCoveredFadeColor = color;
     }
 
     /**
      * @return The ARGB-packed color value used to fade the fixed pane
      */
+    @ColorInt
     public int getCoveredFadeColor() {
         return mCoveredFadeColor;
     }

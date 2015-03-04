@@ -26,6 +26,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.CallSuper;
 import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
 import android.support.v4.view.InputDeviceCompat;
@@ -4982,6 +4983,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
          *
          * @param view The RecyclerView this LayoutManager is bound to
          */
+        @CallSuper
         public void onAttachedToWindow(RecyclerView view) {
         }
 
@@ -5005,6 +5007,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
          * @param recycler The recycler to use if you prefer to recycle your children instead of
          *                 keeping them around.
          */
+        @CallSuper
         public void onDetachedFromWindow(RecyclerView view, Recycler recycler) {
             onDetachedFromWindow(view);
         }

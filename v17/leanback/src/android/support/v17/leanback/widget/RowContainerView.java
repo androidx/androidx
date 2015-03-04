@@ -17,6 +17,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.ColorInt;
 import android.support.v17.leanback.R;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -77,7 +78,7 @@ final class RowContainerView extends LinearLayout {
         invalidate();
     }
 
-    public void setForegroundColor(int color) {
+    public void setForegroundColor(@ColorInt int color) {
         if (mForeground instanceof ColorDrawable) {
             ((ColorDrawable) mForeground.mutate()).setColor(color);
             invalidate();

@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
+import android.support.annotation.CallSuper;
 import android.support.annotation.DrawableRes;
 import android.support.v4.os.ParcelableCompat;
 import android.support.v4.os.ParcelableCompatCreatorCallbacks;
@@ -1671,6 +1672,7 @@ public class ViewPager extends ViewGroup {
      * @param offset Value from [0, 1) indicating the offset from the page at position.
      * @param offsetPixels Value in pixels indicating the offset from position.
      */
+    @CallSuper
     protected void onPageScrolled(int position, float offset, int offsetPixels) {
         // Offset any decor views if needed - keep them on-screen at all times.
         if (mDecorChildCount > 0) {

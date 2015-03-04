@@ -24,6 +24,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MarginLayoutParamsCompat;
@@ -704,7 +705,7 @@ public class Toolbar extends ViewGroup {
      *
      * @param color The new text color in 0xAARRGGBB format
      */
-    public void setTitleTextColor(int color) {
+    public void setTitleTextColor(@ColorInt int color) {
         mTitleTextColor = color;
         if (mTitleTextView != null) {
             mTitleTextView.setTextColor(color);
@@ -716,7 +717,7 @@ public class Toolbar extends ViewGroup {
      *
      * @param color The new text color in 0xAARRGGBB format
      */
-    public void setSubtitleTextColor(int color) {
+    public void setSubtitleTextColor(@ColorInt int color) {
         mSubtitleTextColor = color;
         if (mSubtitleTextView != null) {
             mSubtitleTextView.setTextColor(color);

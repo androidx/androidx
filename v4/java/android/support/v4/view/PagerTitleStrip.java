@@ -20,6 +20,8 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.database.DataSetObserver;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.ColorInt;
+import android.support.annotation.FloatRange;
 import android.text.TextUtils.TruncateAt;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -189,7 +191,7 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
      *
      * @param alpha Opacity value in the range 0-1f
      */
-    public void setNonPrimaryAlpha(float alpha) {
+    public void setNonPrimaryAlpha(@FloatRange(from=0.0, to=1.0) float alpha) {
         mNonPrimaryAlpha = (int) (alpha * 255) & 0xFF;
         final int transparentColor = (mNonPrimaryAlpha << 24) | (mTextColor & 0xFFFFFF);
         mPrevText.setTextColor(transparentColor);
@@ -202,7 +204,7 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
      *
      * @param color Color hex code in 0xAARRGGBB format
      */
-    public void setTextColor(int color) {
+    public void setTextColor(@ColorInt int color) {
         mTextColor = color;
         mCurrText.setTextColor(color);
         final int transparentColor = (mNonPrimaryAlpha << 24) | (mTextColor & 0xFFFFFF);

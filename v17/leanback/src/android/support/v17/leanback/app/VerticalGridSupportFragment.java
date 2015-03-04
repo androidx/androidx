@@ -15,6 +15,7 @@
  */
 package android.support.v17.leanback.app;
 
+import android.support.annotation.ColorInt;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.widget.BrowseFrameLayout;
@@ -269,13 +270,14 @@ public class VerticalGridSupportFragment extends Fragment {
      *
      * @param color The color to use for the search affordance.
      */
-    public void setSearchAffordanceColor(int color) {
+    public void setSearchAffordanceColor(@ColorInt int color) {
         setSearchAffordanceColors(new SearchOrbView.Colors(color));
     }
 
     /**
      * Returns the color used to draw the search affordance.
      */
+    @ColorInt
     public int getSearchAffordanceColor() {
         return getSearchAffordanceColors().color;
     }

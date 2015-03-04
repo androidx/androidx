@@ -19,6 +19,7 @@ package android.support.v7.app;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.CallSuper;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -201,6 +202,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
      *
      * @param mode The new action mode.
      */
+    @CallSuper
     public void onSupportActionModeStarted(ActionMode mode) {
     }
 
@@ -210,6 +212,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
      *
      * @param mode The action mode that just finished.
      */
+    @CallSuper
     public void onSupportActionModeFinished(ActionMode mode) {
     }
 

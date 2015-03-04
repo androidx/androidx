@@ -14,6 +14,7 @@
 package android.support.v17.leanback.widget;
 
 import android.graphics.drawable.Drawable;
+import android.support.annotation.ColorInt;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.ControlBarPresenter.OnControlClickedListener;
 import android.support.v17.leanback.widget.ControlBarPresenter.OnControlSelectedListener;
@@ -227,7 +228,7 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
     /**
      * Sets the background color.  If not set, a default from the theme will be used.
      */
-    public void setBackgroundColor(int color) {
+    public void setBackgroundColor(@ColorInt int color) {
         mBackgroundColor = color;
         mBackgroundColorSet = true;
     }
@@ -236,6 +237,7 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
      * Returns the background color.  If no background color was set, transparent
      * is returned.
      */
+    @ColorInt
     public int getBackgroundColor() {
         return mBackgroundColor;
     }
@@ -244,7 +246,7 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
      * Sets the primary color for the progress bar.  If not set, a default from
      * the theme will be used.
      */
-    public void setProgressColor(int color) {
+    public void setProgressColor(@ColorInt int color) {
         mProgressColor = color;
         mProgressColorSet = true;
     }
@@ -253,6 +255,7 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
      * Returns the primary color for the progress bar.  If no color was set, transparent
      * is returned.
      */
+    @ColorInt
     public int getProgressColor() {
         return mProgressColor;
     }

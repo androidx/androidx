@@ -25,6 +25,7 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.support.annotation.ColorInt;
 import android.support.v17.leanback.R;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -63,7 +64,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
          *
          * @param color The main search orb color.
          */
-        public Colors(int color) {
+        public Colors(@ColorInt int color) {
             this(color, color);
         }
 
@@ -74,7 +75,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
          * @param color The main search orb color.
          * @param brightColor A brighter version of the search orb used for animation.
          */
-        public Colors(int color, int brightColor) {
+        public Colors(@ColorInt int color, @ColorInt int brightColor) {
             this(color, brightColor, Color.TRANSPARENT);
         }
 
@@ -85,7 +86,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
          * @param brightColor A brighter version of the search orb used for animation.
          * @param iconColor A color used to tint the search orb icon.
          */
-        public Colors(int color, int brightColor, int iconColor) {
+        public Colors(@ColorInt int color, @ColorInt int brightColor, @ColorInt int iconColor) {
             this.color = color;
             this.brightColor = brightColor == color ? getBrightColor(color) : brightColor;
             this.iconColor = iconColor;
@@ -94,16 +95,19 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
         /**
          * The main color of the search orb.
          */
+        @ColorInt
         public int color;
 
         /**
          * A brighter version of the search orb used for animation.
          */
+        @ColorInt
         public int brightColor;
 
         /**
          * A color used to tint the search orb icon.
          */
+        @ColorInt
         public int iconColor;
 
         /**
@@ -294,7 +298,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
      * @deprecated Use {@link #setOrbColors(Colors)} instead.
      */
     @Deprecated
-    public void setOrbColor(int color, int brightColor) {
+    public void setOrbColor(@ColorInt int color, @ColorInt int brightColor) {
         setOrbColors(new Colors(color, brightColor, Color.TRANSPARENT));
     }
 
@@ -302,6 +306,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
      * Returns the orb color
      * @return the RGBA color
      */
+    @ColorInt
     public int getOrbColor() {
         return mColors.color;
     }

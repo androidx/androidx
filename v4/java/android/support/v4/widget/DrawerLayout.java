@@ -29,6 +29,7 @@ import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
+import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
@@ -417,7 +418,7 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
      *
      * @param color Color to use in 0xAARRGGBB format.
      */
-    public void setScrimColor(int color) {
+    public void setScrimColor(@ColorInt int color) {
         mScrimColor = color;
         invalidate();
     }
@@ -1042,7 +1043,7 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
      * @param color Color to use as a background drawable to draw behind the status bar
      *              in 0xAARRGGBB format.
      */
-    public void setStatusBarBackgroundColor(int color) {
+    public void setStatusBarBackgroundColor(@ColorInt int color) {
         mStatusBarBackground = new ColorDrawable(color);
         invalidate();
     }

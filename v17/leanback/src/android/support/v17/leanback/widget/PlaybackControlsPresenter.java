@@ -20,6 +20,7 @@ import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
+import android.support.annotation.ColorInt;
 import android.support.v17.leanback.R;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -225,7 +226,7 @@ class PlaybackControlsPresenter extends ControlBarPresenter {
         return mMoreActionsEnabled;
     }
 
-    public void setProgressColor(ViewHolder vh, int color) {
+    public void setProgressColor(ViewHolder vh, @ColorInt int color) {
         Drawable drawable = new ClipDrawable(new ColorDrawable(color),
                 Gravity.LEFT, ClipDrawable.HORIZONTAL);
         ((LayerDrawable) vh.mProgressBar.getProgressDrawable())
