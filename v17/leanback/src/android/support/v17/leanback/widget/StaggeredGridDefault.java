@@ -21,35 +21,6 @@ package android.support.v17.leanback.widget;
  */
 final class StaggeredGridDefault extends StaggeredGrid {
 
-    @Override
-    protected int updateFirstVisibleOffset(int prependedItemSize) {
-        Location firstVisible = getLocation(mFirstVisibleIndex);
-        // Find a cached item in same row, if not found, just use last item.
-        int index = mFirstVisibleIndex - 1;
-        boolean foundCachedItemInSameRow = false;
-        while (index >= mFirstIndex) {
-            Location loc = getLocation(index);
-            if (loc.row == firstVisible.row) {
-                foundCachedItemInSameRow = true;
-                break;
-            }
-            index--;
-        }
-        if (!foundCachedItemInSameRow) {
-            index = mFirstVisibleIndex - 1;
-        }
-        // Assuming mFirstVisibleIndex is next to index on the same row, so the
-        // sum of offset of [index + 1, mFirstVisibleIndex] should be size of the item
-        // plus margin.
-        int offset = isReversedFlow() ?  -getLocation(index).size - mMargin:
-                getLocation(index).size + mMargin;
-        for (int i = index + 1; i < mFirstVisibleIndex; i++) {
-            offset -= getLocation(index).offset;
-        }
-        firstVisible.offset = offset;
-        return offset;
-    }
-
     /**
      * Returns the max edge value of item (visible or cached) in a row.  This
      * will be the place to append or prepend item not in cache.
@@ -295,7 +266,9 @@ final class StaggeredGridDefault extends StaggeredGrid {
             edgeLimitIsValid = true;
         } else {
             itemIndex = mStartIndex != START_DEFAULT ? mStartIndex : 0;
-            rowIndex = itemIndex % mNumRows;
+            // if there are cached items,  put on next row of last cached item.
+            rowIndex = (mLocations.size() > 0 ? getLocation(getLastIndex()).row + 1 : itemIndex)
+                    % mNumRows;
             edgeLimit = 0;
             edgeLimitIsValid = false;
         }
@@ -395,7 +368,9 @@ final class StaggeredGridDefault extends StaggeredGrid {
             edgeLimitIsValid = true;
         } else {
             itemIndex = mStartIndex != START_DEFAULT ? mStartIndex : 0;
-            rowIndex = itemIndex % mNumRows;
+            // if there are cached items,  put on previous row of first cached item.
+            rowIndex = (mLocations.size() >= 0 ? getLocation(getFirstIndex()).row + mNumRows - 1
+                    : itemIndex) % mNumRows;
             edgeLimit = 0;
             edgeLimitIsValid = false;
         }
