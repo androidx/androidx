@@ -30,8 +30,15 @@ public class ThemeUtils {
 
     private static final ThreadLocal<TypedValue> TL_TYPED_VALUE = new ThreadLocal<>();
 
-    private static final int[] DISABLED_STATE_SET = new int[]{-android.R.attr.state_enabled};
-    private static final int[] EMPTY_STATE_SET = new int[0];
+    static final int[] DISABLED_STATE_SET = new int[]{-android.R.attr.state_enabled};
+    static final int[] FOCUSED_STATE_SET = new int[]{android.R.attr.state_focused};
+    static final int[] ACTIVATED_STATE_SET = new int[]{android.R.attr.state_activated};
+    static final int[] PRESSED_STATE_SET = new int[]{android.R.attr.state_pressed};
+    static final int[] CHECKED_STATE_SET = new int[]{android.R.attr.state_checked};
+    static final int[] SELECTED_STATE_SET = new int[]{android.R.attr.state_selected};
+    static final int[] NOT_PRESSED_OR_FOCUSED_STATE_SET = new int[]{
+            -android.R.attr.state_pressed, -android.R.attr.state_focused};
+    static final int[] EMPTY_STATE_SET = new int[0];
 
     private static final int[] TEMP_ARRAY = new int[1];
 
