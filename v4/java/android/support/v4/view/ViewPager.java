@@ -1748,6 +1748,9 @@ public class ViewPager extends ViewGroup {
             int y = mScroller.getCurrY();
             if (oldX != x || oldY != y) {
                 scrollTo(x, y);
+                if (x != oldX) {
+                    pageScrolled(x);
+                }
             }
         }
         mPopulatePending = false;
