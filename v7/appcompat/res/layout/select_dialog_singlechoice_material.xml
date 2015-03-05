@@ -23,7 +23,7 @@
     android:textAppearance="?android:attr/textAppearanceMedium"
     android:textColor="?attr/textColorAlertDialogListItem"
     android:gravity="center_vertical"
-    android:paddingStart="?attr/dialogPreferredPadding"
-    android:paddingEnd="?attr/dialogPreferredPadding"
+    android:paddingLeft="?attr/dialogPreferredPadding"
+    android:paddingRight="?attr/dialogPreferredPadding"
     android:checkMark="?android:attr/listChoiceIndicatorSingle"
     android:ellipsize="marquee" />
