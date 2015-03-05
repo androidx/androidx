@@ -21,6 +21,8 @@ android {
         // This is a *reset* so it replaces the default paths
         androidTest.setRoot('tests')
         androidTest.java.srcDir 'tests/src'
+        androidTest.res.srcDir 'tests/res'
+        androidTest.manifest.srcFile 'tests/AndroidManifest.xml'
     }
 
     lintOptions {
