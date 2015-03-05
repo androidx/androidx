@@ -70,6 +70,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
      * Wait for grid view stop scroll and optionally verify state of grid view.
      */
     protected void waitForScrollIdle(Runnable verify) throws Throwable {
+        Thread.sleep(100);
         while (mGridView.getLayoutManager().isSmoothScrolling() ||
                 mGridView.getScrollState() != BaseGridView.SCROLL_STATE_IDLE) {
             try {
@@ -116,7 +117,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
             }
             sendRepeatedKeys(10, key);
             try {
-                Thread.sleep(100);
+                Thread.sleep(300);
             } catch (InterruptedException ex) {
                 break;
             }
@@ -286,15 +287,37 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         }
     }
 
-    public void testThreeRowHorizontalBasic() throws Throwable {
+    private static int getCenterY(View v) {
+        return (v.getTop() + v.getBottom())/2;
+    }
 
+    private static int getCenterX(View v) {
+        return (v.getLeft() + v.getRight())/2;
+    }
+
+    private void initActivity(Intent intent) {
+        setActivityIntent(intent);
+        mActivity = getActivity();
+        final String testName = getName();
+        try {
+            runTestOnUiThread(new Runnable() {
+                public void run() {
+                    mActivity.setTitle(testName);
+                }
+            });
+            Thread.sleep(1000);
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+        mGridView = mActivity.mGridView;
+    }
+
+    public void testThreeRowHorizontalBasic() throws Throwable {
         mInstrumentation = getInstrumentation();
         Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_grid);
         intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 100);
-        setActivityIntent(intent);
-        mActivity = getActivity();
-        mGridView = mActivity.mGridView;
+        initActivity(intent);
         mOrientation = BaseGridView.HORIZONTAL;
         mNumRows = 3;
 
@@ -312,9 +335,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_grid);
         intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 200);
-        setActivityIntent(intent);
-        mActivity = getActivity();
-        mGridView = mActivity.mGridView;
+        initActivity(intent);
         mOrientation = BaseGridView.VERTICAL;
         mNumRows = 3;
 
@@ -342,9 +363,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
                 152,222,141,202,224,190,134,120,181,231,230,136,132,224,136,210,207,150,128,183,
                 221,194,179,220,126,221,137,205,223,193,172,132,226,209,133,191,227,127,159,171,
                 180,149,237,177,194,207,170,202,161,144,147,199,205,186,164,140,193,203,224,129});
-        setActivityIntent(intent);
-        mActivity = getActivity();
-        mGridView = mActivity.mGridView;
+        initActivity(intent);
         mOrientation = BaseGridView.VERTICAL;
         mNumRows = 3;
 
@@ -368,9 +387,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
                 216,333,295,188,187,281,288,311,244,232,224,332,290,181,267,276,226,261,335,355,
                 225,217,219,183,234,285,257,304,182,250,244,223,257,219,342,185,347,205,302,315,
                 299,309,292,237,192,309,228,250,347,227,337,298,299,185,185,331,223,284,265,351});
-        setActivityIntent(intent);
-        mActivity = getActivity();
-        mGridView = mActivity.mGridView;
+        initActivity(intent);
         mOrientation = BaseGridView.HORIZONTAL;
         mNumRows = 3;
         mLayoutManager = (GridLayoutManager) mGridView.getLayoutManager();
@@ -418,9 +435,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
                 R.layout.horizontal_grid);
         intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 200);
-        setActivityIntent(intent);
-        mActivity = getActivity();
-        mGridView = mActivity.mGridView;
+        initActivity(intent);
         mOrientation = BaseGridView.HORIZONTAL;
         mNumRows = 3;
 
@@ -443,9 +458,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
                 R.layout.vertical_grid);
         intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 200);
-        setActivityIntent(intent);
-        mActivity = getActivity();
-        mGridView = mActivity.mGridView;
+        initActivity(intent);
         mOrientation = BaseGridView.VERTICAL;
         mNumRows = 3;
 
@@ -469,9 +482,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
                 R.layout.horizontal_grid);
         intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 200);
-        setActivityIntent(intent);
-        mActivity = getActivity();
-        mGridView = mActivity.mGridView;
+        initActivity(intent);
         mOrientation = BaseGridView.HORIZONTAL;
         mNumRows = 3;
 
@@ -522,9 +533,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
             focusable[i] = false;
         }
         intent.putExtra(GridActivity.EXTRA_ITEMS_FOCUSABLE, focusable);
-        setActivityIntent(intent);
-        mActivity = getActivity();
-        mGridView = mActivity.mGridView;
+        initActivity(intent);
 
         mGridView.setSelectedPositionSmooth(startPos);
         waitForScrollIdle(mVerifyLayout);
@@ -571,9 +580,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
             focusable[i] = false;
         }
         intent.putExtra(GridActivity.EXTRA_ITEMS_FOCUSABLE, focusable);
-        setActivityIntent(intent);
-        mActivity = getActivity();
-        mGridView = mActivity.mGridView;
+        initActivity(intent);
 
         mGridView.setSelectedPositionSmooth(startPos);
         waitForScrollIdle(mVerifyLayout);
@@ -609,9 +616,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
             focusable[i] = false;
         }
         intent.putExtra(GridActivity.EXTRA_ITEMS_FOCUSABLE, focusable);
-        setActivityIntent(intent);
-        mActivity = getActivity();
-        mGridView = mActivity.mGridView;
+        initActivity(intent);
 
         runTestOnUiThread(new Runnable() {
             public void run() {
@@ -651,9 +656,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
             focusable[i] = false;
         }
         intent.putExtra(GridActivity.EXTRA_ITEMS_FOCUSABLE, focusable);
-        setActivityIntent(intent);
-        mActivity = getActivity();
-        mGridView = mActivity.mGridView;
+        initActivity(intent);
 
         runTestOnUiThread(new Runnable() {
             public void run() {
@@ -672,7 +675,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         assertTrue(mGridView.getLayoutManager().findViewByPosition(startPos).hasFocus());
     }
 
-    public void testNonFocusableLose() throws Throwable {
+    public void testNonFocusableLoseInFastLayout() throws Throwable {
         mInstrumentation = getInstrumentation();
         Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
@@ -688,9 +691,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         mNumRows = 1;
         int pressDown = 15;
 
-        setActivityIntent(intent);
-        mActivity = getActivity();
-        mGridView = mActivity.mGridView;
+        initActivity(intent);
 
         mGridView.setSelectedPositionSmooth(0);
         Thread.sleep(100);
@@ -703,4 +704,332 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
 
     }
 
+    public void testSetSelectionWithDelta() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 300);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPositionSmooth(3);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+        int top1 = mGridView.getLayoutManager().findViewByPosition(3).getTop();
+
+        Thread.sleep(1000);
+
+        // scroll to position with delta
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPosition(3, 100);
+            }
+        });
+        Thread.sleep(1000);
+        int top2 = mGridView.getLayoutManager().findViewByPosition(3).getTop();
+        assertEquals(top1 - 100, top2);
+
+        // scroll to same position without delta, it will be reset
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPosition(3, 0);
+            }
+        });
+        Thread.sleep(1000);
+        int top3 = mGridView.getLayoutManager().findViewByPosition(3).getTop();
+        assertEquals(top1, top3);
+
+        // scroll invisible item after last visible item
+        final int lastVisiblePos = ((GridLayoutManager)mGridView.getLayoutManager())
+                .mGrid.getLastVisibleIndex();
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPosition(lastVisiblePos + 1, 100);
+            }
+        });
+        Thread.sleep(1000);
+        int top4 = mGridView.getLayoutManager().findViewByPosition(lastVisiblePos + 1).getTop();
+        assertEquals(top1 - 100, top4);
+
+        // scroll invisible item before first visible item
+        final int firstVisiblePos = ((GridLayoutManager)mGridView.getLayoutManager())
+                .mGrid.getFirstVisibleIndex();
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPosition(firstVisiblePos - 1, 100);
+            }
+        });
+        Thread.sleep(1000);
+        int top5 = mGridView.getLayoutManager().findViewByPosition(firstVisiblePos - 1).getTop();
+        assertEquals(top1 - 100, top5);
+
+        // scroll to invisible item that is far away.
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPosition(50, 100);
+            }
+        });
+        Thread.sleep(1000);
+        int top6 = mGridView.getLayoutManager().findViewByPosition(50).getTop();
+        assertEquals(top1 - 100, top6);
+
+        // scroll to invisible item that is far away.
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPositionSmooth(100);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+        int top7 = mGridView.getLayoutManager().findViewByPosition(100).getTop();
+        assertEquals(top1, top7);
+
+        // scroll to invisible item that is far away.
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPosition(10, 50);
+            }
+        });
+        Thread.sleep(1000);
+        int top8 = mGridView.getLayoutManager().findViewByPosition(10).getTop();
+        assertEquals(top1 - 50, top8);
+    }
+
+    public void testSetSelectionWithDeltaInGrid() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_grid);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 500);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, true);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 3;
+
+        initActivity(intent);
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPositionSmooth(10);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+        int top1 = getCenterY(mGridView.getLayoutManager().findViewByPosition(10));
+
+        Thread.sleep(500);
+
+        // scroll to position with delta
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPosition(20, 100);
+            }
+        });
+        Thread.sleep(500);
+        int top2 = getCenterY(mGridView.getLayoutManager().findViewByPosition(20));
+        assertEquals(top1 - 100, top2);
+
+        // scroll to same position without delta, it will be reset
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPosition(20, 0);
+            }
+        });
+        Thread.sleep(500);
+        int top3 = getCenterY(mGridView.getLayoutManager().findViewByPosition(20));
+        assertEquals(top1, top3);
+
+        // scroll invisible item after last visible item
+        final int lastVisiblePos = ((GridLayoutManager)mGridView.getLayoutManager())
+                .mGrid.getLastVisibleIndex();
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPosition(lastVisiblePos + 1, 100);
+            }
+        });
+        Thread.sleep(500);
+        int top4 = getCenterY(mGridView.getLayoutManager().findViewByPosition(lastVisiblePos + 1));
+        verifyMargin();
+        assertEquals(top1 - 100, top4);
+
+        // scroll invisible item before first visible item
+        final int firstVisiblePos = ((GridLayoutManager)mGridView.getLayoutManager())
+                .mGrid.getFirstVisibleIndex();
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPosition(firstVisiblePos - 1, 100);
+            }
+        });
+        Thread.sleep(500);
+        int top5 = getCenterY(mGridView.getLayoutManager().findViewByPosition(firstVisiblePos - 1));
+        assertEquals(top1 - 100, top5);
+
+        // scroll to invisible item that is far away.
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPosition(100, 100);
+            }
+        });
+        Thread.sleep(500);
+        int top6 = getCenterY(mGridView.getLayoutManager().findViewByPosition(100));
+        assertEquals(top1 - 100, top6);
+
+        // scroll to invisible item that is far away.
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPositionSmooth(200);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+        Thread.sleep(500);
+        int top7 = getCenterY(mGridView.getLayoutManager().findViewByPosition(200));
+        assertEquals(top1, top7);
+
+        // scroll to invisible item that is far away.
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPosition(10, 50);
+            }
+        });
+        Thread.sleep(500);
+        int top8 = getCenterY(mGridView.getLayoutManager().findViewByPosition(10));
+        assertEquals(top1 - 50, top8);
+    }
+
+
+    public void testSetSelectionWithDeltaInGrid1() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_grid);
+        intent.putExtra(GridActivity.EXTRA_ITEMS, new int[]{
+                193,176,153,141,203,184,232,139,177,206,222,136,132,237,172,137,
+                188,172,163,213,158,219,209,147,133,229,170,197,138,215,188,205,
+                223,192,225,170,195,127,229,229,210,195,134,142,160,139,130,222,
+                150,163,180,176,157,137,234,169,159,167,182,150,224,231,202,236,
+                123,140,181,223,120,185,183,221,123,210,134,158,166,208,149,128,
+                192,214,212,198,133,140,158,133,229,173,226,141,180,128,127,218,
+                192,235,183,213,216,150,143,193,125,141,219,210,195,195,192,191,
+                212,236,157,189,160,220,147,158,220,199,233,231,201,180,168,141,
+                156,204,191,183,190,153,123,210,238,151,139,221,223,200,175,191,
+                132,184,197,204,236,157,230,151,195,219,212,143,172,149,219,184,
+                164,211,132,187,172,142,174,146,127,147,206,238,188,129,199,226,
+                132,220,210,159,235,153,208,182,196,123,180,159,131,135,175,226,
+                127,134,237,211,133,225,132,124,160,226,224,200,173,137,217,169,
+                182,183,176,185,122,168,195,159,172,129,126,129,166,136,149,220,
+                178,191,192,238,180,208,234,154,222,206,239,228,129,140,203,125,
+                214,175,125,169,196,132,234,138,192,142,234,190,215,232,239,122,
+                188,158,128,221,159,237,207,157,232,138,132,214,122,199,121,191,
+                199,209,126,164,175,187,173,186,194,224,191,196,146,208,213,210,
+                164,176,202,213,123,157,179,138,217,129,186,166,237,211,157,130,
+                137,132,171,232,216,239,180,151,137,132,190,133,218,155,171,227,
+                193,147,197,164,120,218,193,154,170,196,138,222,161,235,143,154,
+                192,178,228,195,178,133,203,178,173,206,178,212,136,157,169,124,
+                172,121,128,223,238,125,217,187,184,156,169,215,231,124,210,174,
+                146,226,185,134,223,228,183,182,136,133,199,146,180,233,226,225,
+                174,233,145,235,216,170,192,171,132,132,134,223,233,148,154,162,
+                192,179,197,203,139,197,174,187,135,132,180,136,192,195,124,221,
+                120,189,233,233,146,225,234,163,215,143,132,198,156,205,151,190,
+                204,239,221,229,123,138,134,217,219,136,218,215,167,139,195,125,
+                202,225,178,226,145,208,130,194,228,197,157,215,124,147,174,123,
+                237,140,172,181,161,151,229,216,199,199,179,213,146,122,222,162,
+                139,173,165,150,160,217,207,137,165,175,129,158,134,133,178,199,
+                215,213,122,197
+        });
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, true);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 3;
+
+        initActivity(intent);
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPositionSmooth(10);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+        int top1 = getCenterY(mGridView.getLayoutManager().findViewByPosition(10));
+
+        Thread.sleep(500);
+
+        // scroll to position with delta
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPosition(20, 100);
+            }
+        });
+        Thread.sleep(500);
+        int top2 = getCenterY(mGridView.getLayoutManager().findViewByPosition(20));
+        assertEquals(top1 - 100, top2);
+
+        // scroll to same position without delta, it will be reset
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPosition(20, 0);
+            }
+        });
+        Thread.sleep(500);
+        int top3 = getCenterY(mGridView.getLayoutManager().findViewByPosition(20));
+        assertEquals(top1, top3);
+
+        // scroll invisible item after last visible item
+        final int lastVisiblePos = ((GridLayoutManager)mGridView.getLayoutManager())
+                .mGrid.getLastVisibleIndex();
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPosition(lastVisiblePos + 1, 100);
+            }
+        });
+        Thread.sleep(500);
+        int top4 = getCenterY(mGridView.getLayoutManager().findViewByPosition(lastVisiblePos + 1));
+        verifyMargin();
+        assertEquals(top1 - 100, top4);
+
+        // scroll invisible item before first visible item
+        final int firstVisiblePos = ((GridLayoutManager)mGridView.getLayoutManager())
+                .mGrid.getFirstVisibleIndex();
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPosition(firstVisiblePos - 1, 100);
+            }
+        });
+        Thread.sleep(500);
+        int top5 = getCenterY(mGridView.getLayoutManager().findViewByPosition(firstVisiblePos - 1));
+        assertEquals(top1 - 100, top5);
+
+        // scroll to invisible item that is far away.
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPosition(100, 100);
+            }
+        });
+        Thread.sleep(500);
+        int top6 = getCenterY(mGridView.getLayoutManager().findViewByPosition(100));
+        assertEquals(top1 - 100, top6);
+
+        // scroll to invisible item that is far away.
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPositionSmooth(200);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+        Thread.sleep(500);
+        int top7 = getCenterY(mGridView.getLayoutManager().findViewByPosition(200));
+        assertEquals(top1, top7);
+
+        // scroll to invisible item that is far away.
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPosition(10, 50);
+            }
+        });
+        Thread.sleep(500);
+        int top8 = getCenterY(mGridView.getLayoutManager().findViewByPosition(10));
+        assertEquals(top1 - 50, top8);
+    }
 }
