@@ -2,6 +2,6 @@
 <resources>
 
     <!-- The default gap between components in a layout. -->
-    <dimen name="default_gap">16dip</dimen>
+    <dimen name="default_gap">8dip</dimen>
 
 </resources>
