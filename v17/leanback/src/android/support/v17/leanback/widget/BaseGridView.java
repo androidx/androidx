@@ -475,7 +475,16 @@ abstract class BaseGridView extends RecyclerView {
      * Change the selected item immediately without animation.
      */
     public void setSelectedPosition(int position) {
-        mLayoutManager.setSelection(this, position);
+        mLayoutManager.setSelection(this, position, 0);
+    }
+
+    /**
+     * Change the selected item immediately without animation, scrollExtra is
+     * applied in primary scroll direction.  The scrollExtra will be kept until
+     * another {@link #setSelectedPosition} or {@link #setSelectedPositionSmooth} call.
+     */
+    public void setSelectedPosition(int position, int scrollExtra) {
+        mLayoutManager.setSelection(this, position, scrollExtra);
     }
 
     /**

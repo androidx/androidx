@@ -449,6 +449,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     private int mFocusPositionOffset = 0;
 
     /**
+     * Extra pixels applied on primary direction.
+     */
+    private int mPrimaryScrollExtra;
+
+    /**
      * Force a full layout under certain situations.  E.g. Rows change, jump to invisible child.
      */
     private boolean mForceFullLayout;
@@ -1950,26 +1955,31 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
-    public void setSelection(RecyclerView parent, int position) {
-        setSelection(parent, position, false);
+    public void setSelection(RecyclerView parent, int position,
+            int primaryScrollExtra) {
+        setSelection(parent, position, false, primaryScrollExtra);
     }
 
     public void setSelectionSmooth(RecyclerView parent, int position) {
-        setSelection(parent, position, true);
+        setSelection(parent, position, true, 0);
     }
 
     public int getSelection() {
         return mFocusPosition;
     }
 
-    public void setSelection(RecyclerView parent, int position, boolean smooth) {
-        if (mFocusPosition != position && position != NO_POSITION) {
-            scrollToSelection(parent, position, smooth);
+    public void setSelection(RecyclerView parent, int position, boolean smooth,
+            int primaryScrollExtra) {
+        if (mFocusPosition != position && position != NO_POSITION
+                || primaryScrollExtra != mPrimaryScrollExtra) {
+            scrollToSelection(parent, position, smooth, primaryScrollExtra);
         }
     }
 
-    private void scrollToSelection(RecyclerView parent, int position, boolean smooth) {
+    private void scrollToSelection(RecyclerView parent, int position, boolean smooth,
+            int primaryScrollExtra) {
         if (TRACE) TraceHelper.beginSection("scrollToSelection");
+        mPrimaryScrollExtra = primaryScrollExtra;
         View view = findViewByPosition(position);
         if (view != null) {
             mInSelection = true;
@@ -2322,11 +2332,12 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         int scrollSecondary = getSecondarySystemScrollPosition(view);
         if (DEBUG) {
             Log.v(getTag(), "getAlignedPosition " + scrollPrimary + " " + scrollSecondary
-                    + " " + mWindowAlignment);
+                    + " " + mPrimaryScrollExtra + " " + mWindowAlignment);
             Log.v(getTag(), "getAlignedPosition " + mScrollOffsetPrimary + " " + mScrollOffsetSecondary);
         }
         scrollPrimary -= mScrollOffsetPrimary;
         scrollSecondary -= mScrollOffsetSecondary;
+        scrollPrimary += mPrimaryScrollExtra;
         if (scrollPrimary != 0 || scrollSecondary != 0) {
             deltas[0] = scrollPrimary;
             deltas[1] = scrollSecondary;
@@ -2375,7 +2386,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             mScrollEnabled = scrollEnabled;
             if (mScrollEnabled && mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_ALIGNED
                     && mFocusPosition != NO_POSITION) {
-                scrollToSelection(mBaseGridView, mFocusPosition, true);
+                scrollToSelection(mBaseGridView, mFocusPosition, true, mPrimaryScrollExtra);
             }
         }
     }
