@@ -18,6 +18,8 @@ package android.support.v8.renderscript;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * ScriptGroup creates a group of kernels that are executed
@@ -46,6 +48,8 @@ import java.util.ArrayList;
 public class ScriptGroup extends BaseObj {
     IO mOutputs[];
     IO mInputs[];
+    private boolean mUseIncSupp = false;
+    private ArrayList<Node> mNodes = new ArrayList<Node>();
 
     static class IO {
         Script.KernelID mKID;
@@ -73,6 +77,7 @@ public class ScriptGroup extends BaseObj {
         Script.KernelID mToK;
         Script.KernelID mFrom;
         Type mAllocationType;
+        Allocation mAllocation;
     }
 
     static class Node {
@@ -81,6 +86,8 @@ public class ScriptGroup extends BaseObj {
         ArrayList<ConnectLine> mInputs = new ArrayList<ConnectLine>();
         ArrayList<ConnectLine> mOutputs = new ArrayList<ConnectLine>();
         int dagNumber;
+        boolean mSeen;
+        int mOrder;
 
         Node mNext;
 
@@ -107,7 +114,9 @@ public class ScriptGroup extends BaseObj {
         for (int ct=0; ct < mInputs.length; ct++) {
             if (mInputs[ct].mKID == s) {
                 mInputs[ct].mAllocation = a;
-                mRS.nScriptGroupSetInput(getID(mRS), s.getID(mRS), mRS.safeID(a));
+                if (!mUseIncSupp) {
+                    mRS.nScriptGroupSetInput(getID(mRS), s.getID(mRS), mRS.safeID(a));
+                }
                 return;
             }
         }
@@ -127,7 +136,9 @@ public class ScriptGroup extends BaseObj {
         for (int ct=0; ct < mOutputs.length; ct++) {
             if (mOutputs[ct].mKID == s) {
                 mOutputs[ct].mAllocation = a;
-                mRS.nScriptGroupSetOutput(getID(mRS), s.getID(mRS), mRS.safeID(a));
+                if (!mUseIncSupp) {
+                    mRS.nScriptGroupSetOutput(getID(mRS), s.getID(mRS), mRS.safeID(a));
+                }
                 return;
             }
         }
@@ -138,9 +149,70 @@ public class ScriptGroup extends BaseObj {
      * Execute the ScriptGroup.  This will run all the kernels in
      * the ScriptGroup.  No internal connection results will be visible
      * after execution of the ScriptGroup.
+     *
+     * If Incremental Support for intrinsics is needed, the execution
+     * will take the naive path: execute kernels one by one in the
+     * correct order.
      */
     public void execute() {
-        mRS.nScriptGroupExecute(getID(mRS));
+        if (!mUseIncSupp) {
+            mRS.nScriptGroupExecute(getID(mRS));
+        } else {
+            // setup the allocations.
+            for (int ct=0; ct < mNodes.size(); ct++) {
+                Node n = mNodes.get(ct);
+                for (int ct2=0; ct2 < n.mOutputs.size(); ct2++) {
+                    ConnectLine l = n.mOutputs.get(ct2);
+                    if (l.mAllocation !=null) {
+                        continue;
+                    }
+
+                    //create allocation here
+                    Allocation alloc = Allocation.createTyped(mRS, l.mAllocationType,
+                                                              Allocation.MipmapControl.MIPMAP_NONE,
+                                                              Allocation.USAGE_SCRIPT);
+
+                    l.mAllocation = alloc;
+                    for (int ct3=ct2+1; ct3 < n.mOutputs.size(); ct3++) {
+                        if (n.mOutputs.get(ct3).mFrom == l.mFrom) {
+                            n.mOutputs.get(ct3).mAllocation = alloc;
+                        }
+                    }
+                }
+            }
+            for (Node node : mNodes) {
+                for (Script.KernelID kernel : node.mKernels) {
+                    Allocation ain  = null;
+                    Allocation aout = null;
+
+                    for (ConnectLine nodeInput : node.mInputs) {
+                        if (nodeInput.mToK == kernel) {
+                            ain = nodeInput.mAllocation;
+                        }
+                    }
+
+                    for (IO sgInput : mInputs) {
+                        if (sgInput.mKID == kernel) {
+                            ain = sgInput.mAllocation;
+                        }
+                    }
+
+                    for (ConnectLine nodeOutput : node.mOutputs) {
+                        if (nodeOutput.mFrom == kernel) {
+                            aout = nodeOutput.mAllocation;
+                        }
+                    }
+
+                    for (IO sgOutput : mOutputs) {
+                        if (sgOutput.mKID == kernel) {
+                            aout = sgOutput.mAllocation;
+                        }
+                    }
+
+                    kernel.mScript.forEach(kernel.mSlot, ain, aout, null);
+                }
+            }
+        }
     }
 
 
@@ -172,6 +244,7 @@ public class ScriptGroup extends BaseObj {
         private ArrayList<Node> mNodes = new ArrayList<Node>();
         private ArrayList<ConnectLine> mLines = new ArrayList<ConnectLine>();
         private int mKernelCount;
+        private boolean mUseIncSupp = false;
 
         /**
          * Create a Builder for generating a ScriptGroup.
@@ -285,7 +358,9 @@ public class ScriptGroup extends BaseObj {
                 throw new RSInvalidStateException(
                     "Kernels may not be added once connections exist.");
             }
-
+            if (k.mScript.isIncSupp()) {
+                mUseIncSupp = true;
+            }
             //android.util.Log.v("RSR", "addKernel 1 k=" + k);
             if (findNode(k) != null) {
                 return this;
@@ -370,7 +445,54 @@ public class ScriptGroup extends BaseObj {
             return this;
         }
 
+        /**
+         * Calculate the order of each node.
+         *
+         *
+         * @return Success or Fail
+         */
+        private boolean calcOrderRecurse(Node node0, int depth) {
+            node0.mSeen = true;
+            if (node0.mOrder < depth) {
+                node0.mOrder = depth;
+            }
+            boolean ret = true;
 
+            for (ConnectLine link : node0.mOutputs) {
+                Node node1 = null;
+                if (link.mToF != null) {
+                    node1 = findNode(link.mToF.mScript);
+                } else {
+                    node1 = findNode(link.mToK.mScript);
+                }
+                if (node1.mSeen) {
+                    return false;
+                }
+                ret &= calcOrderRecurse(node1, node0.mOrder + 1);
+            }
+
+            return ret;
+        }
+
+        private boolean calcOrder() {
+            boolean ret = true;
+            for (Node n0 : mNodes) {
+                if (n0.mInputs.size() == 0) {
+                    for (Node n1 : mNodes) {
+                        n1.mSeen = false;
+                    }
+                    ret &= calcOrderRecurse(n0, 1);
+                }
+            }
+
+            Collections.sort(mNodes, new Comparator<Node>() {
+                public int compare(Node n1, Node n2) {
+                    return n1.mOrder - n2.mOrder;
+                }
+            });
+
+            return ret;
+        }
 
         /**
          * Creates the Script group.
@@ -419,33 +541,37 @@ public class ScriptGroup extends BaseObj {
                     if (!hasOutput) {
                         outputs.add(new IO(kid));
                     }
-
                 }
             }
             if (idx != mKernelCount) {
                 throw new RSRuntimeException("Count mismatch, should not happen.");
             }
 
-            long[] src = new long[mLines.size()];
-            long[] dstk = new long[mLines.size()];
-            long[] dstf = new long[mLines.size()];
-            long[] types = new long[mLines.size()];
+            long id = 0;
+            if (!mUseIncSupp) {
+                long[] src = new long[mLines.size()];
+                long[] dstk = new long[mLines.size()];
+                long[] dstf = new long[mLines.size()];
+                long[] types = new long[mLines.size()];
 
-            for (int ct=0; ct < mLines.size(); ct++) {
-                ConnectLine cl = mLines.get(ct);
-                src[ct] = cl.mFrom.getID(mRS);
-                if (cl.mToK != null) {
-                    dstk[ct] = cl.mToK.getID(mRS);
+                for (int ct=0; ct < mLines.size(); ct++) {
+                    ConnectLine cl = mLines.get(ct);
+                    src[ct] = cl.mFrom.getID(mRS);
+                    if (cl.mToK != null) {
+                        dstk[ct] = cl.mToK.getID(mRS);
+                    }
+                    if (cl.mToF != null) {
+                        dstf[ct] = cl.mToF.getID(mRS);
+                    }
+                    types[ct] = cl.mAllocationType.getID(mRS);
                 }
-                if (cl.mToF != null) {
-                    dstf[ct] = cl.mToF.getID(mRS);
+                id = mRS.nScriptGroupCreate(kernels, src, dstk, dstf, types);
+                if (id == 0) {
+                    throw new RSRuntimeException("Object creation error, should not happen.");
                 }
-                types[ct] = cl.mAllocationType.getID(mRS);
-            }
-
-            long id = mRS.nScriptGroupCreate(kernels, src, dstk, dstf, types);
-            if (id == 0) {
-                throw new RSRuntimeException("Object creation error, should not happen.");
+            } else {
+                //Calculate the order of the DAG so that script can run one after another.
+                calcOrder();
             }
 
             ScriptGroup sg = new ScriptGroup(id, mRS);
@@ -458,7 +584,8 @@ public class ScriptGroup extends BaseObj {
             for (int ct=0; ct < inputs.size(); ct++) {
                 sg.mInputs[ct] = inputs.get(ct);
             }
-
+            sg.mNodes = mNodes;
+            sg.mUseIncSupp = mUseIncSupp;
             return sg;
         }
 
