@@ -30,6 +30,8 @@ import android.util.Log;
 public class ScriptIntrinsic3DLUT extends ScriptIntrinsic {
     private Allocation mLUT;
     private Element mElement;
+    // API level for the intrinsic
+    private static final int INTRINSIC_API_LEVEL = 19;
 
     protected ScriptIntrinsic3DLUT(long id, RenderScript rs, Element e) {
         super(id, rs);
@@ -47,13 +49,18 @@ public class ScriptIntrinsic3DLUT extends ScriptIntrinsic {
      * @return ScriptIntrinsic3DLUT
      */
     public static ScriptIntrinsic3DLUT create(RenderScript rs, Element e) {
-        long id = rs.nScriptIntrinsicCreate(8, e.getID(rs));
-
         if (!e.isCompatible(Element.U8_4(rs))) {
             throw new RSIllegalArgumentException("Element must be compatible with uchar4.");
         }
+        long id;
+        boolean mUseIncSupp = rs.isUseNative() &&
+                              android.os.Build.VERSION.SDK_INT < INTRINSIC_API_LEVEL;
 
-        return new ScriptIntrinsic3DLUT(id, rs, e);
+        id = rs.nScriptIntrinsicCreate(8, e.getID(rs), mUseIncSupp);
+
+        ScriptIntrinsic3DLUT si = new ScriptIntrinsic3DLUT(id, rs, e);
+        si.setIncSupp(mUseIncSupp);
+        return si;
     }
 
     /**
