@@ -269,7 +269,7 @@ static dispatchTable dispatchTab;
 // Incremental Support lib
 static dispatchTable dispatchTabInc;
 
-static jboolean nLoadSO(JNIEnv *_env, jobject _this, jboolean useNative) {
+static jboolean nLoadSO(JNIEnv *_env, jobject _this, jboolean useNative, jint deviceApi) {
     void* handle = NULL;
     if (useNative) {
         handle = dlopen("libRS.so", RTLD_LAZY | RTLD_LOCAL);
@@ -281,7 +281,7 @@ static jboolean nLoadSO(JNIEnv *_env, jobject _this, jboolean useNative) {
         return false;
     }
 
-    if (loadSymbols(handle, dispatchTab) == false) {
+    if (loadSymbols(handle, dispatchTab, deviceApi) == false) {
         LOG_API("%s init failed!", filename);
         return false;
     }
@@ -1601,7 +1601,7 @@ nIncAllocationCreateTyped(JNIEnv *_env, jobject _this, jlong con, jlong incCon, 
 static const char *classPathName = "android/support/v8/renderscript/RenderScript";
 
 static JNINativeMethod methods[] = {
-{"nLoadSO",                        "(Z)Z",                                    (bool*)nLoadSO },
+{"nLoadSO",                        "(ZI)Z",                                   (bool*)nLoadSO },
 {"nLoadIOSO",                      "()Z",                                     (bool*)nLoadIOSO },
 {"nDeviceCreate",                  "()J",                                     (void*)nDeviceCreate },
 {"nDeviceDestroy",                 "(J)V",                                    (void*)nDeviceDestroy },

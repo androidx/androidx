@@ -65,7 +65,7 @@ public class RenderScript {
     static Object lock = new Object();
 
     // Non-threadsafe functions.
-    native boolean nLoadSO(boolean useNative);
+    native boolean nLoadSO(boolean useNative, int deviceApi);
     native boolean nLoadIOSO();
     native long nDeviceCreate();
     native void nDeviceDestroy(long dev);
@@ -95,6 +95,13 @@ public class RenderScript {
      * RenderScript layer or actually using the compatibility library.
      */
     static private boolean setupNative(int sdkVersion, Context ctx) {
+        // if targetSdkVersion is higher than the device api version, always use compat mode.
+        // Workaround for KK
+        if (android.os.Build.VERSION.SDK_INT < sdkVersion &&
+            android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.LOLLIPOP) {
+            sNative = 0;
+        }
+
         if (sNative == -1) {
 
             // get the value of the debug.rs.forcecompat property
@@ -1176,7 +1183,7 @@ public class RenderScript {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             useIOlib = true;
         }
-        if (!rs.nLoadSO(useNative)) {
+        if (!rs.nLoadSO(useNative, android.os.Build.VERSION.SDK_INT)) {
             if (useNative) {
                 android.util.Log.v(LOG_TAG, "Unable to load libRS.so, falling back to compat mode");
                 useNative = false;
@@ -1187,7 +1194,7 @@ public class RenderScript {
                 Log.e(LOG_TAG, "Error loading RS Compat library: " + e);
                 throw new RSRuntimeException("Error loading RS Compat library: " + e);
             }
-            if (!rs.nLoadSO(false)) {
+            if (!rs.nLoadSO(false, android.os.Build.VERSION.SDK_INT)) {
                 throw new RSRuntimeException("Error loading libRSSupport library");
             }
         }
