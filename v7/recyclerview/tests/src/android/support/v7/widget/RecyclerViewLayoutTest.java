@@ -17,6 +17,7 @@
 
 package android.support.v7.widget;
 
+import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.os.Debug;
@@ -30,6 +31,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -2388,6 +2390,141 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         });
         tlm.waitForLayout(2);
         checkForMainThreadException();
+    }
+
+    public void testFocusBigViewOnTop() throws Throwable {
+        focusTooBigViewTest(Gravity.TOP);
+    }
+
+    public void testFocusBigViewOnLeft() throws Throwable {
+        focusTooBigViewTest(Gravity.LEFT);
+    }
+
+    public void testFocusBigViewOnRight() throws Throwable {
+        focusTooBigViewTest(Gravity.RIGHT);
+    }
+
+    public void testFocusBigViewOnBottom() throws Throwable {
+        focusTooBigViewTest(Gravity.BOTTOM);
+    }
+
+    public void testFocusBigViewOnLeftRTL() throws Throwable {
+        focusTooBigViewTest(Gravity.LEFT, true);
+        assertEquals("test sanity", ViewCompat.LAYOUT_DIRECTION_RTL,
+                mRecyclerView.getLayoutManager().getLayoutDirection());
+    }
+
+    public void testFocusBigViewOnRightRTL() throws Throwable {
+        focusTooBigViewTest(Gravity.RIGHT, true);
+        assertEquals("test sanity", ViewCompat.LAYOUT_DIRECTION_RTL,
+                mRecyclerView.getLayoutManager().getLayoutDirection());
+    }
+
+    public void focusTooBigViewTest(final int gravity) throws Throwable {
+        focusTooBigViewTest(gravity, false);
+    }
+    public void focusTooBigViewTest(final int gravity, final boolean rtl) throws Throwable {
+        RecyclerView rv = new RecyclerView(getActivity());
+        if (rtl) {
+            ViewCompat.setLayoutDirection(rv, ViewCompat.LAYOUT_DIRECTION_RTL);
+        }
+        final AtomicInteger vScrollDist = new AtomicInteger(0);
+        final AtomicInteger hScrollDist = new AtomicInteger(0);
+        final AtomicInteger vDesiredDist = new AtomicInteger(0);
+        final AtomicInteger hDesiredDist = new AtomicInteger(0);
+        TestLayoutManager tlm = new TestLayoutManager() {
+
+            @Override
+            public int getLayoutDirection() {
+                return rtl ? ViewCompat.LAYOUT_DIRECTION_RTL : ViewCompat.LAYOUT_DIRECTION_LTR;
+            }
+
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                detachAndScrapAttachedViews(recycler);
+                final View view = recycler.getViewForPosition(0);
+                addView(view);
+                int left = 0, top = 0;
+                view.setBackgroundColor(Color.rgb(0, 0, 255));
+                switch (gravity) {
+                    case Gravity.LEFT:
+                    case Gravity.RIGHT:
+                        view.measure(
+                                View.MeasureSpec.makeMeasureSpec((int) (getWidth() * 1.5),
+                                        View.MeasureSpec.EXACTLY),
+                                View.MeasureSpec.makeMeasureSpec((int) (getHeight() * .9),
+                                        View.MeasureSpec.AT_MOST));
+                        left = gravity == Gravity.LEFT ? getWidth() - view.getMeasuredWidth() - 80
+                                : 90;
+                        top = 0;
+                        if (ViewCompat.LAYOUT_DIRECTION_RTL == getLayoutDirection()) {
+                            hDesiredDist.set((left + view.getMeasuredWidth()) - getWidth());
+                        } else {
+                            hDesiredDist.set(left);
+                        }
+                        break;
+                    case Gravity.TOP:
+                    case Gravity.BOTTOM:
+                        view.measure(
+                                View.MeasureSpec.makeMeasureSpec((int) (getWidth() * .9),
+                                        View.MeasureSpec.AT_MOST),
+                                View.MeasureSpec.makeMeasureSpec((int) (getHeight() * 1.5),
+                                        View.MeasureSpec.EXACTLY));
+                        top = gravity == Gravity.TOP ? getHeight() - view.getMeasuredHeight() -
+                                80 : 90;
+                        left = 0;
+                        vDesiredDist.set(top);
+                        break;
+                }
+
+                view.layout(left, top, left + view.getMeasuredWidth(),
+                        top + view.getMeasuredHeight());
+                layoutLatch.countDown();
+            }
+
+            @Override
+            public boolean canScrollVertically() {
+                return true;
+            }
+
+            @Override
+            public boolean canScrollHorizontally() {
+                return super.canScrollHorizontally();
+            }
+
+            @Override
+            public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler,
+                    RecyclerView.State state) {
+                vScrollDist.addAndGet(dy);
+                getChildAt(0).offsetTopAndBottom(-dy);
+                return dy;
+            }
+
+            @Override
+            public int scrollHorizontallyBy(int dx, RecyclerView.Recycler recycler,
+                    RecyclerView.State state) {
+                hScrollDist.addAndGet(dx);
+                getChildAt(0).offsetLeftAndRight(-dx);
+                return dx;
+            }
+        };
+        TestAdapter adapter = new TestAdapter(10);
+        rv.setAdapter(adapter);
+        rv.setLayoutManager(tlm);
+        tlm.expectLayouts(1);
+        setRecyclerView(rv);
+        tlm.waitForLayout(2);
+        View view = rv.getChildAt(0);
+        requestFocus(view);
+        Thread.sleep(1000);
+        assertEquals(vDesiredDist.get(), vScrollDist.get());
+        assertEquals(hDesiredDist.get(), hScrollDist.get());
+        assertEquals(mRecyclerView.getPaddingTop(), view.getTop());
+        if (rtl) {
+            assertEquals(mRecyclerView.getWidth() - mRecyclerView.getPaddingRight(), view.getRight());
+        } else {
+            assertEquals(mRecyclerView.getPaddingLeft(), view.getLeft());
+        }
     }
 
     public void testFocusRectOnScreenWithDecorOffsets() throws Throwable {
