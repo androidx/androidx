@@ -23,6 +23,7 @@ import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.FloatRange;
 import android.support.annotation.IdRes;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
@@ -2322,7 +2323,7 @@ public class ViewCompat {
      *
      * @param value The opacity of the view.
      */
-    public static void setAlpha(View view, float value) {
+    public static void setAlpha(View view, @FloatRange(from=0.0, to=1.0) float value) {
         IMPL.setAlpha(view, value);
     }
 

@@ -21,6 +21,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
+import android.support.annotation.ColorInt;
 import android.support.v17.leanback.R;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -321,7 +322,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     /**
      * Sets the background color.  If not set, a default from the theme will be used.
      */
-    public void setBackgroundColor(int color) {
+    public void setBackgroundColor(@ColorInt int color) {
         mBackgroundColor = color;
         mBackgroundColorSet = true;
     }
@@ -330,6 +331,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
      * Returns the background color.  If no background color was set, transparent
      * is returned.
      */
+    @ColorInt
     public int getBackgroundColor() {
         return mBackgroundColor;
     }

@@ -19,6 +19,8 @@ package android.support.v4.widget;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.support.annotation.ColorInt;
+import android.support.annotation.ColorRes;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ScrollingView;
 import android.support.v4.view.ViewCompat;
@@ -460,7 +462,7 @@ public class SwipeRefreshLayout extends ViewGroup {
      *
      * @param colorRes Resource id of the color.
      */
-    public void setProgressBackgroundColorSchemeResource(int colorRes) {
+    public void setProgressBackgroundColorSchemeResource(@ColorRes int colorRes) {
         setProgressBackgroundColorSchemeColor(getResources().getColor(colorRes));
     }
 
@@ -469,7 +471,7 @@ public class SwipeRefreshLayout extends ViewGroup {
      *
      * @param color
      */
-    public void setProgressBackgroundColorSchemeColor(int color) {
+    public void setProgressBackgroundColorSchemeColor(@ColorInt int color) {
         mCircleView.setBackgroundColor(color);
         mProgress.setBackgroundColor(color);
     }
@@ -478,7 +480,7 @@ public class SwipeRefreshLayout extends ViewGroup {
      * @deprecated Use {@link #setColorSchemeResources(int...)}
      */
     @Deprecated
-    public void setColorScheme(int... colors) {
+    public void setColorScheme(@ColorInt int... colors) {
         setColorSchemeResources(colors);
     }
 
@@ -489,7 +491,7 @@ public class SwipeRefreshLayout extends ViewGroup {
      *
      * @param colorResIds
      */
-    public void setColorSchemeResources(int... colorResIds) {
+    public void setColorSchemeResources(@ColorRes int... colorResIds) {
         final Resources res = getResources();
         int[] colorRes = new int[colorResIds.length];
         for (int i = 0; i < colorResIds.length; i++) {
@@ -505,6 +507,7 @@ public class SwipeRefreshLayout extends ViewGroup {
      *
      * @param colors
      */
+    @ColorInt
     public void setColorSchemeColors(int... colors) {
         ensureTarget();
         mProgress.setColorSchemeColors(colors);
