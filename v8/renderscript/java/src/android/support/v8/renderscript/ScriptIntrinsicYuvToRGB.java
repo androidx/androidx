@@ -26,6 +26,8 @@ package android.support.v8.renderscript;
  */
 public class ScriptIntrinsicYuvToRGB extends ScriptIntrinsic {
     private Allocation mInput;
+    // API level for the intrinsic
+    private static final int INTRINSIC_API_LEVEL = 19;
 
     ScriptIntrinsicYuvToRGB(long id, RenderScript rs) {
         super(id, rs);
@@ -43,8 +45,14 @@ public class ScriptIntrinsicYuvToRGB extends ScriptIntrinsic {
      */
     public static ScriptIntrinsicYuvToRGB create(RenderScript rs, Element e) {
         // 6 comes from RS_SCRIPT_INTRINSIC_YUV_TO_RGB in rsDefines.h
-        long id = rs.nScriptIntrinsicCreate(6, e.getID(rs));
+        long id;
+        boolean mUseIncSupp = rs.isUseNative() &&
+                              android.os.Build.VERSION.SDK_INT < INTRINSIC_API_LEVEL;
+
+        id = rs.nScriptIntrinsicCreate(6, e.getID(rs), mUseIncSupp);
+
         ScriptIntrinsicYuvToRGB si = new ScriptIntrinsicYuvToRGB(id, rs);
+        si.setIncSupp(mUseIncSupp);
         return si;
     }
 

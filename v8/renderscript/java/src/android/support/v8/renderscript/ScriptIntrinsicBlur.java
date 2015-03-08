@@ -29,6 +29,8 @@ import android.util.Log;
 public class ScriptIntrinsicBlur extends ScriptIntrinsic {
     private final float[] mValues = new float[9];
     private Allocation mInput;
+    // API level for the intrinsic
+    private static final int INTRINSIC_API_LEVEL = 19;
 
     protected ScriptIntrinsicBlur(long id, RenderScript rs) {
         super(id, rs);
@@ -49,10 +51,17 @@ public class ScriptIntrinsicBlur extends ScriptIntrinsic {
         if ((!e.isCompatible(Element.U8_4(rs))) && (!e.isCompatible(Element.U8(rs)))) {
             throw new RSIllegalArgumentException("Unsuported element type.");
         }
-        long id = rs.nScriptIntrinsicCreate(5, e.getID(rs));
-        ScriptIntrinsicBlur sib = new ScriptIntrinsicBlur(id, rs);
-        sib.setRadius(5.f);
-        return sib;
+        long id;
+        boolean mUseIncSupp = rs.isUseNative() &&
+                              android.os.Build.VERSION.SDK_INT < INTRINSIC_API_LEVEL;
+
+        id = rs.nScriptIntrinsicCreate(5, e.getID(rs), mUseIncSupp);
+
+        ScriptIntrinsicBlur si = new ScriptIntrinsicBlur(id, rs);
+        si.setIncSupp(mUseIncSupp);
+        si.setRadius(5.f);
+
+        return si;
     }
 
     /**
