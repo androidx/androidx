@@ -435,11 +435,11 @@ package android.support.v4.app {
 
   public static class NotificationCompat.Action extends android.support.v4.app.NotificationCompatBase.Action {
     ctor public NotificationCompat.Action(int, java.lang.CharSequence, android.app.PendingIntent);
-    method protected android.app.PendingIntent getActionIntent();
+    method public android.app.PendingIntent getActionIntent();
     method public android.os.Bundle getExtras();
-    method protected int getIcon();
+    method public int getIcon();
     method public android.support.v4.app.RemoteInput[] getRemoteInputs();
-    method protected java.lang.CharSequence getTitle();
+    method public java.lang.CharSequence getTitle();
     field public android.app.PendingIntent actionIntent;
     field public int icon;
     field public java.lang.CharSequence title;
