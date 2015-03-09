@@ -23,6 +23,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.StyleRes;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -282,7 +283,7 @@ public class DialogFragment extends Fragment
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mShowsDialog = mContainerId == 0;
