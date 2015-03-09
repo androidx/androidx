@@ -91,6 +91,7 @@ class NotificationCompatApi20 {
             return b;
         }
 
+        @Override
         public Notification build() {
             b.setExtras(mExtras);
             return b.build();
