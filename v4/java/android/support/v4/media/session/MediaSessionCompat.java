@@ -1776,10 +1776,10 @@ public class MediaSessionCompat {
                         mCallback.onCommand(cmd.command, cmd.extras, cmd.stub);
                         break;
                     case MSG_ADJUST_VOLUME:
-                        adjustVolume((int) msg.obj, 0);
+                        adjustVolume((Integer) msg.obj, 0);
                         break;
                     case MSG_SET_VOLUME:
-                        setVolumeTo((int) msg.obj, 0);
+                        setVolumeTo((Integer) msg.obj, 0);
                         break;
                 }
             }
