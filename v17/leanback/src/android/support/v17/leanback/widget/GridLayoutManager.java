@@ -324,6 +324,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     newSelected.requestFocus();
                     mInSelection = false;
                 }
+                if (mPendingMoves == 0) {
+                    dispatchChildSelected();
+                }
             }
             if (mPendingMoves == 0 || (mPendingMoves > 0 && hasCreatedLastItem())
                     || (mPendingMoves < 0 && hasCreatedFirstItem())) {
