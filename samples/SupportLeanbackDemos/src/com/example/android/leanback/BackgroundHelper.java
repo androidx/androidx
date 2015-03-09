@@ -23,6 +23,7 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.support.v17.leanback.app.BackgroundManager;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 public class BackgroundHelper {
@@ -99,7 +100,7 @@ public class BackgroundHelper {
         private Bitmap loadBitmap(Activity activity, Object imageToken) {
             if (imageToken instanceof Integer) {
                 final int resourceId = (Integer) imageToken;
-                Drawable drawable = activity.getDrawable(resourceId);
+                Drawable drawable = ContextCompat.getDrawable(activity, resourceId);
                 if (drawable instanceof BitmapDrawable) {
                     return ((BitmapDrawable) drawable).getBitmap();
                 }
