@@ -422,6 +422,15 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
     void onSubDecorInstalled(ViewGroup subDecor) {}
 
     private void applyFixedSizeWindow(ContentFrameLayout contentFrameLayout) {
+        // This is a bit weird. In the framework, the window sizing attributes control
+        // the decor view's size, meaning that any padding is inset for the min/max widths below.
+        // We don't control measurement at that level, so we need to workaround it by making sure
+        // that the decor view's padding is taken into account.
+        contentFrameLayout.setDecorPadding(mWindowDecor.getPaddingLeft(),
+                mWindowDecor.getPaddingTop(), mWindowDecor.getPaddingRight(),
+                mWindowDecor.getPaddingBottom());
+
+
         TypedArray a = mContext.obtainStyledAttributes(R.styleable.Theme);
         a.getValue(R.styleable.Theme_windowMinWidthMajor, contentFrameLayout.getMinWidthMajor());
         a.getValue(R.styleable.Theme_windowMinWidthMinor, contentFrameLayout.getMinWidthMinor());
