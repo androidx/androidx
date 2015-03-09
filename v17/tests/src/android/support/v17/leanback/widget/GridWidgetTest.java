@@ -510,6 +510,43 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         verifyBeginAligned();
     }
 
+    public void testFocusToFirstItem() throws Throwable {
+
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_grid);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 200);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 3;
+
+        int[] removedItems = mActivity.removeItems(0, 200);
+
+        waitForTransientStateGone(null);
+        Thread.sleep(500);
+        mActivity.addItems(0, removedItems);
+
+        waitForTransientStateGone(null);
+        Thread.sleep(500);
+        assertTrue(mGridView.getLayoutManager().findViewByPosition(0).hasFocus());
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mActivity.changeArraySize(0);
+            }
+        });
+        Thread.sleep(500);
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mActivity.changeArraySize(200);
+            }
+        });
+        Thread.sleep(500);
+        assertTrue(mGridView.getLayoutManager().findViewByPosition(0).hasFocus());
+    }
+
     public void testNonFocusableHorizontal() throws Throwable {
         final int numItems = 200;
         final int startPos = 45;

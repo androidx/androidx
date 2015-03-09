@@ -928,26 +928,29 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
      * @return true if can fastRelayout()
      */
     private boolean layoutInit() {
+        boolean focusViewWasInTree = mGrid != null && mFocusPosition >= 0
+                && mFocusPosition >= mGrid.getFirstVisibleIndex()
+                && mFocusPosition <= mGrid.getLastVisibleIndex();
+        final int newItemCount = mState.getItemCount();
+        if (newItemCount == 0) {
+            mFocusPosition = NO_POSITION;
+        } else if (mFocusPosition >= newItemCount) {
+            mFocusPosition = newItemCount - 1;
+        } else if (mFocusPosition == NO_POSITION && newItemCount > 0) {
+            // if focus position is never set before,  initialize it to 0
+            mFocusPosition = 0;
+        }
         if (!mState.didStructureChange() && !mForceFullLayout && mGrid != null) {
             updateScrollController();
             updateScrollSecondAxis();
             mGrid.setMargin(mMarginPrimary);
+            if (!focusViewWasInTree && mFocusPosition != NO_POSITION) {
+                mGrid.setStart(mFocusPosition);
+            }
             return true;
         } else {
             mForceFullLayout = false;
-            boolean focusViewWasInTree = mGrid != null && mFocusPosition >= 0
-                    && mFocusPosition >= mGrid.getFirstVisibleIndex()
-                    && mFocusPosition <= mGrid.getLastVisibleIndex();
             int firstVisibleIndex = focusViewWasInTree ? mGrid.getFirstVisibleIndex() : 0;
-            final int newItemCount = mState.getItemCount();
-            if (newItemCount == 0) {
-                mFocusPosition = NO_POSITION;
-            } else if (mFocusPosition >= newItemCount) {
-                mFocusPosition = newItemCount - 1;
-            } else if (mFocusPosition == NO_POSITION && newItemCount > 0) {
-                // if focus position is never set before,  initialize it to 0
-                mFocusPosition = 0;
-            }
 
             if (mGrid == null || mNumRows != mGrid.getNumRows() ||
                     mReverseFlowPrimary != mGrid.isReversedFlow()) {
@@ -1634,12 +1637,18 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         int savedFocusPos = mFocusPosition;
         if (mInFastRelayout = layoutInit()) {
             fastRelayout();
-            View focusView = findViewByPosition(mFocusPosition);
-            if (scrollToFocus) {
-                scrollToView(focusView, false);
-            }
-            if (focusView != null && hadFocus) {
-                focusView.requestFocus();
+            // appends items till focus position.
+            if (mFocusPosition != NO_POSITION) {
+                View focusView;
+                while ((focusView = findViewByPosition(mFocusPosition)) == null) {
+                    appendOneColumnVisibleItems();
+                }
+                if (scrollToFocus) {
+                    scrollToView(focusView, false);
+                }
+                if (hadFocus) {
+                    focusView.requestFocus();
+                }
             }
         } else {
             mInLayoutSearchFocus = hadFocus;
