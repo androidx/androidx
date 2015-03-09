@@ -18,12 +18,15 @@ package android.support.v7.internal.widget;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.widget.FrameLayout;
 
-import static android.view.View.MeasureSpec.*;
+import static android.view.View.MeasureSpec.AT_MOST;
+import static android.view.View.MeasureSpec.EXACTLY;
+import static android.view.View.MeasureSpec.getMode;
 
 /**
  * @hide
@@ -37,6 +40,8 @@ public class ContentFrameLayout extends FrameLayout {
     private TypedValue mFixedHeightMajor;
     private TypedValue mFixedHeightMinor;
 
+    private final Rect mDecorPadding;
+
     public ContentFrameLayout(Context context) {
         this(context, null);
     }
@@ -47,6 +52,7 @@ public class ContentFrameLayout extends FrameLayout {
 
     public ContentFrameLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        mDecorPadding = new Rect();
     }
 
     /**
@@ -54,6 +60,19 @@ public class ContentFrameLayout extends FrameLayout {
      */
     public void dispatchFitSystemWindows(Rect insets) {
         fitSystemWindows(insets);
+    }
+
+    /**
+     * Notify this view of the window decor view's padding. We use these values when working out
+     * our size for the window size attributes.
+     *
+     * @hide
+     */
+    public void setDecorPadding(int left, int top, int right, int bottom) {
+        mDecorPadding.set(left, top, right, bottom);
+        if (ViewCompat.isLaidOut(this)) {
+            requestLayout();
+        }
     }
 
     @Override
@@ -68,16 +87,14 @@ public class ContentFrameLayout extends FrameLayout {
         if (widthMode == AT_MOST) {
             final TypedValue tvw = isPortrait ? mFixedWidthMinor : mFixedWidthMajor;
             if (tvw != null && tvw.type != TypedValue.TYPE_NULL) {
-                final int w;
+                int w = 0;
                 if (tvw.type == TypedValue.TYPE_DIMENSION) {
                     w = (int) tvw.getDimension(metrics);
                 } else if (tvw.type == TypedValue.TYPE_FRACTION) {
                     w = (int) tvw.getFraction(metrics.widthPixels, metrics.widthPixels);
-                } else {
-                    w = 0;
                 }
-
                 if (w > 0) {
+                    w -= (mDecorPadding.left + mDecorPadding.right);
                     final int widthSize = MeasureSpec.getSize(widthMeasureSpec);
                     widthMeasureSpec = MeasureSpec.makeMeasureSpec(
                             Math.min(w, widthSize), EXACTLY);
@@ -89,15 +106,14 @@ public class ContentFrameLayout extends FrameLayout {
         if (heightMode == AT_MOST) {
             final TypedValue tvh = isPortrait ? mFixedHeightMajor : mFixedHeightMinor;
             if (tvh != null && tvh.type != TypedValue.TYPE_NULL) {
-                final int h;
+                int h = 0;
                 if (tvh.type == TypedValue.TYPE_DIMENSION) {
                     h = (int) tvh.getDimension(metrics);
                 } else if (tvh.type == TypedValue.TYPE_FRACTION) {
                     h = (int) tvh.getFraction(metrics.heightPixels, metrics.heightPixels);
-                } else {
-                    h = 0;
                 }
                 if (h > 0) {
+                    h -= (mDecorPadding.top + mDecorPadding.bottom);
                     final int heightSize = MeasureSpec.getSize(heightMeasureSpec);
                     heightMeasureSpec = MeasureSpec.makeMeasureSpec(
                             Math.min(h, heightSize), EXACTLY);
@@ -115,15 +131,15 @@ public class ContentFrameLayout extends FrameLayout {
         if (!fixedWidth && widthMode == AT_MOST) {
             final TypedValue tv = isPortrait ? mMinWidthMinor : mMinWidthMajor;
             if (tv != null && tv.type != TypedValue.TYPE_NULL) {
-                final int min;
+                int min = 0;
                 if (tv.type == TypedValue.TYPE_DIMENSION) {
-                    min = (int)tv.getDimension(metrics);
+                    min = (int) tv.getDimension(metrics);
                 } else if (tv.type == TypedValue.TYPE_FRACTION) {
-                    min = (int)tv.getFraction(metrics.widthPixels, metrics.widthPixels);
-                } else {
-                    min = 0;
+                    min = (int) tv.getFraction(metrics.widthPixels, metrics.widthPixels);
                 }
-
+                if (min > 0) {
+                    min -= (mDecorPadding.left + mDecorPadding.right);
+                }
                 if (width < min) {
                     widthMeasureSpec = MeasureSpec.makeMeasureSpec(min, EXACTLY);
                     measure = true;
