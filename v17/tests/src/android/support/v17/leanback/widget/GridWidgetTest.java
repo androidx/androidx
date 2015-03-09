@@ -1069,4 +1069,82 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         int top8 = getCenterY(mGridView.getLayoutManager().findViewByPosition(10));
         assertEquals(top1 - 50, top8);
     }
+
+    public void testSmoothScrollSelectionEvents() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_grid);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 500);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 3;
+        initActivity(intent);
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPositionSmooth(30);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+        Thread.sleep(500);
+
+        final ArrayList<Integer> selectedPositions = new ArrayList<Integer>();
+        mGridView.setOnChildSelectedListener(new OnChildSelectedListener() {
+            @Override
+            public void onChildSelected(ViewGroup parent, View view, int position, long id) {
+                selectedPositions.add(position);
+            }
+        });
+
+        sendRepeatedKeys(10, KeyEvent.KEYCODE_DPAD_UP);
+        Thread.sleep(500);
+        waitForScrollIdle(mVerifyLayout);
+        // should only get childselected event for item 0 once
+        assertTrue(selectedPositions.size() > 0);
+        assertEquals(0, selectedPositions.get(selectedPositions.size() - 1).intValue());
+        for (int i = selectedPositions.size() - 2; i >= 0; i--) {
+            assertFalse(0 == selectedPositions.get(i).intValue());
+        }
+
+    }
+
+    public void testSmoothScrollSelectionEventsLinear() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 500);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+        initActivity(intent);
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPositionSmooth(10);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+        Thread.sleep(500);
+
+        final ArrayList<Integer> selectedPositions = new ArrayList<Integer>();
+        mGridView.setOnChildSelectedListener(new OnChildSelectedListener() {
+            @Override
+            public void onChildSelected(ViewGroup parent, View view, int position, long id) {
+                selectedPositions.add(position);
+            }
+        });
+
+        sendRepeatedKeys(10, KeyEvent.KEYCODE_DPAD_UP);
+        Thread.sleep(500);
+        waitForScrollIdle(mVerifyLayout);
+        // should only get childselected event for item 0 once
+        assertTrue(selectedPositions.size() > 0);
+        assertEquals(0, selectedPositions.get(selectedPositions.size() - 1).intValue());
+        for (int i = selectedPositions.size() - 2; i >= 0; i--) {
+            assertFalse(0 == selectedPositions.get(i).intValue());
+        }
+
+    }
 }
