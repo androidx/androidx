@@ -35,6 +35,8 @@ import java.util.Iterator;
  */
 public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivity> {
 
+    private static final boolean HUMAN_DELAY = false;
+
     protected GridActivity mActivity;
     protected Instrumentation mInstrumentation;
     protected BaseGridView mGridView;
@@ -64,6 +66,33 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
 
     public GridWidgetTest() {
         super("android.support.v17.leanback.tests", GridActivity.class);
+    }
+
+    private void humanDelay(int delay) throws InterruptedException {
+        if (HUMAN_DELAY) Thread.sleep(delay);
+    }
+    /**
+     * Change size of the Adapter and notifyDataSetChanged.
+     */
+    private void changeArraySize(final int size) throws Throwable {
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mActivity.changeArraySize(size);
+            }
+        });
+        Thread.sleep(500);
+    }
+
+    /**
+     * Change selected position.
+     */
+    private void setSelectedPosition(final int position, final int scrollExtra) throws Throwable {
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPosition(position, scrollExtra);
+            }
+        });
+        Thread.sleep(500);
     }
 
     /**
@@ -403,22 +432,12 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         verifyBeginAligned();
 
         // now test append with staggered result cache
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mActivity.changeArraySize(3);
-            }
-        });
-        Thread.sleep(500);
+        changeArraySize(3);
         assertEquals("Staggerd cache should be kept as is when no item size change",
                 100, ((StaggeredGrid) mLayoutManager.mGrid).mLocations.size());
 
         mActivity.resetBoundCount();
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mActivity.changeArraySize(100);
-            }
-        });
-        Thread.sleep(500);
+        changeArraySize(100);
 
         scrollToEnd(mVerifyLayout);
         verifyBoundCount(100);
@@ -524,26 +543,16 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         int[] removedItems = mActivity.removeItems(0, 200);
 
         waitForTransientStateGone(null);
-        Thread.sleep(500);
+        humanDelay(500);
         mActivity.addItems(0, removedItems);
 
         waitForTransientStateGone(null);
-        Thread.sleep(500);
+        humanDelay(500);
         assertTrue(mGridView.getLayoutManager().findViewByPosition(0).hasFocus());
 
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mActivity.changeArraySize(0);
-            }
-        });
-        Thread.sleep(500);
+        changeArraySize(0);
 
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mActivity.changeArraySize(200);
-            }
-        });
-        Thread.sleep(500);
+        changeArraySize(200);
         assertTrue(mGridView.getLayoutManager().findViewByPosition(0).hasFocus());
     }
 
@@ -655,20 +664,10 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         intent.putExtra(GridActivity.EXTRA_ITEMS_FOCUSABLE, focusable);
         initActivity(intent);
 
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mActivity.changeArraySize(0);
-            }
-        });
-        Thread.sleep(500);
+        changeArraySize(0);
         assertTrue(mGridView.isFocused());
 
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mActivity.changeArraySize(numItems);
-            }
-        });
-        Thread.sleep(500);
+        changeArraySize(numItems);
         assertTrue(mGridView.getLayoutManager().findViewByPosition(startPos).hasFocus());
     }
 
@@ -695,20 +694,10 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         intent.putExtra(GridActivity.EXTRA_ITEMS_FOCUSABLE, focusable);
         initActivity(intent);
 
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mActivity.changeArraySize(0);
-            }
-        });
-        Thread.sleep(500);
+        changeArraySize(0);
         assertTrue(mGridView.isFocused());
 
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mActivity.changeArraySize(numItems);
-            }
-        });
-        Thread.sleep(500);
+        changeArraySize(numItems);
         assertTrue(mGridView.getLayoutManager().findViewByPosition(startPos).hasFocus());
     }
 
@@ -731,7 +720,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         initActivity(intent);
 
         mGridView.setSelectedPositionSmooth(0);
-        Thread.sleep(100);
+        waitForScrollIdle(mVerifyLayout);
 
         for (int i = 0; i < pressDown; i++) {
             sendKeys(KeyEvent.KEYCODE_DPAD_DOWN);
@@ -761,59 +750,34 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         waitForScrollIdle(mVerifyLayout);
         int top1 = mGridView.getLayoutManager().findViewByPosition(3).getTop();
 
-        Thread.sleep(1000);
+        humanDelay(1000);
 
         // scroll to position with delta
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mGridView.setSelectedPosition(3, 100);
-            }
-        });
-        Thread.sleep(1000);
+        setSelectedPosition(3, 100);
         int top2 = mGridView.getLayoutManager().findViewByPosition(3).getTop();
         assertEquals(top1 - 100, top2);
 
         // scroll to same position without delta, it will be reset
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mGridView.setSelectedPosition(3, 0);
-            }
-        });
-        Thread.sleep(1000);
+        setSelectedPosition(3, 0);
         int top3 = mGridView.getLayoutManager().findViewByPosition(3).getTop();
         assertEquals(top1, top3);
 
         // scroll invisible item after last visible item
         final int lastVisiblePos = ((GridLayoutManager)mGridView.getLayoutManager())
                 .mGrid.getLastVisibleIndex();
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mGridView.setSelectedPosition(lastVisiblePos + 1, 100);
-            }
-        });
-        Thread.sleep(1000);
+        setSelectedPosition(lastVisiblePos + 1, 100);
         int top4 = mGridView.getLayoutManager().findViewByPosition(lastVisiblePos + 1).getTop();
         assertEquals(top1 - 100, top4);
 
         // scroll invisible item before first visible item
         final int firstVisiblePos = ((GridLayoutManager)mGridView.getLayoutManager())
                 .mGrid.getFirstVisibleIndex();
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mGridView.setSelectedPosition(firstVisiblePos - 1, 100);
-            }
-        });
-        Thread.sleep(1000);
+        setSelectedPosition(firstVisiblePos - 1, 100);
         int top5 = mGridView.getLayoutManager().findViewByPosition(firstVisiblePos - 1).getTop();
         assertEquals(top1 - 100, top5);
 
         // scroll to invisible item that is far away.
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mGridView.setSelectedPosition(50, 100);
-            }
-        });
-        Thread.sleep(1000);
+        setSelectedPosition(50, 100);
         int top6 = mGridView.getLayoutManager().findViewByPosition(50).getTop();
         assertEquals(top1 - 100, top6);
 
@@ -828,12 +792,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         assertEquals(top1, top7);
 
         // scroll to invisible item that is far away.
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mGridView.setSelectedPosition(10, 50);
-            }
-        });
-        Thread.sleep(1000);
+        setSelectedPosition(10, 50);
         int top8 = mGridView.getLayoutManager().findViewByPosition(10).getTop();
         assertEquals(top1 - 50, top8);
     }
@@ -858,37 +817,22 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         waitForScrollIdle(mVerifyLayout);
         int top1 = getCenterY(mGridView.getLayoutManager().findViewByPosition(10));
 
-        Thread.sleep(500);
+        humanDelay(500);
 
         // scroll to position with delta
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mGridView.setSelectedPosition(20, 100);
-            }
-        });
-        Thread.sleep(500);
+        setSelectedPosition(20, 100);
         int top2 = getCenterY(mGridView.getLayoutManager().findViewByPosition(20));
         assertEquals(top1 - 100, top2);
 
         // scroll to same position without delta, it will be reset
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mGridView.setSelectedPosition(20, 0);
-            }
-        });
-        Thread.sleep(500);
+        setSelectedPosition(20, 0);
         int top3 = getCenterY(mGridView.getLayoutManager().findViewByPosition(20));
         assertEquals(top1, top3);
 
         // scroll invisible item after last visible item
         final int lastVisiblePos = ((GridLayoutManager)mGridView.getLayoutManager())
                 .mGrid.getLastVisibleIndex();
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mGridView.setSelectedPosition(lastVisiblePos + 1, 100);
-            }
-        });
-        Thread.sleep(500);
+        setSelectedPosition(lastVisiblePos + 1, 100);
         int top4 = getCenterY(mGridView.getLayoutManager().findViewByPosition(lastVisiblePos + 1));
         verifyMargin();
         assertEquals(top1 - 100, top4);
@@ -896,22 +840,12 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         // scroll invisible item before first visible item
         final int firstVisiblePos = ((GridLayoutManager)mGridView.getLayoutManager())
                 .mGrid.getFirstVisibleIndex();
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mGridView.setSelectedPosition(firstVisiblePos - 1, 100);
-            }
-        });
-        Thread.sleep(500);
+        setSelectedPosition(firstVisiblePos - 1, 100);
         int top5 = getCenterY(mGridView.getLayoutManager().findViewByPosition(firstVisiblePos - 1));
         assertEquals(top1 - 100, top5);
 
         // scroll to invisible item that is far away.
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mGridView.setSelectedPosition(100, 100);
-            }
-        });
-        Thread.sleep(500);
+        setSelectedPosition(100, 100);
         int top6 = getCenterY(mGridView.getLayoutManager().findViewByPosition(100));
         assertEquals(top1 - 100, top6);
 
@@ -927,12 +861,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         assertEquals(top1, top7);
 
         // scroll to invisible item that is far away.
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mGridView.setSelectedPosition(10, 50);
-            }
-        });
-        Thread.sleep(500);
+        setSelectedPosition(10, 50);
         int top8 = getCenterY(mGridView.getLayoutManager().findViewByPosition(10));
         assertEquals(top1 - 50, top8);
     }
@@ -991,37 +920,22 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         waitForScrollIdle(mVerifyLayout);
         int top1 = getCenterY(mGridView.getLayoutManager().findViewByPosition(10));
 
-        Thread.sleep(500);
+        humanDelay(500);
 
         // scroll to position with delta
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mGridView.setSelectedPosition(20, 100);
-            }
-        });
-        Thread.sleep(500);
+        setSelectedPosition(20, 100);
         int top2 = getCenterY(mGridView.getLayoutManager().findViewByPosition(20));
         assertEquals(top1 - 100, top2);
 
         // scroll to same position without delta, it will be reset
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mGridView.setSelectedPosition(20, 0);
-            }
-        });
-        Thread.sleep(500);
+        setSelectedPosition(20, 0);
         int top3 = getCenterY(mGridView.getLayoutManager().findViewByPosition(20));
         assertEquals(top1, top3);
 
         // scroll invisible item after last visible item
         final int lastVisiblePos = ((GridLayoutManager)mGridView.getLayoutManager())
                 .mGrid.getLastVisibleIndex();
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mGridView.setSelectedPosition(lastVisiblePos + 1, 100);
-            }
-        });
-        Thread.sleep(500);
+        setSelectedPosition(lastVisiblePos + 1, 100);
         int top4 = getCenterY(mGridView.getLayoutManager().findViewByPosition(lastVisiblePos + 1));
         verifyMargin();
         assertEquals(top1 - 100, top4);
@@ -1029,22 +943,12 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         // scroll invisible item before first visible item
         final int firstVisiblePos = ((GridLayoutManager)mGridView.getLayoutManager())
                 .mGrid.getFirstVisibleIndex();
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mGridView.setSelectedPosition(firstVisiblePos - 1, 100);
-            }
-        });
-        Thread.sleep(500);
+        setSelectedPosition(firstVisiblePos - 1, 100);
         int top5 = getCenterY(mGridView.getLayoutManager().findViewByPosition(firstVisiblePos - 1));
         assertEquals(top1 - 100, top5);
 
         // scroll to invisible item that is far away.
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mGridView.setSelectedPosition(100, 100);
-            }
-        });
-        Thread.sleep(500);
+        setSelectedPosition(100, 100);
         int top6 = getCenterY(mGridView.getLayoutManager().findViewByPosition(100));
         assertEquals(top1 - 100, top6);
 
@@ -1060,12 +964,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         assertEquals(top1, top7);
 
         // scroll to invisible item that is far away.
-        runTestOnUiThread(new Runnable() {
-            public void run() {
-                mGridView.setSelectedPosition(10, 50);
-            }
-        });
-        Thread.sleep(500);
+        setSelectedPosition(10, 50);
         int top8 = getCenterY(mGridView.getLayoutManager().findViewByPosition(10));
         assertEquals(top1 - 50, top8);
     }
@@ -1087,7 +986,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
             }
         });
         waitForScrollIdle(mVerifyLayout);
-        Thread.sleep(500);
+        humanDelay(500);
 
         final ArrayList<Integer> selectedPositions = new ArrayList<Integer>();
         mGridView.setOnChildSelectedListener(new OnChildSelectedListener() {
@@ -1098,7 +997,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         });
 
         sendRepeatedKeys(10, KeyEvent.KEYCODE_DPAD_UP);
-        Thread.sleep(500);
+        humanDelay(500);
         waitForScrollIdle(mVerifyLayout);
         // should only get childselected event for item 0 once
         assertTrue(selectedPositions.size() > 0);
@@ -1126,7 +1025,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
             }
         });
         waitForScrollIdle(mVerifyLayout);
-        Thread.sleep(500);
+        humanDelay(500);
 
         final ArrayList<Integer> selectedPositions = new ArrayList<Integer>();
         mGridView.setOnChildSelectedListener(new OnChildSelectedListener() {
@@ -1137,7 +1036,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         });
 
         sendRepeatedKeys(10, KeyEvent.KEYCODE_DPAD_UP);
-        Thread.sleep(500);
+        humanDelay(500);
         waitForScrollIdle(mVerifyLayout);
         // should only get childselected event for item 0 once
         assertTrue(selectedPositions.size() > 0);
