@@ -118,7 +118,7 @@ public class ListRowPresenter extends RowPresenter {
 
         @Override
         public void onAttachedToWindow(ItemBridgeAdapter.ViewHolder viewHolder) {
-            if (viewHolder.itemView instanceof ShadowOverlayContainer) {
+            if (needsDefaultListSelectEffect()) {
                 int dimmedColor = mRowViewHolder.mColorDimmer.getPaint().getColor();
                 ((ShadowOverlayContainer) viewHolder.itemView).setOverlayColor(dimmedColor);
             }
@@ -273,7 +273,7 @@ public class ListRowPresenter extends RowPresenter {
                 || areChildRoundedCornersEnabled()) {
             rowViewHolder.mItemBridgeAdapter.setWrapper(mCardWrapper);
         }
-        if (needsDefaultListSelectEffect()) {
+        if (needsDefaultShadow()) {
             ShadowOverlayContainer.prepareParentForShadow(rowViewHolder.mGridView);
         }
         FocusHighlightHelper.setupBrowseItemFocusHighlight(rowViewHolder.mItemBridgeAdapter,
