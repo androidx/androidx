@@ -147,6 +147,11 @@ subprojects {
         }
     }
 
+    def deployer = release.repositories.mavenDeployer
+    deployer.pom*.whenConfigured { pom ->
+        pom.dependencies.findAll {dep -> dep.groupId == 'com.android.support' && dep.artifactId != 'support-annotations' }*.type = 'aar'
+    }
+
     // before the upload, make sure the repo is ready.
     release.dependsOn rootProject.tasks.prepareRepo
     // make the mainupload depend on this one.
