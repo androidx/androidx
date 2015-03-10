@@ -14,15 +14,18 @@
 package android.support.v17.leanback.app;
 
 import android.support.v17.leanback.R;
+import android.support.v17.leanback.widget.BrowseFrameLayout;
 import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
+import android.support.v17.leanback.widget.TitleHelper;
+import android.support.v17.leanback.widget.TitleView;
 import android.support.v17.leanback.widget.VerticalGridView;
-import android.app.Fragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +40,7 @@ public class DetailsFragment extends BaseFragment {
     private class SetSelectionRunnable implements Runnable {
         int mPosition;
         boolean mSmooth = true;
+
         @Override
         public void run() {
             mRowsFragment.setSelectedPosition(mPosition, mSmooth);
@@ -47,13 +51,27 @@ public class DetailsFragment extends BaseFragment {
 
     private ObjectAdapter mAdapter;
     private int mContainerListAlignTop;
-    private OnItemViewSelectedListener mOnItemViewSelectedListener;
+    private OnItemViewSelectedListener mExternalOnItemViewSelectedListener;
     private OnItemViewClickedListener mOnItemViewClickedListener;
-    private int mSelectedPosition = -1;
 
     private Object mSceneAfterEntranceTransition;
 
     private final SetSelectionRunnable mSetSelectionRunnable = new SetSelectionRunnable();
+
+    private final OnItemViewSelectedListener mOnItemViewSelectedListener =
+            new OnItemViewSelectedListener() {
+        @Override
+        public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
+                                   RowPresenter.ViewHolder rowViewHolder, Row row) {
+            int position = mRowsFragment.getVerticalGridView().getSelectedPosition();
+            if (DEBUG) Log.v(TAG, "row selected position " + position);
+            onRowSelected(position);
+            if (mExternalOnItemViewSelectedListener != null) {
+                mExternalOnItemViewSelectedListener.onItemSelected(itemViewHolder, item,
+                        rowViewHolder, row);
+            }
+        }
+    };
 
     /**
      * Sets the list of rows for the fragment.
@@ -76,12 +94,7 @@ public class DetailsFragment extends BaseFragment {
      * Sets an item selection listener.
      */
     public void setOnItemViewSelectedListener(OnItemViewSelectedListener listener) {
-        if (mOnItemViewSelectedListener != listener) {
-            mOnItemViewSelectedListener = listener;
-            if (mRowsFragment != null) {
-                mRowsFragment.setOnItemViewSelectedListener(mOnItemViewSelectedListener);
-            }
-        }
+        mExternalOnItemViewSelectedListener = listener;
     }
 
     /**
@@ -116,17 +129,20 @@ public class DetailsFragment extends BaseFragment {
             Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.lb_details_fragment, container, false);
         mRowsFragment = (RowsFragment) getChildFragmentManager().findFragmentById(
-                R.id.fragment_dock); 
+                R.id.details_rows_dock);
         if (mRowsFragment == null) {
             mRowsFragment = new RowsFragment();
             getChildFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_dock, mRowsFragment).commit();
+                    .replace(R.id.details_rows_dock, mRowsFragment).commit();
         }
         mRowsFragment.setAdapter(mAdapter);
         mRowsFragment.setOnItemViewSelectedListener(mOnItemViewSelectedListener);
         mRowsFragment.setOnItemViewClickedListener(mOnItemViewClickedListener);
-        mSceneAfterEntranceTransition = sTransitionHelper.createScene((ViewGroup) view,
-                new Runnable() {
+
+        setTitleView((TitleView) view.findViewById(R.id.browse_title_group));
+
+        mSceneAfterEntranceTransition = sTransitionHelper.createScene(
+                (ViewGroup) view, new Runnable() {
             @Override
             public void run() {
                 mRowsFragment.setEntranceTransitionState(true);
@@ -160,6 +176,12 @@ public class DetailsFragment extends BaseFragment {
         setVerticalGridViewLayout(mRowsFragment.getVerticalGridView());
     }
 
+    private void setupFocusSearchListener() {
+        BrowseFrameLayout browseFrameLayout = (BrowseFrameLayout) getView().findViewById(
+                R.id.details_frame);
+        browseFrameLayout.setOnFocusSearchListener(getTitleHelper().getOnFocusSearchListener());
+    }
+
     /**
      * Sets the selected row position with smooth animation.
      */
@@ -178,10 +200,19 @@ public class DetailsFragment extends BaseFragment {
         }
     }
 
+    private void onRowSelected(int position) {
+        if (getAdapter() == null || getAdapter().size() == 0 || position == 0) {
+            showTitle(true);
+        } else {
+            showTitle(false);
+        }
+    }
+
     @Override
     public void onStart() {
         super.onStart();
         setupChildFragmentLayout();
+        setupFocusSearchListener();
         mRowsFragment.getView().requestFocus();
         if (isEntranceTransitionEnabled()) {
             // make sure recycler view animation is disabled
@@ -206,5 +237,4 @@ public class DetailsFragment extends BaseFragment {
     protected void onEntranceTransitionEnd() {
         mRowsFragment.onTransitionEnd();
     }
-
 }

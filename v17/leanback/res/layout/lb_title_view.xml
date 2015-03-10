@@ -17,7 +17,7 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <ImageView
-        android:id="@+id/browse_badge"
+        android:id="@+id/title_badge"
         android:layout_width="wrap_content"
         android:maxWidth="@dimen/lb_browse_title_icon_max_width"
         android:adjustViewBounds="true"
@@ -28,14 +28,14 @@
         style="?attr/browseTitleIconStyle"/>
 
     <TextView
-        android:id="@+id/browse_title"
+        android:id="@+id/title_text"
         android:layout_width="@dimen/lb_browse_title_text_width"
         android:layout_height="@dimen/lb_browse_title_height"
         android:layout_gravity="center_vertical|end"
         style="?attr/browseTitleTextStyle"/>
 
     <android.support.v17.leanback.widget.SearchOrbView
-        android:id="@+id/browse_orb"
+        android:id="@+id/title_orb"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:transitionGroup="true"

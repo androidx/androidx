@@ -20,16 +20,25 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 /**
- * Top level implementation viewgroup for browse to manage transitions between
- * browse sub fragments.
- * @hide
+ * Top level implementation viewgroup for managing focus behavior between overlapping views.
  */
 public class BrowseFrameLayout extends FrameLayout {
 
+    /**
+     * Interface for selecting a focused view when the system focus finder couldn't find a view
+     * to focus.
+     */
     public interface OnFocusSearchListener {
+        /**
+         * Returns the view where focus should be requested given the current focused view and
+         * the direction of focus search.
+         */
         public View onFocusSearch(View focused, int direction);
     }
 
+    /**
+     * Interface for managing child focus.
+     */
     public interface OnChildFocusListener {
         public boolean onRequestFocusInDescendants(int direction,
                 Rect previouslyFocusedRect);
@@ -51,12 +60,32 @@ public class BrowseFrameLayout extends FrameLayout {
     private OnFocusSearchListener mListener;
     private OnChildFocusListener mOnChildFocusListener;
 
+    /**
+     * Sets an {@link OnFocusSearchListener}.
+     */
     public void setOnFocusSearchListener(OnFocusSearchListener listener) {
         mListener = listener;
     }
 
+    /**
+     * Returns the {@link OnFocusSearchListener}.
+     */
+    public OnFocusSearchListener getOnFocusSearchListener() {
+        return mListener;
+    }
+
+    /**
+     * Sets an {@link OnChildFocusListener}.
+     */
     public void setOnChildFocusListener(OnChildFocusListener listener) {
         mOnChildFocusListener = listener;
+    }
+
+    /**
+     * Returns the {@link OnChildFocusListener}.
+     */
+    public OnChildFocusListener getOnChildFocusListener() {
+        return mOnChildFocusListener;
     }
 
     @Override
