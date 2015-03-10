@@ -13,7 +13,6 @@
  */
 package android.support.v17.leanback.app;
 
-import android.app.Fragment;
 import android.os.Bundle;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.transition.TransitionHelper;
@@ -24,7 +23,7 @@ import android.view.ViewTreeObserver;
 /**
  * @hide
  */
-class BaseFragment extends Fragment {
+class BaseFragment extends BrandedFragment {
 
     private boolean mEntranceTransitionEnabled = false;
     private boolean mStartEntranceTransitionPending = false;

@@ -21,7 +21,7 @@
       android:slideEdge="left">
       <targets>
           <target android:targetId="@id/browse_headers_root" />
-          <target android:targetId="@id/browse_orb" />
+          <target android:targetId="@id/title_orb" />
       </targets>
   </slide>
   <slide
@@ -30,7 +30,7 @@
       android:slideEdge="right">
       <targets>
           <target android:excludeId="@+id/browse_headers_root" />
-          <target android:excludeId="@+id/browse_orb" />
+          <target android:excludeId="@+id/title_orb" />
       </targets>
   </slide>
   <fade
