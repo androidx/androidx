@@ -324,11 +324,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         this(context, null);
     }
 
-    public RecyclerView(Context context, AttributeSet attrs) {
+    public RecyclerView(Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public RecyclerView(Context context, AttributeSet attrs, int defStyle) {
+    public RecyclerView(Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         setFocusableInTouchMode(true);
         final int version = Build.VERSION.SDK_INT;
@@ -6234,6 +6234,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
          * @param state     Transient state of RecyclerView
          * @return The chosen view to be focused
          */
+        @Nullable
         public View onFocusSearchFailed(View focused, int direction, Recycler recycler,
                 State state) {
             return null;
