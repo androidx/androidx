@@ -140,6 +140,11 @@ public class WindowCallbackWrapper implements Window.Callback {
     }
 
     @Override
+    public ActionMode onWindowStartingActionMode(ActionMode.Callback callback, int type) {
+        return mWrapped.onWindowStartingActionMode(callback, type);
+    }
+
+    @Override
     public void onActionModeStarted(ActionMode mode) {
         mWrapped.onActionModeStarted(mode);
     }
