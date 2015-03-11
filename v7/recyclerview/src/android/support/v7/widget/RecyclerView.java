@@ -901,17 +901,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         if (state != SCROLL_STATE_SETTLING) {
             stopScrollersInternal();
         }
-        if (mScrollListener != null) {
-            mScrollListener.onScrollStateChanged(this, state);
-        }
-        if (mScrollListeners != null) {
-            for (int i = mScrollListeners.size() - 1; i >= 0; i--) {
-                mScrollListeners.get(i).onScrollStateChanged(this, state);
-            }
-        }
-        if (mLayout != null) {
-            mLayout.onScrollStateChanged(state);
-        }
+        dispatchOnScrollStateChanged(state);
     }
 
     /**
@@ -984,22 +974,27 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
     }
 
     /**
-     * Set a primary listener that will be notified of any changes in scroll state or position.
+     * Set a listener that will be notified of any changes in scroll state or position.
      *
      * @param listener Listener to set or null to clear
+     *
+     * @deprecated Use {@link #addOnScrollListener(OnScrollListener)} and
+     *             {@link #removeOnScrollListener(OnScrollListener)}
      */
+    @Deprecated
     public void setOnScrollListener(OnScrollListener listener) {
         mScrollListener = listener;
     }
 
-
     /**
-     * Add a secondary listener that will be notified of any changes in scroll state or position.
-     * You can add multiple secondary listeners.
+     * Add a listener that will be notified of any changes in scroll state or position.
      *
-     * @param listener Listener to set or null to clear
+     * <p>Components that add a listener should take care to remove it when finished.
+     * Other components that take ownership of a view may call {@link #clearOnScrollListeners()}
+     * to remove all attached listeners.</p>
+     *
+     * @param listener listener to set or null to clear
      */
-
     public void addOnScrollListener(OnScrollListener listener) {
         if (mScrollListeners == null) {
             mScrollListeners = new ArrayList<OnScrollListener>();
@@ -1008,9 +1003,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
     }
 
     /**
-     * Remove a secondary listener that were notified of any changes in scroll state or position.
+     * Remove a listener that was notified of any changes in scroll state or position.
      *
-     * @param listener Listener to set or null to clear
+     * @param listener listener to set or null to clear
      */
     public void removeOnScrollListener(OnScrollListener listener) {
         if (mScrollListeners != null) {
@@ -1154,7 +1149,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
             pullGlows(overscrollX, overscrollY);
         }
         if (hresult != 0 || vresult != 0) {
-            notifyOnScrolled(hresult, vresult);
+            dispatchOnScrolled(hresult, vresult);
         }
         if (!awakenScrollBars()) {
             invalidate();
@@ -2366,7 +2361,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         mState.mOldChangedHolders = null;
 
         if (didChildRangeChange(mMinMaxLayoutPositions[0], mMinMaxLayoutPositions[1])) {
-            notifyOnScrolled(0, 0);
+            dispatchOnScrolled(0, 0);
         }
     }
 
@@ -3156,6 +3151,88 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         return insets;
     }
 
+    /**
+     * Called when the scroll position of this RecyclerView changes. Subclasses should use
+     * this method to respond to scrolling within the adapter's data set instead of an explicit
+     * listener.
+     *
+     * <p>This method will always be invoked before listeners. If a subclass needs to perform
+     * any additional upkeep or bookkeeping after scrolling but before listeners run,
+     * this is a good place to do so.</p>
+     *
+     * <p>This differs from {@link View#onScrollChanged(int, int, int, int)} in that it receives
+     * the distance scrolled in either direction within the adapter's data set instead of absolute
+     * scroll coordinates. Since RecyclerView cannot compute the absolute scroll position from
+     * any arbitrary point in the data set, <code>onScrollChanged</code> will always receive
+     * the current {@link View#getScrollX()} and {@link View#getScrollY()} values which
+     * do not correspond to the data set scroll position. However, some subclasses may choose
+     * to use these fields as special offsets.</p>
+     *
+     * @param dx horizontal distance scrolled in pixels
+     * @param dy vertical distance scrolled in pixels
+     */
+    public void onScrolled(int dx, int dy) {
+        // Do nothing
+    }
+
+    void dispatchOnScrolled(int hresult, int vresult) {
+        // Pass the current scrollX/scrollY values; no actual change in these properties occurred
+        // but some general-purpose code may choose to respond to changes this way.
+        final int scrollX = getScrollX();
+        final int scrollY = getScrollY();
+        onScrollChanged(scrollX, scrollY, scrollX, scrollY);
+
+        // Pass the real deltas to onScrolled, the RecyclerView-specific method.
+        onScrolled(hresult, vresult);
+
+        // Invoke listeners last. Subclassed view methods always handle the event first.
+        // All internal state is consistent by the time listeners are invoked.
+        if (mScrollListener != null) {
+            mScrollListener.onScrolled(this, hresult, vresult);
+        }
+        if (mScrollListeners != null) {
+            for (int i = mScrollListeners.size() - 1; i >= 0; i--) {
+                mScrollListeners.get(i).onScrolled(this, hresult, vresult);
+            }
+        }
+    }
+
+    /**
+     * Called when the scroll state of this RecyclerView changes. Subclasses should use this
+     * method to respond to state changes instead of an explicit listener.
+     *
+     * <p>This method will always be invoked before listeners, but after the LayoutManager
+     * responds to the scroll state change.</p>
+     *
+     * @param state the new scroll state, one of {@link #SCROLL_STATE_IDLE},
+     *              {@link #SCROLL_STATE_DRAGGING} or {@link #SCROLL_STATE_SETTLING}
+     */
+    public void onScrollStateChanged(int state) {
+        // Do nothing
+    }
+
+    void dispatchOnScrollStateChanged(int state) {
+        // Let the LayoutManager go first; this allows it to bring any properties into
+        // a consistent state before the RecyclerView subclass responds.
+        if (mLayout != null) {
+            mLayout.onScrollStateChanged(state);
+        }
+
+        // Let the RecyclerView subclass handle this event next; any LayoutManager property
+        // changes will be reflected by this time.
+        onScrollStateChanged(state);
+
+        // Listeners go last. All other internal state is consistent by this point.
+        if (mScrollListener != null) {
+            mScrollListener.onScrollStateChanged(this, state);
+        }
+        if (mScrollListeners != null) {
+            for (int i = mScrollListeners.size() - 1; i >= 0; i--) {
+                mScrollListeners.get(i).onScrollStateChanged(this, state);
+            }
+        }
+    }
+
     private class ViewFlinger implements Runnable {
         private int mLastFlingX;
         private int mLastFlingY;
@@ -3267,7 +3344,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                     }
                 }
                 if (hresult != 0 || vresult != 0) {
-                    notifyOnScrolled(hresult, vresult);
+                    dispatchOnScrolled(hresult, vresult);
                 }
 
                 if (!awakenScrollBars()) {
@@ -3379,19 +3456,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
             mScroller.abortAnimation();
         }
 
-    }
-
-    private void notifyOnScrolled(int hresult, int vresult) {
-        // dummy values, View's implementation does not use these.
-        onScrollChanged(0, 0, 0, 0);
-        if (mScrollListener != null) {
-            mScrollListener.onScrolled(this, hresult, vresult);
-        }
-        if (mScrollListeners != null) {
-            for (int i = mScrollListeners.size() - 1; i >= 0; i--) {
-                mScrollListeners.get(i).onScrolled(this, hresult, vresult);
-            }
-        }
     }
 
     private class RecyclerViewDataObserver extends AdapterDataObserver {
