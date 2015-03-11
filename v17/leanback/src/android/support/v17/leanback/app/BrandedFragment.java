@@ -186,7 +186,8 @@ class BrandedFragment extends Fragment {
     }
 
     /**
-     * Returns the {@link SearchOrbView.Colors} used to draw the search affordance.
+     * Returns the {@link android.support.v17.leanback.widget.SearchOrbView.Colors}
+     * used to draw the search affordance.
      */
     public SearchOrbView.Colors getSearchAffordanceColors() {
         if (mSearchAffordanceColorSet) {

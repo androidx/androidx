@@ -47,7 +47,7 @@ class BrandedSupportFragment extends Fragment {
     /**
      * Sets the {@link TitleView}.
      */
-    public void setTitleView(TitleView titleView) {
+    void setTitleView(TitleView titleView) {
         mTitleView = titleView;
         if (mTitleView == null) {
             mTitleHelper = null;
@@ -69,14 +69,14 @@ class BrandedSupportFragment extends Fragment {
     /**
      * Returns the {@link TitleView}.
      */
-    public TitleView getTitleView() {
+    TitleView getTitleView() {
         return mTitleView;
     }
 
     /**
      * Returns the {@link TitleHelper}.
      */
-    public TitleHelper getTitleHelper() {
+    TitleHelper getTitleHelper() {
         return mTitleHelper;
     }
 
@@ -106,7 +106,7 @@ class BrandedSupportFragment extends Fragment {
     /**
      * Shows or hides the {@link android.support.v17.leanback.widget.TitleView}.
      */
-    public void showTitle(boolean show) {
+    void showTitle(boolean show) {
         // TODO: handle interruptions?
         if (show == mShowingTitle) {
             return;
@@ -188,7 +188,8 @@ class BrandedSupportFragment extends Fragment {
     }
 
     /**
-     * Returns the {@link SearchOrbView.Colors} used to draw the search affordance.
+     * Returns the {@link android.support.v17.leanback.widget.SearchOrbView.Colors}
+     * used to draw the search affordance.
      */
     public SearchOrbView.Colors getSearchAffordanceColors() {
         if (mSearchAffordanceColorSet) {
