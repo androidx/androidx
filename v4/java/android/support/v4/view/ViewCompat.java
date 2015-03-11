@@ -22,6 +22,7 @@ import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.IntDef;
@@ -636,12 +637,12 @@ public class ViewCompat {
 
         @Override
         public int getMinimumWidth(View view) {
-            return 0;
+            return ViewCompatBase.getMinimumWidth(view);
         }
 
         @Override
         public int getMinimumHeight(View view) {
-            return 0;
+            return ViewCompatBase.getMinimumHeight(view);
         }
 
         @Override
@@ -2958,5 +2959,32 @@ public class ViewCompat {
      */
     public static float getZ(View view) {
         return IMPL.getZ(view);
+    }
+
+    /**
+     * Offset this view's vertical location by the specified number of pixels.
+     *
+     * @param offset the number of pixels to offset the view by
+     */
+    public static void offsetTopAndBottom(View view, int offset) {
+        view.offsetTopAndBottom(offset);
+
+        if (offset != 0 && Build.VERSION.SDK_INT < 11) {
+            // We need to manually invalidate pre-honeycomb
+            view.invalidate();
+        }
+    }
+    /**
+     * Offset this view's horizontal location by the specified amount of pixels.
+     *
+     * @param offset the number of pixels to offset the view by
+     */
+    public static void offsetLeftAndRight(View view, int offset) {
+        view.offsetLeftAndRight(offset);
+
+        if (offset != 0 && Build.VERSION.SDK_INT < 11) {
+            // We need to manually invalidate pre-honeycomb
+            view.invalidate();
+        }
     }
 }
