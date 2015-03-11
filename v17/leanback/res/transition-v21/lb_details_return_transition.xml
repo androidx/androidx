@@ -19,6 +19,11 @@
       android:interpolator="@android:interpolator/fast_out_linear_in"
       android:duration="350"
       android:slideEdge="bottom">
+      <targets>
+          <target android:excludeId="@id/title_badge" />
+          <target android:excludeId="@id/title_text" />
+          <target android:excludeId="@id/title_orb" />
+      </targets>
   </transition>
   <fade
       android:interpolator="@android:interpolator/fast_out_linear_in"
