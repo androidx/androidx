@@ -31,6 +31,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.util.SimpleArrayMap;
 import android.support.v4.util.DebugUtils;
+import android.support.v4.view.LayoutInflaterCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
@@ -932,7 +933,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     public LayoutInflater getLayoutInflater(Bundle savedInstanceState) {
         LayoutInflater result = mActivity.getLayoutInflater().cloneInContext(mActivity);
         getChildFragmentManager(); // Init if needed; use raw implementation below.
-        result.setFactory(mChildFragmentManager.getLayoutInflaterFactory());
+        LayoutInflaterCompat.setFactory(result, mChildFragmentManager.getLayoutInflaterFactory());
         return result;
     }
     
