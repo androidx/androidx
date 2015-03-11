@@ -98,7 +98,7 @@ public class SearchBar extends RelativeLayout {
             new AudioManager.OnAudioFocusChangeListener() {
                 @Override
                 public void onAudioFocusChange(int focusChange) {
-                    // Do nothing.
+                    stopRecognition();
                 }
             };
 
@@ -318,6 +318,7 @@ public class SearchBar extends RelativeLayout {
 
     @Override
     protected void onDetachedFromWindow() {
+        stopRecognition();
         if (DEBUG) Log.v(TAG, "Releasing SoundPool");
         mSoundPool.release();
         super.onDetachedFromWindow();
@@ -423,6 +424,7 @@ public class SearchBar extends RelativeLayout {
      * @param recognizer a SpeechRecognizer
      */
     public void setSpeechRecognizer(SpeechRecognizer recognizer) {
+        stopRecognition();
         if (null != mSpeechRecognizer) {
             mSpeechRecognizer.setRecognitionListener(null);
             if (mListening) {
