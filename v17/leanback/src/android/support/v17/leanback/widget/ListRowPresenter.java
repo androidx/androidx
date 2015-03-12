@@ -94,14 +94,14 @@ public class ListRowPresenter extends RowPresenter {
         @Override
         public void onBind(final ItemBridgeAdapter.ViewHolder viewHolder) {
             // Only when having an OnItemClickListner, we will attach the OnClickListener.
-            if (getOnItemViewClickedListener() != null) {
+            if (mRowViewHolder.getOnItemViewClickedListener() != null) {
                 viewHolder.mHolder.view.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         ItemBridgeAdapter.ViewHolder ibh = (ItemBridgeAdapter.ViewHolder)
                                 mRowViewHolder.mGridView.getChildViewHolder(viewHolder.itemView);
-                        if (getOnItemViewClickedListener() != null) {
-                            getOnItemViewClickedListener().onItemClicked(viewHolder.mHolder,
+                        if (mRowViewHolder.getOnItemViewClickedListener() != null) {
+                            mRowViewHolder.getOnItemViewClickedListener().onItemClicked(viewHolder.mHolder,
                                     ibh.mItem, mRowViewHolder, (ListRow) mRowViewHolder.mRow);
                         }
                     }
@@ -111,7 +111,7 @@ public class ListRowPresenter extends RowPresenter {
 
         @Override
         public void onUnbind(ItemBridgeAdapter.ViewHolder viewHolder) {
-            if (getOnItemViewClickedListener() != null) {
+            if (mRowViewHolder.getOnItemViewClickedListener() != null) {
                 viewHolder.mHolder.view.setOnClickListener(null);
             }
         }
@@ -343,21 +343,21 @@ public class ListRowPresenter extends RowPresenter {
                         rowViewHolder.mGridView.getChildViewHolder(view);
 
                 if (mHoverCardPresenterSelector != null) {
-                    rowViewHolder.mHoverCardViewSwitcher.select(rowViewHolder.mGridView, view,
-                            ibh.mItem);
+                    rowViewHolder.mHoverCardViewSwitcher.select(
+                            rowViewHolder.mGridView, view, ibh.mItem);
                 }
-                if (getOnItemViewSelectedListener() != null) {
-                    getOnItemViewSelectedListener().onItemSelected(ibh.mHolder, ibh.mItem,
-                            rowViewHolder, rowViewHolder.mRow);
+                if (rowViewHolder.getOnItemViewSelectedListener() != null) {
+                    rowViewHolder.getOnItemViewSelectedListener().onItemSelected(
+                            ibh.mHolder, ibh.mItem, rowViewHolder, rowViewHolder.mRow);
                 }
             }
         } else {
             if (mHoverCardPresenterSelector != null) {
                 rowViewHolder.mHoverCardViewSwitcher.unselect();
             }
-            if (getOnItemViewSelectedListener() != null) {
-                getOnItemViewSelectedListener().onItemSelected(null, null,
-                        rowViewHolder, rowViewHolder.mRow);
+            if (rowViewHolder.getOnItemViewSelectedListener() != null) {
+                rowViewHolder.getOnItemViewSelectedListener().onItemSelected(
+                        null, null, rowViewHolder, rowViewHolder.mRow);
             }
         }
     }
@@ -431,8 +431,8 @@ public class ListRowPresenter extends RowPresenter {
         }
 
         if (selected) {
-            if (getOnItemViewSelectedListener() != null) {
-                getOnItemViewSelectedListener().onItemSelected(
+            if (holder.getOnItemViewSelectedListener() != null) {
+                holder.getOnItemViewSelectedListener().onItemSelected(
                         itemViewHolder.getViewHolder(), itemViewHolder.mItem, vh, vh.getRow());
             }
         }
