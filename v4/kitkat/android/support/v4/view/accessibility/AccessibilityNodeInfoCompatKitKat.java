@@ -63,6 +63,14 @@ class AccessibilityNodeInfoCompatKitKat {
                 columnSpan, heading);
     }
 
+    public static void setContentInvalid(Object info, boolean contentInvalid) {
+        ((AccessibilityNodeInfo) info).setContentInvalid(contentInvalid);
+    }
+
+    public static boolean isContentInvalid(Object info) {
+        return ((AccessibilityNodeInfo) info).isContentInvalid();
+    }
+
     static class CollectionInfo {
         static int getColumnCount(Object info) {
             return ((AccessibilityNodeInfo.CollectionInfo) info).getColumnCount();

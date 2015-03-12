@@ -279,6 +279,12 @@ public class AccessibilityNodeInfoCompat {
         public AccessibilityNodeInfoCompat getTraversalAfter(Object info);
         public void setTraversalAfter(Object info, View view);
         public void setTraversalAfter(Object info, View root, int virtualDescendantId);
+        public void setContentInvalid(Object info, boolean contentInvalid);
+        public boolean isContentInvalid(Object info);
+        public void setError(Object info, CharSequence error);
+        public CharSequence getError(Object info);
+        public void setLabelFor(Object info, View labeled);
+        public void setLabelFor(Object info, View root, int virtualDescendantId);
     }
 
     static class AccessibilityNodeInfoStubImpl implements AccessibilityNodeInfoImpl {
@@ -732,6 +738,32 @@ public class AccessibilityNodeInfoCompat {
         @Override
         public void setTraversalAfter(Object info, View root, int virtualDescendantId) {
         }
+
+        @Override
+        public void setContentInvalid(Object info, boolean contentInvalid) {
+        }
+
+        @Override
+        public boolean isContentInvalid(Object info) {
+            return false;
+        }
+
+        @Override
+        public void setError(Object info, CharSequence error) {
+        }
+
+        @Override
+        public CharSequence getError(Object info) {
+            return null;
+        }
+
+        @Override
+        public void setLabelFor(Object info, View labeled) {
+        }
+
+        @Override
+        public void setLabelFor(Object info, View root, int virtualDescendantId) {
+        }
     }
 
     static class AccessibilityNodeInfoIcsImpl extends AccessibilityNodeInfoStubImpl {
@@ -1140,6 +1172,16 @@ public class AccessibilityNodeInfoCompat {
         public void setCollectionItemInfo(Object info, Object collectionItemInfo) {
             AccessibilityNodeInfoCompatKitKat.setCollectionItemInfo(info, collectionItemInfo);
         }
+
+        @Override
+        public void setContentInvalid(Object info, boolean contentInvalid) {
+            AccessibilityNodeInfoCompatKitKat.setContentInvalid(info, contentInvalid);
+        }
+
+        @Override
+        public boolean isContentInvalid(Object info) {
+            return AccessibilityNodeInfoCompatKitKat.isContentInvalid(info);
+        }
     }
 
     static class AccessibilityNodeInfoApi21Impl extends AccessibilityNodeInfoKitKatImpl {
@@ -1185,6 +1227,26 @@ public class AccessibilityNodeInfoCompat {
         @Override
         public boolean isCollectionItemSelected(Object info) {
             return AccessibilityNodeInfoCompatApi21.CollectionItemInfo.isSelected(info);
+        }
+
+        @Override
+        public CharSequence getError(Object info) {
+            return AccessibilityNodeInfoCompatApi21.getError(info);
+        }
+
+        @Override
+        public void setError(Object info, CharSequence error) {
+            AccessibilityNodeInfoCompatApi21.setError(info, error);
+        }
+
+        @Override
+        public void setLabelFor(Object info, View labeled) {
+            AccessibilityNodeInfoCompatApi21.setLabelFor(info, labeled);
+        }
+
+        @Override
+        public void setLabelFor(Object info, View root, int virtualDescendantId) {
+            AccessibilityNodeInfoCompatApi21.setLabelFor(info, root, virtualDescendantId);
         }
     }
 
@@ -2531,6 +2593,83 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
+    /**
+     * Sets if the content of this node is invalid. For example,
+     * a date is not well-formed.
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param contentInvalid If the node content is invalid.
+     */
+    public void setContentInvalid(boolean contentInvalid) {
+        IMPL.setContentInvalid(mInfo, contentInvalid);
+    }
+
+    /**
+     * Gets if the content of this node is invalid. For example,
+     * a date is not well-formed.
+     *
+     * @return If the node content is invalid.
+     */
+    public boolean isContentInvalid() {
+        return IMPL.isContentInvalid(mInfo);
+    }
+
+    /**
+     * Sets the error text of this node.
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param error The error text.
+     *
+     * @throws IllegalStateException If called from an AccessibilityService.
+     */
+    public void setError(CharSequence error) {
+        IMPL.setError(mInfo, error);
+    }
+
+    /**
+     * Gets the error text of this node.
+     *
+     * @return The error text.
+     */
+    public CharSequence getError() {
+        return IMPL.getError(mInfo);
+    }
+
+    /**
+     * Sets the view for which the view represented by this info serves as a
+     * label for accessibility purposes.
+     *
+     * @param labeled The view for which this info serves as a label.
+     */
+    public void setLabelFor(View labeled) {
+        IMPL.setLabelFor(mInfo, labeled);
+    }
+
+    /**
+     * Sets the view for which the view represented by this info serves as a
+     * label for accessibility purposes. If <code>virtualDescendantId</code>
+     * is {@link View#NO_ID} the root is set as the labeled.
+     * <p>
+     * A virtual descendant is an imaginary View that is reported as a part of the view
+     * hierarchy for accessibility purposes. This enables custom views that draw complex
+     * content to report themselves as a tree of virtual views, thus conveying their
+     * logical structure.
+     * </p>
+     *
+     * @param root The root whose virtual descendant serves as a label.
+     * @param virtualDescendantId The id of the virtual descendant.
+     */
+    public void setLabelFor(View root, int virtualDescendantId) {
+        IMPL.setLabelFor(mInfo, root, virtualDescendantId);
+    }
 
     @Override
     public int hashCode() {
