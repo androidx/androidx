@@ -270,8 +270,12 @@ public class TabLayout extends HorizontalScrollView {
      * part of a scrolling container such as {@link ViewPager}.
      * <p>
      * Calling this method does not update the selected tab, it is only used for drawing purposes.
+     *
+     * @param position current scroll position
+     * @param positionOffset Value from [0, 1) indicating the offset from {@code position}.
+     * @param updateSelectedText Whether to update the text's selected state.
      */
-    public void setScrollPosition(int position, float positionOffset) {
+    public void setScrollPosition(int position, float positionOffset, boolean updateSelectedText) {
         if (isAnimationRunning(getAnimation())) {
             return;
         }
@@ -284,7 +288,9 @@ public class TabLayout extends HorizontalScrollView {
         scrollTo(calculateScrollXForTab(position, positionOffset), 0);
 
         // Update the 'selected state' view as we scroll
-        setSelectedTabView(Math.round(position + positionOffset));
+        if (updateSelectedText) {
+            setSelectedTabView(Math.round(position + positionOffset));
+        }
     }
 
     /**
@@ -308,11 +314,21 @@ public class TabLayout extends HorizontalScrollView {
      * through to all of the methods.
      */
     public ViewPager.OnPageChangeListener createOnPageChangeListener() {
-        return new ViewPager.SimpleOnPageChangeListener() {
+        return new ViewPager.OnPageChangeListener() {
+            private int mScrollState;
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                mScrollState = state;
+            }
+
             @Override
             public void onPageScrolled(int position, float positionOffset,
                     int positionOffsetPixels) {
-                setScrollPosition(position, positionOffset);
+                // Update the scroll position, only update the text selection if we're being
+                // dragged
+                setScrollPosition(position, positionOffset,
+                        mScrollState == ViewPager.SCROLL_STATE_DRAGGING);
             }
 
             @Override
@@ -676,7 +692,7 @@ public class TabLayout extends HorizontalScrollView {
         if (getWindowToken() == null || !ViewCompat.isLaidOut(this)) {
             // If we don't have a window token, or we haven't been laid out yet just draw the new
             // position now
-            setScrollPosition(newPosition, 0f);
+            setScrollPosition(newPosition, 0f, true);
             return;
         }
 
@@ -705,8 +721,7 @@ public class TabLayout extends HorizontalScrollView {
         final int tabCount = mTabStrip.getChildCount();
         for (int i = 0; i < tabCount; i++) {
             final View child = mTabStrip.getChildAt(i);
-            final boolean isSelected = i == position;
-            child.setSelected(isSelected);
+            child.setSelected(i == position);
         }
     }
 
@@ -729,7 +744,7 @@ public class TabLayout extends HorizontalScrollView {
             if ((mSelectedTab == null || mSelectedTab.getPosition() == Tab.INVALID_POSITION)
                     && newPosition != Tab.INVALID_POSITION) {
                 // If we don't currently have a tab, just draw the indicator
-                setScrollPosition(newPosition, 0f);
+                setScrollPosition(newPosition, 0f, true);
             } else {
                 animateToTab(newPosition);
             }
