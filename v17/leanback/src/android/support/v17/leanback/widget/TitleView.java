@@ -25,7 +25,6 @@ import android.widget.TextView;
 
 /**
  * Title view for a leanback fragment.
- * @hide
  */
 public class TitleView extends FrameLayout {
 
@@ -47,9 +46,9 @@ public class TitleView extends FrameLayout {
         LayoutInflater inflater = LayoutInflater.from(context);
         View rootView = inflater.inflate(R.layout.lb_title_view, this);
 
-        mBadgeView = (ImageView) rootView.findViewById(R.id.browse_badge);
-        mTextView = (TextView) rootView.findViewById(R.id.browse_title);
-        mSearchOrbView = (SearchOrbView) rootView.findViewById(R.id.browse_orb);
+        mBadgeView = (ImageView) rootView.findViewById(R.id.title_badge);
+        mTextView = (TextView) rootView.findViewById(R.id.title_text);
+        mSearchOrbView = (SearchOrbView) rootView.findViewById(R.id.title_orb);
 
         setClipToPadding(false);
         setClipChildren(false);
