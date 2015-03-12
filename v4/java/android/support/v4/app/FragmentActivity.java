@@ -297,7 +297,7 @@ public class FragmentActivity extends Activity {
             return super.onCreateView(name, context, attrs);
         }
 
-        final View v = mFragments.onCreateView(name, context, attrs);
+        final View v = mFragments.onCreateView(null, name, context, attrs);
         if (v == null) {
             return super.onCreateView(name, context, attrs);
         }
