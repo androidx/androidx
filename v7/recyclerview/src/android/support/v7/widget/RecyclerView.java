@@ -291,6 +291,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
     final State mState = new State();
 
     private OnScrollListener mScrollListener;
+    private List<OnScrollListener> mScrollListeners;
 
     // For use in item animations
     boolean mItemsAddedOrRemoved = false;
@@ -904,6 +905,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         if (mScrollListener != null) {
             mScrollListener.onScrollStateChanged(this, state);
         }
+        if (mScrollListeners != null) {
+            for (int i = mScrollListeners.size() - 1; i >= 0; i--) {
+                mScrollListeners.get(i).onScrollStateChanged(this, state);
+            }
+        }
         if (mLayout != null) {
             mLayout.onScrollStateChanged(state);
         }
@@ -979,12 +985,47 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
     }
 
     /**
-     * Set a listener that will be notified of any changes in scroll state or position.
+     * Set a primary listener that will be notified of any changes in scroll state or position.
      *
      * @param listener Listener to set or null to clear
      */
     public void setOnScrollListener(OnScrollListener listener) {
         mScrollListener = listener;
+    }
+
+
+    /**
+     * Add a secondary listener that will be notified of any changes in scroll state or position.
+     * You can add multiple secondary listeners.
+     *
+     * @param listener Listener to set or null to clear
+     */
+
+    public void addOnScrollListener(OnScrollListener listener) {
+        if (mScrollListeners == null) {
+            mScrollListeners = new ArrayList<OnScrollListener>();
+        }
+        mScrollListeners.add(listener);
+    }
+
+    /**
+     * Remove a secondary listener that were notified of any changes in scroll state or position.
+     *
+     * @param listener Listener to set or null to clear
+     */
+    public void removeOnScrollListener(OnScrollListener listener) {
+        if (mScrollListeners != null) {
+            mScrollListeners.remove(listener);
+        }
+    }
+
+    /**
+     * Remove all secondary listener that were notified of any changes in scroll state or position.
+     */
+    public void clearOnScrollListeners() {
+        if (mScrollListeners != null) {
+            mScrollListeners.clear();
+        }
     }
 
     /**
@@ -3346,6 +3387,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         onScrollChanged(0, 0, 0, 0);
         if (mScrollListener != null) {
             mScrollListener.onScrolled(this, hresult, vresult);
+        }
+        if (mScrollListeners != null) {
+            for (int i = mScrollListeners.size() - 1; i >= 0; i--) {
+                mScrollListeners.get(i).onScrolled(this, hresult, vresult);
+            }
         }
     }
 
@@ -7061,7 +7107,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
      * An OnScrollListener can be set on a RecyclerView to receive messages
      * when a scrolling event has occurred on that RecyclerView.
      *
-     * @see RecyclerView#setOnScrollListener(OnScrollListener)
+     * @see RecyclerView#setOnScrollListener(OnScrollListener) and
+     * RecyclerView#addOnScrollListener(OnScrollListener)
+     *
+     * If you are planning to have several listeners at the same time, use
+     * RecyclerView#addOnScrollListener. If there will be only one listener at the time and you
+     * want your components to be able to easily replace the listener use
+     * RecyclerView#setOnScrollListener.
      */
     abstract static public class OnScrollListener {
         /**
