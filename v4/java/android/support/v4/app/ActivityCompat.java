@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Matrix;
 import android.graphics.RectF;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -160,6 +161,27 @@ public class ActivityCompat extends ContextCompat {
         } else {
             activity.finish();
         }
+    }
+
+    /**
+     * Backwards compatible implementation of {@link android.app.Activity#getReferrer()
+     * Activity.getReferrer}.  Uses the platform's implementation if available, otherwise
+     * only falls back to digging any explicitly specified referrer from the activity's intent.
+     */
+    public Uri getReferrer(Activity activity) {
+        if (Build.VERSION.SDK_INT >= 22) {
+            return ActivityCompat22.getReferrer(activity);
+        }
+        Intent intent = activity.getIntent();
+        Uri referrer = intent.getParcelableExtra("android.intent.extra.REFERRER");
+        if (referrer != null) {
+            return referrer;
+        }
+        String referrerName = intent.getStringExtra("android.intent.extra.REFERRER_NAME");
+        if (referrerName != null) {
+            return Uri.parse(referrerName);
+        }
+        return null;
     }
 
     /**
