@@ -175,8 +175,8 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
         public void onControlClicked(Presenter.ViewHolder itemViewHolder, Object item,
                 ControlBarPresenter.BoundData data) {
             ViewHolder vh = ((BoundData) data).mRowViewHolder;
-            if (getOnItemViewClickedListener() != null) {
-                getOnItemViewClickedListener().onItemClicked(itemViewHolder, item,
+            if (vh.getOnItemViewClickedListener() != null) {
+                vh.getOnItemViewClickedListener().onItemClicked(itemViewHolder, item,
                         vh, vh.getRow());
             }
             if (mOnActionClickedListener != null && item instanceof Action) {
