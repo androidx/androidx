@@ -30,11 +30,11 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.util.DebugUtils;
 import android.support.v4.util.LogWriter;
+import android.support.v4.view.LayoutInflaterFactory;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
-import android.view.LayoutInflater;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -410,7 +410,7 @@ interface FragmentContainer {
 /**
  * Container for fragments associated with an activity.
  */
-final class FragmentManagerImpl extends FragmentManager implements LayoutInflater.Factory {
+final class FragmentManagerImpl extends FragmentManager implements LayoutInflaterFactory {
     static boolean DEBUG = false;
     static final String TAG = "FragmentManager";
     
@@ -2118,7 +2118,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     @Override
-    public View onCreateView(String name, Context context, AttributeSet attrs) {
+    public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
         if (!"fragment".equals(name)) {
             return null;
         }
@@ -2138,7 +2138,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             return null;
         }
 
-        View parent = null; // NOTE: no way to get parent pre-Honeycomb.
         int containerId = parent != null ? parent.getId() : 0;
         if (containerId == View.NO_ID && id == View.NO_ID && tag == null) {
             throw new IllegalArgumentException(attrs.getPositionDescription()
@@ -2210,7 +2209,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         return fragment.mView;
     }
 
-    LayoutInflater.Factory getLayoutInflaterFactory() {
+    LayoutInflaterFactory getLayoutInflaterFactory() {
         return this;
     }
 
