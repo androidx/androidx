@@ -185,9 +185,11 @@ public class RowsSupportFragment extends BaseRowSupportFragment {
             final int count = listView.getChildCount();
             for (int i = 0; i < count; i++) {
                 View view = listView.getChildAt(i);
-                ItemBridgeAdapter.ViewHolder vh = (ItemBridgeAdapter.ViewHolder)
+                ItemBridgeAdapter.ViewHolder ibvh = (ItemBridgeAdapter.ViewHolder)
                         listView.getChildViewHolder(view);
-                setOnItemViewSelectedListener(vh, mOnItemViewSelectedListener);
+                RowPresenter rowPresenter = (RowPresenter) ibvh.getPresenter();
+                RowPresenter.ViewHolder vh = rowPresenter.getRowViewHolder(ibvh.getViewHolder());
+                vh.setOnItemViewSelectedListener(mOnItemViewSelectedListener);
             }
         }
     }
@@ -311,16 +313,10 @@ public class RowsSupportFragment extends BaseRowSupportFragment {
         ((RowPresenter) vh.getPresenter()).setRowViewSelected(vh.getViewHolder(), selected);
     }
 
-    private static void setOnItemViewSelectedListener(ItemBridgeAdapter.ViewHolder vh,
-            OnItemViewSelectedListener listener) {
-        ((RowPresenter) vh.getPresenter()).setOnItemViewSelectedListener(listener);
-    }
-
     private final ItemBridgeAdapter.AdapterListener mBridgeAdapterListener =
             new ItemBridgeAdapter.AdapterListener() {
         @Override
         public void onAddPresenter(Presenter presenter, int type) {
-            ((RowPresenter) presenter).setOnItemViewClickedListener(mOnItemViewClickedListener);
             if (mExternalAdapterListener != null) {
                 mExternalAdapterListener.onAddPresenter(presenter, type);
             }
@@ -352,9 +348,10 @@ public class RowsSupportFragment extends BaseRowSupportFragment {
             // but again it should use the unchanged mExpand value,  so we don't need do any
             // thing in onBind.
             setRowViewExpanded(vh, mExpand);
-            setOnItemViewSelectedListener(vh, mOnItemViewSelectedListener);
             RowPresenter rowPresenter = (RowPresenter) vh.getPresenter();
             RowPresenter.ViewHolder rowVh = rowPresenter.getRowViewHolder(vh.getViewHolder());
+            rowVh.setOnItemViewSelectedListener(mOnItemViewSelectedListener);
+            rowVh.setOnItemViewClickedListener(mOnItemViewClickedListener);
             rowPresenter.setEntranceTransitionState(rowVh, mAfterEntranceTransition);
             if (mExternalAdapterListener != null) {
                 mExternalAdapterListener.onAttachedToWindow(vh);
