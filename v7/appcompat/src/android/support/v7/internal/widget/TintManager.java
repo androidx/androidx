@@ -24,6 +24,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.ColorUtils;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.util.LruCache;
 import android.support.v7.appcompat.R;
@@ -440,22 +441,25 @@ public final class TintManager {
         final int[] colors = new int[4];
         int i = 0;
 
+        final int colorButtonNormal = getThemeAttrColor(context, R.attr.colorButtonNormal);
+        final int colorControlHighlight = getThemeAttrColor(context, R.attr.colorControlHighlight);
+
         // Disabled state
         states[i] = ThemeUtils.DISABLED_STATE_SET;
         colors[i] = getDisabledThemeAttrColor(context, R.attr.colorButtonNormal);
         i++;
 
         states[i] = ThemeUtils.PRESSED_STATE_SET;
-        colors[i] = getThemeAttrColor(context, R.attr.colorControlHighlight);
+        colors[i] = ColorUtils.compositeColors(colorControlHighlight, colorButtonNormal);
         i++;
 
         states[i] = ThemeUtils.FOCUSED_STATE_SET;
-        colors[i] = getThemeAttrColor(context, R.attr.colorControlHighlight);
+        colors[i] = ColorUtils.compositeColors(colorControlHighlight, colorButtonNormal);
         i++;
 
         // Default enabled state
         states[i] = ThemeUtils.EMPTY_STATE_SET;
-        colors[i] = getThemeAttrColor(context, R.attr.colorButtonNormal);
+        colors[i] = colorButtonNormal;
         i++;
 
         return new ColorStateList(states, colors);
@@ -514,6 +518,12 @@ public final class TintManager {
                     tint.mHasTintMode ? tint.mTintMode : null);
         } else {
             background.clearColorFilter();
+        }
+
+        if (Build.VERSION.SDK_INT <= 10) {
+            // On Gingerbread, GradientDrawable does not invalidate itself when it's ColorFilter
+            // has changed, so we need to force an invalidation
+            view.invalidate();
         }
     }
 
