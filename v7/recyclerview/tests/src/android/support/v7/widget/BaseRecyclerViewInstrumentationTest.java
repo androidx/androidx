@@ -33,6 +33,8 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 abstract public class BaseRecyclerViewInstrumentationTest extends
         ActivityInstrumentationTestCase2<TestActivity> {
@@ -338,7 +340,26 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             return super.toString() + " item:" + mBoundItem;
         }
     }
+    class DumbLayoutManager extends TestLayoutManager {
+        ReentrantLock mLayoutLock = new ReentrantLock();
+        public void blockLayout() {
+            mLayoutLock.lock();
+        }
 
+        public void unblockLayout() {
+            mLayoutLock.unlock();
+        }
+        @Override
+        public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+            mLayoutLock.lock();
+            detachAndScrapAttachedViews(recycler);
+            layoutRange(recycler, 0, state.getItemCount());
+            if (layoutLatch != null) {
+                layoutLatch.countDown();
+            }
+            mLayoutLock.unlock();
+        }
+    }
     class TestLayoutManager extends RecyclerView.LayoutManager {
 
         CountDownLatch layoutLatch;

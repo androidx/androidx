@@ -896,7 +896,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
             return;
         }
         if (DEBUG) {
-            Log.d(TAG, "setting scroll state to " + state + " from " + mScrollState, new Exception());
+            Log.d(TAG, "setting scroll state to " + state + " from " + mScrollState,
+                    new Exception());
         }
         mScrollState = state;
         if (state != SCROLL_STATE_SETTLING) {
@@ -3232,6 +3233,24 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                 mScrollListeners.get(i).onScrollStateChanged(this, state);
             }
         }
+    }
+
+    /**
+     * Returns whether there are pending adapter updates which are not yet applied to the layout.
+     * <p>
+     * If this method returns <code>true</code>, it means that what user is currently seeing may not
+     * reflect them adapter contents (depending on what has changed).
+     * You may use this information to defer or cancel some operations.
+     * <p>
+     * This method returns true if RecyclerView has not yet calculated the first layout after it is
+     * attached to the Window or the Adapter has been replaced.
+     *
+     * @return True if there are some adapter updates which are not yet reflected to layout or false
+     * if layout is up to date.
+     */
+    public boolean hasPendingAdapterUpdates() {
+        return !mFirstLayoutComplete || mDataSetHasChangedAfterLayout
+                || mAdapterHelper.hasPendingUpdates();
     }
 
     private class ViewFlinger implements Runnable {
@@ -6785,7 +6804,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
          */
         public void onInitializeAccessibilityNodeInfo(Recycler recycler, State state,
                 AccessibilityNodeInfoCompat info) {
-            info.setClassName(RecyclerView.class.getName());
             if (ViewCompat.canScrollVertically(mRecyclerView, -1) ||
                     ViewCompat.canScrollHorizontally(mRecyclerView, -1)) {
                 info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD);

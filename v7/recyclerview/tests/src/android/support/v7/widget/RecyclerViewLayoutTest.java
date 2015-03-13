@@ -19,7 +19,6 @@ package android.support.v7.widget;
 
 import android.graphics.PointF;
 import android.graphics.Rect;
-import android.os.Debug;
 import android.os.SystemClock;
 import android.support.v4.view.ViewCompat;
 import android.test.TouchUtils;
@@ -302,6 +301,89 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
             getInstrumentation().waitForIdleSync();
         }
         return true;
+    }
+
+    private void assertPendingUpdatesAndLayout(TestLayoutManager testLayoutManager,
+            final Runnable runnable) throws Throwable {
+        testLayoutManager.expectLayouts(1);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                runnable.run();
+                assertTrue(mRecyclerView.hasPendingAdapterUpdates());
+            }
+        });
+        testLayoutManager.waitForLayout(1);
+        assertFalse(mRecyclerView.hasPendingAdapterUpdates());
+    }
+
+    private void setupBasic(RecyclerView recyclerView, TestLayoutManager tlm,
+            TestAdapter adapter, boolean waitForFirstLayout) throws Throwable {
+        recyclerView.setLayoutManager(tlm);
+        recyclerView.setAdapter(adapter);
+        if (waitForFirstLayout) {
+            tlm.expectLayouts(1);
+            setRecyclerView(recyclerView);
+            tlm.waitForLayout(1);
+        } else {
+            setRecyclerView(recyclerView);
+        }
+    }
+
+    public void testHasPendingUpdatesBeforeFirstLayout() throws Throwable {
+        RecyclerView recyclerView = new RecyclerView(getActivity());
+        TestLayoutManager layoutManager = new DumbLayoutManager();
+        TestAdapter testAdapter = new TestAdapter(10);
+        setupBasic(recyclerView, layoutManager, testAdapter, false);
+        assertTrue(mRecyclerView.hasPendingAdapterUpdates());
+    }
+
+    public void testNoPendingUpdatesAfterLayout() throws Throwable {
+        RecyclerView recyclerView = new RecyclerView(getActivity());
+        TestLayoutManager layoutManager = new DumbLayoutManager();
+        TestAdapter testAdapter = new TestAdapter(10);
+        setupBasic(recyclerView, layoutManager, testAdapter, true);
+        assertFalse(mRecyclerView.hasPendingAdapterUpdates());
+    }
+
+    public void testHasPendingUpdatesWhenAdapterIsChanged() throws Throwable {
+        RecyclerView recyclerView = new RecyclerView(getActivity());
+        TestLayoutManager layoutManager = new DumbLayoutManager();
+        final TestAdapter testAdapter = new TestAdapter(10);
+        setupBasic(recyclerView, layoutManager, testAdapter, false);
+        assertPendingUpdatesAndLayout(layoutManager, new Runnable() {
+            @Override
+            public void run() {
+                testAdapter.notifyItemRemoved(1);
+            }
+        });
+        assertPendingUpdatesAndLayout(layoutManager, new Runnable() {
+            @Override
+            public void run() {
+                testAdapter.notifyItemInserted(2);
+            }
+        });
+
+        assertPendingUpdatesAndLayout(layoutManager, new Runnable() {
+            @Override
+            public void run() {
+                testAdapter.notifyItemMoved(2, 3);
+            }
+        });
+
+        assertPendingUpdatesAndLayout(layoutManager, new Runnable() {
+            @Override
+            public void run() {
+                testAdapter.notifyItemChanged(2);
+            }
+        });
+
+        assertPendingUpdatesAndLayout(layoutManager, new Runnable() {
+            @Override
+            public void run() {
+                testAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     public void testTransientStateRecycleViaAdapter() throws Throwable {

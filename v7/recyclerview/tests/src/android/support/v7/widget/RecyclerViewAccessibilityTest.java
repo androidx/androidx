@@ -26,6 +26,11 @@ import android.view.accessibility.AccessibilityEvent;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentationTest {
+
+    public RecyclerViewAccessibilityTest() {
+        super(false);
+    }
+
     public void testOnInitializeAccessibilityNodeInfo() throws Throwable {
         for (boolean vBefore : new boolean[]{true, false}) {
             for (boolean vAfter : new boolean[]{true, false}) {
@@ -39,6 +44,7 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
             }
         }
     }
+
     public void onInitializeAccessibilityNodeInfoTest(final boolean verticalScrollBefore,
             final boolean horizontalScrollBefore, final boolean verticalScrollAfter,
             final boolean horizontalScrollAfter) throws Throwable {
@@ -200,15 +206,58 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
         assertEquals(verticalScrollAfter, vScrolledFwd.get());
     }
 
-    void performAccessibilityAction(final AccessibilityDelegateCompat delegate,
-            final RecyclerView recyclerView,  final int action) throws Throwable {
+    public void testIgnoreAccessibilityIfAdapterHasChanged() throws Throwable {
+        final RecyclerView recyclerView = new RecyclerView(getActivity()) {
+            //@Override
+            public boolean canScrollHorizontally(int direction) {
+                return true;
+            }
+
+            //@Override
+            public boolean canScrollVertically(int direction) {
+                return true;
+            }
+        };
+        final DumbLayoutManager layoutManager = new DumbLayoutManager();
+        final TestAdapter adapter = new TestAdapter(10);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(layoutManager);
+        layoutManager.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        layoutManager.waitForLayout(1);
+
+        final RecyclerViewAccessibilityDelegate delegateCompat = recyclerView
+                .getCompatAccessibilityDelegate();
+        final AccessibilityNodeInfoCompat info = AccessibilityNodeInfoCompat.obtain();
         runTestOnUiThread(new Runnable() {
             @Override
             public void run() {
-                delegate.performAccessibilityAction(recyclerView, action, null);
+                delegateCompat.onInitializeAccessibilityNodeInfo(recyclerView, info);
+            }
+        });
+        assertTrue("test sanity", info.isScrollable());
+        final AccessibilityNodeInfoCompat info2 = AccessibilityNodeInfoCompat.obtain();
+        layoutManager.blockLayout();
+        layoutManager.expectLayouts(1);
+        adapter.deleteAndNotify(1, 1);
+        // we can run this here since we blocked layout.
+        delegateCompat.onInitializeAccessibilityNodeInfo(recyclerView, info2);
+        layoutManager.unblockLayout();
+        assertFalse("info should not be filled if data is out of date", info2.isScrollable());
+        layoutManager.waitForLayout(1);
+    }
+
+    boolean performAccessibilityAction(final AccessibilityDelegateCompat delegate,
+            final RecyclerView recyclerView,  final int action) throws Throwable {
+        final boolean[] result = new boolean[1];
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                result[0] = delegate.performAccessibilityAction(recyclerView, action, null);
             }
         });
         getInstrumentation().waitForIdleSync();
         Thread.sleep(250);
+        return result[0];
     }
 }
