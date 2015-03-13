@@ -35,12 +35,16 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
         mRecyclerView = recyclerView;
     }
 
+    private boolean shouldIgnore() {
+        return mRecyclerView.hasPendingAdapterUpdates();
+    }
+
     @Override
     public boolean performAccessibilityAction(View host, int action, Bundle args) {
         if (super.performAccessibilityAction(host, action, args)) {
             return true;
         }
-        if (mRecyclerView.getLayoutManager() != null) {
+        if (!shouldIgnore() && mRecyclerView.getLayoutManager() != null) {
             return mRecyclerView.getLayoutManager().performAccessibilityAction(action, args);
         }
 
@@ -51,7 +55,7 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
     public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {
         super.onInitializeAccessibilityNodeInfo(host, info);
         info.setClassName(RecyclerView.class.getName());
-        if (mRecyclerView.getLayoutManager() != null) {
+        if (!shouldIgnore() && mRecyclerView.getLayoutManager() != null) {
             mRecyclerView.getLayoutManager().onInitializeAccessibilityNodeInfo(info);
         }
     }
@@ -60,7 +64,7 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
     public void onInitializeAccessibilityEvent(View host, AccessibilityEvent event) {
         super.onInitializeAccessibilityEvent(host, event);
         event.setClassName(RecyclerView.class.getName());
-        if (host instanceof RecyclerView) {
+        if (host instanceof RecyclerView && !shouldIgnore()) {
             RecyclerView rv = (RecyclerView) host;
             if (rv.getLayoutManager() != null) {
                 rv.getLayoutManager().onInitializeAccessibilityEvent(event);
@@ -76,7 +80,7 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
         @Override
         public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {
             super.onInitializeAccessibilityNodeInfo(host, info);
-            if (mRecyclerView.getLayoutManager() != null) {
+            if (!shouldIgnore() && mRecyclerView.getLayoutManager() != null) {
                 mRecyclerView.getLayoutManager().
                         onInitializeAccessibilityNodeInfoForItem(host, info);
             }
@@ -87,7 +91,7 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
             if (super.performAccessibilityAction(host, action, args)) {
                 return true;
             }
-            if (mRecyclerView.getLayoutManager() != null) {
+            if (!shouldIgnore() && mRecyclerView.getLayoutManager() != null) {
                 return mRecyclerView.getLayoutManager().
                         performAccessibilityActionForItem(host, action, args);
             }
