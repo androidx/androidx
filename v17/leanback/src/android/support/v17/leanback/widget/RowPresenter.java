@@ -150,6 +150,8 @@ public abstract class RowPresenter extends Presenter {
         float mSelectLevel = 0f; // initially unselected
         protected final ColorOverlayDimmer mColorDimmer;
         private View.OnKeyListener mOnKeyListener;
+        private OnItemViewSelectedListener mOnItemViewSelectedListener;
+        private OnItemViewClickedListener mOnItemViewClickedListener;
 
         /**
          * Constructor for ViewHolder.
@@ -241,11 +243,42 @@ public abstract class RowPresenter extends Presenter {
         public View.OnKeyListener getOnKeyListener() {
             return mOnKeyListener;
         }
+
+        /**
+         * Sets the listener for item or row selection.  RowPresenter fires row selection
+         * event with null item.  A subclass of RowPresenter e.g. {@link ListRowPresenter} may
+         * fire a selection event with selected item.
+         */
+        public final void setOnItemViewSelectedListener(OnItemViewSelectedListener listener) {
+            mOnItemViewSelectedListener = listener;
+        }
+
+        /**
+         * Returns the listener for item or row selection.
+         */
+        public final OnItemViewSelectedListener getOnItemViewSelectedListener() {
+            return mOnItemViewSelectedListener;
+        }
+
+        /**
+         * Sets the listener for item click event.  RowPresenter does nothing but subclass of
+         * RowPresenter may fire item click event if it has the concept of item.
+         * OnItemViewClickedListener will override {@link View.OnClickListener} that
+         * item presenter sets during {@link Presenter#onCreateViewHolder(ViewGroup)}.
+         */
+        public final void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
+            mOnItemViewClickedListener = listener;
+        }
+
+        /**
+         * Returns the listener for item click event.
+         */
+        public final OnItemViewClickedListener getOnItemViewClickedListener() {
+            return mOnItemViewClickedListener;
+        }
     }
 
     private RowHeaderPresenter mHeaderPresenter = new RowHeaderPresenter();
-    private OnItemViewSelectedListener mOnItemViewSelectedListener;
-    private OnItemViewClickedListener mOnItemViewClickedListener;
 
     boolean mSelectEffectEnabled = true;
     int mSyncActivatePolicy = SYNC_ACTIVATED_TO_EXPANDED;
@@ -419,8 +452,8 @@ public abstract class RowPresenter extends Presenter {
      */
     protected void dispatchItemSelectedListener(ViewHolder vh, boolean selected) {
         if (selected) {
-            if (mOnItemViewSelectedListener != null) {
-                mOnItemViewSelectedListener.onItemSelected(null, null, vh, vh.getRow());
+            if (vh.mOnItemViewSelectedListener != null) {
+                vh.mOnItemViewSelectedListener.onItemSelected(null, null, vh, vh.getRow());
             }
         }
     }
@@ -570,40 +603,6 @@ public abstract class RowPresenter extends Presenter {
             mHeaderPresenter.onViewDetachedFromWindow(vh.mHeaderViewHolder);
         }
         cancelAnimationsRecursive(vh.view);
-    }
-
-    /**
-     * Set listener for item or row selection.  RowPresenter fires row selection
-     * event with null item, subclass of RowPresenter e.g. {@link ListRowPresenter} can
-     * fire a selection event with selected item.
-     */
-    public final void setOnItemViewSelectedListener(OnItemViewSelectedListener listener) {
-        mOnItemViewSelectedListener = listener;
-    }
-
-    /**
-     * Get listener for item or row selection.
-     */
-    public final OnItemViewSelectedListener getOnItemViewSelectedListener() {
-        return mOnItemViewSelectedListener;
-    }
-
-    /**
-     * Set listener for item click event.  RowPresenter does nothing but subclass of
-     * RowPresenter may fire item click event if it does have a concept of item.
-     * OnItemViewClickedListener will override {@link View.OnClickListener} that
-     * item presenter sets during {@link Presenter#onCreateViewHolder(ViewGroup)}.
-     * So in general,  developer should choose one of the listeners but not both.
-     */
-    public final void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
-        mOnItemViewClickedListener = listener;
-    }
-
-    /**
-     * Set listener for item click event.
-     */
-    public final OnItemViewClickedListener getOnItemViewClickedListener() {
-        return mOnItemViewClickedListener;
     }
 
     /**

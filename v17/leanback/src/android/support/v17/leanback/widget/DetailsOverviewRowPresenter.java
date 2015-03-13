@@ -76,13 +76,14 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
 
         @Override
         public void onBind(final ItemBridgeAdapter.ViewHolder ibvh) {
-            if (getOnItemViewClickedListener() != null || mActionClickedListener != null) {
+            if (mViewHolder.getOnItemViewClickedListener() != null ||
+                    mActionClickedListener != null) {
                 ibvh.getPresenter().setOnClickListener(
                         ibvh.getViewHolder(), new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                if (getOnItemViewClickedListener() != null) {
-                                    getOnItemViewClickedListener().onItemClicked(
+                                if (mViewHolder.getOnItemViewClickedListener() != null) {
+                                    mViewHolder.getOnItemViewClickedListener().onItemClicked(
                                             ibvh.getViewHolder(), ibvh.getItem(),
                                             mViewHolder, mViewHolder.getRow());
                                 }
@@ -95,7 +96,8 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         }
         @Override
         public void onUnbind(final ItemBridgeAdapter.ViewHolder ibvh) {
-            if (getOnItemViewClickedListener() != null || mActionClickedListener != null) {
+            if (mViewHolder.getOnItemViewClickedListener() != null ||
+                    mActionClickedListener != null) {
                 ibvh.getPresenter().setOnClickListener(ibvh.getViewHolder(), null);
             }
         }
