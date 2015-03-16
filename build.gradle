@@ -5,14 +5,14 @@ buildscript {
         maven { url '../../prebuilts/tools/common/m2/internal' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.1.0'
+        classpath 'com.android.tools.build:gradle:0.10.0'
     }
 }
 
-ext.supportVersion = '22.0.0'
-ext.extraVersion = 12
+ext.supportVersion = '21.0.3'
+ext.extraVersion = 10
 ext.supportRepoOut = ''
-ext.buildToolsVersion = '21.0.0'
+ext.buildToolsVersion = '19.0.3'
 ext.buildNumber = Integer.toString(ext.extraVersion)
 
 /*
@@ -121,11 +121,10 @@ prepareRepo.dependsOn createSourceProp
 import com.google.common.hash.HashCode
 import com.google.common.hash.HashFunction
 import com.google.common.hash.Hashing
-import java.nio.charset.Charset
 
 def getSha1(File inputFile) {
     HashFunction hashFunction = Hashing.sha1()
-    HashCode hashCode = hashFunction.hashString(inputFile.getAbsolutePath(), Charset.forName("UTF-8"))
+    HashCode hashCode = hashFunction.hashString(inputFile.getAbsolutePath())
     return hashCode.toString()
 }
 
