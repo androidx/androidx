@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="v7_preference_on">ON</string>
+    <string name="v7_preference_off">OFF</string>
+</resources>
