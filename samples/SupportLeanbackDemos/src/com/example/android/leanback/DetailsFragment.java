@@ -35,6 +35,7 @@ import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 public class DetailsFragment extends android.support.v17.leanback.app.DetailsFragment {
@@ -65,6 +66,16 @@ public class DetailsFragment extends android.support.v17.leanback.app.DetailsFra
     public void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
         super.onCreate(savedInstanceState);
+
+        setBadgeDrawable(getActivity().getResources().getDrawable(R.drawable.ic_title));
+        setTitle("Leanback Sample App");
+        setOnSearchClickedListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), SearchActivity.class);
+                startActivity(intent);
+            }
+        });
 
         mActionPlay = new Action(ACTION_PLAY, "Play");
         mActionRent = new Action(ACTION_RENT, "Rent", "$3.99",
