@@ -281,5 +281,22 @@
 
     </declare-styleable>
 
+    <attr name="cardGravity">
+        <!-- Push cards to the left of the container. -->
+        <flag name="left" value="0x03" />
+        <!-- Push cards to the right of the container. -->
+        <flag name="right" value="0x05" />
+        <!-- Push cards to the beginning of the container. -->
+        <flag name="start" value="0x00800003" />
+        <!-- Push cards to the end of the container. -->
+        <flag name="end" value="0x00800005" />
+    </attr>
+
+    <declare-styleable name="StackedLayout">
+        <attr name="cardWidth" format="dimension" />
+        <attr name="stackShift" format="dimension" />
+        <attr name="elevationIncrement" format="dimension" />
+        <attr name="cardGravity" />
+    </declare-styleable>
 
 </resources>
