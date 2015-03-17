@@ -14,27 +14,45 @@
 package com.example.android.leanback;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v17.leanback.R;
-import android.view.LayoutInflater;
+import android.support.v17.leanback.widget.BrowseFrameLayout;
+import android.support.v17.leanback.widget.TitleHelper;
+import android.support.v17.leanback.widget.TitleView;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
-public class RowsActivity extends Activity implements RowsFragment.OnRowsFirstLineSelectedListener
+public class RowsActivity extends Activity
 {
-    TextView mTitleView;
+    private RowsFragment mRowsFragment;
+    private TitleHelper mTitleHelper;
+
     /** Called when the activity is first created. */
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.rows);
-        mTitleView = (TextView) findViewById(R.id.rows_title);
+
+        mRowsFragment = (RowsFragment) getFragmentManager().findFragmentById(
+                R.id.main_rows_fragment);
+
+        setupTitleFragment();
     }
 
-    @Override
-    public void onSelectedFirstRow(boolean firstRow) {
-        mTitleView.setVisibility(firstRow ? View.VISIBLE : View.INVISIBLE);
+    private void setupTitleFragment() {
+        TitleView titleView = (TitleView) findViewById(R.id.title);
+        titleView.setTitle("RowsFragment");
+        titleView.setOnSearchClickedListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(RowsActivity.this, SearchActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        BrowseFrameLayout frameLayout = (BrowseFrameLayout) findViewById(R.id.rows_frame);
+        mTitleHelper = new TitleHelper(frameLayout, titleView);
+        frameLayout.setOnFocusSearchListener(mTitleHelper.getOnFocusSearchListener());
+        mRowsFragment.setTitleHelper(mTitleHelper);
     }
 }
