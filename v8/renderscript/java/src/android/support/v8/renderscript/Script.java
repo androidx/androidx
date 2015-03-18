@@ -352,7 +352,7 @@ public class Script extends BaseObj {
      * @param v
      */
     public void setVar(int index, long v) {
-        mRS.nScriptSetVarD(getID(mRS), index, v, mUseIncSupp);
+        mRS.nScriptSetVarJ(getID(mRS), index, v, mUseIncSupp);
     }
 
     /**
