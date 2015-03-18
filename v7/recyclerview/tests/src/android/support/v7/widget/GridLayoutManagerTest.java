@@ -528,6 +528,26 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         }
     }
 
+    public void testSpanSizeChange() throws Throwable {
+        final RecyclerView rv = setupBasic(new Config(3, 100));
+        waitForFirstLayout(rv);
+        assertTrue(mGlm.supportsPredictiveItemAnimations());
+        mGlm.expectLayout(1);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGlm.setSpanCount(5);
+                assertFalse(mGlm.supportsPredictiveItemAnimations());
+            }
+        });
+        checkForMainThreadException();
+        mGlm.waitForLayout(2);
+        mGlm.expectLayout(2);
+        mAdapter.deleteAndNotify(3, 2);
+        mGlm.waitForLayout(2);
+        assertTrue(mGlm.supportsPredictiveItemAnimations());
+    }
+
     public void testCacheSpanIndices() throws Throwable {
         final RecyclerView rv = setupBasic(new Config(3, 100));
         mGlm.mSpanSizeLookup.setSpanIndexCacheEnabled(true);
