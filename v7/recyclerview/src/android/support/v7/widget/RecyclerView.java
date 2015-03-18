@@ -6424,16 +6424,21 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
             final int offScreenBottom = Math.max(0, childBottom - parentBottom);
 
             // Favor the "start" layout direction over the end when bringing one side or the other
-            // of a large rect into view.
+            // of a large rect into view. If we decide to bring in end because start is already
+            // visible, limit the scroll such that start won't go out of bounds.
             final int dx;
-            if (ViewCompat.getLayoutDirection(parent) == ViewCompat.LAYOUT_DIRECTION_RTL) {
-                dx = offScreenRight != 0 ? offScreenRight : offScreenLeft;
+            if (getLayoutDirection() == ViewCompat.LAYOUT_DIRECTION_RTL) {
+                dx = offScreenRight != 0 ? offScreenRight
+                        : Math.max(offScreenLeft, childRight - parentRight);
             } else {
-                dx = offScreenLeft != 0 ? offScreenLeft : offScreenRight;
+                dx = offScreenLeft != 0 ? offScreenLeft
+                        : Math.min(childLeft - parentLeft, offScreenRight);
             }
 
-            // Favor bringing the top into view over the bottom
-            final int dy = offScreenTop != 0 ? offScreenTop : offScreenBottom;
+            // Favor bringing the top into view over the bottom. If top is already visible and
+            // we should scroll to make bottom visible, make sure top does not go out of bounds.
+            final int dy = offScreenTop != 0 ? offScreenTop
+                    : Math.min(childTop - parentTop, offScreenBottom);
 
             if (dx != 0 || dy != 0) {
                 if (immediate) {
