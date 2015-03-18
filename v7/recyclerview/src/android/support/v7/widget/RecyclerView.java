@@ -1571,7 +1571,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
 
     @Override
     public void addFocusables(ArrayList<View> views, int direction, int focusableMode) {
-        if (!mLayout.onAddFocusables(this, views, direction, focusableMode)) {
+        if (mLayout == null || !mLayout.onAddFocusables(this, views, direction, focusableMode)) {
             super.addFocusables(views, direction, focusableMode);
         }
     }
