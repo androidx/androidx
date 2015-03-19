@@ -17,4 +17,33 @@
 
 <resources>
     <string name="app_name">MainActivity</string>
+    <string name="main_breadcrumb">Demo</string>
+    <string name="main_title">Activities</string>
+    <string name="browse">Browse</string>
+    <string name="browse_description">BrowseFragment test</string>
+    <string name="search">Search</string>
+    <string name="search_description">SearchFragment test</string>
+    <string name="details">Details</string>
+    <string name="details_description">DetailsFragment test</string>
+    <string name="playback">Playback</string>
+    <string name="playback_description">PlaybackOverlay test</string>
+    <string name="hgrid">Horizontal Grid</string>
+    <string name="hgrid_description">HorizontalGridView test</string>
+    <string name="vgrid">Vertical Grid</string>
+    <string name="vgrid_description">VerticalGridView test</string>
+    <string name="guidedstep">Guided Step</string>
+    <string name="guidedstep_description">GuidedStepFragment test</string>
+    <string name="browseerror">Browse Error</string>
+    <string name="browseerror_description">BrowseError test</string>
+
+    <!-- Strings related to guided sequence activity -->
+    <string name="guidedstep_first_title">First</string>
+    <string name="guidedstep_first_description">First step of guided sequence</string>
+    <string name="guidedstep_first_breadcrumb">Guided Steps</string>
+    <string name="guidedstep_second_title">Second</string>
+    <string name="guidedstep_second_description">Showcasing different action configurations</string>
+    <string name="guidedstep_second_breadcrumb">Guided Steps</string>
+    <string name="guidedstep_third_title">Third</string>
+    <string name="guidedstep_third_description">Third step of guided sequence</string>
+    <string name="guidedstep_third_breadcrumb">Guided Steps</string>
 </resources>
