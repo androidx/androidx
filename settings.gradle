@@ -28,6 +28,9 @@ project(':support-preference-v7').projectDir = new File(rootDir, 'v7/preference'
 include ':support-preference-v14'
 project(':support-preference-v14').projectDir = new File(rootDir, 'v14/preference')
 
+include ':support-preference-v17'
+project(':support-preference-v17').projectDir = new File(rootDir, 'v17/preference')
+
 include ':support-v13'
 project(':support-v13').projectDir = new File(rootDir, 'v13')
 
