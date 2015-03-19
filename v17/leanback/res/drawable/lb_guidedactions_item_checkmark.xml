@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-     Copyright (C) 2014 The Android Open Source Project
+     Copyright (C) 2015 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,14 +14,13 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval" >
 
-<resources>
-    <style name="Theme.LeanbackBase" parent="android:Theme.Holo.NoActionBar.TranslucentDecor">
-        <item name="playbackProgressPrimaryColor">@color/lb_playback_progress_color_no_theme</item>
-        <item name="playbackControlsIconHighlightColor">@color/lb_playback_icon_highlight_no_theme</item>
-        <item name="defaultBrandColor">@color/lb_default_brand_color</item>
+    <size
+        android:height="@dimen/lb_guidedactions_item_checkmark_diameter"
+        android:width="@dimen/lb_guidedactions_item_checkmark_diameter" />
 
-        <item name="android:windowOverscan">true</item>
-        <item name="guidedStepTheme">@style/Theme.Leanback.GuidedStep</item>
-    </style>
-</resources>
+    <solid android:color="@color/lb_tv_white" />
+
+</shape>
