@@ -278,6 +278,156 @@
         <attr name="overlayDimActiveLevel" format="fraction" />
         <!-- Default level of dimming for dimmed views. -->
         <attr name="overlayDimDimmedLevel" format="fraction" />
+    </declare-styleable>
+
+    <declare-styleable name="LeanbackGuidedStepTheme">
+
+        <!-- Theme attribute for the overall theme used in a GuidedStepFragment. The Leanback themes
+             set the default for this, but a custom theme that does not derive from a leanback theme
+             can set this to <code>@style/Theme.Leanback.GuidedStep</code> in order to specify the
+             default GuidedStepFragment styles. -->
+        <attr name="guidedStepTheme" format="reference" />
+
+        <!-- @hide
+             Theme attribute used to inspect theme inheritance. -->
+        <attr name="guidedStepThemeFlag" format="boolean" />
+
+        <!-- Theme attribute for the animation used when a guided step element is animated in on
+             fragment stack push. Default is {@link
+             android.support.v17.leanback.R.animator#lb_guidedstep_slide_in_from_end}. -->
+        <attr name="guidedStepEntryAnimation" format="reference" />
+        <!-- Theme attribute for the animation used when a guided step element is animated out on
+             fragment stack push. Default is {@link
+             android.support.v17.leanback.R.animator#lb_guidedstep_slide_out_to_start}. -->
+        <attr name="guidedStepExitAnimation" format="reference" />
+        <!-- Theme attribute for the animation used when a guided step element is animated in on
+             fragment stack pop. Default is {@link
+             android.support.v17.leanback.R.animator#lb_guidedstep_slide_in_from_start}. -->
+        <attr name="guidedStepReentryAnimation" format="reference" />
+        <!-- Theme attribute for the animation used when a guided step element is animated out on
+             fragment stack pop. Default is {@link
+             android.support.v17.leanback.R.animator#lb_guidedstep_slide_out_to_end}. -->
+        <attr name="guidedStepReturnAnimation" format="reference" />
+
+        <!-- Theme attribute for the animation used when the guidance is animated in at activity
+             start. Default is {@link android.support.v17.leanback.R.animator#lb_guidance_entry}.
+             -->
+        <attr name="guidanceEntryAnimation" format="reference" />
+        <!-- Theme attribute for the style of the main container in a GuidanceStylist. Default is
+             {@link android.support.v17.leanback.R.style#Widget_Leanback_GuidanceContainerStyle}.-->
+        <attr name="guidanceContainerStyle" format="reference" />
+        <!-- Theme attribute for the style of the title in a GuidanceStylist. Default is
+             {@link android.support.v17.leanback.R.style#Widget_Leanback_GuidanceTitleStyle}. -->
+        <attr name="guidanceTitleStyle" format="reference" />
+        <!-- Theme attribute for the style of the description in a GuidanceStylist. Default is
+             {@link android.support.v17.leanback.R.style#Widget_Leanback_GuidanceDescriptionStyle}. -->
+        <attr name="guidanceDescriptionStyle" format="reference" />
+        <!-- Theme attribute for the style of the breadcrumb in a GuidanceStylist. Default is
+             {@link android.support.v17.leanback.R.style#Widget_Leanback_GuidanceBreadcrumbStyle}. -->
+        <attr name="guidanceBreadcrumbStyle" format="reference" />
+        <!-- Theme attribute for the style of the icon in a GuidanceStylist. Default is
+             {@link android.support.v17.leanback.R.style#Widget_Leanback_GuidanceIconStyle}. -->
+        <attr name="guidanceIconStyle" format="reference" />
+
+        <!-- Theme attribute for the animation used in a GuidedActionsPresenter when the actions
+             list is animated in at activity start. Default is {@link
+             android.support.v17.leanback.R.animator#lb_guidedactions_entry}. -->
+        <attr name="guidedActionsEntryAnimation" format="reference" />
+        <!-- Theme attribute for the animation used in a GuidedActionsPresenter when the action
+             selector is animated in at activity start. Default is {@link
+             android.support.v17.leanback.R.animator#lb_guidedactions_selector_show}. -->
+        <attr name="guidedActionsSelectorShowAnimation" format="reference" />
+        <!-- Theme attribute for the animation used in a GuidedActionsPresenter when the action
+             selector is animated in at activity start. Default is {@link
+             android.support.v17.leanback.R.animator#lb_guidedactions_selector_hide}. -->
+        <attr name="guidedActionsSelectorHideAnimation" format="reference" />
+        <!-- Theme attribute for the style of the container in a GuidedActionsPresenter. Default is
+             {@link android.support.v17.leanback.R.style#Widget_Leanback_GuidedActionsContainerStyle}. -->
+        <attr name="guidedActionsContainerStyle" format="reference" />
+        <!-- Theme attribute for the style of the item selector in a GuidedActionsPresenter. Default is
+             {@link android.support.v17.leanback.R.style#Widget_Leanback_GuidedActionsSelectorStyle}. -->
+        <attr name="guidedActionsSelectorStyle" format="reference" />
+        <!-- Theme attribute for the style of the list in a GuidedActionsPresenter. Default is
+             {@link android.support.v17.leanback.R.style#Widget_Leanback_GuidedActionsListStyle}.-->
+        <attr name="guidedActionsListStyle" format="reference" />
+
+        <!-- Theme attribute for the style of the container of a single action in a
+             GuidedActionsPresenter. Default is {@link
+             android.support.v17.leanback.R.style#Widget_Leanback_GuidedActionItemContainerStyle}. -->
+        <attr name="guidedActionItemContainerStyle" format="reference" />
+        <!-- Theme attribute for the style of an action's checkmark in a GuidedActionsPresenter.
+             Default is {@link
+             android.support.v17.leanback.R.style#Widget_Leanback_GuidedActionItemCheckmarkStyle}. -->
+        <attr name="guidedActionItemCheckmarkStyle" format="reference" />
+        <!-- Theme attribute for the style of an action's icon in a GuidedActionsPresenter. Default
+             is {@link
+             android.support.v17.leanback.R.style#Widget_Leanback_GuidedActionItemIconStyle}. -->
+        <attr name="guidedActionItemIconStyle" format="reference" />
+        <!-- Theme attribute for the style of an action's content in a GuidedActionsPresenter.
+             Default is {@link
+             android.support.v17.leanback.R.style#Widget_Leanback_GuidedActionItemContentStyle}. -->
+        <attr name="guidedActionItemContentStyle" format="reference" />
+        <!-- Theme attribute for the style of an action's title in a GuidedActionsPresenter. Default
+             is {@link
+             android.support.v17.leanback.R.style#Widget_Leanback_GuidedActionItemTitleStyle}. -->
+        <attr name="guidedActionItemTitleStyle" format="reference" />
+        <!-- Theme attribute for the style of an action's description in a GuidedActionsPresenter.
+             Default is {@link
+             android.support.v17.leanback.R.style#Widget_Leanback_GuidedActionItemDescriptionStyle}. -->
+        <attr name="guidedActionItemDescriptionStyle" format="reference" />
+        <!-- Theme attribute for the style of an action's chevron decoration in a
+             GuidedActionsPresenter. Default is {@link
+             android.support.v17.leanback.R.style#Widget_Leanback_GuidedActionItemChevronStyle}. -->
+        <attr name="guidedActionItemChevronStyle" format="reference" />
+
+        <!-- Theme attribute for the animation used in a GuidedActionsPresenter when an action
+             is checked. Default is {@link
+             android.support.v17.leanback.R.animator#lb_guidedactions_item_checked}. -->
+        <attr name="guidedActionCheckedAnimation" format="reference" />
+        <!-- Theme attribute for the animation used in a GuidedActionsPresenter when an action
+             is unchecked. Default is {@link
+             android.support.v17.leanback.R.animator#lb_guidedactions_item_unchecked}. -->
+        <attr name="guidedActionUncheckedAnimation" format="reference" />
+        <!-- Theme attribute for the animation used in a GuidedActionsPresenter when an action
+             is pressed. Default is {@link
+             android.support.v17.leanback.R.animator#lb_guidedactions_item_pressed}. -->
+        <attr name="guidedActionPressedAnimation" format="reference" />
+        <!-- Theme attribute for the animation used in a GuidedActionsPresenter when an action
+             is unpressed. Default is {@link
+             android.support.v17.leanback.R.animator#lb_guidedactions_item_unpressed}. -->
+        <attr name="guidedActionUnpressedAnimation" format="reference" />
+        <!-- Theme attribute used in a GuidedActionsPresenter for the alpha value of the chevron
+             decoration when its action is enabled. Default is {@link
+             android.support.v17.leanback.R.string#lb_guidedactions_item_enabled_chevron_alpha}. -->
+        <attr name="guidedActionEnabledChevronAlpha" format="reference" />
+        <!-- Theme attribute used in a GuidedActionsPresenter for the alpha value of the chevron
+             decoration when its action is disabled. Default is {@link
+             android.support.v17.leanback.R.string#lb_guidedactions_item_disabled_chevron_alpha}. -->
+        <attr name="guidedActionDisabledChevronAlpha" format="reference" />
+        <!-- Theme attribute used in a GuidedActionsPresenter for the width of the text area of
+             a single action when there is an icon present. Default is {@link
+             android.support.v17.leanback.R.dimen#lb_guidedactions_item_text_width}. -->
+        <attr name="guidedActionContentWidth" format="reference" />
+        <!-- Theme attribute used in a GuidedActionsPresenter for the width of the text area of
+             a single action when there is no icon present. Default is {@link
+             android.support.v17.leanback.R.dimen#lb_guidedactions_item_text_width_no_icon}. -->
+        <attr name="guidedActionContentWidthNoIcon" format="reference" />
+        <!-- Theme attribute used in a GuidedActionsPresenter for the max lines of the title text
+             view when the action's isMultilineDescription is set to false. Default is {@link
+             android.support.v17.leanback.R.integer#lb_guidedactions_item_title_min_lines}. -->
+        <attr name="guidedActionTitleMinLines" format="reference" />
+        <!-- Theme attribute used in a GuidedActionsPresenter for the max lines of the title text
+             view when the action's isMultilineDescription is set to true. Default is {@link
+             android.support.v17.leanback.R.integer#lb_guidedactions_item_title_max_lines}. -->
+        <attr name="guidedActionTitleMaxLines" format="reference" />
+        <!-- Theme attribute used in a GuidedActionsPresenter for the max lines of the title text
+             view when the action's isMultilineDescription is set to false. Default is {@link
+             android.support.v17.leanback.R.integer#lb_guidedactions_item_description_min_lines}. -->
+        <attr name="guidedActionDescriptionMinLines" format="reference" />
+        <!-- Theme attribute used in a GuidedActionsPresenter for the vertical padding between
+             action views in the list. Default is {@link
+             android.support.v17.leanback.R.dimen#lb_guidedactions_vertical_padding}. -->
+        <attr name="guidedActionVerticalPadding" format="reference" />
 
     </declare-styleable>
 
