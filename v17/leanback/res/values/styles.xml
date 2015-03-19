@@ -290,4 +290,175 @@
         <item name="closed_captioning">@drawable/lb_ic_cc</item>
     </style>
 
+    <!-- Style for the main container view in a GuidanceStylist's default layout. -->
+    <style name="Widget.Leanback.GuidanceContainerStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:paddingStart">48dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:clipToPadding">false</item>
+    </style>
+
+    <!-- Style for the title view in a GuidanceStylist's default layout. -->
+    <style name="Widget.Leanback.GuidanceTitleStyle">
+        <item name="android:layout_toStartOf">@id/guidance_icon</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignWithParentIfMissing">true</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:gravity">end</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:paddingTop">2dp</item>
+        <item name="android:textColor">#FFF1F1F1</item>
+        <item name="android:textSize">36sp</item>
+    </style>
+
+    <!-- Style for the description view in a GuidanceStylist's default layout. -->
+    <style name="Widget.Leanback.GuidanceDescriptionStyle">
+        <item name="android:layout_below">@id/guidance_title</item>
+        <item name="android:layout_toStartOf">@id/guidance_icon</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignWithParentIfMissing">true</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:gravity">end</item>
+        <item name="android:maxLines">6</item>
+        <item name="android:textColor">#88F1F1F1</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineSpacingExtra">3dp</item>
+    </style>
+
+    <!-- Style for the breadcrumb view in a GuidanceStylist's default layout. -->
+    <style name="Widget.Leanback.GuidanceBreadcrumbStyle">
+        <item name="android:layout_above">@id/guidance_title</item>
+        <item name="android:layout_toStartOf">@id/guidance_icon</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignWithParentIfMissing">true</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textColor">#88F1F1F1</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <!-- Style for the icon view in a GuidanceStylist's default layout. -->
+    <style name="Widget.Leanback.GuidanceIconStyle">
+        <item name="android:layout_width">140dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentEnd">true</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:maxHeight">280dp</item>
+        <item name="android:scaleType">fitCenter</item>
+    </style>
+
+    <!-- Style for the container view in a GuidedActionsStylist's default layout. -->
+    <style name="Widget.Leanback.GuidedActionsContainerStyle">
+        <item name="android:layout_width">@dimen/lb_guidedactions_section_width</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_alignParentEnd">true</item>
+        <item name="android:background">@color/lb_guidedactions_background</item>
+        <item name="android:elevation">@dimen/lb_guidedactions_elevation</item>
+    </style>
+
+    <!-- Style for the selector view in a GuidedActionsStylist's default layout. -->
+    <style name="Widget.Leanback.GuidedActionsSelectorStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/lb_guidedactions_selector_min_height</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:alpha">0</item>
+        <item name="android:background">@color/lb_guidedactions_selector_color</item>
+    </style>
+
+    <!-- Style for the vertical grid of actions in a GuidedActionsStylist's default layout. -->
+    <style name="Widget.Leanback.GuidedActionsListStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+
+    <!-- Style for an action's container in a GuidedActionsStylist's default item layout. -->
+    <style name="Widget.Leanback.GuidedActionItemContainerStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:focusable">true</item>
+        <item name="android:minHeight">@dimen/lb_guidedactions_item_min_height</item>
+        <item name="android:paddingBottom">@dimen/lb_guidedactions_vertical_padding</item>
+        <item name="android:paddingStart">@dimen/lb_guidedactions_item_start_padding</item>
+        <item name="android:paddingEnd">@dimen/lb_guidedactions_item_end_padding</item>
+        <item name="android:paddingTop">@dimen/lb_guidedactions_vertical_padding</item>
+    </style>
+
+    <!-- Style for an action's checkmark in a GuidedActionsStylist's default item layout. -->
+    <style name="Widget.Leanback.GuidedActionItemCheckmarkStyle">
+        <item name="android:layout_width">@dimen/lb_guidedactions_item_checkmark_diameter</item>
+        <item name="android:layout_height">@dimen/lb_guidedactions_item_checkmark_diameter</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_marginEnd">@dimen/lb_guidedactions_item_delimiter_padding</item>
+        <item name="android:scaleType">center</item>
+        <item name="android:src">@drawable/lb_guidedactions_item_checkmark</item>
+        <item name="android:visibility">invisible</item>
+    </style>
+
+    <!-- Style for an action's icon in a GuidedActionsStylist's default item layout. -->
+    <style name="Widget.Leanback.GuidedActionItemIconStyle">
+        <item name="android:layout_width">@dimen/lb_guidedactions_item_icon_width</item>
+        <item name="android:layout_height">@dimen/lb_guidedactions_item_icon_height</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_marginEnd">@dimen/lb_guidedactions_item_delimiter_padding</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <!-- Style for an action's text content in a GuidedActionsStylist's default item layout. -->
+    <style name="Widget.Leanback.GuidedActionItemContentStyle">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">start|center_vertical</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <!-- Style for an action's title in a GuidedActionsStylist's default item layout. -->
+    <style name="Widget.Leanback.GuidedActionItemTitleStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:alpha">@string/lb_guidedactions_item_unselected_text_alpha</item>
+        <item name="android:ellipsize">marquee</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:maxLines">@integer/lb_guidedactions_item_title_min_lines</item>
+        <item name="android:textColor">@color/lb_guidedactions_item_unselected_text_color</item>
+        <item name="android:textSize">@dimen/lb_guidedactions_item_title_font_size</item>
+    </style>
+
+    <!-- Style for an action's description in a GuidedActionsStylist's default item layout. -->
+    <style name="Widget.Leanback.GuidedActionItemDescriptionStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:alpha">@string/lb_guidedactions_item_unselected_description_text_alpha</item>
+        <item name="android:ellipsize">marquee</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:maxLines">@integer/lb_guidedactions_item_description_min_lines</item>
+        <item name="android:textColor">@color/lb_guidedactions_item_unselected_text_color</item>
+        <item name="android:textSize">@dimen/lb_guidedactions_item_description_font_size</item>
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <!-- Style for an action's chevron in a GuidedActionsStylist's default item layout. -->
+    <style name="Widget.Leanback.GuidedActionItemChevronStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_marginStart">@dimen/lb_guidedactions_item_delimiter_padding</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:src">@drawable/lb_ic_guidedactions_item_chevron</item>
+        <item name="android:visibility">gone</item>
+    </style>
+
 </resources>

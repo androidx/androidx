@@ -65,4 +65,14 @@
     <color name="lb_playback_controls_time_text_color">#B2EEEEEE</color>
 
     <color name="lb_search_plate_hint_text_color">#FFCCCCCC</color>
+
+    <!-- GuidedStepFragment -->
+    <color name="lb_tv_white">#FFCCCCCC</color>
+
+    <!-- refactor naming here -->
+    <color name="lb_guidedactions_background">#FF111111</color>
+    <color name="lb_guidedactions_selector_color">#26FFFFFF</color>
+    <color name="lb_guidedactions_item_unselected_text_color">#FFF1F1F1</color>
+    <!-- end refactor naming -->
+
 </resources>
