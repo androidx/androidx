@@ -107,6 +107,9 @@ LOCAL_MODULE := android-support-v17-leanback
 LOCAL_MODULE_CLASS := JAVA_LIBRARIES
 LOCAL_MODULE_TAGS := optional
 
+res.COMMON := $(call intermediates-dir-for,$(LOCAL_MODULE_CLASS),android-support-v17-leanback-res,,COMMON)
+leanback.docs.src_files := $(leanback.docs.src_files) $(call all-java-files-under, ../../../../$(res.COMMON))
+
 intermediates.COMMON := $(call intermediates-dir-for,$(LOCAL_MODULE_CLASS),android-support-v17-leanback,,COMMON)
 
 LOCAL_SRC_FILES := $(leanback.docs.src_files)
@@ -162,6 +165,7 @@ $(leanback_internal_api_file) : $(full_target)
 leanback.docs.src_files :=
 leanback.docs.java_libraries :=
 intermediates.COMMON :=
+res.COMMON :=
 leanback_internal_api_file :=
 leanback_stubs_stamp :=
 leanback.docs.stubpackages :=
