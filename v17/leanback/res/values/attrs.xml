@@ -432,20 +432,25 @@
     </declare-styleable>
 
     <attr name="cardGravity">
-        <!-- Push cards to the left of the container. -->
+        <!-- Push child views to the left of the container. -->
         <flag name="left" value="0x03" />
-        <!-- Push cards to the right of the container. -->
+        <!-- Push child views to the right of the container. -->
         <flag name="right" value="0x05" />
-        <!-- Push cards to the beginning of the container. -->
+        <!-- Push child views to the beginning of the container. -->
         <flag name="start" value="0x00800003" />
-        <!-- Push cards to the end of the container. -->
+        <!-- Push child views to the end of the container. -->
         <flag name="end" value="0x00800005" />
     </attr>
 
     <declare-styleable name="StackedLayout">
+        <!-- Defines the width of child views in this layout -->
         <attr name="cardWidth" format="dimension" />
+        <!-- Defines the distance to shift child views away from the edge when another child
+             is added -->
         <attr name="stackShift" format="dimension" />
+        <!-- Defines the amount to increment the elevation of each added child -->
         <attr name="elevationIncrement" format="dimension" />
+        <!-- Defines which edge child views are laid out on -->
         <attr name="cardGravity" />
     </declare-styleable>
 

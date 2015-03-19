@@ -41,6 +41,8 @@ import java.util.List;
  * @attr ref R.styleable#StackedLayout_stackShift
  * @attr ref R.styleable#StackedLayout_elevationIncrement
  * @attr ref R.styleable#StackedLayout_cardGravity
+ *
+ * @hide
  */
 public class StackedLayout extends ViewGroup {
 
