@@ -943,7 +943,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             // if focus position is never set before,  initialize it to 0
             mFocusPosition = 0;
         }
-        if (!mState.didStructureChange() && !mForceFullLayout && mGrid != null) {
+        if (!mState.didStructureChange() && mGrid.getFirstVisibleIndex() >= 0 &&
+                !mForceFullLayout && mGrid != null) {
             updateScrollController();
             updateScrollSecondAxis();
             mGrid.setMargin(mMarginPrimary);
@@ -1642,15 +1643,14 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             fastRelayout();
             // appends items till focus position.
             if (mFocusPosition != NO_POSITION) {
-                View focusView;
-                while ((focusView = findViewByPosition(mFocusPosition)) == null) {
-                    appendOneColumnVisibleItems();
-                }
-                if (scrollToFocus) {
-                    scrollToView(focusView, false);
-                }
-                if (hadFocus) {
-                    focusView.requestFocus();
+                View focusView = findViewByPosition(mFocusPosition);
+                if (focusView != null) {
+                    if (scrollToFocus) {
+                        scrollToView(focusView, false);
+                    }
+                    if (hadFocus) {
+                        focusView.requestFocus();
+                    }
                 }
             }
         } else {

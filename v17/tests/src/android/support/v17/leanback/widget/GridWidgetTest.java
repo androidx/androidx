@@ -36,6 +36,7 @@ import java.util.Iterator;
 public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivity> {
 
     private static final boolean HUMAN_DELAY = false;
+    private static final long WAIT_FOR_SCROLL_IDLE_TIMEOUT_MS = 60000;
 
     protected GridActivity mActivity;
     protected Instrumentation mInstrumentation;
@@ -100,8 +101,12 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
      */
     protected void waitForScrollIdle(Runnable verify) throws Throwable {
         Thread.sleep(100);
+        int total = 0;
         while (mGridView.getLayoutManager().isSmoothScrolling() ||
                 mGridView.getScrollState() != BaseGridView.SCROLL_STATE_IDLE) {
+            if ((total += 100) >= WAIT_FOR_SCROLL_IDLE_TIMEOUT_MS) {
+                throw new RuntimeException("waitForScrollIdle Timeout");
+            }
             try {
                 Thread.sleep(100);
             } catch (InterruptedException ex) {
@@ -1046,4 +1051,42 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         }
 
     }
+
+    public void testScrollToNoneExisting() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_grid);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 100);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 3;
+        initActivity(intent);
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPositionSmooth(99);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+        humanDelay(500);
+
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPositionSmooth(50);
+            }
+        });
+        Thread.sleep(100);
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.requestLayout();
+                mGridView.setSelectedPositionSmooth(0);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+        humanDelay(500);
+
+    }
+
 }
