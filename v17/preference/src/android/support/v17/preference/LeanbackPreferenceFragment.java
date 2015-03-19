@@ -17,21 +17,33 @@
 package android.support.v17.preference;
 
 import android.os.Bundle;
-import android.support.v14.preference.PreferenceFragment;
-import android.support.v17.leanback.widget.VerticalGridView;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
-public abstract class LeanbackPreferenceFragment extends PreferenceFragment {
+/**
+ * This fragment provides a fully decorated leanback-style preference fragment, including a
+ * list background and header.
+ */
+public abstract class LeanbackPreferenceFragment extends BaseLeanbackPreferenceFragment {
 
     @Override
-    public RecyclerView onCreateRecyclerView(LayoutInflater inflater, ViewGroup parent,
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        VerticalGridView verticalGridView = (VerticalGridView) inflater
-                .inflate(R.layout.leanback_preferences_list, parent, false);
-        verticalGridView.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_BOTH_EDGE);
-        verticalGridView.setFocusScrollStrategy(VerticalGridView.FOCUS_SCROLL_ALIGNED);
-        return verticalGridView;
+        final View view = inflater.inflate(R.layout.leanback_preference_fragment, container, false);
+        final ViewGroup innerContainer = (ViewGroup) view.findViewById(R.id.main_frame);
+        final View innerView = super.onCreateView(inflater, innerContainer, savedInstanceState);
+        if (innerView != null) {
+            innerContainer.addView(innerView);
+        }
+        return view;
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        final TextView decorTitle = (TextView) view.findViewById(R.id.decor_title);
+        decorTitle.setText(getPreferenceScreen().getTitle());
     }
 }
