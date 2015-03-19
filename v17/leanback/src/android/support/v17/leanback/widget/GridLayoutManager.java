@@ -418,7 +418,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     private RecyclerView.State mState;
     private RecyclerView.Recycler mRecycler;
 
-    private boolean mInLayout = false;
+    private boolean mInLayout;
+    private boolean mInScroll;
     private boolean mInFastRelayout;
     /**
      * During full layout pass, when GridView had focus: onLayoutChildren will
@@ -1752,6 +1753,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             return 0;
         }
         saveContext(recycler, state);
+        mInScroll = true;
         int result;
         if (mOrientation == HORIZONTAL) {
             result = scrollDirectionPrimary(dx);
@@ -1759,6 +1761,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             result = scrollDirectionSecondary(dx);
         }
         leaveContext();
+        mInScroll = false;
         return result;
     }
 
@@ -1768,6 +1771,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         if (!mLayoutEnabled || !hasDoneFirstLayout()) {
             return 0;
         }
+        mInScroll = true;
         saveContext(recycler, state);
         int result;
         if (mOrientation == VERTICAL) {
@@ -1776,6 +1780,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             result = scrollDirectionSecondary(dy);
         }
         leaveContext();
+        mInScroll = false;
         return result;
     }
 
@@ -2144,7 +2149,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             // scroll to a view whose item has been removed.
             return true;
         }
-        if (!mInLayout && !mInSelection) {
+        if (!mInLayout && !mInSelection && !mInScroll) {
             scrollToView(child, true);
         }
         return true;
