@@ -15,6 +15,7 @@ package android.support.v17.leanback.app;
 
 import java.lang.ref.WeakReference;
 
+import android.graphics.PixelFormat;
 import android.support.v17.leanback.R;
 import android.animation.Animator;
 import android.animation.ValueAnimator;
@@ -161,7 +162,7 @@ public final class BackgroundManager {
 
         @Override
         public int getOpacity() {
-            return android.graphics.PixelFormat.OPAQUE;
+            return android.graphics.PixelFormat.TRANSLUCENT;
         }
 
         @Override
@@ -184,30 +185,136 @@ public final class BackgroundManager {
     }
 
     private static class DrawableWrapper {
-        protected int mAlpha;
-        protected Drawable mDrawable;
+        private int mAlpha = FULL_ALPHA;
+        private Drawable mDrawable;
 
         public DrawableWrapper(Drawable drawable) {
             mDrawable = drawable;
-            setAlpha(FULL_ALPHA);
+            updateAlpha();
+        }
+        public DrawableWrapper(DrawableWrapper wrapper, Drawable drawable) {
+            mDrawable = drawable;
+            mAlpha = wrapper.getAlpha();
+            updateAlpha();
         }
         public Drawable getDrawable() {
             return mDrawable;
         }
         public void setAlpha(int alpha) {
             mAlpha = alpha;
-            mDrawable.setAlpha(alpha);
+            updateAlpha();
         }
         public int getAlpha() {
             return mAlpha;
+        }
+        private void updateAlpha() {
+            mDrawable.setAlpha(mAlpha);
         }
         public void setColor(int color) {
             ((ColorDrawable) mDrawable).setColor(color);
         }
     }
 
-    private LayerDrawable mLayerDrawable;
-    private DrawableWrapper mLayerWrapper;
+    private static class TranslucentLayerDrawable extends LayerDrawable {
+        private DrawableWrapper[] mWrapper;
+        private Paint mPaint = new Paint();
+
+        public static TranslucentLayerDrawable create(LayerDrawable layerDrawable) {
+            int numChildren = layerDrawable.getNumberOfLayers();
+            Drawable[] drawables = new Drawable[numChildren];
+            for (int i = 0; i < numChildren; i++) {
+                drawables[i] = layerDrawable.getDrawable(i);
+            }
+            TranslucentLayerDrawable result = new TranslucentLayerDrawable(drawables);
+            for (int i = 0; i < numChildren; i++) {
+                result.setId(i, layerDrawable.getId(i));
+            }
+            return result;
+        }
+
+        public TranslucentLayerDrawable(Drawable[] drawables) {
+            super(drawables);
+            int count = drawables.length;
+            mWrapper = new DrawableWrapper[count];
+            for (int i = 0; i < count; i++) {
+                mWrapper[i] = new DrawableWrapper(drawables[i]);
+            }
+        }
+
+        @Override
+        public void setAlpha(int alpha) {
+            if (mPaint.getAlpha() != alpha) {
+                mPaint.setAlpha(alpha);
+                invalidateSelf();
+            }
+        }
+
+        @Override
+        public Drawable mutate() {
+            Drawable drawable = super.mutate();
+            int count = getNumberOfLayers();
+            for (int i = 0; i < count; i++) {
+                if (mWrapper[i] != null) {
+                    mWrapper[i] = new DrawableWrapper(mWrapper[i], getDrawable(i));
+                }
+            }
+            return drawable;
+        }
+
+        @Override
+        public int getOpacity() {
+            return PixelFormat.TRANSLUCENT;
+        }
+
+        @Override
+        public boolean setDrawableByLayerId(int id, Drawable drawable) {
+            return updateDrawable(id, drawable) != null;
+        }
+
+        public DrawableWrapper updateDrawable(int id, Drawable drawable) {
+            super.setDrawableByLayerId(id, drawable);
+            for (int i = 0; i < getNumberOfLayers(); i++) {
+                if (getId(i) == id) {
+                    mWrapper[i] = new DrawableWrapper(drawable);
+                    return mWrapper[i];
+                }
+            }
+            return null;
+        }
+
+        public void clearDrawable(int id, Context context) {
+            for (int i = 0; i < getNumberOfLayers(); i++) {
+                if (getId(i) == id) {
+                    mWrapper[i] = null;
+                    super.setDrawableByLayerId(id, createEmptyDrawable(context));
+                    break;
+                }
+            }
+        }
+
+        public DrawableWrapper findWrapperById(int id) {
+            for (int i = 0; i < getNumberOfLayers(); i++) {
+                if (getId(i) == id) {
+                    return mWrapper[i];
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public void draw(Canvas canvas) {
+            if (mPaint.getAlpha() < FULL_ALPHA) {
+                canvas.saveLayer(0, 0, canvas.getWidth(), canvas.getHeight(),
+                        mPaint, Canvas.ALL_SAVE_FLAG);
+            }
+            super.draw(canvas);
+            if (mPaint.getAlpha() < FULL_ALPHA) {
+                canvas.restore();
+            }
+        }
+    }
+
+    private TranslucentLayerDrawable mLayerDrawable;
     private DrawableWrapper mImageInWrapper;
     private DrawableWrapper mImageOutWrapper;
     private DrawableWrapper mColorWrapper;
@@ -225,12 +332,16 @@ public final class BackgroundManager {
         }
         @Override
         public void onAnimationEnd(Animator animation) {
+            // mImageInWrapper should be full alpha, but mImageOutWrapper may not be 0 alpha
+            if (mImageOutWrapper != null) {
+                mImageOutWrapper.setAlpha(0);
+                mImageOutWrapper = null;
+            }
             if (mChangeRunnable != null) {
                 long delayMs = getRunnableDelay();
                 if (DEBUG) Log.v(TAG, "animation ended, found change runnable delayMs " + delayMs);
                 mHandler.postDelayed(mChangeRunnable, delayMs);
             }
-            mImageOutWrapper = null;
         }
         @Override
         public void onAnimationCancel(Animator animation) {
@@ -244,6 +355,8 @@ public final class BackgroundManager {
             int fadeInAlpha = (Integer) animation.getAnimatedValue();
             if (mImageInWrapper != null) {
                 mImageInWrapper.setAlpha(fadeInAlpha);
+            } else if (mImageOutWrapper != null) {
+                mImageOutWrapper.setAlpha(255 - fadeInAlpha);
             }
         }
     };
@@ -329,7 +442,7 @@ public final class BackgroundManager {
             drawable = mService.getThemeDrawable(mContext, mThemeDrawableResourceId);
         }
         if (drawable == null) {
-            drawable = createEmptyDrawable();
+            drawable = createEmptyDrawable(mContext);
         }
         return drawable;
     }
@@ -479,18 +592,15 @@ public final class BackgroundManager {
             return;
         }
 
-        mLayerDrawable = (LayerDrawable) ContextCompat.getDrawable(mContext,
-                R.drawable.lb_background).mutate();
+        LayerDrawable layerDrawable = (LayerDrawable)
+                ContextCompat.getDrawable(mContext, R.drawable.lb_background).mutate();
+        mLayerDrawable = TranslucentLayerDrawable.create(layerDrawable);
         mBgView.setBackground(mLayerDrawable);
 
-        mLayerDrawable.setDrawableByLayerId(R.id.background_imageout, createEmptyDrawable());
+        mLayerDrawable.clearDrawable(R.id.background_imageout, mContext);
+        mLayerDrawable.updateDrawable(R.id.background_theme, getThemeDrawable());
 
-        mLayerDrawable.setDrawableByLayerId(R.id.background_theme, getThemeDrawable());
-
-        mLayerWrapper = new DrawableWrapper(mLayerDrawable);
-
-        mColorWrapper = new DrawableWrapper(
-                mLayerDrawable.findDrawableByLayerId(R.id.background_color));
+        mColorWrapper = mLayerDrawable.findWrapperById(R.id.background_color);
 
         updateDimWrapper();
     }
@@ -499,11 +609,10 @@ public final class BackgroundManager {
         if (mDimDrawable == null) {
             mDimDrawable = getDefaultDimLayer();
         }
-        mDimWrapper = new DrawableWrapper(mDimDrawable.getConstantState().newDrawable(
-                mContext.getResources()).mutate());
-        if (mLayerDrawable != null) {
-            mLayerDrawable.setDrawableByLayerId(R.id.background_dim, mDimWrapper.getDrawable());
-        }
+        Drawable dimDrawable = mDimDrawable.getConstantState().newDrawable(
+                mContext.getResources()).mutate();
+        mDimWrapper = mLayerDrawable == null ? null : mLayerDrawable.updateDrawable(
+                R.id.background_dim, dimDrawable);
     }
 
     /**
@@ -589,12 +698,11 @@ public final class BackgroundManager {
     public void release() {
         if (DEBUG) Log.v(TAG, "release " + this);
         if (mLayerDrawable != null) {
-            mLayerDrawable.setDrawableByLayerId(R.id.background_imagein, createEmptyDrawable());
-            mLayerDrawable.setDrawableByLayerId(R.id.background_imageout, createEmptyDrawable());
-            mLayerDrawable.setDrawableByLayerId(R.id.background_theme, createEmptyDrawable());
+            mLayerDrawable.clearDrawable(R.id.background_imagein, mContext);
+            mLayerDrawable.clearDrawable(R.id.background_imageout, mContext);
+            mLayerDrawable.clearDrawable(R.id.background_theme, mContext);
             mLayerDrawable = null;
         }
-        mLayerWrapper = null;
         mImageInWrapper = null;
         mImageOutWrapper = null;
         mColorWrapper = null;
@@ -642,11 +750,11 @@ public final class BackgroundManager {
         showWallpaper(mBackgroundColor == Color.TRANSPARENT);
 
         if (mBackgroundDrawable == null) {
-            mLayerDrawable.setDrawableByLayerId(R.id.background_imagein, createEmptyDrawable());
+            mLayerDrawable.clearDrawable(R.id.background_imagein, mContext);
         } else {
             if (DEBUG) Log.v(TAG, "Background drawable is available");
-            mImageInWrapper = new DrawableWrapper(mBackgroundDrawable);
-            mLayerDrawable.setDrawableByLayerId(R.id.background_imagein, mBackgroundDrawable);
+            mImageInWrapper = mLayerDrawable.updateDrawable(
+                    R.id.background_imagein, mBackgroundDrawable);
             if (mDimWrapper != null) {
                 mDimWrapper.setAlpha(FULL_ALPHA);
             }
@@ -693,6 +801,14 @@ public final class BackgroundManager {
             }
             mHandler.removeCallbacks(mChangeRunnable);
         }
+
+        if (mLayerDrawable == null) {
+            if (DEBUG) Log.v(TAG, "setDrawableInternal while in released state");
+            mBackgroundDrawable = drawable;
+            updateImmediate();
+            return;
+        }
+
         mChangeRunnable = new ChangeBackgroundRunnable(drawable);
 
         if (mAnimator.isStarted()) {
@@ -761,7 +877,7 @@ public final class BackgroundManager {
     }
 
     private void applyBackgroundChanges() {
-        if (!mAttached || mLayerWrapper == null) {
+        if (!mAttached) {
             return;
         }
 
@@ -775,8 +891,8 @@ public final class BackgroundManager {
 
         if (mImageInWrapper == null && mBackgroundDrawable != null) {
             if (DEBUG) Log.v(TAG, "creating new imagein drawable");
-            mImageInWrapper = new DrawableWrapper(mBackgroundDrawable);
-            mLayerDrawable.setDrawableByLayerId(R.id.background_imagein, mBackgroundDrawable);
+            mImageInWrapper = mLayerDrawable.updateDrawable(
+                    R.id.background_imagein, mBackgroundDrawable);
             if (DEBUG) Log.v(TAG, "mImageInWrapper animation starting");
             mImageInWrapper.setAlpha(0);
             dimAlpha = FULL_ALPHA;
@@ -842,7 +958,10 @@ public final class BackgroundManager {
         }
 
         private void runTask() {
-            lazyInit();
+            if (mLayerDrawable == null) {
+                if (DEBUG) Log.v(TAG, "runTask while released - should not happen");
+                return;
+            }
 
             if (sameDrawable(mDrawable, mBackgroundDrawable)) {
                 if (DEBUG) Log.v(TAG, "new drawable same as current");
@@ -853,14 +972,11 @@ public final class BackgroundManager {
 
             if (mImageInWrapper != null) {
                 if (DEBUG) Log.v(TAG, "moving image in to image out");
-                mImageOutWrapper = new DrawableWrapper(mImageInWrapper.getDrawable());
-                mImageOutWrapper.setAlpha(FULL_ALPHA);
-
                 // Order is important! Setting a drawable "removes" the
                 // previous one from the view
-                mLayerDrawable.setDrawableByLayerId(R.id.background_imagein, createEmptyDrawable());
-                mLayerDrawable.setDrawableByLayerId(R.id.background_imageout,
-                        mImageOutWrapper.getDrawable());
+                mLayerDrawable.clearDrawable(R.id.background_imagein, mContext);
+                mImageOutWrapper = mLayerDrawable.updateDrawable(R.id.background_imageout,
+                        mImageInWrapper.getDrawable());
                 mImageInWrapper = null;
             }
 
@@ -871,9 +987,9 @@ public final class BackgroundManager {
         }
     }
 
-    private Drawable createEmptyDrawable() {
+    private static Drawable createEmptyDrawable(Context context) {
         Bitmap bitmap = null;
-        return new BitmapDrawable(mContext.getResources(), bitmap);
+        return new BitmapDrawable(context.getResources(), bitmap);
     }
 
     private void showWallpaper(boolean show) {
