@@ -21,6 +21,7 @@ import android.content.res.TypedArray;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.v4.content.res.TypedArrayUtils;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 
@@ -46,8 +47,13 @@ public class ListPreference extends DialogPreference {
 
         TypedArray a = context.obtainStyledAttributes(
                 attrs, R.styleable.ListPreference, defStyleAttr, defStyleRes);
-        mEntries = a.getTextArray(R.styleable.ListPreference_entries);
-        mEntryValues = a.getTextArray(R.styleable.ListPreference_entryValues);
+
+        mEntries = TypedArrayUtils.getTextArray(a, R.styleable.ListPreference_entries,
+                R.styleable.ListPreference_android_entries);
+
+        mEntryValues = TypedArrayUtils.getTextArray(a, R.styleable.ListPreference_entryValues,
+                R.styleable.ListPreference_android_entryValues);
+
         a.recycle();
 
         /* Retrieve the Preference summary attribute since it's private
@@ -55,7 +61,10 @@ public class ListPreference extends DialogPreference {
          */
         a = context.obtainStyledAttributes(attrs,
                 R.styleable.Preference, defStyleAttr, defStyleRes);
-        mSummary = a.getString(R.styleable.Preference_summary);
+
+        mSummary = TypedArrayUtils.getString(a, R.styleable.Preference_summary,
+                R.styleable.Preference_android_summary);
+
         a.recycle();
     }
 

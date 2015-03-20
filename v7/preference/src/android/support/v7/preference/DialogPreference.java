@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.TypedArrayUtils;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -54,18 +55,33 @@ public abstract class DialogPreference extends Preference {
 
         final TypedArray a = context.obtainStyledAttributes(attrs,
                 R.styleable.DialogPreference, defStyleAttr, defStyleRes);
-        mDialogTitle = a.getString(R.styleable.DialogPreference_dialogTitle);
+
+        mDialogTitle = TypedArrayUtils.getString(a, R.styleable.DialogPreference_dialogTitle,
+                R.styleable.DialogPreference_android_dialogTitle);
         if (mDialogTitle == null) {
-            // Fallback on the regular title of the preference
+            // Fall back on the regular title of the preference
             // (the one that is seen in the list)
             mDialogTitle = getTitle();
         }
-        mDialogMessage = a.getString(R.styleable.DialogPreference_dialogMessage);
-        mDialogIcon = a.getDrawable(R.styleable.DialogPreference_dialogIcon);
-        mPositiveButtonText = a.getString(R.styleable.DialogPreference_positiveButtonText);
-        mNegativeButtonText = a.getString(R.styleable.DialogPreference_negativeButtonText);
-        mDialogLayoutResId = a.getResourceId(R.styleable.DialogPreference_dialogLayout,
-                mDialogLayoutResId);
+
+        mDialogMessage = TypedArrayUtils.getString(a, R.styleable.DialogPreference_dialogMessage,
+                R.styleable.DialogPreference_android_dialogMessage);
+
+        mDialogIcon = TypedArrayUtils.getDrawable(a, R.styleable.DialogPreference_dialogIcon,
+                R.styleable.DialogPreference_android_dialogIcon);
+
+        mPositiveButtonText = TypedArrayUtils.getString(a,
+                R.styleable.DialogPreference_positiveButtonText,
+                R.styleable.DialogPreference_android_positiveButtonText);
+
+        mNegativeButtonText = TypedArrayUtils.getString(a,
+                R.styleable.DialogPreference_negativeButtonText,
+                R.styleable.DialogPreference_android_negativeButtonText);
+
+        mDialogLayoutResId = TypedArrayUtils.getResourceId(a,
+                R.styleable.DialogPreference_dialogLayout,
+                R.styleable.DialogPreference_android_dialogLayout, 0);
+
         a.recycle();
     }
 

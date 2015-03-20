@@ -19,6 +19,7 @@ package android.support.v7.preference;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.support.v4.content.res.TypedArrayUtils;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 
@@ -61,8 +62,11 @@ public abstract class PreferenceGroup extends Preference {
 
         final TypedArray a = context.obtainStyledAttributes(
                 attrs, R.styleable.PreferenceGroup, defStyleAttr, defStyleRes);
-        mOrderingAsAdded = a.getBoolean(R.styleable.PreferenceGroup_orderingFromXml,
-                mOrderingAsAdded);
+
+        mOrderingAsAdded =
+                TypedArrayUtils.getBoolean(a, R.styleable.PreferenceGroup_orderingFromXml,
+                        R.styleable.PreferenceGroup_orderingFromXml, true);
+
         a.recycle();
     }
 

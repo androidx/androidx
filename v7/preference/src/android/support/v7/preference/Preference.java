@@ -27,6 +27,7 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.SharedPreferencesCompat;
+import android.support.v4.content.res.TypedArrayUtils;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.AbsSavedState;
@@ -219,38 +220,53 @@ public class Preference implements Comparable<Preference>, View.OnClickListener 
 
         final TypedArray a = context.obtainStyledAttributes(
                 attrs, R.styleable.Preference, defStyleAttr, defStyleRes);
-        for (int i = a.getIndexCount() - 1; i >= 0; i--) {
-            int attr = a.getIndex(i);
-            if (attr == R.styleable.Preference_icon) {
-                mIconResId = a.getResourceId(attr, 0);
-            } else if (attr == R.styleable.Preference_key) {
-                mKey = a.getString(attr);
-            } else if (attr == R.styleable.Preference_title) {
-                mTitle = a.getString(attr);
-            } else if (attr == R.styleable.Preference_summary) {
-                mSummary = a.getString(attr);
-            } else if (attr == R.styleable.Preference_order) {
-                mOrder = a.getInt(attr, mOrder);
-            } else if (attr == R.styleable.Preference_fragment) {
-                mFragment = a.getString(attr);
-            } else if (attr == R.styleable.Preference_layout) {
-                mLayoutResId = a.getResourceId(attr, mLayoutResId);
-            } else if (attr == R.styleable.Preference_widgetLayout) {
-                mWidgetLayoutResId = a.getResourceId(attr, mWidgetLayoutResId);
-            } else if (attr == R.styleable.Preference_enabled) {
-                mEnabled = a.getBoolean(attr, true);
-            } else if (attr == R.styleable.Preference_selectable) {
-                mSelectable = a.getBoolean(attr, true);
-            } else if (attr == R.styleable.Preference_persistent) {
-                mPersistent = a.getBoolean(attr, mPersistent);
-            } else if (attr == R.styleable.Preference_dependency) {
-                mDependencyKey = a.getString(attr);
-            } else if (attr == R.styleable.Preference_defaultValue) {
-                mDefaultValue = onGetDefaultValue(a, attr);
-            } else if (attr == R.styleable.Preference_shouldDisableView) {
-                mShouldDisableView = a.getBoolean(attr, mShouldDisableView);
-            }
+
+        mIconResId = TypedArrayUtils.getResourceId(a, R.styleable.Preference_icon,
+                R.styleable.Preference_android_icon, 0);
+
+        mKey = TypedArrayUtils.getString(a, R.styleable.Preference_key,
+                R.styleable.Preference_key);
+
+        mTitle = TypedArrayUtils.getString(a, R.styleable.Preference_title,
+                R.styleable.Preference_android_title);
+
+        mSummary = TypedArrayUtils.getString(a, R.styleable.Preference_summary,
+                R.styleable.Preference_android_summary);
+
+        mOrder = TypedArrayUtils.getInt(a, R.styleable.Preference_order,
+                R.styleable.Preference_android_order, DEFAULT_ORDER);
+
+        mFragment = TypedArrayUtils.getString(a, R.styleable.Preference_fragment,
+                R.styleable.Preference_android_fragment);
+
+        mLayoutResId = TypedArrayUtils.getResourceId(a, R.styleable.Preference_layout,
+                R.styleable.Preference_android_layout, R.layout.preference);
+
+        mWidgetLayoutResId = TypedArrayUtils.getResourceId(a, R.styleable.Preference_widgetLayout,
+                R.styleable.Preference_android_widgetLayout, 0);
+
+        mEnabled = TypedArrayUtils.getBoolean(a, R.styleable.Preference_enabled,
+                R.styleable.Preference_android_enabled, true);
+
+        mSelectable = TypedArrayUtils.getBoolean(a, R.styleable.Preference_selectable,
+                R.styleable.Preference_android_selectable, true);
+
+        mPersistent = TypedArrayUtils.getBoolean(a, R.styleable.Preference_persistent,
+                R.styleable.Preference_android_persistent, true);
+
+        mDependencyKey = TypedArrayUtils.getString(a, R.styleable.Preference_dependency,
+                R.styleable.Preference_android_dependency);
+
+        if (a.hasValue(R.styleable.Preference_defaultValue)) {
+            mDefaultValue = onGetDefaultValue(a, R.styleable.Preference_defaultValue);
+        } else if (a.hasValue(R.styleable.Preference_android_defaultValue)) {
+            mDefaultValue = onGetDefaultValue(a, R.styleable.Preference_android_defaultValue);
         }
+
+        mShouldDisableView =
+                TypedArrayUtils.getBoolean(a, R.styleable.Preference_shouldDisableView,
+                        R.styleable.Preference_shouldDisableView, true);
+
         a.recycle();
     }
 
