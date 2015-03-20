@@ -29,6 +29,7 @@ import android.support.v7.preference.DialogPreference;
 import android.support.v7.preference.EditTextPreference;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceGroupAdapter;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.preference.PreferenceScreen;
 import android.support.v7.widget.LinearLayoutManager;
@@ -162,7 +163,7 @@ public abstract class PreferenceFragment extends Fragment implements
         /**
          * Called when the user has clicked on a Preference that has
          * a fragment class name associated with it.  The implementation
-         * to should instantiate and switch to an instance of the given
+         * should instantiate and switch to an instance of the given
          * fragment.
          */
         boolean onPreferenceStartFragment(PreferenceFragment caller, Preference pref);
@@ -442,7 +443,7 @@ public abstract class PreferenceFragment extends Fragment implements
     private void bindPreferences() {
         final PreferenceScreen preferenceScreen = getPreferenceScreen();
         if (preferenceScreen != null) {
-            getListView().setAdapter(preferenceScreen.getAdapter());
+            getListView().setAdapter(onCreateAdapter(preferenceScreen));
         }
         onBindPreferences();
     }
@@ -490,6 +491,16 @@ public abstract class PreferenceFragment extends Fragment implements
      */
     public RecyclerView.LayoutManager onCreateLayoutManager() {
         return new LinearLayoutManager(getActivity());
+    }
+
+    /**
+     * Creates the root adapter.
+     *
+     * @param preferenceScreen Preference screen object to create the adapter for.
+     * @return An adapter that contains the preferences contained in this {@link PreferenceScreen}.
+     */
+    protected RecyclerView.Adapter onCreateAdapter(PreferenceScreen preferenceScreen) {
+        return new PreferenceGroupAdapter(preferenceScreen);
     }
 
     /**

@@ -436,7 +436,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
     private void bindPreferences() {
         final PreferenceScreen preferenceScreen = getPreferenceScreen();
         if (preferenceScreen != null) {
-            getListView().setAdapter(preferenceScreen.getAdapter());
+            getListView().setAdapter(onCreateAdapter(preferenceScreen));
         }
         onBindPreferences();
     }
@@ -484,6 +484,16 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
      */
     public RecyclerView.LayoutManager onCreateLayoutManager() {
         return new LinearLayoutManager(getActivity());
+    }
+
+    /**
+     * Creates the root adapter.
+     *
+     * @param preferenceScreen Preference screen object to create the adapter for.
+     * @return An adapter that contains the preferences contained in this {@link PreferenceScreen}.
+     */
+    protected RecyclerView.Adapter onCreateAdapter(PreferenceScreen preferenceScreen) {
+        return new PreferenceGroupAdapter(preferenceScreen);
     }
 
     /**
