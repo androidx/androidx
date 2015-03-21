@@ -87,6 +87,7 @@ LOCAL_SRC_FILES:= \
 	rsContext.cpp \
 	rsCppUtils.cpp \
 	rsDevice.cpp \
+	rsDriverLoader.cpp \
 	rsElement.cpp \
 	rsFifoSocket.cpp \
 	rsObjectBase.cpp \
