@@ -194,6 +194,11 @@ public class GridActivity extends Activity {
 
     void addItems(int index, int[] items) {
         int length = items.length;
+        if (mItemLengths.length < mNumItems + length) {
+            int[] array = new int[mNumItems + length];
+            System.arraycopy(mItemLengths, 0, array, 0, mNumItems);
+            mItemLengths = array;
+        }
         System.arraycopy(mItemLengths, index, mItemLengths, index + length, mNumItems - index);
         System.arraycopy(items, 0, mItemLengths, index, length);
         mNumItems += length;
