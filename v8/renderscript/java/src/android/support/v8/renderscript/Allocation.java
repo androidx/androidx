@@ -1638,5 +1638,17 @@ public class Allocation extends BaseObj {
             throw new RSRuntimeException("Could not convert string to utf-8.");
         }
     }
+
+    /**
+     * For USAGE_IO_OUTPUT, destroy() implies setSurface(null).
+     *
+     */
+    @Override
+    public void destroy() {
+        if((mUsage & USAGE_IO_OUTPUT) != 0) {
+            setSurface(null);
+        }
+        super.destroy();
+    }
 }
 
