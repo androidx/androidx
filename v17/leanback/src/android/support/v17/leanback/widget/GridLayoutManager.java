@@ -711,7 +711,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     public void setNumRows(int numRows) {
         if (numRows < 0) throw new IllegalArgumentException();
         mNumRowsRequested = numRows;
-        mForceFullLayout = true;
     }
 
     /**
@@ -950,7 +949,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             mFocusPosition = 0;
         }
         if (!mState.didStructureChange() && mGrid.getFirstVisibleIndex() >= 0 &&
-                !mForceFullLayout && mGrid != null) {
+                !mForceFullLayout && mGrid != null && mGrid.getNumRows() == mNumRows) {
             updateScrollController();
             updateScrollSecondAxis();
             mGrid.setMargin(mMarginPrimary);
