@@ -19,7 +19,7 @@ LOCAL_PATH := $(call my-dir)
 # SDK version than the resources.  The resources library and the R class that it
 # contains will not be linked into the final static library.
 include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-v17-preference-res
+LOCAL_MODULE := android-support-v17-preference-leanback-res
 LOCAL_SDK_VERSION := current
 LOCAL_SRC_FILES := $(call all-java-files-under, dummy)
 LOCAL_RESOURCE_DIR := \
@@ -38,7 +38,7 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 # Applications that use this library must specify LOCAL_RESOURCE_DIR
 # in their makefiles to include the resources in their package.
 include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-v17-preference
+LOCAL_MODULE := android-support-v17-preference-leanback
 LOCAL_SDK_VERSION := 17
 LOCAL_SRC_FILES := $(call all-java-files-under,src)
 # LOCAL_STATIC_JAVA_LIBRARIES :=
@@ -50,5 +50,5 @@ LOCAL_JAVA_LIBRARIES := \
         android-support-v14-preference \
         android-support-v17-leanback \
         android-support-annotations \
-        android-support-v17-preference-res
+        android-support-v17-preference-leanback-res
 include $(BUILD_STATIC_JAVA_LIBRARY)
