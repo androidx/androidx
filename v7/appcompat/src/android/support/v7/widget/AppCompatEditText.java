@@ -48,11 +48,11 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
     }
 
     public AppCompatEditText(Context context, AttributeSet attrs) {
-        this(TintContextWrapper.wrap(context), attrs, R.attr.editTextStyle);
+        this(context, attrs, R.attr.editTextStyle);
     }
 
     public AppCompatEditText(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+        super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
 
         if (TintManager.SHOULD_BE_USED) {
             TintTypedArray a = TintTypedArray.obtainStyledAttributes(getContext(), attrs,
