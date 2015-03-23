@@ -16,14 +16,16 @@
 -->
 
 <transitionSet xmlns:android="http://schemas.android.com/apk/res/android"
-  android:duration="500" >
+   >
   <fade
       android:interpolator="@android:interpolator/linear_out_slow_in"
       android:startDelay="325"
       android:duration="150"/>
   <changeBounds
-      android:interpolator="@android:interpolator/linear_out_slow_in">
+      android:interpolator="@android:interpolator/linear_out_slow_in"
+      android:duration="500">
   </changeBounds>
   <changeImageTransform
-      android:interpolator="@android:interpolator/linear_out_slow_in"/>
+      android:interpolator="@android:interpolator/linear_out_slow_in"
+      android:duration="500"/>
 </transitionSet>
