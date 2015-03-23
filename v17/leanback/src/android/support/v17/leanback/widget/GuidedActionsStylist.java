@@ -528,6 +528,8 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             Context context = iconView.getContext();
             icon = action.getIcon();
             if (icon != null) {
+                // setImageDrawable resets the drawable's level unless we set the view level first.
+                iconView.setImageLevel(icon.getLevel());
                 iconView.setImageDrawable(icon);
                 iconView.setVisibility(View.VISIBLE);
             } else {
