@@ -18,6 +18,7 @@ package android.support.v7.preference;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.support.v4.content.res.TypedArrayUtils;
 import android.support.v7.widget.SwitchCompat;
 import android.util.AttributeSet;
 import android.view.View;
@@ -75,14 +76,25 @@ public class SwitchPreferenceCompat extends TwoStatePreference {
 
         TypedArray a = context.obtainStyledAttributes(attrs,
                 R.styleable.SwitchPreferenceCompat, defStyleAttr, defStyleRes);
-        setSummaryOn(a.getString(R.styleable.SwitchPreferenceCompat_summaryOn));
-        setSummaryOff(a.getString(R.styleable.SwitchPreferenceCompat_summaryOff));
-        setSwitchTextOn(a.getString(
-                R.styleable.SwitchPreferenceCompat_switchTextOn));
-        setSwitchTextOff(a.getString(
-                R.styleable.SwitchPreferenceCompat_switchTextOff));
-        setDisableDependentsState(a.getBoolean(
-                R.styleable.SwitchPreferenceCompat_disableDependentsState, false));
+
+        setSummaryOn(TypedArrayUtils.getString(a, R.styleable.SwitchPreferenceCompat_summaryOn,
+                R.styleable.SwitchPreferenceCompat_android_summaryOn));
+
+        setSummaryOff(TypedArrayUtils.getString(a, R.styleable.SwitchPreferenceCompat_summaryOff,
+                R.styleable.SwitchPreferenceCompat_android_summaryOff));
+
+        setSwitchTextOn(TypedArrayUtils.getString(a,
+                R.styleable.SwitchPreferenceCompat_switchTextOn,
+                R.styleable.SwitchPreferenceCompat_android_switchTextOn));
+
+        setSwitchTextOff(TypedArrayUtils.getString(a,
+                R.styleable.SwitchPreferenceCompat_switchTextOff,
+                R.styleable.SwitchPreferenceCompat_android_switchTextOff));
+
+        setDisableDependentsState(TypedArrayUtils.getBoolean(a,
+                R.styleable.SwitchPreferenceCompat_disableDependentsState,
+                R.styleable.SwitchPreferenceCompat_android_disableDependentsState, false));
+
         a.recycle();
     }
 

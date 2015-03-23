@@ -18,6 +18,7 @@ package android.support.v14.preference;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.support.v4.content.res.TypedArrayUtils;
 import android.support.v7.preference.PreferenceViewHolder;
 import android.support.v7.preference.TwoStatePreference;
 import android.util.AttributeSet;
@@ -77,14 +78,25 @@ public class SwitchPreference extends TwoStatePreference {
 
         TypedArray a = context.obtainStyledAttributes(attrs,
                 R.styleable.SwitchPreference, defStyleAttr, defStyleRes);
-        setSummaryOn(a.getString(R.styleable.SwitchPreference_summaryOn));
-        setSummaryOff(a.getString(R.styleable.SwitchPreference_summaryOff));
-        setSwitchTextOn(a.getString(
-                R.styleable.SwitchPreference_switchTextOn));
-        setSwitchTextOff(a.getString(
-                R.styleable.SwitchPreference_switchTextOff));
-        setDisableDependentsState(a.getBoolean(
-                R.styleable.SwitchPreference_disableDependentsState, false));
+
+        setSummaryOn(TypedArrayUtils.getString(a, R.styleable.SwitchPreference_summaryOn,
+                R.styleable.SwitchPreference_android_summaryOn));
+
+        setSummaryOff(TypedArrayUtils.getString(a, R.styleable.SwitchPreference_summaryOff,
+                R.styleable.SwitchPreference_android_summaryOff));
+
+        setSwitchTextOn(TypedArrayUtils.getString(a,
+                R.styleable.SwitchPreference_switchTextOn,
+                R.styleable.SwitchPreference_android_switchTextOn));
+
+        setSwitchTextOff(TypedArrayUtils.getString(a,
+                R.styleable.SwitchPreference_switchTextOff,
+                R.styleable.SwitchPreference_android_switchTextOff));
+
+        setDisableDependentsState(TypedArrayUtils.getBoolean(a,
+                R.styleable.SwitchPreference_disableDependentsState,
+                R.styleable.SwitchPreference_android_disableDependentsState, false));
+
         a.recycle();
     }
 

@@ -18,6 +18,7 @@ package android.support.v7.preference;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.support.v4.content.res.TypedArrayUtils;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Checkable;
@@ -44,10 +45,17 @@ public class CheckBoxPreference extends TwoStatePreference {
 
         final TypedArray a = context.obtainStyledAttributes(attrs,
                 R.styleable.CheckBoxPreference, defStyleAttr, defStyleRes);
-        setSummaryOn(a.getString(R.styleable.CheckBoxPreference_summaryOn));
-        setSummaryOff(a.getString(R.styleable.CheckBoxPreference_summaryOff));
-        setDisableDependentsState(a.getBoolean(
-                R.styleable.CheckBoxPreference_disableDependentsState, false));
+
+        setSummaryOn(TypedArrayUtils.getString(a, R.styleable.CheckBoxPreference_summaryOn,
+                R.styleable.CheckBoxPreference_android_summaryOn));
+
+        setSummaryOff(TypedArrayUtils.getString(a, R.styleable.CheckBoxPreference_summaryOff,
+                R.styleable.CheckBoxPreference_android_summaryOff));
+
+        setDisableDependentsState(TypedArrayUtils.getBoolean(a,
+                R.styleable.CheckBoxPreference_disableDependentsState,
+                R.styleable.CheckBoxPreference_android_disableDependentsState, false));
+
         a.recycle();
     }
 
