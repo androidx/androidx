@@ -17,7 +17,6 @@
 package android.support.v7.preference;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 
 /**
@@ -74,43 +73,12 @@ import android.util.AttributeSet;
  */
 public final class PreferenceScreen extends PreferenceGroup  {
 
-    private RecyclerView.Adapter mRootAdapter;
-
     /**
      * Do NOT use this constructor, use {@link PreferenceManager#createPreferenceScreen(Context)}.
      * @hide-
      */
     public PreferenceScreen(Context context, AttributeSet attrs) {
         super(context, attrs, R.attr.preferenceScreenStyle);
-    }
-
-    /**
-     * Returns an adapter that can be attached to a {@link PreferenceFragment}
-     * or {@link PreferenceFragmentCompat} to show the preferences contained in this
-     * {@link PreferenceScreen}.
-     * <p>
-     * This {@link PreferenceScreen} will NOT appear in the returned adapter, instead
-     * it appears in the hierarchy above this {@link PreferenceScreen}.
-     *
-     * @return An adapter that manages the {@link Preference} contained in this
-     *         {@link PreferenceScreen}.
-     */
-    public final RecyclerView.Adapter getAdapter() {
-        if (mRootAdapter == null) {
-            mRootAdapter = onCreateAdapter();
-        }
-
-        return mRootAdapter;
-    }
-
-    /**
-     * Creates the root adapter.
-     *
-     * @return An adapter that contains the preferences contained in this {@link PreferenceScreen}.
-     * @see #getAdapter()
-     */
-    protected RecyclerView.Adapter onCreateAdapter() {
-        return new PreferenceGroupAdapter(this);
     }
 
     @Override
