@@ -1648,7 +1648,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     if (scrollToFocus) {
                         scrollToView(focusView, false);
                     }
-                    if (hadFocus) {
+                    if (hadFocus && !focusView.hasFocus()) {
                         focusView.requestFocus();
                     }
                 }
@@ -1672,7 +1672,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 View focusView = findViewByPosition(mFocusPosition);
                 // we need force to initialize the child view's position
                 scrollToView(focusView, false);
-                if (focusView != null && hadFocus) {
+                if (focusView != null && hadFocus && !focusView.hasFocus()) {
                     focusView.requestFocus();
                 }
                 appendVisibleItems();
