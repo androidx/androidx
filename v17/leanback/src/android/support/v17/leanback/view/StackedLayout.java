@@ -108,6 +108,17 @@ public class StackedLayout extends ViewGroup {
     }
 
     @Override
+    public void addFocusables(ArrayList<View> views, int direction, int focusableMode) {
+        // We only want to be able to focus the [child views of] the last child
+        if (getChildCount() == 0) {
+            return;
+        }
+
+        final View lastChild = getChildAt(getChildCount() - 1);
+        lastChild.addFocusables(views, direction, focusableMode);
+    }
+
+    @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         final int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         final int heightMode = MeasureSpec.getMode(heightMeasureSpec);
