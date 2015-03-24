@@ -6034,7 +6034,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
          */
         void removeAndRecycleScrapInt(Recycler recycler) {
             final int scrapCount = recycler.getScrapCount();
-            for (int i = 0; i < scrapCount; i++) {
+            // Loop backward, recycler might be changed by removeDetachedView()
+            for (int i = scrapCount - 1; i >= 0; i--) {
                 final View scrap = recycler.getScrapViewAt(i);
                 final ViewHolder vh = getChildViewHolderInt(scrap);
                 if (vh.shouldIgnore()) {
