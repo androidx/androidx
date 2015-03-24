@@ -33,6 +33,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 /**
  * @hide from javadoc
  */
@@ -47,6 +49,7 @@ public class GridActivity extends Activity {
     public static final String EXTRA_STAGGERED = "staggered";
     public static final String EXTRA_REQUEST_LAYOUT_ONFOCUS = "requestLayoutOnFocus";
     public static final String EXTRA_REQUEST_FOCUS_ONLAYOUT = "requstFocusOnLayout";
+    public static final String EXTRA_CHILD_LAYOUT_ID = "childLayoutId";
     public static final String SELECT_ACTION = "android.test.leanback.widget.SELECT";
 
     static final int DEFAULT_NUM_ITEMS = 100;
@@ -59,6 +62,7 @@ public class GridActivity extends Activity {
     int mLayoutId;
     int mOrientation;
     int mNumItems;
+    int mChildLayout;
     boolean mStaggered;
     boolean mRequestLayoutOnFocus;
     boolean mRequestFocusOnLayout;
@@ -92,6 +96,7 @@ public class GridActivity extends Activity {
         Intent intent = getIntent();
 
         mLayoutId = intent.getIntExtra(EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_grid);
+        mChildLayout = intent.getIntExtra(EXTRA_CHILD_LAYOUT_ID, -1);
         mStaggered = intent.getBooleanExtra(EXTRA_STAGGERED, DEFAULT_STAGGERED);
         mRequestLayoutOnFocus = intent.getBooleanExtra(EXTRA_REQUEST_LAYOUT_ONFOCUS,
                 DEFAULT_REQUEST_LAYOUT_ONFOCUS);
@@ -154,6 +159,18 @@ public class GridActivity extends Activity {
         }
     };
 
+    private OnFocusChangeListener mSubItemFocusChangeListener = new OnFocusChangeListener() {
+
+        @Override
+        public void onFocusChange(View v, boolean hasFocus) {
+            if (hasFocus) {
+                v.setBackgroundColor(Color.YELLOW);
+            } else {
+                v.setBackgroundColor(Color.LTGRAY);
+            }
+        }
+    };
+
     void resetBoundCount() {
         mBoundCount = 0;
     }
@@ -210,6 +227,28 @@ public class GridActivity extends Activity {
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             if (DEBUG) Log.v(TAG, "createViewHolder " + viewType);
+            if (mChildLayout != -1) {
+                final View view = getLayoutInflater().inflate(mChildLayout, null, false);
+                ArrayList<View> focusables = new ArrayList<View>();
+                view.addFocusables(focusables, View.FOCUS_UP);
+                for (int i = 0; i < focusables.size(); i++) {
+                    View f = focusables.get(i);
+                    f.setOnFocusChangeListener(new OnFocusChangeListener() {
+                        @Override
+                        public void onFocusChange(View v, boolean hasFocus) {
+                            if (hasFocus) {
+                                v.setBackgroundColor(Color.YELLOW);
+                            } else {
+                                v.setBackgroundColor(Color.LTGRAY);
+                            }
+                            if (mRequestLayoutOnFocus) {
+                                view.requestLayout();
+                            }
+                        }
+                    });
+                }
+                return new ViewHolder(view);
+            }
             TextView textView = new TextView(parent.getContext()) {
                 @Override
                 protected void onLayout(boolean change, int left, int top, int right, int bottom) {
@@ -232,14 +271,16 @@ public class GridActivity extends Activity {
             if (DEBUG) Log.v(TAG, "bindViewHolder " + position + " " + baseHolder);
             mBoundCount++;
             ViewHolder holder = (ViewHolder) baseHolder;
-            ((TextView) holder.itemView).setText("Item "+position);
-            boolean focusable = true;
-            if (mItemFocusables != null) {
-                focusable = mItemFocusables[position];
+            if (mChildLayout == -1) {
+                ((TextView) holder.itemView).setText("Item "+position);
+                boolean focusable = true;
+                if (mItemFocusables != null) {
+                    focusable = mItemFocusables[position];
+                }
+                ((TextView) holder.itemView).setFocusable(focusable);
+                ((TextView) holder.itemView).setFocusableInTouchMode(focusable);
+                holder.itemView.setBackgroundColor(Color.LTGRAY);
             }
-            ((TextView) holder.itemView).setFocusable(focusable);
-            ((TextView) holder.itemView).setFocusableInTouchMode(focusable);
-            holder.itemView.setBackgroundColor(Color.LTGRAY);
             updateSize(holder.itemView, position);
         }
 
