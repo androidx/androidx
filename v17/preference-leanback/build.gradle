@@ -18,7 +18,7 @@
 
 apply plugin: 'android-library'
 
-archivesBaseName = 'preference-v17'
+archivesBaseName = 'preference-leanback-v17'
 
 dependencies {
     compile project(':support-v4')
