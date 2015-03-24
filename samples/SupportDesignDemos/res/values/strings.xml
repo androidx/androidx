@@ -19,6 +19,8 @@
 
     <string name="design_fab">Floating Action Button/Basic</string>
     <string name="design_tabs_basic">TabLayout/Usage</string>
+    <string name="design_text_input">Text Input</string>
+
     <string name="fab_size_normal">Normal size</string>
     <string name="fab_size_mini">Mini size</string>
 
@@ -29,5 +31,18 @@
 
     <string name="add_tab">Add tab</string>
     <string name="remove_tab">Remove tab</string>
+
+    <string name="form_username">Username</string>
+    <string name="form_email">Email address</string>
+    <string name="show_error">Show error</string>
+    <string name="clear_error">Clear error</string>
+
+    <string name="design_snackbar_basic">Snackbar/Usage</string>
+    <string name="design_snackbar_fab">Snackbar/Coordinated with FAB</string>
+    <string name="snackbar_show_short">Snackbar (short message)</string>
+    <string name="snackbar_show_long">Snackbar (long message)</string>
+    <string name="snackbar_show_short_action">Show (short message + action)</string>
+    <string name="snackbar_show_long_action">Show (long message + action)</string>
+    <string name="snackbar_show_long_long_action">Show (long message + long action)</string>
 
 </resources>

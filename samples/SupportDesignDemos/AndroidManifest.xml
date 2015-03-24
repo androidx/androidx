@@ -54,5 +54,31 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".widget.TextInputLayoutUsage"
+                  android:label="@string/design_text_input"
+                  android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".widget.SnackbarUsage"
+                  android:label="@string/design_snackbar_basic"
+                  android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.support.design.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".widget.SnackbarWithFloatingActionButton"
+                  android:label="@string/design_snackbar_fab"
+                  android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.support.design.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
     </application>
 </manifest>
