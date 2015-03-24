@@ -64,7 +64,7 @@ public class TypedArrayUtils {
 
     public static CharSequence[] getTextArray(TypedArray a, @StyleableRes int index,
             @StyleableRes int fallbackIndex) {
-        CharSequence[] val = a.getTextArray(fallbackIndex);
+        CharSequence[] val = a.getTextArray(index);
         if (val == null) {
             val = a.getTextArray(fallbackIndex);
         }
