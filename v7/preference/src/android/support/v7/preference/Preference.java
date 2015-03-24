@@ -76,7 +76,7 @@ import java.util.List;
  * @attr ref android.R.styleable#Preference_defaultValue
  * @attr ref android.R.styleable#Preference_shouldDisableView
  */
-public class Preference implements Comparable<Preference>, View.OnClickListener {
+public class Preference implements Comparable<Preference> {
     /**
      * Specify for {@link #setOrder(int)} if a specific order is not required.
      */
@@ -129,6 +129,13 @@ public class Preference implements Comparable<Preference>, View.OnClickListener 
     private List<Preference> mDependents;
 
     private boolean mBaseMethodCalled;
+
+    private final View.OnClickListener mClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            performClick();
+        }
+    };
 
     /**
      * Interface definition for a callback to be invoked when the value of this
@@ -461,8 +468,8 @@ public class Preference implements Comparable<Preference>, View.OnClickListener 
      *               will be recycled, so you should not hold a reference to them after this method
      *               returns.
      */
-    protected void onBindViewHolder(PreferenceViewHolder holder) {
-        holder.itemView.setOnClickListener(this);
+    public void onBindViewHolder(PreferenceViewHolder holder) {
+        holder.itemView.setOnClickListener(mClickListener);
 
         final TextView titleView = (TextView) holder.findViewById(android.R.id.title);
         if (titleView != null) {
@@ -908,11 +915,6 @@ public class Preference implements Comparable<Preference>, View.OnClickListener 
      */
     public OnPreferenceClickListener getOnPreferenceClickListener() {
         return mOnClickListener;
-    }
-
-    @Override
-    public void onClick(View v) {
-        performClick();
     }
 
     /**

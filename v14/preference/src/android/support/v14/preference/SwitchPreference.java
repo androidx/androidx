@@ -133,7 +133,7 @@ public class SwitchPreference extends TwoStatePreference {
     }
 
     @Override
-    protected void onBindViewHolder(PreferenceViewHolder holder) {
+    public void onBindViewHolder(PreferenceViewHolder holder) {
         super.onBindViewHolder(holder);
 
         View checkableView = holder.findViewById(R.id.switchWidget);

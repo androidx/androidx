@@ -68,7 +68,7 @@ public class CheckBoxPreference extends TwoStatePreference {
     }
 
     @Override
-    protected void onBindViewHolder(PreferenceViewHolder holder) {
+    public void onBindViewHolder(PreferenceViewHolder holder) {
         super.onBindViewHolder(holder);
 
         View checkboxView = holder.findViewById(R.id.checkbox);
