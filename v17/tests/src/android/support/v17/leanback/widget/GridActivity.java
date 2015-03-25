@@ -50,6 +50,7 @@ public class GridActivity extends Activity {
     public static final String EXTRA_REQUEST_LAYOUT_ONFOCUS = "requestLayoutOnFocus";
     public static final String EXTRA_REQUEST_FOCUS_ONLAYOUT = "requstFocusOnLayout";
     public static final String EXTRA_CHILD_LAYOUT_ID = "childLayoutId";
+    public static final String EXTRA_SECONDARY_SIZE_ZERO = "secondarySizeZero";
     public static final String SELECT_ACTION = "android.test.leanback.widget.SELECT";
 
     static final int DEFAULT_NUM_ITEMS = 100;
@@ -66,6 +67,7 @@ public class GridActivity extends Activity {
     boolean mStaggered;
     boolean mRequestLayoutOnFocus;
     boolean mRequestFocusOnLayout;
+    boolean mSecondarySizeZero;
 
     int[] mGridViewLayoutSize;
     BaseGridView mGridView;
@@ -102,6 +104,7 @@ public class GridActivity extends Activity {
                 DEFAULT_REQUEST_LAYOUT_ONFOCUS);
         mRequestFocusOnLayout = intent.getBooleanExtra(EXTRA_REQUEST_FOCUS_ONLAYOUT,
                 DEFAULT_REQUEST_FOCUS_ONLAYOUT);
+        mSecondarySizeZero = intent.getBooleanExtra(EXTRA_SECONDARY_SIZE_ZERO, false);
         mItemLengths = intent.getIntArrayExtra(EXTRA_ITEMS);
         mItemFocusables = intent.getBooleanArrayExtra(EXTRA_ITEMS_FOCUSABLE);
 
@@ -297,9 +300,9 @@ public class GridActivity extends Activity {
         }
         if (mOrientation == BaseGridView.HORIZONTAL) {
             p.width = mItemLengths[position] + (mRequestLayoutOnFocus && view.hasFocus() ? 1 : 0);
-            p.height = 80;
+            p.height = mSecondarySizeZero ? 0 : 80;
         } else {
-            p.width = 240;
+            p.width = mSecondarySizeZero ? 0 : 240;
             p.height = mItemLengths[position] + (mRequestLayoutOnFocus && view.hasFocus() ? 1 : 0);
         }
         view.setLayoutParams(p);
