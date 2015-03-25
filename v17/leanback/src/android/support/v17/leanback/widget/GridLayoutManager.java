@@ -888,6 +888,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return (mOrientation == HORIZONTAL) ? getOpticalRight(v) : getOpticalBottom(v);
     }
 
+    private int getViewPrimarySize(View view) {
+        LayoutParams p = (LayoutParams) view.getLayoutParams();
+        return mOrientation == HORIZONTAL ? p.getOpticalWidth(view) : p.getOpticalHeight(view);
+    }
+
     private int getViewCenter(View view) {
         return (mOrientation == HORIZONTAL) ? getViewCenterX(view) : getViewCenterY(view);
     }
@@ -1407,8 +1412,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
         @Override
         public int getSize(int index) {
-            final View v = findViewByPosition(index);
-            return mOrientation == HORIZONTAL ? v.getMeasuredWidth() : v.getMeasuredHeight();
+            return getViewPrimarySize(findViewByPosition(index));
         }
     };
 
@@ -1521,9 +1525,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             int startSecondary = getRowStartSecondary(location.row) - mScrollOffsetSecondary;
             int primarySize, end;
             int start = getViewMin(view);
-            int oldPrimarySize = (mOrientation == HORIZONTAL) ?
-                    view.getMeasuredWidth() :
-                    view.getMeasuredHeight();
+            int oldPrimarySize = getViewPrimarySize(view);
 
             LayoutParams lp = (LayoutParams) view.getLayoutParams();
             if (lp.viewNeedsUpdate()) {
