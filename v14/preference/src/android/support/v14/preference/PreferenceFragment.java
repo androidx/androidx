@@ -389,10 +389,17 @@ public abstract class PreferenceFragment extends Fragment implements
      * {@inheritDoc}
      */
     public boolean onPreferenceTreeClick(Preference preference) {
-        if (preference.getFragment() != null &&
-                getActivity() instanceof OnPreferenceStartFragmentCallback) {
-            return ((OnPreferenceStartFragmentCallback)getActivity()).onPreferenceStartFragment(
-                    this, preference);
+        if (preference.getFragment() != null) {
+            boolean handled = false;
+            if (getTargetFragment() instanceof OnPreferenceStartFragmentCallback) {
+                handled = ((OnPreferenceStartFragmentCallback) getTargetFragment())
+                        .onPreferenceStartFragment(this, preference);
+            }
+            if (!handled && getActivity() instanceof OnPreferenceStartFragmentCallback){
+                handled = ((OnPreferenceStartFragmentCallback) getActivity())
+                        .onPreferenceStartFragment(this, preference);
+            }
+            return handled;
         }
         return false;
     }
@@ -402,15 +409,18 @@ public abstract class PreferenceFragment extends Fragment implements
      * {@link android.support.v7.preference.PreferenceScreen#onClick()} in order to navigate to a
      * new screen of preferences. Calls
      * {@link PreferenceFragment.OnPreferenceStartScreenCallback#onPreferenceStartScreen}
-     * if the containing activity implements
+     * if the target fragment or containing activity implements
      * {@link PreferenceFragment.OnPreferenceStartScreenCallback}.
      * @param preferenceScreen The {@link android.support.v7.preference.PreferenceScreen} to
      *                         navigate to.
      */
     @Override
     public void onNavigateToScreen(PreferenceScreen preferenceScreen) {
-        if (getActivity() instanceof OnPreferenceStartScreenCallback) {
-            ((OnPreferenceStartScreenCallback)getActivity()).onPreferenceStartScreen(this,
+        if (getTargetFragment() instanceof OnPreferenceStartScreenCallback) {
+            ((OnPreferenceStartScreenCallback) getTargetFragment()).onPreferenceStartScreen(this,
+                    preferenceScreen);
+        } else if (getActivity() instanceof OnPreferenceStartScreenCallback) {
+            ((OnPreferenceStartScreenCallback) getActivity()).onPreferenceStartScreen(this,
                     preferenceScreen);
         }
     }
