@@ -1037,7 +1037,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private boolean processRowSizeSecondary(boolean measure) {
-        if (mFixedRowSizeSecondary != 0) {
+        if (mFixedRowSizeSecondary != 0 || mRowSizeSecondary == null) {
             return false;
         }
 
