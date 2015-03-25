@@ -1226,4 +1226,24 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         waitForScrollIdle(mVerifyLayout);
         verifyMargin();
     }
+
+
+    public void testZeroFixedSecondarySize() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear_measured_with_zero);
+        intent.putExtra(GridActivity.EXTRA_SECONDARY_SIZE_ZERO, true);
+        int[] items = new int[2];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 0;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+
+    }
 }
