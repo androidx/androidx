@@ -234,17 +234,11 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
             int margin = -1;
             for (int i = 1; i < views.length; i++) {
                 if (mOrientation == BaseGridView.HORIZONTAL) {
-                    if (i == 1) {
-                        margin = views[i].getLeft() - views[i - 1].getRight();
-                    } else {
-                        assertEquals(margin, views[i].getLeft() - views[i - 1].getRight());
-                    }
+                    assertEquals(mGridView.getHorizontalMargin(),
+                            views[i].getLeft() - views[i - 1].getRight());
                 } else {
-                    if (i == 1) {
-                        margin = views[i].getTop() - views[i - 1].getBottom();
-                    } else {
-                        assertEquals(margin, views[i].getTop() - views[i - 1].getBottom());
-                    }
+                    assertEquals(mGridView.getVerticalMargin(),
+                            views[i].getTop() - views[i - 1].getBottom());
                 }
             }
         }
@@ -1196,5 +1190,40 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         waitForScrollIdle(mVerifyLayout);
 
         assertEquals("Line 2", ((TextView) mGridView.findFocus()).getText().toString());
+    }
+
+
+    public void testChangeLayoutInChild() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear_wrap_content);
+        intent.putExtra(GridActivity.EXTRA_REQUEST_LAYOUT_ONFOCUS, true);
+        int[] items = new int[2];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 300;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPositionSmooth(0);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+        verifyMargin();
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPositionSmooth(1);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+        verifyMargin();
     }
 }
