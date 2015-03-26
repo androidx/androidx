@@ -18,6 +18,7 @@
 package android.support.v7.widget;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.database.Observable;
 import android.graphics.Canvas;
 import android.graphics.PointF;
@@ -40,6 +41,7 @@ import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.view.accessibility.AccessibilityRecordCompat;
 import android.support.v4.widget.EdgeEffectCompat;
 import android.support.v4.widget.ScrollerCompat;
+import android.support.v7.recyclerview.R;
 import static android.support.v7.widget.AdapterHelper.UpdateOp;
 import static android.support.v7.widget.AdapterHelper.Callback;
 
@@ -59,6 +61,8 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 import android.view.animation.Interpolator;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -127,6 +131,8 @@ import java.util.List;
  * <p>
  * When writing a {@link LayoutManager} you almost always want to use layout positions whereas when
  * writing an {@link Adapter}, you probably want to use adapter positions.
+ *
+ * @attr ref android.support.v7.recyclerview.R.styleable#RecyclerView_layoutManager
  */
 public class RecyclerView extends ViewGroup implements ScrollingView {
 
@@ -220,6 +226,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
      * >Try increasing your pool size and item cache size.
      */
     private static final String TRACE_CREATE_VIEW_TAG = "RV CreateView";
+    private static final Class<?>[] LAYOUT_MANAGER_CONSTRUCTOR_SIGNATURE =
+            new Class[]{Context.class, AttributeSet.class, int.class, int.class};
 
     private final RecyclerViewDataObserver mObserver = new RecyclerViewDataObserver();
 
@@ -409,6 +417,15 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         mAccessibilityManager = (AccessibilityManager) getContext()
                 .getSystemService(Context.ACCESSIBILITY_SERVICE);
         setAccessibilityDelegateCompat(new RecyclerViewAccessibilityDelegate(this));
+        // Create the layoutManager if specified.
+        if (attrs != null) {
+            int defStyleRes = 0;
+            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.RecyclerView,
+                    defStyle, defStyleRes);
+            String layoutManagerName = a.getString(R.styleable.RecyclerView_layoutManager);
+            a.recycle();
+            createLayoutManager(context, layoutManagerName, attrs, defStyle, defStyleRes);
+        }
     }
 
     /**
@@ -427,6 +444,71 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
             RecyclerViewAccessibilityDelegate accessibilityDelegate) {
         mAccessibilityDelegate = accessibilityDelegate;
         ViewCompat.setAccessibilityDelegate(this, mAccessibilityDelegate);
+    }
+
+    /**
+     * Instantiate and set a LayoutManager, if specified in the attributes.
+     */
+    private void createLayoutManager(Context context, String className, AttributeSet attrs,
+            int defStyleAttr, int defStyleRes) {
+        if (className != null) {
+            className = className.trim();
+            if (className.length() != 0) {  // Can't use isEmpty since it was added in API 9.
+                className = getFullClassName(context, className);
+                try {
+                    ClassLoader classLoader;
+                    if (isInEditMode()) {
+                        // Stupid layoutlib cannot handle simple class loaders.
+                        classLoader = this.getClass().getClassLoader();
+                    } else {
+                        classLoader = context.getClassLoader();
+                    }
+                    Class<? extends LayoutManager> layoutManagerClass =
+                            classLoader.loadClass(className).asSubclass(LayoutManager.class);
+                    Constructor<? extends LayoutManager> constructor;
+                    Object[] constructorArgs = null;
+                    try {
+                        constructor = layoutManagerClass
+                                .getConstructor(LAYOUT_MANAGER_CONSTRUCTOR_SIGNATURE);
+                        constructorArgs = new Object[]{context, attrs, defStyleAttr, defStyleRes};
+                    } catch (NoSuchMethodException e) {
+                        try {
+                            constructor = layoutManagerClass.getConstructor();
+                        } catch (NoSuchMethodException e1) {
+                            e1.initCause(e);
+                            throw new IllegalStateException(attrs.getPositionDescription() +
+                                    ": Error creating LayoutManager " + className, e1);
+                        }
+                    }
+                    setLayoutManager(constructor.newInstance(constructorArgs));
+                } catch (ClassNotFoundException e) {
+                    throw new IllegalStateException(attrs.getPositionDescription()
+                            + ": Unable to find LayoutManager " + className, e);
+                } catch (InvocationTargetException e) {
+                    throw new IllegalStateException(attrs.getPositionDescription()
+                            + ": Could not instantiate the LayoutManager: " + className, e);
+                } catch (InstantiationException e) {
+                    throw new IllegalStateException(attrs.getPositionDescription()
+                            + ": Could not instantiate the LayoutManager: " + className, e);
+                } catch (IllegalAccessException e) {
+                    throw new IllegalStateException(attrs.getPositionDescription()
+                            + ": Cannot access non-public constructor " + className, e);
+                } catch (ClassCastException e) {
+                    throw new IllegalStateException(attrs.getPositionDescription()
+                            + ": Class is not a LayoutManager " + className, e);
+                }
+            }
+        }
+    }
+
+    private String getFullClassName(Context context, String className) {
+        if (className.charAt(0) == '.') {
+            return context.getPackageName() + className;
+        }
+        if (className.contains(".")) {
+            return className;
+        }
+        return RecyclerView.class.getPackage().getName() + '.' + className;
     }
 
     private void initChildrenHelper() {
@@ -5121,6 +5203,14 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
      * a <code>RecyclerView</code> can be used to implement a standard vertically scrolling list,
      * a uniform grid, staggered grids, horizontally scrolling collections and more. Several stock
      * layout managers are provided for general use.
+     * <p/>
+     * If the LayoutManager specifies a default constructor or one with the signature
+     * ({@link Context}, {@link AttributeSet}, {@code int}, {@code int}), RecyclerView will
+     * instantiate and set the LayoutManager when being inflated. Most used properties can
+     * be then obtained from {@link #getProperties(Context, AttributeSet, int, int)}. In case
+     * a LayoutManager specifies both constructors, the non-default constructor will take
+     * precedence.
+     *
      */
     public static abstract class LayoutManager {
         ChildHelper mChildHelper;
@@ -7207,6 +7297,43 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         public boolean performAccessibilityActionForItem(Recycler recycler, State state, View view,
                 int action, Bundle args) {
             return false;
+        }
+
+        /**
+         * Parse the xml attributes to get the most common properties used by layout managers.
+         *
+         * @attr ref android.support.v7.recyclerview.R.styleable#RecyclerView_android_orientation
+         * @attr ref android.support.v7.recyclerview.R.styleable#RecyclerView_spanCount
+         * @attr ref android.support.v7.recyclerview.R.styleable#RecyclerView_reverseLayout
+         * @attr ref android.support.v7.recyclerview.R.styleable#RecyclerView_stackFromEnd
+         *
+         * @return an object containing the properties as specified in the attrs.
+         */
+        public static Properties getProperties(Context context, AttributeSet attrs,
+                int defStyleAttr, int defStyleRes) {
+            Properties properties = new Properties();
+            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.RecyclerView,
+                    defStyleAttr, defStyleRes);
+            properties.orientation = a.getInt(R.styleable.RecyclerView_android_orientation, VERTICAL);
+            properties.spanCount = a.getInt(R.styleable.RecyclerView_spanCount, 1);
+            properties.reverseLayout = a.getBoolean(R.styleable.RecyclerView_reverseLayout, false);
+            properties.stackFromEnd = a.getBoolean(R.styleable.RecyclerView_stackFromEnd, false);
+            a.recycle();
+            return properties;
+        }
+
+        /**
+         * Some general properties that a LayoutManager may want to use.
+         */
+        public static class Properties {
+            /** @attr ref android.support.v7.recyclerview.R.styleable#RecyclerView_android_orientation */
+            public int orientation;
+            /** @attr ref android.support.v7.recyclerview.R.styleable#RecyclerView_spanCount */
+            public int spanCount;
+            /** @attr ref android.support.v7.recyclerview.R.styleable#RecyclerView_reverseLayout */
+            public boolean reverseLayout;
+            /** @attr ref android.support.v7.recyclerview.R.styleable#RecyclerView_stackFromEnd */
+            public boolean stackFromEnd;
         }
     }
 
