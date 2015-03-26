@@ -508,6 +508,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             mLayoutState.mExtra = extraForStart;
             fill(recycler, mLayoutState, state, false);
             startOffset = mLayoutState.mOffset;
+            final int firstElement = mLayoutState.mCurrentPosition;
             if (mLayoutState.mAvailable > 0) {
                 extraForEnd += mLayoutState.mAvailable;
             }
@@ -517,12 +518,22 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             mLayoutState.mCurrentPosition += mLayoutState.mItemDirection;
             fill(recycler, mLayoutState, state, false);
             endOffset = mLayoutState.mOffset;
+
+            if (mLayoutState.mAvailable > 0) {
+                // end could not consume all. add more items towards start
+                extraForStart = mLayoutState.mAvailable;
+                updateLayoutStateToFillStart(firstElement, startOffset);
+                mLayoutState.mExtra = extraForStart;
+                fill(recycler, mLayoutState, state, false);
+                startOffset = mLayoutState.mOffset;
+            }
         } else {
             // fill towards end
             updateLayoutStateToFillEnd(mAnchorInfo);
             mLayoutState.mExtra = extraForEnd;
             fill(recycler, mLayoutState, state, false);
             endOffset = mLayoutState.mOffset;
+            final int lastElement = mLayoutState.mCurrentPosition;
             if (mLayoutState.mAvailable > 0) {
                 extraForStart += mLayoutState.mAvailable;
             }
@@ -532,6 +543,15 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
             mLayoutState.mCurrentPosition += mLayoutState.mItemDirection;
             fill(recycler, mLayoutState, state, false);
             startOffset = mLayoutState.mOffset;
+
+            if (mLayoutState.mAvailable > 0) {
+                extraForEnd = mLayoutState.mAvailable;
+                // start could not consume all it should. add more items towards end
+                updateLayoutStateToFillEnd(lastElement, endOffset);
+                mLayoutState.mExtra = extraForEnd;
+                fill(recycler, mLayoutState, state, false);
+                endOffset = mLayoutState.mOffset;
+            }
         }
 
         // changes may cause gaps on the UI, try to fix them.
@@ -1509,7 +1529,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         return findReferenceChild(getChildCount() - 1, -1, itemCount);
     }
 
-    private View findReferenceChild(int start, int end, int itemCount) {
+    // overridden by GridLayoutManager
+    View findReferenceChild(int start, int end, int itemCount) {
         ensureLayoutState();
         View invalidMatch = null;
         View outOfBoundsMatch = null;
@@ -1995,18 +2016,6 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
                     ", mCoordinate=" + mCoordinate +
                     ", mLayoutFromEnd=" + mLayoutFromEnd +
                     '}';
-        }
-
-        /**
-         * Assign anchor position information from the provided view if it is valid as a reference
-         * child.
-         */
-        public boolean assignFromViewIfValid(View child, RecyclerView.State state) {
-            if (isViewValidAsAnchor(child, state)) {
-                assignFromView(child);
-                return true;
-            }
-            return false;
         }
 
         private boolean isViewValidAsAnchor(View child, RecyclerView.State state) {
