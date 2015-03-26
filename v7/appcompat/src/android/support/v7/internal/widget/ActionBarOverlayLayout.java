@@ -24,6 +24,8 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Parcelable;
+import android.support.v4.view.NestedScrollingParent;
+import android.support.v4.view.NestedScrollingParentHelper;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
@@ -46,7 +48,8 @@ import android.view.Window;
  *
  * @hide
  */
-public class ActionBarOverlayLayout extends ViewGroup implements DecorContentParent {
+public class ActionBarOverlayLayout extends ViewGroup implements DecorContentParent,
+        NestedScrollingParent {
     private static final String TAG = "ActionBarOverlayLayout";
 
     private int mActionBarHeight;
@@ -143,33 +146,22 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
         }
     };
 
-//    public static final Property<ActionBarOverlayLayout, Integer> ACTION_BAR_HIDE_OFFSET =
-//            new IntProperty<ActionBarOverlayLayout>("actionBarHideOffset") {
-//
-//                @Override
-//                public void setValue(ActionBarOverlayLayout object, int value) {
-//                    object.setActionBarHideOffset(value);
-//                }
-//
-//                @Override
-//                public Integer get(ActionBarOverlayLayout object) {
-//                    return object.getActionBarHideOffset();
-//                }
-//            };
-
     static final int[] ATTRS = new int [] {
             R.attr.actionBarSize,
             android.R.attr.windowContentOverlay
     };
 
+    private final NestedScrollingParentHelper mParentHelper;
+
     public ActionBarOverlayLayout(Context context) {
-        super(context);
-        init(context);
+        this(context, null);
     }
 
     public ActionBarOverlayLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context);
+
+        mParentHelper = new NestedScrollingParentHelper(this);
     }
 
     private void init(Context context) {
@@ -531,7 +523,7 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
 
     @Override
     public void onNestedScrollAccepted(View child, View target, int axes) {
-        super.onNestedScrollAccepted(child, target, axes);
+        mParentHelper.onNestedScrollAccepted(child, target, axes);
         mHideOnContentScrollReference = getActionBarHideOffset();
         haltActionBarHideOffsetAnimations();
         if (mActionBarVisibilityCallback != null) {
@@ -548,7 +540,6 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
 
     @Override
     public void onStopNestedScroll(View target) {
-        super.onStopNestedScroll(target);
         if (mHideOnContentScroll && !mAnimatingForFling) {
             if (mHideOnContentScrollReference <= mActionBarTop.getHeight()) {
                 postRemoveActionBarHideOffset();
@@ -575,6 +566,21 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
         return true;
     }
 
+    @Override
+    public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
+        // no-op
+    }
+
+    @Override
+    public boolean onNestedPreFling(View target, float velocityX, float velocityY) {
+        return false;
+    }
+
+    @Override
+    public int getNestedScrollAxes() {
+        return mParentHelper.getNestedScrollAxes();
+    }
+
     void pullChildren() {
         if (mContent == null) {
             mContent = (ContentFrameLayout) findViewById(R.id.action_bar_activity_content);
@@ -599,9 +605,6 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
         if (hideOnContentScroll != mHideOnContentScroll) {
             mHideOnContentScroll = hideOnContentScroll;
             if (!hideOnContentScroll) {
-                if (VersionUtils.isAtLeastL()) {
-                    stopNestedScroll();
-                }
                 haltActionBarHideOffsetAnimations();
                 setActionBarHideOffset(0);
             }

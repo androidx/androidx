@@ -22,4 +22,28 @@ limitations under the License.
     <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"Խոսեք՝ որոնելու համար"</string>
     <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"Որոնեք <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
     <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"Խոսեք՝ <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> որոնելու համար"</string>
+    <string name="lb_control_display_fast_forward_multiplier" msgid="4541442045214207774">"%1$dX"</string>
+    <string name="lb_control_display_rewind_multiplier" msgid="3097220783222910245">"%1$dX"</string>
+    <string name="lb_playback_controls_play" msgid="731953341987346903">"Նվագարկել"</string>
+    <string name="lb_playback_controls_pause" msgid="6189521112079849518">"Դադարեցնել"</string>
+    <string name="lb_playback_controls_fast_forward" msgid="8569951318244687220">"Արագ առաջ անցնել"</string>
+    <string name="lb_playback_controls_fast_forward_multiplier" msgid="1058753672110224526">"Առագ առաջանցում %1$dX"</string>
+    <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"Հետ փաթաթել"</string>
+    <string name="lb_playback_controls_rewind_multiplier" msgid="1640629531440849942">"Հետանցում %1$dX"</string>
+    <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"Անցնել հաջորդին"</string>
+    <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"Անցնել նախորդին"</string>
+    <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"Այլ գործողություններ"</string>
+    <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"Ապանշել Հավանելու կոճակը"</string>
+    <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"Նշել Հավանելու կոճակը"</string>
+    <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"Ապանշել Չհավանելու կոճակը"</string>
+    <string name="lb_playback_controls_thumb_down_outline" msgid="2936020280629424365">"Նշել Չհավանելու կոճակը"</string>
+    <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"Չկրկնել"</string>
+    <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"Կրկնել բոլորը"</string>
+    <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"Կրկնել մեկը"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"Միացնել խառը նվագարկումը"</string>
+    <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"Անջատել խառը նվագարկումը"</string>
+    <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"Միացնել բարձր որակը"</string>
+    <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"Անջատել բարձր որակը"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"Միացնել խորագրերը"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"Անջատել խորագրերը"</string>
 </resources>

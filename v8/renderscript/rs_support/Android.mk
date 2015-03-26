@@ -1,7 +1,7 @@
 
 LOCAL_PATH:=frameworks/rs
 rs_base_CFLAGS := -Werror -Wall -Wno-unused-parameter -Wno-unused-variable \
-		  -Wno-overloaded-virtual -DRS_COMPATIBILITY_LIB -std=c++11
+		  -Wno-overloaded-virtual -DRS_COMPATIBILITY_LIB
 
 ifeq ($(ARCH_ARM_HAVE_NEON),true)
 rs_base_CFLAGS += -DARCH_ARM_HAVE_NEON
@@ -28,9 +28,6 @@ LOCAL_SRC_FILES:= \
     spec.l \
     rsg_generator.c
 
-LOCAL_CXX_STL := none
-LOCAL_ADDRESS_SANITIZER := false
-
 include $(BUILD_HOST_EXECUTABLE)
 
 # TODO: This should go into build/core/config.mk
@@ -41,6 +38,8 @@ LOCAL_CLANG := true
 LOCAL_MODULE := libRSSupport
 LOCAL_SDK_VERSION := 8
 
+# TODO: remove this once we have 64-bit NDK libraries.
+LOCAL_32_BIT_ONLY := true
 
 LOCAL_MODULE_CLASS := SHARED_LIBRARIES
 generated_sources_dir := $(call local-generated-sources-dir)
@@ -83,7 +82,6 @@ LOCAL_GENERATED_SOURCES += $(GEN)
 LOCAL_SRC_FILES:= \
 	rsAdapter.cpp \
 	rsAllocation.cpp \
-	rsClosure.cpp \
 	rsCompatibilityLib.cpp \
 	rsComponent.cpp \
 	rsContext.cpp \
@@ -102,7 +100,6 @@ LOCAL_SRC_FILES:= \
 	rsScriptC.cpp \
 	rsScriptC_Lib.cpp \
 	rsScriptGroup.cpp \
-	rsScriptGroup2.cpp \
 	rsScriptIntrinsic.cpp \
 	rsSignal.cpp \
 	rsStream.cpp \
@@ -122,7 +119,6 @@ LOCAL_SRC_FILES:= \
 	cpu_ref/rsCpuRuntimeMath.cpp \
 	cpu_ref/rsCpuRuntimeStubs.cpp \
 	cpu_ref/rsCpuScriptGroup.cpp \
-	cpu_ref/rsCpuScriptGroup2.cpp \
 	cpu_ref/rsCpuIntrinsic.cpp \
 	cpu_ref/rsCpuIntrinsic3DLUT.cpp \
 	cpu_ref/rsCpuIntrinsicBlend.cpp \
@@ -139,8 +135,6 @@ LOCAL_SRC_FILES:= \
 ifeq ($(ARCH_ARM_HAVE_ARMV7A),true)
 LOCAL_CFLAGS_arm := -DARCH_ARM_HAVE_VFP -DARCH_ARM_USE_INTRINSICS
 LOCAL_ASFLAGS_arm := -mfpu=neon
-# frameworks/rs/cpu_ref/rsCpuIntrinsics_neon_3DLUT.S does not compile.
-LOCAL_CLANG_ASFLAGS_arm += -no-integrated-as
 LOCAL_SRC_FILES_arm := \
         cpu_ref/rsCpuIntrinsics_neon_3DLUT.S \
 	cpu_ref/rsCpuIntrinsics_neon_ColorMatrix.S \

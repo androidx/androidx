@@ -180,7 +180,7 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
         }
         for (int i=0; i<mFragments.size(); i++) {
             Fragment f = mFragments.get(i);
-            if (f != null && f.isAdded()) {
+            if (f != null) {
                 if (state == null) {
                     state = new Bundle();
                 }

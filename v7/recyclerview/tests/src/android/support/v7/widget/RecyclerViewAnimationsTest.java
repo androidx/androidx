@@ -653,6 +653,63 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
         mLayoutManager.waitForLayout(2);
     }
 
+    public void testAppCancelAnimationInDetach() throws Throwable {
+        final View[] addedView = new View[2];
+        TestAdapter adapter = new TestAdapter(1) {
+            @Override
+            public void onViewDetachedFromWindow(TestViewHolder holder) {
+                if ((addedView[0] == holder.itemView || addedView[1] == holder.itemView)
+                        && holder.itemView.hasTransientState()) {
+                    holder.itemView.animate().cancel();
+                }
+                super.onViewDetachedFromWindow(holder);
+            }
+        };
+        // original 1 item
+        setupBasic(1, 0, 1, adapter);
+        mRecyclerView.getItemAnimator().setAddDuration(3000);
+        mLayoutManager.expectLayouts(2);
+
+        // add 2 items
+        setExpectedItemCounts(1, 3);
+        mTestAdapter.addAndNotify(0, 2);
+        mLayoutManager.waitForLayout(2);
+
+        // wait till "add animation" starts
+        while (addedView[0] == null || addedView[1] == null) {
+            Thread.sleep(20);
+            runTestOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (mRecyclerView.getChildCount() == 3) {
+                        View view = mRecyclerView.getChildAt(0);
+                        if (view.hasTransientState()) {
+                            addedView[0] = view;
+                        }
+                        view = mRecyclerView.getChildAt(1);
+                        if (view.hasTransientState()) {
+                            addedView[1] = view;
+                        }
+                    }
+                }
+            });
+        }
+
+        // Layout from item2, exclude the current adding items
+        mLayoutManager.expectLayouts(1);
+        mLayoutManager.mOnLayoutCallbacks = new OnLayoutCallbacks() {
+            @Override
+            void beforePostLayout(RecyclerView.Recycler recycler,
+                    AnimationLayoutManager layoutManager,
+                    RecyclerView.State state) {
+                mLayoutMin = 2;
+                mLayoutItemCount = 1;
+            }
+        };
+        requestLayoutOnUIThread(mRecyclerView);
+        mLayoutManager.waitForLayout(2);
+    }
+
     public TestRecyclerView getTestRecyclerView() {
         return (TestRecyclerView) mRecyclerView;
     }

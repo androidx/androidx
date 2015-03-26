@@ -167,6 +167,7 @@ public class ViewPager extends ViewGroup {
 
     private boolean mIsBeingDragged;
     private boolean mIsUnableToDrag;
+    private boolean mIgnoreGutter;
     private int mDefaultGutterSize;
     private int mGutterSize;
     private int mTouchSlop;

@@ -187,16 +187,8 @@ public class Type extends BaseObj {
     }
 
 
-    Type(long id, RenderScript rs) {
+    Type(int id, RenderScript rs) {
         super(id, rs);
-    }
-
-    /*
-     * Get an identical dummy Type for Compat Context
-     *
-     */
-    public long getDummyType(RenderScript mRS, long eid) {
-        return mRS.nIncTypeCreate(eid, mDimX, mDimY, mDimZ, mDimMipmaps, mDimFaces, mDimYuv);
     }
 
     /**
@@ -320,10 +312,15 @@ public class Type extends BaseObj {
             }
 
             Type t;
-            long id = mRS.nTypeCreate(mElement.getID(mRS),
-                                     mDimX, mDimY, mDimZ, mDimMipmaps, mDimFaces, mYuv);
-            t = new Type(id, mRS);
-
+            if (mRS.isNative) {
+                RenderScriptThunker rst = (RenderScriptThunker)mRS;
+                t = TypeThunker.create(rst, mElement, mDimX, mDimY, mDimZ,
+                                       mDimMipmaps, mDimFaces, mYuv);
+            } else {
+                int id = mRS.nTypeCreate(mElement.getID(mRS),
+                                         mDimX, mDimY, mDimZ, mDimMipmaps, mDimFaces, mYuv);
+                t = new Type(id, mRS);
+            }
             t.mElement = mElement;
             t.mDimX = mDimX;
             t.mDimY = mDimY;

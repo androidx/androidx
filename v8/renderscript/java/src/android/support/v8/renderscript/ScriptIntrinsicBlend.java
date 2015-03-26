@@ -22,10 +22,7 @@ package android.support.v8.renderscript;
  * {@link android.support.v8.renderscript.Allocation} objects.
  **/
 public class ScriptIntrinsicBlend extends ScriptIntrinsic {
-    // API level for the intrinsic
-    private static final int INTRINSIC_API_LEVEL = 19;
-
-    ScriptIntrinsicBlend(long id, RenderScript rs) {
+    ScriptIntrinsicBlend(int id, RenderScript rs) {
         super(id, rs);
     }
 
@@ -38,16 +35,13 @@ public class ScriptIntrinsicBlend extends ScriptIntrinsic {
      * @return ScriptIntrinsicBlend
      */
     public static ScriptIntrinsicBlend create(RenderScript rs, Element e) {
+        if (rs.isNative) {
+            RenderScriptThunker rst = (RenderScriptThunker) rs;
+            return ScriptIntrinsicBlendThunker.create(rs, e);
+        }
         // 7 comes from RS_SCRIPT_INTRINSIC_ID_BLEND in rsDefines.h
-        long id;
-        boolean mUseIncSupp = rs.isUseNative() &&
-                              android.os.Build.VERSION.SDK_INT < INTRINSIC_API_LEVEL;
-
-        id = rs.nScriptIntrinsicCreate(7, e.getID(rs), mUseIncSupp);
-
-        ScriptIntrinsicBlend si = new ScriptIntrinsicBlend(id, rs);
-        si.setIncSupp(mUseIncSupp);
-        return si;
+        int id = rs.nScriptIntrinsicCreate(7, e.getID(rs));
+        return new ScriptIntrinsicBlend(id, rs);
 
     }
 

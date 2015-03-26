@@ -21,6 +21,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.app.Instrumentation;
 import android.content.Intent;
 
@@ -233,17 +234,11 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
             int margin = -1;
             for (int i = 1; i < views.length; i++) {
                 if (mOrientation == BaseGridView.HORIZONTAL) {
-                    if (i == 1) {
-                        margin = views[i].getLeft() - views[i - 1].getRight();
-                    } else {
-                        assertEquals(margin, views[i].getLeft() - views[i - 1].getRight());
-                    }
+                    assertEquals(mGridView.getHorizontalMargin(),
+                            views[i].getLeft() - views[i - 1].getRight());
                 } else {
-                    if (i == 1) {
-                        margin = views[i].getTop() - views[i - 1].getBottom();
-                    } else {
-                        assertEquals(margin, views[i].getTop() - views[i - 1].getBottom());
-                    }
+                    assertEquals(mGridView.getVerticalMargin(),
+                            views[i].getTop() - views[i - 1].getBottom());
                 }
             }
         }
@@ -1132,5 +1127,123 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
 
         assertTrue("LinearSmoothScroller would not use many RV.smoothScrollBy() calls",
                 ((VerticalGridViewEx) mGridView).mSmoothScrollByCalled < 10);
+    }
+
+    public void testSetNumRowsAndAddItem() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_REQUEST_FOCUS_ONLAYOUT, true);
+        int[] items = new int[2];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 300;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+
+        mGridView.setSelectedPositionSmooth(0);
+        waitForScrollIdle(mVerifyLayout);
+
+        mActivity.addItems(items.length, new int[]{300});
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                ((VerticalGridView) mGridView).setNumColumns(2);
+            }
+        });
+        Thread.sleep(1000);
+        assertTrue(mGridView.getChildAt(2).getLeft() != mGridView.getChildAt(1).getLeft());
+    }
+
+
+    public void testRequestLayoutBugInLayout() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_CHILD_LAYOUT_ID, R.layout.relative_layout);
+        intent.putExtra(GridActivity.EXTRA_REQUEST_FOCUS_ONLAYOUT, true);
+        int[] items = new int[100];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 300;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPositionSmooth(1);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+
+        sendKeys(KeyEvent.KEYCODE_DPAD_UP);
+        waitForScrollIdle(mVerifyLayout);
+
+        assertEquals("Line 2", ((TextView) mGridView.findFocus()).getText().toString());
+    }
+
+
+    public void testChangeLayoutInChild() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear_wrap_content);
+        intent.putExtra(GridActivity.EXTRA_REQUEST_LAYOUT_ONFOCUS, true);
+        int[] items = new int[2];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 300;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPositionSmooth(0);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+        verifyMargin();
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPositionSmooth(1);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+        verifyMargin();
+    }
+
+
+    public void testZeroFixedSecondarySize() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear_measured_with_zero);
+        intent.putExtra(GridActivity.EXTRA_SECONDARY_SIZE_ZERO, true);
+        int[] items = new int[2];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 0;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+
     }
 }

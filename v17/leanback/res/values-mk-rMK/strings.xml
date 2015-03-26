@@ -22,4 +22,28 @@ limitations under the License.
     <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"Зборувајте за да пребарувате"</string>
     <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"Пребарувај <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
     <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"Кажете за да се пребарува <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
+    <string name="lb_control_display_fast_forward_multiplier" msgid="4541442045214207774">"%1$dX"</string>
+    <string name="lb_control_display_rewind_multiplier" msgid="3097220783222910245">"%1$dX"</string>
+    <string name="lb_playback_controls_play" msgid="731953341987346903">"Пушти"</string>
+    <string name="lb_playback_controls_pause" msgid="6189521112079849518">"Пауза"</string>
+    <string name="lb_playback_controls_fast_forward" msgid="8569951318244687220">"Брзо премотај напред"</string>
+    <string name="lb_playback_controls_fast_forward_multiplier" msgid="1058753672110224526">"Премотај напред %1$dX"</string>
+    <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"Премотај назад"</string>
+    <string name="lb_playback_controls_rewind_multiplier" msgid="1640629531440849942">"Премотај назад %1$dX"</string>
+    <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"Прескокни на следна"</string>
+    <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"Прескокни на претходна"</string>
+    <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"Повеќе дејства"</string>
+    <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"Откажи палец нагоре"</string>
+    <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"Избери палец нагоре"</string>
+    <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"Откажи палец надолу"</string>
+    <string name="lb_playback_controls_thumb_down_outline" msgid="2936020280629424365">"Избери палец надолу"</string>
+    <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"Не повторувај ниту една"</string>
+    <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"Повтори ги сите"</string>
+    <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"Повтори една"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"Овозможи мешање"</string>
+    <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"Оневозможи мешање"</string>
+    <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"Овозможи висок квалитет"</string>
+    <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"Оневозможи висок квалитет"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"Овозможи затворено објаснување"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"Оневозможи затворено објаснување"</string>
 </resources>

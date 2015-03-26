@@ -604,8 +604,7 @@ public class SwitchCompat extends CompoundButton {
                 : text;
 
         return new StaticLayout(transformed, mTextPaint,
-                transformed != null ?
-                        (int) Math.ceil(Layout.getDesiredWidth(transformed, mTextPaint)) : 0,
+                (int) Math.ceil(Layout.getDesiredWidth(transformed, mTextPaint)),
                 Layout.Alignment.ALIGN_NORMAL, 1.f, 0, true);
     }
 

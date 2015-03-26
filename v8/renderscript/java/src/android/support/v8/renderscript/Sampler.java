@@ -62,7 +62,7 @@ public class Sampler extends BaseObj {
     Value mWrapR;
     float mAniso;
 
-    Sampler(long id, RenderScript rs) {
+    Sampler(int id, RenderScript rs) {
         super(id, rs);
     }
 
@@ -328,8 +328,18 @@ public class Sampler extends BaseObj {
         }
 
         public Sampler create() {
+            if (mRS.isNative) {
+                RenderScriptThunker rst = (RenderScriptThunker)mRS;
+                SamplerThunker.Builder b = new SamplerThunker.Builder(rst);
+                b.setMinification(mMin);
+                b.setMagnification(mMag);
+                b.setWrapS(mWrapS);
+                b.setWrapT(mWrapT);
+                b.setAnisotropy(mAniso);
+                return b.create();
+            }
             mRS.validate();
-            long id = mRS.nSamplerCreate(mMag.mID, mMin.mID,
+            int id = mRS.nSamplerCreate(mMag.mID, mMin.mID,
                                         mWrapS.mID, mWrapT.mID, mWrapR.mID, mAniso);
             Sampler sampler = new Sampler(id, mRS);
             sampler.mMin = mMin;

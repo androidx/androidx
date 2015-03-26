@@ -151,25 +151,17 @@ public class Element extends BaseObj {
         MATRIX_3X3 (17, 36),
         MATRIX_2X2 (18, 16),
 
-        RS_ELEMENT (1000),
-        RS_TYPE (1001),
-        RS_ALLOCATION (1002),
-        RS_SAMPLER (1003),
-        RS_SCRIPT (1004);
+        RS_ELEMENT (1000, 4),
+        RS_TYPE (1001, 4),
+        RS_ALLOCATION (1002, 4),
+        RS_SAMPLER (1003, 4),
+        RS_SCRIPT (1004, 4);
 
         int mID;
         int mSize;
         DataType(int id, int size) {
             mID = id;
             mSize = size;
-        }
-
-        DataType(int id) {
-            mID = id;
-            mSize = 4;
-            if (RenderScript.sPointerSize == 8) {
-                mSize = 32;
-            }
         }
     }
 
@@ -714,7 +706,7 @@ public class Element extends BaseObj {
         return rs.mElement_MATRIX_2X2;
     }
 
-    Element(long id, RenderScript rs, Element[] e, String[] n, int[] as) {
+    Element(int id, RenderScript rs, Element[] e, String[] n, int[] as) {
         super(id, rs);
         mSize = 0;
         mVectorSize = 1;
@@ -731,7 +723,7 @@ public class Element extends BaseObj {
         updateVisibleSubElements();
     }
 
-    Element(long id, RenderScript rs, DataType dt, DataKind dk, boolean norm, int size) {
+    Element(int id, RenderScript rs, DataType dt, DataKind dk, boolean norm, int size) {
         super(id, rs);
         if ((dt != DataType.UNSIGNED_5_6_5) &&
             (dt != DataType.UNSIGNED_4_4_4_4) &&
@@ -750,17 +742,10 @@ public class Element extends BaseObj {
         mVectorSize = size;
     }
 
-    Element(long id, RenderScript rs) {
+    Element(int id, RenderScript rs) {
         super(id, rs);
     }
 
-    /*
-     * Get an identical dummy Element for Compat Context
-     *
-     */
-    public long getDummyElement(RenderScript mRS) {
-        return mRS.nIncElementCreate(mType.mID, mKind.mID, mNormalized, mVectorSize);
-    }
     /**
      * Create a custom Element of the specified DataType.  The DataKind will be
      * set to USER and the vector size to 1 indicating non-vector.
@@ -770,10 +755,14 @@ public class Element extends BaseObj {
      * @return Element
      */
     static Element createUser(RenderScript rs, DataType dt) {
+        if (rs.isNative) {
+            RenderScriptThunker rst = (RenderScriptThunker)rs;
+            return ElementThunker.create(rst, dt);
+        }
         DataKind dk = DataKind.USER;
         boolean norm = false;
         int vecSize = 1;
-        long id = rs.nElementCreate(dt.mID, dk.mID, norm, vecSize);
+        int id = rs.nElementCreate(dt.mID, dk.mID, norm, vecSize);
         return new Element(id, rs, dt, dk, norm, vecSize);
     }
 
@@ -791,6 +780,10 @@ public class Element extends BaseObj {
      * @return Element
      */
     public static Element createVector(RenderScript rs, DataType dt, int size) {
+        if (rs.isNative) {
+            RenderScriptThunker rst = (RenderScriptThunker)rs;
+            return ElementThunker.createVector(rst, dt, size);
+        }
         if (size < 2 || size > 4) {
             throw new RSIllegalArgumentException("Vector size out of range 2-4.");
         }
@@ -810,7 +803,7 @@ public class Element extends BaseObj {
         case BOOLEAN: {
             DataKind dk = DataKind.USER;
             boolean norm = false;
-            long id = rs.nElementCreate(dt.mID, dk.mID, norm, size);
+            int id = rs.nElementCreate(dt.mID, dk.mID, norm, size);
             return new Element(id, rs, dt, dk, norm, size);
         }
 
@@ -834,6 +827,11 @@ public class Element extends BaseObj {
      * @return Element
      */
     public static Element createPixel(RenderScript rs, DataType dt, DataKind dk) {
+        if (rs.isNative) {
+            RenderScriptThunker rst = (RenderScriptThunker)rs;
+            return ElementThunker.createPixel(rst, dt, dk);
+        }
+
         if (!(dk == DataKind.PIXEL_L ||
               dk == DataKind.PIXEL_A ||
               dk == DataKind.PIXEL_LA ||
@@ -878,7 +876,7 @@ public class Element extends BaseObj {
         }
 
         boolean norm = true;
-        long id = rs.nElementCreate(dt.mID, dk.mID, norm, size);
+        int id = rs.nElementCreate(dt.mID, dk.mID, norm, size);
         return new Element(id, rs, dt, dk, norm, size);
     }
 
@@ -916,6 +914,7 @@ public class Element extends BaseObj {
      *
      */
     public static class Builder {
+        ElementThunker.BuilderThunker mT;
 
         RenderScript mRS;
         Element[] mElements;
@@ -930,6 +929,10 @@ public class Element extends BaseObj {
          * @param rs
          */
         public Builder(RenderScript rs) {
+            if (rs.isNative) {
+                RenderScriptThunker rst = (RenderScriptThunker)rs;
+                mT = new ElementThunker.BuilderThunker(rs);
+            }
             mRS = rs;
             mCount = 0;
             mElements = new Element[8];
@@ -945,6 +948,11 @@ public class Element extends BaseObj {
          * @param arraySize
          */
         public Builder add(Element element, String name, int arraySize) {
+            if (mT != null) {
+                mT.add(element, name, arraySize);
+                return this;
+            }
+
             if (arraySize < 1) {
                 throw new RSIllegalArgumentException("Array size cannot be less than 1.");
             }
@@ -999,6 +1007,10 @@ public class Element extends BaseObj {
          * @return Element
          */
         public Element create() {
+            if (mT != null) {
+                return mT.create(mRS);
+            }
+
             mRS.validate();
             Element[] ein = new Element[mCount];
             String[] sin = new String[mCount];
@@ -1007,12 +1019,12 @@ public class Element extends BaseObj {
             java.lang.System.arraycopy(mElementNames, 0, sin, 0, mCount);
             java.lang.System.arraycopy(mArraySizes, 0, asin, 0, mCount);
 
-            long[] ids = new long[ein.length];
+            int[] ids = new int[ein.length];
             for (int ct = 0; ct < ein.length; ct++ ) {
                 ids[ct] = ein[ct].getID(mRS);
             }
 
-            long id = mRS.nElementCreate2(ids, sin, asin);
+            int id = mRS.nElementCreate2(ids, sin, asin);
             return new Element(id, mRS, ein, sin, asin);
         }
     }
