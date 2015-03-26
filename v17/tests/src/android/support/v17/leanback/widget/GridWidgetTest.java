@@ -1089,4 +1089,48 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
 
     }
 
+    public void testSmoothscrollerInterrupted() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_REQUEST_FOCUS_ONLAYOUT, true);
+        int[] items = new int[100];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 680;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+
+        mGridView.setSelectedPositionSmooth(0);
+        waitForScrollIdle(mVerifyLayout);
+        assertTrue(mGridView.getChildAt(0).hasFocus());
+
+        // Pressing lots of key to make sure smooth scroller is running
+        for (int i = 0; i < 20; i++) {
+            sendKeys(KeyEvent.KEYCODE_DPAD_DOWN);
+        }
+        Thread.sleep(100);
+        int total = 0;
+        while (mGridView.getLayoutManager().isSmoothScrolling() ||
+                mGridView.getScrollState() != BaseGridView.SCROLL_STATE_IDLE) {
+            if ((total += 10) >= WAIT_FOR_SCROLL_IDLE_TIMEOUT_MS) {
+                throw new RuntimeException("waitForScrollIdle Timeout");
+            }
+            try {
+                // Repeatedly pressing to make sure pending keys does not drop to zero.
+                Thread.sleep(10);
+                sendKeys(KeyEvent.KEYCODE_DPAD_DOWN);
+            } catch (InterruptedException ex) {
+                break;
+            }
+        }
+
+        assertTrue("LinearSmoothScroller would not use many RV.smoothScrollBy() calls",
+                ((VerticalGridViewEx) mGridView).mSmoothScrollByCalled < 10);
+    }
 }

@@ -21,7 +21,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v17.leanback.widget.BaseGridView;
 import android.support.v17.leanback.widget.OnChildSelectedListener;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -38,6 +37,7 @@ import android.widget.TextView;
  * @hide from javadoc
  */
 public class GridActivity extends Activity {
+
     private static final String TAG = "GridActivity";
 
     public static final String EXTRA_LAYOUT_RESOURCE_ID = "layoutResourceId";
@@ -46,11 +46,13 @@ public class GridActivity extends Activity {
     public static final String EXTRA_ITEMS_FOCUSABLE = "itemsFocusable";
     public static final String EXTRA_STAGGERED = "staggered";
     public static final String EXTRA_REQUEST_LAYOUT_ONFOCUS = "requestLayoutOnFocus";
+    public static final String EXTRA_REQUEST_FOCUS_ONLAYOUT = "requstFocusOnLayout";
     public static final String SELECT_ACTION = "android.test.leanback.widget.SELECT";
 
     static final int DEFAULT_NUM_ITEMS = 100;
     static final boolean DEFAULT_STAGGERED = true;
     static final boolean DEFAULT_REQUEST_LAYOUT_ONFOCUS = false;
+    static final boolean DEFAULT_REQUEST_FOCUS_ONLAYOUT = false;
 
     private static final boolean DEBUG = false;
 
@@ -59,6 +61,7 @@ public class GridActivity extends Activity {
     int mNumItems;
     boolean mStaggered;
     boolean mRequestLayoutOnFocus;
+    boolean mRequestFocusOnLayout;
 
     int[] mGridViewLayoutSize;
     BaseGridView mGridView;
@@ -92,6 +95,8 @@ public class GridActivity extends Activity {
         mStaggered = intent.getBooleanExtra(EXTRA_STAGGERED, DEFAULT_STAGGERED);
         mRequestLayoutOnFocus = intent.getBooleanExtra(EXTRA_REQUEST_LAYOUT_ONFOCUS,
                 DEFAULT_REQUEST_LAYOUT_ONFOCUS);
+        mRequestFocusOnLayout = intent.getBooleanExtra(EXTRA_REQUEST_FOCUS_ONLAYOUT,
+                DEFAULT_REQUEST_FOCUS_ONLAYOUT);
         mItemLengths = intent.getIntArrayExtra(EXTRA_ITEMS);
         mItemFocusables = intent.getBooleanArrayExtra(EXTRA_ITEMS_FOCUSABLE);
 
@@ -200,7 +205,18 @@ public class GridActivity extends Activity {
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             if (DEBUG) Log.v(TAG, "createViewHolder " + viewType);
-            TextView textView = new TextView(parent.getContext());
+            TextView textView = new TextView(parent.getContext()) {
+                @Override
+                protected void onLayout(boolean change, int left, int top, int right, int bottom) {
+                    super.onLayout(change, left, top, right, bottom);
+                    if (mRequestFocusOnLayout) {
+                        if (hasFocus()) {
+                            clearFocus();
+                            requestFocus();
+                        }
+                    }
+                }
+            };
             textView.setTextColor(Color.BLACK);
             textView.setOnFocusChangeListener(mItemFocusChangeListener);
             return new ViewHolder(textView);
