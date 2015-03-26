@@ -18,12 +18,8 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="5441529851481176817">"Sistem"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"Peranti"</string>
-    <string name="mr_media_route_button_content_description" msgid="8327680881775995150">"Barisan pelakon"</string>
+    <string name="mr_media_route_button_content_description" msgid="4271159405637008602">"Output media"</string>
     <string name="mr_media_route_chooser_title" msgid="7106830097177242655">"Sambung kepada peranti"</string>
     <string name="mr_media_route_chooser_searching" msgid="7553005460920830010">"Mencari peranti..."</string>
     <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"Putuskan sambungan"</string>
-    <string name="mr_media_route_controller_stop" msgid="5398645111664294430">"Berhenti menghantar"</string>
-    <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"Tetapan laluan"</string>
-    <string name="mr_media_route_controller_play" msgid="5214423499524760404">"Main"</string>
-    <string name="mr_media_route_controller_pause" msgid="8315773974194466049">"Jeda"</string>
 </resources>

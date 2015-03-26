@@ -29,8 +29,10 @@ public class ScriptIntrinsicLUT extends ScriptIntrinsic {
     private Allocation mTables;
     private final byte mCache[] = new byte[1024];
     private boolean mDirty = true;
+    // API level for the intrinsic
+    private static final int INTRINSIC_API_LEVEL = 19;
 
-    protected ScriptIntrinsicLUT(int id, RenderScript rs) {
+    protected ScriptIntrinsicLUT(long id, RenderScript rs) {
         super(id, rs);
     }
 
@@ -45,14 +47,14 @@ public class ScriptIntrinsicLUT extends ScriptIntrinsic {
      * @return ScriptIntrinsicLUT
      */
     public static ScriptIntrinsicLUT create(RenderScript rs, Element e) {
-        if (rs.isNative) {
-            RenderScriptThunker rst = (RenderScriptThunker) rs;
-            return ScriptIntrinsicLUTThunker.create(rs, e);
-        }
+        long id;
+        boolean mUseIncSupp = rs.isUseNative() &&
+                              android.os.Build.VERSION.SDK_INT < INTRINSIC_API_LEVEL;
 
-        int id = rs.nScriptIntrinsicCreate(3, e.getID(rs));
+        id = rs.nScriptIntrinsicCreate(3, e.getID(rs), mUseIncSupp);
 
         ScriptIntrinsicLUT si = new ScriptIntrinsicLUT(id, rs);
+        si.setIncSupp(mUseIncSupp);
         si.mTables = Allocation.createSized(rs, Element.U8(rs), 1024);
         for (int ct=0; ct < 256; ct++) {
             si.mCache[ct] = (byte)ct;
