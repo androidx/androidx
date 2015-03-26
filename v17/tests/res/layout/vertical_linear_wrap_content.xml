@@ -15,7 +15,7 @@
       lb:horizontalMargin="12dip"
       lb:verticalMargin="24dip"
       lb:numberOfColumns="1"
-      lb:columnWidth="150dip"
+      lb:columnWidth="wrap_content"
       android:paddingBottom="12dip"
       android:paddingLeft="12dip"
       android:paddingRight="12dip"

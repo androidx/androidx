@@ -4,7 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
-  <android.support.v17.leanback.widget.VerticalGridViewEx
+   <FrameLayout
+    android:layout_width="0dip"
+    android:layout_height="match_parent"
+    >
+    <android.support.v17.leanback.widget.VerticalGridViewEx
       android:id="@+id/gridview"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
@@ -14,10 +18,7 @@
       android:background="#00ffff"
       lb:horizontalMargin="12dip"
       lb:verticalMargin="24dip"
-      lb:numberOfColumns="1"
-      lb:columnWidth="150dip"
-      android:paddingBottom="12dip"
-      android:paddingLeft="12dip"
-      android:paddingRight="12dip"
-      android:paddingTop="12dip" />
+      lb:numberOfColumns="1" />
+    </FrameLayout>
+
 </RelativeLayout>

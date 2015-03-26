@@ -21,7 +21,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v17.leanback.widget.BaseGridView;
 import android.support.v17.leanback.widget.OnChildSelectedListener;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -34,10 +33,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 /**
  * @hide from javadoc
  */
 public class GridActivity extends Activity {
+
     private static final String TAG = "GridActivity";
 
     public static final String EXTRA_LAYOUT_RESOURCE_ID = "layoutResourceId";
@@ -46,19 +48,26 @@ public class GridActivity extends Activity {
     public static final String EXTRA_ITEMS_FOCUSABLE = "itemsFocusable";
     public static final String EXTRA_STAGGERED = "staggered";
     public static final String EXTRA_REQUEST_LAYOUT_ONFOCUS = "requestLayoutOnFocus";
+    public static final String EXTRA_REQUEST_FOCUS_ONLAYOUT = "requstFocusOnLayout";
+    public static final String EXTRA_CHILD_LAYOUT_ID = "childLayoutId";
+    public static final String EXTRA_SECONDARY_SIZE_ZERO = "secondarySizeZero";
     public static final String SELECT_ACTION = "android.test.leanback.widget.SELECT";
 
     static final int DEFAULT_NUM_ITEMS = 100;
     static final boolean DEFAULT_STAGGERED = true;
     static final boolean DEFAULT_REQUEST_LAYOUT_ONFOCUS = false;
+    static final boolean DEFAULT_REQUEST_FOCUS_ONLAYOUT = false;
 
     private static final boolean DEBUG = false;
 
     int mLayoutId;
     int mOrientation;
     int mNumItems;
+    int mChildLayout;
     boolean mStaggered;
     boolean mRequestLayoutOnFocus;
+    boolean mRequestFocusOnLayout;
+    boolean mSecondarySizeZero;
 
     int[] mGridViewLayoutSize;
     BaseGridView mGridView;
@@ -89,9 +98,13 @@ public class GridActivity extends Activity {
         Intent intent = getIntent();
 
         mLayoutId = intent.getIntExtra(EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_grid);
+        mChildLayout = intent.getIntExtra(EXTRA_CHILD_LAYOUT_ID, -1);
         mStaggered = intent.getBooleanExtra(EXTRA_STAGGERED, DEFAULT_STAGGERED);
         mRequestLayoutOnFocus = intent.getBooleanExtra(EXTRA_REQUEST_LAYOUT_ONFOCUS,
                 DEFAULT_REQUEST_LAYOUT_ONFOCUS);
+        mRequestFocusOnLayout = intent.getBooleanExtra(EXTRA_REQUEST_FOCUS_ONLAYOUT,
+                DEFAULT_REQUEST_FOCUS_ONLAYOUT);
+        mSecondarySizeZero = intent.getBooleanExtra(EXTRA_SECONDARY_SIZE_ZERO, false);
         mItemLengths = intent.getIntArrayExtra(EXTRA_ITEMS);
         mItemFocusables = intent.getBooleanArrayExtra(EXTRA_ITEMS_FOCUSABLE);
 
@@ -149,6 +162,18 @@ public class GridActivity extends Activity {
         }
     };
 
+    private OnFocusChangeListener mSubItemFocusChangeListener = new OnFocusChangeListener() {
+
+        @Override
+        public void onFocusChange(View v, boolean hasFocus) {
+            if (hasFocus) {
+                v.setBackgroundColor(Color.YELLOW);
+            } else {
+                v.setBackgroundColor(Color.LTGRAY);
+            }
+        }
+    };
+
     void resetBoundCount() {
         mBoundCount = 0;
     }
@@ -189,6 +214,11 @@ public class GridActivity extends Activity {
 
     void addItems(int index, int[] items) {
         int length = items.length;
+        if (mItemLengths.length < mNumItems + length) {
+            int[] array = new int[mNumItems + length];
+            System.arraycopy(mItemLengths, 0, array, 0, mNumItems);
+            mItemLengths = array;
+        }
         System.arraycopy(mItemLengths, index, mItemLengths, index + length, mNumItems - index);
         System.arraycopy(items, 0, mItemLengths, index, length);
         mNumItems += length;
@@ -200,7 +230,40 @@ public class GridActivity extends Activity {
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             if (DEBUG) Log.v(TAG, "createViewHolder " + viewType);
-            TextView textView = new TextView(parent.getContext());
+            if (mChildLayout != -1) {
+                final View view = getLayoutInflater().inflate(mChildLayout, null, false);
+                ArrayList<View> focusables = new ArrayList<View>();
+                view.addFocusables(focusables, View.FOCUS_UP);
+                for (int i = 0; i < focusables.size(); i++) {
+                    View f = focusables.get(i);
+                    f.setOnFocusChangeListener(new OnFocusChangeListener() {
+                        @Override
+                        public void onFocusChange(View v, boolean hasFocus) {
+                            if (hasFocus) {
+                                v.setBackgroundColor(Color.YELLOW);
+                            } else {
+                                v.setBackgroundColor(Color.LTGRAY);
+                            }
+                            if (mRequestLayoutOnFocus) {
+                                view.requestLayout();
+                            }
+                        }
+                    });
+                }
+                return new ViewHolder(view);
+            }
+            TextView textView = new TextView(parent.getContext()) {
+                @Override
+                protected void onLayout(boolean change, int left, int top, int right, int bottom) {
+                    super.onLayout(change, left, top, right, bottom);
+                    if (mRequestFocusOnLayout) {
+                        if (hasFocus()) {
+                            clearFocus();
+                            requestFocus();
+                        }
+                    }
+                }
+            };
             textView.setTextColor(Color.BLACK);
             textView.setOnFocusChangeListener(mItemFocusChangeListener);
             return new ViewHolder(textView);
@@ -211,14 +274,16 @@ public class GridActivity extends Activity {
             if (DEBUG) Log.v(TAG, "bindViewHolder " + position + " " + baseHolder);
             mBoundCount++;
             ViewHolder holder = (ViewHolder) baseHolder;
-            ((TextView) holder.itemView).setText("Item "+position);
-            boolean focusable = true;
-            if (mItemFocusables != null) {
-                focusable = mItemFocusables[position];
+            if (mChildLayout == -1) {
+                ((TextView) holder.itemView).setText("Item "+position);
+                boolean focusable = true;
+                if (mItemFocusables != null) {
+                    focusable = mItemFocusables[position];
+                }
+                ((TextView) holder.itemView).setFocusable(focusable);
+                ((TextView) holder.itemView).setFocusableInTouchMode(focusable);
+                holder.itemView.setBackgroundColor(Color.LTGRAY);
             }
-            ((TextView) holder.itemView).setFocusable(focusable);
-            ((TextView) holder.itemView).setFocusableInTouchMode(focusable);
-            holder.itemView.setBackgroundColor(Color.LTGRAY);
             updateSize(holder.itemView, position);
         }
 
@@ -235,9 +300,9 @@ public class GridActivity extends Activity {
         }
         if (mOrientation == BaseGridView.HORIZONTAL) {
             p.width = mItemLengths[position] + (mRequestLayoutOnFocus && view.hasFocus() ? 1 : 0);
-            p.height = 80;
+            p.height = mSecondarySizeZero ? 0 : 80;
         } else {
-            p.width = 240;
+            p.width = mSecondarySizeZero ? 0 : 240;
             p.height = mItemLengths[position] + (mRequestLayoutOnFocus && view.hasFocus() ? 1 : 0);
         }
         view.setLayoutParams(p);
