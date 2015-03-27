@@ -30,6 +30,7 @@ import android.graphics.BitmapFactory;
 import android.os.Process;
 import android.util.Log;
 import android.view.Surface;
+import java.util.ArrayList;
 
 /**
  * This class provides access to a RenderScript context, which controls RenderScript
@@ -47,6 +48,12 @@ public class RenderScript {
     static final boolean DEBUG  = false;
     @SuppressWarnings({"UnusedDeclaration", "deprecation"})
     static final boolean LOG_ENABLED = false;
+
+    static private ArrayList<RenderScript> mProcessContextList = new ArrayList<RenderScript>();
+    private boolean mIsProcessContext = false;
+    private int mContextFlags = 0;
+    private int mContextSdkVersion = 0;
+
 
     private Context mApplicationContext;
     private String mNativeLibDir;
@@ -80,6 +87,13 @@ public class RenderScript {
     static private int sSdkVersion = -1;
     static private boolean useIOlib = false;
     static private boolean useNative;
+
+    /*
+     * Context creation flag that specifies a normal context.
+     * RenderScript Support lib only support normal context.
+     */
+    public static final int CREATE_FLAG_NONE = 0x0000;
+
 
     boolean isUseNative() {
         return useNative;
@@ -214,6 +228,7 @@ public class RenderScript {
         }
     }
 
+    ContextType mContextType;
     // Methods below are wrapped to protect the non-threadsafe
     // lockless fifo.
 
@@ -1101,6 +1116,7 @@ public class RenderScript {
     }
 
     RenderScript(Context ctx) {
+        mContextType = ContextType.NORMAL;
         if (ctx != null) {
             mApplicationContext = ctx.getApplicationContext();
             mNativeLibDir = mApplicationContext.getApplicationInfo().nativeLibraryDir;
@@ -1121,20 +1137,12 @@ public class RenderScript {
     }
 
     /**
-     * @hide
-     */
-    public static RenderScript create(Context ctx, int sdkVersion) {
-        return create(ctx, sdkVersion, ContextType.NORMAL);
-    }
-
-    /**
      * Create a RenderScript context.
      *
-     * @hide
      * @param ctx The context.
      * @return RenderScript
      */
-    public static RenderScript create(Context ctx, int sdkVersion, ContextType ct) {
+    private static RenderScript internalCreate(Context ctx, int sdkVersion, ContextType ct, int flags) {
         RenderScript rs = new RenderScript(ctx);
 
         if (sSdkVersion == -1) {
@@ -1206,6 +1214,9 @@ public class RenderScript {
 
         rs.mDev = rs.nDeviceCreate();
         rs.mContext = rs.nContextCreate(rs.mDev, 0, sdkVersion, ct.mID, rs.mNativeLibDir);
+        rs.mContextType = ct;
+        rs.mContextFlags = flags;
+        rs.mContextSdkVersion = sdkVersion;
         if (rs.mContext == 0) {
             throw new RSDriverException("Failed to create RS context.");
         }
@@ -1217,6 +1228,8 @@ public class RenderScript {
     /**
      * Create a RenderScript context.
      *
+     * See documentation for @create for details
+     *
      * @param ctx The context.
      * @return RenderScript
      */
@@ -1225,17 +1238,142 @@ public class RenderScript {
     }
 
     /**
-     * Create a RenderScript context.
+     * calls create(ctx, ct, CREATE_FLAG_NONE)
      *
-     * @hide
+     * See documentation for @create for details
      *
      * @param ctx The context.
      * @param ct The type of context to be created.
      * @return RenderScript
      */
     public static RenderScript create(Context ctx, ContextType ct) {
+        return create(ctx, ct, CREATE_FLAG_NONE);
+    }
+
+    /**
+     * Gets or creates a RenderScript context of the specified type.
+     *
+     * The returned context will be cached for future reuse within
+     * the process. When an application is finished using
+     * RenderScript it should call releaseAllContexts()
+     *
+     * A process context is a context designed for easy creation and
+     * lifecycle management.  Multiple calls to this function will
+     * return the same object provided they are called with the same
+     * options.  This allows it to be used any time a RenderScript
+     * context is needed.
+     *
+     *
+     * @param ctx The context.
+     * @param ct The type of context to be created.
+     * @param flags The OR of the CREATE_FLAG_* options desired
+     * @return RenderScript
+     */
+    public static RenderScript create(Context ctx, ContextType ct, int flags) {
         int v = ctx.getApplicationInfo().targetSdkVersion;
-        return create(ctx, v, ct);
+        return create(ctx, v, ct, flags);
+    }
+
+    /**
+     * calls create(ctx, sdkVersion, ContextType.NORMAL, CREATE_FLAG_NONE)
+     *
+     * Used by the RenderScriptThunker to maintain backward compatibility.
+     *
+     * @hide
+     * @param ctx The context.
+     * @param sdkVersion The target SDK Version.
+     * @return RenderScript
+     */
+    public static RenderScript create(Context ctx, int sdkVersion) {
+        return create(ctx, sdkVersion, ContextType.NORMAL, CREATE_FLAG_NONE);
+    }
+
+
+    /**
+     * calls create(ctx, sdkVersion, ct, CREATE_FLAG_NONE)
+     * Create a RenderScript context.
+     *
+     * @hide
+     * @param ctx The context.
+     * @return RenderScript
+     */
+    public static RenderScript create(Context ctx, int sdkVersion, ContextType ct) {
+        return create(ctx, sdkVersion, ct, CREATE_FLAG_NONE);
+    }
+
+     /**
+     * Gets or creates a RenderScript context of the specified type.
+     *
+     * @hide
+     * @param ctx The context.
+     * @param ct The type of context to be created.
+     * @param sdkVersion The target SDK Version.
+     * @param flags The OR of the CREATE_FLAG_* options desired
+     * @return RenderScript
+     */
+    public static RenderScript create(Context ctx, int sdkVersion, ContextType ct, int flags) {
+        synchronized (mProcessContextList) {
+            for (RenderScript prs : mProcessContextList) {
+                if ((prs.mContextType == ct) &&
+                    (prs.mContextFlags == flags) &&
+                    (prs.mContextSdkVersion == sdkVersion)) {
+
+                    return prs;
+                }
+            }
+
+            RenderScript prs = internalCreate(ctx, sdkVersion, ct, flags);
+            prs.mIsProcessContext = true;
+            mProcessContextList.add(prs);
+            return prs;
+        }
+    }
+
+    /**
+     * @hide
+     *
+     * Releases all the process contexts.  This is the same as
+     * calling .destroy() on each unique context retreived with
+     * create(...). If no contexts have been created this
+     * function does nothing.
+     *
+     * Typically you call this when your application is losing focus
+     * and will not be using a context for some time.
+     *
+     * This has no effect on a context created with
+     * createMultiContext()
+     */
+    public static void releaseAllContexts() {
+        ArrayList<RenderScript> oldList;
+        synchronized (mProcessContextList) {
+            oldList = mProcessContextList;
+            mProcessContextList = new ArrayList<RenderScript>();
+        }
+
+        for (RenderScript prs : oldList) {
+            prs.mIsProcessContext = false;
+            prs.destroy();
+        }
+        oldList.clear();
+    }
+
+
+
+    /**
+     * Create a RenderScript context.
+     *
+     * This is an advanced function intended for applications which
+     * need to create more than one RenderScript context to be used
+     * at the same time.
+     *
+     * If you need a single context please use create()
+     *
+     * @hide
+     * @param ctx The context.
+     * @return RenderScript
+     */
+    public static RenderScript createMultiContext(Context ctx, ContextType ct, int flags, int API_number) {
+        return internalCreate(ctx, API_number, ct, flags);
     }
 
     /**
