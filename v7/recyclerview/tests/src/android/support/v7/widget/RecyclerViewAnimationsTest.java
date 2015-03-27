@@ -935,6 +935,56 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
         }
     }
 
+    public void testAddThenRecycleRemovedView() throws Throwable {
+        setupBasic(10);
+        final AtomicInteger step = new AtomicInteger(0);
+        final List<RecyclerView.ViewHolder> animateRemoveList = new ArrayList<RecyclerView.ViewHolder>();
+        DefaultItemAnimator animator = new DefaultItemAnimator() {
+            @Override
+            public boolean animateRemove(RecyclerView.ViewHolder holder) {
+                animateRemoveList.add(holder);
+                return super.animateRemove(holder);
+            }
+        };
+        mRecyclerView.setItemAnimator(animator);
+        final List<RecyclerView.ViewHolder> pooledViews = new ArrayList<RecyclerView.ViewHolder>();
+        mRecyclerView.setRecycledViewPool(new RecyclerView.RecycledViewPool() {
+            @Override
+            public void putRecycledView(RecyclerView.ViewHolder scrap) {
+                pooledViews.add(scrap);
+                super.putRecycledView(scrap);
+            }
+        });
+        final RecyclerView.ViewHolder[] targetVh = new RecyclerView.ViewHolder[1];
+        mLayoutManager.mOnLayoutCallbacks = new OnLayoutCallbacks() {
+            @Override
+            void doLayout(RecyclerView.Recycler recycler,
+                    AnimationLayoutManager lm, RecyclerView.State state) {
+                switch (step.get()) {
+                    case 1:
+                        super.doLayout(recycler, lm, state);
+                        if (state.isPreLayout()) {
+                            View view = mLayoutManager.getChildAt(1);
+                            RecyclerView.ViewHolder holder =
+                                    mRecyclerView.getChildViewHolderInt(view);
+                            targetVh[0] = holder;
+                            assertTrue("test sanity", holder.isRemoved());
+                            mLayoutManager.removeAndRecycleView(view, recycler);
+                        }
+                        break;
+                }
+            }
+        };
+        step.set(1);
+        animateRemoveList.clear();
+        mLayoutManager.expectLayouts(2);
+        mTestAdapter.deleteAndNotify(1, 1);
+        mLayoutManager.waitForLayout(2);
+        assertTrue("test sanity, view should be recycled", pooledViews.contains(targetVh[0]));
+        assertTrue("since LM force recycled a view, animate disappearance should not be called",
+                animateRemoveList.isEmpty());
+    }
+
     class AnimationLayoutManager extends TestLayoutManager {
 
         private int mTotalLayoutCount = 0;
