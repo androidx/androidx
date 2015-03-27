@@ -179,13 +179,22 @@ class ViewsStateBundle {
     /**
      * The on screen view is saved when policy is not {@link #SAVE_NO_CHILD}.
      *
-     * @param view
-     * @param id
+     * @param bundle   Bundle where we save the on screen view state.  If null,
+     *                 a new Bundle is created and returned.
+     * @param view     The view to save.
+     * @param id       Id of the view.
      */
-    public final void saveOnScreenView(View view, int id) {
+    public final Bundle saveOnScreenView(Bundle bundle, View view, int id) {
         if (mSavePolicy != SAVE_NO_CHILD) {
-            saveViewUnchecked(view, id);
+            String key = getSaveStatesKey(id);
+            SparseArray<Parcelable> container = new SparseArray<Parcelable>();
+            view.saveHierarchyState(container);
+            if (bundle == null) {
+                bundle = new Bundle();
+            }
+            bundle.putSparseParcelableArray(key, container);
         }
+        return bundle;
     }
 
     /**

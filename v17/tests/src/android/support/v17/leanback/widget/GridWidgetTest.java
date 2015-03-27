@@ -17,13 +17,17 @@ package android.support.v17.leanback.widget;
 
 import android.support.v17.leanback.tests.R;
 import android.test.ActivityInstrumentationTestCase2;
+import android.text.Selection;
+import android.text.Spannable;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.app.Instrumentation;
 import android.content.Intent;
+import android.os.Parcelable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1246,4 +1250,79 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         initActivity(intent);
 
     }
+
+    public void testChildStates() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        int[] items = new int[100];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 200;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        intent.putExtra(GridActivity.EXTRA_REQUEST_LAYOUT_ONFOCUS, true);
+        intent.putExtra(GridActivity.EXTRA_CHILD_LAYOUT_ID, R.layout.selectable_text_view);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+        mGridView.setSaveChildrenPolicy(VerticalGridView.SAVE_ALL_CHILD);
+
+        SparseArray<Parcelable> container = new SparseArray<Parcelable>();
+
+        // 1 Save view states
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                Selection.setSelection((Spannable)(((TextView) mGridView.getChildAt(0))
+                        .getText()), 0, 1);
+                Selection.setSelection((Spannable)(((TextView) mGridView.getChildAt(1))
+                        .getText()), 0, 1);
+                SparseArray<Parcelable> container = new SparseArray<Parcelable>();
+                mGridView.saveHierarchyState(container);
+            }
+        });
+
+        // 2 Change view states
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                Selection.setSelection((Spannable)(((TextView) mGridView.getChildAt(0))
+                        .getText()), 1, 2);
+                Selection.setSelection((Spannable)(((TextView) mGridView.getChildAt(1))
+                        .getText()), 1, 2);
+            }
+        });
+
+        // 3 Detached and re-attached,  should still maintain state of (2)
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPositionSmooth(1);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+        assertEquals(((TextView) mGridView.getChildAt(0)).getSelectionStart(), 1);
+        assertEquals(((TextView) mGridView.getChildAt(0)).getSelectionEnd(), 2);
+        assertEquals(((TextView) mGridView.getChildAt(1)).getSelectionStart(), 1);
+        assertEquals(((TextView) mGridView.getChildAt(1)).getSelectionEnd(), 2);
+
+        // 4 Recycled and rebound, should load state from (2)
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPositionSmooth(20);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPositionSmooth(0);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+        assertEquals(((TextView) mGridView.getChildAt(0)).getSelectionStart(), 1);
+        assertEquals(((TextView) mGridView.getChildAt(0)).getSelectionEnd(), 2);
+        assertEquals(((TextView) mGridView.getChildAt(1)).getSelectionStart(), 1);
+        assertEquals(((TextView) mGridView.getChildAt(1)).getSelectionEnd(), 2);
+    }
+
+
 }

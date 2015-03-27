@@ -2793,15 +2793,19 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     public Parcelable onSaveInstanceState() {
         if (DEBUG) Log.v(getTag(), "onSaveInstanceState getSelection() " + getSelection());
         SavedState ss = new SavedState();
+        // save selected index
+        ss.index = getSelection();
+        // save offscreen child (state when they are recycled)
+        Bundle bundle = mChildrenStates.saveAsBundle();
+        // save views currently is on screen (TODO save cached views)
         for (int i = 0, count = getChildCount(); i < count; i++) {
             View view = getChildAt(i);
             int position = getPositionByView(view);
             if (position != NO_POSITION) {
-                mChildrenStates.saveOnScreenView(view, position);
+                bundle = mChildrenStates.saveOnScreenView(bundle, view, position);
             }
         }
-        ss.index = getSelection();
-        ss.childStates = mChildrenStates.saveAsBundle();
+        ss.childStates = bundle;
         return ss;
     }
 
