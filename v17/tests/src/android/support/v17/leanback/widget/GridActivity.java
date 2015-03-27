@@ -236,6 +236,7 @@ public class GridActivity extends Activity {
                 view.addFocusables(focusables, View.FOCUS_UP);
                 for (int i = 0; i < focusables.size(); i++) {
                     View f = focusables.get(i);
+                    f.setBackgroundColor(Color.LTGRAY);
                     f.setOnFocusChangeListener(new OnFocusChangeListener() {
                         @Override
                         public void onFocusChange(View v, boolean hasFocus) {
@@ -245,6 +246,11 @@ public class GridActivity extends Activity {
                                 v.setBackgroundColor(Color.LTGRAY);
                             }
                             if (mRequestLayoutOnFocus) {
+                                if (v == view) {
+                                    RecyclerView.ViewHolder vh = mGridView.getChildViewHolder(v);
+                                    int position = vh.getAdapterPosition();
+                                    updateSize(v, position);
+                                }
                                 view.requestLayout();
                             }
                         }
@@ -283,6 +289,10 @@ public class GridActivity extends Activity {
                 ((TextView) holder.itemView).setFocusable(focusable);
                 ((TextView) holder.itemView).setFocusableInTouchMode(focusable);
                 holder.itemView.setBackgroundColor(Color.LTGRAY);
+            } else {
+                if (holder.itemView instanceof TextView) {
+                    ((TextView) holder.itemView).setText("Item "+position);
+                }
             }
             updateSize(holder.itemView, position);
         }
