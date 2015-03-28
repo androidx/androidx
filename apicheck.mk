@@ -68,7 +68,7 @@ last_released_sdk_$(support_module) := $(lastword $(call numerically_sort, \
 
 # Check that the API we're building hasn't broken the last-released SDK version
 # if it exists
-ifdef $(last_released_sdk_$(support_module))
+ifneq ($(last_released_sdk_$(support_module)),)
 $(eval $(call check-api, \
     $(support_module)-checkapi-last, \
     $(support_module_api_dir)/$(last_released_sdk_$(support_module)).txt, \
