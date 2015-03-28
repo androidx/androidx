@@ -18,6 +18,7 @@ package android.support.v7.widget;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -659,8 +660,8 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
             @Override
             public void onViewDetachedFromWindow(TestViewHolder holder) {
                 if ((addedView[0] == holder.itemView || addedView[1] == holder.itemView)
-                        && holder.itemView.hasTransientState()) {
-                    holder.itemView.animate().cancel();
+                        && ViewCompat.hasTransientState(holder.itemView)) {
+                    ViewCompat.animate(holder.itemView).cancel();
                 }
                 super.onViewDetachedFromWindow(holder);
             }
@@ -683,11 +684,11 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
                 public void run() {
                     if (mRecyclerView.getChildCount() == 3) {
                         View view = mRecyclerView.getChildAt(0);
-                        if (view.hasTransientState()) {
+                        if (ViewCompat.hasTransientState(view)) {
                             addedView[0] = view;
                         }
                         view = mRecyclerView.getChildAt(1);
-                        if (view.hasTransientState()) {
+                        if (ViewCompat.hasTransientState(view)) {
                             addedView[1] = view;
                         }
                     }
