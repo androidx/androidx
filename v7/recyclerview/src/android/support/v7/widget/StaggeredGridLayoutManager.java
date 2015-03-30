@@ -171,6 +171,11 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
     private int mFullSizeSpec, mWidthSpec, mHeightSpec;
 
     /**
+     * Re-used rectangle to get child decor offsets.
+     */
+    private final Rect mTmpRect = new Rect();
+
+    /**
      * Re-used anchor info.
      */
     private final AnchorInfo mAnchorInfo = new AnchorInfo();
@@ -1000,12 +1005,12 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
 
     private void measureChildWithDecorationsAndMargin(View child, int widthSpec,
             int heightSpec) {
-        final Rect insets = mRecyclerView.getItemDecorInsetsForChild(child);
+        calculateItemDecorationsForChild(child, mTmpRect);
         LayoutParams lp = (LayoutParams) child.getLayoutParams();
-        widthSpec = updateSpecWithExtra(widthSpec, lp.leftMargin + insets.left,
-                lp.rightMargin + insets.right);
-        heightSpec = updateSpecWithExtra(heightSpec, lp.topMargin + insets.top,
-                lp.bottomMargin + insets.bottom);
+        widthSpec = updateSpecWithExtra(widthSpec, lp.leftMargin + mTmpRect.left,
+                lp.rightMargin + mTmpRect.right);
+        heightSpec = updateSpecWithExtra(heightSpec, lp.topMargin + mTmpRect.top,
+                lp.bottomMargin + mTmpRect.bottom);
         child.measure(widthSpec, heightSpec);
     }
 
