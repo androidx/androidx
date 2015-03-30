@@ -407,6 +407,7 @@ package android.support.v7.widget {
     method public int getWidth();
     method public boolean hasFocus();
     method public void ignoreView(android.view.View);
+    method public boolean isAttachedToWindow();
     method public boolean isFocused();
     method public boolean isLayoutHierarchical(android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State);
     method public boolean isSmoothScrolling();
@@ -441,10 +442,12 @@ package android.support.v7.widget {
     method public void onScrollStateChanged(int);
     method public boolean performAccessibilityAction(android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State, int, android.os.Bundle);
     method public boolean performAccessibilityActionForItem(android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State, android.view.View, int, android.os.Bundle);
+    method public void postOnAnimation(java.lang.Runnable);
     method public void removeAllViews();
     method public void removeAndRecycleAllViews(android.support.v7.widget.RecyclerView.Recycler);
     method public void removeAndRecycleView(android.view.View, android.support.v7.widget.RecyclerView.Recycler);
     method public void removeAndRecycleViewAt(int, android.support.v7.widget.RecyclerView.Recycler);
+    method public boolean removeCallbacks(java.lang.Runnable);
     method public void removeDetachedView(android.view.View);
     method public void removeView(android.view.View);
     method public void removeViewAt(int);
