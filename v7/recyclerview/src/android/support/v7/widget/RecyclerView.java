@@ -177,9 +177,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
 
     ChildHelper mChildHelper;
 
-    // we use this like a set
-    final List<View> mDisappearingViewsInLayoutPass = new ArrayList<View>();
-
     /**
      * Prior to L, there is no way to query this variable which is why we override the setter and
      * track it here.
@@ -2153,7 +2150,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
             Log.e(TAG, "No layout manager attached; skipping layout");
             return;
         }
-        mDisappearingViewsInLayoutPass.clear();
+        mState.mDisappearingViewsInLayoutPass.clear();
         eatRequestLayout();
         mRunningLayoutOrScroll = true;
 
@@ -2439,9 +2436,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
      * This method handles those views and triggers remove animation on them.
      */
     private void processDisappearingList(ArrayMap<View, Rect> appearingViews) {
-        final int count = mDisappearingViewsInLayoutPass.size();
-        for (int i = 0; i < count; i ++) {
-            View view = mDisappearingViewsInLayoutPass.get(i);
+        final List<View> disappearingList = mState.mDisappearingViewsInLayoutPass;
+        for (int i = disappearingList.size() - 1; i >= 0; i --) {
+            View view = disappearingList.get(i);
             ViewHolder vh = getChildViewHolderInt(view);
             final ItemHolderInfo info = mState.mPreLayoutHolderMap.remove(vh);
             if (!mState.isPreLayout()) {
@@ -2459,7 +2456,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                         view.getRight(), view.getBottom()));
             }
         }
-        mDisappearingViewsInLayoutPass.clear();
+        disappearingList.clear();
     }
 
     private void animateAppearance(ViewHolder itemHolder, Rect beforeBounds, int afterLeft,
@@ -4104,8 +4101,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
             boolean cached = false;
             boolean recycled = false;
             if (forceRecycle || holder.isRecyclable()) {
-                if (!holder.isInvalid() && (mState.mInPreLayout || !holder.isRemoved()) &&
-                        !holder.isChanged()) {
+                if (!holder.isInvalid() && !holder.isRemoved() && !holder.isChanged()) {
                     // Retire oldest cached view
                     final int cachedViewSize = mCachedViews.size();
                     if (cachedViewSize == mViewCacheMax && cachedViewSize > 0) {
@@ -5465,14 +5461,14 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
             final ViewHolder holder = getChildViewHolderInt(child);
             if (disappearing || holder.isRemoved()) {
                 // these views will be hidden at the end of the layout pass.
-                mRecyclerView.addToDisappearingList(child);
+                mRecyclerView.mState.addToDisappearingList(child);
             } else {
                 // This may look like unnecessary but may happen if layout manager supports
                 // predictive layouts and adapter removed then re-added the same item.
                 // In this case, added version will be visible in the post layout (because add is
                 // deferred) but RV will still bind it to the same View.
                 // So if a View re-appears in post layout pass, remove it from disappearing list.
-                mRecyclerView.removeFromDisappearingList(child);
+                mRecyclerView.mState.removeFromDisappearingList(child);
             }
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
             if (holder.wasReturnedFromScrap() || holder.isScrap()) {
@@ -5674,9 +5670,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         public void attachView(View child, int index, LayoutParams lp) {
             ViewHolder vh = getChildViewHolderInt(child);
             if (vh.isRemoved()) {
-                mRecyclerView.addToDisappearingList(child);
+                mRecyclerView.mState.addToDisappearingList(child);
             } else {
-                mRecyclerView.removeFromDisappearingList(child);
+                mRecyclerView.mState.removeFromDisappearingList(child);
             }
             mChildHelper.attachViewToParent(child, index, lp, vh.isRemoved());
             if (DISPATCH_TEMP_DETACH)  {
@@ -7055,16 +7051,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         }
     }
 
-    private void removeFromDisappearingList(View child) {
-        mDisappearingViewsInLayoutPass.remove(child);
-    }
-
-    private void addToDisappearingList(View child) {
-        if (!mDisappearingViewsInLayoutPass.contains(child)) {
-            mDisappearingViewsInLayoutPass.add(child);
-        }
-    }
-
     /**
      * An ItemDecoration allows the application to add a special drawing and layout offset
      * to specific item views from the adapter's data set. This can be useful for drawing dividers
@@ -8279,6 +8265,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         // nullable
         ArrayMap<Long, ViewHolder> mOldChangedHolders = new ArrayMap<Long, ViewHolder>();
 
+        // we use this like a set
+        final List<View> mDisappearingViewsInLayoutPass = new ArrayList<View>();
+
         private SparseArray<Object> mData;
 
         /**
@@ -8447,6 +8436,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
             if (mOldChangedHolders != null) {
                 removeFrom(mOldChangedHolders, holder);
             }
+            mDisappearingViewsInLayoutPass.remove(holder.itemView);
             // holder cannot be in new list.
         }
 
@@ -8460,6 +8450,16 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                     holderMap.removeAt(i);
                     return;
                 }
+            }
+        }
+
+        void removeFromDisappearingList(View child) {
+            mDisappearingViewsInLayoutPass.remove(child);
+        }
+
+        void addToDisappearingList(View child) {
+            if (!mDisappearingViewsInLayoutPass.contains(child)) {
+                mDisappearingViewsInLayoutPass.add(child);
             }
         }
 
