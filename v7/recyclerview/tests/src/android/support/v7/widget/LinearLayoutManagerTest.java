@@ -107,6 +107,145 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
         }
     }
 
+    public void testRemoveAnchorItem() throws Throwable {
+        removeAnchorItemTest(
+                new Config().orientation(VERTICAL).stackFromBottom(false).reverseLayout(
+                        false), 100, 0);
+    }
+
+    public void testRemoveAnchorItemReverse() throws Throwable {
+        removeAnchorItemTest(
+                new Config().orientation(VERTICAL).stackFromBottom(false).reverseLayout(true), 100,
+                0);
+    }
+
+    public void testRemoveAnchorItemStackFromEnd() throws Throwable {
+        removeAnchorItemTest(
+                new Config().orientation(VERTICAL).stackFromBottom(true).reverseLayout(false), 100,
+                99);
+    }
+
+    public void testRemoveAnchorItemStackFromEndAndReverse() throws Throwable {
+        removeAnchorItemTest(
+                new Config().orientation(VERTICAL).stackFromBottom(true).reverseLayout(true), 100,
+                99);
+    }
+
+    public void testRemoveAnchorItemHorizontal() throws Throwable {
+        removeAnchorItemTest(
+                new Config().orientation(HORIZONTAL).stackFromBottom(false).reverseLayout(
+                        false), 100, 0);
+    }
+
+    public void testRemoveAnchorItemReverseHorizontal() throws Throwable {
+        removeAnchorItemTest(
+                new Config().orientation(HORIZONTAL).stackFromBottom(false).reverseLayout(true),
+                100, 0);
+    }
+
+    public void testRemoveAnchorItemStackFromEndHorizontal() throws Throwable {
+        removeAnchorItemTest(
+                new Config().orientation(HORIZONTAL).stackFromBottom(true).reverseLayout(false),
+                100, 99);
+    }
+
+    public void testRemoveAnchorItemStackFromEndAndReverseHorizontal() throws Throwable {
+        removeAnchorItemTest(
+                new Config().orientation(HORIZONTAL).stackFromBottom(true).reverseLayout(true), 100,
+                99);
+    }
+
+    /**
+     * This tests a regression where predictive animations were not working as expected when the
+     * first item is removed and there aren't any more items to add from that direction.
+     * First item refers to the default anchor item.
+     */
+    public void removeAnchorItemTest(final Config config, int adapterSize,
+            final int removePos) throws Throwable {
+        config.adapter(new TestAdapter(adapterSize) {
+            @Override
+            public void onBindViewHolder(TestViewHolder holder,
+                    int position) {
+                super.onBindViewHolder(holder, position);
+                ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
+                if (!(lp instanceof ViewGroup.MarginLayoutParams)) {
+                    lp = new ViewGroup.MarginLayoutParams(0, 0);
+                    holder.itemView.setLayoutParams(lp);
+                }
+                ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) lp;
+                final int maxSize;
+                if (config.mOrientation == HORIZONTAL) {
+                    maxSize = mRecyclerView.getWidth();
+                    mlp.height = ViewGroup.MarginLayoutParams.FILL_PARENT;
+                } else {
+                    maxSize = mRecyclerView.getHeight();
+                    mlp.width = ViewGroup.MarginLayoutParams.FILL_PARENT;
+                }
+
+                final int desiredSize;
+                if (position == removePos) {
+                    // make it large
+                    desiredSize = maxSize / 4;
+                } else {
+                    // make it small
+                    desiredSize = maxSize / 8;
+                }
+                if (config.mOrientation == HORIZONTAL) {
+                    mlp.width = desiredSize;
+                } else {
+                    mlp.height = desiredSize;
+                }
+            }
+        });
+        setupByConfig(config, true);
+        final int childCount = mLayoutManager.getChildCount();
+        RecyclerView.ViewHolder toBeRemoved = null;
+        List<RecyclerView.ViewHolder> toBeMoved = new ArrayList<RecyclerView.ViewHolder>();
+        for (int i = 0; i < childCount; i++) {
+            View child = mLayoutManager.getChildAt(i);
+            RecyclerView.ViewHolder holder = mRecyclerView.getChildViewHolder(child);
+            if (holder.getAdapterPosition() == removePos) {
+                toBeRemoved = holder;
+            } else {
+                toBeMoved.add(holder);
+            }
+        }
+        assertNotNull("test sanity", toBeRemoved);
+        assertEquals("test sanity", childCount - 1, toBeMoved.size());
+        LoggingItemAnimator loggingItemAnimator = new LoggingItemAnimator();
+        mRecyclerView.setItemAnimator(loggingItemAnimator);
+        loggingItemAnimator.reset();
+        loggingItemAnimator.expectRunPendingAnimationsCall(1);
+        mLayoutManager.expectLayouts(2);
+        mTestAdapter.deleteAndNotify(removePos, 1);
+        mLayoutManager.waitForLayout(1);
+        loggingItemAnimator.waitForPendingAnimationsCall(2);
+        assertTrue("removed child should receive remove animation",
+                loggingItemAnimator.mRemoveVHs.contains(toBeRemoved));
+        for (RecyclerView.ViewHolder vh : toBeMoved) {
+            assertTrue("view holder should be in moved list",
+                    loggingItemAnimator.mMoveVHs.contains(vh));
+        }
+        List<RecyclerView.ViewHolder> newHolders = new ArrayList<RecyclerView.ViewHolder>();
+        for (int i = 0; i < mLayoutManager.getChildCount(); i++) {
+            View child = mLayoutManager.getChildAt(i);
+            RecyclerView.ViewHolder holder = mRecyclerView.getChildViewHolder(child);
+            if (toBeRemoved != holder && !toBeMoved.contains(holder)) {
+                newHolders.add(holder);
+            }
+        }
+        assertTrue("some new children should show up for the new space", newHolders.size() > 0);
+        assertEquals("no items should receive animate add since they are not new", 0,
+                loggingItemAnimator.mAddVHs.size());
+        for (RecyclerView.ViewHolder holder : newHolders) {
+            assertTrue("new holder should receive a move animation",
+                    loggingItemAnimator.mMoveVHs.contains(holder));
+        }
+        assertTrue("control against adding too many children due to bad layout state preparation."
+                        + " initial:" + childCount + ", current:" + mRecyclerView.getChildCount(),
+                mRecyclerView.getChildCount() <= childCount + 3 /*1 for removed view, 2 for its size*/);
+    }
+
     public void testKeepFocusOnRelayout() throws Throwable {
         setupByConfig(new Config(VERTICAL, false, false).itemCount(500), true);
         int center = (mLayoutManager.findLastVisibleItemPosition()
