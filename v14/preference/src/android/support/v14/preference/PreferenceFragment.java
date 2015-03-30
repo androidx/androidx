@@ -532,6 +532,8 @@ public abstract class PreferenceFragment extends Fragment implements
             f = EditTextPreferenceDialogFragment.newInstance(preference.getKey());
         } else if (preference instanceof ListPreference) {
             f = ListPreferenceDialogFragment.newInstance(preference.getKey());
+        } else if (preference instanceof MultiSelectListPreference) {
+            f = MultiSelectListPreferenceDialogFragment.newInstance(preference.getKey());
         } else {
             throw new IllegalArgumentException("Tried to display dialog for unknown " +
                     "preference type. Did you forget to override onDisplayPreferenceDialog()?");
