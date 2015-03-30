@@ -20,6 +20,7 @@ import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.PorterDuff;
 import android.os.Build;
+import android.support.annotation.StyleRes;
 import android.support.v7.internal.view.menu.ActionMenuItemView;
 import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.MenuItemImpl;
@@ -94,7 +95,7 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
      * @param resId theme used to inflate popup menus
      * @see #getPopupTheme()
      */
-    public void setPopupTheme(int resId) {
+    public void setPopupTheme(@StyleRes int resId) {
         if (mPopupTheme != resId) {
             mPopupTheme = resId;
             if (resId == 0) {
