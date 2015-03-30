@@ -16,6 +16,7 @@ package android.support.v17.leanback.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.v17.leanback.R;
+import android.support.v17.leanback.system.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -258,6 +259,11 @@ public class ListRowPresenter extends RowPresenter {
             ShadowOverlayContainer wrapper = new ShadowOverlayContainer(root.getContext());
             wrapper.setLayoutParams(
                     new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+            if (isUsingZOrder(root.getContext())) {
+                wrapper.useDynamicShadow();
+            } else {
+                wrapper.useStaticShadow();
+            }
             wrapper.initialize(needsDefaultShadow(),
                     needsDefaultListSelectEffect(),
                     areChildRoundedCornersEnabled());
@@ -283,7 +289,8 @@ public class ListRowPresenter extends RowPresenter {
         }
         FocusHighlightHelper.setupBrowseItemFocusHighlight(rowViewHolder.mItemBridgeAdapter,
                 mFocusZoomFactor, mUseFocusDimmer);
-        rowViewHolder.mGridView.setFocusDrawingOrderEnabled(!isUsingZOrder());
+        rowViewHolder.mGridView.setFocusDrawingOrderEnabled(
+                !isUsingZOrder(rowViewHolder.getGridView().getContext()));
         rowViewHolder.mGridView.setOnChildSelectedListener(
                 new OnChildSelectedListener() {
             @Override
@@ -546,8 +553,9 @@ public class ListRowPresenter extends RowPresenter {
      * on each child of horizontal list.   If subclass returns false in isUsingDefaultShadow()
      * and does not use Z-shadow on SDK >= L, it should override isUsingZOrder() return false.
      */
-    public boolean isUsingZOrder() {
-        return ShadowHelper.getInstance().usesZShadow();
+    public boolean isUsingZOrder(Context context) {
+        return ShadowOverlayContainer.supportsDynamicShadow() &&
+                !Settings.getInstance(context).preferStaticShadows();
     }
 
     /**
