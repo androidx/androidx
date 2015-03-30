@@ -17,6 +17,7 @@
 package android.support.v7.widget;
 
 import android.content.Context;
+import android.os.Debug;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.util.Log;
@@ -461,6 +462,122 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         assertEquals(0, ssl.getCachedSpanIndex(8, 5));
     }
 
+    public void testRemoveAnchorItem() throws Throwable {
+        removeAnchorItemTest(
+                new Config(3, 0).orientation(VERTICAL).reverseLayout(false), 100, 0);
+    }
+
+    public void testRemoveAnchorItemReverse() throws Throwable {
+        removeAnchorItemTest(
+                new Config(3, 0).orientation(VERTICAL).reverseLayout(true), 100,
+                0);
+    }
+
+    public void testRemoveAnchorItemHorizontal() throws Throwable {
+        removeAnchorItemTest(
+                new Config(3, 0).orientation(HORIZONTAL).reverseLayout(
+                        false), 100, 0);
+    }
+
+    public void testRemoveAnchorItemReverseHorizontal() throws Throwable {
+        removeAnchorItemTest(
+                new Config(3, 0).orientation(HORIZONTAL).reverseLayout(true),
+                100, 0);
+    }
+
+    /**
+     * This tests a regression where predictive animations were not working as expected when the
+     * first item is removed and there aren't any more items to add from that direction.
+     * First item refers to the default anchor item.
+     */
+    public void removeAnchorItemTest(final Config config, int adapterSize,
+            final int removePos) throws Throwable {
+        GridTestAdapter adapter = new GridTestAdapter(adapterSize) {
+            @Override
+            public void onBindViewHolder(TestViewHolder holder,
+                    int position) {
+                super.onBindViewHolder(holder, position);
+                ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
+                if (!(lp instanceof ViewGroup.MarginLayoutParams)) {
+                    lp = new ViewGroup.MarginLayoutParams(0, 0);
+                    holder.itemView.setLayoutParams(lp);
+                }
+                ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) lp;
+                final int maxSize;
+                if (config.mOrientation == HORIZONTAL) {
+                    maxSize = mRecyclerView.getWidth();
+                    mlp.height = ViewGroup.MarginLayoutParams.FILL_PARENT;
+                } else {
+                    maxSize = mRecyclerView.getHeight();
+                    mlp.width = ViewGroup.MarginLayoutParams.FILL_PARENT;
+                }
+
+                final int desiredSize;
+                if (position == removePos) {
+                    // make it large
+                    desiredSize = maxSize / 4;
+                } else {
+                    // make it small
+                    desiredSize = maxSize / 8;
+                }
+                if (config.mOrientation == HORIZONTAL) {
+                    mlp.width = desiredSize;
+                } else {
+                    mlp.height = desiredSize;
+                }
+            }
+        };
+        RecyclerView recyclerView = setupBasic(config, adapter);
+        waitForFirstLayout(recyclerView);
+        final int childCount = mGlm.getChildCount();
+        RecyclerView.ViewHolder toBeRemoved = null;
+        List<RecyclerView.ViewHolder> toBeMoved = new ArrayList<RecyclerView.ViewHolder>();
+        for (int i = 0; i < childCount; i++) {
+            View child = mGlm.getChildAt(i);
+            RecyclerView.ViewHolder holder = mRecyclerView.getChildViewHolder(child);
+            if (holder.getAdapterPosition() == removePos) {
+                toBeRemoved = holder;
+            } else {
+                toBeMoved.add(holder);
+            }
+        }
+        assertNotNull("test sanity", toBeRemoved);
+        assertEquals("test sanity", childCount - 1, toBeMoved.size());
+        LoggingItemAnimator loggingItemAnimator = new LoggingItemAnimator();
+        mRecyclerView.setItemAnimator(loggingItemAnimator);
+        loggingItemAnimator.reset();
+        loggingItemAnimator.expectRunPendingAnimationsCall(1);
+        mGlm.expectLayout(2);
+        adapter.deleteAndNotify(removePos, 1);
+        mGlm.waitForLayout(1);
+        loggingItemAnimator.waitForPendingAnimationsCall(2);
+        assertTrue("removed child should receive remove animation",
+                loggingItemAnimator.mRemoveVHs.contains(toBeRemoved));
+        for (RecyclerView.ViewHolder vh : toBeMoved) {
+            assertTrue("view holder should be in moved list",
+                    loggingItemAnimator.mMoveVHs.contains(vh));
+        }
+        List<RecyclerView.ViewHolder> newHolders = new ArrayList<RecyclerView.ViewHolder>();
+        for (int i = 0; i < mGlm.getChildCount(); i++) {
+            View child = mGlm.getChildAt(i);
+            RecyclerView.ViewHolder holder = mRecyclerView.getChildViewHolder(child);
+            if (toBeRemoved != holder && !toBeMoved.contains(holder)) {
+                newHolders.add(holder);
+            }
+        }
+        assertTrue("some new children should show up for the new space", newHolders.size() > 0);
+        assertEquals("no items should receive animate add since they are not new", 0,
+                loggingItemAnimator.mAddVHs.size());
+        for (RecyclerView.ViewHolder holder : newHolders) {
+            assertTrue("new holder should receive a move animation",
+                    loggingItemAnimator.mMoveVHs.contains(holder));
+        }
+        // for removed view, 3 for new row
+        assertTrue("control against adding too many children due to bad layout state preparation."
+                        + " initial:" + childCount + ", current:" + mRecyclerView.getChildCount(),
+                mRecyclerView.getChildCount() <= childCount + 1 + 3);
+    }
+
     public void testSpanGroupIndex() {
         final GridLayoutManager.SpanSizeLookup ssl
                 = new GridLayoutManager.SpanSizeLookup() {
@@ -626,6 +743,7 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         runTestOnUiThread(new Runnable() {
             @Override
             public void run() {
+                assertSame("test sanity", mRecyclerView, rv);
                 int globalScrollPosition = 0;
                 int visited = 0;
                 while (visited < mAdapter.getItemCount()) {
@@ -665,6 +783,23 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
             }
         });
         checkForMainThreadException();
+        // test sanity, ensure scroll happened
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final int childCount = mGlm.getChildCount();
+                final BitSet expectedPositions = new BitSet();
+                for (int i = 0; i < childCount; i ++) {
+                    expectedPositions.set(mAdapter.getItemCount() - i - 1);
+                }
+                for (int i = 0; i <childCount; i ++) {
+                    final View view = mGlm.getChildAt(i);
+                    int position = mGlm.getPosition(view);
+                    assertTrue("child position should be in last page", expectedPositions.get(position));
+                }
+            }
+        });
+        getInstrumentation().waitForIdleSync();
         runTestOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -798,6 +933,13 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
                     ", mReverseLayout=" + mReverseLayout +
                     '}';
         }
+
+        public Config reverseLayout(boolean reverseLayout) {
+            mReverseLayout = reverseLayout;
+            return this;
+        }
+
+
     }
 
     class GridTestAdapter extends TestAdapter {
