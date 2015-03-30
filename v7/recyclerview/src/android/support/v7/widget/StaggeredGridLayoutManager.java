@@ -189,7 +189,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
      */
     private boolean mSmoothScrollbarEnabled = true;
 
-    private final Runnable checkForGapsRunnable = new Runnable() {
+    private final Runnable mCheckForGapsRunnable = new Runnable() {
         @Override
         public void run() {
             checkForGaps();
@@ -214,9 +214,9 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
      * When a full span item is laid out in reverse direction, it sets a flag which we check when
      * scroll is stopped (or re-layout happens) and re-layout after first valid item.
      */
-    private void checkForGaps() {
-        if (getChildCount() == 0 || mGapStrategy == GAP_HANDLING_NONE) {
-            return;
+    private boolean checkForGaps() {
+        if (getChildCount() == 0 || mGapStrategy == GAP_HANDLING_NONE || !isAttachedToWindow()) {
+            return false;
         }
         final int minPos, maxPos;
         if (mShouldReverseLayout) {
@@ -232,11 +232,11 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
                 mLazySpanLookup.clear();
                 requestSimpleAnimationsInNextLayout();
                 requestLayout();
-                return;
+                return true;
             }
         }
         if (!mLaidOutInvalidFullSpan) {
-            return;
+            return false;
         }
         int invalidGapDir = mShouldReverseLayout ? LAYOUT_START : LAYOUT_END;
         final LazySpanLookup.FullSpanItem invalidFsi = mLazySpanLookup
@@ -244,7 +244,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         if (invalidFsi == null) {
             mLaidOutInvalidFullSpan = false;
             mLazySpanLookup.forceInvalidateAfter(maxPos + 1);
-            return;
+            return false;
         }
         final LazySpanLookup.FullSpanItem validFsi = mLazySpanLookup
                 .getFirstFullSpanItemInRange(minPos, invalidFsi.mPosition,
@@ -256,6 +256,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         }
         requestSimpleAnimationsInNextLayout();
         requestLayout();
+        return true;
     }
 
     @Override
@@ -267,6 +268,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public void onDetachedFromWindow(RecyclerView view, RecyclerView.Recycler recycler) {
+        removeCallbacks(mCheckForGapsRunnable);
         for (int i = 0; i < mSpanCount; i++) {
             mSpans[i].clear();
         }
@@ -287,11 +289,11 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         final int preferredSpanDir = mOrientation == VERTICAL && isLayoutRTL() ? 1 : -1;
 
         if (mShouldReverseLayout) {
-            firstChildIndex = endChildIndex - 1;
+            firstChildIndex = endChildIndex;
             childLimit = startChildIndex - 1;
         } else {
             firstChildIndex = startChildIndex;
-            childLimit = endChildIndex;
+            childLimit = endChildIndex + 1;
         }
         final int nextChildDiff = firstChildIndex < childLimit ? 1 : -1;
         for (int i = firstChildIndex; i != childLimit; i += nextChildDiff) {
@@ -527,7 +529,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
     public boolean getReverseLayout() {
         return mReverseLayout;
     }
-
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
         ensureOrientationHelper();
@@ -600,9 +601,12 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         }
 
         if (!state.isPreLayout()) {
-            if (getChildCount() > 0 && mPendingScrollPosition != NO_POSITION &&
-                    mLaidOutInvalidFullSpan) {
-                ViewCompat.postOnAnimation(getChildAt(0), checkForGapsRunnable);
+            final boolean needToCheckForGaps = mGapStrategy != GAP_HANDLING_NONE
+                    && getChildCount() > 0
+                    && (mLaidOutInvalidFullSpan || hasGapsToFix() != null);
+            if (needToCheckForGaps) {
+                removeCallbacks(mCheckForGapsRunnable);
+                postOnAnimation(mCheckForGapsRunnable);
             }
             mPendingScrollPosition = NO_POSITION;
             mPendingScrollPositionOffset = INVALID_OFFSET;

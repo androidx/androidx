@@ -19,7 +19,6 @@ package android.support.v7.widget;
 
 
 import android.graphics.Rect;
-import android.os.Debug;
 import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -240,19 +239,71 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                 : config.mSpanCount);
         assertNotNull(logPrefix + " child position 0 should be laid out", child0);
         assertNotNull(logPrefix + " child position 0 should be laid out", child1);
+        logPrefix += " child1 pos:" + mLayoutManager.getPosition(child1);
         if (config.mOrientation == VERTICAL || !config.mReverseLayout) {
             assertTrue(logPrefix + " second child should be to the left of first child",
-                    helper.getDecoratedStart(child0) >= helper.getDecoratedEnd(child1));
+                    helper.getDecoratedEnd(child0) > helper.getDecoratedEnd(child1));
             assertEquals(logPrefix + " first child should be right aligned",
                     helper.getDecoratedEnd(child0), helper.getEndAfterPadding());
         } else {
             assertTrue(logPrefix + " first child should be to the left of second child",
-                    helper.getDecoratedStart(child1) >= helper.getDecoratedEnd(child0));
+                    helper.getDecoratedStart(child1) >= helper.getDecoratedStart(child0));
             assertEquals(logPrefix + " first child should be left aligned",
                     helper.getDecoratedStart(child0), helper.getStartAfterPadding());
         }
         checkForMainThreadException();
     }
+
+    public void testGapHandlingWhenItemMovesToTop() throws Throwable {
+        gapHandlingWhenItemMovesToTopTest();
+    }
+
+    public void testGapHandlingWhenItemMovesToTopWithFullSpan() throws Throwable {
+        gapHandlingWhenItemMovesToTopTest(0);
+    }
+
+    public void testGapHandlingWhenItemMovesToTopWithFullSpan2() throws Throwable {
+        gapHandlingWhenItemMovesToTopTest(1);
+    }
+
+    public void gapHandlingWhenItemMovesToTopTest(int... fullSpanIndices) throws Throwable {
+        Config config = new Config(VERTICAL, false, 2, GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
+        config.itemCount(3);
+        setupByConfig(config);
+        mAdapter.mOnBindHandler = new OnBindHandler() {
+            @Override
+            void onBoundItem(TestViewHolder vh, int position) {
+            }
+
+            @Override
+            boolean assignRandomSize() {
+                return false;
+            }
+        };
+        for (int i : fullSpanIndices) {
+            mAdapter.mFullSpanItems.add(i);
+        }
+        waitFirstLayout();
+        mLayoutManager.expectLayouts(1);
+        mAdapter.moveItem(1, 0, true);
+        mLayoutManager.waitForLayout(2);
+        final Map<Item, Rect> desiredPositions = mLayoutManager.collectChildCoordinates();
+        // move back.
+        mLayoutManager.expectLayouts(1);
+        mAdapter.moveItem(0, 1, true);
+        mLayoutManager.waitForLayout(2);
+        mLayoutManager.expectLayouts(2);
+        mAdapter.moveAndNotify(1, 0);
+        mLayoutManager.waitForLayout(2);
+        Thread.sleep(1000);
+        getInstrumentation().waitForIdleSync();
+        checkForMainThreadException();
+        // item should be positioned properly
+        assertRectSetsEqual("final position after a move", desiredPositions,
+                mLayoutManager.collectChildCoordinates());
+
+    }
+
 
     public void testScrollBackAndPreservePositions() throws Throwable {
         for (boolean saveRestore : new boolean[]{false, true}) {
@@ -698,6 +749,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         Thread.sleep(500);
         // some animations should happen and we should recover layout
         final Map<Item, Rect> actualCoords = mLayoutManager.collectChildCoordinates();
+
         // now layout another RV with same adapter
         removeRecyclerView();
         setupByConfig(config);
@@ -759,6 +811,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                 1);
         // delete an item before visible area
         int deletedPosition = mLayoutManager.getPosition(mLayoutManager.getChildAt(0)) - 2;
+        assertTrue("test sanity", deletedPosition >= 0);
         Map<Item, Rect> before = mLayoutManager.collectChildCoordinates();
         if (DEBUG) {
             Log.d(TAG, "before:");
@@ -901,7 +954,6 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         // make sure LLM can layout all children. is some span info is leaked, this would crash
         smoothScrollToPosition(mAdapter.getItemCount() - 1);
     }
-
     public void testSavedState() throws Throwable {
         PostLayoutRunnable[] postLayoutOptions = new PostLayoutRunnable[]{
                 new PostLayoutRunnable() {
@@ -970,12 +1022,12 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
             clone.mItemCount = clone.mSpanCount - 1;
             testVariations.add(clone);
         }
-
         for (Config config : testVariations) {
             for (PostLayoutRunnable runnable : postLayoutOptions) {
                 for (boolean waitForLayout : waitForLayoutOptions) {
                     savedStateTest(config, waitForLayout, runnable);
                     removeRecyclerView();
+                    checkForMainThreadException();
                 }
             }
         }
@@ -1032,7 +1084,10 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         waitFirstLayout();
         if (waitForLayout) {
             postLayoutOperations.run();
+            // ugly thread sleep but since post op is anything, we need to give it time to settle.
+            Thread.sleep(500);
         }
+        getInstrumentation().waitForIdleSync();
         final int firstCompletelyVisiblePosition = mLayoutManager.findFirstVisibleItemPositionInt();
         Map<Item, Rect> before = mLayoutManager.collectChildCoordinates();
         Parcelable savedState = mRecyclerView.onSaveInstanceState();
@@ -1841,6 +1896,15 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         }
 
         @Override
+        protected void moveInUIThread(int from, int to) {
+            boolean setAsFullSpanAgain = mFullSpanItems.contains(from);
+            super.moveInUIThread(from, to);
+            if (setAsFullSpanAgain) {
+                mFullSpanItems.add(to);
+            }
+        }
+
+        @Override
         public void onBindViewHolder(TestViewHolder holder,
                 int position) {
             super.onBindViewHolder(holder, position);
@@ -1858,7 +1922,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
             }
 
             if (mOnBindHandler == null || mOnBindHandler.assignRandomSize()) {
-                final int minSize = mViewsHaveEqualSize ? 200 : 200 + 20 * (position % 10);
+                final int minSize = mViewsHaveEqualSize ? 200 : 200 + 20 * (item.mId % 10);
                 if (mOrientation == OrientationHelper.HORIZONTAL) {
                     holder.itemView.setMinimumWidth(minSize);
                 } else {

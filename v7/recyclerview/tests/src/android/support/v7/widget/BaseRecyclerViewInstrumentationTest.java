@@ -686,10 +686,7 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             runTestOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Item item = mItems.remove(from);
-                    mItems.add(to, item);
-                    offsetOriginalIndices(from, to - 1);
-                    item.mAdapterIndex = to;
+                    moveInUIThread(from, to);
                     if (notifyChange) {
                         notifyDataSetChanged();
                     }
@@ -704,15 +701,19 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             runTestOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Item item = mItems.remove(from);
-                    mItems.add(to, item);
-                    offsetOriginalIndices(from, to - 1);
-                    item.mAdapterIndex = to;
+                    moveInUIThread(from, to);
                     notifyItemMoved(from, to);
                 }
             });
         }
 
+        protected void moveInUIThread(int from, int to) {
+            Item item = mItems.remove(from);
+            offsetOriginalIndices(from, -1);
+            mItems.add(to, item);
+            offsetOriginalIndices(to + 1, 1);
+            item.mAdapterIndex = to;
+        }
 
 
         @Override
