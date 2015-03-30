@@ -13,6 +13,29 @@ package android.support.v14.preference {
     method public void onDialogClosed(boolean);
   }
 
+  public class MultiSelectListPreference extends android.support.v7.preference.DialogPreference {
+    ctor public MultiSelectListPreference(android.content.Context, android.util.AttributeSet, int, int);
+    ctor public MultiSelectListPreference(android.content.Context, android.util.AttributeSet, int);
+    ctor public MultiSelectListPreference(android.content.Context, android.util.AttributeSet);
+    ctor public MultiSelectListPreference(android.content.Context);
+    method public int findIndexOfValue(java.lang.String);
+    method public java.lang.CharSequence[] getEntries();
+    method public java.lang.CharSequence[] getEntryValues();
+    method protected boolean[] getSelectedItems();
+    method public java.util.Set<java.lang.String> getValues();
+    method public void setEntries(java.lang.CharSequence[]);
+    method public void setEntries(int);
+    method public void setEntryValues(java.lang.CharSequence[]);
+    method public void setEntryValues(int);
+    method public void setValues(java.util.Set<java.lang.String>);
+  }
+
+  public class MultiSelectListPreferenceDialogFragment extends android.support.v14.preference.PreferenceDialogFragment {
+    ctor public MultiSelectListPreferenceDialogFragment();
+    method public static android.support.v14.preference.MultiSelectListPreferenceDialogFragment newInstance(java.lang.String);
+    method public void onDialogClosed(boolean);
+  }
+
   public abstract class PreferenceDialogFragment extends android.app.DialogFragment implements android.content.DialogInterface.OnClickListener {
     ctor public PreferenceDialogFragment();
     method public android.support.v7.preference.DialogPreference getPreference();
