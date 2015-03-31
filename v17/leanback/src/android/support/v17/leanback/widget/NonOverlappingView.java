@@ -20,7 +20,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 
-public class NonOverlappingView extends View {
+class NonOverlappingView extends View {
     public NonOverlappingView(Context context) {
         this(context, null);
     }
@@ -34,7 +34,7 @@ public class NonOverlappingView extends View {
     }
 
     /**
-     * Avoid creating hardware layer when Transition is animating alpha.
+     * Avoids creating a hardware layer when Transition is animating alpha.
      */
     @Override
     public boolean hasOverlappingRendering() {
