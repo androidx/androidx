@@ -345,7 +345,6 @@ nClosureCreate(JNIEnv *_env, jobject _this, jlong con, jlong kernelID,
                jlong returnValue, jlongArray fieldIDArray,
                jlongArray valueArray, jintArray sizeArray,
                jlongArray depClosureArray, jlongArray depFieldIDArray) {
-  LOG_API("nClosureCreate: con(%p)", con);
   jlong* jFieldIDs = _env->GetLongArrayElements(fieldIDArray, nullptr);
   jsize fieldIDs_length = _env->GetArrayLength(fieldIDArray);
   RsScriptFieldID* fieldIDs =
@@ -390,24 +389,56 @@ nClosureCreate(JNIEnv *_env, jobject _this, jlong con, jlong kernelID,
       depFieldIDs, (size_t)depFieldIDs_length);
 }
 
+static jlong
+nInvokeClosureCreate(JNIEnv *_env, jobject _this, jlong con, jlong invokeID,
+                     jbyteArray paramArray, jlongArray fieldIDArray, jlongArray valueArray,
+                     jintArray sizeArray) {
+  jbyte* jParams = _env->GetByteArrayElements(paramArray, nullptr);
+  jsize jParamLength = _env->GetArrayLength(paramArray);
+
+  jlong* jFieldIDs = _env->GetLongArrayElements(fieldIDArray, nullptr);
+  jsize fieldIDs_length = _env->GetArrayLength(fieldIDArray);
+  RsScriptFieldID* fieldIDs =
+      (RsScriptFieldID*)alloca(sizeof(RsScriptFieldID) * fieldIDs_length);
+  for (int i = 0; i< fieldIDs_length; i++) {
+    fieldIDs[i] = (RsScriptFieldID)jFieldIDs[i];
+  }
+
+  jlong* jValues = _env->GetLongArrayElements(valueArray, nullptr);
+  jsize values_length = _env->GetArrayLength(valueArray);
+  uintptr_t* values = (uintptr_t*)alloca(sizeof(uintptr_t) * values_length);
+  for (int i = 0; i < values_length; i++) {
+    values[i] = (uintptr_t)jValues[i];
+  }
+
+  jint* sizes = _env->GetIntArrayElements(sizeArray, nullptr);
+  jsize sizes_length = _env->GetArrayLength(sizeArray);
+
+  return (jlong)(uintptr_t)dispatchTab.InvokeClosureCreate(
+      (RsContext)con, (RsScriptInvokeID)invokeID, jParams, jParamLength,
+      fieldIDs, (size_t)fieldIDs_length, values, (size_t)values_length,
+      (size_t*)sizes, (size_t)sizes_length);
+}
+
 static void
 nClosureSetArg(JNIEnv *_env, jobject _this, jlong con, jlong closureID,
                jint index, jlong value, jint size) {
-  dispatchTab.ClosureSetArg((RsContext)con, (RsClosure)closureID,
-                            (uint32_t)index, (uintptr_t)value, (size_t)size);
+  dispatchTab.ClosureSetArg((RsContext)con, (RsClosure)closureID, (uint32_t)index,
+                  (uintptr_t)value, (size_t)size);
 }
 
 static void
 nClosureSetGlobal(JNIEnv *_env, jobject _this, jlong con, jlong closureID,
                   jlong fieldID, jlong value, jint size) {
   dispatchTab.ClosureSetGlobal((RsContext)con, (RsClosure)closureID,
-                               (RsScriptFieldID)fieldID, (uintptr_t)value,
-                               (size_t)size);
+                     (RsScriptFieldID)fieldID, (uintptr_t)value, (size_t)size);
 }
 
 static long
 nScriptGroup2Create(JNIEnv *_env, jobject _this, jlong con,
-                    jlongArray closureArray) {
+                    jstring cacheDir, jlongArray closureArray) {
+  AutoJavaStringToUTF8 cacheDirUTF(_env, cacheDir);
+
   jlong* jClosures = _env->GetLongArrayElements(closureArray, nullptr);
   jsize numClosures = _env->GetArrayLength(closureArray);
   RsClosure* closures = (RsClosure*)alloca(sizeof(RsClosure) * numClosures);
@@ -415,9 +446,14 @@ nScriptGroup2Create(JNIEnv *_env, jobject _this, jlong con,
     closures[i] = (RsClosure)jClosures[i];
   }
 
-  return (jlong)(uintptr_t)dispatchTab.ScriptGroup2Create((RsContext)con,
-                                                          closures,
-                                                          numClosures);
+  return (jlong)(uintptr_t)dispatchTab.ScriptGroup2Create(
+      (RsContext)con, cacheDirUTF.c_str(), cacheDirUTF.length(),
+      closures, numClosures);
+}
+
+static void
+nScriptGroup2Execute(JNIEnv *_env, jobject _this, jlong con, jlong groupID) {
+  dispatchTab.ScriptGroupExecute((RsContext)con, (RsScriptGroup2)groupID);
 }
 
 static void
@@ -1620,9 +1656,10 @@ static JNINativeMethod methods[] = {
 {"rsnContextDestroy",                "(J)V",                                  (void*)nContextDestroy },
 {"rsnContextDump",                   "(JI)V",                                 (void*)nContextDump },
 {"rsnContextSendMessage",            "(JI[I)V",                               (void*)nContextSendMessage },
-//{"rsnClosureCreate",                 "(JJJ[J[J[I[J[J)J",                      (void*)nClosureCreate },
-//{"rsnClosureSetArg",                 "(JJIJI)V",                              (void*)nClosureSetArg },
-//{"rsnClosureSetGlobal",              "(JJJJI)V",                              (void*)nClosureSetGlobal },
+{"rsnClosureCreate",                 "(JJJ[J[J[I[J[J)J",                      (void*)nClosureCreate },
+{"rsnInvokeClosureCreate",           "(JJ[B[J[J[I)J",                         (void*)nInvokeClosureCreate },
+{"rsnClosureSetArg",                 "(JJIJI)V",                              (void*)nClosureSetArg },
+{"rsnClosureSetGlobal",              "(JJJJI)V",                              (void*)nClosureSetGlobal },
 {"rsnObjDestroy",                    "(JJ)V",                                 (void*)nObjDestroy },
 
 {"rsnElementCreate",                 "(JJIZI)J",                              (void*)nElementCreate },
@@ -1680,10 +1717,11 @@ static JNINativeMethod methods[] = {
 {"rsnScriptInvokeIDCreate",          "(JJI)J",                                (void*)nScriptInvokeIDCreate },
 {"rsnScriptFieldIDCreate",           "(JJIZ)J",                               (void*)nScriptFieldIDCreate },
 {"rsnScriptGroupCreate",             "(J[J[J[J[J[J)J",                        (void*)nScriptGroupCreate },
-//{"rsnScriptGroup2Create",            "(J[J)J",                                (void*)nScriptGroup2Create },
+{"rsnScriptGroup2Create",            "(JLjava/lang/String;[J)J",              (void*)nScriptGroup2Create },
 {"rsnScriptGroupSetInput",           "(JJJJ)V",                               (void*)nScriptGroupSetInput },
 {"rsnScriptGroupSetOutput",          "(JJJJ)V",                               (void*)nScriptGroupSetOutput },
 {"rsnScriptGroupExecute",            "(JJ)V",                                 (void*)nScriptGroupExecute },
+{"rsnScriptGroup2Execute",           "(JJ)V",                                 (void*)nScriptGroup2Execute },
 
 {"rsnSamplerCreate",                 "(JIIIIIF)J",                            (void*)nSamplerCreate },
 
