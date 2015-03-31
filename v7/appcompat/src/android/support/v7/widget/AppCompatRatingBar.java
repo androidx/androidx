@@ -67,12 +67,12 @@ public class AppCompatRatingBar extends RatingBar {
             TintTypedArray a = TintTypedArray.obtainStyledAttributes(getContext(), attrs,
                     TINT_ATTRS, defStyleAttr, 0);
 
-            Drawable drawable = a.getDrawable(0);
+            Drawable drawable = a.getDrawableIfKnown(0);
             if (drawable != null) {
                 setIndeterminateDrawable(tileifyIndeterminate(drawable));
             }
 
-            drawable = a.getDrawable(1);
+            drawable = a.getDrawableIfKnown(1);
             if (drawable != null) {
                 setProgressDrawable(tileify(drawable, false));
             }
