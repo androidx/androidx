@@ -21,8 +21,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.util.Log;
 
 /**
- * A presenter that renders objects in a vertical grid.
- *
+ * A presenter that renders objects in a {@link VerticalGridView}.
  */
 public class VerticalGridPresenter extends Presenter {
     private static final String TAG = "GridPresenter";
@@ -60,6 +59,9 @@ public class VerticalGridPresenter extends Presenter {
         }
     }
 
+    /**
+     * ViewHolder for the VerticalGridPresenter.
+     */
     public static class ViewHolder extends Presenter.ViewHolder {
         ItemBridgeAdapter mItemBridgeAdapter;
         final VerticalGridView mGridView;

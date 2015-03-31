@@ -32,7 +32,7 @@ class NonOverlappingLinearLayout extends LinearLayout {
     }
 
     /**
-     * Avoid creating hardware layer for header dock.
+     * Avoids creating a hardware layer when animating alpha.
      */
     @Override
     public boolean hasOverlappingRendering() {

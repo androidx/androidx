@@ -14,14 +14,14 @@
 package android.support.v17.leanback.widget;
 
 /**
- * A row composed of a optional {@link HeaderItem}, and an {@link ObjectAdapter}
- * describing children.
+ * A {@link Row} composed of a optional {@link HeaderItem}, and an {@link ObjectAdapter}
+ * describing the items in the list.
  */
 public class ListRow extends Row {
     private final ObjectAdapter mAdapter;
 
     /**
-     * Get the {@link ObjectAdapter} that represents a list of objects.
+     * Returns the {@link ObjectAdapter} that represents a list of objects.
      */
     public final ObjectAdapter getAdapter() {
         return mAdapter;

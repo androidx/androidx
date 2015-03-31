@@ -231,7 +231,7 @@ public class SearchSupportFragment extends Fragment {
     }
 
     /**
-     * Create a search fragment with a given search query.
+     * Creates a search fragment with a given search query.
      *
      * <p>You should only use this if you need to start the search fragment with a
      * pre-filled query.
@@ -401,7 +401,7 @@ public class SearchSupportFragment extends Fragment {
     }
 
     /**
-     * Set the search provider that is responsible for returning results for the
+     * Sets the search provider that is responsible for returning results for the
      * search query.
      */
     public void setSearchResultProvider(SearchResultProvider searchResultProvider) {
@@ -475,7 +475,7 @@ public class SearchSupportFragment extends Fragment {
     }
 
     /**
-     * Display the completions shown by the IME. An application may provide
+     * Displays the completions shown by the IME. An application may provide
      * a list of query completions that the system will show in the IME.
      *
      * @param completions A list of completions to show in the IME. Setting to
@@ -486,7 +486,7 @@ public class SearchSupportFragment extends Fragment {
     }
 
     /**
-     * Set this callback to have the fragment pass speech recognition requests
+     * Sets this callback to have the fragment pass speech recognition requests
      * to the activity rather than using an internal recognizer.
      */
     public void setSpeechRecognitionCallback(SpeechRecognitionCallback callback) {

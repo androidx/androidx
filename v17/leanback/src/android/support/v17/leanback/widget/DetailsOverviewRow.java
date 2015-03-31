@@ -24,28 +24,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * An overview row for a details fragment. This row consists of an image, a
+ * An overview {@link Row} for a details fragment. This row consists of an image, a
  * description view, and optionally a series of {@link Action}s that can be taken for
  * the item.
  *
  * <h3>Actions</h3>
  * Application uses {@link #setActionsAdapter(ObjectAdapter)} to set actions on the overview
- * row.  {@link SparseArrayObjectAdapter} is recommended for easy updating actions while
- * keeping the order.  Application can add or remove actions on UI thread after the row is
- * bound to view.
+ * row.  {@link SparseArrayObjectAdapter} is recommended for easily updating actions while
+ * maintaining the order.  The application can add or remove actions on the UI thread after the
+ * row is bound to a view.
  *
  * <h3>Updating main item</h3>
- * After the row is bound to view, application still can call ({@link #setItem(Object)})
- * on UI thread.
+ * After the row is bound to a view, the application may call {@link #setItem(Object)}
+ * on UI thread and the view will be updated.
  *
  * <h3>Updating image</h3>
- * After the row is bound to view, application still can change image by calling ({@link
- * #setImageBitmap(Context, Bitmap)}) or {@link #setImageDrawable(Drawable)}) on UI thread.
+ * After the row is bound to view, the application may change the image by calling {@link
+ * #setImageBitmap(Context, Bitmap)} or {@link #setImageDrawable(Drawable)} on the UI thread,
+ * and the view will be updated.
  */
 public class DetailsOverviewRow extends Row {
 
     /**
-     * Listener for changes of DetailsOverViewRow.
+     * Listener for changes of DetailsOverviewRow.
      */
     static class Listener {
 
@@ -180,7 +181,7 @@ public class DetailsOverviewRow extends Row {
     }
 
     /**
-     * Gets the main item for the details page.
+     * Returns the main item for the details page.
      */
     public final Object getItem() {
         return mItem;
@@ -223,7 +224,7 @@ public class DetailsOverviewRow extends Row {
     }
 
     /**
-     * Gets the image drawable of this details overview.
+     * Returns the image drawable of this details overview.
      *
      * @return The overview's image drawable, or null if no drawable has been
      *         assigned.
@@ -252,16 +253,16 @@ public class DetailsOverviewRow extends Row {
     }
 
     /**
-     * Get array object adapter.  Throws ClassCastException if the current ObjectAdapter is not
-     * ArrayObjectAdapter.
+     * Returns the actions adapter.  Throws ClassCastException if the current
+     * actions adapter is not an instance of {@link ArrayObjectAdapter}.
      */
     private ArrayObjectAdapter getArrayObjectAdapter() {
         return (ArrayObjectAdapter) mActionsAdapter;
     }
 
     /**
-     * Add an Action to the overview. It will throw ClassCastException if current actions adapter
-     * is not {@link ArrayObjectAdapter}. Must be called on UI thread.
+     * Adds an Action to the overview. It will throw ClassCastException if the current actions
+     * adapter is not an instance of {@link ArrayObjectAdapter}. Must be called on the UI thread.
      *
      * @param action The Action to add.
      * @deprecated Use {@link #setActionsAdapter(ObjectAdapter)} and {@link #getActionsAdapter()}
@@ -271,8 +272,9 @@ public class DetailsOverviewRow extends Row {
     }
 
     /**
-     * Add an Action to the overview at the specified position. It will throw ClassCastException if
-     * current actions adapter is not {@link ArrayObjectAdapter}. Must be called on UI thread.
+     * Adds an Action to the overview at the specified position. It will throw ClassCastException if
+     * current actions adapter is not an instance of f{@link ArrayObjectAdapter}. Must be called
+     * on the UI thread.
      *
      * @param pos The position to insert the Action.
      * @param action The Action to add.
@@ -283,7 +285,7 @@ public class DetailsOverviewRow extends Row {
     }
 
     /**
-     * Remove the given Action from the overview. It will throw ClassCastException if current
+     * Removes the given Action from the overview. It will throw ClassCastException if current
      * actions adapter is not {@link ArrayObjectAdapter}. Must be called on UI thread.
      *
      * @param action The Action to remove.
@@ -295,7 +297,7 @@ public class DetailsOverviewRow extends Row {
     }
 
     /**
-     * Gets a read-only view of the list of Actions of this details overview. It will throw
+     * Returns a read-only view of the list of Actions of this details overview. It will throw
      * ClassCastException if current actions adapter is not {@link ArrayObjectAdapter}. Must be
      * called on UI thread.
      *
@@ -307,16 +309,17 @@ public class DetailsOverviewRow extends Row {
     }
 
     /**
-     * Gets {@link ObjectAdapter} for actions.
+     * Returns the {@link ObjectAdapter} for actions.
      */
     public final ObjectAdapter getActionsAdapter() {
         return mActionsAdapter;
     }
 
     /**
-     * Sets {@link ObjectAdapter} for actions.
-     * @param adapter  Adapter for actions, a default {@link PresenterSelector} will be attached
-     *                 to the adapter if it doesn't have one.
+     * Sets the {@link ObjectAdapter} for actions.  A default {@link PresenterSelector} will be
+     * attached to the adapter if it doesn't have one.
+     *
+     * @param adapter  Adapter for actions.
      */
     public final void setActionsAdapter(ObjectAdapter adapter) {
         if (adapter != mActionsAdapter) {

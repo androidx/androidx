@@ -101,6 +101,9 @@ class StreamingTextView extends EditText {
                 (int) (bitmap.getHeight() * scaled), false);
     }
 
+    /**
+     * Resets the text view.
+     */
     public void reset() {
         if (DEBUG) Log.d(TAG, "#reset");
 
@@ -109,6 +112,9 @@ class StreamingTextView extends EditText {
         setText("");
     }
 
+    /**
+     * Updates the recognized text.
+     */
     public void updateRecognizedText(String stableText, String pendingText) {
         if (DEBUG) Log.d(TAG, "updateText(" + stableText + "," + pendingText + ")");
 
@@ -216,7 +222,7 @@ class StreamingTextView extends EditText {
     }
 
     /**
-     * This is required to make the View findable by uiautomator
+     * This is required to make the View findable by uiautomator.
      */
     @Override
     public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {

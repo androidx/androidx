@@ -6,6 +6,9 @@ import android.graphics.Color;
 import android.support.v17.leanback.R;
 import android.util.AttributeSet;
 
+/**
+ * A subclass of {@link SearchOrbView} that visualizes the state of an ongoing speech recognition.
+ */
 public class SpeechOrbView extends SearchOrbView {
     private final float mSoundLevelMaxZoom;
     private final Colors mListeningOrbColors;
@@ -44,6 +47,9 @@ public class SpeechOrbView extends SearchOrbView {
         return R.layout.lb_speech_orb;
     }
 
+    /**
+     * Sets the view to display listening state.
+     */
     public void showListening() {
         setOrbColors(mListeningOrbColors);
         setOrbIcon(getResources().getDrawable(R.drawable.lb_ic_search_mic));
@@ -55,6 +61,9 @@ public class SpeechOrbView extends SearchOrbView {
         mListening = true;
     }
 
+    /**
+     * Sets the view to display the not-listening state.
+     */
     public void showNotListening() {
         setOrbColors(mNotListeningOrbColors);
         setOrbIcon(getResources().getDrawable(R.drawable.lb_ic_search_mic_out));
@@ -63,6 +72,9 @@ public class SpeechOrbView extends SearchOrbView {
         mListening = false;
     }
 
+    /**
+     * Sets the sound level while listening to speech.
+     */
     public void setSoundLevel(int level) {
         if (!mListening) return;
 

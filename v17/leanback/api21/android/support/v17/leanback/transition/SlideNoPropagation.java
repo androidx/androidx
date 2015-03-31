@@ -17,6 +17,9 @@ import android.content.Context;
 import android.transition.Slide;
 import android.util.AttributeSet;
 
+/**
+ * @hide
+ */
 public class SlideNoPropagation extends Slide {
 
     public SlideNoPropagation() {

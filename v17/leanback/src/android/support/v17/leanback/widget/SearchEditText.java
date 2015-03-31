@@ -27,7 +27,13 @@ public class SearchEditText extends StreamingTextView {
     private static final String TAG = SearchEditText.class.getSimpleName();
     private static final boolean DEBUG = false;
 
+    /**
+     * Interface for receiving notification when the keyboard is dismissed.
+     */
     public interface OnKeyboardDismissListener {
+        /**
+         * Method invoked when the keyboard is dismissed.
+         */
         public void onKeyboardDismiss();
     }
 
@@ -56,7 +62,7 @@ public class SearchEditText extends StreamingTextView {
     }
 
     /**
-     * Set a keyboard dismissed listener.
+     * Sets a keyboard dismissed listener.
      *
      * @param listener The listener.
      */

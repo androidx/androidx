@@ -18,9 +18,16 @@ import android.view.ViewGroup;
 
 /**
  * A Presenter is used to generate {@link View}s and bind Objects to them on
- * demand. It is closely related to concept of an {@link
+ * demand. It is closely related to the concept of an {@link
  * android.support.v7.widget.RecyclerView.Adapter RecyclerView.Adapter}, but is
- * not position-based.
+ * not position-based.  The leanback framework implements the adapter concept using
+ * {@link ObjectAdapter} which refers to a Presenter (or {@link PresenterSelector}) instance.
+ *
+ * <p>
+ * Presenters should be stateless.  Presenters typically extend {@link ViewHolder} to store all
+ * necessary view state information, such as references to child views to be used when
+ * binding to avoid expensive calls to {@link View#findViewById(int)}.
+ * </p>
  *
  * <p>
  * A trivial Presenter that takes a string and renders it into a {@link

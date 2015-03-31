@@ -16,8 +16,8 @@ package android.support.v17.leanback.widget;
 import static android.support.v17.leanback.widget.ObjectAdapter.NO_ID;
 
 /**
- * A header item is an item that describes metadata of {@link Row}, such as a category
- * of media items.  Developer may override this class to add more information.
+ * A header item describes the metadata of a {@link Row}, such as a category
+ * of media items.  May be subclassed to add more information.
  */
 public class HeaderItem {
 

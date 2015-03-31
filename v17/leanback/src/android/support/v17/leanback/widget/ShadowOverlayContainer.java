@@ -22,23 +22,24 @@ import android.view.ViewGroup;
 import android.graphics.Rect;
 
 /**
- * ShadowOverlayContainer Provides a SDK version independent wrapper container
- * to take care of shadow and/or color overlay.
+ * Provides an SDK version-independent wrapper to support shadows, color overlays, and rounded
+ * corners.
  * <p>
- * Shadow and color dimmer overlay are both optional.  When shadow is used,  it's
- * user's responsibility to properly call setClipChildren(false) on parent views if
- * the shadow can appear outside bounds of parent views.
  * {@link #prepareParentForShadow(ViewGroup)} must be called on parent of container
  * before using shadow.  Depending on sdk version, optical bounds might be applied
  * to parent.
  * </p>
  * <p>
- * {@link #initialize(boolean, boolean, boolean)} must be first called on the container
- * to initialize shadows and/or color overlay.  Then call {@link #wrap(View)} to insert
- * wrapped view into container.
+ * If shadows can appear outside the bounds of the parent view, setClipChildren(false) must
+ * be called on the grandparent view.
  * </p>
  * <p>
- * Call {@link #setShadowFocusLevel(float)} to control shadow alpha.
+ * {@link #initialize(boolean, boolean, boolean)} must be first called on the container.
+ * Then call {@link #wrap(View)} to insert the wrapped view into the container.
+ * </p>
+ * <p>
+ * Call {@link #setShadowFocusLevel(float)} to control the strength of the shadow (focused shadows
+ * cast stronger shadows).
  * </p>
  * <p>
  * Call {@link #setOverlayColor(int)} to control overlay color.
