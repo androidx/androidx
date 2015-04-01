@@ -1269,7 +1269,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         initActivity(intent);
         mGridView.setSaveChildrenPolicy(VerticalGridView.SAVE_ALL_CHILD);
 
-        SparseArray<Parcelable> container = new SparseArray<Parcelable>();
+        final SparseArray<Parcelable> container = new SparseArray<Parcelable>();
 
         // 1 Save view states
         runTestOnUiThread(new Runnable() {
@@ -1278,7 +1278,6 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
                         .getText()), 0, 1);
                 Selection.setSelection((Spannable)(((TextView) mGridView.getChildAt(1))
                         .getText()), 0, 1);
-                SparseArray<Parcelable> container = new SparseArray<Parcelable>();
                 mGridView.saveHierarchyState(container);
             }
         });
@@ -1324,5 +1323,57 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         assertEquals(((TextView) mGridView.getChildAt(1)).getSelectionEnd(), 2);
     }
 
+
+    public void testNoDispatchSaveChildState() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        int[] items = new int[100];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 200;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        intent.putExtra(GridActivity.EXTRA_CHILD_LAYOUT_ID, R.layout.selectable_text_view);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+        mGridView.setSaveChildrenPolicy(VerticalGridView.SAVE_NO_CHILD);
+
+        final SparseArray<Parcelable> container = new SparseArray<Parcelable>();
+
+        // 1. Set text selection, save view states should do nothing on child
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                for (int i = 0; i < mGridView.getChildCount(); i++) {
+                    Selection.setSelection((Spannable)(((TextView) mGridView.getChildAt(i))
+                            .getText()), 0, 1);
+                }
+                mGridView.saveHierarchyState(container);
+            }
+        });
+
+        // 2. clear the text selection
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                for (int i = 0; i < mGridView.getChildCount(); i++) {
+                    Selection.removeSelection((Spannable)(((TextView) mGridView.getChildAt(i))
+                            .getText()));
+                }
+            }
+        });
+
+        // 3. Restore view states should be a no-op for child
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.restoreHierarchyState(container);
+                for (int i = 0; i < mGridView.getChildCount(); i++) {
+                    assertEquals(-1, ((TextView) mGridView.getChildAt(i)).getSelectionStart());
+                    assertEquals(-1, ((TextView) mGridView.getChildAt(i)).getSelectionEnd());
+                }
+            }
+        });
+    }
 
 }
