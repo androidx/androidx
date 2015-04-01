@@ -46,6 +46,7 @@ public class ScriptGroup2 extends BaseObj {
     private static final int MIN_API_VERSION = 23;
 
     public static class Closure extends BaseObj {
+        private Object[] mArgs;
         private Allocation mReturnValue;
         private Map<Script.FieldID, Object> mBindings;
 
@@ -68,8 +69,9 @@ public class ScriptGroup2 extends BaseObj {
                 throw new RSRuntimeException("ScriptGroup2 not supported in this API level");
             }
 
+            mArgs = args;
             mReturnValue = Allocation.createTyped(rs, returnType);
-            mBindings = new HashMap<Script.FieldID, Object>();
+            mBindings = globals;
             mGlobalFuture = new HashMap<Script.FieldID, Future>();
 
             int numValues = args.length + globals.size();
@@ -123,7 +125,8 @@ public class ScriptGroup2 extends BaseObj {
 
             mFP = FieldPacker.createFieldPack(args);
 
-            mBindings = new HashMap<Script.FieldID, Object>();
+            mArgs = args;
+            mBindings = globals;
             mGlobalFuture = new HashMap<Script.FieldID, Future>();
 
             int numValues = globals.size();
@@ -209,11 +212,13 @@ public class ScriptGroup2 extends BaseObj {
         }
 
         void setArg(int index, Object obj) {
+            mArgs[index] = obj;
             ValueAndSize vs = new ValueAndSize(mRS, obj);
             mRS.nClosureSetArg(getID(mRS), index, vs.value, vs.size);
         }
 
         void setGlobal(Script.FieldID fieldID, Object obj) {
+            mBindings.put(fieldID, obj);
             ValueAndSize vs = new ValueAndSize(mRS, obj);
             mRS.nClosureSetGlobal(getID(mRS), fieldID.getID(mRS), vs.value, vs.size);
         }
