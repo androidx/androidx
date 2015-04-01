@@ -1458,8 +1458,15 @@ public class RenderScript {
      * using this context or any objects belonging to this context is
      * illegal.
      *
+     * This function is a NOP if the context was created
+     * with create().  Please use releaseAllContexts() to clean up
+     * contexts created with the create function.
      */
     public void destroy() {
+        if (mIsProcessContext) {
+            // users cannot destroy a process context
+            return;
+        }
         validate();
         nContextFinish();
         if (mIncCon != 0) {
