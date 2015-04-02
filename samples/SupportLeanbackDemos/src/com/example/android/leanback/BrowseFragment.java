@@ -67,7 +67,10 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                     RowPresenter.ViewHolder rowViewHolder, Row row) {
                 Log.i(TAG, "onItemSelected: " + item + " row " + row);
 
-                if (item instanceof PhotoItem) {
+                if (isShowingHeaders()) {
+                    mBackgroundHelper.setBackground(getActivity(), null);
+                }
+                else if (item instanceof PhotoItem) {
                     mBackgroundHelper.setBackground(
                             getActivity(), ((PhotoItem) item).getImageResourceId());
                 }
@@ -85,8 +88,6 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                 }
             }, 2000);
         }
-
-        mBackgroundHelper.attach(getActivity());
     }
 
     private void setupRows() {
@@ -112,7 +113,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
             listRowAdapter.add(new PhotoItem("Hello world", R.drawable.gallery_photo_5));
             listRowAdapter.add(new PhotoItem("This is a test", "Only a test", R.drawable.gallery_photo_6));
             listRowAdapter.add(new PhotoItem("Android TV", "open RowsActivity", R.drawable.gallery_photo_7));
-            listRowAdapter.add(new PhotoItem("Leanback", "open MainActivity", R.drawable.gallery_photo_8));
+            listRowAdapter.add(new PhotoItem("Leanback", "open BrowseActivity", R.drawable.gallery_photo_8));
             HeaderItem header = new HeaderItem(i, "Row " + i);
             mRowsAdapter.add(new ListRow(header, listRowAdapter));
         }
@@ -128,7 +129,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
             Intent intent;
             Bundle bundle;
             if ( ((PhotoItem) item).getImageResourceId() == R.drawable.gallery_photo_8) {
-                intent = new Intent(getActivity(), MainActivity.class);
+                intent = new Intent(getActivity(), BrowseActivity.class);
                 bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity())
                         .toBundle();
             } else if ( ((PhotoItem) item).getImageResourceId() == R.drawable.gallery_photo_7) {

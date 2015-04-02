@@ -100,6 +100,7 @@ public class BackgroundHelper {
         private Bitmap loadBitmap(Activity activity, Object imageToken) {
             if (imageToken instanceof Integer) {
                 final int resourceId = (Integer) imageToken;
+                if (DEBUG) Log.v(TAG, "load resourceId " + resourceId);
                 Drawable drawable = ContextCompat.getDrawable(activity, resourceId);
                 if (drawable instanceof BitmapDrawable) {
                     return ((BitmapDrawable) drawable).getBitmap();
@@ -110,7 +111,7 @@ public class BackgroundHelper {
 
         private void applyBackground(Activity activity, Bitmap bitmap) {
             BackgroundManager backgroundManager = BackgroundManager.getInstance(activity);
-            if (bitmap == null || backgroundManager == null || !backgroundManager.isAttached()) {
+            if (backgroundManager == null || !backgroundManager.isAttached()) {
                 return;
             }
             backgroundManager.setBitmap(bitmap);
@@ -120,22 +121,34 @@ public class BackgroundHelper {
     private LoadBackgroundRunnable mRunnable;
     private LoadBitmapTask mTask;
 
-    public void attach(Activity activity) {
-        if (!ENABLED) {
-            return;
-        }
-        BackgroundManager.getInstance(activity).attach(activity.getWindow());
-    }
+    // Allocate a dedicated handler because there may be no view available
+    // when setBackground is invoked.
+    private Handler mHandler = new Handler();
 
     public void setBackground(Activity activity, Object imageToken) {
         if (!ENABLED) {
             return;
         }
-        Handler handler = activity.getWindow().getDecorView().getHandler();
         if (mRunnable != null) {
-            handler.removeCallbacks(mRunnable);
+            mHandler.removeCallbacks(mRunnable);
         }
         mRunnable = new LoadBackgroundRunnable(activity, imageToken);
-        handler.postDelayed(mRunnable, SET_BACKGROUND_DELAY_MS);
+        mHandler.postDelayed(mRunnable, SET_BACKGROUND_DELAY_MS);
+    }
+
+    static public void attach(Activity activity) {
+        if (!ENABLED) {
+            return;
+        }
+        if (DEBUG) Log.v(TAG, "attach to activity " + activity);
+        BackgroundManager.getInstance(activity).attach(activity.getWindow());
+    }
+
+    static public void release(Activity activity) {
+        if (!ENABLED) {
+            return;
+        }
+        if (DEBUG) Log.v(TAG, "release from activity " + activity);
+        BackgroundManager.getInstance(activity).release();
     }
 }

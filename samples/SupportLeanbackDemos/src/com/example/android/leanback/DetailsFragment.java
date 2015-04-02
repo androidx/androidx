@@ -159,8 +159,6 @@ public class DetailsFragment extends android.support.v17.leanback.app.DetailsFra
                 prepareEntranceTransition();
             }
         }
-
-        mBackgroundHelper.attach(getActivity());
     }
 
     @Override
@@ -204,6 +202,15 @@ public class DetailsFragment extends android.support.v17.leanback.app.DetailsFra
             }
         }, TIME_TO_LOAD_RELATED_ROWS_MS);
         setAdapter(mRowsAdapter);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (mPhotoItem != null) {
+            mBackgroundHelper.setBackground(
+                    getActivity(), mPhotoItem.getImageResourceId());
+        }
     }
 
 }
