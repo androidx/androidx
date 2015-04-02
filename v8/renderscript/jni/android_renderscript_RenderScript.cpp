@@ -269,7 +269,7 @@ static dispatchTable dispatchTab;
 // Incremental Support lib
 static dispatchTable dispatchTabInc;
 
-static jboolean nLoadSO(JNIEnv *_env, jobject _this, jboolean useNative, jint deviceApi) {
+static jboolean nLoadSO(JNIEnv *_env, jobject _this, jboolean useNative, jint targetApi) {
     void* handle = NULL;
     if (useNative) {
         handle = dlopen("libRS.so", RTLD_LAZY | RTLD_LOCAL);
@@ -281,7 +281,7 @@ static jboolean nLoadSO(JNIEnv *_env, jobject _this, jboolean useNative, jint de
         return false;
     }
 
-    if (loadSymbols(handle, dispatchTab, deviceApi) == false) {
+    if (loadSymbols(handle, dispatchTab, targetApi) == false) {
         LOG_API("%s init failed!", filename);
         return false;
     }
@@ -1522,7 +1522,7 @@ nSystemGetPointerSize(JNIEnv *_env, jobject _this) {
 
 // ---------------------------------------------------------------------------
 // For Incremental Intrinsic Support
-static bool nIncLoadSO() {
+static bool nIncLoadSO(jint deviceApi) {
     void* handle = NULL;
     handle = dlopen("libRSSupport.so", RTLD_LAZY | RTLD_LOCAL);
     if (handle == NULL) {
@@ -1530,7 +1530,7 @@ static bool nIncLoadSO() {
         return false;
     }
 
-    if (loadSymbols(handle, dispatchTabInc) == false) {
+    if (loadSymbols(handle, dispatchTabInc, deviceApi) == false) {
         LOG_API("%s init failed!", filename);
         return false;
     }
@@ -1728,7 +1728,7 @@ static JNINativeMethod methods[] = {
 {"rsnSystemGetPointerSize",          "()I",                                   (void*)nSystemGetPointerSize },
 
 // Entry points for Inc libRSSupport
-{"nIncLoadSO",                       "()Z",                                   (bool*)nIncLoadSO },
+{"nIncLoadSO",                       "(I)Z",                                  (bool*)nIncLoadSO },
 {"nIncDeviceCreate",                 "()J",                                   (void*)nIncDeviceCreate },
 {"nIncDeviceDestroy",                "(J)V",                                  (void*)nIncDeviceDestroy },
 {"rsnIncContextCreate",              "(JIII)J",                               (void*)nIncContextCreate },
