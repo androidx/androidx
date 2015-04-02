@@ -1079,7 +1079,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         final boolean canScrollHorizontal = mLayout.canScrollHorizontally();
         final boolean canScrollVertical = mLayout.canScrollVertically();
         if (canScrollHorizontal || canScrollVertical) {
-            scrollByInternal(canScrollHorizontal ? x : 0, canScrollVertical ? y : 0);
+            scrollByInternal(canScrollHorizontal ? x : 0, canScrollVertical ? y : 0, false, 0, 0);
         }
     }
 
@@ -1097,10 +1097,21 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
 
     /**
      * Does not perform bounds checking. Used by internal methods that have already validated input.
+     * <p>
+     * It also reports any unused scroll request to the related EdgeEffect.
+     *
+     * @param x The amount of horizontal scroll request
+     * @param y The amount of vertical scroll request
+     * @param fromMotionEvent If request is originated from a MotionEvent, this should be set to
+     *                        true and motionX/motionY should be provided, false otherwise.
+     * @param motionX The x coordinate of the MotionEvent which triggered this scroll. Unused if
+     *                fromMotionEvent is false.
+     * @param motionY The y coordinate of the MotionEvent which triggered this scroll. Unused if
+     *                fromMotionEvent is false.
      *
      * @return Whether any scroll was consumed in either direction.
      */
-    boolean scrollByInternal(int x, int y) {
+    boolean scrollByInternal(int x, int y, boolean fromMotionEvent, int motionX, int motionY) {
         int overscrollX = 0, overscrollY = 0;
         int hresult = 0, vresult = 0;
         consumePendingUpdateOperations();
@@ -1143,8 +1154,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
             invalidate();
         }
         if (ViewCompat.getOverScrollMode(this) != ViewCompat.OVER_SCROLL_NEVER) {
+            if (fromMotionEvent) {
+                pullGlows(motionX, overscrollX, motionY, overscrollY);
+            }
             considerReleasingGlowsOnScroll(x, y);
-            pullGlows(overscrollX, overscrollY);
         }
         if (hresult != 0 || vresult != 0) {
             dispatchOnScrolled(hresult, vresult);
@@ -1384,24 +1397,29 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
     /**
      * Apply a pull to relevant overscroll glow effects
      */
-    private void pullGlows(int overscrollX, int overscrollY) {
+    private void pullGlows(int x, int overscrollX, int y, int overscrollY) {
+        boolean invalidate = false;
         if (overscrollX < 0) {
             ensureLeftGlow();
-            mLeftGlow.onPull(-overscrollX / (float) getWidth());
+            invalidate = mLeftGlow.onPull(-overscrollX / (float) getWidth(),
+                    1f - y  / (float) getHeight()) || invalidate;
         } else if (overscrollX > 0) {
             ensureRightGlow();
-            mRightGlow.onPull(overscrollX / (float) getWidth());
+            invalidate = mRightGlow.onPull(overscrollX / (float) getWidth(),
+                    y / (float) getHeight()) || invalidate;
         }
 
         if (overscrollY < 0) {
             ensureTopGlow();
-            mTopGlow.onPull(-overscrollY / (float) getHeight());
+            invalidate = mTopGlow.onPull(-overscrollY / (float) getHeight(),
+                    x / (float) getWidth()) || invalidate;
         } else if (overscrollY > 0) {
             ensureBottomGlow();
-            mBottomGlow.onPull(overscrollY / (float) getHeight());
+            invalidate = mBottomGlow.onPull(overscrollY / (float) getHeight(),
+                    1f - x / (float) getWidth()) || invalidate;
         }
 
-        if (overscrollX != 0 || overscrollY != 0) {
+        if (invalidate || overscrollX != 0 || overscrollY != 0) {
             ViewCompat.postInvalidateOnAnimation(this);
         }
     }
@@ -1850,8 +1868,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                 if (mScrollState == SCROLL_STATE_DRAGGING) {
                     final int dx = x - mLastTouchX;
                     final int dy = y - mLastTouchY;
-                    if (scrollByInternal(
-                            canScrollHorizontally ? -dx : 0, canScrollVertically ? -dy : 0)) {
+                    if (scrollByInternal(canScrollHorizontally ? -dx : 0,
+                            canScrollVertically ? -dy : 0, true, x, y)) {
                         getParent().requestDisallowInterceptTouchEvent(true);
                     }
                 }
