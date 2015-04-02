@@ -208,16 +208,21 @@ public final class BackgroundManager {
     private static class DrawableWrapper {
         private int mAlpha = FULL_ALPHA;
         private Drawable mDrawable;
+        private ColorFilter mColorFilter;
 
         public DrawableWrapper(Drawable drawable) {
             mDrawable = drawable;
             updateAlpha();
+            updateColorFilter();
         }
         public DrawableWrapper(DrawableWrapper wrapper, Drawable drawable) {
             mDrawable = drawable;
             mAlpha = wrapper.getAlpha();
             updateAlpha();
+            mColorFilter = wrapper.getColorFilter();
+            updateColorFilter();
         }
+
         public Drawable getDrawable() {
             return mDrawable;
         }
@@ -231,6 +236,18 @@ public final class BackgroundManager {
         private void updateAlpha() {
             mDrawable.setAlpha(mAlpha);
         }
+
+        public ColorFilter getColorFilter() {
+            return mColorFilter;
+        }
+        public void setColorFilter(ColorFilter colorFilter) {
+            mColorFilter = colorFilter;
+            updateColorFilter();
+        }
+        private void updateColorFilter() {
+            mDrawable.setColorFilter(mColorFilter);
+        }
+
         public void setColor(int color) {
             ((ColorDrawable) mDrawable).setColor(color);
         }
@@ -342,6 +359,7 @@ public final class BackgroundManager {
      */
     private class OptimizedTranslucentLayerDrawable extends TranslucentLayerDrawable {
         private PorterDuffColorFilter mColorFilter;
+        private boolean mUpdatingColorFilter;
 
         public OptimizedTranslucentLayerDrawable(Drawable[] drawables) {
             super(drawables);
@@ -361,6 +379,13 @@ public final class BackgroundManager {
             updateColorFilter();
         }
 
+        @Override
+        public void invalidateDrawable(Drawable who) {
+            if (!mUpdatingColorFilter) {
+                invalidateSelf();
+            }
+        }
+
         private void updateColorFilter() {
             DrawableWrapper dimWrapper = findWrapperById(R.id.background_dim);
             DrawableWrapper imageInWrapper = findWrapperById(R.id.background_imagein);
@@ -378,21 +403,22 @@ public final class BackgroundManager {
                     mColorFilter = new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY);
                 }
             }
+            mUpdatingColorFilter = true;
             if (imageInWrapper != null) {
-                imageInWrapper.getDrawable().setColorFilter(mColorFilter);
+                imageInWrapper.setColorFilter(mColorFilter);
             }
             if (imageOutWrapper != null) {
-                imageOutWrapper.getDrawable().setColorFilter(null);
+                imageOutWrapper.setColorFilter(null);
             }
+            mUpdatingColorFilter = false;
         }
 
         @Override
         public void draw(Canvas canvas) {
             DrawableWrapper imageInWrapper = findWrapperById(R.id.background_imagein);
-            BitmapDrawable drawable = imageInWrapper == null ? null :
-                    (BitmapDrawable) imageInWrapper.getDrawable();
-            if (drawable != null && drawable.getColorFilter() != null) {
-                drawable.draw(canvas);
+            if (imageInWrapper != null && imageInWrapper.getDrawable() != null &&
+                    imageInWrapper.getColorFilter() != null) {
+                imageInWrapper.getDrawable().draw(canvas);
             } else {
                 super.draw(canvas);
             }
