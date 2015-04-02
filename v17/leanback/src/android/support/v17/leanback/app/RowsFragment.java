@@ -40,6 +40,12 @@ import android.view.animation.Interpolator;
 
 /**
  * An ordered set of rows of leanback widgets.
+ * <p>
+ * A RowsFragment renders the elements of its
+ * {@link android.support.v17.leanback.widget.ObjectAdapter} as a set
+ * of rows in a vertical list. The elements in this adapter must be subclasses
+ * of {@link android.support.v17.leanback.widget.Row}.
+ * </p>
  */
 public class RowsFragment extends BaseRowFragment {
 
@@ -284,14 +290,14 @@ public class RowsFragment extends BaseRowFragment {
     }
 
     /**
-     * Get the view that will change scale.
+     * Returns the view that will change scale.
      */
     View getScaleView() {
         return getVerticalGridView();
     }
 
     /**
-     * Set pivots to scale rows fragment.
+     * Sets the pivots to scale rows fragment.
      */
     void setScalePivots(float pivotX, float pivotY) {
         // set pivot on ScaleFrameLayout, it will be propagated to its child VerticalGridView

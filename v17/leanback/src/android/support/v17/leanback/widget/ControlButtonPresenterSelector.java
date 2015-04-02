@@ -23,8 +23,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
- * ControlButtonPresenterSelector displays primary and secondary
- * controls for a {@link PlaybackControlsRow}.
+ * Displays primary and secondary controls for a {@link PlaybackControlsRow}.
  *
  * Binds to items of type {@link Action}.
  */

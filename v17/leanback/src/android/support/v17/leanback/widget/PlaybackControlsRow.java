@@ -29,17 +29,19 @@ import android.graphics.drawable.Drawable;
 import android.view.KeyEvent;
 
 /**
- * A row of playback controls to be displayed by a {@link PlaybackControlsRowPresenter}.
+ * A {@link Row} of playback controls to be displayed by a {@link PlaybackControlsRowPresenter}.
  *
  * This row consists of some optional item detail, a series of primary actions,
  * and an optional series of secondary actions.
  *
+ * <p>
  * Controls are specified via an {@link ObjectAdapter} containing one or more
  * {@link Action}s.
- *
+ * </p>
+ * <p>
  * Adapters should have their {@link PresenterSelector} set to an instance of
  * {@link ControlButtonPresenterSelector}.
- *
+ * </p>
  */
 public class PlaybackControlsRow extends Row {
 
@@ -146,7 +148,7 @@ public class PlaybackControlsRow extends Row {
         }
 
         /**
-         * Gets the current index.
+         * Returns the current index.
          */
         public int getIndex() {
             return mIndex;
@@ -625,7 +627,7 @@ public class PlaybackControlsRow extends Row {
     }
 
     /**
-     * Gets the main item for the details page.
+     * Returns the main item for the details page.
      */
     public final Object getItem() {
         return mItem;
@@ -633,6 +635,8 @@ public class PlaybackControlsRow extends Row {
 
     /**
      * Sets a {link @Drawable} image for this row.
+     * <p>If set after the row has been bound to a view, the adapter must be notified that
+     * this row has changed.</p>
      *
      * @param drawable The drawable to set.
      */
@@ -642,6 +646,8 @@ public class PlaybackControlsRow extends Row {
 
     /**
      * Sets a {@link Bitmap} for this row.
+     * <p>If set after the row has been bound to a view, the adapter must be notified that
+     * this row has changed.</p>
      *
      * @param context The context to retrieve display metrics from.
      * @param bm The bitmap to set.
@@ -651,7 +657,7 @@ public class PlaybackControlsRow extends Row {
     }
 
     /**
-     * Gets the image {@link Drawable} of this row.
+     * Returns the image {@link Drawable} of this row.
      *
      * @return The overview's image drawable, or null if no drawable has been
      *         assigned.
@@ -662,6 +668,8 @@ public class PlaybackControlsRow extends Row {
 
     /**
      * Sets the primary actions {@link ObjectAdapter}.
+     * <p>If set after the row has been bound to a view, the adapter must be notified that
+     * this row has changed.</p>
      */
     public final void setPrimaryActionsAdapter(ObjectAdapter adapter) {
         mPrimaryActionsAdapter = adapter;
@@ -669,6 +677,8 @@ public class PlaybackControlsRow extends Row {
 
     /**
      * Sets the secondary actions {@link ObjectAdapter}.
+     * <p>If set after the row has been bound to a view, the adapter must be notified that
+     * this row has changed.</p>
      */
     public final void setSecondaryActionsAdapter(ObjectAdapter adapter) {
         mSecondaryActionsAdapter = adapter;
@@ -690,6 +700,8 @@ public class PlaybackControlsRow extends Row {
 
     /**
      * Sets the total time in milliseconds for the playback controls row.
+     * <p>If set after the row has been bound to a view, the adapter must be notified that
+     * this row has changed.</p>
      */
     public void setTotalTime(int ms) {
         mTotalTimeMs = ms;

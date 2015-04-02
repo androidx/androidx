@@ -33,7 +33,18 @@ import android.view.View;
 import android.view.ViewGroup;
 
 /**
- * Wrapper fragment for leanback details screens.
+ * A fragment for creating Leanback details screens.
+ *
+ * <p>
+ * A DetailsSupportFragment renders the elements of its {@link ObjectAdapter} as a set
+ * of rows in a vertical list. The elements in this adapter must be subclasses
+ * of {@link Row}.
+ * </p>
+ *
+ * <p>
+ * The recommended theme to use with a DetailsSupportFragment is
+ * {@link android.support.v17.leanback.R.style#Theme_Leanback_Details}.
+ * </p>
  */
 public class DetailsSupportFragment extends BaseSupportFragment {
     private static final String TAG = "DetailsSupportFragment";
@@ -100,7 +111,7 @@ public class DetailsSupportFragment extends BaseSupportFragment {
     }
 
     /**
-     * Sets an item Clicked listener.
+     * Sets an item clicked listener.
      */
     public void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
         if (mOnItemViewClickedListener != listener) {
@@ -112,7 +123,7 @@ public class DetailsSupportFragment extends BaseSupportFragment {
     }
 
     /**
-     * Returns the item Clicked listener.
+     * Returns the item clicked listener.
      */
     public OnItemViewClickedListener getOnItemViewClickedListener() {
         return mOnItemViewClickedListener;

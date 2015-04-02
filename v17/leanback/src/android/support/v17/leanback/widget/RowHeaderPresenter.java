@@ -21,8 +21,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 /**
- * RowHeaderPresenter provides a default implementation for header using TextView.
- * If subclass override and creates its own view, subclass must also override
+ * RowHeaderPresenter provides a default presentation for {@link HeaderItem} using a
+ * {@link RowHeaderView}. If a subclass creates its own view, the subclass must also override
  * {@link #onSelectLevelChanged(ViewHolder)}.
  */
 public class RowHeaderPresenter extends Presenter {
@@ -56,6 +56,9 @@ public class RowHeaderPresenter extends Presenter {
         return mNullItemVisibilityGone;
     }
 
+    /**
+     * A ViewHolder for the RowHeaderPresenter.
+     */
     public static class ViewHolder extends Presenter.ViewHolder {
         float mSelectLevel;
         int mOriginalTextColor;
@@ -101,11 +104,17 @@ public class RowHeaderPresenter extends Presenter {
         ((RowHeaderView) viewHolder.view).setText(null);
     }
 
+    /**
+     * Sets the select level.
+     */
     public final void setSelectLevel(ViewHolder holder, float selectLevel) {
         holder.mSelectLevel = selectLevel;
         onSelectLevelChanged(holder);
     }
 
+    /**
+     * Called when the select level changes.  The default implementation sets the alpha on the view.
+     */
     protected void onSelectLevelChanged(ViewHolder holder) {
         holder.view.setAlpha(holder.mUnselectAlpha + holder.mSelectLevel *
                 (1f - holder.mUnselectAlpha));

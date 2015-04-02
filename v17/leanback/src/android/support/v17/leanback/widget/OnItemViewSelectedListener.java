@@ -14,35 +14,33 @@
 package android.support.v17.leanback.widget;
 
 /**
- * Interface for receiving notification when a row or item becomes selected.
+ * Interface for receiving notification when a row or item becomes selected. The concept of
+ * current selection is different than focus.  A row or item can be selected without having focus;
+ * for example, when a row header view gains focus then the corresponding row view becomes selected.
  */
 public interface OnItemViewSelectedListener {
     /**
-     * Called when the a row or a new item becomes selected.  The concept of current selection
-     * is different than focus.  Row or item can be selected even they don't have focus.
-     * Having the concept of selection will allow developer to switch background to selected
-     * item or selected row when user selects rows outside row UI (e.g. headers left of
-     * rows).
+     * Called when the a row or a new item becomes selected.
      * <p>
-     * For a none {@link ListRow} case,  parameter item is always null.  Event is fired when
+     * For a non {@link ListRow} case, parameter item may be null.  Event is fired when
      * selection changes between rows, regardless if row view has focus or not.
      * <p>
-     * For a {@link ListRow} case, parameter item can be null if the list row is empty.
+     * For a {@link ListRow} case, parameter item is null if the list row is empty.
      * </p>
      * <p>
      * In the case of a grid, the row parameter is always null.
      * </p>
      * <li>
-     * Row has focus: event is fired when focus changes between child of the row.
+     * Row has focus: event is fired when focus changes between children of the row.
      * </li>
      * <li>
-     * None of the row has focus: the event is fired with the current selected row and last
+     * No row has focus: the event is fired with the currently selected row and last
      * focused item in the row.
      * </li>
      *
-     * @param itemViewHolder The view holder of item that is currently selected.
+     * @param itemViewHolder The view holder of the item that is currently selected.
      * @param item The item that is currently selected.
-     * @param rowViewHolder The view holder of row that is currently selected.
+     * @param rowViewHolder The view holder of the row that is currently selected.
      * @param row The row that is currently selected.
      */
     public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,

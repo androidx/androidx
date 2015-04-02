@@ -27,7 +27,7 @@ import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_MED
 import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_LARGE;
 
 /**
- * Setup the behavior how to highlight when a item gains focus.
+ * Sets up the highlighting behavior when an item gains focus.
  */
 public class FocusHighlightHelper {
 
@@ -173,7 +173,7 @@ public class FocusHighlightHelper {
     }
 
     /**
-     * Setup the focus highlight behavior of a focused item in browse list row.
+     * Sets up the focus highlight behavior of a focused item in browse list row.
      * @param zoomIndex One of {@link FocusHighlight#ZOOM_FACTOR_SMALL}
      * {@link FocusHighlight#ZOOM_FACTOR_XSMALL}
      * {@link FocusHighlight#ZOOM_FACTOR_MEDIUM}
@@ -188,7 +188,7 @@ public class FocusHighlightHelper {
     }
 
     /**
-     * Setup the focus highlight behavior of a focused item in header list.
+     * Sets up the focus highlight behavior of a focused item in header list.
      * @param gridView  the header list.
      */
     public static void setupHeaderItemFocusHighlight(VerticalGridView gridView) {

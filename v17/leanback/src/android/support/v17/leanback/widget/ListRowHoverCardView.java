@@ -46,10 +46,16 @@ public final class ListRowHoverCardView extends LinearLayout {
         mDescriptionView = (TextView) findViewById(R.id.description);
     }
 
+    /**
+     * Returns the title text.
+     */
     public final CharSequence getTitle() {
         return mTitleView.getText();
     }
 
+    /**
+     * Sets the title text.
+     */
     public final void setTitle(CharSequence text) {
         if (!TextUtils.isEmpty(text)) {
             mTitleView.setText(text);
@@ -59,10 +65,16 @@ public final class ListRowHoverCardView extends LinearLayout {
         }
     }
 
+    /**
+     * Returns the description text.
+     */
     public final CharSequence getDescription() {
         return mDescriptionView.getText();
     }
 
+    /**
+     * Sets the description text.
+     */
     public final void setDescription(CharSequence text) {
         if (!TextUtils.isEmpty(text)) {
             mDescriptionView.setText(text);

@@ -28,11 +28,14 @@ import android.widget.TextView;
  * item. Typically this Presenter will be used in a {@link DetailsOverviewRowPresenter}
  * or {@link PlaybackControlsRowPresenter}.
  *
- * <p>Subclasses will override {@link #onBindDescription} to implement the data
+ * <p>Subclasses must override {@link #onBindDescription} to implement the data
  * binding for this Presenter.
  */
 public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
 
+    /**
+     * The ViewHolder for the {@link AbstractDetailsDescriptionPresenter}.
+     */
     public static class ViewHolder extends Presenter.ViewHolder {
         private final TextView mTitle;
         private final TextView mSubtitle;
@@ -203,11 +206,11 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
     }
 
     /**
-     * Binds the data from the item referenced in the DetailsOverviewRow to the
-     * ViewHolder.
+     * Binds the data from the item to the ViewHolder.  The item is typically associated with
+     * a {@link DetailsOverviewRow} or {@link PlaybackControlsRow}.
      *
      * @param vh The ViewHolder for this details description view.
-     * @param item The item from the DetailsOverviewRow being presented.
+     * @param item The item being presented.
      */
     protected abstract void onBindDescription(ViewHolder vh, Object item);
 

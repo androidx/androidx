@@ -70,6 +70,10 @@ import static android.support.v7.widget.RecyclerView.NO_POSITION;
  * calling {@link #setHeadersTransitionOnBackEnabled(boolean)} with false and
  * use {@link BrowseSupportFragment.BrowseTransitionListener} and
  * {@link #startHeadersTransition(boolean)}.
+ * <p>
+ * The recommended theme to use with a BrowseSupportFragment is
+ * {@link android.support.v17.leanback.R.style#Theme_Leanback_Browse}.
+ * </p>
  */
 public class BrowseSupportFragment extends BaseSupportFragment {
 
@@ -248,7 +252,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         BrowseSupportFragment.class.getCanonicalName() + ".headersState";
 
     /**
-     * Create arguments for a browse fragment.
+     * Creates arguments for a browse fragment.
      *
      * @param args The Bundle to place arguments into, or null if the method
      *        should return a new Bundle.
@@ -351,7 +355,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     }
 
     /**
-     * Start a headers transition.
+     * Starts a headers transition.
      *
      * <p>This method will begin a transition to either show or hide the
      * headers, depending on the value of withHeaders. If headers are disabled
@@ -385,7 +389,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     }
 
     /**
-     * Set a listener for browse fragment transitions.
+     * Sets a listener for browse fragment transitions.
      *
      * @param listener The listener to call when a browse headers transition
      *        begins or ends.
@@ -806,7 +810,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     }
 
     /**
-     * Enable/disable headers transition on back key support. This is enabled by
+     * Enables/disables headers transition on back key support. This is enabled by
      * default. The BrowseSupportFragment will add a back stack entry when headers are
      * showing. Running a headers transition when the back key is pressed only
      * works when the headers state is {@link #HEADERS_ENABLED} or
@@ -838,8 +842,6 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             setHeadersState(args.getInt(ARG_HEADERS_STATE));
         }
     }
-
-
 
     /**
      * Sets the state for the headers column in the browse fragment. Must be one

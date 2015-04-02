@@ -35,7 +35,7 @@ import android.widget.ImageView;
 /**
  * <p>A widget that draws a search affordance, represented by a round background and an icon.</p>
  *
- * Background color and icon can be customized
+ * The background color and icon can be customized.
  */
 public class SearchOrbView extends FrameLayout implements View.OnClickListener {
     private OnClickListener mListener;
@@ -249,7 +249,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
     }
 
     /**
-     * Set the orb icon
+     * Sets the orb icon.
      * @param icon the drawable to be used as the icon
      */
     public void setOrbIcon(Drawable icon) {
@@ -266,7 +266,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
     }
 
     /**
-     * Set the on click listener for the orb
+     * Sets the on click listener for the orb.
      * @param listener The listener.
      */
     public void setOnOrbClickedListener(OnClickListener listener) {
@@ -307,7 +307,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
     }
 
     /**
-     * Set the {@link Colors} used to display the search orb.
+     * Sets the {@link Colors} used to display the search orb.
      */
     public void setOrbColors(Colors colors) {
         mColors = colors;

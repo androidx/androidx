@@ -21,15 +21,15 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 
 /**
- * Bridge from Presenter to RecyclerView.Adapter. Public to allow use by third
- * party presenters.
+ * Bridge from {@link Presenter} to {@link RecyclerView.Adapter}. Public to allow use by third
+ * party Presenters.
  */
 public class ItemBridgeAdapter extends RecyclerView.Adapter {
     private static final String TAG = "ItemBridgeAdapter";
     private static final boolean DEBUG = false;
 
     /**
-     * Interface for listening to view holder operations.
+     * Interface for listening to ViewHolder operations.
      */
     public static class AdapterListener {
         public void onAddPresenter(Presenter presenter, int type) {
@@ -47,8 +47,8 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter {
     }
 
     /**
-     * Interface for wrapping a view created by presenter into another view.
-     * The wrapper must be immediate parent of the wrapped view.
+     * Interface for wrapping a view created by a Presenter into another view.
+     * The wrapper must be the immediate parent of the wrapped view.
      */
     public static abstract class Wrapper {
         public abstract View createWrapper(View root);
@@ -81,6 +81,9 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter {
         }
     }
 
+    /**
+     * ViewHolder for the ItemBridgeAdapter.
+     */
     public class ViewHolder extends RecyclerView.ViewHolder {
         final Presenter mPresenter;
         final Presenter.ViewHolder mHolder;
@@ -165,6 +168,9 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter {
     public ItemBridgeAdapter() {
     }
 
+    /**
+     * Sets the {@link ObjectAdapter}.
+     */
     public void setAdapter(ObjectAdapter adapter) {
         if (mAdapter != null) {
             mAdapter.unregisterObserver(mDataObserver);
@@ -180,10 +186,16 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter {
         }
     }
 
+    /**
+     * Sets the {@link Wrapper}.
+     */
     public void setWrapper(Wrapper wrapper) {
         mWrapper = wrapper;
     }
 
+    /**
+     * Returns the {@link Wrapper}.
+     */
     public Wrapper getWrapper() {
         return mWrapper;
     }
@@ -193,14 +205,23 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter {
         if (DEBUG) Log.v(TAG, "setFocusHighlight " + mFocusHighlight);
     }
 
+    /**
+     * Clears the adapter.
+     */
     public void clear() {
         setAdapter(null);
     }
 
+    /**
+     * Sets the presenter mapper array.
+     */
     public void setPresenterMapper(ArrayList<Presenter> presenters) {
         mPresenters = presenters;
     }
 
+    /**
+     * Returns the presenter mapper array.
+     */
     public ArrayList<Presenter> getPresenterMapper() {
         return mPresenters;
     }
@@ -300,6 +321,9 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter {
         return viewHolder;
     }
 
+    /**
+     * Sets the AdapterListener.
+     */
     public void setAdapterListener(AdapterListener listener) {
         mAdapterListener = listener;
     }

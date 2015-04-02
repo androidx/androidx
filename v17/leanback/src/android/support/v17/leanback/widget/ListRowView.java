@@ -21,7 +21,8 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 /**
- * ListRowView contains a horizontal grid view.
+ * ListRowView is a {@link android.view.ViewGroup} which always contains a
+ * {@link HorizontalGridView}, and may optionally include a hover card.
  */
 public final class ListRowView extends LinearLayout {
 
@@ -49,6 +50,9 @@ public final class ListRowView extends LinearLayout {
         setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
     }
 
+    /**
+     * Returns the HorizontalGridView.
+     */
     public HorizontalGridView getGridView() {
         return mGridView;
     }

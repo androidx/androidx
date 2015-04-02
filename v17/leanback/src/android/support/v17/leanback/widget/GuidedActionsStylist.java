@@ -46,9 +46,9 @@ import android.widget.TextView;
 import java.util.List;
 
 /**
- * GuidedActionsStylist is used within a GuidedStepFragment to supply the right-side panel
- * where users can take actions. It consists of a container for the list of actions, and a
- * stationary selector view that indicates visually the location of focus.
+ * GuidedActionsStylist is used within a {@link android.support.v17.leanback.app.GuidedStepFragment}
+ * to supply the right-side panel where users can take actions. It consists of a container for the
+ * list of actions, and a stationary selector view that indicates visually the location of focus.
  * <p>
  * Many aspects of the base GuidedActionsStylist can be customized through theming; see the
  * theme attributes below. Note that these attributes are not set on individual elements in layout
