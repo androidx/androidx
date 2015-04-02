@@ -460,9 +460,7 @@ public class FragmentActivity extends Activity {
      * Retain all appropriate fragment and loader state.  You can NOT
      * override this yourself!  Use {@link #onRetainCustomNonConfigurationInstance()}
      * if you want to retain your own state.
-     * @deprecated
      */
-    @Deprecated
     @Override
     public final Object onRetainNonConfigurationInstance() {
         if (mStopped) {
