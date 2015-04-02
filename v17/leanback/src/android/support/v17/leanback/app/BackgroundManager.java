@@ -530,7 +530,8 @@ public final class BackgroundManager {
                 mLastThemeDrawable = new WeakReference<Drawable>(drawable);
                 mLastThemeDrawableId = themeDrawableId;
             }
-            return drawable.getConstantState().newDrawable(context.getResources()).mutate();
+            // No mutate required because this drawable is never manipulated.
+            return drawable;
         }
     }
 
@@ -750,6 +751,15 @@ public final class BackgroundManager {
         } else {
             attachToView(window.getDecorView());
         }
+    }
+
+    /**
+     * Sets the resource id for the drawable to be shown when there is no background set.
+     * Overrides the window background drawable from the theme. This should
+     * be called before attaching.
+     */
+    public void setThemeDrawableResourceId(int resourceId) {
+        mThemeDrawableResourceId = resourceId;
     }
 
     private void attachBehindWindow(Window window) {
