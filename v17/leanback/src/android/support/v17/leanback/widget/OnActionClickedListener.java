@@ -14,7 +14,7 @@
 package android.support.v17.leanback.widget;
 
 /**
- * Interface for receiving notification when an action is clicked.
+ * Interface for receiving notification when an {@link Action} is clicked.
  */
 public interface OnActionClickedListener {
 

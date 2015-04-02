@@ -17,16 +17,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 /**
- * Interface definition for a callback to be invoked when a child of this
- * viewgroup has been selected.
+ * Interface for receiving notification when a child of this
+ * ViewGroup has been selected.
  */
 public interface OnChildSelectedListener {
     /**
-     * Callback method to be invoked when a child of this viewgroup has been
+     * Callback method to be invoked when a child of this ViewGroup has been
      * selected.
-     *
-     * <p>This method may be called during layout, so implementations of this
-     * interface need to be careful not to ... (todo).
      *
      * @param parent The ViewGroup where the selection happened.
      * @param view The view within the ViewGroup that is selected, or null if no

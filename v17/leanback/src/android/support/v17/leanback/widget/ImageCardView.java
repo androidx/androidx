@@ -28,7 +28,7 @@ import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 
 /**
- * A card view with an {@link ImageView} as its main region.
+ * A subclass of {@link BaseCardView} with an {@link ImageView} as its main region.
  */
 public class ImageCardView extends BaseCardView {
 
@@ -74,16 +74,25 @@ public class ImageCardView extends BaseCardView {
         }
     }
 
+    /**
+     * Returns the main image view.
+     */
     public final ImageView getMainImageView() {
         return mImageView;
     }
 
+    /**
+     * Enables or disables adjustment of view bounds on the main image.
+     */
     public void setMainImageAdjustViewBounds(boolean adjustViewBounds) {
         if (mImageView != null) {
             mImageView.setAdjustViewBounds(adjustViewBounds);
         }
     }
 
+    /**
+     * Sets the ScaleType of the main image.
+     */
     public void setMainImageScaleType(ScaleType scaleType) {
         if (mImageView != null) {
             mImageView.setScaleType(scaleType);
@@ -91,14 +100,14 @@ public class ImageCardView extends BaseCardView {
     }
 
     /**
-     * Set drawable with fade-in animation.
+     * Sets the image drawable with fade-in animation.
      */
     public void setMainImage(Drawable drawable) {
         setMainImage(drawable, true);
     }
 
     /**
-     * Set drawable with optional fade-in animation.
+     * Sets the image drawable with optional fade-in animation.
      */
     public void setMainImage(Drawable drawable, boolean fade) {
         if (mImageView == null) {
@@ -121,6 +130,9 @@ public class ImageCardView extends BaseCardView {
         }
     }
 
+    /**
+     * Sets the layout dimensions of the ImageView.
+     */
     public void setMainImageDimensions(int width, int height) {
         ViewGroup.LayoutParams lp = mImageView.getLayoutParams();
         lp.width = width;
@@ -128,6 +140,9 @@ public class ImageCardView extends BaseCardView {
         mImageView.setLayoutParams(lp);
     }
 
+    /**
+     * Returns the ImageView drawable.
+     */
     public Drawable getMainImage() {
         if (mImageView == null) {
             return null;
@@ -136,6 +151,9 @@ public class ImageCardView extends BaseCardView {
         return mImageView.getDrawable();
     }
 
+    /**
+     * Returns the info area background drawable.
+     */
     public Drawable getInfoAreaBackground() {
         if (mInfoArea != null) {
             return mInfoArea.getBackground();
@@ -143,6 +161,9 @@ public class ImageCardView extends BaseCardView {
         return null;
     }
 
+    /**
+     * Sets the info area background drawable.
+     */
     public void setInfoAreaBackground(Drawable drawable) {
         if (mInfoArea != null) {
             mInfoArea.setBackground(drawable);
@@ -152,6 +173,9 @@ public class ImageCardView extends BaseCardView {
         }
     }
 
+    /**
+     * Sets the info area background color.
+     */    
     public void setInfoAreaBackgroundColor(@ColorInt int color) {
         if (mInfoArea != null) {
             mInfoArea.setBackgroundColor(color);
@@ -161,6 +185,9 @@ public class ImageCardView extends BaseCardView {
         }
     }
 
+    /**
+     * Sets the title text.
+     */
     public void setTitleText(CharSequence text) {
         if (mTitleView == null) {
             return;
@@ -170,6 +197,9 @@ public class ImageCardView extends BaseCardView {
         setTextMaxLines();
     }
 
+    /**
+     * Returns the title text.
+     */
     public CharSequence getTitleText() {
         if (mTitleView == null) {
             return null;
@@ -178,6 +208,9 @@ public class ImageCardView extends BaseCardView {
         return mTitleView.getText();
     }
 
+    /**
+     * Sets the content text.
+     */
     public void setContentText(CharSequence text) {
         if (mContentView == null) {
             return;
@@ -187,6 +220,9 @@ public class ImageCardView extends BaseCardView {
         setTextMaxLines();
     }
 
+    /**
+     * Returns the content text.
+     */
     public CharSequence getContentText() {
         if (mContentView == null) {
             return null;
@@ -195,6 +231,9 @@ public class ImageCardView extends BaseCardView {
         return mContentView.getText();
     }
 
+    /**
+     * Sets the badge image drawable.
+     */
     public void setBadgeImage(Drawable drawable) {
         if (mBadgeImage == null) {
             return;
@@ -210,6 +249,9 @@ public class ImageCardView extends BaseCardView {
         }
     }
 
+    /**
+     * Returns the badge image drawable.
+     */
     public Drawable getBadgeImage() {
         if (mBadgeImage == null) {
             return null;

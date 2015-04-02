@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import static android.support.v17.leanback.widget.ObjectAdapter.NO_ID;
 
 /**
- * An action that can be shown on a details page. It contains one or two lines
- * of text and an optional image.
+ * An action contains one or two lines of text, an optional image and an optional id. It may also
+ * be invoked by one or more keycodes.
  */
 public class Action {
 
@@ -79,7 +79,7 @@ public class Action {
     }
 
     /**
-     * Set id for this Action.
+     * Sets the id for this Action.
      */
     public final void setId(long id) {
         mId = id;
@@ -93,7 +93,7 @@ public class Action {
     }
 
     /**
-     * Set the first line label for this Action.
+     * Sets the first line label for this Action.
      */
     public final void setLabel1(CharSequence label) {
         mLabel1 = label;
@@ -107,7 +107,7 @@ public class Action {
     }
 
     /**
-     * Set the second line label for this Action.
+     * Sets the second line label for this Action.
      */
     public final void setLabel2(CharSequence label) {
         mLabel2 = label;
@@ -121,7 +121,7 @@ public class Action {
     }
 
     /**
-     * Set the icon drawable for this Action.
+     * Sets the icon drawable for this Action.
      */
     public final void setIcon(Drawable icon) {
         mIcon = icon;
@@ -135,7 +135,7 @@ public class Action {
     }
 
     /**
-     * Add a keycode used to invoke this Action.
+     * Adds a keycode used to invoke this Action.
      */
     public final void addKeyCode(int keyCode) {
         mKeyCodes.add(keyCode);

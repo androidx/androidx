@@ -3,7 +3,7 @@ package android.support.v17.leanback.widget;
 import android.util.SparseArray;
 
 /**
- * An ObjectAdapter implemented with a {@link android.util.SparseArray}.
+ * An {@link ObjectAdapter} implemented with a {@link android.util.SparseArray}.
  * This class maintains an array of objects where each object is associated
  * with an integer key which determines its order relative to other objects.
  */
@@ -11,21 +11,21 @@ public class SparseArrayObjectAdapter extends ObjectAdapter {
     private SparseArray<Object> mItems = new SparseArray<Object>();
 
     /**
-     * Construct an adapter with the given {@link PresenterSelector}.
+     * Constructs an adapter with the given {@link PresenterSelector}.
      */
     public SparseArrayObjectAdapter(PresenterSelector presenterSelector) {
         super(presenterSelector);
     }
 
     /**
-     * Construct an adapter with the given {@link Presenter}.
+     * Constructs an adapter with the given {@link Presenter}.
      */
     public SparseArrayObjectAdapter(Presenter presenter) {
         super(presenter);
     }
 
     /**
-     * Construct an adapter.
+     * Constructs an adapter.
      */
     public SparseArrayObjectAdapter() {
         super();

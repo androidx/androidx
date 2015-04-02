@@ -34,14 +34,14 @@ import java.util.HashMap;
  * list. This view is known as a hover card.
  *
  * <h3>Selection animation</h3>
- * ListRowPresenter disables {@link RowPresenter}'s default dimming effect and draw
- * a dim overlay on top of each individual child items.  Subclass may override and disable
+ * ListRowPresenter disables {@link RowPresenter}'s default dimming effect and draws
+ * a dim overlay on each view individually.  A subclass may override and disable
  * {@link #isUsingDefaultListSelectEffect()} and write its own dim effect in
  * {@link #onSelectLevelChanged(RowPresenter.ViewHolder)}.
  *
  * <h3>Shadow</h3>
- * ListRowPresenter applies a default shadow to child of each view.  Call
- * {@link #setShadowEnabled(boolean)} to disable shadow.  Subclass may override and return
+ * ListRowPresenter applies a default shadow to each child view.  Call
+ * {@link #setShadowEnabled(boolean)} to disable shadows.  A subclass may override and return
  * false in {@link #isUsingDefaultShadow()} and replace with its own shadow implementation.
  */
 public class ListRowPresenter extends RowPresenter {
@@ -51,6 +51,9 @@ public class ListRowPresenter extends RowPresenter {
 
     private static final int DEFAULT_RECYCLED_POOL_SIZE = 24;
 
+    /**
+     * ViewHolder for the ListRowPresenter.
+     */
     public static class ViewHolder extends RowPresenter.ViewHolder {
         final ListRowPresenter mListRowPresenter;
         final HorizontalGridView mGridView;
@@ -232,11 +235,13 @@ public class ListRowPresenter extends RowPresenter {
     public final int getFocusZoomFactor() {
         return mFocusZoomFactor;
     }
+
     /**
      * Returns the zoom factor used for focus highlighting.
      * @deprecated use {@link #getFocusZoomFactor} instead.
      */
-    @Deprecated public final int getZoomFactor() {
+    @Deprecated
+    public final int getZoomFactor() {
         return mFocusZoomFactor;
     }
 
@@ -320,14 +325,14 @@ public class ListRowPresenter extends RowPresenter {
     }
 
     /**
-     * Set {@link PresenterSelector} used for showing a select object in a hover card.
+     * Sets the {@link PresenterSelector} used for showing a select object in a hover card.
      */
     public final void setHoverCardPresenterSelector(PresenterSelector selector) {
         mHoverCardPresenterSelector = selector;
     }
 
     /**
-     * Get {@link PresenterSelector} used for showing a select object in a hover card.
+     * Returns the {@link PresenterSelector} used for showing a select object in a hover card.
      */
     public final PresenterSelector getHoverCardPresenterSelector() {
         return mHoverCardPresenterSelector;
@@ -546,7 +551,7 @@ public class ListRowPresenter extends RowPresenter {
     }
 
     /**
-     * Enable or disable child shadow.
+     * Enables or disables child shadow.
      * This is not only for enable/disable default shadow implementation but also subclass must
      * respect this flag.
      */

@@ -50,8 +50,15 @@ import java.util.ArrayList;
 
 /**
  * A fragment for displaying playback controls and related content.
- * The {@link android.support.v17.leanback.widget.PlaybackControlsRow} is expected to be
+ * <p>
+ * A PlaybackOverlayFragment renders the elements of its {@link ObjectAdapter} as a set
+ * of rows in a vertical list. The elements in this adapter must be subclasses
+ * of {@link Row}.
+ * </p>
+ * <p>
+ * An instance of {@link android.support.v17.leanback.widget.PlaybackControlsRow} is expected to be
  * at position 0 in the adapter.
+ * </p>
  */
 public class PlaybackOverlayFragment extends DetailsFragment {
 
@@ -70,6 +77,10 @@ public class PlaybackOverlayFragment extends DetailsFragment {
      */
     public static final int BG_LIGHT = 2;
 
+    /**
+     * Listener allowing the application to receive notification of fade in and/or fade out
+     * completion events.
+     */
     public static class OnFadeCompleteListener {
         public void onFadeInComplete() {
         }
@@ -77,6 +88,9 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         }
     }
 
+    /**
+     * Interface allowing the application to handle input events.
+     */
     public interface InputEventHandler {
         /**
          * Called when an {@link InputEvent} is received.

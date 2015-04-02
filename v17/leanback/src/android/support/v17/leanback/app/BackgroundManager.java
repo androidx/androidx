@@ -548,7 +548,7 @@ public final class BackgroundManager {
     }
 
     /**
-     * Get the BackgroundManager associated with the Activity.
+     * Returns the BackgroundManager associated with the given Activity.
      * <p>
      * The BackgroundManager will be created on-demand for each individual
      * Activity. Subsequent calls will return the same BackgroundManager created
@@ -743,7 +743,7 @@ public final class BackgroundManager {
     }
 
     /**
-     * Make the background visible on the given Window.  The background manager must be attached
+     * Makes the background visible on the given Window.  The background manager must be attached
      * when the background is set.
      */
     public void attach(Window window) {
@@ -928,7 +928,7 @@ public final class BackgroundManager {
     }
 
     /**
-     * Set the background to the given color. The timing for when this becomes
+     * Sets the background to the given color. The timing for when this becomes
      * visible in the app is undefined and may take place after a small delay.
      */
     public void setColor(@ColorInt int color) {
@@ -944,7 +944,7 @@ public final class BackgroundManager {
     }
 
     /**
-     * Set the given drawable into the background. The provided Drawable will be
+     * Sets the given drawable into the background. The provided Drawable will be
      * used unmodified as the background, without any scaling or cropping
      * applied to it. The timing for when this becomes visible in the app is
      * undefined and may take place after a small delay.
@@ -990,7 +990,7 @@ public final class BackgroundManager {
     }
 
     /**
-     * Set the given bitmap into the background. When using setBitmap to set the
+     * Sets the given bitmap into the background. When using setBitmap to set the
      * background, the provided bitmap will be scaled and cropped to correctly
      * fit within the dimensions of the view. The timing for when this becomes
      * visible in the app is undefined and may take place after a small delay.

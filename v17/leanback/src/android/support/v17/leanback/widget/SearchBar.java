@@ -50,7 +50,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <p>SearchBar is a search widget.</p>
+ * A search widget containing a search orb and a text entry view.
  *
  * <p>Note: Your application will need to request android.permission.RECORD_AUDIO</p>
  */
@@ -65,7 +65,7 @@ public class SearchBar extends RelativeLayout {
     private static final float DEFAULT_RATE = 1.0f;
 
     /**
-     * Listener for search query changes
+     * Interface for receiving notification of search query changes.
      */
     public interface SearchBarListener {
 
@@ -325,7 +325,7 @@ public class SearchBar extends RelativeLayout {
     }
 
     /**
-     * Set a listener for when the term search changes
+     * Sets a listener for when the term search changes
      * @param listener
      */
     public void setSearchBarListener(SearchBarListener listener) {
@@ -333,7 +333,7 @@ public class SearchBar extends RelativeLayout {
     }
 
     /**
-     * Set the search query
+     * Sets the search query
      * @param query the search query to use
      */
     public void setSearchQuery(String query) {
@@ -355,7 +355,7 @@ public class SearchBar extends RelativeLayout {
     }
 
     /**
-     * Set the title text used in the hint shown in the search bar.
+     * Sets the title text used in the hint shown in the search bar.
      * @param title The hint to use.
      */
     public void setTitle(String title) {
@@ -378,7 +378,7 @@ public class SearchBar extends RelativeLayout {
     }
 
     /**
-     * Set the badge drawable showing inside the search bar.
+     * Sets the badge drawable showing inside the search bar.
      * @param drawable The drawable to be used in the search bar.
      */
     public void setBadgeDrawable(Drawable drawable) {
@@ -401,7 +401,7 @@ public class SearchBar extends RelativeLayout {
     }
 
     /**
-     * Update the completion list shown by the IME
+     * Updates the completion list shown by the IME
      *
      * @param completions list of completions shown in the IME, can be null or empty to clear them
      */
@@ -418,7 +418,7 @@ public class SearchBar extends RelativeLayout {
     }
 
     /**
-     * Set the speech recognizer to be used when doing voice search. The Activity/Fragment is in
+     * Sets the speech recognizer to be used when doing voice search. The Activity/Fragment is in
      * charge of creating and destroying the recognizer with its own lifecycle.
      *
      * @param recognizer a SpeechRecognizer
@@ -441,6 +441,9 @@ public class SearchBar extends RelativeLayout {
         }
     }
 
+    /**
+     * Sets the speech recognition callback.
+     */
     public void setSpeechRecognitionCallback(SpeechRecognitionCallback request) {
         mSpeechRecognitionCallback = request;
         if (mSpeechRecognitionCallback != null && mSpeechRecognizer != null) {
@@ -497,7 +500,7 @@ public class SearchBar extends RelativeLayout {
     }
 
     /**
-     * Stop the recognition if already started
+     * Stops the speech recognition, if already started.
      */
     public void stopRecognition() {
         if (DEBUG) Log.v(TAG, String.format("stopRecognition (listening: %s, recognizing: %s)",
@@ -526,7 +529,7 @@ public class SearchBar extends RelativeLayout {
     }
 
     /**
-     * Start the voice recognition
+     * Starts the voice recognition.
      */
     public void startRecognition() {
         if (DEBUG) Log.v(TAG, String.format("startRecognition (listening: %s, recognizing: %s)",

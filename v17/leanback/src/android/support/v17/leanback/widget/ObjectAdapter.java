@@ -16,7 +16,7 @@ package android.support.v17.leanback.widget;
 import android.database.Observable;
 
 /**
- * Adapter for leanback activities.  Provides access to a data model and is
+ * Base class adapter to be used in leanback activities.  Provides access to a data model and is
  * decoupled from the presentation of the items via {@link PresenterSelector}.
  */
 public abstract class ObjectAdapter {
@@ -102,27 +102,27 @@ public abstract class ObjectAdapter {
     private PresenterSelector mPresenterSelector;
 
     /**
-     * Construct an adapter with the given {@link PresenterSelector}.
+     * Constructs an adapter with the given {@link PresenterSelector}.
      */
     public ObjectAdapter(PresenterSelector presenterSelector) {
         setPresenterSelector(presenterSelector);
     }
 
     /**
-     * Construct an adapter that uses the given {@link Presenter} for all items.
+     * Constructs an adapter that uses the given {@link Presenter} for all items.
      */
     public ObjectAdapter(Presenter presenter) {
         setPresenterSelector(new SinglePresenterSelector(presenter));
     }
 
     /**
-     * Construct an adapter.
+     * Constructs an adapter.
      */
     public ObjectAdapter() {
     }
 
     /**
-     * Set the presenter selector.  May not be null.
+     * Sets the presenter selector.  May not be null.
      */
     public final void setPresenterSelector(PresenterSelector presenterSelector) {
         if (presenterSelector == null) {
@@ -156,21 +156,21 @@ public abstract class ObjectAdapter {
     }
 
     /**
-     * Register a DataObserver for data change notifications.
+     * Registers a DataObserver for data change notifications.
      */
     public final void registerObserver(DataObserver observer) {
         mObservable.registerObserver(observer);
     }
 
     /**
-     * Unregister a DataObserver for data change notifications.
+     * Unregisters a DataObserver for data change notifications.
      */
     public final void unregisterObserver(DataObserver observer) {
         mObservable.unregisterObserver(observer);
     }
 
     /**
-     * Unregister all DataObservers for this ObjectAdapter.
+     * Unregisters all DataObservers for this ObjectAdapter.
      */
     public final void unregisterAllObservers() {
         mObservable.unregisterAll();
@@ -193,7 +193,7 @@ public abstract class ObjectAdapter {
     }
 
     /**
-     * Indicates whether the item ids are stable across changes to the
+     * Returns true if the item ids are stable across changes to the
      * underlying data.  When this is true, clients of the ObjectAdapter can use
      * {@link #getId(int)} to correlate Objects across changes.
      */
@@ -242,7 +242,7 @@ public abstract class ObjectAdapter {
     public abstract Object get(int position);
 
     /**
-     * Returns id for the given position.
+     * Returns the id for the given position.
      */
     public long getId(int position) {
         return NO_ID;

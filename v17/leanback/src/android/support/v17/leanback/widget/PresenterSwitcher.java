@@ -17,9 +17,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 /**
- * An abstract helper class that switches view in parent view using {@link PresenterSelector}
- * subclass should define {@link #insertView(View)} of how to add the view
- * in parent and optionally override {@link #onViewSelected(View)}.
+ * An abstract helper class that switches a view in its parent view using a
+ * {@link PresenterSelector}.  A subclass should implement {@link #insertView(View)} to define
+ * how to add the view in parent, and may optionally override {@link #onViewSelected(View)}.
  */
 public abstract class PresenterSwitcher {
 
@@ -29,8 +29,8 @@ public abstract class PresenterSwitcher {
     private Presenter.ViewHolder mCurrentViewHolder;
 
     /**
-     * Initialize switcher with a parent view to insert view into and a
-     * {@link PresenterSelector} for choose {@link Presenter} for object.
+     * Initializes the switcher with a parent view to insert view into and a
+     * {@link PresenterSelector} for choosing a {@link Presenter} for a given object.
      * This will destroy any existing views.
      */
     public void init(ViewGroup parent, PresenterSelector presenterSelector) {
@@ -39,15 +39,24 @@ public abstract class PresenterSwitcher {
         mPresenterSelector = presenterSelector;
     }
 
+    /**
+     * Selects a view based on the given object and shows that view.
+     */
     public void select(Object object) {
         switchView(object);
         showView(true);
     }
 
+    /**
+     * Hides the view.
+     */
     public void unselect() {
         showView(false);
     }
 
+    /**
+     * Returns the parent.
+     */
     public final ViewGroup getParentViewGroup() {
         return mParent;
     }
@@ -92,7 +101,7 @@ public abstract class PresenterSwitcher {
     }
 
     /**
-     * Destroy created views.
+     * Destroys created views.
      */
     public void clear() {
         if (mCurrentPresenter != null) {

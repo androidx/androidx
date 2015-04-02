@@ -16,9 +16,8 @@ package android.support.v17.leanback.widget;
 import static android.support.v17.leanback.widget.ObjectAdapter.NO_ID;
 
 /**
- * A row in a RowsFragment.  This is the base class for all rows.
- * You will typically use a {@link ListRow}, but you may override this class
- * for non-list Rows.
+ * The base class for all rows.  A commonly used subclass is the {@link ListRow}.  Custom
+ * subclasses may define other types of rows.
  */
 public class Row {
 
@@ -59,7 +58,7 @@ public class Row {
     }
 
     /**
-     * Get the {@link HeaderItem} that represents metadata for the row.
+     * Returns the {@link HeaderItem} that represents metadata for the row.
      *
      * @return The HeaderItem for this row, or null if unset.
      */
@@ -68,7 +67,7 @@ public class Row {
     }
 
     /**
-     * Set the {@link HeaderItem} that represents metadata for the row.
+     * Sets the {@link HeaderItem} that represents metadata for the row.
      *
      * @param headerItem The HeaderItem for this Row, or null if there is no
      *        header.
@@ -78,7 +77,7 @@ public class Row {
     }
 
     /**
-     * Set the id for this row.
+     * Sets the id for this row.
      *
      * @param id The id of the row.
      */

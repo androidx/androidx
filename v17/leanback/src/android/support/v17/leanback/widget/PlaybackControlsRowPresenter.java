@@ -33,8 +33,13 @@ import android.widget.LinearLayout;
 /**
  * A PlaybackControlsRowPresenter renders a {@link PlaybackControlsRow} to display a
  * series of playback control buttons. Typically this row will be the first row in a fragment
- * such as the {@link android.support.v17.leanback.app.PlaybackOverlayFragment
- * PlaybackControlsFragment}.
+ * such as the {@link android.support.v17.leanback.app.PlaybackOverlayFragment}.
+ *
+ * <p>The detailed description is rendered using a {@link Presenter} passed in
+ * {@link #PlaybackControlsRowPresenter(Presenter)}.  Typically this will be an instance of
+ * {@link AbstractDetailsDescriptionPresenter}.  The application can access the
+ * detailed description ViewHolder from {@link ViewHolder#mDescriptionViewHolder}.
+ * </p>
  */
 public class PlaybackControlsRowPresenter extends RowPresenter {
 
@@ -219,7 +224,7 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
     }
 
     /**
-     * Gets the listener for {@link Action} click events.
+     * Returns the listener for {@link Action} click events.
      */
     public OnActionClickedListener getOnActionClickedListener() {
         return mOnActionClickedListener;
@@ -286,7 +291,8 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
     }
 
     /**
-     * Display the primary actions.
+     * Displays the primary actions.  This will override the user having selected "more actions"
+     * to display the secondary actions; see {@link #setSecondaryActionsHidden(boolean)}.
      */
     public void showPrimaryActions(ViewHolder vh) {
         mPlaybackControlsPresenter.showPrimaryActions(vh.mControlsVh);
@@ -437,6 +443,7 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
         super.onUnbindRowViewHolder(holder);
     }
 
+    @Override
     protected void onRowViewSelected(RowPresenter.ViewHolder vh, boolean selected) {
         super.onRowViewSelected(vh, selected);
         if (selected) {

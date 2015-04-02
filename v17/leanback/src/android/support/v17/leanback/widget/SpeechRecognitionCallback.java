@@ -14,11 +14,11 @@
 package android.support.v17.leanback.widget;
 
 /**
- * Callback interface between to request initiation of speech recognition.
+ * Interface for receiving notification that speech recognition should be initiated.
  */
 public interface SpeechRecognitionCallback {
     /**
-     * Called by the fragment when the user has requested speech recognition.
+     * Method invoked when speech recognition should be initiated.
      */
     void recognizeSpeech();
 }

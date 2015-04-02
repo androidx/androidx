@@ -36,16 +36,17 @@ import android.widget.ImageView;
 import java.util.Collection;
 
 /**
- * A DetailsOverviewRowPresenter renders a {@link DetailsOverviewRow} to display an
- * overview of an item. Typically this row will be the first row in a fragment
+ * Renders a {@link DetailsOverviewRow} to display an overview of an item.
+ * Typically this row will be the first row in a fragment
  * such as the {@link android.support.v17.leanback.app.DetailsFragment
- * DetailsFragment}.  View created by DetailsOverviewRowPresenter is made in three parts:
+ * DetailsFragment}.  The View created by the DetailsOverviewRowPresenter is made in three parts:
  * ImageView on the left, action list view on the bottom and a customizable detailed
  * description view on the right.
  *
  * <p>The detailed description is rendered using a {@link Presenter} passed in
- * {@link #DetailsOverviewRowPresenter(Presenter)}.  User can access detailed description
- * ViewHolder from {@link ViewHolder#mDetailsDescriptionViewHolder}.
+ * {@link #DetailsOverviewRowPresenter(Presenter)}.  Typically this will be an instance of
+ * {@link AbstractDetailsDescriptionPresenter}.  The application can access the
+ * detailed description ViewHolder from {@link ViewHolder#mDetailsDescriptionViewHolder}.
  * </p>
  *
  * <p>
@@ -56,8 +57,8 @@ import java.util.Collection;
  * <p>
  * Because transition support and layout are fully controlled by DetailsOverviewRowPresenter,
  * developer can not override DetailsOverviewRowPresenter.ViewHolder for adding/replacing views
- * of DetailsOverviewRowPresenter.  If developer wants more customization beyond replacing
- * detailed description , he/she should write a new presenter class for row object.
+ * of DetailsOverviewRowPresenter.  If further customization is required beyond replacing
+ * the detailed description, the application should create a new row presenter class.
  * </p>
  */
 public class DetailsOverviewRowPresenter extends RowPresenter {
@@ -315,7 +316,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     }
 
     /**
-     * Gets the listener for Action click events.
+     * Returns the listener for Action click events.
      */
     public OnActionClickedListener getOnActionClickedListener() {
         return mActionClickedListener;
@@ -354,14 +355,14 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     }
 
     /**
-     * Set enter transition of target activity (typically a DetailActivity) to be
+     * Sets the enter transition of target activity to be
      * transiting into overview row created by this presenter.  The transition will
-     * be cancelled if overview image is not loaded in the timeout period.
+     * be cancelled if the overview image is not loaded in the timeout period.
      * <p>
      * It assumes shared element passed from calling activity is an ImageView;
-     * the shared element transits to overview image on the left of detail
+     * the shared element transits to overview image on the starting edge of the detail
      * overview row, while bounds of overview row grows and reveals text
-     * and buttons on the right.
+     * and action buttons.
      * <p>
      * The method must be invoked in target Activity's onCreate().
      */
@@ -375,14 +376,14 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
     }
 
     /**
-     * Set enter transition of target activity (typically a DetailActivity) to be
+     * Sets the enter transition of target activity to be
      * transiting into overview row created by this presenter.  The transition will
      * be cancelled if overview image is not loaded in a default timeout period.
      * <p>
      * It assumes shared element passed from calling activity is an ImageView;
-     * the shared element transits to overview image on the left of detail
+     * the shared element transits to overview image on the starting edge of the detail
      * overview row, while bounds of overview row grows and reveals text
-     * and buttons on the right.
+     * and action buttons.
      * <p>
      * The method must be invoked in target Activity's onCreate().
      */

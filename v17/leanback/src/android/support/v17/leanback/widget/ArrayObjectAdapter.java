@@ -19,28 +19,28 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * An ObjectAdapter implemented with an {@link ArrayList}.
+ * An {@link ObjectAdapter} implemented with an {@link ArrayList}.
  */
 public class ArrayObjectAdapter extends ObjectAdapter {
 
     private ArrayList<Object> mItems = new ArrayList<Object>();
 
     /**
-     * Construct an adapter with the given {@link PresenterSelector}.
+     * Constructs an adapter with the given {@link PresenterSelector}.
      */
     public ArrayObjectAdapter(PresenterSelector presenterSelector) {
         super(presenterSelector);
     }
 
     /**
-     * Construct an adapter that uses the given {@link Presenter} for all items.
+     * Constructs an adapter that uses the given {@link Presenter} for all items.
      */
     public ArrayObjectAdapter(Presenter presenter) {
         super(presenter);
     }
 
     /**
-     * Construct an adapter.
+     * Constructs an adapter.
      */
     public ArrayObjectAdapter() {
         super();

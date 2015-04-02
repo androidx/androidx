@@ -23,6 +23,9 @@ public final class ClassPresenterSelector extends PresenterSelector {
 
     private final HashMap<Class<?>, Presenter> mClassMap = new HashMap<Class<?>, Presenter>();
 
+    /**
+     * Adds a presenter to be used for the given class.
+     */
     public void addClassPresenter(Class<?> cls, Presenter presenter) {
         mClassMap.put(cls, presenter);
     }

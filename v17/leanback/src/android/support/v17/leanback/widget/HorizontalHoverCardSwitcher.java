@@ -21,10 +21,10 @@ import android.view.View.MeasureSpec;
 import android.view.ViewGroup.MarginLayoutParams;
 
 /**
- * Helper class that stay bellow a HorizontalGridView and shows a hover card and align
- * the hover card left to left of selected child view.  If there is no space when scroll
- * to the end, right edge hover card will be aligned to right of parent view excluding
- * right padding.
+ * A helper class for showing a hover card view below a {@link HorizontalGridView}.  The hover card
+ * is aligned to the starting edge of the selected child view.  If there is no space when scrolling
+ * to the end, the ending edge of the hover card will be aligned to the ending edge of the parent
+ * view, excluding padding.
  */
 public final class HorizontalHoverCardSwitcher extends PresenterSwitcher {
     // left and right of selected card view

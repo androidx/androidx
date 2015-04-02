@@ -20,13 +20,13 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 /**
- * Top level implementation viewgroup for managing focus behavior between overlapping views.
+ * A ViewGroup for managing focus behavior between overlapping views.
  */
 public class BrowseFrameLayout extends FrameLayout {
 
     /**
-     * Interface for selecting a focused view when the system focus finder couldn't find a view
-     * to focus.
+     * Interface for selecting a focused view in a BrowseFrameLayout when the system focus finder
+     * couldn't find a view to focus.
      */
     public interface OnFocusSearchListener {
         /**
@@ -37,11 +37,19 @@ public class BrowseFrameLayout extends FrameLayout {
     }
 
     /**
-     * Interface for managing child focus.
+     * Interface for managing child focus in a BrowseFrameLayout.
      */
     public interface OnChildFocusListener {
+        /**
+         * See {@link android.view.ViewGroup#onRequestFocusInDescendants(
+         * int, android.graphics.Rect)}.
+         */
         public boolean onRequestFocusInDescendants(int direction,
                 Rect previouslyFocusedRect);
+        /**
+         * See {@link android.view.ViewGroup#requestChildFocus(
+         * android.view.View, android.view.View)}.
+         */
         public void onRequestChildFocus(View child, View focused);
     }
 
@@ -61,7 +69,7 @@ public class BrowseFrameLayout extends FrameLayout {
     private OnChildFocusListener mOnChildFocusListener;
 
     /**
-     * Sets an {@link OnFocusSearchListener}.
+     * Sets a {@link OnFocusSearchListener}.
      */
     public void setOnFocusSearchListener(OnFocusSearchListener listener) {
         mListener = listener;
@@ -75,7 +83,7 @@ public class BrowseFrameLayout extends FrameLayout {
     }
 
     /**
-     * Sets an {@link OnChildFocusListener}.
+     * Sets a {@link OnChildFocusListener}.
      */
     public void setOnChildFocusListener(OnChildFocusListener listener) {
         mOnChildFocusListener = listener;
