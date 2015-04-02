@@ -1,1 +1,7 @@
+.classpath
 .gradle
+.project
+.settings/
+project.properties
+**/bin
+**/gen

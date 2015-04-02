@@ -16,12 +16,10 @@
 
 package android.support.v4.app;
 
-import android.graphics.Rect;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.util.LogWriter;
-import android.support.v4.util.Pair;
 import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 import android.util.Log;
@@ -33,7 +31,6 @@ import android.view.ViewTreeObserver;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Collection;
 
 final class BackStackState implements Parcelable {
     final int[] mOps;
@@ -48,7 +45,7 @@ final class BackStackState implements Parcelable {
     final ArrayList<String> mSharedElementSourceNames;
     final ArrayList<String> mSharedElementTargetNames;
 
-    public BackStackState(FragmentManagerImpl fm, BackStackRecord bse) {
+    public BackStackState(BackStackRecord bse) {
         int numRemoved = 0;
         BackStackRecord.Op op = bse.mHead;
         while (op != null) {
@@ -371,14 +368,14 @@ final class BackStackRecord extends FragmentTransaction implements
 
     public CharSequence getBreadCrumbTitle() {
         if (mBreadCrumbTitleRes != 0) {
-            return mManager.mActivity.getText(mBreadCrumbTitleRes);
+            return mManager.mHost.getContext().getText(mBreadCrumbTitleRes);
         }
         return mBreadCrumbTitleText;
     }
 
     public CharSequence getBreadCrumbShortTitle() {
         if (mBreadCrumbShortTitleRes != 0) {
-            return mManager.mActivity.getText(mBreadCrumbShortTitleRes);
+            return mManager.mHost.getContext().getText(mBreadCrumbShortTitleRes);
         }
         return mBreadCrumbShortTitleText;
     }
@@ -1023,7 +1020,7 @@ final class BackStackRecord extends FragmentTransaction implements
         // Adding a non-existent target view makes sure that the transitions don't target
         // any views by default. They'll only target the views we tell add. If we don't
         // add any, then no views will be targeted.
-        state.nonExistentView = new View(mManager.mActivity);
+        state.nonExistentView = new View(mManager.mHost.getContext());
 
         boolean anyTransitionStarted = false;
         // Go over all leaving fragments.

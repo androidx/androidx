@@ -184,6 +184,9 @@ public abstract class LoaderManager {
     public boolean hasRunningLoaders() { return false; }
 }
 
+/**
+ * @hide
+ */
 class LoaderManagerImpl extends LoaderManager {
     static final String TAG = "LoaderManager";
     static boolean DEBUG = false;
@@ -201,12 +204,12 @@ class LoaderManagerImpl extends LoaderManager {
 
     final String mWho;
 
-    FragmentActivity mActivity;
     boolean mStarted;
     boolean mRetaining;
     boolean mRetainingStarted;
     
     boolean mCreatingLoader;
+    private FragmentHostCallbacks mHost;
 
     final class LoaderInfo implements Loader.OnLoadCompleteListener<Object>,
             Loader.OnLoadCanceledListener<Object> {
@@ -217,8 +220,11 @@ class LoaderManagerImpl extends LoaderManager {
         boolean mHaveData;
         boolean mDeliveredData;
         Object mData;
+        @SuppressWarnings("hiding")
         boolean mStarted;
+        @SuppressWarnings("hiding")
         boolean mRetaining;
+        @SuppressWarnings("hiding")
         boolean mRetainingStarted;
         boolean mReportNextStart;
         boolean mDestroyed;
@@ -343,15 +349,15 @@ class LoaderManagerImpl extends LoaderManager {
             if (mCallbacks != null && mLoader != null && mHaveData && needReset) {
                 if (DEBUG) Log.v(TAG, "  Reseting: " + this);
                 String lastBecause = null;
-                if (mActivity != null) {
-                    lastBecause = mActivity.mFragments.mNoTransactionsBecause;
-                    mActivity.mFragments.mNoTransactionsBecause = "onLoaderReset";
+                if (mHost != null) {
+                    lastBecause = mHost.mFragmentManager.mNoTransactionsBecause;
+                    mHost.mFragmentManager.mNoTransactionsBecause = "onLoaderReset";
                 }
                 try {
                     mCallbacks.onLoaderReset(mLoader);
                 } finally {
-                    if (mActivity != null) {
-                        mActivity.mFragments.mNoTransactionsBecause = lastBecause;
+                    if (mHost != null) {
+                        mHost.mFragmentManager.mNoTransactionsBecause = lastBecause;
                     }
                 }
             }
@@ -452,25 +458,25 @@ class LoaderManagerImpl extends LoaderManager {
                 mInactiveLoaders.remove(mId);
             }
 
-            if (mActivity != null && !hasRunningLoaders()) {
-                mActivity.mFragments.startPendingDeferredFragments();
+            if (mHost != null && !hasRunningLoaders()) {
+                mHost.mFragmentManager.startPendingDeferredFragments();
             }
         }
 
         void callOnLoadFinished(Loader<Object> loader, Object data) {
             if (mCallbacks != null) {
                 String lastBecause = null;
-                if (mActivity != null) {
-                    lastBecause = mActivity.mFragments.mNoTransactionsBecause;
-                    mActivity.mFragments.mNoTransactionsBecause = "onLoadFinished";
+                if (mHost != null) {
+                    lastBecause = mHost.mFragmentManager.mNoTransactionsBecause;
+                    mHost.mFragmentManager.mNoTransactionsBecause = "onLoadFinished";
                 }
                 try {
                     if (DEBUG) Log.v(TAG, "  onLoadFinished in " + loader + ": "
                             + loader.dataToString(data));
                     mCallbacks.onLoadFinished(loader, data);
                 } finally {
-                    if (mActivity != null) {
-                        mActivity.mFragments.mNoTransactionsBecause = lastBecause;
+                    if (mHost != null) {
+                        mHost.mFragmentManager.mNoTransactionsBecause = lastBecause;
                     }
                 }
                 mDeliveredData = true;
@@ -517,21 +523,21 @@ class LoaderManagerImpl extends LoaderManager {
         }
     }
     
-    LoaderManagerImpl(String who, FragmentActivity activity, boolean started) {
+    LoaderManagerImpl(String who, FragmentHostCallbacks host, boolean started) {
         mWho = who;
-        mActivity = activity;
+        mHost = host;
         mStarted = started;
     }
     
-    void updateActivity(FragmentActivity activity) {
-        mActivity = activity;
+    void updateHostController(FragmentHostCallbacks host) {
+        mHost = host;
     }
     
     private LoaderInfo createLoader(int id, Bundle args,
             LoaderManager.LoaderCallbacks<Object> callback) {
-        LoaderInfo info = new LoaderInfo(id, args,  (LoaderManager.LoaderCallbacks<Object>)callback);
+        LoaderInfo info = new LoaderInfo(id, args,  callback);
         Loader<Object> loader = callback.onCreateLoader(id, args);
-        info.mLoader = (Loader<Object>)loader;
+        info.mLoader = loader;
         return info;
     }
     
@@ -576,7 +582,7 @@ class LoaderManagerImpl extends LoaderManager {
      * @param id A unique (to this LoaderManager instance) identifier under
      * which to manage the new Loader.
      * @param args Optional arguments that will be propagated to
-     * {@link LoaderCallbacks#onCreateLoader(int, Bundle) LoaderCallbacks.onCreateLoader()}.
+     * {@link android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int, Bundle) LoaderCallbacks.onCreateLoader()}.
      * @param callback Interface implementing management of this Loader.  Required.
      * Its onCreateLoader() method will be called while inside of the function to
      * instantiate the Loader object.
@@ -626,7 +632,7 @@ class LoaderManagerImpl extends LoaderManager {
      * @param id A unique (to this LoaderManager instance) identifier under
      * which to manage the new Loader.
      * @param args Optional arguments that will be propagated to
-     * {@link LoaderCallbacks#onCreateLoader(int, Bundle) LoaderCallbacks.onCreateLoader()}.
+     * {@link android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int, Bundle) LoaderCallbacks.onCreateLoader()}.
      * @param callback Interface implementing management of this Loader.  Required.
      * Its onCreateLoader() method will be called while inside of the function to
      * instantiate the Loader object.
@@ -717,8 +723,8 @@ class LoaderManagerImpl extends LoaderManager {
             mInactiveLoaders.removeAt(idx);
             info.destroy();
         }
-        if (mActivity != null && !hasRunningLoaders()) {
-            mActivity.mFragments.startPendingDeferredFragments();
+        if (mHost != null && !hasRunningLoaders()) {
+            mHost.mFragmentManager.startPendingDeferredFragments();
         }
     }
 
@@ -836,7 +842,7 @@ class LoaderManagerImpl extends LoaderManager {
         sb.append("LoaderManager{");
         sb.append(Integer.toHexString(System.identityHashCode(this)));
         sb.append(" in ");
-        DebugUtils.buildShortClassTag(mActivity, sb);
+        DebugUtils.buildShortClassTag(mHost, sb);
         sb.append("}}");
         return sb.toString();
     }

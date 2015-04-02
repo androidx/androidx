@@ -31,6 +31,7 @@ import android.support.v4.util.SimpleArrayMap;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,6 +41,7 @@ import android.view.Window;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Base class for activities that want to use the support-based
@@ -75,9 +77,9 @@ import java.util.ArrayList;
  */
 public class FragmentActivity extends Activity {
     private static final String TAG = "FragmentActivity";
-    
+
     static final String FRAGMENTS_TAG = "android:support:fragments";
-    
+
     // This is the SDK API version of Honeycomb (3.0).
     private static final int HONEYCOMB = 11;
 
@@ -103,21 +105,8 @@ public class FragmentActivity extends Activity {
         }
 
     };
-    final FragmentManagerImpl mFragments = new FragmentManagerImpl();
-    final FragmentContainer mContainer = new FragmentContainer() {
-        @Override
-        @Nullable
-        public View findViewById(int id) {
-            return FragmentActivity.this.findViewById(id);
-        }
+    final FragmentController mFragments = FragmentController.createController(new HostCallbacks());
 
-        @Override
-        public boolean hasView() {
-            Window window = FragmentActivity.this.getWindow();
-            return (window != null && window.peekDecorView() != null);
-        }
-    };
-    
     boolean mCreated;
     boolean mResumed;
     boolean mStopped;
@@ -126,23 +115,16 @@ public class FragmentActivity extends Activity {
 
     boolean mOptionsMenuInvalidated;
 
-    boolean mCheckedForLoaderManager;
-    boolean mLoadersStarted;
-    SimpleArrayMap<String, LoaderManagerImpl> mAllLoaderManagers;
-    LoaderManagerImpl mLoaderManager;
-
     static final class NonConfigurationInstances {
-        Object activity;
         Object custom;
-        SimpleArrayMap<String, Object> children;
         ArrayList<Fragment> fragments;
-        SimpleArrayMap<String, LoaderManagerImpl> loaders;
+        SimpleArrayMap<String, LoaderManager> loaders;
     }
-    
+
     // ------------------------------------------------------------------------
     // HOOKS INTO ACTIVITY
     // ------------------------------------------------------------------------
-    
+
     /**
      * Dispatch incoming result to the correct fragment.
      */
@@ -152,12 +134,15 @@ public class FragmentActivity extends Activity {
         int index = requestCode>>16;
         if (index != 0) {
             index--;
-            if (mFragments.mActive == null || index < 0 || index >= mFragments.mActive.size()) {
+            final int activeFragmentsCount = mFragments.getActiveFragmentsCount();
+            if (activeFragmentsCount == 0 || index < 0 || index >= activeFragmentsCount) {
                 Log.w(TAG, "Activity result fragment index out of range: 0x"
                         + Integer.toHexString(requestCode));
                 return;
             }
-            Fragment frag = mFragments.mActive.get(index);
+            final List<Fragment> activeFragments =
+                    mFragments.getActiveFragments(new ArrayList<Fragment>(activeFragmentsCount));
+            Fragment frag = activeFragments.get(index);
             if (frag == null) {
                 Log.w(TAG, "Activity result no fragment exists for index: 0x"
                         + Integer.toHexString(requestCode));
@@ -166,7 +151,7 @@ public class FragmentActivity extends Activity {
             }
             return;
         }
-        
+
         super.onActivityResult(requestCode, resultCode, data);
     }
 
@@ -175,7 +160,7 @@ public class FragmentActivity extends Activity {
      * as appropriate.
      */
     public void onBackPressed() {
-        if (!mFragments.popBackStackImmediate()) {
+        if (!mFragments.getSupportFragmentManager().popBackStackImmediate()) {
             supportFinishAfterTransition();
         }
     }
@@ -246,20 +231,21 @@ public class FragmentActivity extends Activity {
     /**
      * Perform initialization of all fragments and loaders.
      */
+    @SuppressWarnings("deprecation")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        mFragments.attachActivity(this, mContainer, null);
+        mFragments.attachHost(null /*parent*/);
         // Old versions of the platform didn't do this!
         if (getLayoutInflater().getFactory() == null) {
             getLayoutInflater().setFactory(this);
         }
-        
+
         super.onCreate(savedInstanceState);
-        
-        NonConfigurationInstances nc = (NonConfigurationInstances)
-                getLastNonConfigurationInstance();
+
+        NonConfigurationInstances nc =
+                (NonConfigurationInstances) getLastNonConfigurationInstance();
         if (nc != null) {
-            mAllLoaderManagers = nc.loaders;
+            mFragments.restoreLoaderNonConfig(nc.loaders);
         }
         if (savedInstanceState != null) {
             Parcelable p = savedInstanceState.getParcelable(FRAGMENTS_TAG);
@@ -286,7 +272,7 @@ public class FragmentActivity extends Activity {
         }
         return super.onCreatePanelMenu(featureId, menu);
     }
-    
+
     /**
      * Add support for inflating the &lt;fragment> tag.
      */
@@ -314,9 +300,7 @@ public class FragmentActivity extends Activity {
         doReallyStop(false);
 
         mFragments.dispatchDestroy();
-        if (mLoaderManager != null) {
-            mLoaderManager.doDestroy();
-        }
+        mFragments.doLoaderDestroy();
     }
 
     /**
@@ -476,7 +460,9 @@ public class FragmentActivity extends Activity {
      * Retain all appropriate fragment and loader state.  You can NOT
      * override this yourself!  Use {@link #onRetainCustomNonConfigurationInstance()}
      * if you want to retain your own state.
+     * @deprecated
      */
+    @Deprecated
     @Override
     public final Object onRetainNonConfigurationInstance() {
         if (mStopped) {
@@ -486,35 +472,16 @@ public class FragmentActivity extends Activity {
         Object custom = onRetainCustomNonConfigurationInstance();
 
         ArrayList<Fragment> fragments = mFragments.retainNonConfig();
-        boolean retainLoaders = false;
-        if (mAllLoaderManagers != null) {
-            // prune out any loader managers that were already stopped and so
-            // have nothing useful to retain.
-            final int N = mAllLoaderManagers.size();
-            LoaderManagerImpl loaders[] = new LoaderManagerImpl[N];
-            for (int i=N-1; i>=0; i--) {
-                loaders[i] = mAllLoaderManagers.valueAt(i);
-            }
-            for (int i=0; i<N; i++) {
-                LoaderManagerImpl lm = loaders[i];
-                if (lm.mRetaining) {
-                    retainLoaders = true;
-                } else {
-                    lm.doDestroy();
-                    mAllLoaderManagers.remove(lm.mWho);
-                }
-            }
-        }
-        if (fragments == null && !retainLoaders && custom == null) {
+        SimpleArrayMap<String, LoaderManager> loaders = mFragments.retainLoaderNonConfig();
+
+        if (fragments == null && loaders == null && custom == null) {
             return null;
         }
-        
+
         NonConfigurationInstances nci = new NonConfigurationInstances();
-        nci.activity = null;
         nci.custom = custom;
-        nci.children = null;
         nci.fragments = fragments;
-        nci.loaders = mAllLoaderManagers;
+        nci.loaders = loaders;
         return nci;
     }
 
@@ -549,35 +516,13 @@ public class FragmentActivity extends Activity {
 
         mFragments.noteStateNotSaved();
         mFragments.execPendingActions();
-        
-        if (!mLoadersStarted) {
-            mLoadersStarted = true;
-            if (mLoaderManager != null) {
-                mLoaderManager.doStart();
-            } else if (!mCheckedForLoaderManager) {
-                mLoaderManager = getLoaderManager("(root)", mLoadersStarted, false);
-                // the returned loader manager may be a new one, so we have to start it
-                if ((mLoaderManager != null) && (!mLoaderManager.mStarted)) {
-                    mLoaderManager.doStart();
-                }
-            }
-            mCheckedForLoaderManager = true;
-        }
+
+        mFragments.doLoaderStart();
+
         // NOTE: HC onStart goes here.
-        
+
         mFragments.dispatchStart();
-        if (mAllLoaderManagers != null) {
-            final int N = mAllLoaderManagers.size();
-            LoaderManagerImpl loaders[] = new LoaderManagerImpl[N];
-            for (int i=N-1; i>=0; i--) {
-                loaders[i] = mAllLoaderManagers.valueAt(i);
-            }
-            for (int i=0; i<N; i++) {
-                LoaderManagerImpl lm = loaders[i];
-                lm.finishRetain();
-                lm.doReportStart();
-            }
-        }
+        mFragments.reportLoaderStart();
     }
 
     /**
@@ -589,14 +534,14 @@ public class FragmentActivity extends Activity {
 
         mStopped = true;
         mHandler.sendEmptyMessage(MSG_REALLY_STOPPED);
-        
+
         mFragments.dispatchStop();
     }
 
     // ------------------------------------------------------------------------
     // NEW METHODS
     // ------------------------------------------------------------------------
-    
+
     /**
      * Use this instead of {@link #onRetainNonConfigurationInstance()}.
      * Retrieve later with {@link #getLastCustomNonConfigurationInstance()}.
@@ -609,6 +554,7 @@ public class FragmentActivity extends Activity {
      * Return the value previously returned from
      * {@link #onRetainCustomNonConfigurationInstance()}.
      */
+    @SuppressWarnings("deprecation")
     public Object getLastCustomNonConfigurationInstance() {
         NonConfigurationInstances nc = (NonConfigurationInstances)
                 getLastNonConfigurationInstance();
@@ -659,15 +605,8 @@ public class FragmentActivity extends Activity {
                 writer.print(mResumed); writer.print(" mStopped=");
                 writer.print(mStopped); writer.print(" mReallyStopped=");
                 writer.println(mReallyStopped);
-        writer.print(innerPrefix); writer.print("mLoadersStarted=");
-                writer.println(mLoadersStarted);
-        if (mLoaderManager != null) {
-            writer.print(prefix); writer.print("Loader Manager ");
-                    writer.print(Integer.toHexString(System.identityHashCode(mLoaderManager)));
-                    writer.println(":");
-            mLoaderManager.dump(prefix + "  ", fd, writer, args);
-        }
-        mFragments.dump(prefix, fd, writer, args);
+        mFragments.dumpLoaders(innerPrefix, fd, writer, args);
+        mFragments.getSupportFragmentManager().dump(prefix, fd, writer, args);
         writer.print(prefix); writer.println("View Hierarchy:");
         dumpViewHierarchy(prefix + "  ", writer, getWindow().getDecorView());
     }
@@ -776,16 +715,7 @@ public class FragmentActivity extends Activity {
      * tell us what we need to know.
      */
     void onReallyStop() {
-        if (mLoadersStarted) {
-            mLoadersStarted = false;
-            if (mLoaderManager != null) {
-                if (!mRetaining) {
-                    mLoaderManager.doStop();
-                } else {
-                    mLoaderManager.doRetain();
-                }
-            }
-        }
+        mFragments.doLoaderStop(mRetaining);
 
         mFragments.dispatchReallyStop();
     }
@@ -793,19 +723,24 @@ public class FragmentActivity extends Activity {
     // ------------------------------------------------------------------------
     // FRAGMENT SUPPORT
     // ------------------------------------------------------------------------
-    
+
     /**
      * Called when a fragment is attached to the activity.
      */
+    @SuppressWarnings("unused")
     public void onAttachFragment(Fragment fragment) {
     }
-    
+
     /**
      * Return the FragmentManager for interacting with fragments associated
      * with this activity.
      */
     public FragmentManager getSupportFragmentManager() {
-        return mFragments;
+        return mFragments.getSupportFragmentManager();
+    }
+
+    public LoaderManager getSupportLoaderManager() {
+        return mFragments.getSupportLoaderManager();
     }
 
     /**
@@ -823,7 +758,7 @@ public class FragmentActivity extends Activity {
     /**
      * Called by Fragment.startActivityForResult() to implement its behavior.
      */
-    public void startActivityFromFragment(Fragment fragment, Intent intent, 
+    public void startActivityFromFragment(Fragment fragment, Intent intent,
             int requestCode) {
         if (requestCode == -1) {
             super.startActivityForResult(intent, -1);
@@ -834,47 +769,58 @@ public class FragmentActivity extends Activity {
         }
         super.startActivityForResult(intent, ((fragment.mIndex+1)<<16) + (requestCode&0xffff));
     }
-    
-    void invalidateSupportFragment(String who) {
-        //Log.v(TAG, "invalidateSupportFragment: who=" + who);
-        if (mAllLoaderManagers != null) {
-            LoaderManagerImpl lm = mAllLoaderManagers.get(who);
-            if (lm != null && !lm.mRetaining) {
-                lm.doDestroy();
-                mAllLoaderManagers.remove(who);
-            }
+
+    class HostCallbacks extends FragmentHostCallbacks {
+        public HostCallbacks() {
+            super(FragmentActivity.this /*fragmentActivity*/);
         }
-    }
-    
-    // ------------------------------------------------------------------------
-    // LOADER SUPPORT
-    // ------------------------------------------------------------------------
-    
-    /**
-     * Return the LoaderManager for this fragment, creating it if needed.
-     */
-    public LoaderManager getSupportLoaderManager() {
-        if (mLoaderManager != null) {
-            return mLoaderManager;
+
+        @Override
+        public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
+            FragmentActivity.this.dump(prefix, fd, writer, args);
         }
-        mCheckedForLoaderManager = true;
-        mLoaderManager = getLoaderManager("(root)", mLoadersStarted, true);
-        return mLoaderManager;
-    }
-    
-    LoaderManagerImpl getLoaderManager(String who, boolean started, boolean create) {
-        if (mAllLoaderManagers == null) {
-            mAllLoaderManagers = new SimpleArrayMap<String, LoaderManagerImpl>();
+
+        @Override
+        public boolean shouldSaveFragmentState(Fragment fragment) {
+            return !isFinishing();
         }
-        LoaderManagerImpl lm = mAllLoaderManagers.get(who);
-        if (lm == null) {
-            if (create) {
-                lm = new LoaderManagerImpl(who, this, started);
-                mAllLoaderManagers.put(who, lm);
-            }
-        } else {
-            lm.updateActivity(this);
+
+        @Override
+        public LayoutInflater getLayoutInflater() {
+            return FragmentActivity.this.getLayoutInflater().cloneInContext(FragmentActivity.this);
         }
-        return lm;
+
+        @Override
+        public void supportInvalidateOptionsMenu() {
+            FragmentActivity.this.supportInvalidateOptionsMenu();
+        }
+
+        @Override
+        public void startActivityFromFragment(Fragment fragment, Intent intent, int requestCode) {
+            FragmentActivity.this.startActivityFromFragment(fragment, intent, requestCode);
+        }
+
+        @Override
+        public boolean hasWindowAnimations() {
+            return getWindow() != null;
+        }
+
+        @Override
+        public int getWindowAnimations() {
+            final Window w = getWindow();
+            return (w == null) ? 0 : w.getAttributes().windowAnimations;
+        }
+
+        @Nullable
+        @Override
+        public View findViewById(int id) {
+            return FragmentActivity.this.findViewById(id);
+        }
+
+        @Override
+        public boolean hasView() {
+            final Window w = getWindow();
+            return (w != null && w.peekDecorView() != null);
+        }
     }
 }
