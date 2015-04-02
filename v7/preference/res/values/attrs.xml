@@ -23,6 +23,7 @@
     <!-- =================== -->
     <eat-comment />
 
+    <!-- Theme for inflating Preference objects -->
     <attr name="preferenceTheme" format="reference" />
 
     <!-- Default style for PreferenceScreen. -->
