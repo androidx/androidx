@@ -16,10 +16,12 @@
 
 package android.support.v7.widget;
 
+import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.test.AndroidTestCase;
-import android.util.Log;
+import android.util.AttributeSet;
+import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -206,6 +208,38 @@ public class RecyclerViewBasicTest extends AndroidTestCase {
         layout();
     }
 
+
+    public void testDontSaveChildrenState() throws InterruptedException {
+        MockLayoutManager mlm = new MockLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                super.onLayoutChildren(recycler, state);
+                View view = recycler.getViewForPosition(0);
+                addView(view);
+                measureChildWithMargins(view, 0, 0);
+                view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
+            }
+        };
+        mRecyclerView.setLayoutManager(mlm);
+        mRecyclerView.setAdapter(new MockAdapter(3) {
+            @Override
+            public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                final LoggingView itemView = new LoggingView(parent.getContext());
+                itemView.setId(3);
+                return new MockViewHolder(itemView);
+            }
+        });
+        measure();
+        layout();
+        View view = mRecyclerView.getChildAt(0);
+        assertNotNull("test sanity", view);
+        LoggingView loggingView = (LoggingView) view;
+        SparseArray<Parcelable> container = new SparseArray<Parcelable>();
+        mRecyclerView.saveHierarchyState(container);
+        assertEquals("children's save state method should not be called", 0,
+                loggingView.getOnSavedInstanceCnt());
+    }
+
     static class MockLayoutManager extends RecyclerView.LayoutManager {
 
         int mLayoutCount = 0;
@@ -363,6 +397,32 @@ public class RecyclerViewBasicTest extends AndroidTestCase {
         public Object mItem;
         public MockViewHolder(View itemView) {
             super(itemView);
+        }
+    }
+
+    static class LoggingView extends TextView {
+        private int mOnSavedInstanceCnt = 0;
+
+        public LoggingView(Context context) {
+            super(context);
+        }
+
+        public LoggingView(Context context, AttributeSet attrs) {
+            super(context, attrs);
+        }
+
+        public LoggingView(Context context, AttributeSet attrs, int defStyleAttr) {
+            super(context, attrs, defStyleAttr);
+        }
+
+        @Override
+        public Parcelable onSaveInstanceState() {
+            mOnSavedInstanceCnt ++;
+            return super.onSaveInstanceState();
+        }
+
+        public int getOnSavedInstanceCnt() {
+            return mOnSavedInstanceCnt;
         }
     }
 }
