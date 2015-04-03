@@ -834,6 +834,22 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
     }
 
     /**
+     * Override to prevent freezing of any views created by the adapter.
+     */
+    @Override
+    protected void dispatchSaveInstanceState(SparseArray<Parcelable> container) {
+        dispatchFreezeSelfOnly(container);
+    }
+
+    /**
+     * Override to prevent thawing of any views created by the adapter.
+     */
+    @Override
+    protected void dispatchRestoreInstanceState(SparseArray<Parcelable> container) {
+        dispatchThawSelfOnly(container);
+    }
+
+    /**
      * Adds a view to the animatingViews list.
      * mAnimatingViews holds the child views that are currently being kept around
      * purely for the purpose of being animated out of view. They are drawn as a regular
