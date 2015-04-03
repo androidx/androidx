@@ -215,7 +215,7 @@ package android.support.v4.app {
     method public void onAttachFragment(android.support.v4.app.Fragment);
     method protected void onResumeFragments();
     method public java.lang.Object onRetainCustomNonConfigurationInstance();
-    method public final deprecated java.lang.Object onRetainNonConfigurationInstance();
+    method public final java.lang.Object onRetainNonConfigurationInstance();
     method public void setEnterSharedElementCallback(android.support.v4.app.SharedElementCallback);
     method public void setExitSharedElementCallback(android.support.v4.app.SharedElementCallback);
     method public void startActivityFromFragment(android.support.v4.app.Fragment, android.content.Intent, int);
