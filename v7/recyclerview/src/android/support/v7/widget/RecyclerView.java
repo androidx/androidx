@@ -28,6 +28,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.CallSuper;
 import android.support.annotation.Nullable;
+import android.support.v4.os.TraceCompat;
 import android.support.v4.util.ArrayMap;
 import android.support.v4.view.InputDeviceCompat;
 import android.support.v4.view.MotionEventCompat;
@@ -129,6 +130,7 @@ import java.util.List;
  * writing an {@link Adapter}, you probably want to use adapter positions.
  */
 public class RecyclerView extends ViewGroup implements ScrollingView {
+
     private static final String TAG = "RecyclerView";
 
     private static final boolean DEBUG = false;
@@ -167,6 +169,59 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
 
     private static final int MAX_SCROLL_DURATION = 2000;
 
+    /**
+     * RecyclerView is calculating a scroll.
+     * If there are too many of these in Systrace, some Views inside RecyclerView might be causing
+     * it. Try to avoid using EditText, focusable views or handle them with care.
+     */
+    private static final String TRACE_SCROLL_TAG = "RV Scroll";
+
+    /**
+     * OnLayout has been called by the View system.
+     * If this shows up too many times in Systrace, make sure the children of RecyclerView do not
+     * update themselves directly. This will cause a full re-layout but when it happens via the
+     * Adapter notifyItemChanged, RecyclerView can avoid full layout calculation.
+     */
+    private static final String TRACE_ON_LAYOUT_TAG = "RV OnLayout";
+
+    /**
+     * NotifyDataSetChanged or equal has been called.
+     * If this is taking a long time, try sending granular notify adapter changes instead of just
+     * calling notifyDataSetChanged or setAdapter / swapAdapter. Adding stable ids to your adapter
+     * might help.
+     */
+    private static final String TRACE_ON_DATA_SET_CHANGE_LAYOUT_TAG = "RV FullInvalidate";
+
+    /**
+     * RecyclerView is doing a layout for partial adapter updates (we know what has changed)
+     * If this is taking a long time, you may have dispatched too many Adapter updates causing too
+     * many Views being rebind. Make sure all are necessary and also prefer using notify*Range
+     * methods.
+     */
+    private static final String TRACE_HANDLE_ADAPTER_UPDATES_TAG = "RV PartialInvalidate";
+
+    /**
+     * RecyclerView is rebinding a View.
+     * If this is taking a lot of time, consider optimizing your layout or make sure you are not
+     * doing extra operations in onBindViewHolder call.
+     */
+    private static final String TRACE_BIND_VIEW_TAG = "RV OnBindView";
+
+    /**
+     * RecyclerView is creating a new View.
+     * If too many of these present in Systrace:
+     * - There might be a problem in Recycling (e.g. custom Animations that set transient state and
+     * prevent recycling or ItemAnimator not implementing the contract properly. ({@link
+     * > Adapter#onFailedToRecycleView(ViewHolder)})
+     *
+     * - There might be too many item view types.
+     * > Try merging them
+     *
+     * - There might be too many itemChange animations and not enough space in RecyclerPool.
+     * >Try increasing your pool size and item cache size.
+     */
+    private static final String TRACE_CREATE_VIEW_TAG = "RV CreateView";
+
     private final RecyclerViewDataObserver mObserver = new RecyclerViewDataObserver();
 
     final Recycler mRecycler = new Recycler();
@@ -196,8 +251,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                 return;
             }
             if (mDataSetHasChangedAfterLayout) {
+                TraceCompat.beginSection(TRACE_ON_DATA_SET_CHANGE_LAYOUT_TAG);
                 dispatchLayout();
+                TraceCompat.endSection();
             } else if (mAdapterHelper.hasPendingUpdates()) {
+                TraceCompat.beginSection(TRACE_HANDLE_ADAPTER_UPDATES_TAG);
                 eatRequestLayout();
                 mAdapterHelper.preProcess();
                 if (!mLayoutRequestEaten) {
@@ -206,6 +264,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                     rebindUpdatedViewHolders();
                 }
                 resumeRequestLayout(true);
+                TraceCompat.endSection();
             }
         }
     };
@@ -1108,6 +1167,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         if (mAdapter != null) {
             eatRequestLayout();
             mRunningLayoutOrScroll = true;
+            TraceCompat.beginSection(TRACE_SCROLL_TAG);
             if (x != 0) {
                 hresult = mLayout.scrollHorizontallyBy(x, mRecycler, mState);
                 overscrollX = x - hresult;
@@ -1116,6 +1176,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                 vresult = mLayout.scrollVerticallyBy(y, mRecycler, mState);
                 overscrollY = y - vresult;
             }
+            TraceCompat.endSection();
             if (supportsChangeAnimations()) {
                 // Fix up shadow views used by changing animations
                 int count = mChildHelper.getChildCount();
@@ -2546,7 +2607,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         eatRequestLayout();
+        TraceCompat.beginSection(TRACE_ON_LAYOUT_TAG);
         dispatchLayout();
+        TraceCompat.endSection();
         resumeRequestLayout(false);
         mFirstLayoutComplete = true;
     }
@@ -3288,6 +3351,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                 if (mAdapter != null) {
                     eatRequestLayout();
                     mRunningLayoutOrScroll = true;
+                    TraceCompat.beginSection(TRACE_SCROLL_TAG);
                     if (dx != 0) {
                         hresult = mLayout.scrollHorizontallyBy(dx, mRecycler, mState);
                         overscrollX = dx - hresult;
@@ -3296,6 +3360,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                         vresult = mLayout.scrollVerticallyBy(dy, mRecycler, mState);
                         overscrollY = dy - vresult;
                     }
+                    TraceCompat.endSection();
                     if (supportsChangeAnimations()) {
                         // Fix up shadow views used by changing animations
                         int count = mChildHelper.getChildCount();
@@ -4616,8 +4681,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
          * @see #onCreateViewHolder(ViewGroup, int)
          */
         public final VH createViewHolder(ViewGroup parent, int viewType) {
+            TraceCompat.beginSection(TRACE_CREATE_VIEW_TAG);
             final VH holder = onCreateViewHolder(parent, viewType);
             holder.mItemViewType = viewType;
+            TraceCompat.endSection();
             return holder;
         }
 
@@ -4636,7 +4703,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
             holder.setFlags(ViewHolder.FLAG_BOUND,
                     ViewHolder.FLAG_BOUND | ViewHolder.FLAG_UPDATE | ViewHolder.FLAG_INVALID
                             | ViewHolder.FLAG_ADAPTER_POSITION_UNKNOWN);
+            TraceCompat.beginSection(TRACE_BIND_VIEW_TAG);
             onBindViewHolder(holder, position);
+            TraceCompat.endSection();
         }
 
         /**
