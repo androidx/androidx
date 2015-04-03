@@ -34,7 +34,9 @@ public class EdgeEffectCompat {
     private static final EdgeEffectImpl IMPL;
 
     static {
-        if (Build.VERSION.SDK_INT >= 14) { // ICS
+        if (Build.VERSION.SDK_INT >= 21) {
+            IMPL = new EdgeEffectLollipopImpl(); // Lollipop
+        } else if (Build.VERSION.SDK_INT >= 14) { // ICS
             IMPL = new EdgeEffectIcsImpl();
         } else {
             IMPL = new BaseEdgeEffectImpl();
