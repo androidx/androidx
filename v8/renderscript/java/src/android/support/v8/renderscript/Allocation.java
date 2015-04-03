@@ -1306,6 +1306,17 @@ public class Allocation extends BaseObj {
         if (mAutoPadding && (mType.getElement().getVectorSize() == 3)) {
             usePadding = true;
         }
+        if (usePadding) {
+            if (dt.mSize * arrayLen < mSize / 4 * 3) {
+                throw new RSIllegalArgumentException(
+                    "Size of output array cannot be smaller than size of allocation.");
+            }
+        } else {
+            if (dt.mSize * arrayLen < mSize) {
+                throw new RSIllegalArgumentException(
+                    "Size of output array cannot be smaller than size of allocation.");
+            }
+        }
         mRS.nAllocationRead(getID(mRS), array, dt, mType.mElement.mType.mSize, usePadding);
     }
 
