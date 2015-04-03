@@ -232,7 +232,7 @@ public class Preference implements Comparable<Preference> {
                 R.styleable.Preference_android_icon, 0);
 
         mKey = TypedArrayUtils.getString(a, R.styleable.Preference_key,
-                R.styleable.Preference_key);
+                R.styleable.Preference_android_key);
 
         mTitle = TypedArrayUtils.getString(a, R.styleable.Preference_title,
                 R.styleable.Preference_android_title);
