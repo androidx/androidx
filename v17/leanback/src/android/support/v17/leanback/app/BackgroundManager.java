@@ -511,7 +511,7 @@ public final class BackgroundManager {
 
         /** Single cache of theme drawable */
         private int mLastThemeDrawableId;
-        private WeakReference<Drawable> mLastThemeDrawable;
+        private WeakReference<Drawable.ConstantState> mLastThemeDrawableState;
 
         private BackgroundContinuityService() {
             reset();
@@ -549,12 +549,18 @@ public final class BackgroundManager {
         }
         public Drawable getThemeDrawable(Context context, int themeDrawableId) {
             Drawable drawable = null;
-            if (mLastThemeDrawable != null && mLastThemeDrawableId == themeDrawableId) {
-                drawable = mLastThemeDrawable.get();
+            if (mLastThemeDrawableState != null && mLastThemeDrawableId == themeDrawableId) {
+                Drawable.ConstantState drawableState = mLastThemeDrawableState.get();
+                if (DEBUG) Log.v(TAG, "got cached theme drawable state " + drawableState);
+                if (drawableState != null) {
+                    drawable = drawableState.newDrawable();
+                }
             }
             if (drawable == null) {
                 drawable = ContextCompat.getDrawable(context, themeDrawableId);
-                mLastThemeDrawable = new WeakReference<Drawable>(drawable);
+                if (DEBUG) Log.v(TAG, "loaded theme drawable " + drawable);
+                mLastThemeDrawableState = new WeakReference<Drawable.ConstantState>(
+                        drawable.getConstantState());
                 mLastThemeDrawableId = themeDrawableId;
             }
             // No mutate required because this drawable is never manipulated.
