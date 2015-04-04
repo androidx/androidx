@@ -1290,10 +1290,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             if (TRACE) TraceHelper.beginSection("createItem");
             if (TRACE) TraceHelper.beginSection("getview");
             View v = getViewForPosition(index);
-            // We already save child states in onSaveInstanceState().  We should
-            // prevent default dispatchSaveInstanceState() propagation which might
-            // save state not needed and incorrectly used later.
-            ViewCompat.setSaveFromParentEnabled(v, false);
             if (TRACE) TraceHelper.endSection();
             // See recyclerView docs:  we don't need re-add scraped view if it was removed.
             if (!((RecyclerView.LayoutParams) v.getLayoutParams()).isItemRemoved()) {
