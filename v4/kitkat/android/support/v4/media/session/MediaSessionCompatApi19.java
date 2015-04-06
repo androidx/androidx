@@ -28,6 +28,11 @@ public class MediaSessionCompatApi19 {
     private static final String METADATA_KEY_USER_RATING = "android.media.metadata.USER_RATING";
     private static final String METADATA_KEY_RATING = "android.media.metadata.RATING";
 
+    public static void setTransportControlFlags(Object rccObj, int actions) {
+        ((RemoteControlClient) rccObj).setTransportControlFlags(
+                getRccTransportControlFlagsFromActions(actions));
+    }
+
     public static Object createMetadataUpdateListener(MediaSessionCompatApi14.Callback callback) {
         return new OnMetadataUpdateListener<MediaSessionCompatApi14.Callback>(callback);
     }
@@ -46,6 +51,15 @@ public class MediaSessionCompatApi19 {
     public static void setOnMetadataUpdateListener(Object rccObj, Object onMetadataUpdateObj) {
         ((RemoteControlClient) rccObj).setMetadataUpdateListener(
                 (RemoteControlClient.OnMetadataUpdateListener) onMetadataUpdateObj);
+    }
+
+    static int getRccTransportControlFlagsFromActions(int actions) {
+        int transportControlFlags =
+                MediaSessionCompatApi18.getRccTransportControlFlagsFromActions(actions);
+        if ((actions & PlaybackStateCompat.ACTION_SET_RATING) != 0) {
+            transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_RATING;
+        }
+        return transportControlFlags;
     }
 
     static void addNewMetadata(Bundle metadata, RemoteControlClient.MetadataEditor editor) {
