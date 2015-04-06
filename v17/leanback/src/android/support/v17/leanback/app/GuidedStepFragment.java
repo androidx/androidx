@@ -47,8 +47,8 @@ import java.util.List;
 
 /**
  * A GuidedStepFragment is used to guide the user through a decision or series of decisions.
- * It is composed of a guidance view on the left, a view on the right containing a list of possible
- * actions, and an optional view in the center to allow for additional configuration.
+ * It is composed of a guidance view on the left and a view on the right containing a list of
+ * possible actions.
  * <p>
  * <h3>Basic Usage</h3>
  * <p>
