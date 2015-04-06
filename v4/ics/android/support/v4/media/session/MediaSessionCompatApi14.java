@@ -113,6 +113,9 @@ public class MediaSessionCompatApi14 {
     }
 
     static void buildOldMetadata(Bundle metadata, RemoteControlClient.MetadataEditor editor) {
+        if (metadata == null) {
+            return;
+        }
         if (metadata.containsKey(METADATA_KEY_ALBUM)) {
             editor.putString(MediaMetadataRetriever.METADATA_KEY_ALBUM,
                     metadata.getString(METADATA_KEY_ALBUM));

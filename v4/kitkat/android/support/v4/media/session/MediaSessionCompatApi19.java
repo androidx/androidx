@@ -49,6 +49,9 @@ public class MediaSessionCompatApi19 {
     }
 
     static void addNewMetadata(Bundle metadata, RemoteControlClient.MetadataEditor editor) {
+        if (metadata == null) {
+            return;
+        }
         if (metadata.containsKey(METADATA_KEY_RATING)) {
             editor.putObject(MediaMetadataEditor.RATING_KEY_BY_OTHERS,
                     metadata.getParcelable(METADATA_KEY_RATING));
