@@ -67,6 +67,11 @@ public class MediaSessionCompatApi14 {
         ((RemoteControlClient) rccObj).setPlaybackState(getRccStateFromState(state));
     }
 
+    public static void setTransportControlFlags(Object rccObj, int actions) {
+        ((RemoteControlClient) rccObj).setTransportControlFlags(
+                getRccTransportControlFlagsFromActions(actions));
+    }
+
     public static void setMetadata(Object rccObj, Bundle metadata) {
         RemoteControlClient.MetadataEditor editor = ((RemoteControlClient) rccObj).editMetadata(
                 true);
@@ -110,6 +115,35 @@ public class MediaSessionCompatApi14 {
             default:
                 return -1;
         }
+    }
+
+    static int getRccTransportControlFlagsFromActions(int actions) {
+        int transportControlFlags = 0;
+        if ((actions & PlaybackStateCompat.ACTION_FAST_FORWARD) != 0) {
+            transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_FAST_FORWARD;
+        }
+        if ((actions & PlaybackStateCompat.ACTION_SKIP_TO_NEXT) != 0) {
+            transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_NEXT;
+        }
+        if ((actions & PlaybackStateCompat.ACTION_PAUSE) != 0) {
+            transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_PAUSE;
+        }
+        if ((actions & PlaybackStateCompat.ACTION_PLAY) != 0) {
+            transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_PLAY;
+        }
+        if ((actions & PlaybackStateCompat.ACTION_PLAY_PAUSE) != 0) {
+            transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_PLAY_PAUSE;
+        }
+        if ((actions & PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS) != 0) {
+            transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS;
+        }
+        if ((actions & PlaybackStateCompat.ACTION_REWIND) != 0) {
+            transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_REWIND;
+        }
+        if ((actions & PlaybackStateCompat.ACTION_STOP) != 0) {
+            transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_STOP;
+        }
+        return transportControlFlags;
     }
 
     static void buildOldMetadata(Bundle metadata, RemoteControlClient.MetadataEditor editor) {
