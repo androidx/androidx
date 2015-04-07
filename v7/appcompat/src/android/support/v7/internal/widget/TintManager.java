@@ -155,6 +155,10 @@ public final class TintManager {
     }
 
     public Drawable getDrawable(int resId) {
+        return getDrawable(resId, false);
+    }
+
+    public Drawable getDrawable(int resId, boolean failIfNotKnown) {
         final Context context = mContextRef.get();
         if (context == null) return null;
 
@@ -183,15 +187,20 @@ public final class TintManager {
                         getDrawable(R.drawable.abc_cab_background_top_mtrl_alpha)
                 });
             } else {
-                tintDrawableUsingColorFilter(resId, drawable);
+                final boolean usedColorFilter = tintDrawableUsingColorFilter(resId, drawable);
+                if (!usedColorFilter && failIfNotKnown) {
+                    // If we didn't tint using a ColorFilter, and we're set to fail if we don't
+                    // know the id, return null
+                    drawable = null;
+                }
             }
         }
         return drawable;
     }
 
-    public final void tintDrawableUsingColorFilter(final int resId, Drawable drawable) {
+    public final boolean tintDrawableUsingColorFilter(final int resId, Drawable drawable) {
         final Context context = mContextRef.get();
-        if (context == null) return;
+        if (context == null) return false;
 
         PorterDuff.Mode tintMode = null;
         boolean colorAttrSet = false;
@@ -226,7 +235,9 @@ public final class TintManager {
                 Log.d(TAG, "Tinted Drawable: " + context.getResources().getResourceName(resId) +
                         " with color: #" + Integer.toHexString(color));
             }
+            return true;
         }
+        return false;
     }
 
     private static boolean arrayContains(int[] array, int value) {
