@@ -276,6 +276,23 @@ package android.support.v7.app {
     method public boolean supportRequestWindowFeature(int);
   }
 
+  public class NotificationCompat extends android.support.v4.app.NotificationCompat {
+    ctor public NotificationCompat();
+  }
+
+  public static class NotificationCompat.Builder extends android.support.v4.app.NotificationCompat.Builder {
+    ctor public NotificationCompat.Builder(android.content.Context);
+  }
+
+  public static class NotificationCompat.MediaStyle extends android.support.v4.app.NotificationCompat.Style {
+    ctor public NotificationCompat.MediaStyle();
+    ctor public NotificationCompat.MediaStyle(android.support.v4.app.NotificationCompat.Builder);
+    method public void setCancelButtonIntent(android.app.PendingIntent);
+    method public android.support.v7.app.NotificationCompat.MediaStyle setMediaSession(android.support.v4.media.session.MediaSessionCompat.Token);
+    method public android.support.v7.app.NotificationCompat.MediaStyle setShowActionsInCompactView(int...);
+    method public void setShowCancelButton(boolean);
+  }
+
 }
 
 package android.support.v7.view {
