@@ -1188,23 +1188,13 @@ public class MediaSessionCompat {
             if (state == null) {
                 if (android.os.Build.VERSION.SDK_INT >= 14) {
                     MediaSessionCompatApi14.setState(mRccObj, PlaybackStateCompat.STATE_NONE);
-                    MediaSessionCompatApi14.setTransportControlFlags(mRccObj, 0);
                 }
             } else {
-                // Set state
                 if (android.os.Build.VERSION.SDK_INT >= 18) {
                     MediaSessionCompatApi18.setState(mRccObj, state.getState(), state.getPosition(),
                             state.getPlaybackSpeed(), state.getLastPositionUpdateTime());
                 } else if (android.os.Build.VERSION.SDK_INT >= 14) {
                     MediaSessionCompatApi14.setState(mRccObj, state.getState());
-                }
-                // Set transport control flags
-                if (android.os.Build.VERSION.SDK_INT >= 19) {
-                    MediaSessionCompatApi19.setTransportControlFlags(mRccObj, state.getActions());
-                } else if (android.os.Build.VERSION.SDK_INT >= 18) {
-                    MediaSessionCompatApi18.setTransportControlFlags(mRccObj, state.getActions());
-                } else if (android.os.Build.VERSION.SDK_INT >= 14) {
-                    MediaSessionCompatApi14.setTransportControlFlags(mRccObj, state.getActions());
                 }
             }
         }

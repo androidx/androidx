@@ -55,24 +55,10 @@ public class MediaSessionCompatApi18 {
         ((RemoteControlClient) rccObj).setPlaybackState(state, position, speed);
     }
 
-    public static void setTransportControlFlags(Object rccObj, int actions) {
-        ((RemoteControlClient) rccObj).setTransportControlFlags(
-                getRccTransportControlFlagsFromActions(actions));
-    }
-
     public static void setOnPlaybackPositionUpdateListener(Object rccObj,
             Object onPositionUpdateObj) {
         ((RemoteControlClient) rccObj).setPlaybackPositionUpdateListener(
                 (RemoteControlClient.OnPlaybackPositionUpdateListener) onPositionUpdateObj);
-    }
-
-    static int getRccTransportControlFlagsFromActions(int actions) {
-        int transportControlFlags =
-                MediaSessionCompatApi14.getRccTransportControlFlagsFromActions(actions);
-        if ((actions & PlaybackStateCompat.ACTION_SEEK_TO) != 0) {
-            transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_POSITION_UPDATE;
-        }
-        return transportControlFlags;
     }
 
     static class OnPlaybackPositionUpdateListener<T extends MediaSessionCompatApi14.Callback>
