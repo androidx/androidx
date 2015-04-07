@@ -22,6 +22,8 @@ import android.media.RemoteControlClient;
 import android.os.SystemClock;
 
 public class MediaSessionCompatApi18 {
+    /***** PlaybackState actions *****/
+    private static final long ACTION_SEEK_TO = 1 << 8;
 
     public static Object createPlaybackPositionUpdateListener(
             MediaSessionCompatApi14.Callback callback) {
@@ -55,10 +57,24 @@ public class MediaSessionCompatApi18 {
         ((RemoteControlClient) rccObj).setPlaybackState(state, position, speed);
     }
 
+    public static void setTransportControlFlags(Object rccObj, long actions) {
+        ((RemoteControlClient) rccObj).setTransportControlFlags(
+                getRccTransportControlFlagsFromActions(actions));
+    }
+
     public static void setOnPlaybackPositionUpdateListener(Object rccObj,
             Object onPositionUpdateObj) {
         ((RemoteControlClient) rccObj).setPlaybackPositionUpdateListener(
                 (RemoteControlClient.OnPlaybackPositionUpdateListener) onPositionUpdateObj);
+    }
+
+    static int getRccTransportControlFlagsFromActions(long actions) {
+        int transportControlFlags =
+                MediaSessionCompatApi14.getRccTransportControlFlagsFromActions(actions);
+        if ((actions & ACTION_SEEK_TO) != 0) {
+            transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_POSITION_UPDATE;
+        }
+        return transportControlFlags;
     }
 
     static class OnPlaybackPositionUpdateListener<T extends MediaSessionCompatApi14.Callback>
