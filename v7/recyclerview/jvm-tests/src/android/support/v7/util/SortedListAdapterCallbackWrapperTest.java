@@ -18,12 +18,17 @@ package android.support.v7.util;
 
 import junit.framework.TestCase;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+
 import static android.support.v7.util.SortedList.BatchedCallback.TYPE_NONE;
 import static android.support.v7.util.SortedList.BatchedCallback.TYPE_ADD;
 import static android.support.v7.util.SortedList.BatchedCallback.TYPE_REMOVE;
 import static android.support.v7.util.SortedList.BatchedCallback.TYPE_CHANGE;
 import static android.support.v7.util.SortedList.BatchedCallback.TYPE_MOVE;
 
+@RunWith(JUnit4.class)
 public class SortedListAdapterCallbackWrapperTest extends TestCase {
 
     private int lastReceivedType = TYPE_NONE;
@@ -78,6 +83,7 @@ public class SortedListAdapterCallbackWrapperTest extends TestCase {
     private SortedList.BatchedCallback<Object> mBatched =
             new SortedList.BatchedCallback<Object>(mCallback);
 
+    @Test
     public void testAdd() throws Throwable {
         mBatched.onInserted(0, 3);
         assertPending(TYPE_ADD, 0, 3);
@@ -87,6 +93,7 @@ public class SortedListAdapterCallbackWrapperTest extends TestCase {
         assertPending(TYPE_NONE, -1, -1);
     }
 
+    @Test
     public void testRemove() throws Throwable {
         mBatched.onRemoved(0, 3);
         assertPending(TYPE_REMOVE, 0, 3);
@@ -96,6 +103,7 @@ public class SortedListAdapterCallbackWrapperTest extends TestCase {
         assertPending(TYPE_NONE, -1, -1);
     }
 
+    @Test
     public void testChange() throws Throwable {
         mBatched.onChanged(0, 3);
         assertPending(TYPE_CHANGE, 0, 3);
@@ -105,12 +113,14 @@ public class SortedListAdapterCallbackWrapperTest extends TestCase {
         assertPending(TYPE_NONE, -1, -1);
     }
 
+    @Test
     public void testMove() throws Throwable {
         mBatched.onMoved(0, 3);
         assertLast(TYPE_MOVE, 0, 3);
         assertPending(TYPE_NONE, -1, -1);
     }
 
+    @Test
     public void testBatchAdd1() throws Throwable {
         mBatched.onInserted(3, 5);
         mBatched.onInserted(3, 2);
@@ -120,6 +130,7 @@ public class SortedListAdapterCallbackWrapperTest extends TestCase {
         assertPending(TYPE_NONE, -1, -1);
     }
 
+    @Test
     public void testBatchAdd2() throws Throwable {
         mBatched.onInserted(3, 5);
         mBatched.onInserted(1, 2);
@@ -129,6 +140,7 @@ public class SortedListAdapterCallbackWrapperTest extends TestCase {
         assertPending(TYPE_NONE, -1, -1);
     }
 
+    @Test
     public void testBatchAdd3() throws Throwable {
         mBatched.onInserted(3, 5);
         mBatched.onInserted(8, 2);
@@ -138,6 +150,7 @@ public class SortedListAdapterCallbackWrapperTest extends TestCase {
         assertPending(TYPE_NONE, -1, -1);
     }
 
+    @Test
     public void testBatchAdd4() throws Throwable {
         mBatched.onInserted(3, 5);
         mBatched.onInserted(9, 2);
@@ -147,6 +160,7 @@ public class SortedListAdapterCallbackWrapperTest extends TestCase {
         assertPending(TYPE_NONE, -1, -1);
     }
 
+    @Test
     public void testBatchAdd5() throws Throwable {
         mBatched.onInserted(3, 5);
         mBatched.onInserted(4, 1);
@@ -156,6 +170,7 @@ public class SortedListAdapterCallbackWrapperTest extends TestCase {
         assertPending(TYPE_NONE, -1, -1);
     }
 
+    @Test
     public void testBatchAdd6() throws Throwable {
         mBatched.onInserted(3, 5);
         mBatched.onInserted(4, 1);
@@ -166,8 +181,9 @@ public class SortedListAdapterCallbackWrapperTest extends TestCase {
         assertPending(TYPE_NONE, -1, -1);
     }
 
+    @Test
     public void testBatchAddLoop() throws Throwable {
-        for (int i = 0; i < 10; i ++) {
+        for (int i = 0; i < 10; i++) {
             mBatched.onInserted(4 + i, 1);
             assertLast(TYPE_NONE, -1, -1);
             assertPending(TYPE_ADD, 4, i + 1);
@@ -176,8 +192,9 @@ public class SortedListAdapterCallbackWrapperTest extends TestCase {
         assertLast(TYPE_ADD, 4, 10);
     }
 
+    @Test
     public void testBatchAddReverseLoop() throws Throwable {
-        for (int i = 10; i >= 0; i --) {
+        for (int i = 10; i >= 0; i--) {
             mBatched.onInserted(4, 1);
             assertLast(TYPE_NONE, -1, -1);
             assertPending(TYPE_ADD, 4, 10 - i + 1);
@@ -186,8 +203,9 @@ public class SortedListAdapterCallbackWrapperTest extends TestCase {
         assertLast(TYPE_ADD, 4, 11);
     }
 
+    @Test
     public void testBadBatchAddReverseLoop() throws Throwable {
-        for (int i = 10; i >= 0; i --) {
+        for (int i = 10; i >= 0; i--) {
             mBatched.onInserted(4 + i, 1);
             if (i < 10) {
                 assertLast(TYPE_ADD, 4 + i + 1, 1);
@@ -198,6 +216,7 @@ public class SortedListAdapterCallbackWrapperTest extends TestCase {
         assertLast(TYPE_ADD, 4, 1);
     }
 
+    @Test
     public void testBatchRemove1() throws Throwable {
         mBatched.onRemoved(3, 5);
         mBatched.onRemoved(3, 1);
@@ -207,6 +226,7 @@ public class SortedListAdapterCallbackWrapperTest extends TestCase {
         assertPending(TYPE_NONE, -1, -1);
     }
 
+    @Test
     public void testBatchRemove2() throws Throwable {
         mBatched.onRemoved(3, 5);
         mBatched.onRemoved(4, 1);
@@ -216,6 +236,7 @@ public class SortedListAdapterCallbackWrapperTest extends TestCase {
         assertPending(TYPE_NONE, -1, -1);
     }
 
+    @Test
     public void testBatchRemove3() throws Throwable {
         mBatched.onRemoved(3, 5);
         mBatched.onRemoved(2, 3);
@@ -225,6 +246,7 @@ public class SortedListAdapterCallbackWrapperTest extends TestCase {
         assertPending(TYPE_NONE, -1, -1);
     }
 
+    @Test
     public void testBatchChange1() throws Throwable {
         mBatched.onChanged(3, 5);
         mBatched.onChanged(3, 1);
@@ -235,6 +257,7 @@ public class SortedListAdapterCallbackWrapperTest extends TestCase {
         assertPending(TYPE_NONE, -1, -1);
     }
 
+    @Test
     public void testBatchChange2() throws Throwable {
         mBatched.onChanged(3, 5);
         mBatched.onChanged(2, 7);
@@ -245,6 +268,7 @@ public class SortedListAdapterCallbackWrapperTest extends TestCase {
         assertPending(TYPE_NONE, -1, -1);
     }
 
+    @Test
     public void testBatchChange3() throws Throwable {
         mBatched.onChanged(3, 5);
         mBatched.onChanged(2, 1);
@@ -254,6 +278,7 @@ public class SortedListAdapterCallbackWrapperTest extends TestCase {
         assertPending(TYPE_CHANGE, 2, 8);
     }
 
+    @Test
     public void testBatchChange4() throws Throwable {
         mBatched.onChanged(3, 5);
         mBatched.onChanged(1, 1);
@@ -261,6 +286,7 @@ public class SortedListAdapterCallbackWrapperTest extends TestCase {
         assertPending(TYPE_CHANGE, 1, 1);
     }
 
+    @Test
     public void testBatchChange5() throws Throwable {
         mBatched.onChanged(3, 5);
         mBatched.onChanged(9, 1);
@@ -283,6 +309,7 @@ public class SortedListAdapterCallbackWrapperTest extends TestCase {
                     lastReceivedCount), t);
         }
     }
+
     private void assertPending(int type, int position, int count) throws Throwable {
         try {
             assertEquals(mBatched.mLastEventType, type);
