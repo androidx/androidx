@@ -147,6 +147,7 @@ LOCAL_SRC_FILES_arm := \
         cpu_ref/rsCpuIntrinsics_neon_Blend.S \
         cpu_ref/rsCpuIntrinsics_neon_Blur.S \
 	cpu_ref/rsCpuIntrinsics_neon_Convolve.S \
+	cpu_ref/rsCpuIntrinsics_neon_Resize.S \
         cpu_ref/rsCpuIntrinsics_neon_YuvToRGB.S
 endif
 
