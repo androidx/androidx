@@ -37,6 +37,5 @@ project(':support-v13').projectDir = new File(rootDir, 'v13')
 include ':support-leanback-v17'
 project(':support-leanback-v17').projectDir = new File(rootDir, 'v17/leanback')
 
-// Disabled for the 22.1.0 release.
-// include ':support-design'
-// project(':support-design').projectDir = new File(rootDir, 'design')
+include ':support-design'
+project(':support-design').projectDir = new File(rootDir, 'design')
