@@ -17,6 +17,9 @@ package android.support.v4.widget;
 
 import android.os.Build;
 
+/**
+ * @hide
+ */
 public class IcsScrollerCompatTest extends ScrollerCompatTestBase {
 
     public IcsScrollerCompatTest() {
