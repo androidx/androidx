@@ -19,17 +19,14 @@ package android.support.v4.app;
 import android.app.PendingIntent;
 import android.os.Bundle;
 
-/**
- * @hide
- */
-public class NotificationCompatBase {
+class NotificationCompatBase {
 
     public static abstract class Action {
-        public abstract int getIcon();
-        public abstract CharSequence getTitle();
-        public abstract PendingIntent getActionIntent();
-        public abstract Bundle getExtras();
-        public abstract RemoteInputCompatBase.RemoteInput[] getRemoteInputs();
+        protected abstract int getIcon();
+        protected abstract CharSequence getTitle();
+        protected abstract PendingIntent getActionIntent();
+        protected abstract Bundle getExtras();
+        protected abstract RemoteInputCompatBase.RemoteInput[] getRemoteInputs();
 
         public interface Factory {
             Action build(int icon, CharSequence title, PendingIntent actionIntent,

@@ -102,7 +102,6 @@ class NotificationCompatKitKat {
             return b;
         }
 
-        @Override
         public Notification build() {
             SparseArray<Bundle> actionExtrasMap = NotificationCompatJellybean.buildActionExtrasMap(
                     mActionExtrasList);
