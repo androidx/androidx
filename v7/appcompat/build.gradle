@@ -12,7 +12,7 @@ android {
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'
         main.java.srcDir 'src'
-        main.res.srcDir 'res'
+        main.res.srcDirs 'res', 'res-public'
         main.assets.srcDir 'assets'
         main.resources.srcDir 'src'
 
