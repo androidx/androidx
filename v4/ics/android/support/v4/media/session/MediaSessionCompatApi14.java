@@ -42,6 +42,16 @@ public class MediaSessionCompatApi14 {
     final static int STATE_SKIPPING_TO_PREVIOUS = 9;
     final static int STATE_SKIPPING_TO_NEXT = 10;
 
+    /***** PlaybackState actions *****/
+    private static final long ACTION_STOP = 1 << 0;
+    private static final long ACTION_PAUSE = 1 << 1;
+    private static final long ACTION_PLAY = 1 << 2;
+    private static final long ACTION_REWIND = 1 << 3;
+    private static final long ACTION_SKIP_TO_PREVIOUS = 1 << 4;
+    private static final long ACTION_SKIP_TO_NEXT = 1 << 5;
+    private static final long ACTION_FAST_FORWARD = 1 << 6;
+    private static final long ACTION_PLAY_PAUSE = 1 << 9;
+
     /***** MediaMetadata keys ********/
     private static final String METADATA_KEY_TITLE = "android.media.metadata.TITLE";
     private static final String METADATA_KEY_ARTIST = "android.media.metadata.ARTIST";
@@ -65,6 +75,11 @@ public class MediaSessionCompatApi14 {
 
     public static void setState(Object rccObj, int state) {
         ((RemoteControlClient) rccObj).setPlaybackState(getRccStateFromState(state));
+    }
+
+    public static void setTransportControlFlags(Object rccObj, long actions) {
+        ((RemoteControlClient) rccObj).setTransportControlFlags(
+                getRccTransportControlFlagsFromActions(actions));
     }
 
     public static void setMetadata(Object rccObj, Bundle metadata) {
@@ -110,6 +125,35 @@ public class MediaSessionCompatApi14 {
             default:
                 return -1;
         }
+    }
+
+    static int getRccTransportControlFlagsFromActions(long actions) {
+        int transportControlFlags = 0;
+        if ((actions & ACTION_STOP) != 0) {
+            transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_STOP;
+        }
+        if ((actions & ACTION_PAUSE) != 0) {
+            transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_PAUSE;
+        }
+        if ((actions & ACTION_PLAY) != 0) {
+            transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_PLAY;
+        }
+        if ((actions & ACTION_REWIND) != 0) {
+            transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_REWIND;
+        }
+        if ((actions & ACTION_SKIP_TO_PREVIOUS) != 0) {
+            transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS;
+        }
+        if ((actions & ACTION_SKIP_TO_NEXT) != 0) {
+            transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_NEXT;
+        }
+        if ((actions & ACTION_FAST_FORWARD) != 0) {
+            transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_FAST_FORWARD;
+        }
+        if ((actions & ACTION_PLAY_PAUSE) != 0) {
+            transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_PLAY_PAUSE;
+        }
+        return transportControlFlags;
     }
 
     static void buildOldMetadata(Bundle metadata, RemoteControlClient.MetadataEditor editor) {

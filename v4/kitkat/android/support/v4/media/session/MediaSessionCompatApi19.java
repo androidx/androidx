@@ -22,22 +22,30 @@ import android.media.RemoteControlClient;
 import android.os.Bundle;
 
 public class MediaSessionCompatApi19 {
+    /***** PlaybackState actions *****/
+    private static final long ACTION_SET_RATING = 1 << 7;
+
     /***** MediaMetadata keys ********/
     private static final String METADATA_KEY_ART = "android.media.metadata.ART";
     private static final String METADATA_KEY_ALBUM_ART = "android.media.metadata.ALBUM_ART";
     private static final String METADATA_KEY_USER_RATING = "android.media.metadata.USER_RATING";
     private static final String METADATA_KEY_RATING = "android.media.metadata.RATING";
 
+    public static void setTransportControlFlags(Object rccObj, long actions) {
+        ((RemoteControlClient) rccObj).setTransportControlFlags(
+                getRccTransportControlFlagsFromActions(actions));
+    }
+
     public static Object createMetadataUpdateListener(MediaSessionCompatApi14.Callback callback) {
         return new OnMetadataUpdateListener<MediaSessionCompatApi14.Callback>(callback);
     }
 
-    public static void setMetadata(Object rccObj, Bundle metadata, boolean supportRating) {
+    public static void setMetadata(Object rccObj, Bundle metadata, long actions) {
         RemoteControlClient.MetadataEditor editor = ((RemoteControlClient) rccObj).editMetadata(
                 true);
         MediaSessionCompatApi14.buildOldMetadata(metadata, editor);
         addNewMetadata(metadata, editor);
-        if (supportRating && android.os.Build.VERSION.SDK_INT > 19) {
+        if ((actions & ACTION_SET_RATING) != 0) {
             editor.addEditableKey(RemoteControlClient.MetadataEditor.RATING_KEY_BY_USER);
         }
         editor.apply();
@@ -46,6 +54,15 @@ public class MediaSessionCompatApi19 {
     public static void setOnMetadataUpdateListener(Object rccObj, Object onMetadataUpdateObj) {
         ((RemoteControlClient) rccObj).setMetadataUpdateListener(
                 (RemoteControlClient.OnMetadataUpdateListener) onMetadataUpdateObj);
+    }
+
+    static int getRccTransportControlFlagsFromActions(long actions) {
+        int transportControlFlags =
+                MediaSessionCompatApi18.getRccTransportControlFlagsFromActions(actions);
+        if ((actions & ACTION_SET_RATING) != 0) {
+            transportControlFlags |= RemoteControlClient.FLAG_KEY_MEDIA_RATING;
+        }
+        return transportControlFlags;
     }
 
     static void addNewMetadata(Bundle metadata, RemoteControlClient.MetadataEditor editor) {
