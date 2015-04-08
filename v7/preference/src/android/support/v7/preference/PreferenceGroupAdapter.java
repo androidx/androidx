@@ -275,6 +275,5 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
     public void onBindViewHolder(PreferenceViewHolder holder, int position) {
         final Preference preference = getItem(position);
         preference.onBindViewHolder(holder);
-        holder.setIsRecyclable(preference.canRecycleLayout());
     }
 }

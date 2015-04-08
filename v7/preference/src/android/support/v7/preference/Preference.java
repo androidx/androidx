@@ -1522,10 +1522,6 @@ public class Preference implements Comparable<Preference> {
         return mPreferenceManager.getSharedPreferences().getBoolean(mKey, defaultReturnValue);
     }
 
-    boolean canRecycleLayout() {
-        return true;
-    }
-
     @Override
     public String toString() {
         return getFilterableStringBuilder().toString();
