@@ -444,7 +444,7 @@ public class NotificationCompat {
     private static final NotificationCompatImpl IMPL;
 
     interface NotificationCompatImpl {
-        public Notification build(Builder b, BuilderExtender extender);
+        public Notification build(Builder b);
         public Bundle getExtras(Notification n);
         public int getActionCount(Notification n);
         public Action getAction(Notification n, int actionIndex);
@@ -461,20 +461,9 @@ public class NotificationCompat {
                 RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory);
     }
 
-    /**
-     * Interface for appcompat to extend v4 builder with media style.
-     *
-     * @hide
-     */
-    protected static class BuilderExtender {
-        public Notification build(Builder b, NotificationBuilderWithBuilderAccessor builder) {
-            return builder.build();
-        }
-    }
-
     static class NotificationCompatImplBase implements NotificationCompatImpl {
         @Override
-        public Notification build(Builder b, BuilderExtender extender) {
+        public Notification build(Builder b) {
             Notification result = b.mNotification;
             result.setLatestEventInfo(b.mContext, b.mContentTitle,
                     b.mContentText, b.mContentIntent);
@@ -551,7 +540,7 @@ public class NotificationCompat {
 
     static class NotificationCompatImplGingerbread extends NotificationCompatImplBase {
         @Override
-        public Notification build(Builder b, BuilderExtender extender) {
+        public Notification build(Builder b) {
             Notification result = b.mNotification;
             result.setLatestEventInfo(b.mContext, b.mContentTitle,
                     b.mContentText, b.mContentIntent);
@@ -567,7 +556,7 @@ public class NotificationCompat {
 
     static class NotificationCompatImplHoneycomb extends NotificationCompatImplBase {
         @Override
-        public Notification build(Builder b, BuilderExtender extender) {
+        public Notification build(Builder b) {
             return NotificationCompatHoneycomb.add(b.mContext, b.mNotification,
                     b.mContentTitle, b.mContentText, b.mContentInfo, b.mTickerView,
                     b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon);
@@ -576,19 +565,17 @@ public class NotificationCompat {
 
     static class NotificationCompatImplIceCreamSandwich extends NotificationCompatImplBase {
         @Override
-        public Notification build(Builder b, BuilderExtender extender) {
-            NotificationCompatIceCreamSandwich.Builder builder =
-                    new NotificationCompatIceCreamSandwich.Builder(
-                    b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
-                    b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
+        public Notification build(Builder b) {
+            return NotificationCompatIceCreamSandwich.add(b.mContext, b.mNotification,
+                    b.mContentTitle, b.mContentText, b.mContentInfo, b.mTickerView,
+                    b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate);
-            return extender.build(b, builder);
         }
     }
 
     static class NotificationCompatImplJellybean extends NotificationCompatImplBase {
         @Override
-        public Notification build(Builder b, BuilderExtender extender) {
+        public Notification build(Builder b) {
             NotificationCompatJellybean.Builder builder = new NotificationCompatJellybean.Builder(
                     b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
@@ -597,7 +584,7 @@ public class NotificationCompat {
                     b.mGroupKey, b.mGroupSummary, b.mSortKey);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderJellybean(builder, b.mStyle);
-            return extender.build(b, builder);
+            return builder.build();
         }
 
         @Override
@@ -652,7 +639,7 @@ public class NotificationCompat {
 
     static class NotificationCompatImplKitKat extends NotificationCompatImplJellybean {
         @Override
-        public Notification build(Builder b, BuilderExtender extender) {
+        public Notification build(Builder b) {
             NotificationCompatKitKat.Builder builder = new NotificationCompatKitKat.Builder(
                     b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
@@ -661,7 +648,7 @@ public class NotificationCompat {
                     b.mPeople, b.mExtras, b.mGroupKey, b.mGroupSummary, b.mSortKey);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderJellybean(builder, b.mStyle);
-            return extender.build(b, builder);
+            return builder.build();
         }
 
         @Override
@@ -703,7 +690,7 @@ public class NotificationCompat {
 
     static class NotificationCompatImplApi20 extends NotificationCompatImplKitKat {
         @Override
-        public Notification build(Builder b, BuilderExtender extender) {
+        public Notification build(Builder b) {
             NotificationCompatApi20.Builder builder = new NotificationCompatApi20.Builder(
                     b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
@@ -712,7 +699,7 @@ public class NotificationCompat {
                     b.mGroupKey, b.mGroupSummary, b.mSortKey);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderJellybean(builder, b.mStyle);
-            return extender.build(b, builder);
+            return builder.build();
         }
 
         @Override
@@ -757,7 +744,7 @@ public class NotificationCompat {
 
     static class NotificationCompatImplApi21 extends NotificationCompatImplApi20 {
         @Override
-        public Notification build(Builder b, BuilderExtender extender) {
+        public Notification build(Builder b) {
             NotificationCompatApi21.Builder builder = new NotificationCompatApi21.Builder(
                     b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
@@ -767,7 +754,7 @@ public class NotificationCompat {
                     b.mGroupKey, b.mGroupSummary, b.mSortKey);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderJellybean(builder, b.mStyle);
-            return extender.build(b, builder);
+            return builder.build();
         }
 
         @Override
@@ -875,41 +862,28 @@ public class NotificationCompat {
          */
         private static final int MAX_CHARSEQUENCE_LENGTH = 5 * 1024;
 
-        // All these variables are declared public/hidden so they can be accessed by a builder
-        // extender.
+        Context mContext;
 
-        /** @hide */
-        public Context mContext;
-
-        /** @hide */
-        public CharSequence mContentTitle;
-        /** @hide */
-        public CharSequence mContentText;
+        CharSequence mContentTitle;
+        CharSequence mContentText;
         PendingIntent mContentIntent;
         PendingIntent mFullScreenIntent;
         RemoteViews mTickerView;
-        /** @hide */
-        public Bitmap mLargeIcon;
-        /** @hide */
-        public CharSequence mContentInfo;
-        /** @hide */
-        public int mNumber;
+        Bitmap mLargeIcon;
+        CharSequence mContentInfo;
+        int mNumber;
         int mPriority;
         boolean mShowWhen = true;
-        /** @hide */
-        public boolean mUseChronometer;
-        /** @hide */
-        public Style mStyle;
-        /** @hide */
-        public CharSequence mSubText;
+        boolean mUseChronometer;
+        Style mStyle;
+        CharSequence mSubText;
         int mProgressMax;
         int mProgress;
         boolean mProgressIndeterminate;
         String mGroupKey;
         boolean mGroupSummary;
         String mSortKey;
-        /** @hide */
-        public ArrayList<Action> mActions = new ArrayList<Action>();
+        ArrayList<Action> mActions = new ArrayList<Action>();
         boolean mLocalOnly = false;
         String mCategory;
         Bundle mExtras;
@@ -917,8 +891,7 @@ public class NotificationCompat {
         int mVisibility = VISIBILITY_PRIVATE;
         Notification mPublicVersion;
 
-        /** @hide */
-        public Notification mNotification = new Notification();
+        Notification mNotification = new Notification();
         public ArrayList<String> mPeople;
 
         /**
@@ -1550,7 +1523,7 @@ public class NotificationCompat {
          */
         @Deprecated
         public Notification getNotification() {
-            return build();
+            return IMPL.build(this);
         }
 
         /**
@@ -1558,14 +1531,7 @@ public class NotificationCompat {
          * object.
          */
         public Notification build() {
-            return IMPL.build(this, getExtender());
-        }
-
-        /**
-         * @hide
-         */
-        protected BuilderExtender getExtender() {
-            return new BuilderExtender();
+            return IMPL.build(this);
         }
 
         protected static CharSequence limitCharSequenceLength(CharSequence cs) {
@@ -1837,17 +1803,17 @@ public class NotificationCompat {
         }
 
         @Override
-        public int getIcon() {
+        protected int getIcon() {
             return icon;
         }
 
         @Override
-        public CharSequence getTitle() {
+        protected CharSequence getTitle() {
             return title;
         }
 
         @Override
-        public PendingIntent getActionIntent() {
+        protected PendingIntent getActionIntent() {
             return actionIntent;
         }
 

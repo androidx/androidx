@@ -22,10 +22,7 @@ import android.app.Notification;
  * Interface implemented by notification compat builders that support
  * an accessor for {@link Notification.Builder}. {@link Notification.Builder}
  * was introduced in HoneyComb.
- *
- * @hide
  */
-public interface NotificationBuilderWithBuilderAccessor {
+interface NotificationBuilderWithBuilderAccessor {
     public Notification.Builder getBuilder();
-    public Notification build();
 }
