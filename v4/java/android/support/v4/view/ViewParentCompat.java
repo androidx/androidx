@@ -46,6 +46,8 @@ public class ViewParentCompat {
         boolean onNestedFling(ViewParent parent, View target, float velocityX, float velocityY,
                 boolean consumed);
         boolean onNestedPreFling(ViewParent parent, View target, float velocityX, float velocityY);
+        void notifySubtreeAccessibilityStateChanged(ViewParent parent, View child,
+                View source, int changeType);
     }
 
     static class ViewParentCompatStubImpl implements ViewParentCompatImpl {
@@ -124,6 +126,11 @@ public class ViewParentCompat {
             }
             return false;
         }
+
+        @Override
+        public void notifySubtreeAccessibilityStateChanged(ViewParent parent, View child,
+                View source, int changeType) {
+        }
     }
 
     static class ViewParentCompatICSImpl extends ViewParentCompatStubImpl {
@@ -134,7 +141,17 @@ public class ViewParentCompat {
         }
     }
 
-    static class ViewParentCompatLollipopImpl extends ViewParentCompatICSImpl {
+    static class ViewParentCompatKitKatImpl extends ViewParentCompatICSImpl {
+
+        @Override
+        public void notifySubtreeAccessibilityStateChanged(ViewParent parent, View child,
+                View source, int changeType) {
+            ViewParentCompatKitKat.notifySubtreeAccessibilityStateChanged(parent, child,
+                    source, changeType);
+        }
+    }
+
+    static class ViewParentCompatLollipopImpl extends ViewParentCompatKitKatImpl {
         @Override
         public boolean onStartNestedScroll(ViewParent parent, View child, View target,
                 int nestedScrollAxes) {
@@ -186,6 +203,8 @@ public class ViewParentCompat {
         final int version = Build.VERSION.SDK_INT;
         if (version >= 21) {
             IMPL = new ViewParentCompatLollipopImpl();
+        } else if (version >= 19) {
+            IMPL = new ViewParentCompatKitKatImpl();
         } else if (version >= 14) {
             IMPL = new ViewParentCompatICSImpl();
         } else {
@@ -383,6 +402,26 @@ public class ViewParentCompat {
     public static boolean onNestedPreFling(ViewParent parent, View target, float velocityX,
             float velocityY) {
         return IMPL.onNestedPreFling(parent, target, velocityX, velocityY);
+    }
+
+    /**
+     * Notifies a view parent that the accessibility state of one of its
+     * descendants has changed and that the structure of the subtree is
+     * different.
+     * @param child The direct child whose subtree has changed.
+     * @param source The descendant view that changed.
+     * @param changeType A bit mask of the types of changes that occurred. One
+     *            or more of:
+     *            <ul>
+     *            <li>{@link AccessibilityEvent#CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION}
+     *            <li>{@link AccessibilityEvent#CONTENT_CHANGE_TYPE_SUBTREE}
+     *            <li>{@link AccessibilityEvent#CONTENT_CHANGE_TYPE_TEXT}
+     *            <li>{@link AccessibilityEvent#CONTENT_CHANGE_TYPE_UNDEFINED}
+     *            </ul>
+     */
+    public static void notifySubtreeAccessibilityStateChanged(ViewParent parent, View child,
+            View source, int changeType) {
+        IMPL.notifySubtreeAccessibilityStateChanged(parent, child, source, changeType);
     }
 
 }
