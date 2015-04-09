@@ -173,6 +173,21 @@ class MediaSessionCompatApi21 {
         }
 
         @Override
+        public void onPlayFromMediaId(String mediaId, Bundle extras) {
+            mCallback.onPlayFromMediaId(mediaId, extras);
+        }
+
+        @Override
+        public void onPlayFromSearch(String search, Bundle extras) {
+            mCallback.onPlayFromSearch(search, extras);
+        }
+
+        @Override
+        public void onSkipToQueueItem(long id) {
+            mCallback.onSkipToQueueItem(id);
+        }
+
+        @Override
         public void onPause() {
             mCallback.onPause();
         }
@@ -210,6 +225,11 @@ class MediaSessionCompatApi21 {
         @Override
         public void onSetRating(Rating rating) {
             mCallback.onSetRating(rating);
+        }
+
+        @Override
+        public void onCustomAction(String action, Bundle extras) {
+            mCallback.onCustomAction(action, extras);
         }
     }
 
