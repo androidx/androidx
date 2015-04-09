@@ -16,6 +16,7 @@
 
 package android.support.v7.widget;
 
+import android.app.Instrumentation;
 import android.graphics.Rect;
 import android.os.Looper;
 import android.support.v4.view.ViewCompat;
@@ -26,6 +27,8 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -75,6 +78,12 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         } catch (Throwable throwable) {
             Log.e(TAG, "", throwable);
         }
+    }
+
+    protected void enableAccessibility()
+            throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Method getUIAutomation = Instrumentation.class.getMethod("getUiAutomation");
+        getUIAutomation.invoke(getInstrumentation());
     }
 
     void setAdapter(final RecyclerView.Adapter adapter) throws Throwable {

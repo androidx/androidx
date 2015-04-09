@@ -282,6 +282,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
     private boolean mFirstLayoutComplete;
     private boolean mEatRequestLayout;
     private boolean mLayoutRequestEaten;
+    // binary OR of change events that were eaten during a layout or scroll.
+    private int mEatenAccessibilityChangeFlags;
     private boolean mAdapterUpdateDuringMeasure;
     private final boolean mPostUpdatesOnAnimation;
     private final AccessibilityManager mAccessibilityManager;
@@ -293,14 +295,14 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
     private boolean mDataSetHasChangedAfterLayout = false;
 
     /**
-     * This variable is set to true during a dispatchLayout and/or scroll.
+     * This variable is incremented during a dispatchLayout and/or scroll.
      * Some methods should not be called during these periods (e.g. adapter data change).
      * Doing so will create hard to find bugs so we better check it and throw an exception.
      *
      * @see #assertInLayoutOrScroll(String)
      * @see #assertNotInLayoutOrScroll(String)
      */
-    private boolean mRunningLayoutOrScroll = false;
+    private int mLayoutOrScrollCounter = 0;
 
     private EdgeEffectCompat mLeftGlow, mTopGlow, mRightGlow, mBottomGlow;
 
@@ -1193,7 +1195,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         consumePendingUpdateOperations();
         if (mAdapter != null) {
             eatRequestLayout();
-            mRunningLayoutOrScroll = true;
+            onEnterLayoutOrScroll();
             TraceCompat.beginSection(TRACE_SCROLL_TAG);
             if (x != 0) {
                 hresult = mLayout.scrollHorizontallyBy(x, mRecycler, mState);
@@ -1225,7 +1227,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                     }
                 }
             }
-            mRunningLayoutOrScroll = false;
+            onExitLayoutOrScroll();
             resumeRequestLayout(false);
         }
         if (!mItemDecorations.isEmpty()) {
@@ -1672,6 +1674,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
+        mLayoutOrScrollCounter = 0;
         mIsAttached = true;
         mFirstLayoutComplete = false;
         if (mLayout != null) {
@@ -1704,7 +1707,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
      * @see #assertNotInLayoutOrScroll(String)
      */
     void assertInLayoutOrScroll(String message) {
-        if (!mRunningLayoutOrScroll) {
+        if (!isRunningLayoutOrScroll()) {
             if (message == null) {
                 throw new IllegalStateException("Cannot call this method unless RecyclerView is "
                         + "computing a layout or scrolling");
@@ -1722,7 +1725,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
      * @see #assertInLayoutOrScroll(String)
      */
     void assertNotInLayoutOrScroll(String message) {
-        if (mRunningLayoutOrScroll) {
+        if (isRunningLayoutOrScroll()) {
             if (message == null) {
                 throw new IllegalStateException("Cannot call this method while RecyclerView is "
                         + "computing a layout or scrolling");
@@ -2149,6 +2152,68 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         }
     }
 
+    private void onEnterLayoutOrScroll() {
+        mLayoutOrScrollCounter ++;
+    }
+
+    private void onExitLayoutOrScroll() {
+        mLayoutOrScrollCounter --;
+        if (mLayoutOrScrollCounter < 1) {
+            if (DEBUG && mLayoutOrScrollCounter < 0) {
+                throw new IllegalStateException("layout or scroll counter cannot go below zero."
+                        + "Some calls are not matching");
+            }
+            mLayoutOrScrollCounter = 0;
+            dispatchContentChangedIfNecessary();
+        }
+    }
+
+    private void dispatchContentChangedIfNecessary() {
+        final int flags = mEatenAccessibilityChangeFlags;
+        mEatenAccessibilityChangeFlags = 0;
+        if (flags != 0 && mAccessibilityManager != null && mAccessibilityManager.isEnabled()) {
+            final AccessibilityEvent event = AccessibilityEvent.obtain();
+            event.setEventType(AccessibilityEventCompat.TYPE_WINDOW_CONTENT_CHANGED);
+            AccessibilityEventCompat.setContentChangeTypes(event, flags);
+            sendAccessibilityEventUnchecked(event);
+        }
+    }
+
+    boolean isRunningLayoutOrScroll() {
+        return mLayoutOrScrollCounter > 0;
+    }
+
+    /**
+     * Returns true if an accessibility event should not be dispatched now. This happens when an
+     * accessibility request arrives while RecyclerView does not have a stable state which is very
+     * hard to handle for a LayoutManager. Instead, this method records necessary information about
+     * the event and dispatches a window change event after the critical section is finished.
+     *
+     * @return True if the accessibility event should be postponed.
+     */
+    boolean shouldDeferAccessibilityEvent(AccessibilityEvent event) {
+        if (isRunningLayoutOrScroll()) {
+            int type = 0;
+            if (event != null) {
+                type = AccessibilityEventCompat.getContentChangeTypes(event);
+            }
+            if (type == 0) {
+                type = AccessibilityEventCompat.CONTENT_CHANGE_TYPE_UNDEFINED;
+            }
+            mEatenAccessibilityChangeFlags |= type;
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void sendAccessibilityEventUnchecked(AccessibilityEvent event) {
+        if (shouldDeferAccessibilityEvent(event)) {
+            return;
+        }
+        super.sendAccessibilityEventUnchecked(event);
+    }
+
     /**
      * Gets the current ItemAnimator for this RecyclerView. A null return value
      * indicates that there is no animator and that item changes will happen without
@@ -2247,7 +2312,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         }
         mState.mDisappearingViewsInLayoutPass.clear();
         eatRequestLayout();
-        mRunningLayoutOrScroll = true;
+        onEnterLayoutOrScroll();
 
         processAdapterUpdatesAndSetAnimationFlags();
 
@@ -2447,7 +2512,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         mDataSetHasChangedAfterLayout = false;
         mState.mRunSimpleAnimations = false;
         mState.mRunPredictiveAnimations = false;
-        mRunningLayoutOrScroll = false;
+        onExitLayoutOrScroll();
         mLayout.mRequestedSimpleAnimations = false;
         if (mRecycler.mChangedScrap != null) {
             mRecycler.mChangedScrap.clear();
@@ -3384,7 +3449,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                 int overscrollX = 0, overscrollY = 0;
                 if (mAdapter != null) {
                     eatRequestLayout();
-                    mRunningLayoutOrScroll = true;
+                    onEnterLayoutOrScroll();
                     TraceCompat.beginSection(TRACE_SCROLL_TAG);
                     if (dx != 0) {
                         hresult = mLayout.scrollHorizontallyBy(dx, mRecycler, mState);
@@ -3427,7 +3492,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                             smoothScroller.onAnimation(dx - overscrollX, dy - overscrollY);
                         }
                     }
-                    mRunningLayoutOrScroll = false;
+                    onExitLayoutOrScroll();
                     resumeRequestLayout(false);
                 }
                 if (!mItemDecorations.isEmpty()) {
@@ -6616,7 +6681,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         @Deprecated
         public boolean onRequestChildFocus(RecyclerView parent, View child, View focused) {
             // eat the request if we are in the middle of a scroll or layout
-            return isSmoothScrolling() || parent.mRunningLayoutOrScroll;
+            return isSmoothScrolling() || parent.isRunningLayoutOrScroll();
         }
 
         /**
@@ -6937,8 +7002,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
 
         // called by accessibility delegate
         void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfoCompat info) {
-            onInitializeAccessibilityNodeInfo(mRecyclerView.mRecycler, mRecyclerView.mState,
-                    info);
+            onInitializeAccessibilityNodeInfo(mRecyclerView.mRecycler, mRecyclerView.mState, info);
         }
 
         /**
