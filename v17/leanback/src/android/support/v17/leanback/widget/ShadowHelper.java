@@ -83,7 +83,7 @@ final class ShadowHelper {
 
         @Override
         public Object addShadow(ViewGroup shadowContainer, boolean roundedCorners) {
-            // Rounded corners not supported
+            // Static shadows are always rounded
             return ShadowHelperJbmr2.addShadow(shadowContainer);
         }
 
