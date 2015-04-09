@@ -2309,6 +2309,7 @@ package android.support.v4.view {
   }
 
   public class ViewParentCompat {
+    method public static void notifySubtreeAccessibilityStateChanged(android.view.ViewParent, android.view.View, android.view.View, int);
     method public static boolean onNestedFling(android.view.ViewParent, android.view.View, float, float, boolean);
     method public static boolean onNestedPreFling(android.view.ViewParent, android.view.View, float, float);
     method public static void onNestedPreScroll(android.view.ViewParent, android.view.View, int, int, int[]);
@@ -2406,8 +2407,14 @@ package android.support.v4.view.accessibility {
   public class AccessibilityEventCompat {
     method public static void appendRecord(android.view.accessibility.AccessibilityEvent, android.support.v4.view.accessibility.AccessibilityRecordCompat);
     method public static android.support.v4.view.accessibility.AccessibilityRecordCompat asRecord(android.view.accessibility.AccessibilityEvent);
+    method public static int getContentChangeTypes(android.view.accessibility.AccessibilityEvent);
     method public static android.support.v4.view.accessibility.AccessibilityRecordCompat getRecord(android.view.accessibility.AccessibilityEvent, int);
     method public static int getRecordCount(android.view.accessibility.AccessibilityEvent);
+    method public static void setContentChangeTypes(android.view.accessibility.AccessibilityEvent, int);
+    field public static final int CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION = 4; // 0x4
+    field public static final int CONTENT_CHANGE_TYPE_SUBTREE = 1; // 0x1
+    field public static final int CONTENT_CHANGE_TYPE_TEXT = 2; // 0x2
+    field public static final int CONTENT_CHANGE_TYPE_UNDEFINED = 0; // 0x0
     field public static final int TYPES_ALL_MASK = -1; // 0xffffffff
     field public static final int TYPE_ANNOUNCEMENT = 16384; // 0x4000
     field public static final int TYPE_GESTURE_DETECTION_END = 524288; // 0x80000
