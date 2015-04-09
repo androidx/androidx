@@ -20,7 +20,14 @@ import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.view.View;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 class ViewCompatBase {
+
+    private static Field sMinWidthField;
+    private static Field sMinHeightField;
 
     static ColorStateList getBackgroundTintList(View view) {
         return (view instanceof TintableBackgroundView)
@@ -48,5 +55,49 @@ class ViewCompatBase {
 
     static boolean isLaidOut(View view) {
         return view.getWidth() > 0 && view.getHeight() > 0;
+    }
+
+    static int getMinimumWidth(View view) {
+        if (sMinWidthField == null) {
+            try {
+                sMinWidthField = View.class.getDeclaredField("mMinWidth");
+                sMinWidthField.setAccessible(true);
+            } catch (NoSuchFieldException e) {
+                // Couldn't find the field. Abort!
+            }
+        }
+
+        if (sMinWidthField != null) {
+            try {
+                return (int) sMinWidthField.get(view);
+            } catch (Exception e) {
+                // Field get failed. Oh well...
+            }
+        }
+
+        // We failed, return 0
+        return 0;
+    }
+
+    static int getMinimumHeight(View view) {
+        if (sMinHeightField == null) {
+            try {
+                sMinHeightField = View.class.getDeclaredField("mMinHeight");
+                sMinHeightField.setAccessible(true);
+            } catch (NoSuchFieldException e) {
+                // Couldn't find the field. Abort!
+            }
+        }
+
+        if (sMinHeightField != null) {
+            try {
+                return (int) sMinHeightField.get(view);
+            } catch (Exception e) {
+                // Field get failed. Oh well...
+            }
+        }
+
+        // We failed, return 0
+        return 0;
     }
 }

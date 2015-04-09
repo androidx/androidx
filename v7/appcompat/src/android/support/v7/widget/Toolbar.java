@@ -186,7 +186,6 @@ public class Toolbar extends ViewGroup {
     private MenuBuilder.Callback mMenuBuilderCallback;
 
     private boolean mCollapsible;
-    private int mMinHeight;
 
     private final Runnable mShowOverflowMenuRunnable = new Runnable() {
         @Override public void run() {
@@ -300,9 +299,6 @@ public class Toolbar extends ViewGroup {
             setNavigationTintMode(DrawableUtils.parseTintMode(
                     a.getInt(R.styleable.Toolbar_navigationTintMode, -1), null));
         }
-
-        // This is read for devices running pre-v16
-        mMinHeight = a.getDimensionPixelSize(R.styleable.Toolbar_android_minHeight, 0);
 
         a.recycle();
 
@@ -767,7 +763,7 @@ public class Toolbar extends ViewGroup {
             mNavButtonView.setContentDescription(description);
         }
     }
-    
+
     /**
      * Set the icon to use for the toolbar's navigation button.
      *
@@ -1458,7 +1454,7 @@ public class Toolbar extends ViewGroup {
         collapsingMargins[0] = collapsingMargins[1] = 0;
 
         // Align views within the minimum toolbar height, if set.
-        final int alignmentHeight = getMinimumHeightCompat();
+        final int alignmentHeight = ViewCompat.getMinimumHeight(this);
 
         if (shouldLayout(mNavButtonView)) {
             if (isRtl) {
@@ -1887,24 +1883,6 @@ public class Toolbar extends ViewGroup {
     public void setMenuCallbacks(MenuPresenter.Callback pcb, MenuBuilder.Callback mcb) {
         mActionMenuPresenterCallback = pcb;
         mMenuBuilderCallback = mcb;
-    }
-
-    @Override
-    public void setMinimumHeight(int minHeight) {
-        // Update our locally kept value
-        mMinHeight = minHeight;
-
-        super.setMinimumHeight(minHeight);
-    }
-
-    private int getMinimumHeightCompat() {
-        if (Build.VERSION.SDK_INT >= 16) {
-            // If we're running on API 16 or newer, use the platform method
-            return ViewCompat.getMinimumHeight(this);
-        } else {
-            // Else we'll use our locally kept value
-            return mMinHeight;
-        }
     }
 
     private void applyNavigationTint() {

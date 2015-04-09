@@ -2254,6 +2254,8 @@ package android.support.v4.view {
     method public static boolean isOpaque(android.view.View);
     method public static boolean isPaddingRelative(android.view.View);
     method public static void jumpDrawablesToCurrentState(android.view.View);
+    method public static void offsetLeftAndRight(android.view.View, int);
+    method public static void offsetTopAndBottom(android.view.View, int);
     method public static android.support.v4.view.WindowInsetsCompat onApplyWindowInsets(android.view.View, android.support.v4.view.WindowInsetsCompat);
     method public static void onInitializeAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent);
     method public static void onInitializeAccessibilityNodeInfo(android.view.View, android.support.v4.view.accessibility.AccessibilityNodeInfoCompat);
