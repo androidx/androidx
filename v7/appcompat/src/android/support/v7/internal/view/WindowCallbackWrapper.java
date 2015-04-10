@@ -21,6 +21,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.SearchEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -127,6 +128,11 @@ public class WindowCallbackWrapper implements Window.Callback {
     @Override
     public void onPanelClosed(int featureId, Menu menu) {
         mWrapped.onPanelClosed(featureId, menu);
+    }
+
+    @Override
+    public boolean onSearchRequested(SearchEvent searchEvent) {
+        return mWrapped.onSearchRequested(searchEvent);
     }
 
     @Override
