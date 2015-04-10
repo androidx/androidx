@@ -120,7 +120,6 @@ LOCAL_SRC_FILES:= \
 	cpu_ref/rsCpuExecutable.cpp \
 	cpu_ref/rsCpuScript.cpp \
 	cpu_ref/rsCpuRuntimeMath.cpp \
-	cpu_ref/rsCpuRuntimeStubs.cpp \
 	cpu_ref/rsCpuScriptGroup.cpp \
 	cpu_ref/rsCpuScriptGroup2.cpp \
 	cpu_ref/rsCpuIntrinsic.cpp \
