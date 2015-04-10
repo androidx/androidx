@@ -17,6 +17,7 @@ package android.support.v4.media.session;
 
 import android.graphics.Bitmap;
 import android.media.MediaMetadataEditor;
+import android.media.MediaMetadataRetriever;
 import android.media.Rating;
 import android.media.RemoteControlClient;
 import android.os.Bundle;
@@ -28,6 +29,7 @@ public class MediaSessionCompatApi19 {
     /***** MediaMetadata keys ********/
     private static final String METADATA_KEY_USER_RATING = "android.media.metadata.USER_RATING";
     private static final String METADATA_KEY_RATING = "android.media.metadata.RATING";
+    private static final String METADATA_KEY_YEAR = "android.media.metadata.YEAR";
 
     public static void setTransportControlFlags(Object rccObj, long actions) {
         ((RemoteControlClient) rccObj).setTransportControlFlags(
@@ -66,6 +68,10 @@ public class MediaSessionCompatApi19 {
     static void addNewMetadata(Bundle metadata, RemoteControlClient.MetadataEditor editor) {
         if (metadata == null) {
             return;
+        }
+        if (metadata.containsKey(METADATA_KEY_YEAR)) {
+            editor.putLong(MediaMetadataRetriever.METADATA_KEY_YEAR,
+                    metadata.getLong(METADATA_KEY_YEAR));
         }
         if (metadata.containsKey(METADATA_KEY_RATING)) {
             editor.putObject(MediaMetadataEditor.RATING_KEY_BY_OTHERS,
