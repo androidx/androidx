@@ -1389,7 +1389,7 @@ final class BackStackRecord extends FragmentTransaction implements
 
     private static void setNameOverride(ArrayMap<String, String> overrides,
             String source, String target) {
-        if (source != null && target != null && !source.equals(target)) {
+        if (source != null && target != null) {
             for (int index = 0; index < overrides.size(); index++) {
                 if (source.equals(overrides.valueAt(index))) {
                     overrides.setValueAt(index, target);
