@@ -283,7 +283,6 @@ class FragmentTransitionCompat21 {
                 public boolean onPreDraw() {
                     sceneRoot.getViewTreeObserver().removeOnPreDrawListener(this);
                     if (enterTransition != null) {
-                        enterTransition.removeTarget(nonExistentView);
                         removeTargets(enterTransition, enteringViews);
                     }
                     if (exitTransition != null) {
