@@ -64,10 +64,8 @@ public class MediaSessionCompatApi14 {
     private static final String METADATA_KEY_COMPOSER = "android.media.metadata.COMPOSER";
     private static final String METADATA_KEY_COMPILATION = "android.media.metadata.COMPILATION";
     private static final String METADATA_KEY_DATE = "android.media.metadata.DATE";
-    private static final String METADATA_KEY_YEAR = "android.media.metadata.YEAR";
     private static final String METADATA_KEY_GENRE = "android.media.metadata.GENRE";
     private static final String METADATA_KEY_TRACK_NUMBER = "android.media.metadata.TRACK_NUMBER";
-    private static final String METADATA_KEY_NUM_TRACKS = "android.media.metadata.NUM_TRACKS";
     private static final String METADATA_KEY_DISC_NUMBER = "android.media.metadata.DISC_NUMBER";
     private static final String METADATA_KEY_ALBUM_ARTIST = "android.media.metadata.ALBUM_ARTIST";
 
@@ -210,10 +208,6 @@ public class MediaSessionCompatApi14 {
             editor.putString(MediaMetadataRetriever.METADATA_KEY_GENRE,
                     metadata.getString(METADATA_KEY_GENRE));
         }
-        if (metadata.containsKey(METADATA_KEY_NUM_TRACKS)) {
-            editor.putLong(MediaMetadataRetriever.METADATA_KEY_NUM_TRACKS,
-                    metadata.getLong(METADATA_KEY_NUM_TRACKS));
-        }
         if (metadata.containsKey(METADATA_KEY_TITLE)) {
             editor.putString(MediaMetadataRetriever.METADATA_KEY_TITLE,
                     metadata.getString(METADATA_KEY_TITLE));
@@ -225,10 +219,6 @@ public class MediaSessionCompatApi14 {
         if (metadata.containsKey(METADATA_KEY_WRITER)) {
             editor.putString(MediaMetadataRetriever.METADATA_KEY_WRITER,
                     metadata.getString(METADATA_KEY_WRITER));
-        }
-        if (metadata.containsKey(METADATA_KEY_YEAR)) {
-            editor.putString(MediaMetadataRetriever.METADATA_KEY_YEAR,
-                    metadata.getString(METADATA_KEY_YEAR));
         }
     }
 
