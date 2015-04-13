@@ -21,7 +21,9 @@ import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v14.preference.MultiSelectListPreference;
 import android.support.v14.preference.PreferenceFragment;
+import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceScreen;
 import android.view.KeyEvent;
@@ -31,7 +33,8 @@ import android.view.ViewGroup;
 
 public abstract class LeanbackSettingsFragment extends Fragment
         implements PreferenceFragment.OnPreferenceStartFragmentCallback,
-        PreferenceFragment.OnPreferenceStartScreenCallback {
+        PreferenceFragment.OnPreferenceStartScreenCallback,
+        PreferenceFragment.OnPreferenceDisplayDialogCallback {
 
     private static final String SETTINGS_FRAGMENT_INNER_TAG =
             "android.support.v17.preference.LeanbackSettingsFragment.INNER_FRAGMENT";
@@ -62,6 +65,28 @@ public abstract class LeanbackSettingsFragment extends Fragment
             onPreferenceStartInitialScreen();
             mInitialScreen = false;
         }
+    }
+
+    @Override
+    public boolean onPreferenceDisplayDialog(PreferenceFragment caller, Preference pref) {
+        final Fragment f;
+        if (pref instanceof ListPreference) {
+            final ListPreference listPreference = (ListPreference) pref;
+            f = LeanbackListPreferenceDialogFragment.newInstanceSingle(listPreference.getKey());
+            getInnerFragment().startDialogFragment(f, caller, null);
+        } else if (pref instanceof MultiSelectListPreference) {
+            MultiSelectListPreference listPreference = (MultiSelectListPreference) pref;
+            f = LeanbackListPreferenceDialogFragment.newInstanceMulti(listPreference.getKey());
+            getInnerFragment().startDialogFragment(f, caller, null);
+        }
+        // TODO
+//        else if (pref instanceof EditTextPreference) {
+//
+//        }
+        else {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -112,10 +137,28 @@ public abstract class LeanbackSettingsFragment extends Fragment
     /**
      * @hide
      */
-    public static class LeanbackSettingsFragmentInner extends Fragment {
+    public static class LeanbackSettingsFragmentInner extends Fragment
+            implements LeanbackPreferenceDialogFragment.TargetFragment {
+
+        private static final String SAVESTATE_TARGET_PREF_FRAG =
+                "android.support.v17.preference.LeanbackSettingsFragment.TARGET_PREF_FRAG";
 
         private static final String TARGET_FRAGMENT_TAG =
                 "android.support.v17.preference.LeanbackSettingsFragment.TARGET";
+
+        // Preference fragment which last launched a dialog
+        private PreferenceFragment mTargetPreferenceFragment;
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+
+            if (savedInstanceState != null &&
+                    savedInstanceState.containsKey(SAVESTATE_TARGET_PREF_FRAG)) {
+                mTargetPreferenceFragment = (PreferenceFragment) getChildFragmentManager()
+                        .getFragment(savedInstanceState, SAVESTATE_TARGET_PREF_FRAG);
+            }
+        }
 
         @Override
         public @Nullable View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -124,9 +167,29 @@ public abstract class LeanbackSettingsFragment extends Fragment
                     container, false);
         }
 
+        @Override
+        public void onSaveInstanceState(Bundle outState) {
+            super.onSaveInstanceState(outState);
+            if (mTargetPreferenceFragment != null) {
+                getChildFragmentManager().putFragment(outState, SAVESTATE_TARGET_PREF_FRAG,
+                        mTargetPreferenceFragment);
+            }
+        }
+
+        public void startDialogFragment(@NonNull Fragment dialogFragment,
+                @NonNull PreferenceFragment requestingFragment, @Nullable String tag) {
+            mTargetPreferenceFragment = requestingFragment;
+            startFragment(dialogFragment, tag, true);
+        }
+
         public void startStackedFragment(@NonNull Fragment fragment, @Nullable String tag,
                 boolean addToBackstack) {
             fragment.setTargetFragment(findTarget(), 0);
+            startFragment(fragment, tag, addToBackstack);
+        }
+
+        private void startFragment(@NonNull Fragment fragment, @Nullable String tag,
+                boolean addToBackstack) {
             final FragmentTransaction transaction = getChildFragmentManager().beginTransaction()
                     .add(R.id.settings_preference_stack, fragment, tag);
             if (addToBackstack) {
@@ -152,27 +215,47 @@ public abstract class LeanbackSettingsFragment extends Fragment
             return getChildFragmentManager().popBackStackImmediate();
         }
 
+        public Preference findPreference(CharSequence key) {
+            return mTargetPreferenceFragment.findPreference(key);
+        }
+
+        public PreferenceFragment getPreferenceFragment() {
+            return mTargetPreferenceFragment;
+        }
+
+        @Override
+        public LeanbackSettingsFragment getSettingsFragment() {
+            return (LeanbackSettingsFragment) getParentFragment();
+        }
+
         // This looks terrible, and it is. We need this because the target fragment needs to be
         // in the same FragmentManager as the fragment targeting it.
+        /**
+         * @hide
+         */
         public static class Target extends Fragment
                 implements PreferenceFragment.OnPreferenceStartFragmentCallback,
-                PreferenceFragment.OnPreferenceStartScreenCallback {
+                PreferenceFragment.OnPreferenceStartScreenCallback,
+                PreferenceFragment.OnPreferenceDisplayDialogCallback {
+
+            private LeanbackSettingsFragment getOuterParent() {
+                return (LeanbackSettingsFragment) getParentFragment().getParentFragment();
+            }
 
             @Override
             public boolean onPreferenceStartFragment(PreferenceFragment caller, Preference pref) {
-                final PreferenceFragment.OnPreferenceStartFragmentCallback callback =
-                        (PreferenceFragment.OnPreferenceStartFragmentCallback)
-                        getParentFragment().getParentFragment();
-                return callback.onPreferenceStartFragment(caller, pref);
+                return getOuterParent().onPreferenceStartFragment(caller, pref);
             }
 
             @Override
             public boolean onPreferenceStartScreen(PreferenceFragment caller,
                     PreferenceScreen pref) {
-                final PreferenceFragment.OnPreferenceStartScreenCallback callback =
-                        (PreferenceFragment.OnPreferenceStartScreenCallback)
-                        getParentFragment().getParentFragment();
-                return callback.onPreferenceStartScreen(caller, pref);
+                return getOuterParent().onPreferenceStartScreen(caller, pref);
+            }
+
+            @Override
+            public boolean onPreferenceDisplayDialog(PreferenceFragment caller, Preference pref) {
+                return getOuterParent().onPreferenceDisplayDialog(caller, pref);
             }
         }
     }

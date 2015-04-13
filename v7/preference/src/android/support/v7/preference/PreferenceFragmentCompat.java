@@ -158,6 +158,9 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
          * a fragment class name associated with it.  The implementation
          * should instantiate and switch to an instance of the given
          * fragment.
+         * @param caller The fragment requesting navigation.
+         * @param pref The preference requesting the fragment.
+         * @return true if the fragment creation has been handled
          */
         boolean onPreferenceStartFragment(PreferenceFragmentCompat caller, Preference pref);
     }
@@ -173,8 +176,20 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
          * screen of preferences.
          * @param caller The fragment requesting navigation.
          * @param pref The preference screen to navigate to.
+         * @return true if the screen navigation has been handled
          */
         boolean onPreferenceStartScreen(PreferenceFragmentCompat caller, PreferenceScreen pref);
+    }
+
+    public interface OnPreferenceDisplayDialogCallback {
+
+        /**
+         *
+         * @param caller The fragment containing the preference requesting the dialog.
+         * @param pref The preference requesting the dialog.
+         * @return true if the dialog creation has been handled.
+         */
+        boolean onPreferenceDisplayDialog(PreferenceFragmentCompat caller, Preference pref);
     }
 
     @Override
@@ -409,12 +424,14 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
      */
     @Override
     public void onNavigateToScreen(PreferenceScreen preferenceScreen) {
+        boolean handled = false;
         if (getTargetFragment() instanceof OnPreferenceStartScreenCallback) {
-            ((OnPreferenceStartScreenCallback) getTargetFragment()).onPreferenceStartScreen(this,
-                    preferenceScreen);
-        } else if (getActivity() instanceof OnPreferenceStartScreenCallback) {
-            ((OnPreferenceStartScreenCallback) getActivity()).onPreferenceStartScreen(this,
-                    preferenceScreen);
+            handled = ((OnPreferenceStartScreenCallback) getTargetFragment())
+                    .onPreferenceStartScreen(this, preferenceScreen);
+        }
+        if (!handled && getActivity() instanceof OnPreferenceStartScreenCallback) {
+            ((OnPreferenceStartScreenCallback) getActivity())
+                    .onPreferenceStartScreen(this, preferenceScreen);
         }
     }
 
@@ -515,6 +532,21 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
      */
     @Override
     public void onDisplayPreferenceDialog(Preference preference) {
+
+        boolean handled = false;
+        if (getTargetFragment() instanceof OnPreferenceDisplayDialogCallback) {
+            handled = ((OnPreferenceDisplayDialogCallback) getTargetFragment())
+                    .onPreferenceDisplayDialog(this, preference);
+        }
+        if (!handled && getActivity() instanceof OnPreferenceDisplayDialogCallback) {
+            handled = ((OnPreferenceDisplayDialogCallback) getActivity())
+                    .onPreferenceDisplayDialog(this, preference);
+        }
+
+        if (handled) {
+            return;
+        }
+
         // check if dialog is already showing
         if (getFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_TAG) != null) {
             return;
