@@ -53,6 +53,8 @@ public class MediaSessionCompatApi14 {
     private static final long ACTION_PLAY_PAUSE = 1 << 9;
 
     /***** MediaMetadata keys ********/
+    private static final String METADATA_KEY_ART = "android.media.metadata.ART";
+    private static final String METADATA_KEY_ALBUM_ART = "android.media.metadata.ALBUM_ART";
     private static final String METADATA_KEY_TITLE = "android.media.metadata.TITLE";
     private static final String METADATA_KEY_ARTIST = "android.media.metadata.ARTIST";
     private static final String METADATA_KEY_DURATION = "android.media.metadata.DURATION";
@@ -157,6 +159,14 @@ public class MediaSessionCompatApi14 {
     static void buildOldMetadata(Bundle metadata, RemoteControlClient.MetadataEditor editor) {
         if (metadata == null) {
             return;
+        }
+        if (metadata.containsKey(METADATA_KEY_ART)) {
+            Bitmap art = metadata.getParcelable(METADATA_KEY_ART);
+            editor.putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, art);
+        } else if (metadata.containsKey(METADATA_KEY_ALBUM_ART)) {
+            // Fall back to album art if the track art wasn't available
+            Bitmap art = metadata.getParcelable(METADATA_KEY_ALBUM_ART);
+            editor.putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, art);
         }
         if (metadata.containsKey(METADATA_KEY_ALBUM)) {
             editor.putString(MediaMetadataRetriever.METADATA_KEY_ALBUM,

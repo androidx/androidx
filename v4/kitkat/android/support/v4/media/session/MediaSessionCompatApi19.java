@@ -27,8 +27,6 @@ public class MediaSessionCompatApi19 {
     private static final long ACTION_SET_RATING = 1 << 7;
 
     /***** MediaMetadata keys ********/
-    private static final String METADATA_KEY_ART = "android.media.metadata.ART";
-    private static final String METADATA_KEY_ALBUM_ART = "android.media.metadata.ALBUM_ART";
     private static final String METADATA_KEY_USER_RATING = "android.media.metadata.USER_RATING";
     private static final String METADATA_KEY_RATING = "android.media.metadata.RATING";
     private static final String METADATA_KEY_YEAR = "android.media.metadata.YEAR";
@@ -82,14 +80,6 @@ public class MediaSessionCompatApi19 {
         if (metadata.containsKey(METADATA_KEY_USER_RATING)) {
             editor.putObject(MediaMetadataEditor.RATING_KEY_BY_USER,
                     metadata.getParcelable(METADATA_KEY_USER_RATING));
-        }
-        if (metadata.containsKey(METADATA_KEY_ART)) {
-            Bitmap art = metadata.getParcelable(METADATA_KEY_ART);
-            editor.putBitmap(MediaMetadataEditor.BITMAP_KEY_ARTWORK, art);
-        } else if (metadata.containsKey(METADATA_KEY_ALBUM_ART)) {
-            // Fall back to album art if the track art wasn't available
-            Bitmap art = metadata.getParcelable(METADATA_KEY_ALBUM_ART);
-            editor.putBitmap(MediaMetadataEditor.BITMAP_KEY_ARTWORK, art);
         }
     }
 
