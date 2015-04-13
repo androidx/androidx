@@ -60,10 +60,14 @@ public class ViewPropertyAnimatorCompat {
         public void xBy(ViewPropertyAnimatorCompat vpa, View view, float value);
         public void y(ViewPropertyAnimatorCompat vpa, View view, float value);
         public void yBy(ViewPropertyAnimatorCompat vpa, View view, float value);
+        public void z(ViewPropertyAnimatorCompat vpa, View view, float value);
+        public void zBy(ViewPropertyAnimatorCompat vpa, View view, float value);
         public void translationX(ViewPropertyAnimatorCompat vpa, View view, float value);
         public void translationXBy(ViewPropertyAnimatorCompat vpa, View view, float value);
         public void translationY(ViewPropertyAnimatorCompat vpa, View view, float value);
         public void translationYBy(ViewPropertyAnimatorCompat vpa, View view, float value);
+        public void translationZ(ViewPropertyAnimatorCompat vpa, View view, float value);
+        public void translationZBy(ViewPropertyAnimatorCompat vpa, View view, float value);
         public void start(ViewPropertyAnimatorCompat vpa, View view);
         public void withLayer(ViewPropertyAnimatorCompat vpa, View view);
         public void withStartAction(ViewPropertyAnimatorCompat vpa, View view, Runnable runnable);
@@ -228,6 +232,16 @@ public class ViewPropertyAnimatorCompat {
         }
 
         @Override
+        public void z(ViewPropertyAnimatorCompat vpa, View view, float value) {
+            // noop on versions prior to Lollipop
+        }
+
+        @Override
+        public void zBy(ViewPropertyAnimatorCompat vpa, View view, float value) {
+            // noop on versions prior to Lollipop
+        }
+
+        @Override
         public void translationXBy(ViewPropertyAnimatorCompat vpa, View view, float value) {
             // noop on versions prior to ICS
             postStartMessage(vpa, view);
@@ -237,6 +251,16 @@ public class ViewPropertyAnimatorCompat {
         public void translationYBy(ViewPropertyAnimatorCompat vpa, View view, float value) {
             // noop on versions prior to ICS
             postStartMessage(vpa, view);
+        }
+
+        @Override
+        public void translationZ(ViewPropertyAnimatorCompat vpa, View view, float value) {
+            // noop on versions prior to Lollipop
+        }
+
+        @Override
+        public void translationZBy(ViewPropertyAnimatorCompat vpa, View view, float value) {
+            // noop on versions prior to Lollipop
         }
 
         @Override
@@ -594,10 +618,34 @@ public class ViewPropertyAnimatorCompat {
         }
     }
 
+    static class LollipopViewPropertyAnimatorCompatImpl extends KitKatViewPropertyAnimatorCompatImpl {
+        @Override
+        public void translationZ(ViewPropertyAnimatorCompat vpa, View view, float value) {
+            ViewPropertyAnimatorCompatLollipop.translationZ(view, value);
+        }
+
+        @Override
+        public void translationZBy(ViewPropertyAnimatorCompat vpa, View view, float value) {
+            ViewPropertyAnimatorCompatLollipop.translationZBy(view, value);
+        }
+
+        @Override
+        public void z(ViewPropertyAnimatorCompat vpa, View view, float value) {
+            ViewPropertyAnimatorCompatLollipop.z(view, value);
+        }
+
+        @Override
+        public void zBy(ViewPropertyAnimatorCompat vpa, View view, float value) {
+            ViewPropertyAnimatorCompatLollipop.zBy(view, value);
+        }
+    }
+
     static final ViewPropertyAnimatorCompatImpl IMPL;
     static {
         final int version = android.os.Build.VERSION.SDK_INT;
-        if (version >= 19) {
+        if (version >= 21) {
+            IMPL = new LollipopViewPropertyAnimatorCompatImpl();
+        } else if (version >= 19) {
             IMPL = new KitKatViewPropertyAnimatorCompatImpl();
         } else if (version >= 18) {
             IMPL = new JBMr2ViewPropertyAnimatorCompatImpl();
@@ -1100,6 +1148,74 @@ public class ViewPropertyAnimatorCompat {
         View view;
         if ((view = mView.get()) != null) {
             IMPL.translationYBy(this, view, value);
+        }
+        return this;
+    }
+
+    /**
+     * This method will cause the View's <code>translationZ</code> property to be animated by the
+     * specified value. Animations already running on the property will be canceled.
+     *
+     * <p>Prior to API 21, this method will do nothing.</p>
+     *
+     * @param value The amount to be animated by, as an offset from the current value.
+     * @return This object, allowing calls to methods in this class to be chained.
+     */
+    public ViewPropertyAnimatorCompat translationZBy(float value) {
+        View view;
+        if ((view = mView.get()) != null) {
+            IMPL.translationZBy(this, view, value);
+        }
+        return this;
+    }
+
+    /**
+     * This method will cause the View's <code>translationZ</code> property to be animated to the
+     * specified value. Animations already running on the property will be canceled.
+     *
+     * <p>Prior to API 21, this method will do nothing.</p>
+     *
+     * @param value The amount to be animated by, as an offset from the current value.
+     * @return This object, allowing calls to methods in this class to be chained.
+     */
+    public ViewPropertyAnimatorCompat translationZ(float value) {
+        View view;
+        if ((view = mView.get()) != null) {
+            IMPL.translationZ(this, view, value);
+        }
+        return this;
+    }
+
+    /**
+     * This method will cause the View's <code>z</code> property to be animated to the
+     * specified value. Animations already running on the property will be canceled.
+     *
+     * <p>Prior to API 21, this method will do nothing.</p>
+     *
+     * @param value The amount to be animated by, as an offset from the current value.
+     * @return This object, allowing calls to methods in this class to be chained.
+     */
+    public ViewPropertyAnimatorCompat z(float value) {
+        View view;
+        if ((view = mView.get()) != null) {
+            IMPL.z(this, view, value);
+        }
+        return this;
+    }
+
+    /**
+     * This method will cause the View's <code>z</code> property to be animated by the
+     * specified value. Animations already running on the property will be canceled.
+     *
+     * <p>Prior to API 21, this method will do nothing.</p>
+     *
+     * @param value The amount to be animated by, as an offset from the current value.
+     * @return This object, allowing calls to methods in this class to be chained.
+     */
+    public ViewPropertyAnimatorCompat zBy(float value) {
+        View view;
+        if ((view = mView.get()) != null) {
+            IMPL.zBy(this, view, value);
         }
         return this;
     }

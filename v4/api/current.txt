@@ -2347,6 +2347,8 @@ package android.support.v4.view {
     method public android.support.v4.view.ViewPropertyAnimatorCompat translationXBy(float);
     method public android.support.v4.view.ViewPropertyAnimatorCompat translationY(float);
     method public android.support.v4.view.ViewPropertyAnimatorCompat translationYBy(float);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat translationZ(float);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat translationZBy(float);
     method public android.support.v4.view.ViewPropertyAnimatorCompat withEndAction(java.lang.Runnable);
     method public android.support.v4.view.ViewPropertyAnimatorCompat withLayer();
     method public android.support.v4.view.ViewPropertyAnimatorCompat withStartAction(java.lang.Runnable);
@@ -2354,6 +2356,8 @@ package android.support.v4.view {
     method public android.support.v4.view.ViewPropertyAnimatorCompat xBy(float);
     method public android.support.v4.view.ViewPropertyAnimatorCompat y(float);
     method public android.support.v4.view.ViewPropertyAnimatorCompat yBy(float);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat z(float);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat zBy(float);
   }
 
   public abstract interface ViewPropertyAnimatorListener {
