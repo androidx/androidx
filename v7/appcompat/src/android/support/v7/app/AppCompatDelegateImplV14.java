@@ -54,7 +54,7 @@ class AppCompatDelegateImplV14 extends AppCompatDelegateImplV11 {
         @Override
         public ActionMode onWindowStartingActionMode(ActionMode.Callback callback) {
             // We wrap in a support action mode on v14+ if enabled
-            if (mHandleNativeActionModes) {
+            if (isHandleNativeActionModesEnabled()) {
                 return startAsSupportActionMode(callback);
             }
             // Else, let the call fall through to the wrapped callback

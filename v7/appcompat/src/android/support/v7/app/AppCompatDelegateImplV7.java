@@ -37,6 +37,7 @@ import android.support.v4.view.OnApplyWindowInsetsListener;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewConfigurationCompat;
 import android.support.v4.view.WindowInsetsCompat;
+import android.support.v4.widget.PopupWindowCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.app.AppCompatViewInflater;
 import android.support.v7.internal.app.ToolbarActionBar;
@@ -623,6 +624,8 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
                     mActionModeView = new ActionBarContextView(actionBarContext);
                     mActionModePopup = new PopupWindow(actionBarContext, null,
                             R.attr.actionModePopupWindowStyle);
+                    PopupWindowCompat.setWindowLayoutType(mActionModePopup,
+                            WindowManager.LayoutParams.TYPE_APPLICATION);
                     mActionModePopup.setContentView(mActionModeView);
                     mActionModePopup.setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
 

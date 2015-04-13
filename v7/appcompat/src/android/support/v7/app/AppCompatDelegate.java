@@ -89,7 +89,9 @@ public abstract class AppCompatDelegate {
     private static AppCompatDelegate create(Context context, Window window,
             AppCompatCallback callback) {
         final int sdk = Build.VERSION.SDK_INT;
-        if (sdk >= 14) {
+        if (sdk >= 23) {
+            return new AppCompatDelegateImplV23(context, window, callback);
+        } else if (sdk >= 14) {
             return new AppCompatDelegateImplV14(context, window, callback);
         } else if (sdk >= 11) {
             return new AppCompatDelegateImplV11(context, window, callback);
