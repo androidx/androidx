@@ -609,7 +609,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     /**
      * Return the {@link Context} this fragment is currently associated with.
      */
-    final public Context getContext() {
+    public Context getContext() {
         return mHost == null ? null : mHost.getContext();
     }
 
@@ -620,6 +620,14 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     final public FragmentActivity getActivity() {
         return mHost == null ? null : (FragmentActivity) mHost.getActivity();
+    }
+
+    /**
+     * Return the host object of this fragment. May return {@code null} if the fragment
+     * isn't currently being hosted.
+     */
+    final public Object getHost() {
+        return mHost == null ? null : mHost.getHost();
     }
 
     /**

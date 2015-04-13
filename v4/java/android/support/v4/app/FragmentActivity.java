@@ -768,7 +768,7 @@ public class FragmentActivity extends Activity {
         super.startActivityForResult(intent, ((fragment.mIndex+1)<<16) + (requestCode&0xffff));
     }
 
-    class HostCallbacks extends FragmentHostCallbacks {
+    class HostCallbacks extends FragmentHostCallbacks<FragmentActivity> {
         public HostCallbacks() {
             super(FragmentActivity.this /*fragmentActivity*/);
         }
@@ -786,6 +786,11 @@ public class FragmentActivity extends Activity {
         @Override
         public LayoutInflater getLayoutInflater() {
             return FragmentActivity.this.getLayoutInflater().cloneInContext(FragmentActivity.this);
+        }
+
+        @Override
+        public FragmentActivity getHost() {
+            return FragmentActivity.this;
         }
 
         @Override
