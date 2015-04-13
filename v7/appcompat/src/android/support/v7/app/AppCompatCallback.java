@@ -16,6 +16,7 @@
 
 package android.support.v7.app;
 
+import android.support.annotation.Nullable;
 import android.support.v7.view.ActionMode;
 
 /**
@@ -39,5 +40,17 @@ public interface AppCompatCallback {
      * @param mode The action mode that just finished.
      */
     void onSupportActionModeFinished(ActionMode mode);
+
+    /**
+     * Called when a support action mode is being started for this window. Gives the
+     * callback an opportunity to handle the action mode in its own unique and
+     * beautiful way. If this method returns null the system can choose a way
+     * to present the mode or choose not to start the mode at all.
+     *
+     * @param callback Callback to control the lifecycle of this action mode
+     * @return The ActionMode that was started, or null if the system should present it
+     */
+    @Nullable
+    ActionMode onWindowStartingSupportActionMode(ActionMode.Callback callback);
 
 }

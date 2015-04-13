@@ -59,7 +59,6 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.AndroidRuntimeException;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -557,7 +556,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
             mActionMode.finish();
         }
 
-        final ActionMode.Callback wrappedCallback = new ActionModeCallbackWrapper(callback);
+        final ActionMode.Callback wrappedCallback = new ActionModeCallbackWrapperV7(callback);
 
         ActionBar ab = getSupportActionBar();
         if (ab != null) {
@@ -589,61 +588,89 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
             mActionMode.finish();
         }
 
-        final ActionMode.Callback wrappedCallback = new ActionModeCallbackWrapper(callback);
-        final Context context = getActionBarThemedContext();
-
-        if (mActionModeView == null) {
-            if (mIsFloating) {
-                mActionModeView = new ActionBarContextView(context);
-                mActionModePopup = new PopupWindow(context, null,
-                        R.attr.actionModePopupWindowStyle);
-                mActionModePopup.setContentView(mActionModeView);
-                mActionModePopup.setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
-
-                TypedValue heightValue = new TypedValue();
-                mContext.getTheme().resolveAttribute(R.attr.actionBarSize, heightValue, true);
-                final int height = TypedValue.complexToDimensionPixelSize(heightValue.data,
-                        mContext.getResources().getDisplayMetrics());
-                mActionModeView.setContentHeight(height);
-                mActionModePopup.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
-                mShowActionModePopup = new Runnable() {
-                    public void run() {
-                        mActionModePopup.showAtLocation(
-                                mActionModeView,
-                                Gravity.TOP | Gravity.FILL_HORIZONTAL, 0, 0);
-                    }
-                };
-            } else {
-                ViewStubCompat stub = (ViewStubCompat) mSubDecor
-                        .findViewById(R.id.action_mode_bar_stub);
-                if (stub != null) {
-                    // Set the layout inflater so that it is inflated with the action bar's context
-                    stub.setLayoutInflater(LayoutInflater.from(context));
-                    mActionModeView = (ActionBarContextView) stub.inflate();
-                }
+        final ActionMode.Callback wrappedCallback = new ActionModeCallbackWrapperV7(callback);
+        ActionMode mode = null;
+        if (mAppCompatCallback != null && !isDestroyed()) {
+            try {
+                mode = mAppCompatCallback.onWindowStartingSupportActionMode(wrappedCallback);
+            } catch (AbstractMethodError ame) {
+                // Older apps might not implement this callback method.
             }
         }
 
-        if (mActionModeView != null) {
-            mActionModeView.killMode();
-            ActionMode mode = new StandaloneActionMode(context, mActionModeView, wrappedCallback,
-                    mActionModePopup == null);
-            if (callback.onCreateActionMode(mode, mode.getMenu())) {
-                mode.invalidate();
-                mActionModeView.initForMode(mode);
-                mActionModeView.setVisibility(View.VISIBLE);
-                mActionMode = mode;
-                if (mActionModePopup != null) {
-                    mWindow.getDecorView().post(mShowActionModePopup);
-                }
-                mActionModeView.sendAccessibilityEvent(
-                        AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
+        if (mode != null) {
+            mActionMode = mode;
+        } else {
+            if (mActionModeView == null) {
+                if (mIsFloating) {
+                    // Use the action bar theme.
+                    final TypedValue outValue = new TypedValue();
+                    final Resources.Theme baseTheme = mContext.getTheme();
+                    baseTheme.resolveAttribute(R.attr.actionBarTheme, outValue, true);
 
-                if (mActionModeView.getParent() != null) {
-                    ViewCompat.requestApplyInsets((View) mActionModeView.getParent());
+                    final Context actionBarContext;
+                    if (outValue.resourceId != 0) {
+                        final Resources.Theme actionBarTheme = mContext.getResources().newTheme();
+                        actionBarTheme.setTo(baseTheme);
+                        actionBarTheme.applyStyle(outValue.resourceId, true);
+
+                        actionBarContext = new ContextThemeWrapper(mContext, 0);
+                        actionBarContext.getTheme().setTo(actionBarTheme);
+                    } else {
+                        actionBarContext = mContext;
+                    }
+
+                    mActionModeView = new ActionBarContextView(actionBarContext);
+                    mActionModePopup = new PopupWindow(actionBarContext, null,
+                            R.attr.actionModePopupWindowStyle);
+                    mActionModePopup.setContentView(mActionModeView);
+                    mActionModePopup.setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
+
+                    actionBarContext.getTheme().resolveAttribute(
+                            R.attr.actionBarSize, outValue, true);
+                    final int height = TypedValue.complexToDimensionPixelSize(outValue.data,
+                            actionBarContext.getResources().getDisplayMetrics());
+                    mActionModeView.setContentHeight(height);
+                    mActionModePopup.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
+                    mShowActionModePopup = new Runnable() {
+                        public void run() {
+                            mActionModePopup.showAtLocation(
+                                    mActionModeView,
+                                    Gravity.TOP | Gravity.FILL_HORIZONTAL, 0, 0);
+                        }
+                    };
+                } else {
+                    ViewStubCompat stub = (ViewStubCompat) mSubDecor
+                            .findViewById(R.id.action_mode_bar_stub);
+                    if (stub != null) {
+                        // Set the layout inflater so that it is inflated with the action bar's context
+                        stub.setLayoutInflater(LayoutInflater.from(getActionBarThemedContext()));
+                        mActionModeView = (ActionBarContextView) stub.inflate();
+                    }
                 }
-            } else {
-                mActionMode = null;
+            }
+
+            if (mActionModeView != null) {
+                mActionModeView.killMode();
+                mode = new StandaloneActionMode(mActionModeView.getContext(), mActionModeView,
+                        wrappedCallback, mActionModePopup == null);
+                if (callback.onCreateActionMode(mode, mode.getMenu())) {
+                    mode.invalidate();
+                    mActionModeView.initForMode(mode);
+                    mActionModeView.setVisibility(View.VISIBLE);
+                    mActionMode = mode;
+                    if (mActionModePopup != null) {
+                        mWindow.getDecorView().post(mShowActionModePopup);
+                    }
+                    mActionModeView.sendAccessibilityEvent(
+                            AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
+
+                    if (mActionModeView.getParent() != null) {
+                        ViewCompat.requestApplyInsets((View) mActionModeView.getParent());
+                    }
+                } else {
+                    mActionMode = null;
+                }
             }
         }
         if (mActionMode != null && mAppCompatCallback != null) {
@@ -1450,10 +1477,10 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
     /**
      * Clears out internal reference when the action mode is destroyed.
      */
-    private class ActionModeCallbackWrapper implements ActionMode.Callback {
+    class ActionModeCallbackWrapperV7 implements ActionMode.Callback {
         private ActionMode.Callback mWrapped;
 
-        public ActionModeCallbackWrapper(ActionMode.Callback wrapped) {
+        public ActionModeCallbackWrapperV7(ActionMode.Callback wrapped) {
             mWrapped = wrapped;
         }
 

@@ -30,6 +30,7 @@ import android.util.AttributeSet;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 
 /**
  * This class represents a delegate which you can use to extend AppCompat's support to any
@@ -73,11 +74,7 @@ public abstract class AppCompatDelegate {
      * @param callback An optional callback for AppCompat specific events
      */
     public static AppCompatDelegate create(Activity activity, AppCompatCallback callback) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            return new AppCompatDelegateImplV11(activity, activity.getWindow(), callback);
-        } else {
-            return new AppCompatDelegateImplV7(activity, activity.getWindow(), callback);
-        }
+        return create(activity, activity.getWindow(), callback);
     }
 
     /**
@@ -86,10 +83,18 @@ public abstract class AppCompatDelegate {
      * @param callback An optional callback for AppCompat specific events
      */
     public static AppCompatDelegate create(Dialog dialog, AppCompatCallback callback) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            return new AppCompatDelegateImplV11(dialog.getContext(), dialog.getWindow(), callback);
+        return create(dialog.getContext(), dialog.getWindow(), callback);
+    }
+
+    private static AppCompatDelegate create(Context context, Window window,
+            AppCompatCallback callback) {
+        final int sdk = Build.VERSION.SDK_INT;
+        if (sdk >= 14) {
+            return new AppCompatDelegateImplV14(context, window, callback);
+        } else if (sdk >= 11) {
+            return new AppCompatDelegateImplV11(context, window, callback);
         } else {
-            return new AppCompatDelegateImplV7(dialog.getContext(), dialog.getWindow(), callback);
+            return new AppCompatDelegateImplV7(context, window, callback);
         }
     }
 
@@ -247,5 +252,21 @@ public abstract class AppCompatDelegate {
      */
     public abstract View createView(View parent, String name, @NonNull Context context,
             @NonNull AttributeSet attrs);
+
+    /**
+     * Whether AppCompat handles any native action modes itself.
+     * <p>This methods only takes effect on
+     * {@link android.os.Build.VERSION_CODES#ICE_CREAM_SANDWICH} and above.
+     *
+     * @param enabled whether AppCompat should handle native action modes.
+     */
+    public abstract void setHandleNativeActionModesEnabled(boolean enabled);
+
+    /**
+     * Returns whether AppCompat handles any native action modes itself.
+     *
+     * @return true if AppCompat should handle native action modes.
+     */
+    public abstract boolean isHandleNativeActionModesEnabled();
 
 }
