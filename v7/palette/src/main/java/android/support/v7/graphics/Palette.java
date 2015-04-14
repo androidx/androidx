@@ -455,7 +455,7 @@ public final class Palette {
          * Set the {@link Generator} to use when generating the {@link Palette}. If this is called
          * with {@code null} then the default generator will be used.
          */
-        public Builder generator(Generator generator) {
+        Builder generator(Generator generator) {
             mGenerator = generator;
             return this;
         }
@@ -579,21 +579,7 @@ public final class Palette {
         }
     }
 
-    /**
-     * Extension point for {@link Palette} which allows custom processing of the list of
-     * {@link Palette.Swatch} instances which represent an image.
-     * <p>
-     * You should do as much processing as possible during the
-     * {@link #generate(java.util.List)} method call. The other methods in this class
-     * may be called multiple times to retrieve an appropriate {@link Palette.Swatch}.
-     * <p>
-     * Usage of a custom {@link Generator} is done with {@link Builder#generator(Generator)} as so:
-     * <pre>
-     * Generator customGenerator = ...;
-     * Palette.from(bitmap).generator(customGenerator).generate();
-     * </pre>
-     */
-    public static abstract class Generator {
+    static abstract class Generator {
 
         /**
          * This method will be called with the {@link Palette.Swatch} that represent an image.
