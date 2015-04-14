@@ -491,11 +491,11 @@ package android.support.v4.app {
 
   public static class NotificationCompat.Action extends android.support.v4.app.NotificationCompatBase.Action {
     ctor public NotificationCompat.Action(int, java.lang.CharSequence, android.app.PendingIntent);
-    method protected android.app.PendingIntent getActionIntent();
+    method public android.app.PendingIntent getActionIntent();
     method public android.os.Bundle getExtras();
-    method protected int getIcon();
+    method public int getIcon();
     method public android.support.v4.app.RemoteInput[] getRemoteInputs();
-    method protected java.lang.CharSequence getTitle();
+    method public java.lang.CharSequence getTitle();
     field public android.app.PendingIntent actionIntent;
     field public int icon;
     field public java.lang.CharSequence title;
@@ -699,16 +699,17 @@ package android.support.v4.app {
     field public static final int UNSET_ACTION_INDEX = -1; // 0xffffffff
   }
 
-   class NotificationCompatBase {
+  public class NotificationCompatBase {
+    ctor public NotificationCompatBase();
   }
 
   public static abstract class NotificationCompatBase.Action {
     ctor public NotificationCompatBase.Action();
-    method protected abstract android.app.PendingIntent getActionIntent();
-    method protected abstract android.os.Bundle getExtras();
-    method protected abstract int getIcon();
-    method protected abstract android.support.v4.app.RemoteInputCompatBase.RemoteInput[] getRemoteInputs();
-    method protected abstract java.lang.CharSequence getTitle();
+    method public abstract android.app.PendingIntent getActionIntent();
+    method public abstract android.os.Bundle getExtras();
+    method public abstract int getIcon();
+    method public abstract android.support.v4.app.RemoteInputCompatBase.RemoteInput[] getRemoteInputs();
+    method public abstract java.lang.CharSequence getTitle();
   }
 
   public static abstract class NotificationCompatBase.UnreadConversation {
