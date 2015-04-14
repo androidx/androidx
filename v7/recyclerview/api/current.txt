@@ -56,7 +56,6 @@ package android.support.v7.widget {
   }
 
   public class GridLayoutManager extends android.support.v7.widget.LinearLayoutManager {
-    ctor public GridLayoutManager(android.content.Context, android.util.AttributeSet, int, int);
     ctor public GridLayoutManager(android.content.Context, int);
     ctor public GridLayoutManager(android.content.Context, int, int, boolean);
     method public int getSpanCount();
@@ -95,7 +94,6 @@ package android.support.v7.widget {
   public class LinearLayoutManager extends android.support.v7.widget.RecyclerView.LayoutManager {
     ctor public LinearLayoutManager(android.content.Context);
     ctor public LinearLayoutManager(android.content.Context, int, boolean);
-    ctor public LinearLayoutManager(android.content.Context, android.util.AttributeSet, int, int);
     method public android.graphics.PointF computeScrollVectorForPosition(int);
     method public int findFirstCompletelyVisibleItemPosition();
     method public int findFirstVisibleItemPosition();
@@ -402,7 +400,6 @@ package android.support.v7.widget {
     method public int getPaddingStart();
     method public int getPaddingTop();
     method public int getPosition(android.view.View);
-    method public static android.support.v7.widget.RecyclerView.LayoutManager.Properties getProperties(android.content.Context, android.util.AttributeSet, int, int);
     method public int getRightDecorationWidth(android.view.View);
     method public int getRowCountForAccessibility(android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State);
     method public int getSelectionModeForAccessibility(android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State);
@@ -465,14 +462,6 @@ package android.support.v7.widget {
     method public void startSmoothScroll(android.support.v7.widget.RecyclerView.SmoothScroller);
     method public void stopIgnoringView(android.view.View);
     method public boolean supportsPredictiveItemAnimations();
-  }
-
-  public static class RecyclerView.LayoutManager.Properties {
-    ctor public RecyclerView.LayoutManager.Properties();
-    field public int orientation;
-    field public boolean reverseLayout;
-    field public int spanCount;
-    field public boolean stackFromEnd;
   }
 
   public static class RecyclerView.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
@@ -598,7 +587,6 @@ package android.support.v7.widget {
   }
 
   public class StaggeredGridLayoutManager extends android.support.v7.widget.RecyclerView.LayoutManager {
-    ctor public StaggeredGridLayoutManager(android.content.Context, android.util.AttributeSet, int, int);
     ctor public StaggeredGridLayoutManager(int, int);
     method public int[] findFirstCompletelyVisibleItemPositions(int[]);
     method public int[] findFirstVisibleItemPositions(int[]);
