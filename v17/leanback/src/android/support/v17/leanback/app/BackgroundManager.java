@@ -459,7 +459,9 @@ public final class BackgroundManager {
         }
         @Override
         public void onAnimationEnd(Animator animation) {
-            mLayerDrawable.clearDrawable(R.id.background_imageout, mContext);
+            if (mLayerDrawable != null) {
+                mLayerDrawable.clearDrawable(R.id.background_imageout, mContext);
+            }
             mHandler.post(mRunnable);
         }
         @Override
