@@ -21,6 +21,7 @@ import android.os.Debug;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.util.Log;
+import android.util.SparseIntArray;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -33,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
 import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
@@ -187,6 +189,40 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
                     helper.getDecoratedStart(child0), helper.getStartAfterPadding());
         }
         checkForMainThreadException();
+    }
+
+    public void testMovingAGroupOffScreenForAddedItems() throws Throwable {
+        final RecyclerView rv = setupBasic(new Config(3, 100));
+        final int[] maxId = new int[1];
+        maxId[0] = -1;
+        final SparseIntArray spanLookups = new SparseIntArray();
+        final AtomicBoolean enableSpanLookupLogging = new AtomicBoolean(false);
+        mGlm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                if (maxId[0] > 0 && mAdapter.getItemAt(position).mId > maxId[0]) {
+                    return 1;
+                } else if (enableSpanLookupLogging.get() && !rv.mState.isPreLayout()) {
+                    spanLookups.put(position, spanLookups.get(position, 0) + 1);
+                }
+                return 3;
+            }
+        });
+        rv.getItemAnimator().setSupportsChangeAnimations(true);
+        waitForFirstLayout(rv);
+        View lastView = rv.getChildAt(rv.getChildCount() - 1);
+        final int lastPos = rv.getChildAdapterPosition(lastView);
+        maxId[0] = mAdapter.getItemAt(mAdapter.getItemCount() - 1).mId;
+        // now add a lot of items below this and those new views should have span size 3
+        enableSpanLookupLogging.set(true);
+        mGlm.expectLayout(2);
+        mAdapter.addAndNotify(lastPos - 2, 30);
+        mGlm.waitForLayout(2);
+        checkForMainThreadException();
+
+        assertEquals("last items span count should be queried twice", 2,
+                spanLookups.get(lastPos + 30));
+
     }
 
     public void testCachedBorders() throws Throwable {
@@ -889,6 +925,22 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
                 postExceptionToInstrumentation(t);
             }
             mLayoutLatch.countDown();
+        }
+
+        @Override
+        LayoutState createLayoutState() {
+            return new LayoutState() {
+                @Override
+                View next(RecyclerView.Recycler recycler) {
+                    final boolean hadMore = hasMore(mRecyclerView.mState);
+                    final int position = mCurrentPosition;
+                    View next = super.next(recycler);
+                    assertEquals("if has more, should return a view", hadMore, next != null);
+                    assertEquals("position of the returned view must match current position",
+                            position, RecyclerView.getChildViewHolderInt(next).getLayoutPosition());
+                    return next;
+                }
+            };
         }
 
         public void expectLayout(int layoutCount) {
