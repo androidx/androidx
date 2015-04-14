@@ -1227,6 +1227,22 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
             getInstrumentation().waitForIdleSync();
         }
 
+        @Override
+        LayoutState createLayoutState() {
+            return new LayoutState() {
+                @Override
+                View next(RecyclerView.Recycler recycler) {
+                    final boolean hadMore = hasMore(mRecyclerView.mState);
+                    final int position = mCurrentPosition;
+                    View next = super.next(recycler);
+                    assertEquals("if has more, should return a view", hadMore, next != null);
+                    assertEquals("position of the returned view must match current position",
+                            position, RecyclerView.getChildViewHolderInt(next).getLayoutPosition());
+                    return next;
+                }
+            };
+        }
+
         public String getBoundsLog() {
             StringBuilder sb = new StringBuilder();
             sb.append("view bounds:[start:").append(mOrientationHelper.getStartAfterPadding())

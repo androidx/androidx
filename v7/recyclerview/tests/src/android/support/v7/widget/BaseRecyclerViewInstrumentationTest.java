@@ -566,6 +566,10 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             holder.mBoundItem = item;
         }
 
+        public Item getItemAt(int position) {
+            return mItems.get(position);
+        }
+
         @Override
         public void onViewRecycled(TestViewHolder holder) {
             super.onViewRecycled(holder);
