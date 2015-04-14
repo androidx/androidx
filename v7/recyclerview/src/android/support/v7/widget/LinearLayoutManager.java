@@ -23,7 +23,6 @@ import android.os.Parcelable;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityRecordCompat;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -131,7 +130,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     *  Re-used variable to keep anchor information on re-layout.
     *  Anchor position and coordinate defines the reference point for LLM while doing a layout.
     * */
-    final AnchorInfo mAnchorInfo = new AnchorInfo();
+    final AnchorInfo mAnchorInfo;
 
     /**
      * Creates a vertical LinearLayoutManager
@@ -149,24 +148,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * @param reverseLayout When set to true, layouts from end to start.
      */
     public LinearLayoutManager(Context context, int orientation, boolean reverseLayout) {
+        mAnchorInfo = new AnchorInfo();
         setOrientation(orientation);
         setReverseLayout(reverseLayout);
-    }
-
-    /**
-     * Constructor used when layout manager is set in XML by RecyclerView attribute
-     * "layoutManager". Defaults to vertical orientation.
-     *
-     * @attr ref android.support.v7.recyclerview.R.styleable#RecyclerView_android_orientation
-     * @attr ref android.support.v7.recyclerview.R.styleable#RecyclerView_reverseLayout
-     * @attr ref android.support.v7.recyclerview.R.styleable#RecyclerView_stackFromEnd
-     */
-    public LinearLayoutManager(Context context, AttributeSet attrs, int defStyleAttr,
-                               int defStyleRes) {
-        Properties properties = getProperties(context, attrs, defStyleAttr, defStyleRes);
-        setOrientation(properties.orientation);
-        setReverseLayout(properties.reverseLayout);
-        setStackFromEnd(properties.stackFromEnd);
     }
 
     /**
