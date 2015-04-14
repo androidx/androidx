@@ -493,6 +493,10 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                 VisibleChildren visibleChildren = mLayoutManager.traverseAndFindVisibleChildren();
                 final String boundsLog = mLayoutManager.getBoundsLog();
                 VisibleChildren queryResult = new VisibleChildren(mLayoutManager.getSpanCount());
+                queryResult.findFirstPartialVisibleClosestToStart = mLayoutManager
+                        .findFirstVisibleItemClosestToStart(false, true);
+                queryResult.findFirstPartialVisibleClosestToEnd = mLayoutManager
+                        .findFirstVisibleItemClosestToEnd(false, true);
                 queryResult.firstFullyVisiblePositions = mLayoutManager
                         .findFirstCompletelyVisibleItemPositions(
                                 provideArr ? new int[mLayoutManager.getSpanCount()] : null);
@@ -543,9 +547,9 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                     int position) {
                 super.onBindViewHolder(holder, position);
                 if (config.mOrientation == LinearLayoutManager.HORIZONTAL) {
-                    holder.itemView.setMinimumWidth(totalSpace + 5);
+                    holder.itemView.setMinimumWidth(totalSpace + 100);
                 } else {
-                    holder.itemView.setMinimumHeight(totalSpace + 5);
+                    holder.itemView.setMinimumHeight(totalSpace + 100);
                 }
             }
         };
@@ -556,6 +560,28 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
             }
         });
         mLayoutManager.waitForLayout(2);
+        runTestOnUiThread(viewInBoundsTest);
+        checkForMainThreadException();
+
+        // smooth scroll to end of the list and keep testing meanwhile. This will test pre-caching
+        // case
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final int diff;
+                if (config.mReverseLayout) {
+                    diff = -1;
+                } else {
+                    diff = 1;
+                }
+                final int distance = diff * 10;
+                if (config.mOrientation == HORIZONTAL) {
+                    mRecyclerView.scrollBy(distance, 0);
+                } else {
+                    mRecyclerView.scrollBy(0, distance);
+                }
+            }
+        });
         runTestOnUiThread(viewInBoundsTest);
         checkForMainThreadException();
     }
@@ -1746,7 +1772,10 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                 if (position > visibleChildren.lastVisiblePositions[span]) {
                     visibleChildren.lastVisiblePositions[span] = position;
                 }
-
+                if (visibleChildren.findFirstPartialVisibleClosestToStart == null) {
+                    visibleChildren.findFirstPartialVisibleClosestToStart = child;
+                }
+                visibleChildren.findFirstPartialVisibleClosestToEnd = child;
             }
             return visibleChildren;
         }
@@ -1797,6 +1826,9 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
 
         int[] lastFullyVisiblePositions;
 
+        View findFirstPartialVisibleClosestToStart;
+        View findFirstPartialVisibleClosestToEnd;
+
         VisibleChildren(int spanCount) {
             firstFullyVisiblePositions = new int[spanCount];
             firstVisiblePositions = new int[spanCount];
@@ -1824,10 +1856,22 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
             if (!Arrays.equals(firstFullyVisiblePositions, that.firstFullyVisiblePositions)) {
                 return false;
             }
+            if (findFirstPartialVisibleClosestToStart
+                    != null ? !findFirstPartialVisibleClosestToStart
+                    .equals(that.findFirstPartialVisibleClosestToStart)
+                    : that.findFirstPartialVisibleClosestToStart != null) {
+                return false;
+            }
             if (!Arrays.equals(firstVisiblePositions, that.firstVisiblePositions)) {
                 return false;
             }
             if (!Arrays.equals(lastFullyVisiblePositions, that.lastFullyVisiblePositions)) {
+                return false;
+            }
+            if (findFirstPartialVisibleClosestToEnd != null ? !findFirstPartialVisibleClosestToEnd
+                    .equals(that.findFirstPartialVisibleClosestToEnd)
+                    : that.findFirstPartialVisibleClosestToEnd
+                            != null) {
                 return false;
             }
             if (!Arrays.equals(lastVisiblePositions, that.lastVisiblePositions)) {
@@ -1839,14 +1883,17 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
 
         @Override
         public int hashCode() {
-            int result = firstVisiblePositions != null ? Arrays.hashCode(firstVisiblePositions) : 0;
-            result = 31 * result + (firstFullyVisiblePositions != null ? Arrays
-                    .hashCode(firstFullyVisiblePositions) : 0);
-            result = 31 * result + (lastVisiblePositions != null ? Arrays
-                    .hashCode(lastVisiblePositions)
+            int result = Arrays.hashCode(firstVisiblePositions);
+            result = 31 * result + Arrays.hashCode(firstFullyVisiblePositions);
+            result = 31 * result + Arrays.hashCode(lastVisiblePositions);
+            result = 31 * result + Arrays.hashCode(lastFullyVisiblePositions);
+            result = 31 * result + (findFirstPartialVisibleClosestToStart != null
+                    ? findFirstPartialVisibleClosestToStart
+                    .hashCode() : 0);
+            result = 31 * result + (findFirstPartialVisibleClosestToEnd != null
+                    ? findFirstPartialVisibleClosestToEnd
+                    .hashCode()
                     : 0);
-            result = 31 * result + (lastFullyVisiblePositions != null ? Arrays
-                    .hashCode(lastFullyVisiblePositions) : 0);
             return result;
         }
 
@@ -1857,7 +1904,23 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                     ", firstFullyVisiblePositions=" + Arrays.toString(firstFullyVisiblePositions) +
                     ", lastVisiblePositions=" + Arrays.toString(lastVisiblePositions) +
                     ", lastFullyVisiblePositions=" + Arrays.toString(lastFullyVisiblePositions) +
+                    ", findFirstPartialVisibleClosestToStart=" +
+                    viewToString(findFirstPartialVisibleClosestToStart) +
+                    ", findFirstPartialVisibleClosestToEnd=" +
+                    viewToString(findFirstPartialVisibleClosestToEnd) +
                     '}';
+        }
+
+        private String viewToString(View view) {
+            if (view == null) {
+                return null;
+            }
+            ViewGroup.LayoutParams lp = view.getLayoutParams();
+            if (lp instanceof RecyclerView.LayoutParams == false) {
+                return System.identityHashCode(view) + "(?)";
+            }
+            RecyclerView.LayoutParams rvlp = (RecyclerView.LayoutParams) lp;
+            return System.identityHashCode(view) + "(" + rvlp.getViewAdapterPosition() + ")";
         }
     }
 
