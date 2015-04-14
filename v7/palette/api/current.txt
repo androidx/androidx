@@ -27,20 +27,8 @@ package android.support.v7.graphics {
     ctor public Palette.Builder(java.util.List<android.support.v7.graphics.Palette.Swatch>);
     method public android.support.v7.graphics.Palette generate();
     method public android.os.AsyncTask<android.graphics.Bitmap, java.lang.Void, android.support.v7.graphics.Palette> generate(android.support.v7.graphics.Palette.PaletteAsyncListener);
-    method public android.support.v7.graphics.Palette.Builder generator(android.support.v7.graphics.Palette.Generator);
     method public android.support.v7.graphics.Palette.Builder maximumColorCount(int);
     method public android.support.v7.graphics.Palette.Builder resizeBitmapSize(int);
-  }
-
-  public static abstract class Palette.Generator {
-    ctor public Palette.Generator();
-    method public abstract void generate(java.util.List<android.support.v7.graphics.Palette.Swatch>);
-    method public android.support.v7.graphics.Palette.Swatch getDarkMutedSwatch();
-    method public android.support.v7.graphics.Palette.Swatch getDarkVibrantSwatch();
-    method public android.support.v7.graphics.Palette.Swatch getLightMutedSwatch();
-    method public android.support.v7.graphics.Palette.Swatch getLightVibrantSwatch();
-    method public android.support.v7.graphics.Palette.Swatch getMutedSwatch();
-    method public android.support.v7.graphics.Palette.Swatch getVibrantSwatch();
   }
 
   public static abstract interface Palette.PaletteAsyncListener {
