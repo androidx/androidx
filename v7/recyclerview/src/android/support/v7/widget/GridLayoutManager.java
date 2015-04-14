@@ -63,21 +63,6 @@ public class GridLayoutManager extends LinearLayoutManager {
     // re-used variable to acquire decor insets from RecyclerView
     final Rect mDecorInsets = new Rect();
 
-
-    /**
-     * Constructor used when layout manager is set in XML by RecyclerView attribute
-     * "layoutManager". If spanCount is not specified in the XML, it defaults to a
-     * single column.
-     *
-     * @attr ref android.support.v7.recyclerview.R.styleable#RecyclerView_spanCount
-     */
-    public GridLayoutManager(Context context, AttributeSet attrs, int defStyleAttr,
-                             int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-        Properties properties = getProperties(context, attrs, defStyleAttr, defStyleRes);
-        setSpanCount(properties.spanCount);
-    }
-
     /**
      * Creates a vertical GridLayoutManager
      *
