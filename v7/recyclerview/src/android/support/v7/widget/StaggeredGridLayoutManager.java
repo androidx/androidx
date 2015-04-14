@@ -1161,6 +1161,12 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         return super.getColumnCountForAccessibility(recycler, state);
     }
 
+    /**
+     * This is for internal use. Not necessarily the child closest to start but the first child
+     * we find that matches the criteria.
+     * This method does not do any sorting based on child's start coordinate, instead, it uses
+     * children order.
+     */
     View findFirstVisibleItemClosestToStart(boolean fullyVisible, boolean acceptPartiallyVisible) {
         ensureOrientationHelper();
         final int boundsStart = mPrimaryOrientation.getStartAfterPadding();
@@ -1169,18 +1175,29 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         View partiallyVisible = null;
         for (int i = 0; i < limit; i++) {
             final View child = getChildAt(i);
-            if (mPrimaryOrientation.getDecoratedEnd(child) <= boundsEnd) {
-                if ((!fullyVisible
-                        || mPrimaryOrientation.getDecoratedStart(child) >= boundsStart)) {
-                    return child;
-                } else if (acceptPartiallyVisible && partiallyVisible == null) {
-                    partiallyVisible = child;
-                }
+            final int childStart = mPrimaryOrientation.getDecoratedStart(child);
+            final int childEnd = mPrimaryOrientation.getDecoratedEnd(child);
+            if(childEnd <= boundsStart || childStart >= boundsEnd) {
+                continue; // not visible at all
+            }
+            if (childStart >= boundsStart || !fullyVisible) {
+                // when checking for start, it is enough even if part of the child's top is visible
+                // as long as fully visible is not requested.
+                return child;
+            }
+            if (acceptPartiallyVisible && partiallyVisible == null) {
+                partiallyVisible = child;
             }
         }
         return partiallyVisible;
     }
 
+    /**
+     * This is for internal use. Not necessarily the child closest to bottom but the first child
+     * we find that matches the criteria.
+     * This method does not do any sorting based on child's end coordinate, instead, it uses
+     * children order.
+     */
     View findFirstVisibleItemClosestToEnd(boolean fullyVisible, boolean acceptPartiallyVisible) {
         ensureOrientationHelper();
         final int boundsStart = mPrimaryOrientation.getStartAfterPadding();
@@ -1188,12 +1205,18 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         View partiallyVisible = null;
         for (int i = getChildCount() - 1; i >= 0; i--) {
             final View child = getChildAt(i);
-            if (mPrimaryOrientation.getDecoratedStart(child) >= boundsStart) {
-                if (!fullyVisible || mPrimaryOrientation.getDecoratedEnd(child) <= boundsEnd) {
-                    return child;
-                } else if (acceptPartiallyVisible && partiallyVisible == null) {
-                    partiallyVisible = child;
-                }
+            final int childStart = mPrimaryOrientation.getDecoratedStart(child);
+            final int childEnd = mPrimaryOrientation.getDecoratedEnd(child);
+            if(childEnd <= boundsStart || childStart >= boundsEnd) {
+                continue; // not visible at all
+            }
+            if (childEnd <= boundsEnd || !fullyVisible) {
+                // when checking for end, it is enough even if part of the child's bottom is visible
+                // as long as fully visible is not requested.
+                return child;
+            }
+            if (acceptPartiallyVisible && partiallyVisible == null) {
+                partiallyVisible = child;
             }
         }
         return partiallyVisible;
