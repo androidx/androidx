@@ -293,6 +293,7 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
      */
     public void showPrimaryActions(ViewHolder vh) {
         mPlaybackControlsPresenter.showPrimaryActions(vh.mControlsVh);
+        mPlaybackControlsPresenter.resetFocus(vh.mControlsVh);
     }
 
     private int getDefaultBackgroundColor(Context context) {
