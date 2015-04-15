@@ -300,6 +300,7 @@ public class ScriptGroup2 extends BaseObj {
         }
     }
 
+    String mName;
     List<Closure> mClosures;
     List<UnboundValue> mInputs;
     Future[] mOutputs;
@@ -310,14 +311,14 @@ public class ScriptGroup2 extends BaseObj {
         super(id, rs);
     }
 
-    ScriptGroup2(RenderScript rs, List<Closure> closures,
+    ScriptGroup2(RenderScript rs, String name, List<Closure> closures,
                  List<UnboundValue> inputs, Future[] outputs) {
         super(0, rs);
 
         if (android.os.Build.VERSION.SDK_INT < MIN_API_VERSION && rs.isUseNative()) {
             throw new RSRuntimeException("ScriptGroup2 not supported in this API level");
         }
-
+        mName = name;
         mClosures = closures;
         mInputs = inputs;
         mOutputs = outputs;
@@ -327,7 +328,7 @@ public class ScriptGroup2 extends BaseObj {
             closureIDs[i] = closures.get(i).getID(rs);
         }
         String cachePath = rs.getApplicationContext().getCacheDir().toString();
-        long id = rs.nScriptGroup2Create(cachePath, closureIDs);
+        long id = rs.nScriptGroup2Create(name, cachePath, closureIDs);
         setID(id);
     }
 
@@ -429,8 +430,12 @@ public class ScriptGroup2 extends BaseObj {
             return addInvoke(invoke, args.toArray(), bindingMap);
         }
 
-        public ScriptGroup2 create(Future... outputs) {
-            ScriptGroup2 ret = new ScriptGroup2(mRS, mClosures, mInputs, outputs);
+        public ScriptGroup2 create(String name, Future... outputs) {
+            if (name == null || name.isEmpty() || name.length() > 100 ||
+                !name.equals(name.replaceAll("[^a-zA-Z0-9-]", "_"))) {
+                throw new RSIllegalArgumentException("invalid script group name");
+            }
+            ScriptGroup2 ret = new ScriptGroup2(mRS, name, mClosures, mInputs, outputs);
             return ret;
         }
 
