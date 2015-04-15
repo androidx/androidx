@@ -109,7 +109,6 @@ public class Script extends BaseObj {
      * This class should not be directly created. Instead use the method in the
      * reflected or intrinsic code "getInvokeID_funcname()".
      *
-     * @hide
      */
     public static final class InvokeID extends BaseObj {
         Script mScript;
