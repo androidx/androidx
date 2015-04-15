@@ -37,16 +37,16 @@ import java.util.List;
  * the {@link Fragment} lifecycle.
  */
 public class FragmentController {
-    private final FragmentHostCallbacks mHost;
+    private final FragmentHostCallbacks<?> mHost;
 
     /**
      * Returns a {@link FragmentController}.
      */
-    public static final FragmentController createController(FragmentHostCallbacks callbacks) {
+    public static final FragmentController createController(FragmentHostCallbacks<?> callbacks) {
         return new FragmentController(callbacks);
     }
 
-    private FragmentController(FragmentHostCallbacks callbacks) {
+    private FragmentController(FragmentHostCallbacks<?> callbacks) {
         mHost = callbacks;
     }
 
@@ -186,7 +186,10 @@ public class FragmentController {
         return mHost.mFragmentManager.execPendingActions();
     }
 
-    void doLoaderStart() {
+    /**
+     * Starts the loaders.
+     */
+    public void doLoaderStart() {
         mHost.doLoaderStart();
     }
 
@@ -197,19 +200,29 @@ public class FragmentController {
      * @param retain When {@code true}, the loaders aren't stopped, but, their instances
      * are retained in a started state
      */
-    void doLoaderStop(boolean retain) {
+    public void doLoaderStop(boolean retain) {
         mHost.doLoaderStop(retain);
     }
 
-    void doLoaderRetain() {
+    /**
+     * Retains the state of each of the loaders.
+     */
+    public void doLoaderRetain() {
         mHost.doLoaderRetain();
     }
 
-    void doLoaderDestroy() {
+    /**
+     * Destroys all inactive loaders and optionally destroys all active loaders. Active loaders
+     * will not be destroyed if their state is retained.
+     */
+    public void doLoaderDestroy() {
         mHost.doLoaderDestroy();
     }
 
-    void reportLoaderStart() {
+    /**
+     * Reports all loaders as started.
+     */
+    public void reportLoaderStart() {
         mHost.reportLoaderStart();
     }
 

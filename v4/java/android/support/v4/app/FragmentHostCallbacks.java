@@ -33,7 +33,7 @@ import java.io.PrintWriter;
 /**
  * Provides integration points with the host that is managing the {@link Fragment} lifecycle.
  */
-public class FragmentHostCallbacks extends FragmentContainer {
+public class FragmentHostCallbacks<E> extends FragmentContainer {
     private final Activity mActivity;
     final Context mContext;
     private final Handler mHandler;
@@ -85,6 +85,16 @@ public class FragmentHostCallbacks extends FragmentContainer {
      */
     public LayoutInflater getLayoutInflater() {
         return (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    }
+
+    /**
+     * Return the object that's currently hosting the fragment. If a {@link Fragment}
+     * is hosted by a {@link FragmentActivity}, the object returned here should be
+     * the same object returned from {@link Fragment#getActivity()}.
+     */
+    @Nullable
+    public E getHost() {
+        return null;
     }
 
     /**
