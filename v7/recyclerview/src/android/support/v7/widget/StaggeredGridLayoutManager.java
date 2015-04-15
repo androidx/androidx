@@ -202,6 +202,18 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
     };
 
     /**
+     * Constructor used when layout manager is set in XML by RecyclerView attribute
+     * "layoutManager". Defaults to single column and vertical.
+     */
+    public StaggeredGridLayoutManager(Context context, AttributeSet attrs, int defStyleAttr,
+            int defStyleRes) {
+        Properties properties = getProperties(context, attrs, defStyleAttr, defStyleRes);
+        setOrientation(properties.orientation);
+        setSpanCount(properties.spanCount);
+        setReverseLayout(properties.reverseLayout);
+    }
+
+    /**
      * Creates a StaggeredGridLayoutManager with given parameters.
      *
      * @param spanCount   If orientation is vertical, spanCount is number of columns. If
