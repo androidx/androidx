@@ -66,6 +66,10 @@ package android.support.v14.preference {
     field public static final java.lang.String ARG_PREFERENCE_ROOT = "android.support.v7.preference.PreferenceFragmentCompat.PREFERENCE_ROOT";
   }
 
+  public static abstract interface PreferenceFragment.OnPreferenceDisplayDialogCallback {
+    method public abstract boolean onPreferenceDisplayDialog(android.support.v14.preference.PreferenceFragment, android.support.v7.preference.Preference);
+  }
+
   public static abstract interface PreferenceFragment.OnPreferenceStartFragmentCallback {
     method public abstract boolean onPreferenceStartFragment(android.support.v14.preference.PreferenceFragment, android.support.v7.preference.Preference);
   }
