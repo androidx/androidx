@@ -114,8 +114,6 @@ public class Type extends BaseObj {
     /**
      * Get the YUV format
      *
-     * @hide
-     *
      * @return int
      */
     public int getYuv() {
@@ -343,8 +341,6 @@ public class Type extends BaseObj {
 
         /**
          * Set the YUV layout for a Type.
-         *
-         * @hide
          *
          * @param yuvFormat {@link android.graphics.ImageFormat#YV12} or {@link android.graphics.ImageFormat#NV21}
          */

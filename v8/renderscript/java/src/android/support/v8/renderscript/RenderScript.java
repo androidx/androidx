@@ -1018,8 +1018,6 @@ public class RenderScript {
      * Place a message into the message queue to be sent back to the message
      * handler once all previous commands have been executed.
      *
-     * @hide
-     *
      * @param id
      * @param data
      */
@@ -1364,7 +1362,6 @@ public class RenderScript {
      /**
      * Gets or creates a RenderScript context of the specified type.
      *
-     * @hide
      * @param ctx The context.
      * @param ct The type of context to be created.
      * @param sdkVersion The target SDK Version.
@@ -1390,7 +1387,6 @@ public class RenderScript {
     }
 
     /**
-     * @hide
      *
      * Releases all the process contexts.  This is the same as
      * calling .destroy() on each unique context retreived with
@@ -1428,7 +1424,6 @@ public class RenderScript {
      *
      * If you need a single context please use create()
      *
-     * @hide
      * @param ctx The context.
      * @return RenderScript
      */

@@ -25,7 +25,6 @@ import android.util.Log;
  * allocation.  The 8 nearest values are sampled and linearly interpolated.  The
  * result is placed in the output.
  *
- * @hide
  **/
 public class ScriptIntrinsic3DLUT extends ScriptIntrinsic {
     private Allocation mLUT;

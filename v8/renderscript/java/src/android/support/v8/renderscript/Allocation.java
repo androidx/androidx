@@ -265,7 +265,6 @@ public class Allocation extends BaseObj {
     }
 
     /**
-     * @hide
      * Enable/Disable AutoPadding for Vec3 elements.
      *
      * @param useAutoPadding True: enable AutoPadding; flase: disable AutoPadding
@@ -463,7 +462,6 @@ public class Allocation extends BaseObj {
 
     /**
      * Delete once code is updated.
-     * @hide
      */
     public void ioSendOutput() {
         ioSend();
@@ -1214,10 +1212,7 @@ public class Allocation extends BaseObj {
         }
     }
 
-    /**
-     * @hide
-     *
-     */
+
     private void copy3DRangeFromUnchecked(int xoff, int yoff, int zoff, int w, int h, int d,
                                           Object array, Element.DataType dt, int arrayLen) {
         mRS.validate();
@@ -1243,7 +1238,6 @@ public class Allocation extends BaseObj {
     }
 
     /**
-     * @hide
      * Copy a rectangular region from the array into the allocation.
      * The array is assumed to be tightly packed.
      *
@@ -1262,7 +1256,6 @@ public class Allocation extends BaseObj {
     }
 
     /**
-     * @hide
      * Copy a rectangular region into the allocation from another
      * allocation.
      *
@@ -1437,7 +1430,6 @@ public class Allocation extends BaseObj {
     }
 
     /**
-     * @hide
      * Copy part of this Allocation into an array.  This method does not
      * guarantee that the Allocation is compatible with the input buffer.
      *
@@ -1452,7 +1444,6 @@ public class Allocation extends BaseObj {
     }
 
     /**
-     * @hide
      * Copy part of this Allocation into an array.  This method does not
      * guarantee that the Allocation is compatible with the input buffer.
      *
@@ -1465,7 +1456,6 @@ public class Allocation extends BaseObj {
     }
 
     /**
-     * @hide
      * Copy part of this Allocation into an array.  This method does not
      * guarantee that the Allocation is compatible with the input buffer.
      *
@@ -1478,7 +1468,6 @@ public class Allocation extends BaseObj {
     }
 
     /**
-     * @hide
      * Copy part of this Allocation into an array.  This method does not
      * guarantee that the Allocation is compatible with the input buffer.
      *
@@ -1491,7 +1480,6 @@ public class Allocation extends BaseObj {
     }
 
     /**
-     * @hide
      * Copy part of this Allocation into an array.  This method does not
      * guarantee that the Allocation is compatible with the input buffer.
      *
@@ -1505,7 +1493,6 @@ public class Allocation extends BaseObj {
 
 
     /**
-     * @hide
      * Copy part of this Allocation into an array.  This method does not
      * and will generate exceptions if the Allocation type does not
      * match the component type of the array passed in.
@@ -1521,7 +1508,6 @@ public class Allocation extends BaseObj {
     }
 
     /**
-     * @hide
      * Copy part of this Allocation into an array.  This method does not
      * and will generate exceptions if the Allocation type is not a 32 bit
      * integer type.
@@ -1536,7 +1522,6 @@ public class Allocation extends BaseObj {
     }
 
     /**
-     * @hide
      * Copy part of this Allocation into an array.  This method does not
      * and will generate exceptions if the Allocation type is not a 16 bit
      * integer type.
@@ -1551,7 +1536,6 @@ public class Allocation extends BaseObj {
     }
 
     /**
-     * @hide
      * Copy part of this Allocation into an array.  This method does not
      * and will generate exceptions if the Allocation type is not an 8 bit
      * integer type.
@@ -1566,7 +1550,6 @@ public class Allocation extends BaseObj {
     }
 
     /**
-     * @hide
      * Copy part of this Allocation into an array.  This method does not
      * and will generate exceptions if the Allocation type is not a 32 bit float
      * type.
@@ -1605,7 +1588,6 @@ public class Allocation extends BaseObj {
     }
 
     /**
-     * @hide
      * Copy from a rectangular region in this Allocation into an array.
      *
      * @param xoff X offset of the region to copy in this Allocation
@@ -1621,7 +1603,6 @@ public class Allocation extends BaseObj {
     }
 
     /**
-     * @hide
      * Copy from a rectangular region in this Allocation into an array.
      *
      * @param xoff X offset of the region to copy in this Allocation
@@ -1637,7 +1618,6 @@ public class Allocation extends BaseObj {
     }
 
     /**
-     * @hide
      * Copy from a rectangular region in this Allocation into an array.
      *
      * @param xoff X offset of the region to copy in this Allocation
@@ -1653,7 +1633,6 @@ public class Allocation extends BaseObj {
     }
 
     /**
-     * @hide
      * Copy from a rectangular region in this Allocation into an array.
      *
      * @param xoff X offset of the region to copy in this Allocation
@@ -1669,7 +1648,6 @@ public class Allocation extends BaseObj {
     }
 
     /**
-     * @hide
      * Copy from a rectangular region in this Allocation into an array.
      *
      * @param xoff X offset of the region to copy in this Allocation
