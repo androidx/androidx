@@ -30,4 +30,17 @@
         <item name="colorAccent">#ff0000</item>
     </style>
 
+    <style name="Theme.Navigation.Base" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">#607D8B</item>
+        <item name="colorPrimaryDark">#455A64</item>
+        <item name="colorAccent">#FFAB40</item>
+        <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
+    </style>
+
+    <style name="DrawerArrowStyle" parent="Widget.AppCompat.DrawerArrowToggle">
+        <item name="spinBars">false</item>
+    </style>
+
+    <style name="Theme.Navigation" parent="Theme.Navigation.Base"/>
+
 </resources>
