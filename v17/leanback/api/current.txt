@@ -106,22 +106,32 @@ package android.support.v17.leanback.app {
     ctor public DetailsFragment();
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public android.support.v17.leanback.widget.OnItemViewClickedListener getOnItemViewClickedListener();
+    method protected android.view.View inflateTitle(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
+    method protected void onSetDetailsOverviewRowStatus(android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter, android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder, int, int, int);
+    method protected void onSetRowStatus(android.support.v17.leanback.widget.RowPresenter, android.support.v17.leanback.widget.RowPresenter.ViewHolder, int, int, int);
     method public void setAdapter(android.support.v17.leanback.widget.ObjectAdapter);
     method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.OnItemViewClickedListener);
     method public void setOnItemViewSelectedListener(android.support.v17.leanback.widget.OnItemViewSelectedListener);
     method public void setSelectedPosition(int);
     method public void setSelectedPosition(int, boolean);
+    method protected void setupDetailsOverviewRowPresenter(android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter);
+    method protected void setupPresenter(android.support.v17.leanback.widget.Presenter);
   }
 
   public class DetailsSupportFragment extends android.support.v17.leanback.app.BrandedSupportFragment {
     ctor public DetailsSupportFragment();
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public android.support.v17.leanback.widget.OnItemViewClickedListener getOnItemViewClickedListener();
+    method protected android.view.View inflateTitle(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
+    method protected void onSetDetailsOverviewRowStatus(android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter, android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder, int, int, int);
+    method protected void onSetRowStatus(android.support.v17.leanback.widget.RowPresenter, android.support.v17.leanback.widget.RowPresenter.ViewHolder, int, int, int);
     method public void setAdapter(android.support.v17.leanback.widget.ObjectAdapter);
     method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.OnItemViewClickedListener);
     method public void setOnItemViewSelectedListener(android.support.v17.leanback.widget.OnItemViewSelectedListener);
     method public void setSelectedPosition(int);
     method public void setSelectedPosition(int, boolean);
+    method protected void setupDetailsOverviewRowPresenter(android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter);
+    method protected void setupPresenter(android.support.v17.leanback.widget.Presenter);
   }
 
   public class ErrorFragment extends android.app.Fragment {
@@ -568,95 +578,6 @@ package android.support.v17.leanback.widget {
     field public int viewType;
   }
 
-   abstract class BaseGridView extends android.support.v7.widget.RecyclerView {
-    ctor public BaseGridView(android.content.Context, android.util.AttributeSet, int);
-    method public boolean dispatchGenericFocusedEvent(android.view.MotionEvent);
-    method public int getChildDrawingOrder(int, int);
-    method public int getFocusScrollStrategy();
-    method public int getHorizontalMargin();
-    method public int getItemAlignmentOffset();
-    method public float getItemAlignmentOffsetPercent();
-    method public int getItemAlignmentViewId();
-    method public android.support.v17.leanback.widget.BaseGridView.OnUnhandledKeyListener getOnUnhandledKeyListener();
-    method public final int getSaveChildrenLimitNumber();
-    method public final int getSaveChildrenPolicy();
-    method public int getSelectedPosition();
-    method public int getVerticalMargin();
-    method public void getViewSelectedOffsets(android.view.View, int[]);
-    method public int getWindowAlignment();
-    method public int getWindowAlignmentOffset();
-    method public float getWindowAlignmentOffsetPercent();
-    method public boolean hasPreviousViewInSameRow(int);
-    method protected void initBaseGridViewAttributes(android.content.Context, android.util.AttributeSet);
-    method public boolean isChildLayoutAnimated();
-    method public boolean isFocusDrawingOrderEnabled();
-    method public final boolean isFocusSearchDisabled();
-    method public boolean isItemAlignmentOffsetWithPadding();
-    method public boolean isScrollEnabled();
-    method public boolean onRequestFocusInDescendants(int, android.graphics.Rect);
-    method public void setAnimateChildLayout(boolean);
-    method public void setChildrenVisibility(int);
-    method public void setFocusDrawingOrderEnabled(boolean);
-    method public void setFocusScrollStrategy(int);
-    method public final void setFocusSearchDisabled(boolean);
-    method public void setGravity(int);
-    method public void setHasOverlappingRendering(boolean);
-    method public void setHorizontalMargin(int);
-    method public void setItemAlignmentOffset(int);
-    method public void setItemAlignmentOffsetPercent(float);
-    method public void setItemAlignmentOffsetWithPadding(boolean);
-    method public void setItemAlignmentViewId(int);
-    method public void setItemMargin(int);
-    method public void setLayoutEnabled(boolean);
-    method public void setOnChildLaidOutListener(android.support.v17.leanback.widget.OnChildLaidOutListener);
-    method public void setOnChildSelectedListener(android.support.v17.leanback.widget.OnChildSelectedListener);
-    method public void setOnKeyInterceptListener(android.support.v17.leanback.widget.BaseGridView.OnKeyInterceptListener);
-    method public void setOnMotionInterceptListener(android.support.v17.leanback.widget.BaseGridView.OnMotionInterceptListener);
-    method public void setOnTouchInterceptListener(android.support.v17.leanback.widget.BaseGridView.OnTouchInterceptListener);
-    method public void setOnUnhandledKeyListener(android.support.v17.leanback.widget.BaseGridView.OnUnhandledKeyListener);
-    method public void setPruneChild(boolean);
-    method public final void setSaveChildrenLimitNumber(int);
-    method public final void setSaveChildrenPolicy(int);
-    method public void setScrollEnabled(boolean);
-    method public void setSelectedPosition(int);
-    method public void setSelectedPosition(int, int);
-    method public void setSelectedPositionSmooth(int);
-    method public void setVerticalMargin(int);
-    method public void setWindowAlignment(int);
-    method public void setWindowAlignmentOffset(int);
-    method public void setWindowAlignmentOffsetPercent(float);
-    field public static final int FOCUS_SCROLL_ALIGNED = 0; // 0x0
-    field public static final int FOCUS_SCROLL_ITEM = 1; // 0x1
-    field public static final int FOCUS_SCROLL_PAGE = 2; // 0x2
-    field public static final float ITEM_ALIGN_OFFSET_PERCENT_DISABLED = -1.0f;
-    field public static final int SAVE_ALL_CHILD = 3; // 0x3
-    field public static final int SAVE_LIMITED_CHILD = 2; // 0x2
-    field public static final int SAVE_NO_CHILD = 0; // 0x0
-    field public static final int SAVE_ON_SCREEN_CHILD = 1; // 0x1
-    field public static final int WINDOW_ALIGN_BOTH_EDGE = 3; // 0x3
-    field public static final int WINDOW_ALIGN_HIGH_EDGE = 2; // 0x2
-    field public static final int WINDOW_ALIGN_LOW_EDGE = 1; // 0x1
-    field public static final int WINDOW_ALIGN_NO_EDGE = 0; // 0x0
-    field public static final float WINDOW_ALIGN_OFFSET_PERCENT_DISABLED = -1.0f;
-    field protected final android.support.v17.leanback.widget.GridLayoutManager mLayoutManager;
-  }
-
-  public static abstract interface BaseGridView.OnKeyInterceptListener {
-    method public abstract boolean onInterceptKeyEvent(android.view.KeyEvent);
-  }
-
-  public static abstract interface BaseGridView.OnMotionInterceptListener {
-    method public abstract boolean onInterceptMotionEvent(android.view.MotionEvent);
-  }
-
-  public static abstract interface BaseGridView.OnTouchInterceptListener {
-    method public abstract boolean onInterceptTouchEvent(android.view.MotionEvent);
-  }
-
-  public static abstract interface BaseGridView.OnUnhandledKeyListener {
-    method public abstract boolean onUnhandledKey(android.view.KeyEvent);
-  }
-
   public class BrowseFrameLayout extends android.widget.FrameLayout {
     ctor public BrowseFrameLayout(android.content.Context);
     ctor public BrowseFrameLayout(android.content.Context, android.util.AttributeSet);
@@ -708,6 +629,21 @@ package android.support.v17.leanback.widget {
     method public android.database.Cursor swapCursor(android.database.Cursor);
   }
 
+  public class DetailsOverviewLogoPresenter extends android.support.v17.leanback.widget.Presenter {
+    ctor public DetailsOverviewLogoPresenter();
+    method public boolean isBoundToImage(android.support.v17.leanback.widget.DetailsOverviewLogoPresenter.ViewHolder, android.support.v17.leanback.widget.DetailsOverviewRow);
+    method public void onBindViewHolder(android.support.v17.leanback.widget.Presenter.ViewHolder, java.lang.Object);
+    method public android.support.v17.leanback.widget.Presenter.ViewHolder onCreateViewHolder(android.view.ViewGroup);
+    method public void onUnbindViewHolder(android.support.v17.leanback.widget.Presenter.ViewHolder);
+    method public void setContext(android.support.v17.leanback.widget.DetailsOverviewLogoPresenter.ViewHolder, android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder, android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter);
+  }
+
+  public static class DetailsOverviewLogoPresenter.ViewHolder extends android.support.v17.leanback.widget.Presenter.ViewHolder {
+    ctor public DetailsOverviewLogoPresenter.ViewHolder(android.view.View);
+    field protected android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter mParentPresenter;
+    field protected android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder mParentViewHolder;
+  }
+
   public class DetailsOverviewRow extends android.support.v17.leanback.widget.Row {
     ctor public DetailsOverviewRow(java.lang.Object);
     method public final deprecated void addAction(android.support.v17.leanback.widget.Action);
@@ -726,7 +662,14 @@ package android.support.v17.leanback.widget {
     method public final void setItem(java.lang.Object);
   }
 
-  public class DetailsOverviewRowPresenter extends android.support.v17.leanback.widget.RowPresenter {
+  public static class DetailsOverviewRow.Listener {
+    ctor public DetailsOverviewRow.Listener();
+    method public void onActionsAdapterChanged(android.support.v17.leanback.widget.DetailsOverviewRow);
+    method public void onImageDrawableChanged(android.support.v17.leanback.widget.DetailsOverviewRow);
+    method public void onItemChanged(android.support.v17.leanback.widget.DetailsOverviewRow);
+  }
+
+  public deprecated class DetailsOverviewRowPresenter extends android.support.v17.leanback.widget.RowPresenter {
     ctor public DetailsOverviewRowPresenter(android.support.v17.leanback.widget.Presenter);
     method protected android.support.v17.leanback.widget.RowPresenter.ViewHolder createRowViewHolder(android.view.ViewGroup);
     method public int getBackgroundColor();
@@ -776,49 +719,61 @@ package android.support.v17.leanback.widget {
     method public abstract void onFragmentReturn(java.util.List<android.animation.Animator>);
   }
 
-   final class GridLayoutManager extends android.support.v7.widget.RecyclerView.LayoutManager {
-    ctor public GridLayoutManager(android.support.v17.leanback.widget.BaseGridView);
-    method public android.support.v7.widget.RecyclerView.LayoutParams generateDefaultLayoutParams();
-    method public int getFocusScrollStrategy();
-    method public int getHorizontalMargin();
-    method public int getItemAlignmentOffset();
-    method public float getItemAlignmentOffsetPercent();
-    method public int getItemAlignmentViewId();
-    method public boolean getPruneChild();
-    method public int getSelection();
-    method public int getVerticalMargin();
-    method protected android.view.View getViewForPosition(int);
-    method public void getViewSelectedOffsets(android.view.View, int[]);
-    method public int getWindowAlignment();
-    method public int getWindowAlignmentOffset();
-    method public float getWindowAlignmentOffsetPercent();
-    method protected boolean hasDoneFirstLayout();
-    method public boolean isItemAlignmentOffsetWithPadding();
-    method public boolean isScrollEnabled();
-    method public void onRtlPropertiesChanged(int);
-    method public void setFocusOutAllowed(boolean, boolean);
-    method public void setFocusScrollStrategy(int);
-    method public void setGravity(int);
-    method public void setHorizontalMargin(int);
-    method public void setItemAlignmentOffset(int);
-    method public void setItemAlignmentOffsetPercent(float);
-    method public void setItemAlignmentOffsetWithPadding(boolean);
-    method public void setItemAlignmentViewId(int);
-    method public void setItemMargin(int);
-    method public void setLayoutEnabled(boolean);
-    method public void setNumRows(int);
-    method public void setOnChildSelectedListener(android.support.v17.leanback.widget.OnChildSelectedListener);
-    method public void setOrientation(int);
-    method public void setPruneChild(boolean);
-    method public void setRowHeight(int);
-    method public void setScrollEnabled(boolean);
-    method public void setSelection(android.support.v7.widget.RecyclerView, int, int);
-    method public void setSelection(android.support.v7.widget.RecyclerView, int, boolean, int);
-    method public void setSelectionSmooth(android.support.v7.widget.RecyclerView, int);
-    method public void setVerticalMargin(int);
-    method public void setWindowAlignment(int);
-    method public void setWindowAlignmentOffset(int);
-    method public void setWindowAlignmentOffsetPercent(float);
+  public class FullWidthDetailsOverviewRowPresenter extends android.support.v17.leanback.widget.RowPresenter {
+    ctor public FullWidthDetailsOverviewRowPresenter(android.support.v17.leanback.widget.Presenter);
+    ctor public FullWidthDetailsOverviewRowPresenter(android.support.v17.leanback.widget.Presenter, android.support.v17.leanback.widget.DetailsOverviewLogoPresenter);
+    method protected android.support.v17.leanback.widget.RowPresenter.ViewHolder createRowViewHolder(android.view.ViewGroup);
+    method public int getBackgroundColor();
+    method public final int getInitialState();
+    method protected int getLayoutResourceId();
+    method public android.support.v17.leanback.widget.OnActionClickedListener getOnActionClickedListener();
+    method public final boolean isParticipatingEntranceTransition();
+    method public final boolean isUsingDefaultSelectEffect();
+    method public final void notifyOnBindLogo(android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder);
+    method protected void onLayoutLogo(android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder, int, boolean);
+    method protected void onLayoutOverviewFrame(android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder, int, boolean);
+    method protected void onStateChanged(android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder, int);
+    method public void setBackgroundColor(int);
+    method public final void setInitialState(int);
+    method public final void setListener(android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter.Listener);
+    method public void setOnActionClickedListener(android.support.v17.leanback.widget.OnActionClickedListener);
+    method public final void setParticipatingEntranceTransition(boolean);
+    method public final void setState(android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder, int);
+    field public static final int STATE_FULL = 1; // 0x1
+    field public static final int STATE_HALF = 0; // 0x0
+    field public static final int STATE_SMALL = 2; // 0x2
+    field protected int mInitialState;
+  }
+
+  public static abstract class FullWidthDetailsOverviewRowPresenter.Listener {
+    ctor public FullWidthDetailsOverviewRowPresenter.Listener();
+    method public void onBindLogo(android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder);
+  }
+
+  public class FullWidthDetailsOverviewRowPresenter.ViewHolder extends android.support.v17.leanback.widget.RowPresenter.ViewHolder {
+    ctor public FullWidthDetailsOverviewRowPresenter.ViewHolder(android.view.View, android.support.v17.leanback.widget.Presenter, android.support.v17.leanback.widget.DetailsOverviewLogoPresenter);
+    method protected android.support.v17.leanback.widget.DetailsOverviewRow.Listener createRowListener();
+    method public final android.view.ViewGroup getActionsRow();
+    method public final android.view.ViewGroup getDetailsDescriptionFrame();
+    method public final android.support.v17.leanback.widget.Presenter.ViewHolder getDetailsDescriptionViewHolder();
+    method public final android.support.v17.leanback.widget.DetailsOverviewLogoPresenter.ViewHolder getLogoViewHolder();
+    method public final android.view.ViewGroup getOverviewView();
+    method public final int getState();
+    field protected final android.os.Handler mHandler;
+    field protected final android.support.v17.leanback.widget.DetailsOverviewRow.Listener mRowListener;
+  }
+
+  public class FullWidthDetailsOverviewRowPresenter.ViewHolder.DetailsOverviewRowListener extends android.support.v17.leanback.widget.DetailsOverviewRow.Listener {
+    ctor public FullWidthDetailsOverviewRowPresenter.ViewHolder.DetailsOverviewRowListener();
+  }
+
+  public class FullWidthDetailsOverviewSharedElementHelper extends android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter.Listener {
+    ctor public FullWidthDetailsOverviewSharedElementHelper();
+    method public boolean getAutoStartSharedElementTransition();
+    method public void setAutoStartSharedElementTransition(boolean);
+    method public void setSharedElementEnterTransition(android.app.Activity, java.lang.String);
+    method public void setSharedElementEnterTransition(android.app.Activity, java.lang.String, long);
+    method public void startPostponedEnterTransition();
   }
 
   public class GuidanceStylist implements android.support.v17.leanback.widget.FragmentAnimationProvider {
@@ -978,10 +933,12 @@ package android.support.v17.leanback.widget {
 
   public static class ItemAlignmentFacet.ItemAlignmentDef {
     ctor public ItemAlignmentFacet.ItemAlignmentDef();
+    method public final int getItemAlignmentFocusViewId();
     method public final int getItemAlignmentOffset();
     method public final float getItemAlignmentOffsetPercent();
     method public final int getItemAlignmentViewId();
     method public final boolean isItemAlignmentOffsetWithPadding();
+    method public final void setItemAlignmentFocusViewId(int);
     method public final void setItemAlignmentOffset(int);
     method public final void setItemAlignmentOffsetPercent(float);
     method public final void setItemAlignmentOffsetWithPadding(boolean);
@@ -1136,8 +1093,13 @@ package android.support.v17.leanback.widget {
     method public abstract void onChildLaidOut(android.view.ViewGroup, android.view.View, int, long);
   }
 
-  public abstract interface OnChildSelectedListener {
+  public abstract deprecated interface OnChildSelectedListener {
     method public abstract void onChildSelected(android.view.ViewGroup, android.view.View, int, long);
+  }
+
+  public abstract class OnChildViewHolderSelectedListener {
+    ctor public OnChildViewHolderSelectedListener();
+    method public void onChildViewHolderSelected(android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.ViewHolder, int, int);
   }
 
   public abstract interface OnItemViewClickedListener {
@@ -1298,6 +1260,7 @@ package android.support.v17.leanback.widget {
   public abstract class PresenterSelector {
     ctor public PresenterSelector();
     method public abstract android.support.v17.leanback.widget.Presenter getPresenter(java.lang.Object);
+    method public android.support.v17.leanback.widget.Presenter[] getPresenters();
   }
 
   public abstract class PresenterSwitcher {
@@ -1358,6 +1321,7 @@ package android.support.v17.leanback.widget {
     method public final float getSelectLevel(android.support.v17.leanback.widget.Presenter.ViewHolder);
     method public final int getSyncActivatePolicy();
     method protected void initializeRowViewHolder(android.support.v17.leanback.widget.RowPresenter.ViewHolder);
+    method protected boolean isClippingChildren();
     method public boolean isUsingDefaultSelectEffect();
     method protected void onBindRowViewHolder(android.support.v17.leanback.widget.RowPresenter.ViewHolder, java.lang.Object);
     method public final void onBindViewHolder(android.support.v17.leanback.widget.Presenter.ViewHolder, java.lang.Object);

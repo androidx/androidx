@@ -13,6 +13,7 @@
  */
 package android.support.v17.leanback.widget;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -21,6 +22,8 @@ import java.util.HashMap;
  */
 public final class ClassPresenterSelector extends PresenterSelector {
 
+    private final ArrayList<Presenter> mPresenters = new ArrayList<Presenter>();
+
     private final HashMap<Class<?>, Presenter> mClassMap = new HashMap<Class<?>, Presenter>();
 
     /**
@@ -28,6 +31,9 @@ public final class ClassPresenterSelector extends PresenterSelector {
      */
     public void addClassPresenter(Class<?> cls, Presenter presenter) {
         mClassMap.put(cls, presenter);
+        if (!mPresenters.contains(presenter)) {
+            mPresenters.add(presenter);
+        }
     }
 
     @Override
@@ -41,5 +47,10 @@ public final class ClassPresenterSelector extends PresenterSelector {
         } while (presenter == null && cls != null);
 
         return presenter;
+    }
+
+    @Override
+    public Presenter[] getPresenters() {
+        return mPresenters.toArray(new Presenter[mPresenters.size()]);
     }
 }

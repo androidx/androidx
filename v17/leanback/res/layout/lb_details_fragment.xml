@@ -20,7 +20,7 @@
     android:layout_height="match_parent" >
 
     <android.support.v17.leanback.widget.BrowseFrameLayout
-        android:id="@+id/details_frame"
+        android:id="@+id/details_fragment_root"
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:descendantFocusability="afterDescendants"
@@ -31,8 +31,6 @@
             android:id="@+id/details_rows_dock"
             android:layout_width="wrap_content"
             android:layout_height="match_parent" />
-
-        <include layout="@layout/lb_browse_title" />
 
     </android.support.v17.leanback.widget.BrowseFrameLayout>
 

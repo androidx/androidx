@@ -25,6 +25,8 @@ class ActionPresenterSelector extends PresenterSelector {
 
     private final Presenter mOneLineActionPresenter = new OneLineActionPresenter();
     private final Presenter mTwoLineActionPresenter = new TwoLineActionPresenter();
+    private final Presenter[] mPresenters = new Presenter[] {
+            mOneLineActionPresenter, mTwoLineActionPresenter};
 
     @Override
     public Presenter getPresenter(Object item) {
@@ -34,6 +36,11 @@ class ActionPresenterSelector extends PresenterSelector {
         } else {
             return mTwoLineActionPresenter;
         }
+    }
+
+    @Override
+    public Presenter[] getPresenters() {
+        return mPresenters;
     }
 
     static class ActionViewHolder extends Presenter.ViewHolder {

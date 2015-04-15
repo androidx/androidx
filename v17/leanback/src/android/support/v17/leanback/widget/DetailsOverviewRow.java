@@ -48,7 +48,7 @@ public class DetailsOverviewRow extends Row {
     /**
      * Listener for changes of DetailsOverviewRow.
      */
-    static class Listener {
+    public static class Listener {
 
         /**
          * Called when DetailsOverviewRow has changed image drawable.
