@@ -18,5 +18,8 @@ package android.support.v7.widget.test;
 
 import android.app.Activity;
 
+/**
+ * @hide
+ */
 public class GridLayoutTestActivity extends Activity {
 }
