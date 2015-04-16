@@ -131,14 +131,13 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
             return adapter.getPresenter(adapter.size() > 0 ? adapter.get(0) : null);
         }
 
-        void setBackground(View view) {
+        void setOutline(View view) {
             if (mBgView != null) {
-                RoundedRectHelper.getInstance().clearBackground(mBgView);
+                RoundedRectHelper.getInstance().setClipToRoundedOutline(mBgView, false);
                 ShadowHelper.getInstance().setZ(mBgView, 0);
             }
             mBgView = view;
-            RoundedRectHelper.getInstance().setRoundedRectBackground(view, mBackgroundColorSet ?
-                    mBackgroundColor : getDefaultBackgroundColor(view.getContext()));
+            RoundedRectHelper.getInstance().setClipToRoundedOutline(view, true);
 
             if (sShadowZ == 0) {
                 sShadowZ = view.getResources().getDimensionPixelSize(
@@ -328,9 +327,10 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
 
         vh.mControlsVh = (PlaybackControlsPresenter.ViewHolder)
                 mPlaybackControlsPresenter.onCreateViewHolder(vh.mControlsDock);
-        mPlaybackControlsPresenter.setProgressColor(vh.mControlsVh,
-                mProgressColorSet ? mProgressColor :
-                        getDefaultProgressColor(vh.mControlsDock.getContext()));
+        mPlaybackControlsPresenter.setProgressColor(vh.mControlsVh, mProgressColorSet ?
+                mProgressColor : getDefaultProgressColor(vh.mControlsDock.getContext()));
+        mPlaybackControlsPresenter.setBackgroundColor(vh.mControlsVh, mBackgroundColorSet ?
+                mBackgroundColor : getDefaultBackgroundColor(vh.view.getContext()));
         vh.mControlsDock.addView(vh.mControlsVh.view);
 
         vh.mSecondaryControlsVh =
@@ -411,14 +411,17 @@ public class PlaybackControlsRowPresenter extends RowPresenter {
             llp.height = LayoutParams.WRAP_CONTENT;
             mlp.setMarginStart(0);
             mlp.setMarginEnd(0);
-            vh.setBackground(vh.mControlsDock);
+            vh.mCard.setBackground(null);
+            vh.setOutline(vh.mControlsDock);
             mPlaybackControlsPresenter.enableTimeMargins(vh.mControlsVh, true);
         } else {
             llp.height = 0;
             llp.weight = 1;
             mlp.setMarginStart(vh.mControlsDockMarginStart);
             mlp.setMarginEnd(vh.mControlsDockMarginEnd);
-            vh.setBackground(vh.mCard);
+            vh.mCard.setBackgroundColor(mBackgroundColorSet ? mBackgroundColor :
+                    getDefaultBackgroundColor(vh.mCard.getContext()));
+            vh.setOutline(vh.mCard);
             mPlaybackControlsPresenter.enableTimeMargins(vh.mControlsVh, false);
         }
         vh.mDescriptionDock.setLayoutParams(llp);
