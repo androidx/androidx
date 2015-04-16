@@ -66,15 +66,19 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
         mAppCompatCallback = callback;
 
         mOriginalWindowCallback = mWindow.getCallback();
-        if (mOriginalWindowCallback instanceof AppCompatWindowCallback) {
+        if (mOriginalWindowCallback instanceof AppCompatWindowCallbackBase) {
             throw new IllegalStateException(
                     "AppCompat has already installed itself into the Window");
         }
         // Now install the new callback
-        mWindow.setCallback(new AppCompatWindowCallback(mOriginalWindowCallback));
+        mWindow.setCallback(wrapWindowCallback(mOriginalWindowCallback));
     }
 
     abstract ActionBar createSupportActionBar();
+
+    Window.Callback wrapWindowCallback(Window.Callback callback) {
+        return new AppCompatWindowCallbackBase(callback);
+    }
 
     @Override
     public ActionBar getSupportActionBar() {
@@ -203,6 +207,17 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
         mIsDestroyed = true;
     }
 
+    @Override
+    public void setHandleNativeActionModesEnabled(boolean enabled) {
+        // no-op pre-v14
+    }
+
+    @Override
+    public boolean isHandleNativeActionModesEnabled() {
+        // Always false pre-v14
+        return false;
+    }
+
     final boolean isDestroyed() {
         return mIsDestroyed;
     }
@@ -228,8 +243,8 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
         return mTitle;
     }
 
-    private class AppCompatWindowCallback extends WindowCallbackWrapper {
-        AppCompatWindowCallback(Window.Callback callback) {
+    class AppCompatWindowCallbackBase extends WindowCallbackWrapper {
+        AppCompatWindowCallbackBase(Window.Callback callback) {
             super(callback);
         }
 

@@ -224,6 +224,7 @@ package android.support.v7.app {
     method public void onSupportActionModeStarted(android.support.v7.view.ActionMode);
     method public deprecated void onSupportContentChanged();
     method public boolean onSupportNavigateUp();
+    method public android.support.v7.view.ActionMode onWindowStartingSupportActionMode(android.support.v7.view.ActionMode.Callback);
     method public void setSupportActionBar(android.support.v7.widget.Toolbar);
     method public deprecated void setSupportProgress(int);
     method public deprecated void setSupportProgressBarIndeterminate(boolean);
@@ -238,6 +239,7 @@ package android.support.v7.app {
   public abstract interface AppCompatCallback {
     method public abstract void onSupportActionModeFinished(android.support.v7.view.ActionMode);
     method public abstract void onSupportActionModeStarted(android.support.v7.view.ActionMode);
+    method public abstract android.support.v7.view.ActionMode onWindowStartingSupportActionMode(android.support.v7.view.ActionMode.Callback);
   }
 
   public abstract class AppCompatDelegate {
@@ -250,6 +252,7 @@ package android.support.v7.app {
     method public abstract android.support.v7.app.ActionBar getSupportActionBar();
     method public abstract void installViewFactory();
     method public abstract void invalidateOptionsMenu();
+    method public abstract boolean isHandleNativeActionModesEnabled();
     method public abstract void onConfigurationChanged(android.content.res.Configuration);
     method public abstract void onCreate(android.os.Bundle);
     method public abstract void onDestroy();
@@ -260,6 +263,7 @@ package android.support.v7.app {
     method public abstract void setContentView(android.view.View);
     method public abstract void setContentView(int);
     method public abstract void setContentView(android.view.View, android.view.ViewGroup.LayoutParams);
+    method public abstract void setHandleNativeActionModesEnabled(boolean);
     method public abstract void setSupportActionBar(android.support.v7.widget.Toolbar);
     method public abstract void setTitle(java.lang.CharSequence);
     method public abstract android.support.v7.view.ActionMode startSupportActionMode(android.support.v7.view.ActionMode.Callback);
@@ -273,6 +277,7 @@ package android.support.v7.app {
     method public android.support.v7.app.ActionBar getSupportActionBar();
     method public void onSupportActionModeFinished(android.support.v7.view.ActionMode);
     method public void onSupportActionModeStarted(android.support.v7.view.ActionMode);
+    method public android.support.v7.view.ActionMode onWindowStartingSupportActionMode(android.support.v7.view.ActionMode.Callback);
     method public boolean supportRequestWindowFeature(int);
   }
 

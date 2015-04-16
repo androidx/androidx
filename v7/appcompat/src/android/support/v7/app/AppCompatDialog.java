@@ -20,6 +20,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import android.support.v7.appcompat.R;
 import android.support.v7.view.ActionMode;
 import android.util.TypedValue;
@@ -159,5 +160,11 @@ public class AppCompatDialog extends Dialog implements AppCompatCallback {
 
     @Override
     public void onSupportActionModeFinished(ActionMode mode) {
+    }
+
+    @Nullable
+    @Override
+    public ActionMode onWindowStartingSupportActionMode(ActionMode.Callback callback) {
+        return null;
     }
 }
