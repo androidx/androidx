@@ -267,7 +267,7 @@ public class Allocation extends BaseObj {
     /**
      * Enable/Disable AutoPadding for Vec3 elements.
      *
-     * @param useAutoPadding True: enable AutoPadding; flase: disable AutoPadding
+     * @param useAutoPadding True: enable AutoPadding; False: disable AutoPadding
      *
      */
     public void setAutoPadding(boolean useAutoPadding) {
