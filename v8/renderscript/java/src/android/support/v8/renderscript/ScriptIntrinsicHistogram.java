@@ -28,7 +28,7 @@ public class ScriptIntrinsicHistogram extends ScriptIntrinsic {
     // API level for the intrinsic
     private static final int INTRINSIC_API_LEVEL = 19;
 
-    protected ScriptIntrinsicHistogram(long id, RenderScript rs) {
+    private ScriptIntrinsicHistogram(long id, RenderScript rs) {
         super(id, rs);
     }
 
@@ -101,13 +101,11 @@ public class ScriptIntrinsicHistogram extends ScriptIntrinsic {
             throw new RSIllegalArgumentException(
                 "Input vector size must be >= output vector size.");
         }
-        if (mOut.getType().getElement().getVectorSize() == 3) {
-            throw new RSIllegalArgumentException(
-                "Output vector size should not be 3 for Input vector size 4.");
-        }
         if (!ain.getType().getElement().isCompatible(Element.U8(mRS)) &&
+            !ain.getType().getElement().isCompatible(Element.U8_2(mRS)) &&
+            !ain.getType().getElement().isCompatible(Element.U8_3(mRS)) &&
             !ain.getType().getElement().isCompatible(Element.U8_4(mRS))) {
-            throw new RSIllegalArgumentException("Output type must be U8 or U8_4.");
+            throw new RSIllegalArgumentException("Input type must be U8, U8_1, U8_2 or U8_4.");
         }
 
         forEach(0, ain, null, null, opt);
@@ -202,8 +200,10 @@ public class ScriptIntrinsicHistogram extends ScriptIntrinsic {
             throw new RSIllegalArgumentException("Output vector size must be one.");
         }
         if (!ain.getType().getElement().isCompatible(Element.U8(mRS)) &&
+            !ain.getType().getElement().isCompatible(Element.U8_2(mRS)) &&
+            !ain.getType().getElement().isCompatible(Element.U8_3(mRS)) &&
             !ain.getType().getElement().isCompatible(Element.U8_4(mRS))) {
-            throw new RSIllegalArgumentException("Output type must be U8 or U8_4.");
+            throw new RSIllegalArgumentException("Input type must be U8, U8_1, U8_2 or U8_4.");
         }
 
         forEach(1, ain, null, null, opt);
