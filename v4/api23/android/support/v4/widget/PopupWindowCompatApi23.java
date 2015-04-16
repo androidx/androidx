@@ -28,4 +28,12 @@ class PopupWindowCompatApi23 {
         return popupWindow.getOverlapAnchor();
     }
 
+    static void setWindowLayoutType(PopupWindow popupWindow, int layoutType) {
+        popupWindow.setWindowLayoutType(layoutType);
+    }
+
+    static int getWindowLayoutType(PopupWindow popupWindow) {
+        return popupWindow.getWindowLayoutType();
+    }
+
 }

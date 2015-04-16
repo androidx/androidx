@@ -2996,7 +2996,9 @@ package android.support.v4.widget {
 
   public class PopupWindowCompat {
     method public static boolean getOverlapAnchor(android.widget.PopupWindow);
+    method public static int getWindowLayoutType(android.widget.PopupWindow);
     method public static void setOverlapAnchor(android.widget.PopupWindow, boolean);
+    method public static void setWindowLayoutType(android.widget.PopupWindow, int);
     method public static void showAsDropDown(android.widget.PopupWindow, android.view.View, int, int, int);
   }
 
