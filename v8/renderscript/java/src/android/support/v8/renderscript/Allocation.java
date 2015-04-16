@@ -1247,7 +1247,7 @@ public class Allocation extends BaseObj {
      * @param w Width of the region to update
      * @param h Height of the region to update
      * @param d Depth of the region to update
-     * @param data to be placed into the allocation
+     * @param array to be placed into the allocation
      */
     public void copy3DRangeFrom(int xoff, int yoff, int zoff, int w, int h, int d, Object array) {
         copy3DRangeFromUnchecked(xoff, yoff, zoff, w, h, d, array,
@@ -1609,7 +1609,7 @@ public class Allocation extends BaseObj {
      * @param yoff Y offset of the region to copy in this Allocation
      * @param w Width of the region to copy
      * @param h Height of the region to copy
-     * @param array Dest Array to be copied into
+     * @param data Dest Array to be copied into
      */
     public void copy2DRangeTo(int xoff, int yoff, int w, int h, byte[] data) {
         validateIsInt8();
@@ -1624,7 +1624,7 @@ public class Allocation extends BaseObj {
      * @param yoff Y offset of the region to copy in this Allocation
      * @param w Width of the region to copy
      * @param h Height of the region to copy
-     * @param array Dest Array to be copied into
+     * @param data Dest Array to be copied into
      */
     public void copy2DRangeTo(int xoff, int yoff, int w, int h, short[] data) {
         validateIsInt16();
@@ -1639,7 +1639,7 @@ public class Allocation extends BaseObj {
      * @param yoff Y offset of the region to copy in this Allocation
      * @param w Width of the region to copy
      * @param h Height of the region to copy
-     * @param array Dest Array to be copied into
+     * @param data Dest Array to be copied into
      */
     public void copy2DRangeTo(int xoff, int yoff, int w, int h, int[] data) {
         validateIsInt32();
@@ -1654,7 +1654,7 @@ public class Allocation extends BaseObj {
      * @param yoff Y offset of the region to copy in this Allocation
      * @param w Width of the region to copy
      * @param h Height of the region to copy
-     * @param array Dest Array to be copied into
+     * @param data Dest Array to be copied into
      */
     public void copy2DRangeTo(int xoff, int yoff, int w, int h, float[] data) {
         validateIsFloat32();
@@ -2205,4 +2205,3 @@ public class Allocation extends BaseObj {
     }
 
 }
-
