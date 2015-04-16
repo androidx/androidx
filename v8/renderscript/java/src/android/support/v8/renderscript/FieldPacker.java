@@ -48,6 +48,15 @@ public class FieldPacker {
         // subAlign() can never work correctly for copied FieldPacker objects.
     }
 
+    static FieldPacker createFromArray(Object[] args) {
+        FieldPacker fp = new FieldPacker(RenderScript.sPointerSize * 8);
+        for (Object arg : args) {
+            fp.addSafely(arg);
+        }
+        fp.resize(fp.mPos);
+        return fp;
+    }
+
     public void align(int v) {
         if ((v <= 0) || ((v & (v - 1)) != 0)) {
             throw new RSIllegalArgumentException("argument must be a non-negative non-zero power of 2: " + v);
@@ -242,8 +251,7 @@ public class FieldPacker {
                 addI64(0);
                 addI64(0);
                 addI64(0);
-            }
-            else {
+            } else {
                 addI32((int)obj.getID(null));
             }
         } else {
@@ -903,11 +911,36 @@ public class FieldPacker {
         return fp;
     }
 
-    private final byte mData[];
+
+    private boolean resize(int newSize) {
+        if (newSize == mLen) {
+            return false;
+        }
+
+        byte[] newData = new byte[newSize];
+        System.arraycopy(mData, 0, newData, 0, mPos);
+        mData = newData;
+        mLen = newSize;
+        return true;
+    }
+
+    private void addSafely(Object obj) {
+        boolean retry;
+        final int oldPos = mPos;
+        do {
+            retry = false;
+            try {
+                addToPack(this, obj);
+            } catch (ArrayIndexOutOfBoundsException e) {
+                mPos = oldPos;
+                resize(mLen * 2);
+                retry = true;
+            }
+        } while (retry);
+    }
+
+    private byte mData[];
     private int mPos;
     private int mLen;
     private BitSet mAlignment;
-
 }
-
-
