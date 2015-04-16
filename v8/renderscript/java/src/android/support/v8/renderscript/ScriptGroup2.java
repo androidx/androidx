@@ -123,7 +123,7 @@ public class ScriptGroup2 extends BaseObj {
                 throw new RSRuntimeException("ScriptGroup2 not supported in this API level");
             }
 
-            mFP = FieldPacker.createFieldPack(args);
+            mFP = FieldPacker.createFromArray(args);
 
             mArgs = args;
             mBindings = globals;
