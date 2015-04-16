@@ -185,9 +185,14 @@ public class ColorUtils {
             s = deltaMaxMin / (1f - Math.abs(2f * l - 1f));
         }
 
-        hsl[0] = (h * 60f) % 360f;
-        hsl[1] = s;
-        hsl[2] = l;
+        h = (h * 60f) % 360f;
+        if (h < 0) {
+            h += 360f;
+        }
+
+        hsl[0] = constrain(h, 0f, 360f);
+        hsl[1] = constrain(s, 0f, 1f);
+        hsl[2] = constrain(l, 0f, 1f);
     }
 
     /**
@@ -264,9 +269,9 @@ public class ColorUtils {
                 break;
         }
 
-        r = Math.max(0, Math.min(255, r));
-        g = Math.max(0, Math.min(255, g));
-        b = Math.max(0, Math.min(255, b));
+        r = constrain(r, 0, 255);
+        g = constrain(g, 0, 255);
+        b = constrain(b, 0, 255);
 
         return Color.rgb(r, g, b);
     }
@@ -279,6 +284,14 @@ public class ColorUtils {
             throw new IllegalArgumentException("alpha must be between 0 and 255.");
         }
         return (color & 0x00ffffff) | (alpha << 24);
+    }
+
+    private static float constrain(float amount, float low, float high) {
+        return amount < low ? low : (amount > high ? high : amount);
+    }
+
+    private static int constrain(int amount, int low, int high) {
+        return amount < low ? low : (amount > high ? high : amount);
     }
 
 }

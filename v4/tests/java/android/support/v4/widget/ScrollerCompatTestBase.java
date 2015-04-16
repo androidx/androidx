@@ -26,6 +26,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 
+/**
+ * @hide
+ */
 abstract public class ScrollerCompatTestBase extends AndroidTestCase {
 
     private static final boolean DEBUG = false;
