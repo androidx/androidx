@@ -356,10 +356,7 @@ public class MediaRouteButton extends View {
         }
     }
 
-    /**
-     * Sets a drawable to use as the remote route indicator.
-     */
-    public void setRemoteIndicatorDrawable(Drawable d) {
+    private void setRemoteIndicatorDrawable(Drawable d) {
         if (mRemoteIndicator != null) {
             mRemoteIndicator.setCallback(null);
             unscheduleDrawable(mRemoteIndicator);
