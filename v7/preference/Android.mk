@@ -24,6 +24,7 @@ LOCAL_SDK_VERSION := current
 LOCAL_SRC_FILES := $(call all-java-files-under, dummy)
 LOCAL_RESOURCE_DIR := \
         frameworks/support/v7/appcompat/res \
+        frameworks/support/v7/recyclerview/res \
         $(LOCAL_PATH)/res
 LOCAL_AAPT_FLAGS := \
 	--auto-add-overlay
