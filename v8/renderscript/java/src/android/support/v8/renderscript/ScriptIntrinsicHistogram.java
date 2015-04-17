@@ -28,7 +28,7 @@ public class ScriptIntrinsicHistogram extends ScriptIntrinsic {
     // API level for the intrinsic
     private static final int INTRINSIC_API_LEVEL = 19;
 
-    private ScriptIntrinsicHistogram(long id, RenderScript rs) {
+    protected ScriptIntrinsicHistogram(long id, RenderScript rs) {
         super(id, rs);
     }
 
