@@ -24,10 +24,12 @@ LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
 LOCAL_RESOURCE_DIR = \
         $(LOCAL_PATH)/res \
-        $(LOCAL_PATH)/../leanback/res
+        $(LOCAL_PATH)/../leanback/res \
+        $(LOCAL_PATH)/../../v7/recyclerview/res
 LOCAL_AAPT_FLAGS := \
         --auto-add-overlay \
-        --extra-packages android.support.v17.leanback
+        --extra-packages android.support.v17.leanback \
+        --extra-packages android.support.v7.recyclerview
 
 LOCAL_STATIC_JAVA_LIBRARIES := \
         android-support-v4 \
