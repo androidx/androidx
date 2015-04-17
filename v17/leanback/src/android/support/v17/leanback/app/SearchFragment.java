@@ -306,7 +306,7 @@ public class SearchFragment extends Fragment {
         mRowsFragment.setOnItemViewSelectedListener(new OnItemViewSelectedListener() {
             @Override
             public void onItemSelected(ViewHolder itemViewHolder, Object item,
-                    RowPresenter.ViewHolder rowViewHolder, Row row) {
+                                       RowPresenter.ViewHolder rowViewHolder, Row row) {
                 int position = mRowsFragment.getVerticalGridView().getSelectedPosition();
                 if (DEBUG) Log.v(TAG, String.format("onItemSelected %d", position));
                 mSearchBar.setVisibility(0 >= position ? View.VISIBLE : View.GONE);
@@ -316,18 +316,7 @@ public class SearchFragment extends Fragment {
                 }
             }
         });
-        mRowsFragment.setOnItemViewClickedListener(new OnItemViewClickedListener() {
-            @Override
-            public void onItemClicked(ViewHolder itemViewHolder, Object item,
-                    RowPresenter.ViewHolder rowViewHolder, Row row) {
-                int position = mRowsFragment.getVerticalGridView().getSelectedPosition();
-                if (DEBUG) Log.v(TAG, String.format("onItemClicked %d", position));
-                if (null != mOnItemViewClickedListener) {
-                    mOnItemViewClickedListener.onItemClicked(itemViewHolder, item,
-                            rowViewHolder, row);
-                }
-            }
-        });
+        mRowsFragment.setOnItemViewClickedListener(mOnItemViewClickedListener);
         mRowsFragment.setExpand(true);
         if (null != mProvider) {
             onSetSearchResultProvider();
@@ -426,7 +415,12 @@ public class SearchFragment extends Fragment {
      *        the search results is clicked.
      */
     public void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
-        mOnItemViewClickedListener = listener;
+        if (listener != mOnItemViewClickedListener) {
+            mOnItemViewClickedListener = listener;
+            if (mRowsFragment != null) {
+                mRowsFragment.setOnItemViewClickedListener(mOnItemViewClickedListener);
+            }
+        }
     }
 
     /**
