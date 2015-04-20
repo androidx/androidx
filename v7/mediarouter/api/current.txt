@@ -20,6 +20,7 @@ package android.support.v7.app {
     method public void onAttachedToWindow();
     method public void onDetachedFromWindow();
     method public void setDialogFactory(android.support.v7.app.MediaRouteDialogFactory);
+    method public void setRemoteIndicatorDrawable(android.graphics.drawable.Drawable);
     method public void setRouteSelector(android.support.v7.media.MediaRouteSelector);
     method public boolean showDialog();
   }
