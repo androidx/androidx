@@ -19,7 +19,6 @@ package android.support.v7.app;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.IntentSender;
-import android.content.IntentSender.SendIntentException;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -40,6 +39,8 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 /**
@@ -54,6 +55,11 @@ import android.widget.TextView;
 public class MediaRouteControllerDialog extends Dialog {
     private static final String TAG = "MediaRouteControllerDialog";
 
+    // Time to wait before updating the volume when the user lets go of the seek bar
+    // to allow the route provider time to propagate the change and publish a new
+    // route descriptor.
+    private static final int VOLUME_UPDATE_DELAY_MILLIS = 250;
+
     private final MediaRouter mRouter;
     private final MediaRouterCallback mCallback;
     private final MediaRouter.RouteInfo mRoute;
@@ -62,8 +68,6 @@ public class MediaRouteControllerDialog extends Dialog {
     private boolean mAttachedToWindow;
     private Drawable mMediaRouteConnectingDrawable;
     private Drawable mMediaRouteOnDrawable;
-    private Drawable mCurrentIconDrawable;
-    private Drawable mSettingsDrawable;
 
     private View mControlView;
 
@@ -77,6 +81,11 @@ public class MediaRouteControllerDialog extends Dialog {
     private TextView mSubtitleView;
     private TextView mRouteNameView;
     private View mTitlesWrapper;
+
+    private boolean mVolumeControlEnabled = true;
+    private LinearLayout mVolumeLayout;
+    private SeekBar mVolumeSlider;
+    private boolean mVolumeSliderTouched;
 
     private MediaControllerCompat mMediaController;
     private MediaControllerCallback mControllerCallback;
@@ -125,6 +134,30 @@ public class MediaRouteControllerDialog extends Dialog {
      */
     public View getMediaControlView() {
         return mControlView;
+    }
+
+    /**
+     * Sets whether to enable the volume slider and volume control using the volume keys
+     * when the route supports it.
+     * <p>
+     * The default value is true.
+     * </p>
+     */
+    public void setVolumeControlEnabled(boolean enable) {
+        if (mVolumeControlEnabled != enable) {
+            mVolumeControlEnabled = enable;
+            if (mCreated) {
+                updateVolume();
+            }
+        }
+    }
+
+    /**
+     * Returns whether to enable the volume slider and volume control using the volume keys
+     * when the route supports it.
+     */
+    public boolean isVolumeControlEnabled() {
+        return mVolumeControlEnabled;
     }
 
     /**
@@ -195,6 +228,43 @@ public class MediaRouteControllerDialog extends Dialog {
         mPlayPauseButton = (ImageButton) findViewById(R.id.play_pause);
         mPlayPauseButton.setOnClickListener(listener);
         mRouteNameView = (TextView) findViewById(R.id.route_name);
+        mVolumeLayout = (LinearLayout)findViewById(R.id.media_route_volume_layout);
+        mVolumeSlider = (SeekBar)findViewById(R.id.media_route_volume_slider);
+        mVolumeSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            private final Runnable mStopTrackingTouch = new Runnable() {
+                @Override
+                public void run() {
+                    if (mVolumeSliderTouched) {
+                        mVolumeSliderTouched = false;
+                        updateVolume();
+                    }
+                }
+            };
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                if (mVolumeSliderTouched) {
+                    mVolumeSlider.removeCallbacks(mStopTrackingTouch);
+                } else {
+                    mVolumeSliderTouched = true;
+                }
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // Defer resetting mVolumeSliderTouched to allow the media route provider
+                // a little time to settle into its new state and publish the final
+                // volume update.
+                mVolumeSlider.postDelayed(mStopTrackingTouch, VOLUME_UPDATE_DELAY_MILLIS);
+            }
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser) {
+                    mRoute.requestSetVolume(progress);
+                }
+            }
+        });
 
         mCreated = true;
         if (update()) {
@@ -253,6 +323,8 @@ public class MediaRouteControllerDialog extends Dialog {
         if (!mCreated) {
             return false;
         }
+
+        updateVolume();
 
         mRouteNameView.setText(mRoute.getName());
 
@@ -353,6 +425,23 @@ public class MediaRouteControllerDialog extends Dialog {
         }
     }
 
+    private void updateVolume() {
+        if (!mVolumeSliderTouched) {
+            if (isVolumeControlAvailable()) {
+                mVolumeLayout.setVisibility(View.VISIBLE);
+                mVolumeSlider.setMax(mRoute.getVolumeMax());
+                mVolumeSlider.setProgress(mRoute.getVolume());
+            } else {
+                mVolumeLayout.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private boolean isVolumeControlAvailable() {
+        return mVolumeControlEnabled && mRoute.getVolumeHandling() ==
+                MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE;
+    }
+
     private final class MediaRouterCallback extends MediaRouter.Callback {
         @Override
         public void onRouteUnselected(MediaRouter router, MediaRouter.RouteInfo route) {
@@ -367,6 +456,7 @@ public class MediaRouteControllerDialog extends Dialog {
         @Override
         public void onRouteVolumeChanged(MediaRouter router, MediaRouter.RouteInfo route) {
             if (route == mRoute) {
+                updateVolume();
             }
         }
     }

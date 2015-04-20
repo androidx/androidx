@@ -47,7 +47,9 @@ package android.support.v7.app {
     method public android.view.View getMediaControlView();
     method public android.support.v4.media.session.MediaSessionCompat.Token getMediaSession();
     method public android.support.v7.media.MediaRouter.RouteInfo getRoute();
+    method public boolean isVolumeControlEnabled();
     method public android.view.View onCreateMediaControlView(android.os.Bundle);
+    method public void setVolumeControlEnabled(boolean);
   }
 
   public class MediaRouteControllerDialogFragment extends android.support.v4.app.DialogFragment {
