@@ -43,10 +43,19 @@ public class LayoutInflaterCompat {
         }
     }
 
+    static class LayoutInflaterCompatImplV21 extends LayoutInflaterCompatImplV11 {
+        @Override
+        public void setFactory(LayoutInflater layoutInflater, LayoutInflaterFactory factory) {
+            LayoutInflaterCompatLollipop.setFactory(layoutInflater, factory);
+        }
+    }
+
     static final LayoutInflaterCompatImpl IMPL;
     static {
         final int version = Build.VERSION.SDK_INT;
-        if (version >= 11) {
+        if (version >= 21) {
+            IMPL = new LayoutInflaterCompatImplV21();
+        } else if (version >= 11) {
             IMPL = new LayoutInflaterCompatImplV11();
         } else {
             IMPL = new LayoutInflaterCompatImplBase();

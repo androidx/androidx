@@ -35,6 +35,10 @@ class LayoutInflaterCompatBase {
         public View onCreateView(String name, Context context, AttributeSet attrs) {
             return mDelegateFactory.onCreateView(null, name, context, attrs);
         }
+
+        public String toString() {
+            return getClass().getName() + "{" + mDelegateFactory + "}";
+        }
     }
 
     static void setFactory(LayoutInflater inflater, LayoutInflaterFactory factory) {
