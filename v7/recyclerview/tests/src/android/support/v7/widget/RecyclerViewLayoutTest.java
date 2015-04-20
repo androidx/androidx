@@ -37,7 +37,6 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -252,32 +251,56 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     }
 
     @Test
-    public void testDraglHorizontal() throws Throwable {
-        scrollInOtherOrientationTest(true, true);
+    public void testDragHorizontal() throws Throwable {
+        scrollInOtherOrientationTest(true, false, false);
     }
 
     @Test
     public void testDragVertical() throws Throwable {
-        scrollInOtherOrientationTest(false, true);
+        scrollInOtherOrientationTest(false, true, false);
     }
 
     @Test
     public void testFlingHorizontal() throws Throwable {
-        scrollInOtherOrientationTest(true, false);
+        scrollInOtherOrientationTest(true, false, true);
     }
 
     @Test
     public void testFlingVertical() throws Throwable {
-        scrollInOtherOrientationTest(false, false);
+        scrollInOtherOrientationTest(false, true, true);
     }
 
+    @Test
+    public void testNestedDragVertical() throws Throwable {
+        TestedFrameLayout tfl = getActivity().mContainer;
+        tfl.setNestedScrollMode(TestedFrameLayout.TEST_NESTED_SCROLL_MODE_CONSUME);
+        tfl.setNestedFlingMode(TestedFrameLayout.TEST_NESTED_SCROLL_MODE_CONSUME);
+        scrollInOtherOrientationTest(false, true, false, false, false, false);
+    }
 
-    public void scrollInOtherOrientationTest(final boolean horizontal, final boolean drag)
+    @Test
+    public void testNestedDragHorizontal() throws Throwable {
+        TestedFrameLayout tfl = getActivity().mContainer;
+        tfl.setNestedScrollMode(TestedFrameLayout.TEST_NESTED_SCROLL_MODE_CONSUME);
+        tfl.setNestedFlingMode(TestedFrameLayout.TEST_NESTED_SCROLL_MODE_CONSUME);
+        scrollInOtherOrientationTest(true, false, false, false, false, false);
+    }
+
+    private void scrollInOtherOrientationTest(boolean horizontal, boolean vertical, boolean fling)
+            throws Throwable {
+        scrollInOtherOrientationTest(horizontal, vertical, horizontal, vertical, fling, fling);
+    }
+
+    private void scrollInOtherOrientationTest(
+            final boolean horizontal, final boolean vertical,
+            final boolean expectedHorizontal, final boolean expectedVertical,
+            final boolean fling, final boolean expectedFling)
             throws Throwable {
         RecyclerView recyclerView = new RecyclerView(getActivity());
         final AtomicBoolean scrolledHorizontal = new AtomicBoolean(false);
         final AtomicBoolean scrolledVertical = new AtomicBoolean(false);
-        TestLayoutManager tlm = new TestLayoutManager() {
+
+        final TestLayoutManager tlm = new TestLayoutManager() {
             @Override
             public boolean canScrollHorizontally() {
                 return horizontal;
@@ -285,7 +308,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
             @Override
             public boolean canScrollVertically() {
-                return !horizontal;
+                return vertical;
             }
 
             @Override
@@ -298,14 +321,14 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
             public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler,
                     RecyclerView.State state) {
                 scrolledVertical.set(true);
-                return dy;
+                return super.scrollVerticallyBy(dy, recycler, state);
             }
 
             @Override
             public int scrollHorizontallyBy(int dx, RecyclerView.Recycler recycler,
                     RecyclerView.State state) {
                 scrolledHorizontal.set(true);
-                return dx;
+                return super.scrollHorizontallyBy(dx, recycler, state);
             }
         };
         TestAdapter adapter = new TestAdapter(100);
@@ -314,13 +337,15 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         tlm.expectLayouts(1);
         setRecyclerView(recyclerView);
         tlm.waitForLayout(2);
-        if (drag) {
-            TouchUtils.dragViewTo(this, mRecyclerView, Gravity.LEFT | Gravity.TOP, 200, 200);
-        } else {// fling
-            assertTrue("test sanity, fling must run", fling(600, 600));
+        if (fling) {
+            assertEquals("fling started", expectedFling, fling(600, 600));
+        } else { // drag
+            TouchUtils.dragViewTo(this, recyclerView, Gravity.LEFT | Gravity.TOP, 200, 200);
         }
-        assertEquals("horizontal scroll", horizontal, scrolledHorizontal.get());
-        assertEquals("vertical scroll", !horizontal, scrolledVertical.get());
+        assertEquals("horizontally scrolled: " + tlm.mScrollHorizontallyAmount,
+                expectedHorizontal, scrolledHorizontal.get());
+        assertEquals("vertically scrolled: " + tlm.mScrollVerticallyAmount,
+                expectedVertical, scrolledVertical.get());
     }
 
     private boolean fling(final int velocityX, final int velocityY) throws Throwable {
