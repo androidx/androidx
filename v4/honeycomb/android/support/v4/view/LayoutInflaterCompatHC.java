@@ -49,7 +49,16 @@ class LayoutInflaterCompatHC {
         final LayoutInflater.Factory2 factory2 = factory != null
                 ? new FactoryWrapperHC(factory) : null;
         inflater.setFactory2(factory2);
-        forceSetFactory2(inflater, factory2);
+
+        final LayoutInflater.Factory f = inflater.getFactory();
+        if (f instanceof LayoutInflater.Factory2) {
+            // The merged factory is now set to getFactory(), but not getFactory2() (pre-v21).
+            // We will now try and force set the merged factory to mFactory2
+            forceSetFactory2(inflater, (LayoutInflater.Factory2) f);
+        } else {
+            // Else, we will force set the original wrapped Factory2
+            forceSetFactory2(inflater, factory2);
+        }
     }
 
     /**
