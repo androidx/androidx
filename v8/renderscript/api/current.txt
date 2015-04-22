@@ -663,17 +663,43 @@ package android.support.v8.renderscript {
   }
 
   public class ScriptGroup extends android.support.v8.renderscript.BaseObj {
-    method public void execute();
-    method public void setInput(android.support.v8.renderscript.Script.KernelID, android.support.v8.renderscript.Allocation);
-    method public void setOutput(android.support.v8.renderscript.Script.KernelID, android.support.v8.renderscript.Allocation);
+    method public java.lang.Object[] execute(java.lang.Object...);
+    method public deprecated void execute();
+    method public deprecated void setInput(android.support.v8.renderscript.Script.KernelID, android.support.v8.renderscript.Allocation);
+    method public deprecated void setOutput(android.support.v8.renderscript.Script.KernelID, android.support.v8.renderscript.Allocation);
   }
 
-  public static final class ScriptGroup.Builder {
+  public static final class ScriptGroup.Binding {
+    ctor public ScriptGroup.Binding(android.support.v8.renderscript.Script.FieldID, java.lang.Object);
+    field public android.support.v8.renderscript.Script.FieldID mField;
+    field public java.lang.Object mValue;
+  }
+
+  public static final deprecated class ScriptGroup.Builder {
     ctor public ScriptGroup.Builder(android.support.v8.renderscript.RenderScript);
     method public android.support.v8.renderscript.ScriptGroup.Builder addConnection(android.support.v8.renderscript.Type, android.support.v8.renderscript.Script.KernelID, android.support.v8.renderscript.Script.FieldID);
     method public android.support.v8.renderscript.ScriptGroup.Builder addConnection(android.support.v8.renderscript.Type, android.support.v8.renderscript.Script.KernelID, android.support.v8.renderscript.Script.KernelID);
     method public android.support.v8.renderscript.ScriptGroup.Builder addKernel(android.support.v8.renderscript.Script.KernelID);
     method public android.support.v8.renderscript.ScriptGroup create();
+  }
+
+  public static final class ScriptGroup.Builder2 {
+    ctor public ScriptGroup.Builder2(android.support.v8.renderscript.RenderScript);
+    method public android.support.v8.renderscript.ScriptGroup.Input addInput();
+    method public android.support.v8.renderscript.ScriptGroup.Closure addInvoke(android.support.v8.renderscript.Script.InvokeID, java.lang.Object...);
+    method public android.support.v8.renderscript.ScriptGroup.Closure addKernel(android.support.v8.renderscript.Script.KernelID, android.support.v8.renderscript.Type, java.lang.Object...);
+    method public android.support.v8.renderscript.ScriptGroup create(java.lang.String, android.support.v8.renderscript.ScriptGroup.Future...);
+  }
+
+  public static final class ScriptGroup.Closure extends android.support.v8.renderscript.BaseObj {
+    method public android.support.v8.renderscript.ScriptGroup.Future getGlobal(android.support.v8.renderscript.Script.FieldID);
+    method public android.support.v8.renderscript.ScriptGroup.Future getReturn();
+  }
+
+  public static final class ScriptGroup.Future {
+  }
+
+  public static final class ScriptGroup.Input {
   }
 
   public abstract class ScriptIntrinsic extends android.support.v8.renderscript.Script {
