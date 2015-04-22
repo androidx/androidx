@@ -1136,6 +1136,7 @@ public class TabLayout extends HorizontalScrollView {
                         mTextView = textView;
                     }
                     mTextView.setText(text);
+                    mTextView.setContentDescription(tab.getContentDescription());
                     mTextView.setVisibility(VISIBLE);
                 } else if (mTextView != null) {
                     mTextView.setVisibility(GONE);
