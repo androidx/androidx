@@ -92,7 +92,7 @@ package android.support.v7.widget {
     method public void setSpanIndexCacheEnabled(boolean);
   }
 
-  public class LinearLayoutManager extends android.support.v7.widget.RecyclerView.LayoutManager {
+  public class LinearLayoutManager extends android.support.v7.widget.RecyclerView.LayoutManager implements android.support.v7.widget.helper.ItemTouchHelper.ViewDropHandler {
     ctor public LinearLayoutManager(android.content.Context);
     ctor public LinearLayoutManager(android.content.Context, int, boolean);
     ctor public LinearLayoutManager(android.content.Context, android.util.AttributeSet, int, int);
@@ -109,6 +109,7 @@ package android.support.v7.widget {
     method public boolean getStackFromEnd();
     method protected boolean isLayoutRTL();
     method public boolean isSmoothScrollbarEnabled();
+    method public void prepareForDrop(android.view.View, android.view.View, int, int);
     method public void scrollToPositionWithOffset(int, int);
     method public void setOrientation(int);
     method public void setRecycleChildrenOnDetach(boolean);
@@ -182,8 +183,10 @@ package android.support.v7.widget {
     ctor public RecyclerView(android.content.Context, android.util.AttributeSet, int);
     method public void addItemDecoration(android.support.v7.widget.RecyclerView.ItemDecoration, int);
     method public void addItemDecoration(android.support.v7.widget.RecyclerView.ItemDecoration);
+    method public void addOnChildAttachStateChangeListener(android.support.v7.widget.RecyclerView.OnChildAttachStateChangeListener);
     method public void addOnItemTouchListener(android.support.v7.widget.RecyclerView.OnItemTouchListener);
     method public void addOnScrollListener(android.support.v7.widget.RecyclerView.OnScrollListener);
+    method public void clearOnChildAttachStateChangeListeners();
     method public void clearOnScrollListeners();
     method public int computeHorizontalScrollExtent();
     method public int computeHorizontalScrollOffset();
@@ -191,6 +194,7 @@ package android.support.v7.widget {
     method public int computeVerticalScrollExtent();
     method public int computeVerticalScrollOffset();
     method public int computeVerticalScrollRange();
+    method public boolean drawChild(android.graphics.Canvas, android.view.View, long);
     method public android.view.View findChildViewUnder(float, float);
     method public android.support.v7.widget.RecyclerView.ViewHolder findViewHolderForAdapterPosition(int);
     method public android.support.v7.widget.RecyclerView.ViewHolder findViewHolderForItemId(long);
@@ -206,11 +210,14 @@ package android.support.v7.widget {
     method public android.support.v7.widget.RecyclerViewAccessibilityDelegate getCompatAccessibilityDelegate();
     method public android.support.v7.widget.RecyclerView.ItemAnimator getItemAnimator();
     method public android.support.v7.widget.RecyclerView.LayoutManager getLayoutManager();
+    method public int getMaxFlingVelocity();
+    method public int getMinFlingVelocity();
     method public android.support.v7.widget.RecyclerView.RecycledViewPool getRecycledViewPool();
     method public int getScrollState();
     method public boolean hasFixedSize();
     method public boolean hasPendingAdapterUpdates();
     method public void invalidateItemDecorations();
+    method public boolean isAnimating();
     method public void offsetChildrenHorizontal(int);
     method public void offsetChildrenVertical(int);
     method public void onChildAttachedToWindow(android.view.View);
@@ -220,11 +227,13 @@ package android.support.v7.widget {
     method public void onScrollStateChanged(int);
     method public void onScrolled(int, int);
     method public void removeItemDecoration(android.support.v7.widget.RecyclerView.ItemDecoration);
+    method public void removeOnChildAttachStateChangeListener(android.support.v7.widget.RecyclerView.OnChildAttachStateChangeListener);
     method public void removeOnItemTouchListener(android.support.v7.widget.RecyclerView.OnItemTouchListener);
     method public void removeOnScrollListener(android.support.v7.widget.RecyclerView.OnScrollListener);
     method public void scrollToPosition(int);
     method public void setAccessibilityDelegateCompat(android.support.v7.widget.RecyclerViewAccessibilityDelegate);
     method public void setAdapter(android.support.v7.widget.RecyclerView.Adapter);
+    method public void setChildDrawingOrderCallback(android.support.v7.widget.RecyclerView.ChildDrawingOrderCallback);
     method public void setHasFixedSize(boolean);
     method public void setItemAnimator(android.support.v7.widget.RecyclerView.ItemAnimator);
     method public void setItemViewCacheSize(int);
@@ -287,6 +296,10 @@ package android.support.v7.widget {
     method public void onItemRangeInserted(int, int);
     method public void onItemRangeMoved(int, int, int);
     method public void onItemRangeRemoved(int, int);
+  }
+
+  public static abstract interface RecyclerView.ChildDrawingOrderCallback {
+    method public abstract int onGetChildDrawingOrder(int, int);
   }
 
   public static abstract class RecyclerView.ItemAnimator {
@@ -490,9 +503,16 @@ package android.support.v7.widget {
     method public boolean viewNeedsUpdate();
   }
 
-  public static abstract interface RecyclerView.OnItemTouchListener {
-    method public abstract boolean onInterceptTouchEvent(android.support.v7.widget.RecyclerView, android.view.MotionEvent);
-    method public abstract void onTouchEvent(android.support.v7.widget.RecyclerView, android.view.MotionEvent);
+  public static abstract interface RecyclerView.OnChildAttachStateChangeListener {
+    method public abstract void onChildViewAttachedToWindow(android.view.View);
+    method public abstract void onChildViewDetachedFromWindow(android.view.View);
+  }
+
+  public static abstract class RecyclerView.OnItemTouchListener {
+    ctor public RecyclerView.OnItemTouchListener();
+    method public boolean onInterceptTouchEvent(android.support.v7.widget.RecyclerView, android.view.MotionEvent);
+    method public void onRequestDisallowInterceptTouchEvent(boolean);
+    method public void onTouchEvent(android.support.v7.widget.RecyclerView, android.view.MotionEvent);
   }
 
   public static abstract class RecyclerView.OnScrollListener {

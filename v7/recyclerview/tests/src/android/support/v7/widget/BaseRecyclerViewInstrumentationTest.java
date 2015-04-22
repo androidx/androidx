@@ -22,6 +22,7 @@ import android.os.Looper;
 import android.support.v4.view.ViewCompat;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -38,6 +39,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import android.support.v7.recyclerview.test.R;
 
 abstract public class BaseRecyclerViewInstrumentationTest extends
         ActivityInstrumentationTestCase2<TestActivity> {
@@ -93,6 +95,12 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
                 mRecyclerView.setAdapter(adapter);
             }
         });
+    }
+
+    protected WrappedRecyclerView inflateWrappedRV() {
+        return (WrappedRecyclerView)
+                LayoutInflater.from(getActivity()).inflate(R.layout.wrapped_test_rv,
+                        getRecyclerViewContainer(), false);
     }
 
     void swapAdapter(final RecyclerView.Adapter adapter,
@@ -369,9 +377,8 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             mLayoutLock.unlock();
         }
     }
-    class TestLayoutManager extends RecyclerView.LayoutManager {
-
-        CountDownLatch layoutLatch;
+    public class TestLayoutManager extends RecyclerView.LayoutManager {
+        protected CountDownLatch layoutLatch;
 
         public void expectLayouts(int count) {
             layoutLatch = new CountDownLatch(count);
@@ -426,7 +433,7 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             return (RecyclerView.LayoutParams) v.getLayoutParams();
         }
 
-        void layoutRange(RecyclerView.Recycler recycler, int start, int end) {
+        protected void layoutRange(RecyclerView.Recycler recycler, int start, int end) {
             assertScrap(recycler);
             if (mDebug) {
                 Log.d(TAG, "will layout items from " + start + " to " + end);
@@ -453,8 +460,14 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
                 addView(view);
 
                 measureChildWithMargins(view, 0, 0);
-                layoutDecorated(view, 0, top, getDecoratedMeasuredWidth(view)
-                        , top + getDecoratedMeasuredHeight(view));
+                if (getLayoutDirection() == ViewCompat.LAYOUT_DIRECTION_RTL) {
+                    layoutDecorated(view, getWidth() - getDecoratedMeasuredWidth(view), top,
+                            getWidth(), top + getDecoratedMeasuredHeight(view));
+                } else {
+                    layoutDecorated(view, 0, top, getDecoratedMeasuredWidth(view)
+                            , top + getDecoratedMeasuredHeight(view));
+                }
+
                 top += view.getMeasuredHeight();
             }
         }
@@ -514,13 +527,13 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         }
     }
 
-    class TestAdapter extends RecyclerView.Adapter<TestViewHolder>
+    public class TestAdapter extends RecyclerView.Adapter<TestViewHolder>
             implements AttachDetachCountingAdapter {
 
         ViewAttachDetachCounter mAttachmentCounter = new ViewAttachDetachCounter();
         List<Item> mItems;
 
-        TestAdapter(int count) {
+        public TestAdapter(int count) {
             mItems = new ArrayList<Item>(count);
             for (int i = 0; i < count; i++) {
                 mItems.add(new Item(i, "Item " + i));

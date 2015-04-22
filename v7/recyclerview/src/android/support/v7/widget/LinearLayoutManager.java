@@ -24,6 +24,7 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityRecordCompat;
 import android.util.AttributeSet;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +38,8 @@ import static android.support.v7.widget.RecyclerView.NO_POSITION;
  * A {@link android.support.v7.widget.RecyclerView.LayoutManager} implementation which provides
  * similar functionality to {@link android.widget.ListView}.
  */
-public class LinearLayoutManager extends RecyclerView.LayoutManager {
+public class LinearLayoutManager extends RecyclerView.LayoutManager implements
+        ItemTouchHelper.ViewDropHandler {
 
     private static final String TAG = "LinearLayoutManager";
 
@@ -387,9 +389,13 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         final int firstChild = getPosition(getChildAt(0));
         final int viewPosition = position - firstChild;
         if (viewPosition >= 0 && viewPosition < childCount) {
-            return getChildAt(viewPosition);
+            final View child = getChildAt(viewPosition);
+            if (getPosition(child) == position) {
+                return child; // in pre-layout, this may not match
+            }
         }
-        return null;
+        // fallback to traversal. This might be necessary in pre-layout.
+        return super.findViewByPosition(position);
     }
 
     /**
@@ -812,6 +818,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
         }
         // override layout from end values for consistency
         anchorInfo.mLayoutFromEnd = mShouldReverseLayout;
+        // if this changes, we should update prepareForDrop as well
         if (mShouldReverseLayout) {
             anchorInfo.mCoordinate = mOrientationHelper.getEndAfterPadding() -
                     mPendingScrollPositionOffset;
@@ -957,7 +964,6 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
      * <code>item[10]</code>'s bottom is 20 pixels above the RecyclerView's bottom.
      * <p>
      * Note that scroll position change will not be reflected until the next layout call.
-     *
      * <p>
      * If you are just trying to make a position visible, use {@link #scrollToPosition(int)}.
      *
@@ -1802,6 +1808,40 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public boolean supportsPredictiveItemAnimations() {
         return mPendingSavedState == null && mLastStackFromEnd == mStackFromEnd;
+    }
+
+    /**
+     * @hide This method should be called by ItemTouchHelper only.
+     */
+    @Override
+    public void prepareForDrop(View view, View target, int x, int y) {
+        assertNotInLayoutOrScroll("Cannot drop a view during a scroll or layout calculation");
+        ensureLayoutState();
+        resolveShouldLayoutReverse();
+        final int myPos = getPosition(view);
+        final int targetPos = getPosition(target);
+        final int dropDirection = myPos < targetPos ? LayoutState.ITEM_DIRECTION_TAIL :
+                LayoutState.ITEM_DIRECTION_HEAD;
+        if (mShouldReverseLayout) {
+            if (dropDirection == LayoutState.ITEM_DIRECTION_TAIL) {
+                scrollToPositionWithOffset(targetPos,
+                        mOrientationHelper.getEndAfterPadding() -
+                                (mOrientationHelper.getDecoratedStart(target) +
+                                mOrientationHelper.getDecoratedMeasurement(view)));
+            } else {
+                scrollToPositionWithOffset(targetPos,
+                        mOrientationHelper.getEndAfterPadding() -
+                                mOrientationHelper.getDecoratedEnd(target));
+            }
+        } else {
+            if (dropDirection == LayoutState.ITEM_DIRECTION_HEAD) {
+                scrollToPositionWithOffset(targetPos, mOrientationHelper.getDecoratedStart(target));
+            } else {
+                scrollToPositionWithOffset(targetPos,
+                        mOrientationHelper.getDecoratedEnd(target) -
+                                mOrientationHelper.getDecoratedMeasurement(view));
+            }
+        }
     }
 
     /**
