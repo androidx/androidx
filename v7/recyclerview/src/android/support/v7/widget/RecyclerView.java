@@ -1915,6 +1915,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
      * for each incoming MotionEvent until the end of the gesture.</p>
      *
      * @param listener Listener to add
+     * @see SimpleOnItemTouchListener
      */
     public void addOnItemTouchListener(OnItemTouchListener listener) {
         mOnItemTouchListeners.add(listener);
@@ -7630,8 +7631,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
      * manipulation of item views within the RecyclerView. OnItemTouchListeners may intercept
      * a touch interaction already in progress even if the RecyclerView is already handling that
      * gesture stream itself for the purposes of scrolling.</p>
+     *
+     * @see SimpleOnItemTouchListener
      */
-    public static abstract class OnItemTouchListener {
+    public static interface OnItemTouchListener {
         /**
          * Silently observe and/or take over touch events sent to the RecyclerView
          * before they are handled by either the RecyclerView itself or its child views.
@@ -7646,9 +7649,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
          *         to continue with the current behavior and continue observing future events in
          *         the gesture.
          */
-        public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-            return false;
-        }
+        public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e);
 
         /**
          * Process a touch event as part of a gesture that was claimed by returning true from
@@ -7657,8 +7658,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
          * @param e MotionEvent describing the touch event. All coordinates are in
          *          the RecyclerView's coordinate system.
          */
-        public void onTouchEvent(RecyclerView rv, MotionEvent e) {
-        }
+        public void onTouchEvent(RecyclerView rv, MotionEvent e);
 
         /**
          * Called when a child of RecyclerView does not want RecyclerView and its ancestors to
@@ -7669,9 +7669,33 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
          *            intercept touch events.
          * @see ViewParent#requestDisallowInterceptTouchEvent(boolean)
          */
+        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept);
+    }
+
+    /**
+     * An implementation of {@link RecyclerView.OnItemTouchListener} that has empty method bodies and
+     * default return values.
+     * <p>
+     * You may prefer to extend this class if you don't need to override all methods. Another
+     * benefit of using this class is future compatibility. As the interface may change, we'll
+     * always provide a default implementation on this class so that your code won't break when
+     * you update to a new version of the support library.
+     */
+    public class SimpleOnItemTouchListener implements RecyclerView.OnItemTouchListener {
+        @Override
+        public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+            return false;
+        }
+
+        @Override
+        public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+        }
+
+        @Override
         public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
         }
     }
+
 
     /**
      * An OnScrollListener can be set on a RecyclerView to receive messages
@@ -7685,7 +7709,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
      * want your components to be able to easily replace the listener use
      * RecyclerView#setOnScrollListener.
      */
-    abstract static public class OnScrollListener {
+    public abstract static class OnScrollListener {
         /**
          * Callback method to be invoked when RecyclerView's scroll state changes.
          *
