@@ -2193,7 +2193,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
             if (event.getAction() == MotionEventCompat.ACTION_SCROLL) {
                 final float vScroll, hScroll;
                 if (mLayout.canScrollVertically()) {
-                    vScroll = MotionEventCompat
+                    // Inverse the sign of the vertical scroll to align the scroll orientation
+                    // with AbsListView.
+                    vScroll = -MotionEventCompat
                             .getAxisValue(event, MotionEventCompat.AXIS_VSCROLL);
                 } else {
                     vScroll = 0f;
