@@ -68,6 +68,7 @@ class ControlBarPresenter extends Presenter {
         BoundData mData;
         Presenter mPresenter;
         ControlBar mControlBar;
+        View mControlsContainer;
         SparseArray<Presenter.ViewHolder> mViewHolders =
                 new SparseArray<Presenter.ViewHolder>();
         ObjectAdapter.DataObserver mDataObserver;
@@ -77,6 +78,7 @@ class ControlBarPresenter extends Presenter {
          */
         ViewHolder(View rootView) {
             super(rootView);
+            mControlsContainer = rootView.findViewById(R.id.controls_container);
             mControlBar = (ControlBar) rootView.findViewById(R.id.control_bar);
             if (mControlBar == null) {
                 throw new IllegalStateException("Couldn't find control_bar");
@@ -227,6 +229,10 @@ class ControlBarPresenter extends Presenter {
      */
     public OnControlSelectedListener getOnItemControlListener() {
         return mOnControlSelectedListener;
+    }
+
+    public void setBackgroundColor(ViewHolder vh, int color) {
+        vh.mControlsContainer.setBackgroundColor(color);
     }
 
     @Override
