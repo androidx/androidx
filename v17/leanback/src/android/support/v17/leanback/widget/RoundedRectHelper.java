@@ -40,31 +40,8 @@ final class RoundedRectHelper {
         mImpl.setClipToRoundedOutline(view, clip);
     }
 
-    /**
-     * Sets a rounded rectangle background on the given view, and clips the view to the
-     * background.  If clipping isn't supported on the android runtime, a simple rectangle
-     * background is set instead.
-     *
-     * @param view The view to be modified
-     * @param color The color of the background
-     */
-    public void setRoundedRectBackground(View view, int color) {
-        mImpl.setRoundedRectBackground(view, color);
-    }
-
-    /**
-     * Clears the background of the view to transparent.
-     *
-     * @param view The view to be modified
-     */
-    public void clearBackground(View view) {
-        mImpl.clearBackground(view);
-    }
-
     static interface Impl {
         public void setClipToRoundedOutline(View view, boolean clip);
-        public void setRoundedRectBackground(View view, int color);
-        public void clearBackground(View view);
     }
 
     /**
@@ -75,19 +52,6 @@ final class RoundedRectHelper {
         public void setClipToRoundedOutline(View view, boolean clip) {
             // Not supported
         }
-
-        @Override
-        public void setRoundedRectBackground(View view, int color) {
-            // We could set a rounded rect background, but we don't
-            // because we can't do setClipToOutline.
-            // So just set a regular rectangle.
-            view.setBackgroundColor(color);
-        }
-
-        @Override
-        public void clearBackground(View view) {
-            view.setBackground(null);
-        }
     }
 
     /**
@@ -97,16 +61,6 @@ final class RoundedRectHelper {
         @Override
         public void setClipToRoundedOutline(View view, boolean clip) {
             RoundedRectHelperApi21.setClipToRoundedOutline(view, clip);
-        }
-
-        @Override
-        public void setRoundedRectBackground(View view, int color) {
-            RoundedRectHelperApi21.setRoundedRectBackground(view, color);
-        }
-
-        @Override
-        public void clearBackground(View view) {
-            RoundedRectHelperApi21.clearBackground(view);
         }
     }
 

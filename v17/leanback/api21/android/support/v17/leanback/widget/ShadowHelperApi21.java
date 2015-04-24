@@ -46,8 +46,7 @@ class ShadowHelperApi21 {
     public static Object addShadow(ViewGroup shadowContainer, boolean roundedCorners) {
         initializeResources(shadowContainer.getResources());
         if (roundedCorners) {
-            RoundedRectHelperApi21.setRoundedRectBackground(shadowContainer,
-                    Color.TRANSPARENT);
+            RoundedRectHelperApi21.setClipToRoundedOutline(shadowContainer, true);
         } else {
             shadowContainer.setOutlineProvider(sOutlineProvider);
         }
