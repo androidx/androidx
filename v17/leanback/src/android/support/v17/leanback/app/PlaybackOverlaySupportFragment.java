@@ -217,7 +217,6 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
             mResetControlsToPrimaryActionsPending = false;
             ((PlaybackControlsRowPresenter) vh.getPresenter()).showPrimaryActions(
                     (PlaybackControlsRowPresenter.ViewHolder) vh.getViewHolder());
-            vh.getViewHolder().view.clearFocus();
         }
     }
 

@@ -30,43 +30,55 @@
         android:layoutDirection="ltr"
         android:progressDrawable="@drawable/lb_playback_progress_bar" />
 
-    <FrameLayout
-        android:id="@+id/controls_container"
+    <android.support.v17.leanback.widget.PersistentFocusWrapper
+        android:id="@+id/controls_container_focus_wrapper"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
-        <android.support.v17.leanback.widget.ControlBar
-            android:id="@+id/control_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layoutDirection="ltr"
-            android:orientation="horizontal" />
-
         <FrameLayout
-            android:id="@+id/more_actions_dock"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end" />
+            android:id="@+id/controls_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
 
-        <TextView
-            android:id="@+id/current_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|left"
-            android:layout_marginStart="@dimen/lb_playback_current_time_margin_start"
-            android:paddingTop="@dimen/lb_playback_time_padding_top"
-            style="?attr/playbackControlsTimeStyle" />
+            <android.support.v17.leanback.widget.PersistentFocusWrapper
+                android:id="@+id/control_bar_focus_wrapper"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal">
 
-        <TextView
-            android:id="@+id/total_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|right"
-            android:layout_marginEnd="@dimen/lb_playback_total_time_margin_end"
-            android:paddingTop="@dimen/lb_playback_time_padding_top"
-            style="?attr/playbackControlsTimeStyle" />
+                <android.support.v17.leanback.widget.ControlBar
+                    android:id="@+id/control_bar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layoutDirection="ltr"
+                    android:orientation="horizontal" />
+                </android.support.v17.leanback.widget.PersistentFocusWrapper>
 
-    </FrameLayout>
+            <FrameLayout
+                android:id="@+id/more_actions_dock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end" />
+
+            <TextView
+                android:id="@+id/current_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|left"
+                android:layout_marginStart="@dimen/lb_playback_current_time_margin_start"
+                android:paddingTop="@dimen/lb_playback_time_padding_top"
+                style="?attr/playbackControlsTimeStyle" />
+
+            <TextView
+                android:id="@+id/total_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|right"
+                android:layout_marginEnd="@dimen/lb_playback_total_time_margin_end"
+                android:paddingTop="@dimen/lb_playback_time_padding_top"
+                style="?attr/playbackControlsTimeStyle" />
+
+        </FrameLayout>
+    </android.support.v17.leanback.widget.PersistentFocusWrapper>
 
 </LinearLayout>
