@@ -334,6 +334,15 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".app.DialogFragmentUsage"
+                  android:label="@string/dialogfragment_usage"
+                  android:theme="@style/Theme.AppCompat.Light">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <provider android:name=".app.RecentSuggestionsProvider"
                   android:authorities="com.example.android.supportv7.RecentSuggestionsProvider" />
 

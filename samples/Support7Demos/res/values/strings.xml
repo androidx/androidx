@@ -139,6 +139,7 @@
     <string name="dialog_title">My great dialog</string>
     <string name="dialog_content">My great dialog is great</string>
     <string name="alert_dialog_usage">AppCompat/Dialog/AlertDialog Usage</string>
+    <string name="dialogfragment_usage">AppCompat/Dialog/DialogFragment Usage</string>
 
     <string name="sample_media_route_provider_remote">Remote Playback (Simulated)</string>
     <string name="sample_media_route_activity_local">Local Playback</string>

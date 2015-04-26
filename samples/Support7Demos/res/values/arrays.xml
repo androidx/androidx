@@ -31,7 +31,6 @@
 
     <string-array name="dialog_types">
         <item>Simple</item>
-        <item>Simple with Action Bar</item>
         <item>Button bar</item>
     </string-array>
 

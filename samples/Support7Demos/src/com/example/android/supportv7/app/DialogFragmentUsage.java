@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,19 +20,24 @@ import com.example.android.supportv7.R;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDialog;
+import android.support.v7.app.AppCompatDialogFragment;
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 /**
- * This demonstrates idiomatic usage of AppCompatDialog.
+ * This demonstrates idiomatic usage of AppCompatDialogFragment.
  */
-public class DialogUsage extends AppCompatActivity {
+public class DialogFragmentUsage extends AppCompatActivity {
 
     private Spinner mSpinner;
 
@@ -64,38 +69,56 @@ public class DialogUsage extends AppCompatActivity {
     }
 
     private void showSimpleDialog() {
-        Dialog dialog = new AppCompatDialog(this);
-        dialog.setTitle(R.string.dialog_title);
-        dialog.setContentView(R.layout.dialog_content);
-        dialog.show();
+        MenuDialogFragment fragment = MenuDialogFragment.create(R.layout.dialog_content);
+        fragment.show(getSupportFragmentManager(), null);
     }
 
     private void showButtonBarDialog() {
-        Dialog dialog = new AppCompatDialog(this);
-        dialog.setTitle(R.string.dialog_title);
-        dialog.setContentView(R.layout.dialog_content_buttons);
-        dialog.show();
+        MenuDialogFragment fragment = MenuDialogFragment.create(R.layout.dialog_content_buttons);
+        fragment.show(getSupportFragmentManager(), null);
     }
 
     /**
-     * A simple {@link android.support.v7.app.AppCompatDialog} implementation which
+     * A simple {@link AppCompatDialog} implementation which
      * inflates some items into it's options menu, and shows a toast when one is selected.
      */
-    private class MenuDialog extends AppCompatDialog {
+    public static class MenuDialogFragment extends AppCompatDialogFragment {
 
-        public MenuDialog(Context context) {
-            super(context);
+        private static final String PARAM_CONTENT_VIEW = "content_view";
+
+        static MenuDialogFragment create(int contentView) {
+            Bundle b = new Bundle();
+            b.putInt(PARAM_CONTENT_VIEW, contentView);
+
+            MenuDialogFragment fragment = new MenuDialogFragment();
+            fragment.setArguments(b);
+
+            return fragment;
         }
 
         @Override
-        public boolean onCreateOptionsMenu(Menu menu) {
-            getMenuInflater().inflate(R.menu.actions, menu);
-            return true;
+        public void onCreate(@Nullable Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setHasOptionsMenu(true);
+        }
+
+        @Nullable
+        @Override
+        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                @Nullable Bundle savedInstanceState) {
+            Bundle args = getArguments();
+            int contentView = args.getInt(PARAM_CONTENT_VIEW);
+            return inflater.inflate(contentView, container, false);
+        }
+
+        @Override
+        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+            inflater.inflate(R.menu.actions, menu);
         }
 
         @Override
         public boolean onOptionsItemSelected(MenuItem item) {
-            Toast.makeText(getOwnerActivity(), "Dialog action selected: " + item.getTitle(),
+            Toast.makeText(getActivity(), "Dialog action selected: " + item.getTitle(),
                     Toast.LENGTH_SHORT).show();
             return true;
         }
