@@ -276,6 +276,9 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
                     // If we're floating, inflate the dialog title decor
                     mSubDecor = (ViewGroup) inflater.inflate(
                             R.layout.abc_dialog_title_material, null);
+
+                    // Floating windows can never have an action bar, reset the flags
+                    mHasActionBar = mOverlayActionBar = false;
                 } else if (mHasActionBar) {
                     /**
                      * This needs some explanation. As we can not use the android:theme attribute
