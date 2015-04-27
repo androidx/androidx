@@ -184,7 +184,11 @@ public final class PlaybackStateCompat implements Parcelable {
      * route. Depending on the implementation you may return to the previous
      * state when the connection finishes or enter {@link #STATE_NONE}. If
      * the connection failed {@link #STATE_ERROR} should be used.
-     * @hide
+     * <p>
+     * On devices earlier than API 21, this will appear as {@link #STATE_BUFFERING}
+     * </p>
+     *
+     * @see Builder#setState
      */
     public final static int STATE_CONNECTING = 8;
 
@@ -201,6 +205,17 @@ public final class PlaybackStateCompat implements Parcelable {
      * @see Builder#setState
      */
     public final static int STATE_SKIPPING_TO_NEXT = 10;
+
+    /**
+     * State indicating the player is currently skipping to a specific item in
+     * the queue.
+     * <p>
+     * On devices earlier than API 21, this will appear as {@link #STATE_SKIPPING_TO_NEXT}
+     * </p>
+     *
+     * @see Builder#setState
+     */
+    public final static int STATE_SKIPPING_TO_QUEUE_ITEM = 11;
 
     /**
      * Use this value for the position to indicate the position is not known.
@@ -279,6 +294,10 @@ public final class PlaybackStateCompat implements Parcelable {
      * <li> {@link PlaybackStateCompat#STATE_REWINDING}</li>
      * <li> {@link PlaybackStateCompat#STATE_BUFFERING}</li>
      * <li> {@link PlaybackStateCompat#STATE_ERROR}</li>
+     * <li> {@link PlaybackStateCompat#STATE_CONNECTING}</li>
+     * <li> {@link PlaybackStateCompat#STATE_SKIPPING_TO_PREVIOUS}</li>
+     * <li> {@link PlaybackStateCompat#STATE_SKIPPING_TO_NEXT}</li>
+     * <li> {@link PlaybackStateCompat#STATE_SKIPPING_TO_QUEUE_ITEM}</li>
      */
     public int getState() {
         return mState;
@@ -629,6 +648,10 @@ public final class PlaybackStateCompat implements Parcelable {
          * <li> {@link PlaybackStateCompat#STATE_REWINDING}</li>
          * <li> {@link PlaybackStateCompat#STATE_BUFFERING}</li>
          * <li> {@link PlaybackStateCompat#STATE_ERROR}</li>
+         * <li> {@link PlaybackStateCompat#STATE_CONNECTING}</li>
+         * <li> {@link PlaybackStateCompat#STATE_SKIPPING_TO_PREVIOUS}</li>
+         * <li> {@link PlaybackStateCompat#STATE_SKIPPING_TO_NEXT}</li>
+         * <li> {@link PlaybackStateCompat#STATE_SKIPPING_TO_QUEUE_ITEM}</li>
          * </ul>
          *
          * @param state The current state of playback.
@@ -660,6 +683,10 @@ public final class PlaybackStateCompat implements Parcelable {
          * <li> {@link PlaybackStateCompat#STATE_REWINDING}</li>
          * <li> {@link PlaybackStateCompat#STATE_BUFFERING}</li>
          * <li> {@link PlaybackStateCompat#STATE_ERROR}</li>
+         * <li> {@link PlaybackStateCompat#STATE_CONNECTING}</li>
+         * <li> {@link PlaybackStateCompat#STATE_SKIPPING_TO_PREVIOUS}</li>
+         * <li> {@link PlaybackStateCompat#STATE_SKIPPING_TO_NEXT}</li>
+         * <li> {@link PlaybackStateCompat#STATE_SKIPPING_TO_QUEUE_ITEM}</li>
          * </ul>
          *
          * @param state The current state of playback.
