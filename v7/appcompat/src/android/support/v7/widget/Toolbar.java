@@ -204,9 +204,7 @@ public class Toolbar extends ViewGroup {
     }
 
     public Toolbar(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-        // We manually themify the context here so that we don't break apps which only
-        // use app:theme when running on >= Lollipop
-        super(ViewUtils.themifyContext(context, attrs, false, true), attrs, defStyleAttr);
+        super(context, attrs, defStyleAttr);
 
         // Need to use getContext() here so that we use the themed context
         final TintTypedArray a = TintTypedArray.obtainStyledAttributes(getContext(), attrs,
