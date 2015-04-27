@@ -318,12 +318,16 @@ public final class PlaybackStateCompat implements Parcelable {
      * <li> {@link PlaybackStateCompat#ACTION_SKIP_TO_PREVIOUS}</li>
      * <li> {@link PlaybackStateCompat#ACTION_REWIND}</li>
      * <li> {@link PlaybackStateCompat#ACTION_PLAY}</li>
+     * <li> {@link PlaybackStateCompat#ACTION_PLAY_PAUSE}</li>
      * <li> {@link PlaybackStateCompat#ACTION_PAUSE}</li>
      * <li> {@link PlaybackStateCompat#ACTION_STOP}</li>
      * <li> {@link PlaybackStateCompat#ACTION_FAST_FORWARD}</li>
      * <li> {@link PlaybackStateCompat#ACTION_SKIP_TO_NEXT}</li>
      * <li> {@link PlaybackStateCompat#ACTION_SEEK_TO}</li>
      * <li> {@link PlaybackStateCompat#ACTION_SET_RATING}</li>
+     * <li> {@link PlaybackStateCompat#ACTION_PLAY_FROM_MEDIA_ID}</li>
+     * <li> {@link PlaybackStateCompat#ACTION_PLAY_FROM_SEARCH}</li>
+     * <li> {@link PlaybackStateCompat#ACTION_SKIP_TO_QUEUE_ITEM}</li>
      * </ul>
      */
     public long getActions() {
@@ -697,12 +701,16 @@ public final class PlaybackStateCompat implements Parcelable {
          * <li> {@link PlaybackStateCompat#ACTION_SKIP_TO_PREVIOUS}</li>
          * <li> {@link PlaybackStateCompat#ACTION_REWIND}</li>
          * <li> {@link PlaybackStateCompat#ACTION_PLAY}</li>
+         * <li> {@link PlaybackStateCompat#ACTION_PLAY_PAUSE}</li>
          * <li> {@link PlaybackStateCompat#ACTION_PAUSE}</li>
          * <li> {@link PlaybackStateCompat#ACTION_STOP}</li>
          * <li> {@link PlaybackStateCompat#ACTION_FAST_FORWARD}</li>
          * <li> {@link PlaybackStateCompat#ACTION_SKIP_TO_NEXT}</li>
          * <li> {@link PlaybackStateCompat#ACTION_SEEK_TO}</li>
          * <li> {@link PlaybackStateCompat#ACTION_SET_RATING}</li>
+         * <li> {@link PlaybackStateCompat#ACTION_PLAY_FROM_MEDIA_ID}</li>
+         * <li> {@link PlaybackStateCompat#ACTION_PLAY_FROM_SEARCH}</li>
+         * <li> {@link PlaybackStateCompat#ACTION_SKIP_TO_QUEUE_ITEM}</li>
          * </ul>
          *
          * @return this
