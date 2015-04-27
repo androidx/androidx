@@ -1199,9 +1199,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
      *
      * @param recycler Recycler instance of {@link android.support.v7.widget.RecyclerView}
      * @param dt       This can be used to add additional padding to the visible area. This is used
-     *                 to
-     *                 detect children that will go out of bounds after scrolling, without actually
-     *                 moving them.
+     *                 to detect children that will go out of bounds after scrolling, without
+     *                 actually moving them.
      */
     private void recycleViewsFromStart(RecyclerView.Recycler recycler, int dt) {
         if (dt < 0) {
