@@ -32,7 +32,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_vertical|start"
+                android:gravity="center_vertical"
                 android:paddingLeft="?attr/dialogPreferredPadding"
                 android:paddingRight="?attr/dialogPreferredPadding"
                 android:paddingTop="@dimen/abc_dialog_padding_top_material">
@@ -41,9 +41,9 @@
                     android:id="@android:id/icon"
                     android:layout_width="32dip"
                     android:layout_height="32dip"
-                    android:layout_marginEnd="8dip"
                     android:scaleType="fitCenter"
-                    android:src="@null"/>
+                    android:src="@null"
+                    style="@style/RtlOverlay.Widget.AppCompat.DialogTitle.Icon"/>
 
             <android.support.v7.internal.widget.DialogTitle
                     android:id="@+id/alertTitle"
@@ -52,7 +52,7 @@
                     android:ellipsize="end"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textAlignment="viewStart"/>
+                    android:textAlignment="viewStart" />
 
         </LinearLayout>
         <!-- If the client uses a customTitle, it will be added here. -->
