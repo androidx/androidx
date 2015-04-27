@@ -215,7 +215,6 @@
 
     <style name="Base.Widget.AppCompat.ListView" parent="android:Widget.ListView">
         <item name="android:listSelector">?attr/listChoiceBackgroundIndicator</item>
-        <item name="android:divider">?attr/dividerHorizontal</item>
     </style>
 
     <style name="Base.Widget.AppCompat.ListView.DropDown">
