@@ -88,6 +88,8 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
             if (mActionBar == null) {
                 mActionBar = createSupportActionBar();
             }
+        } else {
+            mActionBar = null;
         }
         return mActionBar;
     }
