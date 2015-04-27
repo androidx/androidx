@@ -745,6 +745,14 @@ package android.support.v17.leanback.widget {
     field public final android.support.v17.leanback.widget.Presenter.ViewHolder mDetailsDescriptionViewHolder;
   }
 
+  public abstract interface FacetProvider {
+    method public abstract java.lang.Object getFacet(java.lang.Class<?>);
+  }
+
+  public abstract interface FacetProviderAdapter {
+    method public abstract android.support.v17.leanback.widget.FacetProvider getFacetProvider(int);
+  }
+
   public abstract interface FocusHighlight {
     field public static final int ZOOM_FACTOR_LARGE = 3; // 0x3
     field public static final int ZOOM_FACTOR_MEDIUM = 2; // 0x2
@@ -960,11 +968,32 @@ package android.support.v17.leanback.widget {
     method public void setTitleText(java.lang.CharSequence);
   }
 
-  public class ItemBridgeAdapter extends android.support.v7.widget.RecyclerView.Adapter {
+  public final class ItemAlignmentFacet {
+    ctor public ItemAlignmentFacet();
+    method public android.support.v17.leanback.widget.ItemAlignmentFacet.ItemAlignmentDef[] getAlignmentDefs();
+    method public boolean isMultiAlignment();
+    method public void setAlignmentDefs(android.support.v17.leanback.widget.ItemAlignmentFacet.ItemAlignmentDef[]);
+    field public static final float ITEM_ALIGN_OFFSET_PERCENT_DISABLED = -1.0f;
+  }
+
+  public static class ItemAlignmentFacet.ItemAlignmentDef {
+    ctor public ItemAlignmentFacet.ItemAlignmentDef();
+    method public final int getItemAlignmentOffset();
+    method public final float getItemAlignmentOffsetPercent();
+    method public final int getItemAlignmentViewId();
+    method public final boolean isItemAlignmentOffsetWithPadding();
+    method public final void setItemAlignmentOffset(int);
+    method public final void setItemAlignmentOffsetPercent(float);
+    method public final void setItemAlignmentOffsetWithPadding(boolean);
+    method public final void setItemAlignmentViewId(int);
+  }
+
+  public class ItemBridgeAdapter extends android.support.v7.widget.RecyclerView.Adapter implements android.support.v17.leanback.widget.FacetProviderAdapter {
     ctor public ItemBridgeAdapter(android.support.v17.leanback.widget.ObjectAdapter, android.support.v17.leanback.widget.PresenterSelector);
     ctor public ItemBridgeAdapter(android.support.v17.leanback.widget.ObjectAdapter);
     ctor public ItemBridgeAdapter();
     method public void clear();
+    method public android.support.v17.leanback.widget.FacetProvider getFacetProvider(int);
     method public int getItemCount();
     method public java.util.ArrayList<android.support.v17.leanback.widget.Presenter> getPresenterMapper();
     method public android.support.v17.leanback.widget.ItemBridgeAdapter.Wrapper getWrapper();
@@ -995,8 +1024,9 @@ package android.support.v17.leanback.widget {
     method public void onUnbind(android.support.v17.leanback.widget.ItemBridgeAdapter.ViewHolder);
   }
 
-  public class ItemBridgeAdapter.ViewHolder extends android.support.v7.widget.RecyclerView.ViewHolder {
+  public class ItemBridgeAdapter.ViewHolder extends android.support.v7.widget.RecyclerView.ViewHolder implements android.support.v17.leanback.widget.FacetProvider {
     method public final java.lang.Object getExtraObject();
+    method public java.lang.Object getFacet(java.lang.Class<?>);
     method public final java.lang.Object getItem();
     method public final android.support.v17.leanback.widget.Presenter getPresenter();
     method public final android.support.v17.leanback.widget.Presenter.ViewHolder getViewHolder();
@@ -1245,19 +1275,23 @@ package android.support.v17.leanback.widget {
     field public final android.support.v17.leanback.widget.Presenter.ViewHolder mDescriptionViewHolder;
   }
 
-  public abstract class Presenter {
+  public abstract class Presenter implements android.support.v17.leanback.widget.FacetProvider {
     ctor public Presenter();
     method protected static void cancelAnimationsRecursive(android.view.View);
+    method public final java.lang.Object getFacet(java.lang.Class<?>);
     method public abstract void onBindViewHolder(android.support.v17.leanback.widget.Presenter.ViewHolder, java.lang.Object);
     method public abstract android.support.v17.leanback.widget.Presenter.ViewHolder onCreateViewHolder(android.view.ViewGroup);
     method public abstract void onUnbindViewHolder(android.support.v17.leanback.widget.Presenter.ViewHolder);
     method public void onViewAttachedToWindow(android.support.v17.leanback.widget.Presenter.ViewHolder);
     method public void onViewDetachedFromWindow(android.support.v17.leanback.widget.Presenter.ViewHolder);
+    method public final void setFacet(java.lang.Class<?>, java.lang.Object);
     method public void setOnClickListener(android.support.v17.leanback.widget.Presenter.ViewHolder, android.view.View.OnClickListener);
   }
 
-  public static class Presenter.ViewHolder {
+  public static class Presenter.ViewHolder implements android.support.v17.leanback.widget.FacetProvider {
     ctor public Presenter.ViewHolder(android.view.View);
+    method public final java.lang.Object getFacet(java.lang.Class<?>);
+    method public final void setFacet(java.lang.Class<?>, java.lang.Object);
     field public final android.view.View view;
   }
 
