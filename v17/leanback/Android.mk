@@ -127,35 +127,22 @@ LOCAL_DROIDDOC_OPTIONS := \
 
 include $(BUILD_DROIDDOC)
 
-# Stub source files
-# ===========================================================
-
-leanback_internal_api_file := $(TARGET_OUT_COMMON_INTERMEDIATES)/PACKAGING/android-support-v17-leanback_api.txt
-leanback.docs.stubpackages := android.support.v17.leanback:android.support.v17.leanback.app:android.support.v17.leanback.database:android.support.v17.leanback.widget
-
-include $(CLEAR_VARS)
-
-LOCAL_MODULE := android-support-v17-leanback-stubs
-LOCAL_MODULE_CLASS := JAVA_LIBRARIES
-LOCAL_MODULE_TAGS := optional
-
-LOCAL_SRC_FILES := $(leanback.docs.src_files)
-LOCAL_JAVA_LIBRARIES := $(leanback.docs.java_libraries)
-LOCAL_SDK_VERSION := current
-
-LOCAL_DROIDDOC_CUSTOM_TEMPLATE_DIR := build/tools/droiddoc/templates-sdk
-LOCAL_UNINSTALLABLE_MODULE := true
-
-LOCAL_DROIDDOC_OPTIONS := \
-    -stubs $(TARGET_OUT_COMMON_INTERMEDIATES)/JAVA_LIBRARIES/android-support-v17-leanback-stubs_intermediates/src \
-    -stubpackages $(leanback.docs.stubpackages) \
-    -api $(leanback_internal_api_file) \
-    -hide 113 \
-    -nodocs
-
-include $(BUILD_DROIDDOC)
-leanback_stubs_stamp := $(full_target)
-$(leanback_internal_api_file) : $(full_target)
+# API Check
+# ---------------------------------------------
+support_module := $(LOCAL_MODULE)
+support_module_api_dir := $(LOCAL_PATH)/api
+support_module_src_files := $(leanback.docs.src_files)
+support_module_java_libraries := $(leanback.docs.java_libraries)
+support_module_java_packages := \
+    android.support.v17.leanback.animation \
+    android.support.v17.leanback.app \
+    android.support.v17.leanback.database \
+    android.support.v17.leanback.graphics \
+    android.support.v17.leanback.os \
+    android.support.v17.leanback.transition \
+    android.support.v17.leanback.view \
+    android.support.v17.leanback.widget    
+include $(SUPPORT_API_CHECK)
 
 # Cleanup temp vars
 # ===========================================================
