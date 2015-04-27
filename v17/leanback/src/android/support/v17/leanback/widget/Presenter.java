@@ -16,6 +16,9 @@ package android.support.v17.leanback.widget;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * A Presenter is used to generate {@link View}s and bind Objects to them on
  * demand. It is closely related to the concept of an {@link
@@ -58,20 +61,47 @@ import android.view.ViewGroup;
  *     }
  * }
  * </pre>
+ * In addition to view creation and binding, Presenter allows dynamic interface (facet) to
+ * be added: {@link #setFacet(Class, Object)}.  Supported facets:
+ * <li> {@link ItemAlignmentFacet} is used by {@link HorizontalGridView} and
+ * {@link VerticalGridView} to customize child alignment.
  */
-public abstract class Presenter {
+public abstract class Presenter implements FacetProvider {
     /**
      * ViewHolder can be subclassed and used to cache any view accessors needed
      * to improve binding performance (for example, results of findViewById)
      * without needing to subclass a View.
      */
-    public static class ViewHolder {
+    public static class ViewHolder implements FacetProvider {
         public final View view;
+        private Map<Class, Object> mFacets;
 
         public ViewHolder(View view) {
             this.view = view;
         }
+
+        @Override
+        public final Object getFacet(Class<?> facetClass) {
+            if (mFacets == null) {
+                return null;
+            }
+            return mFacets.get(facetClass);
+        }
+
+        /**
+         * Sets dynamic implemented facet in addition to basic ViewHolder functions.
+         * @param facetClass   Facet classes to query,  can be class of {@link ItemAlignmentFacet}.
+         * @param facetImpl  Facet implementation.
+         */
+        public final void setFacet(Class<?> facetClass, Object facetImpl) {
+            if (mFacets == null) {
+                mFacets = new HashMap<Class, Object>();
+            }
+            mFacets.put(facetClass, facetImpl);
+        }
     }
+
+    private Map<Class, Object> mFacets;
 
     /**
      * Creates a new {@link View}.
@@ -147,5 +177,25 @@ public abstract class Presenter {
      */
     public void setOnClickListener(ViewHolder holder, View.OnClickListener listener) {
         holder.view.setOnClickListener(listener);
+    }
+
+    @Override
+    public final Object getFacet(Class<?> facetClass) {
+        if (mFacets == null) {
+            return null;
+        }
+        return mFacets.get(facetClass);
+    }
+
+    /**
+     * Sets dynamic implemented facet in addition to basic Presenter functions.
+     * @param facetClass   Facet classes to query,  can be class of {@link ItemAlignmentFacet}.
+     * @param facetImpl  Facet implementation.
+     */
+    public final void setFacet(Class<?> facetClass, Object facetImpl) {
+        if (mFacets == null) {
+            mFacets = new HashMap<Class, Object>();
+        }
+        mFacets.put(facetClass, facetImpl);
     }
 }

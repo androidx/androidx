@@ -31,113 +31,18 @@ import android.view.ViewGroup;
  */
 class ItemAlignment {
 
-    final static class Axis {
+    final static class Axis extends ItemAlignmentFacet.ItemAlignmentDef {
         private int mOrientation;
-        private int mOffset = 0;
-        private float mOffsetPercent = 50;
-        private int mViewId = 0;
-        private boolean mOffsetWithPadding = false;
-        private Rect mRect = new Rect();
 
         Axis(int orientation) {
             mOrientation = orientation;
-        }
-
-        public void setItemAlignmentOffset(int offset) {
-            mOffset = offset;
-        }
-
-        public int getItemAlignmentOffset() {
-            return mOffset;
-        }
-
-        public void setItemAlignmentOffsetWithPadding(boolean withPadding) {
-            mOffsetWithPadding = withPadding;
-        }
-
-        public boolean isItemAlignmentOffsetWithPadding() {
-            return mOffsetWithPadding;
-        }
-
-        public void setItemAlignmentOffsetPercent(float percent) {
-            if ( (percent < 0 || percent > 100) &&
-                    percent != ITEM_ALIGN_OFFSET_PERCENT_DISABLED) {
-                throw new IllegalArgumentException();
-            }
-            mOffsetPercent = percent;
-        }
-
-        public float getItemAlignmentOffsetPercent() {
-            return mOffsetPercent;
-        }
-
-        public void setItemAlignmentViewId(int viewId) {
-            mViewId = viewId;
-        }
-
-        public int getItemAlignmentViewId() {
-            return mViewId;
         }
 
         /**
          * get alignment position relative to optical left/top of itemView.
          */
         public int getAlignmentPosition(View itemView) {
-            LayoutParams p = (LayoutParams) itemView.getLayoutParams();
-            View view = itemView;
-            if (mViewId != 0) {
-                view = itemView.findViewById(mViewId);
-                if (view == null) {
-                    view = itemView;
-                }
-            }
-            int alignPos;
-            if (mOrientation == HORIZONTAL) {
-                if (mOffset >= 0) {
-                    alignPos = mOffset;
-                    if (mOffsetWithPadding) {
-                        alignPos += view.getPaddingLeft();
-                    }
-                } else {
-                    alignPos = view == itemView ? p.getOpticalWidth(view) : view.getWidth()
-                            + mOffset;
-                    if (mOffsetWithPadding) {
-                        alignPos -= view.getPaddingRight();
-                    }
-                }
-                if (mOffsetPercent != ITEM_ALIGN_OFFSET_PERCENT_DISABLED) {
-                    alignPos += ((view == itemView ? p.getOpticalWidth(view) : view.getWidth())
-                            * mOffsetPercent) / 100f;
-                }
-                if (itemView != view) {
-                    mRect.left = alignPos;
-                    ((ViewGroup) itemView).offsetDescendantRectToMyCoords(view, mRect);
-                    alignPos = mRect.left - p.getOpticalLeftInset();
-                }
-            } else {
-                if (mOffset >= 0) {
-                    alignPos = mOffset;
-                    if (mOffsetWithPadding) {
-                        alignPos += view.getPaddingTop();
-                    }
-                } else {
-                    alignPos = view == itemView ? p.getOpticalHeight(view) : view.getHeight()
-                            + mOffset;
-                    if (mOffsetWithPadding) {
-                        alignPos += view.getPaddingBottom();
-                    }
-                }
-                if (mOffsetPercent != ITEM_ALIGN_OFFSET_PERCENT_DISABLED) {
-                    alignPos += ((view == itemView ? p.getOpticalHeight(view) : view.getHeight())
-                            * mOffsetPercent) / 100f;
-                }
-                if (itemView != view) {
-                    mRect.top = alignPos;
-                    ((ViewGroup) itemView).offsetDescendantRectToMyCoords(view, mRect);
-                    alignPos = mRect.top - p.getOpticalTopInset();
-                }
-            }
-            return alignPos;
+            return ItemAlignmentFacetHelper.getAlignmentPosition(itemView, this, mOrientation);
         }
     }
 

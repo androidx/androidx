@@ -24,7 +24,7 @@ import java.util.ArrayList;
  * Bridge from {@link Presenter} to {@link RecyclerView.Adapter}. Public to allow use by third
  * party Presenters.
  */
-public class ItemBridgeAdapter extends RecyclerView.Adapter {
+public class ItemBridgeAdapter extends RecyclerView.Adapter implements FacetProviderAdapter {
     private static final String TAG = "ItemBridgeAdapter";
     private static final boolean DEBUG = false;
 
@@ -84,7 +84,7 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter {
     /**
      * ViewHolder for the ItemBridgeAdapter.
      */
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements FacetProvider {
         final Presenter mPresenter;
         final Presenter.ViewHolder mHolder;
         final OnFocusChangeListener mFocusChangeListener = new OnFocusChangeListener();
@@ -128,6 +128,11 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter {
          */
         public void setExtraObject(Object object) {
             mExtraObject = object;
+        }
+
+        @Override
+        public Object getFacet(Class<?> facetClass) {
+            return mHolder.getFacet(facetClass);
         }
 
         ViewHolder(Presenter presenter, View view, Presenter.ViewHolder holder) {
@@ -378,4 +383,8 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter {
         return mAdapter.getId(position);
     }
 
+    @Override
+    public FacetProvider getFacetProvider(int type) {
+        return mPresenters.get(type);
+    }
 }

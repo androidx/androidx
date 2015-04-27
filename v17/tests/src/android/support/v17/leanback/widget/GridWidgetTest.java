@@ -1376,4 +1376,221 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         });
     }
 
+
+    static interface ViewTypeProvider {
+        public int getViewType(int position);
+    }
+
+    static interface ItemAlignmentFacetProvider {
+        public ItemAlignmentFacet getItemAlignmentFacet(int viewType);
+    }
+
+    static class TwoViewTypesProvider implements ViewTypeProvider {
+        static int VIEW_TYPE_FIRST = 1;
+        static int VIEW_TYPE_DEFAULT = 0;
+        @Override
+        public int getViewType(int position) {
+            if (position == 0) {
+                return VIEW_TYPE_FIRST;
+            } else {
+                return VIEW_TYPE_DEFAULT;
+            }
+        }
+    }
+
+    static class PositionItemAlignmentFacetProviderForRelativeLayout1
+            implements ItemAlignmentFacetProvider {
+        ItemAlignmentFacet mMultipleFacet;
+
+        PositionItemAlignmentFacetProviderForRelativeLayout1() {
+            mMultipleFacet = new ItemAlignmentFacet();
+            ItemAlignmentFacet.ItemAlignmentDef[] defs =
+                    new ItemAlignmentFacet.ItemAlignmentDef[2];
+            defs[0] = new ItemAlignmentFacet.ItemAlignmentDef();
+            defs[0].setItemAlignmentViewId(R.id.t1);
+            defs[1] = new ItemAlignmentFacet.ItemAlignmentDef();
+            defs[1].setItemAlignmentViewId(R.id.t2);
+            defs[1].setItemAlignmentOffsetPercent(100);
+            defs[1].setItemAlignmentOffset(-10);
+            mMultipleFacet.setAlignmentDefs(defs);
+        }
+
+        @Override
+        public ItemAlignmentFacet getItemAlignmentFacet(int position) {
+            if (position == 0) {
+                return mMultipleFacet;
+            } else {
+                return null;
+            }
+        }
+    }
+
+    public void testMultipleScrollPosition1() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_CHILD_LAYOUT_ID, R.layout.relative_layout);
+        intent.putExtra(GridActivity.EXTRA_REQUEST_FOCUS_ONLAYOUT, true);
+        int[] items = new int[100];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 300;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        intent.putExtra(GridActivity.EXTRA_VIEWTYPEPROVIDER_CLASS,
+                TwoViewTypesProvider.class.getName());
+        // Set ItemAlignment for each ViewHolder and view type,  ViewHolder should
+        // override the view type settings.
+        intent.putExtra(GridActivity.EXTRA_ITEMALIGNMENTPROVIDER_CLASS,
+                PositionItemAlignmentFacetProviderForRelativeLayout1.class.getName());
+        intent.putExtra(GridActivity.EXTRA_ITEMALIGNMENTPROVIDER_VIEWTYPE_CLASS,
+                ViewTypePositionItemAlignmentFacetProviderForRelativeLayout2.class.getName());
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+
+        assertEquals("First view is aligned with padding top",
+                mGridView.getPaddingTop(), mGridView.getChildAt(0).getTop());
+
+        sendKeys(KeyEvent.KEYCODE_DPAD_DOWN);
+        waitForScrollIdle(mVerifyLayout);
+
+        final View v = mGridView.getChildAt(0);
+        View t1 = v.findViewById(R.id.t1);
+        int t1align = (t1.getTop() + t1.getBottom()) / 2;
+        View t2 = v.findViewById(R.id.t2);
+        int t2align = t2.getBottom() - 10;
+        assertEquals("Expected alignment for 2nd textview",
+                mGridView.getPaddingTop() - (t2align - t1align),
+                v.getTop());
+    }
+
+    static class PositionItemAlignmentFacetProviderForRelativeLayout2 implements
+            ItemAlignmentFacetProvider {
+        ItemAlignmentFacet mMultipleFacet;
+
+        PositionItemAlignmentFacetProviderForRelativeLayout2() {
+            mMultipleFacet = new ItemAlignmentFacet();
+            ItemAlignmentFacet.ItemAlignmentDef[] defs = new ItemAlignmentFacet.ItemAlignmentDef[2];
+            defs[0] = new ItemAlignmentFacet.ItemAlignmentDef();
+            defs[0].setItemAlignmentViewId(R.id.t1);
+            defs[0].setItemAlignmentOffsetPercent(0);
+            defs[1] = new ItemAlignmentFacet.ItemAlignmentDef();
+            defs[1].setItemAlignmentViewId(R.id.t2);
+            defs[1].setItemAlignmentOffsetPercent(ItemAlignmentFacet.ITEM_ALIGN_OFFSET_PERCENT_DISABLED);
+            defs[1].setItemAlignmentOffset(-10);
+            mMultipleFacet.setAlignmentDefs(defs);
+        }
+
+        @Override
+        public ItemAlignmentFacet getItemAlignmentFacet(int position) {
+            if (position == 0) {
+                return mMultipleFacet;
+            } else {
+                return null;
+            }
+        }
+    }
+
+    public void testMultipleScrollPosition2() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_CHILD_LAYOUT_ID, R.layout.relative_layout);
+        intent.putExtra(GridActivity.EXTRA_REQUEST_FOCUS_ONLAYOUT, true);
+        int[] items = new int[100];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 300;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        intent.putExtra(GridActivity.EXTRA_VIEWTYPEPROVIDER_CLASS,
+                TwoViewTypesProvider.class.getName());
+        intent.putExtra(GridActivity.EXTRA_ITEMALIGNMENTPROVIDER_CLASS,
+                PositionItemAlignmentFacetProviderForRelativeLayout2.class.getName());
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+
+        assertEquals("First view is aligned with padding top", mGridView.getPaddingTop(),
+                mGridView.getChildAt(0).getTop());
+
+        sendKeys(KeyEvent.KEYCODE_DPAD_DOWN);
+        waitForScrollIdle(mVerifyLayout);
+
+        final View v = mGridView.getChildAt(0);
+        View t1 = v.findViewById(R.id.t1);
+        int t1align = t1.getTop();
+        View t2 = v.findViewById(R.id.t2);
+        int t2align = t2.getTop() - 10;
+        assertEquals("Expected alignment for 2nd textview",
+                mGridView.getPaddingTop() - (t2align - t1align), v.getTop());
+    }
+
+    static class ViewTypePositionItemAlignmentFacetProviderForRelativeLayout2 implements
+            ItemAlignmentFacetProvider {
+        ItemAlignmentFacet mMultipleFacet;
+
+        ViewTypePositionItemAlignmentFacetProviderForRelativeLayout2() {
+            mMultipleFacet = new ItemAlignmentFacet();
+            ItemAlignmentFacet.ItemAlignmentDef[] defs = new ItemAlignmentFacet.ItemAlignmentDef[2];
+            defs[0] = new ItemAlignmentFacet.ItemAlignmentDef();
+            defs[0].setItemAlignmentViewId(R.id.t1);
+            defs[0].setItemAlignmentOffsetPercent(0);
+            defs[1] = new ItemAlignmentFacet.ItemAlignmentDef();
+            defs[1].setItemAlignmentViewId(R.id.t2);
+            defs[1].setItemAlignmentOffsetPercent(100);
+            defs[1].setItemAlignmentOffset(-10);
+            mMultipleFacet.setAlignmentDefs(defs);
+        }
+
+        @Override
+        public ItemAlignmentFacet getItemAlignmentFacet(int viewType) {
+            if (viewType == TwoViewTypesProvider.VIEW_TYPE_FIRST) {
+                return mMultipleFacet;
+            } else {
+                return null;
+            }
+        }
+    }
+
+    public void testMultipleScrollPosition3() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_CHILD_LAYOUT_ID, R.layout.relative_layout);
+        intent.putExtra(GridActivity.EXTRA_REQUEST_FOCUS_ONLAYOUT, true);
+        int[] items = new int[100];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 300;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        intent.putExtra(GridActivity.EXTRA_VIEWTYPEPROVIDER_CLASS,
+                TwoViewTypesProvider.class.getName());
+        intent.putExtra(GridActivity.EXTRA_ITEMALIGNMENTPROVIDER_VIEWTYPE_CLASS,
+                ViewTypePositionItemAlignmentFacetProviderForRelativeLayout2.class.getName());
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+
+        assertEquals("First view is aligned with padding top", mGridView.getPaddingTop(),
+                mGridView.getChildAt(0).getTop());
+
+        sendKeys(KeyEvent.KEYCODE_DPAD_DOWN);
+        waitForScrollIdle(mVerifyLayout);
+
+        final View v = mGridView.getChildAt(0);
+        View t1 = v.findViewById(R.id.t1);
+        int t1align = t1.getTop();
+        View t2 = v.findViewById(R.id.t2);
+        int t2align = t2.getBottom() - 10;
+        assertEquals("Expected alignment for 2nd textview",
+                mGridView.getPaddingTop() - (t2align - t1align), v.getTop());
+    }
+
 }
