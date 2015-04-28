@@ -252,10 +252,12 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
 
         @Override
         public boolean dispatchKeyEvent(KeyEvent event) {
-            if (AppCompatDelegateImplBase.this.dispatchKeyEvent(event)) {
+            if (super.dispatchKeyEvent(event)) {
+                // First, let the wrapped Callback attempt to handle it
                 return true;
             }
-            return super.dispatchKeyEvent(event);
+            // If we reach here, we can now try
+            return AppCompatDelegateImplBase.this.dispatchKeyEvent(event);
         }
 
         @Override
