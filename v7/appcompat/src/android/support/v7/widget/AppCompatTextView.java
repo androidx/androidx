@@ -37,7 +37,7 @@ public class AppCompatTextView extends TextView {
     }
 
     public AppCompatTextView(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
+        this(context, attrs, android.R.attr.textViewStyle);
     }
 
     public AppCompatTextView(Context context, AttributeSet attrs, int defStyle) {
