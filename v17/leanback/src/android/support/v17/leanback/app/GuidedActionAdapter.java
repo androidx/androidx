@@ -389,7 +389,7 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
                         ViewHolder vh = mRecyclerView.findViewHolderForPosition(i);
                         if (vh != null) {
                             GuidedActionsStylist.ViewHolder subViewHolder =
-                                    ((ActionViewHolder)avh).mStylistViewHolder;
+                                    ((ActionViewHolder)vh).mStylistViewHolder;
                             mStylist.onAnimateItemChecked(subViewHolder, false);
                         }
                     }

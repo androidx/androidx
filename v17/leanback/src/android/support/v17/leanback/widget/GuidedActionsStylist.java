@@ -414,7 +414,8 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
                 checkView.setVisibility(View.VISIBLE);
                 createAnimator(checkView, R.attr.guidedActionCheckedAnimation).start();
             } else {
-                Animator animator = createAnimator(checkView, R.attr.guidedActionCheckedAnimation);
+                Animator animator = createAnimator(checkView,
+                        R.attr.guidedActionUncheckedAnimation);
                 animator.addListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
