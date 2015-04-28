@@ -109,7 +109,8 @@ abstract class BaseGridView extends RecyclerView {
     /**
      * Value indicates that percent is not used.
      */
-    public final static float ITEM_ALIGN_OFFSET_PERCENT_DISABLED = -1;
+    public final static float ITEM_ALIGN_OFFSET_PERCENT_DISABLED =
+            ItemAlignmentFacet.ITEM_ALIGN_OFFSET_PERCENT_DISABLED;
 
     /**
      * Dont save states of any child views.
@@ -332,6 +333,8 @@ abstract class BaseGridView extends RecyclerView {
 
     /**
      * Sets the absolute offset in pixels for item alignment.
+     * Item alignment settings are ignored for the child if {@link ItemAlignmentFacet}
+     * is provided by {@link RecyclerView.ViewHolder} or {@link FacetProviderAdapter}.
      *
      * @param offset The number of pixels to offset. Can be negative for
      *        alignment from the high edge, or positive for alignment from the
@@ -355,6 +358,8 @@ abstract class BaseGridView extends RecyclerView {
 
     /**
      * Set to true if include padding in calculating item align offset.
+     * Item alignment settings are ignored for the child if {@link ItemAlignmentFacet}
+     * is provided by {@link RecyclerView.ViewHolder} or {@link FacetProviderAdapter}.
      *
      * @param withPadding When it is true: we include left/top padding for positive
      *          item offset, include right/bottom padding for negative item offset.
@@ -374,6 +379,8 @@ abstract class BaseGridView extends RecyclerView {
     /**
      * Sets the offset percent for item alignment in addition to {@link
      * #getItemAlignmentOffset()}.
+     * Item alignment settings are ignored for the child if {@link ItemAlignmentFacet}
+     * is provided by {@link RecyclerView.ViewHolder} or {@link FacetProviderAdapter}.
      *
      * @param offsetPercent Percentage to offset. E.g., 40 means 40% of the
      *        width from the low edge. Use
@@ -397,8 +404,10 @@ abstract class BaseGridView extends RecyclerView {
     }
 
     /**
-     * Sets the id of the view to align with. Use zero (default) for the item
-     * view itself.
+     * Sets the id of the view to align with. Use {@link android.view.View#NO_ID} (default)
+     * for the item view itself.
+     * Item alignment settings are ignored for the child if {@link ItemAlignmentFacet}
+     * is provided by {@link RecyclerView.ViewHolder} or {@link FacetProviderAdapter}.
      */
     public void setItemAlignmentViewId(int viewId) {
         mLayoutManager.setItemAlignmentViewId(viewId);

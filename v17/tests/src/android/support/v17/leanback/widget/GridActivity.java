@@ -51,6 +51,22 @@ public class GridActivity extends Activity {
     public static final String EXTRA_REQUEST_FOCUS_ONLAYOUT = "requstFocusOnLayout";
     public static final String EXTRA_CHILD_LAYOUT_ID = "childLayoutId";
     public static final String EXTRA_SECONDARY_SIZE_ZERO = "secondarySizeZero";
+    /**
+     * Class that implements GridWidgetTest.ViewTypeProvider for creating different
+     * view types for each position.
+     */
+    public static final String EXTRA_VIEWTYPEPROVIDER_CLASS = "viewtype_class";
+    /**
+     * Class that implements GridWidgetTest.ItemAlignmentFacetProvider for creating different
+     * ItemAlignmentFacet for each ViewHolder.
+     */
+    public static final String EXTRA_ITEMALIGNMENTPROVIDER_CLASS = "itemalignment_class";
+    /**
+     * Class that implements GridWidgetTest.ItemAlignmentFacetProvider for creating different
+     * ItemAlignmentFacet for a given viewType.
+     */
+    public static final String EXTRA_ITEMALIGNMENTPROVIDER_VIEWTYPE_CLASS =
+            "itemalignment_viewtype_class";
     public static final String SELECT_ACTION = "android.test.leanback.widget.SELECT";
 
     static final int DEFAULT_NUM_ITEMS = 100;
@@ -68,6 +84,9 @@ public class GridActivity extends Activity {
     boolean mRequestLayoutOnFocus;
     boolean mRequestFocusOnLayout;
     boolean mSecondarySizeZero;
+    GridWidgetTest.ViewTypeProvider mViewTypeProvider;
+    GridWidgetTest.ItemAlignmentFacetProvider mAlignmentProvider;
+    GridWidgetTest.ItemAlignmentFacetProvider mAlignmentViewTypeProvider;
 
     int[] mGridViewLayoutSize;
     BaseGridView mGridView;
@@ -107,6 +126,30 @@ public class GridActivity extends Activity {
         mSecondarySizeZero = intent.getBooleanExtra(EXTRA_SECONDARY_SIZE_ZERO, false);
         mItemLengths = intent.getIntArrayExtra(EXTRA_ITEMS);
         mItemFocusables = intent.getBooleanArrayExtra(EXTRA_ITEMS_FOCUSABLE);
+        String alignmentClass = intent.getStringExtra(EXTRA_ITEMALIGNMENTPROVIDER_CLASS);
+        String alignmentViewTypeClass =
+                intent.getStringExtra(EXTRA_ITEMALIGNMENTPROVIDER_VIEWTYPE_CLASS);
+        String viewTypeClass = intent.getStringExtra(EXTRA_VIEWTYPEPROVIDER_CLASS);
+        try {
+            if (alignmentClass != null) {
+                mAlignmentProvider = (GridWidgetTest.ItemAlignmentFacetProvider)
+                        Class.forName(alignmentClass).newInstance();
+            }
+            if (alignmentViewTypeClass != null) {
+                mAlignmentViewTypeProvider = (GridWidgetTest.ItemAlignmentFacetProvider)
+                        Class.forName(alignmentViewTypeClass).newInstance();
+            }
+            if (viewTypeClass != null) {
+                mViewTypeProvider = (GridWidgetTest.ViewTypeProvider)
+                        Class.forName(viewTypeClass).newInstance();
+            }
+        } catch (ClassNotFoundException ex) {
+            throw new RuntimeException(ex);
+        } catch (InstantiationException ex) {
+            throw new RuntimeException(ex);
+        } catch (IllegalAccessException ex) {
+            throw new RuntimeException(ex);
+        }
 
         super.onCreate(savedInstanceState);
 
@@ -225,7 +268,33 @@ public class GridActivity extends Activity {
         mGridView.getAdapter().notifyItemRangeInserted(index, length);
     }
 
-    class MyAdapter extends RecyclerView.Adapter {
+    class MyAdapter extends RecyclerView.Adapter implements FacetProviderAdapter {
+
+        @Override
+        public int getItemViewType(int position) {
+            if (mViewTypeProvider != null) {
+                return mViewTypeProvider.getViewType(position);
+            }
+            return 0;
+        }
+
+        @Override
+        public FacetProvider getFacetProvider(int viewType) {
+            final Object alignmentFacet = mAlignmentViewTypeProvider != null?
+                mAlignmentViewTypeProvider.getItemAlignmentFacet(viewType) : null;
+            if (alignmentFacet != null) {
+                return new FacetProvider() {
+                    @Override
+                    public Object getFacet(Class facetClass) {
+                        if (facetClass.equals(ItemAlignmentFacet.class)) {
+                            return alignmentFacet;
+                        }
+                        return null;
+                    }
+                };
+            }
+            return null;
+        }
 
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -256,7 +325,8 @@ public class GridActivity extends Activity {
                         }
                     });
                 }
-                return new ViewHolder(view);
+                ViewHolder holder = new ViewHolder(view);
+                return holder;
             }
             TextView textView = new TextView(parent.getContext()) {
                 @Override
@@ -280,6 +350,11 @@ public class GridActivity extends Activity {
             if (DEBUG) Log.v(TAG, "bindViewHolder " + position + " " + baseHolder);
             mBoundCount++;
             ViewHolder holder = (ViewHolder) baseHolder;
+            if (mAlignmentProvider != null) {
+                holder.mItemAlignment = mAlignmentProvider.getItemAlignmentFacet(position);
+            } else {
+                holder.mItemAlignment = null;
+            }
             if (mChildLayout == -1) {
                 ((TextView) holder.itemView).setText("Item "+position);
                 boolean focusable = true;
@@ -318,10 +393,19 @@ public class GridActivity extends Activity {
         view.setLayoutParams(p);
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder implements FacetProvider {
 
+        ItemAlignmentFacet mItemAlignment;
         public ViewHolder(View v) {
             super(v);
+        }
+
+        @Override
+        public Object getFacet(Class facetClass) {
+            if (facetClass.equals(ItemAlignmentFacet.class)) {
+                return mItemAlignment;
+            }
+            return null;
         }
     }
 }
