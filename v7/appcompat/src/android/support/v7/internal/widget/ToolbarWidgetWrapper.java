@@ -28,6 +28,7 @@ import android.support.v7.internal.view.menu.ActionMenuItem;
 import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.MenuPresenter;
 import android.support.v7.widget.ActionMenuPresenter;
+import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
@@ -38,6 +39,8 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 
 /**
@@ -61,7 +64,7 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
 
     private int mDisplayOpts;
     private View mTabView;
-    private SpinnerCompat mSpinner;
+    private Spinner mSpinner;
     private View mCustomView;
 
     private Drawable mIcon;
@@ -547,7 +550,7 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
 
     private void ensureSpinner() {
         if (mSpinner == null) {
-            mSpinner = new SpinnerCompat(getContext(), null, R.attr.actionDropDownStyle);
+            mSpinner = new AppCompatSpinner(getContext(), null, R.attr.actionDropDownStyle);
             Toolbar.LayoutParams lp = new Toolbar.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.START | Gravity.CENTER_VERTICAL);
             mSpinner.setLayoutParams(lp);
@@ -556,7 +559,7 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
 
     @Override
     public void setDropdownParams(SpinnerAdapter adapter,
-            AdapterViewCompat.OnItemSelectedListener listener) {
+            AdapterView.OnItemSelectedListener listener) {
         ensureSpinner();
         mSpinner.setAdapter(adapter);
         mSpinner.setOnItemSelectedListener(listener);

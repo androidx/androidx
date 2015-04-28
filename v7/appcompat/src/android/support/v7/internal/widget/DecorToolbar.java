@@ -27,6 +27,7 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.SpinnerAdapter;
 
 /**
@@ -78,7 +79,7 @@ public interface DecorToolbar {
     void setHomeButtonEnabled(boolean enable);
     int getNavigationMode();
     void setNavigationMode(int mode);
-    void setDropdownParams(SpinnerAdapter adapter, AdapterViewCompat.OnItemSelectedListener listener);
+    void setDropdownParams(SpinnerAdapter adapter, AdapterView.OnItemSelectedListener listener);
     void setDropdownSelectedPosition(int position);
     int getDropdownSelectedPosition();
     int getDropdownItemCount();
