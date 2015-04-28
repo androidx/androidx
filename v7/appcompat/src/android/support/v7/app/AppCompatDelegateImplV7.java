@@ -495,8 +495,8 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
     void onTitleChanged(CharSequence title) {
         if (mDecorContentParent != null) {
             mDecorContentParent.setWindowTitle(title);
-        } else if (getSupportActionBar() != null) {
-            getSupportActionBar().setWindowTitle(title);
+        } else if (peekSupportActionBar() != null) {
+            peekSupportActionBar().setWindowTitle(title);
         } else if (mTitleView != null) {
             mTitleView.setText(title);
         }
