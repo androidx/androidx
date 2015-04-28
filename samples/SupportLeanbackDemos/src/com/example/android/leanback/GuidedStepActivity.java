@@ -35,8 +35,8 @@ import java.util.ArrayList;
  */
 public class GuidedStepActivity extends Activity {
 
-    private static final int CONTINUE = 0;
-    private static final int BACK = 1;
+    private static final int CONTINUE = 1;
+    private static final int BACK = 2;
 
     private static final int OPTION_CHECK_SET_ID = 10;
     private static final int DEFAULT_OPTION = 0;
@@ -107,6 +107,8 @@ public class GuidedStepActivity extends Activity {
 
     private static class SecondStepFragment extends GuidedStepFragment {
 
+        private int mSelectedOption = DEFAULT_OPTION;
+
         @Override
         public Guidance onCreateGuidance(Bundle savedInstanceState) {
             String title = getString(R.string.guidedstep_second_title);
@@ -144,12 +146,17 @@ public class GuidedStepActivity extends Activity {
                     actions.get(actions.size() -1).setChecked(true);
                 }
             }
+            addAction(actions, CONTINUE, "Continue", "");
         }
 
         @Override
         public void onGuidedActionClicked(GuidedAction action) {
-            FragmentManager fm = getFragmentManager();
-            GuidedStepFragment.add(fm, new ThirdStepFragment(getSelectedActionPosition()-1));
+            if (action.getId() == CONTINUE) {
+                FragmentManager fm = getFragmentManager();
+                GuidedStepFragment.add(fm, new ThirdStepFragment(mSelectedOption));
+            } else {
+                mSelectedOption = getSelectedActionPosition()-1;
+            }
         }
 
     }
