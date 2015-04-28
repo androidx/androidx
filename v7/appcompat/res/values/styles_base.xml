@@ -388,7 +388,7 @@
         <item name="switchTextAppearance">@style/TextAppearance.AppCompat.Widget.Switch</item>
         <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
         <item name="showText">false</item>
-        <item name="android:padding">@dimen/abc_switch_padding</item>
+        <item name="switchPadding">@dimen/abc_switch_padding</item>
     </style>
 
     <style name="Base.TextAppearance.AppCompat.Widget.Switch" parent="TextAppearance.AppCompat.Button" />
