@@ -33,6 +33,19 @@ import android.view.View;
 /**
  * A {@link android.view.ViewGroup} that shows items in a horizontal scrolling list. The items come from
  * the {@link RecyclerView.Adapter} associated with this view.
+ * <p>
+ * {@link RecyclerView.Adapter} can optionally implement {@link FacetProviderAdapter} which
+ * provides {@link FacetProvider} for a given view type;  {@link RecyclerView.ViewHolder}
+ * can also implement {@link FacetProvider}.  Facet from ViewHolder
+ * has a higher priority than the one from FacetProiderAdapter associated with viewType.
+ * Supported optional facets are:
+ * <ol>
+ * <li> {@link ItemAlignmentFacet}
+ * When this facet is provided by ViewHolder or FacetProviderAdapter,  it will
+ * override the item alignment settings set on HorizontalGridView.  This facet also allows multiple
+ * alignment positions within one ViewHolder.
+ * </li>
+ * </ol>
  */
 public class HorizontalGridView extends BaseGridView {
 
