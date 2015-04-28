@@ -16,10 +16,10 @@
 
 package android.support.v7.internal.view.menu;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.IBinder;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.appcompat.R;
 import android.view.KeyEvent;
 import android.view.View;
@@ -56,10 +56,8 @@ public class MenuDialogHelper implements DialogInterface.OnKeyListener,
         // Get the builder for the dialog
         final AlertDialog.Builder builder = new AlertDialog.Builder(menu.getContext());
 
-        // Need to force Light Menu theme as list_menu_item_layout is usually against a dark bg and
-        // AlertDialog's bg is white
-        mPresenter = new ListMenuPresenter(R.layout.abc_list_menu_item_layout,
-                R.style.Theme_AppCompat_CompactMenu);
+        mPresenter = new ListMenuPresenter(builder.getContext(),
+                R.layout.abc_list_menu_item_layout);
 
         mPresenter.setCallback(this);
         mMenu.addMenuPresenter(mPresenter);
