@@ -19,6 +19,7 @@ package android.support.v7.widget;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.v4.view.TintableBackgroundView;
@@ -44,8 +45,9 @@ public class AppCompatMultiAutoCompleteTextView extends MultiAutoCompleteTextVie
             android.R.attr.popupBackground
     };
 
-    private TintManager mTintManager;
+    private TintInfo mInternalBackgroundTint;
     private TintInfo mBackgroundTint;
+    private TintManager mTintManager;
 
     public AppCompatMultiAutoCompleteTextView(Context context) {
         this(context, null);
@@ -66,7 +68,7 @@ public class AppCompatMultiAutoCompleteTextView extends MultiAutoCompleteTextVie
             if (a.hasValue(0)) {
                 ColorStateList tint = a.getTintManager().getTintList(a.getResourceId(0, -1));
                 if (tint != null) {
-                    setSupportBackgroundTintList(tint);
+                    setInternalBackgroundTint(tint);
                 }
             }
             if (a.hasValue(1)) {
@@ -74,6 +76,20 @@ public class AppCompatMultiAutoCompleteTextView extends MultiAutoCompleteTextVie
             }
             a.recycle();
         }
+    }
+
+    @Override
+    public void setBackgroundResource(int resId) {
+        super.setBackgroundResource(resId);
+        // Update the default background tint
+        setInternalBackgroundTint(mTintManager != null ? mTintManager.getTintList(resId) : null);
+    }
+
+    @Override
+    public void setBackgroundDrawable(Drawable background) {
+        super.setBackgroundDrawable(background);
+        // We don't know that this drawable is, so we need to clear the default background tint
+        setInternalBackgroundTint(null);
     }
 
     @Override
@@ -151,9 +167,25 @@ public class AppCompatMultiAutoCompleteTextView extends MultiAutoCompleteTextVie
     }
 
     private void applySupportBackgroundTint() {
-        if (getBackground() != null && mBackgroundTint != null) {
-            TintManager.tintViewBackground(this, mBackgroundTint);
+        if (getBackground() != null) {
+            if (mBackgroundTint != null) {
+                TintManager.tintViewBackground(this, mBackgroundTint);
+            } else if (mInternalBackgroundTint != null) {
+                TintManager.tintViewBackground(this, mInternalBackgroundTint);
+            }
         }
     }
 
+    private void setInternalBackgroundTint(ColorStateList tint) {
+        if (tint != null) {
+            if (mInternalBackgroundTint == null) {
+                mInternalBackgroundTint = new TintInfo();
+            }
+            mInternalBackgroundTint.mTintList = tint;
+            mInternalBackgroundTint.mHasTintList = true;
+        } else {
+            mInternalBackgroundTint = null;
+        }
+        applySupportBackgroundTint();
+    }
 }
