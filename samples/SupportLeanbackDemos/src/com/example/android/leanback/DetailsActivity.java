@@ -21,17 +21,28 @@ public class DetailsActivity extends Activity
     public static final String EXTRA_ITEM = "item";
     public static final String SHARED_ELEMENT_NAME = "hero";
 
+    public static boolean USE_LEGACY_PRESENTER = false;
+
+    private boolean useLegacyFragment() {
+        return (USE_LEGACY_PRESENTER && !(this instanceof SearchDetailsActivity));
+    }
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.details);
+        setContentView(useLegacyFragment() ? R.layout.legacy_details : R.layout.details);
         if (savedInstanceState == null) {
             // Only pass object to fragment when activity is first time created,
             // later object is modified and persisted with fragment state.
-            ((DetailsFragment)getFragmentManager().findFragmentById(R.id.details_fragment))
+            if (useLegacyFragment()) {
+                ((DetailsFragment)getFragmentManager().findFragmentById(R.id.details_fragment))
                     .setItem((PhotoItem) getIntent().getParcelableExtra(EXTRA_ITEM));
+            } else {
+                ((NewDetailsFragment)getFragmentManager().findFragmentById(R.id.details_fragment))
+                    .setItem((PhotoItem) getIntent().getParcelableExtra(EXTRA_ITEM));
+            }
         }
     }
 

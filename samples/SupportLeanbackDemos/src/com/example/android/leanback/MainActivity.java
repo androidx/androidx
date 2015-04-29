@@ -59,6 +59,10 @@ public class MainActivity extends Activity {
             addAction(actions, DetailsActivity.class, R.string.details, R.string.details_description);
             actions.get(actions.size()-1).getIntent().putExtra(DetailsActivity.EXTRA_ITEM,
                     new PhotoItem("Hello world", R.drawable.gallery_photo_1));
+            addAction(actions, SearchDetailsActivity.class, R.string.search_details,
+                    R.string.search_details_description);
+            actions.get(actions.size()-1).getIntent().putExtra(DetailsActivity.EXTRA_ITEM,
+                    new PhotoItem("Hello world", R.drawable.gallery_photo_1));
             addAction(actions, PlaybackOverlayActivity.class, R.string.playback,
                     R.string.playback_description);
             addAction(actions, HorizontalGridTestActivity.class, R.string.hgrid,
@@ -69,6 +73,9 @@ public class MainActivity extends Activity {
                     R.string.guidedstep_description);
             addAction(actions, BrowseErrorActivity.class, R.string.browseerror,
                     R.string.browseerror_description);
+            addAction(actions, DetailsPresenterSelectionActivity.class,
+                    R.string.detail_presenter_options,
+                    R.string.detail_presenter_options_description);
         }
 
         private void addAction(List<GuidedAction> actions, Class cls, int titleRes, int descRes) {

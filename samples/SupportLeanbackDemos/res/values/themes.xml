@@ -19,6 +19,8 @@
     </style>
     <style name="Theme.Example.Leanback.Browse" parent="Theme.Leanback.Browse">
     </style>
+    <style name="Theme.Example.Leanback.SearchDetails" parent="Theme.Leanback.Details.NoSharedElementTransition">
+    </style>
     <style name="Theme.Example.Leanback.Details" parent="Theme.Leanback.Details">
     </style>
     <style name="Theme.Example.Leanback.Rows" parent="Theme.Leanback">
