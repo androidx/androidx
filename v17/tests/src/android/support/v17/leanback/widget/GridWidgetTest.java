@@ -1593,4 +1593,43 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
                 mGridView.getPaddingTop() - (t2align - t1align), v.getTop());
     }
 
+    public void testSelectionAndAddItemInOneCycle() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 0);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mActivity.addItems(0, new int[]{300, 300});
+                mGridView.setSelectedPosition(0);
+            }
+        });
+        waitForTransientStateGone(null);
+        assertEquals(0, mGridView.getSelectedPosition());
+    }
+
+    public void testSelectionSmoothAndAddItemInOneCycle() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 0);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mActivity.addItems(0, new int[]{300, 300});
+                mGridView.setSelectedPositionSmooth(0);
+            }
+        });
+        waitForTransientStateGone(null);
+        assertEquals(0, mGridView.getSelectedPosition());
+    }
 }
