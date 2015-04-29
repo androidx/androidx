@@ -138,6 +138,12 @@ subprojects {
     version = rootProject.ext.supportVersion
     group = 'com.android.support'
 
+    repositories {
+        maven { url "${project.parent.projectDir}/../../prebuilts/tools/common/m2/repository" }
+        maven { url "${project.parent.projectDir}/../../prebuilts/tools/common/m2/internal" }
+        maven { url "${project.parent.projectDir}/../../prebuilts/maven_repo/android" }
+    }
+
     task release(type: Upload) {
         configuration = configurations.archives
         repositories {
@@ -167,4 +173,3 @@ subprojects {
 FileCollection getAndroidPrebuilt(String apiLevel) {
     files("$rootDir/../../prebuilts/sdk/$apiLevel/android.jar")
 }
-
