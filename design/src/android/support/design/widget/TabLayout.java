@@ -309,6 +309,8 @@ public class TabLayout extends HorizontalScrollView {
      */
     public ViewPager.OnPageChangeListener createOnPageChangeListener() {
         return new ViewPager.SimpleOnPageChangeListener() {
+            private int mScrollState;
+
             @Override
             public void onPageScrolled(int position, float positionOffset,
                     int positionOffsetPixels) {
@@ -317,7 +319,14 @@ public class TabLayout extends HorizontalScrollView {
 
             @Override
             public void onPageSelected(int position) {
-                getTabAt(position).select();
+                if (mScrollState == ViewPager.SCROLL_STATE_IDLE) {
+                    getTabAt(position).select();
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                mScrollState = state;
             }
         };
     }
