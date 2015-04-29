@@ -16,7 +16,10 @@
 
 package android.support.v7.widget;
 
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -31,8 +34,10 @@ import static android.support.v7.widget.AdapterHelper.UpdateOp.ADD;
 import static android.support.v7.widget.AdapterHelper.UpdateOp.MOVE;
 import static android.support.v7.widget.AdapterHelper.UpdateOp.REMOVE;
 import static android.support.v7.widget.AdapterHelper.UpdateOp.UPDATE;
+import static org.junit.Assert.*;
 
-public class OpReorderTest extends TestCase {
+@RunWith(JUnit4.class)
+public class OpReorderTest {
 
     private static final String TAG = "OpReorderTest";
 
@@ -62,9 +67,8 @@ public class OpReorderTest extends TestCase {
         updatedItemCount = itemCount;
     }
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         cleanState();
     }
 
@@ -76,6 +80,7 @@ public class OpReorderTest extends TestCase {
         Item.idCounter = 0;
     }
 
+    @Test
     public void testMoveRemoved() throws Exception {
         setup(10);
         mv(3, 8);
@@ -83,6 +88,7 @@ public class OpReorderTest extends TestCase {
         process();
     }
 
+    @Test
     public void testMoveRemove() throws Exception {
         setup(10);
         mv(3, 8);
@@ -90,6 +96,7 @@ public class OpReorderTest extends TestCase {
         process();
     }
 
+    @Test
     public void test1() {
         setup(10);
         mv(3, 5);
@@ -97,6 +104,7 @@ public class OpReorderTest extends TestCase {
         process();
     }
 
+    @Test
     public void test2() {
         setup(5);
         mv(1, 3);
@@ -104,6 +112,7 @@ public class OpReorderTest extends TestCase {
         process();
     }
 
+    @Test
     public void test3() {
         setup(5);
         mv(0, 4);
@@ -111,6 +120,7 @@ public class OpReorderTest extends TestCase {
         process();
     }
 
+    @Test
     public void test4() {
         setup(5);
         mv(3, 0);
@@ -118,6 +128,7 @@ public class OpReorderTest extends TestCase {
         process();
     }
 
+    @Test
     public void test5() {
         setup(10);
         mv(8, 1);
@@ -125,6 +136,7 @@ public class OpReorderTest extends TestCase {
         process();
     }
 
+    @Test
     public void test6() {
         setup(5);
         mv(1, 3);
@@ -132,6 +144,7 @@ public class OpReorderTest extends TestCase {
         process();
     }
 
+    @Test
     public void test7() {
         setup(5);
         mv(3, 4);
@@ -139,6 +152,7 @@ public class OpReorderTest extends TestCase {
         process();
     }
 
+    @Test
     public void test8() {
         setup(5);
         mv(4, 3);
@@ -146,6 +160,7 @@ public class OpReorderTest extends TestCase {
         process();
     }
 
+    @Test
     public void test9() {
         setup(5);
         mv(2, 0);
@@ -153,6 +168,7 @@ public class OpReorderTest extends TestCase {
         process();
     }
 
+    @Test
     public void testRandom() throws Exception {
         for (int i = 0; i < 150; i++) {
             try {
@@ -169,6 +185,7 @@ public class OpReorderTest extends TestCase {
         }
     }
 
+    @Test
     public void testRandomMoveRemove() throws Exception {
         for (int i = 0; i < 1000; i++) {
             try {
@@ -182,6 +199,7 @@ public class OpReorderTest extends TestCase {
         }
     }
 
+    @Test
     public void testRandomMoveAdd() throws Exception {
         for (int i = 0; i < 1000; i++) {
             try {
@@ -195,6 +213,7 @@ public class OpReorderTest extends TestCase {
         }
     }
 
+    @Test
     public void testRandomMoveUpdate() throws Exception {
         for (int i = 0; i < 1000; i++) {
             try {
@@ -394,6 +413,7 @@ public class OpReorderTest extends TestCase {
         return copy;
     }
 
+    @Test
     public void testSwapMoveRemove_1() {
         mv(10, 15);
         rm(2, 3);
@@ -403,6 +423,7 @@ public class OpReorderTest extends TestCase {
         assertEquals(rm(2, 3), mUpdateOps.get(0));
     }
 
+    @Test
     public void testSwapMoveRemove_2() {
         mv(3, 8);
         rm(4, 2);
@@ -412,6 +433,7 @@ public class OpReorderTest extends TestCase {
         assertEquals(mv(3, 6), mUpdateOps.get(1));
     }
 
+    @Test
     public void testSwapMoveRemove_3() {
         mv(3, 8);
         rm(3, 2);
@@ -421,6 +443,7 @@ public class OpReorderTest extends TestCase {
         assertEquals(mv(3, 6), mUpdateOps.get(1));
     }
 
+    @Test
     public void testSwapMoveRemove_4() {
         mv(3, 8);
         rm(2, 3);
@@ -431,6 +454,7 @@ public class OpReorderTest extends TestCase {
         assertEquals(mv(2, 5), mUpdateOps.get(2));
     }
 
+    @Test
     public void testSwapMoveRemove_5() {
         mv(3, 0);
         rm(2, 3);
@@ -441,6 +465,7 @@ public class OpReorderTest extends TestCase {
         assertEquals(mv(1, 0), mUpdateOps.get(2));
     }
 
+    @Test
     public void testSwapMoveRemove_6() {
         mv(3, 10);
         rm(2, 3);
@@ -450,6 +475,7 @@ public class OpReorderTest extends TestCase {
         assertEquals(rm(2, 1), mUpdateOps.get(1));
     }
 
+    @Test
     public void testSwapMoveRemove_7() {
         mv(3, 2);
         rm(6, 2);
@@ -459,6 +485,7 @@ public class OpReorderTest extends TestCase {
         assertEquals(mv(3, 2), mUpdateOps.get(1));
     }
 
+    @Test
     public void testSwapMoveRemove_8() {
         mv(3, 4);
         rm(3, 1);
@@ -467,6 +494,7 @@ public class OpReorderTest extends TestCase {
         assertEquals(rm(4, 1), mUpdateOps.get(0));
     }
 
+    @Test
     public void testSwapMoveRemove_9() {
         mv(3, 4);
         rm(4, 1);
@@ -475,6 +503,7 @@ public class OpReorderTest extends TestCase {
         assertEquals(rm(3, 1), mUpdateOps.get(0));
     }
 
+    @Test
     public void testSwapMoveRemove_10() {
         mv(1, 3);
         rm(0, 3);
@@ -484,6 +513,7 @@ public class OpReorderTest extends TestCase {
         assertEquals(rm(0, 1), mUpdateOps.get(1));
     }
 
+    @Test
     public void testSwapMoveRemove_11() {
         mv(3, 8);
         rm(7, 3);
@@ -493,6 +523,7 @@ public class OpReorderTest extends TestCase {
         assertEquals(rm(7, 2), mUpdateOps.get(1));
     }
 
+    @Test
     public void testSwapMoveRemove_12() {
         mv(1, 3);
         rm(2, 1);
@@ -502,6 +533,7 @@ public class OpReorderTest extends TestCase {
         assertEquals(mv(1, 2), mUpdateOps.get(1));
     }
 
+    @Test
     public void testSwapMoveRemove_13() {
         mv(1, 3);
         rm(1, 2);
@@ -510,6 +542,7 @@ public class OpReorderTest extends TestCase {
         assertEquals(rm(2, 2), mUpdateOps.get(1));
     }
 
+    @Test
     public void testSwapMoveRemove_14() {
         mv(4, 2);
         rm(3, 1);
@@ -519,6 +552,7 @@ public class OpReorderTest extends TestCase {
         assertEquals(mv(2, 3), mUpdateOps.get(1));
     }
 
+    @Test
     public void testSwapMoveRemove_15() {
         mv(4, 2);
         rm(3, 2);
@@ -527,6 +561,7 @@ public class OpReorderTest extends TestCase {
         assertEquals(rm(2, 2), mUpdateOps.get(0));
     }
 
+    @Test
     public void testSwapMoveRemove_16() {
         mv(2, 3);
         rm(1, 2);
@@ -536,6 +571,7 @@ public class OpReorderTest extends TestCase {
         assertEquals(rm(1, 1), mUpdateOps.get(1));
     }
 
+    @Test
     public void testSwapMoveUpdate_0() {
         mv(1, 3);
         up(1, 2);
@@ -545,6 +581,7 @@ public class OpReorderTest extends TestCase {
         assertEquals(mv(1, 3), mUpdateOps.get(1));
     }
 
+    @Test
     public void testSwapMoveUpdate_1() {
         mv(0, 2);
         up(0, 4);
@@ -555,6 +592,7 @@ public class OpReorderTest extends TestCase {
         assertEquals(mv(0, 2), mUpdateOps.get(2));
     }
 
+    @Test
     public void testSwapMoveUpdate_2() {
         mv(2, 0);
         up(1, 3);
