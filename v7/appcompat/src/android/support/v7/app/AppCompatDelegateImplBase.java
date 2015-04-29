@@ -24,6 +24,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.appcompat.R;
+import android.support.v7.internal.app.WindowDecorActionBar;
 import android.support.v7.internal.view.SupportMenuInflater;
 import android.support.v7.internal.view.WindowCallbackWrapper;
 import android.support.v7.internal.view.menu.MenuBuilder;
@@ -89,7 +90,9 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
                 mActionBar = createSupportActionBar();
             }
         } else {
-            mActionBar = null;
+            if (mActionBar instanceof WindowDecorActionBar) {
+                mActionBar = null;
+            }
         }
         return mActionBar;
     }
