@@ -466,7 +466,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     /**
      * The offset to be applied to mFocusPosition, due to adapter change, on the next
-     * layout.  Set to Integer.MIN_VALUE means item was removed.
+     * layout.  Set to Integer.MIN_VALUE means we should stop adding delta to mFocusPosition
+     * until next layout cycler.
      * TODO:  This is somewhat duplication of RecyclerView getOldPosition() which is
      * unfortunately cleared after prelayout.
      */
@@ -1673,8 +1674,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 && mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_ALIGNED;
         if (mFocusPosition != NO_POSITION && mFocusPositionOffset != Integer.MIN_VALUE) {
             mFocusPosition = mFocusPosition + mFocusPositionOffset;
-            mFocusPositionOffset = 0;
         }
+        mFocusPositionOffset = 0;
         saveContext(recycler, state);
 
         // Track the old focus view so we can adjust our system scroll position
@@ -2061,7 +2062,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             mInSelection = false;
         } else {
             mFocusPosition = position;
-            mFocusPositionOffset = 0;
+            mFocusPositionOffset = Integer.MIN_VALUE;
             if (!mLayoutEnabled) {
                 return;
             }
