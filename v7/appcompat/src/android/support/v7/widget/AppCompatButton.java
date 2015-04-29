@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.v4.view.TintableBackgroundView;
@@ -46,7 +47,9 @@ public class AppCompatButton extends Button implements TintableBackgroundView {
             android.R.attr.background
     };
 
+    private TintInfo mInternalBackgroundTint;
     private TintInfo mBackgroundTint;
+    private TintManager mTintManager;
 
     public AppCompatButton(Context context) {
         this(context, null);
@@ -65,9 +68,10 @@ public class AppCompatButton extends Button implements TintableBackgroundView {
             if (a.hasValue(0)) {
                 ColorStateList tint = a.getTintManager().getTintList(a.getResourceId(0, -1));
                 if (tint != null) {
-                    setSupportBackgroundTintList(tint);
+                    setInternalBackgroundTint(tint);
                 }
             }
+            mTintManager = a.getTintManager();
             a.recycle();
         }
 
@@ -115,6 +119,20 @@ public class AppCompatButton extends Button implements TintableBackgroundView {
             setTextColor(ThemeUtils.createDisabledStateList(
                     textColors.getDefaultColor(), disabledTextColor));
         }
+    }
+
+    @Override
+    public void setBackgroundResource(int resId) {
+        super.setBackgroundResource(resId);
+        // Update the default background tint
+        setInternalBackgroundTint(mTintManager != null ? mTintManager.getTintList(resId) : null);
+    }
+
+    @Override
+    public void setBackgroundDrawable(Drawable background) {
+        super.setBackgroundDrawable(background);
+        // We don't know that this drawable is, so we need to clear the default background tint
+        setInternalBackgroundTint(null);
     }
 
     /**
@@ -183,9 +201,26 @@ public class AppCompatButton extends Button implements TintableBackgroundView {
     }
 
     private void applySupportBackgroundTint() {
-        if (getBackground() != null && mBackgroundTint != null) {
-            TintManager.tintViewBackground(this, mBackgroundTint);
+        if (getBackground() != null) {
+            if (mBackgroundTint != null) {
+                TintManager.tintViewBackground(this, mBackgroundTint);
+            } else if (mInternalBackgroundTint != null) {
+                TintManager.tintViewBackground(this, mInternalBackgroundTint);
+            }
         }
+    }
+
+    private void setInternalBackgroundTint(ColorStateList tint) {
+        if (tint != null) {
+            if (mInternalBackgroundTint == null) {
+                mInternalBackgroundTint = new TintInfo();
+            }
+            mInternalBackgroundTint.mTintList = tint;
+            mInternalBackgroundTint.mHasTintList = true;
+        } else {
+            mInternalBackgroundTint = null;
+        }
+        applySupportBackgroundTint();
     }
 
     @Override
