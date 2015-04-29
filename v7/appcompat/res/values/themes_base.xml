@@ -437,6 +437,7 @@
         <item name="android:windowTitleBackgroundStyle">@style/Base.DialogWindowTitleBackground.AppCompat</item>
         <item name="android:windowBackground">@drawable/abc_dialog_material_background_dark</item>
         <item name="android:windowIsFloating">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowAnimationStyle">@style/Animation.AppCompat.Dialog</item>
         <item name="android:windowSoftInputMode">stateUnspecified|adjustPan</item>
@@ -459,6 +460,7 @@
         <item name="android:windowTitleBackgroundStyle">@style/Base.DialogWindowTitleBackground.AppCompat</item>
         <item name="android:windowBackground">@drawable/abc_dialog_material_background_light</item>
         <item name="android:windowIsFloating">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowAnimationStyle">@style/Animation.AppCompat.Dialog</item>
         <item name="android:windowSoftInputMode">stateUnspecified|adjustPan</item>
