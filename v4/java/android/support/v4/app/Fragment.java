@@ -88,7 +88,7 @@ final class FragmentState implements Parcelable {
         mSavedFragmentState = in.readBundle();
     }
 
-    public Fragment instantiate(FragmentHostCallbacks host, Fragment parent) {
+    public Fragment instantiate(FragmentHostCallback host, Fragment parent) {
         if (mInstance != null) {
             return mInstance;
         }
@@ -237,7 +237,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     FragmentManagerImpl mFragmentManager;
 
     // Host this fragment is attached to.
-    FragmentHostCallbacks mHost;
+    FragmentHostCallback mHost;
 
     // Private fragment manager for child fragments inside of this one.
     FragmentManagerImpl mChildFragmentManager;
@@ -627,7 +627,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * isn't currently being hosted.
      */
     final public Object getHost() {
-        return mHost == null ? null : mHost.getHost();
+        return mHost == null ? null : mHost.onGetHost();
     }
 
     /**
@@ -837,7 +837,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         if (mHasMenu != hasMenu) {
             mHasMenu = hasMenu;
             if (isAdded() && !isHidden()) {
-                mHost.supportInvalidateOptionsMenu();
+                mHost.onSupportInvalidateOptionsMenu();
             }
         }
     }
@@ -855,7 +855,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         if (mMenuVisible != menuVisible) {
             mMenuVisible = menuVisible;
             if (mHasMenu && isAdded() && !isHidden()) {
-                mHost.supportInvalidateOptionsMenu();
+                mHost.onSupportInvalidateOptionsMenu();
             }
         }
     }
@@ -905,25 +905,25 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
-     * Call {@link Activity#startActivity(Intent)} on the fragment's
+     * Call {@link Activity#startActivity(Intent)} from the fragment's
      * containing Activity.
      */
     public void startActivity(Intent intent) {
         if (mHost == null) {
             throw new IllegalStateException("Fragment " + this + " not attached to Activity");
         }
-        mHost.startActivityFromFragment(this /*fragment*/, intent, -1);
+        mHost.onStartActivityFromFragment(this /*fragment*/, intent, -1);
     }
 
     /**
-     * Call {@link Activity#startActivityForResult(Intent, int)} on the fragment's
+     * Call {@link Activity#startActivityForResult(Intent, int)} from the fragment's
      * containing Activity.
      */
     public void startActivityForResult(Intent intent, int requestCode) {
         if (mHost == null) {
             throw new IllegalStateException("Fragment " + this + " not attached to Activity");
         }
-        mHost.startActivityFromFragment(this /*fragment*/, intent, requestCode);
+        mHost.onStartActivityFromFragment(this /*fragment*/, intent, requestCode);
     }
 
     /**
@@ -949,7 +949,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * inflation.  Maybe this should become a public API. Note sure.
      */
     public LayoutInflater getLayoutInflater(Bundle savedInstanceState) {
-        LayoutInflater result = mHost.getLayoutInflater();
+        LayoutInflater result = mHost.onGetLayoutInflater();
         getChildFragmentManager(); // Init if needed; use raw implementation below.
         LayoutInflaterCompat.setFactory(result, mChildFragmentManager.getLayoutInflaterFactory());
         return result;
@@ -1793,7 +1793,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         mChildFragmentManager.attachController(mHost, new FragmentContainer() {
             @Override
             @Nullable
-            public View findViewById(int id) {
+            public View onFindViewById(int id) {
                 if (mView == null) {
                     throw new IllegalStateException("Fragment does not have a view");
                 }
@@ -1801,7 +1801,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             }
 
             @Override
-            public boolean hasView() {
+            public boolean onHasView() {
                 return (mView != null);
             }
         }, this);
