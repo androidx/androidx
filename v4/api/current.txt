@@ -26,6 +26,35 @@ package android.support.v4.accessibilityservice {
 
 }
 
+package android.support.v4.animation {
+
+  public abstract class AnimatorCompatHelper {
+    method public static android.support.v4.animation.ValueAnimatorCompat emptyValueAnimator();
+  }
+
+  public abstract interface AnimatorListenerCompat {
+    method public abstract void onAnimationCancel(android.support.v4.animation.ValueAnimatorCompat);
+    method public abstract void onAnimationEnd(android.support.v4.animation.ValueAnimatorCompat);
+    method public abstract void onAnimationRepeat(android.support.v4.animation.ValueAnimatorCompat);
+    method public abstract void onAnimationStart(android.support.v4.animation.ValueAnimatorCompat);
+  }
+
+  public abstract interface AnimatorUpdateListenerCompat {
+    method public abstract void onAnimationUpdate(android.support.v4.animation.ValueAnimatorCompat);
+  }
+
+  public abstract interface ValueAnimatorCompat {
+    method public abstract void addListener(android.support.v4.animation.AnimatorListenerCompat);
+    method public abstract void addUpdateListener(android.support.v4.animation.AnimatorUpdateListenerCompat);
+    method public abstract void cancel();
+    method public abstract float getAnimatedFraction();
+    method public abstract void setDuration(long);
+    method public abstract void setTarget(android.view.View);
+    method public abstract void start();
+  }
+
+}
+
 package android.support.v4.app {
 
   public deprecated class ActionBarDrawerToggle implements android.support.v4.widget.DrawerLayout.DrawerListener {
@@ -929,6 +958,24 @@ package android.support.v4.content {
     ctor public WakefulBroadcastReceiver();
     method public static boolean completeWakefulIntent(android.content.Intent);
     method public static android.content.ComponentName startWakefulService(android.content.Context, android.content.Intent);
+  }
+
+}
+
+package android.support.v4.content.pm {
+
+  public class ActivityInfoCompat {
+    field public static final int CONFIG_UI_MODE = 512; // 0x200
+  }
+
+}
+
+package android.support.v4.content.res {
+
+  public class ResourcesCompat {
+    ctor public ResourcesCompat();
+    method public static android.graphics.drawable.Drawable getDrawable(android.content.res.Resources, int, android.content.res.Resources.Theme) throws android.content.res.Resources.NotFoundException;
+    method public static android.graphics.drawable.Drawable getDrawableForDensity(android.content.res.Resources, int, int, android.content.res.Resources.Theme) throws android.content.res.Resources.NotFoundException;
   }
 
 }
