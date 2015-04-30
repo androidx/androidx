@@ -18,6 +18,7 @@ package android.support.v7.widget;
 
 import android.app.Instrumentation;
 import android.graphics.Rect;
+import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.view.ViewCompat;
 import android.test.ActivityInstrumentationTestCase2;
@@ -54,6 +55,8 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
 
     Throwable mainThreadException;
 
+    Thread mInstrumentationThread;
+
     public BaseRecyclerViewInstrumentationTest() {
         this(false);
     }
@@ -67,6 +70,12 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         if (mainThreadException != null) {
             throw mainThreadException;
         }
+    }
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        mInstrumentationThread = Thread.currentThread();
     }
 
     void setHasTransientState(final View view, final boolean value) {
@@ -119,6 +128,9 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
     }
 
     void postExceptionToInstrumentation(Throwable t) {
+        if (mInstrumentationThread == Thread.currentThread()) {
+            throw new RuntimeException(t);
+        }
         if (mainThreadException != null) {
             Log.e(TAG, "receiving another main thread exception. dropping.", t);
         } else {
