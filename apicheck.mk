@@ -20,8 +20,8 @@
 # $(support_module_java_libraries) - dependent libraries
 # $(support_module_java_packages) - list of package names containing public classes
 # $(support_module_src_files) - list of source files
-# $(api_check_current_msg_file) - file containing error message for current API check 
-# $(api_check_last_msg_file) - file containing error message for last SDK API check 
+# $(api_check_current_msg_file) - file containing error message for current API check
+# $(api_check_last_msg_file) - file containing error message for last SDK API check
 # ---------------------------------------------
 
 #
@@ -46,7 +46,7 @@ LOCAL_SDK_VERSION := current
 
 LOCAL_DROIDDOC_OPTIONS:= \
     -stubs $(TARGET_OUT_COMMON_INTERMEDIATES)/$(LOCAL_MODULE_CLASS)/$(LOCAL_MODULE)_intermediates/src \
-    -stubpackages $(subst $(eval) ,:,$(support_module_java_packages)) \
+    -stubpackages "$(subst $(space),:,$(support_module_java_packages))" \
     -api $(support_module_api_file) \
     -removedApi $(support_module_removed_file) \
     -nodocs

@@ -1,3 +1,39 @@
+package android.support.v7.recyclerview {
+
+  public final class R {
+    ctor public R();
+  }
+
+  public static final class R.attr {
+    ctor public R.attr();
+    field public static int layoutManager;
+    field public static int reverseLayout;
+    field public static int spanCount;
+    field public static int stackFromEnd;
+  }
+
+  public static final class R.dimen {
+    ctor public R.dimen();
+    field public static int item_touch_helper_max_drag_scroll_per_frame;
+  }
+
+  public static final class R.id {
+    ctor public R.id();
+    field public static int item_touch_helper_previous_elevation;
+  }
+
+  public static final class R.styleable {
+    ctor public R.styleable();
+    field public static final int[] RecyclerView;
+    field public static int RecyclerView_android_orientation;
+    field public static int RecyclerView_layoutManager;
+    field public static int RecyclerView_reverseLayout;
+    field public static int RecyclerView_spanCount;
+    field public static int RecyclerView_stackFromEnd;
+  }
+
+}
+
 package android.support.v7.util {
 
   public class SortedList {
@@ -5,6 +41,7 @@ package android.support.v7.util {
     ctor public SortedList(java.lang.Class<T>, android.support.v7.util.SortedList.Callback<T>, int);
     method public int add(T);
     method public void beginBatchedUpdates();
+    method public void clear();
     method public void endBatchedUpdates();
     method public T get(int) throws java.lang.IndexOutOfBoundsException;
     method public int indexOf(T);
@@ -659,6 +696,71 @@ package android.support.v7.widget {
     method public boolean isFullSpan();
     method public void setFullSpan(boolean);
     field public static final int INVALID_SPAN_ID = -1; // 0xffffffff
+  }
+
+}
+
+package android.support.v7.widget.helper {
+
+  public class ItemTouchHelper extends android.support.v7.widget.RecyclerView.ItemDecoration implements android.support.v7.widget.RecyclerView.OnChildAttachStateChangeListener {
+    ctor public ItemTouchHelper(android.support.v7.widget.helper.ItemTouchHelper.Callback);
+    method public void attachToRecyclerView(android.support.v7.widget.RecyclerView);
+    method public void onChildViewAttachedToWindow(android.view.View);
+    method public void onChildViewDetachedFromWindow(android.view.View);
+    method public void startDrag(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public void startSwipe(android.support.v7.widget.RecyclerView.ViewHolder);
+    field public static final int ACTION_STATE_DRAG = 2; // 0x2
+    field public static final int ACTION_STATE_IDLE = 0; // 0x0
+    field public static final int ACTION_STATE_SWIPE = 1; // 0x1
+    field public static final int ANIMATION_TYPE_DRAG = 8; // 0x8
+    field public static final int ANIMATION_TYPE_SWIPE_CANCEL = 4; // 0x4
+    field public static final int ANIMATION_TYPE_SWIPE_SUCCESS = 2; // 0x2
+    field public static final int DOWN = 2; // 0x2
+    field public static final int END = 32; // 0x20
+    field public static final int LEFT = 4; // 0x4
+    field public static final int RIGHT = 8; // 0x8
+    field public static final int START = 16; // 0x10
+    field public static final int UP = 1; // 0x1
+  }
+
+  public static abstract class ItemTouchHelper.Callback {
+    ctor public ItemTouchHelper.Callback();
+    method public boolean canDropOver(android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ViewHolder);
+    method public android.support.v7.widget.RecyclerView.ViewHolder chooseDropTarget(android.support.v7.widget.RecyclerView.ViewHolder, java.util.List<android.support.v7.widget.RecyclerView.ViewHolder>, int, int);
+    method public void clearView(android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.ViewHolder);
+    method public int convertToAbsoluteDirection(int, int);
+    method public static int convertToRelativeDirection(int, int);
+    method public long getAnimationDuration(android.support.v7.widget.RecyclerView, int, float, float);
+    method public int getBoundingBoxMargin();
+    method public float getMoveThreshold(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public abstract int getMovementFlags(android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.ViewHolder);
+    method public float getSwipeThreshold(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public int interpolateOutOfBoundsScroll(android.support.v7.widget.RecyclerView, int, int, int, long);
+    method public boolean isItemViewSwipeEnabled();
+    method public boolean isLongPressDragEnabled();
+    method public static int makeFlag(int, int);
+    method public static int makeMovementFlags(int, int);
+    method public void onChildDraw(android.graphics.Canvas, android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.ViewHolder, float, float, int, boolean);
+    method public void onChildDrawOver(android.graphics.Canvas, android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.ViewHolder, float, float, int, boolean);
+    method public abstract boolean onMove(android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ViewHolder);
+    method public void onMoved(android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.ViewHolder, int, android.support.v7.widget.RecyclerView.ViewHolder, int, int, int);
+    method public void onSelectedChanged(android.support.v7.widget.RecyclerView.ViewHolder, int);
+    method public abstract void onSwiped(android.support.v7.widget.RecyclerView.ViewHolder, int);
+    field public static final int DEFAULT_DRAG_ANIMATION_DURATION = 200; // 0xc8
+    field public static final int DEFAULT_SWIPE_ANIMATION_DURATION = 250; // 0xfa
+  }
+
+  public static abstract class ItemTouchHelper.SimpleCallback extends android.support.v7.widget.helper.ItemTouchHelper.Callback {
+    ctor public ItemTouchHelper.SimpleCallback(int, int);
+    method public int getDragDirs(android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.ViewHolder);
+    method public int getMovementFlags(android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.ViewHolder);
+    method public int getSwipeDirs(android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.ViewHolder);
+    method public void setDefaultDragDirs(int);
+    method public void setDefaultSwipeDirs(int);
+  }
+
+  public static abstract interface ItemTouchHelper.ViewDropHandler {
+    method public abstract void prepareForDrop(android.view.View, android.view.View, int, int);
   }
 
 }
