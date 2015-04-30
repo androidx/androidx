@@ -5,6 +5,9 @@ archivesBaseName = 'recyclerview-v7'
 dependencies {
     compile project(':support-v4')
     compile project(':support-annotations')
+    androidTestCompile 'com.android.support.test:testing-support-lib:0.1'
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.0'
+    testCompile 'junit:junit:4.12'
 }
 
 android {
@@ -13,6 +16,7 @@ android {
 
     defaultConfig {
         minSdkVersion 7
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     sourceSets {
@@ -21,6 +25,7 @@ android {
         main.res.srcDir 'res'
 
         androidTest.setRoot('tests')
+        test.java.srcDir 'jvm-tests'
         androidTest.java.srcDir 'tests/src'
         androidTest.res.srcDir 'tests/res'
         androidTest.manifest.srcFile 'tests/AndroidManifest.xml'
@@ -29,6 +34,14 @@ android {
     lintOptions {
         // TODO: fix errors and reenable.
         abortOnError false
+    }
+
+    packagingOptions {
+        exclude 'LICENSE.txt'
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
     }
 }
 

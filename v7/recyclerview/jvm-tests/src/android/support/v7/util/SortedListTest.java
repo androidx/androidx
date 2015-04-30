@@ -18,7 +18,10 @@ package android.support.v7.util;
 
 import junit.framework.TestCase;
 
-import android.support.v7.util.SortedList;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,6 +29,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
+@RunWith(JUnit4.class)
 public class SortedListTest extends TestCase {
 
     SortedList<Item> mList;
@@ -43,6 +47,7 @@ public class SortedListTest extends TestCase {
     };
 
     @Override
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         mCallback = new SortedList.Callback<Item>() {
@@ -84,10 +89,12 @@ public class SortedListTest extends TestCase {
         mList = new SortedList<Item>(Item.class, mCallback);
     }
 
+    @Test
     public void testEmpty() {
         assertEquals("empty", mList.size(), 0);
     }
 
+    @Test
     public void testAdd() {
         Item item = new Item();
         assertEquals(insert(item), 0);
@@ -106,6 +113,7 @@ public class SortedListTest extends TestCase {
         assertTrue(mAdditions.contains(new Pair(0, 1)));
     }
 
+    @Test
     public void testAddDuplicate() {
         Item item = new Item();
         Item item2 = new Item(item.id, item.cmpField);
@@ -117,6 +125,7 @@ public class SortedListTest extends TestCase {
         assertEquals(0, mUpdates.size());
     }
 
+    @Test
     public void testRemove() {
         Item item = new Item();
         assertFalse(remove(item));
@@ -130,6 +139,7 @@ public class SortedListTest extends TestCase {
         assertEquals(1, mRemovals.size());
     }
 
+    @Test
     public void testRemove2() {
         Item item = new Item();
         Item item2 = new Item(item.cmpField);
@@ -138,9 +148,10 @@ public class SortedListTest extends TestCase {
         assertEquals(0, mRemovals.size());
     }
 
+    @Test
     public void testBatch() {
         mList.beginBatchedUpdates();
-        for (int i = 0; i < 5; i ++) {
+        for (int i = 0; i < 5; i++) {
             mList.add(new Item(i));
         }
         assertEquals(0, mAdditions.size());
@@ -148,6 +159,7 @@ public class SortedListTest extends TestCase {
         assertTrue(mAdditions.contains(new Pair(0, 5)));
     }
 
+    @Test
     public void testRandom() throws Throwable {
         Random random = new Random(System.nanoTime());
         List<Item> copy = new ArrayList<Item>();
@@ -159,13 +171,13 @@ public class SortedListTest extends TestCase {
                         Item item = new Item();
                         copy.add(item);
                         insert(item);
-                        log.append("add " + item).append("\n");
+                        log.append("add ").append(item).append("\n");
                         break;
                     case 1://REMOVE
                         if (copy.size() > 0) {
                             int index = random.nextInt(mList.size());
                             item = mList.get(index);
-                            log.append("remove " + item).append("\n");
+                            log.append("remove ").append(item).append("\n");
                             assertTrue(copy.remove(item));
                             assertTrue(mList.remove(item));
                         }
@@ -176,7 +188,8 @@ public class SortedListTest extends TestCase {
                             item = mList.get(index);
                             // TODO this cannot work
                             Item newItem = new Item(item.id, item.cmpField);
-                            log.append("update " + item + " to " + newItem).append("\n");
+                            log.append("update ").append(item).append(" to ").append(newItem)
+                                    .append("\n");
                             while (newItem.data == item.data) {
                                 newItem.data = random.nextInt(1000);
                             }
@@ -198,17 +211,17 @@ public class SortedListTest extends TestCase {
                         }
                 }
                 int lastCmp = Integer.MIN_VALUE;
-                for (int index = 0; index < copy.size(); index ++) {
+                for (int index = 0; index < copy.size(); index++) {
                     assertFalse(mList.indexOf(copy.get(index)) == SortedList.INVALID_POSITION);
                     assertTrue(mList.get(index).cmpField >= lastCmp);
                     lastCmp = mList.get(index).cmpField;
                     assertTrue(copy.contains(mList.get(index)));
                 }
 
-                for (int index = 0; index < mList.size(); index ++) {
+                for (int index = 0; index < mList.size(); index++) {
                     assertNotNull(mList.mData[index]);
                 }
-                for (int index = mList.size(); index < mList.mData.length; index ++) {
+                for (int index = mList.size(); index < mList.mData.length; index++) {
                     assertNull(mList.mData[index]);
                 }
 
@@ -220,7 +233,7 @@ public class SortedListTest extends TestCase {
                 log.append(item).append("\n");
             }
             log.append("SortedList:\n");
-            for (int i = 0; i < mList.size(); i ++) {
+            for (int i = 0; i < mList.size(); i++) {
                 log.append(mList.get(i)).append("\n");
             }
 
@@ -236,11 +249,12 @@ public class SortedListTest extends TestCase {
         return mList.add(item);
     }
 
-    private boolean remove(Item item ) {
+    private boolean remove(Item item) {
         return mList.remove(item);
     }
 
     static class Item {
+
         static int idCounter = 0;
         final int id;
 
@@ -249,12 +263,12 @@ public class SortedListTest extends TestCase {
         int data = (int) (Math.random() * 1000);//used for comparison
 
         public Item() {
-            id = idCounter ++;;
+            id = idCounter++;
             cmpField = (int) (Math.random() * 1000);
         }
 
         public Item(int cmpField) {
-            id = idCounter ++;;
+            id = idCounter++;
             this.cmpField = cmpField;
         }
 
@@ -302,6 +316,7 @@ public class SortedListTest extends TestCase {
     }
 
     private static final class Pair {
+
         final int first, second;
 
         public Pair(int first) {
