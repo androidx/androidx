@@ -275,24 +275,29 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
 
         @Override
         public boolean onPreparePanel(int featureId, View view, Menu menu) {
-            if (featureId == Window.FEATURE_OPTIONS_PANEL && !(menu instanceof MenuBuilder)) {
+            final MenuBuilder mb = menu instanceof MenuBuilder ? (MenuBuilder) menu : null;
+
+            if (featureId == Window.FEATURE_OPTIONS_PANEL && mb == null) {
                 // If this is an options menu but it's not an AppCompat menu, we eat the event
                 // and return false
                 return false;
             }
 
-            if (featureId == Window.FEATURE_OPTIONS_PANEL && bypassPrepareOptionsPanelIfNeeded()) {
-                // If this is an options menu and we need to bypass onPreparePanel, do so
-                if (mOriginalWindowCallback instanceof Activity) {
-                    return ((Activity) mOriginalWindowCallback).onPrepareOptionsMenu(menu);
-                } else if (mOriginalWindowCallback instanceof Dialog) {
-                    return ((Dialog) mOriginalWindowCallback).onPrepareOptionsMenu(menu);
-                }
-                return false;
+            // On ICS and below devices, onPreparePanel calls menu.hasVisibleItems() to determine
+            // if a panel is prepared. This interferes with any initially invisible items, which
+            // are later made visible. We workaround it by making hasVisibleItems() always
+            // return true during the onPreparePanel call.
+            if (mb != null) {
+                mb.setOverrideVisibleItems(true);
             }
 
-            // Else, defer to the default handling
-            return super.onPreparePanel(featureId, view, menu);
+            final boolean handled = super.onPreparePanel(featureId, view, menu);
+
+            if (mb != null) {
+                mb.setOverrideVisibleItems(false);
+            }
+
+            return handled;
         }
 
         @Override
@@ -323,25 +328,6 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
                 return;
             }
             super.onPanelClosed(featureId, menu);
-        }
-
-        /**
-         * For the options menu, we may need to call onPrepareOptionsMenu() directly,
-         * bypassing onPreparePanel(). This is because onPreparePanel() in certain situations
-         * calls menu.hasVisibleItems(), which interferes with any initial invisible items.
-         *
-         * @return true if onPrepareOptionsMenu should be called directly.
-         */
-        private boolean bypassPrepareOptionsPanelIfNeeded() {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN
-                    && mOriginalWindowCallback instanceof Activity) {
-                // For Activities, we only need to bypass onPreparePanel if we're running pre-JB
-                return true;
-            } else if (mOriginalWindowCallback instanceof Dialog) {
-                // For Dialogs, we always need to bypass onPreparePanel
-                return true;
-            }
-            return false;
         }
     }
 }
