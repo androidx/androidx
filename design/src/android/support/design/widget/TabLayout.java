@@ -326,9 +326,7 @@ public class TabLayout extends HorizontalScrollView {
 
             @Override
             public void onPageSelected(int position) {
-                if (mScrollState == ViewPager.SCROLL_STATE_IDLE) {
-                    getTabAt(position).select();
-                }
+                getTabAt(position).select();
             }
         };
     }
