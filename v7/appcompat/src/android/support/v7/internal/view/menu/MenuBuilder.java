@@ -176,6 +176,11 @@ public class MenuBuilder implements SupportMenu {
     private MenuItemImpl mExpandedItem;
 
     /**
+     * Whether to override the result of {@link #hasVisibleItems()} and always return true
+     */
+    private boolean mOverrideVisibleItems;
+
+    /**
      * Called by menu to notify of close and selection changes.
      * @hide
      */
@@ -645,6 +650,10 @@ public class MenuBuilder implements SupportMenu {
 
     @Override
     public boolean hasVisibleItems() {
+        if (mOverrideVisibleItems) {
+            return true;
+        }
+
         final int size = size();
 
         for (int i = 0; i < size; i++) {
@@ -1347,6 +1356,15 @@ public class MenuBuilder implements SupportMenu {
 
     public MenuItemImpl getExpandedItem() {
         return mExpandedItem;
+    }
+
+    /**
+     * Allows us to override the value of {@link #hasVisibleItems()} and make it always return true.
+     *
+     * @param override
+     */
+    public void setOverrideVisibleItems(boolean override) {
+        mOverrideVisibleItems = override;
     }
 }
 
