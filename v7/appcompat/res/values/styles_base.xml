@@ -348,7 +348,7 @@
         <item name="queryBackground">@null</item>
         <item name="submitBackground">@null</item>
         <item name="searchHintIcon">@null</item>
-        <item name="queryHint">@string/abc_search_hint</item>
+        <item name="defaultQueryHint">@string/abc_search_hint</item>
     </style>
 
     <style name="Base.Widget.AppCompat.EditText" parent="android:Widget.EditText">
