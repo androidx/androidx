@@ -133,15 +133,7 @@ support_module := $(LOCAL_MODULE)
 support_module_api_dir := $(LOCAL_PATH)/api
 support_module_src_files := $(leanback.docs.src_files)
 support_module_java_libraries := $(leanback.docs.java_libraries)
-support_module_java_packages := \
-    android.support.v17.leanback.animation \
-    android.support.v17.leanback.app \
-    android.support.v17.leanback.database \
-    android.support.v17.leanback.graphics \
-    android.support.v17.leanback.os \
-    android.support.v17.leanback.transition \
-    android.support.v17.leanback.view \
-    android.support.v17.leanback.widget    
+support_module_java_packages := android.support.v17.leanback*
 include $(SUPPORT_API_CHECK)
 
 # Cleanup temp vars
