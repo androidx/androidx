@@ -114,6 +114,7 @@ public class RowsSupportFragment extends BaseRowSupportFragment {
     private static final boolean DEBUG = false;
 
     private ItemBridgeAdapter.ViewHolder mSelectedViewHolder;
+    private int mSubPosition;
     private boolean mExpand = true;
     private boolean mViewsCreated;
     private float mRowScaleFactor;
@@ -217,21 +218,16 @@ public class RowsSupportFragment extends BaseRowSupportFragment {
     }
 
     @Override
-    void onRowSelected(ViewGroup parent, View view, int position, long id) {
-        VerticalGridView listView = getVerticalGridView();
-        if (listView == null) {
-            return;
-        }
-        ItemBridgeAdapter.ViewHolder vh = (view == null) ? null :
-            (ItemBridgeAdapter.ViewHolder) listView.getChildViewHolder(view);
-
-        if (mSelectedViewHolder != vh) {
-            if (DEBUG) Log.v(TAG, "new row selected position " + position + " view " + view);
-
+    void onRowSelected(RecyclerView parent, RecyclerView.ViewHolder viewHolder,
+            int position, int subposition) {
+        if (mSelectedViewHolder != viewHolder || mSubPosition != subposition) {
+            if (DEBUG) Log.v(TAG, "new row selected position " + position + " subposition "
+                    + subposition + " view " + viewHolder.itemView);
+            mSubPosition = subposition;
             if (mSelectedViewHolder != null) {
                 setRowViewSelected(mSelectedViewHolder, false, false);
             }
-            mSelectedViewHolder = vh;
+            mSelectedViewHolder = (ItemBridgeAdapter.ViewHolder) viewHolder;
             if (mSelectedViewHolder != null) {
                 setRowViewSelected(mSelectedViewHolder, true, false);
             }

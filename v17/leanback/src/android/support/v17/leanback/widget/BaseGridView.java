@@ -27,6 +27,7 @@ import android.view.View;
 /**
  * An abstract base class for vertically and horizontally scrolling lists. The items come
  * from the {@link RecyclerView.Adapter} associated with this view.
+ * Do not directly use this class, use {@link VerticalGridView} and {@link HorizontalGridView}.
  * @hide
  */
 abstract class BaseGridView extends RecyclerView {
@@ -171,7 +172,7 @@ abstract class BaseGridView extends RecyclerView {
         public boolean onUnhandledKey(KeyEvent event);
     }
 
-    protected final GridLayoutManager mLayoutManager;
+    final GridLayoutManager mLayoutManager;
 
     /**
      * Animate layout changes from a child resizing or adding/removing a child.
@@ -481,10 +482,29 @@ abstract class BaseGridView extends RecyclerView {
     }
 
     /**
+     * Registers a callback to be invoked when an item in BaseGridView has
+     * been selected.  Note that the listener may be invoked when there is a
+     * layout pending on the view, affording the listener an opportunity to
+     * adjust the upcoming layout based on the selection state.
+     *
+     * @param listener The listener to be invoked.
+     */
+    public void setOnChildViewHolderSelectedListener(OnChildViewHolderSelectedListener listener) {
+        mLayoutManager.setOnChildViewHolderSelectedListener(listener);
+    }
+
+    /**
      * Changes the selected item immediately without animation.
      */
     public void setSelectedPosition(int position) {
         mLayoutManager.setSelection(this, position, 0);
+    }
+
+    /**
+     * Changes the selected item and/or subposition immediately without animation.
+     */
+    public void setSelectedPositionWithSub(int position, int subposition) {
+        mLayoutManager.setSelectionWithSub(this, position, subposition, 0);
     }
 
     /**
@@ -497,6 +517,15 @@ abstract class BaseGridView extends RecyclerView {
     }
 
     /**
+     * Changes the selected item and/or subposition immediately without animation, scrollExtra is
+     * applied in primary scroll direction.  The scrollExtra will be kept until
+     * another {@link #setSelectedPosition} or {@link #setSelectedPositionSmooth} call.
+     */
+    public void setSelectedPositionWithSub(int position, int subposition, int scrollExtra) {
+        mLayoutManager.setSelectionWithSub(this, position, subposition, scrollExtra);
+    }
+
+    /**
      * Changes the selected item and run an animation to scroll to the target
      * position.
      */
@@ -505,10 +534,28 @@ abstract class BaseGridView extends RecyclerView {
     }
 
     /**
+     * Changes the selected item and/or subposition, runs an animation to scroll to the target
+     * position.
+     */
+    public void setSelectedPositionSmoothWithSub(int position, int subposition) {
+        mLayoutManager.setSelectionSmoothWithSub(this, position, subposition);
+    }
+
+    /**
      * Returns the selected item position.
      */
     public int getSelectedPosition() {
         return mLayoutManager.getSelection();
+    }
+
+    /**
+     * Returns the sub selected item position started from zero.  An item can have
+     * multiple {@link ItemAlignmentFacet}s provided by {@link RecyclerView.ViewHolder}
+     * or {@link FacetProviderAdapter}.  Zero is returned when no {@link ItemAlignmentFacet}
+     * is defined.
+     */
+    public int getSelectedSubPosition() {
+        return mLayoutManager.getSubSelection();
     }
 
     /**

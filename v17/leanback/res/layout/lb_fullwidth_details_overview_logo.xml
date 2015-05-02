@@ -15,19 +15,11 @@
      limitations under the License.
 -->
 
-<transitionSet xmlns:android="http://schemas.android.com/apk/res/android" >
-  <transition class="android.support.v17.leanback.transition.SlideNoPropagation"
-      android:duration="500"
-      android:interpolator="@android:interpolator/linear_out_slow_in"
-      android:slideEdge="bottom">
-      <targets>
-          <target android:excludeId="@id/title_badge" />
-          <target android:excludeId="@id/title_text" />
-          <target android:excludeId="@id/title_orb" />
-      </targets>
-  </transition>
-  <fade
-      android:interpolator="@android:interpolator/linear_out_slow_in"
-      android:duration="350">
-  </fade>
-</transitionSet>
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/details_overview_image"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:adjustViewBounds="true"
+    android:elevation="@dimen/lb_details_overview_z"
+    android:maxWidth="@dimen/lb_details_v2_logo_max_width"
+    android:maxHeight="@dimen/lb_details_v2_logo_max_height" />
