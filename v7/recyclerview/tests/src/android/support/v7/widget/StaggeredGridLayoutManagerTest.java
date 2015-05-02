@@ -22,6 +22,7 @@ import android.graphics.Rect;
 import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityRecordCompat;
@@ -50,6 +51,8 @@ import static android.support.v7.widget.StaggeredGridLayoutManager.*;
 public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
 
     private static final boolean DEBUG = false;
+
+    private static final int AVG_ITEM_PER_VIEW = 3;
 
     private static final String TAG = "StaggeredGridLayoutManagerTest";
 
@@ -126,7 +129,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
     public void testFindLastInUnevenDistribution() throws Throwable {
         setupByConfig(new Config(VERTICAL, false, 2, GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS)
                 .itemCount(5));
-        mAdapter.mOnBindHandler = new OnBindHandler() {
+        mAdapter.mOnBindCallback = new OnBindCallback() {
             @Override
             void onBoundItem(TestViewHolder vh, int position) {
                 LayoutParams lp = (LayoutParams) vh.itemView.getLayoutParams();
@@ -135,6 +138,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                 } else {
                     lp.height = 5;
                 }
+                vh.itemView.setMinimumHeight(0);
             }
         };
         waitFirstLayout();
@@ -174,7 +178,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
     public void customSizeInScrollDirectionTest(final Config config) throws Throwable {
         setupByConfig(config);
         final Map<View, Integer> sizeMap = new HashMap<View, Integer>();
-        mAdapter.mOnBindHandler = new OnBindHandler() {
+        mAdapter.mOnBindCallback = new OnBindCallback() {
             @Override
             void onBoundItem(TestViewHolder vh, int position) {
                 final ViewGroup.LayoutParams layoutParams = vh.itemView.getLayoutParams();
@@ -270,7 +274,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         Config config = new Config(VERTICAL, false, 2, GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
         config.itemCount(3);
         setupByConfig(config);
-        mAdapter.mOnBindHandler = new OnBindHandler() {
+        mAdapter.mOnBindCallback = new OnBindCallback() {
             @Override
             void onBoundItem(TestViewHolder vh, int position) {
             }
@@ -318,7 +322,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
             final boolean saveRestoreInBetween)
             throws Throwable {
         setupByConfig(config);
-        mAdapter.mOnBindHandler = new OnBindHandler() {
+        mAdapter.mOnBindCallback = new OnBindCallback() {
             @Override
             public void onBoundItem(TestViewHolder vh, int position) {
                 LayoutParams lp = (LayoutParams) vh.itemView.getLayoutParams();
@@ -609,19 +613,24 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         setupByConfig(new Config().spanCount(2).itemCount(500));
         mAdapter.mFullSpanItems.add(fullSpanIndex);
         waitFirstLayout();
-        smoothScrollToPosition(fullSpanIndex + 30);
+        smoothScrollToPosition(fullSpanIndex + 200);// go far away
+        assertNull("test sanity. full span item should not be visible",
+                mRecyclerView.findViewHolderForAdapterPosition(fullSpanIndex));
         mLayoutManager.expectLayouts(1);
         mAdapter.deleteAndNotify(fullSpanIndex + 1, 3);
         mLayoutManager.waitForLayout(1);
         smoothScrollToPosition(0);
         mLayoutManager.expectLayouts(1);
-        smoothScrollToPosition(fullSpanIndex + 5);
+        smoothScrollToPosition(fullSpanIndex + 2 * (AVG_ITEM_PER_VIEW - 1));
+        String log = mLayoutManager.layoutToString("post gap");
         mLayoutManager.assertNoLayout("if an interim gap is fixed, it should not cause a "
-                + "relayout", 2);
+                + "relayout " + log, 2);
         View fullSpan = mLayoutManager.findViewByPosition(fullSpanIndex);
-
+        assertNotNull("full span item should be there:\n" + log, fullSpan);
         View view1 = mLayoutManager.findViewByPosition(fullSpanIndex + 1);
+        assertNotNull("next view should be there\n" + log, view1);
         View view2 = mLayoutManager.findViewByPosition(fullSpanIndex + 2);
+        assertNotNull("+2 view should be there\n" + log, view2);
 
         LayoutParams lp1 = (LayoutParams) view1.getLayoutParams();
         LayoutParams lp2 = (LayoutParams) view2.getLayoutParams();
@@ -675,18 +684,41 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         mAdapter.mFullSpanItems.add(100);
         mAdapter.mFullSpanItems.add(104);
         mAdapter.mViewsHaveEqualSize = true;
+        mAdapter.mOnBindCallback = new OnBindCallback() {
+            @Override
+            void onBoundItem(TestViewHolder vh, int position) {
+
+            }
+
+            @Override
+            void onCreatedViewHolder(TestViewHolder vh) {
+                super.onCreatedViewHolder(vh);
+                //make sure we have enough views
+                mAdapter.mSizeReference = mRecyclerView.getHeight() / 5;
+            }
+        };
         waitFirstLayout();
         mLayoutManager.expectLayouts(1);
         scrollToPosition(400);
         mLayoutManager.waitForLayout(2);
+        View view400 = mLayoutManager.findViewByPosition(400);
+        assertNotNull("test sanity, scrollToPos should succeed", view400);
+        assertTrue("test sanity, view should be visible top",
+                mLayoutManager.mPrimaryOrientation.getDecoratedStart(view400) >=
+                        mLayoutManager.mPrimaryOrientation.getStartAfterPadding());
+        assertTrue("test sanity, view should be visible bottom",
+                mLayoutManager.mPrimaryOrientation.getDecoratedEnd(view400) <=
+                        mLayoutManager.mPrimaryOrientation.getEndAfterPadding());
         mLayoutManager.expectLayouts(2);
         mAdapter.addAndNotify(101, 1);
         mLayoutManager.waitForLayout(2);
+        checkForMainThreadException();
         if (strategy == GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS) {
             mLayoutManager.expectLayouts(1);
         }
         // state
         // now smooth scroll to 99 to trigger a layout around 100
+        mLayoutManager.validateChildren();
         smoothScrollToPosition(99);
         switch (strategy) {
             case GAP_HANDLING_NONE:
@@ -714,6 +746,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
     }
 
     void assertSpans(String msg, int[]... childSpanTuples) {
+        msg = msg + mLayoutManager.layoutToString("\n\n");
         for (int i = 0; i < childSpanTuples.length; i++) {
             assertSpan(msg, childSpanTuples[i][0], childSpanTuples[i][1]);
         }
@@ -721,13 +754,9 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
 
     void assertSpan(String msg, int childPosition, int expectedSpan) {
         View view = mLayoutManager.findViewByPosition(childPosition);
-        assertNotNull(msg + "view at position " + childPosition + " should exists", view);
+        assertNotNull(msg + " view at position " + childPosition + " should exists", view);
         assertEquals(msg + "[child:" + childPosition + "]", expectedSpan,
                 getLp(view).mSpan.mIndex);
-    }
-
-    public void gapInTheMiddle(Config config) throws Throwable {
-
     }
 
     public void testGapAtTheBeginning() throws Throwable {
@@ -757,6 +786,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         waitFirstLayout();
         // scroll far away
         smoothScrollToPosition(config.mItemCount / 2);
+        checkForMainThreadException();
         // assert to be deleted child is not visible
         assertNull(logPrefix + " test sanity, to be deleted child should be invisible",
                 mRecyclerView.findViewHolderForLayoutPosition(deletePosition));
@@ -766,12 +796,15 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         mLayoutManager.expectLayouts(1);
         smoothScrollToPosition(0);
         mLayoutManager.waitForLayout(2);
+        checkForMainThreadException();
         // due to data changes, first item may become visible before others which will cause
         // smooth scrolling to stop. Triggering it twice more is a naive hack.
         // Until we have time to consider it as a bug, this is the only workaround.
         smoothScrollToPosition(0);
+        checkForMainThreadException();
         Thread.sleep(300);
         smoothScrollToPosition(0);
+        checkForMainThreadException();
         Thread.sleep(500);
         // some animations should happen and we should recover layout
         final Map<Item, Rect> actualCoords = mLayoutManager.collectChildCoordinates();
@@ -785,6 +818,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         assertRectSetsEqual(logPrefix + " when an item from the start of the list is deleted, "
                         + "layout should recover the state once scrolling is stopped",
                 desiredCoords, actualCoords);
+        checkForMainThreadException();
     }
 
     public void testPartialSpanInvalidation() throws Throwable {
@@ -980,6 +1014,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         // make sure LLM can layout all children. is some span info is leaked, this would crash
         smoothScrollToPosition(mAdapter.getItemCount() - 1);
     }
+
     public void testSavedState() throws Throwable {
         PostLayoutRunnable[] postLayoutOptions = new PostLayoutRunnable[]{
                 new PostLayoutRunnable() {
@@ -1424,7 +1459,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
 
     public void testScrollBy() throws Throwable {
         for (Config config : mBaseVariations) {
-            scrollByTest(config);
+            scollByTest(config);
             removeRecyclerView();
         }
     }
@@ -1436,7 +1471,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         getInstrumentation().waitForIdleSync();
     }
 
-    public void scrollByTest(Config config) throws Throwable {
+    public void scollByTest(Config config) throws Throwable {
         setupByConfig(config);
         waitFirstLayout();
         // try invalid scroll. should not happen
@@ -1601,6 +1636,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         StringBuilder log = new StringBuilder();
         if (DEBUG) {
             log.append("checking rectangle equality.\n");
+            log.append("total space:" + mLayoutManager.mPrimaryOrientation.getTotalSpace());
             log.append("before:");
             for (Map.Entry<Item, Rect> entry : before.entrySet()) {
                 log.append("\n").append(entry.getKey().mAdapterIndex).append(":")
@@ -1671,6 +1707,12 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
 
         @Override
         public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+            String before;
+            if (DEBUG) {
+                before = layoutToString("before");
+            } else {
+                before = "enable DEBUG";
+            }
             try {
                 if (mOnLayoutListener != null) {
                     mOnLayoutListener.before(recycler, state);
@@ -1679,10 +1721,25 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                 if (mOnLayoutListener != null) {
                     mOnLayoutListener.after(recycler, state);
                 }
+                validateChildren(before);
             } catch (Throwable t) {
                 postExceptionToInstrumentation(t);
             }
+
             layoutLatch.countDown();
+        }
+
+        @Override
+        int scrollBy(int dt, RecyclerView.Recycler recycler, RecyclerView.State state) {
+            try {
+                int result = super.scrollBy(dt, recycler, state);
+                validateChildren();
+                return result;
+            } catch (Throwable t) {
+                postExceptionToInstrumentation(t);
+            }
+
+            return 0;
         }
 
         public WrappedLayoutManager(int spanCount, int orientation) {
@@ -1702,6 +1759,20 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                 viewsBySpan.get(lp.mSpan.mIndex).add(view);
             }
             return viewsBySpan;
+        }
+
+        @Nullable
+        @Override
+        public View onFocusSearchFailed(View focused, int direction, RecyclerView.Recycler recycler,
+                RecyclerView.State state) {
+            View result = null;
+            try {
+                result = super.onFocusSearchFailed(focused, direction, recycler, state);
+                validateChildren();
+            } catch (Throwable t) {
+                postExceptionToInstrumentation(t);
+            }
+            return result;
         }
 
         Rect getViewBounds(View view) {
@@ -1812,6 +1883,57 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                 requestLayoutOnUIThread(mRecyclerView);
             } catch (Throwable throwable) {
                 postExceptionToInstrumentation(throwable);
+            }
+        }
+
+        private String layoutToString(String hint) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("LAYOUT POSITIONS AND INDICES ").append(hint).append("\n");
+            for (int i = 0; i < getChildCount(); i++) {
+                final View view = getChildAt(i);
+                final LayoutParams layoutParams = (LayoutParams) view.getLayoutParams();
+                sb.append(String.format("index: %d pos: %d top: %d bottom: %d span: %d isFull:%s",
+                        i, getPosition(view),
+                        mPrimaryOrientation.getDecoratedStart(view),
+                        mPrimaryOrientation.getDecoratedEnd(view),
+                        layoutParams.getSpanIndex(), layoutParams.isFullSpan())).append("\n");
+            }
+            return sb.toString();
+        }
+
+        private void validateChildren() {
+            validateChildren(null);
+        }
+
+        private void validateChildren(String msg) {
+            if (getChildCount() == 0 || mRecyclerView.mState.isPreLayout()) {
+                return;
+            }
+            final int dir = mShouldReverseLayout ? -1 : 1;
+            int i = 0;
+            int pos = -1;
+            while (i < getChildCount()) {
+                LayoutParams lp = (LayoutParams) getChildAt(i).getLayoutParams();
+                if (lp.isItemRemoved()) {
+                    i++;
+                    continue;
+                }
+                pos = getPosition(getChildAt(i));
+                break;
+            }
+            if (pos == -1) {
+                return;
+            }
+            while (++i < getChildCount()) {
+                LayoutParams lp = (LayoutParams) getChildAt(i).getLayoutParams();
+                if (lp.isItemRemoved()) {
+                    continue;
+                }
+                pos += dir;
+                if (getPosition(getChildAt(i)) != pos) {
+                    throw new RuntimeException("INVALID POSITION FOR CHILD " + i + "\n" +
+                            layoutToString("ERROR") + "\n msg:" + msg);
+                }
             }
         }
     }
@@ -1927,17 +2049,32 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
     class GridTestAdapter extends TestAdapter {
 
         int mOrientation;
+        int mRecyclerViewWidth;
+        int mRecyclerViewHeight;
+        Integer mSizeReference = null;
 
         // original ids of items that should be full span
         HashSet<Integer> mFullSpanItems = new HashSet<Integer>();
 
         private boolean mViewsHaveEqualSize = false; // size in the scrollable direction
 
-        private OnBindHandler mOnBindHandler;
+        private OnBindCallback mOnBindCallback;
 
         GridTestAdapter(int count, int orientation) {
             super(count);
             mOrientation = orientation;
+        }
+
+        @Override
+        public TestViewHolder onCreateViewHolder(ViewGroup parent,
+                int viewType) {
+            mRecyclerViewWidth = parent.getWidth();
+            mRecyclerViewHeight = parent.getHeight();
+            TestViewHolder vh = super.onCreateViewHolder(parent, viewType);
+            if (mOnBindCallback != null) {
+                mOnBindCallback.onCreatedViewHolder(vh);
+            }
+            return vh;
         }
 
         @Override
@@ -1970,6 +2107,10 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         @Override
         public void onBindViewHolder(TestViewHolder holder,
                 int position) {
+            if (mSizeReference == null) {
+                mSizeReference = mOrientation == OrientationHelper.HORIZONTAL ? mRecyclerViewWidth
+                        / AVG_ITEM_PER_VIEW : mRecyclerViewHeight / AVG_ITEM_PER_VIEW;
+            }
             super.onBindViewHolder(holder, position);
             Item item = mItems.get(position);
             RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) holder.itemView
@@ -1984,8 +2125,9 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                 lp = slp;
             }
 
-            if (mOnBindHandler == null || mOnBindHandler.assignRandomSize()) {
-                final int minSize = mViewsHaveEqualSize ? 200 : 200 + 20 * (item.mId % 10);
+            if (mOnBindCallback == null || mOnBindCallback.assignRandomSize()) {
+                final int minSize = mViewsHaveEqualSize ? mSizeReference :
+                        mSizeReference + 20 * (item.mId % 10);
                 if (mOrientation == OrientationHelper.HORIZONTAL) {
                     holder.itemView.setMinimumWidth(minSize);
                 } else {
@@ -1997,18 +2139,21 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                 lp.bottomMargin = 9;
             }
 
-            if (mOnBindHandler != null) {
-                mOnBindHandler.onBoundItem(holder, position);
+            if (mOnBindCallback != null) {
+                mOnBindCallback.onBoundItem(holder, position);
             }
         }
     }
 
-    abstract static class OnBindHandler {
+    abstract static class OnBindCallback {
 
         abstract void onBoundItem(TestViewHolder vh, int position);
 
         boolean assignRandomSize() {
             return true;
+        }
+
+        void onCreatedViewHolder(TestViewHolder vh) {
         }
     }
 

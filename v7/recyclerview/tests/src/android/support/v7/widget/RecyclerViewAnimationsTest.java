@@ -677,6 +677,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
         mLayoutManager.waitForLayout(2);
 
         // wait till "add animation" starts
+        int limit = 200;
         while (addedView[0] == null || addedView[1] == null) {
             Thread.sleep(20);
             runTestOnUiThread(new Runnable() {
@@ -694,6 +695,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
                     }
                 }
             });
+            assertTrue("add should start on time", --limit > 0);
         }
 
         // Layout from item2, exclude the current adding items
