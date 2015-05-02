@@ -49,9 +49,6 @@ support_module := $(LOCAL_MODULE)
 support_module_api_dir := $(LOCAL_PATH)/api
 support_module_src_files := $(LOCAL_SRC_FILES)
 support_module_java_libraries := $(LOCAL_JAVA_LIBRARIES)
-support_module_java_packages :=  \
-    android.support.v7.util \
-    android.support.v7.widget \
-    android.support.v7.widget.util
+support_module_java_packages := android.support.v7.*
 include $(SUPPORT_API_CHECK)
 
