@@ -396,6 +396,7 @@ package android.support.v7.appcompat {
     field public static int contentInsetRight;
     field public static int contentInsetStart;
     field public static int customNavigationLayout;
+    field public static int defaultQueryHint;
     field public static int dialogPreferredPadding;
     field public static int dialogTheme;
     field public static int disableChildrenWhenDisabled;
@@ -1336,6 +1337,7 @@ package android.support.v7.appcompat {
     field public static int SearchView_android_maxWidth;
     field public static int SearchView_closeIcon;
     field public static int SearchView_commitIcon;
+    field public static int SearchView_defaultQueryHint;
     field public static int SearchView_goIcon;
     field public static int SearchView_iconifiedByDefault;
     field public static int SearchView_layout;
