@@ -30,6 +30,7 @@ import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowHeaderPresenter;
 import android.support.v17.leanback.widget.SinglePresenterSelector;
 import android.support.v17.leanback.widget.VerticalGridView;
+import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -77,16 +78,12 @@ public class HeadersSupportFragment extends BaseRowSupportFragment {
     }
 
     @Override
-    void onRowSelected(ViewGroup parent, View view, int position, long id) {
-        VerticalGridView listView = getVerticalGridView();
-        if (listView == null) {
-            return;
-        }
+    void onRowSelected(RecyclerView parent, RecyclerView.ViewHolder viewHolder,
+            int position, int subposition) {
         if (mOnHeaderViewSelectedListener != null) {
-            ItemBridgeAdapter.ViewHolder vh = view == null ? null :
-                (ItemBridgeAdapter.ViewHolder) listView.getChildViewHolder(view);
-            if (vh != null && position >= 0) {
+            if (viewHolder != null && position >= 0) {
                 Row row = (Row) getAdapter().get(position);
+                ItemBridgeAdapter.ViewHolder vh = (ItemBridgeAdapter.ViewHolder) viewHolder;
                 mOnHeaderViewSelectedListener.onHeaderSelected(
                         (RowHeaderPresenter.ViewHolder) vh.getViewHolder(), row);
             } else {

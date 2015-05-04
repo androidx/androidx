@@ -60,7 +60,9 @@ import java.util.Collection;
  * of DetailsOverviewRowPresenter.  If further customization is required beyond replacing
  * the detailed description, the application should create a new row presenter class.
  * </p>
+ * @deprecated  Use {@link FullWidthDetailsOverviewRowPresenter}
  */
+@Deprecated
 public class DetailsOverviewRowPresenter extends RowPresenter {
 
     private static final String TAG = "DetailsOverviewRowPresenter";

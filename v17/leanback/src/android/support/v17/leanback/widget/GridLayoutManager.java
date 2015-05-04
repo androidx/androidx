@@ -292,6 +292,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 }
                 newSelected = v;
                 mFocusPosition = pos;
+                mSubFocusPosition = 0;
                 if (mPendingMoves > 0) {
                     mPendingMoves--;
                 } else {
@@ -326,10 +327,12 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     if (focusedRow == NO_POSITION || (loc != null && loc.row == focusedRow)) {
                         if (mFocusPosition == NO_POSITION) {
                             mFocusPosition = position;
+                            mSubFocusPosition = 0;
                             newSelected = child;
                         } else if ((mPendingMoves > 0 && position > mFocusPosition)
                                 || (mPendingMoves < 0 && position < mFocusPosition)) {
                             mFocusPosition = position;
+                            mSubFocusPosition = 0;
                             if (mPendingMoves > 0) {
                                 mPendingMoves--;
                             } else {
@@ -450,6 +453,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     private OnChildSelectedListener mChildSelectedListener = null;
 
+    private OnChildViewHolderSelectedListener mChildViewHolderSelectedListener = null;
+
     private OnChildLaidOutListener mChildLaidOutListener = null;
 
     /**
@@ -458,6 +463,12 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
      * multiple setSelection() called, mFocusPosition saves last value.
      */
     private int mFocusPosition = NO_POSITION;
+
+    /**
+     * A view can have mutliple alignment position,  this is the index of which
+     * alignment is used,  by default is 0.
+     */
+    private int mSubFocusPosition = 0;
 
     /**
      * LinearSmoothScroller that consume pending DPAD movements.
@@ -791,6 +802,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         mChildSelectedListener = listener;
     }
 
+    public void setOnChildViewHolderSelectedListener(OnChildViewHolderSelectedListener listener) {
+        mChildViewHolderSelectedListener = listener;
+    }
+
     void setOnChildLaidOutListener(OnChildLaidOutListener listener) {
         mChildLaidOutListener = listener;
     }
@@ -807,12 +822,37 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return params.getViewPosition();
     }
 
+    private int getSubPositionByView(View view, View childView) {
+        if (view == null || childView == null) {
+            return 0;
+        }
+        final LayoutParams lp = (LayoutParams) view.getLayoutParams();
+        final ItemAlignmentFacet facet = lp.getItemAlignmentFacet();
+        if (facet != null) {
+            final ItemAlignmentFacet.ItemAlignmentDef[] defs = facet.getAlignmentDefs();
+            if (defs.length > 1) {
+                while (childView != view) {
+                    int id = childView.getId();
+                    if (id != View.NO_ID) {
+                        for (int i = 1; i < defs.length; i++) {
+                            if (defs[i].getItemAlignmentFocusViewId() == id) {
+                                return i;
+                            }
+                        }
+                    }
+                    childView = (View) childView.getParent();
+                }
+            }
+        }
+        return 0;
+    }
+
     private int getPositionByIndex(int index) {
         return getPositionByView(getChildAt(index));
     }
 
     private void dispatchChildSelected() {
-        if (mChildSelectedListener == null) {
+        if (mChildSelectedListener == null && mChildViewHolderSelectedListener == null) {
             return;
         }
 
@@ -820,10 +860,22 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         View view = mFocusPosition == NO_POSITION ? null : findViewByPosition(mFocusPosition);
         if (view != null) {
             RecyclerView.ViewHolder vh = mBaseGridView.getChildViewHolder(view);
-            mChildSelectedListener.onChildSelected(mBaseGridView, view, mFocusPosition,
-                    vh == null? NO_ID: vh.getItemId());
+            if (mChildSelectedListener != null) {
+                mChildSelectedListener.onChildSelected(mBaseGridView, view, mFocusPosition,
+                        vh == null? NO_ID: vh.getItemId());
+            }
+            if (mChildViewHolderSelectedListener != null) {
+                mChildViewHolderSelectedListener.onChildViewHolderSelected(mBaseGridView, vh,
+                        mFocusPosition, mSubFocusPosition);
+            }
         } else {
-            mChildSelectedListener.onChildSelected(mBaseGridView, null, NO_POSITION, NO_ID);
+            if (mChildSelectedListener != null) {
+                mChildSelectedListener.onChildSelected(mBaseGridView, null, NO_POSITION, NO_ID);
+            }
+            if (mChildViewHolderSelectedListener != null) {
+                mChildViewHolderSelectedListener.onChildViewHolderSelected(mBaseGridView, null,
+                        NO_POSITION, 0);
+            }
         }
         if (TRACE) TraceHelper.endSection();
 
@@ -968,11 +1020,14 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         final int newItemCount = mState.getItemCount();
         if (newItemCount == 0) {
             mFocusPosition = NO_POSITION;
+            mSubFocusPosition = 0;
         } else if (mFocusPosition >= newItemCount) {
             mFocusPosition = newItemCount - 1;
+            mSubFocusPosition = 0;
         } else if (mFocusPosition == NO_POSITION && newItemCount > 0) {
             // if focus position is never set before,  initialize it to 0
             mFocusPosition = 0;
+            mSubFocusPosition = 0;
         }
         if (!mState.didStructureChange() && mGrid.getFirstVisibleIndex() >= 0 &&
                 !mForceFullLayout && mGrid != null && mGrid.getNumRows() == mNumRows) {
@@ -1353,6 +1408,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 if (mPendingMoveSmoothScroller != null) {
                     mPendingMoveSmoothScroller.consumePendingMovesBeforeLayout();
                 }
+                int subindex = getSubPositionByView(v, v.findFocus());
                 if (!mInLayout) {
                     // when we are appending item during scroll pass and the item's position
                     // matches the mFocusPosition,  we should signal a childSelected event.
@@ -1360,7 +1416,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     // signal the event in PendingMoveSmoothScroller.onStop().  This can
                     // avoid lots of childSelected events during a long smooth scrolling and
                     // increase performance.
-                    if (index == mFocusPosition && (mPendingMoveSmoothScroller == null
+                    if (index == mFocusPosition && subindex == mSubFocusPosition
+                            && (mPendingMoveSmoothScroller == null
                             || mPendingMoveSmoothScroller.mPendingMoves == 0)) {
                         dispatchChildSelected();
                     }
@@ -1370,11 +1427,13 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     // 1. mInLayoutSearchFocus is false, dispatchChildSelected() at mFocusPosition.
                     // 2. mInLayoutSearchFocus is true:  dispatchChildSelected() on first child
                     //    equal to or after mFocusPosition that can take focus.
-                    if (!mInLayoutSearchFocus && index == mFocusPosition) {
+                    if (!mInLayoutSearchFocus && index == mFocusPosition
+                            && subindex == mSubFocusPosition) {
                         dispatchChildSelected();
                     } else if (mInLayoutSearchFocus && index >= mFocusPosition
                             && v.hasFocusable()) {
                         mFocusPosition = index;
+                        mSubFocusPosition = subindex;
                         mInLayoutSearchFocus = false;
                         dispatchChildSelected();
                     }
@@ -1674,6 +1733,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 && mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_ALIGNED;
         if (mFocusPosition != NO_POSITION && mFocusPositionOffset != Integer.MIN_VALUE) {
             mFocusPosition = mFocusPosition + mFocusPositionOffset;
+            mSubFocusPosition = 0;
         }
         mFocusPositionOffset = 0;
         saveContext(recycler, state);
@@ -1688,11 +1748,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             // FIXME: we should get the remaining scroll animation offset from RecyclerView
             View focusView = findViewByPosition(mFocusPosition);
             if (focusView != null) {
-                delta = mWindowAlignment.mainAxis().getSystemScrollPos(mScrollOffsetPrimary
-                        + getViewCenter(focusView), false, false) - mScrollOffsetPrimary;
-                deltaSecondary = mWindowAlignment.secondAxis().getSystemScrollPos(
-                        mScrollOffsetSecondary + getViewCenterSecondary(focusView),
-                        false, false) - mScrollOffsetSecondary;
+                getScrollPosition(focusView, focusView.findFocus(), sTwoInts);
+                delta = sTwoInts[0];
+                deltaSecondary = sTwoInts[1];
             }
         }
 
@@ -2032,27 +2090,40 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     public void setSelection(RecyclerView parent, int position,
             int primaryScrollExtra) {
-        setSelection(parent, position, false, primaryScrollExtra);
+        setSelection(parent, position, 0, false, primaryScrollExtra);
     }
 
     public void setSelectionSmooth(RecyclerView parent, int position) {
-        setSelection(parent, position, true, 0);
+        setSelection(parent, position, 0, true, 0);
+    }
+
+    public void setSelectionWithSub(RecyclerView parent, int position, int subposition,
+            int primaryScrollExtra) {
+        setSelection(parent, position, subposition, false, primaryScrollExtra);
+    }
+
+    public void setSelectionSmoothWithSub(RecyclerView parent, int position, int subposition) {
+        setSelection(parent, position, subposition, true, 0);
     }
 
     public int getSelection() {
         return mFocusPosition;
     }
 
-    public void setSelection(RecyclerView parent, int position, boolean smooth,
+    public int getSubSelection() {
+        return mSubFocusPosition;
+    }
+
+    public void setSelection(RecyclerView parent, int position, int subposition, boolean smooth,
             int primaryScrollExtra) {
         if (mFocusPosition != position && position != NO_POSITION
-                || primaryScrollExtra != mPrimaryScrollExtra) {
-            scrollToSelection(parent, position, smooth, primaryScrollExtra);
+                || subposition != mSubFocusPosition || primaryScrollExtra != mPrimaryScrollExtra) {
+            scrollToSelection(parent, position, subposition, smooth, primaryScrollExtra);
         }
     }
 
-    private void scrollToSelection(RecyclerView parent, int position, boolean smooth,
-            int primaryScrollExtra) {
+    private void scrollToSelection(RecyclerView parent, int position, int subposition,
+            boolean smooth, int primaryScrollExtra) {
         if (TRACE) TraceHelper.beginSection("scrollToSelection");
         mPrimaryScrollExtra = primaryScrollExtra;
         View view = findViewByPosition(position);
@@ -2062,6 +2133,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             mInSelection = false;
         } else {
             mFocusPosition = position;
+            mSubFocusPosition = subposition;
             mFocusPositionOffset = Integer.MIN_VALUE;
             if (!mLayoutEnabled) {
                 return;
@@ -2273,25 +2345,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
      * on the view).
      */
     private int getAdjustedPrimaryScrollPosition(int scrollPrimary, View view, View childView) {
-        final LayoutParams lp = (LayoutParams) view.getLayoutParams();
-        final ItemAlignmentFacet facet = lp.getItemAlignmentFacet();
-        if (facet != null) {
-            final ItemAlignmentFacet.ItemAlignmentDef[] defs = facet.getAlignmentDefs();
-            if (defs.length > 1) {
-                while (childView != view) {
-                    int id = childView.getId();
-                    if (id != View.NO_ID) {
-                        for (int i = 1; i < defs.length; i++) {
-                            if (defs[i].getItemAlignmentViewId() == id) {
-                                scrollPrimary += lp.getAlignMultiple()[i]
-                                        - lp.getAlignMultiple()[0];
-                                break;
-                            }
-                        }
-                    }
-                    childView = (View) childView.getParent();
-                }
-            }
+        int subindex = getSubPositionByView(view, childView);
+        if (subindex != 0) {
+            final LayoutParams lp = (LayoutParams) view.getLayoutParams();
+            scrollPrimary += lp.getAlignMultiple()[subindex] - lp.getAlignMultiple()[0];
         }
         return scrollPrimary;
     }
@@ -2316,7 +2373,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
      * Scroll to a given child view and change mFocusPosition.
      */
     private void scrollToView(View view, boolean smooth) {
-        scrollToView(view, null, smooth);
+        scrollToView(view, view == null ? null : view.findFocus(), smooth);
     }
 
     /**
@@ -2324,8 +2381,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
      */
     private void scrollToView(View view, View childView, boolean smooth) {
         int newFocusPosition = getPositionByView(view);
-        if (newFocusPosition != mFocusPosition) {
+        int newSubFocusPosition = getSubPositionByView(view, childView);
+        if (newFocusPosition != mFocusPosition || newSubFocusPosition != mSubFocusPosition) {
             mFocusPosition = newFocusPosition;
+            mSubFocusPosition = newSubFocusPosition;
             mFocusPositionOffset = 0;
             if (!mInLayout) {
                 dispatchChildSelected();
@@ -2443,7 +2502,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             scrollPrimary = getAdjustedPrimaryScrollPosition(scrollPrimary, view, childView);
         }
         int scrollSecondary = getSecondarySystemScrollPosition(view);
-        LayoutParams lp = (LayoutParams) view.getLayoutParams();
         if (DEBUG) {
             Log.v(getTag(), "getAlignedPosition " + scrollPrimary + " " + scrollSecondary
                     + " " + mPrimaryScrollExtra + " " + mWindowAlignment);
@@ -2500,7 +2558,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             mScrollEnabled = scrollEnabled;
             if (mScrollEnabled && mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_ALIGNED
                     && mFocusPosition != NO_POSITION) {
-                scrollToSelection(mBaseGridView, mFocusPosition, true, mPrimaryScrollExtra);
+                scrollToSelection(mBaseGridView, mFocusPosition, mSubFocusPosition,
+                        true, mPrimaryScrollExtra);
             }
         }
     }

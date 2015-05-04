@@ -15,10 +15,15 @@ package android.support.v17.leanback.app;
 
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.BrowseFrameLayout;
+import android.support.v17.leanback.widget.DetailsOverviewRow;
+import android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter;
+import android.support.v17.leanback.widget.ItemAlignmentFacet;
+import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.Presenter;
+import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.TitleHelper;
@@ -36,12 +41,33 @@ import android.view.ViewGroup;
  * <p>
  * A DetailsFragment renders the elements of its {@link ObjectAdapter} as a set
  * of rows in a vertical list. The elements in this adapter must be subclasses
- * of {@link Row}.
+ * of {@link Row}, the Adapter's {@link PresenterSelector} must maintains subclasses
+ * of {@link RowPresenter}.
  * </p>
  *
+ * When {@link FullWidthDetailsOverviewRowPresenter} is found in adapter,  DetailsFragment will
+ * setup default behavior of the DetailsOverviewRow:
+ * <li>
+ * The alignment of FullWidthDetailsOverviewRowPresenter is setup in
+ * {@link #setupDetailsOverviewRowPresenter(FullWidthDetailsOverviewRowPresenter)}.
+ * </li>
+ * <li>
+ * The view status switching of FullWidthDetailsOverviewRowPresenter is done in
+ * {@link #onSetDetailsOverviewRowStatus(FullWidthDetailsOverviewRowPresenter,
+ * FullWidthDetailsOverviewRowPresenter.ViewHolder, int, int, int)}.
+ * </li>
+ *
  * <p>
- * The recommended theme to use with a DetailsFragment is
- * {@link android.support.v17.leanback.R.style#Theme_Leanback_Details}.
+ * The recommended activity themes to use with a DetailsFragment are
+ * <li>
+ * {@link android.support.v17.leanback.R.style#Theme_Leanback_Details} with activity
+ * shared element transition for {@link FullWidthDetailsOverviewRowPresenter}.
+ * </li>
+ * <li>
+ * {@link android.support.v17.leanback.R.style#Theme_Leanback_Details_NoSharedElementTransition}
+ * if shared element transition is not needed, for example if first row is not rendered by
+ * {@link FullWidthDetailsOverviewRowPresenter}.
+ * </li>
  * </p>
  */
 public class DetailsFragment extends BaseFragment {
@@ -75,8 +101,10 @@ public class DetailsFragment extends BaseFragment {
         public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
                                    RowPresenter.ViewHolder rowViewHolder, Row row) {
             int position = mRowsFragment.getVerticalGridView().getSelectedPosition();
-            if (DEBUG) Log.v(TAG, "row selected position " + position);
-            onRowSelected(position);
+            int subposition = mRowsFragment.getVerticalGridView().getSelectedSubPosition();
+            if (DEBUG) Log.v(TAG, "row selected position " + position
+                    + " subposition " + subposition);
+            onRowSelected(position, subposition);
             if (mExternalOnItemViewSelectedListener != null) {
                 mExternalOnItemViewSelectedListener.onItemSelected(itemViewHolder, item,
                         rowViewHolder, row);
@@ -89,6 +117,14 @@ public class DetailsFragment extends BaseFragment {
      */
     public void setAdapter(ObjectAdapter adapter) {
         mAdapter = adapter;
+        Presenter[] presenters = adapter.getPresenterSelector().getPresenters();
+        if (presenters != null) {
+            for (int i = 0; i < presenters.length; i++) {
+                setupPresenter(presenters[i]);
+            }
+        } else {
+            Log.e(TAG, "PresenterSelector.getPresenters() not implemented");
+        }
         if (mRowsFragment != null) {
             mRowsFragment.setAdapter(adapter);
         }
@@ -139,6 +175,11 @@ public class DetailsFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.lb_details_fragment, container, false);
+        ViewGroup fragment_root = (ViewGroup) view.findViewById(R.id.details_fragment_root);
+        View titleView = inflateTitle(inflater, fragment_root, savedInstanceState);
+        if (titleView != null) {
+            fragment_root.addView(titleView);
+        }
         mRowsFragment = (RowsFragment) getChildFragmentManager().findFragmentById(
                 R.id.details_rows_dock);
         if (mRowsFragment == null) {
@@ -150,7 +191,14 @@ public class DetailsFragment extends BaseFragment {
         mRowsFragment.setOnItemViewSelectedListener(mOnItemViewSelectedListener);
         mRowsFragment.setOnItemViewClickedListener(mOnItemViewClickedListener);
 
-        setTitleView((TitleView) view.findViewById(R.id.browse_title_group));
+        if (titleView != null) {
+            View titleGroup = titleView.findViewById(R.id.browse_title_group);
+            if (titleGroup instanceof TitleView) {
+                setTitleView((TitleView) titleGroup);
+            } else {
+                setTitleView(null);
+            }
+        }
 
         mSceneAfterEntranceTransition = sTransitionHelper.createScene(
                 (ViewGroup) view, new Runnable() {
@@ -162,13 +210,62 @@ public class DetailsFragment extends BaseFragment {
         return view;
     }
 
+    /**
+     * Called by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)} to inflate
+     * TitleView.  Default implementation uses layout file lb_browse_title.
+     * Subclass may override and use its own layout or return null if no title is needed.
+     */
+    protected View inflateTitle(LayoutInflater inflater, ViewGroup parent,
+            Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.lb_browse_title, parent, false);
+    }
+
     void setVerticalGridViewLayout(VerticalGridView listview) {
         // align the top edge of item to a fixed position
-        listview.setItemAlignmentOffset(0);
+        listview.setItemAlignmentOffset(-mContainerListAlignTop);
         listview.setItemAlignmentOffsetPercent(VerticalGridView.ITEM_ALIGN_OFFSET_PERCENT_DISABLED);
-        listview.setWindowAlignmentOffset(mContainerListAlignTop);
+        listview.setWindowAlignmentOffset(0);
         listview.setWindowAlignmentOffsetPercent(VerticalGridView.WINDOW_ALIGN_OFFSET_PERCENT_DISABLED);
         listview.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_NO_EDGE);
+    }
+
+    /**
+     * Called to setup each Presenter of Adapter passed in {@link #setAdapter(ObjectAdapter)}.  Note
+     * that setup should only change the Presenter behavior that is meaningful in DetailsFragment.  For
+     * example how a row is aligned in details Fragment.   The default implementation invokes
+     * {@link #setupDetailsOverviewRowPresenter(FullWidthDetailsOverviewRowPresenter)}
+     * 
+     */
+    protected void setupPresenter(Presenter rowPresenter) {
+        if (rowPresenter instanceof FullWidthDetailsOverviewRowPresenter) {
+            setupDetailsOverviewRowPresenter((FullWidthDetailsOverviewRowPresenter) rowPresenter);
+        }
+    }
+
+    /**
+     * Called to setup {@link FullWidthDetailsOverviewRowPresenter}.  The default implementation
+     * adds two aligment positions({@link ItemAlignmentFacet}) for ViewHolder of
+     * FullWidthDetailsOverviewRowPresenter to align in fragment.
+     */
+    protected void setupDetailsOverviewRowPresenter(FullWidthDetailsOverviewRowPresenter presenter) {
+        ItemAlignmentFacet facet = new ItemAlignmentFacet();
+        // by default align details_frame to half window height
+        ItemAlignmentFacet.ItemAlignmentDef alignDef1 = new ItemAlignmentFacet.ItemAlignmentDef();
+        alignDef1.setItemAlignmentViewId(R.id.details_frame);
+        alignDef1.setItemAlignmentOffset(- getResources()
+                .getDimensionPixelSize(R.dimen.lb_details_v2_align_pos_for_actions));
+        alignDef1.setItemAlignmentOffsetPercent(0);
+        // when description is selected, align details_frame to top edge
+        ItemAlignmentFacet.ItemAlignmentDef alignDef2 = new ItemAlignmentFacet.ItemAlignmentDef();
+        alignDef2.setItemAlignmentViewId(R.id.details_frame);
+        alignDef2.setItemAlignmentFocusViewId(R.id.details_overview_description);
+        alignDef2.setItemAlignmentOffset(- getResources()
+                .getDimensionPixelSize(R.dimen.lb_details_v2_align_pos_for_description));
+        alignDef2.setItemAlignmentOffsetPercent(0);
+        ItemAlignmentFacet.ItemAlignmentDef[] defs =
+                new ItemAlignmentFacet.ItemAlignmentDef[] {alignDef1, alignDef2};
+        facet.setAlignmentDefs(defs);
+        presenter.setFacet(ItemAlignmentFacet.class, facet);
     }
 
     VerticalGridView getVerticalGridView() {
@@ -188,9 +285,12 @@ public class DetailsFragment extends BaseFragment {
     }
 
     private void setupFocusSearchListener() {
-        BrowseFrameLayout browseFrameLayout = (BrowseFrameLayout) getView().findViewById(
-                R.id.details_frame);
-        browseFrameLayout.setOnFocusSearchListener(getTitleHelper().getOnFocusSearchListener());
+        TitleHelper titleHelper = getTitleHelper();
+        if (titleHelper != null) {
+            BrowseFrameLayout browseFrameLayout = (BrowseFrameLayout) getView().findViewById(
+                    R.id.details_fragment_root);
+            browseFrameLayout.setOnFocusSearchListener(titleHelper.getOnFocusSearchListener());
+        }
     }
 
     /**
@@ -211,11 +311,81 @@ public class DetailsFragment extends BaseFragment {
         }
     }
 
-    private void onRowSelected(int position) {
-        if (getAdapter() == null || getAdapter().size() == 0 || position == 0) {
+    private void onRowSelected(int selectedPosition, int selectedSubPosition) {
+        ObjectAdapter adapter = getAdapter();
+        if (adapter == null || adapter.size() == 0 ||
+                (selectedPosition == 0 && selectedSubPosition == 0)) {
             showTitle(true);
         } else {
             showTitle(false);
+        }
+        if (adapter != null && adapter.size() > selectedPosition) {
+            final VerticalGridView gridView = getVerticalGridView();
+            final int count = gridView.getChildCount();
+            for (int i = 0; i < count; i++) {
+                ItemBridgeAdapter.ViewHolder bridgeViewHolder = (ItemBridgeAdapter.ViewHolder)
+                        gridView.getChildViewHolder(gridView.getChildAt(i));
+                RowPresenter rowPresenter = (RowPresenter) bridgeViewHolder.getPresenter();
+                onSetRowStatus(rowPresenter,
+                        rowPresenter.getRowViewHolder(bridgeViewHolder.getViewHolder()),
+                        bridgeViewHolder.getAdapterPosition(),
+                        selectedPosition, selectedSubPosition);
+            }
+        }
+    }
+
+    /**
+     * Called on every visible row to change view status when current selected row position
+     * or selected sub position changed.  Subclass may override.   The default
+     * implementation calls {@link #onSetDetailsOverviewRowStatus(FullWidthDetailsOverviewRowPresenter,
+     * FullWidthDetailsOverviewRowPresenter.ViewHolder, int, int, int)} if presenter is
+     * instance of {@link FullWidthDetailsOverviewRowPresenter}.
+     *
+     * @param presenter   The presenter used to create row ViewHolder.
+     * @param viewHolder  The visible (attached) row ViewHolder, note that it may or may not
+     *                    be selected.
+     * @param adapterPosition  The adapter position of viewHolder inside adapter.
+     * @param selectedPosition The adapter position of currently selected row.
+     * @param selectedSubPosition The sub position within currently selected row.  This is used
+     *                            When a row has multiple alignment positions.
+     */
+    protected void onSetRowStatus(RowPresenter presenter, RowPresenter.ViewHolder viewHolder, int
+            adapterPosition, int selectedPosition, int selectedSubPosition) {
+        if (presenter instanceof FullWidthDetailsOverviewRowPresenter) {
+            onSetDetailsOverviewRowStatus((FullWidthDetailsOverviewRowPresenter) presenter,
+                    (FullWidthDetailsOverviewRowPresenter.ViewHolder) viewHolder,
+                    adapterPosition, selectedPosition, selectedSubPosition);
+        }
+    }
+
+    /**
+     * Called to change DetailsOverviewRow view status when current selected row position
+     * or selected sub position changed.  Subclass may override.   The default
+     * implementation switches between three states based on the positions:
+     * {@link FullWidthDetailsOverviewRowPresenter#STATE_HALF},
+     * {@link FullWidthDetailsOverviewRowPresenter#STATE_FULL} and
+     * {@link FullWidthDetailsOverviewRowPresenter#STATE_SMALL}.
+     *
+     * @param presenter   The presenter used to create row ViewHolder.
+     * @param viewHolder  The visible (attached) row ViewHolder, note that it may or may not
+     *                    be selected.
+     * @param adapterPosition  The adapter position of viewHolder inside adapter.
+     * @param selectedPosition The adapter position of currently selected row.
+     * @param selectedSubPosition The sub position within currently selected row.  This is used
+     *                            When a row has multiple alignment positions.
+     */
+    protected void onSetDetailsOverviewRowStatus(FullWidthDetailsOverviewRowPresenter presenter,
+            FullWidthDetailsOverviewRowPresenter.ViewHolder viewHolder, int adapterPosition,
+            int selectedPosition, int selectedSubPosition) {
+        if (selectedPosition > adapterPosition) {
+            presenter.setState(viewHolder, FullWidthDetailsOverviewRowPresenter.STATE_HALF);
+        } else if (selectedPosition == adapterPosition && selectedSubPosition == 1) {
+            presenter.setState(viewHolder, FullWidthDetailsOverviewRowPresenter.STATE_HALF);
+        } else if (selectedPosition == adapterPosition && selectedSubPosition == 0){
+            presenter.setState(viewHolder, FullWidthDetailsOverviewRowPresenter.STATE_FULL);
+        } else {
+            presenter.setState(viewHolder,
+                    FullWidthDetailsOverviewRowPresenter.STATE_SMALL);
         }
     }
 
@@ -248,4 +418,5 @@ public class DetailsFragment extends BaseFragment {
     protected void onEntranceTransitionEnd() {
         mRowsFragment.onTransitionEnd();
     }
+
 }
