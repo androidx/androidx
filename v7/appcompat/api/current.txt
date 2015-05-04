@@ -267,6 +267,9 @@ package android.support.v7.app {
     method public abstract void setSupportActionBar(android.support.v7.widget.Toolbar);
     method public abstract void setTitle(java.lang.CharSequence);
     method public abstract android.support.v7.view.ActionMode startSupportActionMode(android.support.v7.view.ActionMode.Callback);
+    field public static final int FEATURE_ACTION_MODE_OVERLAY = 10; // 0xa
+    field public static final int FEATURE_SUPPORT_ACTION_BAR = 108; // 0x6c
+    field public static final int FEATURE_SUPPORT_ACTION_BAR_OVERLAY = 109; // 0x6d
   }
 
   public class AppCompatDialog extends android.app.Dialog implements android.support.v7.app.AppCompatCallback {

@@ -24,6 +24,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.WindowCompat;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
@@ -67,6 +68,39 @@ import android.view.Window;
 public abstract class AppCompatDelegate {
 
     static final String TAG = "AppCompatDelegate";
+
+    /**
+     * Flag for enabling the support Action Bar.
+     *
+     * <p>This is enabled by default for some devices. The Action Bar replaces the title bar and
+     * provides an alternate location for an on-screen menu button on some devices.
+     */
+    public static final int FEATURE_SUPPORT_ACTION_BAR = 100 + WindowCompat.FEATURE_ACTION_BAR;
+
+    /**
+     * Flag for requesting an support Action Bar that overlays window content.
+     * Normally an Action Bar will sit in the space above window content, but if this
+     * feature is requested along with {@link #FEATURE_SUPPORT_ACTION_BAR} it will be layered over
+     * the window content itself. This is useful if you would like your app to have more control
+     * over how the Action Bar is displayed, such as letting application content scroll beneath
+     * an Action Bar with a transparent background or otherwise displaying a transparent/translucent
+     * Action Bar over application content.
+     *
+     * <p>This mode is especially useful with {@code View.SYSTEM_UI_FLAG_FULLSCREEN}, which allows
+     * you to seamlessly hide the action bar in conjunction with other screen decorations.
+     * When an ActionBar is in this mode it will adjust the insets provided to
+     * {@link View#fitSystemWindows(android.graphics.Rect) View.fitSystemWindows(Rect)}
+     * to include the content covered by the action bar, so you can do layout within
+     * that space.
+     */
+    public static final int FEATURE_SUPPORT_ACTION_BAR_OVERLAY =
+            100 + WindowCompat.FEATURE_ACTION_BAR_OVERLAY;
+
+    /**
+     * Flag for specifying the behavior of action modes when an Action Bar is not present.
+     * If overlay is enabled, the action mode UI will be allowed to cover existing window content.
+     */
+    public static final int FEATURE_ACTION_MODE_OVERLAY = WindowCompat.FEATURE_ACTION_MODE_OVERLAY;
 
     /**
      * Create a {@link android.support.v7.app.AppCompatDelegate} to use with {@code activity}.
@@ -123,7 +157,7 @@ public abstract class AppCompatDelegate {
      *
      * <p>In order to use a Toolbar within the Activity's window content the application
      * must not request the window feature
-     * {@link android.view.Window#FEATURE_ACTION_BAR FEATURE_ACTION_BAR}.</p>
+     * {@link AppCompatDelegate#FEATURE_SUPPORT_ACTION_BAR FEATURE_SUPPORT_ACTION_BAR}.</p>
      *
      * @param toolbar Toolbar to set as the Activity's action bar
      */

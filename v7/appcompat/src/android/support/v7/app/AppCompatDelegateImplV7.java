@@ -36,6 +36,7 @@ import android.support.v4.view.LayoutInflaterFactory;
 import android.support.v4.view.OnApplyWindowInsetsListener;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewConfigurationCompat;
+import android.support.v4.view.WindowCompat;
 import android.support.v4.view.WindowInsetsCompat;
 import android.support.v4.widget.PopupWindowCompat;
 import android.support.v7.appcompat.R;
@@ -80,9 +81,6 @@ import android.widget.FrameLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
-import static android.support.v4.view.WindowCompat.FEATURE_ACTION_BAR;
-import static android.support.v4.view.WindowCompat.FEATURE_ACTION_BAR_OVERLAY;
-import static android.support.v4.view.WindowCompat.FEATURE_ACTION_MODE_OVERLAY;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static android.view.Window.FEATURE_OPTIONS_PANEL;
@@ -123,8 +121,8 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
             if ((mInvalidatePanelMenuFeatures & 1 << FEATURE_OPTIONS_PANEL) != 0) {
                 doInvalidatePanelMenu(FEATURE_OPTIONS_PANEL);
             }
-            if ((mInvalidatePanelMenuFeatures & 1 << FEATURE_ACTION_BAR) != 0) {
-                doInvalidatePanelMenu(FEATURE_ACTION_BAR);
+            if ((mInvalidatePanelMenuFeatures & 1 << FEATURE_SUPPORT_ACTION_BAR) != 0) {
+                doInvalidatePanelMenu(FEATURE_SUPPORT_ACTION_BAR);
             }
             mInvalidatePanelMenuPosted = false;
             mInvalidatePanelMenuFeatures = 0;
@@ -192,7 +190,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
         final ActionBar ab = getSupportActionBar();
         if (ab instanceof WindowDecorActionBar) {
             throw new IllegalStateException("This Activity already has an action bar supplied " +
-                    "by the window decor. Do not request Window.FEATURE_ACTION_BAR and set " +
+                    "by the window decor. Do not request Window.FEATURE_SUPPORT_ACTION_BAR and set " +
                     "windowActionBar to false in your theme to use a Toolbar instead.");
         }
 
@@ -308,7 +306,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
                      * Propagate features to DecorContentParent
                      */
                     if (mOverlayActionBar) {
-                        mDecorContentParent.initFeature(FEATURE_ACTION_BAR_OVERLAY);
+                        mDecorContentParent.initFeature(FEATURE_SUPPORT_ACTION_BAR_OVERLAY);
                     }
                     if (mFeatureProgress) {
                         mDecorContentParent.initFeature(Window.FEATURE_PROGRESS);
@@ -417,7 +415,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
             // would run normally in order to satisfy instance state restoration.
             PanelFeatureState st = getPanelState(FEATURE_OPTIONS_PANEL, false);
             if (!isDestroyed() && (st == null || st.menu == null)) {
-                invalidatePanelMenu(FEATURE_ACTION_BAR);
+                invalidatePanelMenu(FEATURE_SUPPORT_ACTION_BAR);
             }
         }
     }
@@ -462,11 +460,19 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
     @Override
     public boolean requestWindowFeature(int featureId) {
         switch (featureId) {
-            case FEATURE_ACTION_BAR:
+            case WindowCompat.FEATURE_ACTION_BAR:
+                Log.i(TAG, "You should now use the AppCompatDelegate.FEATURE_SUPPORT_ACTION_BAR"
+                        + " id when requesting this feature.");
+                // $FALLTHROUGH
+            case FEATURE_SUPPORT_ACTION_BAR:
                 throwFeatureRequestIfSubDecorInstalled();
                 mHasActionBar = true;
                 return true;
-            case FEATURE_ACTION_BAR_OVERLAY:
+            case WindowCompat.FEATURE_ACTION_BAR_OVERLAY:
+                Log.i(TAG, "You should now use the AppCompatDelegate.FEATURE_SUPPORT_ACTION_BAR_OVERLAY"
+                        + " id when requesting this feature.");
+                // $FALLTHROUGH
+            case FEATURE_SUPPORT_ACTION_BAR_OVERLAY:
                 throwFeatureRequestIfSubDecorInstalled();
                 mOverlayActionBar = true;
                 return true;
@@ -503,13 +509,12 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
     }
 
     @Override
-    boolean onPanelClosed(final int featureId, Menu menu) {
-        if (featureId == FEATURE_ACTION_BAR) {
+    void onPanelClosed(final int featureId, Menu menu) {
+        if (featureId == FEATURE_SUPPORT_ACTION_BAR) {
             ActionBar ab = getSupportActionBar();
             if (ab != null) {
                 ab.dispatchMenuVisibilityChanged(false);
             }
-            return true;
         } else if (featureId == FEATURE_OPTIONS_PANEL) {
             // Make sure that the options panel is closed. This is mainly used when we're using a
             // ToolbarActionBar
@@ -518,12 +523,11 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
                 closePanel(st, false);
             }
         }
-        return false;
     }
 
     @Override
     boolean onMenuOpened(final int featureId, Menu menu) {
-        if (featureId == FEATURE_ACTION_BAR) {
+        if (featureId == FEATURE_SUPPORT_ACTION_BAR) {
             ActionBar ab = getSupportActionBar();
             if (ab != null) {
                 ab.dispatchMenuVisibilityChanged(true);
@@ -974,7 +978,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
                     // forget it. This is a lingering event that no longer matters.
                     if (st.menu != null && !st.refreshMenuContent &&
                             cb.onPreparePanel(FEATURE_OPTIONS_PANEL, st.createdPanelView, st.menu)) {
-                        cb.onMenuOpened(FEATURE_ACTION_BAR, st.menu);
+                        cb.onMenuOpened(FEATURE_SUPPORT_ACTION_BAR, st.menu);
                         mDecorContentParent.showOverflowMenu();
                     }
                 }
@@ -982,7 +986,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
                 mDecorContentParent.hideOverflowMenu();
                 if (!isDestroyed()) {
                     final PanelFeatureState st = getPanelState(FEATURE_OPTIONS_PANEL, true);
-                    cb.onPanelClosed(FEATURE_ACTION_BAR, st.menu);
+                    cb.onPanelClosed(FEATURE_SUPPORT_ACTION_BAR, st.menu);
                 }
             }
             return;
@@ -1000,7 +1004,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
         Context context = mContext;
 
         // If we have an action bar, initialize the menu with the right theme.
-        if ((st.featureId == FEATURE_OPTIONS_PANEL || st.featureId == FEATURE_ACTION_BAR) &&
+        if ((st.featureId == FEATURE_OPTIONS_PANEL || st.featureId == FEATURE_SUPPORT_ACTION_BAR) &&
                 mDecorContentParent != null) {
             final TypedValue outValue = new TypedValue();
             final Resources.Theme baseTheme = context.getTheme();
@@ -1082,7 +1086,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
         }
 
         final boolean isActionBarMenu =
-                (st.featureId == FEATURE_OPTIONS_PANEL || st.featureId == FEATURE_ACTION_BAR);
+                (st.featureId == FEATURE_OPTIONS_PANEL || st.featureId == FEATURE_SUPPORT_ACTION_BAR);
 
         if (isActionBarMenu && mDecorContentParent != null) {
             // Enforce ordering guarantees around events so that the action bar never
@@ -1171,7 +1175,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
         mDecorContentParent.dismissPopups();
         Window.Callback cb = getWindowCallback();
         if (cb != null && !isDestroyed()) {
-            cb.onPanelClosed(FEATURE_ACTION_BAR, menu);
+            cb.onPanelClosed(FEATURE_SUPPORT_ACTION_BAR, menu);
         }
         mClosingActionMenu = false;
     }
@@ -1389,7 +1393,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
         st.refreshDecorView = true;
 
         // Prepare the options panel if we have an action bar
-        if ((featureId == FEATURE_ACTION_BAR || featureId == FEATURE_OPTIONS_PANEL)
+        if ((featureId == FEATURE_SUPPORT_ACTION_BAR || featureId == FEATURE_OPTIONS_PANEL)
                 && mDecorContentParent != null) {
             st = getPanelState(Window.FEATURE_OPTIONS_PANEL, false);
             if (st != null) {
@@ -1552,7 +1556,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
             if (subMenu == null && mHasActionBar) {
                 Window.Callback cb = getWindowCallback();
                 if (cb != null && !isDestroyed()) {
-                    cb.onMenuOpened(FEATURE_ACTION_BAR, subMenu);
+                    cb.onMenuOpened(FEATURE_SUPPORT_ACTION_BAR, subMenu);
                 }
             }
             return true;
@@ -1564,7 +1568,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
         public boolean onOpenSubMenu(MenuBuilder subMenu) {
             Window.Callback cb = getWindowCallback();
             if (cb != null) {
-                cb.onMenuOpened(FEATURE_ACTION_BAR, subMenu);
+                cb.onMenuOpened(FEATURE_SUPPORT_ACTION_BAR, subMenu);
             }
             return true;
         }
