@@ -25,8 +25,12 @@ import android.view.ViewOutlineProvider;
 
 class ShadowHelperApi21 {
 
-    static int sNormalZ = Integer.MIN_VALUE;
-    static int sFocusedZ;
+    static class ShadowImpl {
+        ViewGroup mShadowContainer;
+        float mNormalZ;
+        float mFocusedZ;
+    }
+
     static final ViewOutlineProvider sOutlineProvider = new ViewOutlineProvider() {
         @Override
         public void getOutline(View view, Outline outline) {
@@ -35,30 +39,27 @@ class ShadowHelperApi21 {
         }
     };
 
-    private static void initializeResources(Resources res) {
-        if (sNormalZ == Integer.MIN_VALUE) {
-            sNormalZ = (int) res.getDimension(R.dimen.lb_material_shadow_normal_z);
-            sFocusedZ = (int) res.getDimension(R.dimen.lb_material_shadow_focused_z);
-        }
-    }
-
     /* add shadows and return a implementation detail object */
-    public static Object addShadow(ViewGroup shadowContainer, boolean roundedCorners) {
-        initializeResources(shadowContainer.getResources());
+    public static Object addDynamicShadow(
+            ViewGroup shadowContainer, float unfocusedZ, float focusedZ, boolean roundedCorners) {
         if (roundedCorners) {
             RoundedRectHelperApi21.setClipToRoundedOutline(shadowContainer, true);
         } else {
             shadowContainer.setOutlineProvider(sOutlineProvider);
         }
-        shadowContainer.setZ(sNormalZ);
+        ShadowImpl impl = new ShadowImpl();
+        impl.mShadowContainer = shadowContainer;
+        impl.mNormalZ = unfocusedZ;
+        impl.mFocusedZ = focusedZ;
+        shadowContainer.setZ(impl.mNormalZ);
         shadowContainer.setTransitionGroup(true);
-        return shadowContainer;
+        return impl;
     }
 
     /* set shadow focus level 0 for unfocused 1 for fully focused */
-    public static void setShadowFocusLevel(Object impl, float level) {
-        ViewGroup shadowContainer = (ViewGroup) impl;
-        shadowContainer.setZ(sNormalZ + level * (sFocusedZ - sNormalZ));
+    public static void setShadowFocusLevel(Object object, float level) {
+        ShadowImpl impl = (ShadowImpl) object;
+        impl.mShadowContainer.setZ(impl.mNormalZ + level * (impl.mFocusedZ - impl.mNormalZ));
     }
 
     public static void setZ(View view, float z) {

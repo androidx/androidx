@@ -13,7 +13,9 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.content.Context;
 import android.support.v17.leanback.R;
+import android.support.v17.leanback.system.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -191,8 +193,9 @@ public class VerticalGridPresenter extends Presenter {
      * on each child of vertical grid.   If subclass returns false in isUsingDefaultShadow()
      * and does not use Z-shadow on SDK >= L, it should override isUsingZOrder() return false.
      */
-    public boolean isUsingZOrder() {
-        return ShadowHelper.getInstance().usesZShadow();
+    public boolean isUsingZOrder(Context context) {
+        return ShadowOverlayContainer.supportsDynamicShadow() &&
+                !Settings.getInstance(context).preferStaticShadows();
     }
 
     final boolean needsDefaultShadow() {
@@ -270,7 +273,7 @@ public class VerticalGridPresenter extends Presenter {
             ShadowOverlayContainer.prepareParentForShadow(vh.getGridView());
             ((ViewGroup) vh.view).setClipChildren(false);
         }
-        vh.getGridView().setFocusDrawingOrderEnabled(!isUsingZOrder());
+        vh.getGridView().setFocusDrawingOrderEnabled(!isUsingZOrder(vh.getGridView().getContext()));
         FocusHighlightHelper.setupBrowseItemFocusHighlight(vh.mItemBridgeAdapter,
                 mFocusZoomFactor, mUseFocusDimmer);
 
