@@ -795,9 +795,9 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
                 // We do not want to inherit context if this is the root view in the layout.
                 // We use parent.isAttachedToWindow() to determine this, which works because
                 // an inflated layout is only added to the hierarchy AFTER it is completely
-                // inflated. Thus parent.isAttachedToWindow() will only return true if the parent
+                // inflated. Thus isAttachedToWindow() will only return true if the parent
                 // has not been inflated within the outer inflation call.
-                && !parent.isAttachedToWindow();
+                && !ViewCompat.isAttachedToWindow(parent);
 
         return mAppCompatViewInflater.createView(parent, name, context, attrs,
                 inheritContext, isPre21);
