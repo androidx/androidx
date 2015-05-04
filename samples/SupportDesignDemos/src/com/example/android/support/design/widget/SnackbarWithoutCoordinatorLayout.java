@@ -18,20 +18,14 @@ package com.example.android.support.design.widget;
 
 import com.example.android.support.design.R;
 
-import android.os.Bundle;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.view.ViewGroup;
-
 /**
- * This demonstrates idiomatic usage of Snackbar with a Floating Action Button present
+ * This demonstrates idiomatic usage of Snackbar without a CoordinatorLayout
  */
-public class SnackbarWithFloatingActionButton extends SnackbarUsage {
+public class SnackbarWithoutCoordinatorLayout extends SnackbarUsage {
 
     @Override
     protected int getLayoutId() {
-        return R.layout.design_snackbar_with_fab;
+        return R.layout.design_snackbar_without_col;
     }
 
 }

@@ -90,5 +90,14 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".widget.SnackbarWithoutCoordinatorLayout"
+                  android:label="@string/design_snackbar_without_col"
+                  android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.support.design.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
     </application>
 </manifest>

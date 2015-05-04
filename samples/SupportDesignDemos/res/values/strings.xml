@@ -56,6 +56,7 @@
 
     <string name="design_snackbar_basic">Snackbar/Usage</string>
     <string name="design_snackbar_fab">Snackbar/Coordinated with FAB</string>
+    <string name="design_snackbar_without_col">Snackbar/Usage without CoordinatorLayout</string>
     <string name="snackbar_show_short">Snackbar (short message)</string>
     <string name="snackbar_show_long">Snackbar (long message)</string>
     <string name="snackbar_show_short_action">Show (short message + action)</string>
