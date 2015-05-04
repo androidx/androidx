@@ -788,13 +788,19 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
         final boolean isPre21 = Build.VERSION.SDK_INT < 21;
 
         if (mAppCompatViewInflater == null) {
-            mAppCompatViewInflater = new AppCompatViewInflater(mContext);
+            mAppCompatViewInflater = new AppCompatViewInflater();
         }
 
-        // We only want the View to inherit it's context from the parent if it is from the
-        // apps content, and not part of our sub-decor
+        // We only want the View to inherit it's context if we're running pre-v21 and...
         final boolean inheritContext = isPre21 && mSubDecorInstalled && parent != null
-                && parent.getId() != android.R.id.content;
+                // We do not want to inherit context from any decor content
+                && parent.getId() != android.R.id.content
+                // We do not want to inherit context if this is the root view in the layout.
+                // We use parent.isAttachedToWindow() to determine this, which works because
+                // an inflated layout is only added to the hierarchy AFTER it is completely
+                // inflated. Thus parent.isAttachedToWindow() will only return true if the parent
+                // has not been inflated within the outer inflation call.
+                && !parent.isAttachedToWindow();
 
         return mAppCompatViewInflater.createView(parent, name, context, attrs,
                 inheritContext, isPre21);
