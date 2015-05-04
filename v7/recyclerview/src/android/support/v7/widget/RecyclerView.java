@@ -484,6 +484,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                                     ": Error creating LayoutManager " + className, e1);
                         }
                     }
+                    constructor.setAccessible(true);
                     setLayoutManager(constructor.newInstance(constructorArgs));
                 } catch (ClassNotFoundException e) {
                     throw new IllegalStateException(attrs.getPositionDescription()

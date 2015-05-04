@@ -73,5 +73,12 @@ public class RecyclerViewTest extends ActivityInstrumentationTestCase2<RecyclerV
                 layoutManager.getClass().getName(),
                 CustomLayoutManager.LayoutManager.class.getName());
 
+        view = (RecyclerView) getActivity().findViewById(R.id.recyclerView4);
+        layoutManager = view.getLayoutManager();
+        assertNotNull("LayoutManager not created.", layoutManager);
+        assertEquals("Incorrect LayoutManager created",
+                "android.support.v7.recyclerview.test.PrivateLayoutManager",
+                layoutManager.getClass().getName());
+
     }
 }
