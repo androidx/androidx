@@ -5,7 +5,6 @@ package android.support.v7.util {
     ctor public SortedList(java.lang.Class<T>, android.support.v7.util.SortedList.Callback<T>, int);
     method public int add(T);
     method public void beginBatchedUpdates();
-    method public void clear();
     method public void endBatchedUpdates();
     method public T get(int) throws java.lang.IndexOutOfBoundsException;
     method public int indexOf(T);
