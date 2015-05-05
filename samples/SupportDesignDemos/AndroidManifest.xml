@@ -153,6 +153,15 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".widget.AppBarLayoutToolbarCollapseWithImageWithInsets"
+                  android:label="@string/design_appbar_collapsing_toolbar_with_image_insets"
+                  android:theme="@style/Theme.Design.TransparentStatus">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.support.design.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".widget.AppBarLayoutToolbarParallaxOverlapContent"
                   android:label="@string/design_appbar_parallax_overlap"
                   android:theme="@style/Theme.Design">
