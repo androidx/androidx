@@ -18,6 +18,7 @@ package android.support.v4.view;
 
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
+import android.util.Log;
 import android.view.View;
 
 import java.lang.reflect.Field;
@@ -26,8 +27,15 @@ import java.lang.reflect.Method;
 
 class ViewCompatBase {
 
+    private static final String TAG = "ViewCompatBase";
+
     private static Field sMinWidthField;
+    private static boolean sMinWidthFieldFetched;
     private static Field sMinHeightField;
+    private static boolean sMinHeightFieldFetched;
+
+    private static Field sAttachInfoField;
+    private static boolean sAttachInfoFieldFetched;
 
     static ColorStateList getBackgroundTintList(View view) {
         return (view instanceof TintableBackgroundView)
@@ -58,13 +66,14 @@ class ViewCompatBase {
     }
 
     static int getMinimumWidth(View view) {
-        if (sMinWidthField == null) {
+        if (!sMinWidthFieldFetched) {
             try {
                 sMinWidthField = View.class.getDeclaredField("mMinWidth");
                 sMinWidthField.setAccessible(true);
             } catch (NoSuchFieldException e) {
                 // Couldn't find the field. Abort!
             }
+            sMinWidthFieldFetched = true;
         }
 
         if (sMinWidthField != null) {
@@ -80,13 +89,14 @@ class ViewCompatBase {
     }
 
     static int getMinimumHeight(View view) {
-        if (sMinHeightField == null) {
+        if (!sMinHeightFieldFetched) {
             try {
                 sMinHeightField = View.class.getDeclaredField("mMinHeight");
                 sMinHeightField.setAccessible(true);
             } catch (NoSuchFieldException e) {
                 // Couldn't find the field. Abort!
             }
+            sMinHeightFieldFetched = true;
         }
 
         if (sMinHeightField != null) {
@@ -99,5 +109,28 @@ class ViewCompatBase {
 
         // We failed, return 0
         return 0;
+    }
+
+    static boolean isAttachedToWindow(View view) {
+        if (!sAttachInfoFieldFetched) {
+            try {
+                sAttachInfoField = View.class.getDeclaredField("mAttachInfo");
+                sAttachInfoField.setAccessible(true);
+            } catch (NoSuchFieldException e) {
+                Log.e(TAG, "Couldn't fetch mAttachInfo field", e);
+            }
+            sAttachInfoFieldFetched = true;
+        }
+
+        if (sAttachInfoField != null) {
+            try {
+                return sAttachInfoField.get(view) != null;
+            } catch (IllegalAccessException e) {
+                Log.e(TAG, "Couldn't access mAttachInfo field", e);
+            }
+        }
+
+        // If we reach here then we couldn't get the attach info. We'll approximate with...
+        return view.getWindowToken() != null;
     }
 }
