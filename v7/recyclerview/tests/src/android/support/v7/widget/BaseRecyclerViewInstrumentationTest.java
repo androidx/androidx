@@ -397,11 +397,19 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             layoutLatch = new CountDownLatch(count);
         }
 
-        public void waitForLayout(long timeout, TimeUnit timeUnit) throws Throwable {
+        public void waitForLayout(long timeout, TimeUnit timeUnit, boolean waitForIdle)
+                throws Throwable {
             layoutLatch.await(timeout * (mDebug ? 100 : 1), timeUnit);
             assertEquals("all expected layouts should be executed at the expected time",
                     0, layoutLatch.getCount());
-            getInstrumentation().waitForIdleSync();
+            if (waitForIdle) {
+                getInstrumentation().waitForIdleSync();
+            }
+        }
+
+        public void waitForLayout(long timeout, TimeUnit timeUnit)
+                throws Throwable {
+            waitForLayout(timeout, timeUnit, true);
         }
 
         public void assertLayoutCount(int count, String msg, long timeout) throws Throwable {
@@ -415,7 +423,11 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         }
 
         public void waitForLayout(long timeout) throws Throwable {
-            waitForLayout(timeout * (mDebug ? 10000 : 1), TimeUnit.SECONDS);
+            waitForLayout(timeout * (mDebug ? 10000 : 1), TimeUnit.SECONDS, true);
+        }
+
+        public void waitForLayout(long timeout, boolean waitForIdle) throws Throwable {
+            waitForLayout(timeout * (mDebug ? 10000 : 1), TimeUnit.SECONDS, waitForIdle);
         }
 
         @Override
