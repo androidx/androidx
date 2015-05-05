@@ -54,7 +54,7 @@ public class ViewCompat {
 
 
     /** @hide */
-    @IntDef({OVER_SCROLL_ALWAYS, OVER_SCROLL_IF_CONTENT_SCROLLS, OVER_SCROLL_IF_CONTENT_SCROLLS})
+    @IntDef({OVER_SCROLL_ALWAYS, OVER_SCROLL_IF_CONTENT_SCROLLS, OVER_SCROLL_NEVER})
     @Retention(RetentionPolicy.SOURCE)
     private @interface OverScroll {}
 

@@ -33,6 +33,8 @@ import android.support.v4.os.TraceCompat;
 import android.support.v4.util.ArrayMap;
 import android.support.v4.view.InputDeviceCompat;
 import android.support.v4.view.MotionEventCompat;
+import android.support.v4.view.NestedScrollingChild;
+import android.support.v4.view.NestedScrollingChildHelper;
 import android.support.v4.view.ScrollingView;
 import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v4.view.ViewCompat;
@@ -43,9 +45,6 @@ import android.support.v4.view.accessibility.AccessibilityRecordCompat;
 import android.support.v4.widget.EdgeEffectCompat;
 import android.support.v4.widget.ScrollerCompat;
 import android.support.v7.recyclerview.R;
-import static android.support.v7.widget.AdapterHelper.UpdateOp;
-import static android.support.v7.widget.AdapterHelper.Callback;
-
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
@@ -67,6 +66,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static android.support.v7.widget.AdapterHelper.Callback;
+import static android.support.v7.widget.AdapterHelper.UpdateOp;
 
 /**
  * A flexible view for providing a limited window into a large data set.
@@ -135,7 +137,7 @@ import java.util.List;
  *
  * @attr ref android.support.v7.recyclerview.R.styleable#RecyclerView_layoutManager
  */
-public class RecyclerView extends ViewGroup implements ScrollingView {
+public class RecyclerView extends ViewGroup implements ScrollingView, NestedScrollingChild {
 
     private static final String TAG = "RecyclerView";
 
@@ -373,6 +375,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
     // preserved not to create a new one in each layout pass
     private final int[] mMinMaxLayoutPositions = new int[2];
 
+    private final NestedScrollingChildHelper mScrollingChildHelper;
+    private final int[] mScrollOffset = new int[2];
+    private final int[] mScrollConsumed = new int[2];
+    private final int[] mNestedOffsets = new int[2];
+
     private Runnable mItemAnimatorRunner = new Runnable() {
         @Override
         public void run() {
@@ -431,6 +438,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
             a.recycle();
             createLayoutManager(context, layoutManagerName, attrs, defStyle, defStyleRes);
         }
+
+        mScrollingChildHelper = new NestedScrollingChildHelper(this);
+        setNestedScrollingEnabled(true);
     }
 
     /**
@@ -1302,7 +1312,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         final boolean canScrollHorizontal = mLayout.canScrollHorizontally();
         final boolean canScrollVertical = mLayout.canScrollVertically();
         if (canScrollHorizontal || canScrollVertical) {
-            scrollByInternal(canScrollHorizontal ? x : 0, canScrollVertical ? y : 0, false, 0, 0);
+            scrollByInternal(canScrollHorizontal ? x : 0, canScrollVertical ? y : 0, null);
         }
     }
 
@@ -1325,30 +1335,26 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
      *
      * @param x The amount of horizontal scroll request
      * @param y The amount of vertical scroll request
-     * @param fromMotionEvent If request is originated from a MotionEvent, this should be set to
-     *                        true and motionX/motionY should be provided, false otherwise.
-     * @param motionX The x coordinate of the MotionEvent which triggered this scroll. Unused if
-     *                fromMotionEvent is false.
-     * @param motionY The y coordinate of the MotionEvent which triggered this scroll. Unused if
-     *                fromMotionEvent is false.
+     * @param ev The originating MotionEvent, or null if not from a touch event.
      *
      * @return Whether any scroll was consumed in either direction.
      */
-    boolean scrollByInternal(int x, int y, boolean fromMotionEvent, int motionX, int motionY) {
-        int overscrollX = 0, overscrollY = 0;
-        int hresult = 0, vresult = 0;
+    boolean scrollByInternal(int x, int y, MotionEvent ev) {
+        int unconsumedX = 0, unconsumedY = 0;
+        int consumedX = 0, consumedY = 0;
+
         consumePendingUpdateOperations();
         if (mAdapter != null) {
             eatRequestLayout();
             onEnterLayoutOrScroll();
             TraceCompat.beginSection(TRACE_SCROLL_TAG);
             if (x != 0) {
-                hresult = mLayout.scrollHorizontallyBy(x, mRecycler, mState);
-                overscrollX = x - hresult;
+                consumedX = mLayout.scrollHorizontallyBy(x, mRecycler, mState);
+                unconsumedX = x - consumedX;
             }
             if (y != 0) {
-                vresult = mLayout.scrollVerticallyBy(y, mRecycler, mState);
-                overscrollY = y - vresult;
+                consumedY = mLayout.scrollVerticallyBy(y, mRecycler, mState);
+                unconsumedY = y - consumedY;
             }
             TraceCompat.endSection();
             if (supportsChangeAnimations()) {
@@ -1378,19 +1384,27 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         if (!mItemDecorations.isEmpty()) {
             invalidate();
         }
-        if (ViewCompat.getOverScrollMode(this) != ViewCompat.OVER_SCROLL_NEVER) {
-            if (fromMotionEvent) {
-                pullGlows(motionX, overscrollX, motionY, overscrollY);
+
+        if (dispatchNestedScroll(consumedX, consumedY, unconsumedX, unconsumedY, mScrollOffset)) {
+            // Update the last touch co-ords, taking any scroll offset into account
+            mLastTouchX -= mScrollOffset[0];
+            mLastTouchY -= mScrollOffset[1];
+            ev.offsetLocation(mScrollOffset[0], mScrollOffset[1]);
+            mNestedOffsets[0] += mScrollOffset[0];
+            mNestedOffsets[1] += mScrollOffset[1];
+        } else if (ViewCompat.getOverScrollMode(this) != ViewCompat.OVER_SCROLL_NEVER) {
+            if (ev != null) {
+                pullGlows(ev.getX(), unconsumedX, ev.getY(), unconsumedY);
             }
             considerReleasingGlowsOnScroll(x, y);
         }
-        if (hresult != 0 || vresult != 0) {
-            dispatchOnScrolled(hresult, vresult);
+        if (consumedX != 0 || consumedY != 0) {
+            dispatchOnScrolled(consumedX, consumedY);
         }
         if (!awakenScrollBars()) {
             invalidate();
         }
-        return hresult != 0 || vresult != 0;
+        return consumedX != 0 || consumedY != 0;
     }
 
     /**
@@ -1583,19 +1597,31 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                     "Call setLayoutManager with a non-null argument.");
             return false;
         }
+
         final boolean canScrollHorizontal = mLayout.canScrollHorizontally();
         final boolean canScrollVertical = mLayout.canScrollVertically();
+
         if (!canScrollHorizontal || Math.abs(velocityX) < mMinFlingVelocity) {
             velocityX = 0;
         }
         if (!canScrollVertical || Math.abs(velocityY) < mMinFlingVelocity) {
             velocityY = 0;
         }
-        velocityX = Math.max(-mMaxFlingVelocity, Math.min(velocityX, mMaxFlingVelocity));
-        velocityY = Math.max(-mMaxFlingVelocity, Math.min(velocityY, mMaxFlingVelocity));
-        if (velocityX != 0 || velocityY != 0) {
-            mViewFlinger.fling(velocityX, velocityY);
-            return true;
+        if (velocityX == 0 && velocityY == 0) {
+            // If we don't have any velocity, return false
+            return false;
+        }
+
+        if (!dispatchNestedPreFling(velocityX, velocityY)) {
+            final boolean canScroll = canScrollHorizontal || canScrollVertical;
+            dispatchNestedFling(velocityX, velocityY, canScroll);
+
+            if (canScroll) {
+                velocityX = Math.max(-mMaxFlingVelocity, Math.min(velocityX, mMaxFlingVelocity));
+                velocityY = Math.max(-mMaxFlingVelocity, Math.min(velocityY, mMaxFlingVelocity));
+                mViewFlinger.fling(velocityX, velocityY);
+                return true;
+            }
         }
         return false;
     }
@@ -1641,26 +1667,30 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
     /**
      * Apply a pull to relevant overscroll glow effects
      */
-    private void pullGlows(int x, int overscrollX, int y, int overscrollY) {
+    private void pullGlows(float x, float overscrollX, float y, float overscrollY) {
         boolean invalidate = false;
         if (overscrollX < 0) {
             ensureLeftGlow();
-            invalidate = mLeftGlow.onPull(-overscrollX / (float) getWidth(),
-                    1f - y  / (float) getHeight()) || invalidate;
+            if (mLeftGlow.onPull(-overscrollX / getWidth(), 1f - y  / getHeight())) {
+                invalidate = true;
+            }
         } else if (overscrollX > 0) {
             ensureRightGlow();
-            invalidate = mRightGlow.onPull(overscrollX / (float) getWidth(),
-                    y / (float) getHeight()) || invalidate;
+            if (mRightGlow.onPull(overscrollX / getWidth(), y / getHeight())) {
+                invalidate = true;
+            }
         }
 
         if (overscrollY < 0) {
             ensureTopGlow();
-            invalidate = mTopGlow.onPull(-overscrollY / (float) getHeight(),
-                    x / (float) getWidth()) || invalidate;
+            if (mTopGlow.onPull(-overscrollY / getHeight(), x / getWidth())) {
+                invalidate = true;
+            }
         } else if (overscrollY > 0) {
             ensureBottomGlow();
-            invalidate = mBottomGlow.onPull(overscrollY / (float) getHeight(),
-                    1f - x / (float) getWidth()) || invalidate;
+            if (mBottomGlow.onPull(overscrollY / getHeight(), 1f - x / getWidth())) {
+                invalidate = true;
+            }
         }
 
         if (invalidate || overscrollX != 0 || overscrollY != 0) {
@@ -2011,6 +2041,15 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                     getParent().requestDisallowInterceptTouchEvent(true);
                     setScrollState(SCROLL_STATE_DRAGGING);
                 }
+
+                int nestedScrollAxis = ViewCompat.SCROLL_AXIS_NONE;
+                if (canScrollHorizontally) {
+                    nestedScrollAxis |= ViewCompat.SCROLL_AXIS_HORIZONTAL;
+                }
+                if (canScrollVertically) {
+                    nestedScrollAxis |= ViewCompat.SCROLL_AXIS_VERTICAL;
+                }
+                startNestedScroll(nestedScrollAxis);
                 break;
 
             case MotionEventCompat.ACTION_POINTER_DOWN:
@@ -2053,6 +2092,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
 
             case MotionEvent.ACTION_UP: {
                 mVelocityTracker.clear();
+                stopNestedScroll();
             } break;
 
             case MotionEvent.ACTION_CANCEL: {
@@ -2087,14 +2127,29 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         }
         mVelocityTracker.addMovement(e);
 
+        final MotionEvent vtev = MotionEvent.obtain(e);
         final int action = MotionEventCompat.getActionMasked(e);
         final int actionIndex = MotionEventCompat.getActionIndex(e);
+
+        if (action == MotionEvent.ACTION_DOWN) {
+            mNestedOffsets[0] = mNestedOffsets[1] = 0;
+        }
+        vtev.offsetLocation(mNestedOffsets[0], mNestedOffsets[1]);
 
         switch (action) {
             case MotionEvent.ACTION_DOWN: {
                 mScrollPointerId = MotionEventCompat.getPointerId(e, 0);
                 mInitialTouchX = mLastTouchX = (int) (e.getX() + 0.5f);
                 mInitialTouchY = mLastTouchY = (int) (e.getY() + 0.5f);
+
+                int nestedScrollAxis = ViewCompat.SCROLL_AXIS_NONE;
+                if (canScrollHorizontally) {
+                    nestedScrollAxis |= ViewCompat.SCROLL_AXIS_HORIZONTAL;
+                }
+                if (canScrollVertically) {
+                    nestedScrollAxis |= ViewCompat.SCROLL_AXIS_VERTICAL;
+                }
+                startNestedScroll(nestedScrollAxis);
             } break;
 
             case MotionEventCompat.ACTION_POINTER_DOWN: {
@@ -2113,32 +2168,52 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
 
                 final int x = (int) (MotionEventCompat.getX(e, index) + 0.5f);
                 final int y = (int) (MotionEventCompat.getY(e, index) + 0.5f);
+                int dx = mLastTouchX - x;
+                int dy = mLastTouchY - y;
+
+                if (dispatchNestedPreScroll(dx, dy, mScrollConsumed, mScrollOffset)) {
+                    dx -= mScrollConsumed[0];
+                    dy -= mScrollConsumed[1];
+                    vtev.offsetLocation(mScrollOffset[0], mScrollOffset[1]);
+                    // Updated the nested offsets
+                    mNestedOffsets[0] += mScrollOffset[0];
+                    mNestedOffsets[1] += mScrollOffset[1];
+                }
+
                 if (mScrollState != SCROLL_STATE_DRAGGING) {
-                    final int dx = x - mInitialTouchX;
-                    final int dy = y - mInitialTouchY;
                     boolean startScroll = false;
                     if (canScrollHorizontally && Math.abs(dx) > mTouchSlop) {
-                        mLastTouchX = mInitialTouchX + mTouchSlop * (dx < 0 ? -1 : 1);
+                        if (dx > 0) {
+                            dx -= mTouchSlop;
+                        } else {
+                            dx += mTouchSlop;
+                        }
                         startScroll = true;
                     }
                     if (canScrollVertically && Math.abs(dy) > mTouchSlop) {
-                        mLastTouchY = mInitialTouchY + mTouchSlop * (dy < 0 ? -1 : 1);
+                        if (dy > 0) {
+                            dy -= mTouchSlop;
+                        } else {
+                            dy += mTouchSlop;
+                        }
                         startScroll = true;
                     }
                     if (startScroll) {
                         setScrollState(SCROLL_STATE_DRAGGING);
                     }
                 }
+
                 if (mScrollState == SCROLL_STATE_DRAGGING) {
-                    final int dx = x - mLastTouchX;
-                    final int dy = y - mLastTouchY;
-                    if (scrollByInternal(canScrollHorizontally ? -dx : 0,
-                            canScrollVertically ? -dy : 0, true, x, y)) {
+                    mLastTouchX = x - mScrollOffset[0];
+                    mLastTouchY = y - mScrollOffset[1];
+
+                    if (scrollByInternal(
+                            canScrollHorizontally ? dx : 0,
+                            canScrollVertically ? dy : 0,
+                            vtev)) {
                         getParent().requestDisallowInterceptTouchEvent(true);
                     }
                 }
-                mLastTouchX = x;
-                mLastTouchY = y;
             } break;
 
             case MotionEventCompat.ACTION_POINTER_UP: {
@@ -2154,6 +2229,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
                 if (!((xvel != 0 || yvel != 0) && fling((int) xvel, (int) yvel))) {
                     setScrollState(SCROLL_STATE_IDLE);
                 }
+
                 mVelocityTracker.clear();
                 releaseGlows();
             } break;
@@ -2163,6 +2239,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
             } break;
         }
 
+        vtev.recycle();
+
         return true;
     }
 
@@ -2170,6 +2248,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
         if (mVelocityTracker != null) {
             mVelocityTracker.clear();
         }
+        stopNestedScroll();
         releaseGlows();
         setScrollState(SCROLL_STATE_IDLE);
     }
@@ -8197,6 +8276,55 @@ public class RecyclerView extends ViewGroup implements ScrollingView {
             return RecyclerView.NO_POSITION;
         }
         return mAdapterHelper.applyPendingUpdatesToPosition(viewHolder.mPosition);
+    }
+
+    // NestedScrollingChild
+
+    @Override
+    public void setNestedScrollingEnabled(boolean enabled) {
+        mScrollingChildHelper.setNestedScrollingEnabled(enabled);
+    }
+
+    @Override
+    public boolean isNestedScrollingEnabled() {
+        return mScrollingChildHelper.isNestedScrollingEnabled();
+    }
+
+    @Override
+    public boolean startNestedScroll(int axes) {
+        return mScrollingChildHelper.startNestedScroll(axes);
+    }
+
+    @Override
+    public void stopNestedScroll() {
+        mScrollingChildHelper.stopNestedScroll();
+    }
+
+    @Override
+    public boolean hasNestedScrollingParent() {
+        return mScrollingChildHelper.hasNestedScrollingParent();
+    }
+
+    @Override
+    public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed,
+            int dyUnconsumed, int[] offsetInWindow) {
+        return mScrollingChildHelper.dispatchNestedScroll(dxConsumed, dyConsumed,
+                dxUnconsumed, dyUnconsumed, offsetInWindow);
+    }
+
+    @Override
+    public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow) {
+        return mScrollingChildHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow);
+    }
+
+    @Override
+    public boolean dispatchNestedFling(float velocityX, float velocityY, boolean consumed) {
+        return mScrollingChildHelper.dispatchNestedFling(velocityX, velocityY, consumed);
+    }
+
+    @Override
+    public boolean dispatchNestedPreFling(float velocityX, float velocityY) {
+        return mScrollingChildHelper.dispatchNestedPreFling(velocityX, velocityY);
     }
 
     /**

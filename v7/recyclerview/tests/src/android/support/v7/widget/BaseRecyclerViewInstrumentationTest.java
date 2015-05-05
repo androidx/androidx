@@ -38,7 +38,6 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import android.support.v7.recyclerview.test.R;
 
@@ -233,7 +232,7 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
     }
     public void setRecyclerView(final RecyclerView recyclerView, boolean assignDummyPool)
             throws Throwable {
-        setRecyclerView(recyclerView, true, true);
+        setRecyclerView(recyclerView, assignDummyPool, true);
     }
     public void setRecyclerView(final RecyclerView recyclerView, boolean assignDummyPool,
             boolean addPositionCheckItemAnimator)
@@ -390,6 +389,8 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         }
     }
     public class TestLayoutManager extends RecyclerView.LayoutManager {
+        int mScrollVerticallyAmount;
+        int mScrollHorizontallyAmount;
         protected CountDownLatch layoutLatch;
 
         public void expectLayouts(int count) {
@@ -506,12 +507,14 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         @Override
         public int scrollHorizontallyBy(int dx, RecyclerView.Recycler recycler,
                 RecyclerView.State state) {
+            mScrollHorizontallyAmount += dx;
             return dx;
         }
 
         @Override
         public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler,
                 RecyclerView.State state) {
+            mScrollVerticallyAmount += dy;
             return dy;
         }
     }
