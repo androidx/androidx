@@ -24,37 +24,26 @@ import android.view.View;
 final class ShadowHelper {
 
     final static ShadowHelper sInstance = new ShadowHelper();
-    boolean mSupportsShadow;
-    boolean mUsesZShadow;
+    boolean mSupportsDynamicShadow;
     ShadowHelperVersionImpl mImpl;
 
     /**
      * Interface implemented by classes that support Shadow.
      */
     static interface ShadowHelperVersionImpl {
-
-        public void prepareParent(ViewGroup parent);
-
-        public Object addShadow(ViewGroup shadowContainer, boolean roundedCorners);
-
+        public Object addDynamicShadow(
+                ViewGroup shadowContainer, float unfocusedZ, float focusedZ, boolean roundedCorners);
         public void setZ(View view, float z);
-
         public void setShadowFocusLevel(Object impl, float level);
-
     }
 
     /**
      * Interface used when we do not support Shadow animations.
      */
     private static final class ShadowHelperStubImpl implements ShadowHelperVersionImpl {
-
         @Override
-        public void prepareParent(ViewGroup parent) {
-            // do nothing
-        }
-
-        @Override
-        public Object addShadow(ViewGroup shadowContainer, boolean roundedCorners) {
+        public Object addDynamicShadow(
+                ViewGroup shadowContainer, float focusedZ, float unfocusedZ, boolean roundedCorners) {
             // do nothing
             return null;
         }
@@ -68,50 +57,17 @@ final class ShadowHelper {
         public void setZ(View view, float z) {
             // do nothing
         }
-
-    }
-
-    /**
-     * Implementation used on JBMR2 (and above).
-     */
-    private static final class ShadowHelperJbmr2Impl implements ShadowHelperVersionImpl {
-
-        @Override
-        public void prepareParent(ViewGroup parent) {
-            ShadowHelperJbmr2.prepareParent(parent);
-        }
-
-        @Override
-        public Object addShadow(ViewGroup shadowContainer, boolean roundedCorners) {
-            // Static shadows are always rounded
-            return ShadowHelperJbmr2.addShadow(shadowContainer);
-        }
-
-        @Override
-        public void setShadowFocusLevel(Object impl, float level) {
-            ShadowHelperJbmr2.setShadowFocusLevel(impl, level);
-        }
-
-        @Override
-        public void setZ(View view, float z) {
-            // Not supported
-        }
-
     }
 
     /**
      * Implementation used on api 21 (and above).
      */
     private static final class ShadowHelperApi21Impl implements ShadowHelperVersionImpl {
-
         @Override
-        public void prepareParent(ViewGroup parent) {
-            // do nothing
-        }
-
-        @Override
-        public Object addShadow(ViewGroup shadowContainer, boolean roundedCorners) {
-            return ShadowHelperApi21.addShadow(shadowContainer, roundedCorners);
+        public Object addDynamicShadow(
+                ViewGroup shadowContainer, float unfocusedZ, float focusedZ, boolean roundedCorners) {
+            return ShadowHelperApi21.addDynamicShadow(
+                    shadowContainer, unfocusedZ, focusedZ, roundedCorners);
         }
 
         @Override
@@ -123,7 +79,6 @@ final class ShadowHelper {
         public void setZ(View view, float z) {
             ShadowHelperApi21.setZ(view, z);
         }
-
     }
 
     /**
@@ -131,14 +86,9 @@ final class ShadowHelper {
      */
     private ShadowHelper() {
         if (Build.VERSION.SDK_INT >= 21) {
-            mSupportsShadow = true;
-            mUsesZShadow = true;
+            mSupportsDynamicShadow = true;
             mImpl = new ShadowHelperApi21Impl();
-        } else if (Build.VERSION.SDK_INT >= 18) {
-            mSupportsShadow = true;
-            mImpl = new ShadowHelperJbmr2Impl();
         } else {
-            mSupportsShadow = false;
             mImpl = new ShadowHelperStubImpl();
         }
     }
@@ -147,20 +97,13 @@ final class ShadowHelper {
         return sInstance;
     }
 
-    public boolean supportsShadow() {
-        return mSupportsShadow;
+    public boolean supportsDynamicShadow() {
+        return mSupportsDynamicShadow;
     }
 
-    public boolean usesZShadow() {
-        return mUsesZShadow;
-    }
-
-    public void prepareParent(ViewGroup parent) {
-        mImpl.prepareParent(parent);
-    }
-
-    public Object addShadow(ViewGroup shadowContainer, boolean roundedCorners) {
-        return mImpl.addShadow(shadowContainer, roundedCorners);
+    public Object addDynamicShadow(
+            ViewGroup shadowContainer, float unfocusedZ, float focusedZ, boolean roundedCorners) {
+        return mImpl.addDynamicShadow(shadowContainer, unfocusedZ, focusedZ, roundedCorners);
     }
 
     public void setShadowFocusLevel(Object impl, float level) {
