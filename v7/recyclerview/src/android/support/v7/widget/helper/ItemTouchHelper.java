@@ -731,13 +731,11 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
             }
         }
         if (scrollX != 0) {
-            final int s = scrollX;
             scrollX = mCallback.interpolateOutOfBoundsScroll(mRecyclerView,
                     mSelected.itemView.getWidth(), scrollX,
                     mRecyclerView.getWidth(), scrollDuration);
         }
         if (scrollY != 0) {
-            final int s = scrollY;
             scrollY = mCallback.interpolateOutOfBoundsScroll(mRecyclerView,
                     mSelected.itemView.getHeight(), scrollY,
                     mRecyclerView.getHeight(), scrollDuration);
@@ -838,7 +836,6 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
             // keep target visible
             mCallback.onMoved(mRecyclerView, viewHolder, fromPosition,
                     target, toPosition, x, y);
-            return;
         }
     }
 
@@ -1337,7 +1334,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
                 ((START | END) << DIRECTION_FLAG_COUNT) |
                 ((START | END) << (2 * DIRECTION_FLAG_COUNT));
 
-        private static final ItemTouchUICompat mUICallback;
+        private static final ItemTouchUIUtil sUICallback;
 
         private static final int ABS_HORIZONTAL_DIR_FLAGS = LEFT | RIGHT |
                 ((LEFT | RIGHT) << DIRECTION_FLAG_COUNT) |
@@ -1365,12 +1362,55 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
 
         static {
             if (Build.VERSION.SDK_INT >= 21) {
-                mUICallback = new ItemTouchUICompat.LollipopImpl();
+                sUICallback = new ItemTouchUIUtilImpl.Lollipop();
             } else if (Build.VERSION.SDK_INT >= 11) {
-                mUICallback = new ItemTouchUICompat.HoneycombImpl();
+                sUICallback = new ItemTouchUIUtilImpl.Honeycomb();
             } else {
-                mUICallback = new ItemTouchUICompat.GingerbreadImpl();
+                sUICallback = new ItemTouchUIUtilImpl.Gingerbread();
             }
+        }
+
+        /**
+         * Returns the {@link ItemTouchUIUtil} that is used by the {@link Callback} class for visual
+         * changes on Views in response to user interactions. {@link ItemTouchUIUtil} has different
+         * implementations for different platform versions.
+         * <p>
+         * By default, {@link Callback} applies these changes on
+         * {@link RecyclerView.ViewHolder#itemView}.
+         * <p>
+         * For example, if you have a use case where you only want the text to move when user
+         * swipes over the view, you can do the following:
+         * <pre>
+         *     public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder){
+         *         getDefaultUIUtil().clearView(((ItemTouchViewHolder) viewHolder).textView);
+         *     }
+         *     public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
+         *         if (viewHolder != null){
+         *             getDefaultUIUtil().onSelected(((ItemTouchViewHolder) viewHolder).textView);
+         *         }
+         *     }
+         *     public void onChildDraw(Canvas c, RecyclerView recyclerView,
+         *             RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState,
+         *             boolean isCurrentlyActive) {
+         *         getDefaultUIUtil().onDraw(c, recyclerView,
+         *                 ((ItemTouchViewHolder) viewHolder).textView, dX, dY,
+         *                 actionState, isCurrentlyActive);
+         *         return true;
+         *     }
+         *     public void onChildDrawOver(Canvas c, RecyclerView recyclerView,
+         *             RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState,
+         *             boolean isCurrentlyActive) {
+         *         getDefaultUIUtil().onDrawOver(c, recyclerView,
+         *                 ((ItemTouchViewHolder) viewHolder).textView, dX, dY,
+         *                 actionState, isCurrentlyActive);
+         *         return true;
+         *     }
+         * </pre>
+         *
+         * @return The {@link ItemTouchUIUtil} instance that is used by the {@link Callback}
+         */
+        public static ItemTouchUIUtil getDefaultUIUtil() {
+            return sUICallback;
         }
 
         /**
@@ -1743,7 +1783,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
          */
         public void onSelectedChanged(ViewHolder viewHolder, int actionState) {
             if (viewHolder != null) {
-                mUICallback.onSelected(viewHolder);
+                sUICallback.onSelected(viewHolder.itemView);
             }
         }
 
@@ -1886,7 +1926,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
          * @param viewHolder   The View that was interacted by the user.
          */
         public void clearView(RecyclerView recyclerView, ViewHolder viewHolder) {
-            mUICallback.clearView(viewHolder);
+            sUICallback.clearView(viewHolder.itemView);
         }
 
         /**
@@ -1919,7 +1959,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         public void onChildDraw(Canvas c, RecyclerView recyclerView,
                 ViewHolder viewHolder,
                 float dX, float dY, int actionState, boolean isCurrentlyActive) {
-            mUICallback.onDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+            sUICallback.onDraw(c, recyclerView, viewHolder.itemView, dX, dY, actionState,
+                    isCurrentlyActive);
         }
 
         /**
@@ -1952,7 +1993,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         public void onChildDrawOver(Canvas c, RecyclerView recyclerView,
                 ViewHolder viewHolder,
                 float dX, float dY, int actionState, boolean isCurrentlyActive) {
-            mUICallback.onDrawOver(c, recyclerView, viewHolder, dX, dY, actionState,
+            sUICallback.onDrawOver(c, recyclerView, viewHolder.itemView, dX, dY, actionState,
                     isCurrentlyActive);
         }
 
