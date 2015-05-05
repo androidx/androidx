@@ -33,6 +33,7 @@ public class ControlButtonPresenterSelector extends PresenterSelector {
             new ControlButtonPresenter(R.layout.lb_control_button_primary);
     private final Presenter mSecondaryPresenter =
             new ControlButtonPresenter(R.layout.lb_control_button_secondary);
+    private final Presenter[] mPresenters = new Presenter[]{mPrimaryPresenter};
 
     /**
      * Returns the presenter for primary controls.
@@ -51,8 +52,14 @@ public class ControlButtonPresenterSelector extends PresenterSelector {
     /**
      * Always returns the presenter for primary controls.
      */
+    @Override
     public Presenter getPresenter(Object item) {
         return mPrimaryPresenter;
+    }
+
+    @Override
+    public Presenter[] getPresenters() {
+        return mPresenters;
     }
 
     static class ActionViewHolder extends Presenter.ViewHolder {

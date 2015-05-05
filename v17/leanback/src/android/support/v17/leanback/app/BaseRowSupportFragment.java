@@ -23,7 +23,8 @@ import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.ListRow;
-import android.support.v17.leanback.widget.OnChildSelectedListener;
+import android.support.v17.leanback.widget.OnChildViewHolderSelectedListener;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,14 +41,17 @@ abstract class BaseRowSupportFragment extends Fragment {
 
     abstract int getLayoutResourceId();
 
-    private final OnChildSelectedListener mRowSelectedListener = new OnChildSelectedListener() {
-        @Override
-        public void onChildSelected(ViewGroup parent, View view, int position, long id) {
-            onRowSelected(parent, view, position, id);
-        }
-    };
+    private final OnChildViewHolderSelectedListener mRowSelectedListener =
+            new OnChildViewHolderSelectedListener() {
+                @Override
+                public void onChildViewHolderSelected(RecyclerView parent,
+                        RecyclerView.ViewHolder view, int position, int subposition) {
+                    onRowSelected(parent, view, position, subposition);
+                }
+            };
 
-    void onRowSelected(ViewGroup parent, View view, int position, long id) {
+    void onRowSelected(RecyclerView parent, RecyclerView.ViewHolder view,
+            int position, int subposition) {
     }
 
     @Override
@@ -70,7 +74,7 @@ abstract class BaseRowSupportFragment extends Fragment {
                 mVerticalGridView.setSelectedPosition(mSelectedPosition);
             }
         }
-        mVerticalGridView.setOnChildSelectedListener(mRowSelectedListener);
+        mVerticalGridView.setOnChildViewHolderSelectedListener(mRowSelectedListener);
     }
 
     @Override

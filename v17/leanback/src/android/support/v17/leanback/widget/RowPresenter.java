@@ -323,6 +323,16 @@ public abstract class RowPresenter extends Presenter {
     protected abstract ViewHolder createRowViewHolder(ViewGroup parent);
 
     /**
+     * Returns true if the Row view should clip it's children.  The clipChildren
+     * flag is set on view in {@link #initializeRowViewHolder(ViewHolder)}.  Note that
+     * Slide transition or explode transition need turn off clipChildren.
+     * Default value is false.
+     */
+    protected boolean isClippingChildren() {
+        return false;
+    }
+
+    /**
      * Called after a {@link RowPresenter.ViewHolder} is created for a Row.
      * Subclasses may override this method and start by calling
      * super.initializeRowViewHolder(ViewHolder).
@@ -331,12 +341,14 @@ public abstract class RowPresenter extends Presenter {
      */
     protected void initializeRowViewHolder(ViewHolder vh) {
         vh.mInitialzed = true;
-        // set clip children to false for slide transition
-        if (vh.view instanceof ViewGroup) {
-            ((ViewGroup) vh.view).setClipChildren(false);
-        }
-        if (vh.mContainerViewHolder != null) {
-            ((ViewGroup) vh.mContainerViewHolder.view).setClipChildren(false);
+        if (!isClippingChildren()) {
+            // set clip children to false for slide transition
+            if (vh.view instanceof ViewGroup) {
+                ((ViewGroup) vh.view).setClipChildren(false);
+            }
+            if (vh.mContainerViewHolder != null) {
+                ((ViewGroup) vh.mContainerViewHolder.view).setClipChildren(false);
+            }
         }
     }
 

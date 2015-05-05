@@ -48,6 +48,7 @@ public final class ItemAlignmentFacet {
      */
     public static class ItemAlignmentDef {
         int mViewId = View.NO_ID;
+        int mFocusViewId = View.NO_ID;
         int mOffset = 0;
         float mOffsetPercent = 50f;
         boolean mOffsetWithPadding = false;
@@ -124,6 +125,21 @@ public final class ItemAlignmentFacet {
             return mViewId;
         }
 
+        /**
+         * Sets Id of which child view take focus for alignment.  When not set, it will use
+         * use same id of {@link #getItemAlignmentViewId()}
+         */
+        public final void setItemAlignmentFocusViewId(int viewId) {
+            mFocusViewId = viewId;
+        }
+
+        /**
+         * Returns Id of which child view take focus for alignment.  When not set, it will use
+         * use same id of {@link #getItemAlignmentViewId()}
+         */
+        public final int getItemAlignmentFocusViewId() {
+            return mFocusViewId != View.NO_ID ? mFocusViewId : mViewId;
+        }
     }
 
     private ItemAlignmentDef[] mAlignmentDefs = new ItemAlignmentDef[]{new ItemAlignmentDef()};
