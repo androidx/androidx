@@ -17,6 +17,11 @@
 
 <resources>
 
+    <style name="Theme.Design.TransparentStatus">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+    </style>
+
     <style name="Theme.Navigation" parent="Theme.Navigation.Base">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>

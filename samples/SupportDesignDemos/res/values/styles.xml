@@ -23,6 +23,8 @@
         <item name="colorAccent">#FFAB40</item>
     </style>
 
+    <style name="Theme.Design.TransparentStatus">
+    </style>
 
     <style name="Theme.FAB" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">#ff00bcd4</item>
