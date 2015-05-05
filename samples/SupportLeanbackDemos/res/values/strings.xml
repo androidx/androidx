@@ -25,6 +25,8 @@
     <string name="search_description">SearchFragment test</string>
     <string name="details">Details</string>
     <string name="details_description">DetailsFragment test</string>
+    <string name="search_details">Search Details</string>
+    <string name="search_details_description">Search style DetailsFragment test</string>
     <string name="playback">Playback</string>
     <string name="playback_description">PlaybackOverlay test</string>
     <string name="hgrid">Horizontal Grid</string>
@@ -35,6 +37,10 @@
     <string name="guidedstep_description">GuidedStepFragment test</string>
     <string name="browseerror">Browse Error</string>
     <string name="browseerror_description">BrowseError test</string>
+    <string name="detail_presenter_options">Choose Presenter for Details</string>
+    <string name="detail_presenter_options_description">Choose Presenter for Details</string>
+    <string name="legacydetails_off">Use New DetailsPresenter</string>
+    <string name="legacydetails_on">Use Legacy DetailsPresenter</string>
 
     <!-- Strings related to guided sequence activity -->
     <string name="guidedstep_first_title">First</string>
