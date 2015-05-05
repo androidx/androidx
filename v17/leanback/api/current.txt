@@ -493,6 +493,17 @@ package android.support.v17.leanback.graphics {
 
 }
 
+package android.support.v17.leanback.system {
+
+  public class Settings {
+    method public boolean getBoolean(java.lang.String);
+    method public static android.support.v17.leanback.system.Settings getInstance(android.content.Context);
+    method public void setBoolean(java.lang.String, boolean);
+    field public static final java.lang.String PREFER_STATIC_SHADOWS = "PREFER_STATIC_SHADOWS";
+  }
+
+}
+
 package android.support.v17.leanback.view {
 
   public class ViewGroupOverlayHelper {
@@ -1047,7 +1058,7 @@ package android.support.v17.leanback.widget {
     method public boolean isUsingDefaultListSelectEffect();
     method public final boolean isUsingDefaultSelectEffect();
     method public boolean isUsingDefaultShadow();
-    method public boolean isUsingZOrder();
+    method public boolean isUsingZOrder(android.content.Context);
     method public void setExpandedRowHeight(int);
     method public final void setHoverCardPresenterSelector(android.support.v17.leanback.widget.PresenterSelector);
     method public void setRecycledPoolSize(android.support.v17.leanback.widget.Presenter, int);
@@ -1447,14 +1458,23 @@ package android.support.v17.leanback.widget {
     ctor public ShadowOverlayContainer(android.content.Context);
     ctor public ShadowOverlayContainer(android.content.Context, android.util.AttributeSet);
     ctor public ShadowOverlayContainer(android.content.Context, android.util.AttributeSet, int);
+    method public int getShadowType();
+    method public android.view.View getWrappedView();
     method public deprecated void initialize(boolean, boolean);
     method public void initialize(boolean, boolean, boolean);
     method protected void onLayout(boolean, int, int, int, int);
     method public static void prepareParentForShadow(android.view.ViewGroup);
     method public void setOverlayColor(int);
     method public void setShadowFocusLevel(float);
+    method public static boolean supportsDynamicShadow();
     method public static boolean supportsShadow();
+    method public void useDynamicShadow();
+    method public void useDynamicShadow(float, float);
+    method public void useStaticShadow();
     method public void wrap(android.view.View);
+    field public static final int SHADOW_DYNAMIC = 3; // 0x3
+    field public static final int SHADOW_NONE = 1; // 0x1
+    field public static final int SHADOW_STATIC = 2; // 0x2
   }
 
   public final class SinglePresenterSelector extends android.support.v17.leanback.widget.PresenterSelector {
@@ -1538,7 +1558,7 @@ package android.support.v17.leanback.widget {
     method protected void initializeGridViewHolder(android.support.v17.leanback.widget.VerticalGridPresenter.ViewHolder);
     method public final boolean isFocusDimmerUsed();
     method public boolean isUsingDefaultShadow();
-    method public boolean isUsingZOrder();
+    method public boolean isUsingZOrder(android.content.Context);
     method public void onBindViewHolder(android.support.v17.leanback.widget.Presenter.ViewHolder, java.lang.Object);
     method public final android.support.v17.leanback.widget.VerticalGridPresenter.ViewHolder onCreateViewHolder(android.view.ViewGroup);
     method public void onUnbindViewHolder(android.support.v17.leanback.widget.Presenter.ViewHolder);
