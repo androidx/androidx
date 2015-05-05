@@ -246,6 +246,7 @@ class PreferenceInflater {
                     }
                 }
                 constructor = clazz.getConstructor(CONSTRUCTOR_SIGNATURE);
+                constructor.setAccessible(true);
                 CONSTRUCTOR_MAP.put(name, constructor);
             }
 
