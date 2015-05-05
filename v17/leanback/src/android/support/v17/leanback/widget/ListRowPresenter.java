@@ -288,7 +288,7 @@ public class ListRowPresenter extends RowPresenter {
                 new OnChildSelectedListener() {
             @Override
             public void onChildSelected(ViewGroup parent, View view, int position, long id) {
-                selectChildView(rowViewHolder, view);
+                selectChildView(rowViewHolder, view, true);
             }
         });
         rowViewHolder.mGridView.setOnUnhandledKeyListener(
@@ -341,7 +341,7 @@ public class ListRowPresenter extends RowPresenter {
     /*
      * Perform operations when a child of horizontal grid view is selected.
      */
-    private void selectChildView(ViewHolder rowViewHolder, View view) {
+    private void selectChildView(ViewHolder rowViewHolder, View view, boolean fireEvent) {
         if (view != null) {
             if (rowViewHolder.mExpanded && rowViewHolder.mSelected) {
                 ItemBridgeAdapter.ViewHolder ibh = (ItemBridgeAdapter.ViewHolder)
@@ -351,7 +351,7 @@ public class ListRowPresenter extends RowPresenter {
                     rowViewHolder.mHoverCardViewSwitcher.select(
                             rowViewHolder.mGridView, view, ibh.mItem);
                 }
-                if (rowViewHolder.getOnItemViewSelectedListener() != null) {
+                if (fireEvent && rowViewHolder.getOnItemViewSelectedListener() != null) {
                     rowViewHolder.getOnItemViewSelectedListener().onItemSelected(
                             ibh.mHolder, ibh.mItem, rowViewHolder, rowViewHolder.mRow);
                 }
@@ -360,7 +360,7 @@ public class ListRowPresenter extends RowPresenter {
             if (mHoverCardPresenterSelector != null) {
                 rowViewHolder.mHoverCardViewSwitcher.unselect();
             }
-            if (rowViewHolder.getOnItemViewSelectedListener() != null) {
+            if (fireEvent && rowViewHolder.getOnItemViewSelectedListener() != null) {
                 rowViewHolder.getOnItemViewSelectedListener().onItemSelected(
                         null, null, rowViewHolder, rowViewHolder.mRow);
             }
@@ -463,7 +463,7 @@ public class ListRowPresenter extends RowPresenter {
             ItemBridgeAdapter.ViewHolder ibh = (ItemBridgeAdapter.ViewHolder)
                     vh.mGridView.findViewHolderForPosition(
                             vh.mGridView.getSelectedPosition());
-            selectChildView(vh, ibh == null ? null : ibh.itemView);
+            selectChildView(vh, ibh == null ? null : ibh.itemView, false);
         } else {
             if (mHoverCardPresenterSelector != null) {
                 vh.mHoverCardViewSwitcher.unselect();

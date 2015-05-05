@@ -100,6 +100,18 @@
     <integer name="lb_details_description_body_max_lines">5</integer>
     <integer name="lb_details_description_body_min_lines">3</integer>
 
+    <dimen name="lb_details_v2_logo_max_width">150dp</dimen>
+    <dimen name="lb_details_v2_logo_max_height">210dp</dimen>
+    <dimen name="lb_details_v2_blank_height">160dp</dimen>
+    <dimen name="lb_details_v2_card_height">540dp</dimen>
+    <dimen name="lb_details_v2_left">270dip</dimen>
+    <dimen name="lb_details_v2_actions_height">56dip</dimen>
+    <dimen name="lb_details_v2_description_margin_start">24dp</dimen>
+    <dimen name="lb_details_v2_description_margin_end">54dp</dimen>
+    <dimen name="lb_details_v2_description_margin_top">24dp</dimen>
+    <dimen name="lb_details_v2_align_pos_for_actions">270dp</dimen>
+    <dimen name="lb_details_v2_align_pos_for_description">0dp</dimen>
+
     <dimen name="lb_action_1_line_height">36dp</dimen>
     <dimen name="lb_action_2_lines_height">56dp</dimen>
     <dimen name="lb_action_padding_horizontal">24dp</dimen>

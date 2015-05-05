@@ -102,6 +102,12 @@
         <item name="android:windowSharedElementReturnTransition">@transition/lb_shared_element_return_transition</item>
     </style>
 
+    <!-- Theme for the details without shared element transition -->
+    <style name="Theme.Leanback.Details.NoSharedElementTransition">
+        <item name="android:windowSharedElementEnterTransition">@null</item>
+        <item name="android:windowSharedElementReturnTransition">@null</item>
+    </style>
+
     <style name="Theme.Leanback.GuidedStep" parent="Theme.LeanbackBase">
         <item name="guidedStepThemeFlag">true</item>
 
