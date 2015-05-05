@@ -732,6 +732,7 @@ package android.support.v7.widget.helper {
     method public static int convertToRelativeDirection(int, int);
     method public long getAnimationDuration(android.support.v7.widget.RecyclerView, int, float, float);
     method public int getBoundingBoxMargin();
+    method public static android.support.v7.widget.helper.ItemTouchUIUtil getDefaultUIUtil();
     method public float getMoveThreshold(android.support.v7.widget.RecyclerView.ViewHolder);
     method public abstract int getMovementFlags(android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.ViewHolder);
     method public float getSwipeThreshold(android.support.v7.widget.RecyclerView.ViewHolder);
@@ -761,6 +762,13 @@ package android.support.v7.widget.helper {
 
   public static abstract interface ItemTouchHelper.ViewDropHandler {
     method public abstract void prepareForDrop(android.view.View, android.view.View, int, int);
+  }
+
+  public abstract interface ItemTouchUIUtil {
+    method public abstract void clearView(android.view.View);
+    method public abstract void onDraw(android.graphics.Canvas, android.support.v7.widget.RecyclerView, android.view.View, float, float, int, boolean);
+    method public abstract void onDrawOver(android.graphics.Canvas, android.support.v7.widget.RecyclerView, android.view.View, float, float, int, boolean);
+    method public abstract void onSelected(android.view.View);
   }
 
 }
