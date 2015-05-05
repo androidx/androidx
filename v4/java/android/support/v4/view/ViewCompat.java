@@ -380,6 +380,7 @@ public class ViewCompat {
         boolean isLaidOut(View view);
         int combineMeasuredStates(int curState, int newState);
         public float getZ(View view);
+        public boolean isAttachedToWindow(View view);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -940,6 +941,11 @@ public class ViewCompat {
         public float getZ(View view) {
             return getTranslationZ(view) + getElevation(view);
         }
+
+        @Override
+        public boolean isAttachedToWindow(View view) {
+            return ViewCompatBase.isAttachedToWindow(view);
+        }
     }
 
     static class EclairMr1ViewCompatImpl extends BaseViewCompatImpl {
@@ -1349,6 +1355,11 @@ public class ViewCompat {
         @Override
         public boolean isLaidOut(View view) {
             return ViewCompatKitKat.isLaidOut(view);
+        }
+
+        @Override
+        public boolean isAttachedToWindow(View view) {
+            return ViewCompatKitKat.isAttachedToWindow(view);
         }
     }
 
@@ -2987,5 +2998,12 @@ public class ViewCompat {
             // We need to manually invalidate pre-honeycomb
             view.invalidate();
         }
+    }
+
+    /**
+     * Returns true if the provided view is currently attached to a window.
+     */
+    public static boolean isAttachedToWindow(View view) {
+        return IMPL.isAttachedToWindow(view);
     }
 }
