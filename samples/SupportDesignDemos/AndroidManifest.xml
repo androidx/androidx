@@ -99,5 +99,68 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".widget.AppBarLayoutToolbarScrollTabsScroll"
+                  android:label="@string/design_appbar_toolbar_scroll_tabs_scroll"
+                  android:theme="@style/Theme.Design">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.support.design.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".widget.AppBarLayoutToolbarScrollTabsPin"
+                  android:label="@string/design_appbar_toolbar_scroll_tabs_pin"
+                  android:theme="@style/Theme.Design">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.support.design.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".widget.AppBarLayoutToolbarCollapseThenPin"
+                  android:label="@string/design_appbar_collapsing_toolbar_pin"
+                  android:theme="@style/Theme.Design">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.support.design.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".widget.AppBarLayoutToolbarCollapseThenPinWithFab"
+                  android:label="@string/design_appbar_collapsing_toolbar_pin_fab"
+                  android:theme="@style/Theme.Design">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.support.design.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".widget.AppBarLayoutToolbarCollapseThenScroll"
+                  android:label="@string/design_appbar_collapsing_toolbar_scroll"
+                  android:theme="@style/Theme.Design">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.support.design.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".widget.AppBarLayoutToolbarCollapseWithImage"
+                  android:label="@string/design_appbar_collapsing_toolbar_with_image"
+                  android:theme="@style/Theme.Design">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.support.design.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".widget.AppBarLayoutToolbarParallaxOverlapContent"
+                  android:label="@string/design_appbar_parallax_overlap"
+                  android:theme="@style/Theme.Design">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.support.design.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
     </application>
 </manifest>
