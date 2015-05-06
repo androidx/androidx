@@ -65,6 +65,8 @@
      <public type="attr" name="buttonBarStyle"/>
      <public type="attr" name="buttonStyle"/>
      <public type="attr" name="buttonStyleSmall"/>
+     <public type="attr" name="buttonTint"/>
+     <public type="attr" name="buttonTintMode"/>
      <public type="attr" name="checkboxStyle"/>
      <public type="attr" name="checkedTextViewStyle"/>
      <public type="attr" name="closeIcon"/>
