@@ -22,7 +22,7 @@ import android.util.AttributeSet;
 
 class PrivateLayoutManager extends RecyclerView.LayoutManager {
 
-    private PrivateLayoutManager(Context context, AttributeSet attrs, int defStyleAttr,
+    public PrivateLayoutManager(Context context, AttributeSet attrs, int defStyleAttr,
             int defStyleRes) {
 
     }
