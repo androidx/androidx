@@ -1426,8 +1426,11 @@ package android.support.v4.media.session {
     method public int describeContents();
     method public static android.support.v4.media.session.PlaybackStateCompat fromPlaybackState(java.lang.Object);
     method public long getActions();
+    method public long getActiveQueueItemId();
     method public long getBufferedPosition();
+    method public java.util.List<android.support.v4.media.session.PlaybackStateCompat.CustomAction> getCustomActions();
     method public java.lang.CharSequence getErrorMessage();
+    method public android.os.Bundle getExtras();
     method public long getLastPositionUpdateTime();
     method public float getPlaybackSpeed();
     method public java.lang.Object getPlaybackState();
@@ -1464,17 +1467,23 @@ package android.support.v4.media.session {
   public static final class PlaybackStateCompat.Builder {
     ctor public PlaybackStateCompat.Builder();
     ctor public PlaybackStateCompat.Builder(android.support.v4.media.session.PlaybackStateCompat);
+    method public android.support.v4.media.session.PlaybackStateCompat.Builder addCustomAction(java.lang.String, java.lang.String, int);
+    method public android.support.v4.media.session.PlaybackStateCompat.Builder addCustomAction(android.support.v4.media.session.PlaybackStateCompat.CustomAction);
     method public android.support.v4.media.session.PlaybackStateCompat build();
     method public android.support.v4.media.session.PlaybackStateCompat.Builder setActions(long);
+    method public android.support.v4.media.session.PlaybackStateCompat.Builder setActiveQueueItemId(long);
     method public android.support.v4.media.session.PlaybackStateCompat.Builder setBufferedPosition(long);
     method public android.support.v4.media.session.PlaybackStateCompat.Builder setErrorMessage(java.lang.CharSequence);
+    method public android.support.v4.media.session.PlaybackStateCompat.Builder setExtras(android.os.Bundle);
     method public android.support.v4.media.session.PlaybackStateCompat.Builder setState(int, long, float);
     method public android.support.v4.media.session.PlaybackStateCompat.Builder setState(int, long, float, long);
   }
 
   public static final class PlaybackStateCompat.CustomAction implements android.os.Parcelable {
     method public int describeContents();
+    method public static android.support.v4.media.session.PlaybackStateCompat.CustomAction fromCustomAction(java.lang.Object);
     method public java.lang.String getAction();
+    method public java.lang.Object getCustomAction();
     method public android.os.Bundle getExtras();
     method public int getIcon();
     method public java.lang.CharSequence getName();
