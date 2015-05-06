@@ -41,6 +41,7 @@ public class MediaSessionCompatApi14 {
     final static int STATE_CONNECTING = 8;
     final static int STATE_SKIPPING_TO_PREVIOUS = 9;
     final static int STATE_SKIPPING_TO_NEXT = 10;
+    final static int STATE_SKIPPING_TO_QUEUE_ITEM = 11;
 
     /***** PlaybackState actions *****/
     private static final long ACTION_STOP = 1 << 0;
@@ -119,6 +120,7 @@ public class MediaSessionCompatApi14 {
             case STATE_SKIPPING_TO_PREVIOUS:
                 return RemoteControlClient.PLAYSTATE_SKIPPING_BACKWARDS;
             case STATE_SKIPPING_TO_NEXT:
+            case STATE_SKIPPING_TO_QUEUE_ITEM:
                 return RemoteControlClient.PLAYSTATE_SKIPPING_FORWARDS;
             case STATE_STOPPED:
                 return RemoteControlClient.PLAYSTATE_STOPPED;
