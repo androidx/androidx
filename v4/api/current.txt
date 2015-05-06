@@ -1574,6 +1574,7 @@ package android.support.v4.media.session {
     field public static final android.os.Parcelable.Creator<android.support.v4.media.session.PlaybackStateCompat> CREATOR;
     field public static final long PLAYBACK_POSITION_UNKNOWN = -1L; // 0xffffffffffffffffL
     field public static final int STATE_BUFFERING = 6; // 0x6
+    field public static final int STATE_CONNECTING = 8; // 0x8
     field public static final int STATE_ERROR = 7; // 0x7
     field public static final int STATE_FAST_FORWARDING = 4; // 0x4
     field public static final int STATE_NONE = 0; // 0x0
@@ -1582,6 +1583,7 @@ package android.support.v4.media.session {
     field public static final int STATE_REWINDING = 5; // 0x5
     field public static final int STATE_SKIPPING_TO_NEXT = 10; // 0xa
     field public static final int STATE_SKIPPING_TO_PREVIOUS = 9; // 0x9
+    field public static final int STATE_SKIPPING_TO_QUEUE_ITEM = 11; // 0xb
     field public static final int STATE_STOPPED = 1; // 0x1
   }
 
