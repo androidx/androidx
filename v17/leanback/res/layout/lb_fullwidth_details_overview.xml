@@ -31,6 +31,7 @@
         android:layout_height="@dimen/lb_details_v2_card_height"
         android:layout_marginTop="@dimen/lb_details_v2_blank_height"
         android:paddingStart="@dimen/lb_details_v2_left"
+        android:clipToPadding="false"
         android:orientation="vertical"
         android:foreground="#ffffff"
         android:elevation="@dimen/lb_details_overview_z"
