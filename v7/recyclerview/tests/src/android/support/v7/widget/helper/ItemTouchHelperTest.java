@@ -79,7 +79,13 @@ public class ItemTouchHelperTest extends BaseRecyclerViewInstrumentationTest {
         mWrappedRecyclerView.setLayoutManager(mLayoutManager);
         mCalback = new LoggingCalback(dragDirs, swipeDirs);
         mItemTouchHelper = new LoggingItemTouchHelper(mCalback);
-        mItemTouchHelper.attachToRecyclerView(mWrappedRecyclerView);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mItemTouchHelper.attachToRecyclerView(mWrappedRecyclerView);
+            }
+        });
+
         return mWrappedRecyclerView;
     }
 
