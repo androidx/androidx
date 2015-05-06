@@ -281,6 +281,10 @@ package android.support.v7.app {
     method public boolean supportRequestWindowFeature(int);
   }
 
+  public class AppCompatDialogFragment extends android.support.v4.app.DialogFragment {
+    ctor public AppCompatDialogFragment();
+  }
+
   public class NotificationCompat extends android.support.v4.app.NotificationCompat {
     ctor public NotificationCompat();
   }
