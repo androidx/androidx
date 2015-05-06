@@ -670,16 +670,15 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
         setupBasic(1, 0, 1, adapter);
         mRecyclerView.getItemAnimator().setAddDuration(3000);
         mLayoutManager.expectLayouts(2);
-
         // add 2 items
         setExpectedItemCounts(1, 3);
         mTestAdapter.addAndNotify(0, 2);
-        mLayoutManager.waitForLayout(2);
-
+        mLayoutManager.waitForLayout(2, false);
+        checkForMainThreadException();
         // wait till "add animation" starts
         int limit = 200;
         while (addedView[0] == null || addedView[1] == null) {
-            Thread.sleep(20);
+            Thread.sleep(100);
             runTestOnUiThread(new Runnable() {
                 @Override
                 public void run() {
