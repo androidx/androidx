@@ -17,7 +17,11 @@
 package android.support.v4.media.session;
 
 import android.media.session.PlaybackState;
+import android.os.Bundle;
 import android.os.SystemClock;
+
+import java.util.ArrayList;
+import java.util.List;
 
 class PlaybackStateCompatApi21 {
     public static int getState(Object stateObj) {
@@ -48,13 +52,52 @@ class PlaybackStateCompatApi21 {
         return ((PlaybackState)stateObj).getLastPositionUpdateTime();
     }
 
+    public static List<Object> getCustomActions(Object stateObj) {
+        return (List)((PlaybackState)stateObj).getCustomActions();
+    }
+
+    public static long getActiveQueueItemId(Object stateObj) {
+        return ((PlaybackState)stateObj).getActiveQueueItemId();
+    }
+
     public static Object newInstance(int state, long position, long bufferedPosition,
-            float speed, long actions, CharSequence errorMessage, long updateTime) {
+            float speed, long actions, CharSequence errorMessage, long updateTime,
+            List<Object> customActions,
+            long activeItemId) {
         PlaybackState.Builder stateObj = new PlaybackState.Builder();
         stateObj.setState(state, position, speed, updateTime);
         stateObj.setBufferedPosition(bufferedPosition);
         stateObj.setActions(actions);
         stateObj.setErrorMessage(errorMessage);
+        for (Object customAction : customActions) {
+            stateObj.addCustomAction((PlaybackState.CustomAction) customAction);
+        }
+        stateObj.setActiveQueueItemId(activeItemId);
         return stateObj.build();
+    }
+
+    static final class CustomAction {
+        public static String getAction(Object customActionObj) {
+            return ((PlaybackState.CustomAction)customActionObj).getAction();
+        }
+
+        public static CharSequence getName(Object customActionObj) {
+            return ((PlaybackState.CustomAction)customActionObj).getName();
+        }
+
+        public static int getIcon(Object customActionObj) {
+            return ((PlaybackState.CustomAction)customActionObj).getIcon();
+        }
+        public static Bundle getExtras(Object customActionObj) {
+            return ((PlaybackState.CustomAction)customActionObj).getExtras();
+        }
+
+        public static Object newInstance(String action, CharSequence name,
+                int icon, Bundle extras) {
+            PlaybackState.CustomAction.Builder customActionObj =
+                    new PlaybackState.CustomAction.Builder(action, name, icon);
+            customActionObj.setExtras(extras);
+            return customActionObj.build();
+        }
     }
 }
