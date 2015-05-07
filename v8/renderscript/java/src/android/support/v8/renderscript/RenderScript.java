@@ -698,7 +698,7 @@ public class RenderScript {
                     Log.e(LOG_TAG, "Error loading RS Compat library for Incremental Intrinsic Support: " + e);
                     throw new RSRuntimeException("Error loading RS Compat library for Incremental Intrinsic Support: " + e);
                 }
-                if (!nIncLoadSO()) {
+                if (!nIncLoadSO(sSdkVersion)) {
                     throw new RSRuntimeException("Error loading libRSSupport library for Incremental Intrinsic Support");
                 }
                 mIncLoaded = true;
@@ -829,7 +829,7 @@ public class RenderScript {
 
 // Additional Entry points For inc libRSSupport
 
-    native boolean nIncLoadSO();
+    native boolean nIncLoadSO(int deviceApi);
     native long nIncDeviceCreate();
     native void nIncDeviceDestroy(long dev);
     // Methods below are wrapped to protect the non-threadsafe
@@ -1244,7 +1244,7 @@ public class RenderScript {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             useIOlib = true;
         }
-        if (!rs.nLoadSO(useNative, android.os.Build.VERSION.SDK_INT)) {
+        if (!rs.nLoadSO(useNative, sdkVersion)) {
             if (useNative) {
                 android.util.Log.v(LOG_TAG, "Unable to load libRS.so, falling back to compat mode");
                 useNative = false;
@@ -1255,7 +1255,7 @@ public class RenderScript {
                 Log.e(LOG_TAG, "Error loading RS Compat library: " + e);
                 throw new RSRuntimeException("Error loading RS Compat library: " + e);
             }
-            if (!rs.nLoadSO(false, android.os.Build.VERSION.SDK_INT)) {
+            if (!rs.nLoadSO(false, sdkVersion)) {
                 throw new RSRuntimeException("Error loading libRSSupport library");
             }
         }
