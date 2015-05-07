@@ -55,6 +55,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * Layout manager that allows the user to flip left and right
@@ -213,6 +214,7 @@ public class ViewPager extends ViewGroup {
     private boolean mCalledSuper;
     private int mDecorChildCount;
 
+    private List<OnPageChangeListener> mOnPageChangeListeners;
     private OnPageChangeListener mOnPageChangeListener;
     private OnPageChangeListener mInternalPageChangeListener;
     private OnAdapterChangeListener mAdapterChangeListener;
@@ -398,9 +400,7 @@ public class ViewPager extends ViewGroup {
             // PageTransformers can do complex things that benefit from hardware layers.
             enableLayers(newState != SCROLL_STATE_IDLE);
         }
-        if (mOnPageChangeListener != null) {
-            mOnPageChangeListener.onPageScrollStateChanged(newState);
-        }
+        dispatchOnScrollStateChanged(newState);
     }
 
     /**
@@ -543,11 +543,8 @@ public class ViewPager extends ViewGroup {
             // We don't have any idea how big we are yet and shouldn't have any pages either.
             // Just set things up and let the pending layout handle things.
             mCurItem = item;
-            if (dispatchSelected && mOnPageChangeListener != null) {
-                mOnPageChangeListener.onPageSelected(item);
-            }
-            if (dispatchSelected && mInternalPageChangeListener != null) {
-                mInternalPageChangeListener.onPageSelected(item);
+            if (dispatchSelected) {
+                dispatchOnPageSelected(item);
             }
             requestLayout();
         } else {
@@ -567,18 +564,12 @@ public class ViewPager extends ViewGroup {
         }
         if (smoothScroll) {
             smoothScrollTo(destX, 0, velocity);
-            if (dispatchSelected && mOnPageChangeListener != null) {
-                mOnPageChangeListener.onPageSelected(item);
-            }
-            if (dispatchSelected && mInternalPageChangeListener != null) {
-                mInternalPageChangeListener.onPageSelected(item);
+            if (dispatchSelected) {
+                dispatchOnPageSelected(item);
             }
         } else {
-            if (dispatchSelected && mOnPageChangeListener != null) {
-                mOnPageChangeListener.onPageSelected(item);
-            }
-            if (dispatchSelected && mInternalPageChangeListener != null) {
-                mInternalPageChangeListener.onPageSelected(item);
+            if (dispatchSelected) {
+                dispatchOnPageSelected(item);
             }
             completeScroll(false);
             scrollTo(destX, 0);
@@ -591,9 +582,51 @@ public class ViewPager extends ViewGroup {
      * scrolled. See {@link OnPageChangeListener}.
      *
      * @param listener Listener to set
+     *
+     * @deprecated Use {@link #addOnPageChangeListener(OnPageChangeListener)}
+     * and {@link #removeOnPageChangeListener(OnPageChangeListener)} instead.
      */
+    @Deprecated
     public void setOnPageChangeListener(OnPageChangeListener listener) {
         mOnPageChangeListener = listener;
+    }
+
+    /**
+     * Add a listener that will be invoked whenever the page changes or is incrementally
+     * scrolled. See {@link OnPageChangeListener}.
+     *
+     * <p>Components that add a listener should take care to remove it when finished.
+     * Other components that take ownership of a view may call {@link #clearOnPageChangeListeners()}
+     * to remove all attached listeners.</p>
+     *
+     * @param listener listener to add
+     */
+    public void addOnPageChangeListener(OnPageChangeListener listener) {
+        if (mOnPageChangeListeners == null) {
+            mOnPageChangeListeners = new ArrayList<>();
+        }
+        mOnPageChangeListeners.add(listener);
+    }
+
+    /**
+     * Remove a listener that was previously added via
+     * {@link #addOnPageChangeListener(OnPageChangeListener)}.
+     *
+     * @param listener listener to remove
+     */
+    public void removeOnPageChangeListener(OnPageChangeListener listener) {
+        if (mOnPageChangeListeners != null) {
+            mOnPageChangeListeners.remove(listener);
+        }
+    }
+
+    /**
+     * Remove all listeners that are notified of any changes in scroll state or position.
+     */
+    public void clearOnPageChangeListeners() {
+        if (mOnPageChangeListeners != null) {
+            mOnPageChangeListeners.clear();
+        }
     }
 
     /**
@@ -1712,12 +1745,7 @@ public class ViewPager extends ViewGroup {
             }
         }
 
-        if (mOnPageChangeListener != null) {
-            mOnPageChangeListener.onPageScrolled(position, offset, offsetPixels);
-        }
-        if (mInternalPageChangeListener != null) {
-            mInternalPageChangeListener.onPageScrolled(position, offset, offsetPixels);
-        }
+        dispatchOnPageScrolled(position, offset, offsetPixels);
 
         if (mPageTransformer != null) {
             final int scrollX = getScrollX();
@@ -1734,6 +1762,57 @@ public class ViewPager extends ViewGroup {
         }
 
         mCalledSuper = true;
+    }
+
+    private void dispatchOnPageScrolled(int position, float offset, int offsetPixels) {
+        if (mOnPageChangeListener != null) {
+            mOnPageChangeListener.onPageScrolled(position, offset, offsetPixels);
+        }
+        if (mOnPageChangeListeners != null) {
+            for (int i = 0, z = mOnPageChangeListeners.size(); i < z; i++) {
+                OnPageChangeListener listener = mOnPageChangeListeners.get(i);
+                if (listener != null) {
+                    listener.onPageScrolled(position, offset, offsetPixels);
+                }
+            }
+        }
+        if (mInternalPageChangeListener != null) {
+            mInternalPageChangeListener.onPageScrolled(position, offset, offsetPixels);
+        }
+    }
+
+    private void dispatchOnPageSelected(int position) {
+        if (mOnPageChangeListener != null) {
+            mOnPageChangeListener.onPageSelected(position);
+        }
+        if (mOnPageChangeListeners != null) {
+            for (int i = 0, z = mOnPageChangeListeners.size(); i < z; i++) {
+                OnPageChangeListener listener = mOnPageChangeListeners.get(i);
+                if (listener != null) {
+                    listener.onPageSelected(position);
+                }
+            }
+        }
+        if (mInternalPageChangeListener != null) {
+            mInternalPageChangeListener.onPageSelected(position);
+        }
+    }
+
+    private void dispatchOnScrollStateChanged(int state) {
+        if (mOnPageChangeListener != null) {
+            mOnPageChangeListener.onPageScrollStateChanged(state);
+        }
+        if (mOnPageChangeListeners != null) {
+            for (int i = 0, z = mOnPageChangeListeners.size(); i < z; i++) {
+                OnPageChangeListener listener = mOnPageChangeListeners.get(i);
+                if (listener != null) {
+                    listener.onPageScrollStateChanged(state);
+                }
+            }
+        }
+        if (mInternalPageChangeListener != null) {
+            mInternalPageChangeListener.onPageScrollStateChanged(state);
+        }
     }
 
     private void completeScroll(boolean postEvents) {
