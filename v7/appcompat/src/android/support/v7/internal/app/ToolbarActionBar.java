@@ -22,8 +22,8 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
-import android.support.v4.view.WindowCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.internal.view.WindowCallbackWrapper;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.view.menu.ListMenuPresenter;
@@ -575,7 +575,7 @@ public class ToolbarActionBar extends ActionBar {
         @Override
         public boolean onOpenSubMenu(MenuBuilder subMenu) {
             if (mWindowCallback != null) {
-                mWindowCallback.onMenuOpened(WindowCompat.FEATURE_ACTION_BAR, subMenu);
+                mWindowCallback.onMenuOpened(AppCompatDelegate.FEATURE_SUPPORT_ACTION_BAR, subMenu);
                 return true;
             }
             return false;
@@ -590,7 +590,7 @@ public class ToolbarActionBar extends ActionBar {
             mClosingActionMenu = true;
             mDecorToolbar.dismissPopupMenus();
             if (mWindowCallback != null) {
-                mWindowCallback.onPanelClosed(WindowCompat.FEATURE_ACTION_BAR, menu);
+                mWindowCallback.onPanelClosed(AppCompatDelegate.FEATURE_SUPPORT_ACTION_BAR, menu);
             }
             mClosingActionMenu = false;
         }
@@ -624,10 +624,10 @@ public class ToolbarActionBar extends ActionBar {
         public void onMenuModeChange(MenuBuilder menu) {
             if (mWindowCallback != null) {
                 if (mDecorToolbar.isOverflowMenuShowing()) {
-                    mWindowCallback.onPanelClosed(WindowCompat.FEATURE_ACTION_BAR, menu);
+                    mWindowCallback.onPanelClosed(AppCompatDelegate.FEATURE_SUPPORT_ACTION_BAR, menu);
                 } else if (mWindowCallback.onPreparePanel(Window.FEATURE_OPTIONS_PANEL,
                         null, menu)) {
-                    mWindowCallback.onMenuOpened(WindowCompat.FEATURE_ACTION_BAR, menu);
+                    mWindowCallback.onMenuOpened(AppCompatDelegate.FEATURE_SUPPORT_ACTION_BAR, menu);
                 }
             }
         }

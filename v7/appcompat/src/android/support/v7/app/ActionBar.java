@@ -46,45 +46,38 @@ import java.lang.annotation.RetentionPolicy;
  * A primary toolbar within the activity that may display the activity title, application-level
  * navigation affordances, and other interactive items.
  *
- * <p>Beginning with Android 3.0 (API level 11), the action bar appears at the top of an
- * activity's window when the activity uses the system's {@link
- * android.R.style#Theme_Holo Holo} theme (or one of its descendant themes), which is the default.
+ * <p>The action bar appears at the top of an activity's window when the activity uses the
+ * AppCompat's {@link R.style#Theme_AppCompat AppCompat} theme (or one of its descendant themes).
  * You may otherwise add the action bar by calling {@link
- * android.view.Window#requestFeature requestFeature(FEATURE_ACTION_BAR)} or by declaring it in a
- * custom theme with the {@link android.R.styleable#Theme_windowActionBar windowActionBar} property.
+ * AppCompatDelegate#requestWindowFeature(int)  requestFeature(FEATURE_SUPPORT_ACTION_BAR)} or by
+ * declaring it in a custom theme with the {@link R.styleable#Theme_windowActionBar windowActionBar}
+ * property.
  * </p>
  *
- * <p>Beginning with Android L (API level 21), the action bar may be represented by any
- * Toolbar widget within the application layout. The application may signal to the Activity
- * which Toolbar should be treated as the Activity's action bar. Activities that use this
- * feature should use one of the supplied <code>.NoActionBar</code> themes, set the
- * {@link android.R.styleable#Theme_windowActionBar windowActionBar} attribute to <code>false</code>
+ * <p>The action bar may be represented by any Toolbar widget within the application layout.
+ * The application may signal to the Activity which Toolbar should be treated as the Activity's
+ * action bar. Activities that use this feature should use one of the supplied
+ * <code>.NoActionBar</code> themes, set the
+ * {@link R.styleable#Theme_windowActionBar windowActionBar} attribute to <code>false</code>
  * or otherwise not request the window feature.</p>
  *
- * <p>By adjusting the window features requested by the theme and the layouts used for
- * an Activity's content view, an app can use the standard system action bar on older platform
- * releases and the newer inline toolbars on newer platform releases. The <code>ActionBar</code>
- * object obtained from the Activity can be used to control either configuration transparently.</p>
+ * <p>If your activity has an options menu, you can make select items accessible directly from the
+ * action bar as "action items". You can also  modify various characteristics of the action bar or
+ * remove it completely.</p>
  *
- * <p>When using the Holo themes the action bar shows the application icon on
- * the left, followed by the activity title. If your activity has an options menu, you can make
- * select items accessible directly from the action bar as "action items". You can also
- * modify various characteristics of the action bar or remove it completely.</p>
- *
- * <p>When using the Material themes (default in API 21 or newer) the navigation button
- * (formerly "Home") takes over the space previously occupied by the application icon.
- * Apps wishing to express a stronger branding should use their brand colors heavily
- * in the action bar and other application chrome or use a {@link #setLogo(int) logo}
+ * <p>The navigation button (formerly "Home") takes over the space previously occupied by the
+ * application icon. Apps wishing to express a stronger branding should use their brand colors
+ * heavily in the action bar and other application chrome or use a {@link #setLogo(int) logo}
  * in place of their standard title text.</p>
  *
  * <p>From your activity, you can retrieve an instance of {@link ActionBar} by calling {@link
- * android.app.Activity#getActionBar getActionBar()}.</p>
+ * AppCompatActivity#getSupportActionBar()}  getSupportActionBar()}.</p>
  *
  * <p>In some cases, the action bar may be overlayed by another bar that enables contextual actions,
- * using an {@link android.view.ActionMode}. For example, when the user selects one or more items in
+ * using an {@link ActionMode}. For example, when the user selects one or more items in
  * your activity, you can enable an action mode that offers actions specific to the selected
  * items, with a UI that temporarily replaces the action bar. Although the UI may occupy the
- * same space, the {@link android.view.ActionMode} APIs are distinct and independent from those for
+ * same space, the {@link ActionMode} APIs are distinct and independent from those for
  * {@link ActionBar}.</p>
  *
  * <div class="special reference">

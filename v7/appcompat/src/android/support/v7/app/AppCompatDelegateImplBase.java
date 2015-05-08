@@ -138,7 +138,7 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
     }
 
     // Methods used to create and respond to options menu
-    abstract boolean onPanelClosed(int featureId, Menu menu);
+    abstract void onPanelClosed(int featureId, Menu menu);
 
     abstract boolean onMenuOpened(int featureId, Menu menu);
 
@@ -255,12 +255,14 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
 
         @Override
         public boolean dispatchKeyEvent(KeyEvent event) {
-            if (super.dispatchKeyEvent(event)) {
-                // First, let the wrapped Callback attempt to handle it
-                return true;
-            }
-            // If we reach here, we can now try
-            return AppCompatDelegateImplBase.this.dispatchKeyEvent(event);
+            return super.dispatchKeyEvent(event)
+                    || AppCompatDelegateImplBase.this.dispatchKeyEvent(event);
+        }
+
+        @Override
+        public boolean dispatchKeyShortcutEvent(KeyEvent event) {
+            return super.dispatchKeyShortcutEvent(event)
+                    || AppCompatDelegateImplBase.this.onKeyShortcut(event.getKeyCode(), event);
         }
 
         @Override
@@ -271,6 +273,12 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
                 return false;
             }
             return super.onCreatePanelMenu(featureId, menu);
+        }
+
+        @Override
+        public void onContentChanged() {
+            // We purposely do not propagate this call as this is called when we install
+            // our sub-decor rather than the user's content
         }
 
         @Override
@@ -302,32 +310,14 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
 
         @Override
         public boolean onMenuOpened(int featureId, Menu menu) {
-            if (AppCompatDelegateImplBase.this.onMenuOpened(featureId, menu)) {
-                return true;
-            }
-            return super.onMenuOpened(featureId, menu);
-        }
-
-        @Override
-        public boolean dispatchKeyShortcutEvent(KeyEvent event) {
-            if (AppCompatDelegateImplBase.this.onKeyShortcut(event.getKeyCode(), event)) {
-                return true;
-            }
-            return super.dispatchKeyShortcutEvent(event);
-        }
-
-        @Override
-        public void onContentChanged() {
-            // We purposely do not propagate this call as this is called when we install
-            // our sub-decor rather than the user's content
+            return super.onMenuOpened(featureId, menu)
+                    || AppCompatDelegateImplBase.this.onMenuOpened(featureId, menu);
         }
 
         @Override
         public void onPanelClosed(int featureId, Menu menu) {
-            if (AppCompatDelegateImplBase.this.onPanelClosed(featureId, menu)) {
-                return;
-            }
             super.onPanelClosed(featureId, menu);
+            AppCompatDelegateImplBase.this.onPanelClosed(featureId, menu);
         }
     }
 }

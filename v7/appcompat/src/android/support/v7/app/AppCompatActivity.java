@@ -28,6 +28,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -89,7 +90,8 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
      * {@link android.R.id#home home} menu select action.</p>
      *
      * <p>In order to use a Toolbar within the Activity's window content the application
-     * must not request the window feature {@link android.view.Window#FEATURE_ACTION_BAR FEATURE_ACTION_BAR}.</p>
+     * must not request the window feature
+     * {@link android.view.Window#FEATURE_ACTION_BAR FEATURE_SUPPORT_ACTION_BAR}.</p>
      *
      * @param toolbar Toolbar to set as the Activity's action bar
      */
@@ -422,6 +424,28 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
     @Override
     public ActionBarDrawerToggle.Delegate getDrawerToggleDelegate() {
         return getDelegate().getDrawerToggleDelegate();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Please note: AppCompat uses it's own feature id for the action bar:
+     * {@link AppCompatDelegate#FEATURE_SUPPORT_ACTION_BAR FEATURE_SUPPORT_ACTION_BAR}.</p>
+     */
+    @Override
+    public boolean onMenuOpened(int featureId, Menu menu) {
+        return super.onMenuOpened(featureId, menu);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Please note: AppCompat uses it's own feature id for the action bar:
+     * {@link AppCompatDelegate#FEATURE_SUPPORT_ACTION_BAR FEATURE_SUPPORT_ACTION_BAR}.</p>
+     */
+    @Override
+    public void onPanelClosed(int featureId, Menu menu) {
+        super.onPanelClosed(featureId, menu);
     }
 
     /**
