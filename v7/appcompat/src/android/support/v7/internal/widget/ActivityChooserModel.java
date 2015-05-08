@@ -37,6 +37,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -972,7 +973,7 @@ public class ActivityChooserModel extends DataSetObservable {
         }
         try {
             XmlPullParser parser = Xml.newPullParser();
-            parser.setInput(fis, null);
+            parser.setInput(fis, StandardCharsets.UTF_8.name());
 
             int type = XmlPullParser.START_DOCUMENT;
             while (type != XmlPullParser.END_DOCUMENT && type != XmlPullParser.START_TAG) {
@@ -1055,7 +1056,7 @@ public class ActivityChooserModel extends DataSetObservable {
 
             try {
                 serializer.setOutput(fos, null);
-                serializer.startDocument("UTF-8", true);
+                serializer.startDocument(StandardCharsets.UTF_8.name(), true);
                 serializer.startTag(null, TAG_HISTORICAL_RECORDS);
 
                 final int recordCount = historicalRecords.size();
