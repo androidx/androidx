@@ -21,8 +21,6 @@ import com.example.android.support.design.R;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
-import android.support.design.widget.TabLayout.TabLayoutOnPageChangeListener;
-import android.support.design.widget.TabLayout.ViewPagerOnTabSelectedListener;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -61,8 +59,8 @@ public class TabLayoutUsage extends AppCompatActivity {
         mViewPager = (ViewPager) findViewById(R.id.tabs_viewpager);
         mPagerAdapter = new CheesePagerAdapter();
         mViewPager.setAdapter(mPagerAdapter);
-        mViewPager.setOnPageChangeListener(new TabLayoutOnPageChangeListener(mTabLayout));
-        mTabLayout.setOnTabSelectedListener(new ViewPagerOnTabSelectedListener(mViewPager));
+        mViewPager.setOnPageChangeListener(mTabLayout.createOnPageChangeListener());
+        mTabLayout.setOnTabSelectedListener(mTabListener);
 
         setupButtons();
         setupRadioGroup();
@@ -145,6 +143,24 @@ public class TabLayoutUsage extends AppCompatActivity {
             }
         });
     }
+
+    private final TabLayout.OnTabSelectedListener
+            mTabListener = new TabLayout.OnTabSelectedListener() {
+        @Override
+        public void onTabSelected(TabLayout.Tab tab) {
+            mViewPager.setCurrentItem(tab.getPosition());
+        }
+
+        @Override
+        public void onTabUnselected(TabLayout.Tab tab) {
+            // no-op
+        }
+
+        @Override
+        public void onTabReselected(TabLayout.Tab tab) {
+            // no-op
+        }
+    };
 
     private static class CheesePagerAdapter extends PagerAdapter {
 
