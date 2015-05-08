@@ -782,8 +782,12 @@ public class RenderScript {
         long[] fieldIDs, long[] values, int[] sizes, long[] depClosures,
         long[] depFieldIDs) {
       validate();
-      return rsnClosureCreate(mContext, kernelID, returnValue, fieldIDs, values,
+      long c = rsnClosureCreate(mContext, kernelID, returnValue, fieldIDs, values,
           sizes, depClosures, depFieldIDs);
+      if (c == 0) {
+          throw new RSRuntimeException("Failed creating closure.");
+      }
+      return c;
     }
 
     native long rsnInvokeClosureCreate(long con, long invokeID, byte[] params,
@@ -791,8 +795,12 @@ public class RenderScript {
     synchronized long nInvokeClosureCreate(long invokeID, byte[] params,
         long[] fieldIDs, long[] values, int[] sizes) {
       validate();
-      return rsnInvokeClosureCreate(mContext, invokeID, params, fieldIDs,
+      long c = rsnInvokeClosureCreate(mContext, invokeID, params, fieldIDs,
           values, sizes);
+      if (c == 0) {
+          throw new RSRuntimeException("Failed creating closure.");
+      }
+      return c;
     }
 
     native void rsnClosureSetArg(long con, long closureID, int index,
