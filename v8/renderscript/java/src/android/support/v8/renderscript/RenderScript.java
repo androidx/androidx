@@ -58,6 +58,32 @@ public class RenderScript {
     private Context mApplicationContext;
     private String mNativeLibDir;
 
+    static private String mBlackList = "";
+     /**
+     * Sets the blackList of Models to only use support lib runtime.
+     * Should be used before context create.
+     *
+     * @hide
+     * @param blackList User provided black list string.
+     *
+     * Format: "(MANUFACTURER1:PRODUCT1:MODEL1), (MANUFACTURER2:PRODUCT2:MODEL2)..."
+     * e.g. : To Blacklist Nexus 7(2013) and Nexus 5.
+     *        mBlackList = "(asus:razor:Nexus 7), (LGE:hammerhead:Nexus 5)";
+     */
+    static public void setBlackList(String blackList) {
+        if (blackList != null) {
+            mBlackList = blackList;
+        }
+    }
+     /**
+     * Force using support lib runtime.
+     * Should be used before context create.
+     *
+     * @hide
+     */
+    static public void forceCompat() {
+        sNative = 0;
+    }
     /*
      * We use a class initializer to allow the native code to cache some
      * field offsets.
@@ -180,6 +206,20 @@ public class RenderScript {
         }
 
         if (sNative == 1) {
+            // check against the blacklist
+            if (mBlackList.length() > 0) {
+                String deviceInfo = '(' +
+                                    android.os.Build.MANUFACTURER +
+                                    ':' +
+                                    android.os.Build.PRODUCT +
+                                    ':' +
+                                    android.os.Build.MODEL +
+                                    ')';
+                if (mBlackList.contains(deviceInfo)) {
+                    sNative = 0;
+                    return false;
+                }
+            }
             return true;
         }
         return false;
