@@ -112,14 +112,22 @@ public final class TintManager {
             R.drawable.abc_tab_indicator_material,
             R.drawable.abc_textfield_search_material,
             R.drawable.abc_spinner_mtrl_am_alpha,
-            R.drawable.abc_btn_check_material,
-            R.drawable.abc_btn_radio_material,
             R.drawable.abc_spinner_textfield_background_material,
             R.drawable.abc_ratingbar_full_material,
             R.drawable.abc_switch_track_mtrl_alpha,
             R.drawable.abc_switch_thumb_material,
             R.drawable.abc_btn_default_mtrl_shape,
             R.drawable.abc_btn_borderless_material
+    };
+
+    /**
+     * Drawables which should be tinted using a state list containing values of
+     * {@code R.attr.colorControlNormal} and {@code R.attr.colorControlActivated} for the checked
+     * state.
+     */
+    private static final int[] TINT_CHECKABLE_BUTTON_LIST = {
+            R.drawable.abc_btn_check_material,
+            R.drawable.abc_btn_radio_material
     };
 
     private final WeakReference<Context> mContextRef;
@@ -255,6 +263,7 @@ public final class TintManager {
                 arrayContains(COLORFILTER_COLOR_CONTROL_ACTIVATED, drawableId) ||
                 arrayContains(TINT_COLOR_CONTROL_STATE_LIST, drawableId) ||
                 arrayContains(COLORFILTER_COLOR_BACKGROUND_MULTIPLY, drawableId) ||
+                arrayContains(TINT_CHECKABLE_BUTTON_LIST, drawableId) ||
                 drawableId == R.drawable.abc_cab_background_top_material;
     }
 
@@ -293,6 +302,8 @@ public final class TintManager {
                 tint = getThemeAttrColorStateList(context, R.attr.colorControlNormal);
             } else if (arrayContains(TINT_COLOR_CONTROL_STATE_LIST, resId)) {
                 tint = getDefaultColorStateList(context);
+            } else if (arrayContains(TINT_CHECKABLE_BUTTON_LIST, resId)) {
+                tint = createCheckableButtonColorStateList(context);
             }
 
             if (tint != null) {
@@ -355,6 +366,28 @@ public final class TintManager {
             mDefaultColorStateList = new ColorStateList(states, colors);
         }
         return mDefaultColorStateList;
+    }
+
+    private ColorStateList createCheckableButtonColorStateList(Context context) {
+        final int[][] states = new int[3][];
+        final int[] colors = new int[3];
+        int i = 0;
+
+        // Disabled state
+        states[i] = ThemeUtils.DISABLED_STATE_SET;
+        colors[i] = getDisabledThemeAttrColor(context, R.attr.colorControlNormal);
+        i++;
+
+        states[i] = ThemeUtils.CHECKED_STATE_SET;
+        colors[i] = getThemeAttrColor(context, R.attr.colorControlActivated);
+        i++;
+
+        // Default enabled state
+        states[i] = ThemeUtils.EMPTY_STATE_SET;
+        colors[i] = getThemeAttrColor(context, R.attr.colorControlNormal);
+        i++;
+
+        return new ColorStateList(states, colors);
     }
 
     private ColorStateList createSwitchTrackColorStateList(Context context) {
