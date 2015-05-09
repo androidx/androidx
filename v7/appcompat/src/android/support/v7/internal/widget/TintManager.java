@@ -90,7 +90,7 @@ public final class TintManager {
             R.drawable.abc_textfield_activated_mtrl_alpha,
             R.drawable.abc_textfield_search_activated_mtrl_alpha,
             R.drawable.abc_cab_background_top_mtrl_alpha,
-            R.drawable.abc_text_cursor_mtrl_alpha
+            R.drawable.abc_text_cursor_material
     };
 
     /**
