@@ -20,11 +20,11 @@
     <style name="Platform.AppCompat.Light" parent="Platform.V12.AppCompat.Light" />
 
     <style name="Platform.V12.AppCompat" parent="Platform.V11.AppCompat">
-        <item name="android:textCursorDrawable">@drawable/abc_text_cursor_mtrl_alpha</item>
+        <item name="android:textCursorDrawable">@drawable/abc_text_cursor_material</item>
     </style>
 
     <style name="Platform.V12.AppCompat.Light" parent="Platform.V11.AppCompat.Light">
-        <item name="android:textCursorDrawable">@drawable/abc_text_cursor_mtrl_alpha</item>
+        <item name="android:textCursorDrawable">@drawable/abc_text_cursor_material</item>
     </style>
 
 </resources>
