@@ -19,6 +19,8 @@ package android.support.v7.graphics;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.support.annotation.ColorInt;
+import android.support.annotation.Nullable;
 import android.support.v4.graphics.ColorUtils;
 import android.support.v4.os.AsyncTaskCompat;
 import android.util.TimingLogger;
@@ -152,6 +154,7 @@ public final class Palette {
     /**
      * Returns the most vibrant swatch in the palette. Might be null.
      */
+    @Nullable
     public Swatch getVibrantSwatch() {
         return mGenerator.getVibrantSwatch();
     }
@@ -159,6 +162,7 @@ public final class Palette {
     /**
      * Returns a light and vibrant swatch from the palette. Might be null.
      */
+    @Nullable
     public Swatch getLightVibrantSwatch() {
         return mGenerator.getLightVibrantSwatch();
     }
@@ -166,6 +170,7 @@ public final class Palette {
     /**
      * Returns a dark and vibrant swatch from the palette. Might be null.
      */
+    @Nullable
     public Swatch getDarkVibrantSwatch() {
         return mGenerator.getDarkVibrantSwatch();
     }
@@ -173,6 +178,7 @@ public final class Palette {
     /**
      * Returns a muted swatch from the palette. Might be null.
      */
+    @Nullable
     public Swatch getMutedSwatch() {
         return mGenerator.getMutedSwatch();
     }
@@ -180,6 +186,7 @@ public final class Palette {
     /**
      * Returns a muted and light swatch from the palette. Might be null.
      */
+    @Nullable
     public Swatch getLightMutedSwatch() {
         return mGenerator.getLightMutedSwatch();
     }
@@ -187,6 +194,7 @@ public final class Palette {
     /**
      * Returns a muted and dark swatch from the palette. Might be null.
      */
+    @Nullable
     public Swatch getDarkMutedSwatch() {
         return mGenerator.getDarkMutedSwatch();
     }
@@ -196,7 +204,8 @@ public final class Palette {
      *
      * @param defaultColor value to return if the swatch isn't available
      */
-    public int getVibrantColor(int defaultColor) {
+    @ColorInt
+    public int getVibrantColor(@ColorInt int defaultColor) {
         Swatch swatch = getVibrantSwatch();
         return swatch != null ? swatch.getRgb() : defaultColor;
     }
@@ -206,7 +215,8 @@ public final class Palette {
      *
      * @param defaultColor value to return if the swatch isn't available
      */
-    public int getLightVibrantColor(int defaultColor) {
+    @ColorInt
+    public int getLightVibrantColor(@ColorInt int defaultColor) {
         Swatch swatch = getLightVibrantSwatch();
         return swatch != null ? swatch.getRgb() : defaultColor;
     }
@@ -216,7 +226,8 @@ public final class Palette {
      *
      * @param defaultColor value to return if the swatch isn't available
      */
-    public int getDarkVibrantColor(int defaultColor) {
+    @ColorInt
+    public int getDarkVibrantColor(@ColorInt int defaultColor) {
         Swatch swatch = getDarkVibrantSwatch();
         return swatch != null ? swatch.getRgb() : defaultColor;
     }
@@ -226,7 +237,8 @@ public final class Palette {
      *
      * @param defaultColor value to return if the swatch isn't available
      */
-    public int getMutedColor(int defaultColor) {
+    @ColorInt
+    public int getMutedColor(@ColorInt int defaultColor) {
         Swatch swatch = getMutedSwatch();
         return swatch != null ? swatch.getRgb() : defaultColor;
     }
@@ -236,7 +248,8 @@ public final class Palette {
      *
      * @param defaultColor value to return if the swatch isn't available
      */
-    public int getLightMutedColor(int defaultColor) {
+    @ColorInt
+    public int getLightMutedColor(@ColorInt int defaultColor) {
         Swatch swatch = getLightMutedSwatch();
         return swatch != null ? swatch.getRgb() : defaultColor;
     }
@@ -246,7 +259,8 @@ public final class Palette {
      *
      * @param defaultColor value to return if the swatch isn't available
      */
-    public int getDarkMutedColor(int defaultColor) {
+    @ColorInt
+    public int getDarkMutedColor(@ColorInt int defaultColor) {
         Swatch swatch = getDarkMutedSwatch();
         return swatch != null ? swatch.getRgb() : defaultColor;
     }
@@ -285,7 +299,7 @@ public final class Palette {
 
         private float[] mHsl;
 
-        public Swatch(int color, int population) {
+        public Swatch(@ColorInt int color, int population) {
             mRed = Color.red(color);
             mGreen = Color.green(color);
             mBlue = Color.blue(color);
@@ -304,6 +318,7 @@ public final class Palette {
         /**
          * @return this swatch's RGB color value
          */
+        @ColorInt
         public int getRgb() {
             return mRgb;
         }
@@ -333,6 +348,7 @@ public final class Palette {
          * Returns an appropriate color to use for any 'title' text which is displayed over this
          * {@link Swatch}'s color. This color is guaranteed to have sufficient contrast.
          */
+        @ColorInt
         public int getTitleTextColor() {
             ensureTextColorsGenerated();
             return mTitleTextColor;
@@ -342,6 +358,7 @@ public final class Palette {
          * Returns an appropriate color to use for any 'body' text which is displayed over this
          * {@link Swatch}'s color. This color is guaranteed to have sufficient contrast.
          */
+        @ColorInt
         public int getBodyTextColor() {
             ensureTextColorsGenerated();
             return mBodyTextColor;
