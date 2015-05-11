@@ -518,11 +518,13 @@ package android.support.v8.renderscript {
     method public static android.support.v8.renderscript.RenderScript createMultiContext(android.content.Context, android.support.v8.renderscript.RenderScript.ContextType, int, int);
     method public void destroy();
     method public void finish();
+    method public static void forceCompat();
     method public final android.content.Context getApplicationContext();
     method public android.support.v8.renderscript.RenderScript.RSErrorHandler getErrorHandler();
     method public android.support.v8.renderscript.RenderScript.RSMessageHandler getMessageHandler();
     method public static void releaseAllContexts();
     method public void sendMessage(int, int[]);
+    method public static void setBlackList(java.lang.String);
     method public void setErrorHandler(android.support.v8.renderscript.RenderScript.RSErrorHandler);
     method public void setMessageHandler(android.support.v8.renderscript.RenderScript.RSMessageHandler);
     method public void setPriority(android.support.v8.renderscript.RenderScript.Priority);
