@@ -39,3 +39,6 @@ project(':support-leanback-v17').projectDir = new File(rootDir, 'v17/leanback')
 
 include ':support-design'
 project(':support-design').projectDir = new File(rootDir, 'design')
+
+include ':support-percent'
+project(':support-percent').projectDir = new File(rootDir, 'percent')
