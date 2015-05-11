@@ -492,7 +492,7 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
         private int mArrowWidth;
         private int mArrowHeight;
         private int mAlpha;
-        private final Paint mCirclePaint = new Paint();
+        private final Paint mCirclePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         private int mBackgroundColor;
         private int mCurrentColor;
 
