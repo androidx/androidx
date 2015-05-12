@@ -2197,23 +2197,19 @@ public final class MediaRouter {
 
         public void setMediaSessionCompat(final MediaSessionCompat session) {
             mCompatSession = session;
-            if (session == null) {
-                if (mRccMediaSession != null) {
-                    removeRemoteControlClient(mRccMediaSession.getRemoteControlClient());
-                    mRccMediaSession.removeOnActiveChangeListener(mSessionActiveListener);
-                }
-            }
             if (android.os.Build.VERSION.SDK_INT >= 21) {
-                setMediaSession(session.getMediaSession());
+                setMediaSession(session != null ? session.getMediaSession() : null);
             } else if (android.os.Build.VERSION.SDK_INT >= 14) {
                 if (mRccMediaSession != null) {
                     removeRemoteControlClient(mRccMediaSession.getRemoteControlClient());
                     mRccMediaSession.removeOnActiveChangeListener(mSessionActiveListener);
                 }
                 mRccMediaSession = session;
-                session.addOnActiveChangeListener(mSessionActiveListener);
-                if (session.isActive()) {
-                    addRemoteControlClient(session.getRemoteControlClient());
+                if (session != null) {
+                    session.addOnActiveChangeListener(mSessionActiveListener);
+                    if (session.isActive()) {
+                        addRemoteControlClient(session.getRemoteControlClient());
+                    }
                 }
             }
         }
