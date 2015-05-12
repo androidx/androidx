@@ -125,6 +125,7 @@ LOCAL_SRC_FILES:= \
 	cpu_ref/rsCpuIntrinsic3DLUT.cpp \
 	cpu_ref/rsCpuIntrinsicBlend.cpp \
 	cpu_ref/rsCpuIntrinsicBlur.cpp \
+	cpu_ref/rsCpuIntrinsicBLAS.cpp \
 	cpu_ref/rsCpuIntrinsicColorMatrix.cpp \
 	cpu_ref/rsCpuIntrinsicConvolve3x3.cpp \
 	cpu_ref/rsCpuIntrinsicConvolve5x5.cpp \
@@ -149,11 +150,12 @@ LOCAL_SRC_FILES_arm := \
         cpu_ref/rsCpuIntrinsics_neon_YuvToRGB.S
 endif
 
+LOCAL_SHARED_LIBRARIES += libblas
 LOCAL_LDFLAGS += -llog -ldl
 LOCAL_NDK_STL_VARIANT := stlport_static
 
 LOCAL_C_INCLUDES += frameworks/compile/libbcc/include
-
+LOCAL_C_INCLUDES += external/cblas/include
 
 LOCAL_CFLAGS += $(rs_base_CFLAGS)
 
