@@ -287,7 +287,9 @@
         <item name="android:textColor">?android:textColorSecondary</item>
     </style>
 
-    <style name="Base.Widget.AppCompat.AutoCompleteTextView" parent="android:Widget.AutoCompleteTextView">
+    <style name="Base.Widget.AppCompat.AutoCompleteTextView" parent="Base.V7.Widget.AppCompat.AutoCompleteTextView" />
+
+    <style name="Base.V7.Widget.AppCompat.AutoCompleteTextView" parent="android:Widget.AutoCompleteTextView">
         <item name="android:dropDownSelector">?attr/listChoiceBackgroundIndicator</item>
         <item name="android:popupBackground">@drawable/abc_popup_background_mtrl_mult</item>
         <item name="android:background">?attr/editTextBackground</item>
@@ -351,11 +353,14 @@
         <item name="defaultQueryHint">@string/abc_search_hint</item>
     </style>
 
-    <style name="Base.Widget.AppCompat.EditText" parent="android:Widget.EditText">
+    <style name="Base.Widget.AppCompat.EditText" parent="Base.V7.Widget.AppCompat.EditText" />
+
+    <style name="Base.V7.Widget.AppCompat.EditText" parent="android:Widget.EditText">
         <item name="android:background">?attr/editTextBackground</item>
         <item name="android:textColor">?attr/editTextColor</item>
         <item name="android:textAppearance">?android:attr/textAppearanceMediumInverse</item>
     </style>
+
     <!-- contains values used in all dpis -->
     <style name="Base.Widget.AppCompat.DrawerArrowToggle.Common" parent="">
         <item name="color">?android:attr/textColorSecondary</item>
