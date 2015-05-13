@@ -1138,6 +1138,13 @@ package android.support.v7.appcompat {
     field public static int ThemeOverlay_AppCompat_Light;
     field public static int Theme_AppCompat;
     field public static int Theme_AppCompat_CompactMenu;
+    field public static int Theme_AppCompat_DayNight;
+    field public static int Theme_AppCompat_DayNight_DarkActionBar;
+    field public static int Theme_AppCompat_DayNight_Dialog;
+    field public static int Theme_AppCompat_DayNight_DialogWhenLarge;
+    field public static int Theme_AppCompat_DayNight_Dialog_Alert;
+    field public static int Theme_AppCompat_DayNight_Dialog_MinWidth;
+    field public static int Theme_AppCompat_DayNight_NoActionBar;
     field public static int Theme_AppCompat_Dialog;
     field public static int Theme_AppCompat_DialogWhenLarge;
     field public static int Theme_AppCompat_Dialog_Alert;
