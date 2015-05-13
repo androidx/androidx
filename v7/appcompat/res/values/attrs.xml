@@ -215,6 +215,8 @@
         <attr name="selectableItemBackground" format="reference"/>
         <!-- Background drawable for borderless standalone items that need focus/pressed states. -->
         <attr name="selectableItemBackgroundBorderless" format="reference" />
+        <!-- Style for buttons without an explicit border, often used in groups. -->
+        <attr name="borderlessButtonStyle" format="reference" />
         <!-- A drawable that may be used as a vertical divider between visual elements. -->
         <attr name="dividerVertical" format="reference"/>
         <!-- A drawable that may be used as a horizontal divider between visual elements. -->
