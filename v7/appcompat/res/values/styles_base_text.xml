@@ -96,12 +96,6 @@
         <item name="android:textColor">?android:textColorPrimary</item>
     </style>
 
-    <style name="Base.TextAppearance.AppCompat.Widget.Button" parent="TextAppearance.AppCompat.Button" />
-
-    <style name="Base.TextAppearance.AppCompat.Widget.Button.Inverse" parent="TextAppearance.AppCompat.Button">
-        <item name="android:textColor">?android:textColorPrimaryInverse</item>
-    </style>
-
     <!-- Deprecated text styles -->
 
     <style name="Base.TextAppearance.AppCompat.Inverse">
