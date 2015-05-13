@@ -26,8 +26,8 @@
         <item name="android:windowNoTitle">true</item>
 
         <!-- Window colors -->
-        <item name="android:colorForeground">@color/foreground_material_dark</item>
-        <item name="android:colorForegroundInverse">@color/foreground_material_light</item>
+        <item name="android:colorForeground">@color/bright_foreground_material_dark</item>
+        <item name="android:colorForegroundInverse">@color/bright_foreground_material_light</item>
         <item name="android:colorBackground">@color/background_material_dark</item>
         <item name="android:colorBackgroundCacheHint">@color/abc_background_cache_hint_selector_material_dark</item>
         <item name="android:disabledAlpha">@dimen/abc_disabled_alpha_material_dark</item>
@@ -65,8 +65,8 @@
         <item name="android:windowNoTitle">true</item>
 
         <!-- Window colors -->
-        <item name="android:colorForeground">@color/foreground_material_light</item>
-        <item name="android:colorForegroundInverse">@color/foreground_material_dark</item>
+        <item name="android:colorForeground">@color/bright_foreground_material_light</item>
+        <item name="android:colorForegroundInverse">@color/bright_foreground_material_dark</item>
         <item name="android:colorBackground">@color/background_material_light</item>
         <item name="android:colorBackgroundCacheHint">@color/abc_background_cache_hint_selector_material_light</item>
         <item name="android:disabledAlpha">@dimen/abc_disabled_alpha_material_light</item>
@@ -219,7 +219,6 @@
         <item name="colorControlHighlight">@color/ripple_material_dark</item>
         <item name="colorButtonNormal">@color/button_material_dark</item>
         <item name="colorSwitchThumbNormal">@color/switch_thumb_material_dark</item>
-        <item name="controlBackground">?attr/selectableItemBackgroundBorderless</item>
 
         <item name="drawerArrowStyle">@style/Widget.AppCompat.DrawerArrowToggle</item>
 
@@ -232,7 +231,7 @@
         <!-- Button styles -->
         <item name="buttonStyle">@style/Widget.AppCompat.Button</item>
         <item name="buttonStyleSmall">@style/Widget.AppCompat.Button.Small</item>
-        <item name="android:textAppearanceButton">@style/TextAppearance.AppCompat.Widget.Button</item>
+        <item name="android:textAppearanceButton">@style/TextAppearance.AppCompat.Button</item>
 
         <item name="buttonBarStyle">@style/Widget.AppCompat.ButtonBar</item>
         <item name="buttonBarButtonStyle">@style/Widget.AppCompat.Button.ButtonBar.AlertDialog</item>
@@ -368,7 +367,6 @@
         <item name="colorControlHighlight">@color/ripple_material_light</item>
         <item name="colorButtonNormal">@color/button_material_light</item>
         <item name="colorSwitchThumbNormal">@color/switch_thumb_material_light</item>
-        <item name="controlBackground">?attr/selectableItemBackgroundBorderless</item>
 
         <item name="drawerArrowStyle">@style/Widget.AppCompat.DrawerArrowToggle</item>
 
@@ -381,7 +379,7 @@
         <!-- Button styles -->
         <item name="buttonStyle">@style/Widget.AppCompat.Button</item>
         <item name="buttonStyleSmall">@style/Widget.AppCompat.Button.Small</item>
-        <item name="android:textAppearanceButton">@style/TextAppearance.AppCompat.Widget.Button</item>
+        <item name="android:textAppearanceButton">@style/TextAppearance.AppCompat.Button</item>
 
         <item name="buttonBarStyle">@style/Widget.AppCompat.ButtonBar</item>
         <item name="buttonBarButtonStyle">@style/Widget.AppCompat.Button.ButtonBar.AlertDialog</item>
@@ -546,8 +544,8 @@
 
     <style name="Base.ThemeOverlay.AppCompat.Light" parent="Platform.ThemeOverlay.AppCompat.Light">
         <item name="android:windowBackground">@color/background_material_light</item>
-        <item name="android:colorForeground">@color/foreground_material_light</item>
-        <item name="android:colorForegroundInverse">@color/foreground_material_dark</item>
+        <item name="android:colorForeground">@color/bright_foreground_material_light</item>
+        <item name="android:colorForegroundInverse">@color/bright_foreground_material_dark</item>
         <item name="android:colorBackground">@color/background_material_light</item>
         <item name="android:colorBackgroundCacheHint">@color/abc_background_cache_hint_selector_material_light</item>
 
@@ -575,8 +573,8 @@
 
     <style name="Base.ThemeOverlay.AppCompat.Dark">
         <item name="android:windowBackground">@color/background_material_dark</item>
-        <item name="android:colorForeground">@color/foreground_material_dark</item>
-        <item name="android:colorForegroundInverse">@color/foreground_material_light</item>
+        <item name="android:colorForeground">@color/bright_foreground_material_dark</item>
+        <item name="android:colorForegroundInverse">@color/bright_foreground_material_light</item>
         <item name="android:colorBackground">@color/background_material_dark</item>
         <item name="android:colorBackgroundCacheHint">@color/abc_background_cache_hint_selector_material_dark</item>
 

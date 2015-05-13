@@ -553,7 +553,6 @@ package android.support.v7.appcompat {
     ctor public R.color();
     field public static int abc_background_cache_hint_selector_material_dark;
     field public static int abc_background_cache_hint_selector_material_light;
-    field public static int abc_color_highlight_material;
     field public static int abc_input_method_navigation_guard;
     field public static int abc_primary_text_disable_only_material_dark;
     field public static int abc_primary_text_disable_only_material_light;
@@ -583,8 +582,6 @@ package android.support.v7.appcompat {
     field public static int dim_foreground_disabled_material_light;
     field public static int dim_foreground_material_dark;
     field public static int dim_foreground_material_light;
-    field public static int foreground_material_dark;
-    field public static int foreground_material_light;
     field public static int highlighted_text_material_dark;
     field public static int highlighted_text_material_light;
     field public static int hint_foreground_material_dark;
@@ -596,13 +593,6 @@ package android.support.v7.appcompat {
     field public static int material_blue_grey_950;
     field public static int material_deep_teal_200;
     field public static int material_deep_teal_500;
-    field public static int material_grey_100;
-    field public static int material_grey_300;
-    field public static int material_grey_50;
-    field public static int material_grey_600;
-    field public static int material_grey_800;
-    field public static int material_grey_850;
-    field public static int material_grey_900;
     field public static int primary_dark_material_dark;
     field public static int primary_dark_material_light;
     field public static int primary_material_dark;
@@ -693,9 +683,6 @@ package android.support.v7.appcompat {
     field public static int dialog_fixed_width_minor;
     field public static int disabled_alpha_material_dark;
     field public static int disabled_alpha_material_light;
-    field public static int highlight_alpha_material_colored;
-    field public static int highlight_alpha_material_dark;
-    field public static int highlight_alpha_material_light;
     field public static int notification_large_icon_height;
     field public static int notification_large_icon_width;
     field public static int notification_subtext_size;
@@ -704,12 +691,10 @@ package android.support.v7.appcompat {
   public static final class R.drawable {
     ctor public R.drawable();
     field public static int abc_ab_share_pack_mtrl_alpha;
-    field public static int abc_action_bar_item_background_material;
     field public static int abc_btn_borderless_material;
     field public static int abc_btn_check_material;
     field public static int abc_btn_check_to_on_mtrl_000;
     field public static int abc_btn_check_to_on_mtrl_015;
-    field public static int abc_btn_colored_material;
     field public static int abc_btn_default_mtrl_shape;
     field public static int abc_btn_radio_material;
     field public static int abc_btn_radio_to_on_mtrl_000;
@@ -721,7 +706,6 @@ package android.support.v7.appcompat {
     field public static int abc_cab_background_internal_bg;
     field public static int abc_cab_background_top_material;
     field public static int abc_cab_background_top_mtrl_alpha;
-    field public static int abc_control_background_material;
     field public static int abc_dialog_material_background_dark;
     field public static int abc_dialog_material_background_light;
     field public static int abc_edit_text_material;
@@ -983,8 +967,6 @@ package android.support.v7.appcompat {
     field public static int Base_TextAppearance_AppCompat_Widget_ActionBar_Title_Inverse;
     field public static int Base_TextAppearance_AppCompat_Widget_ActionMode_Subtitle;
     field public static int Base_TextAppearance_AppCompat_Widget_ActionMode_Title;
-    field public static int Base_TextAppearance_AppCompat_Widget_Button;
-    field public static int Base_TextAppearance_AppCompat_Widget_Button_Inverse;
     field public static int Base_TextAppearance_AppCompat_Widget_DropDownItem;
     field public static int Base_TextAppearance_AppCompat_Widget_PopupMenu_Large;
     field public static int Base_TextAppearance_AppCompat_Widget_PopupMenu_Small;
@@ -1020,8 +1002,6 @@ package android.support.v7.appcompat {
     field public static int Base_V21_Theme_AppCompat_Dialog;
     field public static int Base_V21_Theme_AppCompat_Light;
     field public static int Base_V21_Theme_AppCompat_Light_Dialog;
-    field public static int Base_V23_Theme_AppCompat;
-    field public static int Base_V23_Theme_AppCompat_Light;
     field public static int Base_V7_Theme_AppCompat;
     field public static int Base_V7_Theme_AppCompat_Dialog;
     field public static int Base_V7_Theme_AppCompat_Light;
@@ -1045,7 +1025,6 @@ package android.support.v7.appcompat {
     field public static int Base_Widget_AppCompat_Button_Borderless;
     field public static int Base_Widget_AppCompat_Button_Borderless_Colored;
     field public static int Base_Widget_AppCompat_Button_ButtonBar_AlertDialog;
-    field public static int Base_Widget_AppCompat_Button_Colored;
     field public static int Base_Widget_AppCompat_Button_Small;
     field public static int Base_Widget_AppCompat_CompoundButton_CheckBox;
     field public static int Base_Widget_AppCompat_CompoundButton_RadioButton;
@@ -1139,8 +1118,6 @@ package android.support.v7.appcompat {
     field public static int TextAppearance_AppCompat_Widget_ActionMode_Subtitle_Inverse;
     field public static int TextAppearance_AppCompat_Widget_ActionMode_Title;
     field public static int TextAppearance_AppCompat_Widget_ActionMode_Title_Inverse;
-    field public static int TextAppearance_AppCompat_Widget_Button;
-    field public static int TextAppearance_AppCompat_Widget_Button_Inverse;
     field public static int TextAppearance_AppCompat_Widget_DropDownItem;
     field public static int TextAppearance_AppCompat_Widget_PopupMenu_Large;
     field public static int TextAppearance_AppCompat_Widget_PopupMenu_Small;
@@ -1190,7 +1167,6 @@ package android.support.v7.appcompat {
     field public static int Widget_AppCompat_Button_Borderless;
     field public static int Widget_AppCompat_Button_Borderless_Colored;
     field public static int Widget_AppCompat_Button_ButtonBar_AlertDialog;
-    field public static int Widget_AppCompat_Button_Colored;
     field public static int Widget_AppCompat_Button_Small;
     field public static int Widget_AppCompat_CompoundButton_CheckBox;
     field public static int Widget_AppCompat_CompoundButton_RadioButton;
@@ -1411,6 +1387,7 @@ package android.support.v7.appcompat {
     field public static int TextAppearance_android_textStyle;
     field public static int TextAppearance_android_typeface;
     field public static int TextAppearance_textAllCaps;
+    field public static final int[] Theme;
     field public static int Theme_actionBarDivider;
     field public static int Theme_actionBarItemBackground;
     field public static int Theme_actionBarPopupTheme;
