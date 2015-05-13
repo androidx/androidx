@@ -35,12 +35,10 @@
     </style>
 
     <style name="TextAppearance.AppCompat.Widget.ActionBar.Title"
-           parent="Base.TextAppearance.AppCompat.Widget.ActionBar.Title">
-    </style>
+           parent="Base.TextAppearance.AppCompat.Widget.ActionBar.Title" />
 
     <style name="TextAppearance.AppCompat.Widget.ActionBar.Subtitle"
-           parent="Base.TextAppearance.AppCompat.Widget.ActionBar.Subtitle">
-    </style>
+           parent="Base.TextAppearance.AppCompat.Widget.ActionBar.Subtitle" />
 
     <style name="TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse"
            parent="Base.TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse">
@@ -216,6 +214,8 @@
 
     <style name="Widget.AppCompat.Button.ButtonBar.AlertDialog" parent="Base.Widget.AppCompat.Button.ButtonBar.AlertDialog" />
 
+    <style name="Widget.AppCompat.Button.Colored" parent="Base.Widget.AppCompat.Button.Colored" />
+
     <style name="Widget.AppCompat.ButtonBar" parent="Base.Widget.AppCompat.ButtonBar" />
 
     <style name="Widget.AppCompat.ButtonBar.AlertDialog" parent="Base.Widget.AppCompat.ButtonBar.AlertDialog" />
@@ -294,6 +294,10 @@
     <style name="TextAppearance.AppCompat.Small.Inverse" parent="Base.TextAppearance.AppCompat.Small.Inverse" />
 
     <style name="TextAppearance.AppCompat.Button" parent="Base.TextAppearance.AppCompat.Button" />
+
+    <style name="TextAppearance.AppCompat.Widget.Button" parent="Base.TextAppearance.AppCompat.Widget.Button" />
+
+    <style name="TextAppearance.AppCompat.Widget.Button.Inverse" parent="Base.TextAppearance.AppCompat.Widget.Button.Inverse" />
 
     <style name="TextAppearance.AppCompat.Widget.Switch" parent="Base.TextAppearance.AppCompat.Widget.Switch" />
 
