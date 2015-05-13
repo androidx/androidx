@@ -36,8 +36,8 @@
         <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
 
         <!-- Window colors -->
-        <item name="android:colorForeground">@color/foreground_material_dark</item>
-        <item name="android:colorForegroundInverse">@color/foreground_material_light</item>
+        <item name="android:colorForeground">@color/bright_foreground_material_dark</item>
+        <item name="android:colorForegroundInverse">@color/bright_foreground_material_light</item>
         <item name="android:colorBackground">@color/background_material_dark</item>
         <item name="android:colorBackgroundCacheHint">@color/abc_background_cache_hint_selector_material_dark</item>
         <item name="android:disabledAlpha">@dimen/abc_disabled_alpha_material_dark</item>
@@ -88,8 +88,8 @@
         <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
 
         <!-- Window colors -->
-        <item name="android:colorForeground">@color/foreground_material_light</item>
-        <item name="android:colorForegroundInverse">@color/foreground_material_dark</item>
+        <item name="android:colorForeground">@color/bright_foreground_material_light</item>
+        <item name="android:colorForegroundInverse">@color/bright_foreground_material_dark</item>
         <item name="android:colorBackground">@color/background_material_light</item>
         <item name="android:colorBackgroundCacheHint">@color/abc_background_cache_hint_selector_material_light</item>
         <item name="android:disabledAlpha">@dimen/abc_disabled_alpha_material_light</item>
