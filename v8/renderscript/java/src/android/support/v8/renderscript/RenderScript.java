@@ -63,7 +63,6 @@ public class RenderScript {
      * Sets the blackList of Models to only use support lib runtime.
      * Should be used before context create.
      *
-     * @hide
      * @param blackList User provided black list string.
      *
      * Format: "(MANUFACTURER1:PRODUCT1:MODEL1), (MANUFACTURER2:PRODUCT2:MODEL2)..."
@@ -79,7 +78,6 @@ public class RenderScript {
      * Force using support lib runtime.
      * Should be used before context create.
      *
-     * @hide
      */
     static public void forceCompat() {
         sNative = 0;
