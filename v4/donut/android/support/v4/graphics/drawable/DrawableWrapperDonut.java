@@ -37,7 +37,9 @@ class DrawableWrapperDonut extends Drawable implements Drawable.Callback, Drawab
     private ColorStateList mTintList;
     private PorterDuff.Mode mTintMode = DEFAULT_MODE;
 
-    private int mCurrentColor = Integer.MIN_VALUE;
+    private int mCurrentColor;
+    private PorterDuff.Mode mCurrentMode;
+    private boolean mColorFilterSet;
 
     Drawable mDrawable;
 
@@ -205,9 +207,12 @@ class DrawableWrapperDonut extends Drawable implements Drawable.Callback, Drawab
     private boolean updateTint(int[] state) {
         if (mTintList != null && mTintMode != null) {
             final int color = mTintList.getColorForState(state, mTintList.getDefaultColor());
-            if (color != mCurrentColor) {
-                setColorFilter(color, mTintMode);
+            final PorterDuff.Mode mode = mTintMode;
+            if (!mColorFilterSet || color != mCurrentColor || mode != mCurrentMode) {
+                setColorFilter(color, mode);
                 mCurrentColor = color;
+                mCurrentMode = mode;
+                mColorFilterSet = true;
                 return true;
             }
         }
