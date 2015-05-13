@@ -350,6 +350,7 @@ package android.support.v7.appcompat {
     field public static int backgroundTint;
     field public static int backgroundTintMode;
     field public static int barSize;
+    field public static int borderlessButtonStyle;
     field public static int buttonBarButtonStyle;
     field public static int buttonBarNegativeButtonStyle;
     field public static int buttonBarNeutralButtonStyle;
@@ -936,6 +937,8 @@ package android.support.v7.appcompat {
     field public static int Base_Theme_AppCompat_Light_Dialog_MinWidth;
     field public static int Base_V11_Theme_AppCompat_Dialog;
     field public static int Base_V11_Theme_AppCompat_Light_Dialog;
+    field public static int Base_V12_Widget_AppCompat_AutoCompleteTextView;
+    field public static int Base_V12_Widget_AppCompat_EditText;
     field public static int Base_V21_Theme_AppCompat;
     field public static int Base_V21_Theme_AppCompat_Dialog;
     field public static int Base_V21_Theme_AppCompat_Light;
@@ -944,6 +947,8 @@ package android.support.v7.appcompat {
     field public static int Base_V7_Theme_AppCompat_Dialog;
     field public static int Base_V7_Theme_AppCompat_Light;
     field public static int Base_V7_Theme_AppCompat_Light_Dialog;
+    field public static int Base_V7_Widget_AppCompat_AutoCompleteTextView;
+    field public static int Base_V7_Widget_AppCompat_EditText;
     field public static int Base_Widget_AppCompat_ActionBar;
     field public static int Base_Widget_AppCompat_ActionBar_Solid;
     field public static int Base_Widget_AppCompat_ActionBar_TabBar;
@@ -1001,8 +1006,6 @@ package android.support.v7.appcompat {
     field public static int Platform_ThemeOverlay_AppCompat_Light;
     field public static int Platform_V11_AppCompat;
     field public static int Platform_V11_AppCompat_Light;
-    field public static int Platform_V12_AppCompat;
-    field public static int Platform_V12_AppCompat_Light;
     field public static int Platform_V14_AppCompat;
     field public static int Platform_V14_AppCompat_Light;
     field public static int RtlOverlay_DialogWindowTitle_AppCompat;
@@ -1357,6 +1360,7 @@ package android.support.v7.appcompat {
     field public static int Theme_android_windowAnimationStyle;
     field public static int Theme_android_windowIsFloating;
     field public static int Theme_autoCompleteTextViewStyle;
+    field public static int Theme_borderlessButtonStyle;
     field public static int Theme_buttonBarButtonStyle;
     field public static int Theme_buttonBarNegativeButtonStyle;
     field public static int Theme_buttonBarNeutralButtonStyle;
