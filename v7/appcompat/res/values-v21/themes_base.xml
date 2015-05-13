@@ -64,6 +64,7 @@
         <!-- General view attributes -->
         <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
         <item name="selectableItemBackgroundBorderless">?android:attr/selectableItemBackgroundBorderless</item>
+        <item name="borderlessButtonStyle">?android:borderlessButtonStyle</item>
         <item name="dividerHorizontal">?android:attr/dividerHorizontal</item>
         <item name="dividerVertical">?android:attr/dividerVertical</item>
         <item name="editTextBackground">?android:attr/editTextBackground</item>
@@ -113,6 +114,7 @@
         <!-- General view attributes -->
         <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
         <item name="selectableItemBackgroundBorderless">?android:attr/selectableItemBackgroundBorderless</item>
+        <item name="borderlessButtonStyle">?android:borderlessButtonStyle</item>
         <item name="dividerHorizontal">?android:attr/dividerHorizontal</item>
         <item name="dividerVertical">?android:attr/dividerVertical</item>
         <item name="editTextBackground">?android:attr/editTextBackground</item>
