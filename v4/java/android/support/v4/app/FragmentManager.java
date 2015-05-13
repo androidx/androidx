@@ -25,6 +25,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.CallSuper;
 import android.support.annotation.IdRes;
 import android.support.annotation.StringRes;
 import android.support.v4.util.DebugUtils;
@@ -411,6 +412,39 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     static final String VIEW_STATE_TAG = "android:view_state";
     static final String USER_VISIBLE_HINT_TAG = "android:user_visible_hint";
 
+
+    static class AnimateOnHWLayerIfNeededListener implements AnimationListener {
+        private boolean mShouldRunOnHWLayer = false;
+        private View mView;
+        public AnimateOnHWLayerIfNeededListener(final View v, Animation anim) {
+            if (v == null || anim == null) {
+                return;
+            }
+            mView = v;
+        }
+
+        @Override
+        @CallSuper
+        public void onAnimationStart(Animation animation) {
+            mShouldRunOnHWLayer = shouldRunOnHWLayer(mView, animation);
+            if (mShouldRunOnHWLayer) {
+                ViewCompat.setLayerType(mView, ViewCompat.LAYER_TYPE_HARDWARE, null);
+            }
+        }
+
+        @Override
+        @CallSuper
+        public void onAnimationEnd(Animation animation) {
+            if (mShouldRunOnHWLayer) {
+                ViewCompat.setLayerType(mView, ViewCompat.LAYER_TYPE_NONE, null);
+            }
+        }
+
+        @Override
+        public void onAnimationRepeat(Animation animation) {
+        }
+    }
+
     ArrayList<Runnable> mPendingActions;
     Runnable[] mTmpActions;
     boolean mExecutingActions;
@@ -449,6 +483,26 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             execPendingActions();
         }
     };
+
+    static boolean modifiesAlpha(Animation anim) {
+        if (anim instanceof AlphaAnimation) {
+            return true;
+        } else if (anim instanceof AnimationSet) {
+            List<Animation> anims = ((AnimationSet) anim).getAnimations();
+            for (int i = 0; i < anims.size(); i++) {
+                if (anims.get(i) instanceof AlphaAnimation) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    static boolean shouldRunOnHWLayer(View v, Animation anim) {
+        return ViewCompat.getLayerType(v) == ViewCompat.LAYER_TYPE_NONE
+                && ViewCompat.hasOverlappingRendering(v)
+                && modifiesAlpha(anim);
+    }
 
     private void throwException(RuntimeException ex) {
         Log.e(TAG, ex.getMessage());
@@ -766,7 +820,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         anim.setDuration(ANIM_DUR);
         return anim;
     }
-    
+
     Animation loadAnimation(Fragment fragment, int transit, boolean enter,
             int transitionStyle) {
         Animation animObj = fragment.onCreateAnimation(transit, enter,
@@ -790,7 +844,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         if (styleIndex < 0) {
             return null;
         }
-        
+
         switch (styleIndex) {
             case ANIM_STYLE_OPEN_ENTER:
                 return makeOpenCloseAnimation(mHost.getContext(), 1.125f, 1.0f, 0, 1);
@@ -835,6 +889,22 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             }
             f.mDeferStart = false;
             moveToState(f, mCurState, 0, 0, false);
+        }
+    }
+
+    /**
+     * Sets the to be animated view on hardware layer during the animation. Note
+     * that calling this will replace any existing animation listener on the animation
+     * with a new one, as animations do not support more than one listeners. Therefore,
+     * animations that already have listeners should do the layer change operations
+     * in their existing listeners, rather than calling this function.
+     */
+    private void setHWLayerAnimListenerIfAlpha(final View v, Animation anim) {
+        if (v == null || anim == null) {
+            return;
+        }
+        if (shouldRunOnHWLayer(v, anim)) {
+            anim.setAnimationListener(new AnimateOnHWLayerIfNeededListener(v, anim));
         }
     }
 
@@ -956,6 +1026,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                                     Animation anim = loadAnimation(f, transit, true,
                                             transitionStyle);
                                     if (anim != null) {
+                                        setHWLayerAnimListenerIfAlpha(f.mView, anim);
                                         f.mView.startAnimation(anim);
                                     }
                                     container.addView(f.mView);
@@ -1027,20 +1098,17 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                                 final Fragment fragment = f;
                                 f.mAnimatingAway = f.mView;
                                 f.mStateAfterAnimating = newState;
-                                anim.setAnimationListener(new AnimationListener() {
+                                final View viewToAnimate = f.mView;
+                                anim.setAnimationListener(new AnimateOnHWLayerIfNeededListener(
+                                        viewToAnimate, anim) {
                                     @Override
                                     public void onAnimationEnd(Animation animation) {
+                                        super.onAnimationEnd(animation);
                                         if (fragment.mAnimatingAway != null) {
                                             fragment.mAnimatingAway = null;
                                             moveToState(fragment, fragment.mStateAfterAnimating,
                                                     0, 0, false);
                                         }
-                                    }
-                                    @Override
-                                    public void onAnimationRepeat(Animation animation) {
-                                    }
-                                    @Override
-                                    public void onAnimationStart(Animation animation) {
                                     }
                                 });
                                 f.mView.startAnimation(anim);
@@ -1236,6 +1304,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 Animation anim = loadAnimation(fragment, transition, false,
                         transitionStyle);
                 if (anim != null) {
+                    setHWLayerAnimListenerIfAlpha(fragment.mView, anim);
                     fragment.mView.startAnimation(anim);
                 }
                 fragment.mView.setVisibility(View.GONE);
@@ -1255,6 +1324,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 Animation anim = loadAnimation(fragment, transition, true,
                         transitionStyle);
                 if (anim != null) {
+                    setHWLayerAnimListenerIfAlpha(fragment.mView, anim);
                     fragment.mView.startAnimation(anim);
                 }
                 fragment.mView.setVisibility(View.VISIBLE);
