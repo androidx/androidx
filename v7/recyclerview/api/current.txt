@@ -40,6 +40,9 @@ package android.support.v7.util {
     ctor public SortedList(java.lang.Class<T>, android.support.v7.util.SortedList.Callback<T>);
     ctor public SortedList(java.lang.Class<T>, android.support.v7.util.SortedList.Callback<T>, int);
     method public int add(T);
+    method public void addAll(T[], boolean);
+    method public void addAll(T...);
+    method public void addAll(java.util.Collection<T>);
     method public void beginBatchedUpdates();
     method public void clear();
     method public void endBatchedUpdates();
@@ -65,7 +68,7 @@ package android.support.v7.util {
     method public void onRemoved(int, int);
   }
 
-  public static abstract class SortedList.Callback {
+  public static abstract class SortedList.Callback implements java.util.Comparator {
     ctor public SortedList.Callback();
     method public abstract boolean areContentsTheSame(T2, T2);
     method public abstract boolean areItemsTheSame(T2, T2);
