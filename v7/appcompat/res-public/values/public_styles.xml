@@ -63,6 +63,13 @@
     <public type="style" name="Theme.AppCompat.Dialog.Alert"/>
     <public type="style" name="Theme.AppCompat.Dialog.MinWidth"/>
     <public type="style" name="Theme.AppCompat.DialogWhenLarge"/>
+    <public type="style" name="Theme.AppCompat.DayNight"/>
+    <public type="style" name="Theme.AppCompat.DayNight.DarkActionBar"/>
+    <public type="style" name="Theme.AppCompat.DayNight.Dialog"/>
+    <public type="style" name="Theme.AppCompat.DayNight.Dialog.Alert"/>
+    <public type="style" name="Theme.AppCompat.DayNight.Dialog.MinWidth"/>
+    <public type="style" name="Theme.AppCompat.DayNight.DialogWhenLarge"/>
+    <public type="style" name="Theme.AppCompat.DayNight.NoActionBar"/>
     <public type="style" name="Theme.AppCompat.Light"/>
     <public type="style" name="Theme.AppCompat.Light.DarkActionBar"/>
     <public type="style" name="Theme.AppCompat.Light.Dialog"/>
