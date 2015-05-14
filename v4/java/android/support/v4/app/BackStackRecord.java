@@ -771,7 +771,7 @@ final class BackStackRecord extends FragmentTransaction implements
      */
     private void calculateFragments(SparseArray<Fragment> firstOutFragments,
             SparseArray<Fragment> lastInFragments) {
-        if (!mManager.mContainer.hasView()) {
+        if (!mManager.mContainer.onHasView()) {
             return; // nothing to see, so no transitions
         }
         Op op = mHead;
@@ -829,7 +829,7 @@ final class BackStackRecord extends FragmentTransaction implements
      */
     public void calculateBackFragments(SparseArray<Fragment> firstOutFragments,
             SparseArray<Fragment> lastInFragments) {
-        if (!mManager.mContainer.hasView()) {
+        if (!mManager.mContainer.onHasView()) {
             return; // nothing to see, so no transitions
         }
         Op op = mHead;
@@ -1128,7 +1128,7 @@ final class BackStackRecord extends FragmentTransaction implements
      */
     private boolean configureTransitions(int containerId, TransitionState state, boolean isBack,
             SparseArray<Fragment> firstOutFragments, SparseArray<Fragment> lastInFragments) {
-        ViewGroup sceneRoot = (ViewGroup) mManager.mContainer.findViewById(containerId);
+        ViewGroup sceneRoot = (ViewGroup) mManager.mContainer.onFindViewById(containerId);
         if (sceneRoot == null) {
             return false;
         }

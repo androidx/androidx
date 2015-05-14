@@ -31,9 +31,13 @@ import java.io.FileDescriptor;
 import java.io.PrintWriter;
 
 /**
- * Provides integration points with the host that is managing the {@link Fragment} lifecycle.
+ * Integration points with the Fragment host.
+ * <p>
+ * Fragments may be hosted by any object; such as an {@link Activity}. In order to
+ * host fragments, implement {@link FragmentHostCallback}, overriding the methods
+ * applicable to the host.
  */
-public class FragmentHostCallbacks<E> extends FragmentContainer {
+public abstract class FragmentHostCallback<E> extends FragmentContainer {
     private final Activity mActivity;
     final Context mContext;
     private final Handler mHandler;
@@ -44,15 +48,15 @@ public class FragmentHostCallbacks<E> extends FragmentContainer {
     private boolean mCheckedForLoaderManager;
     private boolean mLoadersStarted;
 
-    public FragmentHostCallbacks(Context context, Handler handler, int windowAnimations) {
+    public FragmentHostCallback(Context context, Handler handler, int windowAnimations) {
         this(null /*activity*/, context, handler, windowAnimations);
     }
 
-    FragmentHostCallbacks(FragmentActivity activity) {
+    FragmentHostCallback(FragmentActivity activity) {
         this(activity, activity /*context*/, activity.mHandler, 0 /*windowAnimations*/);
     }
 
-    FragmentHostCallbacks(Activity activity, Context context, Handler handler,
+    FragmentHostCallback(Activity activity, Context context, Handler handler,
             int windowAnimations) {
         mActivity = activity;
         mContext = context;
@@ -69,13 +73,13 @@ public class FragmentHostCallbacks<E> extends FragmentContainer {
      *                  for you after you return.
      * @param args additional arguments to the dump request.
      */
-    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
+    public void onDump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
     }
 
     /**
      * Return {@code true} if the fragment's state needs to be saved.
      */
-    public boolean shouldSaveFragmentState(Fragment fragment) {
+    public boolean onShouldSaveFragmentState(Fragment fragment) {
         return true;
     }
 
@@ -83,7 +87,7 @@ public class FragmentHostCallbacks<E> extends FragmentContainer {
      * Return a {@link LayoutInflater}.
      * See {@link Activity#getLayoutInflater()}.
      */
-    public LayoutInflater getLayoutInflater() {
+    public LayoutInflater onGetLayoutInflater() {
         return (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
@@ -93,22 +97,20 @@ public class FragmentHostCallbacks<E> extends FragmentContainer {
      * the same object returned from {@link Fragment#getActivity()}.
      */
     @Nullable
-    public E getHost() {
-        return null;
-    }
+    abstract E onGetHost();
 
     /**
      * Invalidates the activity's options menu.
      * See {@link FragmentActivity#supportInvalidateOptionsMenu()}
      */
-    public void supportInvalidateOptionsMenu() {
+    public void onSupportInvalidateOptionsMenu() {
     }
 
     /**
      * Starts a new {@link Activity} from the given fragment.
      * See {@link FragmentActivity#startActivityForResult(Intent, int)}.
      */
-    public void startActivityFromFragment(Fragment fragment, Intent intent, int requestCode) {
+    public void onStartActivityFromFragment(Fragment fragment, Intent intent, int requestCode) {
         if (requestCode != -1) {
             throw new IllegalStateException(
                     "Starting activity with a requestCode requires a FragmentActivity host");
@@ -119,25 +121,25 @@ public class FragmentHostCallbacks<E> extends FragmentContainer {
     /**
      * Return {@code true} if there are window animations.
      */
-    public boolean hasWindowAnimations() {
+    public boolean onHasWindowAnimations() {
         return true;
     }
 
     /**
      * Return the window animations.
      */
-    public int getWindowAnimations() {
+    public int onGetWindowAnimations() {
         return mWindowAnimations;
     }
 
     @Nullable
     @Override
-    public View findViewById(int id) {
+    public View onFindViewById(int id) {
         return null;
     }
 
     @Override
-    public boolean hasView() {
+    public boolean onHasView() {
         return true;
     }
 
