@@ -24,7 +24,7 @@ include $(CLEAR_VARS)
 LOCAL_CFLAGS += -std=c++11
 
 LOCAL_MODULE := android-support-v8-renderscript
-LOCAL_SDK_VERSION := 22
+LOCAL_SDK_VERSION := 21
 LOCAL_SRC_FILES := $(call all-java-files-under, java/src)
 
 include $(BUILD_STATIC_JAVA_LIBRARY)
