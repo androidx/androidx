@@ -65,7 +65,8 @@ public class AppCompatViewInflater {
     private final Object[] mConstructorArgs = new Object[2];
 
     public final View createView(View parent, final String name, @NonNull Context context,
-            @NonNull AttributeSet attrs, boolean inheritContext, boolean themeContext) {
+            @NonNull AttributeSet attrs, boolean inheritContext,
+            boolean readAndroidTheme, boolean readAppTheme) {
         final Context originalContext = context;
 
         // We can emulate Lollipop's android:theme attribute propagating down the view hierarchy
@@ -73,9 +74,9 @@ public class AppCompatViewInflater {
         if (inheritContext && parent != null) {
             context = parent.getContext();
         }
-        if (themeContext) {
+        if (readAndroidTheme || readAppTheme) {
             // We then apply the theme on the context, if specified
-            context = themifyContext(context, attrs, true, true);
+            context = themifyContext(context, attrs, readAndroidTheme, readAppTheme);
         }
 
         // We need to 'inject' our tint aware Views in place of the standard framework versions
