@@ -166,42 +166,49 @@ public class RenderScript {
 
             if (sNative == 1) {
                 // Workarounds that may disable thunking go here
-                ApplicationInfo info;
+                ApplicationInfo info = null;
                 try {
                     info = ctx.getPackageManager().getApplicationInfo(ctx.getPackageName(),
                                                                       PackageManager.GET_META_DATA);
                 } catch (PackageManager.NameNotFoundException e) {
                     // assume no workarounds needed
-                    return true;
-                }
-                long minorVersion = 0;
-
-                // load minorID from reflection
-                try {
-                    Class<?> javaRS = Class.forName("android.renderscript.RenderScript");
-                    Method getMinorID = javaRS.getDeclaredMethod("getMinorID");
-                    minorVersion = ((java.lang.Long)getMinorID.invoke(null)).longValue();
-                } catch (Exception e) {
-                    // minor version remains 0 on devices with no possible WARs
                 }
 
-                if (info.metaData != null) {
-                    // asynchronous teardown: minor version 1+
-                    if (info.metaData.getBoolean("com.android.support.v8.renderscript.EnableAsyncTeardown") == true) {
-                        if (minorVersion == 0) {
-                            sNative = 0;
+                if (info != null) {
+                    long minorVersion = 0;
+                    // load minorID from reflection
+                    try {
+                        Class<?> javaRS = Class.forName("android.renderscript.RenderScript");
+                        if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.LOLLIPOP_MR1) {
+                            Method getMinorID = javaRS.getDeclaredMethod("getMinorID");
+                            minorVersion = ((java.lang.Long)getMinorID.invoke(null)).longValue();
+                        } else {
+                            //For M+
+                            Method getMinorVersion = javaRS.getDeclaredMethod("getMinorVersion");
+                            minorVersion = ((java.lang.Long)getMinorVersion.invoke(null)).longValue();
                         }
+                    } catch (Exception e) {
+                        // minor version remains 0 on devices with no possible WARs
                     }
 
-                    // blur issues on some drivers with 4.4
-                    if (info.metaData.getBoolean("com.android.support.v8.renderscript.EnableBlurWorkaround") == true) {
-                        if (android.os.Build.VERSION.SDK_INT <= 19) {
-                            //android.util.Log.e("rs", "war on");
-                            sNative = 0;
+                    if (info.metaData != null) {
+                        // asynchronous teardown: minor version 1+
+                        if (info.metaData.getBoolean("com.android.support.v8.renderscript.EnableAsyncTeardown") == true) {
+                            if (minorVersion == 0) {
+                                sNative = 0;
+                            }
+                        }
+
+                        // blur issues on some drivers with 4.4
+                        if (info.metaData.getBoolean("com.android.support.v8.renderscript.EnableBlurWorkaround") == true) {
+                            if (android.os.Build.VERSION.SDK_INT <= 19) {
+                                //android.util.Log.e("rs", "war on");
+                                sNative = 0;
+                            }
                         }
                     }
+                    // end of workarounds
                 }
-                // end of workarounds
             }
         }
 
