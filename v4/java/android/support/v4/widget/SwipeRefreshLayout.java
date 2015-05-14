@@ -22,7 +22,8 @@ import android.content.res.TypedArray;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
 import android.support.v4.view.MotionEventCompat;
-import android.support.v4.view.ScrollingView;
+import android.support.v4.view.NestedScrollingParent;
+import android.support.v4.view.NestedScrollingParentHelper;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -58,7 +59,7 @@ import android.widget.AbsListView;
  * refresh of the content wherever this gesture is used.
  * </p>
  */
-public class SwipeRefreshLayout extends ViewGroup {
+public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingParent {
     // Maps to ProgressBar.Large style
     public static final int LARGE = MaterialProgressDrawable.LARGE;
     // Maps to ProgressBar default style
@@ -98,6 +99,11 @@ public class SwipeRefreshLayout extends ViewGroup {
     private boolean mRefreshing = false;
     private int mTouchSlop;
     private float mTotalDragDistance = -1;
+    // If nested scrolling is enabled, the total amount that needed to be
+    // consumed by this as the nested scrolling parent is used in place of the
+    // overscroll determined by MOVE events in the onTouch handler
+    private float mTotalUnconsumed;
+    private NestedScrollingParentHelper mNestedScrollingParentHelper;
     private int mMediumAnimationDuration;
     private int mCurrentTargetOffsetTop;
     // Whether or not the starting offset has been determined.
@@ -292,6 +298,7 @@ public class SwipeRefreshLayout extends ViewGroup {
         // the absolute offset has to take into account that the circle starts at an offset
         mSpinnerFinalOffset = DEFAULT_CIRCLE_TARGET * metrics.density;
         mTotalDragDistance = mSpinnerFinalOffset;
+        mNestedScrollingParentHelper = new NestedScrollingParentHelper(this);
     }
 
     protected int getChildDrawingOrder(int childCount, int i) {
@@ -697,11 +704,166 @@ public class SwipeRefreshLayout extends ViewGroup {
 
     @Override
     public void requestDisallowInterceptTouchEvent(boolean b) {
-        // Nope.
+        // if this is a List < L or another view that doesn't support nested
+        // scrolling, ignore this request so that the vertical scroll event
+        // isn't stolen
+        if ((android.os.Build.VERSION.SDK_INT < 21 && mTarget instanceof AbsListView)
+                || (mTarget != null && !ViewCompat.isNestedScrollingEnabled(mTarget))) {
+            // Nope.
+        } else {
+            super.requestDisallowInterceptTouchEvent(b);
+        }
+    }
+
+    @Override
+    public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {
+        return ((nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0);
+    }
+
+    @Override
+    public void onNestedScrollAccepted(View child, View target, int axes) {
+        // Reset the counter of how much leftover scroll needs to be consumed.
+        mNestedScrollingParentHelper.onNestedScrollAccepted(child, target, axes);
+        mTotalUnconsumed = 0;
+    }
+
+    @Override
+    public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
+        // If we are in the middle of consuming, a scroll, then we want to move the spinner back up
+        // before allowing the list to scroll
+        if (dy > 0 && mTotalUnconsumed > 0) {
+            if (dy > mTotalUnconsumed) {
+                consumed[1] = dy - (int) mTotalUnconsumed;
+                mTotalUnconsumed = 0;
+            } else {
+                mTotalUnconsumed -= dy;
+                consumed[1] = dy;
+
+            }
+            moveSpinner(mTotalUnconsumed);
+        }
+    }
+
+    @Override
+    public int getNestedScrollAxes() {
+        return mNestedScrollingParentHelper.getNestedScrollAxes();
+    }
+
+    @Override
+    public void onStopNestedScroll(View target) {
+        mNestedScrollingParentHelper.onStopNestedScroll(target);
+        // Finish the spinner for nested scrolling if we ever consumed any
+        // unconsumed nested scroll
+        if (mTotalUnconsumed > 0) {
+            finishSpinner(mTotalUnconsumed);
+            mTotalUnconsumed = 0;
+        }
+    }
+
+
+    @Override
+    public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed,
+            int dyUnconsumed) {
+        if (dyUnconsumed < 0) {
+            dyUnconsumed = Math.abs(dyUnconsumed);
+            mTotalUnconsumed += dyUnconsumed;
+            moveSpinner(mTotalUnconsumed);
+        }
+    }
+
+
+    @Override
+    public boolean onNestedPreFling(View target, float velocityX, float velocityY) {
+        return false;
+    }
+
+    @Override
+    public boolean onNestedFling(View target, float velocityX, float velocityY, boolean consumed) {
+        return false;
     }
 
     private boolean isAnimationRunning(Animation animation) {
         return animation != null && animation.hasStarted() && !animation.hasEnded();
+    }
+
+    private void moveSpinner(float overscrollTop) {
+        mProgress.showArrow(true);
+        float originalDragPercent = overscrollTop / mTotalDragDistance;
+
+        float dragPercent = Math.min(1f, Math.abs(originalDragPercent));
+        float adjustedPercent = (float) Math.max(dragPercent - .4, 0) * 5 / 3;
+        float extraOS = Math.abs(overscrollTop) - mTotalDragDistance;
+        float slingshotDist = mUsingCustomStart ? mSpinnerFinalOffset - mOriginalOffsetTop
+                : mSpinnerFinalOffset;
+        float tensionSlingshotPercent = Math.max(0, Math.min(extraOS, slingshotDist * 2)
+                / slingshotDist);
+        float tensionPercent = (float) ((tensionSlingshotPercent / 4) - Math.pow(
+                (tensionSlingshotPercent / 4), 2)) * 2f;
+        float extraMove = (slingshotDist) * tensionPercent * 2;
+
+        int targetY = mOriginalOffsetTop + (int) ((slingshotDist * dragPercent) + extraMove);
+        // where 1.0f is a full circle
+        if (mCircleView.getVisibility() != View.VISIBLE) {
+            mCircleView.setVisibility(View.VISIBLE);
+        }
+        if (!mScale) {
+            ViewCompat.setScaleX(mCircleView, 1f);
+            ViewCompat.setScaleY(mCircleView, 1f);
+        }
+        if (overscrollTop < mTotalDragDistance) {
+            if (mScale) {
+                setAnimationProgress(overscrollTop / mTotalDragDistance);
+            }
+            if (mProgress.getAlpha() > STARTING_PROGRESS_ALPHA
+                    && !isAnimationRunning(mAlphaStartAnimation)) {
+                // Animate the alpha
+                startProgressAlphaStartAnimation();
+            }
+            float strokeStart = adjustedPercent * .8f;
+            mProgress.setStartEndTrim(0f, Math.min(MAX_PROGRESS_ANGLE, strokeStart));
+            mProgress.setArrowScale(Math.min(1f, adjustedPercent));
+        } else {
+            if (mProgress.getAlpha() < MAX_ALPHA && !isAnimationRunning(mAlphaMaxAnimation)) {
+                // Animate the alpha
+                startProgressAlphaMaxAnimation();
+            }
+        }
+        float rotation = (-0.25f + .4f * adjustedPercent + tensionPercent * 2) * .5f;
+        mProgress.setProgressRotation(rotation);
+        setTargetOffsetTopAndBottom(targetY - mCurrentTargetOffsetTop, true /* requires update */);
+    }
+
+    private void finishSpinner(float overscrollTop) {
+        if (overscrollTop > mTotalDragDistance) {
+            setRefreshing(true, true /* notify */);
+        } else {
+            // cancel refresh
+            mRefreshing = false;
+            mProgress.setStartEndTrim(0f, 0f);
+            Animation.AnimationListener listener = null;
+            if (!mScale) {
+                listener = new Animation.AnimationListener() {
+
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        if (!mScale) {
+                            startScaleDownAnimation(null);
+                        }
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+                    }
+
+                };
+            }
+            animateOffsetToStartPosition(mCurrentTargetOffsetTop, listener);
+            mProgress.showArrow(false);
+        }
     }
 
     @Override
@@ -733,55 +895,11 @@ public class SwipeRefreshLayout extends ViewGroup {
                 final float y = MotionEventCompat.getY(ev, pointerIndex);
                 final float overscrollTop = (y - mInitialMotionY) * DRAG_RATE;
                 if (mIsBeingDragged) {
-                    mProgress.showArrow(true);
-                    float originalDragPercent = overscrollTop / mTotalDragDistance;
-                    if (originalDragPercent < 0) {
+                    if (overscrollTop > 0) {
+                        moveSpinner(overscrollTop);
+                    } else {
                         return false;
                     }
-                    float dragPercent = Math.min(1f, Math.abs(originalDragPercent));
-                    float adjustedPercent = (float) Math.max(dragPercent - .4, 0) * 5 / 3;
-                    float extraOS = Math.abs(overscrollTop) - mTotalDragDistance;
-                    float slingshotDist = mUsingCustomStart ? mSpinnerFinalOffset
-                            - mOriginalOffsetTop : mSpinnerFinalOffset;
-                    float tensionSlingshotPercent = Math.max(0,
-                            Math.min(extraOS, slingshotDist * 2) / slingshotDist);
-                    float tensionPercent = (float) ((tensionSlingshotPercent / 4) - Math.pow(
-                            (tensionSlingshotPercent / 4), 2)) * 2f;
-                    float extraMove = (slingshotDist) * tensionPercent * 2;
-
-                    int targetY = mOriginalOffsetTop
-                            + (int) ((slingshotDist * dragPercent) + extraMove);
-                    // where 1.0f is a full circle
-                    if (mCircleView.getVisibility() != View.VISIBLE) {
-                        mCircleView.setVisibility(View.VISIBLE);
-                    }
-                    if (!mScale) {
-                        ViewCompat.setScaleX(mCircleView, 1f);
-                        ViewCompat.setScaleY(mCircleView, 1f);
-                    }
-                    if (overscrollTop < mTotalDragDistance) {
-                        if (mScale) {
-                            setAnimationProgress(overscrollTop / mTotalDragDistance);
-                        }
-                        if (mProgress.getAlpha() > STARTING_PROGRESS_ALPHA
-                                && !isAnimationRunning(mAlphaStartAnimation)) {
-                            // Animate the alpha
-                            startProgressAlphaStartAnimation();
-                        }
-                        float strokeStart = adjustedPercent * .8f;
-                        mProgress.setStartEndTrim(0f, Math.min(MAX_PROGRESS_ANGLE, strokeStart));
-                        mProgress.setArrowScale(Math.min(1f, adjustedPercent));
-                    } else {
-                        if (mProgress.getAlpha() < MAX_ALPHA
-                                && !isAnimationRunning(mAlphaMaxAnimation)) {
-                            // Animate the alpha
-                            startProgressAlphaMaxAnimation();
-                        }
-                    }
-                    float rotation = (-0.25f + .4f * adjustedPercent + tensionPercent * 2) * .5f;
-                    mProgress.setProgressRotation(rotation);
-                    setTargetOffsetTopAndBottom(targetY - mCurrentTargetOffsetTop,
-                            true /* requires update */);
                 }
                 break;
             }
@@ -807,36 +925,7 @@ public class SwipeRefreshLayout extends ViewGroup {
                 final float y = MotionEventCompat.getY(ev, pointerIndex);
                 final float overscrollTop = (y - mInitialMotionY) * DRAG_RATE;
                 mIsBeingDragged = false;
-                if (overscrollTop > mTotalDragDistance) {
-                    setRefreshing(true, true /* notify */);
-                } else {
-                    // cancel refresh
-                    mRefreshing = false;
-                    mProgress.setStartEndTrim(0f, 0f);
-                    Animation.AnimationListener listener = null;
-                    if (!mScale) {
-                        listener = new Animation.AnimationListener() {
-
-                            @Override
-                            public void onAnimationStart(Animation animation) {
-                            }
-
-                            @Override
-                            public void onAnimationEnd(Animation animation) {
-                                if (!mScale) {
-                                    startScaleDownAnimation(null);
-                                }
-                            }
-
-                            @Override
-                            public void onAnimationRepeat(Animation animation) {
-                            }
-
-                        };
-                    }
-                    animateOffsetToStartPosition(mCurrentTargetOffsetTop, listener);
-                    mProgress.showArrow(false);
-                }
+                finishSpinner(overscrollTop);
                 mActivePointerId = INVALID_POINTER;
                 return false;
             }
@@ -855,6 +944,18 @@ public class SwipeRefreshLayout extends ViewGroup {
         }
         mCircleView.clearAnimation();
         mCircleView.startAnimation(mAnimateToCorrectPosition);
+    }
+
+    private void peek(int from, AnimationListener listener) {
+        mFrom = from;
+        mPeek.reset();
+        mPeek.setDuration(500);
+        mPeek.setInterpolator(mDecelerateInterpolator);
+        if (listener != null) {
+            mCircleView.setAnimationListener(listener);
+        }
+        mCircleView.clearAnimation();
+        mCircleView.startAnimation(mPeek);
     }
 
     private void animateOffsetToStartPosition(int from, AnimationListener listener) {
@@ -883,6 +984,23 @@ public class SwipeRefreshLayout extends ViewGroup {
                 endTarget = (int) (mSpinnerFinalOffset - Math.abs(mOriginalOffsetTop));
             } else {
                 endTarget = (int) mSpinnerFinalOffset;
+            }
+            targetTop = (mFrom + (int) ((endTarget - mFrom) * interpolatedTime));
+            int offset = targetTop - mCircleView.getTop();
+            setTargetOffsetTopAndBottom(offset, false /* requires update */);
+            mProgress.setArrowScale(1 - interpolatedTime);
+        }
+    };
+
+    private final Animation mPeek = new Animation() {
+        @Override
+        public void applyTransformation(float interpolatedTime, Transformation t) {
+            int targetTop = 0;
+            int endTarget = 0;
+            if (!mUsingCustomStart) {
+                endTarget = (int) (mSpinnerFinalOffset - Math.abs(mOriginalOffsetTop));
+            } else {
+                endTarget = (int) mSpinnerFinalOffset; //mSpinnerFinalOffset;
             }
             targetTop = (mFrom + (int) ((endTarget - mFrom) * interpolatedTime));
             int offset = targetTop - mCircleView.getTop();
