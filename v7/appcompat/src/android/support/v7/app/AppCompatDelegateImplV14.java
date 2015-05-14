@@ -66,13 +66,21 @@ class AppCompatDelegateImplV14 extends AppCompatDelegateImplV11 {
          * let AppCompat display it.
          */
         final ActionMode startAsSupportActionMode(ActionMode.Callback callback) {
-            // Try and start a support action mode, wrapping the callback
-            final android.support.v7.view.ActionMode supportActionMode = startSupportActionMode(
-                    new SupportActionModeWrapper.CallbackWrapper(mContext, callback));
+            // Wrap the callback as a v7 ActionMode.Callback
+            final SupportActionModeWrapper.CallbackWrapper callbackWrapper
+                    = new SupportActionModeWrapper.CallbackWrapper(mContext, callback);
+
+            // Try and start a support action mode using the wrapped callback
+            final android.support.v7.view.ActionMode supportActionMode
+                    = startSupportActionMode(callbackWrapper);
 
             if (supportActionMode != null) {
                 // If we received a support action mode, wrap and return it
-                return new SupportActionModeWrapper(mContext, supportActionMode);
+                final SupportActionModeWrapper newActionMode
+                        = new SupportActionModeWrapper(mContext, supportActionMode);
+                // We need to let the wrapped callback know about the original new action mode
+                callbackWrapper.addActionModeWrapper(newActionMode);
+                return newActionMode;
             }
             return null;
         }
