@@ -294,7 +294,9 @@ public final class TintManager {
                 tint = createSwitchThumbColorStateList(context);
             } else if (resId == R.drawable.abc_btn_default_mtrl_shape
                     || resId == R.drawable.abc_btn_borderless_material) {
-                tint = createButtonColorStateList(context);
+                tint = createDefaultButtonColorStateList(context);
+            } else if (resId == R.drawable.abc_btn_colored_material) {
+                tint = createColoredButtonColorStateList(context);
             } else if (resId == R.drawable.abc_spinner_mtrl_am_alpha
                     || resId == R.drawable.abc_spinner_textfield_background_material) {
                 tint = createSpinnerColorStateList(context);
@@ -480,12 +482,20 @@ public final class TintManager {
         return new ColorStateList(states, colors);
     }
 
-    private ColorStateList createButtonColorStateList(Context context) {
+    private ColorStateList createDefaultButtonColorStateList(Context context) {
+        return createButtonColorStateList(context, R.attr.colorButtonNormal);
+    }
+
+    private ColorStateList createColoredButtonColorStateList(Context context) {
+        return createButtonColorStateList(context, R.attr.colorAccent);
+    }
+
+    private ColorStateList createButtonColorStateList(Context context, int baseColorAttr) {
         final int[][] states = new int[4][];
         final int[] colors = new int[4];
         int i = 0;
 
-        final int colorButtonNormal = getThemeAttrColor(context, R.attr.colorButtonNormal);
+        final int baseColor = getThemeAttrColor(context, baseColorAttr);
         final int colorControlHighlight = getThemeAttrColor(context, R.attr.colorControlHighlight);
 
         // Disabled state
@@ -494,16 +504,16 @@ public final class TintManager {
         i++;
 
         states[i] = ThemeUtils.PRESSED_STATE_SET;
-        colors[i] = ColorUtils.compositeColors(colorControlHighlight, colorButtonNormal);
+        colors[i] = ColorUtils.compositeColors(colorControlHighlight, baseColor);
         i++;
 
         states[i] = ThemeUtils.FOCUSED_STATE_SET;
-        colors[i] = ColorUtils.compositeColors(colorControlHighlight, colorButtonNormal);
+        colors[i] = ColorUtils.compositeColors(colorControlHighlight, baseColor);
         i++;
 
         // Default enabled state
         states[i] = ThemeUtils.EMPTY_STATE_SET;
-        colors[i] = colorButtonNormal;
+        colors[i] = baseColor;
         i++;
 
         return new ColorStateList(states, colors);

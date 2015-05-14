@@ -46,7 +46,7 @@
         <!-- Action Bar styling attributes -->
         <item name="actionBarSize">?android:attr/actionBarSize</item>
         <item name="actionBarDivider">?android:attr/actionBarDivider</item>
-        <item name="actionBarItemBackground">?android:attr/actionBarItemBackground</item>
+        <item name="actionBarItemBackground">@drawable/abc_action_bar_item_background_material</item>
         <item name="actionButtonStyle">?android:attr/actionButtonStyle</item>
         <item name="actionMenuTextColor">?android:attr/actionMenuTextColor</item>
         <item name="actionMenuTextAppearance">?android:attr/actionMenuTextAppearance</item>
@@ -96,7 +96,7 @@
         <!-- Action Bar styling attributes -->
         <item name="actionBarSize">?android:attr/actionBarSize</item>
         <item name="actionBarDivider">?android:attr/actionBarDivider</item>
-        <item name="actionBarItemBackground">?android:attr/actionBarItemBackground</item>
+        <item name="actionBarItemBackground">@drawable/abc_action_bar_item_background_material</item>
         <item name="actionButtonStyle">?android:attr/actionButtonStyle</item>
         <item name="actionMenuTextColor">?android:attr/actionMenuTextColor</item>
         <item name="actionMenuTextAppearance">?android:attr/actionMenuTextAppearance</item>

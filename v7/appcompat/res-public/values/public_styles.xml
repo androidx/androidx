@@ -92,6 +92,7 @@
     <public type="style" name="Widget.AppCompat.Button.Borderless"/>
     <public type="style" name="Widget.AppCompat.Button.Borderless.Colored"/>
     <public type="style" name="Widget.AppCompat.Button.ButtonBar.AlertDialog"/>
+    <public type="style" name="Widget.AppCompat.Button.Colored"/>
     <public type="style" name="Widget.AppCompat.Button.Small"/>
     <public type="style" name="Widget.AppCompat.CompoundButton.CheckBox"/>
     <public type="style" name="Widget.AppCompat.CompoundButton.RadioButton"/>
