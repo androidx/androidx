@@ -209,7 +209,7 @@ class LoaderManagerImpl extends LoaderManager {
     boolean mRetainingStarted;
     
     boolean mCreatingLoader;
-    private FragmentHostCallbacks mHost;
+    private FragmentHostCallback mHost;
 
     final class LoaderInfo implements Loader.OnLoadCompleteListener<Object>,
             Loader.OnLoadCanceledListener<Object> {
@@ -523,13 +523,13 @@ class LoaderManagerImpl extends LoaderManager {
         }
     }
     
-    LoaderManagerImpl(String who, FragmentHostCallbacks host, boolean started) {
+    LoaderManagerImpl(String who, FragmentHostCallback host, boolean started) {
         mWho = who;
         mHost = host;
         mStarted = started;
     }
     
-    void updateHostController(FragmentHostCallbacks host) {
+    void updateHostController(FragmentHostCallback host) {
         mHost = host;
     }
     

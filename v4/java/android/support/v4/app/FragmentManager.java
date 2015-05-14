@@ -428,7 +428,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     ArrayList<OnBackStackChangedListener> mBackStackChangeListeners;
 
     int mCurState = Fragment.INITIALIZING;
-    FragmentHostCallbacks mHost;
+    FragmentHostCallback mHost;
     FragmentController mController;
     FragmentContainer mContainer;
     Fragment mParent;
@@ -457,7 +457,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         PrintWriter pw = new PrintWriter(logw);
         if (mHost != null) {
             try {
-                mHost.dump("  ", null, pw, new String[] { });
+                mHost.onDump("  ", null, pw, new String[] { });
             } catch (Exception e) {
                 Log.e(TAG, "Failed dumping state", e);
             }
@@ -806,8 +806,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 return makeFadeAnimation(mHost.getContext(), 1, 0);
         }
         
-        if (transitionStyle == 0 && mHost.hasWindowAnimations()) {
-            transitionStyle = mHost.getWindowAnimations();
+        if (transitionStyle == 0 && mHost.onHasWindowAnimations()) {
+            transitionStyle = mHost.onGetWindowAnimations();
         }
         if (transitionStyle == 0) {
             return null;
@@ -933,7 +933,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                         if (!f.mFromLayout) {
                             ViewGroup container = null;
                             if (f.mContainerId != 0) {
-                                container = (ViewGroup)mContainer.findViewById(f.mContainerId);
+                                container = (ViewGroup)mContainer.onFindViewById(f.mContainerId);
                                 if (container == null && !f.mRestored) {
                                     throwException(new IllegalArgumentException(
                                             "No view found for id 0x"
@@ -1012,7 +1012,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                         if (f.mView != null) {
                             // Need to save the current view state if not
                             // done already.
-                            if (mHost.shouldSaveFragmentState(f) && f.mSavedViewState == null) {
+                            if (mHost.onShouldSaveFragmentState(f) && f.mSavedViewState == null) {
                                 saveFragmentViewState(f);
                             }
                         }
@@ -1138,7 +1138,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             }
 
             if (mNeedMenuInvalidate && mHost != null && mCurState == Fragment.RESUMED) {
-                mHost.supportInvalidateOptionsMenu();
+                mHost.onSupportInvalidateOptionsMenu();
                 mNeedMenuInvalidate = false;
             }
         }
@@ -1786,7 +1786,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         return fms;
     }
     
-    void restoreAllState(Parcelable state, ArrayList<Fragment> nonConfig) {
+    void restoreAllState(Parcelable state, List<Fragment> nonConfig) {
         // If there is no saved state at all, then there can not be
         // any nonConfig fragments either, so that is that.
         if (state == null) return;
@@ -1899,7 +1899,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
     }
 
-    public void attachController(FragmentHostCallbacks host,
+    public void attachController(FragmentHostCallback host,
             FragmentContainer container, Fragment parent) {
         if (mHost != null) throw new IllegalStateException("Already attached");
         mHost = host;
