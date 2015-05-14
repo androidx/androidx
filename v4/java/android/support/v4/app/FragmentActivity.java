@@ -117,7 +117,7 @@ public class FragmentActivity extends Activity {
 
     static final class NonConfigurationInstances {
         Object custom;
-        ArrayList<Fragment> fragments;
+        List<Fragment> fragments;
         SimpleArrayMap<String, LoaderManager> loaders;
     }
 
@@ -469,7 +469,7 @@ public class FragmentActivity extends Activity {
 
         Object custom = onRetainCustomNonConfigurationInstance();
 
-        ArrayList<Fragment> fragments = mFragments.retainNonConfig();
+        List<Fragment> fragments = mFragments.retainNonConfig();
         SimpleArrayMap<String, LoaderManager> loaders = mFragments.retainLoaderNonConfig();
 
         if (fragments == null && loaders == null && custom == null) {
@@ -768,60 +768,60 @@ public class FragmentActivity extends Activity {
         super.startActivityForResult(intent, ((fragment.mIndex+1)<<16) + (requestCode&0xffff));
     }
 
-    class HostCallbacks extends FragmentHostCallbacks<FragmentActivity> {
+    class HostCallbacks extends FragmentHostCallback<FragmentActivity> {
         public HostCallbacks() {
             super(FragmentActivity.this /*fragmentActivity*/);
         }
 
         @Override
-        public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
+        public void onDump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
             FragmentActivity.this.dump(prefix, fd, writer, args);
         }
 
         @Override
-        public boolean shouldSaveFragmentState(Fragment fragment) {
+        public boolean onShouldSaveFragmentState(Fragment fragment) {
             return !isFinishing();
         }
 
         @Override
-        public LayoutInflater getLayoutInflater() {
+        public LayoutInflater onGetLayoutInflater() {
             return FragmentActivity.this.getLayoutInflater().cloneInContext(FragmentActivity.this);
         }
 
         @Override
-        public FragmentActivity getHost() {
+        public FragmentActivity onGetHost() {
             return FragmentActivity.this;
         }
 
         @Override
-        public void supportInvalidateOptionsMenu() {
+        public void onSupportInvalidateOptionsMenu() {
             FragmentActivity.this.supportInvalidateOptionsMenu();
         }
 
         @Override
-        public void startActivityFromFragment(Fragment fragment, Intent intent, int requestCode) {
+        public void onStartActivityFromFragment(Fragment fragment, Intent intent, int requestCode) {
             FragmentActivity.this.startActivityFromFragment(fragment, intent, requestCode);
         }
 
         @Override
-        public boolean hasWindowAnimations() {
+        public boolean onHasWindowAnimations() {
             return getWindow() != null;
         }
 
         @Override
-        public int getWindowAnimations() {
+        public int onGetWindowAnimations() {
             final Window w = getWindow();
             return (w == null) ? 0 : w.getAttributes().windowAnimations;
         }
 
         @Nullable
         @Override
-        public View findViewById(int id) {
+        public View onFindViewById(int id) {
             return FragmentActivity.this.findViewById(id);
         }
 
         @Override
-        public boolean hasView() {
+        public boolean onHasView() {
             final Window w = getWindow();
             return (w != null && w.peekDecorView() != null);
         }

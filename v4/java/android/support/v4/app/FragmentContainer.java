@@ -14,10 +14,10 @@ public abstract class FragmentContainer {
      * view is not a child of this container.
      */
     @Nullable
-    public abstract View findViewById(@IdRes int id);
+    public abstract View onFindViewById(@IdRes int id);
 
     /**
      * Return {@code true} if the container holds any view.
      */
-    public abstract boolean hasView();
+    public abstract boolean onHasView();
 }

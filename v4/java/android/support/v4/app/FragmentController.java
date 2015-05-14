@@ -32,39 +32,50 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Provides integration points with a {@link FragmentManager}. For example, a fragment
- * host, such as {@link FragmentActivity}, uses the {@link FragmentController} to control
- * the {@link Fragment} lifecycle.
+ * Provides integration points with a {@link FragmentManager} for a fragment host.
+ * <p>
+ * It is the responsibility of the host to take care of the Fragment's lifecycle.
+ * The methods provided by {@link FragmentController} are for that purpose.
  */
 public class FragmentController {
-    private final FragmentHostCallbacks<?> mHost;
+    private final FragmentHostCallback<?> mHost;
 
     /**
      * Returns a {@link FragmentController}.
      */
-    public static final FragmentController createController(FragmentHostCallbacks<?> callbacks) {
+    public static final FragmentController createController(FragmentHostCallback<?> callbacks) {
         return new FragmentController(callbacks);
     }
 
-    private FragmentController(FragmentHostCallbacks<?> callbacks) {
+    private FragmentController(FragmentHostCallback<?> callbacks) {
         mHost = callbacks;
     }
 
+    /**
+     * Returns a {@link FragmentManager} for this controller.
+     */
     public FragmentManager getSupportFragmentManager() {
         return mHost.getFragmentManagerImpl();
     }
 
+    /**
+     * Returns a {@link LoaderManager}.
+     */
     public LoaderManager getSupportLoaderManager() {
         return mHost.getLoaderManagerImpl();
     }
 
-    /** Returns the number of active fragments. */
+    /**
+     * Returns the number of active fragments. 
+     */
     public int getActiveFragmentsCount() {
         final List<Fragment> actives = mHost.mFragmentManager.mActive;
         return actives == null ? 0 : actives.size();
     }
 
-    /** Returns the list of active fragments. */
+    /**
+     * Returns the list of active fragments.
+     */
     public List<Fragment> getActiveFragments(List<Fragment> actives) {
         if (mHost.mFragmentManager.mActive == null) {
             return null;
@@ -76,12 +87,26 @@ public class FragmentController {
         return actives;
     }
 
-    /** Attaches the host to the FragmentManager. */
+    /**
+     * Attaches the host to the FragmentManager for this controller. The host must be
+     * attached before the FragmentManager can be used to manage Fragments.
+     */
     public void attachHost(Fragment parent) {
         mHost.mFragmentManager.attachController(
                 mHost, mHost /*container*/, parent);
     }
 
+    /**
+     * Instantiates a Fragment's view.
+     *
+     * @param parent The parent that the created view will be placed
+     * in; <em>note that this may be null</em>.
+     * @param name Tag name to be inflated.
+     * @param context The context the view is being created in.
+     * @param attrs Inflation attributes as specified in XML file.
+     *
+     * @return view the newly created view
+     */
     public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
         return mHost.mFragmentManager.onCreateView(parent, name, context, attrs);
     }
@@ -106,7 +131,7 @@ public class FragmentController {
      *
      * @see #retainNonConfig()
      */
-    public void restoreAllState(Parcelable state, ArrayList<Fragment> nonConfigList) {
+    public void restoreAllState(Parcelable state, List<Fragment> nonConfigList) {
         mHost.mFragmentManager.restoreAllState(state, nonConfigList);
     }
 
@@ -114,30 +139,72 @@ public class FragmentController {
      * Returns a list of Fragments that have opted to retain their instance across
      * configuration changes.
      */
-    public ArrayList<Fragment> retainNonConfig() {
+    public List<Fragment> retainNonConfig() {
         return mHost.mFragmentManager.retainNonConfig();
     }
 
+    /**
+     * Moves all Fragments managed by the controller's FragmentManager
+     * into the create state.
+     * <p>Call when Fragments should be created.
+     *
+     * @see Fragment#onCreate(Bundle)
+     */
     public void dispatchCreate() {
         mHost.mFragmentManager.dispatchCreate();
     }
 
+    /**
+     * Moves all Fragments managed by the controller's FragmentManager
+     * into the activity created state.
+     * <p>Call when Fragments should be informed their host has been created.
+     *
+     * @see Fragment#onActivityCreated(Bundle)
+     */
     public void dispatchActivityCreated() {
         mHost.mFragmentManager.dispatchActivityCreated();
     }
 
+    /**
+     * Moves all Fragments managed by the controller's FragmentManager
+     * into the start state.
+     * <p>Call when Fragments should be started.
+     *
+     * @see Fragment#onStart()
+     */
     public void dispatchStart() {
         mHost.mFragmentManager.dispatchStart();
     }
 
+    /**
+     * Moves all Fragments managed by the controller's FragmentManager
+     * into the resume state.
+     * <p>Call when Fragments should be resumed.
+     *
+     * @see Fragment#onResume()
+     */
     public void dispatchResume() {
         mHost.mFragmentManager.dispatchResume();
     }
 
+    /**
+     * Moves all Fragments managed by the controller's FragmentManager
+     * into the pause state.
+     * <p>Call when Fragments should be paused.
+     *
+     * @see Fragment#onPause()
+     */
     public void dispatchPause() {
         mHost.mFragmentManager.dispatchPause();
     }
 
+    /**
+     * Moves all Fragments managed by the controller's FragmentManager
+     * into the stop state.
+     * <p>Call when Fragments should be stopped.
+     *
+     * @see Fragment#onStop()
+     */
     public void dispatchStop() {
         mHost.mFragmentManager.dispatchStop();
     }
@@ -146,42 +213,119 @@ public class FragmentController {
         mHost.mFragmentManager.dispatchReallyStop();
     }
 
+    /**
+     * Moves all Fragments managed by the controller's FragmentManager
+     * into the destroy view state.
+     * <p>Call when the Fragment's views should be destroyed.
+     *
+     * @see Fragment#onDestroyView()
+     */
     public void dispatchDestroyView() {
         mHost.mFragmentManager.dispatchDestroyView();
     }
 
+    /**
+     * Moves all Fragments managed by the controller's FragmentManager
+     * into the destroy state.
+     * <p>Call when Fragments should be destroyed.
+     *
+     * @see Fragment#onDestroy()
+     */
     public void dispatchDestroy() {
         mHost.mFragmentManager.dispatchDestroy();
     }
 
+    /**
+     * Lets all Fragments managed by the controller's FragmentManager
+     * know a configuration change occurred.
+     * <p>Call when there is a configuration change.
+     *
+     * @see Fragment#onConfigurationChanged(Configuration)
+     */
     public void dispatchConfigurationChanged(Configuration newConfig) {
         mHost.mFragmentManager.dispatchConfigurationChanged(newConfig);
     }
 
+    /**
+     * Lets all Fragments managed by the controller's FragmentManager
+     * know the device is in a low memory condition.
+     * <p>Call when the device is low on memory and Fragment's should trim
+     * their memory usage.
+     *
+     * @see Fragment#onLowMemory()
+     */
     public void dispatchLowMemory() {
         mHost.mFragmentManager.dispatchLowMemory();
     }
 
+    /**
+     * Lets all Fragments managed by the controller's FragmentManager
+     * know they should create an options menu.
+     * <p>Call when the Fragment should create an options menu.
+     *
+     * @return {@code true} if the options menu contains items to display
+     * @see Fragment#onCreateOptionsMenu(Menu, MenuInflater)
+     */
     public boolean dispatchCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         return mHost.mFragmentManager.dispatchCreateOptionsMenu(menu, inflater);
     }
 
+    /**
+     * Lets all Fragments managed by the controller's FragmentManager
+     * know they should prepare their options menu for display.
+     * <p>Call immediately before displaying the Fragment's options menu.
+     *
+     * @return {@code true} if the options menu contains items to display
+     * @see Fragment#onPrepareOptionsMenu(Menu)
+     */
     public boolean dispatchPrepareOptionsMenu(Menu menu) {
         return mHost.mFragmentManager.dispatchPrepareOptionsMenu(menu);
     }
 
+    /**
+     * Sends an option item selection event to the Fragments managed by the
+     * controller's FragmentManager. Once the event has been consumed,
+     * no additional handling will be performed.
+     * <p>Call immediately after an options menu item has been selected
+     *
+     * @return {@code true} if the options menu selection event was consumed
+     * @see Fragment#onOptionsItemSelected(MenuItem)
+     */
     public boolean dispatchOptionsItemSelected(MenuItem item) {
         return mHost.mFragmentManager.dispatchOptionsItemSelected(item);
     }
 
+    /**
+     * Sends a context item selection event to the Fragments managed by the
+     * controller's FragmentManager. Once the event has been consumed,
+     * no additional handling will be performed.
+     * <p>Call immediately after an options menu item has been selected
+     *
+     * @return {@code true} if the context menu selection event was consumed
+     * @see Fragment#onContextItemSelected(MenuItem)
+     */
     public boolean dispatchContextItemSelected(MenuItem item) {
         return mHost.mFragmentManager.dispatchContextItemSelected(item);
     }
 
+    /**
+     * Lets all Fragments managed by the controller's FragmentManager
+     * know their options menu has closed.
+     * <p>Call immediately after closing the Fragment's options menu.
+     *
+     * @see Fragment#onOptionsMenuClosed(Menu)
+     */
     public void dispatchOptionsMenuClosed(Menu menu) {
         mHost.mFragmentManager.dispatchOptionsMenuClosed(menu);
     }
 
+    /**
+     * Execute any pending actions for the Fragments managed by the
+     * controller's FragmentManager.
+     * <p>Call when queued actions can be performed [eg when the
+     * Fragment moves into a start or resume state].
+     * @return {@code true} if queued actions were performed
+     */
     public boolean execPendingActions() {
         return mHost.mFragmentManager.execPendingActions();
     }
@@ -212,15 +356,14 @@ public class FragmentController {
     }
 
     /**
-     * Destroys all inactive loaders and optionally destroys all active loaders. Active loaders
-     * will not be destroyed if their state is retained.
+     * Destroys the loaders and, if their state is not being retained, removes them.
      */
     public void doLoaderDestroy() {
         mHost.doLoaderDestroy();
     }
 
     /**
-     * Reports all loaders as started.
+     * Lets the loaders know the host is ready to receive notifications.
      */
     public void reportLoaderStart() {
         mHost.reportLoaderStart();
@@ -244,6 +387,9 @@ public class FragmentController {
         mHost.restoreLoaderNonConfig(loaderManagers);
     }
 
+    /**
+     * Dumps the current state of the loaders.
+     */
     public void dumpLoaders(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
         mHost.dumpLoaders(prefix, fd, writer, args);
     }
