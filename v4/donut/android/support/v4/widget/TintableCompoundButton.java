@@ -31,9 +31,9 @@ public interface TintableCompoundButton {
      * Applies a tint to the button drawable. Does not modify the current tint
      * mode, which is {@link PorterDuff.Mode#SRC_IN} by default.
      * <p>
-     * Subsequent calls to {@link CompoundButton#setButtonDrawable(Drawable)} should
-     * automatically mutate the drawable and apply the specified tint and tint
-     * mode.
+     * Subsequent calls to
+     * {@link android.widget.CompoundButton#setButtonDrawable(Drawable) setButtonDrawable(Drawable)}
+     * should automatically mutate the drawable and apply the specified tint and tint mode.
      *
      * @param tint the tint to apply, may be {@code null} to clear tint
      */
