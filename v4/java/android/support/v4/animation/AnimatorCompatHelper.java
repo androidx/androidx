@@ -17,6 +17,7 @@
 package android.support.v4.animation;
 
 import android.os.Build;
+import android.view.View;
 
 abstract public class AnimatorCompatHelper {
 
@@ -36,5 +37,9 @@ abstract public class AnimatorCompatHelper {
 
     AnimatorCompatHelper() {
 
+    }
+
+    public static void clearInterpolator(View view) {
+        IMPL.clearInterpolator(view);
     }
 }

@@ -15,6 +15,7 @@
  */
 package android.support.v7.widget;
 
+import android.support.v4.animation.AnimatorCompatHelper;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
@@ -184,7 +185,7 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
 
     @Override
     public boolean animateRemove(final ViewHolder holder) {
-        endAnimation(holder);
+        resetAnimation(holder);
         mPendingRemovals.add(holder);
         return true;
     }
@@ -213,7 +214,7 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
 
     @Override
     public boolean animateAdd(final ViewHolder holder) {
-        endAnimation(holder);
+        resetAnimation(holder);
         ViewCompat.setAlpha(holder.itemView, 0);
         mPendingAdditions.add(holder);
         return true;
@@ -250,7 +251,7 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
         final View view = holder.itemView;
         fromX += ViewCompat.getTranslationX(holder.itemView);
         fromY += ViewCompat.getTranslationY(holder.itemView);
-        endAnimation(holder);
+        resetAnimation(holder);
         int deltaX = toX - fromX;
         int deltaY = toY - fromY;
         if (deltaX == 0 && deltaY == 0) {
@@ -312,7 +313,7 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
         final float prevTranslationX = ViewCompat.getTranslationX(oldHolder.itemView);
         final float prevTranslationY = ViewCompat.getTranslationY(oldHolder.itemView);
         final float prevAlpha = ViewCompat.getAlpha(oldHolder.itemView);
-        endAnimation(oldHolder);
+        resetAnimation(oldHolder);
         int deltaX = (int) (toX - fromX - prevTranslationX);
         int deltaY = (int) (toY - fromY - prevTranslationY);
         // recover prev translation state after ending animation
@@ -321,7 +322,7 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
         ViewCompat.setAlpha(oldHolder.itemView, prevAlpha);
         if (newHolder != null && newHolder.itemView != null) {
             // carry over translation values
-            endAnimation(newHolder);
+            resetAnimation(newHolder);
             ViewCompat.setTranslationX(newHolder.itemView, -deltaX);
             ViewCompat.setTranslationY(newHolder.itemView, -deltaY);
             ViewCompat.setAlpha(newHolder.itemView, 0);
@@ -498,6 +499,11 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
                     + "mMoveAnimations list");
         }
         dispatchFinishedWhenDone();
+    }
+
+    private void resetAnimation(ViewHolder holder) {
+        AnimatorCompatHelper.clearInterpolator(holder.itemView);
+        endAnimation(holder);
     }
 
     @Override

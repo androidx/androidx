@@ -16,6 +16,8 @@
 
 package android.support.v4.animation;
 
+import android.view.View;
+
 /**
  * A simple interface to do things in animation pulse.
  * <p>
@@ -32,4 +34,6 @@ interface AnimatorProvider {
      * Animator callback interface.
      */
     ValueAnimatorCompat emptyValueAnimator();
+
+    void clearInterpolator(View view);
 }
