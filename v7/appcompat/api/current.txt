@@ -383,6 +383,8 @@ package android.support.v7.appcompat {
     field public static int buttonPanelSideLayout;
     field public static int buttonStyle;
     field public static int buttonStyleSmall;
+    field public static int buttonTint;
+    field public static int buttonTintMode;
     field public static int checkboxStyle;
     field public static int checkedTextViewStyle;
     field public static int closeIcon;
@@ -1304,6 +1306,10 @@ package android.support.v7.appcompat {
     field public static final int[] AppCompatTextView;
     field public static int AppCompatTextView_android_textAppearance;
     field public static int AppCompatTextView_textAllCaps;
+    field public static final int[] CompoundButton;
+    field public static int CompoundButton_android_button;
+    field public static int CompoundButton_buttonTint;
+    field public static int CompoundButton_buttonTintMode;
     field public static final int[] DrawerArrowToggle;
     field public static int DrawerArrowToggle_barSize;
     field public static int DrawerArrowToggle_color;
@@ -1555,14 +1561,16 @@ package android.support.v7.appcompat {
     field public static int Toolbar_titleMargins;
     field public static int Toolbar_titleTextAppearance;
     field public static final int[] View;
+    field public static final int[] ViewBackgroundHelper;
+    field public static int ViewBackgroundHelper_android_background;
+    field public static int ViewBackgroundHelper_backgroundTint;
+    field public static int ViewBackgroundHelper_backgroundTintMode;
     field public static final int[] ViewStubCompat;
     field public static int ViewStubCompat_android_id;
     field public static int ViewStubCompat_android_inflatedId;
     field public static int ViewStubCompat_android_layout;
     field public static int View_android_focusable;
     field public static int View_android_theme;
-    field public static int View_backgroundTint;
-    field public static int View_backgroundTintMode;
     field public static int View_paddingEnd;
     field public static int View_paddingStart;
     field public static int View_theme;
@@ -1652,6 +1660,7 @@ package android.support.v7.widget {
     ctor public AppCompatButton(android.content.Context);
     ctor public AppCompatButton(android.content.Context, android.util.AttributeSet);
     ctor public AppCompatButton(android.content.Context, android.util.AttributeSet, int);
+    method public void setSupportAllCaps(boolean);
   }
 
   public class AppCompatCheckBox extends android.widget.CheckBox {

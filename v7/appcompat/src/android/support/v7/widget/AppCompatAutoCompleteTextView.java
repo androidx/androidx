@@ -20,33 +20,41 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.v4.view.TintableBackgroundView;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.widget.TintContextWrapper;
-import android.support.v7.internal.widget.TintInfo;
 import android.support.v7.internal.widget.TintManager;
 import android.support.v7.internal.widget.TintTypedArray;
 import android.util.AttributeSet;
 import android.widget.AutoCompleteTextView;
 
 /**
- * A tint aware {@link android.widget.AutoCompleteTextView}.
- * <p>
- * This will automatically be used when you use {@link AutoCompleteTextView} in your layouts. You
- * should only need to manually use this class writing custom views.
+ * A {@link AutoCompleteTextView} which supports compatible features on older version of the
+ * platform, including:
+ * <ul>
+ *     <li>Supports {@link R.attr#textAllCaps} style attribute which works back to
+ *     {@link android.os.Build.VERSION_CODES#ECLAIR_MR1 Eclair MR1}.</li>
+ *     <li>Allows dynamic tint of it background via the background tint methods in
+ *     {@link android.support.v4.view.ViewCompat}.</li>
+ *     <li>Allows setting of the background tint using {@link R.attr#backgroundTint} and
+ *     {@link R.attr#backgroundTintMode}.</li>
+ * </ul>
+ *
+ * <p>This will automatically be used when you use {@link AutoCompleteTextView} in your layouts.
+ * You should only need to manually use this class when writing custom views.</p>
  */
 public class AppCompatAutoCompleteTextView extends AutoCompleteTextView implements
         TintableBackgroundView {
 
     private static final int[] TINT_ATTRS = {
-            android.R.attr.background,
             android.R.attr.popupBackground
     };
 
-    private TintInfo mInternalBackgroundTint;
-    private TintInfo mBackgroundTint;
     private TintManager mTintManager;
+    private AppCompatBackgroundHelper mBackgroundTintHelper;
+    private AppCompatTextHelper mTextHelper;
 
     public AppCompatAutoCompleteTextView(Context context) {
         this(context, null);
@@ -59,59 +67,57 @@ public class AppCompatAutoCompleteTextView extends AutoCompleteTextView implemen
     public AppCompatAutoCompleteTextView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
 
-        if (TintManager.SHOULD_BE_USED) {
-            TintTypedArray a = TintTypedArray.obtainStyledAttributes(getContext(), attrs,
-                    TINT_ATTRS, defStyleAttr, 0);
-            mTintManager = a.getTintManager();
+        TintTypedArray a = TintTypedArray.obtainStyledAttributes(getContext(), attrs,
+                TINT_ATTRS, defStyleAttr, 0);
+        mTintManager = a.getTintManager();
+        if (a.hasValue(0)) {
+            setDropDownBackgroundDrawable(a.getDrawable(0));
+        }
+        a.recycle();
 
-            if (a.hasValue(0)) {
-                ColorStateList tint = a.getTintManager().getTintList(a.getResourceId(0, -1));
-                if (tint != null) {
-                    setInternalBackgroundTint(tint);
-                }
-            }
-            if (a.hasValue(1)) {
-                setDropDownBackgroundDrawable(a.getDrawable(1));
-            }
-            a.recycle();
+        mBackgroundTintHelper = new AppCompatBackgroundHelper(this, mTintManager);
+        mBackgroundTintHelper.loadFromAttributes(attrs, defStyleAttr);
+
+        mTextHelper = new AppCompatTextHelper(this);
+        mTextHelper.loadFromAttributes(attrs, defStyleAttr);
+    }
+
+    @Override
+    public void setDropDownBackgroundResource(@DrawableRes int resId) {
+        if (mTintManager != null) {
+            setDropDownBackgroundDrawable(mTintManager.getDrawable(resId));
+        } else {
+            super.setDropDownBackgroundResource(resId);
         }
     }
 
     @Override
-    public void setBackgroundResource(int resId) {
+    public void setBackgroundResource(@DrawableRes int resId) {
         super.setBackgroundResource(resId);
-        // Update the default background tint
-        setInternalBackgroundTint(mTintManager != null ? mTintManager.getTintList(resId) : null);
+        if (mBackgroundTintHelper != null) {
+            mBackgroundTintHelper.onSetBackgroundResource(resId);
+        }
     }
 
     @Override
     public void setBackgroundDrawable(Drawable background) {
         super.setBackgroundDrawable(background);
-        // We don't know that this drawable is, so we need to clear the default background tint
-        setInternalBackgroundTint(null);
-    }
-
-    @Override
-    public void setDropDownBackgroundResource(int id) {
-        setDropDownBackgroundDrawable(mTintManager.getDrawable(id));
+        if (mBackgroundTintHelper != null) {
+            mBackgroundTintHelper.onSetBackgroundDrawable(background);
+        }
     }
 
     /**
      * This should be accessed via
-     * {@link android.support.v4.view.ViewCompat#setBackgroundTintList(android.view.View,
-     * android.content.res.ColorStateList)}
+     * {@link android.support.v4.view.ViewCompat#setBackgroundTintList(android.view.View, ColorStateList)}
      *
      * @hide
      */
     @Override
     public void setSupportBackgroundTintList(@Nullable ColorStateList tint) {
-        if (mBackgroundTint == null) {
-            mBackgroundTint = new TintInfo();
+        if (mBackgroundTintHelper != null) {
+            mBackgroundTintHelper.setSupportBackgroundTintList(tint);
         }
-        mBackgroundTint.mTintList = tint;
-        mBackgroundTint.mHasTintList = true;
-
-        applySupportBackgroundTint();
     }
 
     /**
@@ -123,24 +129,21 @@ public class AppCompatAutoCompleteTextView extends AutoCompleteTextView implemen
     @Override
     @Nullable
     public ColorStateList getSupportBackgroundTintList() {
-        return mBackgroundTint != null ? mBackgroundTint.mTintList : null;
+        return mBackgroundTintHelper != null
+                ? mBackgroundTintHelper.getSupportBackgroundTintList() : null;
     }
 
     /**
      * This should be accessed via
-     * {@link android.support.v4.view.ViewCompat#setBackgroundTintMode(android.view.View, android.graphics.PorterDuff.Mode)}
+     * {@link android.support.v4.view.ViewCompat#setBackgroundTintMode(android.view.View, PorterDuff.Mode)}
      *
      * @hide
      */
     @Override
     public void setSupportBackgroundTintMode(@Nullable PorterDuff.Mode tintMode) {
-        if (mBackgroundTint == null) {
-            mBackgroundTint = new TintInfo();
+        if (mBackgroundTintHelper != null) {
+            mBackgroundTintHelper.setSupportBackgroundTintMode(tintMode);
         }
-        mBackgroundTint.mTintMode = tintMode;
-        mBackgroundTint.mHasTintMode = true;
-
-        applySupportBackgroundTint();
     }
 
     /**
@@ -152,35 +155,23 @@ public class AppCompatAutoCompleteTextView extends AutoCompleteTextView implemen
     @Override
     @Nullable
     public PorterDuff.Mode getSupportBackgroundTintMode() {
-        return mBackgroundTint != null ? mBackgroundTint.mTintMode : null;
+        return mBackgroundTintHelper != null
+                ? mBackgroundTintHelper.getSupportBackgroundTintMode() : null;
     }
 
     @Override
     protected void drawableStateChanged() {
         super.drawableStateChanged();
-        applySupportBackgroundTint();
-    }
-
-    private void applySupportBackgroundTint() {
-        if (getBackground() != null) {
-            if (mBackgroundTint != null) {
-                TintManager.tintViewBackground(this, mBackgroundTint);
-            } else if (mInternalBackgroundTint != null) {
-                TintManager.tintViewBackground(this, mInternalBackgroundTint);
-            }
+        if (mBackgroundTintHelper != null) {
+            mBackgroundTintHelper.applySupportBackgroundTint();
         }
     }
 
-    private void setInternalBackgroundTint(ColorStateList tint) {
-        if (tint != null) {
-            if (mInternalBackgroundTint == null) {
-                mInternalBackgroundTint = new TintInfo();
-            }
-            mInternalBackgroundTint.mTintList = tint;
-            mInternalBackgroundTint.mHasTintList = true;
-        } else {
-            mInternalBackgroundTint = null;
+    @Override
+    public void setTextAppearance(Context context, int resId) {
+        super.setTextAppearance(context, resId);
+        if (mTextHelper != null) {
+            mTextHelper.onSetTextAppearance(context, resId);
         }
-        applySupportBackgroundTint();
     }
 }
