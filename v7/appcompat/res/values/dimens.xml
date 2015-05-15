@@ -97,4 +97,13 @@
          be either a fraction or a dimension. -->
     <item type="dimen" name="abc_dialog_min_width_minor">95%</item>
 
+    <!-- The width of the big icons in notifications. -->
+    <dimen name="notification_large_icon_width">64dp</dimen>
+
+    <!-- The width of the big icons in notifications. -->
+    <dimen name="notification_large_icon_height">64dp</dimen>
+
+    <!-- Size of smaller notification text (see TextAppearance.StatusBar.EventContent.Line2, Info,
+         Time) -->
+    <dimen name="notification_subtext_size">12dp</dimen>
 </resources>

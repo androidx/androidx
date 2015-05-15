@@ -281,6 +281,23 @@ package android.support.v7.app {
     method public boolean supportRequestWindowFeature(int);
   }
 
+  public class NotificationCompat extends android.support.v4.app.NotificationCompat {
+    ctor public NotificationCompat();
+  }
+
+  public static class NotificationCompat.Builder extends android.support.v4.app.NotificationCompat.Builder {
+    ctor public NotificationCompat.Builder(android.content.Context);
+  }
+
+  public static class NotificationCompat.MediaStyle extends android.support.v4.app.NotificationCompat.Style {
+    ctor public NotificationCompat.MediaStyle();
+    ctor public NotificationCompat.MediaStyle(android.support.v4.app.NotificationCompat.Builder);
+    method public void setCancelButtonIntent(android.app.PendingIntent);
+    method public android.support.v7.app.NotificationCompat.MediaStyle setMediaSession(android.support.v4.media.session.MediaSessionCompat.Token);
+    method public android.support.v7.app.NotificationCompat.MediaStyle setShowActionsInCompactView(int...);
+    method public void setShowCancelButton(boolean);
+  }
+
 }
 
 package android.support.v7.appcompat {
@@ -653,6 +670,9 @@ package android.support.v7.appcompat {
     field public static int dialog_fixed_width_minor;
     field public static int disabled_alpha_material_dark;
     field public static int disabled_alpha_material_light;
+    field public static int notification_large_icon_height;
+    field public static int notification_large_icon_width;
+    field public static int notification_subtext_size;
   }
 
   public static final class R.drawable {
@@ -716,10 +736,12 @@ package android.support.v7.appcompat {
     field public static int abc_textfield_search_activated_mtrl_alpha;
     field public static int abc_textfield_search_default_mtrl_alpha;
     field public static int abc_textfield_search_material;
+    field public static int notification_template_icon_bg;
   }
 
   public static final class R.id {
     ctor public R.id();
+    field public static int action0;
     field public static int action_bar;
     field public static int action_bar_activity_content;
     field public static int action_bar_container;
@@ -728,6 +750,7 @@ package android.support.v7.appcompat {
     field public static int action_bar_subtitle;
     field public static int action_bar_title;
     field public static int action_context_bar;
+    field public static int action_divider;
     field public static int action_menu_divider;
     field public static int action_menu_presenter;
     field public static int action_mode_bar;
@@ -738,7 +761,9 @@ package android.support.v7.appcompat {
     field public static int always;
     field public static int beginning;
     field public static int buttonPanel;
+    field public static int cancel_action;
     field public static int checkbox;
+    field public static int chronometer;
     field public static int collapseActionView;
     field public static int contentPanel;
     field public static int custom;
@@ -750,6 +775,7 @@ package android.support.v7.appcompat {
     field public static int dropdown;
     field public static int edit_query;
     field public static int end;
+    field public static int end_padder;
     field public static int expand_activities_button;
     field public static int expanded_menu;
     field public static int home;
@@ -757,8 +783,12 @@ package android.support.v7.appcompat {
     field public static int icon;
     field public static int ifRoom;
     field public static int image;
+    field public static int info;
+    field public static int line1;
+    field public static int line3;
     field public static int listMode;
     field public static int list_item;
+    field public static int media_actions;
     field public static int middle;
     field public static int multiply;
     field public static int never;
@@ -789,9 +819,13 @@ package android.support.v7.appcompat {
     field public static int src_atop;
     field public static int src_in;
     field public static int src_over;
+    field public static int status_bar_latest_event_content;
     field public static int submit_area;
     field public static int tabMode;
+    field public static int text;
+    field public static int text2;
     field public static int textSpacerNoButtons;
+    field public static int time;
     field public static int title;
     field public static int title_template;
     field public static int topPanel;
@@ -806,6 +840,8 @@ package android.support.v7.appcompat {
     field public static int abc_config_activityDefaultDur;
     field public static int abc_config_activityShortDur;
     field public static int abc_max_action_buttons;
+    field public static int cancel_button_image_alpha;
+    field public static int status_bar_notification_info_maxnum;
   }
 
   public static final class R.layout {
@@ -835,6 +871,14 @@ package android.support.v7.appcompat {
     field public static int abc_search_view;
     field public static int abc_select_dialog_material;
     field public static int abc_simple_dropdown_hint;
+    field public static int notification_media_action;
+    field public static int notification_media_cancel_action;
+    field public static int notification_template_big_media;
+    field public static int notification_template_big_media_narrow;
+    field public static int notification_template_lines;
+    field public static int notification_template_media;
+    field public static int notification_template_part_chronometer;
+    field public static int notification_template_part_time;
     field public static int select_dialog_item_material;
     field public static int select_dialog_multichoice_material;
     field public static int select_dialog_singlechoice_material;
@@ -860,6 +904,7 @@ package android.support.v7.appcompat {
     field public static int abc_shareactionprovider_share_with;
     field public static int abc_shareactionprovider_share_with_application;
     field public static int abc_toolbar_collapse_description;
+    field public static int status_bar_notification_info_overflow;
   }
 
   public static final class R.style {
@@ -1064,6 +1109,11 @@ package android.support.v7.appcompat {
     field public static int TextAppearance_AppCompat_Widget_PopupMenu_Small;
     field public static int TextAppearance_AppCompat_Widget_Switch;
     field public static int TextAppearance_AppCompat_Widget_TextView_SpinnerItem;
+    field public static int TextAppearance_StatusBar_EventContent;
+    field public static int TextAppearance_StatusBar_EventContent_Info;
+    field public static int TextAppearance_StatusBar_EventContent_Line2;
+    field public static int TextAppearance_StatusBar_EventContent_Time;
+    field public static int TextAppearance_StatusBar_EventContent_Title;
     field public static int TextAppearance_Widget_AppCompat_ExpandedMenu_Item;
     field public static int TextAppearance_Widget_AppCompat_Toolbar_Subtitle;
     field public static int TextAppearance_Widget_AppCompat_Toolbar_Title;
