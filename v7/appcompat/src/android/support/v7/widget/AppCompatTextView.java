@@ -17,20 +17,24 @@
 package android.support.v7.widget;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.support.v7.appcompat.R;
-import android.support.v7.internal.text.AllCapsTransformationMethod;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
 /**
- * A {@link android.widget.TextView} which supports compatible features on older version of the
- * platform.
- * <p>
- * This will automatically be used when you use {@link android.widget.TextView} in your
- * layouts. You should only need to manually use this class when writing custom views.
+ * A {@link TextView} which supports compatible features on older version of the platform,
+ * including:
+ * <ul>
+ *     <li>Supports {@link R.attr#textAllCaps} style attribute which works back to
+ *     {@link android.os.Build.VERSION_CODES#ECLAIR_MR1 Eclair MR1}.</li>
+ * </ul>
+ *
+ * <p>This will automatically be used when you use {@link TextView} in your layouts.
+ * You should only need to manually use this class when writing custom views.</p>
  */
 public class AppCompatTextView extends TextView {
+
+    private AppCompatTextHelper mTextHelper;
 
     public AppCompatTextView(Context context) {
         this(context, null);
@@ -40,44 +44,18 @@ public class AppCompatTextView extends TextView {
         this(context, attrs, android.R.attr.textViewStyle);
     }
 
-    public AppCompatTextView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
+    public AppCompatTextView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
 
-        // First read the TextAppearance style id
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.AppCompatTextView,
-                defStyle, 0);
-        final int ap = a.getResourceId(R.styleable.AppCompatTextView_android_textAppearance, -1);
-        a.recycle();
-
-        // Now check TextAppearance's textAllCaps value
-        if (ap != -1) {
-            TypedArray appearance = context.obtainStyledAttributes(ap, R.styleable.TextAppearance);
-            if (appearance.hasValue(R.styleable.TextAppearance_textAllCaps)) {
-                setAllCaps(appearance.getBoolean(R.styleable.TextAppearance_textAllCaps, false));
-            }
-            appearance.recycle();
-        }
-
-        // Now read the style's value
-        a = context.obtainStyledAttributes(attrs, R.styleable.AppCompatTextView, defStyle, 0);
-        if (a.hasValue(R.styleable.AppCompatTextView_textAllCaps)) {
-            setAllCaps(a.getBoolean(R.styleable.AppCompatTextView_textAllCaps, false));
-        }
-        a.recycle();
-    }
-
-    public void setAllCaps(boolean allCaps) {
-        setTransformationMethod(allCaps ? new AllCapsTransformationMethod(getContext()) : null);
+        mTextHelper = new AppCompatTextHelper(this);
+        mTextHelper.loadFromAttributes(attrs, defStyleAttr);
     }
 
     @Override
     public void setTextAppearance(Context context, int resId) {
         super.setTextAppearance(context, resId);
-
-        TypedArray appearance = context.obtainStyledAttributes(resId, R.styleable.TextAppearance);
-        if (appearance.hasValue(R.styleable.TextAppearance_textAllCaps)) {
-            setAllCaps(appearance.getBoolean(R.styleable.TextAppearance_textAllCaps, false));
+        if (mTextHelper != null) {
+            mTextHelper.onSetTextAppearance(context, resId);
         }
-        appearance.recycle();
     }
 }

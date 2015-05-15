@@ -495,7 +495,6 @@
         <attr name="paddingStart" format="dimension"/>
         <!-- Sets the padding, in pixels, of the end edge; see {@link android.R.attr#padding}. -->
         <attr name="paddingEnd" format="dimension"/>
-
         <!-- Boolean that controls whether a view can take focus.  By default the user can not
              move focus to a view; by setting this attribute to true the view is
              allowed to take focus.  This value does not impact the behavior of
@@ -503,15 +502,16 @@
              always request focus regardless of this view.  It only impacts where
              focus navigation will try to move focus. -->
         <attr name="android:focusable" />
-
         <!-- Deprecated. -->
         <attr name="theme" format="reference" />
-
         <!-- Specifies a theme override for a view. When a theme override is set, the
              view will be inflated using a {@link android.content.Context} themed with
              the specified resource. -->
         <attr name="android:theme" />
+    </declare-styleable>
 
+    <declare-styleable name="ViewBackgroundHelper">
+        <attr name="android:background" />
         <!-- Tint to apply to the background. -->
         <attr name="backgroundTint" format="color" />
 
@@ -958,6 +958,30 @@
         <!-- Overrides the id of the inflated View with this value. -->
         <attr name="android:inflatedId" />
         <attr name="android:id" />
+    </declare-styleable>
+
+    <declare-styleable name="CompoundButton">
+        <attr name="android:button"/>
+        <!-- Tint to apply to the button drawable. -->
+        <attr name="buttonTint" format="color" />
+
+        <!-- Blending mode used to apply the button tint. -->
+        <attr name="buttonTintMode">
+            <!-- The tint is drawn on top of the drawable.
+                 [Sa + (1 - Sa)*Da, Rc = Sc + (1 - Sa)*Dc] -->
+            <enum name="src_over" value="3" />
+            <!-- The tint is masked by the alpha channel of the drawable. The drawable’s
+                 color channels are thrown out. [Sa * Da, Sc * Da] -->
+            <enum name="src_in" value="5" />
+            <!-- The tint is drawn above the drawable, but with the drawable’s alpha
+                 channel masking the result. [Da, Sc * Da + (1 - Sa) * Dc] -->
+            <enum name="src_atop" value="9" />
+            <!-- Multiplies the color and alpha channels of the drawable with those of
+                 the tint. [Sa * Da, Sc * Dc] -->
+            <enum name="multiply" value="14" />
+            <!-- [Sa + Da - Sa * Da, Sc + Dc - Sc * Dc] -->
+            <enum name="screen" value="15" />
+        </attr>
     </declare-styleable>
 
     <declare-styleable name="SwitchCompat">
