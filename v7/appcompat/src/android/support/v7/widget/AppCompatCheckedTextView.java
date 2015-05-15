@@ -18,17 +18,16 @@ package android.support.v7.widget;
 
 import android.content.Context;
 import android.support.annotation.DrawableRes;
-import android.support.v7.appcompat.R;
 import android.support.v7.internal.widget.TintManager;
 import android.support.v7.internal.widget.TintTypedArray;
 import android.util.AttributeSet;
 import android.widget.CheckedTextView;
 
 /**
- * A tint aware {@link android.widget.CheckedTextView}.
- * <p>
- * This will automatically be used when you use {@link android.widget.CheckedTextView} in your
- * layouts. You should only need to manually use this class when writing custom views.
+ * A {@link CheckedTextView} which supports compatible features on older version of the platform.
+ *
+ * <p>This will automatically be used when you use {@link CheckedTextView} in your layouts.
+ * You should only need to manually use this class when writing custom views.</p>
  */
 public class AppCompatCheckedTextView extends CheckedTextView {
 

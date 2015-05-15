@@ -2922,6 +2922,14 @@ package android.support.v4.widget {
     field public static final float RELATIVE_UNSPECIFIED = 0.0f;
   }
 
+  public final class CompoundButtonCompat {
+    method public static android.graphics.drawable.Drawable getButtonDrawable(android.widget.CompoundButton);
+    method public static android.content.res.ColorStateList getButtonTintList(android.widget.CompoundButton);
+    method public static android.graphics.PorterDuff.Mode getButtonTintMode(android.widget.CompoundButton);
+    method public static void setButtonTintList(android.widget.CompoundButton, android.content.res.ColorStateList);
+    method public static void setButtonTintMode(android.widget.CompoundButton, android.graphics.PorterDuff.Mode);
+  }
+
   public class ContentLoadingProgressBar extends android.widget.ProgressBar {
     ctor public ContentLoadingProgressBar(android.content.Context);
     ctor public ContentLoadingProgressBar(android.content.Context, android.util.AttributeSet);

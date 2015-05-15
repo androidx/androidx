@@ -38,10 +38,10 @@ import android.view.Gravity;
 import android.widget.RatingBar;
 
 /**
- * A tint aware {@link android.widget.RatingBar}.
- * <p>
- * This will automatically be used when you use {@link android.widget.RatingBar} in your
- * layouts. You should only need to manually use this class when writing custom views.
+ * A {@link RatingBar} which supports compatible features on older version of the platform.
+ *
+ * <p>This will automatically be used when you use {@link RatingBar} in your layouts.
+ * You should only need to manually use this class when writing custom views.</p>
  */
 public class AppCompatRatingBar extends RatingBar {
 
