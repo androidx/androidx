@@ -806,8 +806,10 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
                 // has not been inflated within the outer inflation call.
                 && !ViewCompat.isAttachedToWindow(parent);
 
-        return mAppCompatViewInflater.createView(parent, name, context, attrs,
-                inheritContext, isPre21);
+        return mAppCompatViewInflater.createView(parent, name, context, attrs, inheritContext,
+                isPre21, /* Only read android:theme pre-L (L+ handles this anyway) */
+                true /* Read read app:theme as a fallback at all times for legacy reasons */
+        );
     }
 
     @Override
