@@ -347,6 +347,8 @@ public class ViewCompat {
         public float getElevation(View view);
         public void setTranslationZ(View view, float translationZ);
         public float getTranslationZ(View view);
+        public void setClipBounds(View view, Rect clipBounds);
+        public Rect getClipBounds(View view);
         public void setTransitionName(View view, String transitionName);
         public String getTransitionName(View view);
         public int getWindowSystemUiVisibility(View view);
@@ -755,6 +757,15 @@ public class ViewCompat {
         @Override
         public float getTranslationZ(View view) {
             return 0f;
+        }
+
+        @Override
+        public void setClipBounds(View view, Rect clipBounds) {
+        }
+
+        @Override
+        public Rect getClipBounds(View view) {
+            return null;
         }
 
         @Override
@@ -1335,7 +1346,19 @@ public class ViewCompat {
         }
     }
 
-    static class KitKatViewCompatImpl extends JbMr1ViewCompatImpl {
+    static class JbMr2ViewCompatImpl extends JbMr1ViewCompatImpl {
+        @Override
+        public void setClipBounds(View view, Rect clipBounds) {
+            ViewCompatJellybeanMr2.setClipBounds(view, clipBounds);
+        }
+
+        @Override
+        public Rect getClipBounds(View view) {
+            return ViewCompatJellybeanMr2.getClipBounds(view);
+        }
+    }
+
+    static class KitKatViewCompatImpl extends JbMr2ViewCompatImpl {
         @Override
         public int getAccessibilityLiveRegion(View view) {
             return ViewCompatKitKat.getAccessibilityLiveRegion(view);
@@ -2997,6 +3020,33 @@ public class ViewCompat {
             // We need to manually invalidate pre-honeycomb
             view.invalidate();
         }
+    }
+
+    /**
+     * Sets a rectangular area on this view to which the view will be clipped
+     * when it is drawn. Setting the value to null will remove the clip bounds
+     * and the view will draw normally, using its full bounds.
+     *
+     * <p>Prior to API 18 this does nothing.</p>
+     *
+     * @param view       The view to set clipBounds.
+     * @param clipBounds The rectangular area, in the local coordinates of
+     * this view, to which future drawing operations will be clipped.
+     */
+    public static void setClipBounds(View view, Rect clipBounds) {
+        IMPL.setClipBounds(view, clipBounds);
+    }
+
+    /**
+     * Returns a copy of the current {@link #setClipBounds(View, Rect)}.
+     *
+     * <p>Prior to API 18 this will return null.</p>
+     *
+     * @return A copy of the current clip bounds if clip bounds are set,
+     * otherwise null.
+     */
+    public static Rect getClipBounds(View view) {
+        return IMPL.getClipBounds(view);
     }
 
     /**
