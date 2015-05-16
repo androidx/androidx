@@ -368,9 +368,11 @@ public final class BidiFormatter {
      * @param heuristic The algorithm to be used to estimate the string's overall direction.
      * @param isolate Whether to directionally isolate the string to prevent it from garbling the
      *     content around it
-     * @return Input string after applying the above processing.
+     * @return Input string after applying the above processing. {@code null} if {@code str} is
+     *     {@code null}.
      */
     public String unicodeWrap(String str, TextDirectionHeuristicCompat heuristic, boolean isolate) {
+        if (str == null) return null;
         final boolean isRtl = heuristic.isRtl(str, 0, str.length());
         StringBuilder result = new StringBuilder();
         if (getStereoReset() && isolate) {
