@@ -21,8 +21,10 @@ import com.example.android.support.design.R;
 import com.example.android.support.design.Shakespeare;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.TabLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -63,6 +65,24 @@ abstract class AppBarLayoutUsageBase extends AppCompatActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         if (tabLayout != null) {
             setupTabs(tabLayout);
+        }
+
+        final SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
+        if (refreshLayout != null) {
+            refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                private final Handler mHandler = new Handler();
+
+                @Override
+                public void onRefresh() {
+                    // Post a delayed runnable to reset the refreshing state in 2 seconds
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            refreshLayout.setRefreshing(false);
+                        }
+                    }, 2000);
+                }
+            });
         }
     }
 
