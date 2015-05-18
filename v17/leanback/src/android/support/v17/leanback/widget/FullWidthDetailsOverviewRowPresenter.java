@@ -184,7 +184,7 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
         };
 
         final ViewGroup mOverviewRoot;
-        final ViewGroup mOverviewFrame;
+        final FrameLayout mOverviewFrame;
         final FrameLayout mDetailsDescriptionFrame;
         final HorizontalGridView mActionsRow;
         final Presenter.ViewHolder mDetailsDescriptionViewHolder;
@@ -308,7 +308,7 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
                 DetailsOverviewLogoPresenter logoPresenter) {
             super(rootView);
             mOverviewRoot = (ViewGroup) rootView.findViewById(R.id.details_root);
-            mOverviewFrame = (ViewGroup) rootView.findViewById(R.id.details_frame);
+            mOverviewFrame = (FrameLayout) rootView.findViewById(R.id.details_frame);
             mDetailsDescriptionFrame =
                     (FrameLayout) rootView.findViewById(R.id.details_overview_description);
             mActionsRow =
@@ -512,6 +512,10 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
         overview.setBackgroundColor(bgColor);
         RoundedRectHelper.getInstance().setClipToRoundedOutline(overview, true);
 
+        if (!getSelectEffectEnabled()) {
+            vh.mOverviewFrame.setForeground(null);
+        }
+
         vh.mActionsRow.setOnUnhandledKeyListener(new BaseGridView.OnUnhandledKeyListener() {
             @Override
             public boolean onUnhandledKey(KeyEvent event) {
@@ -562,6 +566,16 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
     @Override
     public final boolean isUsingDefaultSelectEffect() {
         return false;
+    }
+
+    @Override
+    protected void onSelectLevelChanged(RowPresenter.ViewHolder holder) {
+        super.onSelectLevelChanged(holder);
+        if (getSelectEffectEnabled()) {
+            ViewHolder vh = (ViewHolder) holder;
+            int dimmedColor = vh.mColorDimmer.getPaint().getColor();
+            ((ColorDrawable) vh.mOverviewFrame.getForeground().mutate()).setColor(dimmedColor);
+        }
     }
 
     @Override
