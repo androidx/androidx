@@ -18,6 +18,7 @@ package android.support.v4.animation;
 
 import android.animation.Animator;
 import android.animation.PropertyValuesHolder;
+import android.animation.TimeInterpolator;
 import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
 import android.view.View;
@@ -30,6 +31,8 @@ import android.view.View;
  * @hide
  */
 class HoneycombMr1AnimatorCompatProvider implements AnimatorProvider {
+
+    private TimeInterpolator mDefaultInterpolator;
 
     @Override
     public ValueAnimatorCompat emptyValueAnimator() {
@@ -120,5 +123,13 @@ class HoneycombMr1AnimatorCompatProvider implements AnimatorProvider {
         public void onAnimationRepeat(Animator animation) {
             mWrapped.onAnimationRepeat(mValueAnimatorCompat);
         }
+    }
+
+    @Override
+    public void clearInterpolator(View view) {
+        if (mDefaultInterpolator == null) {
+            mDefaultInterpolator = new ValueAnimator().getInterpolator();
+        }
+        view.animate().setInterpolator(mDefaultInterpolator);
     }
 }
