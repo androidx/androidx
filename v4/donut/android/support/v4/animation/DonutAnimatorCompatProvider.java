@@ -148,4 +148,8 @@ class DonutAnimatorCompatProvider implements AnimatorProvider {
             return mFraction;
         }
     }
+
+    @Override
+    public void clearInterpolator(View view) {
+    }
 }
