@@ -29,6 +29,7 @@ package android.support.v4.accessibilityservice {
 package android.support.v4.animation {
 
   public abstract class AnimatorCompatHelper {
+    method public static void clearInterpolator(android.view.View);
     method public static android.support.v4.animation.ValueAnimatorCompat emptyValueAnimator();
   }
 
