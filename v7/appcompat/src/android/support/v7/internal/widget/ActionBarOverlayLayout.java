@@ -31,6 +31,7 @@ import android.support.v4.view.ViewPropertyAnimatorCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v4.view.ViewPropertyAnimatorListenerAdapter;
 import android.support.v4.widget.ScrollerCompat;
+import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.VersionUtils;
 import android.support.v7.internal.view.menu.MenuPresenter;
@@ -697,7 +698,7 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
             case Window.FEATURE_INDETERMINATE_PROGRESS:
                 mDecorToolbar.initIndeterminateProgress();
                 break;
-            case Window.FEATURE_ACTION_BAR_OVERLAY:
+            case AppCompatDelegate.FEATURE_SUPPORT_ACTION_BAR_OVERLAY:
                 setOverlayMode(true);
                 break;
         }
