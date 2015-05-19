@@ -117,6 +117,15 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".widget.AppBarLayoutToolbarScrollTabsPinWithSwipeRefresh"
+                  android:label="@string/design_appbar_toolbar_scroll_tabs_pin_with_swiperefresh"
+                  android:theme="@style/Theme.Design">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.support.design.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".widget.AppBarLayoutToolbarCollapseThenPin"
                   android:label="@string/design_appbar_collapsing_toolbar_pin"
                   android:theme="@style/Theme.Design">
