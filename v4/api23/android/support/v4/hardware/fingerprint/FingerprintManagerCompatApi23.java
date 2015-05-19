@@ -48,7 +48,9 @@ public final class FingerprintManagerCompatApi23 {
     }
 
     private static FingerprintManager.CryptoObject wrapCryptoObject(CryptoObject cryptoObject) {
-        if (cryptoObject.getCipher() != null) {
+        if (cryptoObject == null) {
+            return null;
+        } else if (cryptoObject.getCipher() != null) {
             return new FingerprintManager.CryptoObject(cryptoObject.getCipher());
         } else {
             return new FingerprintManager.CryptoObject(cryptoObject.getSignature());
@@ -56,7 +58,9 @@ public final class FingerprintManagerCompatApi23 {
     }
 
     private static CryptoObject unwrapCryptoObject(FingerprintManager.CryptoObject cryptoObject) {
-        if (cryptoObject.getCipher() != null) {
+        if (cryptoObject == null) {
+            return null;
+        } else if (cryptoObject.getCipher() != null) {
             return new CryptoObject(cryptoObject.getCipher());
         } else {
             return new CryptoObject(cryptoObject.getSignature());
