@@ -2315,6 +2315,7 @@ package android.support.v4.view {
     method public static float getAlpha(android.view.View);
     method public static android.content.res.ColorStateList getBackgroundTintList(android.view.View);
     method public static android.graphics.PorterDuff.Mode getBackgroundTintMode(android.view.View);
+    method public static android.graphics.Rect getClipBounds(android.view.View);
     method public static float getElevation(android.view.View);
     method public static boolean getFitsSystemWindows(android.view.View);
     method public static int getImportantForAccessibility(android.view.View);
@@ -2374,6 +2375,7 @@ package android.support.v4.view {
     method public static void setBackgroundTintList(android.view.View, android.content.res.ColorStateList);
     method public static void setBackgroundTintMode(android.view.View, android.graphics.PorterDuff.Mode);
     method public static void setChildrenDrawingOrderEnabled(android.view.ViewGroup, boolean);
+    method public static void setClipBounds(android.view.View, android.graphics.Rect);
     method public static void setElevation(android.view.View, float);
     method public static void setFitsSystemWindows(android.view.View, boolean);
     method public static void setHasTransientState(android.view.View, boolean);
