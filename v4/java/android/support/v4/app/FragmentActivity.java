@@ -73,7 +73,7 @@ import java.util.ArrayList;
  * state, this may be a snapshot slightly before what the user last saw.</p>
  * </ul>
  */
-public class FragmentActivity extends Activity {
+public class FragmentActivity extends BaseFragmentActivityHoneycomb {
     private static final String TAG = "FragmentActivity";
     
     static final String FRAGMENTS_TAG = "android:support:fragments";
@@ -249,10 +249,6 @@ public class FragmentActivity extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         mFragments.attachActivity(this, mContainer, null);
-        // Old versions of the platform didn't do this!
-        if (getLayoutInflater().getFactory() == null) {
-            getLayoutInflater().setFactory(this);
-        }
         
         super.onCreate(savedInstanceState);
         
@@ -286,22 +282,11 @@ public class FragmentActivity extends Activity {
         }
         return super.onCreatePanelMenu(featureId, menu);
     }
-    
-    /**
-     * Add support for inflating the &lt;fragment> tag.
-     */
-    @Override
-    @Nullable
-    public View onCreateView(String name, @NonNull Context context, @NonNull AttributeSet attrs) {
-        if (!"fragment".equals(name)) {
-            return super.onCreateView(name, context, attrs);
-        }
 
-        final View v = mFragments.onCreateView(null, name, context, attrs);
-        if (v == null) {
-            return super.onCreateView(name, context, attrs);
-        }
-        return v;
+    @Override
+    final View dispatchFragmentsOnCreateView(View parent, String name, Context context,
+            AttributeSet attrs) {
+        return mFragments.onCreateView(parent, name, context, attrs);
     }
 
     /**

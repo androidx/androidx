@@ -112,6 +112,12 @@ package android.support.v4.app {
     method public void update(android.support.v4.app.ActivityOptionsCompat);
   }
 
+   abstract class BaseFragmentActivityDonut extends android.app.Activity {
+  }
+
+   abstract class BaseFragmentActivityHoneycomb extends android.support.v4.app.BaseFragmentActivityDonut {
+  }
+
   public class DialogFragment extends android.support.v4.app.Fragment implements android.content.DialogInterface.OnCancelListener android.content.DialogInterface.OnDismissListener {
     ctor public DialogFragment();
     method public void dismiss();
@@ -233,7 +239,7 @@ package android.support.v4.app {
     field public static final android.os.Parcelable.Creator<android.support.v4.app.Fragment.SavedState> CREATOR;
   }
 
-  public class FragmentActivity extends android.app.Activity {
+  public class FragmentActivity extends android.support.v4.app.BaseFragmentActivityHoneycomb {
     ctor public FragmentActivity();
     method public java.lang.Object getLastCustomNonConfigurationInstance();
     method public android.support.v4.app.FragmentManager getSupportFragmentManager();
