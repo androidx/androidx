@@ -29,19 +29,8 @@ class AppCompatDelegateImplV11 extends AppCompatDelegateImplV7 {
     }
 
     View callActivityOnCreateView(View parent, String name, Context context, AttributeSet attrs) {
-        // First let super have a try, this allows FragmentActivity to inflate any support
-        // fragments
-        final View view = super.callActivityOnCreateView(parent, name, context, attrs);
-        if (view != null) {
-            return view;
-        }
-
-        // Now, let the Activity's LayoutInflater.Factory2 method try...
-        if (mOriginalWindowCallback instanceof LayoutInflater.Factory2) {
-            return ((LayoutInflater.Factory2) mOriginalWindowCallback)
-                    .onCreateView(parent, name, context, attrs);
-        }
-
+        // On Honeycomb+, Activity's private inflater factory will handle calling it's
+        // onCreateView(...)
         return null;
     }
 }
