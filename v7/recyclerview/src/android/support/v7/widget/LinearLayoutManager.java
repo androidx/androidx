@@ -461,6 +461,12 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         if (DEBUG) {
             Log.d(TAG, "is pre layout:" + state.isPreLayout());
         }
+        if (mPendingSavedState != null || mPendingScrollPosition != NO_POSITION) {
+            if (state.getItemCount() == 0) {
+                removeAndRecycleAllViews(recycler);
+                return;
+            }
+        }
         if (mPendingSavedState != null && mPendingSavedState.hasValidAnchor()) {
             mPendingScrollPosition = mPendingSavedState.mAnchorPosition;
         }

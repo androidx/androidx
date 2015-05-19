@@ -859,7 +859,7 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
                     public void run() throws Throwable {
                         mLayoutManager.expectLayouts(1);
                         scrollToPositionWithOffset(mTestAdapter.getItemCount() * 2 / 3,
-                                -50);
+                                -10);  // Some tests break if this value is below the item height.
                         mLayoutManager.waitForLayout(2);
                     }
 
@@ -977,15 +977,18 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
                 }
         };
         boolean[] waitForLayoutOptions = new boolean[]{true, false};
+        boolean[] loadDataAfterRestoreOptions = new boolean[]{true, false};
         List<Config> variations = addConfigVariation(mBaseVariations, "mItemCount", 0, 300);
         variations = addConfigVariation(variations, "mRecycleChildrenOnDetach", true);
         for (Config config : variations) {
             for (PostLayoutRunnable postLayoutRunnable : postLayoutOptions) {
                 for (boolean waitForLayout : waitForLayoutOptions) {
                     for (PostRestoreRunnable postRestoreRunnable : postRestoreOptions) {
-                        savedStateTest((Config) config.clone(), waitForLayout, postLayoutRunnable,
-                                postRestoreRunnable);
-                        removeRecyclerView();
+                        for (boolean loadDataAfterRestore : loadDataAfterRestoreOptions) {
+                            savedStateTest((Config) config.clone(), waitForLayout,
+                                    loadDataAfterRestore, postLayoutRunnable, postRestoreRunnable);
+                            removeRecyclerView();
+                        }
                     }
 
                 }
@@ -993,7 +996,7 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
         }
     }
 
-    public void savedStateTest(Config config, boolean waitForLayout,
+    public void savedStateTest(Config config, boolean waitForLayout, boolean loadDataAfterRestore,
             PostLayoutRunnable postLayoutOperation, PostRestoreRunnable postRestoreOperation)
             throws Throwable {
         if (DEBUG) {
@@ -1020,6 +1023,11 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
         savedState = RecyclerView.SavedState.CREATOR.createFromParcel(parcel);
         removeRecyclerView();
 
+        final int itemCount = mTestAdapter.getItemCount();
+        if (loadDataAfterRestore) {
+            mTestAdapter.deleteAndNotify(0, itemCount);
+        }
+
         RecyclerView restored = new RecyclerView(getActivity());
         // this config should be no op.
         mLayoutManager = new WrappedLinearLayoutManager(getActivity(),
@@ -1029,6 +1037,11 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
         // use the same adapter for Rect matching
         restored.setAdapter(mTestAdapter);
         restored.onRestoreInstanceState(savedState);
+
+        if (loadDataAfterRestore) {
+            mTestAdapter.addAndNotify(itemCount);
+        }
+
         postRestoreOperation.onAfterRestore(config);
         assertEquals("Parcel reading should not go out of bounds", parcelSuffix,
                 parcel.readString());
@@ -1045,20 +1058,40 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
         assertEquals(logPrefix + " on saved state, stack from end should be preserved",
                 config.mStackFromEnd, mLayoutManager.getStackFromEnd());
         if (waitForLayout) {
+            final boolean strictItemEquality = !loadDataAfterRestore;
             if (postRestoreOperation.shouldLayoutMatch(config)) {
                 assertRectSetsEqual(
                         logPrefix + ": on restore, previous view positions should be preserved",
-                        before, mLayoutManager.collectChildCoordinates());
+                        before, mLayoutManager.collectChildCoordinates(), strictItemEquality);
             } else {
                 assertRectSetsNotEqual(
                         logPrefix
                                 + ": on restore with changes, previous view positions should NOT "
                                 + "be preserved",
-                        before, mLayoutManager.collectChildCoordinates());
+                        before, mLayoutManager.collectChildCoordinates(), strictItemEquality);
             }
             postRestoreOperation.onAfterReLayout(config);
         }
     }
+
+    public void testScrollAndClear() throws Throwable {
+        setupByConfig(new Config(), true);
+
+        assertTrue("Children not laid out", mLayoutManager.collectChildCoordinates().size() > 0);
+
+        mLayoutManager.expectLayouts(1);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mLayoutManager.scrollToPositionWithOffset(1, 0);
+                mTestAdapter.clearOnUIThread();
+            }
+        });
+        mLayoutManager.waitForLayout(2);
+
+        assertEquals("Remaining children", 0, mLayoutManager.collectChildCoordinates().size());
+    }
+
 
     void scrollToPositionWithOffset(final int position, final int offset) throws Throwable {
         runTestOnUiThread(new Runnable() {
@@ -1070,10 +1103,10 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
     }
 
     public void assertRectSetsNotEqual(String message, Map<Item, Rect> before,
-            Map<Item, Rect> after) {
+            Map<Item, Rect> after, boolean strictItemEquality) {
         Throwable throwable = null;
         try {
-            assertRectSetsEqual("NOT " + message, before, after);
+            assertRectSetsEqual("NOT " + message, before, after, strictItemEquality);
         } catch (Throwable t) {
             throwable = t;
         }
@@ -1081,9 +1114,14 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
     }
 
     public void assertRectSetsEqual(String message, Map<Item, Rect> before, Map<Item, Rect> after) {
+        assertRectSetsEqual(message, before, after, true);
+    }
+
+    public void assertRectSetsEqual(String message, Map<Item, Rect> before, Map<Item, Rect> after,
+            boolean strictItemEquality) {
         StringBuilder sb = new StringBuilder();
-        sb.append("checking rectangle equality.");
-         sb.append("before:\n");
+        sb.append("checking rectangle equality.\n");
+        sb.append("before:\n");
         for (Map.Entry<Item, Rect> entry : before.entrySet()) {
             sb.append(entry.getKey().mAdapterIndex + ":" + entry.getValue()).append("\n");
         }
@@ -1095,9 +1133,24 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
         assertEquals(message + ":\nitem counts should be equal", before.size()
                 , after.size());
         for (Map.Entry<Item, Rect> entry : before.entrySet()) {
-            Rect afterRect = after.get(entry.getKey());
-            assertNotNull(message + ":\nSame item should be visible after simple re-layout",
-                    afterRect);
+            final Item beforeItem = entry.getKey();
+            Rect afterRect = null;
+            if (strictItemEquality) {
+                afterRect = after.get(beforeItem);
+                assertNotNull(message + ":\nSame item should be visible after simple re-layout",
+                        afterRect);
+            } else {
+                for (Map.Entry<Item, Rect> afterEntry : after.entrySet()) {
+                    final Item afterItem = afterEntry.getKey();
+                    if (afterItem.mAdapterIndex == beforeItem.mAdapterIndex) {
+                        afterRect = afterEntry.getValue();
+                        break;
+                    }
+                }
+                assertNotNull(message + ":\nItem with same adapter index should be visible " +
+                                "after simple re-layout",
+                        afterRect);
+            }
             assertEquals(message + ":\nItem should be laid out at the same coordinates",
                     entry.getValue(), afterRect);
         }

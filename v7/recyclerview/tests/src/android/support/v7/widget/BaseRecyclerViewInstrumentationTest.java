@@ -557,13 +557,19 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
     public class TestAdapter extends RecyclerView.Adapter<TestViewHolder>
             implements AttachDetachCountingAdapter {
 
+        public static final String DEFAULT_ITEM_PREFIX = "Item ";
+
         ViewAttachDetachCounter mAttachmentCounter = new ViewAttachDetachCounter();
         List<Item> mItems;
 
         public TestAdapter(int count) {
             mItems = new ArrayList<Item>(count);
-            for (int i = 0; i < count; i++) {
-                mItems.add(new Item(i, "Item " + i));
+            addItems(0, count, DEFAULT_ITEM_PREFIX);
+        }
+
+        private void addItems(int pos, int count, String prefix) {
+            for (int i = 0; i < count; i++, pos++) {
+                mItems.add(pos, new Item(pos, prefix));
             }
         }
 
@@ -666,6 +672,11 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             }
         }
 
+        public void addAndNotify(final int count) throws Throwable {
+            assertEquals(0, mItems.size());
+            new AddRemoveRunnable(DEFAULT_ITEM_PREFIX, new int[]{0, count}).runOnMainThread();
+        }
+
         public void addAndNotify(final int start, final int count) throws Throwable {
             addAndNotify(new int[]{start, count});
         }
@@ -760,6 +771,13 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             });
         }
 
+        public void clearOnUIThread() {
+            assertEquals("clearOnUIThread called from a wrong thread",
+                    Looper.getMainLooper(), Looper.myLooper());
+            mItems = new ArrayList<Item>();
+            notifyDataSetChanged();
+        }
+
         protected void moveInUIThread(int from, int to) {
             Item item = mItems.remove(from);
             offsetOriginalIndices(from, -1);
@@ -776,10 +794,16 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
 
 
         private class AddRemoveRunnable implements Runnable {
+            final String mNewItemPrefix;
             final int[][] mStartCountTuples;
 
-            public AddRemoveRunnable(int[][] startCountTuples) {
+            public AddRemoveRunnable(String newItemPrefix, int[]... startCountTuples) {
+                mNewItemPrefix = newItemPrefix;
                 mStartCountTuples = startCountTuples;
+            }
+
+            public AddRemoveRunnable(int[][] startCountTuples) {
+                this("new item ", startCountTuples);
             }
 
             public void runOnMainThread() throws Throwable {
@@ -804,9 +828,7 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             private void add(int[] tuple) {
                 // offset others
                 offsetOriginalIndices(tuple[0], tuple[1]);
-                for (int i = 0; i < tuple[1]; i++) {
-                    mItems.add(tuple[0], new Item(i, "new item " + i));
-                }
+                addItems(tuple[0], tuple[1], mNewItemPrefix);
                 notifyItemRangeInserted(tuple[0], tuple[1]);
             }
 
