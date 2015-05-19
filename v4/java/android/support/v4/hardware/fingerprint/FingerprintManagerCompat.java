@@ -26,6 +26,7 @@ import android.support.v4.os.CancellationSignal;
 import java.security.Signature;
 
 import javax.crypto.Cipher;
+import javax.crypto.Mac;
 
 /**
  * A class that coordinates access to the fingerprint hardware.
@@ -102,14 +103,24 @@ public class FingerprintManagerCompat {
 
         private final Signature mSignature;
         private final Cipher mCipher;
+        private final Mac mMac;
 
         public CryptoObject(Signature signature) {
             mSignature = signature;
             mCipher = null;
+            mMac = null;
+
         }
 
         public CryptoObject(Cipher cipher) {
             mCipher = cipher;
+            mSignature = null;
+            mMac = null;
+        }
+
+        public CryptoObject(Mac mac) {
+            mMac = mac;
+            mCipher = null;
             mSignature = null;
         }
 
@@ -124,6 +135,12 @@ public class FingerprintManagerCompat {
          * @return {@link Cipher} object or null if this doesn't contain one.
          */
         public Cipher getCipher() { return mCipher; }
+
+        /**
+         * Get {@link Mac} object.
+         * @return {@link Mac} object or null if this doesn't contain one.
+         */
+        public Mac getMac() { return mMac; }
     }
 
     /**
@@ -241,8 +258,12 @@ public class FingerprintManagerCompat {
                 return null;
             } else if (cryptoObject.getCipher() != null) {
                 return new FingerprintManagerCompatApi23.CryptoObject(cryptoObject.getCipher());
-            } else {
+            } else if (cryptoObject.getSignature() != null) {
                 return new FingerprintManagerCompatApi23.CryptoObject(cryptoObject.getSignature());
+            } else if (cryptoObject.getMac() != null) {
+                return new FingerprintManagerCompatApi23.CryptoObject(cryptoObject.getMac());
+            } else {
+                return null;
             }
         }
 
@@ -252,8 +273,12 @@ public class FingerprintManagerCompat {
                 return null;
             } else if (cryptoObject.getCipher() != null) {
                 return new CryptoObject(cryptoObject.getCipher());
-            } else {
+            } else if (cryptoObject.getSignature() != null) {
                 return new CryptoObject(cryptoObject.getSignature());
+            } else if (cryptoObject.getMac() != null) {
+                return new CryptoObject(cryptoObject.getMac());
+            } else {
+                return null;
             }
         }
 
