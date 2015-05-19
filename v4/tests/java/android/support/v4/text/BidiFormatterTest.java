@@ -62,6 +62,9 @@ public class BidiFormatterTest extends AndroidTestCase {
     }
 
     public void testUnicodeWrap() {
+        // Make sure an input of null doesn't crash anything.
+        assertNull(LTR_FMT.unicodeWrap(null));
+
         // Uniform directionality in opposite context.
         assertEquals("uniform dir opposite to LTR context",
                 RLE + "." + HE + "." + PDF + LRM,
