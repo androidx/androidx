@@ -20,6 +20,8 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.support.v4.view.MotionEventCompat;
+import android.support.v4.view.NestedScrollingChild;
+import android.support.v4.view.NestedScrollingChildHelper;
 import android.support.v4.view.NestedScrollingParent;
 import android.support.v4.view.NestedScrollingParentHelper;
 import android.support.v4.view.ViewCompat;
@@ -57,7 +59,8 @@ import android.widget.AbsListView;
  * refresh of the content wherever this gesture is used.
  * </p>
  */
-public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingParent {
+public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingParent,
+        NestedScrollingChild {
     // Maps to ProgressBar.Large style
     public static final int LARGE = MaterialProgressDrawable.LARGE;
     // Maps to ProgressBar default style
@@ -101,7 +104,10 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
     // consumed by this as the nested scrolling parent is used in place of the
     // overscroll determined by MOVE events in the onTouch handler
     private float mTotalUnconsumed;
-    private NestedScrollingParentHelper mNestedScrollingParentHelper;
+    private final NestedScrollingParentHelper mNestedScrollingParentHelper;
+    private final NestedScrollingChildHelper mNestedScrollingChildHelper;
+    private final int[] mParentScrollConsumed = new int[2];
+
     private int mMediumAnimationDuration;
     private int mCurrentTargetOffsetTop;
     // Whether or not the starting offset has been determined.
@@ -297,6 +303,9 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         mSpinnerFinalOffset = DEFAULT_CIRCLE_TARGET * metrics.density;
         mTotalDragDistance = mSpinnerFinalOffset;
         mNestedScrollingParentHelper = new NestedScrollingParentHelper(this);
+
+        mNestedScrollingChildHelper = new NestedScrollingChildHelper(this);
+        setNestedScrollingEnabled(true);
     }
 
     protected int getChildDrawingOrder(int childCount, int i) {
@@ -712,9 +721,16 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         }
     }
 
+    // NestedScrollingParent
+
     @Override
     public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {
-        return ((nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0);
+        if ((nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0) {
+            // Dispatch up to the nested parent
+            startNestedScroll(nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -739,6 +755,13 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
             }
             moveSpinner(mTotalUnconsumed);
         }
+
+        // Now let our nested parent consume the leftovers
+        final int[] parentConsumed = mParentScrollConsumed;
+        if (dispatchNestedPreScroll(dx - consumed[0], dy - consumed[1], parentConsumed, null)) {
+            consumed[0] += parentConsumed[0];
+            consumed[1] += parentConsumed[1];
+        }
     }
 
     @Override
@@ -755,8 +778,9 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
             finishSpinner(mTotalUnconsumed);
             mTotalUnconsumed = 0;
         }
+        // Dispatch up our nested parent
+        stopNestedScroll();
     }
-
 
     @Override
     public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed,
@@ -766,8 +790,11 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
             mTotalUnconsumed += dyUnconsumed;
             moveSpinner(mTotalUnconsumed);
         }
+        // Dispatch up to the nested parent
+        dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dxConsumed, null);
     }
 
+    // NestedScrollingChild
 
     @Override
     public boolean onNestedPreFling(View target, float velocityX, float velocityY) {
@@ -777,6 +804,53 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
     @Override
     public boolean onNestedFling(View target, float velocityX, float velocityY, boolean consumed) {
         return false;
+    }
+
+    @Override
+    public void setNestedScrollingEnabled(boolean enabled) {
+        mNestedScrollingChildHelper.setNestedScrollingEnabled(enabled);
+    }
+
+    @Override
+    public boolean isNestedScrollingEnabled() {
+        return mNestedScrollingChildHelper.isNestedScrollingEnabled();
+    }
+
+    @Override
+    public boolean startNestedScroll(int axes) {
+        return mNestedScrollingChildHelper.startNestedScroll(axes);
+    }
+
+    @Override
+    public void stopNestedScroll() {
+        mNestedScrollingChildHelper.stopNestedScroll();
+    }
+
+    @Override
+    public boolean hasNestedScrollingParent() {
+        return mNestedScrollingChildHelper.hasNestedScrollingParent();
+    }
+
+    @Override
+    public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed,
+            int dyUnconsumed, int[] offsetInWindow) {
+        return mNestedScrollingChildHelper.dispatchNestedScroll(dxConsumed, dyConsumed,
+                dxUnconsumed, dyUnconsumed, offsetInWindow);
+    }
+
+    @Override
+    public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow) {
+        return mNestedScrollingChildHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow);
+    }
+
+    @Override
+    public boolean dispatchNestedFling(float velocityX, float velocityY, boolean consumed) {
+        return mNestedScrollingChildHelper.dispatchNestedFling(velocityX, velocityY, consumed);
+    }
+
+    @Override
+    public boolean dispatchNestedPreFling(float velocityX, float velocityY) {
+        return mNestedScrollingChildHelper.dispatchNestedPreFling(velocityX, velocityY);
     }
 
     private boolean isAnimationRunning(Animation animation) {

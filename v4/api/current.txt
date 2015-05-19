@@ -3094,7 +3094,7 @@ package android.support.v4.widget {
     ctor public Space(android.content.Context);
   }
 
-  public class SwipeRefreshLayout extends android.view.ViewGroup implements android.support.v4.view.NestedScrollingParent {
+  public class SwipeRefreshLayout extends android.view.ViewGroup implements android.support.v4.view.NestedScrollingChild android.support.v4.view.NestedScrollingParent {
     ctor public SwipeRefreshLayout(android.content.Context);
     ctor public SwipeRefreshLayout(android.content.Context, android.util.AttributeSet);
     method public boolean canChildScrollUp();
