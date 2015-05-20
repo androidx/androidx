@@ -100,8 +100,8 @@ public class ScriptGroup extends BaseObj {
      * <p>
      * A closure represents a function call to a kernel or invocable function,
      * combined with arguments and values for global variables. A closure is
-     * created using the {@link android.renderscript.ScriptGroup.Builder2#addKernel} or
-     * {@link android.renderscript.ScriptGroup.Builder2#addInvoke}
+     * created using the {@link Builder2#addKernel} or
+     * {@link Builder2#addInvoke}
      * method.
      */
 
