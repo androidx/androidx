@@ -189,6 +189,7 @@ package android.support.v17.leanback.app {
     method public android.support.v17.leanback.widget.GuidanceStylist.Guidance onCreateGuidance(android.os.Bundle);
     method public android.support.v17.leanback.widget.GuidanceStylist onCreateGuidanceStylist();
     method public void onGuidedActionClicked(android.support.v17.leanback.widget.GuidedAction);
+    method public void onGuidedActionEdited(android.support.v17.leanback.widget.GuidedAction);
     method public void onGuidedActionFocused(android.support.v17.leanback.widget.GuidedAction);
     method public int onProvideTheme();
     method public void setActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>);
@@ -744,6 +745,8 @@ package android.support.v17.leanback.widget {
     method public abstract void onFragmentExit(java.util.List<android.animation.Animator>);
     method public abstract void onFragmentReenter(java.util.List<android.animation.Animator>);
     method public abstract void onFragmentReturn(java.util.List<android.animation.Animator>);
+    method public abstract void onImeAppearing(java.util.List<android.animation.Animator>);
+    method public abstract void onImeDisappearing(java.util.List<android.animation.Animator>);
   }
 
   public class FullWidthDetailsOverviewRowPresenter extends android.support.v17.leanback.widget.RowPresenter {
@@ -822,6 +825,8 @@ package android.support.v17.leanback.widget {
     method public void onFragmentExit(java.util.List<android.animation.Animator>);
     method public void onFragmentReenter(java.util.List<android.animation.Animator>);
     method public void onFragmentReturn(java.util.List<android.animation.Animator>);
+    method public void onImeAppearing(java.util.List<android.animation.Animator>);
+    method public void onImeDisappearing(java.util.List<android.animation.Animator>);
     method public int onProvideLayoutId();
   }
 
@@ -842,9 +847,11 @@ package android.support.v17.leanback.widget {
     method public boolean hasNext();
     method public boolean infoOnly();
     method public boolean isChecked();
+    method public boolean isEditable();
     method public boolean isEnabled();
     method public void setChecked(boolean);
     method public void setEnabled(boolean);
+    method public void setTitle(java.lang.CharSequence);
     field public static final int DEFAULT_CHECK_SET_ID = 1; // 0x1
     field public static final int NO_CHECK_SET = 0; // 0x0
     field public static final int NO_DRAWABLE = 0; // 0x0
@@ -856,6 +863,7 @@ package android.support.v17.leanback.widget {
     method public android.support.v17.leanback.widget.GuidedAction.Builder checkSetId(int);
     method public android.support.v17.leanback.widget.GuidedAction.Builder checked(boolean);
     method public android.support.v17.leanback.widget.GuidedAction.Builder description(java.lang.String);
+    method public android.support.v17.leanback.widget.GuidedAction.Builder editable(boolean);
     method public android.support.v17.leanback.widget.GuidedAction.Builder enabled(boolean);
     method public android.support.v17.leanback.widget.GuidedAction.Builder hasNext(boolean);
     method public android.support.v17.leanback.widget.GuidedAction.Builder icon(android.graphics.drawable.Drawable);
@@ -882,6 +890,8 @@ package android.support.v17.leanback.widget {
     method public void onFragmentExit(java.util.List<android.animation.Animator>);
     method public void onFragmentReenter(java.util.List<android.animation.Animator>);
     method public void onFragmentReturn(java.util.List<android.animation.Animator>);
+    method public void onImeAppearing(java.util.List<android.animation.Animator>);
+    method public void onImeDisappearing(java.util.List<android.animation.Animator>);
     method public int onProvideItemLayoutId();
     method public int onProvideLayoutId();
     field protected android.support.v17.leanback.widget.VerticalGridView mActionsGridView;
@@ -954,6 +964,14 @@ package android.support.v17.leanback.widget {
     method public void setMainImageDimensions(int, int);
     method public void setMainImageScaleType(android.widget.ImageView.ScaleType);
     method public void setTitleText(java.lang.CharSequence);
+  }
+
+  public abstract interface ImeKeyMonitor {
+    method public abstract void setImeKeyListener(android.support.v17.leanback.widget.ImeKeyMonitor.ImeKeyListener);
+  }
+
+  public static abstract interface ImeKeyMonitor.ImeKeyListener {
+    method public abstract boolean onKeyPreIme(android.widget.EditText, int, android.view.KeyEvent);
   }
 
   public final class ItemAlignmentFacet {
