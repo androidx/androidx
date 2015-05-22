@@ -972,7 +972,7 @@ public class ActivityChooserModel extends DataSetObservable {
         }
         try {
             XmlPullParser parser = Xml.newPullParser();
-            parser.setInput(fis, null);
+            parser.setInput(fis, "UTF-8");
 
             int type = XmlPullParser.START_DOCUMENT;
             while (type != XmlPullParser.END_DOCUMENT && type != XmlPullParser.START_TAG) {
