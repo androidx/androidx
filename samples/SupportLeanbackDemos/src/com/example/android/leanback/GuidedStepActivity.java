@@ -20,15 +20,18 @@ import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v17.leanback.app.GuidedStepFragment;
 import android.support.v17.leanback.widget.GuidedAction;
 import android.support.v17.leanback.widget.GuidanceStylist;
 import android.support.v17.leanback.widget.GuidanceStylist.Guidance;
+import android.util.Log;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 
 import java.util.List;
-import java.util.ArrayList;
 
 /**
  * Activity that showcases different aspects of GuidedStepFragments.
@@ -38,6 +41,9 @@ public class GuidedStepActivity extends Activity {
     private static final int CONTINUE = 1;
     private static final int BACK = 2;
 
+    private static final int FIRST_NAME = 1;
+    private static final int LAST_NAME = 2;
+
     private static final int OPTION_CHECK_SET_ID = 10;
     private static final int DEFAULT_OPTION = 0;
     private static final String[] OPTION_NAMES = { "Option A", "Option B", "Option C" };
@@ -46,10 +52,36 @@ public class GuidedStepActivity extends Activity {
     private static final int[] OPTION_DRAWABLES = { R.drawable.ic_guidedstep_option_a,
             R.drawable.ic_guidedstep_option_b, R.drawable.ic_guidedstep_option_c };
 
+    private static final String TAG = GuidedStepActivity.class.getSimpleName();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.v(TAG, "onCreate");
         super.onCreate(savedInstanceState);
         GuidedStepFragment.add(getFragmentManager(), new FirstStepFragment());
+        getWindow().getDecorView().getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+            @Override public void onGlobalLayout() {
+                //Log.v(TAG, "onGlobalLayout", new Exception());
+            }
+        });
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        Log.v(TAG, "onConfigurationChanged");
+        super.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        Log.v(TAG, "onSaveInstanceState");
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        Log.v(TAG, "onRestoreInstanceState");
+        super.onRestoreInstanceState(savedInstanceState);
     }
 
     private static void addAction(List<GuidedAction> actions, long id, String title, String desc) {
@@ -57,6 +89,15 @@ public class GuidedStepActivity extends Activity {
                 .id(id)
                 .title(title)
                 .description(desc)
+                .build());
+    }
+
+    private static void addEditableAction(List<GuidedAction> actions, long id, String title, String desc) {
+        actions.add(new GuidedAction.Builder()
+                .id(id)
+                .title(title)
+                .description(desc)
+                .editable(true)
                 .build());
     }
 
@@ -107,13 +148,40 @@ public class GuidedStepActivity extends Activity {
 
     private static class SecondStepFragment extends GuidedStepFragment {
 
-        private int mSelectedOption = DEFAULT_OPTION;
-
         @Override
         public Guidance onCreateGuidance(Bundle savedInstanceState) {
             String title = getString(R.string.guidedstep_second_title);
             String breadcrumb = getString(R.string.guidedstep_second_breadcrumb);
             String description = getString(R.string.guidedstep_second_description);
+            Drawable icon = getActivity().getDrawable(R.drawable.ic_main_icon);
+            return new Guidance(title, description, breadcrumb, icon);
+        }
+
+        @Override
+        public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
+            addEditableAction(actions, FIRST_NAME, "Pat", "Your first name");
+            addEditableAction(actions, LAST_NAME, "Smith", "Your last name");
+        }
+
+        @Override
+        public void onGuidedActionClicked(GuidedAction action) {
+            if (action.getId() == LAST_NAME) {
+                FragmentManager fm = getFragmentManager();
+                GuidedStepFragment.add(fm, new ThirdStepFragment());
+            }
+        }
+
+    }
+
+    private static class ThirdStepFragment extends GuidedStepFragment {
+
+        private int mSelectedOption = DEFAULT_OPTION;
+
+        @Override
+        public Guidance onCreateGuidance(Bundle savedInstanceState) {
+            String title = getString(R.string.guidedstep_third_title);
+            String breadcrumb = getString(R.string.guidedstep_third_breadcrumb);
+            String description = getString(R.string.guidedstep_third_description);
             Drawable icon = getActivity().getDrawable(R.drawable.ic_main_icon);
             return new Guidance(title, description, breadcrumb, icon);
         }
@@ -153,7 +221,7 @@ public class GuidedStepActivity extends Activity {
         public void onGuidedActionClicked(GuidedAction action) {
             if (action.getId() == CONTINUE) {
                 FragmentManager fm = getFragmentManager();
-                GuidedStepFragment.add(fm, new ThirdStepFragment(mSelectedOption));
+                GuidedStepFragment.add(fm, new FourthStepFragment(mSelectedOption));
             } else {
                 mSelectedOption = getSelectedActionPosition()-1;
             }
@@ -161,17 +229,17 @@ public class GuidedStepActivity extends Activity {
 
     }
 
-    private static class ThirdStepFragment extends GuidedStepFragment {
+    private static class FourthStepFragment extends GuidedStepFragment {
         private final int mOption;
 
-        public ThirdStepFragment(int option) {
+        public FourthStepFragment(int option) {
             mOption = option;
         }
 
         @Override
         public Guidance onCreateGuidance(Bundle savedInstanceState) {
-            String title = getString(R.string.guidedstep_third_title);
-            String breadcrumb = getString(R.string.guidedstep_third_breadcrumb);
+            String title = getString(R.string.guidedstep_fourth_title);
+            String breadcrumb = getString(R.string.guidedstep_fourth_breadcrumb);
             String description = "You chose: " + OPTION_NAMES[mOption];
             Drawable icon = getActivity().getDrawable(R.drawable.ic_main_icon);
             return new Guidance(title, description, breadcrumb, icon);

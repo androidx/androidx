@@ -37,6 +37,9 @@ import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.ControlButtonPresenterSelector;
 import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 public class PlaybackOverlayFragment extends android.support.v17.leanback.app.PlaybackOverlayFragment {
@@ -102,7 +105,7 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
             @Override
             public int getUpdatePeriod() {
                 int totalTime = getControlsRow().getTotalTime();
-                if (getView() == null || totalTime <= 0) {
+                if (getView() == null || getView().getWidth() == 0 || totalTime <= 0) {
                     return 1000;
                 }
                 return Math.max(16, totalTime / getView().getWidth());
@@ -149,11 +152,13 @@ public class PlaybackOverlayFragment extends android.support.v17.leanback.app.Pl
             HeaderItem header = new HeaderItem(i, "Row " + i);
             getAdapter().set(ROW_CONTROLS + 1 + i, new ListRow(header, listRowAdapter));
         }
+
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        mGlue.setFadingEnabled(true);
         mGlue.enableProgressUpdating(mGlue.hasValidMedia() && mGlue.isMediaPlaying());
     }
 
