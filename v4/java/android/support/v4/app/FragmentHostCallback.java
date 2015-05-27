@@ -179,11 +179,7 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
         }
     }
 
-    void onFragmentInflate(Fragment fragment, AttributeSet attrs, Bundle savedInstanceState) {
-        fragment.onInflate(mContext, attrs, savedInstanceState);
-    }
-
-    void onFragmentAttach(Fragment fragment) {
+    void onAttachFragment(Fragment fragment) {
         fragment.onAttach(mContext);
     }
 
