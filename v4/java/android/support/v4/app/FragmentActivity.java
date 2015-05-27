@@ -799,6 +799,11 @@ public class FragmentActivity extends BaseFragmentActivityHoneycomb {
             return (w == null) ? 0 : w.getAttributes().windowAnimations;
         }
 
+        @Override
+        public void onAttachFragment(Fragment fragment) {
+            FragmentActivity.this.onAttachFragment(fragment);
+        }
+
         @Nullable
         @Override
         public View onFindViewById(int id) {
