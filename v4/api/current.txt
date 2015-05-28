@@ -2354,6 +2354,7 @@ package android.support.v4.view {
     method public static float getZ(android.view.View);
     method public static boolean hasAccessibilityDelegate(android.view.View);
     method public static boolean hasNestedScrollingParent(android.view.View);
+    method public static boolean hasOverlappingRendering(android.view.View);
     method public static boolean hasTransientState(android.view.View);
     method public static boolean isAttachedToWindow(android.view.View);
     method public static boolean isLaidOut(android.view.View);
