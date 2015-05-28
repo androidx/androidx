@@ -356,7 +356,6 @@ public class ViewCompat {
         public void requestApplyInsets(View view);
         public void setChildrenDrawingOrderEnabled(ViewGroup viewGroup, boolean enabled);
         public boolean getFitsSystemWindows(View view);
-        public boolean hasOverlappingRendering(View view);
         void setFitsSystemWindows(View view, boolean fitSystemWindows);
         void jumpDrawablesToCurrentState(View v);
         void setOnApplyWindowInsetsListener(View view, OnApplyWindowInsetsListener listener);
@@ -581,11 +580,6 @@ public class ViewCompat {
                 // Try this instead
                 view.onFinishTemporaryDetach();
             }
-        }
-
-        @Override
-        public boolean hasOverlappingRendering(View view) {
-            return true;
         }
 
         private void bindTempDetach() {
@@ -1297,11 +1291,6 @@ public class ViewCompat {
         @Override
         public boolean getFitsSystemWindows(View view) {
             return ViewCompatJB.getFitsSystemWindows(view);
-        }
-
-        @Override
-        public boolean hasOverlappingRendering(View view) {
-            return ViewCompatJB.hasOverlappingRendering(view);
         }
     }
 
@@ -2722,28 +2711,6 @@ public class ViewCompat {
      */
     public static void setActivated(View view, boolean activated) {
         IMPL.setActivated(view, activated);
-    }
-
-    /**
-     * Returns whether this View has content which overlaps.
-     *
-     * <p>This function, intended to be overridden by specific View types, is an optimization when
-     * alpha is set on a view. If rendering overlaps in a view with alpha < 1, that view is drawn to
-     * an offscreen buffer and then composited into place, which can be expensive. If the view has
-     * no overlapping rendering, the view can draw each primitive with the appropriate alpha value
-     * directly. An example of overlapping rendering is a TextView with a background image, such as
-     * a Button. An example of non-overlapping rendering is a TextView with no background, or an
-     * ImageView with only the foreground image. The default implementation returns true; subclasses
-     * should override if they have cases which can be optimized.</p>
-     *
-     * <p>The current implementation of the saveLayer and saveLayerAlpha methods in {@link Canvas}
-     * necessitates that a View return true if it uses the methods internally without passing the
-     * {@link Canvas#CLIP_TO_LAYER_SAVE_FLAG}.</p>
-     *
-     * @return true if the content in this view might overlap, false otherwise.
-     */
-    public static boolean hasOverlappingRendering(View view) {
-        return IMPL.hasOverlappingRendering(view);
     }
 
     /**
