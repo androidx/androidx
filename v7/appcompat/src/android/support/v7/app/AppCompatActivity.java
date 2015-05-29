@@ -62,6 +62,12 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
     }
 
     @Override
+    public void setTheme(int resid) {
+        getDelegate().applyDayNight();
+        super.setTheme(resid);
+    }
+
+    @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         getDelegate().onPostCreate(savedInstanceState);

@@ -17,11 +17,9 @@
 package android.support.v7.app;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.app.WindowDecorActionBar;
@@ -147,6 +145,11 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
     abstract boolean onKeyShortcut(int keyCode, KeyEvent event);
 
     @Override
+    public void setNightMode(@NightMode int mode) {
+        // no-op
+    }
+
+    @Override
     public final ActionBarDrawerToggle.Delegate getDrawerToggleDelegate() {
         return new ActionBarDrawableToggleImpl();
     }
@@ -221,6 +224,11 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
     public boolean isHandleNativeActionModesEnabled() {
         // Always false pre-v14
         return false;
+    }
+
+    @Override
+    public void applyDayNight() {
+        // no-op on v7
     }
 
     final boolean isDestroyed() {
