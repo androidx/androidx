@@ -46,6 +46,9 @@ public class AppCompatDialog extends Dialog implements AppCompatCallback {
         // To workaround this, we call onCreate(null) in the ctor, and then again as usual in
         // onCreate().
         getDelegate().onCreate(null);
+
+        // Apply AppCompat's DayNight resources if needed
+        getDelegate().applyDayNight();
     }
 
     protected AppCompatDialog(Context context, boolean cancelable,
