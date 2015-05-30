@@ -607,6 +607,22 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 }
                 RecyclerView.this.detachViewFromParent(offset);
             }
+
+            @Override
+            public void onEnteredHiddenState(View child) {
+                final ViewHolder vh = getChildViewHolderInt(child);
+                if (vh != null) {
+                    vh.onEnteredHiddenState();
+                }
+            }
+
+            @Override
+            public void onLeftHiddenState(View child) {
+                final ViewHolder vh = getChildViewHolderInt(child);
+                if (vh != null) {
+                    vh.onLeftHiddenState();
+                }
+            }
         });
     }
 
@@ -2459,10 +2475,14 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
     }
 
+    boolean isAccessibilityEnabled() {
+        return mAccessibilityManager != null && mAccessibilityManager.isEnabled();
+    }
+
     private void dispatchContentChangedIfNecessary() {
         final int flags = mEatenAccessibilityChangeFlags;
         mEatenAccessibilityChangeFlags = 0;
-        if (flags != 0 && mAccessibilityManager != null && mAccessibilityManager.isEnabled()) {
+        if (flags != 0 && isAccessibilityEnabled()) {
             final AccessibilityEvent event = AccessibilityEvent.obtain();
             event.setEventType(AccessibilityEventCompat.TYPE_WINDOW_CONTENT_CHANGED);
             AccessibilityEventCompat.setContentChangeTypes(event, flags);
@@ -4465,7 +4485,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
 
         private void attachAccessibilityDelegate(View itemView) {
-            if (mAccessibilityManager != null && mAccessibilityManager.isEnabled()) {
+            if (isAccessibilityEnabled()) {
                 if (ViewCompat.getImportantForAccessibility(itemView) ==
                         ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
                     ViewCompat.setImportantForAccessibility(itemView,
@@ -8154,6 +8174,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         // scrap container.
         private Recycler mScrapContainer = null;
 
+        // Saves isImportantForAccessibility value for the view item while it's in hidden state and
+        // marked as unimportant for accessibility.
+        private int mWasImportantForAccessibilityBeforeHidden =
+                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
+
         /**
          * Is set when VH is bound from the adapter and cleaned right before it is sent to
          * {@link RecycledViewPool}.
@@ -8419,6 +8444,27 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             mShadowedHolder = null;
             mShadowingHolder = null;
             clearPayload();
+            mWasImportantForAccessibilityBeforeHidden = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
+        }
+
+        /**
+         * Called when the child view enters the hidden state
+         */
+        private void onEnteredHiddenState() {
+            // While the view item is in hidden state, make it invisible for the accessibility.
+            mWasImportantForAccessibilityBeforeHidden =
+                    ViewCompat.getImportantForAccessibility(itemView);
+            ViewCompat.setImportantForAccessibility(itemView,
+                    ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
+        }
+
+        /**
+         * Called when the child view leaves the hidden state
+         */
+        private void onLeftHiddenState() {
+            ViewCompat.setImportantForAccessibility(
+                    itemView, mWasImportantForAccessibilityBeforeHidden);
+            mWasImportantForAccessibilityBeforeHidden = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
         }
 
         @Override
