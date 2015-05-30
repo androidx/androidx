@@ -1,0 +1,32 @@
+<resources>
+
+    <style name="Theme.Example.Leanback" parent="Theme.Leanback">
+        <item name="android:windowEnterTransition">@android:transition/fade</item>
+        <item name="android:windowExitTransition">@android:transition/fade</item>
+        <item name="android:windowSharedElementExitTransition">@android:transition/move</item>
+        <item name="android:windowSharedElementEnterTransition">@android:transition/move</item>
+        <item name="android:windowAllowReturnTransitionOverlap">true</item>
+        <item name="android:windowAllowEnterTransitionOverlap">true</item>
+        <item name="android:windowContentTransitions">true</item>
+        <item name="android:colorPrimary">@color/search_color</item>
+        <item name="android:colorAccent">@color/accent</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14</item>
+        <!-- <item name="imageCardViewStyle">@style/ImageCardViewColoredTextStyle</item> -->
+    </style>
+
+    <style name="Theme.Example.LeanbackWizard" parent="Theme.Leanback.GuidedStep">
+        <item name="guidedActionsContainerStyle">@style/WizardActionsContainerStyle</item>
+    </style>
+
+    <style name="Theme.Example.LeanbackDialog" parent="Theme.Leanback.GuidedStep">
+        <item name="guidedActionsContainerStyle">@style/DialogActionsContainerStyle</item>
+    </style>
+
+    <style name="Theme.Example.LeanbackPreferences" parent="Theme.Leanback">
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:colorPrimary">@color/settings_background</item>
+    </style>
+</resources>

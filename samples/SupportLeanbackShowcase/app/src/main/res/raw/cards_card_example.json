@@ -1,0 +1,559 @@
+[
+  {
+    "title": "Standard",
+    "cards": [
+      {
+        "type": "THIN",
+        "title": "The Amazing Spuder-Man",
+        "description": "$3.99",
+        "localImageResource": "card_image_movie_01"
+      },
+      {
+        "type": "THIN",
+        "title": "American Psycho",
+        "description": "$3.99",
+        "localImageResource": "card_image_movie_02"
+      },
+      {
+        "type": "THIN",
+        "title": "Big Hero 6",
+        "description": "$3.99",
+        "localImageResource": "card_image_movie_03"
+      },
+      {
+        "type": "THIN",
+        "title": "Edge of Tomorrow",
+        "description": "$3.99",
+        "localImageResource": "card_image_movie_04"
+      },
+      {
+        "type": "THIN",
+        "title": "The Hobbit: The Desolation of Smaug",
+        "description": "$3.99",
+        "localImageResource": "card_image_movie_05"
+      },
+      {
+        "type": "THIN",
+        "title": "Interstellar",
+        "description": "$3.99",
+        "localImageResource": "card_image_movie_06"
+      },
+      {
+        "type": "THIN",
+        "title": "Jurassic Park",
+        "description": "$3.99",
+        "localImageResource": "card_image_movie_07"
+      },
+      {
+        "type": "THIN",
+        "title": "The Hunger Games: Mockingjay Part I",
+        "description": "$3.99",
+        "localImageResource": "card_image_movie_08"
+      },
+      {
+        "type": "THIN",
+        "title": "Planes",
+        "description": "$3.99",
+        "localImageResource": "card_image_movie_09"
+      }
+    ]
+  },
+  {
+    "title": "Two Line Title",
+    "cards": [
+      {
+        "type": "THIN_RATING",
+        "title": "The Amazing Spuder-Man",
+        "localImageResource": "card_image_movie_01"
+      },
+      {
+        "type": "THIN_RATING",
+        "title": "American Psycho",
+        "localImageResource": "card_image_movie_02"
+      },
+      {
+        "type": "THIN_RATING",
+        "title": "Big Hero 6",
+        "localImageResource": "card_image_movie_03"
+      },
+      {
+        "type": "THIN_RATING",
+        "title": "Edge of Tomorrow",
+        "localImageResource": "card_image_movie_04"
+      },
+      {
+        "type": "THIN_RATING",
+        "title": "The Hobbit: The Desolation of Smaug",
+        "localImageResource": "card_image_movie_05"
+      },
+      {
+        "type": "THIN_RATING",
+        "title": "Interstellar",
+        "localImageResource": "card_image_movie_06"
+      },
+      {
+        "type": "THIN_RATING",
+        "title": "Jurassic Park",
+        "localImageResource": "card_image_movie_07"
+      },
+      {
+        "type": "THIN_RATING",
+        "title": "The Hunger Games: Mockingjay Part I",
+        "localImageResource": "card_image_movie_08"
+      },
+      {
+        "type": "THIN_RATING",
+        "title": "Planes",
+        "localImageResource": "card_image_movie_09"
+      }
+    ]
+  },
+  {
+    "title": "Two Line Title + Icon",
+    "cards": [
+      {
+        "type": "THIN_RATING",
+        "description": "$3.99",
+        "title": "The Amazing Spider-Man",
+        "footerIconLocalImageResource": "stars_red",
+        "localImageResource": "card_image_movie_01"
+      },
+      {
+        "type": "THIN_RATING",
+        "title": "American Psycho",
+        "description": "$3.99",
+        "footerIconLocalImageResource": "stars_red",
+        "localImageResource": "card_image_movie_02"
+      },
+      {
+        "type": "THIN_RATING",
+        "title": "Big Hero 6",
+        "description": "$3.99",
+        "footerIconLocalImageResource": "stars_red",
+        "localImageResource": "card_image_movie_03"
+      },
+      {
+        "type": "THIN_RATING",
+        "title": "Edge of Tomorrow",
+        "description": "$3.99",
+        "footerIconLocalImageResource": "stars_red",
+        "localImageResource": "card_image_movie_04"
+      },
+      {
+        "type": "THIN_RATING",
+        "title": "The Hobbit: The Desolation of Smaug",
+        "description": "$3.99",
+        "footerIconLocalImageResource": "stars_red",
+        "localImageResource": "card_image_movie_05"
+      },
+      {
+        "type": "THIN_RATING",
+        "title": "Interstellar",
+        "description": "$3.99",
+        "footerIconLocalImageResource": "stars_red",
+        "localImageResource": "card_image_movie_06"
+      },
+      {
+        "type": "THIN_RATING",
+        "title": "Jurassic Park",
+        "description": "$3.99",
+        "footerIconLocalImageResource": "stars_red",
+        "localImageResource": "card_image_movie_07"
+      },
+      {
+        "type": "THIN_RATING",
+        "description": "$3.99",
+        "title": "The Hunger Games: Mockingjay Part I",
+        "footerIconLocalImageResource": "stars_red",
+        "localImageResource": "card_image_movie_08"
+      },
+      {
+        "type": "THIN_RATING",
+        "title": "Planes",
+        "description": "$3.99",
+        "footerIconLocalImageResource": "stars_red",
+        "localImageResource": "card_image_movie_09"
+      }
+    ]
+  },
+  {
+    "title": "Standard Square",
+    "cards": [
+      {
+        "type": "SQUARE_BIG",
+        "title": "Blue in Green",
+        "description": "Miles Davis",
+        "footerColor": "#bf360C",
+        "localImageResource": "card_image_music_02"
+      },
+      {
+        "type": "SQUARE_BIG",
+        "title": "Blue in Green",
+        "description": "Miles Davis",
+        "footerColor": "#b93221",
+        "localImageResource": "card_image_music_13"
+      },
+      {
+        "type": "SQUARE_BIG",
+        "title": "Blue in Green",
+        "description": "Miles Davis",
+        "footerColor": "#311b92",
+        "localImageResource": "card_image_music_08"
+      },
+      {
+        "type": "SQUARE_BIG",
+        "title": "Blue in Green",
+        "description": "Miles Davis",
+        "footerColor": "#33691e",
+        "localImageResource": "card_image_music_05"
+      },
+      {
+        "type": "SQUARE_BIG",
+        "title": "Blue in Green",
+        "description": "Miles Davis",
+        "footerColor": "#37474f",
+        "localImageResource": "card_image_music_06"
+      },
+      {
+        "type": "SQUARE_BIG",
+        "title": "Blue in Green",
+        "description": "Miles Davis",
+        "footerColor": "#3e2723",
+        "localImageResource": "card_image_music_09"
+      },
+      {
+        "type": "SQUARE_BIG",
+        "title": "Blue in Green",
+        "description": "Miles Davis",
+        "footerColor": "#01579B",
+        "localImageResource": "card_image_music_11"
+      }
+    ]
+  },
+  {
+    "title": "Side Info",
+    "cards": [
+      {
+        "type": "SIDE_INFO",
+        "title": "The Life Aquatic",
+        "description": "Seu Jorge",
+        "extraText": "Bacon ipsum dolor amet bresaola kevin tenderloin swine shoulder strip steak t-bone picanha turducken beef. Ribeye turkey t-bone pastrami meatball corned beef. Pork belly landjaeger short ribs ground round cupim, brisket ham tri-tip. Pig pork loin hamburger picanha ribeye, pork belly meatball chicken ham boudin sirloin corned beef frankfurter ham hock.",
+        "localImageResource": "card_image_music_02"
+      },
+      {
+        "type": "SIDE_INFO",
+        "title": "The Life Aquatic",
+        "description": "Seu Jorge",
+        "extraText": "Bacon ipsum dolor amet bresaola kevin tenderloin swine shoulder strip steak t-bone picanha turducken beef. Ribeye turkey t-bone pastrami meatball corned beef. Pork belly landjaeger short ribs ground round cupim, brisket ham tri-tip. Pig pork loin hamburger picanha ribeye, pork belly meatball chicken ham boudin sirloin corned beef frankfurter ham hock.",
+        "localImageResource": "card_image_music_13"
+      },
+      {
+        "type": "SIDE_INFO",
+        "title": "The Life Aquatic",
+        "description": "Seu Jorge",
+        "extraText": "Bacon ipsum dolor amet bresaola kevin tenderloin swine shoulder strip steak t-bone picanha turducken beef. Ribeye turkey t-bone pastrami meatball corned beef. Pork belly landjaeger short ribs ground round cupim, brisket ham tri-tip. Pig pork loin hamburger picanha ribeye, pork belly meatball chicken ham boudin sirloin corned beef frankfurter ham hock.",
+        "localImageResource": "card_image_music_08"
+      },
+      {
+        "type": "SIDE_INFO",
+        "title": "The Life Aquatic",
+        "description": "Seu Jorge",
+        "extraText": "Bacon ipsum dolor amet bresaola kevin tenderloin swine shoulder strip steak t-bone picanha turducken beef. Ribeye turkey t-bone pastrami meatball corned beef. Pork belly landjaeger short ribs ground round cupim, brisket ham tri-tip. Pig pork loin hamburger picanha ribeye, pork belly meatball chicken ham boudin sirloin corned beef frankfurter ham hock.",
+        "localImageResource": "card_image_music_05"
+      },
+      {
+        "type": "SIDE_INFO",
+        "title": "The Life Aquatic",
+        "description": "Seu Jorge",
+        "extraText": "Bacon ipsum dolor amet bresaola kevin tenderloin swine shoulder strip steak t-bone picanha turducken beef. Ribeye turkey t-bone pastrami meatball corned beef. Pork belly landjaeger short ribs ground round cupim, brisket ham tri-tip. Pig pork loin hamburger picanha ribeye, pork belly meatball chicken ham boudin sirloin corned beef frankfurter ham hock.",
+        "localImageResource": "card_image_music_06"
+      },
+      {
+        "type": "SIDE_INFO",
+        "title": "The Life Aquatic",
+        "description": "Seu Jorge",
+        "extraText": "Bacon ipsum dolor amet bresaola kevin tenderloin swine shoulder strip steak t-bone picanha turducken beef. Ribeye turkey t-bone pastrami meatball corned beef. Pork belly landjaeger short ribs ground round cupim, brisket ham tri-tip. Pig pork loin hamburger picanha ribeye, pork belly meatball chicken ham boudin sirloin corned beef frankfurter ham hock.",
+        "localImageResource": "card_image_music_09"
+      },
+      {
+        "type": "SIDE_INFO",
+        "title": "The Life Aquatic",
+        "description": "Seu Jorge",
+        "extraText": "Bacon ipsum dolor amet bresaola kevin tenderloin swine shoulder strip steak t-bone picanha turducken beef. Ribeye turkey t-bone pastrami meatball corned beef. Pork belly landjaeger short ribs ground round cupim, brisket ham tri-tip. Pig pork loin hamburger picanha ribeye, pork belly meatball chicken ham boudin sirloin corned beef frankfurter ham hock.",
+        "localImageResource": "card_image_music_11"
+      }
+    ]
+  },
+  {
+    "title": "Wide (Games)",
+    "cards": [
+      {
+        "type": "WIDE_SHORT",
+        "title": "Angry Birds",
+        "description": "Purchased",
+        "localImageResource": "game_angry_bird_w",
+        "footerIconLocalImageResource": "ic_installed"
+      },
+      {
+        "type": "WIDE_SHORT",
+        "title": "Badland",
+        "description": "Purchased",
+        "localImageResource": "game_badland_w",
+        "footerIconLocalImageResource": "ic_installed"
+      },
+      {
+        "type": "WIDE_SHORT",
+        "title": "Leo's Fortune",
+        "description": "Purchased",
+        "localImageResource": "game_leos_fortune_w",
+        "footerIconLocalImageResource": "ic_installed"
+      },
+      {
+        "type": "WIDE_SHORT",
+        "title": "Minion Rush",
+        "description": "Purchased",
+        "localImageResource": "game_minion_rush_w",
+        "footerIconLocalImageResource": "ic_installed"
+      },
+      {
+        "type": "WIDE_SHORT",
+        "title": "Monument Valley",
+        "description": "Purchased",
+        "localImageResource": "game_monument_valley_w",
+        "footerIconLocalImageResource": "ic_installed"
+      }
+    ]
+  },
+  {
+    "title": "Wide (Videos)",
+    "cards": [
+      {
+        "type": "DEFAULT",
+        "title": "Marseille sea food tour",
+        "description": "9,089 views   3 years ago   by ADELAIDE",
+        "localImageResource": "coffee_and_tea_01"
+      },
+      {
+        "type": "DEFAULT",
+        "title": "Marseille sea food tour",
+        "description": "9,089 views   3 years ago   by ADELAIDE",
+        "localImageResource": "coffee_and_tea_02"
+      },
+      {
+        "type": "DEFAULT",
+        "title": "Marseille sea food tour",
+        "description": "9,089 views   3 years ago   by ADELAIDE",
+        "localImageResource": "coffee_and_tea_03"
+      },
+      {
+        "type": "DEFAULT",
+        "title": "Marseille sea food tour",
+        "description": "9,089 views   3 years ago   by ADELAIDE",
+        "localImageResource": "coffee_and_tea_04"
+      },
+      {
+        "type": "DEFAULT",
+        "title": "Marseille sea food tour",
+        "description": "9,089 views   3 years ago   by ADELAIDE",
+        "localImageResource": "coffee_and_tea_05"
+      },
+      {
+        "type": "DEFAULT",
+        "title": "Marseille sea food tour",
+        "description": "9,089 views   3 years ago   by ADELAIDE",
+        "localImageResource": "coffee_and_tea_06"
+      },
+      {
+        "type": "DEFAULT",
+        "title": "Marseille sea food tour",
+        "description": "9,089 views   3 years ago   by ADELAIDE",
+        "localImageResource": "coffee_and_tea_07"
+      },
+      {
+        "type": "DEFAULT",
+        "title": "Marseille sea food tour",
+        "description": "9,089 views   3 years ago   by ADELAIDE",
+        "localImageResource": "coffee_and_tea_08"
+      }
+    ]
+  },
+  {
+    "title": "Text",
+    "cards": [
+      {
+        "type": "TEXT",
+        "title": "Jonathan Max",
+        "extraText": "Bacon ipsum dolor amet bresaola kevin tenderloin swine shoulder strip steak t-bone picanha turducken beef. Ribeye turkey t-bone pastrami meatball corned beef. Pork belly landjaeger short ribs ground round cupim, brisket ham tri-tip. Pig pork loin hamburger picanha ribeye, pork belly meatball chicken ham boudin sirloin corned beef frankfurter ham hock.",
+        "localImageResource": "face_01"
+      },
+      {
+        "type": "TEXT",
+        "title": "Jonathan Max",
+        "extraText": "Bacon ipsum dolor amet bresaola kevin tenderloin swine shoulder strip steak t-bone picanha turducken beef. Ribeye turkey t-bone pastrami meatball corned beef. Pork belly landjaeger short ribs ground round cupim, brisket ham tri-tip. Pig pork loin hamburger picanha ribeye, pork belly meatball chicken ham boudin sirloin corned beef frankfurter ham hock.",
+        "localImageResource": "face_02"
+      },
+      {
+        "type": "TEXT",
+        "title": "Jonathan Max",
+        "extraText": "Bacon ipsum dolor amet bresaola kevin tenderloin swine shoulder strip steak t-bone picanha turducken beef. Ribeye turkey t-bone pastrami meatball corned beef. Pork belly landjaeger short ribs ground round cupim, brisket ham tri-tip. Pig pork loin hamburger picanha ribeye, pork belly meatball chicken ham boudin sirloin corned beef frankfurter ham hock.",
+        "localImageResource": "face_03"
+      },
+      {
+        "type": "TEXT",
+        "title": "Jonathan Max",
+        "extraText": "Bacon ipsum dolor amet bresaola kevin tenderloin swine shoulder strip steak t-bone picanha turducken beef. Ribeye turkey t-bone pastrami meatball corned beef. Pork belly landjaeger short ribs ground round cupim, brisket ham tri-tip. Pig pork loin hamburger picanha ribeye, pork belly meatball chicken ham boudin sirloin corned beef frankfurter ham hock.",
+        "localImageResource": "face_04"
+      },
+      {
+        "type": "TEXT",
+        "title": "Jonathan Max",
+        "extraText": "Bacon ipsum dolor amet bresaola kevin tenderloin swine shoulder strip steak t-bone picanha turducken beef. Ribeye turkey t-bone pastrami meatball corned beef. Pork belly landjaeger short ribs ground round cupim, brisket ham tri-tip. Pig pork loin hamburger picanha ribeye, pork belly meatball chicken ham boudin sirloin corned beef frankfurter ham hock.",
+        "localImageResource": "face_05"
+      },
+      {
+        "type": "TEXT",
+        "title": "Jonathan Max",
+        "extraText": "Bacon ipsum dolor amet bresaola kevin tenderloin swine shoulder strip steak t-bone picanha turducken beef. Ribeye turkey t-bone pastrami meatball corned beef. Pork belly landjaeger short ribs ground round cupim, brisket ham tri-tip. Pig pork loin hamburger picanha ribeye, pork belly meatball chicken ham boudin sirloin corned beef frankfurter ham hock.",
+        "localImageResource": "face_06"
+      },
+      {
+        "type": "TEXT",
+        "title": "Jonathan Max",
+        "extraText": "Bacon ipsum dolor amet bresaola kevin tenderloin swine shoulder strip steak t-bone picanha turducken beef. Ribeye turkey t-bone pastrami meatball corned beef. Pork belly landjaeger short ribs ground round cupim, brisket ham tri-tip. Pig pork loin hamburger picanha ribeye, pork belly meatball chicken ham boudin sirloin corned beef frankfurter ham hock.",
+        "localImageResource": "face_07"
+      },
+      {
+        "type": "TEXT",
+        "title": "Jonathan Max",
+        "extraText": "Bacon ipsum dolor amet bresaola kevin tenderloin swine shoulder strip steak t-bone picanha turducken beef. Ribeye turkey t-bone pastrami meatball corned beef. Pork belly landjaeger short ribs ground round cupim, brisket ham tri-tip. Pig pork loin hamburger picanha ribeye, pork belly meatball chicken ham boudin sirloin corned beef frankfurter ham hock.",
+        "localImageResource": "face_08"
+      }
+    ]
+  },
+  {
+    "title": "Launcher",
+    "cards": [
+      {
+        "type": "SIDE_INFO_TEST_1",
+        "title": "Harry Potter",
+        "description": "$3.99",
+        "localImageResource": "coffee_and_tea_01"
+      },
+      {
+        "type": "SIDE_INFO_TEST_1",
+        "title": "Harry Potter",
+        "description": "$3.99",
+        "localImageResource": "coffee_and_tea_02"
+      },
+      {
+        "type": "SIDE_INFO_TEST_1",
+        "title": "Harry Potter",
+        "description": "$3.99",
+        "localImageResource": "coffee_and_tea_03"
+      },
+      {
+        "type": "SIDE_INFO_TEST_1",
+        "title": "Harry Potter",
+        "description": "$3.99",
+        "localImageResource": "coffee_and_tea_04"
+      },
+      {
+        "type": "SIDE_INFO_TEST_1",
+        "title": "Harry Potter",
+        "description": "$3.99",
+        "localImageResource": "coffee_and_tea_05"
+      },
+      {
+        "type": "SIDE_INFO_TEST_1",
+        "title": "Harry Potter",
+        "description": "$3.99",
+        "localImageResource": "coffee_and_tea_06"
+      },
+      {
+        "type": "SIDE_INFO_TEST_1",
+        "title": "Harry Potter",
+        "description": "$3.99",
+        "localImageResource": "coffee_and_tea_07"
+      },
+      {
+        "type": "SIDE_INFO_TEST_1",
+        "title": "Harry Potter",
+        "description": "$3.99",
+        "localImageResource": "coffee_and_tea_08"
+      }
+    ]
+  },
+  {
+    "title": "Single Line",
+    "cards": [
+      {
+        "type": "SQUARE",
+        "title": "Action & Adventure",
+        "footerColor": "#dd004e",
+        "localImageResource": "category_action"
+      },
+      {
+        "type": "SQUARE",
+        "title": "Animation",
+        "footerColor": "#c51162",
+        "localImageResource": "category_animation"
+      },
+      {
+        "type": "SQUARE",
+        "title": "Classics",
+        "footerColor": "#9c27b0",
+        "localImageResource": "category_classics"
+      },
+      {
+        "type": "SQUARE",
+        "title": "Comedy",
+        "footerColor": "#cf4900",
+        "localImageResource": "category_comedy"
+      },
+      {
+        "type": "SQUARE",
+        "title": "Crime",
+        "footerColor": "#3f51b5",
+        "localImageResource": "category_crime"
+      },
+      {
+        "type": "SQUARE",
+        "title": "Documentary",
+        "footerColor": "#02639b",
+        "localImageResource": "category_documentary"
+      },
+      {
+        "type": "SQUARE",
+        "title": "Drama",
+        "footerColor": "#2a56c6",
+        "localImageResource": "category_drama"
+      }
+    ]
+  },
+  {
+    "title": "Icon",
+    "shadow": false,
+    "cards": [
+      {
+        "type": "ICON",
+        "title": "Settings",
+        "localImageResource": "ic_settings_settings"
+      },
+      {
+        "type": "ICON",
+        "title": "WiFi",
+        "localImageResource": "ic_settings_wifi_3_bar"
+      },
+      {
+        "type": "ICON",
+        "title": "Parental Control",
+        "localImageResource": "ic_settings_parental_control"
+      },
+      {
+        "type": "ICON",
+        "title": "Time",
+        "localImageResource": "ic_settings_time"
+      }
+    ]
+  }
+]

@@ -1,0 +1,44 @@
+<manifest
+    package="android.support.v17.leanback.supportleanbackshowcase"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false"/>
+    <uses-feature
+        android:name="android.software.leanback"
+        android:required="true"/>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/app_banner_sample_app"
+        android:label="@string/app_name"
+        android:largeHeap="true"
+        android:theme="@style/Theme.Example.Leanback">
+        <activity
+            android:name=".MainActivity"
+            android:icon="@mipmap/app_banner_sample_app"
+            android:label="@string/app_name"
+            android:logo="@mipmap/app_banner_sample_app"
+            android:screenOrientation="landscape">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".WizardExampleActivity"
+            android:theme="@style/Theme.Example.LeanbackWizard"></activity>
+        <activity
+            android:name=".SettingsExampleActivity"
+            android:theme="@style/Theme.Example.LeanbackPreferences"></activity>
+        <activity
+            android:name=".DialogExampleActivity"
+            android:theme="@style/Theme.Example.LeanbackDialog"></activity>
+    </application>
+
+</manifest>

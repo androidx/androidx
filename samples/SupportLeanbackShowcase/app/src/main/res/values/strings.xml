@@ -1,0 +1,73 @@
+<resources>
+    <string name="app_name">ShowcaseApp</string>
+    <string name="browse_title"><![CDATA[androidTV]]></string>
+    <string name="related_movies">Related Videos</string>
+    <string name="vertical_grid_title"><![CDATA[Vertical Video Grid]]></string>
+    <string name="error">Error</string>
+    <string name="ok">OK</string>
+    <string name="pause">Pause</string>
+    <string name="play">Play</string>
+    <string name="stop">Stop</string>
+    <string name="init_text">00:00</string>
+    <string name="play_pause_description">Play Pause Button</string>
+    <string name="loading">Loading&#8230;</string>
+    <string name="no_video_found">No video was found</string>
+    <string name="about_app">About DemoCast Player</string>
+    <string name="version">Version: %1$s</string>
+    <string name="popular_header">Popular Videos</string>
+    <string name="preferences">PREFERENCES</string>
+    <string name="grid_view">Grid View</string>
+    <string name="error_fragment">Error Fragment</string>
+    <string name="personal_settings">Personal Settings</string>
+    <string name="watch_trailer_1">Watch trailer</string>
+    <string name="watch_trailer_2">FREE</string>
+    <string name="rent_1">Rent By Day</string>
+    <string name="rent_2">From $1.99</string>
+    <string name="buy_1">Buy and Own</string>
+    <string name="buy_2">AT $9.99</string>
+    <string name="movie">Movie</string>
+    <string name="should_start">shouldStart</string>
+    <string name="start_position">startPosition</string>
+    <string name="search_results">Search Results</string>
+
+    <!-- Error messages -->
+    <string name="video_error_media_load_timeout">Media loading timed out</string>
+    <string name="video_error_server_inaccessible">Media server was not reachable</string>
+    <string name="video_error_unknown_error">Failed to load video</string>
+    <string name="error_fragment_message">An error occurred</string>
+    <string name="dismiss_error">Dismiss</string>
+    <string name="oops">Oops</string>
+    <string name="implement_search">Implement your own in-app search.</string>
+    <string name="card_examples_title">Card Examples</string>
+    <string name="detail_view_title">DetailView Example</string>
+    <string name="action_cicked">Action clicked. Implement your own handler.</string>
+    <string name="grid_example_title">Grid Example</string>
+    <string name="action_buy">Buy </string>
+    <string name="action_wishlist">Add to wishlist</string>
+    <string name="action_related">Related</string>
+    <string name="header_related">Related Items</string>
+    <string name="header_recommended">Recommended</string>
+
+    <!-- Dialog example -->
+    <string name="dialog_example_title">Use Google\'s location service?</string>
+    <string name="dialog_example_description">Let Google help apps determine location. This means sending anonymous location data to Google, even when no apps are running.</string>
+    <string name="dialog_example_button_positive">Agree</string>
+    <string name="dialog_example_button_negative">Disagree</string>
+    <string name="dialog_example_button_toast_positive_clicked">\'Agree\' clicked.</string>
+    <string name="dialog_example_button_toast_negative_clicked">\'Disagree\' clicked.</string>
+
+    <!-- Wizard example -->
+    <string name="wizard_example_choose_rent_options">Choose rent options</string>
+    <string name="wizard_example_watch_hd">Watch in HD on supported devices</string>
+    <string name="wizard_example_watch_sd">Watch in standard definition on the web and supported devices</string>
+    <string name="wizard_example_rental_period">Rental period: start within 30 days,\nfinish within 24 hours</string>
+    <string name="wizard_example_payment_method">Payment Method</string>
+    <string name="wizard_example_toast_payment_method_clicked">\'Payment Method\' clicked.</string>
+    <string name="wizard_example_rent">Rent</string>
+    <string name="wizard_example_rent_hd">Rent HD</string>
+    <string name="wizard_example_rent_sd">Rent SD</string>
+    <string name="wizard_example_processing">Processinig...</string>
+    <string name="wizard_example_watch_now">Watch now</string>
+    <string name="wizard_example_later">Later</string>
+    <string name="wizard_example_watch_now_clicked">\'Watch now\' clicked.</string>
+</resources>

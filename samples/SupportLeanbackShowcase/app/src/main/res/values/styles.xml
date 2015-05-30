@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTheme" parent="@style/Theme.Leanback">
+    </style>
+
+    <style name="StandardCardPrimaryText">
+        <item name="android:ellipsize">end</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/card_primary_text</item>
+        <item name="android:lineSpacingMultiplier">1.09</item>
+    </style>
+
+    <style name="StandardCardSecondaryText">
+        <item name="android:ellipsize">end</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/card_secondary_text</item>
+        <item name="android:lineSpacingMultiplier">1.13</item>
+    </style>
+    <style name="ImageCardViewColoredTextStyle" parent="Widget.Leanback.ImageCardViewStyle">
+        <item name="titleStyle">@style/ImageCardViewColoredTitle</item>
+        <item name="infoAreaBackground">#F00</item>
+    </style>
+
+    <style name="WizardActionsContainerStyle" parent="Widget.Leanback.GuidedActionsContainerStyle">
+        <item name="android:background">#C03800</item>
+    </style>
+
+    <style name="DialogActionsContainerStyle" parent="Widget.Leanback.GuidedActionsContainerStyle">
+        <item name="android:background">#263238</item>
+    </style>
+
+    <style name="ImageCardViewColoredTitle" parent="Widget.Leanback.ImageCardView.TitleStyle">
+        <item name="android:textColor">#F0F</item>
+    </style>
+
+</resources>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:summary="This is a dummy activitiy only to show case how to build a settings in an application. Changing configurations in this example doesn't affect anything."
+                  android:title="Settings Example">
+    <PreferenceScreen
+        android:icon="@drawable/ic_settings_wifi_4_bar"
+        android:key="prefs_wifi_screen_key"
+        android:title="Wi-Fi">
+        <PreferenceCategory
+            android:key="prefs_wifi_networks_key"
+            android:title="Available Wi-Fi networks">
+            <ListPreference
+                android:defaultValue="-1"
+                android:title="More Wi-Fi networks"
+                android:key="prefs_wifi_key">
+            </ListPreference>
+        </PreferenceCategory>
+        <PreferenceCategory
+            android:key="prefs_wifi_others_key"
+            android:title="Other options">
+            <Preference android:title="Connect via WPS"><!-- You can use Intents here --></Preference>
+        </PreferenceCategory>
+    </PreferenceScreen>
+    <PreferenceScreen
+        android:icon="@drawable/ic_settings_time"
+        android:key="prefs_date_time_screen_key"
+        android:title="Date &amp; time">
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:disableDependentsState="true"
+            android:key="prefs_date_time_automatic"
+            android:summaryOff="On"
+            android:summaryOn="Off"
+            android:title="Automatic date  &amp; time"></CheckBoxPreference>
+        <Preference
+            android:dependency="prefs_date_time_automatic"
+            android:key="prefs_date"
+            android:summary="01/01/1970"
+            android:title="Date"></Preference>
+        <Preference
+            android:dependency="prefs_date_time_automatic"
+            android:key="prefs_time"
+            android:summary="00:43 PM"
+            android:title="Time"></Preference>
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:disableDependentsState="true"
+            android:key="prefs_date_time_use_timezone"
+            android:summary="Use network provided time zone"
+            android:title="Automatic time zone"></CheckBoxPreference>
+        <Preference
+            android:dependency="prefs_date_time_use_timezone"
+            android:summary="GMT 07:00 Pacific Daylight Time"
+            android:title="Time zone"></Preference>
+    </PreferenceScreen>
+    <PreferenceScreen
+        android:icon="@drawable/ic_settings_parental_control"
+        android:key="prefs_parental_control_screen_key"
+        android:title="Parental Control">
+        <ListPreference
+            android:defaultValue="everyone"
+            android:entries="@array/pref_parent_control_entries"
+            android:entryValues="@array/pref_parent_control_entries_values"
+            android:key="prefs_parental_control_level_key"
+            android:title="Allow contents rated for">
+        </ListPreference>
+    </PreferenceScreen>
+    <PreferenceScreen
+        android:icon="@drawable/ic_settings_apps"
+        android:key="prefs_apps_screen_key"
+        android:title="Apps">
+        <PreferenceCategory
+            android:key="prefs_app_settings_category"
+            android:title="Apps settings">
+            <PreferenceScreen
+                android:key="prefs_app_settings_screen_key"
+                android:summary="Lorem ipsum dolor sit amet consectur adipiscing."
+                android:title="App permissions">
+                <Preference
+                    android:icon="@drawable/face_01"
+                    android:summary="45.5 MB"
+                    android:title="Application A"></Preference>
+                <Preference android:summary="Hier steht ein voelligst sinnfreier Text den ja sowieso niemandhier lesen kann. Deshalb macht es auch keinen Unterschied ob hier sinnvolles und nicht so sinnvolles Zeug steht."></Preference>
+                <Preference android:title="Force Stop"><!-- Start an Intent --></Preference>
+                <Preference android:title="Uninstall"><!-- Start an Intent --></Preference>
+                <Preference android:title="More Information"></Preference>
+            </PreferenceScreen>
+        </PreferenceCategory>
+    </PreferenceScreen>
+</PreferenceScreen>

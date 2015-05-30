@@ -1,0 +1,88 @@
+{
+  "cards": [
+    {
+      "type": "GRID_SQUARE",
+      "title": "Nüsse",
+      "description": "$3.99/lb",
+      "localImageResource": "food_01"
+    },
+    {
+      "type": "GRID_SQUARE",
+      "title": "Undefinierbar",
+      "description": "$3.99/lb",
+      "localImageResource": "food_02"
+    },
+    {
+      "type": "GRID_SQUARE",
+      "title": "Brocoli",
+      "description": "$3.99/lb",
+      "localImageResource": "food_03"
+    },
+    {
+      "type": "GRID_SQUARE",
+      "title": "Salat",
+      "description": "$3.99/lb",
+      "localImageResource": "food_04"
+    },
+    {
+      "type": "GRID_SQUARE",
+      "title": "Große Radischen",
+      "description": "$3.99/lb",
+      "localImageResource": "food_05"
+    },
+    {
+      "type": "GRID_SQUARE",
+      "title": "Rote Zwiebeln",
+      "description": "$3.99/lb",
+      "localImageResource": "food_06"
+    },
+    {
+      "type": "GRID_SQUARE",
+      "title": "Lauch",
+      "description": "$3.99/lb",
+      "localImageResource": "food_07"
+    },
+    {
+      "type": "GRID_SQUARE",
+      "title": "Exotisches Zeugs",
+      "description": "$3.99/lb",
+      "localImageResource": "food_08"
+    },
+    {
+      "type": "GRID_SQUARE",
+      "title": "Zitronen",
+      "description": "$3.99/lb",
+      "localImageResource": "food_09"
+    },
+    {
+      "type": "GRID_SQUARE",
+      "title": "Meerirgendwas",
+      "description": "$3.99/lb",
+      "localImageResource": "food_10"
+    },
+    {
+      "type": "GRID_SQUARE",
+      "title": "Irgendein Kohl",
+      "description": "$3.99/lb",
+      "localImageResource": "food_11"
+    },
+    {
+      "type": "GRID_SQUARE",
+      "title": "Apfel",
+      "description": "$3.99/lb",
+      "localImageResource": "food_12"
+    },
+    {
+      "type": "GRID_SQUARE",
+      "title": "Mehr Äpfel",
+      "description": "$3.99/lb",
+      "localImageResource": "food_13"
+    },
+    {
+      "type": "GRID_SQUARE",
+      "title": "Tomaten",
+      "description": "$3.99/lb",
+      "localImageResource": "food_14"
+    }
+  ]
+}
