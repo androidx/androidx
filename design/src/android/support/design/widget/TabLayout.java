@@ -24,6 +24,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.ColorInt;
 import android.support.annotation.IntDef;
 import android.support.design.R;
 import android.support.v4.view.GravityCompat;
@@ -275,6 +276,24 @@ public class TabLayout extends HorizontalScrollView {
 
         // Now apply the tab mode and gravity
         applyModeAndGravity();
+    }
+
+    /**
+     * Sets the tab indicator's color for the currently selected tab.
+     *
+     * @param color color to use for the indicator
+     */
+    public void setSelectedTabIndicatorColor(@ColorInt int color) {
+        mTabStrip.setSelectedIndicatorColor(color);
+    }
+
+    /**
+     * Sets the tab indicator's height for the currently selected tab.
+     *
+     * @param height height to use for the indicator in pixels
+     */
+    public void setSelectedTabIndicatorHeight(int height) {
+        mTabStrip.setSelectedIndicatorHeight(height);
     }
 
     /**
