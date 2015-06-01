@@ -57,4 +57,9 @@ class AppCompatDelegateImplV23 extends AppCompatDelegateImplV14 {
             return null;
         }
     }
+
+    @Override
+    public void applyDayNight() {
+        // no-op. Let the framework handle DayNight stuff
+    }
 }
