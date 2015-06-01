@@ -22,9 +22,12 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.IntDef;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.WindowCompat;
+import android.support.v7.appcompat.R;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
@@ -32,6 +35,9 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * This class represents a delegate which you can use to extend AppCompat's support to any
@@ -68,6 +74,40 @@ import android.view.Window;
 public abstract class AppCompatDelegate {
 
     static final String TAG = "AppCompatDelegate";
+
+    /**
+     * Mode which means to not use night mode, and therefore not use {@code night} qualified
+     * resources, regardless of the time.
+     *
+     * @see #setNightMode(int)
+     */
+    public static final int MODE_NIGHT_NO = 0;
+
+    /**
+     * Mode which means to always use night mode, and therefore use {@code night} qualified
+     * resources, regardless of the time.
+     *
+     * @see #setNightMode(int)
+     */
+    public static final int MODE_NIGHT_YES = 1;
+
+    /**
+     * Mode which means to use night mode when it is determined that it is night or not..
+     *
+     * <p>The calculation used to determine whether it is night or not makes use of the location
+     * APIs (if this app has the necessary permissions). This allows us to generate accurate
+     * sunrise and sunset times. If this app does not have permission to access the location APIs
+     * then we use hardcoded times which will be less accurate.</p>
+     *
+     * <p>This is the default mode.</p>
+     *
+     * @see #setNightMode(int)
+     */
+    public static final int MODE_NIGHT_AUTO = 2;
+
+    @IntDef({MODE_NIGHT_NO, MODE_NIGHT_YES, MODE_NIGHT_AUTO})
+    @Retention(RetentionPolicy.SOURCE)
+    @interface NightMode {}
 
     /**
      * Flag for enabling the support Action Bar.
@@ -202,7 +242,7 @@ public abstract class AppCompatDelegate {
     /**
      * Should be called instead of {@link Activity#setContentView(int)}}
      */
-    public abstract void setContentView(int resId);
+    public abstract void setContentView(@LayoutRes int resId);
 
     /**
      * Should be called instead of
@@ -305,4 +345,31 @@ public abstract class AppCompatDelegate {
      */
     public abstract boolean isHandleNativeActionModesEnabled();
 
+    /**
+     * Allow AppCompat to apply the {@code night} and {@code notnight} resource qualifiers.
+     *
+     * <p>Doing this enables the
+     * {@link R.style#Theme_AppCompat_DayNight Theme.AppCompat.DayNight}
+     * family of themes to work, using the computed twilight to automatically select a dark or
+     * light theme.</p>
+     *
+     * <p>You can override the night mode using {@link #setNightMode(int)}.</p>
+     *
+     * <p>This only works on devices running
+     * {@link Build.VERSION_CODES#ICE_CREAM_SANDWICH ICE_CREAM_SANDWICH} and above.</p>
+     *
+     * @see #setNightMode(int)
+     */
+    public abstract void applyDayNight();
+
+    /**
+     * Override the night mode used when {@link #applyDayNight()} is called. This method only takes
+     * effect for those situtations where {@link #applyDayNight()} works.
+     *
+     * <p>This needs to be called before {@link #applyDayNight()}. Defaults to
+     * {@link #MODE_NIGHT_AUTO}.</p>
+     *
+     * @see #applyDayNight()
+     */
+    public abstract void setNightMode(@NightMode int mode);
 }
