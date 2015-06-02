@@ -22,7 +22,6 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.appcompat.R;
-import android.support.v7.internal.app.WindowDecorActionBar;
 import android.support.v7.internal.view.SupportMenuInflater;
 import android.support.v7.internal.view.WindowCallbackWrapper;
 import android.support.v7.internal.view.menu.MenuBuilder;
@@ -73,7 +72,7 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
         mWindow.setCallback(wrapWindowCallback(mOriginalWindowCallback));
     }
 
-    abstract ActionBar createSupportActionBar();
+    abstract ActionBar initWindowDecorActionBar();
 
     Window.Callback wrapWindowCallback(Window.Callback callback) {
         return new AppCompatWindowCallbackBase(callback);
@@ -83,15 +82,7 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
     public ActionBar getSupportActionBar() {
         // The Action Bar should be lazily created as hasActionBar
         // could change after onCreate
-        if (mHasActionBar) {
-            if (mActionBar == null) {
-                mActionBar = createSupportActionBar();
-            }
-        } else {
-            if (mActionBar instanceof WindowDecorActionBar) {
-                mActionBar = null;
-            }
-        }
+        mActionBar = initWindowDecorActionBar();
         return mActionBar;
     }
 
@@ -121,17 +112,19 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
                     "You need to use a Theme.AppCompat theme (or descendant) with this activity.");
         }
 
-        if (a.getBoolean(R.styleable.Theme_windowActionBar, false)) {
-            mHasActionBar = true;
+        if (a.getBoolean(R.styleable.Theme_windowNoTitle, false)) {
+            requestWindowFeature(Window.FEATURE_NO_TITLE);
+        } else if (a.getBoolean(R.styleable.Theme_windowActionBar, false)) {
+            // Don't allow an action bar if there is no title.
+            requestWindowFeature(FEATURE_SUPPORT_ACTION_BAR);
         }
         if (a.getBoolean(R.styleable.Theme_windowActionBarOverlay, false)) {
-            mOverlayActionBar = true;
+            requestWindowFeature(FEATURE_SUPPORT_ACTION_BAR_OVERLAY);
         }
         if (a.getBoolean(R.styleable.Theme_windowActionModeOverlay, false)) {
-            mOverlayActionMode = true;
+            requestWindowFeature(FEATURE_ACTION_MODE_OVERLAY);
         }
         mIsFloating = a.getBoolean(R.styleable.Theme_android_windowIsFloating, false);
-        mWindowNoTitle = a.getBoolean(R.styleable.Theme_windowNoTitle, false);
         a.recycle();
     }
 
