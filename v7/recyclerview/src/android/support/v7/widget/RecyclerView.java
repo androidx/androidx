@@ -5684,7 +5684,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * normal layout operation during {@link #onLayoutChildren(Recycler, State)}, the
          * RecyclerView will have enough information to run those animations in a simple
          * way. For example, the default ItemAnimator, {@link DefaultItemAnimator}, will
-         * simple fade views in and out, whether they are actuall added/removed or whether
+         * simply fade views in and out, whether they are actually added/removed or whether
          * they are moved on or off the screen due to other add/remove operations.
          *
          * <p>A LayoutManager wanting a better item animation experience, where items can be
