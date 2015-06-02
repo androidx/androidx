@@ -40,6 +40,7 @@
                 android:id="@+id/message"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:freezesText="true"
                 android:gravity="center"
                 android:text="@string/navigation_1"
                 android:textAppearance="?android:attr/textAppearanceLarge"/>
@@ -50,6 +51,7 @@
             android:id="@+id/navigation"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_gravity="start"/>
+            android:layout_gravity="start"
+            app:menu="@menu/navigation"/>
 
 </android.support.v4.widget.DrawerLayout>

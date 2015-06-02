@@ -67,7 +67,6 @@ public class NavigationViewUsage extends AppCompatActivity {
 
         // Menu
         NavigationView navigation = (NavigationView) findViewById(R.id.navigation);
-        getMenuInflater().inflate(R.menu.navigation, navigation.getMenu());
         navigation.setNavigationItemSelectedListener(mNavigationItemSelectedListener);
         navigation.inflateHeaderView(R.layout.design_navigation_header);
     }
