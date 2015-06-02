@@ -167,8 +167,13 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
     }
 
     @Override
-    public ActionBar createSupportActionBar() {
+    public ActionBar initWindowDecorActionBar() {
         ensureSubDecor();
+
+        if (!mHasActionBar || peekSupportActionBar() != null) {
+            return null;
+        }
+
         ActionBar ab = null;
         if (mOriginalWindowCallback instanceof Activity) {
             ab = new WindowDecorActionBar((Activity) mOriginalWindowCallback, mOverlayActionBar);
@@ -460,6 +465,14 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
 
     @Override
     public boolean requestWindowFeature(int featureId) {
+        if (mWindowNoTitle && featureId == FEATURE_ACTION_BAR) {
+            return false; // Ignore. No title dominates.
+        }
+        if (mHasActionBar && featureId == Window.FEATURE_NO_TITLE) {
+            // Remove the action bar feature if we have no title. No title dominates.
+            mHasActionBar = false;
+        }
+
         switch (featureId) {
             case FEATURE_ACTION_BAR:
                 throwFeatureRequestIfSubDecorInstalled();
