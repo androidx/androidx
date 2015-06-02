@@ -1388,7 +1388,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             // Update the last touch co-ords, taking any scroll offset into account
             mLastTouchX -= mScrollOffset[0];
             mLastTouchY -= mScrollOffset[1];
-            ev.offsetLocation(mScrollOffset[0], mScrollOffset[1]);
+            if (ev != null) {
+                ev.offsetLocation(mScrollOffset[0], mScrollOffset[1]);
+            }
             mNestedOffsets[0] += mScrollOffset[0];
             mNestedOffsets[1] += mScrollOffset[1];
         } else if (ViewCompat.getOverScrollMode(this) != ViewCompat.OVER_SCROLL_NEVER) {
@@ -2286,7 +2288,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
                 if (vScroll != 0 || hScroll != 0) {
                     final float scrollFactor = getScrollFactor();
-                    scrollBy((int) (hScroll * scrollFactor), (int) (vScroll * scrollFactor));
+                    scrollByInternal((int) (hScroll * scrollFactor),
+                            (int) (vScroll * scrollFactor), event);
                 }
             }
         }
