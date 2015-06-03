@@ -19,16 +19,21 @@ package android.support.v4.app;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +42,30 @@ import java.util.Map;
  * introduced after API level 4 in a backwards compatible fashion.
  */
 public class ActivityCompat extends ContextCompat {
+
+    /**
+     * This interface is the contract for receiving the results for permission requests.
+     */
+    public interface OnRequestPermissionsResultCallback {
+
+        /**
+         * Callback for the result from requesting permissions. This method
+         * is invoked for every call on {@link #requestPermissions(android.app.Activity,
+         * String[], int)}
+         *
+         * @param requestCode The request code passed in {@link #requestPermissions(
+         * android.app.Activity, String[], int)}
+         * @param permissions The requested permissions. Never null.
+         * @param grantResults The grant results for the corresponding permissions
+         *     which is either {@link android.content.pm.PackageManager#PERMISSION_GRANTED}
+         *     or {@link android.content.pm.PackageManager#PERMISSION_DENIED}. Never null.
+         *
+         * @see #requestPermissions(android.app.Activity, String[], int)
+         */
+        public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                @NonNull int[] grantResults);
+    }
+
     /**
      * Invalidate the activity's options menu, if able.
      *
@@ -225,6 +254,102 @@ public class ActivityCompat extends ContextCompat {
         if (Build.VERSION.SDK_INT >= 21) {
             ActivityCompat21.startPostponedEnterTransition(activity);
         }
+    }
+
+    /**
+     * Requests permissions to be granted to this application. These permissions
+     * must be requested in your manifest, they should not be granted to your app,
+     * and they should have protection level {@link android.content.pm.PermissionInfo
+     * #PROTECTION_DANGEROUS dangerous}, regardless whether they are declared by
+     * the platform or a third-party app.
+     * <p>
+     * Normal permissions {@link android.content.pm.PermissionInfo#PROTECTION_NORMAL}
+     * are granted at install time if requested in the manifest. Signature permissions
+     * {@link android.content.pm.PermissionInfo#PROTECTION_SIGNATURE} are granted at
+     * install time if requested in the manifest and the signature of your app matches
+     * the signature of the app declaring the permissions.
+     * </p>
+     * <p>
+     * If your app does not have the requested permissions the user will be presented
+     * with UI for accepting them. After the user has accepted or rejected the
+     * requested permissions you will receive a callback reporting whether the
+     * permissions were granted or not. Your activity has to implement {@link
+     * android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback}
+     * and the results of permission requests will be delivered to its {@link
+     * OnRequestPermissionsResultCallback#onRequestPermissionsResult(int, String[],
+     * int[])} method.
+     * </p>
+     * <p>
+     * Note that requesting a permission does not guarantee it will be granted and
+     * your app should be able to run without having this permission.
+     * </p>
+     * <p>
+     * This method may start an activity allowing the user to choose which permissions
+     * to grant and which to reject. Hence, you should be prepared that your activity
+     * may be paused and resumed. Further, granting some permissions may require
+     * a restart of you application. In such a case, the system will recreate the
+     * activity stack before delivering the result to your onRequestPermissionsResult(
+     * int, String[], int[]).
+     * </p>
+     * <p>
+     * When checking whether you have a permission you should use {@link
+     * #checkSelfPermission(android.content.Context, String)}.
+     * </p>
+     *
+     * @param permissions The requested permissions.
+     * @param requestCode Application specific request code to match with a result
+     *    reported to {@link android.support.v4.app.ActivityCompat
+     *    .OnRequestPermissionsResultCallback#requestPermissions(
+     *    android.app.Activity, String[], int)}
+     *
+     * @see #checkSelfPermission(android.content.Context, String)
+     * @see #shouldShowRequestPermissionRationale(android.app.Activity, String)
+     */
+    public static void requestPermissions(final @NonNull Activity activity,
+            final @NonNull String[] permissions, final int requestCode) {
+        // TODO: Change to comparison against API 23 once we have it defined.
+        if (Build.VERSION.CODENAME.equals("MNC") || Build.VERSION.SDK_INT > 22) {
+            ActivityCompatApi23.requestPermissions(activity, permissions, requestCode);
+        } else if (activity instanceof OnRequestPermissionsResultCallback) {
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    final int[] grantResults = new int[permissions.length];
+                    Arrays.fill(grantResults, PackageManager.PERMISSION_GRANTED);
+                    ((OnRequestPermissionsResultCallback) activity).onRequestPermissionsResult(
+                            requestCode, permissions, grantResults);
+                }
+            });
+        }
+    }
+
+    /**
+     * Gets whether you should show UI with rationale for requesting a permission.
+     * You should do this only if you do not have the permission and the context in
+     * which the permission is requested does not clearly communicate to the user
+     * what would be the benefit from granting this permission.
+     * <p>
+     * For example, if you write a camera app, requesting the camera permission
+     * would be expected by the user and no rationale for why it is requested is
+     * needed. If however, the app needs location for tagging photos then a non-tech
+     * savvy user may wonder how location is related to taking photos. In this case
+     * you may choose to show UI with rationale of requesting this permission.
+     * </p>
+     *
+     * @param permission A permission your app wants to request.
+     * @return Whether you can show permission rationale UI.
+     *
+     * @see #checkSelfPermission(android.content.Context, String)
+     * @see #requestPermissions(android.app.Activity, String[], int)
+     */
+    public static boolean shouldShowRequestPermissionRationale(@NonNull Activity activity,
+            @NonNull String permission) {
+        // TODO: Change to comparison against API 23 once we have it defined.
+        if (Build.VERSION.CODENAME.equals("MNC") || Build.VERSION.SDK_INT > 22) {
+            return ActivityCompatApi23.shouldShowRequestPermissionRationale(activity, permission);
+        }
+        return false;
     }
 
     private static ActivityCompat21.SharedElementCallback21 createCallback(
