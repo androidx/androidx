@@ -299,9 +299,8 @@ public class ActivityCompat extends ContextCompat {
      * @param activity The target activity.
      * @param permissions The requested permissions.
      * @param requestCode Application specific request code to match with a result
-     *    reported to {@link android.support.v4.app.ActivityCompat
-     *    .OnRequestPermissionsResultCallback#requestPermissions(
-     *    android.app.Activity, String[], int)}
+     *    reported to {@link OnRequestPermissionsResultCallback
+     *    #onRequestPermissionsResult(int, String[], int[])}.
      *
      * @see #checkSelfPermission(android.content.Context, String)
      * @see #shouldShowRequestPermissionRationale(android.app.Activity, String)
