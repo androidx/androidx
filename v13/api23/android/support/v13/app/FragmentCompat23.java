@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package android.support.v4.app;
+package android.support.v13.app;
 
-import android.app.Activity;
+import android.app.Fragment;
 
-class ActivityCompatApi23 {
-
-    public static void requestPermissions(Activity activity, String[] permissions,
+class FragmentCompat23 {
+    public static void requestPermissions(Fragment fragment, String[] permissions,
             int requestCode) {
-        activity.requestPermissions(permissions, requestCode);
+        fragment.requestPermissions(permissions, requestCode);
     }
 
-    public static boolean shouldShowRequestPermissionRationale(Activity activity,
+    public static boolean shouldShowRequestPermissionRationale(Fragment fragment,
             String permission) {
-        return activity.shouldShowRequestPermissionRationale(permission);
+        return fragment.shouldShowRequestPermissionRationale(permission);
     }
 }

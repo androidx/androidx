@@ -276,8 +276,8 @@ public class ActivityCompat extends ContextCompat {
      * permissions were granted or not. Your activity has to implement {@link
      * android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback}
      * and the results of permission requests will be delivered to its {@link
-     * OnRequestPermissionsResultCallback#onRequestPermissionsResult(int, String[],
-     * int[])} method.
+     * android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback#
+     * onRequestPermissionsResult(int, String[], int[])} method.
      * </p>
      * <p>
      * Note that requesting a permission does not guarantee it will be granted and
@@ -296,6 +296,7 @@ public class ActivityCompat extends ContextCompat {
      * #checkSelfPermission(android.content.Context, String)}.
      * </p>
      *
+     * @param activity The target activity.
      * @param permissions The requested permissions.
      * @param requestCode Application specific request code to match with a result
      *    reported to {@link android.support.v4.app.ActivityCompat
@@ -337,6 +338,7 @@ public class ActivityCompat extends ContextCompat {
      * you may choose to show UI with rationale of requesting this permission.
      * </p>
      *
+     * @param activity The target activity.
      * @param permission A permission your app wants to request.
      * @return Whether you can show permission rationale UI.
      *
