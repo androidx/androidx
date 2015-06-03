@@ -24,7 +24,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.StatFs;
+import android.os.Process;
+import android.support.annotation.NonNull;
 import android.support.v4.os.EnvironmentCompat;
 import android.util.Log;
 
@@ -96,7 +97,7 @@ public class ContextCompat {
      * @param intents Array of intents defining the activities that will be started. The element
      *                length-1 will correspond to the top activity on the resulting task stack.
      * @param options Additional options for how the Activity should be started.
-     * See {@link android.content.Context#startActivity(Intent, Bundle)
+     * See {@link android.content.Context#startActivity(Intent, android.os.Bundle)
      * @return true if the underlying API was available and the call was successful, false otherwise
      */
     public static boolean startActivities(Context context, Intent[] intents,
@@ -134,7 +135,7 @@ public class ContextCompat {
      * <p>
      * An application may store data on any or all of the returned devices. For
      * example, an app may choose to store large files on the device with the
-     * most available space, as measured by {@link StatFs}.
+     * most available space, as measured by {@link android.os.StatFs}.
      * <p>
      * Starting in {@link android.os.Build.VERSION_CODES#KITKAT}, no permissions
      * are required to write to the returned paths; they're always accessible to
@@ -193,7 +194,7 @@ public class ContextCompat {
      * <p>
      * An application may store data on any or all of the returned devices. For
      * example, an app may choose to store large files on the device with the
-     * most available space, as measured by {@link StatFs}.
+     * most available space, as measured by {@link android.os.StatFs}.
      * <p>
      * Starting in {@link android.os.Build.VERSION_CODES#KITKAT}, no permissions
      * are required to write to the returned paths; they're always accessible to
@@ -253,7 +254,7 @@ public class ContextCompat {
      * <p>
      * An application may store data on any or all of the returned devices. For
      * example, an app may choose to store large files on the device with the
-     * most available space, as measured by {@link StatFs}.
+     * most available space, as measured by {@link android.os.StatFs}.
      * <p>
      * Starting in {@link android.os.Build.VERSION_CODES#KITKAT}, no permissions
      * are required to write to the returned paths; they're always accessible to
@@ -366,6 +367,24 @@ public class ContextCompat {
         } else {
             return context.getResources().getColor(id);
         }
+    }
+
+    /**
+     * Determine whether <em>you</em> have been granted a particular permission.
+     *
+     * @param permission The name of the permission being checked.
+     *
+     * @return {@link android.content.pm.PackageManager#PERMISSION_GRANTED} if you have the
+     * permission, or {@link android.content.pm.PackageManager#PERMISSION_DENIED} if not.
+     *
+     * @see android.content.pm.PackageManager#checkPermission(String, String)
+     */
+    public static int checkSelfPermission(@NonNull Context context, @NonNull String permission) {
+        if (permission == null) {
+            throw new IllegalArgumentException("permission is null");
+        }
+
+        return context.checkPermission(permission, android.os.Process.myPid(), Process.myUid());
     }
 
     /**
