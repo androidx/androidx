@@ -255,12 +255,12 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
 
         @Override
         public boolean dispatchKeyEvent(KeyEvent event) {
-            if (super.dispatchKeyEvent(event)) {
-                // First, let the wrapped Callback attempt to handle it
+            if (AppCompatDelegateImplBase.this.dispatchKeyEvent(event)) {
+                // First, let us attempt to handle it
                 return true;
             }
-            // If we reach here, we can now try
-            return AppCompatDelegateImplBase.this.dispatchKeyEvent(event);
+            // If we reach here, let the wrapped Callback attempt to handle it
+            return super.dispatchKeyEvent(event);
         }
 
         @Override
