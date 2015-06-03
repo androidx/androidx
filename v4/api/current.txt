@@ -1111,11 +1111,13 @@ package android.support.v4.graphics.drawable {
 
   public class DrawableCompat {
     ctor public DrawableCompat();
+    method public static int getLayoutDirection(android.graphics.drawable.Drawable);
     method public static boolean isAutoMirrored(android.graphics.drawable.Drawable);
     method public static void jumpToCurrentState(android.graphics.drawable.Drawable);
     method public static void setAutoMirrored(android.graphics.drawable.Drawable, boolean);
     method public static void setHotspot(android.graphics.drawable.Drawable, float, float);
     method public static void setHotspotBounds(android.graphics.drawable.Drawable, int, int, int, int);
+    method public static void setLayoutDirection(android.graphics.drawable.Drawable, int);
     method public static void setTint(android.graphics.drawable.Drawable, int);
     method public static void setTintList(android.graphics.drawable.Drawable, android.content.res.ColorStateList);
     method public static void setTintMode(android.graphics.drawable.Drawable, android.graphics.PorterDuff.Mode);
@@ -2979,6 +2981,7 @@ package android.support.v4.widget {
     method public void closeDrawer(android.view.View);
     method public void closeDrawer(int);
     method public void closeDrawers();
+    method public float getDrawerElevation();
     method public int getDrawerLockMode(int);
     method public int getDrawerLockMode(android.view.View);
     method public java.lang.CharSequence getDrawerTitle(int);
@@ -2991,6 +2994,7 @@ package android.support.v4.widget {
     method protected void onLayout(boolean, int, int, int, int);
     method public void openDrawer(android.view.View);
     method public void openDrawer(int);
+    method public void setDrawerElevation(float);
     method public void setDrawerListener(android.support.v4.widget.DrawerLayout.DrawerListener);
     method public void setDrawerLockMode(int);
     method public void setDrawerLockMode(int, int);
