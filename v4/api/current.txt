@@ -91,11 +91,17 @@ package android.support.v4.app {
     method public android.net.Uri getReferrer(android.app.Activity);
     method public static boolean invalidateOptionsMenu(android.app.Activity);
     method public static void postponeEnterTransition(android.app.Activity);
+    method public static void requestPermissions(android.app.Activity, java.lang.String[], int);
     method public static void setEnterSharedElementCallback(android.app.Activity, android.support.v4.app.SharedElementCallback);
     method public static void setExitSharedElementCallback(android.app.Activity, android.support.v4.app.SharedElementCallback);
+    method public static boolean shouldShowRequestPermissionRationale(android.app.Activity, java.lang.String);
     method public static void startActivity(android.app.Activity, android.content.Intent, android.os.Bundle);
     method public static void startActivityForResult(android.app.Activity, android.content.Intent, int, android.os.Bundle);
     method public static void startPostponedEnterTransition(android.app.Activity);
+  }
+
+  public static abstract interface ActivityCompat.OnRequestPermissionsResultCallback {
+    method public abstract void onRequestPermissionsResult(int, java.lang.String[], int[]);
   }
 
   public final class ActivityManagerCompat {
@@ -934,6 +940,7 @@ package android.support.v4.content {
 
   public class ContextCompat {
     ctor public ContextCompat();
+    method public static int checkSelfPermission(android.content.Context, java.lang.String);
     method public final java.io.File getCodeCacheDir(android.content.Context);
     method public static final int getColor(android.content.Context, int);
     method public static final android.content.res.ColorStateList getColorStateList(android.content.Context, int);
