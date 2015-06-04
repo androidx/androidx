@@ -7387,7 +7387,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         void onInitializeAccessibilityNodeInfoForItem(View host, AccessibilityNodeInfoCompat info) {
             final ViewHolder vh = getChildViewHolderInt(host);
             // avoid trying to create accessibility node info for removed children
-            if (vh != null && !vh.isRemoved()) {
+            if (vh != null && !vh.isRemoved() && !mChildHelper.isHidden(vh.itemView)) {
                 onInitializeAccessibilityNodeInfoForItem(mRecyclerView.mRecycler,
                         mRecyclerView.mState, host, info);
             }
