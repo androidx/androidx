@@ -1195,8 +1195,11 @@ final class BackStackRecord extends FragmentTransaction implements
         ArrayList<View> enteringViews = new ArrayList<View>();
         ArrayMap<String, View> renamedViews = new ArrayMap<String, View>();
 
-        boolean allowOverlap = isBack ? inFragment.getAllowReturnTransitionOverlap() :
-                inFragment.getAllowEnterTransitionOverlap();
+        boolean allowOverlap = true;
+        if (inFragment != null) {
+            allowOverlap = isBack ? inFragment.getAllowReturnTransitionOverlap() :
+                    inFragment.getAllowEnterTransitionOverlap();
+        }
         Object transition = FragmentTransitionCompat21.mergeTransitions(enterTransition,
                 exitTransition, sharedElementTransition, allowOverlap);
 
