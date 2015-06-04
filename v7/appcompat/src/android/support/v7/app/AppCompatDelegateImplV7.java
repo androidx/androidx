@@ -755,8 +755,10 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
     boolean onKeyUp(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_MENU:
-                onKeyUpPanel(Window.FEATURE_OPTIONS_PANEL, event);
-                return true;
+                if (onKeyUpPanel(Window.FEATURE_OPTIONS_PANEL, event)) {
+                    return true;
+                }
+                break;
             case KeyEvent.KEYCODE_BACK:
                 PanelFeatureState st = getPanelState(Window.FEATURE_OPTIONS_PANEL, false);
                 if (st != null && st.isOpen) {
@@ -774,8 +776,10 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
     boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_MENU:
-                onKeyDownPanel(Window.FEATURE_OPTIONS_PANEL, event);
-                return true;
+                if (onKeyDownPanel(Window.FEATURE_OPTIONS_PANEL, event)) {
+                    return true;
+                }
+                break;
         }
 
         // On API v7-10 we need to manually call onKeyShortcut() as this is not called
@@ -1233,33 +1237,30 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
         return false;
     }
 
-    private void onKeyUpPanel(int featureId, KeyEvent event) {
+    private boolean onKeyUpPanel(int featureId, KeyEvent event) {
         if (mActionMode != null) {
-            return;
+            return false;
         }
 
-        boolean playSoundEffect = false;
+        boolean handled = false;
         final PanelFeatureState st = getPanelState(featureId, true);
         if (featureId == FEATURE_OPTIONS_PANEL && mDecorContentParent != null &&
                 mDecorContentParent.canShowOverflowMenu() &&
                 !ViewConfigurationCompat.hasPermanentMenuKey(ViewConfiguration.get(mContext))) {
             if (!mDecorContentParent.isOverflowMenuShowing()) {
                 if (!isDestroyed() && preparePanel(st, event)) {
-                    playSoundEffect = mDecorContentParent.showOverflowMenu();
+                    handled = mDecorContentParent.showOverflowMenu();
                 }
             } else {
-                playSoundEffect = mDecorContentParent.hideOverflowMenu();
+                handled = mDecorContentParent.hideOverflowMenu();
             }
         } else {
             if (st.isOpen || st.isHandled) {
-
                 // Play the sound effect if the user closed an open menu (and not if
                 // they just released a menu shortcut)
-                playSoundEffect = st.isOpen;
-
+                handled = st.isOpen;
                 // Close menu
                 closePanel(st, true);
-
             } else if (st.isPrepared) {
                 boolean show = true;
                 if (st.refreshMenuContent) {
@@ -1272,13 +1273,12 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
                 if (show) {
                     // Show menu
                     openPanel(st, event);
-
-                    playSoundEffect = true;
+                    handled = true;
                 }
             }
         }
 
-        if (playSoundEffect) {
+        if (handled) {
             AudioManager audioManager = (AudioManager) mContext.getSystemService(
                     Context.AUDIO_SERVICE);
             if (audioManager != null) {
@@ -1287,6 +1287,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
                 Log.w(TAG, "Couldn't get audio manager");
             }
         }
+        return handled;
     }
 
     private void callOnPanelClosed(int featureId, PanelFeatureState panel, Menu menu) {
