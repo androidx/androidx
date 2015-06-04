@@ -157,10 +157,10 @@ public class FragmentCompat {
      * with UI for accepting them. After the user has accepted or rejected the
      * requested permissions you will receive a callback reporting whether the
      * permissions were granted or not. Your fragment has to implement {@link
-     * android.support.v13.app.FragmentCompat.OnRequestPermissionsResultCallback}
+     * OnRequestPermissionsResultCallback}
      * and the results of permission requests will be delivered to its
-     * {@link android.support.v13.app.FragmentCompat.OnRequestPermissionsResultCallback#
-     * onRequestPermissionsResult(int, String[], int[])} method.
+     * {@link OnRequestPermissionsResultCallback#onRequestPermissionsResult(
+     * int, String[], int[])}.
      * </p>
      * <p>
      * Note that requesting a permission does not guarantee it will be granted and
@@ -183,8 +183,8 @@ public class FragmentCompat {
      * @param fragment The target fragment.
      * @param permissions The requested permissions.
      * @param requestCode Application specific request code to match with a result
-     *    reported to {@link OnRequestPermissionsResultCallback
-     *    #onRequestPermissionsResult(int, String[], int[])}.
+     *    reported to {@link OnRequestPermissionsResultCallback#onRequestPermissionsResult(
+     *    int, String[], int[])}.
      *
      * @see android.support.v4.content.ContextCompat#checkSelfPermission(
      *     android.content.Context, String)
