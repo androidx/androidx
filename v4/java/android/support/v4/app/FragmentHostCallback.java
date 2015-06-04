@@ -180,7 +180,6 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
     }
 
     void onAttachFragment(Fragment fragment) {
-        fragment.onAttach(mContext);
     }
 
     void doLoaderStart() {
