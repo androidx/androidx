@@ -338,14 +338,17 @@ package android.support.v7.widget {
     method public final boolean hasStableIds();
     method public final void notifyDataSetChanged();
     method public final void notifyItemChanged(int);
+    method public final void notifyItemChanged(int, java.lang.Object);
     method public final void notifyItemInserted(int);
     method public final void notifyItemMoved(int, int);
     method public final void notifyItemRangeChanged(int, int);
+    method public final void notifyItemRangeChanged(int, int, java.lang.Object);
     method public final void notifyItemRangeInserted(int, int);
     method public final void notifyItemRangeRemoved(int, int);
     method public final void notifyItemRemoved(int);
     method public void onAttachedToRecyclerView(android.support.v7.widget.RecyclerView);
     method public abstract void onBindViewHolder(VH, int);
+    method public void onBindViewHolder(VH, int, java.util.List<java.lang.Object>);
     method public abstract VH onCreateViewHolder(android.view.ViewGroup, int);
     method public void onDetachedFromRecyclerView(android.support.v7.widget.RecyclerView);
     method public boolean onFailedToRecycleView(VH);
@@ -361,6 +364,7 @@ package android.support.v7.widget {
     ctor public RecyclerView.AdapterDataObserver();
     method public void onChanged();
     method public void onItemRangeChanged(int, int);
+    method public void onItemRangeChanged(int, int, java.lang.Object);
     method public void onItemRangeInserted(int, int);
     method public void onItemRangeMoved(int, int, int);
     method public void onItemRangeRemoved(int, int);
@@ -517,6 +521,7 @@ package android.support.v7.widget {
     method public void onItemsMoved(android.support.v7.widget.RecyclerView, int, int, int);
     method public void onItemsRemoved(android.support.v7.widget.RecyclerView, int, int);
     method public void onItemsUpdated(android.support.v7.widget.RecyclerView, int, int);
+    method public void onItemsUpdated(android.support.v7.widget.RecyclerView, int, int, java.lang.Object);
     method public void onLayoutChildren(android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State);
     method public void onMeasure(android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State, int, int);
     method public deprecated boolean onRequestChildFocus(android.support.v7.widget.RecyclerView, android.view.View, android.view.View);

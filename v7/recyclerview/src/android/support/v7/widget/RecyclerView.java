@@ -643,8 +643,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             }
 
             @Override
-            public void markViewHoldersUpdated(int positionStart, int itemCount) {
-                viewRangeUpdate(positionStart, itemCount);
+            public void markViewHoldersUpdated(int positionStart, int itemCount, Object payload) {
+                viewRangeUpdate(positionStart, itemCount, payload);
                 mItemsChanged = true;
             }
 
@@ -662,7 +662,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                         mLayout.onItemsRemoved(RecyclerView.this, op.positionStart, op.itemCount);
                         break;
                     case UpdateOp.UPDATE:
-                        mLayout.onItemsUpdated(RecyclerView.this, op.positionStart, op.itemCount);
+                        mLayout.onItemsUpdated(RecyclerView.this, op.positionStart, op.itemCount,
+                                op.payload);
                         break;
                     case UpdateOp.MOVE:
                         mLayout.onItemsMoved(RecyclerView.this, op.positionStart, op.itemCount, 1);
@@ -3264,7 +3265,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * @param positionStart Adapter position to start at
      * @param itemCount Number of views that must explicitly be rebound
      */
-    void viewRangeUpdate(int positionStart, int itemCount) {
+    void viewRangeUpdate(int positionStart, int itemCount, Object payload) {
         final int childCount = mChildHelper.getUnfilteredChildCount();
         final int positionEnd = positionStart + itemCount;
 
@@ -3278,6 +3279,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 // We re-bind these view holders after pre-processing is complete so that
                 // ViewHolders have their final positions assigned.
                 holder.addFlags(ViewHolder.FLAG_UPDATE);
+                holder.addChangePayload(payload);
                 if (supportsChangeAnimations()) {
                     holder.addFlags(ViewHolder.FLAG_CHANGED);
                 }
@@ -3990,9 +3992,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
 
         @Override
-        public void onItemRangeChanged(int positionStart, int itemCount) {
+        public void onItemRangeChanged(int positionStart, int itemCount, Object payload) {
             assertNotInLayoutOrScroll(null);
-            if (mAdapterHelper.onItemRangeChanged(positionStart, itemCount)) {
+            if (mAdapterHelper.onItemRangeChanged(positionStart, itemCount, payload)) {
                 triggerUpdateProcessor();
             }
         }
@@ -4989,6 +4991,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     final ViewHolder holder = mCachedViews.get(i);
                     if (holder != null) {
                         holder.addFlags(ViewHolder.FLAG_UPDATE | ViewHolder.FLAG_INVALID);
+                        holder.addChangePayload(null);
                     }
                 }
             } else {
@@ -5080,9 +5083,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * layout file.
          * <p>
          * The new ViewHolder will be used to display items of the adapter using
-         * {@link #onBindViewHolder(ViewHolder, int)}. Since it will be re-used to display different
-         * items in the data set, it is a good idea to cache references to sub views of the View to
-         * avoid unnecessary {@link View#findViewById(int)} calls.
+         * {@link #onBindViewHolder(ViewHolder, int, List)}. Since it will be re-used to display
+         * different items in the data set, it is a good idea to cache references to sub views of
+         * the View to avoid unnecessary {@link View#findViewById(int)} calls.
          *
          * @param parent The ViewGroup into which the new View will be added after it is bound to
          *               an adapter position.
@@ -5095,23 +5098,59 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         public abstract VH onCreateViewHolder(ViewGroup parent, int viewType);
 
         /**
+         * Called by RecyclerView to display the data at the specified position. This method should
+         * update the contents of the {@link ViewHolder#itemView} to reflect the item at the given
+         * position.
+         * <p>
+         * Note that unlike {@link android.widget.ListView}, RecyclerView will not call this method
+         * again if the position of the item changes in the data set unless the item itself is
+         * invalidated or the new position cannot be determined. For this reason, you should only
+         * use the <code>position</code> parameter while acquiring the related data item inside
+         * this method and should not keep a copy of it. If you need the position of an item later
+         * on (e.g. in a click listener), use {@link ViewHolder#getAdapterPosition()} which will
+         * have the updated adapter position.
+         *
+         * Override {@link #onBindViewHolder(ViewHolder, int, List)} instead if Adapter can
+         * handle effcient partial bind.
+         *
+         * @param holder The ViewHolder which should be updated to represent the contents of the
+         *        item at the given position in the data set.
+         * @param position The position of the item within the adapter's data set.
+         */
+        public abstract void onBindViewHolder(VH holder, int position);
+
+        /**
          * Called by RecyclerView to display the data at the specified position. This method
          * should update the contents of the {@link ViewHolder#itemView} to reflect the item at
          * the given position.
          * <p>
-         * Note that unlike {@link android.widget.ListView}, RecyclerView will not call this
-         * method again if the position of the item changes in the data set unless the item itself
-         * is invalidated or the new position cannot be determined. For this reason, you should only
-         * use the <code>position</code> parameter while acquiring the related data item inside this
-         * method and should not keep a copy of it. If you need the position of an item later on
-         * (e.g. in a click listener), use {@link ViewHolder#getAdapterPosition()} which will have
-         * the updated adapter position.
+         * Note that unlike {@link android.widget.ListView}, RecyclerView will not call this method
+         * again if the position of the item changes in the data set unless the item itself is
+         * invalidated or the new position cannot be determined. For this reason, you should only
+         * use the <code>position</code> parameter while acquiring the related data item inside
+         * this method and should not keep a copy of it. If you need the position of an item later
+         * on (e.g. in a click listener), use {@link ViewHolder#getAdapterPosition()} which will
+         * have the updated adapter position.
+         * <p>
+         * Partial bind vs full bind:
+         * <p>
+         * The payloads parameter is a merge list from {@link #notifyItemChanged(int, Object)} or
+         * {@link #notifyItemRangeChanged(int, int, Object)}.  If the payloads list is not empty,
+         * the ViewHolder is currently bound to old data and Adapter may run an efficient partial
+         * update using the payload info.  If the payload is empty,  Adapter must run a full bind.
+         * Adapter should not assume that the payload passed in notify methods will be received by
+         * onBindViewHolder().  For example when the view is not attached to the screen, the
+         * payload in notifyItemChange() will be simply dropped.
          *
          * @param holder The ViewHolder which should be updated to represent the contents of the
          *               item at the given position in the data set.
          * @param position The position of the item within the adapter's data set.
+         * @param payloads A non-null list of merged payloads. Can be empty list if requires full
+         *                 update.
          */
-        public abstract void onBindViewHolder(VH holder, int position);
+        public void onBindViewHolder(VH holder, int position, List<Object> payloads) {
+            onBindViewHolder(holder, position);
+        }
 
         /**
          * This method calls {@link #onCreateViewHolder(ViewGroup, int)} to create a new
@@ -5143,7 +5182,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     ViewHolder.FLAG_BOUND | ViewHolder.FLAG_UPDATE | ViewHolder.FLAG_INVALID
                             | ViewHolder.FLAG_ADAPTER_POSITION_UNKNOWN);
             TraceCompat.beginSection(TRACE_BIND_VIEW_TAG);
-            onBindViewHolder(holder, position);
+            onBindViewHolder(holder, position, holder.getUnmodifiedPayloads());
+            holder.clearPayload();
             TraceCompat.endSection();
         }
 
@@ -5390,6 +5430,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
         /**
          * Notify any registered observers that the item at <code>position</code> has changed.
+         * Equivalent to calling <code>notifyItemChanged(position, null);</code>.
          *
          * <p>This is an item change event, not a structural change event. It indicates that any
          * reflection of the data at <code>position</code> is out of date and should be updated.
@@ -5404,8 +5445,37 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
 
         /**
+         * Notify any registered observers that the item at <code>position</code> has changed with an
+         * optional payload object.
+         *
+         * <p>This is an item change event, not a structural change event. It indicates that any
+         * reflection of the data at <code>position</code> is out of date and should be updated.
+         * The item at <code>position</code> retains the same identity.
+         * </p>
+         *
+         * <p>
+         * Client can optionally pass a payload for partial change. These payloads will be merged
+         * and may be passed to adapter's {@link #onBindViewHolder(ViewHolder, int, List)} if the
+         * item is already represented by a ViewHolder and it will be rebound to the same
+         * ViewHolder. A notifyItemRangeChanged() with null payload will clear all existing
+         * payloads on that item and prevent future payload until
+         * {@link #onBindViewHolder(ViewHolder, int, List)} is called. Adapter should not assume
+         * that the payload will always be passed to onBindViewHolder(), e.g. when the view is not
+         * attached, the payload will be simply dropped.
+         *
+         * @param position Position of the item that has changed
+         * @param payload Optional parameter, use null to identify a "full" update
+         *
+         * @see #notifyItemRangeChanged(int, int)
+         */
+        public final void notifyItemChanged(int position, Object payload) {
+            mObservable.notifyItemRangeChanged(position, 1, payload);
+        }
+
+        /**
          * Notify any registered observers that the <code>itemCount</code> items starting at
          * position <code>positionStart</code> have changed.
+         * Equivalent to calling <code>notifyItemRangeChanged(position, itemCount, null);</code>.
          *
          * <p>This is an item change event, not a structural change event. It indicates that
          * any reflection of the data in the given position range is out of date and should
@@ -5418,6 +5488,36 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          */
         public final void notifyItemRangeChanged(int positionStart, int itemCount) {
             mObservable.notifyItemRangeChanged(positionStart, itemCount);
+        }
+
+        /**
+         * Notify any registered observers that the <code>itemCount</code> items starting at
+         * position<code>positionStart</code> have changed. An optional payload can be
+         * passed to each changed item.
+         *
+         * <p>This is an item change event, not a structural change event. It indicates that any
+         * reflection of the data in the given position range is out of date and should be updated.
+         * The items in the given range retain the same identity.
+         * </p>
+         *
+         * <p>
+         * Client can optionally pass a payload for partial change. These payloads will be merged
+         * and may be passed to adapter's {@link #onBindViewHolder(ViewHolder, int, List)} if the
+         * item is already represented by a ViewHolder and it will be rebound to the same
+         * ViewHolder. A notifyItemRangeChanged() with null payload will clear all existing
+         * payloads on that item and prevent future payload until
+         * {@link #onBindViewHolder(ViewHolder, int, List)} is called. Adapter should not assume
+         * that the payload will always be passed to onBindViewHolder(), e.g. when the view is not
+         * attached, the payload will be simply dropped.
+         *
+         * @param positionStart Position of the first item that has changed
+         * @param itemCount Number of items that have changed
+         * @param payload  Optional parameter, use null to identify a "full" update
+         *
+         * @see #notifyItemChanged(int)
+         */
+        public final void notifyItemRangeChanged(int positionStart, int itemCount, Object payload) {
+            mObservable.notifyItemRangeChanged(positionStart, itemCount, payload);
         }
 
         /**
@@ -7154,12 +7254,28 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
         /**
          * Called when items have been changed in the adapter.
+         * To receive payload,  override {@link #onItemsUpdated(RecyclerView, int, int, Object)}
+         * instead, then this callback will not be invoked.
          *
          * @param recyclerView
          * @param positionStart
          * @param itemCount
          */
         public void onItemsUpdated(RecyclerView recyclerView, int positionStart, int itemCount) {
+        }
+
+        /**
+         * Called when items have been changed in the adapter and with optional payload.
+         * Default implementation calls {@link #onItemsUpdated(RecyclerView, int, int)}.
+         *
+         * @param recyclerView
+         * @param positionStart
+         * @param itemCount
+         * @param payload
+         */
+        public void onItemsUpdated(RecyclerView recyclerView, int positionStart, int itemCount,
+                Object payload) {
+            onItemsUpdated(recyclerView, positionStart, itemCount);
         }
 
         /**
@@ -8020,7 +8136,17 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          */
         static final int FLAG_ADAPTER_POSITION_UNKNOWN = 1 << 9;
 
+        /**
+         * Set when a addChangePayload(null) is called
+         */
+        static final int FLAG_ADAPTER_FULLUPDATE = 1 << 10;
+
         private int mFlags;
+
+        private static final List<Object> FULLUPDATE_PAYLOADS = Collections.EMPTY_LIST;
+
+        List<Object> mPayloads = null;
+        List<Object> mUnmodifiedPayloads = null;
 
         private int mIsRecyclableCount = 0;
 
@@ -8246,6 +8372,43 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             mFlags |= flags;
         }
 
+        void addChangePayload(Object payload) {
+            if (payload == null) {
+                addFlags(FLAG_ADAPTER_FULLUPDATE);
+            } else if ((mFlags & FLAG_ADAPTER_FULLUPDATE) == 0) {
+                createPayloadsIfNeeded();
+                mPayloads.add(payload);
+            }
+        }
+
+        private void createPayloadsIfNeeded() {
+            if (mPayloads == null) {
+                mPayloads = new ArrayList<Object>();
+                mUnmodifiedPayloads = Collections.unmodifiableList(mPayloads);
+            }
+        }
+
+        void clearPayload() {
+            if (mPayloads != null) {
+                mPayloads.clear();
+            }
+            mFlags = mFlags & ~FLAG_ADAPTER_FULLUPDATE;
+        }
+
+        List<Object> getUnmodifiedPayloads() {
+            if ((mFlags & FLAG_ADAPTER_FULLUPDATE) == 0) {
+                if (mPayloads == null || mPayloads.size() == 0) {
+                    // Initial state,  no update being called.
+                    return FULLUPDATE_PAYLOADS;
+                }
+                // there are none-null payloads
+                return mUnmodifiedPayloads;
+            } else {
+                // a full update has been called.
+                return FULLUPDATE_PAYLOADS;
+            }
+        }
+
         void resetInternal() {
             mFlags = 0;
             mPosition = NO_POSITION;
@@ -8255,6 +8418,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             mIsRecyclableCount = 0;
             mShadowedHolder = null;
             mShadowingHolder = null;
+            clearPayload();
         }
 
         @Override
@@ -8512,6 +8676,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
         public void onItemRangeChanged(int positionStart, int itemCount) {
             // do nothing
+        }
+
+        public void onItemRangeChanged(int positionStart, int itemCount, Object payload) {
+            // fallback to onItemRangeChanged(positionStart, itemCount) if app
+            // does not override this method.
+            onItemRangeChanged(positionStart, itemCount);
         }
 
         public void onItemRangeInserted(int positionStart, int itemCount) {
@@ -8957,12 +9127,16 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
 
         public void notifyItemRangeChanged(int positionStart, int itemCount) {
+            notifyItemRangeChanged(positionStart, itemCount, null);
+        }
+
+        public void notifyItemRangeChanged(int positionStart, int itemCount, Object payload) {
             // since onItemRangeChanged() is implemented by the app, it could do anything, including
             // removing itself from {@link mObservers} - and that could cause problems if
             // an iterator is used on the ArrayList {@link mObservers}.
             // to avoid such problems, just march thru the list in the reverse order.
             for (int i = mObservers.size() - 1; i >= 0; i--) {
-                mObservers.get(i).onItemRangeChanged(positionStart, itemCount);
+                mObservers.get(i).onItemRangeChanged(positionStart, itemCount, payload);
             }
         }
 
