@@ -183,9 +183,8 @@ public class FragmentCompat {
      * @param fragment The target fragment.
      * @param permissions The requested permissions.
      * @param requestCode Application specific request code to match with a result
-     *    reported to {@link android.support.v13.app.FragmentCompat
-     *    .OnRequestPermissionsResultCallback#requestPermissions(
-     *    android.app.Activity, String[], int)}
+     *    reported to {@link OnRequestPermissionsResultCallback
+     *    #onRequestPermissionsResult(int, String[], int[])}.
      *
      * @see android.support.v4.content.ContextCompat#checkSelfPermission(
      *     android.content.Context, String)
