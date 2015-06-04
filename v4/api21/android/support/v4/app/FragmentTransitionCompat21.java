@@ -16,14 +16,10 @@
 
 package android.support.v4.app;
 
-import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.transition.Transition;
-import android.transition.TransitionInflater;
 import android.transition.TransitionManager;
 import android.transition.TransitionSet;
-import android.util.ArrayMap;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -115,6 +111,9 @@ class FragmentTransitionCompat21 {
                         new ViewTreeObserver.OnPreDrawListener() {
                             public boolean onPreDraw() {
                                 container.getViewTreeObserver().removeOnPreDrawListener(this);
+                                if (enterTransition != null) {
+                                    enterTransition.removeTarget(nonExistentView);
+                                }
                                 View fragmentView = inFragment.getView();
                                 if (fragmentView != null) {
                                     if (!nameOverrides.isEmpty()) {
@@ -133,7 +132,6 @@ class FragmentTransitionCompat21 {
                                         captureTransitioningViews(enteringViews, fragmentView);
                                         enteringViews.removeAll(renamedViews.values());
                                         enteringViews.add(nonExistentView);
-                                        enterTransition.removeTarget(nonExistentView);
                                         addTargets(enterTransition, enteringViews);
                                     }
                                 }
