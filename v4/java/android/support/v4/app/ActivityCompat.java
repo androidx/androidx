@@ -276,8 +276,8 @@ public class ActivityCompat extends ContextCompat {
      * permissions were granted or not. Your activity has to implement {@link
      * android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback}
      * and the results of permission requests will be delivered to its {@link
-     * android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback#
-     * onRequestPermissionsResult(int, String[], int[])} method.
+     * android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback#onRequestPermissionsResult(
+     * int, String[], int[])} method.
      * </p>
      * <p>
      * Note that requesting a permission does not guarantee it will be granted and
