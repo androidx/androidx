@@ -668,7 +668,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
         };
         // original 1 item
         setupBasic(1, 0, 1, adapter);
-        mRecyclerView.getItemAnimator().setAddDuration(3000);
+        mRecyclerView.getItemAnimator().setAddDuration(10000);
         mLayoutManager.expectLayouts(2);
         // add 2 items
         setExpectedItemCounts(1, 3);
