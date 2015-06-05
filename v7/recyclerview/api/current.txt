@@ -583,7 +583,7 @@ package android.support.v7.widget {
     method public abstract void onViewRecycled(android.support.v7.widget.RecyclerView.ViewHolder);
   }
 
-  public class RecyclerView.SimpleOnItemTouchListener implements android.support.v7.widget.RecyclerView.OnItemTouchListener {
+  public static class RecyclerView.SimpleOnItemTouchListener implements android.support.v7.widget.RecyclerView.OnItemTouchListener {
     ctor public RecyclerView.SimpleOnItemTouchListener();
     method public boolean onInterceptTouchEvent(android.support.v7.widget.RecyclerView, android.view.MotionEvent);
     method public void onRequestDisallowInterceptTouchEvent(boolean);
