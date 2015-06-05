@@ -85,6 +85,56 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         mGlm.waitForLayout(2);
     }
 
+    public void testPredictiveSpanLookup1() throws Throwable {
+        predictiveSpanLookupTest(0, false);
+    }
+
+    public void testPredictiveSpanLookup2() throws Throwable {
+        predictiveSpanLookupTest(0, true);
+    }
+
+    public void testPredictiveSpanLookup3() throws Throwable {
+        predictiveSpanLookupTest(1, false);
+    }
+
+    public void testPredictiveSpanLookup4() throws Throwable {
+        predictiveSpanLookupTest(1, true);
+    }
+
+    public void predictiveSpanLookupTest(int remaining, boolean removeFromStart) throws Throwable {
+        RecyclerView recyclerView = setupBasic(new Config(3, 10));
+        mGlm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                if (position < 0 || position >= mAdapter.getItemCount()) {
+                    postExceptionToInstrumentation(new AssertionError("position is not within " +
+                            "adapter range. pos:" + position + ", adapter size:" +
+                            mAdapter.getItemCount()));
+                }
+                return 1;
+            }
+
+            @Override
+            public int getSpanIndex(int position, int spanCount) {
+                if (position < 0 || position >= mAdapter.getItemCount()) {
+                    postExceptionToInstrumentation(new AssertionError("position is not within " +
+                            "adapter range. pos:" + position + ", adapter size:" +
+                            mAdapter.getItemCount()));
+                }
+                return super.getSpanIndex(position, spanCount);
+            }
+        });
+        waitForFirstLayout(recyclerView);
+        checkForMainThreadException();
+        assertTrue("test sanity", mGlm.supportsPredictiveItemAnimations());
+        mGlm.expectLayout(2);
+        int deleteCnt = 10 - remaining;
+        int deleteStart = removeFromStart ? 0 : remaining;
+        mAdapter.deleteAndNotify(deleteStart, deleteCnt);
+        mGlm.waitForLayout(2);
+        checkForMainThreadException();
+    }
+
     public void testCustomWidthInHorizontal() throws Throwable {
         customSizeInScrollDirectionTest(new Config(3, HORIZONTAL, false));
     }
@@ -411,20 +461,21 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         glm.setSpanSizeLookup(spanSizeLookup);
         glm.mAnchorInfo.mPosition = 11;
         RecyclerView.State state = new RecyclerView.State();
+        mRecyclerView = new RecyclerView(getActivity());
         state.mItemCount = 1000;
-        glm.onAnchorReady(state, glm.mAnchorInfo);
+        glm.onAnchorReady(mRecyclerView.mRecycler, state, glm.mAnchorInfo);
         assertEquals("gm should keep anchor in first span", 11, glm.mAnchorInfo.mPosition);
 
         glm.mAnchorInfo.mPosition = 13;
-        glm.onAnchorReady(state, glm.mAnchorInfo);
+        glm.onAnchorReady(mRecyclerView.mRecycler, state, glm.mAnchorInfo);
         assertEquals("gm should move anchor to first span", 11, glm.mAnchorInfo.mPosition);
 
         glm.mAnchorInfo.mPosition = 23;
-        glm.onAnchorReady(state, glm.mAnchorInfo);
+        glm.onAnchorReady(mRecyclerView.mRecycler, state, glm.mAnchorInfo);
         assertEquals("gm should move anchor to first span", 21, glm.mAnchorInfo.mPosition);
 
         glm.mAnchorInfo.mPosition = 35;
-        glm.onAnchorReady(state, glm.mAnchorInfo);
+        glm.onAnchorReady(mRecyclerView.mRecycler, state, glm.mAnchorInfo);
         assertEquals("gm should move anchor to first span", 31, glm.mAnchorInfo.mPosition);
     }
 
