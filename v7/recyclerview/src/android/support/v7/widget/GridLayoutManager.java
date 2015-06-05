@@ -295,27 +295,30 @@ public class GridLayoutManager extends LinearLayoutManager {
     }
 
     @Override
-    void onAnchorReady(RecyclerView.State state, AnchorInfo anchorInfo) {
-        super.onAnchorReady(state, anchorInfo);
+    void onAnchorReady(RecyclerView.Recycler recycler, RecyclerView.State state,
+                       AnchorInfo anchorInfo) {
+        super.onAnchorReady(recycler, state, anchorInfo);
         updateMeasurements();
         if (state.getItemCount() > 0 && !state.isPreLayout()) {
-            ensureAnchorIsInFirstSpan(anchorInfo);
+            ensureAnchorIsInFirstSpan(recycler, state, anchorInfo);
         }
         if (mSet == null || mSet.length != mSpanCount) {
             mSet = new View[mSpanCount];
         }
     }
 
-    private void ensureAnchorIsInFirstSpan(AnchorInfo anchorInfo) {
-        int span = mSpanSizeLookup.getCachedSpanIndex(anchorInfo.mPosition, mSpanCount);
+    private void ensureAnchorIsInFirstSpan(RecyclerView.Recycler recycler, RecyclerView.State state,
+                                           AnchorInfo anchorInfo) {
+        int span = getSpanIndex(recycler, state, anchorInfo.mPosition);
         while (span > 0 && anchorInfo.mPosition > 0) {
             anchorInfo.mPosition--;
-            span = mSpanSizeLookup.getCachedSpanIndex(anchorInfo.mPosition, mSpanCount);
+            span = getSpanIndex(recycler, state, anchorInfo.mPosition);
         }
     }
 
     @Override
-    View findReferenceChild(int start, int end, int itemCount) {
+    View findReferenceChild(RecyclerView.Recycler recycler, RecyclerView.State state,
+                            int start, int end, int itemCount) {
         ensureLayoutState();
         View invalidMatch = null;
         View outOfBoundsMatch = null;
@@ -326,7 +329,7 @@ public class GridLayoutManager extends LinearLayoutManager {
             final View view = getChildAt(i);
             final int position = getPosition(view);
             if (position >= 0 && position < itemCount) {
-                final int span = mSpanSizeLookup.getCachedSpanIndex(position, mSpanCount);
+                final int span = getSpanIndex(recycler, state, position);
                 if (span != 0) {
                     continue;
                 }
