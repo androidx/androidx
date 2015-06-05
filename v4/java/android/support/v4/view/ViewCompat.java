@@ -2736,10 +2736,6 @@ public class ViewCompat {
      * ImageView with only the foreground image. The default implementation returns true; subclasses
      * should override if they have cases which can be optimized.</p>
      *
-     * <p>The current implementation of the saveLayer and saveLayerAlpha methods in {@link Canvas}
-     * necessitates that a View return true if it uses the methods internally without passing the
-     * {@link Canvas#CLIP_TO_LAYER_SAVE_FLAG}.</p>
-     *
      * @return true if the content in this view might overlap, false otherwise.
      */
     public static boolean hasOverlappingRendering(View view) {
