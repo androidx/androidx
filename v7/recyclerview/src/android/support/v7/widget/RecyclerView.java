@@ -7769,7 +7769,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * always provide a default implementation on this class so that your code won't break when
      * you update to a new version of the support library.
      */
-    public class SimpleOnItemTouchListener implements RecyclerView.OnItemTouchListener {
+    public static class SimpleOnItemTouchListener implements RecyclerView.OnItemTouchListener {
         @Override
         public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
             return false;
