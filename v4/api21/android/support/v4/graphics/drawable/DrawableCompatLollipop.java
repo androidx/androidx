@@ -19,6 +19,7 @@ package android.support.v4.graphics.drawable;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.DrawableContainer;
 import android.graphics.drawable.GradientDrawable;
 
 /**
@@ -69,9 +70,10 @@ class DrawableCompatLollipop {
     }
 
     public static Drawable wrapForTinting(Drawable drawable) {
-        if (drawable instanceof GradientDrawable) {
+        if (drawable instanceof GradientDrawable || drawable instanceof DrawableContainer) {
             // GradientDrawable on Lollipop does not support tinting, so we'll use our compatible
-            // functionality instead
+            // functionality instead. We also do the same for DrawableContainers since they may
+            // contain GradientDrawable instances.
             return new DrawableWrapperLollipop(drawable);
         }
         return drawable;
