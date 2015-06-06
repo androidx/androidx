@@ -513,6 +513,12 @@ public class ToolbarActionBar extends ActionBar {
             final Resources.Theme widgetTheme = context.getResources().newTheme();
             widgetTheme.setTo(context.getTheme());
 
+            // First apply the actionBarPopupTheme
+            widgetTheme.resolveAttribute(R.attr.actionBarPopupTheme, outValue, true);
+            if (outValue.resourceId != 0) {
+                widgetTheme.applyStyle(outValue.resourceId, true);
+            }
+
             // Apply the panelMenuListTheme
             widgetTheme.resolveAttribute(R.attr.panelMenuListTheme, outValue, true);
             if (outValue.resourceId != 0) {
