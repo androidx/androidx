@@ -97,7 +97,7 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
      * the same object returned from {@link Fragment#getActivity()}.
      */
     @Nullable
-    abstract E onGetHost();
+    public abstract E onGetHost();
 
     /**
      * Invalidates the activity's options menu.
