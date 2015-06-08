@@ -503,6 +503,25 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
     }
 
     @Override
+    public boolean hasWindowFeature(int featureId) {
+        switch (featureId) {
+            case FEATURE_ACTION_BAR:
+                return mHasActionBar;
+            case FEATURE_ACTION_BAR_OVERLAY:
+                return mOverlayActionBar;
+            case FEATURE_ACTION_MODE_OVERLAY:
+                return mOverlayActionMode;
+            case Window.FEATURE_PROGRESS:
+                return mFeatureProgress;
+            case Window.FEATURE_INDETERMINATE_PROGRESS:
+                return mFeatureIndeterminateProgress;
+            case Window.FEATURE_NO_TITLE:
+                return mWindowNoTitle;
+        }
+        return mWindow.hasFeature(featureId);
+    }
+
+    @Override
     void onTitleChanged(CharSequence title) {
         if (mDecorContentParent != null) {
             mDecorContentParent.setWindowTitle(title);
