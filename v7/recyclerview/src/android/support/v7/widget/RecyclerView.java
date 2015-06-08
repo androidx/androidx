@@ -2916,7 +2916,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         int oldTop = disappearingItem.top;
         int newLeft = disappearingItemView.getLeft();
         int newTop = disappearingItemView.getTop();
-        if (oldLeft != newLeft || oldTop != newTop) {
+        if (!disappearingItem.holder.isRemoved() && (oldLeft != newLeft || oldTop != newTop)) {
             disappearingItem.holder.setIsRecyclable(false);
             disappearingItemView.layout(newLeft, newTop,
                     newLeft + disappearingItemView.getWidth(),
