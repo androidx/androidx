@@ -317,6 +317,7 @@ package android.support.v4.app {
     ctor public FragmentHostCallback(android.content.Context, android.os.Handler, int);
     method public void onDump(java.lang.String, java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
     method public android.view.View onFindViewById(int);
+    method public abstract E onGetHost();
     method public android.view.LayoutInflater onGetLayoutInflater();
     method public int onGetWindowAnimations();
     method public boolean onHasView();
