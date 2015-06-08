@@ -290,6 +290,16 @@ public abstract class AppCompatDelegate {
     public abstract boolean requestWindowFeature(int featureId);
 
     /**
+     * Query for the availability of a certain feature.
+     *
+     * <p>This should be called instead of {@link android.view.Window#hasFeature(int)}.</p>
+     *
+     * @param featureId The feature ID to check
+     * @return true if the feature is enabled, false otherwise.
+     */
+    public abstract boolean hasWindowFeature(int featureId);
+
+    /**
      * Start an action mode.
      *
      * @param callback Callback that will manage lifecycle events for this context mode

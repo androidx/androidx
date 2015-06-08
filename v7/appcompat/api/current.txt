@@ -251,6 +251,7 @@ package android.support.v7.app {
     method public abstract android.support.v7.app.ActionBarDrawerToggle.Delegate getDrawerToggleDelegate();
     method public abstract android.view.MenuInflater getMenuInflater();
     method public abstract android.support.v7.app.ActionBar getSupportActionBar();
+    method public abstract boolean hasWindowFeature(int);
     method public abstract void installViewFactory();
     method public abstract void invalidateOptionsMenu();
     method public abstract boolean isHandleNativeActionModesEnabled();
