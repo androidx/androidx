@@ -167,23 +167,22 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
     }
 
     @Override
-    public ActionBar initWindowDecorActionBar() {
+    public void initWindowDecorActionBar() {
         ensureSubDecor();
 
-        if (!mHasActionBar || peekSupportActionBar() != null) {
-            return null;
+        if (!mHasActionBar || mActionBar != null) {
+            return;
         }
 
-        ActionBar ab = null;
         if (mOriginalWindowCallback instanceof Activity) {
-            ab = new WindowDecorActionBar((Activity) mOriginalWindowCallback, mOverlayActionBar);
+            mActionBar = new WindowDecorActionBar((Activity) mOriginalWindowCallback,
+                    mOverlayActionBar);
         } else if (mOriginalWindowCallback instanceof Dialog) {
-            ab = new WindowDecorActionBar((Dialog) mOriginalWindowCallback);
+            mActionBar = new WindowDecorActionBar((Dialog) mOriginalWindowCallback);
         }
-        if (ab != null) {
-            ab.setDefaultDisplayHomeAsUpEnabled(mEnableDefaultActionBarUp);
+        if (mActionBar != null) {
+            mActionBar.setDefaultDisplayHomeAsUpEnabled(mEnableDefaultActionBarUp);
         }
-        return ab;
     }
 
     @Override

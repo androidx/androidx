@@ -41,7 +41,7 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
     final Window.Callback mOriginalWindowCallback;
     final AppCompatCallback mAppCompatCallback;
 
-    private ActionBar mActionBar;
+    ActionBar mActionBar;
     private MenuInflater mMenuInflater;
 
     // true if this activity has an action bar.
@@ -73,7 +73,7 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
         mWindow.setCallback(wrapWindowCallback(mOriginalWindowCallback));
     }
 
-    abstract ActionBar initWindowDecorActionBar();
+    abstract void initWindowDecorActionBar();
 
     Window.Callback wrapWindowCallback(Window.Callback callback) {
         return new AppCompatWindowCallbackBase(callback);
@@ -83,7 +83,7 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
     public ActionBar getSupportActionBar() {
         // The Action Bar should be lazily created as hasActionBar
         // could change after onCreate
-        mActionBar = initWindowDecorActionBar();
+        initWindowDecorActionBar();
         return mActionBar;
     }
 
