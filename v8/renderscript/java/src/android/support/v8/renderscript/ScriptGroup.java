@@ -41,10 +41,10 @@ import java.util.Map;
  * runtime and compiler optimization can be applied to reduce computation and
  * communication overhead, and to make better use of the CPU and the GPU.
  **/
-public class ScriptGroup extends BaseObj {
+public final class ScriptGroup extends BaseObj {
     //FIXME: Change 23 to the codename when that is decided.
     private static final int MIN_API_VERSION = 23;
-
+    private static final String TAG = "ScriptGroup";
     IO mOutputs[];
     IO mInputs[];
     private boolean mUseIncSupp = false;
@@ -117,11 +117,11 @@ public class ScriptGroup extends BaseObj {
 
         private static final String TAG = "Closure";
 
-        private Closure(long id, RenderScript rs) {
+        Closure(long id, RenderScript rs) {
             super(id, rs);
         }
 
-        private Closure(RenderScript rs, Script.KernelID kernelID, Type returnType,
+        Closure(RenderScript rs, Script.KernelID kernelID, Type returnType,
                        Object[] args, Map<Script.FieldID, Object> globals) {
             super(0, rs);
 
@@ -144,28 +144,16 @@ public class ScriptGroup extends BaseObj {
 
             int i;
             for (i = 0; i < args.length; i++) {
-                Object obj = args[i];
                 fieldIDs[i] = 0;
-                if (obj instanceof Input) {
-                    Input unbound = (Input)obj;
-                    unbound.addReference(this, i);
-                } else {
-                    retrieveValueAndDependenceInfo(rs, i, args[i], values, sizes,
-                                                   depClosures, depFieldIDs);
-                }
+                retrieveValueAndDependenceInfo(rs, i, null, args[i],
+                                               values, sizes, depClosures, depFieldIDs);
             }
-
             for (Map.Entry<Script.FieldID, Object> entry : globals.entrySet()) {
                 Object obj = entry.getValue();
                 Script.FieldID fieldID = entry.getKey();
                 fieldIDs[i] = fieldID.getID(rs);
-                if (obj instanceof Input) {
-                    Input unbound = (Input)obj;
-                    unbound.addReference(this, fieldID);
-                } else {
-                    retrieveValueAndDependenceInfo(rs, i, obj, values,
-                                                   sizes, depClosures, depFieldIDs);
-                }
+                retrieveValueAndDependenceInfo(rs, i, fieldID, obj,
+                                               values, sizes, depClosures, depFieldIDs);
                 i++;
             }
 
@@ -175,8 +163,8 @@ public class ScriptGroup extends BaseObj {
             setID(id);
         }
 
-        private Closure(RenderScript rs, Script.InvokeID invokeID,
-                       Object[] args, Map<Script.FieldID, Object> globals) {
+        Closure(RenderScript rs, Script.InvokeID invokeID,
+                Object[] args, Map<Script.FieldID, Object> globals) {
             super(0, rs);
 
             if (android.os.Build.VERSION.SDK_INT < MIN_API_VERSION && rs.isUseNative()) {
@@ -202,14 +190,8 @@ public class ScriptGroup extends BaseObj {
                 Object obj = entry.getValue();
                 Script.FieldID fieldID = entry.getKey();
                 fieldIDs[i] = fieldID.getID(rs);
-                if (obj instanceof Input) {
-                    Input unbound = (Input)obj;
-                    unbound.addReference(this, fieldID);
-                } else {
-                    // TODO(yangni): Verify obj not a future.
-                    retrieveValueAndDependenceInfo(rs, i, obj, values,
-                                                   sizes, depClosures, depFieldIDs);
-                }
+                retrieveValueAndDependenceInfo(rs, i, fieldID, obj, values,
+                                               sizes, depClosures, depFieldIDs);
                 i++;
             }
 
@@ -219,9 +201,8 @@ public class ScriptGroup extends BaseObj {
             setID(id);
         }
 
-        private static
-                void retrieveValueAndDependenceInfo(RenderScript rs,
-                                                    int index, Object obj,
+        private void retrieveValueAndDependenceInfo(RenderScript rs,
+                                                    int index, Script.FieldID fid, Object obj,
                                                     long[] values, int[] sizes,
                                                     long[] depClosures,
                                                     long[] depFieldIDs) {
@@ -232,20 +213,25 @@ public class ScriptGroup extends BaseObj {
                 depClosures[index] = f.getClosure().getID(rs);
                 Script.FieldID fieldID = f.getFieldID();
                 depFieldIDs[index] = fieldID != null ? fieldID.getID(rs) : 0;
-                if (obj == null) {
-                    // Value is originally created by the owner closure
-                    values[index] = 0;
-                    sizes[index] = 0;
-                    return;
-                }
             } else {
                 depClosures[index] = 0;
                 depFieldIDs[index] = 0;
             }
 
-            ValueAndSize vs = new ValueAndSize(rs, obj);
-            values[index] = vs.value;
-            sizes[index] = vs.size;
+            if (obj instanceof Input) {
+                Input unbound = (Input)obj;
+                if (index < mArgs.length) {
+                    unbound.addReference(this, index);
+                } else {
+                    unbound.addReference(this, fid);
+                }
+                values[index] = 0;
+                sizes[index] = 0;
+            } else {
+                ValueAndSize vs = new ValueAndSize(rs, obj);
+                values[index] = vs.value;
+                sizes[index] = vs.size;
+            }
         }
 
         /**
@@ -277,7 +263,11 @@ public class ScriptGroup extends BaseObj {
                 // without an associated value (reference). So this is not working for
                 // cross-module (cross-script) linking in this case where a field not
                 // explicitly bound.
-                f = new Future(this, field, mBindings.get(field));
+                Object obj = mBindings.get(field);
+                if (obj instanceof Future) {
+                    obj = ((Future)obj).getValue();
+                }
+                f = new Future(this, field, obj);
                 mGlobalFuture.put(field, f);
             }
 
@@ -285,12 +275,18 @@ public class ScriptGroup extends BaseObj {
         }
 
         void setArg(int index, Object obj) {
+            if (obj instanceof Future) {
+                obj = ((Future)obj).getValue();
+            }
             mArgs[index] = obj;
             ValueAndSize vs = new ValueAndSize(mRS, obj);
             mRS.nClosureSetArg(getID(mRS), index, vs.value, vs.size);
         }
 
         void setGlobal(Script.FieldID fieldID, Object obj) {
+            if (obj instanceof Future) {
+                obj = ((Future)obj).getValue();
+            }
             mBindings.put(fieldID, obj);
             ValueAndSize vs = new ValueAndSize(mRS, obj);
             mRS.nClosureSetGlobal(getID(mRS), fieldID.getID(mRS), vs.value, vs.size);
@@ -363,6 +359,7 @@ public class ScriptGroup extends BaseObj {
         // -1 means unset. Legal values are 0 .. n-1, where n is the number of
         // arguments for the referencing closure.
         List<Pair<Closure, Integer>> mArgIndex;
+        Object mValue;
 
         Input() {
             mFieldID = new ArrayList<Pair<Closure, Script.FieldID>>();
@@ -378,6 +375,7 @@ public class ScriptGroup extends BaseObj {
         }
 
         void set(Object value) {
+            mValue = value;
             for (Pair<Closure, Integer> p : mArgIndex) {
                 Closure closure = p.first;
                 int index = p.second.intValue();
@@ -389,14 +387,14 @@ public class ScriptGroup extends BaseObj {
                 closure.setGlobal(fieldID, value);
             }
         }
+
+        Object get() { return mValue; }
     }
 
-    String mName;
-    List<Closure> mClosures;
-    List<Input> mInputs2;
-    Future[] mOutputs2;
-
-    private static final String TAG = "ScriptGroup2";
+    private String mName;
+    private List<Closure> mClosures;
+    private List<Input> mInputs2;
+    private Future[] mOutputs2;
 
     ScriptGroup(long id, RenderScript rs) {
         super(id, rs);
@@ -458,23 +456,13 @@ public class ScriptGroup extends BaseObj {
         Object[] outputObjs = new Object[mOutputs2.length];
         int i = 0;
         for (Future f : mOutputs2) {
-            outputObjs[i++] = f.getValue();
+            Object output = f.getValue();
+            if (output instanceof Input) {
+                output = ((Input)output).get();
+            }
+            outputObjs[i++] = output;
         }
         return outputObjs;
-    }
-
-    /**
-     * Represents a binding of a value to a global variable in a
-     * kernel or invocable function. Used in closure creation.
-     */
-
-    public static final class Binding {
-        public Script.FieldID mField;
-        public Object mValue;
-        public Binding(Script.FieldID field, Object value) {
-            mField = field;
-            mValue = value;
-        }
     }
 
     /**
@@ -695,7 +683,8 @@ public class ScriptGroup extends BaseObj {
                 Node n = mNodes.get(ct);
                 if (n.mInputs.size() == 0) {
                     if (n.mOutputs.size() == 0 && mNodes.size() > 1) {
-                        throw new RSInvalidStateException("Groups cannot contain unconnected scripts");
+                        String msg = "Groups cannot contain unconnected scripts";
+                        throw new RSInvalidStateException(msg);
                     }
                     validateDAGRecurse(n, ct+1);
                 }
@@ -976,6 +965,40 @@ public class ScriptGroup extends BaseObj {
     }
 
     /**
+     * Represents a binding of a value to a global variable in a
+     * kernel or invocable function. Used in closure creation.
+     */
+
+    public static final class Binding {
+        private final Script.FieldID mField;
+        private final Object mValue;
+
+        /**
+         * Returns a Binding object that binds value to field
+         *
+         * @param field the Script.FieldID of the global variable
+         * @param value the value
+         */
+
+        public Binding(Script.FieldID field, Object value) {
+            mField = field;
+            mValue = value;
+        }
+
+        /**
+         * Returns the field ID
+         */
+
+        public Script.FieldID getField() { return mField; }
+
+        /**
+         * Returns the value
+         */
+
+        public Object getValue() { return mValue; }
+    }
+
+    /**
      * The builder class for creating script groups
      * <p>
      * A script group is created using closures (see class {@link Closure}).
@@ -1013,20 +1036,44 @@ public class ScriptGroup extends BaseObj {
         RenderScript mRS;
         List<Closure> mClosures;
         List<Input> mInputs;
-        private static final String TAG = "ScriptGroup2.Builder";
+        private static final String TAG = "ScriptGroup.Builder2";
 
+        /**
+         * Returns a Builder object
+         *
+         * @param rs the RenderScript context
+         */
         public Builder2(RenderScript rs) {
             mRS = rs;
             mClosures = new ArrayList<Closure>();
             mInputs = new ArrayList<Input>();
         }
 
+        /**
+         * Adds a closure for a kernel
+         *
+         * @param k Kernel ID for the kernel function
+         * @param returnType Allocation type for the return value
+         * @param args arguments to the kernel function
+         * @param globalBindings bindings for global variables
+         * @return a closure
+         */
+
         private Closure addKernelInternal(Script.KernelID k, Type returnType, Object[] args,
-                                         Map<Script.FieldID, Object> globalBindings) {
+                                          Map<Script.FieldID, Object> globalBindings) {
             Closure c = new Closure(mRS, k, returnType, args, globalBindings);
             mClosures.add(c);
             return c;
         }
+
+        /**
+         * Adds a closure for an invocable function
+         *
+         * @param invoke Invoke ID for the invocable function
+         * @param args arguments to the invocable function
+         * @param globalBindings bindings for global variables
+         * @return a closure
+         */
 
         private Closure addInvokeInternal(Script.InvokeID invoke, Object[] args,
                                           Map<Script.FieldID, Object> globalBindings) {
@@ -1116,7 +1163,7 @@ public class ScriptGroup extends BaseObj {
                     return false;
                 }
                 Binding b = (Binding)argsAndBindings[i];
-                bindingMap.put(b.mField, b.mValue);
+                bindingMap.put(b.getField(), b.getValue());
             }
 
             return true;
