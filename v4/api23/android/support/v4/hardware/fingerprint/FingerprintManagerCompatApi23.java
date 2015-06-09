@@ -18,6 +18,7 @@ package android.support.v4.hardware.fingerprint;
 
 import android.content.Context;
 import android.hardware.fingerprint.FingerprintManager;
+import android.os.Handler;
 
 import java.security.Signature;
 
@@ -40,11 +41,11 @@ public final class FingerprintManagerCompatApi23 {
         return getFingerprintManager(context).isHardwareDetected();
     }
 
-    public static void authenticate(Context context, CryptoObject crypto, Object cancel,
-            AuthenticationCallback callback, int flags) {
+    public static void authenticate(Context context, CryptoObject crypto, int flags, Object cancel,
+            AuthenticationCallback callback, Handler handler) {
         getFingerprintManager(context).authenticate(wrapCryptoObject(crypto),
-                (android.os.CancellationSignal) cancel,
-                wrapCallback(callback), flags);
+                (android.os.CancellationSignal) cancel, flags,
+                wrapCallback(callback), handler);
     }
 
     private static FingerprintManager.CryptoObject wrapCryptoObject(CryptoObject cryptoObject) {
