@@ -1271,6 +1271,14 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         awakenScrollBars();
     }
 
+    private void jumpToPositionForSmoothScroller(int position) {
+        if (mLayout == null) {
+            return;
+        }
+        mLayout.scrollToPosition(position);
+        awakenScrollBars();
+    }
+
     /**
      * Starts a smooth scroll to an adapter position.
      * <p>
@@ -3797,6 +3805,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                             }
                         }
                     }
+                    onExitLayoutOrScroll();
+                    resumeRequestLayout(false);
 
                     if (smoothScroller != null && !smoothScroller.isPendingInitialRun() &&
                             smoothScroller.isRunning()) {
@@ -3810,8 +3820,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                             smoothScroller.onAnimation(dx - overscrollX, dy - overscrollY);
                         }
                     }
-                    onExitLayoutOrScroll();
-                    resumeRequestLayout(false);
                 }
                 if (!mItemDecorations.isEmpty()) {
                     invalidate();
@@ -3864,8 +3872,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 }
             }
             // call this after the onAnimation is complete not to have inconsistent callbacks etc.
-            if (smoothScroller != null && smoothScroller.isPendingInitialRun()) {
-                smoothScroller.onAnimation(0, 0);
+            if (smoothScroller != null) {
+                if (smoothScroller.isPendingInitialRun()) {
+                    smoothScroller.onAnimation(0, 0);
+                }
+                if (!mReSchedulePostAnimationCallback) {
+                    smoothScroller.stop(); //stop if it does not trigger any scroll
+                }
             }
             enableRunOnAnimationRequests();
         }
@@ -8571,8 +8584,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
 
         /**
-         * @return The LayoutManager to which this SmoothScroller is attached
+         * @return The LayoutManager to which this SmoothScroller is attached. Will return
+         * <code>null</code> after the SmoothScroller is stopped.
          */
+        @Nullable
         public LayoutManager getLayoutManager() {
             return mLayoutManager;
         }
@@ -8630,15 +8645,16 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
 
         private void onAnimation(int dx, int dy) {
-            if (!mRunning || mTargetPosition == RecyclerView.NO_POSITION) {
+            final RecyclerView recyclerView = mRecyclerView;
+            if (!mRunning || mTargetPosition == RecyclerView.NO_POSITION || recyclerView == null) {
                 stop();
             }
             mPendingInitialRun = false;
             if (mTargetView != null) {
                 // verify target position
                 if (getChildPosition(mTargetView) == mTargetPosition) {
-                    onTargetFound(mTargetView, mRecyclerView.mState, mRecyclingAction);
-                    mRecyclingAction.runIfNecessary(mRecyclerView);
+                    onTargetFound(mTargetView, recyclerView.mState, mRecyclingAction);
+                    mRecyclingAction.runIfNecessary(recyclerView);
                     stop();
                 } else {
                     Log.e(TAG, "Passed over target position while smooth scrolling.");
@@ -8646,8 +8662,18 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 }
             }
             if (mRunning) {
-                onSeekTargetStep(dx, dy, mRecyclerView.mState, mRecyclingAction);
-                mRecyclingAction.runIfNecessary(mRecyclerView);
+                onSeekTargetStep(dx, dy, recyclerView.mState, mRecyclingAction);
+                boolean hadJumpTarget = mRecyclingAction.hasJumpTarget();
+                mRecyclingAction.runIfNecessary(recyclerView);
+                if (hadJumpTarget) {
+                    // It is not stopped so needs to be restarted
+                    if (mRunning) {
+                        mPendingInitialRun = true;
+                        recyclerView.mViewFlinger.postOnAnimation();
+                    } else {
+                        stop(); // done
+                    }
+                }
             }
         }
 
@@ -8674,7 +8700,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
         /**
          * @see RecyclerView#scrollToPosition(int)
+         * @deprecated Use {@link Action#jumpTo(int)}.
          */
+        @Deprecated
         public void instantScrollToPosition(int position) {
             mRecyclerView.scrollToPosition(position);
         }
@@ -8748,6 +8776,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
             private int mDuration;
 
+            private int mJumpToPosition = NO_POSITION;
+
             private Interpolator mInterpolator;
 
             private boolean changed = false;
@@ -8786,7 +8816,38 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 mDuration = duration;
                 mInterpolator = interpolator;
             }
+
+            /**
+             * Instead of specifying pixels to scroll, use the target position to jump using
+             * {@link RecyclerView#scrollToPosition(int)}.
+             * <p>
+             * You may prefer using this method if scroll target is really far away and you prefer
+             * to jump to a location and smooth scroll afterwards.
+             * <p>
+             * Note that calling this method takes priority over other update methods such as
+             * {@link #update(int, int, int, Interpolator)}, {@link #setX(float)},
+             * {@link #setY(float)} and #{@link #setInterpolator(Interpolator)}. If you call
+             * {@link #jumpTo(int)}, the other changes will not be considered for this animation
+             * frame.
+             *
+             * @param targetPosition The target item position to scroll to using instant scrolling.
+             */
+            public void jumpTo(int targetPosition) {
+                mJumpToPosition = targetPosition;
+            }
+
+            boolean hasJumpTarget() {
+                return mJumpToPosition >= 0;
+            }
+
             private void runIfNecessary(RecyclerView recyclerView) {
+                if (mJumpToPosition >= 0) {
+                    final int position = mJumpToPosition;
+                    mJumpToPosition = NO_POSITION;
+                    recyclerView.jumpToPositionForSmoothScroller(position);
+                    changed = false;
+                    return;
+                }
                 if (changed) {
                     validate();
                     if (mInterpolator == null) {

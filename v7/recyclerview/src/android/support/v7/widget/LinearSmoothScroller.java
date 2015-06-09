@@ -229,8 +229,8 @@ abstract public class LinearSmoothScroller extends RecyclerView.SmoothScroller {
                     + "LayoutManager#computeScrollVectorForPosition.\n"
                     + "Falling back to instant scroll");
             final int target = getTargetPosition();
+            action.jumpTo(target);
             stop();
-            instantScrollToPosition(target);
             return;
         }
         normalize(scrollVector);
