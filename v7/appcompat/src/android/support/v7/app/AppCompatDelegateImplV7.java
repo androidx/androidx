@@ -166,23 +166,22 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
     }
 
     @Override
-    public ActionBar initWindowDecorActionBar() {
+    public void initWindowDecorActionBar() {
         ensureSubDecor();
 
-        if (!mHasActionBar || peekSupportActionBar() != null) {
-            return null;
+        if (!mHasActionBar || mActionBar != null) {
+            return;
         }
 
-        ActionBar ab = null;
         if (mOriginalWindowCallback instanceof Activity) {
-            ab = new WindowDecorActionBar((Activity) mOriginalWindowCallback, mOverlayActionBar);
+            mActionBar = new WindowDecorActionBar((Activity) mOriginalWindowCallback,
+                    mOverlayActionBar);
         } else if (mOriginalWindowCallback instanceof Dialog) {
-            ab = new WindowDecorActionBar((Dialog) mOriginalWindowCallback);
+            mActionBar = new WindowDecorActionBar((Dialog) mOriginalWindowCallback);
         }
-        if (ab != null) {
-            ab.setDefaultDisplayHomeAsUpEnabled(mEnableDefaultActionBarUp);
+        if (mActionBar != null) {
+            mActionBar.setDefaultDisplayHomeAsUpEnabled(mEnableDefaultActionBarUp);
         }
-        return ab;
     }
 
     @Override
@@ -464,6 +463,8 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
 
     @Override
     public boolean requestWindowFeature(int featureId) {
+        featureId = sanitizeWindowFeatureId(featureId);
+
         if (mWindowNoTitle && featureId == FEATURE_SUPPORT_ACTION_BAR) {
             return false; // Ignore. No title dominates.
         }
@@ -473,18 +474,10 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
         }
 
         switch (featureId) {
-            case WindowCompat.FEATURE_ACTION_BAR:
-                Log.i(TAG, "You should now use the AppCompatDelegate.FEATURE_SUPPORT_ACTION_BAR"
-                        + " id when requesting this feature.");
-                // $FALLTHROUGH
             case FEATURE_SUPPORT_ACTION_BAR:
                 throwFeatureRequestIfSubDecorInstalled();
                 mHasActionBar = true;
                 return true;
-            case WindowCompat.FEATURE_ACTION_BAR_OVERLAY:
-                Log.i(TAG, "You should now use the AppCompatDelegate.FEATURE_SUPPORT_ACTION_BAR_OVERLAY"
-                        + " id when requesting this feature.");
-                // $FALLTHROUGH
             case FEATURE_SUPPORT_ACTION_BAR_OVERLAY:
                 throwFeatureRequestIfSubDecorInstalled();
                 mOverlayActionBar = true;
@@ -1500,6 +1493,20 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
             throw new AndroidRuntimeException(
                     "Window feature must be requested before adding content");
         }
+    }
+
+    private int sanitizeWindowFeatureId(int featureId) {
+        if (featureId == WindowCompat.FEATURE_ACTION_BAR) {
+            Log.i(TAG, "You should now use the AppCompatDelegate.FEATURE_SUPPORT_ACTION_BAR"
+                    + " id when requesting this feature.");
+            return FEATURE_SUPPORT_ACTION_BAR;
+        } else if (featureId == WindowCompat.FEATURE_ACTION_BAR_OVERLAY) {
+            Log.i(TAG, "You should now use the AppCompatDelegate.FEATURE_SUPPORT_ACTION_BAR_OVERLAY"
+                    + " id when requesting this feature.");
+            return FEATURE_SUPPORT_ACTION_BAR_OVERLAY;
+        }
+        // Else we'll just return the original id
+        return featureId;
     }
 
     ViewGroup getSubDecor() {
