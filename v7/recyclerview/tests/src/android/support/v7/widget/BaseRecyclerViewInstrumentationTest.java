@@ -172,8 +172,8 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         return new Rect(
                 mRecyclerView.getPaddingLeft(),
                 mRecyclerView.getPaddingTop(),
-                mRecyclerView.getPaddingLeft() + mRecyclerView.getWidth(),
-                mRecyclerView.getPaddingTop() + mRecyclerView.getHeight()
+                mRecyclerView.getWidth() - mRecyclerView.getPaddingRight(),
+                mRecyclerView.getHeight() - mRecyclerView.getPaddingBottom()
         );
     }
 
