@@ -1105,8 +1105,10 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
             mDecorContentParent.setMenuPrepared();
         }
 
-        if (st.createdPanelView == null) {
-            // Init the panel state's menu--return false if init failed
+        if (st.createdPanelView == null &&
+                (!isActionBarMenu || !(peekSupportActionBar() instanceof ToolbarActionBar))) {
+            // Since ToolbarActionBar handles the list options menu itself, we only want to
+            // init this menu panel if we're not using a TAB.
             if (st.menu == null || st.refreshMenuContent) {
                 if (st.menu == null) {
                     if (!initializePanelMenu(st) || (st.menu == null)) {
