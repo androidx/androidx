@@ -2113,8 +2113,6 @@ package android.support.v4.view {
     method public static android.view.MenuItem setActionProvider(android.view.MenuItem, android.support.v4.view.ActionProvider);
     method public static android.view.MenuItem setActionView(android.view.MenuItem, android.view.View);
     method public static android.view.MenuItem setActionView(android.view.MenuItem, int);
-    method public static android.view.MenuItem setIconTintList(android.view.MenuItem, android.content.res.ColorStateList);
-    method public static android.view.MenuItem setIconTintMode(android.view.MenuItem, android.graphics.PorterDuff.Mode);
     method public static android.view.MenuItem setOnActionExpandListener(android.view.MenuItem, android.support.v4.view.MenuItemCompat.OnActionExpandListener);
     method public static void setShowAsAction(android.view.MenuItem, int);
     field public static final int SHOW_AS_ACTION_ALWAYS = 2; // 0x2

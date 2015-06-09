@@ -437,8 +437,6 @@ package android.support.v7.appcompat {
     field public static int homeAsUpIndicator;
     field public static int homeLayout;
     field public static int icon;
-    field public static int iconTint;
-    field public static int iconTintMode;
     field public static int iconifiedByDefault;
     field public static int indeterminateProgressStyle;
     field public static int initialActivityCount;
@@ -463,10 +461,6 @@ package android.support.v7.appcompat {
     field public static int navigationContentDescription;
     field public static int navigationIcon;
     field public static int navigationMode;
-    field public static int navigationTint;
-    field public static int navigationTintMode;
-    field public static int overflowTint;
-    field public static int overflowTintMode;
     field public static int overlapAnchor;
     field public static int paddingEnd;
     field public static int paddingStart;
@@ -794,7 +788,6 @@ package android.support.v7.appcompat {
     field public static int action_mode_bar_stub;
     field public static int action_mode_close_button;
     field public static int activity_chooser_view_content;
-    field public static int add;
     field public static int alertTitle;
     field public static int always;
     field public static int beginning;
@@ -1366,8 +1359,6 @@ package android.support.v7.appcompat {
     field public static int MenuItem_android_title;
     field public static int MenuItem_android_titleCondensed;
     field public static int MenuItem_android_visible;
-    field public static int MenuItem_iconTint;
-    field public static int MenuItem_iconTintMode;
     field public static int MenuItem_showAsAction;
     field public static final int[] MenuView;
     field public static int MenuView_android_headerBackground;
@@ -1551,10 +1542,6 @@ package android.support.v7.appcompat {
     field public static int Toolbar_maxButtonHeight;
     field public static int Toolbar_navigationContentDescription;
     field public static int Toolbar_navigationIcon;
-    field public static int Toolbar_navigationTint;
-    field public static int Toolbar_navigationTintMode;
-    field public static int Toolbar_overflowTint;
-    field public static int Toolbar_overflowTintMode;
     field public static int Toolbar_popupTheme;
     field public static int Toolbar_subtitle;
     field public static int Toolbar_subtitleTextAppearance;
@@ -1627,14 +1614,14 @@ package android.support.v7.widget {
     ctor public ActionMenuView(android.content.Context, android.util.AttributeSet);
     method public void dismissPopupMenus();
     method public android.view.Menu getMenu();
+    method public android.graphics.drawable.Drawable getOverflowIcon();
     method public int getPopupTheme();
     method public boolean hideOverflowMenu();
     method public boolean isOverflowMenuShowing();
     method public void onConfigurationChanged(android.content.res.Configuration);
     method public void onDetachedFromWindow();
     method public void setOnMenuItemClickListener(android.support.v7.widget.ActionMenuView.OnMenuItemClickListener);
-    method public void setOverflowTintList(android.content.res.ColorStateList);
-    method public void setOverflowTintMode(android.graphics.PorterDuff.Mode);
+    method public void setOverflowIcon(android.graphics.drawable.Drawable);
     method public void setPopupTheme(int);
     method public boolean showOverflowMenu();
   }
@@ -1950,6 +1937,7 @@ package android.support.v7.widget {
     method public android.view.Menu getMenu();
     method public java.lang.CharSequence getNavigationContentDescription();
     method public android.graphics.drawable.Drawable getNavigationIcon();
+    method public android.graphics.drawable.Drawable getOverflowIcon();
     method public int getPopupTheme();
     method public java.lang.CharSequence getSubtitle();
     method public java.lang.CharSequence getTitle();
@@ -1969,11 +1957,8 @@ package android.support.v7.widget {
     method public void setNavigationIcon(int);
     method public void setNavigationIcon(android.graphics.drawable.Drawable);
     method public void setNavigationOnClickListener(android.view.View.OnClickListener);
-    method public void setNavigationTintList(android.content.res.ColorStateList);
-    method public void setNavigationTintMode(android.graphics.PorterDuff.Mode);
     method public void setOnMenuItemClickListener(android.support.v7.widget.Toolbar.OnMenuItemClickListener);
-    method public void setOverflowTintList(android.content.res.ColorStateList);
-    method public void setOverflowTintMode(android.graphics.PorterDuff.Mode);
+    method public void setOverflowIcon(android.graphics.drawable.Drawable);
     method public void setPopupTheme(int);
     method public void setSubtitle(int);
     method public void setSubtitle(java.lang.CharSequence);
