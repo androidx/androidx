@@ -5,7 +5,7 @@ buildscript {
         maven { url '../../prebuilts/tools/common/m2/internal' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.2.0-rc1'
+        classpath 'com.android.tools.build:gradle:1.2.3'
     }
 }
 
