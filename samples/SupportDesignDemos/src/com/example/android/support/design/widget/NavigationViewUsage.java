@@ -87,15 +87,12 @@ public class NavigationViewUsage extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.navigation_item_1:
                 mTextMessage.setText("1");
-                item.setChecked(true);
                 return true;
             case R.id.navigation_item_2:
                 mTextMessage.setText("2");
-                item.setChecked(true);
                 return true;
             case R.id.navigation_item_3:
                 mTextMessage.setText("3");
-                item.setChecked(true);
                 return true;
             case R.id.navigation_sub_item_1:
                 showToast(R.string.navigation_sub_item_1);
