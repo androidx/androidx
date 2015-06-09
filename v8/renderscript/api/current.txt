@@ -664,7 +664,7 @@ package android.support.v8.renderscript {
     ctor protected ScriptC(android.support.v8.renderscript.RenderScript, java.lang.String, byte[], byte[]);
   }
 
-  public class ScriptGroup extends android.support.v8.renderscript.BaseObj {
+  public final class ScriptGroup extends android.support.v8.renderscript.BaseObj {
     method public java.lang.Object[] execute(java.lang.Object...);
     method public deprecated void execute();
     method public deprecated void setInput(android.support.v8.renderscript.Script.KernelID, android.support.v8.renderscript.Allocation);
@@ -673,8 +673,8 @@ package android.support.v8.renderscript {
 
   public static final class ScriptGroup.Binding {
     ctor public ScriptGroup.Binding(android.support.v8.renderscript.Script.FieldID, java.lang.Object);
-    field public android.support.v8.renderscript.Script.FieldID mField;
-    field public java.lang.Object mValue;
+    method public android.support.v8.renderscript.Script.FieldID getField();
+    method public java.lang.Object getValue();
   }
 
   public static final deprecated class ScriptGroup.Builder {
