@@ -18,6 +18,7 @@ package android.support.v4.hardware.fingerprint;
 
 import android.content.Context;
 import android.os.Build;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.os.CancellationSignal;
@@ -82,14 +83,15 @@ public class FingerprintManagerCompat {
      * provided cancel object.
      *
      * @param crypto object associated with the call or null if none required.
+     * @param flags optional flags; should be 0
      * @param cancel an object that can be used to cancel authentication
      * @param callback an object to receive authentication events
-     * @param flags optional flags; should be 0
+     * @param handler an optional handler for events
      */
-    public void authenticate(@Nullable CryptoObject crypto,
+    public void authenticate(@Nullable CryptoObject crypto, int flags,
             @Nullable CancellationSignal cancel, @NonNull AuthenticationCallback callback,
-            int flags) {
-        IMPL.authenticate(mContext, crypto, cancel, callback, flags);
+            @Nullable Handler handler) {
+        IMPL.authenticate(mContext, crypto, flags, cancel, callback, handler);
     }
 
     /**
@@ -126,7 +128,7 @@ public class FingerprintManagerCompat {
 
     /**
      * Container for callback data from {@link FingerprintManagerCompat#authenticate(CryptoObject,
-     *     CancellationSignal, AuthenticationCallback, int)}.
+     *     int, CancellationSignal, AuthenticationCallback, Handler)}.
      */
     public static final class AuthenticationResult {
         private CryptoObject mCryptoObject;
@@ -138,16 +140,16 @@ public class FingerprintManagerCompat {
         /**
          * Obtain the crypto object associated with this transaction
          * @return crypto object provided to {@link FingerprintManagerCompat#authenticate(
-         *         CryptoObject, CancellationSignal, AuthenticationCallback, int)}.
+         *         CryptoObject, int, CancellationSignal, AuthenticationCallback, Handler)}.
          */
         public CryptoObject getCryptoObject() { return mCryptoObject; }
     }
 
     /**
      * Callback structure provided to {@link FingerprintManagerCompat#authenticate(CryptoObject,
-     * CancellationSignal, AuthenticationCallback, int)}. Users of {@link
-     * FingerprintManagerCompat#authenticate(CryptoObject, CancellationSignal,
-     * AuthenticationCallback, int) } must provide an implementation of this for listening to
+     * int, CancellationSignal, AuthenticationCallback, Handler)}. Users of {@link
+     * FingerprintManagerCompat#authenticate(CryptoObject, int, CancellationSignal,
+     * AuthenticationCallback, Handler) } must provide an implementation of this for listening to
      * fingerprint events.
      */
     public static abstract class AuthenticationCallback {
@@ -183,8 +185,8 @@ public class FingerprintManagerCompat {
     private interface FingerprintManagerCompatImpl {
         boolean hasEnrolledFingerprints(Context context);
         boolean isHardwareDetected(Context context);
-        void authenticate(Context context, CryptoObject crypto, CancellationSignal cancel,
-                AuthenticationCallback callback, int flags);
+        void authenticate(Context context, CryptoObject crypto, int flags,
+                CancellationSignal cancel, AuthenticationCallback callback, Handler handler);
     }
 
     private static class LegacyFingerprintManagerCompatImpl
@@ -204,8 +206,8 @@ public class FingerprintManagerCompat {
         }
 
         @Override
-        public void authenticate(Context context, CryptoObject crypto, CancellationSignal cancel,
-                AuthenticationCallback callback, int flags) {
+        public void authenticate(Context context, CryptoObject crypto, int flags,
+                CancellationSignal cancel, AuthenticationCallback callback, Handler handler) {
             // TODO: Figure out behavior when there is no fingerprint hardware available
         }
     }
@@ -226,11 +228,11 @@ public class FingerprintManagerCompat {
         }
 
         @Override
-        public void authenticate(Context context, CryptoObject crypto, CancellationSignal cancel,
-                AuthenticationCallback callback, int flags) {
-            FingerprintManagerCompatApi23.authenticate(context, wrapCryptoObject(crypto),
+        public void authenticate(Context context, CryptoObject crypto, int flags,
+                CancellationSignal cancel, AuthenticationCallback callback, Handler handler) {
+            FingerprintManagerCompatApi23.authenticate(context, wrapCryptoObject(crypto), flags,
                     cancel != null ? cancel.getCancellationSignalObject() : null,
-                    wrapCallback(callback), flags);
+                    wrapCallback(callback), handler);
         }
 
         private static FingerprintManagerCompatApi23.CryptoObject wrapCryptoObject(
