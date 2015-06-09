@@ -140,7 +140,7 @@ public class SwitchCompat extends CompoundButton {
     private Layout mOnLayout;
     private Layout mOffLayout;
     private TransformationMethod mSwitchTransformationMethod;
-    private Animation mPositionAnimator;
+    private ThumbAnimation mPositionAnimator;
 
     @SuppressWarnings("hiding")
     private final Rect mTempRect = new Rect();
@@ -748,16 +748,7 @@ public class SwitchCompat extends CompoundButton {
     }
 
     private void animateThumbToCheckedState(boolean newCheckedState) {
-        final float startPosition = mThumbPosition;
-        final float targetPosition = newCheckedState ? 1 : 0;
-        final float diff = targetPosition - startPosition;
-
-        mPositionAnimator = new Animation() {
-            @Override
-            protected void applyTransformation(float interpolatedTime, Transformation t) {
-                setThumbPosition(startPosition + (diff * interpolatedTime));
-            }
-        };
+        mPositionAnimator = new ThumbAnimation(mThumbPosition, newCheckedState ? 1 : 0);
         mPositionAnimator.setDuration(THUMB_ANIMATION_DURATION);
         startAnimation(mPositionAnimator);
     }
@@ -1111,6 +1102,8 @@ public class SwitchCompat extends CompoundButton {
 
             if (mPositionAnimator != null && !mPositionAnimator.hasEnded()) {
                 clearAnimation();
+                // Manually set our thumb position to the end state
+                setThumbPosition(mPositionAnimator.mEndPosition);
                 mPositionAnimator = null;
             }
         }
@@ -1147,5 +1140,22 @@ public class SwitchCompat extends CompoundButton {
      */
     private static float constrain(float amount, float low, float high) {
         return amount < low ? low : (amount > high ? high : amount);
+    }
+
+    private class ThumbAnimation extends Animation {
+        final float mStartPosition;
+        final float mEndPosition;
+        final float mDiff;
+
+        private ThumbAnimation(float startPosition, float endPosition) {
+            mStartPosition = startPosition;
+            mEndPosition = endPosition;
+            mDiff = endPosition - startPosition;
+        }
+
+        @Override
+        protected void applyTransformation(float interpolatedTime, Transformation t) {
+            setThumbPosition(mStartPosition + (mDiff * interpolatedTime));
+        }
     }
 }
