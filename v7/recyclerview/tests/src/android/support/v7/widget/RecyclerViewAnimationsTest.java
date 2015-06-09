@@ -18,6 +18,7 @@ package android.support.v7.widget;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -109,6 +110,52 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
         assertNull("test sanity check RV should be removed", rv.getParent());
         assertEquals("no views should be hidden", 0, rv.mChildHelper.mHiddenViews.size());
         assertFalse("there should not be any animations running", animator.isRunning());
+    }
+
+    public void testMoveDeleted() throws Throwable {
+        setupBasic(4, 0, 3);
+        waitForAnimations(2);
+        final View[] targetChild = new View[1];
+        final LoggingItemAnimator animator = new LoggingItemAnimator();
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.setItemAnimator(animator);
+                targetChild[0] = mRecyclerView.getChildAt(1);
+            }
+        });
+
+        assertNotNull("test sanity", targetChild);
+        mLayoutManager.expectLayouts(1);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+                    @Override
+                    public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
+                            RecyclerView.State state) {
+                        if (view == targetChild[0]) {
+                            outRect.set(10, 20, 30, 40);
+                        } else {
+                            outRect.set(0, 0, 0, 0);
+                        }
+                    }
+                });
+            }
+        });
+        mLayoutManager.waitForLayout(1);
+
+        // now delete that item.
+        mLayoutManager.expectLayouts(2);
+        RecyclerView.ViewHolder targetVH = mRecyclerView.getChildViewHolder(targetChild[0]);
+        targetChild[0] = null;
+        mTestAdapter.deleteAndNotify(1, 1);
+        mLayoutManager.waitForLayout(2);
+        assertFalse("if deleted view moves, it should not be in move animations",
+                animator.mMoveVHs.contains(targetVH));
+        assertEquals("only 1 item is deleted", 1, animator.mRemoveVHs.size());
+        assertTrue("the target view is removed", animator.mRemoveVHs.contains(targetVH
+        ));
     }
 
     public void testPreLayoutPositionCleanup() throws Throwable {
