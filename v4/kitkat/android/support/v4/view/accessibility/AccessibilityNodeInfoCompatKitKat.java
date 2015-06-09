@@ -16,6 +16,7 @@
 
 package android.support.v4.view.accessibility;
 
+import android.os.Bundle;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 /**
@@ -52,6 +53,10 @@ class AccessibilityNodeInfoCompatKitKat {
         return ((AccessibilityNodeInfo) info).getRangeInfo();
     }
 
+    public static void setRangeInfo(Object info, Object rangeInfo) {
+        ((AccessibilityNodeInfo) info).setRangeInfo((AccessibilityNodeInfo.RangeInfo) rangeInfo);
+    }
+
     public static Object obtainCollectionInfo(int rowCount, int columnCount,
             boolean hierarchical, int selectionMode) {
         return AccessibilityNodeInfo.CollectionInfo.obtain(rowCount, columnCount, hierarchical);
@@ -69,6 +74,42 @@ class AccessibilityNodeInfoCompatKitKat {
 
     public static boolean isContentInvalid(Object info) {
         return ((AccessibilityNodeInfo) info).isContentInvalid();
+    }
+
+    public static boolean canOpenPopup(Object info) {
+        return ((AccessibilityNodeInfo) info).canOpenPopup();
+    }
+
+    public static void setCanOpenPopup(Object info, boolean opensPopup) {
+        ((AccessibilityNodeInfo) info).setCanOpenPopup(opensPopup);
+    }
+
+    public static Bundle getExtras(Object info) {
+        return ((AccessibilityNodeInfo) info).getExtras();
+    }
+
+    public static int getInputType(Object info) {
+        return ((AccessibilityNodeInfo) info).getInputType();
+    }
+
+    public static void setInputType(Object info, int inputType) {
+        ((AccessibilityNodeInfo) info).setInputType(inputType);
+    }
+
+    public static boolean isDismissable(Object info) {
+        return ((AccessibilityNodeInfo) info).isDismissable();
+    }
+
+    public static void setDismissable(Object info, boolean dismissable) {
+        ((AccessibilityNodeInfo) info).setDismissable(dismissable);
+    }
+
+    public static boolean isMultiLine(Object info) {
+        return ((AccessibilityNodeInfo) info).isMultiLine();
+    }
+
+    public static void setMultiLine(Object info, boolean multiLine) {
+        ((AccessibilityNodeInfo) info).setMultiLine(multiLine);
     }
 
     static class CollectionInfo {
