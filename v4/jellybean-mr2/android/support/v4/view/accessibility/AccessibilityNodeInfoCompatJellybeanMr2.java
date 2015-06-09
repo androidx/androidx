@@ -18,6 +18,8 @@ package android.support.v4.view.accessibility;
 
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import java.util.List;
+
 class AccessibilityNodeInfoCompatJellybeanMr2 {
 
     public static void setViewIdResourceName(Object info, String viewId) {
@@ -26,5 +28,35 @@ class AccessibilityNodeInfoCompatJellybeanMr2 {
 
     public static String getViewIdResourceName(Object info) {
         return ((AccessibilityNodeInfo) info).getViewIdResourceName();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static List<Object> findAccessibilityNodeInfosByViewId(Object info, String viewId) {
+        Object result = ((AccessibilityNodeInfo) info).findAccessibilityNodeInfosByViewId(viewId);
+        return (List<Object>) result;
+    }
+
+    public static void setTextSelection(Object info, int start, int end) {
+        ((AccessibilityNodeInfo) info).setTextSelection(start, end);
+    }
+
+    public static int getTextSelectionStart(Object info) {
+        return ((AccessibilityNodeInfo) info).getTextSelectionStart();
+    }
+
+    public static int getTextSelectionEnd(Object info) {
+        return ((AccessibilityNodeInfo) info).getTextSelectionEnd();
+    }
+
+    public static boolean isEditable(Object info) {
+        return ((AccessibilityNodeInfo) info).isEditable();
+    }
+
+    public static void setEditable(Object info, boolean editable) {
+        ((AccessibilityNodeInfo) info).setEditable(editable);
+    }
+
+    public static boolean refresh(Object info) {
+        return ((AccessibilityNodeInfo) info).refresh();
     }
 }

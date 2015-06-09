@@ -21,6 +21,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.accessibilityservice.AccessibilityServiceInfoCompat;
 import android.support.v4.view.ViewCompat;
+import android.text.InputType;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -200,9 +201,12 @@ public class AccessibilityNodeInfoCompat {
         public Object getChild(Object info, int index);
         public void addChild(Object info, View child);
         public void addChild(Object info, View child, int virtualDescendantId);
+        public boolean removeChild(Object info, View child);
+        public boolean removeChild(Object info, View root, int virtualDescendantId);
         public int getActions(Object info);
         public void addAction(Object info, int action);
         public void addAction(Object info, Object action);
+        public boolean removeAction(Object info, Object action);
         public int getAccessibilityActionId(Object action);
         public CharSequence getAccessibilityActionLabel(Object action);
         public boolean performAction(Object info, int action);
@@ -259,6 +263,7 @@ public class AccessibilityNodeInfoCompat {
         public Object getCollectionItemInfo(Object info);
         public void setCollectionItemInfo(Object info, Object collectionItemInfo);
         public Object getRangeInfo(Object info);
+        public void setRangeInfo(Object info, Object rangeInfo);
         public List<Object> getActionList(Object info);
         public Object obtainCollectionInfo(int rowCount, int columnCount, boolean hierarchical,
                 int selectionMode);
@@ -273,10 +278,10 @@ public class AccessibilityNodeInfoCompat {
         public int getCollectionItemRowSpan(Object info);
         public boolean isCollectionItemHeading(Object info);
         public boolean isCollectionItemSelected(Object info);
-        public AccessibilityNodeInfoCompat getTraversalBefore(Object info);
+        public Object getTraversalBefore(Object info);
         public void setTraversalBefore(Object info, View view);
         public void setTraversalBefore(Object info, View root, int virtualDescendantId);
-        public AccessibilityNodeInfoCompat getTraversalAfter(Object info);
+        public Object getTraversalAfter(Object info);
         public void setTraversalAfter(Object info, View view);
         public void setTraversalAfter(Object info, View root, int virtualDescendantId);
         public void setContentInvalid(Object info, boolean contentInvalid);
@@ -285,6 +290,29 @@ public class AccessibilityNodeInfoCompat {
         public CharSequence getError(Object info);
         public void setLabelFor(Object info, View labeled);
         public void setLabelFor(Object info, View root, int virtualDescendantId);
+        public Object getLabelFor(Object info);
+        public void setLabeledBy(Object info, View labeled);
+        public void setLabeledBy(Object info, View root, int virtualDescendantId);
+        public Object getLabeledBy(Object info);
+        public boolean canOpenPopup(Object info);
+        public void setCanOpenPopup(Object info, boolean opensPopup);
+        public List<Object> findAccessibilityNodeInfosByViewId(Object info, String viewId);
+        public Bundle getExtras(Object info);
+        public int getInputType(Object info);
+        public void setInputType(Object info, int inputType);
+        public void setMaxTextLength(Object info, int max);
+        public int getMaxTextLength(Object info);
+        public void setTextSelection(Object info, int start, int end);
+        public int getTextSelectionStart(Object info);
+        public int getTextSelectionEnd(Object info);
+        public Object getWindow(Object info);
+        public boolean isDismissable(Object info);
+        public void setDismissable(Object info, boolean dismissable);
+        public boolean isEditable(Object info);
+        public void setEditable(Object info, boolean editable);
+        public boolean isMultiLine(Object info);
+        public void setMultiLine(Object info, boolean multiLine);
+        public boolean refresh(Object info);
     }
 
     static class AccessibilityNodeInfoStubImpl implements AccessibilityNodeInfoImpl {
@@ -324,6 +352,11 @@ public class AccessibilityNodeInfoCompat {
         }
 
         @Override
+        public boolean removeAction(Object info, Object action) {
+            return false;
+        }
+
+        @Override
         public int getAccessibilityActionId(Object action) {
             return 0;
         }
@@ -341,6 +374,16 @@ public class AccessibilityNodeInfoCompat {
         @Override
         public void addChild(Object info, View child, int virtualDescendantId) {
 
+        }
+
+        @Override
+        public boolean removeChild(Object info, View child) {
+            return false;
+        }
+
+        @Override
+        public boolean removeChild(Object info, View root, int virtualDescendantId) {
+            return false;
         }
 
         @Override
@@ -652,6 +695,10 @@ public class AccessibilityNodeInfoCompat {
         }
 
         @Override
+        public void setRangeInfo(Object info, Object rangeInfo) {
+        }
+
+        @Override
         public List<Object> getActionList(Object info) {
             return null;
         }
@@ -714,7 +761,7 @@ public class AccessibilityNodeInfoCompat {
         }
 
         @Override
-        public AccessibilityNodeInfoCompat getTraversalBefore(Object info) {
+        public Object getTraversalBefore(Object info) {
             return null;
         }
 
@@ -727,7 +774,7 @@ public class AccessibilityNodeInfoCompat {
         }
 
         @Override
-        public AccessibilityNodeInfoCompat getTraversalAfter(Object info) {
+        public Object getTraversalAfter(Object info) {
             return null;
         }
 
@@ -763,6 +810,112 @@ public class AccessibilityNodeInfoCompat {
 
         @Override
         public void setLabelFor(Object info, View root, int virtualDescendantId) {
+        }
+
+        @Override
+        public Object getLabelFor(Object info) {
+            return null;
+        }
+
+        @Override
+        public void setLabeledBy(Object info, View labeled) {
+        }
+
+        @Override
+        public void setLabeledBy(Object info, View root, int virtualDescendantId) {
+        }
+
+        @Override
+        public Object getLabeledBy(Object info){
+            return null;
+        }
+
+        @Override
+        public boolean canOpenPopup(Object info) {
+            return false;
+        }
+
+        @Override
+        public void setCanOpenPopup(Object info, boolean opensPopup) {
+        }
+
+        @Override
+        public List<Object> findAccessibilityNodeInfosByViewId(Object info, String viewId) {
+            return  Collections.emptyList();
+        }
+
+        @Override
+        public Bundle getExtras(Object info) {
+            return new Bundle();
+        }
+
+        @Override
+        public int getInputType(Object info) {
+            return InputType.TYPE_NULL;
+        }
+
+        @Override
+        public void setInputType(Object info, int inputType) {
+        }
+
+        @Override
+        public void setMaxTextLength(Object info, int max) {
+        }
+
+        @Override
+        public int getMaxTextLength(Object info) {
+            return -1;
+        }
+
+        @Override
+        public void setTextSelection(Object info, int start, int end) {
+        }
+
+        @Override
+        public int getTextSelectionStart(Object info) {
+            return -1;
+        }
+
+        @Override
+        public int getTextSelectionEnd(Object info) {
+            return -1;
+        }
+
+        @Override
+        public Object getWindow(Object info) {
+            return null;
+        }
+
+        @Override
+        public boolean isDismissable(Object info) {
+            return false;
+        }
+
+        @Override
+        public void setDismissable(Object info, boolean dismissable) {
+        }
+
+        @Override
+        public boolean isEditable(Object info) {
+            return false;
+        }
+
+        @Override
+        public void setEditable(Object info, boolean editable) {
+        }
+
+        @Override
+        public boolean isMultiLine(Object info) {
+            return false;
+        }
+
+        @Override
+        public void setMultiLine(Object info, boolean multiLine) {
+        }
+
+        @Override
+        public boolean refresh(Object info) {
+            return false;
         }
     }
 
@@ -1070,7 +1223,41 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
-    static class AccessibilityNodeInfoJellybeanMr2Impl extends AccessibilityNodeInfoJellybeanImpl {
+    static class AccessibilityNodeInfoJellybeanMr1Impl extends AccessibilityNodeInfoJellybeanImpl {
+
+        @Override
+        public void setLabelFor(Object info, View labeled) {
+            AccessibilityNodeInfoCompatJellybeanMr1.setLabelFor(info, labeled);
+        }
+
+        @Override
+        public void setLabelFor(Object info, View root, int virtualDescendantId) {
+            AccessibilityNodeInfoCompatJellybeanMr1.setLabelFor(info, root, virtualDescendantId);
+        }
+
+        @Override
+        public Object getLabelFor(Object info) {
+            return AccessibilityNodeInfoCompatJellybeanMr1.getLabelFor(info);
+        }
+
+        @Override
+        public void setLabeledBy(Object info, View labeled) {
+            AccessibilityNodeInfoCompatJellybeanMr1.setLabeledBy(info, labeled);
+        }
+
+        @Override
+        public void setLabeledBy(Object info, View root, int virtualDescendantId) {
+            AccessibilityNodeInfoCompatJellybeanMr1.setLabeledBy(info, root, virtualDescendantId);
+        }
+
+        @Override
+        public Object getLabeledBy(Object info) {
+            return AccessibilityNodeInfoCompatJellybeanMr1.getLabeledBy(info);
+        }
+    }
+
+    static class AccessibilityNodeInfoJellybeanMr2Impl extends
+            AccessibilityNodeInfoJellybeanMr1Impl {
 
         @Override
         public String getViewIdResourceName(Object info) {
@@ -1080,6 +1267,42 @@ public class AccessibilityNodeInfoCompat {
         @Override
         public void setViewIdResourceName(Object info, String viewId) {
             AccessibilityNodeInfoCompatJellybeanMr2.setViewIdResourceName(info, viewId);
+        }
+
+        @Override
+        public List<Object> findAccessibilityNodeInfosByViewId(Object info, String viewId) {
+            return AccessibilityNodeInfoCompatJellybeanMr2.findAccessibilityNodeInfosByViewId(info,
+                    viewId);
+        }
+
+        @Override
+        public void setTextSelection(Object info, int start, int end) {
+            AccessibilityNodeInfoCompatJellybeanMr2.setTextSelection(info, start, end);
+        }
+
+        @Override
+        public int getTextSelectionStart(Object info) {
+            return AccessibilityNodeInfoCompatJellybeanMr2.getTextSelectionStart(info);
+        }
+
+        @Override
+        public int getTextSelectionEnd(Object info) {
+            return AccessibilityNodeInfoCompatJellybeanMr2.getTextSelectionEnd(info);
+        }
+
+        @Override
+        public boolean isEditable(Object info) {
+            return AccessibilityNodeInfoCompatJellybeanMr2.isEditable(info);
+        }
+
+        @Override
+        public void setEditable(Object info, boolean editable) {
+            AccessibilityNodeInfoCompatJellybeanMr2.setEditable(info, editable);
+        }
+
+        @Override
+        public boolean refresh(Object info) {
+            return AccessibilityNodeInfoCompatJellybeanMr2.refresh(info);
         }
     }
 
@@ -1144,6 +1367,11 @@ public class AccessibilityNodeInfoCompat {
         }
 
         @Override
+        public void setRangeInfo(Object info, Object rangeInfo) {
+            AccessibilityNodeInfoCompatKitKat.setRangeInfo(info, rangeInfo);
+        }
+
+        @Override
         public int getCollectionItemColumnIndex(Object info) {
             return AccessibilityNodeInfoCompatKitKat.CollectionItemInfo.getColumnIndex(info);
         }
@@ -1182,6 +1410,51 @@ public class AccessibilityNodeInfoCompat {
         public boolean isContentInvalid(Object info) {
             return AccessibilityNodeInfoCompatKitKat.isContentInvalid(info);
         }
+
+        @Override
+        public boolean canOpenPopup(Object info) {
+            return AccessibilityNodeInfoCompatKitKat.canOpenPopup(info);
+        }
+
+        @Override
+        public void setCanOpenPopup(Object info, boolean opensPopup) {
+            AccessibilityNodeInfoCompatKitKat.setCanOpenPopup(info, opensPopup);
+        }
+
+        @Override
+        public Bundle getExtras(Object info) {
+            return AccessibilityNodeInfoCompatKitKat.getExtras(info);
+        }
+
+        @Override
+        public int getInputType(Object info) {
+            return AccessibilityNodeInfoCompatKitKat.getInputType(info);
+        }
+
+        @Override
+        public void setInputType(Object info, int inputType) {
+            AccessibilityNodeInfoCompatKitKat.setInputType(info, inputType);
+        }
+
+        @Override
+        public boolean isDismissable(Object info) {
+            return AccessibilityNodeInfoCompatKitKat.isDismissable(info);
+        }
+
+        @Override
+        public void setDismissable(Object info, boolean dismissable) {
+            AccessibilityNodeInfoCompatKitKat.setDismissable(info, dismissable);
+        }
+
+        @Override
+        public boolean isMultiLine(Object info) {
+            return AccessibilityNodeInfoCompatKitKat.isMultiLine(info);
+        }
+
+        @Override
+        public void setMultiLine(Object info, boolean multiLine) {
+            AccessibilityNodeInfoCompatKitKat.setMultiLine(info, multiLine);
+        }
     }
 
     static class AccessibilityNodeInfoApi21Impl extends AccessibilityNodeInfoKitKatImpl {
@@ -1205,6 +1478,11 @@ public class AccessibilityNodeInfoCompat {
         @Override
         public void addAction(Object info, Object action) {
             AccessibilityNodeInfoCompatApi21.addAction(info, action);
+        }
+
+        @Override
+        public boolean removeAction(Object info, Object action) {
+            return AccessibilityNodeInfoCompatApi21.removeAction(info, action);
         }
 
         @Override
@@ -1240,25 +1518,35 @@ public class AccessibilityNodeInfoCompat {
         }
 
         @Override
-        public void setLabelFor(Object info, View labeled) {
-            AccessibilityNodeInfoCompatApi21.setLabelFor(info, labeled);
+        public void setMaxTextLength(Object info, int max) {
+            AccessibilityNodeInfoCompatApi21.setMaxTextLength(info, max);
         }
 
         @Override
-        public void setLabelFor(Object info, View root, int virtualDescendantId) {
-            AccessibilityNodeInfoCompatApi21.setLabelFor(info, root, virtualDescendantId);
+        public int getMaxTextLength(Object info) {
+            return AccessibilityNodeInfoCompatApi21.getMaxTextLength(info);
+        }
+
+        @Override
+        public Object getWindow(Object info) {
+            return AccessibilityNodeInfoCompatApi21.getWindow(info);
+        }
+
+        @Override
+        public boolean removeChild(Object info, View child) {
+            return AccessibilityNodeInfoCompatApi21.removeChild(info, child);
+        }
+
+        @Override
+        public boolean removeChild(Object info, View root, int virtualDescendantId) {
+            return AccessibilityNodeInfoCompatApi21.removeChild(info, root, virtualDescendantId);
         }
     }
 
     static class AccessibilityNodeInfoApi22Impl extends AccessibilityNodeInfoApi21Impl {
         @Override
-        public AccessibilityNodeInfoCompat getTraversalBefore(Object info) {
-            Object nodeInfo = AccessibilityNodeInfoCompatApi22.getTraversalBefore(info);
-            if (nodeInfo == null) {
-                return null;
-            }
-
-            return new AccessibilityNodeInfoCompat(nodeInfo);
+        public Object getTraversalBefore(Object info) {
+            return AccessibilityNodeInfoCompatApi22.getTraversalBefore(info);
         }
 
         @Override
@@ -1272,13 +1560,8 @@ public class AccessibilityNodeInfoCompat {
         }
 
         @Override
-        public AccessibilityNodeInfoCompat getTraversalAfter(Object info) {
-            Object nodeInfo = AccessibilityNodeInfoCompatApi22.getTraversalAfter(info);
-            if (nodeInfo == null) {
-                return null;
-            }
-
-            return new AccessibilityNodeInfoCompat(nodeInfo);
+        public Object getTraversalAfter(Object info) {
+            return AccessibilityNodeInfoCompatApi22.getTraversalAfter(info);
         }
 
         @Override
@@ -1301,6 +1584,8 @@ public class AccessibilityNodeInfoCompat {
             IMPL = new AccessibilityNodeInfoKitKatImpl();
         } else if (Build.VERSION.SDK_INT >= 18) { // JellyBean MR2
             IMPL = new AccessibilityNodeInfoJellybeanMr2Impl();
+        } else if (Build.VERSION.SDK_INT >= 17) { // JellyBean MR1
+            IMPL = new AccessibilityNodeInfoJellybeanMr1Impl();
         } else if (Build.VERSION.SDK_INT >= 16) { // JellyBean
             IMPL = new AccessibilityNodeInfoJellybeanImpl();
         } else if (Build.VERSION.SDK_INT >= 14) { // ICS
@@ -1840,6 +2125,38 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
+     * Removes a child. If the child was not previously added to the node,
+     * calling this method has no effect.
+     * <p>
+     * <strong>Note:</strong> Cannot be called from an
+     * {@link android.accessibilityservice.AccessibilityService}.
+     * This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param child The child.
+     * @return true if the child was present
+     *
+     * @throws IllegalStateException If called from an AccessibilityService.
+     */
+    public boolean removeChild(View child) {
+        return IMPL.removeChild(mInfo, child);
+    }
+
+    /**
+     * Removes a virtual child which is a descendant of the given
+     * <code>root</code>. If the child was not previously added to the node,
+     * calling this method has no effect.
+     *
+     * @param root The root of the virtual subtree.
+     * @param virtualDescendantId The id of the virtual child.
+     * @return true if the child was present
+     * @see #addChild(View, int)
+     */
+    public boolean removeChild(View root, int virtualDescendantId) {
+        return IMPL.removeChild(mInfo, root, virtualDescendantId);
+    }
+
+    /**
      * Gets the actions that can be performed on the node.
      *
      * @return The bit mask of with actions.
@@ -1880,6 +2197,24 @@ public class AccessibilityNodeInfoCompat {
      */
     public void addAction(AccessibilityActionCompat action) {
         IMPL.addAction(mInfo, action.mAction);
+    }
+
+    /**
+     * Removes an action that can be performed on the node. If the action was
+     * not already added to the node, calling this method has no effect.
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param action The action to be removed.
+     * @return The action removed from the list of actions.
+     *
+     * @throws IllegalStateException If called from an AccessibilityService.
+     */
+    public boolean removeAction(AccessibilityActionCompat action) {
+        return IMPL.removeAction(mInfo, action.mAction);
     }
 
     /**
@@ -2574,6 +2909,20 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
+     * Sets the range info if this node is a range.
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param rangeInfo The range info.
+     */
+    public void setRangeInfo(RangeInfoCompat rangeInfo) {
+        IMPL.setRangeInfo(mInfo, rangeInfo.mInfo);
+    }
+
+    /**
      * Gets the actions that can be performed on the node.
      *
      * @return A list of AccessibilityActions.
@@ -2669,6 +3018,441 @@ public class AccessibilityNodeInfoCompat {
      */
     public void setLabelFor(View root, int virtualDescendantId) {
         IMPL.setLabelFor(mInfo, root, virtualDescendantId);
+    }
+
+    /**
+     * Gets the node info for which the view represented by this info serves as
+     * a label for accessibility purposes.
+     * <p>
+     *   <strong>Note:</strong> It is a client responsibility to recycle the
+     *     received info by calling {@link AccessibilityNodeInfoCompat#recycle()}
+     *     to avoid creating of multiple instances.
+     * </p>
+     *
+     * @return The labeled info.
+     */
+    public AccessibilityNodeInfoCompat getLabelFor() {
+        return AccessibilityNodeInfoCompat.wrapNonNullInstance(IMPL.getLabelFor(mInfo));
+    }
+
+    /**
+     * Sets the view which serves as the label of the view represented by
+     * this info for accessibility purposes.
+     *
+     * @param label The view that labels this node's source.
+     */
+    public void setLabeledBy(View label) {
+        IMPL.setLabeledBy(mInfo, label);
+    }
+
+    /**
+     * Sets the view which serves as the label of the view represented by
+     * this info for accessibility purposes. If <code>virtualDescendantId</code>
+     * is {@link View#NO_ID} the root is set as the label.
+     * <p>
+     * A virtual descendant is an imaginary View that is reported as a part of the view
+     * hierarchy for accessibility purposes. This enables custom views that draw complex
+     * content to report themselves as a tree of virtual views, thus conveying their
+     * logical structure.
+     * </p>
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param root The root whose virtual descendant labels this node's source.
+     * @param virtualDescendantId The id of the virtual descendant.
+     */
+    public void setLabeledBy(View root, int virtualDescendantId) {
+        IMPL.setLabeledBy(mInfo, root, virtualDescendantId);
+    }
+
+    /**
+     * Gets the node info which serves as the label of the view represented by
+     * this info for accessibility purposes.
+     * <p>
+     *   <strong>Note:</strong> It is a client responsibility to recycle the
+     *     received info by calling {@link AccessibilityNodeInfoCompat#recycle()}
+     *     to avoid creating of multiple instances.
+     * </p>
+     *
+     * @return The label.
+     */
+    public AccessibilityNodeInfoCompat getLabeledBy() {
+        return AccessibilityNodeInfoCompat.wrapNonNullInstance(IMPL.getLabeledBy(mInfo));
+    }
+
+    /**
+     * Gets if this node opens a popup or a dialog.
+     *
+     * @return If the the node opens a popup.
+     */
+    public boolean canOpenPopup() {
+        return IMPL.canOpenPopup(mInfo);
+    }
+
+    /**
+     * Sets if this node opens a popup or a dialog.
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param opensPopup If the the node opens a popup.
+     */
+    public void setCanOpenPopup(boolean opensPopup) {
+        IMPL.setCanOpenPopup(mInfo, opensPopup);
+    }
+
+    /**
+     * Finds {@link AccessibilityNodeInfoCompat}s by the fully qualified view id's resource
+     * name where a fully qualified id is of the from "package:id/id_resource_name".
+     * For example, if the target application's package is "foo.bar" and the id
+     * resource name is "baz", the fully qualified resource id is "foo.bar:id/baz".
+     *
+     * <p>
+     *   <strong>Note:</strong> It is a client responsibility to recycle the
+     *     received info by calling {@link AccessibilityNodeInfoCompat#recycle()}
+     *     to avoid creating of multiple instances.
+     * </p>
+     * <p>
+     *   <strong>Note:</strong> The primary usage of this API is for UI test automation
+     *   and in order to report the fully qualified view id if an
+     *   {@link AccessibilityNodeInfoCompat} the client has to set the
+     *   {@link android.accessibilityservice.AccessibilityServiceInfo#FLAG_REPORT_VIEW_IDS}
+     *   flag when configuring his {@link android.accessibilityservice.AccessibilityService}.
+     * </p>
+     *
+     * @param viewId The fully qualified resource name of the view id to find.
+     * @return A list of node info.
+     */
+    public List<AccessibilityNodeInfoCompat> findAccessibilityNodeInfosByViewId(String viewId) {
+        List<Object> nodes = IMPL.findAccessibilityNodeInfosByViewId(mInfo, viewId);
+        if (nodes != null) {
+            List<AccessibilityNodeInfoCompat> result = new ArrayList<AccessibilityNodeInfoCompat>();
+            for (Object node : nodes) {
+                result.add(new AccessibilityNodeInfoCompat(node));
+            }
+            return result;
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    /**
+     * Gets an optional bundle with extra data. The bundle
+     * is lazily created and never <code>null</code>.
+     * <p>
+     * <strong>Note:</strong> It is recommended to use the package
+     * name of your application as a prefix for the keys to avoid
+     * collisions which may confuse an accessibility service if the
+     * same key has different meaning when emitted from different
+     * applications.
+     * </p>
+     *
+     * @return The bundle.
+     */
+    public Bundle getExtras() {
+        return IMPL.getExtras(mInfo);
+    }
+
+    /**
+     * Gets the input type of the source as defined by {@link InputType}.
+     *
+     * @return The input type.
+     */
+    public int getInputType() {
+        return IMPL.getInputType(mInfo);
+    }
+
+    /**
+     * Sets the input type of the source as defined by {@link InputType}.
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an
+     *   AccessibilityService.
+     * </p>
+     *
+     * @param inputType The input type.
+     *
+     * @throws IllegalStateException If called from an AccessibilityService.
+     */
+    public void setInputType(int inputType) {
+        IMPL.setInputType(mInfo, inputType);
+    }
+
+    /**
+     * Sets the maximum text length, or -1 for no limit.
+     * <p>
+     * Typically used to indicate that an editable text field has a limit on
+     * the number of characters entered.
+     * <p>
+     * <strong>Note:</strong> Cannot be called from an
+     * {@link android.accessibilityservice.AccessibilityService}.
+     * This class is made immutable before being delivered to an AccessibilityService.
+     *
+     * @param max The maximum text length.
+     * @see #getMaxTextLength()
+     *
+     * @throws IllegalStateException If called from an AccessibilityService.
+     */
+    public void setMaxTextLength(int max) {
+        IMPL.setMaxTextLength(mInfo, max);
+    }
+
+    /**
+     * Returns the maximum text length for this node.
+     *
+     * @return The maximum text length, or -1 for no limit.
+     * @see #setMaxTextLength(int)
+     */
+    public int getMaxTextLength() {
+        return IMPL.getMaxTextLength(mInfo);
+    }
+
+    /**
+     * Sets the text selection start and end.
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param start The text selection start.
+     * @param end The text selection end.
+     *
+     * @throws IllegalStateException If called from an AccessibilityService.
+     */
+    public void setTextSelection(int start, int end) {
+        IMPL.setTextSelection(mInfo, start, end);
+    }
+
+    /**
+     * Gets the text selection start.
+     *
+     * @return The text selection start if there is selection or -1.
+     */
+    public int getTextSelectionStart() {
+        return IMPL.getTextSelectionStart(mInfo);
+    }
+
+    /**
+     * Gets the text selection end.
+     *
+     * @return The text selection end if there is selection or -1.
+     */
+    public int getTextSelectionEnd() {
+        return IMPL.getTextSelectionEnd(mInfo);
+    }
+
+    /**
+     * Gets the node before which this one is visited during traversal. A screen-reader
+     * must visit the content of this node before the content of the one it precedes.
+     *
+     * @return The succeeding node if such or <code>null</code>.
+     *
+     * @see #setTraversalBefore(android.view.View)
+     * @see #setTraversalBefore(android.view.View, int)
+     */
+    public AccessibilityNodeInfoCompat getTraversalBefore() {
+        return AccessibilityNodeInfoCompat.wrapNonNullInstance(IMPL.getTraversalBefore(mInfo));
+    }
+
+    /**
+     * Sets the view before whose node this one should be visited during traversal. A
+     * screen-reader must visit the content of this node before the content of the one
+     * it precedes.
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param view The view providing the preceding node.
+     *
+     * @see #getTraversalBefore()
+     */
+    public void setTraversalBefore(View view) {
+        IMPL.setTraversalBefore(mInfo, view);
+    }
+
+    /**
+     * Sets the node before which this one is visited during traversal. A screen-reader
+     * must visit the content of this node before the content of the one it precedes.
+     * The successor is a virtual descendant of the given <code>root</code>. If
+     * <code>virtualDescendantId</code> equals to {@link View#NO_ID} the root is set
+     * as the successor.
+     * <p>
+     * A virtual descendant is an imaginary View that is reported as a part of the view
+     * hierarchy for accessibility purposes. This enables custom views that draw complex
+     * content to report them selves as a tree of virtual views, thus conveying their
+     * logical structure.
+     * </p>
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param root The root of the virtual subtree.
+     * @param virtualDescendantId The id of the virtual descendant.
+     */
+    public void setTraversalBefore(View root, int virtualDescendantId) {
+        IMPL.setTraversalBefore(mInfo, root, virtualDescendantId);
+    }
+
+    /**
+     * Gets the node after which this one is visited in accessibility traversal.
+     * A screen-reader must visit the content of the other node before the content
+     * of this one.
+     *
+     * @return The succeeding node if such or <code>null</code>.
+     *
+     * @see #setTraversalAfter(android.view.View)
+     * @see #setTraversalAfter(android.view.View, int)
+     */
+    public AccessibilityNodeInfoCompat getTraversalAfter() {
+        return AccessibilityNodeInfoCompat.wrapNonNullInstance(IMPL.getTraversalAfter(mInfo));
+    }
+
+    /**
+     * Sets the view whose node is visited after this one in accessibility traversal.
+     * A screen-reader must visit the content of the other node before the content
+     * of this one.
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param view The previous view.
+     *
+     * @see #getTraversalAfter()
+     */
+    public void setTraversalAfter(View view) {
+        IMPL.setTraversalAfter(mInfo, view);
+    }
+
+    /**
+     * Sets the node after which this one is visited in accessibility traversal.
+     * A screen-reader must visit the content of the other node before the content
+     * of this one. If <code>virtualDescendantId</code> equals to {@link View#NO_ID}
+     * the root is set as the predecessor.
+     * <p>
+     * A virtual descendant is an imaginary View that is reported as a part of the view
+     * hierarchy for accessibility purposes. This enables custom views that draw complex
+     * content to report them selves as a tree of virtual views, thus conveying their
+     * logical structure.
+     * </p>
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param root The root of the virtual subtree.
+     * @param virtualDescendantId The id of the virtual descendant.
+     */
+    public void setTraversalAfter(View root, int virtualDescendantId) {
+        IMPL.setTraversalAfter(mInfo, root, virtualDescendantId);
+    }
+
+    /**
+     * Gets the window to which this node belongs.
+     *
+     * @return The window.
+     *
+     * @see android.accessibilityservice.AccessibilityService#getWindows()
+     */
+    public AccessibilityWindowInfoCompat getWindow() {
+        return AccessibilityWindowInfoCompat.wrapNonNullInstance(IMPL.getWindow(mInfo));
+    }
+
+    /**
+     * Gets if the node can be dismissed.
+     *
+     * @return If the node can be dismissed.
+     */
+    public boolean isDismissable() {
+        return IMPL.isDismissable(mInfo);
+    }
+
+    /**
+     * Sets if the node can be dismissed.
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param dismissable If the node can be dismissed.
+     */
+    public void setDismissable(boolean dismissable) {
+        IMPL.setDismissable(mInfo, dismissable);
+    }
+
+    /**
+     * Gets if the node is editable.
+     *
+     * @return True if the node is editable, false otherwise.
+     */
+    public boolean isEditable() {
+        return IMPL.isEditable(mInfo);
+    }
+
+    /**
+     * Sets whether this node is editable.
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param editable True if the node is editable.
+     *
+     * @throws IllegalStateException If called from an AccessibilityService.
+     */
+    public void setEditable(boolean editable) {
+        IMPL.setEditable(mInfo, editable);
+    }
+
+    /**
+     * Gets if the node is a multi line editable text.
+     *
+     * @return True if the node is multi line.
+     */
+    public boolean isMultiLine() {
+        return IMPL.isMultiLine(mInfo);
+    }
+
+    /**
+     * Sets if the node is a multi line editable text.
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param multiLine True if the node is multi line.
+     */
+    public void setMultiLine(boolean multiLine) {
+        IMPL.setMultiLine(mInfo, multiLine);
+    }
+
+    /**
+     * Refreshes this info with the latest state of the view it represents.
+     * <p>
+     * <strong>Note:</strong> If this method returns false this info is obsolete
+     * since it represents a view that is no longer in the view tree and should
+     * be recycled.
+     * </p>
+     * @return Whether the refresh succeeded.
+     */
+    public boolean refresh() {
+        return IMPL.refresh(mInfo);
     }
 
     @Override
