@@ -35,6 +35,10 @@ class AccessibilityNodeInfoCompatApi21 {
         ((AccessibilityNodeInfo) info).addAction((AccessibilityAction) action);
     }
 
+    public static boolean removeAction(Object info, Object action) {
+        return ((AccessibilityNodeInfo) info).removeAction((AccessibilityAction) action);
+    }
+
     public static Object obtainCollectionInfo(int rowCount, int columnCount,
             boolean hierarchical, int selectionMode) {
         return AccessibilityNodeInfo.CollectionInfo.obtain(rowCount, columnCount, hierarchical,
@@ -55,12 +59,24 @@ class AccessibilityNodeInfoCompatApi21 {
         ((AccessibilityNodeInfo) info).setError(error);
     }
 
-    public static void setLabelFor(Object info, View labeled) {
-        ((AccessibilityNodeInfo) info).setLabelFor(labeled);
+    public static void setMaxTextLength(Object info, int max) {
+        ((AccessibilityNodeInfo) info).setMaxTextLength(max);
     }
 
-    public static void setLabelFor(Object info, View root, int virtualDescendantId) {
-        ((AccessibilityNodeInfo) info).setLabelFor(root, virtualDescendantId);
+    public static int getMaxTextLength(Object info) {
+        return ((AccessibilityNodeInfo) info).getMaxTextLength();
+    }
+
+    public static Object getWindow(Object info) {
+        return ((AccessibilityNodeInfo) info).getWindow();
+    }
+
+    public static boolean removeChild(Object info, View child) {
+        return ((AccessibilityNodeInfo) info).removeChild(child);
+    }
+
+    public static boolean removeChild(Object info, View root, int virtualDescendantId) {
+        return ((AccessibilityNodeInfo) info).removeChild(root, virtualDescendantId);
     }
 
     static class CollectionItemInfo {
