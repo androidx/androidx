@@ -573,7 +573,7 @@
         <item name="isLightTheme">true</item>
     </style>
 
-    <style name="Base.ThemeOverlay.AppCompat.Dark">
+    <style name="Base.ThemeOverlay.AppCompat.Dark" parent="Platform.ThemeOverlay.AppCompat.Dark">
         <item name="android:windowBackground">@color/background_material_dark</item>
         <item name="android:colorForeground">@color/foreground_material_dark</item>
         <item name="android:colorForegroundInverse">@color/foreground_material_light</item>
