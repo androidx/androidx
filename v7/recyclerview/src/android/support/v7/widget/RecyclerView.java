@@ -2022,6 +2022,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             return true;
         }
 
+        if (mLayout == null) {
+            return false;
+        }
+
         final boolean canScrollHorizontally = mLayout.canScrollHorizontally();
         final boolean canScrollVertically = mLayout.canScrollVertically();
 
@@ -2119,6 +2123,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         if (dispatchOnItemTouch(e)) {
             cancelTouch();
             return true;
+        }
+
+        if (mLayout == null) {
+            return false;
         }
 
         final boolean canScrollHorizontally = mLayout.canScrollHorizontally();
