@@ -915,18 +915,42 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         }
     }
 
-    public void viewSnapTest(Config config) throws Throwable {
+    public void viewSnapTest(final Config config) throws Throwable {
         setupByConfig(config);
+        mAdapter.mOnBindCallback = new OnBindCallback() {
+            @Override
+            void onBoundItem(TestViewHolder vh, int position) {
+                LayoutParams lp = (LayoutParams) vh.itemView.getLayoutParams();
+                if (config.mOrientation == HORIZONTAL) {
+                    lp.width = mRecyclerView.getWidth() / 3;
+                } else {
+                    lp.height = mRecyclerView.getHeight() / 3;
+                }
+            }
+            @Override
+            boolean assignRandomSize() {
+                return false;
+            }
+        };
         waitFirstLayout();
         // run these tests twice. once initial layout, once after scroll
         String logSuffix = "";
         for (int i = 0; i < 2; i++) {
             Map<Item, Rect> itemRectMap = mLayoutManager.collectChildCoordinates();
             Rect recyclerViewBounds = getDecoratedRecyclerViewBounds();
+            // workaround for SGLM's span distribution issue. Right now, it may leave gaps so we
+            // avoid it by setting its layout params directly
+            if(config.mOrientation == HORIZONTAL) {
+                recyclerViewBounds.bottom -= recyclerViewBounds.height() % config.mSpanCount;
+            } else {
+                recyclerViewBounds.right -= recyclerViewBounds.width() % config.mSpanCount;
+            }
+
             Rect usedLayoutBounds = new Rect();
             for (Rect rect : itemRectMap.values()) {
                 usedLayoutBounds.union(rect);
             }
+
             if (DEBUG) {
                 Log.d(TAG, "testing view snapping (" + logSuffix + ") for config " + config);
             }
