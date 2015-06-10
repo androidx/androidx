@@ -552,6 +552,13 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         final AnchorInfo anchorInfo = mAnchorInfo;
         anchorInfo.reset();
 
+        if (mPendingSavedState != null || mPendingScrollPosition != NO_POSITION) {
+            if (state.getItemCount() == 0) {
+                removeAndRecycleAllViews(recycler);
+                return;
+            }
+        }
+
         if (mPendingSavedState != null) {
             applyPendingSavedState(anchorInfo);
         } else {
