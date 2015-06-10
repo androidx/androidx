@@ -27,9 +27,9 @@ def jbSS           = createApiSourceset('jellybean',    'jellybean',     '16',  
 def jbMr1SS        = createApiSourceset('jellybeanmr1', 'jellybean-mr1', '17',      jbSS)
 def jbMr2SS        = createApiSourceset('jellybeanmr2', 'jellybean-mr2', '18',      jbMr1SS)
 def kitkatSS       = createApiSourceset('kitkat',       'kitkat',        '19',      jbMr2SS)
-def api20SS        = createApiSourceset('api20',        'api20',         '20', kitkatSS)
-def api21SS        = createApiSourceset('api21',        'api21',         '21', api20SS)
-def api22SS        = createApiSourceset('api22',        'api22',         'current', api21SS)
+def api20SS        = createApiSourceset('api20',        'api20',         '20',      kitkatSS)
+def api21SS        = createApiSourceset('api21',        'api21',         '21',      api20SS)
+def api22SS        = createApiSourceset('api22',        'api22',         '22',      api21SS)
 def api23SS        = createApiSourceset('api23',        'api23',         'current', api22SS)
 
 
