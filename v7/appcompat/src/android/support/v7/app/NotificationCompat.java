@@ -223,8 +223,9 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
          *
          * @param show whether to show a cancel button
          */
-        public void setShowCancelButton(boolean show) {
+        public MediaStyle setShowCancelButton(boolean show) {
             mShowCancelButton = show;
+            return this;
         }
 
         /**
@@ -233,8 +234,9 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
          *
          * @param pendingIntent the intent to be sent when the cancel button is pressed
          */
-        public void setCancelButtonIntent(PendingIntent pendingIntent) {
+        public MediaStyle setCancelButtonIntent(PendingIntent pendingIntent) {
             mCancelButtonIntent = pendingIntent;
+            return this;
         }
     }
 }
