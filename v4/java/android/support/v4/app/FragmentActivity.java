@@ -75,7 +75,9 @@ import java.util.List;
  * state, this may be a snapshot slightly before what the user last saw.</p>
  * </ul>
  */
-public class FragmentActivity extends BaseFragmentActivityHoneycomb {
+public class FragmentActivity extends BaseFragmentActivityHoneycomb implements
+        ActivityCompat.OnRequestPermissionsResultCallback,
+        ActivityCompatApi23.RequestPermissionsRequestCodeValidator {
     private static final String TAG = "FragmentActivity";
 
     static final String FRAGMENTS_TAG = "android:support:fragments";
@@ -114,6 +116,7 @@ public class FragmentActivity extends BaseFragmentActivityHoneycomb {
     boolean mRetaining;
 
     boolean mOptionsMenuInvalidated;
+    boolean mRequestedPermissionsFromFragment;
 
     static final class NonConfigurationInstances {
         Object custom;
@@ -738,6 +741,57 @@ public class FragmentActivity extends BaseFragmentActivityHoneycomb {
         super.startActivityForResult(intent, requestCode);
     }
 
+    @Override
+    public final void validateRequestPermissionsRequestCode(int requestCode) {
+        // We use 8 bits of the request code to encode the fragment id when
+        // requesting permissions from a fragment. Hence, requestPermissions()
+        // should validate the code against that but we cannot override it as
+        // we can not then call super and also the ActivityCompat would call
+        // back to this override. To handle this we use dependency inversion
+        // where we are the validator of request codes when requesting
+        // permissions in ActivityCompat.
+        if (mRequestedPermissionsFromFragment) {
+            mRequestedPermissionsFromFragment = false;
+        } else if ((requestCode & 0xffffff00) != 0) {
+            throw new IllegalArgumentException("Can only use lower 8 bits for requestCode");
+        }
+    }
+
+    /**
+     * Callback for the result from requesting permissions. This method
+     * is invoked for every call on {@link #requestPermissions(String[], int)}.
+     *
+     * @param requestCode The request code passed in {@link #requestPermissions(String[], int)}.
+     * @param permissions The requested permissions. Never null.
+     * @param grantResults The grant results for the corresponding permissions
+     *     which is either {@link android.content.pm.PackageManager#PERMISSION_GRANTED}
+     *     or {@link android.content.pm.PackageManager#PERMISSION_DENIED}. Never null.
+     *
+     * @see #requestPermissions(String[], int)
+     */
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+            @NonNull int[] grantResults) {
+        int index = (requestCode>>8)&0xff;
+        if (index != 0) {
+            index--;
+            final int activeFragmentsCount = mFragments.getActiveFragmentsCount();
+            if (activeFragmentsCount == 0 || index < 0 || index >= activeFragmentsCount) {
+                Log.w(TAG, "Activity result fragment index out of range: 0x"
+                        + Integer.toHexString(requestCode));
+                return;
+            }
+            final List<Fragment> activeFragments =
+                    mFragments.getActiveFragments(new ArrayList<Fragment>(activeFragmentsCount));
+            Fragment frag = activeFragments.get(index);
+            if (frag == null) {
+                Log.w(TAG, "Activity result no fragment exists for index: 0x"
+                        + Integer.toHexString(requestCode));
+            } else {
+                frag.onRequestPermissionsResult(requestCode&0xff, permissions, grantResults);
+            }
+        }
+    }
+
     /**
      * Called by Fragment.startActivityForResult() to implement its behavior.
      */
@@ -751,6 +805,23 @@ public class FragmentActivity extends BaseFragmentActivityHoneycomb {
             throw new IllegalArgumentException("Can only use lower 16 bits for requestCode");
         }
         super.startActivityForResult(intent, ((fragment.mIndex+1)<<16) + (requestCode&0xffff));
+    }
+
+    /**
+     * Called by Fragment.requestPermissions() to implement its behavior.
+     */
+    private void requestPermissionsFromFragment(Fragment fragment, String[] permissions,
+            int requestCode) {
+        if (requestCode == -1) {
+            ActivityCompat.requestPermissions(this, permissions, requestCode);
+            return;
+        }
+        if ((requestCode&0xffffff00) != 0) {
+            throw new IllegalArgumentException("Can only use lower 8 bits for requestCode");
+        }
+        mRequestedPermissionsFromFragment = true;
+        ActivityCompat.requestPermissions(this, permissions,
+                ((fragment.mIndex + 1) << 8) + (requestCode & 0xff));
     }
 
     class HostCallbacks extends FragmentHostCallback<FragmentActivity> {
@@ -786,6 +857,19 @@ public class FragmentActivity extends BaseFragmentActivityHoneycomb {
         @Override
         public void onStartActivityFromFragment(Fragment fragment, Intent intent, int requestCode) {
             FragmentActivity.this.startActivityFromFragment(fragment, intent, requestCode);
+        }
+
+        @Override
+        public void onRequestPermissionsFromFragment(@NonNull Fragment fragment,
+                @NonNull String[] permissions, int requestCode) {
+            FragmentActivity.this.requestPermissionsFromFragment(fragment, permissions,
+                    requestCode);
+        }
+
+        @Override
+        public boolean onShouldShowRequestPermissionRationale(@NonNull String permission) {
+            return ActivityCompat.shouldShowRequestPermissionRationale(
+                    FragmentActivity.this, permission);
         }
 
         @Override

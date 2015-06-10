@@ -19,11 +19,10 @@ package android.support.v4.app;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.SimpleArrayMap;
-import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -116,6 +115,22 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
                     "Starting activity with a requestCode requires a FragmentActivity host");
         }
         mContext.startActivity(intent);
+    }
+
+    /**
+     * Requests permissions from the given fragment.
+     * See {@link FragmentActivity#requestPermissions(String[], int)}
+     */
+    public void onRequestPermissionsFromFragment(@NonNull Fragment fragment,
+            @NonNull String[] permissions, int requestCode) {
+    }
+
+    /**
+     * Checks wehter to show permission rationale UI from a fragment.
+     * See {@link FragmentActivity#shouldShowRequestPermissionRationale(String)}
+     */
+    public boolean onShouldShowRequestPermissionRationale(@NonNull String permission) {
+        return false;
     }
 
     /**
