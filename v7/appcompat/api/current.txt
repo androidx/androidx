@@ -292,10 +292,10 @@ package android.support.v7.app {
   public static class NotificationCompat.MediaStyle extends android.support.v4.app.NotificationCompat.Style {
     ctor public NotificationCompat.MediaStyle();
     ctor public NotificationCompat.MediaStyle(android.support.v4.app.NotificationCompat.Builder);
-    method public void setCancelButtonIntent(android.app.PendingIntent);
+    method public android.support.v7.app.NotificationCompat.MediaStyle setCancelButtonIntent(android.app.PendingIntent);
     method public android.support.v7.app.NotificationCompat.MediaStyle setMediaSession(android.support.v4.media.session.MediaSessionCompat.Token);
     method public android.support.v7.app.NotificationCompat.MediaStyle setShowActionsInCompactView(int...);
-    method public void setShowCancelButton(boolean);
+    method public android.support.v7.app.NotificationCompat.MediaStyle setShowCancelButton(boolean);
   }
 
 }
