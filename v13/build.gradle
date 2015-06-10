@@ -9,8 +9,9 @@ archivesBaseName = 'support-v13'
 
 ext.allSS = []
 
-def icsSS          = createApiSourceset('ics',          'ics',           '14',      null)
-def icsMr1SS       = createApiSourceset('icsmr1',       'ics-mr1',       '15',      icsSS)
+def icsSS          = createApiSourceset('ics',          'ics',         '14',       null)
+def icsMr1SS       = createApiSourceset('icsmr1',       'ics-mr1',     '15',       icsSS)
+def api23SS        = createApiSourceset('api23',        'api23',       'current',  icsMr1SS)
 
 def createApiSourceset(String name, String folder, String apiLevel, SourceSet previousSource) {
     def sourceSet = sourceSets.create(name)
