@@ -250,7 +250,8 @@ public class ActionMenuItemView extends AppCompatTextView
         Toast cheatSheet = Toast.makeText(context, mItemData.getTitle(), Toast.LENGTH_SHORT);
         if (midy < displayFrame.height()) {
             // Show along the top; follow action buttons
-            cheatSheet.setGravity(Gravity.TOP | GravityCompat.END, referenceX, height);
+            cheatSheet.setGravity(Gravity.TOP | GravityCompat.END, referenceX,
+                    screenPos[1] + height - displayFrame.top);
         } else {
             // Show along the bottom center
             cheatSheet.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, height);
