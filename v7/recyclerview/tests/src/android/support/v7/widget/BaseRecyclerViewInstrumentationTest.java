@@ -212,6 +212,7 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
                     }
                 });
         if (running) {
+            latch.countDown();
             latch.await(seconds, TimeUnit.SECONDS);
         }
     }
