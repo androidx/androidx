@@ -134,6 +134,10 @@ public class PercentFrameLayout extends FrameLayout {
 
         @Override
         public PercentLayoutHelper.PercentLayoutInfo getPercentLayoutInfo() {
+            if (mPercentLayoutInfo == null) {
+                mPercentLayoutInfo = new PercentLayoutHelper.PercentLayoutInfo();
+            }
+
             return mPercentLayoutInfo;
         }
 
