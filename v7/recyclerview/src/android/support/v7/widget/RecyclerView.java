@@ -4043,6 +4043,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             if (mMaxScrap.get(viewType) <= scrapHeap.size()) {
                 return;
             }
+            if (DEBUG && scrapHeap.contains(scrap)) {
+                throw new IllegalArgumentException("this scrap item already exists");
+            }
             scrap.resetInternal();
             scrapHeap.add(scrap);
         }
@@ -4548,8 +4551,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     && mAdapter.onFailedToRecycleView(holder);
             boolean cached = false;
             boolean recycled = false;
+            if (DEBUG && mCachedViews.contains(holder)) {
+                throw new IllegalArgumentException("cached view received recycle internal? " +
+                        holder);
+            }
             if (forceRecycle || holder.isRecyclable()) {
-                if (!holder.isInvalid() && !holder.isRemoved() && !holder.isChanged()) {
+                if (!holder.hasAnyOfTheFlags(ViewHolder.FLAG_INVALID | ViewHolder.FLAG_REMOVED |
+                        ViewHolder.FLAG_CHANGED | ViewHolder.FLAG_UPDATE)) {
                     // Retire oldest cached view
                     final int cachedViewSize = mCachedViews.size();
                     if (cachedViewSize == mViewCacheMax && cachedViewSize > 0) {
@@ -4901,7 +4909,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         void viewRangeUpdate(int positionStart, int itemCount) {
             final int positionEnd = positionStart + itemCount;
             final int cachedCount = mCachedViews.size();
-            for (int i = 0; i < cachedCount; i++) {
+            for (int i = cachedCount - 1; i >= 0; i--) {
                 final ViewHolder holder = mCachedViews.get(i);
                 if (holder == null) {
                     continue;
@@ -4910,6 +4918,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 final int pos = holder.getLayoutPosition();
                 if (pos >= positionStart && pos < positionEnd) {
                     holder.addFlags(ViewHolder.FLAG_UPDATE);
+                    recycleCachedViewAt(i);
                     // cached views should not be flagged as changed because this will cause them
                     // to animate when they are returned from cache.
                 }
@@ -6574,9 +6583,19 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 if (vh.shouldIgnore()) {
                     continue;
                 }
+                // If the scrap view is animating, we need to cancel them first. If we cancel it
+                // here, ItemAnimator callback may recycle it which will cause double recycling.
+                // To avoid this, we mark it as not recycleable before calling the item animator.
+                // Since removeDetachedView calls a user API, a common mistake (ending animations on
+                // the view) may recycle it too, so we guard it before we call user APIs.
+                vh.setIsRecyclable(false);
                 if (vh.isTmpDetached()) {
                     mRecyclerView.removeDetachedView(scrap, false);
                 }
+                if (mRecyclerView.mItemAnimator != null) {
+                    mRecyclerView.mItemAnimator.endAnimation(vh);
+                }
+                vh.setIsRecyclable(true);
                 recycler.quickRecycleScrapView(scrap);
             }
             recycler.clearScrap();

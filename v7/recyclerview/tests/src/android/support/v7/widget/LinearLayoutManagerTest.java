@@ -1454,12 +1454,17 @@ public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest
                 @Override
                 public void run() {
                     final int childCount = getChildCount();
+                    Rect layoutBounds = new Rect(0, 0,
+                            mLayoutManager.getWidth(), mLayoutManager.getHeight());
                     for (int i = 0; i < childCount; i++) {
                         View child = getChildAt(i);
                         RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) child
                                 .getLayoutParams();
                         TestViewHolder vh = (TestViewHolder) lp.mViewHolder;
-                        items.put(vh.mBoundItem, getViewBounds(child));
+                        Rect childBounds = getViewBounds(child);
+                        if (new Rect(childBounds).intersect(layoutBounds)) {
+                            items.put(vh.mBoundItem, childBounds);
+                        }
                     }
                 }
             });
