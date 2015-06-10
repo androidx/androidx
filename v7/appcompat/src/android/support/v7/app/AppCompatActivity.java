@@ -57,8 +57,8 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         getDelegate().installViewFactory();
-        super.onCreate(savedInstanceState);
         getDelegate().onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState);
     }
 
     @Override
