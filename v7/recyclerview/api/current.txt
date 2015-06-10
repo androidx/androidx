@@ -36,6 +36,33 @@ package android.support.v7.recyclerview {
 
 package android.support.v7.util {
 
+  public class AsyncListUtil {
+    ctor public AsyncListUtil(java.lang.Class<T>, int, android.support.v7.util.AsyncListUtil.DataCallback<T>, android.support.v7.util.AsyncListUtil.ViewCallback);
+    method public T getItem(int);
+    method public int getItemCount();
+    method public void onRangeChanged();
+    method public void refresh();
+  }
+
+  public static abstract class AsyncListUtil.DataCallback {
+    ctor public AsyncListUtil.DataCallback();
+    method public abstract void fillData(T[], int, int);
+    method public int getMaxCachedTiles();
+    method public void recycleData(T[], int);
+    method public abstract int refreshData();
+  }
+
+  public static abstract class AsyncListUtil.ViewCallback {
+    ctor public AsyncListUtil.ViewCallback();
+    method public void extendRangeInto(int[], int[], int);
+    method public abstract void getItemRangeInto(int[]);
+    method public abstract void onDataRefresh();
+    method public abstract void onItemLoaded(int);
+    field public static final int HINT_SCROLL_ASC = 2; // 0x2
+    field public static final int HINT_SCROLL_DESC = 1; // 0x1
+    field public static final int HINT_SCROLL_NONE = 0; // 0x0
+  }
+
   public class SortedList {
     ctor public SortedList(java.lang.Class<T>, android.support.v7.util.SortedList.Callback<T>);
     ctor public SortedList(java.lang.Class<T>, android.support.v7.util.SortedList.Callback<T>, int);
