@@ -19,9 +19,11 @@ package android.support.v7.widget;
 import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.os.SystemClock;
 import android.test.AndroidTestCase;
 import android.util.AttributeSet;
 import android.util.SparseArray;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -101,6 +103,23 @@ public class RecyclerViewBasicTest extends AndroidTestCase {
         measure();
         layout();
         mRecyclerView.smoothScrollToPosition(5);
+    }
+
+    public void testInterceptTouchWithoutLayoutManager() {
+        mRecyclerView.setAdapter(new MockAdapter(20));
+        measure();
+        layout();
+        assertFalse(mRecyclerView.onInterceptTouchEvent(
+                MotionEvent.obtain(SystemClock.uptimeMillis(),
+                        SystemClock.uptimeMillis(), MotionEvent.ACTION_DOWN, 10, 10, 0)));
+    }
+
+    public void testOnTouchWithoutLayoutManager() {
+        mRecyclerView.setAdapter(new MockAdapter(20));
+        measure();
+        layout();
+        assertFalse(mRecyclerView.onTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(),
+                SystemClock.uptimeMillis(), MotionEvent.ACTION_DOWN, 10, 10, 0)));
     }
 
     public void testLayout() throws InterruptedException {
