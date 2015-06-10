@@ -1097,6 +1097,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                 }
         };
         boolean[] waitForLayoutOptions = new boolean[]{false, true};
+        boolean[] loadDataAfterRestoreOptions = new boolean[]{false, true};
         List<Config> testVariations = new ArrayList<Config>();
         testVariations.addAll(mBaseVariations);
         for (Config config : mBaseVariations) {
@@ -1110,9 +1111,11 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         for (Config config : testVariations) {
             for (PostLayoutRunnable runnable : postLayoutOptions) {
                 for (boolean waitForLayout : waitForLayoutOptions) {
-                    savedStateTest(config, waitForLayout, runnable);
-                    removeRecyclerView();
-                    checkForMainThreadException();
+                    for (boolean loadDataAfterRestore : loadDataAfterRestoreOptions) {
+                        savedStateTest(config, waitForLayout, loadDataAfterRestore, runnable);
+                        removeRecyclerView();
+                        checkForMainThreadException();
+                    }
                 }
             }
         }
@@ -1158,7 +1161,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         checkForMainThreadException();
     }
 
-    public void savedStateTest(Config config, boolean waitForLayout,
+    public void savedStateTest(Config config, boolean waitForLayout, boolean loadDataAfterRestore,
             PostLayoutRunnable postLayoutOperations)
             throws Throwable {
         if (DEBUG) {
@@ -1166,6 +1169,18 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                     + config + " post layout action " + postLayoutOperations.describe());
         }
         setupByConfig(config);
+        if (loadDataAfterRestore) {
+            // We are going to re-create items, force non-random item size.
+            mAdapter.mOnBindCallback = new OnBindCallback() {
+                @Override
+                void onBoundItem(TestViewHolder vh, int position) {
+                }
+
+                boolean assignRandomSize() {
+                    return false;
+                }
+            };
+        }
         waitFirstLayout();
         if (waitForLayout) {
             postLayoutOperations.run();
@@ -1188,6 +1203,11 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         savedState = RecyclerView.SavedState.CREATOR.createFromParcel(parcel);
         removeRecyclerView();
 
+        final int itemCount = mAdapter.getItemCount();
+        if (loadDataAfterRestore) {
+            mAdapter.deleteAndNotify(0, itemCount);
+        }
+
         RecyclerView restored = new RecyclerView(getActivity());
         mLayoutManager = new WrappedLayoutManager(config.mSpanCount, config.mOrientation);
         mLayoutManager.setGapStrategy(config.mGapStrategy);
@@ -1195,6 +1215,11 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         // use the same adapter for Rect matching
         restored.setAdapter(mAdapter);
         restored.onRestoreInstanceState(savedState);
+
+        if (loadDataAfterRestore) {
+            mAdapter.addAndNotify(itemCount);
+        }
+
         assertEquals("Parcel reading should not go out of bounds", parcelSuffix,
                 parcel.readString());
         mLayoutManager.expectLayouts(1);
@@ -1212,12 +1237,31 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                         + " be preserved", firstCompletelyVisiblePosition,
                 mLayoutManager.findFirstVisibleItemPositionInt());
         if (waitForLayout) {
+            final boolean strictItemEquality = !loadDataAfterRestore;
             assertRectSetsEqual(config + "\npost layout op:" + postLayoutOperations.describe()
                             + ": on restore, previous view positions should be preserved",
-                    before, mLayoutManager.collectChildCoordinates()
-            );
+                    before, mLayoutManager.collectChildCoordinates(), strictItemEquality);
         }
         // TODO add tests for changing values after restore before layout
+    }
+
+    public void testScrollAndClear() throws Throwable {
+        setupByConfig(new Config());
+        waitFirstLayout();
+
+        assertTrue("Children not laid out", mLayoutManager.collectChildCoordinates().size() > 0);
+
+        mLayoutManager.expectLayouts(1);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mLayoutManager.scrollToPositionWithOffset(1, 0);
+                mAdapter.clearOnUIThread();
+            }
+        });
+        mLayoutManager.waitForLayout(2);
+
+        assertEquals("Remaining children", 0, mLayoutManager.collectChildCoordinates().size());
     }
 
     public void testScrollToPositionWithOffset() throws Throwable {
@@ -1657,6 +1701,11 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
     }
 
     public void assertRectSetsEqual(String message, Map<Item, Rect> before, Map<Item, Rect> after) {
+        assertRectSetsEqual(message, before, after, true);
+    }
+
+    public void assertRectSetsEqual(String message, Map<Item, Rect> before, Map<Item, Rect> after,
+            boolean strictItemEquality) {
         StringBuilder log = new StringBuilder();
         if (DEBUG) {
             log.append("checking rectangle equality.\n");
@@ -1676,9 +1725,24 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
         assertEquals(message + ": item counts should be equal", before.size()
                 , after.size());
         for (Map.Entry<Item, Rect> entry : before.entrySet()) {
-            Rect afterRect = after.get(entry.getKey());
-            assertNotNull(message + ": Same item should be visible after simple re-layout",
-                    afterRect);
+            final Item beforeItem = entry.getKey();
+            Rect afterRect = null;
+            if (strictItemEquality) {
+                afterRect = after.get(beforeItem);
+                assertNotNull(message + ": Same item should be visible after simple re-layout",
+                        afterRect);
+            } else {
+                for (Map.Entry<Item, Rect> afterEntry : after.entrySet()) {
+                    final Item afterItem = afterEntry.getKey();
+                    if (afterItem.mAdapterIndex == beforeItem.mAdapterIndex) {
+                        afterRect = afterEntry.getValue();
+                        break;
+                    }
+                }
+                assertNotNull(message + ": Item with same adapter index should be visible " +
+                                "after simple re-layout",
+                        afterRect);
+            }
             assertEquals(message + ": Item should be laid out at the same coordinates",
                     entry.getValue(),
                     afterRect);
