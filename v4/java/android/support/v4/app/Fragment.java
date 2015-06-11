@@ -25,6 +25,7 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.util.SimpleArrayMap;
@@ -941,6 +942,124 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *               (various data can be attached to Intent "extras").
      */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    }
+
+    /**
+     * Requests permissions to be granted to this application. These permissions
+     * must be requested in your manifest, they should not be granted to your app,
+     * and they should have protection level {@link android.content.pm.PermissionInfo
+     * #PROTECTION_DANGEROUS dangerous}, regardless whether they are declared by
+     * the platform or a third-party app.
+     * <p>
+     * Normal permissions {@link android.content.pm.PermissionInfo#PROTECTION_NORMAL}
+     * are granted at install time if requested in the manifest. Signature permissions
+     * {@link android.content.pm.PermissionInfo#PROTECTION_SIGNATURE} are granted at
+     * install time if requested in the manifest and the signature of your app matches
+     * the signature of the app declaring the permissions.
+     * </p>
+     * <p>
+     * If your app does not have the requested permissions the user will be presented
+     * with UI for accepting them. After the user has accepted or rejected the
+     * requested permissions you will receive a callback on {@link
+     * #onRequestPermissionsResult(int, String[], int[])} reporting whether the
+     * permissions were granted or not.
+     * </p>
+     * <p>
+     * Note that requesting a permission does not guarantee it will be granted and
+     * your app should be able to run without having this permission.
+     * </p>
+     * <p>
+     * This method may start an activity allowing the user to choose which permissions
+     * to grant and which to reject. Hence, you should be prepared that your activity
+     * may be paused and resumed. Further, granting some permissions may require
+     * a restart of you application. In such a case, the system will recreate the
+     * activity stack before delivering the result to {@link
+     * #onRequestPermissionsResult(int, String[], int[])}.
+     * </p>
+     * <p>
+     * When checking whether you have a permission you should use {@link
+     * android.content.Context#checkSelfPermission(String)}.
+     * </p>
+     * <p>
+     * A sample permissions request looks like this:
+     * </p>
+     * <code><pre><p>
+     * private void showContacts() {
+     *     if (getActivity().checkSelfPermission(Manifest.permission.READ_CONTACTS)
+     *             != PackageManager.PERMISSION_GRANTED) {
+     *         requestPermissions(new String[]{Manifest.permission.READ_CONTACTS},
+     *                 PERMISSIONS_REQUEST_READ_CONTACTS);
+     *     } else {
+     *         doShowContacts();
+     *     }
+     * }
+     *
+     * {@literal @}Override
+     * public void onRequestPermissionsResult(int requestCode, String[] permissions,
+     *         int[] grantResults) {
+     *     if (requestCode == PERMISSIONS_REQUEST_READ_CONTACTS
+     *             && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+     *         doShowContacts();
+     *     }
+     * }
+     * </code></pre></p>
+     *
+     * @param permissions The requested permissions.
+     * @param requestCode Application specific request code to match with a result
+     *    reported to {@link #onRequestPermissionsResult(int, String[], int[])}.
+     *
+     * @see #onRequestPermissionsResult(int, String[], int[])
+     * @see android.content.Context#checkSelfPermission(String)
+     */
+    public final void requestPermissions(@NonNull String[] permissions, int requestCode) {
+        if (mHost == null) {
+            throw new IllegalStateException("Fragment " + this + " not attached to Activity");
+        }
+        mHost.onRequestPermissionsFromFragment(this, permissions,requestCode);
+    }
+
+    /**
+     * Callback for the result from requesting permissions. This method
+     * is invoked for every call on {@link #requestPermissions(String[], int)}.
+     *
+     * @param requestCode The request code passed in {@link #requestPermissions(String[], int)}.
+     * @param permissions The requested permissions. Never null.
+     * @param grantResults The grant results for the corresponding permissions
+     *     which is either {@link android.content.pm.PackageManager#PERMISSION_GRANTED}
+     *     or {@link android.content.pm.PackageManager#PERMISSION_DENIED}. Never null.
+     *
+     * @see #requestPermissions(String[], int)
+     */
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+            @NonNull int[] grantResults) {
+        /* callback - do nothing */
+    }
+
+    /**
+     * Gets whether you should show UI with rationale for requesting a permission.
+     * You should do this only if you do not have the permission and the context in
+     * which the permission is requested does not clearly communicate to the user
+     * what would be the benefit from granting this permission.
+     * <p>
+     * For example, if you write a camera app, requesting the camera permission
+     * would be expected by the user and no rationale for why it is requested is
+     * needed. If however, the app needs location for tagging photos then a non-tech
+     * savvy user may wonder how location is related to taking photos. In this case
+     * you may choose to show UI with rationale of requesting this permission.
+     * </p>
+     *
+     * @param permission A permission your app wants to request.
+     * @return Whether you can show permission rationale UI.
+     *
+     * @see Context#checkSelfPermission(String)
+     * @see #requestPermissions(String[], int)
+     * @see #onRequestPermissionsResult(int, String[], int[])
+     */
+    public boolean shouldShowRequestPermissionRationale(@NonNull String permission) {
+        if (mHost != null) {
+            return mHost.onShouldShowRequestPermissionRationale(permission);
+        }
+        return false;
     }
 
     /**
