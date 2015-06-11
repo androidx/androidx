@@ -211,6 +211,7 @@ package android.support.v4.app {
     method public void onOptionsMenuClosed(android.view.Menu);
     method public void onPause();
     method public void onPrepareOptionsMenu(android.view.Menu);
+    method public void onRequestPermissionsResult(int, java.lang.String[], int[]);
     method public void onResume();
     method public void onSaveInstanceState(android.os.Bundle);
     method public void onStart();
@@ -218,6 +219,7 @@ package android.support.v4.app {
     method public void onViewCreated(android.view.View, android.os.Bundle);
     method public void onViewStateRestored(android.os.Bundle);
     method public void registerForContextMenu(android.view.View);
+    method public final void requestPermissions(java.lang.String[], int);
     method public void setAllowEnterTransitionOverlap(boolean);
     method public void setAllowReturnTransitionOverlap(boolean);
     method public void setArguments(android.os.Bundle);
@@ -235,6 +237,7 @@ package android.support.v4.app {
     method public void setSharedElementReturnTransition(java.lang.Object);
     method public void setTargetFragment(android.support.v4.app.Fragment, int);
     method public void setUserVisibleHint(boolean);
+    method public boolean shouldShowRequestPermissionRationale(java.lang.String);
     method public void startActivity(android.content.Intent);
     method public void startActivityForResult(android.content.Intent, int);
     method public void unregisterForContextMenu(android.view.View);
@@ -250,7 +253,7 @@ package android.support.v4.app {
     field public static final android.os.Parcelable.Creator<android.support.v4.app.Fragment.SavedState> CREATOR;
   }
 
-  public class FragmentActivity extends android.support.v4.app.BaseFragmentActivityHoneycomb {
+  public class FragmentActivity extends android.support.v4.app.BaseFragmentActivityHoneycomb implements android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback {
     ctor public FragmentActivity();
     method public java.lang.Object getLastCustomNonConfigurationInstance();
     method public android.support.v4.app.FragmentManager getSupportFragmentManager();
@@ -266,6 +269,7 @@ package android.support.v4.app {
     method public void supportInvalidateOptionsMenu();
     method public void supportPostponeEnterTransition();
     method public void supportStartPostponedEnterTransition();
+    method public final void validateRequestPermissionsRequestCode(int);
   }
 
   public abstract class FragmentContainer {
@@ -322,7 +326,9 @@ package android.support.v4.app {
     method public int onGetWindowAnimations();
     method public boolean onHasView();
     method public boolean onHasWindowAnimations();
+    method public void onRequestPermissionsFromFragment(android.support.v4.app.Fragment, java.lang.String[], int);
     method public boolean onShouldSaveFragmentState(android.support.v4.app.Fragment);
+    method public boolean onShouldShowRequestPermissionRationale(java.lang.String);
     method public void onStartActivityFromFragment(android.support.v4.app.Fragment, android.content.Intent, int);
     method public void onSupportInvalidateOptionsMenu();
   }
