@@ -150,6 +150,7 @@
     <string name="linear_layout_manager">RecyclerView/Linear Layout Manager</string>
     <string name="grid_layout_manager">RecyclerView/Grid Layout Manager</string>
     <string name="staggered_grid_layout_manager">RecyclerView/Staggered Grid Layout Manager</string>
+    <string name="async_list_util">RecyclerView/AsyncListUtil</string>
     <string name="checkbox_orientation">Horz.</string>
     <string name="checkbox_reverse">Rev.</string>
     <string name="checkbox_layout_dir">Layout Dir</string>
