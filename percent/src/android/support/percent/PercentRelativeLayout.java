@@ -120,6 +120,10 @@ public class PercentRelativeLayout extends RelativeLayout {
 
         @Override
         public PercentLayoutHelper.PercentLayoutInfo getPercentLayoutInfo() {
+            if (mPercentLayoutInfo == null) {
+                mPercentLayoutInfo = new PercentLayoutHelper.PercentLayoutInfo();
+            }
+
             return mPercentLayoutInfo;
         }
 
