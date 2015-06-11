@@ -285,6 +285,7 @@ package android.support.v7.widget {
     method public boolean hasPendingAdapterUpdates();
     method public void invalidateItemDecorations();
     method public boolean isAnimating();
+    method public boolean isComputingLayout();
     method public void offsetChildrenHorizontal(int);
     method public void offsetChildrenVertical(int);
     method public void onChildAttachedToWindow(android.view.View);
