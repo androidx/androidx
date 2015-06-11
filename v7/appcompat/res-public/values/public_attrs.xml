@@ -111,8 +111,6 @@
      <public type="attr" name="homeLayout"/>
      <public type="attr" name="icon"/>
      <public type="attr" name="iconifiedByDefault"/>
-     <public type="attr" name="iconTint"/>
-     <public type="attr" name="iconTintMode"/>
      <public type="attr" name="indeterminateProgressStyle"/>
      <public type="attr" name="isLightTheme"/>
      <public type="attr" name="itemPadding"/>
@@ -131,10 +129,6 @@
      <public type="attr" name="navigationContentDescription"/>
      <public type="attr" name="navigationIcon"/>
      <public type="attr" name="navigationMode"/>
-     <public type="attr" name="navigationTint"/>
-     <public type="attr" name="navigationTintMode"/>
-     <public type="attr" name="overflowTint"/>
-     <public type="attr" name="overflowTintMode"/>
      <public type="attr" name="overlapAnchor"/>
      <public type="attr" name="paddingEnd"/>
      <public type="attr" name="paddingStart"/>

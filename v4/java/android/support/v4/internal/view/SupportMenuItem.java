@@ -16,8 +16,6 @@
 
 package android.support.v4.internal.view;
 
-import android.content.res.ColorStateList;
-import android.graphics.PorterDuff;
 import android.support.v4.view.ActionProvider;
 import android.support.v4.view.MenuItemCompat;
 import android.view.MenuItem;
@@ -203,26 +201,4 @@ public interface SupportMenuItem extends android.view.MenuItem {
      * @return This menu item instance for call chaining
      */
     public SupportMenuItem setSupportOnActionExpandListener(MenuItemCompat.OnActionExpandListener listener);
-
-    /**
-     * Applies a tint to the icon drawable. Does not modify the current tint
-     * mode, which is {@link PorterDuff.Mode#SRC_IN} by default.
-     * <p>
-     * Subsequent calls to {@link android.view.MenuItem#setIcon(android.graphics.drawable.Drawable)}
-     * will automatically mutate the drawable and apply the specified tint and tint mode.
-     *
-     * @param tint the tint to apply, may be {@code null} to clear tint
-     * @return This menu item instance for call chaining
-     */
-    public MenuItem setIconTintList(ColorStateList tint);
-
-    /**
-     * Specifies the blending mode used to apply the tint specified by {@link
-     * #setIconTintList(ColorStateList)} to the icon drawable. The default mode is {@link
-     * PorterDuff.Mode#SRC_IN}.
-     *
-     * @param tintMode the blending mode used to apply the tint, may be {@code null} to clear tint
-     * @return This menu item instance for call chaining
-     */
-    public MenuItem setIconTintMode(PorterDuff.Mode tintMode);
 }
