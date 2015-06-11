@@ -26,6 +26,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.MenuRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.annotation.StyleRes;
@@ -45,7 +47,6 @@ import android.support.v7.internal.view.menu.MenuView;
 import android.support.v7.internal.view.menu.SubMenuBuilder;
 import android.support.v7.internal.widget.DecorToolbar;
 import android.support.v7.internal.widget.RtlSpacingHelper;
-import android.support.v7.internal.widget.TintImageButton;
 import android.support.v7.internal.widget.TintInfo;
 import android.support.v7.internal.widget.TintManager;
 import android.support.v7.internal.widget.TintTypedArray;
@@ -88,7 +89,9 @@ import java.util.List;
  *     <li><em>A navigation button.</em> This may be an Up arrow, navigation menu toggle, close,
  *     collapse, done or another glyph of the app's choosing. This button should always be used
  *     to access other navigational destinations within the container of the Toolbar and
- *     its signified content or otherwise leave the current context signified by the Toolbar.</li>
+ *     its signified content or otherwise leave the current context signified by the Toolbar.
+ *     The navigation button is vertically aligned within the Toolbar's minimum height,
+ *     if set.</li>
  *     <li><em>A branded logo image.</em> This may extend to the height of the bar and can be
  *     arbitrarily wide.</li>
  *     <li><em>A title and subtitle.</em> The title should be a signpost for the Toolbar's current
@@ -104,8 +107,9 @@ import java.util.List;
  *     <li><em>An {@link ActionMenuView action menu}.</em> The menu of actions will pin to the
  *     end of the Toolbar offering a few
  *     <a href="http://developer.android.com/design/patterns/actionbar.html#ActionButtons">
- *         frequent, important or typical</a> actions along with an optional overflow menu for
- *         additional actions.</li>
+ *     frequent, important or typical</a> actions along with an optional overflow menu for
+ *     additional actions. Action buttons are vertically aligned within the Toolbar's
+ *     minimum height, if set.</li>
  * </ul>
  * </p>
  *
@@ -119,15 +123,12 @@ public class Toolbar extends ViewGroup {
     private ActionMenuView mMenuView;
     private TextView mTitleTextView;
     private TextView mSubtitleTextView;
-    private TintImageButton mNavButtonView;
+    private ImageButton mNavButtonView;
     private ImageView mLogoView;
-
-    private TintInfo mOverflowTintInfo;
-    private TintInfo mNavTintInfo;
 
     private Drawable mCollapseIcon;
     private CharSequence mCollapseDescription;
-    private TintImageButton mCollapseButtonView;
+    private ImageButton mCollapseButtonView;
     View mExpandedActionView;
 
     /** Context against which to inflate popup menus. */
@@ -281,21 +282,6 @@ public class Toolbar extends ViewGroup {
         final CharSequence navDesc = a.getText(R.styleable.Toolbar_navigationContentDescription);
         if (!TextUtils.isEmpty(navDesc)) {
             setNavigationContentDescription(navDesc);
-        }
-
-        if (a.hasValue(R.styleable.Toolbar_overflowTint)) {
-            setOverflowTintList(a.getColorStateList(R.styleable.Toolbar_overflowTint));
-        }
-        if (a.hasValue(R.styleable.Toolbar_overflowTintMode)) {
-            setOverflowTintMode(DrawableUtils.parseTintMode(
-                    a.getInt(R.styleable.Toolbar_overflowTintMode, -1), null));
-        }
-        if (a.hasValue(R.styleable.Toolbar_navigationTint)) {
-            setNavigationTintList(a.getColorStateList(R.styleable.Toolbar_navigationTint));
-        }
-        if (a.hasValue(R.styleable.Toolbar_navigationTintMode)) {
-            setNavigationTintMode(DrawableUtils.parseTintMode(
-                    a.getInt(R.styleable.Toolbar_navigationTintMode, -1), null));
         }
 
         a.recycle();
@@ -830,83 +816,6 @@ public class Toolbar extends ViewGroup {
     }
 
     /**
-     * Applies a tint to the icon drawable. Does not modify the current tint
-     * mode, which is {@link PorterDuff.Mode#SRC_IN} by default.
-     * <p>
-     * Subsequent calls to {@link #setNavigationIcon(Drawable)} will automatically mutate
-     * the drawable and apply the specified tint and tint mode.
-     *
-     * @param tint the tint to apply, may be {@code null} to clear tint
-     */
-    public void setNavigationTintList(ColorStateList tint) {
-        if (mNavTintInfo == null) {
-            mNavTintInfo = new TintInfo();
-        }
-        mNavTintInfo.mTintList = tint;
-        mNavTintInfo.mHasTintList = true;
-
-        applyNavigationTint();
-    }
-
-    /**
-     * Specifies the blending mode used to apply the tint specified by {@link
-     * #setNavigationTintList(ColorStateList)} to the navigation drawable.
-     * The default mode is {@link PorterDuff.Mode#SRC_IN}.
-     *
-     * @param tintMode the blending mode used to apply the tint, may be {@code null} to clear tint
-     */
-    public void setNavigationTintMode(PorterDuff.Mode tintMode) {
-        if (mNavTintInfo == null) {
-            mNavTintInfo = new TintInfo();
-        }
-        mNavTintInfo.mTintMode = tintMode;
-        mNavTintInfo.mHasTintMode = true;
-
-        applyNavigationTint();
-    }
-
-    /**
-     * Applies a tint to the overflow drawable. Does not modify the current tint
-     * mode, which is {@link PorterDuff.Mode#SRC_IN} by default.
-     *
-     * @param tint the tint to apply, may be {@code null} to clear tint
-     */
-    public void setOverflowTintList(ColorStateList tint) {
-        if (mMenuView != null) {
-            // If the menu view is available, directly set the tint
-            mMenuView.setOverflowTintList(tint);
-        } else {
-            // Otherwise we will record the value
-            if (mOverflowTintInfo == null) {
-                mOverflowTintInfo = new TintInfo();
-            }
-            mOverflowTintInfo.mTintList = tint;
-            mOverflowTintInfo.mHasTintList = true;
-        }
-    }
-
-    /**
-     * Specifies the blending mode used to apply the tint specified by {@link
-     * #setOverflowTintList(ColorStateList)} to the overflow drawable.
-     * The default mode is {@link PorterDuff.Mode#SRC_IN}.
-     *
-     * @param tintMode the blending mode used to apply the tint, may be {@code null} to clear tint
-     */
-    public void setOverflowTintMode(PorterDuff.Mode tintMode) {
-        if (mMenuView != null) {
-            // If the menu view is available, directly set the tint mode
-            mMenuView.setOverflowTintMode(tintMode);
-        } else {
-            // Otherwise we will record the value
-            if (mOverflowTintInfo == null) {
-                mOverflowTintInfo = new TintInfo();
-            }
-            mOverflowTintInfo.mTintMode = tintMode;
-            mOverflowTintInfo.mHasTintMode = true;
-        }
-    }
-
-    /**
      * Return the Menu shown in the toolbar.
      *
      * <p>Applications that wish to populate the toolbar's menu can do so from here. To use
@@ -917,6 +826,27 @@ public class Toolbar extends ViewGroup {
     public Menu getMenu() {
         ensureMenu();
         return mMenuView.getMenu();
+    }
+
+    /**
+     * Set the icon to use for the overflow button.
+     *
+     * @param icon Drawable to set, may be null to clear the icon
+     */
+    public void setOverflowIcon(@Nullable Drawable icon) {
+        ensureMenu();
+        mMenuView.setOverflowIcon(icon);
+    }
+
+    /**
+     * Return the current drawable used as the overflow icon.
+     *
+     * @return The overflow icon drawable
+     */
+    @Nullable
+    public Drawable getOverflowIcon() {
+        ensureMenu();
+        return mMenuView.getOverflowIcon();
     }
 
     private void ensureMenu() {
@@ -942,17 +872,6 @@ public class Toolbar extends ViewGroup {
             lp.gravity = GravityCompat.END | (mButtonGravity & Gravity.VERTICAL_GRAVITY_MASK);
             mMenuView.setLayoutParams(lp);
             addSystemView(mMenuView);
-
-            if (mOverflowTintInfo != null) {
-                // If we have tint info for the overflow, set it on the menu view now
-                if (mOverflowTintInfo.mHasTintList) {
-                    mMenuView.setOverflowTintList(mOverflowTintInfo.mTintList);
-                }
-                if (mOverflowTintInfo.mHasTintMode) {
-                    mMenuView.setOverflowTintMode(mOverflowTintInfo.mTintMode);
-                }
-                mOverflowTintInfo = null;
-            }
         }
     }
 
@@ -968,7 +887,7 @@ public class Toolbar extends ViewGroup {
      *
      * @param resId ID of a menu resource to inflate
      */
-    public void inflateMenu(int resId) {
+    public void inflateMenu(@MenuRes int resId) {
         getMenuInflater().inflate(resId, getMenu());
     }
 
@@ -1102,18 +1021,17 @@ public class Toolbar extends ViewGroup {
 
     private void ensureNavButtonView() {
         if (mNavButtonView == null) {
-            mNavButtonView = new TintImageButton(getContext(), null,
+            mNavButtonView = new ImageButton(getContext(), null,
                     R.attr.toolbarNavigationButtonStyle);
             final LayoutParams lp = generateDefaultLayoutParams();
             lp.gravity = GravityCompat.START | (mButtonGravity & Gravity.VERTICAL_GRAVITY_MASK);
             mNavButtonView.setLayoutParams(lp);
-            applyNavigationTint();
         }
     }
 
     private void ensureCollapseButtonView() {
         if (mCollapseButtonView == null) {
-            mCollapseButtonView = new TintImageButton(getContext(), null,
+            mCollapseButtonView = new ImageButton(getContext(), null,
                     R.attr.toolbarNavigationButtonStyle);
             mCollapseButtonView.setImageDrawable(mCollapseIcon);
             mCollapseButtonView.setContentDescription(mCollapseDescription);
@@ -1127,7 +1045,6 @@ public class Toolbar extends ViewGroup {
                     collapseActionView();
                 }
             });
-            applyNavigationTint();
         }
     }
 
@@ -1883,30 +1800,6 @@ public class Toolbar extends ViewGroup {
         mMenuBuilderCallback = mcb;
     }
 
-    private void applyNavigationTint() {
-        final TintInfo tintInfo = mNavTintInfo;
-        if (tintInfo != null && (tintInfo.mHasTintList || tintInfo.mHasTintMode)) {
-            if (mNavButtonView != null) {
-                if (tintInfo.mHasTintList) {
-                    mNavButtonView.setImageTintList(tintInfo.mTintList);
-                }
-                if (tintInfo.mHasTintMode) {
-                    mNavButtonView.setImageTintMode(tintInfo.mTintMode);
-                }
-            }
-
-            if (mCollapseButtonView != null) {
-                // We will use the same tint for the collapse button
-                if (tintInfo.mHasTintList) {
-                    mCollapseButtonView.setImageTintList(tintInfo.mTintList);
-                }
-                if (tintInfo.mHasTintMode) {
-                    mCollapseButtonView.setImageTintMode(tintInfo.mTintMode);
-                }
-            }
-        }
-    }
-
     /**
      * Interface responsible for receiving menu item click events if the items themselves
      * do not have individual item click listeners.
@@ -1938,7 +1831,7 @@ public class Toolbar extends ViewGroup {
 
         int mViewType = CUSTOM;
 
-        public LayoutParams(Context c, AttributeSet attrs) {
+        public LayoutParams(@NonNull Context c, AttributeSet attrs) {
             super(c, attrs);
         }
 
@@ -2141,4 +2034,5 @@ public class Toolbar extends ViewGroup {
         public void onRestoreInstanceState(Parcelable state) {
         }
     }
+
 }
