@@ -16,17 +16,16 @@
 package android.support.v7.widget;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.content.res.Configuration;
-import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.Nullable;
 import android.support.annotation.StyleRes;
 import android.support.v7.internal.view.menu.ActionMenuItemView;
 import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.MenuItemImpl;
 import android.support.v7.internal.view.menu.MenuPresenter;
 import android.support.v7.internal.view.menu.MenuView;
-import android.support.v7.internal.widget.TintInfo;
 import android.support.v7.internal.widget.ViewUtils;
 import android.util.AttributeSet;
 import android.view.ContextThemeWrapper;
@@ -54,8 +53,6 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
 
     private MenuBuilder mMenu;
 
-    private Context mContext;
-
     /** Context against which to inflate popup menus. */
     private Context mPopupContext;
 
@@ -79,7 +76,6 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
 
     public ActionMenuView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        mContext = context;
         setBaselineAligned(false);
         final float density = context.getResources().getDisplayMetrics().density;
         mMinCellSize = (int) (MIN_CELL_SIZE * density);
@@ -99,9 +95,9 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
         if (mPopupTheme != resId) {
             mPopupTheme = resId;
             if (resId == 0) {
-                mPopupContext = mContext;
+                mPopupContext = getContext();
             } else {
-                mPopupContext = new ContextThemeWrapper(mContext, resId);
+                mPopupContext = new ContextThemeWrapper(getContext(), resId);
             }
         }
     }
@@ -548,6 +544,27 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
         dismissPopupMenus();
     }
 
+    /**
+     * Set the icon to use for the overflow button.
+     *
+     * @param icon Drawable to set, may be null to clear the icon
+     */
+    public void setOverflowIcon(@Nullable Drawable icon) {
+        getMenu();
+        mPresenter.setOverflowIcon(icon);
+    }
+
+    /**
+     * Return the current drawable used as the overflow icon.
+     *
+     * @return The overflow icon drawable
+     */
+    @Nullable
+    public Drawable getOverflowIcon() {
+        getMenu();
+        return mPresenter.getOverflowIcon();
+    }
+
     /** @hide */
     public boolean isOverflowReserved() {
         return mReserveOverflow;
@@ -556,31 +573,6 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
     /** @hide */
     public void setOverflowReserved(boolean reserveOverflow) {
         mReserveOverflow = reserveOverflow;
-    }
-
-    /**
-     * Applies a tint to the overflow drawable. Does not modify the current tint
-     * mode, which is {@link PorterDuff.Mode#SRC_IN} by default.
-     *
-     * @param tint the tint to apply, may be {@code null} to clear tint
-     */
-    public void setOverflowTintList(ColorStateList tint) {
-        if (mPresenter != null) {
-            mPresenter.setOverflowTintList(tint);
-        }
-    }
-
-    /**
-     * Specifies the blending mode used to apply the tint specified by {@link
-     * #setOverflowTintList(ColorStateList)} to the overflow drawable.
-     * The default mode is {@link PorterDuff.Mode#SRC_IN}.
-     *
-     * @param tintMode the blending mode used to apply the tint, may be {@code null} to clear tint
-     */
-    public void setOverflowTintMode(PorterDuff.Mode tintMode) {
-        if (mPresenter != null) {
-            mPresenter.setOverflowTintMode(tintMode);
-        }
     }
 
     @Override
