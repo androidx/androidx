@@ -1818,7 +1818,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
         final FocusFinder ff = FocusFinder.getInstance();
         result = ff.findNextFocus(this, focused, direction);
-        if (result == null && mAdapter != null && mLayout != null) {
+        if (result == null && mAdapter != null && mLayout != null && !isComputingLayout()) {
             eatRequestLayout();
             result = mLayout.onFocusSearchFailed(focused, direction, mRecycler, mState);
             resumeRequestLayout(false);
