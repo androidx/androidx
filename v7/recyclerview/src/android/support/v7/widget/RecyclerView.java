@@ -1911,7 +1911,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * @see #assertNotInLayoutOrScroll(String)
      */
     void assertInLayoutOrScroll(String message) {
-        if (!isRunningLayoutOrScroll()) {
+        if (!isComputingLayout()) {
             if (message == null) {
                 throw new IllegalStateException("Cannot call this method unless RecyclerView is "
                         + "computing a layout or scrolling");
@@ -1929,7 +1929,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * @see #assertInLayoutOrScroll(String)
      */
     void assertNotInLayoutOrScroll(String message) {
-        if (isRunningLayoutOrScroll()) {
+        if (isComputingLayout()) {
             if (message == null) {
                 throw new IllegalStateException("Cannot call this method while RecyclerView is "
                         + "computing a layout or scrolling");
@@ -2454,7 +2454,26 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
     }
 
-    boolean isRunningLayoutOrScroll() {
+    /**
+     * Returns whether RecyclerView is currently computing a layout.
+     * <p>
+     * If this method returns true, it means that RecyclerView is in a lockdown state and any
+     * attempt to update adapter contents will result in an exception because adapter contents
+     * cannot be changed while RecyclerView is trying to compute the layout.
+     * <p>
+     * It is very unlikely that your code will be running during this state as it is
+     * called by the framework when a layout traversal happens or RecyclerView starts to scroll
+     * in response to system events (touch, accessibility etc).
+     * <p>
+     * This case may happen if you have some custom logic to change adapter contents in
+     * response to a View callback (e.g. focus change callback) which might be triggered during a
+     * layout calculation. In these cases, you should just postpone the change using a Handler or a
+     * similar mechanism.
+     *
+     * @return <code>true</code> if RecyclerView is currently computing a layout, <code>false</code>
+     *         otherwise
+     */
+    public boolean isComputingLayout() {
         return mLayoutOrScrollCounter > 0;
     }
 
@@ -2467,7 +2486,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * @return True if the accessibility event should be postponed.
      */
     boolean shouldDeferAccessibilityEvent(AccessibilityEvent event) {
-        if (isRunningLayoutOrScroll()) {
+        if (isComputingLayout()) {
             int type = 0;
             if (event != null) {
                 type = AccessibilityEventCompat.getContentChangeTypes(event);
@@ -7015,7 +7034,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         @Deprecated
         public boolean onRequestChildFocus(RecyclerView parent, View child, View focused) {
             // eat the request if we are in the middle of a scroll or layout
-            return isSmoothScrolling() || parent.isRunningLayoutOrScroll();
+            return isSmoothScrolling() || parent.isComputingLayout();
         }
 
         /**
