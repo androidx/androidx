@@ -194,13 +194,13 @@ package android.support.design.widget {
     method public android.view.View inflateHeaderView(int);
     method public void inflateMenu(int);
     method public void removeHeaderView(android.view.View);
+    method public void setCheckedItem(int);
     method public void setItemBackground(android.graphics.drawable.Drawable);
     method public void setItemBackgroundResource(int);
     method public void setItemIconTintList(android.content.res.ColorStateList);
     method public void setItemTextAppearance(int);
     method public void setItemTextColor(android.content.res.ColorStateList);
     method public void setNavigationItemSelectedListener(android.support.design.widget.NavigationView.OnNavigationItemSelectedListener);
-    method public void setCheckedItem(int);
   }
 
   public static abstract interface NavigationView.OnNavigationItemSelectedListener {
@@ -269,6 +269,7 @@ package android.support.design.widget {
     method public void addTab(android.support.design.widget.TabLayout.Tab, int);
     method public void addTab(android.support.design.widget.TabLayout.Tab, boolean);
     method public void addTab(android.support.design.widget.TabLayout.Tab, int, boolean);
+    method public int getSelectedTabPosition();
     method public android.support.design.widget.TabLayout.Tab getTabAt(int);
     method public int getTabCount();
     method public int getTabGravity();
@@ -306,6 +307,7 @@ package android.support.design.widget {
     method public int getPosition();
     method public java.lang.Object getTag();
     method public java.lang.CharSequence getText();
+    method public boolean isSelected();
     method public void select();
     method public android.support.design.widget.TabLayout.Tab setContentDescription(int);
     method public android.support.design.widget.TabLayout.Tab setContentDescription(java.lang.CharSequence);
