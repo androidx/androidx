@@ -27,11 +27,11 @@ import android.support.annotation.StringRes;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.graphics.drawable.DrawerArrowDrawable;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.support.v7.appcompat.R;
 
 /**
  * This class provides a handy way to tie together the functionality of
@@ -465,9 +465,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
         return mActivityImpl.getThemeUpIndicator();
     }
 
-    static class DrawerArrowDrawableToggle extends DrawerArrowDrawable
-            implements DrawerToggle {
-
+    static class DrawerArrowDrawableToggle extends DrawerArrowDrawable implements DrawerToggle {
         private final Activity mActivity;
 
         public DrawerArrowDrawableToggle(Activity activity, Context themedContext) {
@@ -476,22 +474,23 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
         }
 
         public void setPosition(float position) {
+            if (ViewCompat.getLayoutDirection(mActivity.getWindow().getDecorView())
+                    == ViewCompat.LAYOUT_DIRECTION_RTL) {
+                setDirection(ARROW_DIRECTION_RIGHT);
+            } else {
+                setDirection(ARROW_DIRECTION_LEFT);
+            }
+
             if (position == 1f) {
                 setVerticalMirror(true);
             } else if (position == 0f) {
                 setVerticalMirror(false);
             }
-            super.setProgress(position);
-        }
-
-        @Override
-        boolean isLayoutRtl() {
-            return ViewCompat.getLayoutDirection(mActivity.getWindow().getDecorView())
-                    == ViewCompat.LAYOUT_DIRECTION_RTL;
+            setProgress(position);
         }
 
         public float getPosition() {
-            return super.getProgress();
+            return getProgress();
         }
     }
 
