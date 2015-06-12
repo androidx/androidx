@@ -27,23 +27,21 @@
         android:scaleType="centerCrop"
         android:adjustViewBounds="true"
         android:contentDescription="@null" />
-    <android.support.v17.leanback.widget.NonOverlappingFrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        lb:layout_viewType="info" >
-        <RelativeLayout
+        <android.support.v17.leanback.widget.NonOverlappingRelativeLayout
+            lb:layout_viewType="info"
             android:id="@+id/info_field"
             android:layout_width="match_parent"
             android:layout_height="@dimen/lb_basic_card_info_height"
-            android:padding="@dimen/lb_basic_card_info_padding"
+            android:paddingStart="@dimen/lb_basic_card_info_padding_horizontal"
+            android:paddingEnd="@dimen/lb_basic_card_info_padding_horizontal"
+            android:paddingTop="@dimen/lb_basic_card_info_padding_top"
             android:layout_centerHorizontal="true" >
             <TextView
                 android:id="@+id/title_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
-                android:layout_marginTop="@dimen/lb_basic_card_info_text_margin"
-                android:layout_marginStart="@dimen/lb_basic_card_info_text_margin"
+                android:layout_marginBottom="@dimen/lb_basic_card_info_text_margin"
                 android:maxLines="1"
                 android:fontFamily="sans-serif-condensed"
                 android:textColor="@color/lb_basic_card_title_text_color"
@@ -53,10 +51,9 @@
                 android:id="@+id/content_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_below="@id/title_text"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentBottom="true"
-                android:layout_marginStart="@dimen/lb_basic_card_info_text_margin"
-                android:layout_marginBottom="@dimen/lb_basic_card_info_text_margin"
+                android:layout_toStartOf="@+id/extra_badge"
                 android:maxLines="1"
                 android:fontFamily="sans-serif-condensed"
                 android:textColor="@color/lb_basic_card_content_text_color"
@@ -66,21 +63,11 @@
                 android:id="@+id/extra_badge"
                 android:layout_width="@dimen/lb_basic_card_info_badge_size"
                 android:layout_height="@dimen/lb_basic_card_info_badge_size"
-                android:layout_alignParentBottom="true"
+                android:layout_marginStart="@dimen/lb_basic_card_info_badge_margin"
+                android:layout_alignBottom="@id/content_text"
                 android:layout_alignParentEnd="true"
                 android:scaleType="fitCenter"
                 android:visibility="gone"
                 android:contentDescription="@null" />
-            <ImageView
-                android:id="@+id/fade_mask"
-                android:src="@drawable/lb_ic_card_info_text_fade"
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/lb_basic_card_info_badge_size"
-                android:layout_alignParentBottom="true"
-                android:layout_toStartOf="@id/extra_badge"
-                android:scaleType="fitCenter"
-                android:visibility="gone"
-                android:contentDescription="@null" />
-        </RelativeLayout>
-    </android.support.v17.leanback.widget.NonOverlappingFrameLayout>
+        </android.support.v17.leanback.widget.NonOverlappingRelativeLayout>
 </merge>
