@@ -16,7 +16,6 @@
 
 package android.support.v7.graphics;
 
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.support.v4.graphics.ColorUtils;
 import android.support.v7.graphics.Palette.Swatch;
@@ -47,9 +46,6 @@ final class ColorCutQuantizer {
     private static final String LOG_TAG = "ColorCutQuantizer";
     private static final boolean LOG_TIMINGS = false;
 
-    private static final float BLACK_MAX_LIGHTNESS = 0.05f;
-    private static final float WHITE_MIN_LIGHTNESS = 0.95f;
-
     private static final int COMPONENT_RED = -3;
     private static final int COMPONENT_GREEN = -2;
     private static final int COMPONENT_BLUE = -1;
@@ -61,33 +57,20 @@ final class ColorCutQuantizer {
     final int[] mHistogram;
     final List<Swatch> mQuantizedColors;
     final TimingLogger mTimingLogger;
+    final Palette.Filter[] mFilters;
 
     private final float[] mTempHsl = new float[3];
 
     /**
-     * Factory-method to generate a {@link ColorCutQuantizer} from a {@link Bitmap} object.
-     *
-     * @param bitmap Bitmap to extract the pixel data from
-     * @param maxColors The maximum number of colors that should be in the result palette.
-     */
-    static ColorCutQuantizer fromBitmap(Bitmap bitmap, int maxColors) {
-        final int width = bitmap.getWidth();
-        final int height = bitmap.getHeight();
-
-        final int[] pixels = new int[width * height];
-        bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
-
-        return new ColorCutQuantizer(pixels, maxColors);
-    }
-
-    /**
-     * Private constructor.
+     * Constructor.
      *
      * @param pixels histogram representing an image's pixel data
      * @param maxColors The maximum number of colors that should be in the result palette.
+     * @param filters Set of filters to use in the quantization stage
      */
-    private ColorCutQuantizer(final int[] pixels, final int maxColors) {
+    ColorCutQuantizer(final int[] pixels, final int maxColors, final Palette.Filter[] filters) {
         mTimingLogger = LOG_TIMINGS ? new TimingLogger(LOG_TAG, "Creation") : null;
+        mFilters = filters;
 
         final int[] hist = mHistogram = new int[1 << (QUANTIZE_WORD_WIDTH * 3)];
         for (int i = 0; i < pixels.length; i++) {
@@ -443,37 +426,24 @@ final class ColorCutQuantizer {
     }
 
     private boolean shouldIgnoreColor(int color565) {
-        ColorUtils.colorToHSL(approximateToRgb888(color565), mTempHsl);
-        return shouldIgnoreColor(mTempHsl);
+        final int rgb = approximateToRgb888(color565);
+        ColorUtils.colorToHSL(rgb, mTempHsl);
+        return shouldIgnoreColor(rgb, mTempHsl);
     }
 
-    private static boolean shouldIgnoreColor(Swatch color) {
-        return shouldIgnoreColor(color.getHsl());
+    private boolean shouldIgnoreColor(Swatch color) {
+        return shouldIgnoreColor(color.getRgb(), color.getHsl());
     }
 
-    private static boolean shouldIgnoreColor(float[] hslColor) {
-        return isWhite(hslColor) || isBlack(hslColor) || isNearRedILine(hslColor);
-    }
-
-    /**
-     * @return true if the color represents a color which is close to black.
-     */
-    private static boolean isBlack(float[] hslColor) {
-        return hslColor[2] <= BLACK_MAX_LIGHTNESS;
-    }
-
-    /**
-     * @return true if the color represents a color which is close to white.
-     */
-    private static boolean isWhite(float[] hslColor) {
-        return hslColor[2] >= WHITE_MIN_LIGHTNESS;
-    }
-
-    /**
-     * @return true if the color lies close to the red side of the I line.
-     */
-    private static boolean isNearRedILine(float[] hslColor) {
-        return hslColor[0] >= 10f && hslColor[0] <= 37f && hslColor[1] <= 0.82f;
+    private boolean shouldIgnoreColor(int rgb, float[] hsl) {
+        if (mFilters != null && mFilters.length > 0) {
+            for (int i = 0, count = mFilters.length; i < count; i++) {
+                if (!mFilters[i].isAllowed(rgb, hsl)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**

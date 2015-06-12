@@ -23,6 +23,7 @@ import android.support.v4.graphics.ColorUtils;
 import android.support.v4.os.AsyncTaskCompat;
 import android.util.TimingLogger;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -427,6 +428,7 @@ public final class Palette {
         private Bitmap mBitmap;
         private int mMaxColors = DEFAULT_CALCULATE_NUMBER_COLORS;
         private int mResizeMaxDimension = DEFAULT_RESIZE_BITMAP_MAX_DIMENSION;
+        private final List<Filter> mFilters = new ArrayList<>();
 
         private Generator mGenerator;
 
@@ -434,6 +436,7 @@ public final class Palette {
          * Construct a new {@link Builder} using a source {@link Bitmap}
          */
         public Builder(Bitmap bitmap) {
+            this();
             if (bitmap == null || bitmap.isRecycled()) {
                 throw new IllegalArgumentException("Bitmap is not valid");
             }
@@ -445,10 +448,15 @@ public final class Palette {
          * Typically only used for testing.
          */
         public Builder(List<Swatch> swatches) {
+            this();
             if (swatches == null || swatches.isEmpty()) {
                 throw new IllegalArgumentException("List of Swatches is not valid");
             }
             mSwatches = swatches;
+        }
+
+        private Builder() {
+            mFilters.add(DEFAULT_FILTER);
         }
 
         /**
@@ -489,6 +497,28 @@ public final class Palette {
         }
 
         /**
+         * Clear all added filters. This includes any default filters added automatically by
+         * {@link Palette}.
+         */
+        public Builder clearFilters() {
+            mFilters.clear();
+            return this;
+        }
+
+        /**
+         * Add a filter to be able to have fine grained controlled over the colors which are
+         * allowed in the resulting palette.
+         *
+         * @param filter filter to add.
+         */
+        public Builder addFilter(Filter filter) {
+            if (filter != null) {
+                mFilters.add(filter);
+            }
+            return this;
+        }
+
+        /**
          * Generate and return the {@link Palette} synchronously.
          */
         public Palette generate() {
@@ -514,8 +544,13 @@ public final class Palette {
                 }
 
                 // Now generate a quantizer from the Bitmap
-                ColorCutQuantizer quantizer = ColorCutQuantizer
-                        .fromBitmap(scaledBitmap, mMaxColors);
+                final int width = scaledBitmap.getWidth();
+                final int height = scaledBitmap.getHeight();
+                final int[] pixels = new int[width * height];
+                scaledBitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+
+                final ColorCutQuantizer quantizer = new ColorCutQuantizer(pixels, mMaxColors,
+                        mFilters.isEmpty() ? null : mFilters.toArray(new Filter[mFilters.size()]));
 
                 // If created a new bitmap, recycle it
                 if (scaledBitmap != mBitmap) {
@@ -633,4 +668,55 @@ public final class Palette {
         }
     }
 
+    /**
+     * A Filter provides a mechanism for exercising fine-grained control over which colors
+     * are valid within a resulting {@link Palette}.
+     */
+    public interface Filter {
+        /**
+         * Hook to allow clients to be able filter colors from resulting palette.
+         *
+         * @param rgb the color in RGB888.
+         * @param hsl HSL representation of the color.
+         *
+         * @return true if the color is allowed, false if not.
+         *
+         * @see Builder#addFilter(Filter)
+         */
+        boolean isAllowed(int rgb, float[] hsl);
+    }
+
+    /**
+     * The default filter.
+     */
+    private static final Filter DEFAULT_FILTER = new Filter() {
+        private static final float BLACK_MAX_LIGHTNESS = 0.05f;
+        private static final float WHITE_MIN_LIGHTNESS = 0.95f;
+
+        @Override
+        public boolean isAllowed(int rgb, float[] hsl) {
+            return !isWhite(hsl) && !isBlack(hsl) && !isNearRedILine(hsl);
+        }
+
+        /**
+         * @return true if the color represents a color which is close to black.
+         */
+        private boolean isBlack(float[] hslColor) {
+            return hslColor[2] <= BLACK_MAX_LIGHTNESS;
+        }
+
+        /**
+         * @return true if the color represents a color which is close to white.
+         */
+        private boolean isWhite(float[] hslColor) {
+            return hslColor[2] >= WHITE_MIN_LIGHTNESS;
+        }
+
+        /**
+         * @return true if the color lies close to the red side of the I line.
+         */
+        private boolean isNearRedILine(float[] hslColor) {
+            return hslColor[0] >= 10f && hslColor[0] <= 37f && hslColor[1] <= 0.82f;
+        }
+    };
 }
