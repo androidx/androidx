@@ -119,6 +119,15 @@ package android.support.v4.app {
     method public void update(android.support.v4.app.ActivityOptionsCompat);
   }
 
+  public class AppOpsManagerCompat {
+    ctor public AppOpsManagerCompat();
+    method public static int noteOp(android.content.Context, java.lang.String, int, java.lang.String);
+    method public static java.lang.String permissionToOp(java.lang.String);
+    field public static final int MODE_ALLOWED = 0; // 0x0
+    field public static final int MODE_DEFAULT = 3; // 0x3
+    field public static final int MODE_IGNORED = 1; // 0x1
+  }
+
    abstract class BaseFragmentActivityDonut extends android.app.Activity {
   }
 
@@ -1053,6 +1062,19 @@ package android.support.v4.content {
     method public boolean sendBroadcast(android.content.Intent);
     method public void sendBroadcastSync(android.content.Intent);
     method public void unregisterReceiver(android.content.BroadcastReceiver);
+  }
+
+  public final class PermissionChecker {
+    method public static int checkCallingOrSelfPermission(android.content.Context, java.lang.String);
+    method public static int checkCallingPermission(android.content.Context, java.lang.String, java.lang.String);
+    method public static int checkPermission(android.content.Context, java.lang.String, int, int, java.lang.String);
+    method public static int checkSelfPermission(android.content.Context, java.lang.String);
+    field public static final int PERMISSION_DENIED = -1; // 0xffffffff
+    field public static final int PERMISSION_DENIED_APP_OP = -2; // 0xfffffffe
+    field public static final int PERMISSION_GRANTED = 0; // 0x0
+  }
+
+  public static abstract class PermissionChecker.PermissionResult implements java.lang.annotation.Annotation {
   }
 
   public class SharedPreferencesCompat {
