@@ -79,6 +79,19 @@ class FragmentTransitionCompat21 {
         });
     }
 
+    public static Object wrapSharedElementTransition(Object transitionObj) {
+        if (transitionObj == null) {
+            return null;
+        }
+        Transition transition = (Transition) transitionObj;
+        if (transition == null) {
+            return null;
+        }
+        TransitionSet transitionSet = new TransitionSet();
+        transitionSet.addTransition(transition);
+        return transitionSet;
+    }
+
     /**
      * Prepares the enter transition by adding a non-existent view to the transition's target list
      * and setting it epicenter callback. By adding a non-existent view to the target list,
@@ -102,8 +115,8 @@ class FragmentTransitionCompat21 {
                 enterTransition.addTarget(nonExistentView);
             }
             if (sharedElementTransitionObject != null) {
-                Transition sharedElementTransition = (Transition) sharedElementTransitionObject;
-                addTargets(sharedElementTransition, sharedElementTargets);
+                setSharedElementTargets(sharedElementTransitionObject, nonExistentView,
+                        renamedViews, sharedElementTargets);
             }
 
             if (inFragment != null) {
@@ -201,7 +214,67 @@ class FragmentTransitionCompat21 {
         return transition;
     }
 
+    /**
+     * Finds all children of the shared elements and sets the wrapping TransitionSet
+     * targets to point to those. It also limits transitions that have no targets to the
+     * specific shared elements. This allows developers to target child views of the
+     * shared elements specifically, but this doesn't happen by default.
+     */
+    public static void setSharedElementTargets(Object transitionObj,
+            View nonExistentView, Map<String, View> namedViews,
+            ArrayList<View> sharedElementTargets) {
+        TransitionSet transition = (TransitionSet) transitionObj;
+        sharedElementTargets.clear();
+        sharedElementTargets.addAll(namedViews.values());
 
+        final List<View> views = transition.getTargets();
+        views.clear();
+        final int count = sharedElementTargets.size();
+        for (int i = 0; i < count; i++) {
+            final View view = sharedElementTargets.get(i);
+            bfsAddViewChildren(views, view);
+        }
+        sharedElementTargets.add(nonExistentView);
+        addTargets(transition, sharedElementTargets);
+    }
+
+    /**
+     * Uses a breadth-first scheme to add startView and all of its children to views.
+     * It won't add a child if it is already in views.
+     */
+    private static void bfsAddViewChildren(final List<View> views, final View startView) {
+        final int startIndex = views.size();
+        if (containedBeforeIndex(views, startView, startIndex)) {
+            return; // This child is already in the list, so all its children are also.
+        }
+        views.add(startView);
+        for (int index = startIndex; index < views.size(); index++) {
+            final View view = views.get(index);
+            if (view instanceof ViewGroup) {
+                ViewGroup viewGroup = (ViewGroup) view;
+                final int childCount =  viewGroup.getChildCount();
+                for (int childIndex = 0; childIndex < childCount; childIndex++) {
+                    final View child = viewGroup.getChildAt(childIndex);
+                    if (!containedBeforeIndex(views, child, startIndex)) {
+                        views.add(child);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Does a linear search through views for view, limited to maxIndex.
+     */
+    private static boolean containedBeforeIndex(final List<View> views, final View view,
+            final int maxIndex) {
+        for (int i = 0; i < maxIndex; i++) {
+            if (views.get(i) == view) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private static void setSharedElementEpicenter(Transition transition,
             final EpicenterView epicenterView) {
