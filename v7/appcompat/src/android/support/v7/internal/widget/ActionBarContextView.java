@@ -17,32 +17,26 @@
 package android.support.v7.internal.widget;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.view.ViewPropertyAnimatorCompat;
-import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v7.appcompat.R;
-import android.support.v7.internal.view.ViewPropertyAnimatorCompatSet;
+import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.ActionMenuPresenter;
 import android.support.v7.widget.ActionMenuView;
-import android.support.v7.internal.view.menu.MenuBuilder;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
  * @hide
  */
-public class ActionBarContextView extends AbsActionBarView implements ViewPropertyAnimatorListener {
+public class ActionBarContextView extends AbsActionBarView {
     private static final String TAG = "ActionBarContextView";
 
     private CharSequence mTitle;
@@ -55,17 +49,8 @@ public class ActionBarContextView extends AbsActionBarView implements ViewProper
     private TextView mSubtitleView;
     private int mTitleStyleRes;
     private int mSubtitleStyleRes;
-    private Drawable mSplitBackground;
     private boolean mTitleOptional;
     private int mCloseItemLayout;
-
-    private ViewPropertyAnimatorCompatSet mCurrentAnimation;
-    private boolean mAnimateInOnLayout;
-    private int mAnimationMode;
-
-    private static final int ANIMATE_IDLE = 0;
-    private static final int ANIMATE_IN = 1;
-    private static final int ANIMATE_OUT = 2;
 
     public ActionBarContextView(Context context) {
         this(context, null);
@@ -90,9 +75,6 @@ public class ActionBarContextView extends AbsActionBarView implements ViewProper
         mContentHeight = a.getLayoutDimension(
                 R.styleable.ActionMode_height, 0);
 
-        mSplitBackground = a.getDrawable(
-                R.styleable.ActionMode_backgroundSplit);
-
         mCloseItemLayout = a.getResourceId(
                 R.styleable.ActionMode_closeItemLayout,
                 R.layout.abc_action_mode_close_item_material);
@@ -109,39 +91,6 @@ public class ActionBarContextView extends AbsActionBarView implements ViewProper
         }
     }
 
-    @Override
-    public void setSplitToolbar(boolean split) {
-        if (mSplitActionBar != split) {
-            if (mActionMenuPresenter != null) {
-                // Mode is already active; move everything over and adjust the menu itself.
-                final LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT,
-                        LayoutParams.MATCH_PARENT);
-                if (!split) {
-                    mMenuView = (ActionMenuView) mActionMenuPresenter.getMenuView(this);
-                    mMenuView.setBackgroundDrawable(null);
-                    final ViewGroup oldParent = (ViewGroup) mMenuView.getParent();
-                    if (oldParent != null) oldParent.removeView(mMenuView);
-                    addView(mMenuView, layoutParams);
-                } else {
-                    // Allow full screen width in split mode.
-                    mActionMenuPresenter.setWidthLimit(
-                            getContext().getResources().getDisplayMetrics().widthPixels, true);
-                    // No limit to the item count; use whatever will fit.
-                    mActionMenuPresenter.setItemLimit(Integer.MAX_VALUE);
-                    // Span the whole width
-                    layoutParams.width = LayoutParams.MATCH_PARENT;
-                    layoutParams.height = mContentHeight;
-                    mMenuView = (ActionMenuView) mActionMenuPresenter.getMenuView(this);
-                    mMenuView.setBackgroundDrawable(mSplitBackground);
-                    final ViewGroup oldParent = (ViewGroup) mMenuView.getParent();
-                    if (oldParent != null) oldParent.removeView(mMenuView);
-                    mSplitView.addView(mMenuView, layoutParams);
-                }
-            }
-            super.setSplitToolbar(split);
-        }
-    }
-
     public void setContentHeight(int height) {
         mContentHeight = height;
     }
@@ -151,7 +100,7 @@ public class ActionBarContextView extends AbsActionBarView implements ViewProper
             removeView(mCustomView);
         }
         mCustomView = view;
-        if (mTitleLayout != null) {
+        if (view != null && mTitleLayout != null) {
             removeView(mTitleLayout);
             mTitleLayout = null;
         }
@@ -231,62 +180,23 @@ public class ActionBarContextView extends AbsActionBarView implements ViewProper
 
         final LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT,
                 LayoutParams.MATCH_PARENT);
-        if (!mSplitActionBar) {
-            menu.addMenuPresenter(mActionMenuPresenter, mPopupContext);
-            mMenuView = (ActionMenuView) mActionMenuPresenter.getMenuView(this);
-            mMenuView.setBackgroundDrawable(null);
-            addView(mMenuView, layoutParams);
-        } else {
-            // Allow full screen width in split mode.
-            mActionMenuPresenter.setWidthLimit(
-                    getContext().getResources().getDisplayMetrics().widthPixels, true);
-            // No limit to the item count; use whatever will fit.
-            mActionMenuPresenter.setItemLimit(Integer.MAX_VALUE);
-            // Span the whole width
-            layoutParams.width = LayoutParams.MATCH_PARENT;
-            layoutParams.height = mContentHeight;
-            menu.addMenuPresenter(mActionMenuPresenter, mPopupContext);
-            mMenuView = (ActionMenuView) mActionMenuPresenter.getMenuView(this);
-            mMenuView.setBackgroundDrawable(mSplitBackground);
-            mSplitView.addView(mMenuView, layoutParams);
-        }
-
-        mAnimateInOnLayout = true;
+        menu.addMenuPresenter(mActionMenuPresenter, mPopupContext);
+        mMenuView = (ActionMenuView) mActionMenuPresenter.getMenuView(this);
+        mMenuView.setBackgroundDrawable(null);
+        addView(mMenuView, layoutParams);
     }
 
     public void closeMode() {
-        if (mAnimationMode == ANIMATE_OUT) {
-            // Called again during close; just finish what we were doing.
-            return;
-        }
         if (mClose == null) {
             killMode();
             return;
         }
-
-        finishAnimation();
-        mAnimationMode = ANIMATE_OUT;
-        mCurrentAnimation = makeOutAnimation();
-        mCurrentAnimation.start();
-    }
-
-    private void finishAnimation() {
-        final ViewPropertyAnimatorCompatSet a = mCurrentAnimation;
-        if (a != null) {
-            mCurrentAnimation = null;
-            a.cancel();
-        }
     }
 
     public void killMode() {
-        finishAnimation();
         removeAllViews();
-        if (mSplitView != null) {
-            mSplitView.removeView(mMenuView);
-        }
         mCustomView = null;
         mMenuView = null;
-        mAnimateInOnLayout = false;
     }
 
     @Override
@@ -405,60 +315,6 @@ public class ActionBarContextView extends AbsActionBarView implements ViewProper
         }
     }
 
-    private ViewPropertyAnimatorCompatSet makeInAnimation() {
-        ViewCompat.setTranslationX(mClose, -mClose.getWidth() -
-                ((MarginLayoutParams) mClose.getLayoutParams()).leftMargin);
-        ViewPropertyAnimatorCompat buttonAnimator = ViewCompat.animate(mClose).translationX(0);
-        buttonAnimator.setDuration(200);
-        buttonAnimator.setListener(this);
-        buttonAnimator.setInterpolator(new DecelerateInterpolator());
-
-        ViewPropertyAnimatorCompatSet set = new ViewPropertyAnimatorCompatSet();
-        set.play(buttonAnimator);
-
-        if (mMenuView != null) {
-            final int count = mMenuView.getChildCount();
-            if (count > 0) {
-                for (int i = count - 1, j = 0; i >= 0; i--, j++) {
-                    View child = mMenuView.getChildAt(i);
-                    ViewCompat.setScaleY(child, 0);
-                    ViewPropertyAnimatorCompat a = ViewCompat.animate(child).scaleY(1);
-                    a.setDuration(300);
-                    set.play(a);
-                }
-            }
-        }
-
-        return set;
-    }
-
-    private ViewPropertyAnimatorCompatSet makeOutAnimation() {
-        ViewPropertyAnimatorCompat buttonAnimator = ViewCompat.animate(mClose)
-                .translationX(-mClose.getWidth() -
-                        ((MarginLayoutParams) mClose.getLayoutParams()).leftMargin);
-        buttonAnimator.setDuration(200);
-        buttonAnimator.setListener(this);
-        buttonAnimator.setInterpolator(new DecelerateInterpolator());
-
-        ViewPropertyAnimatorCompatSet set = new ViewPropertyAnimatorCompatSet();
-        set.play(buttonAnimator);
-
-        if (mMenuView != null) {
-            final int count = mMenuView.getChildCount();
-            if (count > 0) {
-                for (int i = 0; i < 0; i++) {
-                    View child = mMenuView.getChildAt(i);
-                    ViewCompat.setScaleY(child, 1);
-                    ViewPropertyAnimatorCompat a = ViewCompat.animate(child).scaleY(0);
-                    a.setDuration(300);
-                    set.play(a);
-                }
-            }
-        }
-
-        return set;
-    }
-
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         final boolean isLayoutRtl = ViewUtils.isLayoutRtl(this);
@@ -473,13 +329,6 @@ public class ActionBarContextView extends AbsActionBarView implements ViewProper
             x = next(x, startMargin, isLayoutRtl);
             x += positionChild(mClose, x, y, contentHeight, isLayoutRtl);
             x = next(x, endMargin, isLayoutRtl);
-
-            if (mAnimateInOnLayout) {
-                mAnimationMode = ANIMATE_IN;
-                mCurrentAnimation = makeInAnimation();
-                mCurrentAnimation.start();
-                mAnimateInOnLayout = false;
-            }
         }
 
         if (mTitleLayout != null && mCustomView == null && mTitleLayout.getVisibility() != GONE) {
@@ -495,22 +344,6 @@ public class ActionBarContextView extends AbsActionBarView implements ViewProper
         if (mMenuView != null) {
             x += positionChild(mMenuView, x, y, contentHeight, !isLayoutRtl);
         }
-    }
-
-    @Override
-    public void onAnimationStart(View view) {
-    }
-
-    @Override
-    public void onAnimationEnd(View view) {
-        if (mAnimationMode == ANIMATE_OUT) {
-            killMode();
-        }
-        mAnimationMode = ANIMATE_IDLE;
-    }
-
-    @Override
-    public void onAnimationCancel(View view) {
     }
 
     @Override
