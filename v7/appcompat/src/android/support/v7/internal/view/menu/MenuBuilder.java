@@ -429,7 +429,7 @@ public class MenuBuilder implements SupportMenu {
     /**
      * Adds an item to the menu.  The other add methods funnel to this.
      */
-    private MenuItem addInternal(int group, int id, int categoryOrder, CharSequence title) {
+    protected MenuItem addInternal(int group, int id, int categoryOrder, CharSequence title) {
         final int ordering = getOrdering(categoryOrder);
 
         final MenuItemImpl item = createNewMenuItem(group, id, categoryOrder, ordering, title,
