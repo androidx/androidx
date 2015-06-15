@@ -13,25 +13,53 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.support.v7.app;
 
+package android.support.v7.graphics.drawable;
 
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.FloatRange;
+import android.support.annotation.IntDef;
 import android.support.v7.appcompat.R;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
- * A drawable that can draw a "Drawer hamburger" menu or an Arrow and animate between them.
+ * A drawable that can draw a "Drawer hamburger" menu or an arrow and animate between them.
+ * <p>
+ * The progress between the two states is controlled via {@link #setProgress(float)}.
+ * </p>
  */
-abstract class DrawerArrowDrawable extends Drawable {
+public class DrawerArrowDrawable extends Drawable {
+
+    /**
+     * Direction to make the arrow point from right to left.
+     *
+     * @see #setDirection(int)
+     * @see #getDirection()
+     */
+    public static final int ARROW_DIRECTION_LEFT = 0;
+
+    /**
+     * Direction to make the arrow point from left to right.
+     *
+     * @see #setDirection(int)
+     * @see #getDirection()
+     */
+    public static final int ARROW_DIRECTION_RIGHT = 1;
+
+    /** @hide */
+    @IntDef({ARROW_DIRECTION_LEFT, ARROW_DIRECTION_RIGHT})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ArrowDirection {}
 
     private final Paint mPaint = new Paint();
 
@@ -61,34 +89,34 @@ abstract class DrawerArrowDrawable extends Drawable {
     private float mMaxCutForBarSize;
     // The distance of arrow's center from top when horizontal
     private float mCenterOffset;
+    // The arrow direction
+    private int mDirection = ARROW_DIRECTION_LEFT;
 
     /**
      * @param context used to get the configuration for the drawable from
      */
-    DrawerArrowDrawable(Context context) {
-        final TypedArray typedArray = context.getTheme()
+    public DrawerArrowDrawable(Context context) {
+        final TypedArray a = context.getTheme()
                 .obtainStyledAttributes(null, R.styleable.DrawerArrowToggle,
                         R.attr.drawerArrowStyle,
                         R.style.Base_Widget_AppCompat_DrawerArrowToggle);
         mPaint.setAntiAlias(true);
-        mPaint.setColor(typedArray.getColor(R.styleable.DrawerArrowToggle_color, 0));
-        mSize = typedArray.getDimensionPixelSize(R.styleable.DrawerArrowToggle_drawableSize, 0);
+        mPaint.setColor(a.getColor(R.styleable.DrawerArrowToggle_color, 0));
+        mSize = a.getDimensionPixelSize(R.styleable.DrawerArrowToggle_drawableSize, 0);
         // round this because having this floating may cause bad measurements
-        mBarSize = Math.round(typedArray.getDimension(R.styleable.DrawerArrowToggle_barSize, 0));
+        mBarSize = Math.round(a.getDimension(R.styleable.DrawerArrowToggle_barSize, 0));
         // round this because having this floating may cause bad measurements
-        mTopBottomArrowSize = Math.round(typedArray.getDimension(
+        mTopBottomArrowSize = Math.round(a.getDimension(
                 R.styleable.DrawerArrowToggle_topBottomBarArrowSize, 0));
-        mBarThickness = typedArray.getDimension(R.styleable.DrawerArrowToggle_thickness, 0);
+        mBarThickness = a.getDimension(R.styleable.DrawerArrowToggle_thickness, 0);
         // round this because having this floating may cause bad measurements
-        mBarGap = Math.round(typedArray.getDimension(
-                R.styleable.DrawerArrowToggle_gapBetweenBars, 0));
-        mSpin = typedArray.getBoolean(R.styleable.DrawerArrowToggle_spinBars, true);
-        mMiddleArrowSize = typedArray
-                .getDimension(R.styleable.DrawerArrowToggle_middleBarArrowSize, 0);
+        mBarGap = Math.round(a.getDimension(R.styleable.DrawerArrowToggle_gapBetweenBars, 0));
+        mSpin = a.getBoolean(R.styleable.DrawerArrowToggle_spinBars, true);
+        mMiddleArrowSize = a.getDimension(R.styleable.DrawerArrowToggle_middleBarArrowSize, 0);
         final int remainingSpace = (int) (mSize - mBarThickness * 3 - mBarGap * 2);
         mCenterOffset = (remainingSpace / 4) * 2; //making sure it is a multiple of 2.
         mCenterOffset += mBarThickness * 1.5 + mBarGap;
-        typedArray.recycle();
+        a.recycle();
 
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeJoin(Paint.Join.MITER);
@@ -98,19 +126,38 @@ abstract class DrawerArrowDrawable extends Drawable {
         mMaxCutForBarSize = (float) (mBarThickness / 2 * Math.cos(ARROW_HEAD_ANGLE));
     }
 
-    abstract boolean isLayoutRtl();
+    /**
+     * Set the arrow direction.
+     */
+    public void setDirection(@ArrowDirection int direction) {
+        if (direction != mDirection) {
+            mDirection = direction;
+            invalidateSelf();
+        }
+    }
+
+    /**
+     * Returns the arrow direction.
+     */
+    @ArrowDirection
+    public int getDirection() {
+        return mDirection;
+    }
 
     /**
      * If set, canvas is flipped when progress reached to end and going back to start.
      */
-    protected void setVerticalMirror(boolean verticalMirror) {
-        mVerticalMirror = verticalMirror;
+    public void setVerticalMirror(boolean verticalMirror) {
+        if (mVerticalMirror != verticalMirror) {
+            mVerticalMirror = verticalMirror;
+            invalidateSelf();
+        }
     }
 
     @Override
     public void draw(Canvas canvas) {
         Rect bounds = getBounds();
-        final boolean isRtl = isLayoutRtl();
+        final boolean flipToPointRight = mDirection == ARROW_DIRECTION_RIGHT;
         // Interpolated widths of arrow bars
         final float arrowSize = lerp(mBarSize, mTopBottomArrowSize, mProgress);
         final float middleBarSize = lerp(mBarSize, mMiddleArrowSize, mProgress);
@@ -120,10 +167,11 @@ abstract class DrawerArrowDrawable extends Drawable {
         final float rotation = lerp(0, ARROW_HEAD_ANGLE, mProgress);
 
         // The whole canvas rotates as the transition happens
-        final float canvasRotate = lerp(isRtl ? 0 : -180, isRtl ? 180 : 0, mProgress);
+        final float canvasRotate = lerp(flipToPointRight ? 0 : -180,
+                flipToPointRight ? 180 : 0, mProgress);
+
         final float arrowWidth = Math.round(arrowSize * Math.cos(rotation));
         final float arrowHeight = Math.round(arrowSize * Math.sin(rotation));
-
 
         mPath.rewind();
         final float topBottomBarOffset = lerp(mBarGap + mBarThickness, -mMaxCutForBarSize,
@@ -149,8 +197,8 @@ abstract class DrawerArrowDrawable extends Drawable {
         // the arrow pointing the other way for RTL.
         canvas.translate(bounds.centerX(), mCenterOffset);
         if (mSpin) {
-            canvas.rotate(canvasRotate * ((mVerticalMirror ^ isRtl) ? -1 : 1));
-        } else if (isRtl) {
+            canvas.rotate(canvasRotate * ((mVerticalMirror ^ flipToPointRight) ? -1 : 1));
+        } else if (flipToPointRight) {
             canvas.rotate(180);
         }
         canvas.drawPath(mPath, mPaint);
@@ -159,14 +207,8 @@ abstract class DrawerArrowDrawable extends Drawable {
     }
 
     @Override
-    public void setAlpha(int i) {
-        mPaint.setAlpha(i);
-    }
-
-    // override
-    public boolean isAutoMirrored() {
-        // Draws rotated 180 degrees in RTL mode.
-        return true;
+    public void setAlpha(int alpha) {
+        mPaint.setAlpha(alpha);
     }
 
     @Override
@@ -189,11 +231,22 @@ abstract class DrawerArrowDrawable extends Drawable {
         return PixelFormat.TRANSLUCENT;
     }
 
+    /**
+     * Returns the current progress of the arrow.
+     */
+    @FloatRange(from = 0.0, to = 1.0)
     public float getProgress() {
         return mProgress;
     }
 
-    public void setProgress(float progress) {
+    /**
+     * Set the progress of the arrow.
+     *
+     * <p>A value of {@code 0.0} indicates that the arrow should be drawn in it's starting
+     * position. A value of {@code 1.0} indicates that the arrow should be drawn in it's ending
+     * position.</p>
+     */
+    public void setProgress(@FloatRange(from = 0.0, to = 1.0) float progress) {
         mProgress = progress;
         invalidateSelf();
     }
