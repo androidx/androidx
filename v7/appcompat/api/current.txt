@@ -1571,6 +1571,25 @@ package android.support.v7.appcompat {
 
 }
 
+package android.support.v7.graphics.drawable {
+
+  public class DrawerArrowDrawable extends android.graphics.drawable.Drawable {
+    ctor public DrawerArrowDrawable(android.content.Context);
+    method public void draw(android.graphics.Canvas);
+    method public int getDirection();
+    method public int getOpacity();
+    method public float getProgress();
+    method public void setAlpha(int);
+    method public void setColorFilter(android.graphics.ColorFilter);
+    method public void setDirection(int);
+    method public void setProgress(float);
+    method public void setVerticalMirror(boolean);
+    field public static final int ARROW_DIRECTION_LEFT = 0; // 0x0
+    field public static final int ARROW_DIRECTION_RIGHT = 1; // 0x1
+  }
+
+}
+
 package android.support.v7.view {
 
   public abstract class ActionMode {
