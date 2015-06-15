@@ -314,15 +314,12 @@ public class ActionMenuItemView extends AppCompatTextView
             return false;
         }
 
-        @Override
-        protected boolean onForwardingStopped() {
-            final ListPopupWindow popup = getPopup();
-            if (popup != null) {
-                popup.dismiss();
-                return true;
-            }
-            return false;
-        }
+        // Do not backport the framework impl here.
+        // The framework's ListPopupWindow uses an animation before performing the item click
+        // after selecting an item. As AppCompat doesn't use an animation, the popup is
+        // dismissed and thus null'ed out before onForwardingStopped() has been called.
+        // This messes up ActionMenuItemView's onForwardingStopped() impl since it will now
+        // return false and make ListPopupWindow think it's still forwarding.
     }
 
     public static abstract class PopupCallback {
