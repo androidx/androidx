@@ -1844,9 +1844,9 @@ public class Toolbar extends ViewGroup {
         }
     }
 
-    static class SavedState extends BaseSavedState {
-        public int expandedMenuItemId;
-        public boolean isOverflowOpen;
+    public static class SavedState extends BaseSavedState {
+        int expandedMenuItemId;
+        boolean isOverflowOpen;
 
         public SavedState(Parcel source) {
             super(source);
@@ -1866,7 +1866,6 @@ public class Toolbar extends ViewGroup {
         }
 
         public static final Creator<SavedState> CREATOR = new Creator<SavedState>() {
-
             @Override
             public SavedState createFromParcel(Parcel source) {
                 return new SavedState(source);
