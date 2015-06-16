@@ -96,7 +96,9 @@ public class ToolbarActionBar extends ActionBar {
 
     @Override
     public void setCustomView(View view, LayoutParams layoutParams) {
-        view.setLayoutParams(layoutParams);
+        if (view != null) {
+            view.setLayoutParams(layoutParams);
+        }
         mDecorToolbar.setCustomView(view);
     }
 
