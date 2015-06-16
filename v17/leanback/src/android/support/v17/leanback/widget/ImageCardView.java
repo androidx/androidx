@@ -37,7 +37,6 @@ public class ImageCardView extends BaseCardView {
     private TextView mTitleView;
     private TextView mContentView;
     private ImageView mBadgeImage;
-    private ImageView mBadgeFadeMask;
     private boolean mAttachedToWindow;
 
     public ImageCardView(Context context) {
@@ -60,7 +59,6 @@ public class ImageCardView extends BaseCardView {
         mTitleView = (TextView) v.findViewById(R.id.title_text);
         mContentView = (TextView) v.findViewById(R.id.content_text);
         mBadgeImage = (ImageView) v.findViewById(R.id.extra_badge);
-        mBadgeFadeMask = (ImageView) v.findViewById(R.id.fade_mask);
 
         if (mInfoArea != null) {
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbImageCardView,
@@ -167,9 +165,6 @@ public class ImageCardView extends BaseCardView {
     public void setInfoAreaBackground(Drawable drawable) {
         if (mInfoArea != null) {
             mInfoArea.setBackground(drawable);
-            if (mBadgeImage != null) {
-                mBadgeImage.setBackground(drawable);
-            }
         }
     }
 
@@ -179,9 +174,6 @@ public class ImageCardView extends BaseCardView {
     public void setInfoAreaBackgroundColor(@ColorInt int color) {
         if (mInfoArea != null) {
             mInfoArea.setBackgroundColor(color);
-            if (mBadgeImage != null) {
-                mBadgeImage.setBackgroundColor(color);
-            }
         }
     }
 
@@ -194,7 +186,6 @@ public class ImageCardView extends BaseCardView {
         }
 
         mTitleView.setText(text);
-        setTextMaxLines();
     }
 
     /**
@@ -217,7 +208,6 @@ public class ImageCardView extends BaseCardView {
         }
 
         mContentView.setText(text);
-        setTextMaxLines();
     }
 
     /**
@@ -238,14 +228,11 @@ public class ImageCardView extends BaseCardView {
         if (mBadgeImage == null) {
             return;
         }
-
-        if (drawable != null) {
-            mBadgeImage.setImageDrawable(drawable);
+        mBadgeImage.setImageDrawable(drawable);
+        if (drawable != null && mContentView!= null && mContentView.getVisibility() != GONE) {
             mBadgeImage.setVisibility(View.VISIBLE);
-            mBadgeFadeMask.setVisibility(View.VISIBLE);
         } else {
             mBadgeImage.setVisibility(View.GONE);
-            mBadgeFadeMask.setVisibility(View.GONE);
         }
     }
 
@@ -271,19 +258,6 @@ public class ImageCardView extends BaseCardView {
     @Override
     public boolean hasOverlappingRendering() {
         return false;
-    }
-
-    private void setTextMaxLines() {
-        if (TextUtils.isEmpty(getTitleText())) {
-            mContentView.setMaxLines(2);
-        } else {
-            mContentView.setMaxLines(1);
-        }
-        if (TextUtils.isEmpty(getContentText())) {
-            mTitleView.setMaxLines(2);
-        } else {
-            mTitleView.setMaxLines(1);
-        }
     }
 
     @Override
