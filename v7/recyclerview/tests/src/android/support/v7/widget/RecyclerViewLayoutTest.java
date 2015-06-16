@@ -291,7 +291,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
     private void scrollInOtherOrientationTest(int flags)
             throws Throwable {
-        scrollInOtherOrientationTest(flags);
+        scrollInOtherOrientationTest(flags, flags);
     }
 
     private void scrollInOtherOrientationTest(final int flags, int expectedFlags) throws Throwable {
