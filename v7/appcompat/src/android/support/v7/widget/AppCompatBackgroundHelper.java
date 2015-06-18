@@ -17,7 +17,6 @@
 package android.support.v7.widget;
 
 import android.content.res.ColorStateList;
-import android.content.res.TypedArray;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.support.v4.view.ViewCompat;
@@ -40,7 +39,7 @@ class AppCompatBackgroundHelper {
     }
 
     void loadFromAttributes(AttributeSet attrs, int defStyleAttr) {
-        TypedArray a = mView.getContext().obtainStyledAttributes(attrs,
+        TintTypedArray a = TintTypedArray.obtainStyledAttributes(mView.getContext(), attrs,
                 R.styleable.ViewBackgroundHelper, defStyleAttr, 0);
         try {
             if (a.hasValue(R.styleable.ViewBackgroundHelper_android_background)) {

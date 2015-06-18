@@ -374,6 +374,7 @@ package android.support.v7.appcompat {
     field public static int alertDialogStyle;
     field public static int alertDialogTheme;
     field public static int allowStacking;
+    field public static int alpha;
     field public static int arrowHeadLength;
     field public static int arrowShaftLength;
     field public static int autoCompleteTextViewStyle;
@@ -573,6 +574,13 @@ package android.support.v7.appcompat {
     field public static int abc_search_url_text_selected;
     field public static int abc_secondary_text_material_dark;
     field public static int abc_secondary_text_material_light;
+    field public static int abc_tint_btn_checkable;
+    field public static int abc_tint_default;
+    field public static int abc_tint_edittext;
+    field public static int abc_tint_seek_thumb;
+    field public static int abc_tint_spinner;
+    field public static int abc_tint_switch_thumb;
+    field public static int abc_tint_switch_track;
     field public static int accent_material_dark;
     field public static int accent_material_light;
     field public static int background_floating_material_dark;
@@ -1331,6 +1339,10 @@ package android.support.v7.appcompat {
     field public static int AppCompatTextView_android_textAppearance;
     field public static int AppCompatTextView_textAllCaps;
     field public static int ButtonBarLayout_allowStacking;
+    field public static final int[] ColorStateListItem;
+    field public static int ColorStateListItem_alpha;
+    field public static int ColorStateListItem_android_alpha;
+    field public static int ColorStateListItem_android_color;
     field public static final int[] CompoundButton;
     field public static int CompoundButton_android_button;
     field public static int CompoundButton_buttonTint;
