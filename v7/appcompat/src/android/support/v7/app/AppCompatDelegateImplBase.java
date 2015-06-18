@@ -38,6 +38,7 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
     final Context mContext;
     final Window mWindow;
     final Window.Callback mOriginalWindowCallback;
+    final Window.Callback mAppCompatWindowCallback;
     final AppCompatCallback mAppCompatCallback;
 
     ActionBar mActionBar;
@@ -68,8 +69,9 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
             throw new IllegalStateException(
                     "AppCompat has already installed itself into the Window");
         }
+        mAppCompatWindowCallback = wrapWindowCallback(mOriginalWindowCallback);
         // Now install the new callback
-        mWindow.setCallback(wrapWindowCallback(mOriginalWindowCallback));
+        mWindow.setCallback(mAppCompatWindowCallback);
     }
 
     abstract void initWindowDecorActionBar();
