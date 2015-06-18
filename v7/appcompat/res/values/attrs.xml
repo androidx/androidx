@@ -840,6 +840,17 @@
 
         <!-- Allows us to read in the minHeight attr pre-v16 -->
         <attr name="android:minHeight" />
+
+        <!-- Drawable to set as the logo that appears at the starting side of
+             the Toolbar, just after the navigation button. -->
+        <attr name="logo" />
+        <!-- A content description string to describe the appearance of the
+             associated logo image. -->
+        <attr name="logoDescription" format="string" />
+        <!-- A color to apply to the title string. -->
+        <attr name="titleTextColor" format="color" />
+        <!-- A color to apply to the subtitle string. -->
+        <attr name="subtitleTextColor" format="color" />
     </declare-styleable>
 
     <declare-styleable name="PopupWindowBackgroundState">
