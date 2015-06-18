@@ -24,8 +24,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.app.ActionBar;
-import android.support.v7.internal.view.WindowCallbackWrapper;
 import android.support.v7.appcompat.R;
+import android.support.v7.internal.view.WindowCallbackWrapper;
 import android.support.v7.internal.view.menu.ListMenuPresenter;
 import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.MenuPresenter;
@@ -54,10 +54,8 @@ public class ToolbarActionBar extends ActionBar {
     private boolean mMenuCallbackSet;
 
     private boolean mLastMenuVisibility;
-    private ArrayList<OnMenuVisibilityListener> mMenuVisibilityListeners =
-            new ArrayList<OnMenuVisibilityListener>();
+    private ArrayList<OnMenuVisibilityListener> mMenuVisibilityListeners = new ArrayList<>();
 
-    private Window mWindow;
     private ListMenuPresenter mListMenuPresenter;
 
     private final Runnable mMenuInvalidator = new Runnable() {
@@ -75,14 +73,12 @@ public class ToolbarActionBar extends ActionBar {
                 }
             };
 
-    public ToolbarActionBar(Toolbar toolbar, CharSequence title, Window window) {
+    public ToolbarActionBar(Toolbar toolbar, CharSequence title, Window.Callback callback) {
         mDecorToolbar = new ToolbarWidgetWrapper(toolbar, false);
-        mWindowCallback = new ToolbarCallbackWrapper(window.getCallback());
+        mWindowCallback = new ToolbarCallbackWrapper(callback);
         mDecorToolbar.setWindowCallback(mWindowCallback);
         toolbar.setOnMenuItemClickListener(mMenuClicker);
         mDecorToolbar.setWindowTitle(title);
-
-        mWindow = window;
     }
 
     public Window.Callback getWrappedWindowCallback() {
