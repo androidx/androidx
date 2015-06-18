@@ -34,8 +34,8 @@ import android.support.v4.view.ViewPropertyAnimatorUpdateListener;
 import android.support.v7.app.ActionBar;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.view.ActionBarPolicy;
-import android.support.v7.internal.view.ViewPropertyAnimatorCompatSet;
 import android.support.v7.internal.view.SupportMenuInflater;
+import android.support.v7.internal.view.ViewPropertyAnimatorCompatSet;
 import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.MenuPopupHelper;
 import android.support.v7.internal.view.menu.SubMenuBuilder;
@@ -43,8 +43,8 @@ import android.support.v7.internal.widget.ActionBarContainer;
 import android.support.v7.internal.widget.ActionBarContextView;
 import android.support.v7.internal.widget.ActionBarOverlayLayout;
 import android.support.v7.internal.widget.DecorToolbar;
-import android.support.v7.internal.widget.TintManager;
 import android.support.v7.internal.widget.ScrollingTabContainerView;
+import android.support.v7.internal.widget.TintManager;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
@@ -57,7 +57,10 @@ import android.view.View;
 import android.view.ViewParent;
 import android.view.Window;
 import android.view.accessibility.AccessibilityEvent;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.Interpolator;
 import android.widget.SpinnerAdapter;
 
 import java.lang.ref.WeakReference;
@@ -66,15 +69,15 @@ import java.util.ArrayList;
 /**
  * WindowDecorActionBar is the ActionBar implementation used
  * by devices of all screen sizes as part of the window decor layout.
- * If it detects a compatible decor, it will split contextual modes
- * across both the ActionBarView at the top of the screen and
- * a horizontal LinearLayout at the bottom which is normally hidden.
  *
  * @hide
  */
 public class WindowDecorActionBar extends ActionBar implements
         ActionBarOverlayLayout.ActionBarVisibilityCallback {
     private static final String TAG = "WindowDecorActionBar";
+
+    private static final Interpolator sHideInterpolator = new AccelerateInterpolator();
+    private static final Interpolator sShowInterpolator = new DecelerateInterpolator();
 
     /**
      * Only allow show/hide animations on ICS+, as that is what ViewPropertyAnimatorCompat supports
@@ -90,7 +93,6 @@ public class WindowDecorActionBar extends ActionBar implements
     private ActionBarContainer mContainerView;
     private DecorToolbar mDecorToolbar;
     private ActionBarContextView mContextView;
-    private ActionBarContainer mSplitView;
     private View mContentView;
     private ScrollingTabContainerView mTabScrollView;
 
@@ -109,12 +111,12 @@ public class WindowDecorActionBar extends ActionBar implements
     private ArrayList<OnMenuVisibilityListener> mMenuVisibilityListeners =
             new ArrayList<OnMenuVisibilityListener>();
 
-    private static final int CONTEXT_DISPLAY_NORMAL = 0;
-    private static final int CONTEXT_DISPLAY_SPLIT = 1;
-
     private static final int INVALID_POSITION = -1;
 
-    private int mContextDisplayMode;
+    // The fade duration for toolbar and action bar when entering/exiting action mode.
+    private static final long FADE_OUT_DURATION_MS = 100;
+    private static final long FADE_IN_DURATION_MS = 200;
+
     private boolean mHasEmbeddedTabs;
 
     private int mCurWindowVisibility = View.VISIBLE;
@@ -138,9 +140,6 @@ public class WindowDecorActionBar extends ActionBar implements
             if (mContentAnimations && mContentView != null) {
                 ViewCompat.setTranslationY(mContentView, 0f);
                 ViewCompat.setTranslationY(mContainerView, 0f);
-            }
-            if (mSplitView != null && mContextDisplayMode == CONTEXT_DISPLAY_SPLIT) {
-                mSplitView.setVisibility(View.GONE);
             }
             mContainerView.setVisibility(View.GONE);
             mContainerView.setTransitioning(false);
@@ -204,16 +203,12 @@ public class WindowDecorActionBar extends ActionBar implements
         mContainerView = (ActionBarContainer) decor.findViewById(
                 R.id.action_bar_container);
 
-         mSplitView = (ActionBarContainer) decor.findViewById(R.id.split_action_bar);
-
         if (mDecorToolbar == null || mContextView == null || mContainerView == null) {
             throw new IllegalStateException(getClass().getSimpleName() + " can only be used " +
                     "with a compatible window decor layout");
         }
 
         mContext = mDecorToolbar.getContext();
-        mContextDisplayMode = mDecorToolbar.isSplit() ?
-                CONTEXT_DISPLAY_SPLIT : CONTEXT_DISPLAY_NORMAL;
 
         // This was initially read from the action bar style
         final int current = mDecorToolbar.getDisplayOptions();
@@ -253,9 +248,6 @@ public class WindowDecorActionBar extends ActionBar implements
     @Override
     public void setElevation(float elevation) {
         ViewCompat.setElevation(mContainerView, elevation);
-        if (mSplitView != null) {
-            ViewCompat.setElevation(mSplitView, elevation);
-        }
     }
 
     @Override
@@ -474,9 +466,7 @@ public class WindowDecorActionBar extends ActionBar implements
     }
 
     public void setSplitBackgroundDrawable(Drawable d) {
-        if (mSplitView != null) {
-            mSplitView.setSplitBackground(d);
-        }
+        // no-op. We don't support split action bars
     }
 
     public View getCustomView() {
@@ -511,15 +501,6 @@ public class WindowDecorActionBar extends ActionBar implements
             mode.invalidate();
             mContextView.initForMode(mode);
             animateToMode(true);
-            if (mSplitView != null && mContextDisplayMode == CONTEXT_DISPLAY_SPLIT) {
-                // TODO animate this
-                if (mSplitView.getVisibility() != View.VISIBLE) {
-                    mSplitView.setVisibility(View.VISIBLE);
-                    if (mOverlayLayout != null) {
-                        ViewCompat.requestApplyInsets(mOverlayLayout);
-                    }
-                }
-            }
             mContextView.sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
             mActionMode = mode;
             return mode;
@@ -793,13 +774,7 @@ public class WindowDecorActionBar extends ActionBar implements
                 ViewCompat.setTranslationY(mContentView, startingY);
                 anim.play(ViewCompat.animate(mContentView).translationY(0f));
             }
-            if (mSplitView != null && mContextDisplayMode == CONTEXT_DISPLAY_SPLIT) {
-                ViewCompat.setTranslationY(mSplitView, mSplitView.getHeight());
-                mSplitView.setVisibility(View.VISIBLE);
-                anim.play(ViewCompat.animate(mSplitView).translationY(0f));
-            }
-            anim.setInterpolator(AnimationUtils.loadInterpolator(mContext,
-                    android.R.anim.decelerate_interpolator));
+            anim.setInterpolator(sShowInterpolator);
             anim.setDuration(250);
             // If this is being shown from the system, add a small delay.
             // This is because we will also be animating in the status bar,
@@ -816,11 +791,6 @@ public class WindowDecorActionBar extends ActionBar implements
             ViewCompat.setTranslationY(mContainerView, 0);
             if (mContentAnimations && mContentView != null) {
                 ViewCompat.setTranslationY(mContentView, 0);
-            }
-            if (mSplitView != null && mContextDisplayMode == CONTEXT_DISPLAY_SPLIT) {
-                ViewCompat.setAlpha(mSplitView, 1f);
-                ViewCompat.setTranslationY(mSplitView, 0);
-                mSplitView.setVisibility(View.VISIBLE);
             }
             mShowListener.onAnimationEnd(null);
         }
@@ -851,12 +821,7 @@ public class WindowDecorActionBar extends ActionBar implements
             if (mContentAnimations && mContentView != null) {
                 anim.play(ViewCompat.animate(mContentView).translationY(endingY));
             }
-            if (mSplitView != null && mSplitView.getVisibility() == View.VISIBLE) {
-                ViewCompat.setAlpha(mSplitView, 1f);
-                anim.play(ViewCompat.animate(mSplitView).translationY(mSplitView.getHeight()));
-            }
-            anim.setInterpolator(AnimationUtils.loadInterpolator(mContext,
-                    android.R.anim.accelerate_interpolator));
+            anim.setInterpolator(sHideInterpolator);
             anim.setDuration(250);
             anim.setListener(mHideListener);
             mCurrentShowAnim = anim;
@@ -879,8 +844,21 @@ public class WindowDecorActionBar extends ActionBar implements
             hideForActionMode();
         }
 
-        mDecorToolbar.animateToVisibility(toActionMode ? View.GONE : View.VISIBLE);
-        mContextView.animateToVisibility(toActionMode ? View.VISIBLE : View.GONE);
+        ViewPropertyAnimatorCompat fadeIn, fadeOut;
+        if (toActionMode) {
+            fadeOut = mDecorToolbar.setupAnimatorToVisibility(View.GONE,
+                    FADE_OUT_DURATION_MS);
+            fadeIn = mContextView.setupAnimatorToVisibility(View.VISIBLE,
+                    FADE_IN_DURATION_MS);
+        } else {
+            fadeIn = mDecorToolbar.setupAnimatorToVisibility(View.VISIBLE,
+                    FADE_IN_DURATION_MS);
+            fadeOut = mContextView.setupAnimatorToVisibility(View.GONE,
+                    FADE_OUT_DURATION_MS);
+        }
+        ViewPropertyAnimatorCompatSet set = new ViewPropertyAnimatorCompatSet();
+        set.playSequentially(fadeOut, fadeIn);
+        set.start();
         // mTabScrollView's visibility is not affected by action mode.
     }
 
