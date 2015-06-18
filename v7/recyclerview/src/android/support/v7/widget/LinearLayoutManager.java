@@ -29,6 +29,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
+import android.support.v7.widget.RecyclerView.LayoutParams;
 
 import java.util.List;
 
@@ -175,8 +176,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
      * {@inheritDoc}
      */
     @Override
-    public RecyclerView.LayoutParams generateDefaultLayoutParams() {
-        return new RecyclerView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+    public LayoutParams generateDefaultLayoutParams() {
+        return new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
     }
 
@@ -1377,7 +1378,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
             result.mFinished = true;
             return;
         }
-        RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) view.getLayoutParams();
+        LayoutParams params = (LayoutParams) view.getLayoutParams();
         if (layoutState.mScrapList == null) {
             if (mShouldReverseLayout == (layoutState.mLayoutDirection
                     == LayoutState.LAYOUT_START)) {
@@ -1587,7 +1588,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
             final View view = getChildAt(i);
             final int position = getPosition(view);
             if (position >= 0 && position < itemCount) {
-                if (((RecyclerView.LayoutParams) view.getLayoutParams()).isItemRemoved()) {
+                if (((LayoutParams) view.getLayoutParams()).isItemRemoved()) {
                     if (invalidMatch == null) {
                         invalidMatch = view; // removed item, least preferred
                     }
@@ -1973,13 +1974,14 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         private View nextViewFromScrapList() {
             final int size = mScrapList.size();
             for (int i = 0; i < size; i++) {
-                final RecyclerView.ViewHolder viewHolder = mScrapList.get(i);
-                if (viewHolder.isRemoved()) {
+                final View view = mScrapList.get(i).itemView;
+                final LayoutParams lp = (LayoutParams) view.getLayoutParams();
+                if (lp.isItemRemoved()) {
                     continue;
                 }
-                if (mCurrentPosition == viewHolder.getLayoutPosition()) {
-                    assignPositionFromScrapList(viewHolder);
-                    return viewHolder.itemView;
+                if (mCurrentPosition == lp.getViewLayoutPosition()) {
+                    assignPositionFromScrapList(view);
+                    return view;
                 }
             }
             return null;
@@ -1989,31 +1991,36 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
             assignPositionFromScrapList(null);
         }
 
-        public void assignPositionFromScrapList(RecyclerView.ViewHolder ignore) {
-            RecyclerView.ViewHolder closest = nextViewHolderInLimitedList(ignore);
-            mCurrentPosition = closest == null ? RecyclerView.NO_POSITION :
-                    closest.getLayoutPosition();
+        public void assignPositionFromScrapList(View ignore) {
+            final View closest = nextViewInLimitedList(ignore);
+            if (closest == null) {
+                mCurrentPosition = NO_POSITION;
+            } else {
+                mCurrentPosition = ((LayoutParams) closest.getLayoutParams())
+                        .getViewLayoutPosition();
+            }
         }
 
-        public RecyclerView.ViewHolder nextViewHolderInLimitedList(RecyclerView.ViewHolder ignore) {
+        public View nextViewInLimitedList(View ignore) {
             int size = mScrapList.size();
-            RecyclerView.ViewHolder closest = null;
+            View closest = null;
             int closestDistance = Integer.MAX_VALUE;
             if (DEBUG && mIsPreLayout) {
                 throw new IllegalStateException("Scrap list cannot be used in pre layout");
             }
             for (int i = 0; i < size; i++) {
-                RecyclerView.ViewHolder viewHolder = mScrapList.get(i);
-                if (viewHolder == ignore || viewHolder.isRemoved()) {
+                View view = mScrapList.get(i).itemView;
+                final LayoutParams lp = (LayoutParams) view.getLayoutParams();
+                if (view == ignore || lp.isItemRemoved()) {
                     continue;
                 }
-                final int distance = (viewHolder.getLayoutPosition() - mCurrentPosition) *
+                final int distance = (lp.getViewLayoutPosition() - mCurrentPosition) *
                         mItemDirection;
                 if (distance < 0) {
                     continue; // item is not in current direction
                 }
                 if (distance < closestDistance) {
-                    closest = viewHolder;
+                    closest = view;
                     closestDistance = distance;
                     if (distance == 0) {
                         break;
@@ -2120,7 +2127,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         }
 
         private boolean isViewValidAsAnchor(View child, RecyclerView.State state) {
-            RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) child.getLayoutParams();
+            LayoutParams lp = (LayoutParams) child.getLayoutParams();
             return !lp.isItemRemoved() && lp.getViewLayoutPosition() >= 0
                     && lp.getViewLayoutPosition() < state.getItemCount();
         }
