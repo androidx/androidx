@@ -455,6 +455,7 @@ package android.support.v7.appcompat {
     field public static int listPreferredItemPaddingLeft;
     field public static int listPreferredItemPaddingRight;
     field public static int logo;
+    field public static int logoDescription;
     field public static int maxButtonHeight;
     field public static int measureWithLargestChild;
     field public static int middleBarArrowSize;
@@ -498,6 +499,7 @@ package android.support.v7.appcompat {
     field public static int submitBackground;
     field public static int subtitle;
     field public static int subtitleTextAppearance;
+    field public static int subtitleTextColor;
     field public static int subtitleTextStyle;
     field public static int suggestionRowLayout;
     field public static int switchMinWidth;
@@ -523,6 +525,7 @@ package android.support.v7.appcompat {
     field public static int titleMarginTop;
     field public static int titleMargins;
     field public static int titleTextAppearance;
+    field public static int titleTextColor;
     field public static int titleTextStyle;
     field public static int toolbarNavigationButtonStyle;
     field public static int toolbarStyle;
@@ -1540,12 +1543,15 @@ package android.support.v7.appcompat {
     field public static int Toolbar_contentInsetLeft;
     field public static int Toolbar_contentInsetRight;
     field public static int Toolbar_contentInsetStart;
+    field public static int Toolbar_logo;
+    field public static int Toolbar_logoDescription;
     field public static int Toolbar_maxButtonHeight;
     field public static int Toolbar_navigationContentDescription;
     field public static int Toolbar_navigationIcon;
     field public static int Toolbar_popupTheme;
     field public static int Toolbar_subtitle;
     field public static int Toolbar_subtitleTextAppearance;
+    field public static int Toolbar_subtitleTextColor;
     field public static int Toolbar_title;
     field public static int Toolbar_titleMarginBottom;
     field public static int Toolbar_titleMarginEnd;
@@ -1553,6 +1559,7 @@ package android.support.v7.appcompat {
     field public static int Toolbar_titleMarginTop;
     field public static int Toolbar_titleMargins;
     field public static int Toolbar_titleTextAppearance;
+    field public static int Toolbar_titleTextColor;
     field public static final int[] View;
     field public static final int[] ViewBackgroundHelper;
     field public static int ViewBackgroundHelper_android_background;
