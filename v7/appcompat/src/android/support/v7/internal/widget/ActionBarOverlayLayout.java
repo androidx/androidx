@@ -59,7 +59,6 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
 
     // The main UI elements that we handle the layout of.
     private ContentFrameLayout mContent;
-    private ActionBarContainer mActionBarBottom;
     private ActionBarContainer mActionBarTop;
 
     // Some interior UI elements.
@@ -89,7 +88,6 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
     private ScrollerCompat mFlingEstimator;
 
     private ViewPropertyAnimatorCompat mCurrentActionBarTopAnimator;
-    private ViewPropertyAnimatorCompat mCurrentActionBarBottomAnimator;
 
     private final ViewPropertyAnimatorListener mTopAnimatorListener
             = new ViewPropertyAnimatorListenerAdapter() {
@@ -106,30 +104,11 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
         }
     };
 
-    private final ViewPropertyAnimatorListener mBottomAnimatorListener =
-            new ViewPropertyAnimatorListenerAdapter() {
-        @Override
-        public void onAnimationEnd(View view) {
-            mCurrentActionBarBottomAnimator = null;
-            mAnimatingForFling = false;
-        }
-
-        @Override
-        public void onAnimationCancel(View view) {
-            mCurrentActionBarBottomAnimator = null;
-            mAnimatingForFling = false;
-        }
-    };
-
     private final Runnable mRemoveActionBarHideOffset = new Runnable() {
         public void run() {
             haltActionBarHideOffsetAnimations();
             mCurrentActionBarTopAnimator = ViewCompat.animate(mActionBarTop).translationY(0)
                     .setListener(mTopAnimatorListener);
-            if (mActionBarBottom != null && mActionBarBottom.getVisibility() != GONE) {
-                mCurrentActionBarBottomAnimator = ViewCompat.animate(mActionBarBottom).translationY(0)
-                        .setListener(mBottomAnimatorListener);
-            }
         }
     };
 
@@ -139,11 +118,6 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
             mCurrentActionBarTopAnimator = ViewCompat.animate(mActionBarTop)
                     .translationY(-mActionBarTop.getHeight())
                     .setListener(mTopAnimatorListener);
-            if (mActionBarBottom != null && mActionBarBottom.getVisibility() != GONE) {
-                mCurrentActionBarBottomAnimator =  ViewCompat.animate(mActionBarBottom)
-                        .translationY(mActionBarBottom.getHeight())
-                        .setListener(mBottomAnimatorListener);
-            }
         }
     };
 
@@ -311,11 +285,8 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
         final boolean stable = (vis & SYSTEM_UI_FLAG_LAYOUT_STABLE) != 0;
         final Rect systemInsets = insets;
 
-        // The top and bottom action bars are always within the content area.
+        // The top action bar is always within the content area.
         boolean changed = applyInsets(mActionBarTop, systemInsets, true, true, false, true);
-        if (mActionBarBottom != null) {
-            changed |= applyInsets(mActionBarBottom, systemInsets, true, false, true, true);
-        }
 
         mBaseInnerInsets.set(systemInsets);
         ViewUtils.computeFitSystemWindows(this, mBaseInnerInsets, mBaseContentInsets);
@@ -375,18 +346,6 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
         childState = ViewUtils.combineMeasuredStates(childState,
                 ViewCompat.getMeasuredState(mActionBarTop));
 
-        // xlarge screen layout doesn't have bottom action bar.
-        if (mActionBarBottom != null) {
-            measureChildWithMargins(mActionBarBottom, widthMeasureSpec, 0, heightMeasureSpec, 0);
-            lp = (LayoutParams) mActionBarBottom.getLayoutParams();
-            maxWidth = Math.max(maxWidth,
-                    mActionBarBottom.getMeasuredWidth() + lp.leftMargin + lp.rightMargin);
-            maxHeight = Math.max(maxHeight,
-                    mActionBarBottom.getMeasuredHeight() + lp.topMargin + lp.bottomMargin);
-            childState = ViewUtils.combineMeasuredStates(childState,
-                    ViewCompat.getMeasuredState(mActionBarBottom));
-        }
-
         final int vis = ViewCompat.getWindowSystemUiVisibility(this);
         final boolean stable = (vis & SYSTEM_UI_FLAG_LAYOUT_STABLE) != 0;
 
@@ -405,17 +364,6 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
             // This is the space needed on top of the window for all of the action bar
             // and tabs.
             topInset = mActionBarTop.getMeasuredHeight();
-        }
-
-        if (mDecorToolbar.isSplit()) {
-            // If action bar is split, adjust bottom insets for it.
-            if (mActionBarBottom != null) {
-                if (stable) {
-                    bottomInset = mActionBarHeight;
-                } else {
-                    bottomInset = mActionBarBottom.getMeasuredHeight();
-                }
-            }
         }
 
         // If the window has not requested system UI layout flags, we need to
@@ -484,12 +432,7 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
                 final int height = child.getMeasuredHeight();
 
                 int childLeft = parentLeft + lp.leftMargin;
-                int childTop;
-                if (child == mActionBarBottom) {
-                    childTop = parentBottom - height - lp.bottomMargin;
-                } else {
-                    childTop = parentTop + lp.topMargin;
-                }
+                int childTop = parentTop + lp.topMargin;
 
                 child.layout(childLeft, childTop, childLeft + width, childTop + height);
             }
@@ -587,7 +530,6 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
             mContent = (ContentFrameLayout) findViewById(R.id.action_bar_activity_content);
             mActionBarTop = (ActionBarContainer) findViewById(R.id.action_bar_container);
             mDecorToolbar = getDecorToolbar(findViewById(R.id.action_bar));
-            mActionBarBottom = (ActionBarContainer) findViewById(R.id.split_action_bar);
         }
     }
 
@@ -625,12 +567,6 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
         final int topHeight = mActionBarTop.getHeight();
         offset = Math.max(0, Math.min(offset, topHeight));
         ViewCompat.setTranslationY(mActionBarTop, -offset);
-        if (mActionBarBottom != null && mActionBarBottom.getVisibility() != GONE) {
-            // Match the hide offset proportionally for a split bar
-            final float fOffset = (float) offset / topHeight;
-            final int bOffset = (int) (mActionBarBottom.getHeight() * fOffset);
-            ViewCompat.setTranslationY(mActionBarBottom, bOffset);
-        }
     }
 
     private void haltActionBarHideOffsetAnimations() {
@@ -638,9 +574,6 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
         removeCallbacks(mAddActionBarHideOffset);
         if (mCurrentActionBarTopAnimator != null) {
             mCurrentActionBarTopAnimator.cancel();
-        }
-        if (mCurrentActionBarBottomAnimator != null) {
-            mCurrentActionBarBottomAnimator.cancel();
         }
     }
 
