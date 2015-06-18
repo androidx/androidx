@@ -715,6 +715,116 @@ package android.support.v8.renderscript {
     method public void setLUT(android.support.v8.renderscript.Allocation);
   }
 
+  public final class ScriptIntrinsicBLAS extends android.support.v8.renderscript.ScriptIntrinsic {
+    method public void BNNM(android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, int);
+    method public void CGBMV(int, int, int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, int);
+    method public void CGEMM(int, int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation);
+    method public void CGEMV(int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, int);
+    method public void CGERC(android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void CGERU(android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void CHBMV(int, int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, int);
+    method public void CHEMM(int, int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation);
+    method public void CHEMV(int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, int);
+    method public void CHER(int, float, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void CHER2(int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void CHER2K(int, int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, float, android.support.v8.renderscript.Allocation);
+    method public void CHERK(int, int, float, android.support.v8.renderscript.Allocation, float, android.support.v8.renderscript.Allocation);
+    method public void CHPMV(int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, int);
+    method public void CHPR(int, float, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void CHPR2(int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void CSYMM(int, int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation);
+    method public void CSYR2K(int, int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation);
+    method public void CSYRK(int, int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation);
+    method public void CTBMV(int, int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void CTBSV(int, int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void CTPMV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void CTPSV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void CTRMM(int, int, int, int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void CTRMV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void CTRSM(int, int, int, int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void CTRSV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void DGBMV(int, int, int, double, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, double, android.support.v8.renderscript.Allocation, int);
+    method public void DGEMM(int, int, double, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, double, android.support.v8.renderscript.Allocation);
+    method public void DGEMV(int, double, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, double, android.support.v8.renderscript.Allocation, int);
+    method public void DGER(double, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void DSBMV(int, int, double, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, double, android.support.v8.renderscript.Allocation, int);
+    method public void DSPMV(int, double, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, double, android.support.v8.renderscript.Allocation, int);
+    method public void DSPR(int, double, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void DSPR2(int, double, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void DSYMM(int, int, double, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, double, android.support.v8.renderscript.Allocation);
+    method public void DSYMV(int, double, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, double, android.support.v8.renderscript.Allocation, int);
+    method public void DSYR(int, double, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void DSYR2(int, double, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void DSYR2K(int, int, double, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, double, android.support.v8.renderscript.Allocation);
+    method public void DSYRK(int, int, double, android.support.v8.renderscript.Allocation, double, android.support.v8.renderscript.Allocation);
+    method public void DTBMV(int, int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void DTBSV(int, int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void DTPMV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void DTPSV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void DTRMM(int, int, int, int, double, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void DTRMV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void DTRSM(int, int, int, int, double, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void DTRSV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void SGBMV(int, int, int, float, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, float, android.support.v8.renderscript.Allocation, int);
+    method public void SGEMM(int, int, float, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, float, android.support.v8.renderscript.Allocation);
+    method public void SGEMV(int, float, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, float, android.support.v8.renderscript.Allocation, int);
+    method public void SGER(float, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void SSBMV(int, int, float, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, float, android.support.v8.renderscript.Allocation, int);
+    method public void SSPMV(int, float, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, float, android.support.v8.renderscript.Allocation, int);
+    method public void SSPR(int, float, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void SSPR2(int, float, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void SSYMM(int, int, float, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, float, android.support.v8.renderscript.Allocation);
+    method public void SSYMV(int, float, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, float, android.support.v8.renderscript.Allocation, int);
+    method public void SSYR(int, float, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void SSYR2(int, float, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void SSYR2K(int, int, float, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, float, android.support.v8.renderscript.Allocation);
+    method public void SSYRK(int, int, float, android.support.v8.renderscript.Allocation, float, android.support.v8.renderscript.Allocation);
+    method public void STBMV(int, int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void STBSV(int, int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void STPMV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void STPSV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void STRMM(int, int, int, int, float, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void STRMV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void STRSM(int, int, int, int, float, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void STRSV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void ZGBMV(int, int, int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, int);
+    method public void ZGEMM(int, int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation);
+    method public void ZGEMV(int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, int);
+    method public void ZGERC(android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void ZGERU(android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void ZHBMV(int, int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, int);
+    method public void ZHEMM(int, int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation);
+    method public void ZHEMV(int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, int);
+    method public void ZHER(int, double, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void ZHER2(int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void ZHER2K(int, int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, double, android.support.v8.renderscript.Allocation);
+    method public void ZHERK(int, int, double, android.support.v8.renderscript.Allocation, double, android.support.v8.renderscript.Allocation);
+    method public void ZHPMV(int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, int);
+    method public void ZHPR(int, double, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void ZHPR2(int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void ZSYMM(int, int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation);
+    method public void ZSYR2K(int, int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation);
+    method public void ZSYRK(int, int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation);
+    method public void ZTBMV(int, int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void ZTBSV(int, int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void ZTPMV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void ZTPSV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void ZTRMM(int, int, int, int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void ZTRMV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void ZTRSM(int, int, int, int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void ZTRSV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public static android.support.v8.renderscript.ScriptIntrinsicBLAS create(android.support.v8.renderscript.RenderScript);
+    field public static final int CONJ_TRANSPOSE = 113; // 0x71
+    field public static final int LEFT = 141; // 0x8d
+    field public static final int LOWER = 122; // 0x7a
+    field public static final int NON_UNIT = 131; // 0x83
+    field public static final int NO_TRANSPOSE = 111; // 0x6f
+    field public static final int RIGHT = 142; // 0x8e
+    field public static final int TRANSPOSE = 112; // 0x70
+    field public static final int UNIT = 132; // 0x84
+    field public static final int UPPER = 121; // 0x79
+  }
+
   public class ScriptIntrinsicBlend extends android.support.v8.renderscript.ScriptIntrinsic {
     method public static android.support.v8.renderscript.ScriptIntrinsicBlend create(android.support.v8.renderscript.RenderScript, android.support.v8.renderscript.Element);
     method public void forEachAdd(android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
