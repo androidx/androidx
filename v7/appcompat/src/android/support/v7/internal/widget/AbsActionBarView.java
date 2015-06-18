@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package android.support.v7.internal.widget;
 
 import android.content.Context;
@@ -23,7 +24,6 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v7.appcompat.R;
-import android.support.v7.internal.view.ViewPropertyAnimatorCompatSet;
 import android.support.v7.widget.ActionMenuPresenter;
 import android.support.v7.widget.ActionMenuView;
 import android.util.AttributeSet;
@@ -31,12 +31,8 @@ import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.Interpolator;
 
 abstract class AbsActionBarView extends ViewGroup {
-    private static final Interpolator sAlphaInterpolator = new DecelerateInterpolator();
-
     private static final int FADE_DURATION = 200;
 
     protected final VisibilityAnimListener mVisAnimListener = new VisibilityAnimListener();
@@ -46,9 +42,6 @@ abstract class AbsActionBarView extends ViewGroup {
 
     protected ActionMenuView mMenuView;
     protected ActionMenuPresenter mActionMenuPresenter;
-    protected ViewGroup mSplitView;
-    protected boolean mSplitActionBar;
-    protected boolean mSplitWhenNarrow;
     protected int mContentHeight;
 
     protected ViewPropertyAnimatorCompat mVisibilityAnim;
@@ -91,22 +84,6 @@ abstract class AbsActionBarView extends ViewGroup {
         }
     }
 
-    /**
-     * Sets whether the bar should be split right now, no questions asked.
-     * @param split true if the bar should split
-     */
-    public void setSplitToolbar(boolean split) {
-        mSplitActionBar = split;
-    }
-
-    /**
-     * Sets whether the bar should split if we enter a narrow screen configuration.
-     * @param splitWhenNarrow true if the bar should check to split after a config change
-     */
-    public void setSplitWhenNarrow(boolean splitWhenNarrow) {
-        mSplitWhenNarrow = splitWhenNarrow;
-    }
-
     public void setContentHeight(int height) {
         mContentHeight = height;
         requestLayout();
@@ -114,10 +91,6 @@ abstract class AbsActionBarView extends ViewGroup {
 
     public int getContentHeight() {
         return mContentHeight;
-    }
-
-    public void setSplitView(ViewGroup splitView) {
-        mSplitView = splitView;
     }
 
     /**
@@ -130,46 +103,39 @@ abstract class AbsActionBarView extends ViewGroup {
         return getVisibility();
     }
 
-    public void animateToVisibility(int visibility) {
+    public ViewPropertyAnimatorCompat setupAnimatorToVisibility(int visibility, long duration) {
         if (mVisibilityAnim != null) {
             mVisibilityAnim.cancel();
         }
+
         if (visibility == VISIBLE) {
             if (getVisibility() != VISIBLE) {
                 ViewCompat.setAlpha(this, 0f);
-                if (mSplitView != null && mMenuView != null) {
-                    ViewCompat.setAlpha(mMenuView, 0f);
-                }
             }
             ViewPropertyAnimatorCompat anim = ViewCompat.animate(this).alpha(1f);
-            anim.setDuration(FADE_DURATION);
-            anim.setInterpolator(sAlphaInterpolator);
-            if (mSplitView != null && mMenuView != null) {
-                ViewPropertyAnimatorCompatSet set = new ViewPropertyAnimatorCompatSet();
-                ViewPropertyAnimatorCompat splitAnim = ViewCompat.animate(mMenuView).alpha(1f);
-                splitAnim.setDuration(FADE_DURATION);
-                set.setListener(mVisAnimListener.withFinalVisibility(anim, visibility));
-                set.play(anim).play(splitAnim);
-                set.start();
-            } else {
-                anim.setListener(mVisAnimListener.withFinalVisibility(anim, visibility));
-                anim.start();
-            }
+            anim.setDuration(duration);
+            anim.setListener(mVisAnimListener.withFinalVisibility(anim, visibility));
+            return anim;
         } else {
             ViewPropertyAnimatorCompat anim = ViewCompat.animate(this).alpha(0f);
-            anim.setDuration(FADE_DURATION);
-            anim.setInterpolator(sAlphaInterpolator);
-            if (mSplitView != null && mMenuView != null) {
-                ViewPropertyAnimatorCompatSet set = new ViewPropertyAnimatorCompatSet();
-                ViewPropertyAnimatorCompat splitAnim = ViewCompat.animate(mMenuView).alpha(0f);
-                splitAnim.setDuration(FADE_DURATION);
-                set.setListener(mVisAnimListener.withFinalVisibility(anim, visibility));
-                set.play(anim).play(splitAnim);
-                set.start();
-            } else {
-                anim.setListener(mVisAnimListener.withFinalVisibility(anim, visibility));
-                anim.start();
+            anim.setDuration(duration);
+            anim.setListener(mVisAnimListener.withFinalVisibility(anim, visibility));
+            return anim;
+        }
+    }
+
+    public void animateToVisibility(int visibility) {
+        ViewPropertyAnimatorCompat anim = setupAnimatorToVisibility(visibility, FADE_DURATION);
+        anim.start();
+    }
+
+    @Override
+    public void setVisibility(int visibility) {
+        if (visibility != getVisibility()) {
+            if (mVisibilityAnim != null) {
+                mVisibilityAnim.cancel();
             }
+            super.setVisibility(visibility);
         }
     }
 
@@ -265,7 +231,7 @@ abstract class AbsActionBarView extends ViewGroup {
 
         @Override
         public void onAnimationStart(View view) {
-            setVisibility(VISIBLE);
+            AbsActionBarView.super.setVisibility(VISIBLE);
             mCanceled = false;
         }
 
@@ -274,10 +240,7 @@ abstract class AbsActionBarView extends ViewGroup {
             if (mCanceled) return;
 
             mVisibilityAnim = null;
-            setVisibility(mFinalVisibility);
-            if (mSplitView != null && mMenuView != null) {
-                mMenuView.setVisibility(mFinalVisibility);
-            }
+            AbsActionBarView.super.setVisibility(mFinalVisibility);
         }
 
         @Override
