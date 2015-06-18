@@ -1851,7 +1851,8 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
 
         @Override
         public boolean dispatchKeyEvent(KeyEvent event) {
-            return AppCompatDelegateImplV7.this.dispatchKeyEvent(event);
+            return AppCompatDelegateImplV7.this.dispatchKeyEvent(event)
+                    || super.dispatchKeyEvent(event);
         }
 
         @Override
