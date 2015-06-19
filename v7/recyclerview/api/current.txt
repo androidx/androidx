@@ -625,7 +625,7 @@ package android.support.v7.widget {
     method public int getChildPosition(android.view.View);
     method public android.support.v7.widget.RecyclerView.LayoutManager getLayoutManager();
     method public int getTargetPosition();
-    method public void instantScrollToPosition(int);
+    method public deprecated void instantScrollToPosition(int);
     method public boolean isPendingInitialRun();
     method public boolean isRunning();
     method protected void normalize(android.graphics.PointF);
@@ -646,6 +646,7 @@ package android.support.v7.widget {
     method public int getDx();
     method public int getDy();
     method public android.view.animation.Interpolator getInterpolator();
+    method public void jumpTo(int);
     method public void setDuration(int);
     method public void setDx(int);
     method public void setDy(int);

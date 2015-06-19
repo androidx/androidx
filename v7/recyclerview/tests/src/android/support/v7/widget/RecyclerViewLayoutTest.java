@@ -48,9 +48,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static android.support.v7.widget.RecyclerView.NO_POSITION;
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_DRAGGING;
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_SETTLING;
+import static android.support.v7.widget.RecyclerView.getChildViewHolderInt;
 
 import android.support.test.runner.AndroidJUnit4;
 
@@ -2790,6 +2792,152 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         requestFocus(view);
         Thread.sleep(1000);
         assertEquals(addItemDecors ? -30 : -20, scrollDist.get());
+    }
+
+    @Test
+    public void testUnimplementedSmoothScroll() throws Throwable {
+        final AtomicInteger receivedScrollToPosition = new AtomicInteger(-1);
+        final AtomicInteger receivedSmoothScrollToPosition = new AtomicInteger(-1);
+        final CountDownLatch cbLatch = new CountDownLatch(2);
+        TestLayoutManager tlm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                detachAndScrapAttachedViews(recycler);
+                layoutRange(recycler, 0, 10);
+                layoutLatch.countDown();
+            }
+
+            @Override
+            public void smoothScrollToPosition(RecyclerView recyclerView, RecyclerView.State state,
+                    int position) {
+                assertEquals(-1, receivedSmoothScrollToPosition.get());
+                receivedSmoothScrollToPosition.set(position);
+                RecyclerView.SmoothScroller ss =
+                        new LinearSmoothScroller(recyclerView.getContext()) {
+                            @Override
+                            public PointF computeScrollVectorForPosition(int targetPosition) {
+                                return null;
+                            }
+                        };
+                ss.setTargetPosition(position);
+                startSmoothScroll(ss);
+                cbLatch.countDown();
+            }
+
+            @Override
+            public void scrollToPosition(int position) {
+                assertEquals(-1, receivedScrollToPosition.get());
+                receivedScrollToPosition.set(position);
+                cbLatch.countDown();
+            }
+        };
+        RecyclerView rv = new RecyclerView(getActivity());
+        rv.setAdapter(new TestAdapter(100));
+        rv.setLayoutManager(tlm);
+        tlm.expectLayouts(1);
+        setRecyclerView(rv);
+        tlm.waitForLayout(2);
+        smoothScrollToPosition(35);
+        assertTrue("both scrolls should be called", cbLatch.await(3, TimeUnit.SECONDS));
+        checkForMainThreadException();
+        assertEquals(35, receivedSmoothScrollToPosition.get());
+        assertEquals(35, receivedScrollToPosition.get());
+    }
+
+    @Test
+    public void testJumpingJackSmoothScroller() throws Throwable {
+        jumpingJackSmoothScrollerTest(true);
+    }
+
+    @Test
+    public void testJumpingJackSmoothScrollerGoesIdle() throws Throwable {
+        jumpingJackSmoothScrollerTest(false);
+    }
+
+    private void jumpingJackSmoothScrollerTest(final boolean succeed) throws Throwable {
+        final List<Integer> receivedScrollToPositions = new ArrayList<>();
+        final TestAdapter testAdapter = new TestAdapter(200);
+        final AtomicBoolean mTargetFound = new AtomicBoolean(false);
+        TestLayoutManager tlm = new TestLayoutManager() {
+            int pendingScrollPosition = -1;
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                detachAndScrapAttachedViews(recycler);
+                final int pos = pendingScrollPosition < 0 ? 0: pendingScrollPosition;
+                layoutRange(recycler, pos, pos + 10);
+                if (layoutLatch != null) {
+                    layoutLatch.countDown();
+                }
+            }
+
+            @Override
+            public void smoothScrollToPosition(RecyclerView recyclerView, RecyclerView.State state,
+                    final int position) {
+                RecyclerView.SmoothScroller ss =
+                        new LinearSmoothScroller(recyclerView.getContext()) {
+                            @Override
+                            public PointF computeScrollVectorForPosition(int targetPosition) {
+                                return new PointF(0, 1);
+                            }
+
+                            @Override
+                            protected void onTargetFound(View targetView, RecyclerView.State state,
+                                                         Action action) {
+                                super.onTargetFound(targetView, state, action);
+                                mTargetFound.set(true);
+                            }
+
+                            @Override
+                            protected void updateActionForInterimTarget(Action action) {
+                                int limit = succeed ? getTargetPosition() : 100;
+                                if (pendingScrollPosition + 2 < limit) {
+                                    if (pendingScrollPosition != NO_POSITION) {
+                                        assertEquals(pendingScrollPosition,
+                                                getChildViewHolderInt(getChildAt(0))
+                                                        .getAdapterPosition());
+                                    }
+                                    action.jumpTo(pendingScrollPosition + 2);
+                                }
+                            }
+                        };
+                ss.setTargetPosition(position);
+                startSmoothScroll(ss);
+            }
+
+            @Override
+            public void scrollToPosition(int position) {
+                receivedScrollToPositions.add(position);
+                pendingScrollPosition = position;
+                requestLayout();
+            }
+        };
+        final RecyclerView rv = new RecyclerView(getActivity());
+        rv.setAdapter(testAdapter);
+        rv.setLayoutManager(tlm);
+
+        tlm.expectLayouts(1);
+        setRecyclerView(rv);
+        tlm.waitForLayout(2);
+
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                rv.smoothScrollToPosition(150);
+            }
+        });
+        int limit = 100;
+        while (rv.getLayoutManager().isSmoothScrolling() && --limit > 0) {
+            Thread.sleep(200);
+            checkForMainThreadException();
+        }
+        checkForMainThreadException();
+        assertTrue(limit > 0);
+        for (int i = 1; i < 100; i+=2) {
+            assertTrue("scroll positions must include " + i, receivedScrollToPositions.contains(i));
+        }
+
+        assertEquals(succeed, mTargetFound.get());
+
     }
 
     private static class TestViewHolder2 extends RecyclerView.ViewHolder {
