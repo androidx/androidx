@@ -34,6 +34,7 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.KeyEventCompat;
@@ -135,6 +136,7 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
 
 
     private static final int MIN_DRAWER_MARGIN = 64; // dp
+    private static final int DRAWER_ELEVATION = 10; //dp
 
     private static final int DEFAULT_SCRIM_COLOR = 0x99000000;
 
@@ -164,8 +166,13 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
     /** Whether we can use NO_HIDE_DESCENDANTS accessibility importance. */
     private static final boolean CAN_HIDE_DESCENDANTS = Build.VERSION.SDK_INT >= 19;
 
+    /** Whether the drawer shadow comes from setting elevation on the drawer. */
+    private static final boolean SET_DRAWER_SHADOW_FROM_ELEVATION =
+            Build.VERSION.SDK_INT >= 21;
+
     private final ChildAccessibilityDelegate mChildAccessibilityDelegate =
             new ChildAccessibilityDelegate();
+    private float mDrawerElevation;
 
     private int mMinDrawerMargin;
 
@@ -190,15 +197,21 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
     private float mInitialMotionX;
     private float mInitialMotionY;
 
-    private Drawable mShadowLeft;
-    private Drawable mShadowRight;
     private Drawable mStatusBarBackground;
+    private Drawable mShadowLeftResolved;
+    private Drawable mShadowRightResolved;
 
     private CharSequence mTitleLeft;
     private CharSequence mTitleRight;
 
     private Object mLastInsets;
     private boolean mDrawStatusBarBackground;
+
+    /** Shadow drawables for different gravity */
+    private Drawable mShadowStart = null;
+    private Drawable mShadowEnd = null;
+    private Drawable mShadowLeft = null;
+    private Drawable mShadowRight = null;
 
     /**
      * Listener for monitoring events about drawers.
@@ -362,6 +375,38 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
             IMPL.configureApplyInsets(this);
             mStatusBarBackground = IMPL.getDefaultStatusBarBackground(context);
         }
+
+        mDrawerElevation = DRAWER_ELEVATION * density;
+    }
+
+    /**
+     * Sets the base elevation of the drawer(s) relative to the parent, in pixels. Note that the
+     * elevation change is only supported in API 21 and above.
+     *
+     * @param elevation The base depth position of the view, in pixels.
+     */
+    public void setDrawerElevation(float elevation) {
+        mDrawerElevation = elevation;
+        for (int i = 0; i < getChildCount(); i++) {
+            View child = getChildAt(i);
+            if (isDrawerView(child)) {
+                ViewCompat.setElevation(child, mDrawerElevation);
+            }
+        }
+    }
+
+    /**
+     * The base elevation of the drawer(s) relative to the parent, in pixels. Note that the
+     * elevation change is only supported in API 21 and above. For unsupported API levels, 0 will
+     * be returned as the elevation.
+     *
+     * @return The base depth position of the view, in pixels.
+     */
+    public float getDrawerElevation() {
+        if (SET_DRAWER_SHADOW_FROM_ELEVATION) {
+            return mDrawerElevation;
+        }
+        return 0f;
     }
 
     /**
@@ -377,8 +422,15 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
     }
 
     /**
-     * Set a simple drawable used for the left or right shadow.
-     * The drawable provided must have a nonzero intrinsic width.
+     * Set a simple drawable used for the left or right shadow. The drawable provided must have a
+     * nonzero intrinsic width. For API 21 and above, an elevation will be set on the drawer
+     * instead of the drawable provided.
+     *
+     * <p>Note that for better support for both left-to-right and right-to-left layout
+     * directions, a drawable for RTL layout (in additional to the one in LTR layout) can be
+     * defined with a resource qualifier "ldrtl" for API 17 and above with the gravity
+     * {@link GravityCompat#START}. Alternatively, for API 23 and above, the drawable can
+     * auto-mirrored such that the drawable will be mirrored in RTL layout.</p>
      *
      * @param shadowDrawable Shadow drawable to use at the edge of a drawer
      * @param gravity Which drawer the shadow should apply to
@@ -389,22 +441,35 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
          * They're probably nuts, but we might want to consider registering callbacks,
          * setting states, etc. properly.
          */
-
-        final int absGravity = GravityCompat.getAbsoluteGravity(gravity,
-                ViewCompat.getLayoutDirection(this));
-        if ((absGravity & Gravity.LEFT) == Gravity.LEFT) {
+        if (SET_DRAWER_SHADOW_FROM_ELEVATION) {
+            // No op. Drawer shadow will come from setting an elevation on the drawer.
+            return;
+        }
+        if ((gravity & GravityCompat.START) == GravityCompat.START) {
+            mShadowStart = shadowDrawable;
+        } else if ((gravity & GravityCompat.END) == GravityCompat.END) {
+            mShadowEnd = shadowDrawable;
+        } else if ((gravity & Gravity.LEFT) == Gravity.LEFT) {
             mShadowLeft = shadowDrawable;
-            invalidate();
-        }
-        if ((absGravity & Gravity.RIGHT) == Gravity.RIGHT) {
+        } else if ((gravity & Gravity.RIGHT) == Gravity.RIGHT) {
             mShadowRight = shadowDrawable;
-            invalidate();
+        } else {
+            return;
         }
+        resolveShadowDrawables();
+        invalidate();
     }
 
     /**
-     * Set a simple drawable used for the left or right shadow.
-     * The drawable provided must have a nonzero intrinsic width.
+     * Set a simple drawable used for the left or right shadow. The drawable provided must have a
+     * nonzero intrinsic width. For API 21 and above, an elevation will be set on the drawer
+     * instead of the drawable provided.
+     *
+     * <p>Note that for better support for both left-to-right and right-to-left layout
+     * directions, a drawable for RTL layout (in additional to the one in LTR layout) can be
+     * defined with a resource qualifier "ldrtl" for API 17 and above with the gravity
+     * {@link GravityCompat#START}. Alternatively, for API 23 and above, the drawable can
+     * auto-mirrored such that the drawable will be mirrored in RTL layout.</p>
      *
      * @param resId Resource id of a shadow drawable to use at the edge of a drawer
      * @param gravity Which drawer the shadow should apply to
@@ -868,6 +933,11 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
                         heightSize - lp.topMargin - lp.bottomMargin, MeasureSpec.EXACTLY);
                 child.measure(contentWidthSpec, contentHeightSpec);
             } else if (isDrawerView(child)) {
+                if (SET_DRAWER_SHADOW_FROM_ELEVATION) {
+                    if (ViewCompat.getElevation(child) != mDrawerElevation) {
+                        ViewCompat.setElevation(child, mDrawerElevation);
+                    }
+                }
                 final int childGravity =
                         getDrawerViewAbsoluteGravity(child) & Gravity.HORIZONTAL_GRAVITY_MASK;
                 if ((foundDrawers & childGravity) != 0) {
@@ -888,6 +958,65 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
                         "Gravity.RIGHT or Gravity.NO_GRAVITY");
             }
         }
+    }
+
+    private void resolveShadowDrawables() {
+        if (SET_DRAWER_SHADOW_FROM_ELEVATION) {
+            return;
+        }
+        mShadowLeftResolved = resolveLeftShadow();
+        mShadowRightResolved = resolveRightShadow();
+    }
+
+    private Drawable resolveLeftShadow() {
+        int layoutDirection = ViewCompat.getLayoutDirection(this);
+        // Prefer shadows defined with start/end gravity over left and right.
+        if (layoutDirection == ViewCompat.LAYOUT_DIRECTION_LTR) {
+            if (mShadowStart != null) {
+                // Correct drawable layout direction, if needed.
+                mirror(mShadowStart, layoutDirection);
+                return mShadowStart;
+            }
+        } else {
+            if (mShadowEnd != null) {
+                // Correct drawable layout direction, if needed.
+                mirror(mShadowEnd, layoutDirection);
+                return mShadowEnd;
+            }
+        }
+        return mShadowLeft;
+    }
+
+    private Drawable resolveRightShadow() {
+        int layoutDirection = ViewCompat.getLayoutDirection(this);
+        if (layoutDirection == ViewCompat.LAYOUT_DIRECTION_LTR) {
+            if (mShadowEnd != null) {
+                // Correct drawable layout direction, if needed.
+                mirror(mShadowEnd, layoutDirection);
+                return mShadowEnd;
+            }
+        } else {
+            if (mShadowStart != null) {
+                // Correct drawable layout direction, if needed.
+                mirror(mShadowStart, layoutDirection);
+                return mShadowStart;
+            }
+        }
+        return mShadowRight;
+    }
+
+    /**
+     * Change the layout direction of the given drawable.
+     * Return true if auto-mirror is supported and drawable's layout direction can be changed.
+     * Otherwise, return false.
+     */
+    private boolean mirror(Drawable drawable, int layoutDirection) {
+        if (drawable == null || !DrawableCompat.isAutoMirrored(drawable)) {
+            return false;
+        }
+
+        DrawableCompat.setLayoutDirection(drawable, layoutDirection);
+        return true;
     }
 
     @Override
@@ -1048,6 +1177,10 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
         invalidate();
     }
 
+    public void onRtlPropertiesChanged(int layoutDirection) {
+        resolveShadowDrawables();
+    }
+
     @Override
     public void onDraw(Canvas c) {
         super.onDraw(c);
@@ -1097,27 +1230,29 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
             mScrimPaint.setColor(color);
 
             canvas.drawRect(clipLeft, 0, clipRight, getHeight(), mScrimPaint);
-        } else if (mShadowLeft != null && checkDrawerViewAbsoluteGravity(child, Gravity.LEFT)) {
-            final int shadowWidth = mShadowLeft.getIntrinsicWidth();
+        } else if (mShadowLeftResolved != null
+                &&  checkDrawerViewAbsoluteGravity(child, Gravity.LEFT)) {
+            final int shadowWidth = mShadowLeftResolved.getIntrinsicWidth();
             final int childRight = child.getRight();
             final int drawerPeekDistance = mLeftDragger.getEdgeSize();
             final float alpha =
                     Math.max(0, Math.min((float) childRight / drawerPeekDistance, 1.f));
-            mShadowLeft.setBounds(childRight, child.getTop(),
+            mShadowLeftResolved.setBounds(childRight, child.getTop(),
                     childRight + shadowWidth, child.getBottom());
-            mShadowLeft.setAlpha((int) (0xff * alpha));
-            mShadowLeft.draw(canvas);
-        } else if (mShadowRight != null && checkDrawerViewAbsoluteGravity(child, Gravity.RIGHT)) {
-            final int shadowWidth = mShadowRight.getIntrinsicWidth();
+            mShadowLeftResolved.setAlpha((int) (0xff * alpha));
+            mShadowLeftResolved.draw(canvas);
+        } else if (mShadowRightResolved != null
+                &&  checkDrawerViewAbsoluteGravity(child, Gravity.RIGHT)) {
+            final int shadowWidth = mShadowRightResolved.getIntrinsicWidth();
             final int childLeft = child.getLeft();
             final int showing = getWidth() - childLeft;
             final int drawerPeekDistance = mRightDragger.getEdgeSize();
             final float alpha =
                     Math.max(0, Math.min((float) showing / drawerPeekDistance, 1.f));
-            mShadowRight.setBounds(childLeft - shadowWidth, child.getTop(),
+            mShadowRightResolved.setBounds(childLeft - shadowWidth, child.getTop(),
                     childLeft, child.getBottom());
-            mShadowRight.setAlpha((int) (0xff * alpha));
-            mShadowRight.draw(canvas);
+            mShadowRightResolved.setAlpha((int) (0xff * alpha));
+            mShadowRightResolved.draw(canvas);
         }
         return result;
     }
