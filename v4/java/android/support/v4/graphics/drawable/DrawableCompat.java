@@ -19,6 +19,7 @@ package android.support.v4.graphics.drawable;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.support.v4.view.ViewCompat;
 
 /**
  * Helper for accessing features in {@link android.graphics.drawable.Drawable}
@@ -38,6 +39,8 @@ public class DrawableCompat {
         void setTintList(Drawable drawable, ColorStateList tint);
         void setTintMode(Drawable drawable, PorterDuff.Mode tintMode);
         Drawable wrap(Drawable drawable);
+        void setLayoutDirection(Drawable drawable, int layoutDirection);
+        int getLayoutDirection(Drawable drawable);
     }
 
     /**
@@ -83,6 +86,16 @@ public class DrawableCompat {
         @Override
         public Drawable wrap(Drawable drawable) {
             return DrawableCompatBase.wrapForTinting(drawable);
+        }
+
+        @Override
+        public void setLayoutDirection(Drawable drawable, int layoutDirection) {
+            // No op for API < 23
+        }
+
+        @Override
+        public int getLayoutDirection(Drawable drawable) {
+            return ViewCompat.LAYOUT_DIRECTION_LTR;
         }
     }
 
@@ -167,12 +180,29 @@ public class DrawableCompat {
     }
 
     /**
+     * Interface implementation for devices with at least M APIs.
+     */
+    static class MDrawableImpl extends LollipopMr1DrawableImpl {
+        @Override
+        public void setLayoutDirection(Drawable drawable, int layoutDirection) {
+            DrawableCompatApi23.setLayoutDirection(drawable, layoutDirection);
+        }
+
+        @Override
+        public int getLayoutDirection(Drawable drawable) {
+            return DrawableCompatApi23.getLayoutDirection(drawable);
+        }
+    }
+
+    /**
      * Select the correct implementation to use for the current platform.
      */
     static final DrawableImpl IMPL;
     static {
         final int version = android.os.Build.VERSION.SDK_INT;
-        if (version >= 22) {
+        if (version >= 23) {
+            IMPL = new MDrawableImpl();
+        } else if (version >= 22) {
             IMPL = new LollipopMr1DrawableImpl();
         } else if (version >= 21) {
             IMPL = new LollipopDrawableImpl();
@@ -314,5 +344,30 @@ public class DrawableCompat {
             return (T) ((DrawableWrapper) drawable).getWrappedDrawable();
         }
         return (T) drawable;
+    }
+
+    /**
+     * Set the layout direction for this drawable. Should be a resolved
+     * layout direction, as the Drawable has no capacity to do the resolution on
+     * its own.
+     *
+     * @param layoutDirection the resolved layout direction for the drawable,
+     *                        either {@link ViewCompat#LAYOUT_DIRECTION_LTR}
+     *                        or {@link ViewCompat#LAYOUT_DIRECTION_RTL}
+     * @see #getLayoutDirection(Drawable)
+     */
+    public static void setLayoutDirection(Drawable drawable, int layoutDirection) {
+        IMPL.setLayoutDirection(drawable, layoutDirection);
+    }
+
+    /**
+     * Returns the resolved layout direction for this Drawable.
+     *
+     * @return One of {@link ViewCompat#LAYOUT_DIRECTION_LTR},
+     *         {@link ViewCompat#LAYOUT_DIRECTION_RTL}
+     * @see #setLayoutDirection(Drawable, int)
+     */
+    public static int getLayoutDirection(Drawable drawable) {
+        return IMPL.getLayoutDirection(drawable);
     }
 }
