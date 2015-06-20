@@ -1044,7 +1044,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
             if (mGrid == null || mNumRows != mGrid.getNumRows() ||
                     mReverseFlowPrimary != mGrid.isReversedFlow()) {
-                mGrid = Grid.createStaggeredMultipleRows(mNumRows);
+                mGrid = Grid.createGrid(mNumRows);
                 mGrid.setProvider(mGridProvider);
                 mGrid.setReversedFlow(mReverseFlowPrimary);
             }
