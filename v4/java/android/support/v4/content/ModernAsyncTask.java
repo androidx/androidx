@@ -30,7 +30,9 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.os.Process;
 
@@ -72,7 +74,7 @@ abstract class ModernAsyncTask<Params, Progress, Result> {
     private static final int MESSAGE_POST_RESULT = 0x1;
     private static final int MESSAGE_POST_PROGRESS = 0x2;
 
-    private static final InternalHandler sHandler = new InternalHandler();
+    private static InternalHandler sHandler;
 
     private static volatile Executor sDefaultExecutor = THREAD_POOL_EXECUTOR;
     private final WorkerRunnable<Params, Result> mWorker;
@@ -101,9 +103,13 @@ abstract class ModernAsyncTask<Params, Progress, Result> {
         FINISHED,
     }
 
-    /** @hide Used to force static handler to be created. */
-    public static void init() {
-        sHandler.getLooper();
+    private static Handler getHandler() {
+        synchronized (AsyncTask.class) {
+            if (sHandler == null) {
+                sHandler = new InternalHandler();
+            }
+            return sHandler;
+        }
     }
 
     /** @hide */
@@ -154,7 +160,7 @@ abstract class ModernAsyncTask<Params, Progress, Result> {
     }
 
     private Result postResult(Result result) {
-        Message message = sHandler.obtainMessage(MESSAGE_POST_RESULT,
+        Message message = getHandler().obtainMessage(MESSAGE_POST_RESULT,
                 new AsyncTaskResult<Result>(this, result));
         message.sendToTarget();
         return result;
@@ -449,7 +455,7 @@ abstract class ModernAsyncTask<Params, Progress, Result> {
      */
     protected final void publishProgress(Progress... values) {
         if (!isCancelled()) {
-            sHandler.obtainMessage(MESSAGE_POST_PROGRESS,
+            getHandler().obtainMessage(MESSAGE_POST_PROGRESS,
                     new AsyncTaskResult<Progress>(this, values)).sendToTarget();
         }
     }
@@ -464,6 +470,10 @@ abstract class ModernAsyncTask<Params, Progress, Result> {
     }
 
     private static class InternalHandler extends Handler {
+        public InternalHandler() {
+            super(Looper.getMainLooper());
+        }
+
         @SuppressWarnings({"unchecked", "RawUseOfParameterizedType"})
         @Override
         public void handleMessage(Message msg) {
