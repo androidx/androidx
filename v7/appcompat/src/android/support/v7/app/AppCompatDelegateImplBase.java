@@ -43,7 +43,7 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
     final AppCompatCallback mAppCompatCallback;
 
     ActionBar mActionBar;
-    private MenuInflater mMenuInflater;
+    MenuInflater mMenuInflater;
 
     // true if this activity has an action bar.
     boolean mHasActionBar;
@@ -93,14 +93,13 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
         return mActionBar;
     }
 
-    final void setSupportActionBar(ActionBar actionBar) {
-        mActionBar = actionBar;
-    }
-
     @Override
     public MenuInflater getMenuInflater() {
+        // Make sure that action views can get an appropriate theme.
         if (mMenuInflater == null) {
-            mMenuInflater = new SupportMenuInflater(getActionBarThemedContext());
+            initWindowDecorActionBar();
+            mMenuInflater = new SupportMenuInflater(
+                    mActionBar != null ? mActionBar.getThemedContext() : mContext);
         }
         return mMenuInflater;
     }
