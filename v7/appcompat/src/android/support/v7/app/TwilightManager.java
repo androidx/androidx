@@ -16,10 +16,12 @@
 
 package android.support.v7.app;
 
+import android.Manifest;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
 import android.support.annotation.NonNull;
+import android.support.v4.content.PermissionChecker;
 import android.text.format.DateUtils;
 import android.util.Log;
 
@@ -77,8 +79,20 @@ class TwilightManager {
     }
 
     private Location getLastKnownLocation() {
-        Location coarseLocation = getLastKnownLocationForProvider(LocationManager.NETWORK_PROVIDER);
-        Location fineLocation = getLastKnownLocationForProvider(LocationManager.GPS_PROVIDER);
+        Location coarseLocation = null;
+        Location fineLocation = null;
+
+        int permission = PermissionChecker.checkSelfPermission(mContext,
+                Manifest.permission.ACCESS_FINE_LOCATION);
+        if (permission == PermissionChecker.PERMISSION_GRANTED) {
+            coarseLocation = getLastKnownLocationForProvider(LocationManager.NETWORK_PROVIDER);
+        }
+
+        permission = PermissionChecker.checkSelfPermission(mContext,
+                Manifest.permission.ACCESS_COARSE_LOCATION);
+        if (permission == PermissionChecker.PERMISSION_GRANTED) {
+            fineLocation = getLastKnownLocationForProvider(LocationManager.GPS_PROVIDER);
+        }
 
         if (coarseLocation != null && fineLocation != null) {
             // If we have both a fine and coarse location, use the latest
