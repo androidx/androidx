@@ -364,7 +364,13 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
 
             if (mSubDecor == null) {
                 throw new IllegalArgumentException(
-                        "AppCompat does not support the current theme features");
+                        "AppCompat does not support the current theme features: { "
+                                + "windowActionBar: " + mHasActionBar
+                                + ", windowActionBarOverlay: "+ mOverlayActionBar
+                                + ", android:windowIsFloating: " + mIsFloating
+                                + ", windowActionModeOverlay: " + mOverlayActionMode
+                                + ", windowNoTitle: " + mWindowNoTitle
+                                + " }");
             }
 
             if (mDecorContentParent == null) {
