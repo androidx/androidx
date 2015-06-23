@@ -989,6 +989,8 @@ package android.support.v7.appcompat {
     field public static int Base_V21_Theme_AppCompat_Dialog;
     field public static int Base_V21_Theme_AppCompat_Light;
     field public static int Base_V21_Theme_AppCompat_Light_Dialog;
+    field public static int Base_V22_Theme_AppCompat;
+    field public static int Base_V22_Theme_AppCompat_Light;
     field public static int Base_V7_Theme_AppCompat;
     field public static int Base_V7_Theme_AppCompat_Dialog;
     field public static int Base_V7_Theme_AppCompat_Light;
@@ -1048,6 +1050,7 @@ package android.support.v7.appcompat {
     field public static int Base_Widget_AppCompat_Toolbar_Button_Navigation;
     field public static int Platform_AppCompat;
     field public static int Platform_AppCompat_Light;
+    field public static int Platform_ThemeOverlay_AppCompat;
     field public static int Platform_ThemeOverlay_AppCompat_Dark;
     field public static int Platform_ThemeOverlay_AppCompat_Light;
     field public static int Platform_V11_AppCompat;

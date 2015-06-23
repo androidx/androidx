@@ -52,7 +52,6 @@
         <item name="actionMenuTextAppearance">?android:attr/actionMenuTextAppearance</item>
         <item name="actionModeBackground">?android:attr/actionModeBackground</item>
         <item name="actionModeCloseDrawable">?android:attr/actionModeCloseDrawable</item>
-        <item name="actionModeShareDrawable">?android:attr/actionModeShareDrawable</item>
         <item name="actionOverflowButtonStyle">?android:attr/actionOverflowButtonStyle</item>
         <item name="homeAsUpIndicator">?android:attr/homeAsUpIndicator</item>
 
@@ -102,7 +101,6 @@
         <item name="actionMenuTextAppearance">?android:attr/actionMenuTextAppearance</item>
         <item name="actionModeBackground">?android:attr/actionModeBackground</item>
         <item name="actionModeCloseDrawable">?android:attr/actionModeCloseDrawable</item>
-        <item name="actionModeShareDrawable">?android:attr/actionModeShareDrawable</item>
         <item name="actionOverflowButtonStyle">?android:attr/actionOverflowButtonStyle</item>
         <item name="homeAsUpIndicator">?android:attr/homeAsUpIndicator</item>
 
@@ -153,7 +151,7 @@
     <style name="Base.Theme.AppCompat.Dialog" parent="Base.V21.Theme.AppCompat.Dialog" />
     <style name="Base.Theme.AppCompat.Light.Dialog" parent="Base.V21.Theme.AppCompat.Light.Dialog" />
 
-    <style name="Platform.ThemeOverlay.AppCompat.Dark" parent="">
+    <style name="Platform.ThemeOverlay.AppCompat" parent="">
         <!-- Copy our color theme attributes to the framework -->
         <item name="android:colorPrimary">?attr/colorPrimary</item>
         <item name="android:colorPrimaryDark">?attr/colorPrimaryDark</item>
@@ -164,15 +162,8 @@
         <item name="android:colorButtonNormal">?attr/colorButtonNormal</item>
     </style>
 
-    <style name="Platform.ThemeOverlay.AppCompat.Light" parent="">
-        <!-- Copy our color theme attributes to the framework -->
-        <item name="android:colorPrimary">?attr/colorPrimary</item>
-        <item name="android:colorPrimaryDark">?attr/colorPrimaryDark</item>
-        <item name="android:colorAccent">?attr/colorAccent</item>
-        <item name="android:colorControlNormal">?attr/colorControlNormal</item>
-        <item name="android:colorControlActivated">?attr/colorControlActivated</item>
-        <item name="android:colorControlHighlight">?attr/colorControlHighlight</item>
-        <item name="android:colorButtonNormal">?attr/colorButtonNormal</item>
-    </style>
+    <style name="Platform.ThemeOverlay.AppCompat.Dark" />
+
+    <style name="Platform.ThemeOverlay.AppCompat.Light" />
 
 </resources>
