@@ -18,8 +18,13 @@ package android.support.v4.print;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.pdf.PdfDocument.Page;
 import android.net.Uri;
@@ -208,16 +213,20 @@ class PrintHelperKitkat {
                                         WriteResultCallback writeResultCallback) {
                         PrintedPdfDocument pdfDocument = new PrintedPdfDocument(mContext,
                                 mAttributes);
+
+                        Bitmap maybeGrayscale = convertBitmapForColorMode(bitmap,
+                                mAttributes.getColorMode());
                         try {
                             Page page = pdfDocument.startPage(1);
 
                             RectF content = new RectF(page.getInfo().getContentRect());
 
-                            Matrix matrix = getMatrix(bitmap.getWidth(), bitmap.getHeight(),
+                            Matrix matrix = getMatrix(
+                                    maybeGrayscale.getWidth(), maybeGrayscale.getHeight(),
                                     content, fittingMode);
 
                             // Draw the bitmap.
-                            page.getCanvas().drawBitmap(bitmap, matrix, null);
+                            page.getCanvas().drawBitmap(maybeGrayscale, matrix, null);
 
                             // Finish the page.
                             pdfDocument.finishPage(page);
@@ -244,6 +253,10 @@ class PrintHelperKitkat {
                                 } catch (IOException ioe) {
                                     /* ignore */
                                 }
+                            }
+                            // If we created a new instance for grayscaling, then recycle it here.
+                            if (maybeGrayscale != bitmap) {
+                                maybeGrayscale.recycle();
                             }
                         }
                     }
@@ -401,6 +414,10 @@ class PrintHelperKitkat {
                 if (callback != null) {
                     callback.onFinish();
                 }
+                if (mBitmap != null) {
+                    mBitmap.recycle();
+                    mBitmap = null;
+                }
             }
 
             @Override
@@ -409,6 +426,8 @@ class PrintHelperKitkat {
                                 WriteResultCallback writeResultCallback) {
                 PrintedPdfDocument pdfDocument = new PrintedPdfDocument(mContext,
                         mAttributes);
+                Bitmap maybeGrayscale = convertBitmapForColorMode(mBitmap,
+                        mAttributes.getColorMode());
                 try {
 
                     Page page = pdfDocument.startPage(1);
@@ -419,7 +438,7 @@ class PrintHelperKitkat {
                             content, fittingMode);
 
                     // Draw the bitmap.
-                    page.getCanvas().drawBitmap(mBitmap, matrix, null);
+                    page.getCanvas().drawBitmap(maybeGrayscale, matrix, null);
 
                     // Finish the page.
                     pdfDocument.finishPage(page);
@@ -446,6 +465,10 @@ class PrintHelperKitkat {
                         } catch (IOException ioe) {
                             /* ignore */
                         }
+                    }
+                    // If we created a new instance for grayscaling, then recycle it here.
+                    if (maybeGrayscale != mBitmap) {
+                        maybeGrayscale.recycle();
                     }
                 }
             }
@@ -540,5 +563,24 @@ class PrintHelperKitkat {
                 }
             }
         }
+    }
+
+    private Bitmap convertBitmapForColorMode(Bitmap original, int colorMode) {
+        if (colorMode != COLOR_MODE_MONOCHROME) {
+            return original;
+        }
+        // Create a grayscale bitmap
+        Bitmap grayscale = Bitmap.createBitmap(original.getWidth(), original.getHeight(),
+                Config.ARGB_8888);
+        Canvas c = new Canvas(grayscale);
+        Paint p = new Paint();
+        ColorMatrix cm = new ColorMatrix();
+        cm.setSaturation(0);
+        ColorMatrixColorFilter f = new ColorMatrixColorFilter(cm);
+        p.setColorFilter(f);
+        c.drawBitmap(original, 0, 0, p);
+        c.setBitmap(null);
+
+        return grayscale;
     }
 }
