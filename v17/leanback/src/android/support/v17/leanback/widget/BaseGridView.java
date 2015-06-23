@@ -824,4 +824,24 @@ abstract class BaseGridView extends RecyclerView {
     public void setRecyclerListener(RecyclerView.RecyclerListener listener) {
         mChainedRecyclerListener = listener;
     }
+
+    /**
+     * Sets pixels of extra space for layout child in invisible area.
+     *
+     * @param extraLayoutSpace  Pixels of extra space for layout invisible child.
+     *                          Must be bigger or equals to 0.
+     * @hide
+     */
+    public void setExtraLayoutSpace(int extraLayoutSpace) {
+        mLayoutManager.setExtraLayoutSpace(extraLayoutSpace);
+    }
+
+    /**
+     * Returns pixels of extra space for layout child in invisible area.
+     *
+     * @hide
+     */
+    public int getExtraLayoutSpace() {
+        return mLayoutManager.getExtraLayoutSpace();
+    }
 }

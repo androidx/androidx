@@ -1632,4 +1632,51 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         waitForTransientStateGone(null);
         assertEquals(0, mGridView.getSelectedPosition());
     }
+
+    public void testExtraLayoutSpace() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 1000);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        initActivity(intent);
+
+        final int windowSize = mGridView.getHeight();
+        final int extraLayoutSize = windowSize;
+        int itemLength = mActivity.mItemLengths[0];
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        // add extra layout space
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setExtraLayoutSpace(extraLayoutSize);
+            }
+        });
+        Thread.sleep(50);
+        View v;
+        v = mGridView.getChildAt(mGridView.getChildCount() - 1);
+        assertTrue(v.getTop() < windowSize + extraLayoutSize);
+        assertTrue(v.getBottom() >= windowSize + extraLayoutSize -
+                mGridView.getVerticalMargin());
+
+        mGridView.setSelectedPositionSmooth(150);
+        waitForScrollIdle(mVerifyLayout);
+        v = mGridView.getChildAt(0);
+        assertTrue(v.getBottom() > - extraLayoutSize);
+        assertTrue(v.getTop() <= -extraLayoutSize + mGridView.getVerticalMargin());
+
+        // clear extra layout space
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setExtraLayoutSpace(0);
+                verifyMargin();
+            }
+        });
+        Thread.sleep(50);
+        v = mGridView.getChildAt(mGridView.getChildCount() - 1);
+        assertTrue(v.getTop() < windowSize);
+        assertTrue(v.getBottom() >= windowSize - mGridView.getVerticalMargin());
+    }
 }
