@@ -208,12 +208,16 @@ public class DrawerArrowDrawable extends Drawable {
 
     @Override
     public void setAlpha(int alpha) {
-        mPaint.setAlpha(alpha);
+        if (alpha != mPaint.getAlpha()) {
+            mPaint.setAlpha(alpha);
+            invalidateSelf();
+        }
     }
 
     @Override
     public void setColorFilter(ColorFilter colorFilter) {
         mPaint.setColorFilter(colorFilter);
+        invalidateSelf();
     }
 
     @Override
@@ -247,8 +251,10 @@ public class DrawerArrowDrawable extends Drawable {
      * position.</p>
      */
     public void setProgress(@FloatRange(from = 0.0, to = 1.0) float progress) {
-        mProgress = progress;
-        invalidateSelf();
+        if (mProgress != progress) {
+            mProgress = progress;
+            invalidateSelf();
+        }
     }
 
     /**
