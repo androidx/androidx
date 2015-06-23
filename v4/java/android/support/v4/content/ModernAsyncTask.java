@@ -104,7 +104,7 @@ abstract class ModernAsyncTask<Params, Progress, Result> {
     }
 
     private static Handler getHandler() {
-        synchronized (AsyncTask.class) {
+        synchronized (ModernAsyncTask.class) {
             if (sHandler == null) {
                 sHandler = new InternalHandler();
             }
