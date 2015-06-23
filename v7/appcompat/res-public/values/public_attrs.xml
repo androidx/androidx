@@ -124,6 +124,7 @@
      <public type="attr" name="listPreferredItemPaddingLeft"/>
      <public type="attr" name="listPreferredItemPaddingRight"/>
      <public type="attr" name="logo"/>
+     <public type="attr" name="logoDescription"/>
      <public type="attr" name="measureWithLargestChild"/>
      <public type="attr" name="middleBarArrowSize"/>
      <public type="attr" name="navigationContentDescription"/>
@@ -160,6 +161,7 @@
      <public type="attr" name="submitBackground"/>
      <public type="attr" name="subtitle"/>
      <public type="attr" name="subtitleTextAppearance"/>
+     <public type="attr" name="subtitleTextColor"/>
      <public type="attr" name="subtitleTextStyle"/>
      <public type="attr" name="suggestionRowLayout"/>
      <public type="attr" name="switchMinWidth"/>
@@ -184,6 +186,7 @@
      <public type="attr" name="titleMarginStart"/>
      <public type="attr" name="titleMarginTop"/>
      <public type="attr" name="titleTextAppearance"/>
+     <public type="attr" name="titleTextColor"/>
      <public type="attr" name="titleTextStyle"/>
      <public type="attr" name="toolbarNavigationButtonStyle"/>
      <public type="attr" name="toolbarStyle"/>
