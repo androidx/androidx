@@ -49,8 +49,8 @@ public class OpReorderTest {
 
     OpReorderer mOpReorderer = new OpReorderer(new OpReorderer.Callback() {
         @Override
-        public UpdateOp obtainUpdateOp(int cmd, int startPosition, int itemCount) {
-            return new UpdateOp(cmd, startPosition, itemCount);
+        public UpdateOp obtainUpdateOp(int cmd, int startPosition, int itemCount, Object payload) {
+            return new UpdateOp(cmd, startPosition, itemCount, payload);
         }
 
         @Override
@@ -283,20 +283,20 @@ public class OpReorderTest {
 
     UpdateOp rm(int start, int count) {
         updatedItemCount -= count;
-        return record(new UpdateOp(REMOVE, start, count));
+        return record(new UpdateOp(REMOVE, start, count, null));
     }
 
     UpdateOp mv(int from, int to) {
-        return record(new UpdateOp(MOVE, from, to));
+        return record(new UpdateOp(MOVE, from, to, null));
     }
 
     UpdateOp add(int start, int count) {
         updatedItemCount += count;
-        return record(new UpdateOp(ADD, start, count));
+        return record(new UpdateOp(ADD, start, count, null));
     }
 
     UpdateOp up(int start, int count) {
-        return record(new UpdateOp(UPDATE, start, count));
+        return record(new UpdateOp(UPDATE, start, count, null));
     }
 
     UpdateOp record(UpdateOp op) {
@@ -407,7 +407,7 @@ public class OpReorderTest {
     private List<UpdateOp> rewriteOps(List<UpdateOp> updateOps) {
         List<UpdateOp> copy = new ArrayList<UpdateOp>();
         for (UpdateOp op : updateOps) {
-            copy.add(new UpdateOp(op.cmd, op.positionStart, op.itemCount));
+            copy.add(new UpdateOp(op.cmd, op.positionStart, op.itemCount, null));
         }
         mOpReorderer.reorderOps(copy);
         return copy;

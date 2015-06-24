@@ -209,7 +209,8 @@ public class GridLayoutManager extends LinearLayoutManager {
     }
 
     @Override
-    public void onItemsUpdated(RecyclerView recyclerView, int positionStart, int itemCount) {
+    public void onItemsUpdated(RecyclerView recyclerView, int positionStart, int itemCount,
+            Object payload) {
         mSpanSizeLookup.invalidateSpanIndexCache();
     }
 
