@@ -16,7 +16,7 @@
 
 package android.support.v7.app;
 
-import android.app.Dialog;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.IntentSender;
 import android.graphics.drawable.Drawable;
@@ -34,7 +34,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -52,7 +51,7 @@ import android.widget.TextView;
  * @see MediaRouteButton
  * @see MediaRouteActionProvider
  */
-public class MediaRouteControllerDialog extends Dialog {
+public class MediaRouteControllerDialog extends AlertDialog {
     private static final String TAG = "MediaRouteControllerDialog";
 
     // Time to wait before updating the volume when the user lets go of the seek bar
@@ -205,8 +204,6 @@ public class MediaRouteControllerDialog extends Dialog {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
         setContentView(R.layout.mr_media_route_controller_material_dialog_b);
 
