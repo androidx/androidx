@@ -42,7 +42,7 @@ public class MainActivity extends Activity {
         GuidedStepFragment.add(getFragmentManager(), mGuidedStepFragment);
     }
 
-    private static class StepFragment extends GuidedStepFragment {
+    public static class StepFragment extends GuidedStepFragment {
         @Override
         public Guidance onCreateGuidance(Bundle savedInstanceState) {
             String title = getString(R.string.main_title);
