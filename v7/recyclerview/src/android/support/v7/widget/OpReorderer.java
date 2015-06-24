@@ -100,7 +100,7 @@ class OpReorderer {
         } else if (moveOp.positionStart < removeOp.positionStart + removeOp.itemCount) {
             final int remaining = removeOp.positionStart + removeOp.itemCount
                     - moveOp.positionStart;
-            extraRm = mCallback.obtainUpdateOp(REMOVE, moveOp.positionStart + 1, remaining);
+            extraRm = mCallback.obtainUpdateOp(REMOVE, moveOp.positionStart + 1, remaining, null);
             removeOp.itemCount = moveOp.positionStart - removeOp.positionStart;
         }
 
@@ -187,7 +187,7 @@ class OpReorderer {
         } else if (moveOp.itemCount < updateOp.positionStart + updateOp.itemCount) {
             // moved item is updated. add an update for it
             updateOp.itemCount--;
-            extraUp1 = mCallback.obtainUpdateOp(UPDATE, moveOp.positionStart, 1);
+            extraUp1 = mCallback.obtainUpdateOp(UPDATE, moveOp.positionStart, 1, updateOp.payload);
         }
         // now affect of add is consumed. now apply effect of first remove
         if (moveOp.positionStart <= updateOp.positionStart) {
@@ -195,7 +195,8 @@ class OpReorderer {
         } else if (moveOp.positionStart < updateOp.positionStart + updateOp.itemCount) {
             final int remaining = updateOp.positionStart + updateOp.itemCount
                     - moveOp.positionStart;
-            extraUp2 = mCallback.obtainUpdateOp(UPDATE, moveOp.positionStart + 1, remaining);
+            extraUp2 = mCallback.obtainUpdateOp(UPDATE, moveOp.positionStart + 1, remaining,
+                    updateOp.payload);
             updateOp.itemCount -= remaining;
         }
         list.set(update, moveOp);
@@ -230,7 +231,7 @@ class OpReorderer {
 
     static interface Callback {
 
-        UpdateOp obtainUpdateOp(int cmd, int startPosition, int itemCount);
+        UpdateOp obtainUpdateOp(int cmd, int startPosition, int itemCount, Object payload);
 
         void recycleUpdateOp(UpdateOp op);
     }

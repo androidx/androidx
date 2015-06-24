@@ -382,6 +382,112 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
         mLayoutManager.waitForLayout(2);
     }
 
+    private static boolean listEquals(List list1, List list2) {
+        if (list1.size() != list2.size()) {
+            return false;
+        }
+        for (int i= 0; i < list1.size(); i++) {
+            if (!list1.get(i).equals(list2.get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void testChangeWithPayload(final boolean supportsChangeAnim,
+            Object[][] notifyPayloads,  Object[][] expectedPayloadsInOnBind)
+                    throws Throwable {
+        final List<Object> expectedPayloads = new ArrayList<Object>();
+        final int changedIndex = 3;
+        TestAdapter testAdapter = new TestAdapter(10) {
+            @Override
+            public int getItemViewType(int position) {
+                return 1;
+            }
+
+            @Override
+            public TestViewHolder onCreateViewHolder(ViewGroup parent,
+                    int viewType) {
+                TestViewHolder vh = super.onCreateViewHolder(parent, viewType);
+                if (DEBUG) {
+                    Log.d(TAG, " onCreateVH" + vh.toString());
+                }
+                return vh;
+            }
+
+            @Override
+            public void onBindViewHolder(TestViewHolder holder,
+                    int position, List<Object> payloads) {
+                super.onBindViewHolder(holder, position);
+                if (DEBUG) {
+                    Log.d(TAG, " onBind to " + position + "" + holder.toString());
+                }
+                assertTrue(listEquals(payloads, expectedPayloads));
+            }
+        };
+        testAdapter.setHasStableIds(false);
+        setupBasic(testAdapter.getItemCount(), 0, 10, testAdapter);
+        mRecyclerView.getItemAnimator().setSupportsChangeAnimations(supportsChangeAnim);
+
+        int numTests = notifyPayloads.length;
+        for (int i= 0; i < numTests; i++) {
+            mLayoutManager.expectLayouts(1);
+            expectedPayloads.clear();
+            for (int j = 0; j < expectedPayloadsInOnBind[i].length; j++) {
+                expectedPayloads.add(expectedPayloadsInOnBind[i][j]);
+            }
+            final Object[] payloadsToSend = notifyPayloads[i];
+            runTestOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    for (int j = 0; j < payloadsToSend.length; j++) {
+                        mTestAdapter.notifyItemChanged(changedIndex, payloadsToSend[j]);
+                    }
+                }
+            });
+            mLayoutManager.waitForLayout(2);
+        }
+    }
+
+    public void testCrossFadingChangeAnimationWithPayload()  throws Throwable {
+        // for crossfading change animation,  will receive EMPTY payload in onBindViewHolder
+        testChangeWithPayload(true,
+                new Object[][]{
+                    new Object[]{"abc"},
+                    new Object[]{"abc", null, "cdf"},
+                    new Object[]{"abc", null},
+                    new Object[]{null, "abc"},
+                    new Object[]{"abc", "cdf"}
+                },
+                new Object[][]{
+                    new Object[0],
+                    new Object[0],
+                    new Object[0],
+                    new Object[0],
+                    new Object[0]
+                });
+    }
+
+    public void testNoChangeAnimationWithPayload()  throws Throwable {
+        // for Change Animation disabled, payload should match the payloads unless
+        // null payload is fired.
+        testChangeWithPayload(false,
+                new Object[][]{
+                    new Object[]{"abc"},
+                    new Object[]{"abc", null, "cdf"},
+                    new Object[]{"abc", null},
+                    new Object[]{null, "abc"},
+                    new Object[]{"abc", "cdf"}
+                },
+                new Object[][]{
+                new Object[]{"abc"},
+                new Object[0],
+                new Object[0],
+                new Object[0],
+                new Object[]{"abc", "cdf"}
+                });
+    }
+
     public void testRecycleDuringAnimations() throws Throwable {
         final AtomicInteger childCount = new AtomicInteger(0);
         final TestAdapter adapter = new TestAdapter(1000) {
