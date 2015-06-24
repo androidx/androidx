@@ -114,11 +114,12 @@ public class AdapterHelperTest extends AndroidTestCase {
             }
 
             @Override
-            public void markViewHoldersUpdated(int positionStart, int itemCount) {
+            public void markViewHoldersUpdated(int positionStart, int itemCount, Object payload) {
                 final int positionEnd = positionStart + itemCount;
                 for (ViewHolder holder : mViewHolders) {
                     if (holder.mPosition >= positionStart && holder.mPosition < positionEnd) {
                         holder.addFlags(ViewHolder.FLAG_UPDATE);
+                        holder.addChangePayload(payload);
                     }
                 }
             }
@@ -815,6 +816,15 @@ public class AdapterHelperTest extends AndroidTestCase {
     }
 
     @Test
+    public void testPayloads() {
+        setupBasic(10, 2, 2);
+        up(3, 3, "payload");
+        preProcess();
+        assertOps(mFirstPassUpdates, upOp(4, 2, "payload"));
+        assertOps(mSecondPassUpdates, upOp(3, 1, "payload"));
+    }
+
+    @Test
     public void testRandom() throws Throwable {
         mCollectLogs = true;
         Random random = new Random(System.nanoTime());
@@ -840,7 +850,7 @@ public class AdapterHelperTest extends AndroidTestCase {
         setupBasic(count, start, layoutCount);
 
         while (opCount-- > 0) {
-            final int op = nextInt(random, 4);
+            final int op = nextInt(random, 5);
             switch (op) {
                 case 0:
                     if (mTestAdapter.mItems.size() > 1) {
@@ -869,6 +879,13 @@ public class AdapterHelperTest extends AndroidTestCase {
                         s = nextInt(random, mTestAdapter.mItems.size() - 1);
                         int len = Math.max(1, nextInt(random, mTestAdapter.mItems.size() - s));
                         up(s, len);
+                    }
+                    break;
+                case 4:
+                    if (mTestAdapter.mItems.size() > 1) {
+                        s = nextInt(random, mTestAdapter.mItems.size() - 1);
+                        int len = Math.max(1, nextInt(random, mTestAdapter.mItems.size() - s));
+                        up(s, len, Integer.toString(s));
                     }
                     break;
             }
@@ -945,7 +962,11 @@ public class AdapterHelperTest extends AndroidTestCase {
     }
 
     AdapterHelper.UpdateOp op(int cmd, int start, int count) {
-        return new AdapterHelper.UpdateOp(cmd, start, count);
+        return new AdapterHelper.UpdateOp(cmd, start, count, null);
+    }
+
+    AdapterHelper.UpdateOp op(int cmd, int start, int count, Object payload) {
+        return new AdapterHelper.UpdateOp(cmd, start, count, payload);
     }
 
     AdapterHelper.UpdateOp addOp(int start, int count) {
@@ -956,8 +977,8 @@ public class AdapterHelperTest extends AndroidTestCase {
         return op(AdapterHelper.UpdateOp.REMOVE, start, count);
     }
 
-    AdapterHelper.UpdateOp upOp(int start, int count) {
-        return op(AdapterHelper.UpdateOp.UPDATE, start, count);
+    AdapterHelper.UpdateOp upOp(int start, int count, Object payload) {
+        return op(AdapterHelper.UpdateOp.UPDATE, start, count, payload);
     }
 
     void add(int start, int count) {
@@ -1003,6 +1024,13 @@ public class AdapterHelperTest extends AndroidTestCase {
         mTestAdapter.update(start, count);
     }
 
+    void up(int start, int count, Object payload) {
+        if (DEBUG) {
+            log("up(" + start + "," + count + "," + payload + ");");
+        }
+        mTestAdapter.update(start, count, payload);
+    }
+
     static class TestAdapter {
 
         List<Item> mItems;
@@ -1027,14 +1055,14 @@ public class AdapterHelperTest extends AndroidTestCase {
                 mItems.add(index + i, item);
             }
             mAdapterHelper.addUpdateOp(new AdapterHelper.UpdateOp(
-                    AdapterHelper.UpdateOp.ADD, index, count
+                    AdapterHelper.UpdateOp.ADD, index, count, null
             ));
         }
 
         public void move(int from, int to) {
             mItems.add(to, mItems.remove(from));
             mAdapterHelper.addUpdateOp(new AdapterHelper.UpdateOp(
-                    AdapterHelper.UpdateOp.MOVE, from, to
+                    AdapterHelper.UpdateOp.MOVE, from, to, null
             ));
         }
 
@@ -1043,16 +1071,20 @@ public class AdapterHelperTest extends AndroidTestCase {
                 mItems.remove(index);
             }
             mAdapterHelper.addUpdateOp(new AdapterHelper.UpdateOp(
-                    AdapterHelper.UpdateOp.REMOVE, index, count
+                    AdapterHelper.UpdateOp.REMOVE, index, count, null
             ));
         }
 
         public void update(int index, int count) {
+            update(index, count, null);
+        }
+
+        public void update(int index, int count, Object payload) {
             for (int i = 0; i < count; i++) {
-                mItems.get(index + i).update();
+                mItems.get(index + i).update(payload);
             }
             mAdapterHelper.addUpdateOp(new AdapterHelper.UpdateOp(
-                    AdapterHelper.UpdateOp.UPDATE, index, count
+                    AdapterHelper.UpdateOp.UPDATE, index, count, payload
             ));
         }
 
@@ -1080,7 +1112,7 @@ public class AdapterHelperTest extends AndroidTestCase {
                         break;
                     case AdapterHelper.UpdateOp.UPDATE:
                         for (int i = 0; i < op.itemCount; i++) {
-                            mItems.get(i).handleUpdate();
+                            mItems.get(op.positionStart + i).handleUpdate(op.payload);
                         }
                         break;
                     case AdapterHelper.UpdateOp.MOVE:
@@ -1107,22 +1139,25 @@ public class AdapterHelperTest extends AndroidTestCase {
 
             private int mVersionCount = 0;
 
-            private int mUpdateCount;
+            private ArrayList<Object> mPayloads = new ArrayList<Object>();
 
             public Item() {
                 id = itemCounter.incrementAndGet();
             }
 
-            public void update() {
+            public void update(Object payload) {
+                mPayloads.add(payload);
                 mVersionCount++;
             }
 
-            public void handleUpdate() {
+            public void handleUpdate(Object payload) {
+                assertSame(payload, mPayloads.get(0));
+                mPayloads.remove(0);
                 mVersionCount--;
             }
 
             public int getUpdateCount() {
-                return mUpdateCount;
+                return mVersionCount;
             }
         }
     }
