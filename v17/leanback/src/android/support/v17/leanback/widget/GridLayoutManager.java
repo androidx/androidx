@@ -21,6 +21,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.util.CircularIntArray;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.view.accessibility.AccessibilityEventCompat;
+import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
+import android.support.v4.view.accessibility.AccessibilityRecordCompat;
 import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Recycler;
@@ -203,14 +206,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 targetView.requestFocus();
                 mInSelection = false;
             }
-            if (needsDispatchChildSelectedOnStop()) {
-                dispatchChildSelected();
-            }
+            dispatchChildSelected();
             super.onStop();
-        }
-
-        boolean needsDispatchChildSelectedOnStop() {
-            return true;
         }
 
         @Override
@@ -254,18 +251,12 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         void increasePendingMoves() {
             if (mPendingMoves < MAX_PENDING_MOVES) {
                 mPendingMoves++;
-                if (mPendingMoves == 0) {
-                    dispatchChildSelected();
-                }
             }
         }
 
         void decreasePendingMoves() {
             if (mPendingMoves > -MAX_PENDING_MOVES) {
                 mPendingMoves--;
-                if (mPendingMoves == 0) {
-                    dispatchChildSelected();
-                }
             }
         }
 
@@ -313,43 +304,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         void consumePendingMovesAfterLayout() {
             if (mStaggeredGrid && mPendingMoves != 0) {
                 // consume pending moves, focus to item on the same row.
-                final int focusedRow = mGrid != null && mFocusPosition != NO_POSITION ?
-                        mGrid.getLocation(mFocusPosition).row : NO_POSITION;
-                View newSelected = null;
-                for (int i = 0, count = getChildCount(); i < count && mPendingMoves != 0; i++) {
-                    int index = mPendingMoves > 0 ? i : count - 1 - i;
-                    final View child = getChildAt(index);
-                    if (!canScrollTo(child)) {
-                        continue;
-                    }
-                    int position = getPositionByIndex(index);
-                    Grid.Location loc = mGrid.getLocation(position);
-                    if (focusedRow == NO_POSITION || (loc != null && loc.row == focusedRow)) {
-                        if (mFocusPosition == NO_POSITION) {
-                            mFocusPosition = position;
-                            mSubFocusPosition = 0;
-                            newSelected = child;
-                        } else if ((mPendingMoves > 0 && position > mFocusPosition)
-                                || (mPendingMoves < 0 && position < mFocusPosition)) {
-                            mFocusPosition = position;
-                            mSubFocusPosition = 0;
-                            if (mPendingMoves > 0) {
-                                mPendingMoves--;
-                            } else {
-                                mPendingMoves++;
-                            }
-                            newSelected = child;
-                        }
-                    }
-                }
-                if (newSelected != null && hasFocus()) {
-                    mInSelection = true;
-                    newSelected.requestFocus();
-                    mInSelection = false;
-                }
-                if (mPendingMoves == 0) {
-                    dispatchChildSelected();
-                }
+                mPendingMoves = processSelectionMoves(true, mPendingMoves);
             }
             if (mPendingMoves == 0 || (mPendingMoves > 0 && hasCreatedLastItem())
                     || (mPendingMoves < 0 && hasCreatedFirstItem())) {
@@ -378,11 +333,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             } else {
                 return new PointF(0, direction);
             }
-        }
-
-        @Override
-        boolean needsDispatchChildSelectedOnStop() {
-            return mPendingMoves != 0;
         }
 
         @Override
@@ -1422,8 +1372,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     // avoid lots of childSelected events during a long smooth scrolling and
                     // increase performance.
                     if (index == mFocusPosition && subindex == mSubFocusPosition
-                            && (mPendingMoveSmoothScroller == null
-                            || mPendingMoveSmoothScroller.mPendingMoves == 0)) {
+                            && mPendingMoveSmoothScroller == null) {
                         dispatchChildSelected();
                     }
                 } else if (!mInFastRelayout) {
@@ -3009,5 +2958,141 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         mForceFullLayout = true;
         requestLayout();
         if (DEBUG) Log.v(getTag(), "onRestoreInstanceState mFocusPosition " + mFocusPosition);
+    }
+
+    @Override
+    public int getRowCountForAccessibility(RecyclerView.Recycler recycler,
+            RecyclerView.State state) {
+        if (mOrientation == HORIZONTAL && mGrid != null) {
+            return mGrid.getNumRows();
+        }
+        return super.getRowCountForAccessibility(recycler, state);
+    }
+
+    @Override
+    public int getColumnCountForAccessibility(RecyclerView.Recycler recycler,
+            RecyclerView.State state) {
+        if (mOrientation == VERTICAL && mGrid != null) {
+            return mGrid.getNumRows();
+        }
+        return super.getColumnCountForAccessibility(recycler, state);
+    }
+
+    @Override
+    public void onInitializeAccessibilityNodeInfoForItem(RecyclerView.Recycler recycler,
+            RecyclerView.State state, View host, AccessibilityNodeInfoCompat info) {
+        ViewGroup.LayoutParams lp = host.getLayoutParams();
+        if (mGrid == null || !(lp instanceof LayoutParams)) {
+            super.onInitializeAccessibilityNodeInfoForItem(recycler, state, host, info);
+            return;
+        }
+        LayoutParams glp = (LayoutParams) lp;
+        int position = glp.getViewLayoutPosition();
+        int rowIndex = mGrid.getRowIndex(position);
+        int guessSpanIndex = position / mGrid.getNumRows();
+        if (mOrientation == HORIZONTAL) {
+            info.setCollectionItemInfo(AccessibilityNodeInfoCompat.CollectionItemInfoCompat.obtain(
+                    rowIndex, 1, guessSpanIndex, 1, false, false));
+        } else {
+            info.setCollectionItemInfo(AccessibilityNodeInfoCompat.CollectionItemInfoCompat.obtain(
+                    guessSpanIndex, 1, rowIndex, 1, false, false));
+        }
+    }
+
+    /*
+     * Leanback widget is different than the default implementation because the "scroll" is driven
+     * by selection change.
+     */
+    @Override
+    public boolean performAccessibilityAction(Recycler recycler, State state, int action,
+            Bundle args) {
+        saveContext(recycler, state);
+        switch (action) {
+            case AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD:
+                // try to focus all the way to the last visible item on the same row.
+                processSelectionMoves(false, -mState.getItemCount());
+                break;
+            case AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD:
+                processSelectionMoves(false, mState.getItemCount());
+                break;
+        }
+        leaveContext();
+        return true;
+    }
+
+    /*
+     * Move mFocusPosition multiple steps on the same row in main direction.
+     * Stops when moves are all consumed or reach first/last visible item.
+     * Returning remaining moves.
+     */
+    private int processSelectionMoves(boolean preventScroll, int moves) {
+        if (mGrid == null) {
+            return moves;
+        }
+        int focusPosition = mFocusPosition;
+        int focusedRow = focusPosition != NO_POSITION ?
+                mGrid.getRowIndex(focusPosition) : NO_POSITION;
+        View newSelected = null;
+        for (int i = 0, count = getChildCount(); i < count && moves != 0; i++) {
+            int index = moves > 0 ? i : count - 1 - i;
+            final View child = getChildAt(index);
+            if (!canScrollTo(child)) {
+                continue;
+            }
+            int position = getPositionByIndex(index);
+            int rowIndex = mGrid.getRowIndex(position);
+            if (focusedRow == NO_POSITION) {
+                focusPosition = position;
+                newSelected = child;
+                focusedRow = rowIndex;
+            } else if (rowIndex == focusedRow) {
+                if ((moves > 0 && position > focusPosition)
+                        || (moves < 0 && position < focusPosition)) {
+                    focusPosition = position;
+                    newSelected = child;
+                    if (moves > 0) {
+                        moves--;
+                    } else {
+                        moves++;
+                    }
+                }
+            }
+        }
+        if (newSelected != null) {
+            if (preventScroll) {
+                if (hasFocus()) {
+                    mInSelection = true;
+                    newSelected.requestFocus();
+                    mInSelection = false;
+                }
+                mFocusPosition = focusPosition;
+                mSubFocusPosition = 0;
+            } else {
+                scrollToView(newSelected, true);
+            }
+        }
+        return moves;
+    }
+
+    @Override
+    public void onInitializeAccessibilityNodeInfo(Recycler recycler, State state,
+            AccessibilityNodeInfoCompat info) {
+        saveContext(recycler, state);
+        if (mScrollEnabled && !hasCreatedFirstItem()) {
+            info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD);
+            info.setScrollable(true);
+        }
+        if (mScrollEnabled && !hasCreatedLastItem()) {
+            info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD);
+            info.setScrollable(true);
+        }
+        final AccessibilityNodeInfoCompat.CollectionInfoCompat collectionInfo
+                = AccessibilityNodeInfoCompat.CollectionInfoCompat
+                .obtain(getRowCountForAccessibility(recycler, state),
+                        getColumnCountForAccessibility(recycler, state),
+                        isLayoutHierarchical(recycler, state),
+                        getSelectionModeForAccessibility(recycler, state));
+        info.setCollectionInfo(collectionInfo);
+        leaveContext();
     }
 }
