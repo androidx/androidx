@@ -25,6 +25,10 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
+import android.support.v7.widget.RecyclerViewAccessibilityDelegate;
+
 import android.app.Instrumentation;
 import android.content.Intent;
 import android.os.Parcelable;
@@ -1679,4 +1683,58 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         assertTrue(v.getTop() < windowSize);
         assertTrue(v.getBottom() >= windowSize - mGridView.getVerticalMargin());
     }
+
+    public void testAccessibility() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 1000);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        assertTrue(0 == mGridView.getSelectedPosition());
+
+        final RecyclerViewAccessibilityDelegate delegateCompat = mGridView
+                .getCompatAccessibilityDelegate();
+        final AccessibilityNodeInfoCompat info = AccessibilityNodeInfoCompat.obtain();
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                delegateCompat.onInitializeAccessibilityNodeInfo(mGridView, info);
+            }
+        });
+        assertTrue("test sanity", info.isScrollable());
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                delegateCompat.performAccessibilityAction(mGridView,
+                        AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD, null);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+        int selectedPosition1 = mGridView.getSelectedPosition();
+        assertTrue(0 < selectedPosition1);
+
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                delegateCompat.onInitializeAccessibilityNodeInfo(mGridView, info);
+            }
+        });
+        assertTrue("test sanity", info.isScrollable());
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                delegateCompat.performAccessibilityAction(mGridView,
+                        AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD, null);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+        int selectedPosition2 = mGridView.getSelectedPosition();
+        assertTrue(selectedPosition2 < selectedPosition1);
+    }
+
 }
