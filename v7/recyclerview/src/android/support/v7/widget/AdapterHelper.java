@@ -145,7 +145,7 @@ class AdapterHelper implements OpReorderer.Callback {
                 if (type == POSITION_TYPE_INVISIBLE) {
                     // Looks like we have other updates that we cannot merge with this one.
                     // Create an UpdateOp and dispatch it to LayoutManager.
-                    UpdateOp newOp = obtainUpdateOp(UpdateOp.REMOVE, tmpStart, tmpCount);
+                    UpdateOp newOp = obtainUpdateOp(UpdateOp.REMOVE, tmpStart, tmpCount, null);
                     dispatchAndUpdateViewHolders(newOp);
                     typeChanged = true;
                 }
@@ -156,7 +156,7 @@ class AdapterHelper implements OpReorderer.Callback {
                 if (type == POSITION_TYPE_NEW_OR_LAID_OUT) {
                     // Looks like we have other updates that we cannot merge with this one.
                     // Create UpdateOp op and dispatch it to LayoutManager.
-                    UpdateOp newOp = obtainUpdateOp(UpdateOp.REMOVE, tmpStart, tmpCount);
+                    UpdateOp newOp = obtainUpdateOp(UpdateOp.REMOVE, tmpStart, tmpCount, null);
                     postponeAndUpdateViewHolders(newOp);
                     typeChanged = true;
                 }
@@ -172,7 +172,7 @@ class AdapterHelper implements OpReorderer.Callback {
         }
         if (tmpCount != op.itemCount) { // all 1 effect
             recycleUpdateOp(op);
-            op = obtainUpdateOp(UpdateOp.REMOVE, tmpStart, tmpCount);
+            op = obtainUpdateOp(UpdateOp.REMOVE, tmpStart, tmpCount, null);
         }
         if (type == POSITION_TYPE_INVISIBLE) {
             dispatchAndUpdateViewHolders(op);
@@ -190,7 +190,8 @@ class AdapterHelper implements OpReorderer.Callback {
             ViewHolder vh = mCallback.findViewHolder(position);
             if (vh != null || canFindInPreLayout(position)) { // deferred
                 if (type == POSITION_TYPE_INVISIBLE) {
-                    UpdateOp newOp = obtainUpdateOp(UpdateOp.UPDATE, tmpStart, tmpCount);
+                    UpdateOp newOp = obtainUpdateOp(UpdateOp.UPDATE, tmpStart, tmpCount,
+                            op.payload);
                     dispatchAndUpdateViewHolders(newOp);
                     tmpCount = 0;
                     tmpStart = position;
@@ -198,7 +199,8 @@ class AdapterHelper implements OpReorderer.Callback {
                 type = POSITION_TYPE_NEW_OR_LAID_OUT;
             } else { // applied
                 if (type == POSITION_TYPE_NEW_OR_LAID_OUT) {
-                    UpdateOp newOp = obtainUpdateOp(UpdateOp.UPDATE, tmpStart, tmpCount);
+                    UpdateOp newOp = obtainUpdateOp(UpdateOp.UPDATE, tmpStart, tmpCount,
+                            op.payload);
                     postponeAndUpdateViewHolders(newOp);
                     tmpCount = 0;
                     tmpStart = position;
@@ -208,8 +210,9 @@ class AdapterHelper implements OpReorderer.Callback {
             tmpCount++;
         }
         if (tmpCount != op.itemCount) { // all 1 effect
+            Object payload = op.payload;
             recycleUpdateOp(op);
-            op = obtainUpdateOp(UpdateOp.UPDATE, tmpStart, tmpCount);
+            op = obtainUpdateOp(UpdateOp.UPDATE, tmpStart, tmpCount, payload);
         }
         if (type == POSITION_TYPE_INVISIBLE) {
             dispatchAndUpdateViewHolders(op);
@@ -272,7 +275,7 @@ class AdapterHelper implements OpReorderer.Callback {
                 tmpCnt++;
             } else {
                 // need to dispatch this separately
-                UpdateOp tmp = obtainUpdateOp(op.cmd, tmpStart, tmpCnt);
+                UpdateOp tmp = obtainUpdateOp(op.cmd, tmpStart, tmpCnt, op.payload);
                 if (DEBUG) {
                     Log.d(TAG, "need to dispatch separately " + tmp);
                 }
@@ -285,9 +288,10 @@ class AdapterHelper implements OpReorderer.Callback {
                 tmpCnt = 1;
             }
         }
+        Object payload = op.payload;
         recycleUpdateOp(op);
         if (tmpCnt > 0) {
-            UpdateOp tmp = obtainUpdateOp(op.cmd, tmpStart, tmpCnt);
+            UpdateOp tmp = obtainUpdateOp(op.cmd, tmpStart, tmpCnt, payload);
             if (DEBUG) {
                 Log.d(TAG, "dispatching:" + tmp);
             }
@@ -311,7 +315,7 @@ class AdapterHelper implements OpReorderer.Callback {
                 mCallback.offsetPositionsForRemovingInvisible(offsetStart, op.itemCount);
                 break;
             case UpdateOp.UPDATE:
-                mCallback.markViewHoldersUpdated(offsetStart, op.itemCount);
+                mCallback.markViewHoldersUpdated(offsetStart, op.itemCount, op.payload);
                 break;
             default:
                 throw new IllegalArgumentException("only remove and update ops can be dispatched"
@@ -442,7 +446,7 @@ class AdapterHelper implements OpReorderer.Callback {
                         op.itemCount);
                 break;
             case UpdateOp.UPDATE:
-                mCallback.markViewHoldersUpdated(op.positionStart, op.itemCount);
+                mCallback.markViewHoldersUpdated(op.positionStart, op.itemCount, op.payload);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown update op type for " + op);
@@ -489,8 +493,8 @@ class AdapterHelper implements OpReorderer.Callback {
     /**
      * @return True if updates should be processed.
      */
-    boolean onItemRangeChanged(int positionStart, int itemCount) {
-        mPendingUpdates.add(obtainUpdateOp(UpdateOp.UPDATE, positionStart, itemCount));
+    boolean onItemRangeChanged(int positionStart, int itemCount, Object payload) {
+        mPendingUpdates.add(obtainUpdateOp(UpdateOp.UPDATE, positionStart, itemCount, payload));
         return mPendingUpdates.size() == 1;
     }
 
@@ -498,7 +502,7 @@ class AdapterHelper implements OpReorderer.Callback {
      * @return True if updates should be processed.
      */
     boolean onItemRangeInserted(int positionStart, int itemCount) {
-        mPendingUpdates.add(obtainUpdateOp(UpdateOp.ADD, positionStart, itemCount));
+        mPendingUpdates.add(obtainUpdateOp(UpdateOp.ADD, positionStart, itemCount, null));
         return mPendingUpdates.size() == 1;
     }
 
@@ -506,7 +510,7 @@ class AdapterHelper implements OpReorderer.Callback {
      * @return True if updates should be processed.
      */
     boolean onItemRangeRemoved(int positionStart, int itemCount) {
-        mPendingUpdates.add(obtainUpdateOp(UpdateOp.REMOVE, positionStart, itemCount));
+        mPendingUpdates.add(obtainUpdateOp(UpdateOp.REMOVE, positionStart, itemCount, null));
         return mPendingUpdates.size() == 1;
     }
 
@@ -520,7 +524,7 @@ class AdapterHelper implements OpReorderer.Callback {
         if (itemCount != 1) {
             throw new IllegalArgumentException("Moving more than 1 item is not supported yet");
         }
-        mPendingUpdates.add(obtainUpdateOp(UpdateOp.MOVE, from, to));
+        mPendingUpdates.add(obtainUpdateOp(UpdateOp.MOVE, from, to, null));
         return mPendingUpdates.size() == 1;
     }
 
@@ -545,7 +549,7 @@ class AdapterHelper implements OpReorderer.Callback {
                     break;
                 case UpdateOp.UPDATE:
                     mCallback.onDispatchSecondPass(op);
-                    mCallback.markViewHoldersUpdated(op.positionStart, op.itemCount);
+                    mCallback.markViewHoldersUpdated(op.positionStart, op.itemCount, op.payload);
                     break;
                 case UpdateOp.MOVE:
                     mCallback.onDispatchSecondPass(op);
@@ -614,13 +618,16 @@ class AdapterHelper implements OpReorderer.Callback {
 
         int positionStart;
 
+        Object payload;
+
         // holds the target position if this is a MOVE
         int itemCount;
 
-        UpdateOp(int cmd, int positionStart, int itemCount) {
+        UpdateOp(int cmd, int positionStart, int itemCount, Object payload) {
             this.cmd = cmd;
             this.positionStart = positionStart;
             this.itemCount = itemCount;
+            this.payload = payload;
         }
 
         String cmdToString() {
@@ -639,7 +646,9 @@ class AdapterHelper implements OpReorderer.Callback {
 
         @Override
         public String toString() {
-            return "[" + cmdToString() + ",s:" + positionStart + "c:" + itemCount + "]";
+            return Integer.toHexString(System.identityHashCode(this))
+                    + "[" + cmdToString() + ",s:" + positionStart + "c:" + itemCount
+                    +",p:"+payload + "]";
         }
 
         @Override
@@ -668,6 +677,13 @@ class AdapterHelper implements OpReorderer.Callback {
             if (positionStart != op.positionStart) {
                 return false;
             }
+            if (payload != null) {
+                if (!payload.equals(op.payload)) {
+                    return false;
+                }
+            } else if (op.payload != null) {
+                return false;
+            }
 
             return true;
         }
@@ -682,14 +698,15 @@ class AdapterHelper implements OpReorderer.Callback {
     }
 
     @Override
-    public UpdateOp obtainUpdateOp(int cmd, int positionStart, int itemCount) {
+    public UpdateOp obtainUpdateOp(int cmd, int positionStart, int itemCount, Object payload) {
         UpdateOp op = mUpdateOpPool.acquire();
         if (op == null) {
-            op = new UpdateOp(cmd, positionStart, itemCount);
+            op = new UpdateOp(cmd, positionStart, itemCount, payload);
         } else {
             op.cmd = cmd;
             op.positionStart = positionStart;
             op.itemCount = itemCount;
+            op.payload = payload;
         }
         return op;
     }
@@ -697,6 +714,7 @@ class AdapterHelper implements OpReorderer.Callback {
     @Override
     public void recycleUpdateOp(UpdateOp op) {
         if (!mDisableRecycler) {
+            op.payload = null;
             mUpdateOpPool.release(op);
         }
     }
@@ -720,7 +738,7 @@ class AdapterHelper implements OpReorderer.Callback {
 
         void offsetPositionsForRemovingLaidOutOrNewView(int positionStart, int itemCount);
 
-        void markViewHoldersUpdated(int positionStart, int itemCount);
+        void markViewHoldersUpdated(int positionStart, int itemCount, Object payloads);
 
         void onDispatchFirstPass(UpdateOp updateOp);
 
