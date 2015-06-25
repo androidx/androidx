@@ -107,8 +107,8 @@ class FragmentTransitionCompat21 {
             Object sharedElementTransitionObject, final View container,
             final ViewRetriever inFragment, final View nonExistentView,
             EpicenterView epicenterView, final Map<String, String> nameOverrides,
-            final ArrayList<View> enteringViews, final Map<String, View> renamedViews,
-            final ArrayList<View> sharedElementTargets) {
+            final ArrayList<View> enteringViews, final Map<String, View> namedViews,
+            final Map<String, View> renamedViews, final ArrayList<View> sharedElementTargets) {
         if (enterTransitionObject != null || sharedElementTransitionObject != null) {
             final Transition enterTransition = (Transition) enterTransitionObject;
             if (enterTransition != null) {
@@ -116,7 +116,7 @@ class FragmentTransitionCompat21 {
             }
             if (sharedElementTransitionObject != null) {
                 setSharedElementTargets(sharedElementTransitionObject, nonExistentView,
-                        renamedViews, sharedElementTargets);
+                        namedViews, sharedElementTargets);
             }
 
             if (inFragment != null) {
