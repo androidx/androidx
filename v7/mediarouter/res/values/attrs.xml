@@ -33,4 +33,5 @@
     <attr name="mediaRouteSettingsDrawable" format="reference" />
     <attr name="mediaRoutePlayDrawable" format="reference" />
     <attr name="mediaRoutePauseDrawable" format="reference" />
+    <attr name="mediaRouteCastDrawable" format="reference" />
 </resources>
