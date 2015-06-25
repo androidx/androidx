@@ -1044,8 +1044,10 @@ package android.support.v4.graphics.drawable {
     method public final android.graphics.Paint getPaint();
     method public boolean hasAntiAlias();
     method public boolean hasMipMap();
+    method public boolean isCircular();
     method public void setAlpha(int);
     method public void setAntiAlias(boolean);
+    method public void setCircular(boolean);
     method public void setColorFilter(android.graphics.ColorFilter);
     method public void setCornerRadius(float);
     method public void setGravity(int);
