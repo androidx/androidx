@@ -36,6 +36,8 @@ import android.support.v4.view.LayoutInflaterFactory;
 import android.support.v4.view.OnApplyWindowInsetsListener;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewConfigurationCompat;
+import android.support.v4.view.ViewPropertyAnimatorCompat;
+import android.support.v4.view.ViewPropertyAnimatorListenerAdapter;
 import android.support.v4.view.WindowCompat;
 import android.support.v4.view.WindowInsetsCompat;
 import android.support.v4.widget.PopupWindowCompat;
@@ -96,6 +98,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
     ActionBarContextView mActionModeView;
     PopupWindow mActionModePopup;
     Runnable mShowActionModePopup;
+    ViewPropertyAnimatorCompat mFadeAnim = null;
 
     // true if we have installed a window sub-decor layout.
     private boolean mSubDecorInstalled;
@@ -626,6 +629,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
 
     @Override
     ActionMode startSupportActionModeFromWindow(ActionMode.Callback callback) {
+        endOnGoingFadeAnimation();
         if (mActionMode != null) {
             mActionMode.finish();
         }
@@ -681,6 +685,22 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
                             mActionModePopup.showAtLocation(
                                     mActionModeView,
                                     Gravity.TOP | Gravity.FILL_HORIZONTAL, 0, 0);
+                            endOnGoingFadeAnimation();
+                            ViewCompat.setAlpha(mActionModeView, 0f);
+                            mFadeAnim = ViewCompat.animate(mActionModeView).alpha(1f);
+                            mFadeAnim.setListener(new ViewPropertyAnimatorListenerAdapter() {
+                                @Override
+                                public void onAnimationEnd(View view) {
+                                    ViewCompat.setAlpha(mActionModeView, 1f);
+                                    mFadeAnim.setListener(null);
+                                    mFadeAnim = null;
+                                }
+
+                                @Override
+                                public void onAnimationStart(View view) {
+                                    mActionModeView.setVisibility(View.VISIBLE);
+                                }
+                            });
                         }
                     };
                 } else {
@@ -695,14 +715,29 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
             }
 
             if (mActionModeView != null) {
+                endOnGoingFadeAnimation();
                 mActionModeView.killMode();
                 mode = new StandaloneActionMode(mActionModeView.getContext(), mActionModeView,
                         wrappedCallback, mActionModePopup == null);
                 if (callback.onCreateActionMode(mode, mode.getMenu())) {
                     mode.invalidate();
                     mActionModeView.initForMode(mode);
-                    mActionModeView.setVisibility(View.VISIBLE);
                     mActionMode = mode;
+                    ViewCompat.setAlpha(mActionModeView, 0f);
+                    mFadeAnim = ViewCompat.animate(mActionModeView).alpha(1f);
+                    mFadeAnim.setListener(new ViewPropertyAnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(View view) {
+                            ViewCompat.setAlpha(mActionModeView, 1f);
+                            mFadeAnim.setListener(null);
+                            mFadeAnim = null;
+                        }
+
+                        @Override
+                        public void onAnimationStart(View view) {
+                            mActionModeView.setVisibility(View.VISIBLE);
+                        }
+                    });
                     if (mActionModePopup != null) {
                         mWindow.getDecorView().post(mShowActionModePopup);
                     }
@@ -721,6 +756,12 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
             mAppCompatCallback.onSupportActionModeStarted(mActionMode);
         }
         return mActionMode;
+    }
+
+    private void endOnGoingFadeAnimation() {
+        if (mFadeAnim != null) {
+            mFadeAnim.cancel();
+        }
     }
 
     boolean onBackPressed() {
@@ -1569,15 +1610,25 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
             mWrapped.onDestroyActionMode(mode);
             if (mActionModePopup != null) {
                 mWindow.getDecorView().removeCallbacks(mShowActionModePopup);
-                mActionModePopup.dismiss();
-            } else if (mActionModeView != null) {
-                mActionModeView.setVisibility(View.GONE);
-                if (mActionModeView.getParent() != null) {
-                    ViewCompat.requestApplyInsets((View) mActionModeView.getParent());
-                }
             }
+
             if (mActionModeView != null) {
-                mActionModeView.removeAllViews();
+                endOnGoingFadeAnimation();
+                mFadeAnim = ViewCompat.animate(mActionModeView).alpha(0f);
+                mFadeAnim.setListener(new ViewPropertyAnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(View view) {
+                        mActionModeView.setVisibility(View.GONE);
+                        if (mActionModePopup != null) {
+                            mActionModePopup.dismiss();
+                        } else if (mActionModeView.getParent() instanceof View) {
+                            ViewCompat.requestApplyInsets((View) mActionModeView.getParent());
+                        }
+                        mActionModeView.removeAllViews();
+                        mFadeAnim.setListener(null);
+                        mFadeAnim = null;
+                    }
+                });
             }
             if (mAppCompatCallback != null) {
                 mAppCompatCallback.onSupportActionModeFinished(mActionMode);
