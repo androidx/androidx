@@ -25,7 +25,7 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
-    <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="19" />
+    <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="22" />
 
     <!-- The smallest screen this app works on is a phone.  The app will
          scale its UI to larger screens but doesn't make good use of them
@@ -353,6 +353,14 @@
 
         <activity android:name=".widget.NestedScrollActivity"
                   android:label="@string/nested_scroll">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".graphics.RoundedBitmapDrawableActivity"
+            android:label="Graphics/RoundedBitmapDrawable">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />

@@ -188,5 +188,7 @@
     <string name="nested_scroll">Widget/Nested Scrolling</string>
 
     <string name="nested_scroll_long_text">This is some long text. It just keeps going. Look at it. Scroll it. Scroll the nested version of it. This is some long text. It just keeps going. Look at it. Scroll it. Scroll the nested version of it. This is some long text. It just keeps going. Look at it. Scroll it. Scroll the nested version of it. This is some long text. It just keeps going. Look at it. Scroll it. Scroll the nested version of it. This is some long text. It just keeps going. Look at it. Scroll it. Scroll the nested version of it. This is some long text. It just keeps going. Look at it. Scroll it. Scroll the nested version of it. This is some long text. It just keeps going. Look at it. Scroll it. Scroll the nested version of it. This is some long text. It just keeps going. Look at it. Scroll it. Scroll the nested version of it. This is some long text. It just keeps going. Look at it. Scroll it. Scroll the nested version of it. This is some long text. It just keeps going. Look at it. Scroll it. Scroll the nested version of it.</string>
+    <string name="regular">regular</string>
+    <string name="round">round</string>
 
 </resources>
