@@ -18,8 +18,8 @@
 package android.support.v7.internal.app;
 
 import android.support.v7.app.ActionBar;
-import android.support.v7.internal.widget.AdapterViewCompat;
 import android.view.View;
+import android.widget.AdapterView;
 
 /**
  * Wrapper to adapt the ActionBar.OnNavigationListener in an AdapterView.OnItemSelectedListener
@@ -27,7 +27,7 @@ import android.view.View;
  *
  * @hide
  */
-class NavItemSelectedListener implements AdapterViewCompat.OnItemSelectedListener {
+class NavItemSelectedListener implements AdapterView.OnItemSelectedListener {
     private final ActionBar.OnNavigationListener mListener;
 
     public NavItemSelectedListener(ActionBar.OnNavigationListener listener) {
@@ -35,14 +35,14 @@ class NavItemSelectedListener implements AdapterViewCompat.OnItemSelectedListene
     }
 
     @Override
-    public void onItemSelected(AdapterViewCompat<?> parent, View view, int position, long id) {
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         if (mListener != null) {
             mListener.onNavigationItemSelected(position, id);
         }
     }
 
     @Override
-    public void onNothingSelected(AdapterViewCompat<?> parent) {
+    public void onNothingSelected(AdapterView<?> parent) {
         // Do nothing
     }
 }

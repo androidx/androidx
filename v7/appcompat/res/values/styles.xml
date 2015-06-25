@@ -121,7 +121,7 @@
 
     <style name="Widget.AppCompat.Spinner.DropDown" />
 
-    <style name="Widget.AppCompat.Spinner.DropDown.ActionBar" parent="Base.Widget.AppCompat.Spinner.DropDown.ActionBar" />
+    <style name="Widget.AppCompat.Spinner.DropDown.ActionBar" />
 
     <!-- This style has an extra indirection to properly set RTL attributes. See styles_rtl.xml -->
     <style name="Widget.AppCompat.DropDownItem.Spinner" parent="RtlOverlay.Widget.AppCompat.Search.DropDown.Text" />
