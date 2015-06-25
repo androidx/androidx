@@ -19,9 +19,8 @@ package android.support.v4.app;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.v4.app.FragmentTransitionCompat21;
-import android.support.v4.util.LogWriter;
 import android.support.v4.util.ArrayMap;
+import android.support.v4.util.LogWriter;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
@@ -1207,7 +1206,7 @@ final class BackStackRecord extends FragmentTransaction implements
             FragmentTransitionCompat21.addTransitionTargets(enterTransition,
                     sharedElementTransition, sceneRoot, viewRetriever, state.nonExistentView,
                     state.enteringEpicenterView, state.nameOverrides, enteringViews,
-                    renamedViews, sharedElementTargets);
+                    namedViews, renamedViews, sharedElementTargets);
             excludeHiddenFragmentsAfterEnter(sceneRoot, state, containerId, transition);
 
             // We want to exclude hidden views later, so we need a non-null list in the
