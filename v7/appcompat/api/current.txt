@@ -416,7 +416,6 @@ package android.support.v7.appcompat {
     field public static int defaultQueryHint;
     field public static int dialogPreferredPadding;
     field public static int dialogTheme;
-    field public static int disableChildrenWhenDisabled;
     field public static int displayOptions;
     field public static int divider;
     field public static int dividerHorizontal;
@@ -470,13 +469,11 @@ package android.support.v7.appcompat {
     field public static int panelMenuListTheme;
     field public static int panelMenuListWidth;
     field public static int popupMenuStyle;
-    field public static int popupPromptView;
     field public static int popupTheme;
     field public static int popupWindowStyle;
     field public static int preserveIconSpacing;
     field public static int progressBarPadding;
     field public static int progressBarStyle;
-    field public static int prompt;
     field public static int queryBackground;
     field public static int queryHint;
     field public static int radioButtonStyle;
@@ -492,7 +489,6 @@ package android.support.v7.appcompat {
     field public static int singleChoiceItemLayout;
     field public static int spinBars;
     field public static int spinnerDropDownItemStyle;
-    field public static int spinnerMode;
     field public static int spinnerStyle;
     field public static int splitTrack;
     field public static int state_above_anchor;
@@ -805,9 +801,7 @@ package android.support.v7.appcompat {
     field public static int customPanel;
     field public static int decor_content_parent;
     field public static int default_activity_button;
-    field public static int dialog;
     field public static int disableHome;
-    field public static int dropdown;
     field public static int edit_query;
     field public static int end;
     field public static int end_padder;
@@ -905,7 +899,6 @@ package android.support.v7.appcompat {
     field public static int abc_search_dropdown_item_icons_2line;
     field public static int abc_search_view;
     field public static int abc_select_dialog_material;
-    field public static int abc_simple_dropdown_hint;
     field public static int notification_media_action;
     field public static int notification_media_cancel_action;
     field public static int notification_template_big_media;
@@ -1082,7 +1075,6 @@ package android.support.v7.appcompat {
     field public static int Base_Widget_AppCompat_SearchView;
     field public static int Base_Widget_AppCompat_SearchView_ActionBar;
     field public static int Base_Widget_AppCompat_Spinner;
-    field public static int Base_Widget_AppCompat_Spinner_DropDown_ActionBar;
     field public static int Base_Widget_AppCompat_Spinner_Underlined;
     field public static int Base_Widget_AppCompat_TextView_SpinnerItem;
     field public static int Base_Widget_AppCompat_Toolbar;
@@ -1096,6 +1088,7 @@ package android.support.v7.appcompat {
     field public static int Platform_V11_AppCompat_Light;
     field public static int Platform_V14_AppCompat;
     field public static int Platform_V14_AppCompat_Light;
+    field public static int Platform_Widget_AppCompat_Spinner;
     field public static int RtlOverlay_DialogWindowTitle_AppCompat;
     field public static int RtlOverlay_Widget_AppCompat_ActionBar_TitleItem;
     field public static int RtlOverlay_Widget_AppCompat_ActionButton_Overflow;
@@ -1400,17 +1393,10 @@ package android.support.v7.appcompat {
     field public static int SearchView_suggestionRowLayout;
     field public static int SearchView_voiceIcon;
     field public static final int[] Spinner;
-    field public static int Spinner_android_background;
-    field public static int Spinner_android_dropDownHorizontalOffset;
-    field public static int Spinner_android_dropDownSelector;
-    field public static int Spinner_android_dropDownVerticalOffset;
     field public static int Spinner_android_dropDownWidth;
-    field public static int Spinner_android_gravity;
     field public static int Spinner_android_popupBackground;
-    field public static int Spinner_disableChildrenWhenDisabled;
-    field public static int Spinner_popupPromptView;
-    field public static int Spinner_prompt;
-    field public static int Spinner_spinnerMode;
+    field public static int Spinner_android_prompt;
+    field public static int Spinner_popupTheme;
     field public static final int[] SwitchCompat;
     field public static int SwitchCompat_android_textOff;
     field public static int SwitchCompat_android_textOn;
@@ -1723,8 +1709,11 @@ package android.support.v7.widget {
 
   public class AppCompatSpinner extends android.widget.Spinner {
     ctor public AppCompatSpinner(android.content.Context);
+    ctor public AppCompatSpinner(android.content.Context, int);
     ctor public AppCompatSpinner(android.content.Context, android.util.AttributeSet);
     ctor public AppCompatSpinner(android.content.Context, android.util.AttributeSet, int);
+    ctor public AppCompatSpinner(android.content.Context, android.util.AttributeSet, int, int);
+    ctor public AppCompatSpinner(android.content.Context, android.util.AttributeSet, int, int, android.content.res.Resources.Theme);
   }
 
   public class AppCompatTextView extends android.widget.TextView {
@@ -1950,6 +1939,11 @@ package android.support.v7.widget {
     method public void setThumbTextPadding(int);
     method public void setTrackDrawable(android.graphics.drawable.Drawable);
     method public void setTrackResource(int);
+  }
+
+  public abstract interface ThemedSpinnerAdapter implements android.widget.SpinnerAdapter {
+    method public abstract android.content.res.Resources.Theme getDropDownViewTheme();
+    method public abstract void setDropDownViewTheme(android.content.res.Resources.Theme);
   }
 
   public class Toolbar extends android.view.ViewGroup {
