@@ -165,8 +165,8 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      * @see #MODE_DIALOG
      * @see #MODE_DROPDOWN
      */
-    public AppCompatSpinner(Context context, AttributeSet attrs, int defStyle, int mode) {
-        this(context, attrs, defStyle, mode, null);
+    public AppCompatSpinner(Context context, AttributeSet attrs, int defStyleAttr, int mode) {
+        this(context, attrs, defStyleAttr, mode, null);
     }
 
 
@@ -183,17 +183,13 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      *                     reference to a style resource that supplies default
      *                     values for the view. Can be 0 to not look for
      *                     defaults.
-     * @param defStyleRes  A resource identifier of a style resource that
-     *                     supplies default values for the view, used only if
-     *                     defStyleAttr is 0 or can not be found in the theme.
-     *                     Can be 0 to not look for defaults.
      * @param mode         Constant describing how the user will select choices from
      *                     the spinner.
      * @param popupTheme   The theme against which the dialog or dropdown popup
      *                     should be inflated. May be {@code null} to use the
      *                     view theme. If set, this will override any value
      *                     specified by
-     *                     {@link android.R.styleable#Spinner_popupTheme}.
+     *                     {@link R.styleable#Spinner_popupTheme}.
      * @see #MODE_DIALOG
      * @see #MODE_DROPDOWN
      */
