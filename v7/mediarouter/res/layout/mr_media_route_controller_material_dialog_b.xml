@@ -107,7 +107,7 @@
                       android:visibility="gone">
             <ImageView android:layout_width="48dp"
                        android:layout_height="48dp"
-                       android:src="@drawable/mr_ic_audio_vol"
+                       android:src="?attr/mediaRouteCastDrawable"
                        android:gravity="center"
                        android:scaleType="center" />
             <SeekBar android:id="@+id/media_route_volume_slider"
