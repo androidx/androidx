@@ -91,6 +91,18 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
     public static final int STATE_SMALL = 2;
 
     /**
+     * This is the alignment mode that the logo and description align to the starting edge of the
+     * overview view.
+     */
+    public static final int ALIGN_MODE_START = 0;
+    /**
+     * This is the alignment mode that the ending edge of logo and the starting edge of description
+     * align to the middle of the overview view. Note that this might not be the exact horizontal
+     * center of the overview view.
+     */
+    public static final int ALIGN_MODE_MIDDLE = 1;
+
+    /**
      * Listeners for events on ViewHolder.
      */
     public static abstract class Listener {
@@ -185,13 +197,11 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
 
         final ViewGroup mOverviewRoot;
         final FrameLayout mOverviewFrame;
-        final FrameLayout mDetailsDescriptionFrame;
+        final ViewGroup mDetailsDescriptionFrame;
         final HorizontalGridView mActionsRow;
         final Presenter.ViewHolder mDetailsDescriptionViewHolder;
         final DetailsOverviewLogoPresenter.ViewHolder mDetailsLogoViewHolder;
         int mNumItems;
-        boolean mShowMoreRight;
-        boolean mShowMoreLeft;
         ItemBridgeAdapter mActionBridgeAdapter;
         protected final Handler mHandler = new Handler();
         int mState = STATE_HALF;
@@ -208,9 +218,6 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
             mActionsRow.setAdapter(mActionBridgeAdapter);
             mNumItems = mActionBridgeAdapter.getItemCount();
 
-            mShowMoreRight = false;
-            mShowMoreLeft = true;
-            showMoreLeft(false);
         }
 
         final View.OnLayoutChangeListener mLayoutChangeListener =
@@ -280,22 +287,6 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
             if (DEBUG) Log.v(TAG, "checkFirstAndLast fromScroll " + fromScroll +
                     " showRight " + showRight + " showLeft " + showLeft);
 
-            showMoreRight(showRight);
-            showMoreLeft(showLeft);
-        }
-
-        private void showMoreLeft(boolean show) {
-            if (show != mShowMoreLeft) {
-                mActionsRow.setFadingLeftEdge(show);
-                mShowMoreLeft = show;
-            }
-        }
-
-        private void showMoreRight(boolean show) {
-            if (show != mShowMoreRight) {
-                mActionsRow.setFadingRightEdge(show);
-                mShowMoreRight = show;
-            }
         }
 
         /**
@@ -310,7 +301,7 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
             mOverviewRoot = (ViewGroup) rootView.findViewById(R.id.details_root);
             mOverviewFrame = (FrameLayout) rootView.findViewById(R.id.details_frame);
             mDetailsDescriptionFrame =
-                    (FrameLayout) rootView.findViewById(R.id.details_overview_description);
+                    (ViewGroup) rootView.findViewById(R.id.details_overview_description);
             mActionsRow =
                     (HorizontalGridView) mOverviewFrame.findViewById(R.id.details_overview_actions);
             mActionsRow.setHasOverlappingRendering(false);
@@ -381,10 +372,14 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
     private OnActionClickedListener mActionClickedListener;
 
     private int mBackgroundColor = Color.TRANSPARENT;
+    private int mActionsBackgroundColor = Color.TRANSPARENT;
     private boolean mBackgroundColorSet;
+    private boolean mActionsBackgroundColorSet;
 
     private Listener mListener;
     private boolean mParticipatingEntranceTransition;
+
+    private int mAlignmentMode;
 
     /**
      * Constructor for a FullWidthDetailsOverviewRowPresenter.
@@ -428,17 +423,34 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
     /**
      * Sets the background color.  If not set, a default from the theme will be used.
      */
-    public void setBackgroundColor(int color) {
+    public final void setBackgroundColor(int color) {
         mBackgroundColor = color;
         mBackgroundColorSet = true;
     }
 
     /**
-     * Returns the background color.  If no background color was set, transparent
+     * Returns the background color.  If {@link #setBackgroundColor(int)}, transparent
      * is returned.
      */
-    public int getBackgroundColor() {
+    public final int getBackgroundColor() {
         return mBackgroundColor;
+    }
+
+    /**
+     * Sets the background color for Action Bar.  If not set, a default from the theme will be
+     * used.
+     */
+    public final void setActionsBackgroundColor(int color) {
+        mActionsBackgroundColor = color;
+        mActionsBackgroundColorSet = true;
+    }
+
+    /**
+     * Returns the background color of actions.  If {@link #setActionsBackgroundColor(int)}
+     * is not called,  transparent is returned.
+     */
+    public final int getActionsBackgroundColor() {
+        return mActionsBackgroundColor;
     }
 
     /**
@@ -469,6 +481,24 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
         return mInitialState;
     }
 
+    /**
+     * Set alignment mode of Description.
+     *
+     * @param alignmentMode  One of {@link #ALIGN_MODE_MIDDLE} or {@link #ALIGN_MODE_START}
+     */
+    public final void setAlignmentMode(int alignmentMode) {
+        mAlignmentMode = alignmentMode;
+    }
+
+    /**
+     * Returns alignment mode of Description.
+     *
+     * @return  One of {@link #ALIGN_MODE_MIDDLE} or {@link #ALIGN_MODE_START}.
+     */
+    public final int getAlignmentMode() {
+        return mAlignmentMode;
+    }
+
     @Override
     protected boolean isClippingChildren() {
         return true;
@@ -488,6 +518,11 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
             return context.getResources().getColor(outValue.resourceId);
         }
         return context.getResources().getColor(R.color.lb_default_brand_color);
+    }
+
+    private int getDefaultActionsBackgroundColor(Context context) {
+        int c = getDefaultBackgroundColor(context);
+        return Color.argb(Color.alpha(c), Color.red(c) / 2, Color.green(c) / 2, Color.blue(c) / 2);
     }
 
     /**
@@ -510,6 +545,10 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
         final int bgColor = mBackgroundColorSet ? mBackgroundColor :
                 getDefaultBackgroundColor(overview.getContext());
         overview.setBackgroundColor(bgColor);
+        final int actionBgColor = mActionsBackgroundColorSet ? mActionsBackgroundColor :
+                getDefaultActionsBackgroundColor(overview.getContext());
+        overview.findViewById(R.id.details_overview_actions_background)
+                .setBackgroundColor(actionBgColor);
         RoundedRectHelper.getInstance().setClipToRoundedOutline(overview, true);
 
         if (!getSelectEffectEnabled()) {
@@ -618,8 +657,18 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
         View v = viewHolder.getLogoViewHolder().view;
         ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)
                 v.getLayoutParams();
-        lp.setMarginStart(v.getResources().getDimensionPixelSize(R.dimen.lb_details_v2_left)
-                - lp.width);
+        switch (mAlignmentMode) {
+            case ALIGN_MODE_START:
+            default:
+                lp.setMarginStart(v.getResources().getDimensionPixelSize(
+                        R.dimen.lb_details_v2_logo_margin_start));
+                break;
+            case ALIGN_MODE_MIDDLE:
+                lp.setMarginStart(v.getResources().getDimensionPixelSize(R.dimen.lb_details_v2_left)
+                        - lp.width);
+                break;
+        }
+
         switch (viewHolder.getState()) {
         case STATE_FULL:
         default:
@@ -653,36 +702,57 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
         boolean isBanner = viewHolder.getState() == STATE_SMALL;
         if (wasBanner != isBanner || logoChanged) {
             Resources res = viewHolder.view.getResources();
+
+            int frameMarginStart;
+            int descriptionMarginStart = 0;
+            int logoWidth = 0;
+            if (mDetailsOverviewLogoPresenter.isBoundToImage(viewHolder.getLogoViewHolder(),
+                    (DetailsOverviewRow) viewHolder.getRow())) {
+                logoWidth = viewHolder.getLogoViewHolder().view.getLayoutParams().width;
+            }
+            switch (mAlignmentMode) {
+                case ALIGN_MODE_START:
+                default:
+                    if (isBanner) {
+                        frameMarginStart = res.getDimensionPixelSize(
+                                R.dimen.lb_details_v2_logo_margin_start);
+                        descriptionMarginStart = logoWidth;
+                    } else {
+                        frameMarginStart = 0;
+                        descriptionMarginStart = logoWidth + res.getDimensionPixelSize(
+                                R.dimen.lb_details_v2_logo_margin_start);
+                    }
+                    break;
+                case ALIGN_MODE_MIDDLE:
+                    if (isBanner) {
+                        frameMarginStart = res.getDimensionPixelSize(R.dimen.lb_details_v2_left)
+                                - logoWidth;
+                        descriptionMarginStart = logoWidth;
+                    } else {
+                        frameMarginStart = 0;
+                        descriptionMarginStart = res.getDimensionPixelSize(
+                                R.dimen.lb_details_v2_left);
+                    }
+                    break;
+            }
             MarginLayoutParams lpFrame =
                     (MarginLayoutParams) viewHolder.getOverviewView().getLayoutParams();
-            int framePaddingStart;
-            if (isBanner) {
-                lpFrame.topMargin = 0;
-                if (mDetailsOverviewLogoPresenter.isBoundToImage(viewHolder.getLogoViewHolder(),
-                        (DetailsOverviewRow) viewHolder.getRow())) {
-                    View logoView = viewHolder.getLogoViewHolder().view;
-                    ViewGroup.MarginLayoutParams lpLogo =
-                            (ViewGroup.MarginLayoutParams) logoView.getLayoutParams();
-                    framePaddingStart = lpLogo.width;
-                } else {
-                    framePaddingStart = 0;
-                }
-                lpFrame.leftMargin = lpFrame.rightMargin =
-                        res.getDimensionPixelSize(R.dimen.lb_details_v2_left) - framePaddingStart;
-            } else {
-                lpFrame.topMargin = res.getDimensionPixelSize(R.dimen.lb_details_v2_blank_height);
-                framePaddingStart = res.getDimensionPixelSize(R.dimen.lb_details_v2_left);
-                lpFrame.leftMargin = lpFrame.rightMargin = 0;
-            }
+            lpFrame.topMargin = isBanner ? 0
+                    : res.getDimensionPixelSize(R.dimen.lb_details_v2_blank_height);
+            lpFrame.leftMargin = lpFrame.rightMargin = frameMarginStart;
             viewHolder.getOverviewView().setLayoutParams(lpFrame);
-            viewHolder.getOverviewView().setPaddingRelative(framePaddingStart,
-                    viewHolder.getOverviewView().getPaddingTop(),
-                    viewHolder.getOverviewView().getPaddingEnd(),
-                    viewHolder.getOverviewView().getPaddingBottom());
-            ViewGroup.LayoutParams lpActions = viewHolder.getActionsRow().getLayoutParams();
+
+            View description = viewHolder.getDetailsDescriptionFrame();
+            MarginLayoutParams lpDesc = (MarginLayoutParams) description.getLayoutParams();
+            lpDesc.setMarginStart(descriptionMarginStart);
+            description.setLayoutParams(lpDesc);
+
+            View action = viewHolder.getActionsRow();
+            MarginLayoutParams lpActions = (MarginLayoutParams) action.getLayoutParams();
+            lpActions.setMarginStart(descriptionMarginStart);
             lpActions.height =
                     isBanner ? 0 : res.getDimensionPixelSize(R.dimen.lb_details_v2_actions_height);
-            viewHolder.getActionsRow().setLayoutParams(lpActions);
+            action.setLayoutParams(lpActions);
         }
     }
 
