@@ -105,6 +105,7 @@
     <dimen name="lb_details_v2_blank_height">160dp</dimen>
     <dimen name="lb_details_v2_card_height">540dp</dimen>
     <dimen name="lb_details_v2_left">270dip</dimen>
+    <dimen name="lb_details_v2_logo_margin_start">128dp</dimen>
     <dimen name="lb_details_v2_actions_height">56dip</dimen>
     <dimen name="lb_details_v2_description_margin_start">24dp</dimen>
     <dimen name="lb_details_v2_description_margin_end">54dp</dimen>
