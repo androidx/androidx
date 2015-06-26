@@ -750,7 +750,9 @@ package android.support.v17.leanback.widget {
     ctor public FullWidthDetailsOverviewRowPresenter(android.support.v17.leanback.widget.Presenter);
     ctor public FullWidthDetailsOverviewRowPresenter(android.support.v17.leanback.widget.Presenter, android.support.v17.leanback.widget.DetailsOverviewLogoPresenter);
     method protected android.support.v17.leanback.widget.RowPresenter.ViewHolder createRowViewHolder(android.view.ViewGroup);
-    method public int getBackgroundColor();
+    method public final int getActionsBackgroundColor();
+    method public final int getAlignmentMode();
+    method public final int getBackgroundColor();
     method public final int getInitialState();
     method protected int getLayoutResourceId();
     method public android.support.v17.leanback.widget.OnActionClickedListener getOnActionClickedListener();
@@ -760,12 +762,16 @@ package android.support.v17.leanback.widget {
     method protected void onLayoutLogo(android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder, int, boolean);
     method protected void onLayoutOverviewFrame(android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder, int, boolean);
     method protected void onStateChanged(android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder, int);
-    method public void setBackgroundColor(int);
+    method public final void setActionsBackgroundColor(int);
+    method public final void setAlignmentMode(int);
+    method public final void setBackgroundColor(int);
     method public final void setInitialState(int);
     method public final void setListener(android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter.Listener);
     method public void setOnActionClickedListener(android.support.v17.leanback.widget.OnActionClickedListener);
     method public final void setParticipatingEntranceTransition(boolean);
     method public final void setState(android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder, int);
+    field public static final int ALIGN_MODE_MIDDLE = 1; // 0x1
+    field public static final int ALIGN_MODE_START = 0; // 0x0
     field public static final int STATE_FULL = 1; // 0x1
     field public static final int STATE_HALF = 0; // 0x0
     field public static final int STATE_SMALL = 2; // 0x2
