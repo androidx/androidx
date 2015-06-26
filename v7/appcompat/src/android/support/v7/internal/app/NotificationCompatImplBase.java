@@ -148,7 +148,9 @@ public class NotificationCompatImplBase {
         if (!tombstone) {
             button.setOnClickPendingIntent(R.id.action0, action.getActionIntent());
         }
-        button.setContentDescription(R.id.action0, action.getTitle());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+            button.setContentDescription(R.id.action0, action.getTitle());
+        }
         return button;
     }
 
