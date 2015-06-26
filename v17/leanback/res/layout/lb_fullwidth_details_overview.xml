@@ -30,7 +30,6 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/lb_details_v2_card_height"
         android:layout_marginTop="@dimen/lb_details_v2_blank_height"
-        android:paddingStart="@dimen/lb_details_v2_left"
         android:clipToPadding="false"
         android:foreground="#ffffff"
         android:elevation="@dimen/lb_details_overview_z"
@@ -42,34 +41,40 @@
         android:orientation="vertical"
         >
 
-    <android.support.v17.leanback.widget.HorizontalGridView
-        android:id="@+id/details_overview_actions"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/lb_details_v2_actions_height"
-        android:gravity="center"
-        android:clipToPadding="false"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:paddingStart="@dimen/lb_details_v2_description_margin_start"
-        android:paddingEnd="@dimen/lb_details_v2_description_margin_end"
-        lb:horizontalMargin="@dimen/lb_details_overview_action_items_margin"
-        lb:rowHeight="@dimen/lb_details_v2_actions_height" />
+        <LinearLayout 
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/details_overview_actions_background"
+            android:orientation="vertical" >
 
-      <android.support.v17.leanback.widget.NonOverlappingFrameLayout
-          android:id="@+id/details_overview_description"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:focusable="true"
-          android:focusableInTouchMode="true"
-          android:descendantFocusability="afterDescendants"
-          android:gravity="top"
-          android:paddingStart="@dimen/lb_details_v2_description_margin_start"
-          android:paddingEnd="@dimen/lb_details_v2_description_margin_end"
-          android:paddingTop="@dimen/lb_details_v2_description_margin_top"
-          android:clipToPadding="false"
-          android:clipChildren="false"
-          />
+            <android.support.v17.leanback.widget.HorizontalGridView
+                android:id="@+id/details_overview_actions"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/lb_details_v2_actions_height"
+                android:gravity="center"
+                android:clipToPadding="false"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:paddingStart="@dimen/lb_details_v2_description_margin_start"
+                android:paddingEnd="@dimen/lb_details_v2_description_margin_end"
+                lb:horizontalMargin="@dimen/lb_details_overview_action_items_margin"
+                lb:rowHeight="@dimen/lb_details_v2_actions_height" />
+        </LinearLayout>
 
+        <android.support.v17.leanback.widget.NonOverlappingFrameLayout
+            android:id="@+id/details_overview_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:descendantFocusability="afterDescendants"
+            android:gravity="top"
+            android:paddingStart="@dimen/lb_details_v2_description_margin_start"
+            android:paddingEnd="@dimen/lb_details_v2_description_margin_end"
+            android:paddingTop="@dimen/lb_details_v2_description_margin_top"
+            android:clipToPadding="false"
+            android:clipChildren="false"
+            />
     </LinearLayout>
     </FrameLayout>
 </FrameLayout>
