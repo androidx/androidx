@@ -341,7 +341,7 @@ public final class MenuItemImpl implements SupportMenuItem {
         return mSubMenu != null;
     }
 
-    void setSubMenu(SubMenuBuilder subMenu) {
+    public void setSubMenu(SubMenuBuilder subMenu) {
         mSubMenu = subMenu;
 
         subMenu.setHeaderTitle(getTitle());
