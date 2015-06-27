@@ -164,7 +164,8 @@ class MediaSessionCompatApi21 {
 
         @Override
         public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
-            return mCallback.onMediaButtonEvent(mediaButtonIntent);
+            return mCallback.onMediaButtonEvent(mediaButtonIntent)
+                    || super.onMediaButtonEvent(mediaButtonIntent);
         }
 
         @Override
