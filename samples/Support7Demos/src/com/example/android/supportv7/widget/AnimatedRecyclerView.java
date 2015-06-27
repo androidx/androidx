@@ -132,7 +132,7 @@ public class AnimatedRecyclerView extends Activity {
         mAdapter.notifyItemChanged(position);
     }
 
-    public void deleteItem(View view) {
+    public void deleteSelectedItems() {
         int numItems = mItems.size();
         if (numItems > 0) {
             for (int i = numItems - 1; i >= 0; --i) {
@@ -156,11 +156,16 @@ public class AnimatedRecyclerView extends Activity {
     }
 
     private void removeAtPosition(int position) {
-        mItems.remove(position);
-        mAdapter.notifyItemRemoved(position);
+        if(position < mItems.size()) {
+            mItems.remove(position);
+            mAdapter.notifyItemRemoved(position);
+        }
     }
 
     private void addAtPosition(int position, String text) {
+        if (position > mItems.size()) {
+            position = mItems.size();
+        }
         mItems.add(position, text);
         mAdapter.mSelected.put(text, Boolean.FALSE);
         mAdapter.mExpanded.put(text, Boolean.FALSE);
@@ -169,11 +174,11 @@ public class AnimatedRecyclerView extends Activity {
 
     public void addDeleteItem(View view) {
         addItem(view);
-        deleteItem(view);
+        deleteSelectedItems();
     }
 
     public void deleteAddItem(View view) {
-        deleteItem(view);
+        deleteSelectedItems();
         addItem(view);
     }
 
