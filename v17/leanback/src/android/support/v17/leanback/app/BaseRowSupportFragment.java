@@ -38,6 +38,7 @@ abstract class BaseRowSupportFragment extends Fragment {
     private PresenterSelector mPresenterSelector;
     private ItemBridgeAdapter mBridgeAdapter;
     private int mSelectedPosition = -1;
+    private boolean mPendingTransitionPrepare;
 
     abstract int getLayoutResourceId();
 
@@ -59,6 +60,10 @@ abstract class BaseRowSupportFragment extends Fragment {
             Bundle savedInstanceState) {
         View view = inflater.inflate(getLayoutResourceId(), container, false);
         mVerticalGridView = findGridViewFromRoot(view);
+        if (mPendingTransitionPrepare) {
+            mPendingTransitionPrepare = false;
+            onTransitionPrepare();
+        }
         return view;
     }
 
@@ -168,20 +173,28 @@ abstract class BaseRowSupportFragment extends Fragment {
         }
     }
 
-    void onTransitionStart() {
+    boolean onTransitionPrepare() {
         if (mVerticalGridView != null) {
             mVerticalGridView.setAnimateChildLayout(false);
-            mVerticalGridView.setPruneChild(false);
-            mVerticalGridView.setFocusSearchDisabled(true);
+            mVerticalGridView.setScrollEnabled(false);
+            return true;
         }
+        mPendingTransitionPrepare = true;
+        return false;
+    }
+
+    void onTransitionStart() {
+        mVerticalGridView.setPruneChild(false);
+        mVerticalGridView.setLayoutFrozen(true);
+        mVerticalGridView.setFocusSearchDisabled(true);
     }
 
     void onTransitionEnd() {
-        if (mVerticalGridView != null) {
-            mVerticalGridView.setAnimateChildLayout(true);
-            mVerticalGridView.setPruneChild(true);
-            mVerticalGridView.setFocusSearchDisabled(false);
-        }
+        mVerticalGridView.setLayoutFrozen(false);
+        mVerticalGridView.setAnimateChildLayout(true);
+        mVerticalGridView.setPruneChild(true);
+        mVerticalGridView.setFocusSearchDisabled(false);
+        mVerticalGridView.setScrollEnabled(true);
     }
 
     void setItemAlignment() {
