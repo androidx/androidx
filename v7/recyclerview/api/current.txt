@@ -286,6 +286,7 @@ package android.support.v7.widget {
     method public void invalidateItemDecorations();
     method public boolean isAnimating();
     method public boolean isComputingLayout();
+    method public boolean isLayoutFrozen();
     method public void offsetChildrenHorizontal(int);
     method public void offsetChildrenVertical(int);
     method public void onChildAttachedToWindow(android.view.View);
@@ -305,6 +306,7 @@ package android.support.v7.widget {
     method public void setHasFixedSize(boolean);
     method public void setItemAnimator(android.support.v7.widget.RecyclerView.ItemAnimator);
     method public void setItemViewCacheSize(int);
+    method public void setLayoutFrozen(boolean);
     method public void setLayoutManager(android.support.v7.widget.RecyclerView.LayoutManager);
     method public deprecated void setOnScrollListener(android.support.v7.widget.RecyclerView.OnScrollListener);
     method public void setRecycledViewPool(android.support.v7.widget.RecyclerView.RecycledViewPool);
