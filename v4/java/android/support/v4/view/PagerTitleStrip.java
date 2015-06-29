@@ -290,10 +290,11 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
 
         // Measure everything
         final int width = getWidth() - getPaddingLeft() - getPaddingRight();
+        final int maxWidth = Math.max(0, (int) (width * 0.8f));
+        final int childWidthSpec = MeasureSpec.makeMeasureSpec(maxWidth, MeasureSpec.AT_MOST);
         final int childHeight = getHeight() - getPaddingTop() - getPaddingBottom();
-        final int childWidthSpec = MeasureSpec.makeMeasureSpec((int) (width * 0.8f),
-                MeasureSpec.AT_MOST);
-        final int childHeightSpec = MeasureSpec.makeMeasureSpec(childHeight, MeasureSpec.AT_MOST);
+        final int maxHeight = Math.max(0, childHeight);
+        final int childHeightSpec = MeasureSpec.makeMeasureSpec(maxHeight, MeasureSpec.AT_MOST);
         mPrevText.measure(childWidthSpec, childHeightSpec);
         mCurrText.measure(childWidthSpec, childHeightSpec);
         mNextText.measure(childWidthSpec, childHeightSpec);
@@ -436,9 +437,10 @@ public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
         padding = getPaddingTop() + getPaddingBottom();
         childHeight -= padding;
 
-        final int childWidthSpec = MeasureSpec.makeMeasureSpec((int) (widthSize * 0.8f),
-                MeasureSpec.AT_MOST);
-        final int childHeightSpec = MeasureSpec.makeMeasureSpec(childHeight, MeasureSpec.AT_MOST);
+        final int maxWidth = Math.max(0, (int) (widthSize * 0.8f));
+        final int childWidthSpec = MeasureSpec.makeMeasureSpec(maxWidth, MeasureSpec.AT_MOST);
+        final int maxHeight = Math.min(0, childHeight);
+        final int childHeightSpec = MeasureSpec.makeMeasureSpec(maxHeight, MeasureSpec.AT_MOST);
 
         mPrevText.measure(childWidthSpec, childHeightSpec);
         mCurrText.measure(childWidthSpec, childHeightSpec);
