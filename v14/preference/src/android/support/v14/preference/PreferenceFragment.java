@@ -406,8 +406,8 @@ public abstract class PreferenceFragment extends Fragment implements
     public boolean onPreferenceTreeClick(Preference preference) {
         if (preference.getFragment() != null) {
             boolean handled = false;
-            if (getTargetFragment() instanceof OnPreferenceStartFragmentCallback) {
-                handled = ((OnPreferenceStartFragmentCallback) getTargetFragment())
+            if (getCallbackFragment() instanceof OnPreferenceStartFragmentCallback) {
+                handled = ((OnPreferenceStartFragmentCallback) getCallbackFragment())
                         .onPreferenceStartFragment(this, preference);
             }
             if (!handled && getActivity() instanceof OnPreferenceStartFragmentCallback){
@@ -432,8 +432,8 @@ public abstract class PreferenceFragment extends Fragment implements
     @Override
     public void onNavigateToScreen(PreferenceScreen preferenceScreen) {
         boolean handled = false;
-        if (getTargetFragment() instanceof OnPreferenceStartScreenCallback) {
-            handled = ((OnPreferenceStartScreenCallback) getTargetFragment())
+        if (getCallbackFragment() instanceof OnPreferenceStartScreenCallback) {
+            handled = ((OnPreferenceStartScreenCallback) getCallbackFragment())
                     .onPreferenceStartScreen(this, preferenceScreen);
         }
         if (!handled && getActivity() instanceof OnPreferenceStartScreenCallback) {
@@ -541,8 +541,8 @@ public abstract class PreferenceFragment extends Fragment implements
     public void onDisplayPreferenceDialog(Preference preference) {
 
         boolean handled = false;
-        if (getTargetFragment() instanceof OnPreferenceDisplayDialogCallback) {
-            handled = ((OnPreferenceDisplayDialogCallback) getTargetFragment())
+        if (getCallbackFragment() instanceof OnPreferenceDisplayDialogCallback) {
+            handled = ((OnPreferenceDisplayDialogCallback) getCallbackFragment())
                     .onPreferenceDisplayDialog(this, preference);
         }
         if (!handled && getActivity() instanceof OnPreferenceDisplayDialogCallback) {
@@ -574,4 +574,12 @@ public abstract class PreferenceFragment extends Fragment implements
         f.show(getFragmentManager(), DIALOG_FRAGMENT_TAG);
     }
 
+    /**
+     * Basically a wrapper for getParentFragment which is v17+. Used by the leanback preference lib.
+     * @return Fragment to possibly use as a callback
+     * @hide
+     */
+    public Fragment getCallbackFragment() {
+        return null;
+    }
 }

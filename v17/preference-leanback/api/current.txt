@@ -60,8 +60,8 @@ package android.support.v17.preference {
     ctor public LeanbackSettingsFragment();
     method public boolean onPreferenceDisplayDialog(android.support.v14.preference.PreferenceFragment, android.support.v7.preference.Preference);
     method public abstract void onPreferenceStartInitialScreen();
-    method public void startImmersiveFragment(android.app.Fragment, java.lang.String);
-    method public void startPreferenceFragment(android.app.Fragment, java.lang.String);
+    method public void startImmersiveFragment(android.app.Fragment);
+    method public void startPreferenceFragment(android.app.Fragment);
   }
 
 }
