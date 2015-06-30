@@ -16,6 +16,7 @@
 
 package android.support.v17.preference;
 
+import android.app.Fragment;
 import android.os.Bundle;
 import android.support.v14.preference.PreferenceFragment;
 import android.support.v17.leanback.widget.VerticalGridView;
@@ -37,5 +38,13 @@ public abstract class BaseLeanbackPreferenceFragment extends PreferenceFragment 
         verticalGridView.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_BOTH_EDGE);
         verticalGridView.setFocusScrollStrategy(VerticalGridView.FOCUS_SCROLL_ALIGNED);
         return verticalGridView;
+    }
+
+    /**
+     * @hide
+     */
+    @Override
+    public Fragment getCallbackFragment() {
+        return getParentFragment();
     }
 }
