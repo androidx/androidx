@@ -378,7 +378,7 @@ public class PreferenceManager {
      *
      * @return The context.
      */
-    Context getContext() {
+    public Context getContext() {
         return mContext;
     }
 
