@@ -70,8 +70,7 @@
                         android:layout_below="@id/art"
                         android:contentDescription="@string/mr_media_route_controller_play"
                         android:background="?attr/selectableItemBackgroundBorderless"/>
-                <LinearLayout android:id="@+id/text_wrapper"
-                        android:orientation="vertical"
+                <LinearLayout android:orientation="vertical"
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
                         android:minHeight="64dip"
