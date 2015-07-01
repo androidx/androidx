@@ -39,7 +39,7 @@ public class Script extends BaseObj {
      * e.g. foreach(ain, aout), setVar(ain);
      *
      */
-    private long getDummyAlloc(Allocation ain) {
+    long getDummyAlloc(Allocation ain) {
         long dInElement = 0;
         long dInType = 0;
         long dummyAlloc = 0;
