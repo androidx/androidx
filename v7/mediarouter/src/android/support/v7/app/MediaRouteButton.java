@@ -22,6 +22,7 @@ import android.content.ContextWrapper;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
@@ -505,6 +506,13 @@ public class MediaRouteButton extends View {
 
             if (needsRefresh) {
                 refreshDrawableState();
+                if (mIsConnecting && mRemoteIndicator.getCurrent() instanceof AnimationDrawable) {
+                    AnimationDrawable curDrawable =
+                            (AnimationDrawable) mRemoteIndicator.getCurrent();
+                    if (!curDrawable.isRunning()) {
+                        curDrawable.start();
+                    }
+                }
             }
 
             setEnabled(mRouter.isRouteAvailable(mSelector,
