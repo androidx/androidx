@@ -21,7 +21,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * @hide
+ *
  * ScriptIntrinsicBLAS class provides high performance RenderScript APIs to BLAS.
  *
  * The BLAS (Basic Linear Algebra Subprograms) are routines that provide standard
@@ -201,18 +201,30 @@ public final class ScriptIntrinsicBLAS extends ScriptIntrinsic {
         return si;
     }
 
+    /**
+     * @hide
+     */
     @IntDef({NO_TRANSPOSE, TRANSPOSE, CONJ_TRANSPOSE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface Transpose {}
 
+    /**
+     * @hide
+     */
     @IntDef({UPPER, LOWER})
     @Retention(RetentionPolicy.SOURCE)
     public @interface Uplo {}
 
+    /**
+     * @hide
+     */
     @IntDef({NON_UNIT, UNIT})
     @Retention(RetentionPolicy.SOURCE)
     public @interface Diag {}
 
+    /**
+     * @hide
+     */
     @IntDef({LEFT, RIGHT})
     @Retention(RetentionPolicy.SOURCE)
     public @interface Side {}
