@@ -879,6 +879,63 @@ public class RenderScript {
       rsnScriptGroup2Execute(mContext, groupID);
     }
 
+    native void rsnScriptIntrinsicBLAS_Single(long con, long incCon, long id, int func, int TransA,
+                                              int TransB, int Side, int Uplo, int Diag, int M, int N, int K,
+                                              float alpha, long A, long B, float beta, long C, int incX, int incY,
+                                              int KL, int KU, boolean mUseInc);
+    synchronized void nScriptIntrinsicBLAS_Single(long id, int func, int TransA,
+                                                  int TransB, int Side, int Uplo, int Diag, int M, int N, int K,
+                                                  float alpha, long A, long B, float beta, long C, int incX, int incY,
+                                                  int KL, int KU, boolean mUseInc) {
+        validate();
+        rsnScriptIntrinsicBLAS_Single(mContext, mIncCon, id, func, TransA, TransB, Side, Uplo, Diag, M, N, K, alpha, A, B, beta, C, incX, incY, KL, KU, mUseInc);
+    }
+
+    native void rsnScriptIntrinsicBLAS_Double(long con, long incCon, long id, int func, int TransA,
+                                              int TransB, int Side, int Uplo, int Diag, int M, int N, int K,
+                                              double alpha, long A, long B, double beta, long C, int incX, int incY,
+                                              int KL, int KU, boolean mUseInc);
+    synchronized void nScriptIntrinsicBLAS_Double(long id, int func, int TransA,
+                                                  int TransB, int Side, int Uplo, int Diag, int M, int N, int K,
+                                                  double alpha, long A, long B, double beta, long C, int incX, int incY,
+                                                  int KL, int KU, boolean mUseInc) {
+        validate();
+        rsnScriptIntrinsicBLAS_Double(mContext, mIncCon, id, func, TransA, TransB, Side, Uplo, Diag, M, N, K, alpha, A, B, beta, C, incX, incY, KL, KU, mUseInc);
+    }
+
+    native void rsnScriptIntrinsicBLAS_Complex(long con, long incCon, long id, int func, int TransA,
+                                               int TransB, int Side, int Uplo, int Diag, int M, int N, int K,
+                                               float alphaX, float alphaY, long A, long B, float betaX, float betaY, long C, int incX, int incY,
+                                               int KL, int KU, boolean mUseInc);
+    synchronized void nScriptIntrinsicBLAS_Complex(long id, int func, int TransA,
+                                                   int TransB, int Side, int Uplo, int Diag, int M, int N, int K,
+                                                   float alphaX, float alphaY, long A, long B, float betaX, float betaY, long C, int incX, int incY,
+                                                   int KL, int KU, boolean mUseInc) {
+        validate();
+        rsnScriptIntrinsicBLAS_Complex(mContext, mIncCon, id, func, TransA, TransB, Side, Uplo, Diag, M, N, K, alphaX, alphaY, A, B, betaX, betaY, C, incX, incY, KL, KU, mUseInc);
+    }
+
+    native void rsnScriptIntrinsicBLAS_Z(long con, long incCon, long id, int func, int TransA,
+                                         int TransB, int Side, int Uplo, int Diag, int M, int N, int K,
+                                         double alphaX, double alphaY, long A, long B, double betaX, double betaY, long C, int incX, int incY,
+                                         int KL, int KU, boolean mUseInc);
+    synchronized void nScriptIntrinsicBLAS_Z(long id, int func, int TransA,
+                                             int TransB, int Side, int Uplo, int Diag, int M, int N, int K,
+                                             double alphaX, double alphaY, long A, long B, double betaX, double betaY, long C, int incX, int incY,
+                                             int KL, int KU, boolean mUseInc) {
+        validate();
+        rsnScriptIntrinsicBLAS_Z(mContext, mIncCon, id, func, TransA, TransB, Side, Uplo, Diag, M, N, K, alphaX, alphaY, A, B, betaX, betaY, C, incX, incY, KL, KU, mUseInc);
+    }
+
+    native void rsnScriptIntrinsicBLAS_BNNM(long con, long incCon, long id, int M, int N, int K,
+                                             long A, int a_offset, long B, int b_offset, long C, int c_offset,
+                                             int c_mult_int, boolean mUseInc);
+    synchronized void nScriptIntrinsicBLAS_BNNM(long id, int M, int N, int K,
+                                             long A, int a_offset, long B, int b_offset, long C, int c_offset,
+                                             int c_mult_int, boolean mUseInc) {
+        validate();
+        rsnScriptIntrinsicBLAS_BNNM(mContext, mIncCon, id, M, N, K, A, a_offset, B, b_offset, C, c_offset, c_mult_int, mUseInc);
+    }
 
 // Additional Entry points For inc libRSSupport
 
