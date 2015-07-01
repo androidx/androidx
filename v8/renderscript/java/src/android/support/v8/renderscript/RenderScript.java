@@ -48,6 +48,7 @@ public class RenderScript {
     static final boolean DEBUG  = false;
     @SuppressWarnings({"UnusedDeclaration", "deprecation"})
     static final boolean LOG_ENABLED = false;
+    static final int SUPPORT_LIB_API = 23;
 
     static private ArrayList<RenderScript> mProcessContextList = new ArrayList<RenderScript>();
     private boolean mIsProcessContext = false;
@@ -736,6 +737,11 @@ public class RenderScript {
     synchronized long nScriptIntrinsicCreate(int id, long eid, boolean mUseInc) {
         validate();
         if (mUseInc) {
+            if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.LOLLIPOP) {
+                Log.e(LOG_TAG, "Incremental Intrinsics are not supported, please change targetSdkVersion to >= 21");
+                throw new RSRuntimeException("Incremental Intrinsics are not supported before Lollipop (API 21)");
+            }
+
             if (!mIncLoaded) {
                 try {
                     System.loadLibrary("RSSupport");
@@ -743,7 +749,7 @@ public class RenderScript {
                     Log.e(LOG_TAG, "Error loading RS Compat library for Incremental Intrinsic Support: " + e);
                     throw new RSRuntimeException("Error loading RS Compat library for Incremental Intrinsic Support: " + e);
                 }
-                if (!nIncLoadSO(sSdkVersion)) {
+                if (!nIncLoadSO(SUPPORT_LIB_API)) {
                     throw new RSRuntimeException("Error loading libRSSupport library for Incremental Intrinsic Support");
                 }
                 mIncLoaded = true;
@@ -1352,7 +1358,13 @@ public class RenderScript {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             useIOlib = true;
         }
-        if (!rs.nLoadSO(useNative, sdkVersion)) {
+
+        int dispatchAPI = sdkVersion;
+        if (sdkVersion < android.os.Build.VERSION.SDK_INT) {
+            // If the device API is higher than target API level, init dispatch table based on device API.
+            dispatchAPI = android.os.Build.VERSION.SDK_INT;
+        }
+        if (!rs.nLoadSO(useNative, dispatchAPI)) {
             if (useNative) {
                 android.util.Log.v(LOG_TAG, "Unable to load libRS.so, falling back to compat mode");
                 useNative = false;
@@ -1363,7 +1375,7 @@ public class RenderScript {
                 Log.e(LOG_TAG, "Error loading RS Compat library: " + e);
                 throw new RSRuntimeException("Error loading RS Compat library: " + e);
             }
-            if (!rs.nLoadSO(false, sdkVersion)) {
+            if (!rs.nLoadSO(false, dispatchAPI)) {
                 throw new RSRuntimeException("Error loading libRSSupport library");
             }
         }
