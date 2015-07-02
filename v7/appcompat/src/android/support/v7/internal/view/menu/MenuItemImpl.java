@@ -654,7 +654,7 @@ public final class MenuItemImpl implements SupportMenuItem {
     @Override
     public SupportMenuItem setSupportActionProvider(ActionProvider actionProvider) {
         if (mActionProvider != null) {
-            mActionProvider.setVisibilityListener(null);
+            mActionProvider.reset();
         }
         mActionView = null;
         mActionProvider = actionProvider;
