@@ -259,7 +259,7 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
 
         final ViewGroup view = (ViewGroup) inflater.inflate(pl.resId, parent, false);
 
-        final ViewGroup widgetFrame = (ViewGroup) view.findViewById(R.id.widget_frame);
+        final ViewGroup widgetFrame = (ViewGroup) view.findViewById(android.R.id.widget_frame);
         if (widgetFrame != null) {
             if (pl.widgetResId != 0) {
                 inflater.inflate(pl.widgetResId, widgetFrame);
