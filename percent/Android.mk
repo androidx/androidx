@@ -32,7 +32,7 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 # in their makefiles to include the resources in their package.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-percent
-LOCAL_SDK_VERSION := 7
+LOCAL_SDK_VERSION := 8
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 LOCAL_JAVA_LIBRARIES := android-support-percent-res \
     android-support-v4
