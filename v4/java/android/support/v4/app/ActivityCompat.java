@@ -307,8 +307,7 @@ public class ActivityCompat extends ContextCompat {
      */
     public static void requestPermissions(final @NonNull Activity activity,
             final @NonNull String[] permissions, final int requestCode) {
-        // TODO: Change to comparison against API 23 once we have it defined.
-        if (Build.VERSION.CODENAME.equals("MNC") || Build.VERSION.SDK_INT > 22) {
+        if (Build.VERSION.SDK_INT >= 23) {
             ActivityCompatApi23.requestPermissions(activity, permissions, requestCode);
         } else if (activity instanceof OnRequestPermissionsResultCallback) {
             Handler handler = new Handler(Looper.getMainLooper());
@@ -346,8 +345,7 @@ public class ActivityCompat extends ContextCompat {
      */
     public static boolean shouldShowRequestPermissionRationale(@NonNull Activity activity,
             @NonNull String permission) {
-        // TODO: Change to comparison against API 23 once we have it defined.
-        if (Build.VERSION.CODENAME.equals("MNC") || Build.VERSION.SDK_INT > 22) {
+        if (Build.VERSION.SDK_INT >= 23) {
             return ActivityCompatApi23.shouldShowRequestPermissionRationale(activity, permission);
         }
         return false;
