@@ -41,7 +41,7 @@ import android.view.Gravity;
  */
 public abstract class RoundedBitmapDrawable extends Drawable {
     private static final int DEFAULT_PAINT_FLAGS =
-            Paint.FILTER_BITMAP_FLAG | Paint.DITHER_FLAG;
+            Paint.FILTER_BITMAP_FLAG | Paint.DITHER_FLAG | Paint.ANTI_ALIAS_FLAG;
     Bitmap mBitmap;
     private int mTargetDensity = DisplayMetrics.DENSITY_DEFAULT;
     private int mGravity = Gravity.FILL;
@@ -53,8 +53,9 @@ public abstract class RoundedBitmapDrawable extends Drawable {
     final RectF mDstRectF = new RectF();
 
     private boolean mApplyGravity = true;
+    private boolean mIsCircular;
 
-     // These are scaled to match the target density.
+    // These are scaled to match the target density.
     private int mBitmapWidth;
     private int mBitmapHeight;
 
@@ -217,8 +218,12 @@ public abstract class RoundedBitmapDrawable extends Drawable {
 
     void updateDstRect() {
         if (mApplyGravity) {
-            gravityCompatApply(mGravity, mBitmapWidth, mBitmapHeight,
-                    getBounds(), mDstRect);
+            if (mIsCircular) {
+                final int minDimen = Math.min(mBitmapWidth, mBitmapHeight);
+                gravityCompatApply(Gravity.CENTER, minDimen, minDimen, getBounds(), mDstRect);
+            } else {
+                gravityCompatApply(mGravity, mBitmapWidth, mBitmapHeight, getBounds(), mDstRect);
+            }
             mDstRectF.set(mDstRect);
             mApplyGravity = false;
         }
@@ -266,6 +271,35 @@ public abstract class RoundedBitmapDrawable extends Drawable {
     }
 
     /**
+     * Sets the image shape to circular.
+     * <p>This overwrites any calls made to {@link #setCornerRadius(float)} so far.</p>
+     * <p>Further, circular images are being placed using {@link Gravity#CENTER}.</p>
+     */
+    public void setCircular(boolean circular) {
+        mIsCircular = circular;
+        mApplyGravity = true;
+        if (circular) {
+            updateCircularCornerRadius();
+            mPaint.setShader(getDefaultShader());
+            invalidateSelf();
+        } else {
+            setCornerRadius(0);
+        }
+    }
+
+    private void updateCircularCornerRadius() {
+        final int minCircularSize = Math.min(mBitmapHeight, mBitmapWidth);
+        mCornerRadius = minCircularSize / 2;
+    }
+
+    /**
+     * @return <code>true</code> if the image is circular, else <code>false</code>.
+     */
+    public boolean isCircular() {
+        return mIsCircular;
+    }
+
+    /**
      * Sets the corner radius to be applied when drawing the bitmap.
      */
     public void setCornerRadius(float cornerRadius) {
@@ -274,7 +308,19 @@ public abstract class RoundedBitmapDrawable extends Drawable {
         } else {
             mPaint.setShader(null);
         }
-        mCornerRadius = cornerRadius;
+        if (mCornerRadius != cornerRadius) {
+            invalidateSelf();
+            mCornerRadius = cornerRadius;
+        }
+    }
+
+    @Override
+    protected void onBoundsChange(Rect bounds) {
+        super.onBoundsChange(bounds);
+        if (mIsCircular) {
+            updateCircularCornerRadius();
+            mApplyGravity = true;
+        }
     }
 
     /**
@@ -296,7 +342,7 @@ public abstract class RoundedBitmapDrawable extends Drawable {
 
     @Override
     public int getOpacity() {
-        if (mGravity != Gravity.FILL) {
+        if (mGravity != Gravity.FILL || mIsCircular) {
             return PixelFormat.TRANSLUCENT;
         }
         Bitmap bm = mBitmap;
@@ -315,10 +361,17 @@ public abstract class RoundedBitmapDrawable extends Drawable {
         mBitmap = bitmap;
         if (mBitmap != null) {
             computeBitmapSize();
-            mBitmapShader = new BitmapShader(mBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+            mBitmapShader = getDefaultShader();
         } else {
             mBitmapWidth = mBitmapHeight = -1;
         }
+    }
+
+    private BitmapShader getDefaultShader() {
+        if (mBitmapShader == null) {
+            mBitmapShader = new BitmapShader(mBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+        }
+        return mBitmapShader;
     }
 
     private static boolean isGreaterThanZero(float toCompare) {
