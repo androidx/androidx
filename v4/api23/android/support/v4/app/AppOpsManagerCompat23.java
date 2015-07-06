@@ -31,4 +31,9 @@ public class AppOpsManagerCompat23 {
         AppOpsManager appOpsManager = context.getSystemService(AppOpsManager.class);
         return appOpsManager.noteOp(op, uid, packageName);
     }
+
+    public static int noteProxyOp(Context context, String op, String proxiedPackageName) {
+        AppOpsManager appOpsManager = context.getSystemService(AppOpsManager.class);
+        return appOpsManager.noteProxyOp(op, proxiedPackageName);
+    }
 }
