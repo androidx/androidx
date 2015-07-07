@@ -406,6 +406,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
     public RecyclerView(Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        setScrollContainer(true);
         setFocusableInTouchMode(true);
         final int version = Build.VERSION.SDK_INT;
         mPostUpdatesOnAnimation = version >= 16;
