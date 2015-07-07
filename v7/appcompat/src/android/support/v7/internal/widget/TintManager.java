@@ -18,6 +18,7 @@ package android.support.v7.internal.widget;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
@@ -210,7 +211,7 @@ public final class TintManager {
         final Context context = mContextRef.get();
         if (context == null) return false;
 
-        PorterDuff.Mode tintMode = null;
+        PorterDuff.Mode tintMode = DEFAULT_MODE;
         boolean colorAttrSet = false;
         int colorAttr = 0;
         int alpha = -1;
@@ -233,7 +234,7 @@ public final class TintManager {
 
         if (colorAttrSet) {
             final int color = getThemeAttrColor(context, colorAttr);
-            setPorterDuffColorFilter(drawable, color, tintMode);
+            drawable.setColorFilter(getPorterDuffColorFilter(color, tintMode));
 
             if (alpha != -1) {
                 drawable.setAlpha(alpha);
@@ -564,12 +565,11 @@ public final class TintManager {
 
     public static void tintViewBackground(View view, TintInfo tint) {
         final Drawable background = view.getBackground();
-        if (tint.mHasTintList) {
-            setPorterDuffColorFilter(
-                    background,
-                    tint.mTintList.getColorForState(view.getDrawableState(),
-                            tint.mTintList.getDefaultColor()),
-                    tint.mHasTintMode ? tint.mTintMode : null);
+        if (tint.mHasTintList || tint.mHasTintMode) {
+            background.setColorFilter(createTintFilter(
+                    tint.mHasTintList ? tint.mTintList : null,
+                    tint.mHasTintMode ? tint.mTintMode : DEFAULT_MODE,
+                    view.getDrawableState()));
         } else {
             background.clearColorFilter();
         }
@@ -581,12 +581,16 @@ public final class TintManager {
         }
     }
 
-    private static void setPorterDuffColorFilter(Drawable d, int color, PorterDuff.Mode mode) {
-        if (mode == null) {
-            // If we don't have a blending mode specified, use our default
-            mode = DEFAULT_MODE;
+    private static PorterDuffColorFilter createTintFilter(ColorStateList tint,
+            PorterDuff.Mode tintMode, final int[] state) {
+        if (tint == null || tintMode == null) {
+            return null;
         }
+        final int color = tint.getColorForState(state, Color.TRANSPARENT);
+        return getPorterDuffColorFilter(color, tintMode);
+    }
 
+    private static PorterDuffColorFilter getPorterDuffColorFilter(int color, PorterDuff.Mode mode) {
         // First, lets see if the cache already contains the color filter
         PorterDuffColorFilter filter = COLOR_FILTER_CACHE.get(color, mode);
 
@@ -596,6 +600,6 @@ public final class TintManager {
             COLOR_FILTER_CACHE.put(color, mode, filter);
         }
 
-        d.setColorFilter(filter);
+        return filter;
     }
 }
