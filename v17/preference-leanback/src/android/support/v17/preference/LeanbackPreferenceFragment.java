@@ -16,6 +16,7 @@
 
 package android.support.v17.preference;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +28,12 @@ import android.widget.TextView;
  * list background and header.
  */
 public abstract class LeanbackPreferenceFragment extends BaseLeanbackPreferenceFragment {
+
+    public LeanbackPreferenceFragment() {
+        if (Build.VERSION.SDK_INT >= 21) {
+            LeanbackPreferenceFragmentTransitionHelperApi21.addTransitions(this);
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
