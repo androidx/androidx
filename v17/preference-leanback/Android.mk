@@ -30,8 +30,18 @@ LOCAL_RESOURCE_DIR := \
         frameworks/support/v17/leanback/res \
         $(LOCAL_PATH)/res
 LOCAL_AAPT_FLAGS := \
-	--auto-add-overlay
+        --auto-add-overlay
 LOCAL_JAR_EXCLUDE_FILES := none
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
+# -----------------------------------------------------------------------
+
+#  A helper sub-library that makes direct use of API 21.
+include $(CLEAR_VARS)
+LOCAL_MODULE := android-support-v17-preference-leanback-api21
+LOCAL_SDK_VERSION := 21
+LOCAL_SRC_FILES := $(call all-java-files-under, api21)
+LOCAL_JAVA_LIBRARIES := android-support-v17-preference-leanback-res
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # Here is the final static library that apps can link against.
@@ -42,7 +52,8 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v17-preference-leanback
 LOCAL_SDK_VERSION := 17
 LOCAL_SRC_FILES := $(call all-java-files-under,src)
-# LOCAL_STATIC_JAVA_LIBRARIES :=
+LOCAL_STATIC_JAVA_LIBRARIES := \
+        android-support-v17-preference-leanback-api21
 LOCAL_JAVA_LIBRARIES := \
         android-support-v4 \
         android-support-v7-appcompat \
