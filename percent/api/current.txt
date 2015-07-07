@@ -28,8 +28,8 @@ package android.support.percent {
 
   public static class PercentLayoutHelper.PercentLayoutInfo {
     ctor public PercentLayoutHelper.PercentLayoutInfo();
-    method public void fillLayoutParams(android.view.ViewGroup.LayoutParams, int, int);
-    method public void fillMarginLayoutParams(android.view.ViewGroup.MarginLayoutParams, int, int);
+    method public void fillLayoutParams(android.view.ViewGroup.LayoutParams, int, int, int);
+    method public void fillMarginLayoutParams(android.view.ViewGroup.MarginLayoutParams, int, int, int);
     method public void restoreLayoutParams(android.view.ViewGroup.LayoutParams);
     method public void restoreMarginLayoutParams(android.view.ViewGroup.MarginLayoutParams);
     field public float bottomMarginPercent;
@@ -37,6 +37,7 @@ package android.support.percent {
     field public float heightPercent;
     field public float leftMarginPercent;
     field public float rightMarginPercent;
+    field public int snapToDimen;
     field public float startMarginPercent;
     field public float topMarginPercent;
     field public float widthPercent;
