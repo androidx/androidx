@@ -1699,6 +1699,14 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
         mInLayout = true;
 
+        if (state.didStructureChange()) {
+            // didStructureChange() == true means attached item has been removed/added.
+            // scroll animation: we are unable to continue a scroll animation,
+            //    kill the scroll animation,  and let ItemAnimation move the item to new position.
+            // position smooth scroller: kill the animation and stop at final position.
+            // pending smooth scroller: stop and scroll to current focus position.
+            mBaseGridView.stopScroll();
+        }
         final boolean scrollToFocus = !isSmoothScrolling()
                 && mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_ALIGNED;
         if (mFocusPosition != NO_POSITION && mFocusPositionOffset != Integer.MIN_VALUE) {
