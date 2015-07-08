@@ -72,6 +72,10 @@ import android.support.percent.R;
 public class PercentLayoutHelper {
     private static final String TAG = "PercentLayout";
 
+    private static final int SNAP_TO_NONE = 0;
+    private static final int SNAP_TO_WIDTH = 1;
+    private static final int SNAP_TO_HEIGHT = 2;
+
     private final ViewGroup mHost;
 
     public PercentLayoutHelper(ViewGroup host) {
@@ -101,6 +105,7 @@ public class PercentLayoutHelper {
                     + View.MeasureSpec.toString(widthMeasureSpec) + " heightMeasureSpec: "
                     + View.MeasureSpec.toString(heightMeasureSpec));
         }
+
         int widthHint = View.MeasureSpec.getSize(widthMeasureSpec);
         int heightHint = View.MeasureSpec.getSize(heightMeasureSpec);
         for (int i = 0, N = mHost.getChildCount(); i < N; i++) {
@@ -118,9 +123,9 @@ public class PercentLayoutHelper {
                 if (info != null) {
                     if (params instanceof ViewGroup.MarginLayoutParams) {
                         info.fillMarginLayoutParams((ViewGroup.MarginLayoutParams) params,
-                                widthHint, heightHint);
+                                widthHint, heightHint, info.snapToDimen);
                     } else {
-                        info.fillLayoutParams(params, widthHint, heightHint);
+                        info.fillLayoutParams(params, widthHint, heightHint, info.snapToDimen);
                     }
                 }
             }
@@ -217,6 +222,15 @@ public class PercentLayoutHelper {
             info = info != null ? info : new PercentLayoutInfo();
             info.endMarginPercent = value;
         }
+
+        int snapToDimen = array.getInt(R.styleable.PercentLayout_Layout_layout_snapToDimen,
+                SNAP_TO_NONE);
+
+        if (snapToDimen != SNAP_TO_NONE) {
+            info = info != null ? info : new PercentLayoutInfo();
+            info.snapToDimen = snapToDimen;
+        }
+
         array.recycle();
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "constructed: " + info);
@@ -329,6 +343,8 @@ public class PercentLayoutHelper {
 
         public float endMarginPercent;
 
+        public int snapToDimen;
+
         /* package */ final ViewGroup.MarginLayoutParams mPreservedParams;
 
         public PercentLayoutInfo() {
@@ -347,7 +363,7 @@ public class PercentLayoutHelper {
          * Fills {@code ViewGroup.LayoutParams} dimensions based on percentage values.
          */
         public void fillLayoutParams(ViewGroup.LayoutParams params, int widthHint,
-                int heightHint) {
+                int heightHint, int snapToDimen) {
             // Preserve the original layout params, so we can restore them after the measure step.
             mPreservedParams.width = params.width;
             mPreservedParams.height = params.height;
@@ -355,9 +371,20 @@ public class PercentLayoutHelper {
             if (widthPercent >= 0) {
                 params.width = (int) (widthHint * widthPercent);
             }
+
             if (heightPercent >= 0) {
                 params.height = (int) (heightHint * heightPercent);
             }
+
+            switch (snapToDimen) {
+                case SNAP_TO_HEIGHT:
+                    params.width = params.height;
+                    break;
+                case SNAP_TO_WIDTH:
+                    params.height = params.width;
+                    break;
+            }
+
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "after fillLayoutParams: (" + params.width + ", " + params.height + ")");
             }
@@ -368,8 +395,8 @@ public class PercentLayoutHelper {
          * values.
          */
         public void fillMarginLayoutParams(ViewGroup.MarginLayoutParams params, int widthHint,
-                int heightHint) {
-            fillLayoutParams(params, widthHint, heightHint);
+                int heightHint, int snapToDimen) {
+            fillLayoutParams(params, widthHint, heightHint, snapToDimen);
 
             // Preserver the original margins, so we can restore them after the measure step.
             mPreservedParams.leftMargin = params.leftMargin;
