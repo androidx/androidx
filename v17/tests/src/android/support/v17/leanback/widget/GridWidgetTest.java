@@ -576,6 +576,92 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
                 mGridView.getLayoutManager().findViewByPosition(focusToIndex).getLeft());
     }
 
+    public void testScrollAndInsert() throws Throwable {
+
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_grid);
+        int[] items = new int[1000];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 300 + (int)(Math.random() * 100);
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, true);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 3;
+
+        initActivity(intent);
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPositionSmooth(150);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+
+        View view =  mGridView.getChildAt(mGridView.getChildCount() - 1);
+        final int focusToIndex = mGridView.getChildAdapterPosition(view);
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPositionSmooth(focusToIndex);
+            }
+        });
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                int[] newItems = new int[]{300, 300, 300};
+                mActivity.addItems(0, newItems);
+            }
+        });
+
+        waitForTransientStateGone(null);
+        waitForScrollIdle();
+    }
+
+    public void testScrollAndInsertBeforeVisibleItem() throws Throwable {
+
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_grid);
+        int[] items = new int[1000];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 300 + (int)(Math.random() * 100);
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, true);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 3;
+
+        initActivity(intent);
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPositionSmooth(150);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+
+        View view =  mGridView.getChildAt(mGridView.getChildCount() - 1);
+        final int focusToIndex = mGridView.getChildAdapterPosition(view);
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPositionSmooth(focusToIndex);
+            }
+        });
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                int[] newItems = new int[]{300, 300, 300};
+                mActivity.addItems(focusToIndex, newItems);
+            }
+        });
+
+        waitForTransientStateGone(null);
+        waitForScrollIdle();
+    }
+
     public void testSmoothScrollAndRemove() throws Throwable {
 
         mInstrumentation = getInstrumentation();
