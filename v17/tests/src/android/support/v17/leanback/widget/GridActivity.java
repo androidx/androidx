@@ -356,7 +356,7 @@ public class GridActivity extends Activity {
                 holder.mItemAlignment = null;
             }
             if (mChildLayout == -1) {
-                ((TextView) holder.itemView).setText("Item "+position);
+                ((TextView) holder.itemView).setText("Item "+mItemLengths[position]);
                 boolean focusable = true;
                 if (mItemFocusables != null) {
                     focusable = mItemFocusables[position];
@@ -366,7 +366,7 @@ public class GridActivity extends Activity {
                 holder.itemView.setBackgroundColor(Color.LTGRAY);
             } else {
                 if (holder.itemView instanceof TextView) {
-                    ((TextView) holder.itemView).setText("Item "+position);
+                    ((TextView) holder.itemView).setText("Item "+mItemLengths[position]);
                 }
             }
             updateSize(holder.itemView, position);

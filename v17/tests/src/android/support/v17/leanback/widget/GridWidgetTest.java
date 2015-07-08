@@ -537,6 +537,185 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         verifyBeginAligned();
     }
 
+    public void testScrollAndRemove() throws Throwable {
+
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 50);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        final int focusToIndex = mGridView.getChildCount() - 1;
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPositionSmooth(focusToIndex);
+            }
+        });
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mActivity.removeItems(focusToIndex, 1);
+            }
+        });
+
+        waitForTransientStateGone(null);
+        waitForScrollIdle();
+        int leftEdge = mGridView.getLayoutManager().findViewByPosition(focusToIndex).getLeft();
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.requestLayout();
+            }
+        });
+        waitForTransientStateGone(null);
+        waitForScrollIdle();
+        assertEquals(leftEdge,
+                mGridView.getLayoutManager().findViewByPosition(focusToIndex).getLeft());
+    }
+
+    public void testSmoothScrollAndRemove() throws Throwable {
+
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 50);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        final int focusToIndex = 40;
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPositionSmooth(focusToIndex);
+            }
+        });
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mActivity.removeItems(focusToIndex, 1);
+            }
+        });
+
+        Thread.sleep(20); // wait for layout
+        assertTrue("removing the index of not attached child should not affect smooth scroller",
+                mGridView.getLayoutManager().isSmoothScrolling());
+        waitForTransientStateGone(null);
+        waitForScrollIdle();
+        int leftEdge = mGridView.getLayoutManager().findViewByPosition(focusToIndex).getLeft();
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.requestLayout();
+            }
+        });
+        waitForTransientStateGone(null);
+        waitForScrollIdle();
+        assertEquals(leftEdge,
+                mGridView.getLayoutManager().findViewByPosition(focusToIndex).getLeft());
+    }
+
+    public void testSmoothScrollAndRemove2() throws Throwable {
+
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 50);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        final int focusToIndex = 40;
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPositionSmooth(focusToIndex);
+            }
+        });
+
+        final int removeIndex = mGridView.getChildCount() - 1;
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mActivity.removeItems(removeIndex, 1);
+            }
+        });
+
+        Thread.sleep(20); // wait for layout
+        assertFalse("removing the index of attached child should kill smooth scroller",
+                mGridView.getLayoutManager().isSmoothScrolling());
+        waitForTransientStateGone(null);
+        waitForScrollIdle();
+        int leftEdge = mGridView.getLayoutManager().findViewByPosition(focusToIndex).getLeft();
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.requestLayout();
+            }
+        });
+        waitForTransientStateGone(null);
+        waitForScrollIdle();
+        assertEquals(leftEdge,
+                mGridView.getLayoutManager().findViewByPosition(focusToIndex).getLeft());
+    }
+
+    public void testPendingSmoothScrollAndRemove() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_REQUEST_FOCUS_ONLAYOUT, true);
+        int[] items = new int[100];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 630 + (int)(Math.random() * 100);
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, true);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+
+        mGridView.setSelectedPositionSmooth(0);
+        waitForScrollIdle(mVerifyLayout);
+        assertTrue(mGridView.getChildAt(0).hasFocus());
+
+        // Pressing lots of key to make sure smooth scroller is running
+        for (int i = 0; i < 20; i++) {
+            sendKeys(KeyEvent.KEYCODE_DPAD_DOWN);
+        }
+        Thread.sleep(100);
+
+        assertTrue(mGridView.getLayoutManager().isSmoothScrolling());
+        final int removeIndex = mGridView.getChildCount() - 1;
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mActivity.removeItems(removeIndex, 1);
+            }
+        });
+
+        Thread.sleep(20); // wait for layout
+        assertFalse("removing the index of attached child should kill smooth scroller",
+                mGridView.getLayoutManager().isSmoothScrolling());
+
+        waitForTransientStateGone(null);
+        waitForScrollIdle();
+        int focusIndex = mGridView.getSelectedPosition();
+        int leftEdge = mGridView.getLayoutManager().findViewByPosition(focusIndex).getLeft();
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.requestLayout();
+            }
+        });
+        waitForTransientStateGone(null);
+        waitForScrollIdle();
+        assertEquals(leftEdge,
+                mGridView.getLayoutManager().findViewByPosition(focusIndex).getLeft());
+    }
+
     public void testFocusToFirstItem() throws Throwable {
 
         mInstrumentation = getInstrumentation();
