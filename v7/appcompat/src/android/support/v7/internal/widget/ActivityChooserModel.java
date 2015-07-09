@@ -16,21 +16,20 @@
 
 package android.support.v7.internal.widget;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlSerializer;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.database.DataSetObservable;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.support.v4.os.AsyncTaskCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Xml;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlSerializer;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -576,7 +575,7 @@ public class ActivityChooserModel extends DataSetObservable {
         mHistoricalRecordsChanged = false;
         if (!TextUtils.isEmpty(mHistoryFileName)) {
             AsyncTaskCompat.executeParallel(new PersistHistoryAsyncTask(),
-                    mHistoricalRecords, mHistoryFileName);
+                    new ArrayList<HistoricalRecord>(mHistoricalRecords), mHistoryFileName);
         }
     }
 
@@ -918,29 +917,31 @@ public class ActivityChooserModel extends DataSetObservable {
     private final class DefaultSorter implements ActivitySorter {
         private static final float WEIGHT_DECAY_COEFFICIENT = 0.95f;
 
-        private final Map<String, ActivityResolveInfo> mPackageNameToActivityMap =
-                new HashMap<String, ActivityResolveInfo>();
+        private final Map<ComponentName, ActivityResolveInfo> mPackageNameToActivityMap =
+                new HashMap<ComponentName, ActivityResolveInfo>();
 
         public void sort(Intent intent, List<ActivityResolveInfo> activities,
                 List<HistoricalRecord> historicalRecords) {
-            Map<String, ActivityResolveInfo> packageNameToActivityMap =
+            Map<ComponentName, ActivityResolveInfo> componentNameToActivityMap =
                     mPackageNameToActivityMap;
-            packageNameToActivityMap.clear();
+            componentNameToActivityMap.clear();
 
             final int activityCount = activities.size();
             for (int i = 0; i < activityCount; i++) {
                 ActivityResolveInfo activity = activities.get(i);
                 activity.weight = 0.0f;
-                String packageName = activity.resolveInfo.activityInfo.packageName;
-                packageNameToActivityMap.put(packageName, activity);
+                ComponentName componentName = new ComponentName(
+                        activity.resolveInfo.activityInfo.packageName,
+                        activity.resolveInfo.activityInfo.name);
+                componentNameToActivityMap.put(componentName, activity);
             }
 
             final int lastShareIndex = historicalRecords.size() - 1;
             float nextRecordWeight = 1;
             for (int i = lastShareIndex; i >= 0; i--) {
                 HistoricalRecord historicalRecord = historicalRecords.get(i);
-                String packageName = historicalRecord.activity.getPackageName();
-                ActivityResolveInfo activity = packageNameToActivityMap.get(packageName);
+                ComponentName componentName = historicalRecord.activity;
+                ActivityResolveInfo activity = componentNameToActivityMap.get(componentName);
                 if (activity != null) {
                     activity.weight += historicalRecord.weight * nextRecordWeight;
                     nextRecordWeight = nextRecordWeight * WEIGHT_DECAY_COEFFICIENT;
@@ -957,9 +958,6 @@ public class ActivityChooserModel extends DataSetObservable {
         }
     }
 
-    /**
-     * Command for reading the historical records from a file off the UI thread.
-     */
     private void readHistoricalDataImpl() {
         FileInputStream fis = null;
         try {
