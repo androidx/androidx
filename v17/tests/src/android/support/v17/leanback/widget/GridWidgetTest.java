@@ -537,6 +537,55 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         verifyBeginAligned();
     }
 
+    public void testBug22209986() throws Throwable {
+
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 50);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        final int focusToIndex = mGridView.getChildCount() - 1;
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPositionSmooth(focusToIndex);
+            }
+        });
+
+        waitForTransientStateGone(null);
+        waitForScrollIdle();
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPositionSmooth(focusToIndex + 1);
+            }
+        });
+        // let the scroll running for a while and requestLayout during scroll
+        Thread.sleep(80);
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                assertEquals(mGridView.getScrollState(), BaseGridView.SCROLL_STATE_SETTLING);
+                mGridView.requestLayout();
+            }
+        });
+        waitForTransientStateGone(null);
+        waitForScrollIdle();
+
+        int leftEdge = mGridView.getLayoutManager().findViewByPosition(focusToIndex).getLeft();
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.requestLayout();
+            }
+        });
+        waitForTransientStateGone(null);
+        waitForScrollIdle();
+        assertEquals(leftEdge,
+                mGridView.getLayoutManager().findViewByPosition(focusToIndex).getLeft());
+    }
+
     public void testScrollAndRemove() throws Throwable {
 
         mInstrumentation = getInstrumentation();
