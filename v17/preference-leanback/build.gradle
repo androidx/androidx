@@ -34,7 +34,7 @@ android {
 
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'
-        main.java.srcDir 'src'
+        main.java.srcDirs = ['src', 'api21']
         main.res.srcDir 'res'
         main.assets.srcDir 'assets'
         main.resources.srcDir 'src'
