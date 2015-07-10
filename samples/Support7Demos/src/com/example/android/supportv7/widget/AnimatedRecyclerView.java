@@ -132,7 +132,7 @@ public class AnimatedRecyclerView extends Activity {
         mAdapter.notifyItemChanged(position);
     }
 
-    public void deleteSelectedItems() {
+    public void deleteSelectedItems(View view) {
         int numItems = mItems.size();
         if (numItems > 0) {
             for (int i = numItems - 1; i >= 0; --i) {
@@ -174,11 +174,11 @@ public class AnimatedRecyclerView extends Activity {
 
     public void addDeleteItem(View view) {
         addItem(view);
-        deleteSelectedItems();
+        deleteSelectedItems(view);
     }
 
     public void deleteAddItem(View view) {
-        deleteSelectedItems();
+        deleteSelectedItems(view);
         addItem(view);
     }
 
