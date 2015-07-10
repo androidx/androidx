@@ -1726,9 +1726,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             // FIXME: we should get the remaining scroll animation offset from RecyclerView
             View focusView = findViewByPosition(mFocusPosition);
             if (focusView != null) {
-                getScrollPosition(focusView, focusView.findFocus(), sTwoInts);
-                delta = sTwoInts[0];
-                deltaSecondary = sTwoInts[1];
+                if (getScrollPosition(focusView, focusView.findFocus(), sTwoInts)) {
+                    delta = sTwoInts[0];
+                    deltaSecondary = sTwoInts[1];
+                }
             }
         }
 
