@@ -361,13 +361,15 @@ package android.support.v7.appcompat {
     field public static int alertDialogCenterButtons;
     field public static int alertDialogStyle;
     field public static int alertDialogTheme;
+    field public static int arrowHeadLength;
+    field public static int arrowShaftLength;
     field public static int autoCompleteTextViewStyle;
     field public static int background;
     field public static int backgroundSplit;
     field public static int backgroundStacked;
     field public static int backgroundTint;
     field public static int backgroundTintMode;
-    field public static int barSize;
+    field public static int barLength;
     field public static int borderlessButtonStyle;
     field public static int buttonBarButtonStyle;
     field public static int buttonBarNegativeButtonStyle;
@@ -442,7 +444,6 @@ package android.support.v7.appcompat {
     field public static int logo;
     field public static int maxButtonHeight;
     field public static int measureWithLargestChild;
-    field public static int middleBarArrowSize;
     field public static int multiChoiceItemLayout;
     field public static int navigationContentDescription;
     field public static int navigationIcon;
@@ -511,7 +512,6 @@ package android.support.v7.appcompat {
     field public static int titleTextStyle;
     field public static int toolbarNavigationButtonStyle;
     field public static int toolbarStyle;
-    field public static int topBottomBarArrowSize;
     field public static int track;
     field public static int voiceIcon;
     field public static int windowActionBar;
@@ -1263,14 +1263,14 @@ package android.support.v7.appcompat {
     field public static int AppCompatTextView_android_textAppearance;
     field public static int AppCompatTextView_textAllCaps;
     field public static final int[] DrawerArrowToggle;
-    field public static int DrawerArrowToggle_barSize;
+    field public static int DrawerArrowToggle_arrowHeadLength;
+    field public static int DrawerArrowToggle_arrowShaftLength;
+    field public static int DrawerArrowToggle_barLength;
     field public static int DrawerArrowToggle_color;
     field public static int DrawerArrowToggle_drawableSize;
     field public static int DrawerArrowToggle_gapBetweenBars;
-    field public static int DrawerArrowToggle_middleBarArrowSize;
     field public static int DrawerArrowToggle_spinBars;
     field public static int DrawerArrowToggle_thickness;
-    field public static int DrawerArrowToggle_topBottomBarArrowSize;
     field public static final int[] LinearLayoutCompat;
     field public static final int[] LinearLayoutCompat_Layout;
     field public static int LinearLayoutCompat_Layout_android_layout_gravity;
@@ -1526,13 +1526,27 @@ package android.support.v7.graphics.drawable {
   public class DrawerArrowDrawable extends android.graphics.drawable.Drawable {
     ctor public DrawerArrowDrawable(android.content.Context);
     method public void draw(android.graphics.Canvas);
+    method public float getArrowHeadLength();
+    method public float getArrowShaftLength();
+    method public float getBarLength();
+    method public float getBarThickness();
+    method public int getColor();
     method public int getDirection();
+    method public float getGapSize();
     method public int getOpacity();
     method public float getProgress();
+    method public boolean isSpinEnabled();
     method public void setAlpha(int);
+    method public void setArrowHeadLength(float);
+    method public void setArrowShaftLength(float);
+    method public void setBarLength(float);
+    method public void setBarThickness(float);
+    method public void setColor(int);
     method public void setColorFilter(android.graphics.ColorFilter);
     method public void setDirection(int);
+    method public void setGapSize(float);
     method public void setProgress(float);
+    method public void setSpinEnabled(boolean);
     method public void setVerticalMirror(boolean);
     field public static final int ARROW_DIRECTION_LEFT = 0; // 0x0
     field public static final int ARROW_DIRECTION_RIGHT = 1; // 0x1
