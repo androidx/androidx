@@ -42,14 +42,7 @@ package android.support.v17.preference {
   public class LeanbackPreferenceDialogFragment extends android.app.Fragment {
     ctor public LeanbackPreferenceDialogFragment();
     method public android.support.v7.preference.DialogPreference getPreference();
-    method public android.support.v14.preference.PreferenceFragment getPreferenceFragment();
-    method public android.support.v17.preference.LeanbackSettingsFragment getSettingsFragment();
     field public static final java.lang.String ARG_KEY = "key";
-  }
-
-  public static abstract interface LeanbackPreferenceDialogFragment.TargetFragment {
-    method public abstract android.support.v14.preference.PreferenceFragment getPreferenceFragment();
-    method public abstract android.support.v17.preference.LeanbackSettingsFragment getSettingsFragment();
   }
 
   public abstract class LeanbackPreferenceFragment extends android.support.v17.preference.BaseLeanbackPreferenceFragment {
