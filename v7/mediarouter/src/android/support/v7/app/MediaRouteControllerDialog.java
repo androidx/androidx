@@ -345,7 +345,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                     mArtView.setImageURI(mDescription.getIconUri());
                     mArtView.setVisibility(View.VISIBLE);
                 } else {
-                    mArtView.setImageResource(R.drawable.ic_media_route_no_art);
+                    mArtView.setImageDrawable(null);
                     mArtView.setVisibility(View.GONE);
                 }
 
