@@ -18,7 +18,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="5441529851481176817">"Systém"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"Zariadenia"</string>
-    <string name="mr_media_route_button_content_description" msgid="8327680881775995150">"Preniesť"</string>
+    <string name="mr_media_route_button_content_description" msgid="8327680881775995150">"Prenášať"</string>
     <string name="mr_media_route_chooser_title" msgid="7106830097177242655">"Pripojenie k zariadeniu"</string>
     <string name="mr_media_route_chooser_searching" msgid="7553005460920830010">"Prebieha vyhľadávanie zariadení…"</string>
     <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"Odpojiť"</string>
@@ -26,4 +26,6 @@
     <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"Nastavenia trasy"</string>
     <string name="mr_media_route_controller_play" msgid="5214423499524760404">"Prehrať"</string>
     <string name="mr_media_route_controller_pause" msgid="8315773974194466049">"Pozastaviť"</string>
+    <!-- no translation found for mr_media_route_controller_no_info_available (3641544772007543920) -->
+    <skip />
 </resources>

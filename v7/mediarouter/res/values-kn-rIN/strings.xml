@@ -26,4 +26,6 @@
     <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"ಮಾರ್ಗ ಸೆಟ್ಟಿಂಗ್‌ಗಳು"</string>
     <string name="mr_media_route_controller_play" msgid="5214423499524760404">"ಪ್ಲೇ ಮಾಡು"</string>
     <string name="mr_media_route_controller_pause" msgid="8315773974194466049">"ವಿರಾಮ"</string>
+    <!-- no translation found for mr_media_route_controller_no_info_available (3641544772007543920) -->
+    <skip />
 </resources>
