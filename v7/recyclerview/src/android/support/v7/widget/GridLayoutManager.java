@@ -475,9 +475,9 @@ public class GridLayoutManager extends LinearLayoutManager {
                             mCachedBorders[lp.mSpanIndex],
                     View.MeasureSpec.EXACTLY);
             if (mOrientation == VERTICAL) {
-                measureChildWithDecorationsAndMargin(view, spec, getMainDirSpec(lp.height));
+                measureChildWithDecorationsAndMargin(view, spec, getMainDirSpec(lp.height), false);
             } else {
-                measureChildWithDecorationsAndMargin(view, getMainDirSpec(lp.width), spec);
+                measureChildWithDecorationsAndMargin(view, getMainDirSpec(lp.width), spec, false);
             }
             final int size = mOrientationHelper.getDecoratedMeasurement(view);
             if (size > maxSize) {
@@ -496,9 +496,9 @@ public class GridLayoutManager extends LinearLayoutManager {
                                 mCachedBorders[lp.mSpanIndex],
                         View.MeasureSpec.EXACTLY);
                 if (mOrientation == VERTICAL) {
-                    measureChildWithDecorationsAndMargin(view, spec, maxMeasureSpec);
+                    measureChildWithDecorationsAndMargin(view, spec, maxMeasureSpec, true);
                 } else {
-                    measureChildWithDecorationsAndMargin(view, maxMeasureSpec, spec);
+                    measureChildWithDecorationsAndMargin(view, maxMeasureSpec, spec, true);
                 }
             }
         }
@@ -560,13 +560,18 @@ public class GridLayoutManager extends LinearLayoutManager {
         }
     }
 
-    private void measureChildWithDecorationsAndMargin(View child, int widthSpec, int heightSpec) {
+    private void measureChildWithDecorationsAndMargin(View child, int widthSpec, int heightSpec,
+            boolean capBothSpecs) {
         calculateItemDecorationsForChild(child, mDecorInsets);
         RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) child.getLayoutParams();
-        widthSpec = updateSpecWithExtra(widthSpec, lp.leftMargin + mDecorInsets.left,
-                lp.rightMargin + mDecorInsets.right);
-        heightSpec = updateSpecWithExtra(heightSpec, lp.topMargin + mDecorInsets.top,
-                lp.bottomMargin + mDecorInsets.bottom);
+        if (capBothSpecs || mOrientation == VERTICAL) {
+            widthSpec = updateSpecWithExtra(widthSpec, lp.leftMargin + mDecorInsets.left,
+                    lp.rightMargin + mDecorInsets.right);
+        }
+        if (capBothSpecs || mOrientation == HORIZONTAL) {
+            heightSpec = updateSpecWithExtra(heightSpec, lp.topMargin + mDecorInsets.top,
+                    lp.bottomMargin + mDecorInsets.bottom);
+        }
         child.measure(widthSpec, heightSpec);
     }
 
