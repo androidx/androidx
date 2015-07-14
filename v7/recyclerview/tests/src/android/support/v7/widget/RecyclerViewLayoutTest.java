@@ -291,6 +291,24 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         scrollInOtherOrientationTest(FLAG_HORIZONTAL, 0);
     }
 
+    @Test
+    public void testNestedDragHorizontalCallsStopNestedScroll() throws Throwable {
+        TestedFrameLayout tfl = getActivity().mContainer;
+        tfl.setNestedScrollMode(TestedFrameLayout.TEST_NESTED_SCROLL_MODE_CONSUME);
+        tfl.setNestedFlingMode(TestedFrameLayout.TEST_NESTED_SCROLL_MODE_CONSUME);
+        scrollInOtherOrientationTest(FLAG_HORIZONTAL, 0);
+        assertTrue("onStopNestedScroll called", tfl.stopNestedScrollCalled());
+    }
+
+    @Test
+    public void testNestedDragVerticalCallsStopNestedScroll() throws Throwable {
+        TestedFrameLayout tfl = getActivity().mContainer;
+        tfl.setNestedScrollMode(TestedFrameLayout.TEST_NESTED_SCROLL_MODE_CONSUME);
+        tfl.setNestedFlingMode(TestedFrameLayout.TEST_NESTED_SCROLL_MODE_CONSUME);
+        scrollInOtherOrientationTest(FLAG_VERTICAL, 0);
+        assertTrue("onStopNestedScroll called", tfl.stopNestedScrollCalled());
+    }
+
     private void scrollInOtherOrientationTest(int flags)
             throws Throwable {
         scrollInOtherOrientationTest(flags, flags);

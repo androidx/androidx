@@ -2256,9 +2256,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 if (!((xvel != 0 || yvel != 0) && fling((int) xvel, (int) yvel))) {
                     setScrollState(SCROLL_STATE_IDLE);
                 }
-
-                mVelocityTracker.clear();
-                releaseGlows();
+                resetTouch();
             } break;
 
             case MotionEvent.ACTION_CANCEL: {
@@ -2271,12 +2269,16 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         return true;
     }
 
-    private void cancelTouch() {
+    private void resetTouch() {
         if (mVelocityTracker != null) {
             mVelocityTracker.clear();
         }
         stopNestedScroll();
         releaseGlows();
+    }
+
+    private void cancelTouch() {
+        resetTouch();
         setScrollState(SCROLL_STATE_IDLE);
     }
 
