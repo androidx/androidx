@@ -64,6 +64,11 @@ public class RecyclerViewBasicTest extends AndroidTestCase {
                 0, layoutManager.mLayoutCount);
     }
 
+    public void setScrollContainer() {
+        assertEquals("RecyclerView should announce itself as scroll container for the IME to "
+                + "handle it properly", true, mRecyclerView.isScrollContainer());
+    }
+
     public void testLayoutWithoutLayoutManager() throws InterruptedException {
         mRecyclerView.setAdapter(new MockAdapter(20));
         measure();
