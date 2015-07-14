@@ -1777,7 +1777,10 @@ public class MediaSessionCompat {
                         mCallback.onCustomAction((String) msg.obj, msg.getData());
                         break;
                     case MSG_MEDIA_BUTTON:
-                        mCallback.onMediaButtonEvent((Intent) msg.obj);
+                        KeyEvent keyEvent = (KeyEvent) msg.obj;
+                        Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+                        intent.putExtra(Intent.EXTRA_KEY_EVENT, keyEvent);
+                        mCallback.onMediaButtonEvent(intent);
                         break;
                     case MSG_COMMAND:
                         Command cmd = (Command) msg.obj;
