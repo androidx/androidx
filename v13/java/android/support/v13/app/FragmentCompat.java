@@ -88,8 +88,7 @@ public class FragmentCompat {
 
     static final FragmentCompatImpl IMPL;
     static {
-        // TODO: Change to comparison against API 23 once we have it defined.
-        if (Build.VERSION.CODENAME.equals("MNC") || Build.VERSION.SDK_INT > 22) {
+        if (Build.VERSION.SDK_INT >= 23) {
             IMPL = new MncFragmentCompatImpl();
         } else if (android.os.Build.VERSION.SDK_INT >= 15) {
             IMPL = new ICSMR1FragmentCompatImpl();
