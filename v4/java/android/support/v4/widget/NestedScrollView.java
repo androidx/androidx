@@ -1636,6 +1636,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         mIsBeingDragged = false;
 
         recycleVelocityTracker();
+        stopNestedScroll();
 
         if (mEdgeGlowTop != null) {
             mEdgeGlowTop.onRelease();
