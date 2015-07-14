@@ -1709,6 +1709,10 @@ public class MediaSessionCompat {
             private static final int MSG_ADJUST_VOLUME = 16;
             private static final int MSG_SET_VOLUME = 17;
 
+            // KeyEvent constants only available on API 11+
+            private static final int KEYCODE_MEDIA_PAUSE = 127;
+            private static final int KEYCODE_MEDIA_PLAY = 126;
+
             public MessageHandler(Looper looper) {
                 super(looper);
             }
@@ -1780,7 +1784,10 @@ public class MediaSessionCompat {
                         KeyEvent keyEvent = (KeyEvent) msg.obj;
                         Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
                         intent.putExtra(Intent.EXTRA_KEY_EVENT, keyEvent);
-                        mCallback.onMediaButtonEvent(intent);
+                        // Let the Callback handle events first before using the default behavior
+                        if (!mCallback.onMediaButtonEvent(intent)) {
+                            onMediaButtonEvent(keyEvent);
+                        }
                         break;
                     case MSG_COMMAND:
                         Command cmd = (Command) msg.obj;
@@ -1791,6 +1798,66 @@ public class MediaSessionCompat {
                         break;
                     case MSG_SET_VOLUME:
                         setVolumeTo((int) msg.obj, 0);
+                        break;
+                }
+            }
+
+            private void onMediaButtonEvent(KeyEvent ke) {
+                if (ke == null || ke.getAction() != KeyEvent.ACTION_DOWN) {
+                    return;
+                }
+                long validActions = mState == null ? 0 : mState.getActions();
+                switch (ke.getKeyCode()) {
+                    // Note KeyEvent.KEYCODE_MEDIA_PLAY is API 11+
+                    case KEYCODE_MEDIA_PLAY:
+                        if ((validActions & PlaybackStateCompat.ACTION_PLAY) != 0) {
+                            mCallback.onPlay();
+                        }
+                        break;
+                    // Note KeyEvent.KEYCODE_MEDIA_PAUSE is API 11+
+                    case KEYCODE_MEDIA_PAUSE:
+                        if ((validActions & PlaybackStateCompat.ACTION_PAUSE) != 0) {
+                            mCallback.onPause();
+                        }
+                        break;
+                    case KeyEvent.KEYCODE_MEDIA_NEXT:
+                        if ((validActions & PlaybackStateCompat.ACTION_SKIP_TO_NEXT) != 0) {
+                            mCallback.onSkipToNext();
+                        }
+                        break;
+                    case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
+                        if ((validActions & PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS) != 0) {
+                            mCallback.onSkipToPrevious();
+                        }
+                        break;
+                    case KeyEvent.KEYCODE_MEDIA_STOP:
+                        if ((validActions & PlaybackStateCompat.ACTION_STOP) != 0) {
+                            mCallback.onStop();
+                        }
+                        break;
+                    case KeyEvent.KEYCODE_MEDIA_FAST_FORWARD:
+                        if ((validActions & PlaybackStateCompat.ACTION_FAST_FORWARD) != 0) {
+                            mCallback.onFastForward();
+                        }
+                        break;
+                    case KeyEvent.KEYCODE_MEDIA_REWIND:
+                        if ((validActions & PlaybackStateCompat.ACTION_REWIND) != 0) {
+                            mCallback.onRewind();
+                        }
+                        break;
+                    case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
+                    case KeyEvent.KEYCODE_HEADSETHOOK:
+                        boolean isPlaying = mState != null
+                                && mState.getState() == PlaybackStateCompat.STATE_PLAYING;
+                        boolean canPlay = (validActions & (PlaybackStateCompat.ACTION_PLAY_PAUSE
+                                | PlaybackStateCompat.ACTION_PLAY)) != 0;
+                        boolean canPause = (validActions & (PlaybackStateCompat.ACTION_PLAY_PAUSE
+                                | PlaybackStateCompat.ACTION_PAUSE)) != 0;
+                        if (isPlaying && canPause) {
+                            mCallback.onPause();
+                        } else if (!isPlaying && canPlay) {
+                            mCallback.onPlay();
+                        }
                         break;
                 }
             }
