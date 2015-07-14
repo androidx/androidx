@@ -18,55 +18,32 @@ package android.support.v17.preference;
 
 import android.app.Fragment;
 import android.os.Bundle;
-import android.support.v14.preference.MultiSelectListPreference;
-import android.support.v14.preference.PreferenceFragment;
 import android.support.v7.preference.DialogPreference;
-import android.support.v7.preference.ListPreference;
 
 public class LeanbackPreferenceDialogFragment extends Fragment {
-
-    public interface TargetFragment extends DialogPreference.TargetFragment {
-
-        PreferenceFragment getPreferenceFragment();
-
-        LeanbackSettingsFragment getSettingsFragment();
-    }
 
     public static final String ARG_KEY = "key";
 
     private DialogPreference mPreference;
-
-    private PreferenceFragment mPreferenceFragment;
-
-    private LeanbackSettingsFragment mSettingsFragment;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         final Fragment rawFragment = getParentFragment();
-        if (!(rawFragment instanceof TargetFragment)) {
+        if (!(rawFragment instanceof DialogPreference.TargetFragment)) {
             throw new IllegalStateException("Target fragment must implement TargetFragment" +
                     " interface");
         }
 
-        final TargetFragment fragment = (TargetFragment) rawFragment;
+        final DialogPreference.TargetFragment fragment =
+                (DialogPreference.TargetFragment) rawFragment;
 
         final String key = getArguments().getString(LeanbackListPreferenceDialogFragment.ARG_KEY);
         mPreference = (DialogPreference) fragment.findPreference(key);
-        mPreferenceFragment = fragment.getPreferenceFragment();
-        mSettingsFragment = fragment.getSettingsFragment();
     }
 
     public DialogPreference getPreference() {
         return mPreference;
-    }
-
-    public PreferenceFragment getPreferenceFragment() {
-        return mPreferenceFragment;
-    }
-
-    public LeanbackSettingsFragment getSettingsFragment() {
-        return mSettingsFragment;
     }
 }
