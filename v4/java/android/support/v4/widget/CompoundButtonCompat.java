@@ -37,7 +37,7 @@ public final class CompoundButtonCompat {
 
     static {
         final int sdk = Build.VERSION.SDK_INT;
-        if (sdk >= 23 || "MNC".equals(Build.VERSION.CODENAME)) {
+        if (sdk >= 23) {
             IMPL = new Api23CompoundButtonImpl();
         } else if (sdk >= 21) {
             IMPL = new LollipopCompoundButtonImpl();

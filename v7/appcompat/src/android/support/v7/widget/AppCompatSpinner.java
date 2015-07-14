@@ -64,8 +64,7 @@ import android.widget.SpinnerAdapter;
  */
 public class AppCompatSpinner extends Spinner implements TintableBackgroundView {
 
-    private static final boolean IS_AT_LEAST_M =
-            "MNC".equals(Build.VERSION.CODENAME) || Build.VERSION.SDK_INT >= 23;
+    private static final boolean IS_AT_LEAST_M = Build.VERSION.SDK_INT >= 23;
     private static final boolean IS_AT_LEAST_JB = Build.VERSION.SDK_INT >= 16;
 
     private static final int[] ATTRS_ANDROID_SPINNERMODE = {android.R.attr.spinnerMode};
