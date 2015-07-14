@@ -48,8 +48,7 @@ public class FingerprintManagerCompat {
     static final FingerprintManagerCompatImpl IMPL;
     static {
         final int version = Build.VERSION.SDK_INT;
-        // STOPSHIP: Remove "MNC" check once the API's are final for MNC
-        if (version >= 23 || "MNC".equals(Build.VERSION.CODENAME)) {
+        if (version >= 23) {
             IMPL = new Api23FingerprintManagerCompatImpl();
         } else {
             IMPL = new LegacyFingerprintManagerCompatImpl();
