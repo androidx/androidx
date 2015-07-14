@@ -79,7 +79,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private TextView mTitleView;
     private TextView mSubtitleView;
     private TextView mRouteNameView;
-    private View mTitlesWrapper;
 
     private boolean mVolumeControlEnabled = true;
     private LinearLayout mVolumeLayout;
@@ -221,7 +220,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mArtView = (ImageView) findViewById(R.id.art);
         mTitleView = (TextView) findViewById(R.id.title);
         mSubtitleView = (TextView) findViewById(R.id.subtitle);
-        mTitlesWrapper = findViewById(R.id.text_wrapper);
         mPlayPauseButton = (ImageButton) findViewById(R.id.play_pause);
         mPlayPauseButton.setOnClickListener(listener);
         mRouteNameView = (TextView) findViewById(R.id.route_name);
@@ -347,35 +345,28 @@ public class MediaRouteControllerDialog extends AlertDialog {
                     mArtView.setImageURI(mDescription.getIconUri());
                     mArtView.setVisibility(View.VISIBLE);
                 } else {
-                    mArtView.setImageDrawable(null);
+                    mArtView.setImageResource(R.drawable.ic_media_route_no_art);
                     mArtView.setVisibility(View.GONE);
                 }
 
-                boolean haveText = false;
-                CharSequence text = mDescription.getTitle();
-                if (!TextUtils.isEmpty(text)) {
-                    mTitleView.setText(text);
-                    haveText = true;
-                } else {
-                    mTitleView.setText(null);
-                    mTitleView.setVisibility(View.GONE);
-                }
-                text = mDescription.getSubtitle();
-                if (!TextUtils.isEmpty(text)) {
-                    mSubtitleView.setText(mDescription.getSubtitle());
-                    haveText = true;
-                } else {
-                    mSubtitleView.setText(null);
+                CharSequence title = mDescription.getTitle();
+                boolean hasTitle = !TextUtils.isEmpty(title);
+
+                CharSequence subtitle = mDescription.getSubtitle();
+                boolean hasSubtitle = !TextUtils.isEmpty(subtitle);
+
+                if (!hasTitle && !hasSubtitle) {
+                    mTitleView.setText(R.string.mr_media_route_controller_no_info_available);
+                    mTitleView.setEnabled(false);
+                    mTitleView.setVisibility(View.VISIBLE);
                     mSubtitleView.setVisibility(View.GONE);
-                }
-                if (!haveText) {
-                    mTitlesWrapper.setVisibility(View.GONE);
                 } else {
-                    mTitlesWrapper.setVisibility(View.VISIBLE);
+                    mTitleView.setText(title);
+                    mTitleView.setEnabled(hasTitle);
+                    mTitleView.setVisibility(hasTitle ? View.VISIBLE : View.GONE);
+                    mSubtitleView.setText(subtitle);
+                    mSubtitleView.setVisibility(hasSubtitle ? View.VISIBLE : View.GONE);
                 }
-            } else {
-                mArtView.setVisibility(View.GONE);
-                mTitlesWrapper.setVisibility(View.GONE);
             }
             if (mState != null) {
                 boolean isPlaying = mState.getState() == PlaybackStateCompat.STATE_BUFFERING

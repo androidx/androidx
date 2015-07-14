@@ -45,4 +45,7 @@
 
     <!-- Accessibility description for the pause button -->
     <string name="mr_media_route_controller_pause">Pause</string>
+
+    <!-- Placeholder text to show when no title/description have been found for a given song/video. [CHAR LIMIT=50] -->
+    <string name="mr_media_route_controller_no_info_available">No info available</string>
 </resources>
