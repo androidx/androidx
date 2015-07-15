@@ -53,6 +53,7 @@ import android.view.accessibility.AccessibilityEvent;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -212,6 +213,8 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
     private Drawable mShadowEnd = null;
     private Drawable mShadowLeft = null;
     private Drawable mShadowRight = null;
+
+    private final ArrayList<View> mNonDrawerViews;
 
     /**
      * Listener for monitoring events about drawers.
@@ -377,6 +380,8 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
         }
 
         mDrawerElevation = DRAWER_ELEVATION * density;
+
+        mNonDrawerViews = new ArrayList<View>();
     }
 
     /**
@@ -1599,6 +1604,41 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
     @Override
     public ViewGroup.LayoutParams generateLayoutParams(AttributeSet attrs) {
         return new LayoutParams(getContext(), attrs);
+    }
+
+    @Override
+    public void addFocusables(ArrayList<View> views, int direction, int focusableMode) {
+        if (getDescendantFocusability() == FOCUS_BLOCK_DESCENDANTS) {
+            return;
+        }
+
+        // Only the views in the open drawers are focusables. Add normal child views when
+        // no drawers are opened.
+        final int childCount = getChildCount();
+        boolean isDrawerOpen = false;
+        for (int i = 0; i < childCount; i++) {
+            final View child = getChildAt(i);
+            if (isDrawerView(child)) {
+                if (isDrawerOpen(child)) {
+                    isDrawerOpen = true;
+                    child.addFocusables(views, direction, focusableMode);
+                }
+            } else {
+                mNonDrawerViews.add(child);
+            }
+        }
+
+        if (!isDrawerOpen) {
+            final int nonDrawerViewsCount = mNonDrawerViews.size();
+            for (int i = 0; i < nonDrawerViewsCount; ++i) {
+                final View child = mNonDrawerViews.get(i);
+                if (child.getVisibility() == View.VISIBLE) {
+                    child.addFocusables(views, direction, focusableMode);
+                }
+            }
+        }
+
+        mNonDrawerViews.clear();
     }
 
     private boolean hasVisibleDrawer() {
