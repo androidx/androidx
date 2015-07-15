@@ -471,6 +471,7 @@ public abstract class PreferenceFragment extends Fragment implements
         final PreferenceScreen preferenceScreen = getPreferenceScreen();
         if (preferenceScreen != null) {
             getListView().setAdapter(onCreateAdapter(preferenceScreen));
+            preferenceScreen.onAttached();
         }
         onBindPreferences();
     }
