@@ -150,7 +150,7 @@ LOCAL_SRC_FILES_arm := \
         cpu_ref/rsCpuIntrinsics_neon_YuvToRGB.S
 endif
 
-LOCAL_SHARED_LIBRARIES += libblas
+LOCAL_REQUIRED_MODULES := libblasV8
 LOCAL_STATIC_LIBRARIES := libbnnmlowpV8
 LOCAL_LDFLAGS += -llog -ldl
 LOCAL_NDK_STL_VARIANT := stlport_static
