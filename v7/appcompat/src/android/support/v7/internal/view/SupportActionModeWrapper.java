@@ -183,11 +183,7 @@ public class SupportActionModeWrapper extends ActionMode {
             return wrapper;
         }
 
-        public void addActionModeWrapper(SupportActionModeWrapper wrapper) {
-            mActionModes.add(wrapper);
-        }
-
-        private ActionMode getActionModeWrapper(android.support.v7.view.ActionMode mode) {
+        public ActionMode getActionModeWrapper(android.support.v7.view.ActionMode mode) {
             // First see if we already have a wrapper for this mode
             for (int i = 0, count = mActionModes.size(); i < count; i++) {
                 SupportActionModeWrapper wrapper = mActionModes.get(i);
