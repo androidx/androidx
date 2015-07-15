@@ -76,11 +76,7 @@ class AppCompatDelegateImplV14 extends AppCompatDelegateImplV11 {
 
             if (supportActionMode != null) {
                 // If we received a support action mode, wrap and return it
-                final SupportActionModeWrapper newActionMode
-                        = new SupportActionModeWrapper(mContext, supportActionMode);
-                // We need to let the wrapped callback know about the original new action mode
-                callbackWrapper.addActionModeWrapper(newActionMode);
-                return newActionMode;
+                return callbackWrapper.getActionModeWrapper(supportActionMode);
             }
             return null;
         }
