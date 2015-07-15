@@ -26,4 +26,5 @@
     <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"การตั้งค่าเส้นทาง"</string>
     <string name="mr_media_route_controller_play" msgid="5214423499524760404">"เล่น"</string>
     <string name="mr_media_route_controller_pause" msgid="8315773974194466049">"หยุดชั่วคราว"</string>
+    <string name="mr_media_route_controller_no_info_available" msgid="3641544772007543920">"ไม่มีข้อมูล"</string>
 </resources>

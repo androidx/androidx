@@ -26,4 +26,5 @@
     <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"လမ်းကြောင်း အပြင်အဆင်များ"</string>
     <string name="mr_media_route_controller_play" msgid="5214423499524760404">"ဖွင့်ရန်"</string>
     <string name="mr_media_route_controller_pause" msgid="8315773974194466049">"ခဏရပ်ရန်"</string>
+    <string name="mr_media_route_controller_no_info_available" msgid="3641544772007543920">"အချက်အလက် မရရှိနိုင်ပါ"</string>
 </resources>
