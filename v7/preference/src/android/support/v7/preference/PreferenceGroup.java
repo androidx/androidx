@@ -53,7 +53,7 @@ public abstract class PreferenceGroup extends Preference {
 
     private int mCurrentPreferenceOrder = 0;
 
-    private boolean mAttachedToActivity = false;
+    private boolean mAttachedToHierarchy = false;
 
     public PreferenceGroup(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
@@ -168,7 +168,7 @@ public abstract class PreferenceGroup extends Preference {
 
         preference.onAttachedToHierarchy(getPreferenceManager());
 
-        if (mAttachedToActivity) {
+        if (mAttachedToHierarchy) {
             preference.onAttached();
         }
 
@@ -270,12 +270,12 @@ public abstract class PreferenceGroup extends Preference {
     }
 
     @Override
-    protected void onAttached() {
+    public void onAttached() {
         super.onAttached();
 
         // Mark as attached so if a preference is later added to this group, we
         // can tell it we are already attached
-        mAttachedToActivity = true;
+        mAttachedToHierarchy = true;
 
         // Dispatch to all contained preferences
         final int preferenceCount = getPreferenceCount();
@@ -289,7 +289,7 @@ public abstract class PreferenceGroup extends Preference {
         super.onPrepareForRemoval();
 
         // We won't be attached to the activity anymore
-        mAttachedToActivity = false;
+        mAttachedToHierarchy = false;
     }
 
     @Override

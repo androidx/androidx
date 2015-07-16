@@ -1070,7 +1070,7 @@ public class Preference implements Comparable<Preference> {
      * Preference has been attached to a group that was already attached
      * to the list of preferences.
      */
-    protected void onAttached() {
+    public void onAttached() {
         // At this point, the hierarchy that this preference is in is connected
         // with all other preferences.
         registerDependency();
