@@ -113,7 +113,7 @@ package android.support.v7.preference {
     method protected void notifyChanged();
     method public void notifyDependencyChange(boolean);
     method protected void notifyHierarchyChanged();
-    method protected void onAttached();
+    method public void onAttached();
     method protected void onAttachedToHierarchy(android.support.v7.preference.PreferenceManager);
     method public void onBindViewHolder(android.support.v7.preference.PreferenceViewHolder);
     method protected void onClick();
