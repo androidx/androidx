@@ -244,7 +244,6 @@ package android.support.v7.app {
 
   public abstract class AppCompatDelegate {
     method public abstract void addContentView(android.view.View, android.view.ViewGroup.LayoutParams);
-    method public abstract void applyDayNight();
     method public static android.support.v7.app.AppCompatDelegate create(android.app.Activity, android.support.v7.app.AppCompatCallback);
     method public static android.support.v7.app.AppCompatDelegate create(android.app.Dialog, android.support.v7.app.AppCompatCallback);
     method public abstract android.view.View createView(android.view.View, java.lang.String, android.content.Context, android.util.AttributeSet);
@@ -266,16 +265,12 @@ package android.support.v7.app {
     method public abstract void setContentView(int);
     method public abstract void setContentView(android.view.View, android.view.ViewGroup.LayoutParams);
     method public abstract void setHandleNativeActionModesEnabled(boolean);
-    method public abstract void setNightMode(int);
     method public abstract void setSupportActionBar(android.support.v7.widget.Toolbar);
     method public abstract void setTitle(java.lang.CharSequence);
     method public abstract android.support.v7.view.ActionMode startSupportActionMode(android.support.v7.view.ActionMode.Callback);
     field public static final int FEATURE_ACTION_MODE_OVERLAY = 10; // 0xa
     field public static final int FEATURE_SUPPORT_ACTION_BAR = 108; // 0x6c
     field public static final int FEATURE_SUPPORT_ACTION_BAR_OVERLAY = 109; // 0x6d
-    field public static final int MODE_NIGHT_AUTO = 2; // 0x2
-    field public static final int MODE_NIGHT_NO = 0; // 0x0
-    field public static final int MODE_NIGHT_YES = 1; // 0x1
   }
 
   public class AppCompatDialog extends android.app.Dialog implements android.support.v7.app.AppCompatCallback {
@@ -1198,13 +1193,6 @@ package android.support.v7.appcompat {
     field public static int ThemeOverlay_AppCompat_Light;
     field public static int Theme_AppCompat;
     field public static int Theme_AppCompat_CompactMenu;
-    field public static int Theme_AppCompat_DayNight;
-    field public static int Theme_AppCompat_DayNight_DarkActionBar;
-    field public static int Theme_AppCompat_DayNight_Dialog;
-    field public static int Theme_AppCompat_DayNight_DialogWhenLarge;
-    field public static int Theme_AppCompat_DayNight_Dialog_Alert;
-    field public static int Theme_AppCompat_DayNight_Dialog_MinWidth;
-    field public static int Theme_AppCompat_DayNight_NoActionBar;
     field public static int Theme_AppCompat_Dialog;
     field public static int Theme_AppCompat_DialogWhenLarge;
     field public static int Theme_AppCompat_Dialog_Alert;
