@@ -466,7 +466,13 @@ public class ToolbarActionBar extends ActionBar {
     @Override
     public boolean onKeyShortcut(int keyCode, KeyEvent ev) {
         Menu menu = getMenu();
-        return menu != null ? menu.performShortcut(keyCode, ev, 0) : false;
+        if (menu != null) {
+            menu.performShortcut(keyCode, ev, 0);
+        }
+        // This action bar always returns true for handling keyboard shortcuts.
+        // This will block the window from preparing a temporary panel to handle
+        // keyboard shortcuts.
+        return true;
     }
 
     public void addOnMenuVisibilityListener(OnMenuVisibilityListener listener) {
