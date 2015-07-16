@@ -2149,7 +2149,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         if (mVelocityTracker == null) {
             mVelocityTracker = VelocityTracker.obtain();
         }
-        mVelocityTracker.addMovement(e);
+        boolean eventAddedToVelocityTracker = false;
 
         final MotionEvent vtev = MotionEvent.obtain(e);
         final int action = MotionEventCompat.getActionMasked(e);
@@ -2249,6 +2249,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             } break;
 
             case MotionEvent.ACTION_UP: {
+                mVelocityTracker.addMovement(vtev);
+                eventAddedToVelocityTracker = true;
                 mVelocityTracker.computeCurrentVelocity(1000, mMaxFlingVelocity);
                 final float xvel = canScrollHorizontally ?
                         -VelocityTrackerCompat.getXVelocity(mVelocityTracker, mScrollPointerId) : 0;
@@ -2265,6 +2267,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             } break;
         }
 
+        if (!eventAddedToVelocityTracker) {
+            mVelocityTracker.addMovement(vtev);
+        }
         vtev.recycle();
 
         return true;
