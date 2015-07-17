@@ -16,6 +16,7 @@
 
 package android.support.v7.app;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.IntentSender;
 import android.graphics.drawable.Drawable;
