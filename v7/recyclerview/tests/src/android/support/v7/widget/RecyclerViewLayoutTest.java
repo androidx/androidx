@@ -23,15 +23,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.support.test.InstrumentationRegistry;
-
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.os.SystemClock;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.widget.RecyclerView;
 import android.test.TouchUtils;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -53,7 +54,6 @@ import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_DRAGGING;
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_SETTLING;
 import static android.support.v7.widget.RecyclerView.getChildViewHolderInt;
-
 import android.support.test.runner.AndroidJUnit4;
 
 @RunWith(AndroidJUnit4.class)
@@ -81,6 +81,200 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     @Override
     public void tearDown() throws Exception {
         super.tearDown();
+    }
+
+    @Test
+    public void testFlingFrozen() throws Throwable {
+        testScrollFrozen(true);
+    }
+
+    @Test
+    public void testDragFrozen() throws Throwable {
+        testScrollFrozen(false);
+    }
+
+    private void testScrollFrozen(boolean fling) throws Throwable {
+        RecyclerView recyclerView = new RecyclerView(getActivity());
+
+        final int horizontalScrollCount = 3;
+        final int verticalScrollCount = 3;
+        final int horizontalVelocity = 1000;
+        final int verticalVelocity = 1000;
+        final AtomicInteger horizontalCounter = new AtomicInteger(horizontalScrollCount);
+        final AtomicInteger verticalCounter = new AtomicInteger(verticalScrollCount);
+        TestLayoutManager tlm = new TestLayoutManager() {
+            @Override
+            public boolean canScrollHorizontally() {
+                return true;
+            }
+
+            @Override
+            public boolean canScrollVertically() {
+                return true;
+            }
+
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                layoutRange(recycler, 0, 10);
+                layoutLatch.countDown();
+            }
+
+            @Override
+            public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler,
+                    RecyclerView.State state) {
+                if (verticalCounter.get() > 0) {
+                    verticalCounter.decrementAndGet();
+                    return dy;
+                }
+                return 0;
+            }
+
+            @Override
+            public int scrollHorizontallyBy(int dx, RecyclerView.Recycler recycler,
+                    RecyclerView.State state) {
+                if (horizontalCounter.get() > 0) {
+                    horizontalCounter.decrementAndGet();
+                    return dx;
+                }
+                return 0;
+            }
+        };
+        TestAdapter adapter = new TestAdapter(100);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(tlm);
+        tlm.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        tlm.waitForLayout(2);
+
+        freezeLayout(true);
+
+        if (fling) {
+            assertFalse("fling should be blocked", fling(horizontalVelocity, verticalVelocity));
+        } else { // drag
+            TouchUtils.dragViewTo(this, recyclerView,
+                    Gravity.LEFT | Gravity.TOP,
+                    mRecyclerView.getWidth() / 2, mRecyclerView.getHeight() / 2);
+        }
+        assertEquals("rv's horizontal scroll cb must not run", horizontalScrollCount,
+                horizontalCounter.get());
+        assertEquals("rv's vertical scroll cb must not run", verticalScrollCount,
+                verticalCounter.get());
+
+        freezeLayout(false);
+
+        if (fling) {
+            assertTrue("fling should be started", fling(horizontalVelocity, verticalVelocity));
+        } else { // drag
+            TouchUtils.dragViewTo(this, recyclerView,
+                    Gravity.LEFT | Gravity.TOP,
+                    mRecyclerView.getWidth() / 2, mRecyclerView.getHeight() / 2);
+        }
+        assertEquals("rv's horizontal scroll cb must finishes", 0, horizontalCounter.get());
+        assertEquals("rv's vertical scroll cb must finishes", 0, verticalCounter.get());
+    }
+
+    @Test
+    public void testFocusSearchFailFrozen() throws Throwable {
+        RecyclerView recyclerView = new RecyclerView(getActivity());
+
+        final AtomicInteger focusSearchCalled = new AtomicInteger(0);
+        TestLayoutManager tlm = new TestLayoutManager() {
+            @Override
+            public boolean canScrollHorizontally() {
+                return true;
+            }
+
+            @Override
+            public boolean canScrollVertically() {
+                return true;
+            }
+
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                layoutRange(recycler, 0, 10);
+                layoutLatch.countDown();
+            }
+
+            @Override
+            public View onFocusSearchFailed(View focused, int direction, RecyclerView.Recycler recycler,
+                    RecyclerView.State state) {
+                focusSearchCalled.addAndGet(1);
+                return null;
+            }
+        };
+        TestAdapter adapter = new TestAdapter(100);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(tlm);
+        tlm.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        tlm.waitForLayout(2);
+
+        final View c = recyclerView.getChildAt(recyclerView.getChildCount() - 1);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                c.requestFocus();
+            }
+        });
+        assertTrue(c.hasFocus());
+
+        freezeLayout(true);
+        sendKeys(KeyEvent.KEYCODE_DPAD_DOWN);
+        assertEquals("onFocusSearchFailed should not be called when layout is frozen",
+                0, focusSearchCalled.get());
+
+        freezeLayout(false);
+        sendKeys(KeyEvent.KEYCODE_DPAD_DOWN);
+        assertEquals(1, focusSearchCalled.get());
+    }
+
+    @Test
+    public void testFrozenAndChangeAdapter() throws Throwable {
+        RecyclerView recyclerView = new RecyclerView(getActivity());
+
+        final AtomicInteger focusSearchCalled = new AtomicInteger(0);
+        TestLayoutManager tlm = new TestLayoutManager() {
+            @Override
+            public boolean canScrollHorizontally() {
+                return true;
+            }
+
+            @Override
+            public boolean canScrollVertically() {
+                return true;
+            }
+
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                layoutRange(recycler, 0, 10);
+                layoutLatch.countDown();
+            }
+
+            @Override
+            public View onFocusSearchFailed(View focused, int direction, RecyclerView.Recycler recycler,
+                    RecyclerView.State state) {
+                focusSearchCalled.addAndGet(1);
+                return null;
+            }
+        };
+        TestAdapter adapter = new TestAdapter(100);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(tlm);
+        tlm.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        tlm.waitForLayout(2);
+
+        freezeLayout(true);
+        TestAdapter adapter2 = new TestAdapter(1000);
+        setAdapter(adapter2);
+        assertFalse(recyclerView.isLayoutFrozen());
+        assertSame(adapter2, recyclerView.getAdapter());
+
+        freezeLayout(true);
+        TestAdapter adapter3 = new TestAdapter(1000);
+        swapAdapter(adapter3, true);
+        assertFalse(recyclerView.isLayoutFrozen());
+        assertSame(adapter3, recyclerView.getAdapter());
     }
 
     @Test
@@ -135,6 +329,10 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         assertEquals("VTO on scroll should be called for initialization", 1,
                 viewGroupCounter.get());
         tlm.expectLayouts(1);
+        freezeLayout(true);
+        scrollToPosition(3);
+        tlm.assertNoLayout("scrollToPosition should be ignored", 2);
+        freezeLayout(false);
         scrollToPosition(3);
         tlm.waitForLayout(2);
         assertEquals("RV on scroll should be called", 2, rvCounter.get());
@@ -2855,6 +3053,11 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         tlm.expectLayouts(1);
         setRecyclerView(rv);
         tlm.waitForLayout(2);
+        freezeLayout(true);
+        smoothScrollToPosition(35);
+        assertEquals("smoothScrollToPosition should be ignored when frozen",
+                -1, receivedSmoothScrollToPosition.get());
+        freezeLayout(false);
         smoothScrollToPosition(35);
         assertTrue("both scrolls should be called", cbLatch.await(3, TimeUnit.SECONDS));
         checkForMainThreadException();
