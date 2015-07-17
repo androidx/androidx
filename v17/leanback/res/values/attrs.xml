@@ -116,7 +116,23 @@
     </declare-styleable>
 
     <declare-styleable name="lbImageCardView">
+        <!-- Deprecated. Use 'lbImageCardViewInfoAreaStyle' instead. -->
         <attr name="infoAreaBackground" format="reference|color"/>
+        <!-- Use these attributes to override a ImageCardView's component style. -->
+        <attr name="lbImageCardViewImageStyle" format="reference" />
+        <attr name="lbImageCardViewTitleStyle" format="reference" />
+        <attr name="lbImageCardViewContentStyle" format="reference" />
+        <attr name="lbImageCardViewBadgeStyle" format="reference" />
+        <attr name="lbImageCardViewInfoAreaStyle" format="reference" />
+        <!-- Defines what components the ImageCardView will use. -->
+        <attr name="lbImageCardViewType">
+            <flag name="Title" value="1" />
+            <flag name="Content" value="2" />
+            <flag name="IconOnRight" value="4" />
+            <flag name="IconOnLeft" value="8" />
+            <!-- Only display the main image. -->
+            <flag name="ImageOnly" value="0" />
+        </attr>
     </declare-styleable>
 
     <declare-styleable name="lbSearchOrbView">

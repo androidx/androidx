@@ -203,6 +203,7 @@
     <dimen name="lb_basic_card_info_height">52dp</dimen>
     <dimen name="lb_basic_card_info_height_no_content">34dp</dimen>
     <dimen name="lb_basic_card_info_padding_top">7dp</dimen>
+    <dimen name="lb_basic_card_info_padding_bottom">8dp</dimen>
     <dimen name="lb_basic_card_info_padding_horizontal">11dp</dimen>
     <dimen name="lb_basic_card_info_text_margin">1dp</dimen>
     <dimen name="lb_basic_card_title_text_size">14sp</dimen>

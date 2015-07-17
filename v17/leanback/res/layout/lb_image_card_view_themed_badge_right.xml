@@ -15,17 +15,9 @@
      limitations under the License.
 -->
 
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:lb="http://schemas.android.com/apk/res-auto" >
-
-    <ImageView
-        android:id="@+id/main_image"
-        style="?attr/lbImageCardViewImageStyle" />
-
-    <android.support.v17.leanback.widget.NonOverlappingRelativeLayout
-        android:id="@+id/info_field"
-        style="?attr/lbImageCardViewInfoAreaStyle"
-        lb:layout_viewType="info" >
-    </android.support.v17.leanback.widget.NonOverlappingRelativeLayout>
-
-</merge>
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/extra_badge"
+    android:layout_alignBottom="@+id/content_text"
+    android:layout_alignParentEnd="true"
+    android:layout_marginStart="@dimen/lb_basic_card_info_badge_margin"
+    style="?attr/lbImageCardViewBadgeStyle" />
