@@ -355,6 +355,15 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         getInstrumentation().waitForIdleSync();
     }
 
+    void freezeLayout(final boolean freeze) throws Throwable {
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.setLayoutFrozen(freeze);
+            }
+        });
+    }
+
     class TestViewHolder extends RecyclerView.ViewHolder {
 
         Item mBoundItem;
