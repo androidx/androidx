@@ -1356,6 +1356,7 @@ public class RenderScript {
             useIOlib = true;
         }
 
+        // The target API level used to init dispatchTable.
         int dispatchAPI = sdkVersion;
         if (sdkVersion < android.os.Build.VERSION.SDK_INT) {
             // If the device API is higher than target API level, init dispatch table based on device API.
@@ -1386,6 +1387,16 @@ public class RenderScript {
             if (!useIOlib || !rs.nLoadIOSO()) {
                 android.util.Log.v(LOG_TAG, "Unable to load libRSSupportIO.so, USAGE_IO not supported");
                 useIOlib = false;
+            }
+        }
+
+        // For old APIs with dlopen bug, need to load blas lib in Java first.
+        // Only try load to blasV8 when the desired API level includes IntrinsicBLAS.
+        if (dispatchAPI >= 23) {
+            try {
+                System.loadLibrary("blasV8");
+            } catch (UnsatisfiedLinkError e) {
+                Log.v(LOG_TAG, "Unable to load BLAS lib, ONLY BNNM will be supported: " + e);
             }
         }
 
