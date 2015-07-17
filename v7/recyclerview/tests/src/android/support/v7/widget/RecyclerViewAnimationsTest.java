@@ -865,6 +865,25 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
         mLayoutManager.waitForLayout(2);
     }
 
+    public void testAdapterChangeFrozen() throws Throwable {
+        setupBasic(10, 1, 7);
+        assertTrue(mRecyclerView.getChildCount() == 7);
+
+        mLayoutManager.expectLayouts(2);
+        mLayoutManager.mOnLayoutCallbacks.mLayoutMin = 1;
+        mLayoutManager.mOnLayoutCallbacks.mLayoutItemCount = 8;
+        freezeLayout(true);
+        mTestAdapter.addAndNotify(0, 1);
+
+        mLayoutManager.assertNoLayout("RV should keep old child during frozen", 2);
+        assertEquals(7, mRecyclerView.getChildCount());
+
+        freezeLayout(false);
+        mLayoutManager.waitForLayout(2);
+        assertEquals("RV should get updated after waken from frozen",
+                8, mRecyclerView.getChildCount());
+    }
+
     public TestRecyclerView getTestRecyclerView() {
         return (TestRecyclerView) mRecyclerView;
     }

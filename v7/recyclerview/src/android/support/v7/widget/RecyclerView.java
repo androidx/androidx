@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.CallSuper;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.v4.os.TraceCompat;
 import android.support.v4.util.ArrayMap;
@@ -292,6 +293,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     private boolean mFirstLayoutComplete;
     private boolean mEatRequestLayout;
     private boolean mLayoutRequestEaten;
+    private boolean mLayoutFrozen;
+    private boolean mIgnoreMotionEventTillDown;
+
     // binary OR of change events that were eaten during a layout or scroll.
     private int mEatenAccessibilityChangeFlags;
     private boolean mAdapterUpdateDuringMeasure;
@@ -765,6 +769,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * @see #setAdapter(Adapter)
      */
     public void swapAdapter(Adapter adapter, boolean removeAndRecycleExistingViews) {
+        // bail out if layout is frozen
+        setLayoutFrozen(false);
         setAdapterInternal(adapter, true, removeAndRecycleExistingViews);
         setDataSetChangedAfterLayout();
         requestLayout();
@@ -779,6 +785,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * @see #swapAdapter(Adapter, boolean)
      */
     public void setAdapter(Adapter adapter) {
+        // bail out if layout is frozen
+        setLayoutFrozen(false);
         setAdapterInternal(adapter, false, true);
         requestLayout();
     }
@@ -1264,6 +1272,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * @see android.support.v7.widget.RecyclerView.LayoutManager#scrollToPosition(int)
      */
     public void scrollToPosition(int position) {
+        if (mLayoutFrozen) {
+            return;
+        }
         stopScroll();
         if (mLayout == null) {
             Log.e(TAG, "Cannot scroll to position a LayoutManager set. " +
@@ -1298,6 +1309,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * @see LayoutManager#smoothScrollToPosition(RecyclerView, State, int)
      */
     public void smoothScrollToPosition(int position) {
+        if (mLayoutFrozen) {
+            return;
+        }
         if (mLayout == null) {
             Log.e(TAG, "Cannot smooth scroll without a LayoutManager set. " +
                     "Call setLayoutManager with a non-null argument.");
@@ -1317,6 +1331,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         if (mLayout == null) {
             Log.e(TAG, "Cannot scroll without a LayoutManager set. " +
                     "Call setLayoutManager with a non-null argument.");
+            return;
+        }
+        if (mLayoutFrozen) {
             return;
         }
         final boolean canScrollHorizontal = mLayout.canScrollHorizontally();
@@ -1552,19 +1569,77 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     void eatRequestLayout() {
         if (!mEatRequestLayout) {
             mEatRequestLayout = true;
-            mLayoutRequestEaten = false;
+            if (!mLayoutFrozen) {
+                mLayoutRequestEaten = false;
+            }
         }
     }
 
     void resumeRequestLayout(boolean performLayoutChildren) {
         if (mEatRequestLayout) {
-            if (performLayoutChildren && mLayoutRequestEaten &&
+            // when layout is frozen we should delay dispatchLayout()
+            if (performLayoutChildren && mLayoutRequestEaten && !mLayoutFrozen &&
                     mLayout != null && mAdapter != null) {
                 dispatchLayout();
             }
             mEatRequestLayout = false;
-            mLayoutRequestEaten = false;
+            if (!mLayoutFrozen) {
+                mLayoutRequestEaten = false;
+            }
         }
+    }
+
+    /**
+     * Enable or disable layout and scroll.  After <code>setLayoutFrozen(true)</code> is called,
+     * Layout requests will be postponed until <code>setLayoutFrozen(false)</code> is called;
+     * child views are not updated when RecyclerView is frozen, {@link #smoothScrollBy(int, int)},
+     * {@link #scrollBy(int, int)}, {@link #scrollToPosition(int)} and
+     * {@link #smoothScrollToPosition(int)} are dropped; TouchEvents and GenericMotionEvents are
+     * dropped; {@link LayoutManager#onFocusSearchFailed(View, int, Recycler, State)} will not be
+     * called.
+     *
+     * <p>
+     * <code>setLayoutFrozen(true)</code> does not prevent app from directly calling {@link
+     * LayoutManager#scrollToPosition(int)}, {@link LayoutManager#smoothScrollToPosition(
+     * RecyclerView, State, int)}.
+     * <p>
+     * {@link #setAdapter(Adapter)} and {@link #swapAdapter(Adapter, boolean)} will automatically
+     * stop frozen.
+     * <p>
+     * Note: Running ItemAnimator is not stopped automatically,  it's caller's
+     * responsibility to call ItemAnimator.end().
+     *
+     * @param frozen   true to freeze layout and scroll, false to re-enable.
+     */
+    public void setLayoutFrozen(boolean frozen) {
+        if (frozen != mLayoutFrozen) {
+            assertNotInLayoutOrScroll("Do not setLayoutFrozen in layout or scroll");
+            if (!frozen) {
+                mLayoutFrozen = frozen;
+                if (mLayoutRequestEaten && mLayout != null && mAdapter != null) {
+                    requestLayout();
+                }
+                mLayoutRequestEaten = false;
+            } else {
+                final long now = SystemClock.uptimeMillis();
+                MotionEvent cancelEvent = MotionEvent.obtain(now, now,
+                        MotionEvent.ACTION_CANCEL, 0.0f, 0.0f, 0);
+                onTouchEvent(cancelEvent);
+                mLayoutFrozen = frozen;
+                mIgnoreMotionEventTillDown = true;
+                stopScroll();
+            }
+        }
+    }
+
+    /**
+     * Returns true if layout and scroll are frozen.
+     *
+     * @return true if layout and scroll are frozen
+     * @see #setLayoutFrozen(boolean)
+     */
+    public boolean isLayoutFrozen() {
+        return mLayoutFrozen;
     }
 
     /**
@@ -1577,6 +1652,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         if (mLayout == null) {
             Log.e(TAG, "Cannot smooth scroll without a LayoutManager set. " +
                     "Call setLayoutManager with a non-null argument.");
+            return;
+        }
+        if (mLayoutFrozen) {
             return;
         }
         if (!mLayout.canScrollHorizontally()) {
@@ -1607,6 +1685,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         if (mLayout == null) {
             Log.e(TAG, "Cannot fling without a LayoutManager set. " +
                     "Call setLayoutManager with a non-null argument.");
+            return false;
+        }
+        if (mLayoutFrozen) {
             return false;
         }
 
@@ -1829,7 +1910,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
         final FocusFinder ff = FocusFinder.getInstance();
         result = ff.findNextFocus(this, focused, direction);
-        if (result == null && mAdapter != null && mLayout != null && !isComputingLayout()) {
+        if (result == null && mAdapter != null && mLayout != null && !isComputingLayout()
+                && !mLayoutFrozen) {
             eatRequestLayout();
             result = mLayout.onFocusSearchFailed(focused, direction, mRecycler, mState);
             resumeRequestLayout(false);
@@ -2027,6 +2109,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent e) {
+        if (mLayoutFrozen) {
+            // When layout is frozen,  RV does not intercept the motion event.
+            // A child view e.g. a button may still get the click.
+            return false;
+        }
         if (dispatchOnItemTouchIntercept(e)) {
             cancelTouch();
             return true;
@@ -2049,6 +2136,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
         switch (action) {
             case MotionEvent.ACTION_DOWN:
+                if (mIgnoreMotionEventTillDown) {
+                    mIgnoreMotionEventTillDown = false;
+                }
                 mScrollPointerId = MotionEventCompat.getPointerId(e, 0);
                 mInitialTouchX = mLastTouchX = (int) (e.getX() + 0.5f);
                 mInitialTouchY = mLastTouchY = (int) (e.getY() + 0.5f);
@@ -2134,6 +2224,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
+        if (mLayoutFrozen || mIgnoreMotionEventTillDown) {
+            return false;
+        }
         if (dispatchOnItemTouch(e)) {
             cancelTouch();
             return true;
@@ -2302,6 +2395,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     // @Override
     public boolean onGenericMotionEvent(MotionEvent event) {
         if (mLayout == null) {
+            return false;
+        }
+        if (mLayoutFrozen) {
             return false;
         }
         if ((MotionEventCompat.getSource(event) & InputDeviceCompat.SOURCE_CLASS_POINTER) != 0) {
@@ -3034,7 +3130,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
     @Override
     public void requestLayout() {
-        if (!mEatRequestLayout) {
+        if (!mEatRequestLayout && !mLayoutFrozen) {
             super.requestLayout();
         } else {
             mLayoutRequestEaten = true;
