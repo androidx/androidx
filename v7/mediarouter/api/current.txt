@@ -42,7 +42,7 @@ package android.support.v7.app {
     method public void setRouteSelector(android.support.v7.media.MediaRouteSelector);
   }
 
-  public class MediaRouteControllerDialog extends android.support.v7.app.AlertDialog {
+  public class MediaRouteControllerDialog extends android.app.AlertDialog {
     ctor public MediaRouteControllerDialog(android.content.Context);
     ctor public MediaRouteControllerDialog(android.content.Context, int);
     method public android.view.View getMediaControlView();
