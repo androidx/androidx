@@ -1443,6 +1443,12 @@ package android.support.v4.media {
 
 package android.support.v4.media.session {
 
+  public class MediaButtonReceiver extends android.content.BroadcastReceiver {
+    ctor public MediaButtonReceiver();
+    method public static android.view.KeyEvent handleIntent(android.support.v4.media.session.MediaSessionCompat, android.content.Intent);
+    method public void onReceive(android.content.Context, android.content.Intent);
+  }
+
   public final class MediaControllerCompat {
     ctor public MediaControllerCompat(android.content.Context, android.support.v4.media.session.MediaSessionCompat);
     ctor public MediaControllerCompat(android.content.Context, android.support.v4.media.session.MediaSessionCompat.Token) throws android.os.RemoteException;
