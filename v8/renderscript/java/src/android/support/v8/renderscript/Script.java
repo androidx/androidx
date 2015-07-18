@@ -318,6 +318,72 @@ public class Script extends BaseObj {
     /**
      * Only intended for use by generated reflected code.
      *
+     * @hide
+     */
+    protected void forEach(int slot, Allocation[] ains, Allocation aout,
+                           FieldPacker v) {
+        forEach(slot, ains, aout, v, null);
+    }
+
+    /**
+     * Only intended for use by generated reflected code.
+     *
+     * @hide
+     */
+    protected void forEach(int slot, Allocation[] ains, Allocation aout,
+                           FieldPacker v, LaunchOptions sc) {
+        // TODO: Is this necessary if nScriptForEach calls validate as well?
+        mRS.validate();
+        if (ains != null) {
+            for (Allocation ain : ains) {
+                mRS.validateObject(ain);
+            }
+        }
+        mRS.validateObject(aout);
+
+        if (ains == null && aout == null) {
+            throw new RSIllegalArgumentException(
+                "At least one of ain or aout is required to be non-null.");
+        }
+
+        long[] in_ids;
+        if (ains != null) {
+            in_ids = new long[ains.length];
+            for (int index = 0; index < ains.length; ++index) {
+                in_ids[index] = ains[index].getID(mRS);
+            }
+        } else {
+            in_ids = null;
+        }
+
+        long out_id = 0;
+        if (aout != null) {
+            out_id = aout.getID(mRS);
+        }
+
+        byte[] params = null;
+        if (v != null) {
+            params = v.getData();
+        }
+
+        int[] limits = null;
+        if (sc != null) {
+            limits = new int[6];
+
+            limits[0] = sc.xstart;
+            limits[1] = sc.xend;
+            limits[2] = sc.ystart;
+            limits[3] = sc.yend;
+            limits[4] = sc.zstart;
+            limits[5] = sc.zend;
+        }
+
+        mRS.nScriptForEach(getID(mRS), slot, in_ids, out_id, params, limits);
+    }
+
+    /**
+     * Only intended for use by generated reflected code.
+     *
      * @param index
      * @param v
      */
