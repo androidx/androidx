@@ -777,6 +777,13 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
 
     @Override
     boolean dispatchKeyEvent(KeyEvent event) {
+        if (event.getKeyCode() == KeyEvent.KEYCODE_MENU) {
+            // If this is a MENU event, let the Activity have a go.
+            if (mOriginalWindowCallback.dispatchKeyEvent(event)) {
+                return true;
+            }
+        }
+
         final int keyCode = event.getKeyCode();
         final int action = event.getAction();
         final boolean isDown = action == KeyEvent.ACTION_DOWN;
@@ -787,10 +794,8 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
     boolean onKeyUp(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_MENU:
-                if (onKeyUpPanel(Window.FEATURE_OPTIONS_PANEL, event)) {
-                    return true;
-                }
-                break;
+                onKeyUpPanel(Window.FEATURE_OPTIONS_PANEL, event);
+                return true;
             case KeyEvent.KEYCODE_BACK:
                 PanelFeatureState st = getPanelState(Window.FEATURE_OPTIONS_PANEL, false);
                 if (st != null && st.isOpen) {
@@ -808,16 +813,17 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
     boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_MENU:
-                if (onKeyDownPanel(Window.FEATURE_OPTIONS_PANEL, event)) {
-                    return true;
-                }
+                onKeyDownPanel(Window.FEATURE_OPTIONS_PANEL, event);
+                // Break, and let this fall through to the original callback
                 break;
         }
 
         // On API v7-10 we need to manually call onKeyShortcut() as this is not called
         // from the Activity
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            return onKeyShortcut(keyCode, event);
+            if (onKeyShortcut(keyCode, event)) {
+                return true;
+            }
         }
         return false;
     }
@@ -1231,22 +1237,18 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
             return;
         }
 
-        final boolean wasOpen = st.isOpen;
-
         final WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
-        if (wm != null && wasOpen && st.decorView != null) {
+        if (wm != null && st.isOpen && st.decorView != null) {
             wm.removeView(st.decorView);
+
+            if (doCallback) {
+                callOnPanelClosed(st.featureId, st, null);
+            }
         }
 
         st.isPrepared = false;
         st.isHandled = false;
         st.isOpen = false;
-
-        if (wasOpen && doCallback) {
-            // If the panel was open and we should callback, do so. This should be done after
-            // isOpen is updated to ensure that we do not get into an infinite recursion
-            callOnPanelClosed(st.featureId, st, null);
-        }
 
         // This view is no longer shown, so null it out
         st.shownPanelView = null;
