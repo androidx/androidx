@@ -63,7 +63,7 @@ public class LayoutInflaterFactoryTestCase extends BaseInstrumentationTestCase<A
             @Override
             public void run() {
                 LayoutInflater inflater = LayoutInflater.from(getActivity());
-                View view = inflater.inflate(R.layout.layout_android_theme, null);
+                View view = inflater.inflate(R.layout.layout_app_theme, null);
                 assertTrue("View has themed Context", view.getContext() != getActivity());
             }
         });
