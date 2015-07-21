@@ -113,7 +113,7 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity>
     }
 
     @Test
-    public void testKeyEventReachesActivity() {
+    public void testDelKeyEventReachesActivity() {
         // First send the event
         getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_DEL);
         getInstrumentation().waitForIdleSync();
@@ -125,6 +125,20 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity>
         KeyEvent upEvent = getActivity().getInvokedKeyUpEvent();
         assertNotNull("onKeyUp called", upEvent);
         assertEquals("onKeyUp event matches", KeyEvent.KEYCODE_DEL, upEvent.getKeyCode());
+    }
+
+    @Test
+    public void testMenuKeyEventReachesActivity() throws InterruptedException {
+        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
+        getInstrumentation().waitForIdleSync();
+
+        KeyEvent downEvent = getActivity().getInvokedKeyDownEvent();
+        assertNotNull("onKeyDown called", downEvent);
+        assertEquals("onKeyDown event matches", KeyEvent.KEYCODE_MENU, downEvent.getKeyCode());
+
+        KeyEvent upEvent = getActivity().getInvokedKeyUpEvent();
+        assertNotNull("onKeyUp called", upEvent);
+        assertEquals("onKeyDown event matches", KeyEvent.KEYCODE_MENU, upEvent.getKeyCode());
     }
 
 }
