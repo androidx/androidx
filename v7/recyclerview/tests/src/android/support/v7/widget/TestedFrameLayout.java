@@ -84,7 +84,6 @@ public class TestedFrameLayout extends FrameLayout implements NestedScrollingPar
 
     @Override
     public void onStopNestedScroll(View target) {
-        resetModes();
         mNestedStopNestedScrollCalled = true;
     }
 
@@ -98,9 +97,5 @@ public class TestedFrameLayout extends FrameLayout implements NestedScrollingPar
 
     public void setNestedFlingMode(int mode) {
         mNestedFlingMode = mode;
-    }
-
-    private void resetModes() {
-        mNestedScrollMode = mNestedFlingMode = TEST_NESTED_SCROLL_MODE_IGNORE;
     }
 }
