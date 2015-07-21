@@ -113,6 +113,7 @@
     <style name="Base.V7.Theme.AppCompat" parent="Platform.AppCompat">
         <item name="windowActionBar">true</item>
         <item name="windowActionBarOverlay">false</item>
+        <item name="actionBarPopupTheme">@null</item>
 
         <!-- Used by MediaRouter -->
         <item name="isLightTheme">false</item>
@@ -261,6 +262,7 @@
     <style name="Base.V7.Theme.AppCompat.Light" parent="Platform.AppCompat.Light">
         <item name="windowActionBar">true</item>
         <item name="windowActionBarOverlay">false</item>
+        <item name="actionBarPopupTheme">@null</item>
 
         <!-- Used by MediaRouter -->
         <item name="isLightTheme">true</item>
