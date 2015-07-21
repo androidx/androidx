@@ -23,6 +23,7 @@ import android.os.Handler;
 import java.security.Signature;
 
 import javax.crypto.Cipher;
+import javax.crypto.Mac;
 
 /**
  * Actual FingerprintManagerCompat implementation for API level 23 and later.
@@ -53,8 +54,12 @@ public final class FingerprintManagerCompatApi23 {
             return null;
         } else if (cryptoObject.getCipher() != null) {
             return new FingerprintManager.CryptoObject(cryptoObject.getCipher());
-        } else {
+        } else if (cryptoObject.getSignature() != null) {
             return new FingerprintManager.CryptoObject(cryptoObject.getSignature());
+        } else if (cryptoObject.getMac() != null) {
+            return new FingerprintManager.CryptoObject(cryptoObject.getMac());
+        } else {
+            return null;
         }
     }
 
@@ -63,8 +68,12 @@ public final class FingerprintManagerCompatApi23 {
             return null;
         } else if (cryptoObject.getCipher() != null) {
             return new CryptoObject(cryptoObject.getCipher());
-        } else {
+        } else if (cryptoObject.getSignature() != null) {
             return new CryptoObject(cryptoObject.getSignature());
+        } else if (cryptoObject.getMac() != null) {
+            return new CryptoObject(cryptoObject.getMac());
+        } else {
+            return null;
         }
     }
 
@@ -98,19 +107,29 @@ public final class FingerprintManagerCompatApi23 {
 
         private final Signature mSignature;
         private final Cipher mCipher;
+        private final Mac mMac;
 
         public CryptoObject(Signature signature) {
             mSignature = signature;
             mCipher = null;
+            mMac = null;
         }
 
         public CryptoObject(Cipher cipher) {
             mCipher = cipher;
             mSignature = null;
+            mMac = null;
+        }
+
+        public CryptoObject(Mac mac) {
+            mMac = mac;
+            mCipher = null;
+            mSignature = null;
         }
 
         public Signature getSignature() { return mSignature; }
         public Cipher getCipher() { return mCipher; }
+        public Mac getMac() { return mMac; }
     }
 
     public static final class AuthenticationResultInternal {
