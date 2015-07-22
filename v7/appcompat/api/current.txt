@@ -1580,8 +1580,10 @@ package android.support.v7.graphics.drawable {
     method public void setDirection(int);
     method public void setProgress(float);
     method public void setVerticalMirror(boolean);
+    field public static final int ARROW_DIRECTION_END = 3; // 0x3
     field public static final int ARROW_DIRECTION_LEFT = 0; // 0x0
     field public static final int ARROW_DIRECTION_RIGHT = 1; // 0x1
+    field public static final int ARROW_DIRECTION_START = 2; // 0x2
   }
 
 }
