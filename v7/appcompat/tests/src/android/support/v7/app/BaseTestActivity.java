@@ -21,6 +21,7 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.appcompat.test.R;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.WindowManager;
 
 abstract class BaseTestActivity extends AppCompatActivity {
@@ -30,6 +31,8 @@ abstract class BaseTestActivity extends AppCompatActivity {
     private KeyEvent mOnKeyDownEvent;
     private KeyEvent mOnKeyUpEvent;
     private KeyEvent mOnKeyShortcutEvent;
+
+    private MenuItem mOptionsItemSelected;
 
     private boolean mOnMenuOpenedCalled;
     private boolean mOnPanelClosedCalled;
@@ -49,6 +52,12 @@ abstract class BaseTestActivity extends AppCompatActivity {
     protected abstract int getContentViewLayoutResId();
 
     protected void onContentViewSet() {
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        mOptionsItemSelected = item;
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -118,6 +127,10 @@ abstract class BaseTestActivity extends AppCompatActivity {
 
     public boolean isSearchViewExpanded() {
         return MenuItemCompat.isActionViewExpanded(mMenu.findItem(R.id.action_search));
+    }
+
+    public MenuItem getOptionsItemSelected() {
+        return mOptionsItemSelected;
     }
 
     public void reset() {
