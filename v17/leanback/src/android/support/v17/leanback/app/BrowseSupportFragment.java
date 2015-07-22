@@ -421,6 +421,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         mRowsSupportFragment.onExpandTransitionStart(!withHeaders, new Runnable() {
             @Override
             public void run() {
+                mHeadersSupportFragment.onTransitionPrepare();
                 mHeadersSupportFragment.onTransitionStart();
                 createHeadersTransition();
                 if (mBrowseTransitionListener != null) {
@@ -900,6 +901,12 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     protected void runEntranceTransition(Object entranceTransition) {
         sTransitionHelper.runTransition(mSceneAfterEntranceTransition,
                 entranceTransition);
+    }
+
+    @Override
+    protected void onEntranceTransitionPrepare() {
+        mHeadersSupportFragment.onTransitionPrepare();
+        mRowsSupportFragment.onTransitionPrepare();
     }
 
     @Override
