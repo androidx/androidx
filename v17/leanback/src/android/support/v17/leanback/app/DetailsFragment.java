@@ -397,6 +397,7 @@ public class DetailsFragment extends BaseFragment {
         mRowsFragment.getView().requestFocus();
         if (isEntranceTransitionEnabled()) {
             // make sure recycler view animation is disabled
+            mRowsFragment.onTransitionPrepare();
             mRowsFragment.onTransitionStart();
             mRowsFragment.setEntranceTransitionState(false);
         }
