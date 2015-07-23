@@ -81,12 +81,12 @@ public class RowHeaderPresenter extends Presenter {
         viewHolder.mOriginalTextColor = headerView.getCurrentTextColor();
         viewHolder.mUnselectAlpha = parent.getResources().getFraction(
                 R.fraction.lb_browse_header_unselect_alpha, 1, 1);
+        setSelectLevel(viewHolder, 0);
         return viewHolder;
     }
 
     @Override
     public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
-        setSelectLevel((ViewHolder) viewHolder, 0);
         HeaderItem headerItem = item == null ? null : ((Row) item).getHeaderItem();
         if (headerItem == null) {
             ((RowHeaderView) viewHolder.view).setText(null);
@@ -102,6 +102,7 @@ public class RowHeaderPresenter extends Presenter {
     @Override
     public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
         ((RowHeaderView) viewHolder.view).setText(null);
+        setSelectLevel((ViewHolder) viewHolder, 0);
     }
 
     /**

@@ -121,7 +121,6 @@ public class RowsSupportFragment extends BaseRowSupportFragment {
     private int mAlignedTop;
     private boolean mRowScaleEnabled;
     private ScaleFrameLayout mScaleFrameLayout;
-    private boolean mInTransition;
     private boolean mAfterEntranceTransition = true;
 
     private OnItemViewSelectedListener mOnItemViewSelectedListener;
@@ -420,10 +419,12 @@ public class RowsSupportFragment extends BaseRowSupportFragment {
     }
 
     @Override
-    void onTransitionStart() {
-        super.onTransitionStart();
-        mInTransition = true;
-        freezeRows(true);
+    boolean onTransitionPrepare() {
+        boolean prepared = super.onTransitionPrepare();
+        if (prepared) {
+            freezeRows(true);
+        }
+        return prepared;
     }
 
     class ExpandPreLayout implements ViewTreeObserver.OnPreDrawListener {
@@ -462,6 +463,7 @@ public class RowsSupportFragment extends BaseRowSupportFragment {
     }
 
     void onExpandTransitionStart(boolean expand, final Runnable callback) {
+        onTransitionPrepare();
         onTransitionStart();
         if (expand) {
             callback.run();
@@ -508,7 +510,6 @@ public class RowsSupportFragment extends BaseRowSupportFragment {
     @Override
     void onTransitionEnd() {
         super.onTransitionEnd();
-        mInTransition = false;
         freezeRows(false);
     }
 
