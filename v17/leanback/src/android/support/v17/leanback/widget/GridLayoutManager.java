@@ -2558,6 +2558,22 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return NO_POSITION;
     }
 
+    void onFocusChanged(boolean gainFocus, int direction, Rect previouslyFocusedRect) {
+        if (gainFocus) {
+            // if gridview.requestFocus() is called, select first focusable child.
+            for (int i = mFocusPosition; ;i++) {
+                View view = findViewByPosition(i);
+                if (view == null) {
+                    break;
+                }
+                if (view.getVisibility() == View.VISIBLE && view.hasFocusable()) {
+                    view.requestFocus();
+                    break;
+                }
+            }
+        }
+    }
+
     void setFocusSearchDisabled(boolean disabled) {
         mFocusSearchDisabled = disabled;
     }

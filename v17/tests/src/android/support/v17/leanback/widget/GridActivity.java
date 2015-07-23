@@ -176,6 +176,10 @@ public class GridActivity extends Activity {
         setContentView(view);
     }
 
+    void rebindToNewAdapter() {
+        mGridView.setAdapter(new MyAdapter());
+    }
+
     @Override
     protected void onNewIntent(Intent intent) {
         if (DEBUG) Log.v(TAG, "onNewIntent " + intent+ " "+this);
