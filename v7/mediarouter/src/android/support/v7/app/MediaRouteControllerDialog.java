@@ -335,37 +335,35 @@ public class MediaRouteControllerDialog extends AlertDialog {
         }
 
         if (mControlView == null) {
-            if (mDescription != null) {
-                if (mDescription.getIconBitmap() != null) {
-                    mArtView.setImageBitmap(mDescription.getIconBitmap());
-                    mArtView.setVisibility(View.VISIBLE);
-                } else if (mDescription.getIconUri() != null) {
-                    // TODO replace with background load of icon
-                    mArtView.setImageURI(mDescription.getIconUri());
-                    mArtView.setVisibility(View.VISIBLE);
-                } else {
-                    mArtView.setImageDrawable(null);
-                    mArtView.setVisibility(View.GONE);
-                }
+            if (mDescription != null && mDescription.getIconBitmap() != null) {
+                mArtView.setImageBitmap(mDescription.getIconBitmap());
+                mArtView.setVisibility(View.VISIBLE);
+            } else if (mDescription != null && mDescription.getIconUri() != null) {
+                // TODO replace with background load of icon
+                mArtView.setImageURI(mDescription.getIconUri());
+                mArtView.setVisibility(View.VISIBLE);
+            } else {
+                mArtView.setImageDrawable(null);
+                mArtView.setVisibility(View.GONE);
+            }
 
-                CharSequence title = mDescription.getTitle();
-                boolean hasTitle = !TextUtils.isEmpty(title);
+            CharSequence title = mDescription == null ? null : mDescription.getTitle();
+            boolean hasTitle = !TextUtils.isEmpty(title);
 
-                CharSequence subtitle = mDescription.getSubtitle();
-                boolean hasSubtitle = !TextUtils.isEmpty(subtitle);
+            CharSequence subtitle = mDescription == null ? null : mDescription.getSubtitle();
+            boolean hasSubtitle = !TextUtils.isEmpty(subtitle);
 
-                if (!hasTitle && !hasSubtitle) {
-                    mTitleView.setText(R.string.mr_media_route_controller_no_info_available);
-                    mTitleView.setEnabled(false);
-                    mTitleView.setVisibility(View.VISIBLE);
-                    mSubtitleView.setVisibility(View.GONE);
-                } else {
-                    mTitleView.setText(title);
-                    mTitleView.setEnabled(hasTitle);
-                    mTitleView.setVisibility(hasTitle ? View.VISIBLE : View.GONE);
-                    mSubtitleView.setText(subtitle);
-                    mSubtitleView.setVisibility(hasSubtitle ? View.VISIBLE : View.GONE);
-                }
+            if (!hasTitle && !hasSubtitle) {
+                mTitleView.setText(R.string.mr_media_route_controller_no_info_available);
+                mTitleView.setEnabled(false);
+                mTitleView.setVisibility(View.VISIBLE);
+                mSubtitleView.setVisibility(View.GONE);
+            } else {
+                mTitleView.setText(title);
+                mTitleView.setEnabled(hasTitle);
+                mTitleView.setVisibility(hasTitle ? View.VISIBLE : View.GONE);
+                mSubtitleView.setText(subtitle);
+                mSubtitleView.setVisibility(hasSubtitle ? View.VISIBLE : View.GONE);
             }
             if (mState != null) {
                 boolean isPlaying = mState.getState() == PlaybackStateCompat.STATE_BUFFERING
