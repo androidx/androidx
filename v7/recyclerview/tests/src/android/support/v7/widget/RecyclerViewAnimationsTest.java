@@ -133,7 +133,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
                 mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
                     @Override
                     public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
-                            RecyclerView.State state) {
+                                               RecyclerView.State state) {
                         if (view == targetChild[0]) {
                             outRect.set(10, 20, 30, 40);
                         } else {
@@ -156,6 +156,112 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
         assertEquals("only 1 item is deleted", 1, animator.mRemoveVHs.size());
         assertTrue("the target view is removed", animator.mRemoveVHs.contains(targetVH
         ));
+    }
+
+    private void runTestImportantForAccessibilityWhileDeteling(
+            final int boundImportantForAccessibility,
+            final int expectedImportantForAccessibility) throws Throwable {
+        // Adapter binding the item to the initial accessibility option.
+        // RecyclerView is expected to change it to 'expectedImportantForAccessibility'.
+        TestAdapter adapter = new TestAdapter(1) {
+            @Override
+            public void onBindViewHolder(TestViewHolder holder, int position) {
+                super.onBindViewHolder(holder, position);
+                ViewCompat.setImportantForAccessibility(
+                        holder.itemView, boundImportantForAccessibility);
+            }
+        };
+
+        // Set up with 1 item.
+        setupBasic(1, 0, 1, adapter);
+        waitForAnimations(2);
+        final View[] targetChild = new View[1];
+        final LoggingItemAnimator animator = new LoggingItemAnimator();
+        animator.setRemoveDuration(500);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.setItemAnimator(animator);
+                targetChild[0] = mRecyclerView.getChildAt(0);
+                assertEquals(
+                        expectedImportantForAccessibility,
+                        ViewCompat.getImportantForAccessibility(targetChild[0]));
+            }
+        });
+
+        assertNotNull("test sanity", targetChild[0]);
+
+        // now delete that item.
+        mLayoutManager.expectLayouts(2);
+        mTestAdapter.deleteAndNotify(0, 1);
+
+        mLayoutManager.waitForLayout(2);
+
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // The view is still a child of mRecyclerView, and is invisible for accessibility.
+                assertTrue(targetChild[0].getParent() == mRecyclerView);
+                assertEquals(
+                        ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS,
+                        ViewCompat.getImportantForAccessibility(targetChild[0]));
+            }
+        });
+
+        waitForAnimations(2);
+
+        // Delete animation is now complete.
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // The view is in recycled state, and back to the expected accessibility.
+                assertTrue(targetChild[0].getParent() == null);
+                assertEquals(
+                        expectedImportantForAccessibility,
+                        ViewCompat.getImportantForAccessibility(targetChild[0]));
+            }
+        });
+
+        // Add 1 element, which should use same view.
+        mLayoutManager.expectLayouts(2);
+        mTestAdapter.addAndNotify(1);
+        mLayoutManager.waitForLayout(2);
+
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // The view should be reused, and have the expected accessibility.
+                assertTrue(
+                        "the item must be reused", targetChild[0] == mRecyclerView.getChildAt(0));
+                assertEquals(
+                        expectedImportantForAccessibility,
+                        ViewCompat.getImportantForAccessibility(targetChild[0]));
+            }
+        });
+    }
+
+    public void testImportantForAccessibilityWhileDetelingAuto() throws Throwable {
+        runTestImportantForAccessibilityWhileDeteling(
+                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO,
+                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
+    }
+
+    public void testImportantForAccessibilityWhileDetelingNo() throws Throwable {
+        runTestImportantForAccessibilityWhileDeteling(
+                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO,
+                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
+    }
+
+    public void testImportantForAccessibilityWhileDetelingNoHideDescandants() throws Throwable {
+        runTestImportantForAccessibilityWhileDeteling(
+                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS,
+                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
+    }
+
+    public void testImportantForAccessibilityWhileDetelingYes() throws Throwable {
+        runTestImportantForAccessibilityWhileDeteling(
+                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES,
+                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
     }
 
     public void testPreLayoutPositionCleanup() throws Throwable {
@@ -1427,6 +1533,11 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationT
                     validatePostUpdateOp();
                 }
             };
+        }
+
+        @Override
+        boolean isAccessibilityEnabled() {
+            return true;
         }
 
         public void expectDraw(int count) {
