@@ -22,6 +22,7 @@ import android.support.v4.content.res.TypedArrayUtils;
 import android.support.v7.widget.SwitchCompat;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.accessibility.AccessibilityManager;
 import android.widget.Checkable;
 import android.widget.CompoundButton;
 
@@ -133,24 +134,8 @@ public class SwitchPreferenceCompat extends TwoStatePreference {
     @Override
     public void onBindViewHolder(PreferenceViewHolder holder) {
         super.onBindViewHolder(holder);
-
-        View checkableView = holder.findViewById(R.id.switchWidget);
-        if (checkableView != null && checkableView instanceof Checkable) {
-            if (checkableView instanceof SwitchCompat) {
-                final SwitchCompat switchView = (SwitchCompat) checkableView;
-                switchView.setOnCheckedChangeListener(null);
-            }
-
-            ((Checkable) checkableView).setChecked(mChecked);
-
-            if (checkableView instanceof SwitchCompat) {
-                final SwitchCompat switchView = (SwitchCompat) checkableView;
-                switchView.setTextOn(mSwitchOn);
-                switchView.setTextOff(mSwitchOff);
-                switchView.setOnCheckedChangeListener(mListener);
-            }
-        }
-
+        View switchView = holder.findViewById(R.id.switchWidget);
+        syncSwitchView(switchView);
         syncSummaryView(holder);
     }
 
@@ -208,5 +193,44 @@ public class SwitchPreferenceCompat extends TwoStatePreference {
      */
     public CharSequence getSwitchTextOff() {
         return mSwitchOff;
+    }
+
+    /**
+     * @hide
+     */
+    @Override
+    protected void performClick(View view) {
+        super.performClick(view);
+        syncViewIfAccessibilityEnabled(view);
+    }
+
+    private void syncViewIfAccessibilityEnabled(View view) {
+        AccessibilityManager accessibilityManager = (AccessibilityManager)
+                getContext().getSystemService(Context.ACCESSIBILITY_SERVICE);
+        if (!accessibilityManager.isEnabled()) {
+            return;
+        }
+
+        View switchView = view.findViewById(R.id.switchWidget);
+        syncSwitchView(switchView);
+
+        View summaryView = view.findViewById(android.R.id.summary);
+        syncSummaryView(summaryView);
+    }
+
+    private void syncSwitchView(View view) {
+        if (view instanceof SwitchCompat) {
+            final SwitchCompat switchView = (SwitchCompat) view;
+            switchView.setOnCheckedChangeListener(null);
+        }
+        if (view instanceof Checkable) {
+            ((Checkable) view).setChecked(mChecked);
+        }
+        if (view instanceof SwitchCompat) {
+            final SwitchCompat switchView = (SwitchCompat) view;
+            switchView.setTextOn(mSwitchOn);
+            switchView.setTextOff(mSwitchOff);
+            switchView.setOnCheckedChangeListener(mListener);
+        }
     }
 }

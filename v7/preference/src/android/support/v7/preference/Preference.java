@@ -133,7 +133,7 @@ public class Preference implements Comparable<Preference> {
     private final View.OnClickListener mClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            performClick();
+            performClick(v);
         }
     };
 
@@ -915,6 +915,13 @@ public class Preference implements Comparable<Preference> {
      */
     public OnPreferenceClickListener getOnPreferenceClickListener() {
         return mOnClickListener;
+    }
+
+    /**
+     * @hide
+     */
+    protected void performClick(View view) {
+        performClick();
     }
 
     /**
