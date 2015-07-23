@@ -419,6 +419,7 @@ public class BrowseFragment extends BaseFragment {
         mRowsFragment.onExpandTransitionStart(!withHeaders, new Runnable() {
             @Override
             public void run() {
+                mHeadersFragment.onTransitionPrepare();
                 mHeadersFragment.onTransitionStart();
                 createHeadersTransition();
                 if (mBrowseTransitionListener != null) {
@@ -898,6 +899,12 @@ public class BrowseFragment extends BaseFragment {
     protected void runEntranceTransition(Object entranceTransition) {
         sTransitionHelper.runTransition(mSceneAfterEntranceTransition,
                 entranceTransition);
+    }
+
+    @Override
+    protected void onEntranceTransitionPrepare() {
+        mHeadersFragment.onTransitionPrepare();
+        mRowsFragment.onTransitionPrepare();
     }
 
     @Override
