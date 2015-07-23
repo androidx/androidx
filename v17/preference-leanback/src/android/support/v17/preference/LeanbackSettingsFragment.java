@@ -65,11 +65,13 @@ public abstract class LeanbackSettingsFragment extends Fragment
         if (pref instanceof ListPreference) {
             final ListPreference listPreference = (ListPreference) pref;
             f = LeanbackListPreferenceDialogFragment.newInstanceSingle(listPreference.getKey());
-            startImmersiveFragment(f);
+            f.setTargetFragment(caller, 0);
+            startPreferenceFragment(f);
         } else if (pref instanceof MultiSelectListPreference) {
             MultiSelectListPreference listPreference = (MultiSelectListPreference) pref;
             f = LeanbackListPreferenceDialogFragment.newInstanceMulti(listPreference.getKey());
-            startImmersiveFragment(f);
+            f.setTargetFragment(caller, 0);
+            startPreferenceFragment(f);
         }
         // TODO
 //        else if (pref instanceof EditTextPreference) {
@@ -95,7 +97,6 @@ public abstract class LeanbackSettingsFragment extends Fragment
      * @param fragment Fragment instance to be added.
      */
     public void startPreferenceFragment(@NonNull Fragment fragment) {
-        fragment.setTargetFragment(this, 0);
         final FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
         final Fragment prevFragment =
                 getChildFragmentManager().findFragmentByTag(PREFERENCE_FRAGMENT_TAG);
@@ -126,7 +127,7 @@ public abstract class LeanbackSettingsFragment extends Fragment
                 // b/22631964
                 transaction.add(R.id.settings_preference_fragment_container, new DummyFragment());
             }
-            transaction.hide(preferenceFragment);
+            transaction.remove(preferenceFragment);
         }
         transaction
                 .add(R.id.settings_dialog_container, fragment)
