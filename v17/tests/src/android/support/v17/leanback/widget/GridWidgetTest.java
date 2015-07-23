@@ -924,6 +924,93 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
 
     }
 
+    public void testNoInitialFocusable() throws Throwable {
+
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear);
+        final int numItems = 100;
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, numItems);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+        boolean[] focusable = new boolean[numItems];
+        final int firstFocusableIndex = 10;
+        for (int i = 0; i < firstFocusableIndex; i++) {
+            focusable[i] = false;
+        }
+        for (int i = firstFocusableIndex; i < focusable.length; i++) {
+            focusable[i] = true;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS_FOCUSABLE, focusable);
+        initActivity(intent);
+        assertTrue(mGridView.isFocused());
+
+        if (mGridView.getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_RTL) {
+            sendKeys(KeyEvent.KEYCODE_DPAD_LEFT);
+        } else {
+            sendKeys(KeyEvent.KEYCODE_DPAD_RIGHT);
+        }
+        waitForScrollIdle(mVerifyLayout);
+        assertEquals(firstFocusableIndex, mGridView.getSelectedPosition());
+        assertTrue(mGridView.getLayoutManager().findViewByPosition(firstFocusableIndex).hasFocus());
+    }
+
+    public void testTransferFocusToChildWhenGainFocus() throws Throwable {
+
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear);
+        final int numItems = 100;
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, numItems);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+        boolean[] focusable = new boolean[numItems];
+        final int firstFocusableIndex = 1;
+        for (int i = 0; i < firstFocusableIndex; i++) {
+            focusable[i] = false;
+        }
+        for (int i = firstFocusableIndex; i < focusable.length; i++) {
+            focusable[i] = true;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS_FOCUSABLE, focusable);
+        initActivity(intent);
+
+        assertEquals(firstFocusableIndex, mGridView.getSelectedPosition());
+        assertTrue(mGridView.getLayoutManager().findViewByPosition(firstFocusableIndex).hasFocus());
+    }
+
+    public void testFocusFromSecondChild() throws Throwable {
+
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear);
+        final int numItems = 100;
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, numItems);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+        boolean[] focusable = new boolean[numItems];
+        for (int i = 0; i < focusable.length; i++) {
+            focusable[i] = false;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS_FOCUSABLE, focusable);
+        initActivity(intent);
+
+        // switching Adapter to cause a full rebind,  test if it will focus to second item.
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.mNumItems = numItems;
+                mActivity.mItemFocusables[1] = true;
+                mActivity.rebindToNewAdapter();
+            }
+        });
+    }
 
     public void testNonFocusableVertical() throws Throwable {
         final int numItems = 200;
