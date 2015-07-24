@@ -81,6 +81,7 @@ public class LeanbackListPreferenceDialogFragment extends LeanbackPreferenceDial
         verticalGridView.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_BOTH_EDGE);
         verticalGridView.setFocusScrollStrategy(VerticalGridView.FOCUS_SCROLL_ALIGNED);
         verticalGridView.setAdapter(onCreateAdapter());
+        verticalGridView.requestFocus();
 
         final DialogPreference preference = getPreference();
         final CharSequence title = preference.getDialogTitle();
