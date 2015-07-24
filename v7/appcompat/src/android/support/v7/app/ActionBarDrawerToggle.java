@@ -15,8 +15,8 @@
  */
 package android.support.v7.app;
 
-import android.app.Activity;
 import android.app.ActionBar;
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
@@ -25,7 +25,6 @@ import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.graphics.drawable.DrawerArrowDrawable;
 import android.support.v7.widget.Toolbar;
@@ -474,13 +473,6 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
         }
 
         public void setPosition(float position) {
-            if (ViewCompat.getLayoutDirection(mActivity.getWindow().getDecorView())
-                    == ViewCompat.LAYOUT_DIRECTION_RTL) {
-                setDirection(ARROW_DIRECTION_RIGHT);
-            } else {
-                setDirection(ARROW_DIRECTION_LEFT);
-            }
-
             if (position == 1f) {
                 setVerticalMirror(true);
             } else if (position == 0f) {

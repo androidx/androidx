@@ -114,10 +114,23 @@ public class DrawableCompat {
         }
     }
 
+    static class JellybeanMr1DrawableImpl extends HoneycombDrawableImpl {
+        @Override
+        public void setLayoutDirection(Drawable drawable, int layoutDirection) {
+            DrawableCompatJellybeanMr1.setLayoutDirection(drawable, layoutDirection);
+        }
+
+        @Override
+        public int getLayoutDirection(Drawable drawable) {
+            final int dir = DrawableCompatJellybeanMr1.getLayoutDirection(drawable);
+            return dir < 0 ? dir : ViewCompat.LAYOUT_DIRECTION_LTR;
+        }
+    }
+
     /**
      * Interface implementation for devices with at least KitKat APIs.
      */
-    static class KitKatDrawableImpl extends HoneycombDrawableImpl {
+    static class KitKatDrawableImpl extends JellybeanMr1DrawableImpl {
         @Override
         public void setAutoMirrored(Drawable drawable, boolean mirrored) {
             DrawableCompatKitKat.setAutoMirrored(drawable, mirrored);
@@ -208,6 +221,8 @@ public class DrawableCompat {
             IMPL = new LollipopDrawableImpl();
         } else if (version >= 19) {
             IMPL = new KitKatDrawableImpl();
+        } else if (version >= 17) {
+            IMPL = new JellybeanMr1DrawableImpl();
         } else if (version >= 11) {
             IMPL = new HoneycombDrawableImpl();
         } else {
