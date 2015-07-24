@@ -21,21 +21,30 @@
     android:layout_height="match_parent"
     android:background="@color/lb_preference_decor_list_background"
     android:orientation="vertical"
+    android:transitionGroup="false"
     >
 
-    <TextView android:id="@+id/decor_title"
+    <FrameLayout
+        android:id="@+id/decor_title_container"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/lb_preference_decor_title_text_height"
+        android:layout_height="wrap_content"
         android:background="?attr/defaultBrandColor"
-        android:fontFamily="sans-serif-condensed"
-        android:gravity="center_vertical"
-        android:paddingTop="@dimen/lb_preference_decor_title_padding_top"
-        android:paddingStart="@dimen/lb_preference_decor_title_padding_start"
-        android:paddingEnd="@dimen/lb_preference_decor_title_padding_end"
-        android:singleLine="true"
-        android:textSize="@dimen/lb_preference_decor_title_text_size"
-        android:textColor="?android:attr/textColorPrimary"
-        />
+        android:transitionGroup="false"
+        >
+        <TextView
+            android:id="@+id/decor_title"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/lb_preference_decor_title_text_height"
+            android:fontFamily="sans-serif-condensed"
+            android:gravity="center_vertical"
+            android:paddingTop="@dimen/lb_preference_decor_title_padding_top"
+            android:paddingStart="@dimen/lb_preference_decor_title_padding_start"
+            android:paddingEnd="@dimen/lb_preference_decor_title_padding_end"
+            android:singleLine="true"
+            android:textSize="@dimen/lb_preference_decor_title_text_size"
+            android:textColor="?android:attr/textColorPrimary"
+            />
+    </FrameLayout>
 
     <TextView
         android:id="@android:id/message"
