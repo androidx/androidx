@@ -19,7 +19,11 @@ package android.support.v4.media;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.IntDef;
 import android.util.Log;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * A class to encapsulate rating information used as content metadata.
@@ -31,6 +35,21 @@ import android.util.Log;
  */
 public final class RatingCompat implements Parcelable {
     private final static String TAG = "Rating";
+
+    /**
+     * @hide
+     */
+    @IntDef({RATING_NONE, RATING_HEART, RATING_THUMB_UP_DOWN, RATING_3_STARS, RATING_4_STARS,
+            RATING_5_STARS, RATING_PERCENTAGE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface Style {}
+
+    /**
+     * @hide
+     */
+    @IntDef({RATING_3_STARS, RATING_4_STARS, RATING_5_STARS})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface StarStyle {}
 
     /**
      * Indicates a rating style is not supported. A Rating will never have this
@@ -77,7 +96,7 @@ public final class RatingCompat implements Parcelable {
 
     private Object mRatingObj; // framework Rating object
 
-    private RatingCompat(int ratingStyle, float rating) {
+    private RatingCompat(@Style int ratingStyle, float rating) {
         mRatingStyle = ratingStyle;
         mRatingValue = rating;
     }
@@ -126,7 +145,7 @@ public final class RatingCompat implements Parcelable {
      *    or {@link #RATING_PERCENTAGE}.
      * @return null if an invalid rating style is passed, a new Rating instance otherwise.
      */
-    public static RatingCompat newUnratedRating(int ratingStyle) {
+    public static RatingCompat newUnratedRating(@Style int ratingStyle) {
         switch(ratingStyle) {
             case RATING_HEART:
             case RATING_THUMB_UP_DOWN:
@@ -174,7 +193,8 @@ public final class RatingCompat implements Parcelable {
      * @return null if the rating style is invalid, or the rating is out of range,
      *     a new Rating instance otherwise.
      */
-    public static RatingCompat newStarRating(int starRatingStyle, float starRating) {
+    public static RatingCompat newStarRating(@StarStyle int starRatingStyle,
+            float starRating) {
         float maxRating = -1.0f;
         switch(starRatingStyle) {
             case RATING_3_STARS:
@@ -227,6 +247,7 @@ public final class RatingCompat implements Parcelable {
      *    {@link #RATING_3_STARS}, {@link #RATING_4_STARS}, {@link #RATING_5_STARS},
      *    or {@link #RATING_PERCENTAGE}.
      */
+    @Style
     public int getRatingStyle() {
         return mRatingStyle;
     }
