@@ -962,6 +962,11 @@ package android.support.v4.content {
     method public void unregisterReceiver(android.content.BroadcastReceiver);
   }
 
+  public class ParallelExecutorCompat {
+    ctor public ParallelExecutorCompat();
+    method public static java.util.concurrent.Executor getParallelExecutor();
+  }
+
   public abstract class WakefulBroadcastReceiver extends android.content.BroadcastReceiver {
     ctor public WakefulBroadcastReceiver();
     method public static boolean completeWakefulIntent(android.content.Intent);
