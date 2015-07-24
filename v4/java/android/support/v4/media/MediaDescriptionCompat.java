@@ -21,6 +21,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 /**
@@ -57,6 +58,10 @@ public final class MediaDescriptionCompat implements Parcelable {
      * Extras for opaque use by apps/system.
      */
     private final Bundle mExtras;
+    /**
+     * A Uri to identify this content.
+     */
+    private final Uri mMediaUri;
 
     /**
      * A cached copy of the equivalent framework object.
@@ -64,7 +69,7 @@ public final class MediaDescriptionCompat implements Parcelable {
     private Object mDescriptionObj;
 
     private MediaDescriptionCompat(String mediaId, CharSequence title, CharSequence subtitle,
-            CharSequence description, Bitmap icon, Uri iconUri, Bundle extras) {
+            CharSequence description, Bitmap icon, Uri iconUri, Bundle extras, Uri mediaUri) {
         mMediaId = mediaId;
         mTitle = title;
         mSubtitle = subtitle;
@@ -72,6 +77,7 @@ public final class MediaDescriptionCompat implements Parcelable {
         mIcon = icon;
         mIconUri = iconUri;
         mExtras = extras;
+        mMediaUri = mediaUri;
     }
 
     private MediaDescriptionCompat(Parcel in) {
@@ -82,12 +88,14 @@ public final class MediaDescriptionCompat implements Parcelable {
         mIcon = in.readParcelable(null);
         mIconUri = in.readParcelable(null);
         mExtras = in.readBundle();
+        mMediaUri = in.readParcelable(null);
     }
 
     /**
      * Returns the media id or null. See
      * {@link MediaMetadataCompat#METADATA_KEY_MEDIA_ID}.
      */
+    @Nullable
     public String getMediaId() {
         return mMediaId;
     }
@@ -97,6 +105,7 @@ public final class MediaDescriptionCompat implements Parcelable {
      *
      * @return A title or null.
      */
+    @Nullable
     public CharSequence getTitle() {
         return mTitle;
     }
@@ -106,6 +115,7 @@ public final class MediaDescriptionCompat implements Parcelable {
      *
      * @return A subtitle or null.
      */
+    @Nullable
     public CharSequence getSubtitle() {
         return mSubtitle;
     }
@@ -115,6 +125,7 @@ public final class MediaDescriptionCompat implements Parcelable {
      *
      * @return A description or null.
      */
+    @Nullable
     public CharSequence getDescription() {
         return mDescription;
     }
@@ -124,6 +135,7 @@ public final class MediaDescriptionCompat implements Parcelable {
      *
      * @return An icon or null.
      */
+    @Nullable
     public Bitmap getIconBitmap() {
         return mIcon;
     }
@@ -133,6 +145,7 @@ public final class MediaDescriptionCompat implements Parcelable {
      *
      * @return An icon uri or null.
      */
+    @Nullable
     public Uri getIconUri() {
         return mIconUri;
     }
@@ -142,8 +155,19 @@ public final class MediaDescriptionCompat implements Parcelable {
      *
      * @return A bundle of extras or null.
      */
+    @Nullable
     public Bundle getExtras() {
         return mExtras;
+    }
+
+    /**
+     * Returns a Uri representing this content or null.
+     *
+     * @return A media Uri or null.
+     */
+    @Nullable
+    public Uri getMediaUri() {
+        return mMediaUri;
     }
 
     @Override
@@ -194,6 +218,9 @@ public final class MediaDescriptionCompat implements Parcelable {
         MediaDescriptionCompatApi21.Builder.setIconBitmap(bob, mIcon);
         MediaDescriptionCompatApi21.Builder.setIconUri(bob, mIconUri);
         MediaDescriptionCompatApi21.Builder.setExtras(bob, mExtras);
+        if (Build.VERSION.SDK_INT >= 23) {
+            MediaDescriptionCompatApi23.Builder.setMediaUri(bob, mMediaUri);
+        }
         mDescriptionObj = MediaDescriptionCompatApi21.Builder.build(bob);
 
         return mDescriptionObj;
@@ -224,6 +251,9 @@ public final class MediaDescriptionCompat implements Parcelable {
         bob.setIconBitmap(MediaDescriptionCompatApi21.getIconBitmap(descriptionObj));
         bob.setIconUri(MediaDescriptionCompatApi21.getIconUri(descriptionObj));
         bob.setExtras(MediaDescriptionCompatApi21.getExtras(descriptionObj));
+        if (Build.VERSION.SDK_INT >= 23) {
+            bob.setMediaUri(MediaDescriptionCompatApi23.getMediaUri(descriptionObj));
+        }
         MediaDescriptionCompat descriptionCompat = bob.build();
         descriptionCompat.mDescriptionObj = descriptionObj;
 
@@ -258,6 +288,7 @@ public final class MediaDescriptionCompat implements Parcelable {
         private Bitmap mIcon;
         private Uri mIconUri;
         private Bundle mExtras;
+        private Uri mMediaUri;
 
         /**
          * Creates an initially empty builder.
@@ -271,7 +302,7 @@ public final class MediaDescriptionCompat implements Parcelable {
          * @param mediaId The unique id for the item or null.
          * @return this
          */
-        public Builder setMediaId(String mediaId) {
+        public Builder setMediaId(@Nullable String mediaId) {
             mMediaId = mediaId;
             return this;
         }
@@ -282,7 +313,7 @@ public final class MediaDescriptionCompat implements Parcelable {
          * @param title A title suitable for display to the user or null.
          * @return this
          */
-        public Builder setTitle(CharSequence title) {
+        public Builder setTitle(@Nullable CharSequence title) {
             mTitle = title;
             return this;
         }
@@ -293,7 +324,7 @@ public final class MediaDescriptionCompat implements Parcelable {
          * @param subtitle A subtitle suitable for display to the user or null.
          * @return this
          */
-        public Builder setSubtitle(CharSequence subtitle) {
+        public Builder setSubtitle(@Nullable CharSequence subtitle) {
             mSubtitle = subtitle;
             return this;
         }
@@ -305,7 +336,7 @@ public final class MediaDescriptionCompat implements Parcelable {
          *            null.
          * @return this
          */
-        public Builder setDescription(CharSequence description) {
+        public Builder setDescription(@Nullable CharSequence description) {
             mDescription = description;
             return this;
         }
@@ -317,7 +348,7 @@ public final class MediaDescriptionCompat implements Parcelable {
          *            null.
          * @return this
          */
-        public Builder setIconBitmap(Bitmap icon) {
+        public Builder setIconBitmap(@Nullable Bitmap icon) {
             mIcon = icon;
             return this;
         }
@@ -329,7 +360,7 @@ public final class MediaDescriptionCompat implements Parcelable {
          *            user or null.
          * @return this
          */
-        public Builder setIconUri(Uri iconUri) {
+        public Builder setIconUri(@Nullable Uri iconUri) {
             mIconUri = iconUri;
             return this;
         }
@@ -340,8 +371,19 @@ public final class MediaDescriptionCompat implements Parcelable {
          * @param extras The extras to include with this description or null.
          * @return this
          */
-        public Builder setExtras(Bundle extras) {
+        public Builder setExtras(@Nullable Bundle extras) {
             mExtras = extras;
+            return this;
+        }
+
+        /**
+         * Sets the media uri.
+         *
+         * @param mediaUri The content's {@link Uri} for the item or null.
+         * @return this
+         */
+        public Builder setMediaUri(@Nullable Uri mediaUri) {
+            mMediaUri = mediaUri;
             return this;
         }
 
@@ -353,7 +395,7 @@ public final class MediaDescriptionCompat implements Parcelable {
          */
         public MediaDescriptionCompat build() {
             return new MediaDescriptionCompat(mMediaId, mTitle, mSubtitle, mDescription, mIcon,
-                    mIconUri, mExtras);
+                    mIconUri, mExtras, mMediaUri);
         }
     }
 }
