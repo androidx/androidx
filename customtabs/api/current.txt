@@ -1,0 +1,56 @@
+package android.support.customtabs {
+
+  public class CustomTabsCallback {
+    ctor public CustomTabsCallback();
+    method public void onNavigationEvent(int, android.os.Bundle);
+    field public static final int NAVIGATION_FINISHED = 2; // 0x2
+    field public static final int NAVIGATION_STARTED = 1; // 0x1
+  }
+
+  public class CustomTabsClient {
+    method public static boolean bindCustomTabsService(android.content.Context, java.lang.String, android.support.customtabs.CustomTabsServiceConnection);
+    method public android.support.customtabs.CustomTabsSession newSession(android.support.customtabs.CustomTabsCallback);
+    method public boolean warmup(long);
+  }
+
+  public class CustomTabsIntent {
+    ctor public CustomTabsIntent();
+    method public static android.content.Intent getViewIntentWithNoSession(java.lang.String, android.net.Uri);
+    field public static final java.lang.String EXTRA_ACTION_BUTTON_BUNDLE = "android.support.customtabs.extra.ACTION_BUTTON_BUNDLE";
+    field public static final java.lang.String EXTRA_EXIT_ANIMATION_BUNDLE = "android.support.customtabs.extra.EXIT_ANIMATION_BUNDLE";
+    field public static final java.lang.String EXTRA_MENU_ITEMS = "android.support.customtabs.extra.MENU_ITEMS";
+    field public static final java.lang.String EXTRA_SESSION = "android.support.customtabs.extra.SESSION";
+    field public static final java.lang.String EXTRA_TOOLBAR_COLOR = "android.support.customtabs.extra.TOOLBAR_COLOR";
+    field public static final java.lang.String KEY_ICON = "android.support.customtabs.customaction.ICON";
+    field public static final java.lang.String KEY_MENU_ITEM_TITLE = "android.support.customtabs.customaction.MENU_ITEM_TITLE";
+    field public static final java.lang.String KEY_PENDING_INTENT = "android.support.customtabs.customaction.PENDING_INTENT";
+  }
+
+  public abstract class CustomTabsService extends android.app.Service {
+    ctor public CustomTabsService();
+    method protected boolean cleanUpSession(android.support.customtabs.CustomTabsSessionToken);
+    method protected abstract boolean mayLaunchUrl(android.support.customtabs.CustomTabsSessionToken, android.net.Uri, android.os.Bundle, java.util.List<android.os.Bundle>);
+    method protected abstract boolean newSession(android.support.customtabs.CustomTabsSessionToken);
+    method public android.os.IBinder onBind(android.content.Intent);
+    method protected abstract boolean warmup(long);
+    field public static final java.lang.String ACTION_CUSTOM_TABS_CONNECTION = "android.support.customtabs.action.CustomTabsService";
+    field public static final java.lang.String KEY_URL = "android.support.customtabs.otherurls.URL";
+  }
+
+  public abstract class CustomTabsServiceConnection implements android.content.ServiceConnection {
+    ctor public CustomTabsServiceConnection();
+    method public abstract void onCustomTabsServiceConnected(android.content.ComponentName, android.support.customtabs.CustomTabsClient);
+    method public final void onServiceConnected(android.content.ComponentName, android.os.IBinder);
+  }
+
+  public class CustomTabsSession {
+    method public android.content.Intent getViewIntent(android.net.Uri);
+    method public boolean mayLaunchUrl(android.net.Uri, android.os.Bundle, java.util.List<android.os.Bundle>);
+  }
+
+  public class CustomTabsSessionToken {
+    method public android.support.customtabs.CustomTabsCallback getCallback();
+  }
+
+}
+
