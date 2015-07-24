@@ -28,6 +28,8 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.FloatRange;
 import android.support.annotation.IntDef;
+import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
 
 import java.lang.annotation.Retention;
@@ -42,7 +44,7 @@ import java.lang.annotation.RetentionPolicy;
 public class DrawerArrowDrawable extends Drawable {
 
     /**
-     * Direction to make the arrow point from right to left.
+     * Direction to make the arrow point towards the left.
      *
      * @see #setDirection(int)
      * @see #getDirection()
@@ -50,15 +52,40 @@ public class DrawerArrowDrawable extends Drawable {
     public static final int ARROW_DIRECTION_LEFT = 0;
 
     /**
-     * Direction to make the arrow point from left to right.
+     * Direction to make the arrow point towards the right.
      *
      * @see #setDirection(int)
      * @see #getDirection()
      */
     public static final int ARROW_DIRECTION_RIGHT = 1;
 
+    /**
+     * Direction to make the arrow point towards the start.
+     *
+     * <p>When used in a view with a {@link ViewCompat#LAYOUT_DIRECTION_RTL RTL} layout direction,
+     * this is the same as {@link #ARROW_DIRECTION_RIGHT}, otherwise it is the same as
+     * {@link #ARROW_DIRECTION_LEFT}.</p>
+     *
+     * @see #setDirection(int)
+     * @see #getDirection()
+     */
+    public static final int ARROW_DIRECTION_START = 2;
+
+    /**
+     * Direction to make the arrow point to the end.
+     *
+     * <p>When used in a view with a {@link ViewCompat#LAYOUT_DIRECTION_RTL RTL} layout direction,
+     * this is the same as {@link #ARROW_DIRECTION_LEFT}, otherwise it is the same as
+     * {@link #ARROW_DIRECTION_RIGHT}.</p>
+     *
+     * @see #setDirection(int)
+     * @see #getDirection()
+     */
+    public static final int ARROW_DIRECTION_END = 3;
+
     /** @hide */
-    @IntDef({ARROW_DIRECTION_LEFT, ARROW_DIRECTION_RIGHT})
+    @IntDef({ARROW_DIRECTION_LEFT, ARROW_DIRECTION_RIGHT,
+            ARROW_DIRECTION_START, ARROW_DIRECTION_END})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ArrowDirection {}
 
@@ -88,7 +115,7 @@ public class DrawerArrowDrawable extends Drawable {
     // the amount that overlaps w/ bar size when rotation is max
     private float mMaxCutForBarSize;
     // The arrow direction
-    private int mDirection = ARROW_DIRECTION_LEFT;
+    private int mDirection = ARROW_DIRECTION_START;
 
     /**
      * @param context used to get the configuration for the drawable from
@@ -292,7 +319,26 @@ public class DrawerArrowDrawable extends Drawable {
     @Override
     public void draw(Canvas canvas) {
         Rect bounds = getBounds();
-        final boolean flipToPointRight = mDirection == ARROW_DIRECTION_RIGHT;
+
+        final boolean flipToPointRight;
+        switch (mDirection) {
+            case ARROW_DIRECTION_LEFT:
+                flipToPointRight = false;
+                break;
+            case ARROW_DIRECTION_RIGHT:
+                flipToPointRight = true;
+                break;
+            case ARROW_DIRECTION_END:
+                flipToPointRight = DrawableCompat.getLayoutDirection(this)
+                        == ViewCompat.LAYOUT_DIRECTION_LTR;
+                break;
+            case ARROW_DIRECTION_START:
+            default:
+                flipToPointRight = DrawableCompat.getLayoutDirection(this)
+                        == ViewCompat.LAYOUT_DIRECTION_RTL;
+                break;
+        }
+
         // Interpolated widths of arrow bars
 
         float arrowHeadBarLength = (float) Math.sqrt(mArrowHeadLength * mArrowHeadLength * 2);
