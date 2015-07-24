@@ -17,7 +17,11 @@
 package android.support.v4.media;
 
 import android.os.Build;
+import android.support.annotation.IntDef;
 import android.support.v4.media.session.MediaSessionCompat;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Handles requests to adjust or set the volume on a session. This is also used
@@ -26,6 +30,14 @@ import android.support.v4.media.session.MediaSessionCompat;
  * {@link MediaSessionCompat#setPlaybackToRemote}.
  */
 public abstract class VolumeProviderCompat {
+
+    /**
+     * @hide
+     */
+    @IntDef({VOLUME_CONTROL_FIXED, VOLUME_CONTROL_RELATIVE, VOLUME_CONTROL_ABSOLUTE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ControlType {}
+
     /**
      * The volume is fixed and can not be modified. Requests to change volume
      * should be ignored.
@@ -62,7 +74,7 @@ public abstract class VolumeProviderCompat {
      * @param maxVolume The maximum allowed volume.
      * @param currentVolume The current volume.
      */
-    public VolumeProviderCompat(int volumeControl, int maxVolume, int currentVolume) {
+    public VolumeProviderCompat(@ControlType int volumeControl, int maxVolume, int currentVolume) {
         mControlType = volumeControl;
         mMaxVolume = maxVolume;
         mCurrentVolume = currentVolume;
@@ -82,6 +94,7 @@ public abstract class VolumeProviderCompat {
      *
      * @return The volume control type for this volume provider
      */
+    @ControlType
     public final int getVolumeControl() {
         return mControlType;
     }
