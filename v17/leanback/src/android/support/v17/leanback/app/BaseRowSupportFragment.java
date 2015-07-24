@@ -151,7 +151,11 @@ abstract class BaseRowSupportFragment extends Fragment {
     }
 
     void updateAdapter() {
-        mBridgeAdapter = null;
+        if (mBridgeAdapter != null) {
+            // detach observer from ObjectAdapter
+            mBridgeAdapter.clear();
+            mBridgeAdapter = null;
+        }
 
         if (mAdapter != null) {
             // If presenter selector is null, adapter ps will be used
