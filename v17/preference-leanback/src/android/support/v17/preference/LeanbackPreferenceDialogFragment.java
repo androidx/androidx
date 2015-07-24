@@ -17,6 +17,7 @@
 package android.support.v17.preference;
 
 import android.app.Fragment;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.preference.DialogPreference;
 
@@ -26,11 +27,17 @@ public class LeanbackPreferenceDialogFragment extends Fragment {
 
     private DialogPreference mPreference;
 
+    public LeanbackPreferenceDialogFragment() {
+        if (Build.VERSION.SDK_INT >= 21) {
+            LeanbackPreferenceFragmentTransitionHelperApi21.addTransitions(this);
+        }
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        final Fragment rawFragment = getParentFragment();
+        final Fragment rawFragment = getTargetFragment();
         if (!(rawFragment instanceof DialogPreference.TargetFragment)) {
             throw new IllegalStateException("Target fragment must implement TargetFragment" +
                     " interface");
