@@ -193,33 +193,40 @@ public abstract class TwoStatePreference extends Preference {
      */
     protected void syncSummaryView(PreferenceViewHolder holder) {
         // Sync the summary holder
-        TextView summaryView = (TextView) holder.findViewById(android.R.id.summary);
-        if (summaryView != null) {
-            boolean useDefaultSummary = true;
-            if (mChecked && !TextUtils.isEmpty(mSummaryOn)) {
-                summaryView.setText(mSummaryOn);
-                useDefaultSummary = false;
-            } else if (!mChecked && !TextUtils.isEmpty(mSummaryOff)) {
-                summaryView.setText(mSummaryOff);
-                useDefaultSummary = false;
-            }
+        View view = holder.findViewById(android.R.id.summary);
+        syncSummaryView(view);
+    }
 
-            if (useDefaultSummary) {
-                final CharSequence summary = getSummary();
-                if (!TextUtils.isEmpty(summary)) {
-                    summaryView.setText(summary);
-                    useDefaultSummary = false;
-                }
+    /**
+     * @hide
+     */
+    protected void syncSummaryView(View view) {
+        if (!(view instanceof TextView)) {
+            return;
+        }
+        TextView summaryView = (TextView) view;
+        boolean useDefaultSummary = true;
+        if (mChecked && !TextUtils.isEmpty(mSummaryOn)) {
+            summaryView.setText(mSummaryOn);
+            useDefaultSummary = false;
+        } else if (!mChecked && !TextUtils.isEmpty(mSummaryOff)) {
+            summaryView.setText(mSummaryOff);
+            useDefaultSummary = false;
+        }
+        if (useDefaultSummary) {
+            final CharSequence summary = getSummary();
+            if (!TextUtils.isEmpty(summary)) {
+                summaryView.setText(summary);
+                useDefaultSummary = false;
             }
-
-            int newVisibility = View.GONE;
-            if (!useDefaultSummary) {
-                // Someone has written to it
-                newVisibility = View.VISIBLE;
-            }
-            if (newVisibility != summaryView.getVisibility()) {
-                summaryView.setVisibility(newVisibility);
-            }
+        }
+        int newVisibility = View.GONE;
+        if (!useDefaultSummary) {
+            // Someone has written to it
+            newVisibility = View.VISIBLE;
+        }
+        if (newVisibility != summaryView.getVisibility()) {
+            summaryView.setVisibility(newVisibility);
         }
     }
 
