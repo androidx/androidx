@@ -25,6 +25,7 @@ import android.graphics.Path;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.ColorInt;
 import android.support.annotation.FloatRange;
 import android.support.annotation.IntDef;
 import android.support.v7.appcompat.R;
@@ -65,17 +66,16 @@ public class DrawerArrowDrawable extends Drawable {
 
     // The angle in degress that the arrow head is inclined at.
     private static final float ARROW_HEAD_ANGLE = (float) Math.toRadians(45);
-    private final float mBarThickness;
     // The length of top and bottom bars when they merge into an arrow
-    private final float mTopBottomArrowSize;
+    private float mArrowHeadLength;
     // The length of middle bar
-    private final float mBarSize;
+    private float mBarLength;
     // The length of the middle bar when arrow is shaped
-    private final float mMiddleArrowSize;
+    private float mArrowShaftLength;
     // The space between bars when they are parallel
-    private final float mBarGap;
+    private float mBarGap;
     // Whether bars should spin or not during progress
-    private final boolean mSpin;
+    private boolean mSpin;
     // Use Path instead of canvas operations so that if color has transparency, overlapping sections
     // wont look different
     private final Path mPath = new Path();
@@ -87,8 +87,6 @@ public class DrawerArrowDrawable extends Drawable {
     private float mProgress;
     // the amount that overlaps w/ bar size when rotation is max
     private float mMaxCutForBarSize;
-    // The distance of arrow's center from top when horizontal
-    private float mCenterOffset;
     // The arrow direction
     private int mDirection = ARROW_DIRECTION_LEFT;
 
@@ -96,34 +94,148 @@ public class DrawerArrowDrawable extends Drawable {
      * @param context used to get the configuration for the drawable from
      */
     public DrawerArrowDrawable(Context context) {
-        final TypedArray a = context.getTheme()
-                .obtainStyledAttributes(null, R.styleable.DrawerArrowToggle,
-                        R.attr.drawerArrowStyle,
-                        R.style.Base_Widget_AppCompat_DrawerArrowToggle);
-        mPaint.setAntiAlias(true);
-        mPaint.setColor(a.getColor(R.styleable.DrawerArrowToggle_color, 0));
-        mSize = a.getDimensionPixelSize(R.styleable.DrawerArrowToggle_drawableSize, 0);
-        // round this because having this floating may cause bad measurements
-        mBarSize = Math.round(a.getDimension(R.styleable.DrawerArrowToggle_barSize, 0));
-        // round this because having this floating may cause bad measurements
-        mTopBottomArrowSize = Math.round(a.getDimension(
-                R.styleable.DrawerArrowToggle_topBottomBarArrowSize, 0));
-        mBarThickness = a.getDimension(R.styleable.DrawerArrowToggle_thickness, 0);
-        // round this because having this floating may cause bad measurements
-        mBarGap = Math.round(a.getDimension(R.styleable.DrawerArrowToggle_gapBetweenBars, 0));
-        mSpin = a.getBoolean(R.styleable.DrawerArrowToggle_spinBars, true);
-        mMiddleArrowSize = a.getDimension(R.styleable.DrawerArrowToggle_middleBarArrowSize, 0);
-        final int remainingSpace = (int) (mSize - mBarThickness * 3 - mBarGap * 2);
-        mCenterOffset = (remainingSpace / 4) * 2; //making sure it is a multiple of 2.
-        mCenterOffset += mBarThickness * 1.5 + mBarGap;
-        a.recycle();
-
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeJoin(Paint.Join.MITER);
         mPaint.setStrokeCap(Paint.Cap.BUTT);
-        mPaint.setStrokeWidth(mBarThickness);
+        mPaint.setAntiAlias(true);
 
-        mMaxCutForBarSize = (float) (mBarThickness / 2 * Math.cos(ARROW_HEAD_ANGLE));
+        final TypedArray a = context.getTheme().obtainStyledAttributes(null,
+                R.styleable.DrawerArrowToggle, R.attr.drawerArrowStyle,
+                R.style.Base_Widget_AppCompat_DrawerArrowToggle);
+
+        setColor(a.getColor(R.styleable.DrawerArrowToggle_color, 0));
+        setBarThickness(a.getDimension(R.styleable.DrawerArrowToggle_thickness, 0));
+        setSpinEnabled(a.getBoolean(R.styleable.DrawerArrowToggle_spinBars, true));
+        // round this because having this floating may cause bad measurements
+        setGapSize(Math.round(a.getDimension(R.styleable.DrawerArrowToggle_gapBetweenBars, 0)));
+
+        mSize = a.getDimensionPixelSize(R.styleable.DrawerArrowToggle_drawableSize, 0);
+        // round this because having this floating may cause bad measurements
+        mBarLength = Math.round(a.getDimension(R.styleable.DrawerArrowToggle_barLength, 0));
+        // round this because having this floating may cause bad measurements
+        mArrowHeadLength = Math.round(a.getDimension(
+                R.styleable.DrawerArrowToggle_arrowHeadLength, 0));
+        mArrowShaftLength = a.getDimension(R.styleable.DrawerArrowToggle_arrowShaftLength, 0);
+        a.recycle();
+    }
+
+    /**
+     * Sets the length of the arrow head (from tip to edge, perpendicular to the shaft).
+     *
+     * @param length the length in pixels
+     */
+    public void setArrowHeadLength(float length) {
+        if (mArrowHeadLength != length) {
+            mArrowHeadLength = length;
+            invalidateSelf();
+        }
+    }
+
+    /**
+     * Returns the length of the arrow head (from tip to edge, perpendicular to the shaft),
+     * in pixels.
+     */
+    public float getArrowHeadLength() {
+        return mArrowHeadLength;
+    }
+
+    /**
+     * Sets the arrow shaft length.
+     *
+     * @param length the length in pixels
+     */
+    public void setArrowShaftLength(float length) {
+        if (mArrowShaftLength != length) {
+            mArrowShaftLength = length;
+            invalidateSelf();
+        }
+    }
+
+    /**
+     * Returns the arrow shaft length in pixels.
+     */
+    public float getArrowShaftLength() {
+        return mArrowShaftLength;
+    }
+
+    /**
+     * The length of the bars when they are parallel to each other.
+     */
+    public float getBarLength() {
+        return mBarLength;
+    }
+
+    /**
+     * Sets the length of the bars when they are parallel to each other.
+     *
+     * @param length the length in pixels
+     */
+    public void setBarLength(float length) {
+        if (mBarLength != length) {
+            mBarLength = length;
+            invalidateSelf();
+        }
+    }
+
+    /**
+     * Sets the color of the drawable.
+     */
+    public void setColor(@ColorInt int color) {
+        if (color != mPaint.getColor()) {
+            mPaint.setColor(color);
+            invalidateSelf();
+        }
+    }
+
+    /**
+     * Returns the color of the drawable.
+     */
+    @ColorInt
+    public int getColor() {
+        return mPaint.getColor();
+    }
+
+    /**
+     * Sets the thickness (stroke size) for the bars.
+     *
+     * @param width stroke width in pixels
+     */
+    public void setBarThickness(float width) {
+        if (mPaint.getStrokeWidth() != width) {
+            mPaint.setStrokeWidth(width);
+            mMaxCutForBarSize = (float) (width / 2 * Math.cos(ARROW_HEAD_ANGLE));
+            invalidateSelf();
+        }
+    }
+
+    /**
+     * Returns the thickness (stroke width) of the bars.
+     */
+    public float getBarThickness() {
+        return mPaint.getStrokeWidth();
+    }
+
+    /**
+     * Returns the max gap between the bars when they are parallel to each other.
+     *
+     * @see #getGapSize()
+     */
+    public float getGapSize() {
+        return mBarGap;
+    }
+
+    /**
+     * Sets the max gap between the bars when they are parallel to each other.
+     *
+     * @param gap the gap in pixels
+     *
+     * @see #getGapSize()
+     */
+    public void setGapSize(float gap) {
+        if (gap != mBarGap) {
+            mBarGap = gap;
+            invalidateSelf();
+        }
     }
 
     /**
@@ -132,6 +244,29 @@ public class DrawerArrowDrawable extends Drawable {
     public void setDirection(@ArrowDirection int direction) {
         if (direction != mDirection) {
             mDirection = direction;
+            invalidateSelf();
+        }
+    }
+
+    /**
+     * Returns whether the bars should rotate or not during the transition.
+     *
+     * @see #setSpinEnabled(boolean)
+     */
+    public boolean isSpinEnabled() {
+        return mSpin;
+    }
+
+    /**
+     * Returns whether the bars should rotate or not during the transition.
+     *
+     * @param enabled true if the bars should rotate.
+     *
+     * @see #isSpinEnabled()
+     */
+    public void setSpinEnabled(boolean enabled) {
+        if (mSpin != enabled) {
+            mSpin = enabled;
             invalidateSelf();
         }
     }
@@ -159,10 +294,12 @@ public class DrawerArrowDrawable extends Drawable {
         Rect bounds = getBounds();
         final boolean flipToPointRight = mDirection == ARROW_DIRECTION_RIGHT;
         // Interpolated widths of arrow bars
-        final float arrowSize = lerp(mBarSize, mTopBottomArrowSize, mProgress);
-        final float middleBarSize = lerp(mBarSize, mMiddleArrowSize, mProgress);
+
+        float arrowHeadBarLength = (float) Math.sqrt(mArrowHeadLength * mArrowHeadLength * 2);
+        arrowHeadBarLength = lerp(mBarLength, arrowHeadBarLength, mProgress);
+        final float arrowShaftLength = lerp(mBarLength, mArrowShaftLength, mProgress);
         // Interpolated size of middle bar
-        final float middleBarCut = Math.round(lerp(0, mMaxCutForBarSize, mProgress));
+        final float arrowShaftCut = Math.round(lerp(0, mMaxCutForBarSize, mProgress));
         // The rotation of the top and bottom bars (that make the arrow head)
         final float rotation = lerp(0, ARROW_HEAD_ANGLE, mProgress);
 
@@ -170,17 +307,17 @@ public class DrawerArrowDrawable extends Drawable {
         final float canvasRotate = lerp(flipToPointRight ? 0 : -180,
                 flipToPointRight ? 180 : 0, mProgress);
 
-        final float arrowWidth = Math.round(arrowSize * Math.cos(rotation));
-        final float arrowHeight = Math.round(arrowSize * Math.sin(rotation));
+        final float arrowWidth = Math.round(arrowHeadBarLength * Math.cos(rotation));
+        final float arrowHeight = Math.round(arrowHeadBarLength * Math.sin(rotation));
 
         mPath.rewind();
-        final float topBottomBarOffset = lerp(mBarGap + mBarThickness, -mMaxCutForBarSize,
+        final float topBottomBarOffset = lerp(mBarGap + mPaint.getStrokeWidth(), -mMaxCutForBarSize,
                 mProgress);
 
-        final float arrowEdge = -middleBarSize / 2;
+        final float arrowEdge = -arrowShaftLength / 2;
         // draw middle bar
-        mPath.moveTo(arrowEdge + middleBarCut, 0);
-        mPath.rLineTo(middleBarSize - middleBarCut * 2, 0);
+        mPath.moveTo(arrowEdge + arrowShaftCut, 0);
+        mPath.rLineTo(arrowShaftLength - arrowShaftCut * 2, 0);
 
         // bottom bar
         mPath.moveTo(arrowEdge, topBottomBarOffset);
@@ -193,9 +330,15 @@ public class DrawerArrowDrawable extends Drawable {
         mPath.close();
 
         canvas.save();
+
         // Rotate the whole canvas if spinning, if not, rotate it 180 to get
         // the arrow pointing the other way for RTL.
-        canvas.translate(bounds.centerX(), mCenterOffset);
+        final float barThickness = mPaint.getStrokeWidth();
+        final int remainingSpace = (int) (bounds.height() - barThickness * 3 - mBarGap * 2);
+        float yOffset = (remainingSpace / 4) * 2; // making sure it is a multiple of 2.
+        yOffset += barThickness * 1.5 + mBarGap;
+
+        canvas.translate(bounds.centerX(), yOffset);
         if (mSpin) {
             canvas.rotate(canvasRotate * ((mVerticalMirror ^ flipToPointRight) ? -1 : 1));
         } else if (flipToPointRight) {
