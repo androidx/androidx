@@ -1,0 +1,21 @@
+apply plugin: 'android-library'
+
+archivesBaseName = 'customtabs'
+
+android {
+    compileSdkVersion 'current'
+
+    sourceSets {
+        main.manifest.srcFile 'AndroidManifest.xml'
+        main.java.srcDirs = ['src']
+        main.aidl.srcDirs = ['src']
+        main.res.srcDir 'res'
+        main.assets.srcDir 'assets'
+        main.resources.srcDir 'java'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+}
