@@ -187,9 +187,6 @@ public class ShadowOverlayContainer extends ViewGroup {
             mColorDimOverlay = LayoutInflater.from(getContext())
                     .inflate(R.layout.lb_card_color_overlay, this, false);
             addView(mColorDimOverlay);
-            if (roundedCorners) {
-                RoundedRectHelper.getInstance().setClipToRoundedOutline(mColorDimOverlay, true);
-            }
         }
     }
 
