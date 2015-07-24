@@ -1249,6 +1249,7 @@ package android.support.v4.media {
     method public android.net.Uri getIconUri();
     method public java.lang.Object getMediaDescription();
     method public java.lang.String getMediaId();
+    method public android.net.Uri getMediaUri();
     method public java.lang.CharSequence getSubtitle();
     method public java.lang.CharSequence getTitle();
     method public void writeToParcel(android.os.Parcel, int);
@@ -1263,6 +1264,7 @@ package android.support.v4.media {
     method public android.support.v4.media.MediaDescriptionCompat.Builder setIconBitmap(android.graphics.Bitmap);
     method public android.support.v4.media.MediaDescriptionCompat.Builder setIconUri(android.net.Uri);
     method public android.support.v4.media.MediaDescriptionCompat.Builder setMediaId(java.lang.String);
+    method public android.support.v4.media.MediaDescriptionCompat.Builder setMediaUri(android.net.Uri);
     method public android.support.v4.media.MediaDescriptionCompat.Builder setSubtitle(java.lang.CharSequence);
     method public android.support.v4.media.MediaDescriptionCompat.Builder setTitle(java.lang.CharSequence);
   }
