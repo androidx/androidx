@@ -18,8 +18,10 @@ package android.support.v17.preference;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v14.preference.MultiSelectListPreference;
 import android.support.v14.preference.PreferenceFragment;
 import android.support.v7.preference.ListPreference;
@@ -28,6 +30,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Space;
 
 public abstract class LeanbackSettingsFragment extends Fragment
         implements PreferenceFragment.OnPreferenceStartFragmentCallback,
@@ -118,7 +121,11 @@ public abstract class LeanbackSettingsFragment extends Fragment
         final FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
         final Fragment preferenceFragment =
                 getChildFragmentManager().findFragmentByTag(PREFERENCE_FRAGMENT_TAG);
-        if (preferenceFragment != null) {
+        if (preferenceFragment != null && !preferenceFragment.isHidden()) {
+            if (Build.VERSION.SDK_INT < 23) {
+                // b/22631964
+                transaction.add(R.id.settings_preference_fragment_container, new DummyFragment());
+            }
             transaction.hide(preferenceFragment);
         }
         transaction
@@ -136,6 +143,20 @@ public abstract class LeanbackSettingsFragment extends Fragment
             } else {
                 return false;
             }
+        }
+    }
+
+    /**
+     * @hide
+     */
+    public static class DummyFragment extends Fragment {
+
+        @Override
+        public @Nullable View onCreateView(LayoutInflater inflater, ViewGroup container,
+                Bundle savedInstanceState) {
+            final View v = new Space(inflater.getContext());
+            v.setVisibility(View.GONE);
+            return v;
         }
     }
 }
