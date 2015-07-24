@@ -16,7 +16,7 @@
 
 <resources>
 
-    <style name="Theme.MediaRouter" parent="">
+    <style name="Theme.MediaRouter" parent="Theme.AppCompat">
         <item name="mediaRouteButtonStyle">@style/Widget.MediaRouter.MediaRouteButton</item>
 
         <item name="mediaRouteOffDrawable">@drawable/ic_media_route_off_mono_dark</item>
@@ -28,7 +28,7 @@
         <item name="mediaRouteCastDrawable">@drawable/mr_ic_cast_dark</item>
     </style>
 
-    <style name="Theme.MediaRouter.Light" parent="">
+    <style name="Theme.MediaRouter.Light" parent="Theme.AppCompat.Light">
         <item name="mediaRouteButtonStyle">@style/Widget.MediaRouter.Light.MediaRouteButton</item>
 
         <item name="mediaRouteOffDrawable">@drawable/ic_cast_off_light</item>
