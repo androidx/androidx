@@ -20,6 +20,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
@@ -41,16 +42,17 @@ import android.view.Gravity;
  */
 public abstract class RoundedBitmapDrawable extends Drawable {
     private static final int DEFAULT_PAINT_FLAGS =
-            Paint.FILTER_BITMAP_FLAG | Paint.DITHER_FLAG | Paint.ANTI_ALIAS_FLAG;
-    Bitmap mBitmap;
+            Paint.FILTER_BITMAP_FLAG | Paint.ANTI_ALIAS_FLAG;
+    final Bitmap mBitmap;
     private int mTargetDensity = DisplayMetrics.DENSITY_DEFAULT;
     private int mGravity = Gravity.FILL;
-    private Paint mPaint = new Paint(DEFAULT_PAINT_FLAGS);
-    private BitmapShader mBitmapShader;
+    private final Paint mPaint = new Paint(DEFAULT_PAINT_FLAGS);
+    private final BitmapShader mBitmapShader;
+    private final Matrix mShaderMatrix = new Matrix();
     private float mCornerRadius;
 
     final Rect mDstRect = new Rect();   // Gravity.apply() sets this
-    final RectF mDstRectF = new RectF();
+    private final RectF mDstRectF = new RectF();
 
     private boolean mApplyGravity = true;
     private boolean mIsCircular;
@@ -220,11 +222,30 @@ public abstract class RoundedBitmapDrawable extends Drawable {
         if (mApplyGravity) {
             if (mIsCircular) {
                 final int minDimen = Math.min(mBitmapWidth, mBitmapHeight);
-                gravityCompatApply(Gravity.CENTER, minDimen, minDimen, getBounds(), mDstRect);
+                gravityCompatApply(mGravity, minDimen, minDimen, getBounds(), mDstRect);
+
+                // inset the drawing rectangle to the largest contained square,
+                // so that a circle will be drawn
+                final int minDrawDimen = Math.min(mDstRect.width(), mDstRect.height());
+                final int insetX = Math.max(0, (mDstRect.width() - minDrawDimen) / 2);
+                final int insetY = Math.max(0, (mDstRect.height() - minDrawDimen) / 2);
+                mDstRect.inset(insetX, insetY);
+                mCornerRadius = 0.5f * minDrawDimen;
             } else {
                 gravityCompatApply(mGravity, mBitmapWidth, mBitmapHeight, getBounds(), mDstRect);
             }
             mDstRectF.set(mDstRect);
+
+            if (mBitmapShader != null) {
+                // setup shader matrix
+                mShaderMatrix.setTranslate(mDstRectF.left,mDstRectF.top);
+                mShaderMatrix.preScale(
+                        mDstRectF.width() / mBitmap.getWidth(),
+                        mDstRectF.height() / mBitmap.getHeight());
+                mBitmapShader.setLocalMatrix(mShaderMatrix);
+                mPaint.setShader(mBitmapShader);
+            }
+
             mApplyGravity = false;
         }
     }
@@ -237,13 +258,10 @@ public abstract class RoundedBitmapDrawable extends Drawable {
         }
 
         updateDstRect();
-
-        final Paint paint = mPaint;
-        final Shader shader = paint.getShader();
-        if (shader == null) {
-            canvas.drawBitmap(bitmap, null, mDstRect, paint);
+        if (mPaint.getShader() == null) {
+            canvas.drawBitmap(bitmap, null, mDstRect, mPaint);
         } else {
-            canvas.drawRoundRect(mDstRectF, mCornerRadius, mCornerRadius, paint);
+            canvas.drawRoundRect(mDstRectF, mCornerRadius, mCornerRadius, mPaint);
         }
     }
 
@@ -273,14 +291,13 @@ public abstract class RoundedBitmapDrawable extends Drawable {
     /**
      * Sets the image shape to circular.
      * <p>This overwrites any calls made to {@link #setCornerRadius(float)} so far.</p>
-     * <p>Further, circular images are being placed using {@link Gravity#CENTER}.</p>
      */
     public void setCircular(boolean circular) {
         mIsCircular = circular;
         mApplyGravity = true;
         if (circular) {
             updateCircularCornerRadius();
-            mPaint.setShader(getDefaultShader());
+            mPaint.setShader(mBitmapShader);
             invalidateSelf();
         } else {
             setCornerRadius(0);
@@ -303,15 +320,17 @@ public abstract class RoundedBitmapDrawable extends Drawable {
      * Sets the corner radius to be applied when drawing the bitmap.
      */
     public void setCornerRadius(float cornerRadius) {
+        if (mCornerRadius == cornerRadius) return;
+
+        mIsCircular = false;
         if (isGreaterThanZero(cornerRadius)) {
             mPaint.setShader(mBitmapShader);
         } else {
             mPaint.setShader(null);
         }
-        if (mCornerRadius != cornerRadius) {
-            invalidateSelf();
-            mCornerRadius = cornerRadius;
-        }
+
+        mCornerRadius = cornerRadius;
+        invalidateSelf();
     }
 
     @Override
@@ -319,8 +338,8 @@ public abstract class RoundedBitmapDrawable extends Drawable {
         super.onBoundsChange(bounds);
         if (mIsCircular) {
             updateCircularCornerRadius();
-            mApplyGravity = true;
         }
+        mApplyGravity = true;
     }
 
     /**
@@ -361,20 +380,14 @@ public abstract class RoundedBitmapDrawable extends Drawable {
         mBitmap = bitmap;
         if (mBitmap != null) {
             computeBitmapSize();
-            mBitmapShader = getDefaultShader();
+            mBitmapShader = new BitmapShader(mBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
         } else {
             mBitmapWidth = mBitmapHeight = -1;
+            mBitmapShader = null;
         }
-    }
-
-    private BitmapShader getDefaultShader() {
-        if (mBitmapShader == null) {
-            mBitmapShader = new BitmapShader(mBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
-        }
-        return mBitmapShader;
     }
 
     private static boolean isGreaterThanZero(float toCompare) {
-        return Float.compare(toCompare, +0.0f) > 0;
+        return toCompare > 0.05f;
     }
 }

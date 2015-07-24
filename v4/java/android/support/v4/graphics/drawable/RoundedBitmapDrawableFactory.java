@@ -77,7 +77,7 @@ public class RoundedBitmapDrawableFactory {
             String filepath) {
         final RoundedBitmapDrawable drawable = create(res, BitmapFactory.decodeFile(filepath));
         if (drawable.getBitmap() == null) {
-            Log.w(TAG, "BitmapDrawable cannot decode " + filepath);
+            Log.w(TAG, "RoundedBitmapDrawable cannot decode " + filepath);
         }
         return drawable;
     }
@@ -90,7 +90,7 @@ public class RoundedBitmapDrawableFactory {
             java.io.InputStream is) {
         final RoundedBitmapDrawable drawable = create(res, BitmapFactory.decodeStream(is));
         if (drawable.getBitmap() == null) {
-            Log.w(TAG, "BitmapDrawable cannot decode " + is);
+            Log.w(TAG, "RoundedBitmapDrawable cannot decode " + is);
         }
         return drawable;
     }
