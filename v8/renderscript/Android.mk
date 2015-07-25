@@ -27,6 +27,7 @@ LOCAL_MODULE := android-support-v8-renderscript
 LOCAL_SDK_VERSION := 22
 LOCAL_SRC_FILES := $(call all-java-files-under, java/src)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-annotations
+LOCAL_JACK_ENABLED := disabled
 
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
