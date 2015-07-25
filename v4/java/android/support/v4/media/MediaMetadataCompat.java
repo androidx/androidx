@@ -21,10 +21,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.StringDef;
 import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 import android.util.Log;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Set;
 
 /**
@@ -193,6 +196,40 @@ public final class MediaMetadataCompat implements Parcelable {
      */
     public static final String METADATA_KEY_MEDIA_ID = "android.media.metadata.MEDIA_ID";
 
+    /**
+     * @hide
+     */
+    @StringDef({METADATA_KEY_TITLE, METADATA_KEY_ARTIST, METADATA_KEY_ALBUM, METADATA_KEY_AUTHOR,
+            METADATA_KEY_WRITER, METADATA_KEY_COMPOSER, METADATA_KEY_COMPILATION,
+            METADATA_KEY_DATE, METADATA_KEY_GENRE, METADATA_KEY_ALBUM_ARTIST, METADATA_KEY_ART_URI,
+            METADATA_KEY_ALBUM_ART_URI, METADATA_KEY_DISPLAY_TITLE, METADATA_KEY_DISPLAY_SUBTITLE,
+            METADATA_KEY_DISPLAY_DESCRIPTION, METADATA_KEY_DISPLAY_ICON_URI,
+            METADATA_KEY_MEDIA_ID})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface TextKey {}
+
+    /**
+     * @hide
+     */
+    @StringDef({METADATA_KEY_DURATION, METADATA_KEY_YEAR, METADATA_KEY_TRACK_NUMBER,
+            METADATA_KEY_NUM_TRACKS, METADATA_KEY_DISC_NUMBER})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface LongKey {}
+
+    /**
+     * @hide
+     */
+    @StringDef({METADATA_KEY_ART, METADATA_KEY_ALBUM_ART, METADATA_KEY_DISPLAY_ICON})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface BitmapKey {}
+
+    /**
+     * @hide
+     */
+    @StringDef({METADATA_KEY_USER_RATING, METADATA_KEY_RATING})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface RatingKey {}
+
     private static final int METADATA_TYPE_LONG = 0;
     private static final int METADATA_TYPE_TEXT = 1;
     private static final int METADATA_TYPE_BITMAP = 2;
@@ -230,7 +267,7 @@ public final class MediaMetadataCompat implements Parcelable {
         METADATA_KEYS_TYPE.put(METADATA_KEY_MEDIA_ID, METADATA_TYPE_TEXT);
     }
 
-    private static final String[] PREFERRED_DESCRIPTION_ORDER = {
+    private static final @TextKey String[] PREFERRED_DESCRIPTION_ORDER = {
             METADATA_KEY_TITLE,
             METADATA_KEY_ARTIST,
             METADATA_KEY_ALBUM,
@@ -240,13 +277,13 @@ public final class MediaMetadataCompat implements Parcelable {
             METADATA_KEY_COMPOSER
     };
 
-    private static final String[] PREFERRED_BITMAP_ORDER = {
+    private static final @BitmapKey String[] PREFERRED_BITMAP_ORDER = {
             METADATA_KEY_DISPLAY_ICON,
             METADATA_KEY_ART,
             METADATA_KEY_ALBUM_ART
     };
 
-    private static final String[] PREFERRED_URI_ORDER = {
+    private static final @TextKey String[] PREFERRED_URI_ORDER = {
             METADATA_KEY_DISPLAY_ICON_URI,
             METADATA_KEY_ART_URI,
             METADATA_KEY_ALBUM_ART_URI
@@ -282,7 +319,7 @@ public final class MediaMetadataCompat implements Parcelable {
      * @param key The key the value is stored under
      * @return a CharSequence value, or null
      */
-    public CharSequence getText(String key) {
+    public CharSequence getText(@TextKey String key) {
         return mBundle.getCharSequence(key);
     }
 
@@ -294,7 +331,7 @@ public final class MediaMetadataCompat implements Parcelable {
      * @param key The key the value is stored under
      * @return a String value, or null
      */
-    public String getString(String key) {
+    public String getString(@TextKey String key) {
         CharSequence text = mBundle.getCharSequence(key);
         if (text != null) {
             return text.toString();
@@ -309,7 +346,7 @@ public final class MediaMetadataCompat implements Parcelable {
      * @param key The key the value is stored under
      * @return a long value
      */
-    public long getLong(String key) {
+    public long getLong(@LongKey String key) {
         return mBundle.getLong(key, 0);
     }
 
@@ -320,7 +357,7 @@ public final class MediaMetadataCompat implements Parcelable {
      * @param key The key the value is stored under
      * @return A {@link RatingCompat} or null
      */
-    public RatingCompat getRating(String key) {
+    public RatingCompat getRating(@RatingKey String key) {
         RatingCompat rating = null;
         try {
             rating = mBundle.getParcelable(key);
@@ -338,7 +375,7 @@ public final class MediaMetadataCompat implements Parcelable {
      * @param key The key the value is stored under
      * @return A {@link Bitmap} or null
      */
-    public Bitmap getBitmap(String key) {
+    public Bitmap getBitmap(@BitmapKey String key) {
         Bitmap bmp = null;
         try {
             bmp = mBundle.getParcelable(key);
@@ -609,7 +646,7 @@ public final class MediaMetadataCompat implements Parcelable {
          * @param value The CharSequence value to store
          * @return The Builder to allow chaining
          */
-        public Builder putText(String key, CharSequence value) {
+        public Builder putText(@TextKey String key, CharSequence value) {
             if (METADATA_KEYS_TYPE.containsKey(key)) {
                 if (METADATA_KEYS_TYPE.get(key) != METADATA_TYPE_TEXT) {
                     throw new IllegalArgumentException("The " + key
@@ -646,7 +683,7 @@ public final class MediaMetadataCompat implements Parcelable {
          * @param value The String value to store
          * @return The Builder to allow chaining
          */
-        public Builder putString(String key, String value) {
+        public Builder putString(@TextKey String key, String value) {
             if (METADATA_KEYS_TYPE.containsKey(key)) {
                 if (METADATA_KEYS_TYPE.get(key) != METADATA_TYPE_TEXT) {
                     throw new IllegalArgumentException("The " + key
@@ -673,7 +710,7 @@ public final class MediaMetadataCompat implements Parcelable {
          * @param value The String value to store
          * @return The Builder to allow chaining
          */
-        public Builder putLong(String key, long value) {
+        public Builder putLong(@LongKey String key, long value) {
             if (METADATA_KEYS_TYPE.containsKey(key)) {
                 if (METADATA_KEYS_TYPE.get(key) != METADATA_TYPE_LONG) {
                     throw new IllegalArgumentException("The " + key
@@ -697,7 +734,7 @@ public final class MediaMetadataCompat implements Parcelable {
          * @param value The String value to store
          * @return The Builder to allow chaining
          */
-        public Builder putRating(String key, RatingCompat value) {
+        public Builder putRating(@RatingKey String key, RatingCompat value) {
             if (METADATA_KEYS_TYPE.containsKey(key)) {
                 if (METADATA_KEYS_TYPE.get(key) != METADATA_TYPE_RATING) {
                     throw new IllegalArgumentException("The " + key
@@ -722,7 +759,7 @@ public final class MediaMetadataCompat implements Parcelable {
          * @param value The Bitmap to store
          * @return The Builder to allow chaining
          */
-        public Builder putBitmap(String key, Bitmap value) {
+        public Builder putBitmap(@BitmapKey String key, Bitmap value) {
             if (METADATA_KEYS_TYPE.containsKey(key)) {
                 if (METADATA_KEYS_TYPE.get(key) != METADATA_TYPE_BITMAP) {
                     throw new IllegalArgumentException("The " + key

@@ -34,6 +34,7 @@ import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.os.SystemClock;
+import android.support.annotation.IntDef;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
@@ -42,6 +43,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,6 +80,13 @@ public class MediaSessionCompat {
     private final MediaControllerCompat mController;
     private final ArrayList<OnActiveChangeListener>
             mActiveListeners = new ArrayList<OnActiveChangeListener>();
+
+    /**
+     * @hide
+     */
+    @IntDef(flag=true, value={FLAG_HANDLES_MEDIA_BUTTONS, FLAG_HANDLES_TRANSPORT_CONTROLS})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface SessionFlags {}
 
     /**
      * Set this flag on the session to indicate that it can handle media button
@@ -191,7 +201,7 @@ public class MediaSessionCompat {
      *
      * @param flags The flags to set for this session.
      */
-    public void setFlags(int flags) {
+    public void setFlags(@SessionFlags int flags) {
         mImpl.setFlags(flags);
     }
 
@@ -370,7 +380,7 @@ public class MediaSessionCompat {
      * <li>{@link RatingCompat#RATING_THUMB_UP_DOWN}</li>
      * </ul>
      */
-    public void setRatingType(int type) {
+    public void setRatingType(@RatingCompat.Style int type) {
         mImpl.setRatingType(type);
     }
 
@@ -908,7 +918,7 @@ public class MediaSessionCompat {
 
     interface MediaSessionImpl {
         void setCallback(Callback callback, Handler handler);
-        void setFlags(int flags);
+        void setFlags(@SessionFlags int flags);
         void setPlaybackToLocal(int stream);
         void setPlaybackToRemote(VolumeProviderCompat volumeProvider);
         void setActive(boolean active);
@@ -925,7 +935,7 @@ public class MediaSessionCompat {
         void setQueue(List<QueueItem> queue);
         void setQueueTitle(CharSequence title);
 
-        void setRatingType(int type);
+        void setRatingType(@RatingCompat.Style int type);
         void setExtras(Bundle extras);
 
         Object getMediaSession();
@@ -955,14 +965,14 @@ public class MediaSessionCompat {
         private boolean mIsMbrRegistered = false;
         private Callback mCallback;
 
-        private int mFlags;
+        private @SessionFlags int mFlags;
 
         private MediaMetadataCompat mMetadata;
         private PlaybackStateCompat mState;
         private PendingIntent mSessionActivity;
         private List<QueueItem> mQueue;
         private CharSequence mQueueTitle;
-        private int mRatingType;
+        private @RatingCompat.Style int mRatingType;
         private Bundle mExtras;
 
         private int mVolumeType;
@@ -1100,7 +1110,7 @@ public class MediaSessionCompat {
         }
 
         @Override
-        public void setFlags(int flags) {
+        public void setFlags(@SessionFlags int flags) {
             synchronized (mLock) {
                 mFlags = flags;
             }
@@ -1263,7 +1273,7 @@ public class MediaSessionCompat {
         }
 
         @Override
-        public void setRatingType(int type) {
+        public void setRatingType(@RatingCompat.Style int type) {
             mRatingType = type;
         }
 
@@ -1531,6 +1541,7 @@ public class MediaSessionCompat {
             }
 
             @Override
+            @SessionFlags
             public long getFlags() {
                 synchronized (mLock) {
                     return mFlags;
@@ -1667,6 +1678,7 @@ public class MediaSessionCompat {
             }
 
             @Override
+            @RatingCompat.Style
             public int getRatingType() {
                 return mRatingType;
             }
@@ -1886,7 +1898,7 @@ public class MediaSessionCompat {
         }
 
         @Override
-        public void setFlags(int flags) {
+        public void setFlags(@SessionFlags int flags) {
             MediaSessionCompatApi21.setFlags(mSessionObj, flags);
         }
 
@@ -1965,7 +1977,7 @@ public class MediaSessionCompat {
         }
 
         @Override
-        public void setRatingType(int type) {
+        public void setRatingType(@RatingCompat.Style int type) {
             if (android.os.Build.VERSION.SDK_INT < 22) {
                 // TODO figure out 21 implementation
             } else {
