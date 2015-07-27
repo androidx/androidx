@@ -16,9 +16,9 @@
   -->
 <resources>
   <dimen name="lb_preference_decor_title_text_height">64dp</dimen>
-  <dimen name="lb_preference_decor_title_padding_top">27dp</dimen>
-  <dimen name="lb_preference_decor_title_padding_start">24dp</dimen>
-  <dimen name="lb_preference_decor_title_padding_end">56dp</dimen>
+  <dimen name="lb_preference_decor_title_margin_top">27dp</dimen>
+  <dimen name="lb_preference_decor_title_margin_start">24dp</dimen>
+  <dimen name="lb_preference_decor_title_margin_end">56dp</dimen>
   <dimen name="lb_preference_decor_title_text_size">20sp</dimen>
 
   <dimen name="lb_settings_pane_width">360dp</dimen>
