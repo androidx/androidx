@@ -14,13 +14,8 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License
   -->
-<resources>
-    <color name="lb_preference_decor_list_background">#263238</color>
 
-    <color name="lb_preference_item_primary_text_color_default">#EEEEEE</color>
-    <color name="lb_preference_item_primary_text_color_disabled">#4DEEEEEE</color>
-
-    <color name="lb_preference_item_secondary_text_color_default">#B3EEEEEE</color>
-    <color name="lb_preference_item_secondary_text_color_disabled">#4DEEEEEE</color>
-
-</resources>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_enabled="false" android:color="@color/lb_preference_item_primary_text_color_disabled" />
+    <item android:color="@color/lb_preference_item_primary_text_color_default"/>
+</selector>

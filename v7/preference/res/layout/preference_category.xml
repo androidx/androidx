@@ -20,6 +20,6 @@
     android:layout_height="wrap_content" >
     <TextView
      style="?android:attr/listSeparatorTextViewStyle"
-     android:id="@+android:id/title"
+     android:id="@android:id/title"
     />
 </FrameLayout>
