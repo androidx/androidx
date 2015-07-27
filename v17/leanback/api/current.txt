@@ -948,8 +948,8 @@ package android.support.v17.leanback.widget {
     method public void setContentText(java.lang.CharSequence);
     method public void setInfoAreaBackground(android.graphics.drawable.Drawable);
     method public void setInfoAreaBackgroundColor(int);
-    method public void setMainImage(android.graphics.drawable.Drawable, boolean);
     method public void setMainImage(android.graphics.drawable.Drawable);
+    method public void setMainImage(android.graphics.drawable.Drawable, boolean);
     method public void setMainImageAdjustViewBounds(boolean);
     method public void setMainImageDimensions(int, int);
     method public void setMainImageScaleType(android.widget.ImageView.ScaleType);
@@ -1469,10 +1469,12 @@ package android.support.v17.leanback.widget {
     ctor public ShadowOverlayContainer(android.content.Context);
     ctor public ShadowOverlayContainer(android.content.Context, android.util.AttributeSet);
     ctor public ShadowOverlayContainer(android.content.Context, android.util.AttributeSet, int);
+    ctor public ShadowOverlayContainer(android.content.Context, int, boolean, boolean);
     method public int getShadowType();
     method public android.view.View getWrappedView();
     method public deprecated void initialize(boolean, boolean);
-    method public void initialize(boolean, boolean, boolean);
+    method public deprecated void initialize(boolean, boolean, boolean);
+    method public void initialize(int, boolean, boolean);
     method protected void onLayout(boolean, int, int, int, int);
     method public static void prepareParentForShadow(android.view.ViewGroup);
     method public void setOverlayColor(int);
