@@ -28,6 +28,11 @@ LOCAL_SDK_VERSION := 22
 LOCAL_SRC_FILES := $(call all-java-files-under, java/src)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-annotations
 
+# Disable JACK when RSTest_Compatlib is used for updating RS prebuilts.
+ifneq (,$(UPDATE_RS_PREBUILTS_DISABLE_JACK))
+LOCAL_JACK_ENABLED := disabled
+endif
+
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # API Check
