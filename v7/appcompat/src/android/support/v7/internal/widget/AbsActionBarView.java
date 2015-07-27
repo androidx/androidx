@@ -19,6 +19,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.os.Build;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
@@ -29,6 +30,7 @@ import android.support.v7.widget.ActionMenuView;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
@@ -52,6 +54,9 @@ abstract class AbsActionBarView extends ViewGroup {
     protected int mContentHeight;
 
     protected ViewPropertyAnimatorCompat mVisibilityAnim;
+
+    private boolean mEatingTouch;
+    private boolean mEatingHover;
 
     AbsActionBarView(Context context) {
         this(context, null);
@@ -89,6 +94,57 @@ abstract class AbsActionBarView extends ViewGroup {
         if (mActionMenuPresenter != null) {
             mActionMenuPresenter.onConfigurationChanged(newConfig);
         }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        // ActionBarViews always eat touch events, but should still respect the touch event dispatch
+        // contract. If the normal View implementation doesn't want the events, we'll just silently
+        // eat the rest of the gesture without reporting the events to the default implementation
+        // since that's what it expects.
+
+        final int action = MotionEventCompat.getActionMasked(ev);
+        if (action == MotionEvent.ACTION_DOWN) {
+            mEatingTouch = false;
+        }
+
+        if (!mEatingTouch) {
+            final boolean handled = super.onTouchEvent(ev);
+            if (action == MotionEvent.ACTION_DOWN && !handled) {
+                mEatingTouch = true;
+            }
+        }
+
+        if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+            mEatingTouch = false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean onHoverEvent(MotionEvent ev) {
+        // Same deal as onTouchEvent() above. Eat all hover events, but still
+        // respect the touch event dispatch contract.
+
+        final int action = MotionEventCompat.getActionMasked(ev);
+        if (action == MotionEventCompat.ACTION_HOVER_ENTER) {
+            mEatingHover = false;
+        }
+
+        if (!mEatingHover) {
+            final boolean handled = super.onHoverEvent(ev);
+            if (action == MotionEventCompat.ACTION_HOVER_ENTER && !handled) {
+                mEatingHover = true;
+            }
+        }
+
+        if (action == MotionEventCompat.ACTION_HOVER_EXIT
+                || action == MotionEvent.ACTION_CANCEL) {
+            mEatingHover = false;
+        }
+
+        return true;
     }
 
     /**
