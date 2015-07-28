@@ -21,8 +21,12 @@
           app:showAsAction="ifRoom|collapseActionView"
           app:actionViewClass="android.support.v7.widget.SearchView"/>
 
-    <item android:id="@+id/action_1"
-          android:title="Action 1"
-          app:showAsAction="ifRoom"/>
+    <item android:id="@+id/action_alpha_shortcut"
+          android:title="Alpha"
+          android:alphabeticShortcut="A"/>
+
+    <item android:id="@+id/action_numeric_shortcut"
+          android:title="Numeric"
+          android:numericShortcut="1"/>
 
 </menu>
