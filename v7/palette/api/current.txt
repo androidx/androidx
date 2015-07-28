@@ -27,10 +27,12 @@ package android.support.v7.graphics {
     ctor public Palette.Builder(java.util.List<android.support.v7.graphics.Palette.Swatch>);
     method public android.support.v7.graphics.Palette.Builder addFilter(android.support.v7.graphics.Palette.Filter);
     method public android.support.v7.graphics.Palette.Builder clearFilters();
+    method public android.support.v7.graphics.Palette.Builder clearRegion();
     method public android.support.v7.graphics.Palette generate();
     method public android.os.AsyncTask<android.graphics.Bitmap, java.lang.Void, android.support.v7.graphics.Palette> generate(android.support.v7.graphics.Palette.PaletteAsyncListener);
     method public android.support.v7.graphics.Palette.Builder maximumColorCount(int);
     method public android.support.v7.graphics.Palette.Builder resizeBitmapSize(int);
+    method public android.support.v7.graphics.Palette.Builder setRegion(int, int, int, int);
   }
 
   public static abstract interface Palette.Filter {

@@ -18,6 +18,7 @@ package android.support.v7.graphics;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
@@ -441,11 +442,12 @@ public final class Palette {
      * Builder class for generating {@link Palette} instances.
      */
     public static final class Builder {
-        private List<Swatch> mSwatches;
-        private Bitmap mBitmap;
+        private final List<Swatch> mSwatches;
+        private final Bitmap mBitmap;
         private int mMaxColors = DEFAULT_CALCULATE_NUMBER_COLORS;
         private int mResizeMaxDimension = DEFAULT_RESIZE_BITMAP_MAX_DIMENSION;
         private final List<Filter> mFilters = new ArrayList<>();
+        private Rect mRegion;
 
         private Generator mGenerator;
 
@@ -453,11 +455,12 @@ public final class Palette {
          * Construct a new {@link Builder} using a source {@link Bitmap}
          */
         public Builder(Bitmap bitmap) {
-            this();
             if (bitmap == null || bitmap.isRecycled()) {
                 throw new IllegalArgumentException("Bitmap is not valid");
             }
+            mFilters.add(DEFAULT_FILTER);
             mBitmap = bitmap;
+            mSwatches = null;
         }
 
         /**
@@ -465,15 +468,12 @@ public final class Palette {
          * Typically only used for testing.
          */
         public Builder(List<Swatch> swatches) {
-            this();
             if (swatches == null || swatches.isEmpty()) {
                 throw new IllegalArgumentException("List of Swatches is not valid");
             }
-            mSwatches = swatches;
-        }
-
-        private Builder() {
             mFilters.add(DEFAULT_FILTER);
+            mSwatches = swatches;
+            mBitmap = null;
         }
 
         /**
@@ -536,6 +536,37 @@ public final class Palette {
         }
 
         /**
+         * Set a region of the bitmap to be used exclusively when calculating the palette.
+         * <p>This only works when the original input is a {@link Bitmap}.</p>
+         *
+         * @param left The left side of the rectangle used for the region.
+         * @param top The top of the rectangle used for the region.
+         * @param right The right side of the rectangle used for the region.
+         * @param bottom The bottom of the rectangle used for the region.
+         */
+        public Builder setRegion(int left, int top, int right, int bottom) {
+            if (mBitmap != null) {
+                if (mRegion == null) mRegion = new Rect();
+                // Set the Rect to be initially the whole Bitmap
+                mRegion.set(0, 0, mBitmap.getWidth(), mBitmap.getHeight());
+                // Now just get the intersection with the region
+                if (!mRegion.intersect(left, top, right, bottom)) {
+                    throw new IllegalArgumentException("The given region must intersect with "
+                            + "the Bitmap's dimensions.");
+                }
+            }
+            return this;
+        }
+
+        /**
+         * Clear any previously region set via {@link #setRegion(int, int, int, int)}.
+         */
+        public Builder clearRegion() {
+            mRegion = null;
+            return this;
+        }
+
+        /**
          * Generate and return the {@link Palette} synchronously.
          */
         public Palette generate() {
@@ -554,24 +585,32 @@ public final class Palette {
                 }
 
                 // First we'll scale down the bitmap so it's largest dimension is as specified
-                final Bitmap scaledBitmap = scaleBitmapDown(mBitmap, mResizeMaxDimension);
+                final Bitmap bitmap = scaleBitmapDown(mBitmap, mResizeMaxDimension);
 
                 if (logger != null) {
                     logger.addSplit("Processed Bitmap");
                 }
 
-                // Now generate a quantizer from the Bitmap
-                final int width = scaledBitmap.getWidth();
-                final int height = scaledBitmap.getHeight();
-                final int[] pixels = new int[width * height];
-                scaledBitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+                final Rect region = mRegion;
+                if (bitmap != mBitmap && region != null) {
+                    // If we have a scaled bitmap and a selected region, we need to scale down the
+                    // region to match the new scale
+                    final float scale = bitmap.getWidth() / (float) mBitmap.getWidth();
+                    region.left = (int) Math.floor(region.left * scale);
+                    region.top = (int) Math.floor(region.top * scale);
+                    region.right = (int) Math.ceil(region.right * scale);
+                    region.bottom = (int) Math.ceil(region.bottom * scale);
+                }
 
-                final ColorCutQuantizer quantizer = new ColorCutQuantizer(pixels, mMaxColors,
+                // Now generate a quantizer from the Bitmap
+                final ColorCutQuantizer quantizer = new ColorCutQuantizer(
+                        getPixelsFromBitmap(),
+                        mMaxColors,
                         mFilters.isEmpty() ? null : mFilters.toArray(new Filter[mFilters.size()]));
 
                 // If created a new bitmap, recycle it
-                if (scaledBitmap != mBitmap) {
-                    scaledBitmap.recycle();
+                if (bitmap != mBitmap) {
+                    bitmap.recycle();
                 }
                 swatches = quantizer.getQuantizedColors();
 
@@ -628,6 +667,35 @@ public final class Palette {
                             listener.onGenerated(colorExtractor);
                         }
                     }, mBitmap);
+        }
+
+        private int[] getPixelsFromBitmap() {
+            final Bitmap bitmap = mBitmap;
+            final int bitmapWidth = bitmap.getWidth();
+            final int bitmapHeight = bitmap.getHeight();
+            final int[] pixels = new int[bitmapWidth * bitmapHeight];
+
+            if (mRegion == null) {
+                // If we don't have a region, return all of the pixels
+                bitmap.getPixels(pixels, 0, bitmapWidth, 0, 0, bitmapWidth, bitmapHeight);
+                return pixels;
+            } else {
+                // If we do have a region, lets create a subset array containing only the region's
+                // pixels
+                final int regionWidth = mRegion.width();
+                final int regionHeight = mRegion.height();
+                // First read the pixels within the region
+                bitmap.getPixels(pixels, 0, bitmapWidth, mRegion.left, mRegion.top,
+                        regionWidth, regionHeight);
+                // pixels now contains all of the pixels, but not packed together. We need to
+                // iterate through each row and copy them into a new smaller array
+                final int[] subsetPixels = new int[regionWidth * mRegion.height()];
+                for (int row = mRegion.top; row < mRegion.bottom; row++) {
+                    System.arraycopy(pixels, (row * bitmapWidth) + mRegion.left,
+                            subsetPixels, row * regionWidth, regionWidth);
+                }
+                return subsetPixels;
+            }
         }
     }
 
