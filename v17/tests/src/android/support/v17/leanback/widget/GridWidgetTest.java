@@ -957,6 +957,38 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         assertTrue(mGridView.getLayoutManager().findViewByPosition(firstFocusableIndex).hasFocus());
     }
 
+    public void testFocusOutOfEmptyListView() throws Throwable {
+
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear);
+        final int numItems = 100;
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, numItems);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+        initActivity(intent);
+
+        final View horizontalGridView = new HorizontalGridViewEx(mGridView.getContext());
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                horizontalGridView.setFocusable(true);
+                horizontalGridView.setFocusableInTouchMode(true);
+                horizontalGridView.setLayoutParams(new ViewGroup.LayoutParams(100, 100));
+                ((ViewGroup) mGridView.getParent()).addView(horizontalGridView, 0);
+                horizontalGridView.requestFocus();
+            }
+        });
+
+        assertTrue(horizontalGridView.isFocused());
+
+        sendKeys(KeyEvent.KEYCODE_DPAD_DOWN);
+
+        assertTrue(mGridView.hasFocus());
+    }
+
     public void testTransferFocusToChildWhenGainFocus() throws Throwable {
 
         mInstrumentation = getInstrumentation();
