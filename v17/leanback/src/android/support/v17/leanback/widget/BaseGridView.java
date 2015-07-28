@@ -623,10 +623,16 @@ abstract class BaseGridView extends RecyclerView {
 
     @Override
     public View focusSearch(int direction) {
-        // focusSearch(int) is called when GridView itself is focused.
-        // Calling focusSearch(view, int) to get next sibling of current selected child.
-        View view = mLayoutManager.findViewByPosition(mLayoutManager.getSelection());
-        return focusSearch(view, direction);
+        if (isFocused()) {
+            // focusSearch(int) is called when GridView itself is focused.
+            // Calling focusSearch(view, int) to get next sibling of current selected child.
+            View view = mLayoutManager.findViewByPosition(mLayoutManager.getSelection());
+            if (view != null) {
+                return focusSearch(view, direction);
+            }
+        }
+        // otherwise, go to mParent to perform focusSearch
+        return super.focusSearch(direction);
     }
 
     @Override
