@@ -14,13 +14,18 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License
   -->
-<resources>
-    <color name="lb_preference_decor_list_background">#263238</color>
 
-    <color name="lb_preference_item_primary_text_color_default">#EEEEEE</color>
-    <color name="lb_preference_item_primary_text_color_disabled">#4DEEEEEE</color>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/lb_preference_category_height"
+    android:paddingStart="@dimen/lb_preference_item_padding_start"
+    android:paddingEnd="@dimen/lb_preference_item_padding_end">
 
-    <color name="lb_preference_item_secondary_text_color_default">#B3EEEEEE</color>
-    <color name="lb_preference_item_secondary_text_color_disabled">#4DEEEEEE</color>
-
-</resources>
+    <TextView
+        android:id="@android:id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:textColor="@color/lb_preference_item_primary_text_color"
+        android:textSize="@dimen/lb_preference_category_text_size"/>
+</FrameLayout>

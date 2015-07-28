@@ -15,11 +15,25 @@
   ~ limitations under the License
   -->
 <resources>
-  <dimen name="lb_preference_decor_title_text_height">64dp</dimen>
-  <dimen name="lb_preference_decor_title_margin_top">27dp</dimen>
-  <dimen name="lb_preference_decor_title_margin_start">24dp</dimen>
-  <dimen name="lb_preference_decor_title_margin_end">56dp</dimen>
-  <dimen name="lb_preference_decor_title_text_size">20sp</dimen>
+    <dimen name="lb_preference_decor_title_text_height">64dp</dimen>
+    <dimen name="lb_preference_decor_title_margin_top">27dp</dimen>
+    <dimen name="lb_preference_decor_title_margin_start">24dp</dimen>
+    <dimen name="lb_preference_decor_title_margin_end">56dp</dimen>
+    <dimen name="lb_preference_decor_title_text_size">20sp</dimen>
 
-  <dimen name="lb_settings_pane_width">360dp</dimen>
+    <dimen name="lb_preference_item_padding_start">24dp</dimen>
+    <dimen name="lb_preference_item_padding_end">56dp</dimen>
+    <dimen name="lb_preference_item_icon_size">32dp</dimen>
+    <dimen name="lb_preference_item_icon_margin_end">16dp</dimen>
+
+    <dimen name="lb_preference_item_primary_text_size">14sp</dimen>
+    <dimen name="lb_preference_item_primary_text_margin_bottom">2dp</dimen>
+    <dimen name="lb_preference_item_secondary_text_size">12sp</dimen>
+    <dimen name="lb_preference_item_text_space_top">14dp</dimen>
+    <dimen name="lb_preference_item_text_space_bottom">13dp</dimen>
+
+    <dimen name="lb_preference_category_text_size">12sp</dimen>
+    <dimen name="lb_preference_category_height">40dp</dimen>
+
+    <dimen name="lb_settings_pane_width">360dp</dimen>
 </resources>
