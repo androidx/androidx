@@ -736,16 +736,15 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
                         @Override
                         public void onAnimationStart(View view) {
                             mActionModeView.setVisibility(View.VISIBLE);
+                            mActionModeView.sendAccessibilityEvent(
+                                    AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
+                            if (mActionModeView.getParent() != null) {
+                                ViewCompat.requestApplyInsets((View) mActionModeView.getParent());
+                            }
                         }
                     });
                     if (mActionModePopup != null) {
                         mWindow.getDecorView().post(mShowActionModePopup);
-                    }
-                    mActionModeView.sendAccessibilityEvent(
-                            AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
-
-                    if (mActionModeView.getParent() != null) {
-                        ViewCompat.requestApplyInsets((View) mActionModeView.getParent());
                     }
                 } else {
                     mActionMode = null;
