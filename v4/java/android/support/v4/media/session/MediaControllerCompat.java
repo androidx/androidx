@@ -69,7 +69,9 @@ public final class MediaControllerCompat {
         }
         mToken = session.getSessionToken();
 
-        if (android.os.Build.VERSION.SDK_INT >= 21) {
+        if (android.os.Build.VERSION.SDK_INT >= 23) {
+            mImpl = new MediaControllerImplApi23(context, session);
+        } else if (android.os.Build.VERSION.SDK_INT >= 21) {
             mImpl = new MediaControllerImplApi21(context, session);
         } else {
             mImpl = new MediaControllerImplBase(mToken);
@@ -592,6 +594,15 @@ public final class MediaControllerCompat {
         public abstract void playFromSearch(String query, Bundle extras);
 
         /**
+         * Request that the player start playback for a specific {@link Uri}.
+         *
+         * @param uri  The URI of the requested media.
+         * @param extras Optional extras that can include extra information about the media item
+         *               to be played.
+         */
+        public abstract void playFromUri(Uri uri, Bundle extras);
+
+        /**
          * Play an item with a specific id in the play queue. If you specify an
          * id that is not in the play queue, the behavior is undefined.
          */
@@ -1019,6 +1030,15 @@ public final class MediaControllerCompat {
         }
 
         @Override
+        public void playFromUri(Uri uri, Bundle extras) {
+            try {
+                mBinder.playFromUri(uri, extras);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Dead object in playFromUri. " + e);
+            }
+        }
+
+        @Override
         public void skipToQueueItem(long id) {
             try {
                 mBinder.skipToQueueItem(id);
@@ -1115,7 +1135,7 @@ public final class MediaControllerCompat {
     }
 
     static class MediaControllerImplApi21 implements MediaControllerImpl {
-        private final Object mControllerObj;
+        protected final Object mControllerObj;
 
         public MediaControllerImplApi21(Context context, MediaSessionCompat session) {
             mControllerObj = MediaControllerCompatApi21.fromToken(context,
@@ -1239,7 +1259,7 @@ public final class MediaControllerCompat {
     }
 
     static class TransportControlsApi21 extends TransportControls {
-        private final Object mControlsObj;
+        protected final Object mControlsObj;
 
         public TransportControlsApi21(Object controlsObj) {
             mControlsObj = controlsObj;
@@ -1304,6 +1324,10 @@ public final class MediaControllerCompat {
         }
 
         @Override
+        public void playFromUri(Uri uri, Bundle extras) {
+        }
+
+        @Override
         public void skipToQueueItem(long id) {
             MediaControllerCompatApi21.TransportControls.skipToQueueItem(mControlsObj, id);
         }
@@ -1318,6 +1342,37 @@ public final class MediaControllerCompat {
         public void sendCustomAction(String action, Bundle args) {
             MediaControllerCompatApi21.TransportControls.sendCustomAction(mControlsObj, action,
                     args);
+        }
+    }
+
+    static class MediaControllerImplApi23 extends MediaControllerImplApi21 {
+
+        public MediaControllerImplApi23(Context context, MediaSessionCompat session) {
+            super(context, session);
+        }
+
+        public MediaControllerImplApi23(Context context, MediaSessionCompat.Token sessionToken)
+                throws RemoteException {
+            super(context, sessionToken);
+        }
+
+        @Override
+        public TransportControls getTransportControls() {
+            Object controlsObj = MediaControllerCompatApi21.getTransportControls(mControllerObj);
+            return controlsObj != null ? new TransportControlsApi23(controlsObj) : null;
+        }
+    }
+
+    static class TransportControlsApi23 extends TransportControlsApi21 {
+
+        public TransportControlsApi23(Object controlsObj) {
+            super(controlsObj);
+        }
+
+        @Override
+        public void playFromUri(Uri uri, Bundle extras) {
+            MediaControllerCompatApi23.TransportControls.playFromUri(mControlsObj, uri,
+                    extras);
         }
     }
 }

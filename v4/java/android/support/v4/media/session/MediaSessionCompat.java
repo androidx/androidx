@@ -23,6 +23,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -470,7 +471,9 @@ public class MediaSessionCompat {
         final Object mCallbackObj;
 
         public Callback() {
-            if (android.os.Build.VERSION.SDK_INT >= 21) {
+            if (android.os.Build.VERSION.SDK_INT >= 23) {
+                mCallbackObj = MediaSessionCompatApi23.createCallback(new StubApi23());
+            } else if (android.os.Build.VERSION.SDK_INT >= 21) {
                 mCallbackObj = MediaSessionCompatApi21.createCallback(new StubApi21());
             } else {
                 mCallbackObj = null;
@@ -519,6 +522,12 @@ public class MediaSessionCompat {
          * play.
          */
         public void onPlayFromSearch(String query, Bundle extras) {
+        }
+
+        /**
+         * Override to handle requests to play a specific media item represented by a URI.
+         */
+        public void onPlayFromUri(Uri uri, Bundle extras) {
         }
 
         /**
@@ -667,6 +676,14 @@ public class MediaSessionCompat {
             @Override
             public void onCustomAction(String action, Bundle extras) {
                 Callback.this.onCustomAction(action, extras);
+            }
+        }
+
+        private class StubApi23 extends StubApi21 implements MediaSessionCompatApi23.Callback {
+
+            @Override
+            public void onPlayFromUri(Uri uri, Bundle extras) {
+                Callback.this.onPlayFromUri(uri, extras);
             }
         }
     }
@@ -1598,6 +1615,11 @@ public class MediaSessionCompat {
             }
 
             @Override
+            public void playFromUri(Uri uri, Bundle extras) throws RemoteException {
+                mHandler.post(MessageHandler.MSG_PLAY_URI, uri, extras);
+            }
+
+            @Override
             public void skipToQueueItem(long id) {
                 mHandler.post(MessageHandler.MSG_SKIP_TO_ITEM, id);
             }
@@ -1720,6 +1742,7 @@ public class MediaSessionCompat {
             private static final int MSG_COMMAND = 15;
             private static final int MSG_ADJUST_VOLUME = 16;
             private static final int MSG_SET_VOLUME = 17;
+            private static final int MSG_PLAY_URI = 18;
 
             // KeyEvent constants only available on API 11+
             private static final int KEYCODE_MEDIA_PAUSE = 127;
@@ -1761,6 +1784,9 @@ public class MediaSessionCompat {
                         break;
                     case MSG_PLAY_SEARCH:
                         mCallback.onPlayFromSearch((String) msg.obj, msg.getData());
+                        break;
+                    case MSG_PLAY_URI:
+                        mCallback.onPlayFromUri((Uri) msg.obj, msg.getData());
                         break;
                     case MSG_SKIP_TO_ITEM:
                         mCallback.onSkipToQueueItem((Long) msg.obj);
