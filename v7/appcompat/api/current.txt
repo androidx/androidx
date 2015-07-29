@@ -368,6 +368,7 @@ package android.support.v7.appcompat {
     field public static int alertDialogCenterButtons;
     field public static int alertDialogStyle;
     field public static int alertDialogTheme;
+    field public static int allowStacking;
     field public static int arrowHeadLength;
     field public static int arrowShaftLength;
     field public static int autoCompleteTextViewStyle;
@@ -540,6 +541,7 @@ package android.support.v7.appcompat {
     field public static int abc_action_bar_embed_tabs;
     field public static int abc_action_bar_embed_tabs_pre_jb;
     field public static int abc_action_bar_expanded_action_views_exclusive;
+    field public static int abc_allow_stacked_button_bar;
     field public static int abc_config_actionMenuItemAllCaps;
     field public static int abc_config_allowActionMenuItemTextWithIcon;
     field public static int abc_config_closeDialogWhenTouchOutside;
@@ -839,6 +841,7 @@ package android.support.v7.appcompat {
     field public static int showCustom;
     field public static int showHome;
     field public static int showTitle;
+    field public static int spacer;
     field public static int split_action_bar;
     field public static int src_atop;
     field public static int src_in;
@@ -879,6 +882,7 @@ package android.support.v7.appcompat {
     field public static int abc_action_mode_close_item_material;
     field public static int abc_activity_chooser_view;
     field public static int abc_activity_chooser_view_list_item;
+    field public static int abc_alert_dialog_button_bar_material;
     field public static int abc_alert_dialog_material;
     field public static int abc_dialog_title_material;
     field public static int abc_expanded_menu_layout;
@@ -1291,6 +1295,7 @@ package android.support.v7.appcompat {
     field public static final int[] AppCompatTextView;
     field public static int AppCompatTextView_android_textAppearance;
     field public static int AppCompatTextView_textAllCaps;
+    field public static int ButtonBarLayout_allowStacking;
     field public static final int[] CompoundButton;
     field public static int CompoundButton_android_button;
     field public static int CompoundButton_buttonTint;
