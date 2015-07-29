@@ -50,6 +50,7 @@ interface IMediaSession {
     void play();
     void playFromMediaId(String uri, in Bundle extras);
     void playFromSearch(String string, in Bundle extras);
+    void playFromUri(in Uri uri, in Bundle extras);
     void skipToQueueItem(long id);
     void pause();
     void stop();

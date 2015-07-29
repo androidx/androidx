@@ -43,7 +43,7 @@ public final class PlaybackStateCompat implements Parcelable {
     @IntDef(flag=true, value={ACTION_STOP, ACTION_PAUSE, ACTION_PLAY, ACTION_REWIND,
             ACTION_SKIP_TO_PREVIOUS, ACTION_SKIP_TO_NEXT, ACTION_FAST_FORWARD, ACTION_SET_RATING,
             ACTION_SEEK_TO, ACTION_PLAY_PAUSE, ACTION_PLAY_FROM_MEDIA_ID, ACTION_PLAY_FROM_SEARCH,
-            ACTION_SKIP_TO_QUEUE_ITEM})
+            ACTION_SKIP_TO_QUEUE_ITEM, ACTION_PLAY_FROM_URI})
     @Retention(RetentionPolicy.SOURCE)
     public @interface Actions {}
 
@@ -137,6 +137,12 @@ public final class PlaybackStateCompat implements Parcelable {
      * @see Builder#setActions(long)
      */
     public static final long ACTION_SKIP_TO_QUEUE_ITEM = 1 << 12;
+    /**
+     * Indicates this session supports the play from URI command.
+     *
+     * @see Builder#setActions(long)
+     */
+    public static final long ACTION_PLAY_FROM_URI = 1 << 13;
 
     /**
      * @hide
@@ -391,6 +397,7 @@ public final class PlaybackStateCompat implements Parcelable {
      * <li> {@link PlaybackStateCompat#ACTION_PLAY_FROM_MEDIA_ID}</li>
      * <li> {@link PlaybackStateCompat#ACTION_PLAY_FROM_SEARCH}</li>
      * <li> {@link PlaybackStateCompat#ACTION_SKIP_TO_QUEUE_ITEM}</li>
+     * <li> {@link PlaybackStateCompat#ACTION_PLAY_FROM_URI}</li>
      * </ul>
      */
     @Actions
@@ -896,6 +903,7 @@ public final class PlaybackStateCompat implements Parcelable {
          * <li> {@link PlaybackStateCompat#ACTION_PLAY_FROM_MEDIA_ID}</li>
          * <li> {@link PlaybackStateCompat#ACTION_PLAY_FROM_SEARCH}</li>
          * <li> {@link PlaybackStateCompat#ACTION_SKIP_TO_QUEUE_ITEM}</li>
+         * <li> {@link PlaybackStateCompat#ACTION_PLAY_FROM_URI}</li>
          * </ul>
          *
          * @return this

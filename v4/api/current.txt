@@ -1497,6 +1497,7 @@ package android.support.v4.media.session {
     method public abstract void play();
     method public abstract void playFromMediaId(java.lang.String, android.os.Bundle);
     method public abstract void playFromSearch(java.lang.String, android.os.Bundle);
+    method public abstract void playFromUri(android.net.Uri, android.os.Bundle);
     method public abstract void rewind();
     method public abstract void seekTo(long);
     method public abstract void sendCustomAction(android.support.v4.media.session.PlaybackStateCompat.CustomAction, android.os.Bundle);
@@ -1548,6 +1549,7 @@ package android.support.v4.media.session {
     method public void onPlay();
     method public void onPlayFromMediaId(java.lang.String, android.os.Bundle);
     method public void onPlayFromSearch(java.lang.String, android.os.Bundle);
+    method public void onPlayFromUri(android.net.Uri, android.os.Bundle);
     method public void onRewind();
     method public void onSeekTo(long);
     method public void onSetRating(android.support.v4.media.RatingCompat);
@@ -1614,6 +1616,7 @@ package android.support.v4.media.session {
     field public static final long ACTION_PLAY = 4L; // 0x4L
     field public static final long ACTION_PLAY_FROM_MEDIA_ID = 1024L; // 0x400L
     field public static final long ACTION_PLAY_FROM_SEARCH = 2048L; // 0x800L
+    field public static final long ACTION_PLAY_FROM_URI = 8192L; // 0x2000L
     field public static final long ACTION_PLAY_PAUSE = 512L; // 0x200L
     field public static final long ACTION_REWIND = 8L; // 0x8L
     field public static final long ACTION_SEEK_TO = 256L; // 0x100L
