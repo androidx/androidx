@@ -1950,6 +1950,13 @@ package android.support.v7.widget {
     method public abstract void setDropDownViewTheme(android.content.res.Resources.Theme);
   }
 
+  public static final class ThemedSpinnerAdapter.Helper {
+    ctor public ThemedSpinnerAdapter.Helper(android.content.Context);
+    method public android.view.LayoutInflater getDropDownViewInflater();
+    method public android.content.res.Resources.Theme getDropDownViewTheme();
+    method public void setDropDownViewTheme(android.content.res.Resources.Theme);
+  }
+
   public class Toolbar extends android.view.ViewGroup {
     ctor public Toolbar(android.content.Context);
     ctor public Toolbar(android.content.Context, android.util.AttributeSet);
