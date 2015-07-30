@@ -973,17 +973,9 @@ public class Preference implements Comparable<Preference> {
      * value(s). Usually, it's easier to use one of the helper read methods:
      * {@link #getPersistedBoolean(boolean)}, {@link #getPersistedFloat(float)},
      * {@link #getPersistedInt(int)}, {@link #getPersistedLong(long)},
-     * {@link #getPersistedString(String)}. To save values, see
-     * {@link #getEditor()}.
-     * <p>
-     * In some cases, writes to the {@link #getEditor()} will not be committed
-     * right away and hence not show up in the returned
-     * {@link android.content.SharedPreferences}, this is intended behavior to improve
-     * performance.
-     *
+     * {@link #getPersistedString(String)}.
      * @return The {@link android.content.SharedPreferences} where this Preference reads its
      *         value(s), or null if it isn't attached to a Preference hierarchy.
-     * @see #getEditor()
      */
     public SharedPreferences getSharedPreferences() {
         if (mPreferenceManager == null) {
