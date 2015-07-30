@@ -55,7 +55,8 @@ import android.util.AttributeSet;
  &lt;/PreferenceScreen&gt; </pre>
  * <p>
  * In this example, the "first_preferencescreen" will be used as the root of the
- * hierarchy and given to a {@link PreferenceFragment} or {@link PreferenceFragmentCompat}.
+ * hierarchy and given to a {@link android.support.v14.preference.PreferenceFragment}
+ * or {@link PreferenceFragmentCompat}.
  * The first screen will
  * show preferences "WiFi" (which can be used to quickly enable/disable WiFi)
  * and "WiFi settings". The "WiFi settings" is the "second_preferencescreen" and when
