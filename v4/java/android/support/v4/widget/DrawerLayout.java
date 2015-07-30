@@ -42,6 +42,7 @@ import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewGroupCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
+import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -2033,6 +2034,8 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
             // itself as focusable to accessibility services.
             info.setFocusable(false);
             info.setFocused(false);
+            info.removeAction(AccessibilityActionCompat.ACTION_FOCUS);
+            info.removeAction(AccessibilityActionCompat.ACTION_CLEAR_FOCUS);
         }
 
         @Override
