@@ -18,6 +18,7 @@ package android.support.v7.view;
 
 import android.view.ActionMode;
 import android.view.KeyEvent;
+import android.view.KeyboardShortcutGroup;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -26,6 +27,8 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
+
+import java.util.List;
 
 /**
  * A simple decorator stub for Window.Callback that passes through any calls
@@ -158,5 +161,10 @@ public class WindowCallbackWrapper implements Window.Callback {
     @Override
     public void onActionModeFinished(ActionMode mode) {
         mWrapped.onActionModeFinished(mode);
+    }
+
+    @Override
+    public void onProvideKeyboardShortcuts(List<KeyboardShortcutGroup> data, Menu menu) {
+        mWrapped.onProvideKeyboardShortcuts(data, menu);
     }
 }
