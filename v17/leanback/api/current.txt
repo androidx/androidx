@@ -935,9 +935,10 @@ package android.support.v17.leanback.widget {
   }
 
   public class ImageCardView extends android.support.v17.leanback.widget.BaseCardView {
+    ctor public ImageCardView(android.content.Context, int);
+    ctor public ImageCardView(android.content.Context, android.util.AttributeSet, int);
     ctor public ImageCardView(android.content.Context);
     ctor public ImageCardView(android.content.Context, android.util.AttributeSet);
-    ctor public ImageCardView(android.content.Context, android.util.AttributeSet, int);
     method public android.graphics.drawable.Drawable getBadgeImage();
     method public java.lang.CharSequence getContentText();
     method public android.graphics.drawable.Drawable getInfoAreaBackground();
@@ -948,12 +949,17 @@ package android.support.v17.leanback.widget {
     method public void setContentText(java.lang.CharSequence);
     method public void setInfoAreaBackground(android.graphics.drawable.Drawable);
     method public void setInfoAreaBackgroundColor(int);
-    method public void setMainImage(android.graphics.drawable.Drawable);
     method public void setMainImage(android.graphics.drawable.Drawable, boolean);
+    method public void setMainImage(android.graphics.drawable.Drawable);
     method public void setMainImageAdjustViewBounds(boolean);
     method public void setMainImageDimensions(int, int);
     method public void setMainImageScaleType(android.widget.ImageView.ScaleType);
     method public void setTitleText(java.lang.CharSequence);
+    field public static final int CARD_TYPE_FLAG_CONTENT = 2; // 0x2
+    field public static final int CARD_TYPE_FLAG_ICON_LEFT = 8; // 0x8
+    field public static final int CARD_TYPE_FLAG_ICON_RIGHT = 4; // 0x4
+    field public static final int CARD_TYPE_FLAG_IMAGE_ONLY = 0; // 0x0
+    field public static final int CARD_TYPE_FLAG_TITLE = 1; // 0x1
   }
 
   public final class ItemAlignmentFacet {
