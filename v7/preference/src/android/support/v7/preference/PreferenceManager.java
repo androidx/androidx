@@ -25,10 +25,10 @@ import android.support.v4.content.SharedPreferencesCompat;
  * from activities or XML.
  * <p>
  * In most cases, clients should use
- * {@link PreferenceFragment#addPreferencesFromResource(int)}, or
+ * {@link android.support.v14.preference.PreferenceFragment#addPreferencesFromResource(int)}, or
  * {@link PreferenceFragmentCompat#addPreferencesFromResource(int)}.
  *
- * @see PreferenceFragment
+ * @see android.support.v14.preference.PreferenceFragment
  * @see PreferenceFragmentCompat
  */
 public class PreferenceManager {
