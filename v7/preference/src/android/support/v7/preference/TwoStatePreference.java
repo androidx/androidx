@@ -66,7 +66,7 @@ public abstract class TwoStatePreference extends Preference {
     }
 
     /**
-     * Sets the checked state and saves it to the {@link SharedPreferences}.
+     * Sets the checked state and saves it to the {@link android.content.SharedPreferences}.
      *
      * @param checked The checked state.
      */
