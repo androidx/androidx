@@ -1335,6 +1335,10 @@ public class MediaSessionCompat {
                         registeredRcc = true;
                     } else if (mIsRccRegistered
                             && (mFlags & FLAG_HANDLES_TRANSPORT_CONTROLS) == 0) {
+                        // RCC keeps the state while the system resets its state internally when
+                        // we register RCC. Reset the state so that the states in RCC and the system
+                        // are in sync when we re-register the RCC.
+                        MediaSessionCompatApi14.setState(mRccObj, PlaybackStateCompat.STATE_NONE);
                         MediaSessionCompatApi14.unregisterRemoteControlClient(mContext, mRccObj);
                         mIsRccRegistered = false;
                     }
@@ -1352,6 +1356,10 @@ public class MediaSessionCompat {
                     mIsMbrRegistered = false;
                 }
                 if (mIsRccRegistered) {
+                    // RCC keeps the state while the system resets its state internally when
+                    // we register RCC. Reset the state so that the states in RCC and the system
+                    // are in sync when we re-register the RCC.
+                    MediaSessionCompatApi14.setState(mRccObj, PlaybackStateCompat.STATE_NONE);
                     MediaSessionCompatApi14.unregisterRemoteControlClient(mContext, mRccObj);
                     mIsRccRegistered = false;
                 }
