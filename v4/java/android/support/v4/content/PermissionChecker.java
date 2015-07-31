@@ -33,10 +33,10 @@ import java.lang.annotation.RetentionPolicy;
  * such is defined.
  * <p>
  * In the new permission model permissions with protection level
- * dangerous are runtime permissions. For apps targeting API MNC
+ * dangerous are runtime permissions. For apps targeting {@link android.os.Build.VERSION_CODES#M}
  * and above the user may not grant such permissions or revoke
- * them at any time. For apps targeting API lower than MNC these
- * permissions are always granted as such apps do not expect
+ * them at any time. For apps targeting API lower than {@link android.os.Build.VERSION_CODES#M}
+ * these permissions are always granted as such apps do not expect
  * permission revocations and would crash. Therefore, when the
  * user disables a permission for a legacy app in the UI the
  * platform disables the APIs guarded by this permission making
