@@ -86,6 +86,11 @@ import java.util.NoSuchElementException;
              return CustomTabsService.this.mayLaunchUrl(
                      new CustomTabsSessionToken(callback), url, extras, otherLikelyBundles);
          }
+
+         @Override
+         public Bundle extraCommand(String commandName, Bundle args) {
+             return CustomTabsService.this.extraCommand(commandName, args);
+         }
      };
 
      @Override
@@ -156,4 +161,20 @@ import java.util.NoSuchElementException;
       */
      protected abstract boolean mayLaunchUrl(CustomTabsSessionToken sessionToken, Uri url,
              Bundle extras, List<Bundle> otherLikelyBundles);
-}
+
+     /**
+      * Unsupported commands that may be provided by the implementation.
+      *
+      * <p>
+      * <strong>Note:</strong>Clients should <strong>never</strong> rely on this method to have a
+      * defined behavior, as it is entirely implementation-defined and not supported.
+      *
+      * <p> This call can be used by implementations to add extra commands, for testing or
+      * experimental purposes.
+      *
+      * @param commandName Name of the extra command to execute.
+      * @param args Arguments for the command
+      * @return The result {@link Bundle}, or null.
+      */
+     protected abstract Bundle extraCommand(String commandName, Bundle args);
+ }
