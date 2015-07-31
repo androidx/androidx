@@ -792,7 +792,6 @@ package android.support.v17.leanback.widget {
     method public final android.support.v17.leanback.widget.DetailsOverviewLogoPresenter.ViewHolder getLogoViewHolder();
     method public final android.view.ViewGroup getOverviewView();
     method public final int getState();
-    field protected final android.os.Handler mHandler;
     field protected final android.support.v17.leanback.widget.DetailsOverviewRow.Listener mRowListener;
   }
 
