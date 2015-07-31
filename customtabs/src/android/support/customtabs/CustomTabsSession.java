@@ -17,28 +17,24 @@
 package android.support.customtabs;
 
 import android.content.ComponentName;
-import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-import java.lang.reflect.Method;
 import java.util.List;
 
 /**
  * A class to be used for Custom Tabs related communication. Clients that want to launch Custom Tabs
  * can use this class exclusively to handle all related communication.
  */
-public class CustomTabsSession {
+public final class CustomTabsSession {
     private static final String TAG = "CustomTabsSession";
     private final ICustomTabsService mService;
     private final ICustomTabsCallback mCallback;
     private final ComponentName mComponentName;
 
-    /**@hide*/
-    CustomTabsSession(
+    /* package */ CustomTabsSession(
             ICustomTabsService service, ICustomTabsCallback callback, ComponentName componentName) {
         mService = service;
         mCallback = callback;
@@ -69,22 +65,11 @@ public class CustomTabsSession {
         }
     }
 
-    /**
-     * Convenience method to create a VIEW intent associated with this session with
-     * the right identifier and package name.
-     * @param data        The data {@link Uri} to be used in the intent.
-     * @return            The intent with the package and the session extra set to the corresponding
-     *                    ones for this session.
-     */
-    public Intent getViewIntent(Uri data) {
-        Intent intent = new Intent(Intent.ACTION_VIEW, data);
-        intent.setPackage(mComponentName.getPackageName());
-        Bundle extras = new Bundle();
-        if (!CustomTabsIntent.safePutBinder(
-                extras, CustomTabsIntent.EXTRA_SESSION, mCallback.asBinder())) {
-            return null;
-        }
-        intent.putExtras(extras);
-        return intent;
+    /* package */ IBinder getBinder() {
+        return mCallback.asBinder();
+    }
+
+    /* package */ ComponentName getComponentName() {
+        return mComponentName;
     }
 }
