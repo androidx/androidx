@@ -35,6 +35,304 @@ import java.util.List;
 public class AccessibilityNodeInfoCompat {
 
     public static class AccessibilityActionCompat {
+
+        /**
+         * Action that gives input focus to the node.
+         */
+        public static final AccessibilityActionCompat ACTION_FOCUS =
+                new AccessibilityActionCompat(
+                        AccessibilityNodeInfoCompat.ACTION_FOCUS, null);
+
+        /**
+         * Action that clears input focus of the node.
+         */
+        public static final AccessibilityActionCompat ACTION_CLEAR_FOCUS =
+                new AccessibilityActionCompat(
+                        AccessibilityNodeInfoCompat.ACTION_CLEAR_FOCUS, null);
+
+        /**
+         *  Action that selects the node.
+         */
+        public static final AccessibilityActionCompat ACTION_SELECT =
+                new AccessibilityActionCompat(
+                        AccessibilityNodeInfoCompat.ACTION_SELECT, null);
+
+        /**
+         * Action that deselects the node.
+         */
+        public static final AccessibilityActionCompat ACTION_CLEAR_SELECTION =
+                new AccessibilityActionCompat(
+                        AccessibilityNodeInfoCompat.ACTION_CLEAR_SELECTION, null);
+
+        /**
+         * Action that clicks on the node info.
+         */
+        public static final AccessibilityActionCompat ACTION_CLICK =
+                new AccessibilityActionCompat(
+                        AccessibilityNodeInfoCompat.ACTION_CLICK, null);
+
+        /**
+         * Action that long clicks on the node.
+         */
+        public static final AccessibilityActionCompat ACTION_LONG_CLICK =
+                new AccessibilityActionCompat(
+                        AccessibilityNodeInfoCompat.ACTION_LONG_CLICK, null);
+
+        /**
+         * Action that gives accessibility focus to the node.
+         */
+        public static final AccessibilityActionCompat ACTION_ACCESSIBILITY_FOCUS =
+                new AccessibilityActionCompat(
+                        AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS, null);
+
+        /**
+         * Action that clears accessibility focus of the node.
+         */
+        public static final AccessibilityActionCompat ACTION_CLEAR_ACCESSIBILITY_FOCUS =
+                new AccessibilityActionCompat(
+                        AccessibilityNodeInfoCompat.ACTION_CLEAR_ACCESSIBILITY_FOCUS, null);
+
+        /**
+         * Action that requests to go to the next entity in this node's text
+         * at a given movement granularity. For example, move to the next character,
+         * word, etc.
+         * <p>
+         * <strong>Arguments:</strong>
+         * {@link AccessibilityNodeInfoCompat#ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT
+         *  AccessibilityNodeInfoCompat.ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT},
+         * {@link AccessibilityNodeInfoCompat#ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN
+         *  AccessibilityNodeInfoCompat.ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN}<br>
+         * <strong>Example:</strong> Move to the previous character and do not extend selection.
+         * <code><pre><p>
+         *   Bundle arguments = new Bundle();
+         *   arguments.putInt(AccessibilityNodeInfoCompat.ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT,
+         *           AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_CHARACTER);
+         *   arguments.putBoolean(
+         *           AccessibilityNodeInfoCompat.ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN, false);
+         *   info.performAction(
+         *           AccessibilityActionCompat.ACTION_NEXT_AT_MOVEMENT_GRANULARITY.getId(),
+         *           arguments);
+         * </code></pre></p>
+         * </p>
+         *
+         * @see AccessibilityNodeInfoCompat#ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT
+         *  AccessibilityNodeInfoCompat.ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT
+         * @see AccessibilityNodeInfoCompat#ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN
+         *  AccessibilityNodeInfoCompat.ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN
+         *
+         * @see AccessibilityNodeInfoCompat#setMovementGranularities(int)
+         *  AccessibilityNodeInfoCompat.ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN
+         * @see AccessibilityNodeInfoCompat#getMovementGranularities()
+         *  AccessibilityNodeInfoCompat.getMovementGranularities()
+         *
+         * @see AccessibilityNodeInfoCompat#MOVEMENT_GRANULARITY_CHARACTER
+         *  AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_CHARACTER
+         * @see AccessibilityNodeInfoCompat#MOVEMENT_GRANULARITY_WORD
+         *  AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_WORD
+         * @see AccessibilityNodeInfoCompat#MOVEMENT_GRANULARITY_LINE
+         *  AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_LINE
+         * @see AccessibilityNodeInfoCompat#MOVEMENT_GRANULARITY_PARAGRAPH
+         *  AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_PARAGRAPH
+         * @see AccessibilityNodeInfoCompat#MOVEMENT_GRANULARITY_PAGE
+         *  AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_PAGE
+         */
+        public static final AccessibilityActionCompat ACTION_NEXT_AT_MOVEMENT_GRANULARITY =
+                new AccessibilityActionCompat(
+                        AccessibilityNodeInfoCompat.ACTION_NEXT_AT_MOVEMENT_GRANULARITY, null);
+
+        /**
+         * Action that requests to go to the previous entity in this node's text
+         * at a given movement granularity. For example, move to the next character,
+         * word, etc.
+         * <p>
+         * <strong>Arguments:</strong>
+         * {@link AccessibilityNodeInfoCompat#ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT
+         *  AccessibilityNodeInfoCompat.ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT},
+         * {@link AccessibilityNodeInfoCompat#ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN
+         *  AccessibilityNodeInfoCompat.ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN}<br>
+         * <strong>Example:</strong> Move to the next character and do not extend selection.
+         * <code><pre><p>
+         *   Bundle arguments = new Bundle();
+         *   arguments.putInt(AccessibilityNodeInfoCompat.ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT,
+         *           AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_CHARACTER);
+         *   arguments.putBoolean(
+         *           AccessibilityNodeInfoCompat.ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN, false);
+         *   info.performAction(
+         *           AccessibilityActionCompat.ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY.getId(),
+         *           arguments);
+         * </code></pre></p>
+         * </p>
+         *
+         * @see AccessibilityNodeInfoCompat#ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT
+         *  AccessibilityNodeInfoCompat.ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT
+         * @see AccessibilityNodeInfoCompat#ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN
+         *  AccessibilityNodeInfoCompat.ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN
+         *
+         * @see AccessibilityNodeInfoCompat#setMovementGranularities(int)
+         *   AccessibilityNodeInfoCompat.setMovementGranularities(int)
+         * @see AccessibilityNodeInfoCompat#getMovementGranularities()
+         *  AccessibilityNodeInfoCompat.getMovementGranularities()
+         *
+         * @see AccessibilityNodeInfoCompat#MOVEMENT_GRANULARITY_CHARACTER
+         *  AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_CHARACTER
+         * @see AccessibilityNodeInfoCompat#MOVEMENT_GRANULARITY_WORD
+         *  AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_WORD
+         * @see AccessibilityNodeInfoCompat#MOVEMENT_GRANULARITY_LINE
+         *  AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_LINE
+         * @see AccessibilityNodeInfoCompat#MOVEMENT_GRANULARITY_PARAGRAPH
+         *  AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_PARAGRAPH
+         * @see AccessibilityNodeInfoCompat#MOVEMENT_GRANULARITY_PAGE
+         *  AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_PAGE
+         */
+        public static final AccessibilityActionCompat ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY =
+                new AccessibilityActionCompat(
+                        AccessibilityNodeInfoCompat.ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY, null);
+
+        /**
+         * Action to move to the next HTML element of a given type. For example, move
+         * to the BUTTON, INPUT, TABLE, etc.
+         * <p>
+         * <strong>Arguments:</strong>
+         * {@link AccessibilityNodeInfoCompat#ACTION_ARGUMENT_HTML_ELEMENT_STRING
+         *  AccessibilityNodeInfoCompat.ACTION_ARGUMENT_HTML_ELEMENT_STRING}<br>
+         * <strong>Example:</strong>
+         * <code><pre><p>
+         *   Bundle arguments = new Bundle();
+         *   arguments.putString(
+         *           AccessibilityNodeInfoCompat.ACTION_ARGUMENT_HTML_ELEMENT_STRING, "BUTTON");
+         *   info.performAction(
+         *           AccessibilityActionCompat.ACTION_NEXT_HTML_ELEMENT.getId(), arguments);
+         * </code></pre></p>
+         * </p>
+         */
+        public static final AccessibilityActionCompat ACTION_NEXT_HTML_ELEMENT =
+                new AccessibilityActionCompat(
+                        AccessibilityNodeInfoCompat.ACTION_NEXT_HTML_ELEMENT, null);
+
+        /**
+         * Action to move to the previous HTML element of a given type. For example, move
+         * to the BUTTON, INPUT, TABLE, etc.
+         * <p>
+         * <strong>Arguments:</strong>
+         * {@link AccessibilityNodeInfoCompat#ACTION_ARGUMENT_HTML_ELEMENT_STRING
+         *  AccessibilityNodeInfoCompat.ACTION_ARGUMENT_HTML_ELEMENT_STRING}<br>
+         * <strong>Example:</strong>
+         * <code><pre><p>
+         *   Bundle arguments = new Bundle();
+         *   arguments.putString(
+         *           AccessibilityNodeInfoCompat.ACTION_ARGUMENT_HTML_ELEMENT_STRING, "BUTTON");
+         *   info.performAction(
+         *           AccessibilityActionCompat.ACTION_PREVIOUS_HTML_ELEMENT.getId(), arguments);
+         * </code></pre></p>
+         * </p>
+         */
+        public static final AccessibilityActionCompat ACTION_PREVIOUS_HTML_ELEMENT =
+                new AccessibilityActionCompat(
+                        AccessibilityNodeInfoCompat.ACTION_PREVIOUS_HTML_ELEMENT, null);
+
+        /**
+         * Action to scroll the node content forward.
+         */
+        public static final AccessibilityActionCompat ACTION_SCROLL_FORWARD =
+                new AccessibilityActionCompat(
+                        AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD, null);
+
+        /**
+         * Action to scroll the node content backward.
+         */
+        public static final AccessibilityActionCompat ACTION_SCROLL_BACKWARD =
+                new AccessibilityActionCompat(
+                        AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD, null);
+
+        /**
+         * Action to copy the current selection to the clipboard.
+         */
+        public static final AccessibilityActionCompat ACTION_COPY =
+                new AccessibilityActionCompat(
+                        AccessibilityNodeInfoCompat.ACTION_COPY, null);
+
+        /**
+         * Action to paste the current clipboard content.
+         */
+        public static final AccessibilityActionCompat ACTION_PASTE =
+                new AccessibilityActionCompat(
+                        AccessibilityNodeInfoCompat.ACTION_PASTE, null);
+
+        /**
+         * Action to cut the current selection and place it to the clipboard.
+         */
+        public static final AccessibilityActionCompat ACTION_CUT =
+                new AccessibilityActionCompat(
+                        AccessibilityNodeInfoCompat.ACTION_CUT, null);
+
+        /**
+         * Action to set the selection. Performing this action with no arguments
+         * clears the selection.
+         * <p>
+         * <strong>Arguments:</strong>
+         * {@link AccessibilityNodeInfoCompat#ACTION_ARGUMENT_SELECTION_START_INT
+         *  AccessibilityNodeInfoCompat.ACTION_ARGUMENT_SELECTION_START_INT},
+         * {@link AccessibilityNodeInfoCompat#ACTION_ARGUMENT_SELECTION_END_INT
+         *  AccessibilityNodeInfoCompat.ACTION_ARGUMENT_SELECTION_END_INT}<br>
+         * <strong>Example:</strong>
+         * <code><pre><p>
+         *   Bundle arguments = new Bundle();
+         *   arguments.putInt(AccessibilityNodeInfoCompat.ACTION_ARGUMENT_SELECTION_START_INT, 1);
+         *   arguments.putInt(AccessibilityNodeInfoCompat.ACTION_ARGUMENT_SELECTION_END_INT, 2);
+         *   info.performAction(AccessibilityActionCompat.ACTION_SET_SELECTION.getId(), arguments);
+         * </code></pre></p>
+         * </p>
+         *
+         * @see AccessibilityNodeInfoCompat#ACTION_ARGUMENT_SELECTION_START_INT
+         *  AccessibilityNodeInfoCompat.ACTION_ARGUMENT_SELECTION_START_INT
+         * @see AccessibilityNodeInfoCompat#ACTION_ARGUMENT_SELECTION_END_INT
+         *  AccessibilityNodeInfoCompat.ACTION_ARGUMENT_SELECTION_END_INT
+         */
+        public static final AccessibilityActionCompat ACTION_SET_SELECTION =
+                new AccessibilityActionCompat(
+                        AccessibilityNodeInfoCompat.ACTION_SET_SELECTION, null);
+
+        /**
+         * Action to expand an expandable node.
+         */
+        public static final AccessibilityActionCompat ACTION_EXPAND =
+                new AccessibilityActionCompat(
+                        AccessibilityNodeInfoCompat.ACTION_EXPAND, null);
+
+        /**
+         * Action to collapse an expandable node.
+         */
+        public static final AccessibilityActionCompat ACTION_COLLAPSE =
+                new AccessibilityActionCompat(
+                        AccessibilityNodeInfoCompat.ACTION_COLLAPSE, null);
+
+        /**
+         * Action to dismiss a dismissable node.
+         */
+        public static final AccessibilityActionCompat ACTION_DISMISS =
+                new AccessibilityActionCompat(
+                        AccessibilityNodeInfoCompat.ACTION_DISMISS, null);
+
+        /**
+         * Action that sets the text of the node. Performing the action without argument,
+         * using <code> null</code> or empty {@link CharSequence} will clear the text. This
+         * action will also put the cursor at the end of text.
+         * <p>
+         * <strong>Arguments:</strong>
+         * {@link AccessibilityNodeInfoCompat#ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE
+         *  AccessibilityNodeInfoCompat.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE}<br>
+         * <strong>Example:</strong>
+         * <code><pre><p>
+         *   Bundle arguments = new Bundle();
+         *   arguments.putCharSequence(AccessibilityNodeInfoCompat.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,
+         *       "android");
+         *   info.performAction(AccessibilityActionCompat.ACTION_SET_TEXT.getId(), arguments);
+         * </code></pre></p>
+         */
+        public static final AccessibilityActionCompat ACTION_SET_TEXT =
+                new AccessibilityActionCompat(
+                        AccessibilityNodeInfoCompat.ACTION_SET_TEXT, null);
+
         private final Object mAction;
 
         /**
@@ -1784,6 +2082,21 @@ public class AccessibilityNodeInfoCompat {
      * @see #ACTION_ARGUMENT_SELECTION_END_INT
      */
     public static final int ACTION_SET_SELECTION = 0x00020000;
+
+    /**
+     * Action to expand an expandable node.
+     */
+    public static final int ACTION_EXPAND = 0x00040000;
+
+    /**
+     * Action to collapse an expandable node.
+     */
+    public static final int ACTION_COLLAPSE = 0x00080000;
+
+    /**
+     * Action to dismiss a dismissable node.
+     */
+    public static final int ACTION_DISMISS = 0x00100000;
 
     /**
      * Action that sets the text of the node. Performing the action without argument, using <code>
