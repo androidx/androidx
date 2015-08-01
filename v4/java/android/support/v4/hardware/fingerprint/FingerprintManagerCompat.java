@@ -31,7 +31,8 @@ import javax.crypto.Mac;
 /**
  * A class that coordinates access to the fingerprint hardware.
  * <p>
- * On platforms before MNC, this class behaves as there would be no fingerprint hardware available.
+ * On platforms before {@link android.os.Build.VERSION_CODES#M}, this class behaves as there would
+ * be no fingerprint hardware available.
  */
 public class FingerprintManagerCompat {
 
