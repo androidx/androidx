@@ -24,8 +24,7 @@
 
     <android.support.v17.leanback.widget.NonOverlappingRelativeLayout
         android:id="@+id/info_field"
-        style="?attr/lbImageCardViewInfoAreaStyle"
-        lb:layout_viewType="info" >
+        style="?attr/lbImageCardViewInfoAreaStyle">
     </android.support.v17.leanback.widget.NonOverlappingRelativeLayout>
 
 </merge>
