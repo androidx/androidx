@@ -2832,8 +2832,11 @@ package android.support.v4.view.accessibility {
     field public static final int ACTION_CLEAR_FOCUS = 2; // 0x2
     field public static final int ACTION_CLEAR_SELECTION = 8; // 0x8
     field public static final int ACTION_CLICK = 16; // 0x10
+    field public static final int ACTION_COLLAPSE = 524288; // 0x80000
     field public static final int ACTION_COPY = 16384; // 0x4000
     field public static final int ACTION_CUT = 65536; // 0x10000
+    field public static final int ACTION_DISMISS = 1048576; // 0x100000
+    field public static final int ACTION_EXPAND = 262144; // 0x40000
     field public static final int ACTION_FOCUS = 1; // 0x1
     field public static final int ACTION_LONG_CLICK = 32; // 0x20
     field public static final int ACTION_NEXT_AT_MOVEMENT_GRANULARITY = 256; // 0x100
@@ -2859,6 +2862,28 @@ package android.support.v4.view.accessibility {
     ctor public AccessibilityNodeInfoCompat.AccessibilityActionCompat(int, java.lang.CharSequence);
     method public int getId();
     method public java.lang.CharSequence getLabel();
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_ACCESSIBILITY_FOCUS;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_CLEAR_ACCESSIBILITY_FOCUS;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_CLEAR_FOCUS;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_CLEAR_SELECTION;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_CLICK;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_COLLAPSE;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_COPY;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_CUT;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_DISMISS;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_EXPAND;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_FOCUS;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_LONG_CLICK;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_NEXT_AT_MOVEMENT_GRANULARITY;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_NEXT_HTML_ELEMENT;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_PASTE;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_PREVIOUS_HTML_ELEMENT;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SCROLL_BACKWARD;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SCROLL_FORWARD;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SELECT;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SET_SELECTION;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SET_TEXT;
   }
 
   public static class AccessibilityNodeInfoCompat.CollectionInfoCompat {
