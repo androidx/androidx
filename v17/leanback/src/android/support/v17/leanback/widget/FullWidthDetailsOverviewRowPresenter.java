@@ -75,6 +75,7 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
     private static final boolean DEBUG = false;
 
     private static Rect sTmpRect = new Rect();
+    private static final Handler sHandler = new Handler();
 
     /**
      * This is the default state corresponding to layout file.  The view takes full width
@@ -177,8 +178,8 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
         public class DetailsOverviewRowListener extends DetailsOverviewRow.Listener {
             @Override
             public void onImageDrawableChanged(DetailsOverviewRow row) {
-                mHandler.removeCallbacks(mUpdateDrawableCallback);
-                mHandler.post(mUpdateDrawableCallback);
+                sHandler.removeCallbacks(mUpdateDrawableCallback);
+                sHandler.post(mUpdateDrawableCallback);
             }
 
             @Override
@@ -203,13 +204,16 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
         final DetailsOverviewLogoPresenter.ViewHolder mDetailsLogoViewHolder;
         int mNumItems;
         ItemBridgeAdapter mActionBridgeAdapter;
-        protected final Handler mHandler = new Handler();
         int mState = STATE_HALF;
 
         final Runnable mUpdateDrawableCallback = new Runnable() {
             @Override
             public void run() {
-                mDetailsOverviewLogoPresenter.onBindViewHolder(mDetailsLogoViewHolder, getRow());
+                Row row = getRow();
+                if (row == null) {
+                    return;
+                }
+                mDetailsOverviewLogoPresenter.onBindViewHolder(mDetailsLogoViewHolder, row);
             }
         };
 
@@ -218,6 +222,18 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
             mActionsRow.setAdapter(mActionBridgeAdapter);
             mNumItems = mActionBridgeAdapter.getItemCount();
 
+        }
+
+        void onBind() {
+            DetailsOverviewRow row = (DetailsOverviewRow) getRow();
+            bindActions(row.getActionsAdapter());
+            row.addListener(mRowListener);
+        }
+
+        void onUnbind() {
+            DetailsOverviewRow row = (DetailsOverviewRow) getRow();
+            row.removeListener(mRowListener);
+            sHandler.removeCallbacks(mUpdateDrawableCallback);
         }
 
         final View.OnLayoutChangeListener mLayoutChangeListener =
@@ -588,15 +604,13 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
 
         mDetailsOverviewLogoPresenter.onBindViewHolder(vh.mDetailsLogoViewHolder, row);
         mDetailsPresenter.onBindViewHolder(vh.mDetailsDescriptionViewHolder, row.getItem());
-        vh.bindActions(row.getActionsAdapter());
-        row.addListener(vh.mRowListener);
+        vh.onBind();
     }
 
     @Override
     protected void onUnbindRowViewHolder(RowPresenter.ViewHolder holder) {
         ViewHolder vh = (ViewHolder) holder;
-        DetailsOverviewRow dor = (DetailsOverviewRow) vh.getRow();
-        dor.removeListener(vh.mRowListener);
+        vh.onUnbind();
         mDetailsPresenter.onUnbindViewHolder(vh.mDetailsDescriptionViewHolder);
         mDetailsOverviewLogoPresenter.onUnbindViewHolder(vh.mDetailsLogoViewHolder);
         super.onUnbindRowViewHolder(holder);
