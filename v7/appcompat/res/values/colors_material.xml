@@ -68,9 +68,6 @@
     <!-- TODO: This is 40% alpha on the default accent color. -->
     <color name="highlighted_text_material_light">#66009688</color>
 
-    <color name="link_text_material_light">@color/material_deep_teal_500</color>
-    <color name="link_text_material_dark">@color/material_deep_teal_200</color>
-
     <!-- Text & foreground colors -->
     <eat-comment />
 
