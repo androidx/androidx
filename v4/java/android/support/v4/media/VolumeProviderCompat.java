@@ -115,6 +115,11 @@ public abstract class VolumeProviderCompat {
      * @param currentVolume The current volume of the output.
      */
     public final void setCurrentVolume(int currentVolume) {
+        mCurrentVolume = currentVolume;
+        Object volumeProviderObj = getVolumeProvider();
+        if (volumeProviderObj != null) {
+            VolumeProviderCompatApi21.setCurrentVolume(volumeProviderObj, currentVolume);
+        }
         if (mCallback != null) {
             mCallback.onVolumeChanged(this);
         }
