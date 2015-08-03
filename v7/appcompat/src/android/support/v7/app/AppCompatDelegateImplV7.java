@@ -1405,9 +1405,11 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
         if ((panel != null) && (!panel.isOpen))
             return;
 
-        Window.Callback cb = getWindowCallback();
-        if (cb != null) {
-            cb.onPanelClosed(featureId, menu);
+        if (!isDestroyed()) {
+            // We need to be careful which callback we dispatch the call to. We can not dispatch
+            // this to the Window's callback since that will call back into this method and cause a
+            // crash. Instead we need to dispatch down to the original Activity/Dialog/etc.
+            mOriginalWindowCallback.onPanelClosed(featureId, menu);
         }
     }
 
