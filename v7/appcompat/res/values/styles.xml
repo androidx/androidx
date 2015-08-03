@@ -229,7 +229,7 @@
     <style name="Widget.AppCompat.Toolbar" parent="Base.Widget.AppCompat.Toolbar" />
 
     <style name="Widget.AppCompat.Toolbar.Button.Navigation"
-           parent="RtlOverlay.Widget.AppCompat.Toolbar.Button.Navigation" />
+           parent="Base.Widget.AppCompat.Toolbar.Button.Navigation" />
 
     <style name="TextAppearance.Widget.AppCompat.Toolbar.Title"
            parent="Base.TextAppearance.Widget.AppCompat.Toolbar.Title">
