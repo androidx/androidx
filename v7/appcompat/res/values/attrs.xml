@@ -943,4 +943,11 @@
         <attr name="listItemLayout" format="reference" />
     </declare-styleable>
 
+    <!-- @hide -->
+    <declare-styleable name="ButtonBarLayout">
+        <!-- Whether to automatically stack the buttons when there is not
+             enough space to lay them out side-by-side. -->
+        <attr name="allowStacking" format="boolean" />
+    </declare-styleable>
+
 </resources>
