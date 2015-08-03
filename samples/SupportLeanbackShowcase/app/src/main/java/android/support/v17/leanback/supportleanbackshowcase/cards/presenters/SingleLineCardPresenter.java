@@ -17,44 +17,22 @@ package android.support.v17.leanback.supportleanbackshowcase.cards.presenters;
 import android.content.Context;
 import android.support.v17.leanback.supportleanbackshowcase.R;
 import android.support.v17.leanback.supportleanbackshowcase.cards.models.Card;
-import android.support.v17.leanback.supportleanbackshowcase.cards.views.BaseCardViewEx;
-import android.support.v17.leanback.widget.BaseCardView;
-import android.view.LayoutInflater;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.support.v17.leanback.widget.ImageCardView;
 
 /**
  * This Presenter will display a card which consists of a big image followed by a colored footer.
  * Not only the colored footer is unique to this card, but also it's footer (info) will be visible
  * even when its parent row is inactive.
  */
-public class SingleLineCardPresenter extends AbstractCardPresenter<BaseCardViewEx> {
-
-    private static final String TAG = "SingleLineCardPresenter";
+public class SingleLineCardPresenter extends ImageCardViewPresenter {
 
     public SingleLineCardPresenter(Context context) {
-        super(context);
+        super(context, R.style.SingleLineCardStyle);
     }
 
-    @Override protected BaseCardViewEx onCreateView() {
-        BaseCardViewEx cardView = new BaseCardViewEx(getContext());
-        cardView.setCardType(BaseCardView.CARD_TYPE_MAIN_ONLY);
-        cardView.addView(
-                LayoutInflater.from(getContext()).inflate(R.layout.single_line_card_footer, null));
-        return cardView;
-    }
-
-    @Override public void onBindViewHolder(Card card, BaseCardViewEx cardView) {
-        TextView primaryText = cardView.getViewById(R.id.primary_text);
-        primaryText.setText(card.getTitle());
-
-        int resourceId = getContext().getResources()
-                                     .getIdentifier(card.getLocalImageResourceName(), "drawable",
-                                                    getContext().getPackageName());
-        ImageView mainImage = cardView.getViewById(R.id.main_image);
-        mainImage.setImageResource(resourceId);
-
-        cardView.getViewById(R.id.container).setBackgroundColor(card.getFooterColor());
+    @Override public void onBindViewHolder(Card card, ImageCardView cardView) {
+        super.onBindViewHolder(card, cardView);
+        cardView.setInfoAreaBackgroundColor(card.getFooterColor());
     }
 
 }

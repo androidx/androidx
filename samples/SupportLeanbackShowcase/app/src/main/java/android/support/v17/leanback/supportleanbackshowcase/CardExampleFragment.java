@@ -70,7 +70,7 @@ public class CardExampleFragment extends BrowseFragment {
 
     private void createRows() {
         String json = Utils
-                .inputStreamToString(getResources().openRawResource(R.raw.cards_card_example));
+                .inputStreamToString(getResources().openRawResource(R.raw.cards_example));
         CardRow[] rows = new Gson().fromJson(json, CardRow[].class);
         for (CardRow row : rows) {
             mRowsAdapter.add(createCardRow(row));

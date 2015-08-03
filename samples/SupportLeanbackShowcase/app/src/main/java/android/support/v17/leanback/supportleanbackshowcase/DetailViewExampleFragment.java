@@ -38,39 +38,46 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 
 /**
- * Displays a card with more details.
+ * Displays a card with more details using a {@link DetailsFragment}.
  */
 public class DetailViewExampleFragment extends DetailsFragment implements OnItemViewClickedListener,
         OnItemViewSelectedListener {
 
-    private static final String TAG = "DetailViewExampleFragment";
     private ArrayObjectAdapter mRowsAdapter;
 
-    @Override public void onActivityCreated(Bundle savedInstanceState) {
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         setupUi();
         setupEventListeners();
     }
 
     private void setupUi() {
+        // Load the card we want to display from a JSON resource. This JSON data could come from
+        // anywhere in a real world app, e.g. a server.
         String json = Utils
                 .inputStreamToString(getResources().openRawResource(R.raw.detail_example));
         DetailedCard data = new Gson().fromJson(json, DetailedCard.class);
+
+        // Setup fragment
         setTitle(getString(R.string.detail_view_title));
 
         FullWidthDetailsOverviewRowPresenter rowPresenter = new FullWidthDetailsOverviewRowPresenter(
                 new DetailsDescriptionPresenter(getActivity())) {
-            @Override protected RowPresenter.ViewHolder createRowViewHolder(ViewGroup parent) {
+
+            @Override
+            protected RowPresenter.ViewHolder createRowViewHolder(ViewGroup parent) {
+                // Customize Actionbar and Content by using custom colors.
                 RowPresenter.ViewHolder viewHolder = super.createRowViewHolder(parent);
 
-                // TODO: hahnr@ replace with API calls (they don't exist yet)
-                View actionsView = viewHolder.view.findViewById(R.id.details_overview_actions);
-                actionsView.setBackgroundColor(getActivity().getResources().getColor(
-                        R.color.detail_view_actionbar_background));
+                View actionsView = viewHolder.view.
+                        findViewById(R.id.details_overview_actions_background);
+                actionsView.setBackgroundColor(getActivity().getResources().
+                        getColor(R.color.detail_view_actionbar_background, null));
 
                 View detailsView = viewHolder.view.findViewById(R.id.details_frame);
                 detailsView.setBackgroundColor(
-                        getActivity().getResources().getColor(R.color.detail_view_background));
+                        getResources().getColor(R.color.detail_view_background, null));
                 return viewHolder;
             }
         };
@@ -112,26 +119,30 @@ public class DetailViewExampleFragment extends DetailsFragment implements OnItem
     }
 
     private void setupEventListeners() {
-        // FIXME: leanbackteam@ The item & itemViewHolder parameters in onItemSelected are null in the DetailsOverviewRow as long as the user navigates top or down. After navigating left or right it will be the actual item rather than null.
         setOnItemViewSelectedListener(this);
         setOnItemViewClickedListener(this);
     }
 
-    @Override public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
-                                        RowPresenter.ViewHolder rowViewHolder, Row row) {
+    @Override
+    public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                              RowPresenter.ViewHolder rowViewHolder, Row row) {
         if (!(item instanceof Action)) return;
         Action action = (Action) item;
         if (action.getId() == 3) {
             setSelectedPosition(1);
-        } else Toast.makeText(getActivity(), getString(R.string.action_cicked), Toast.LENGTH_LONG)
+        } else {
+            Toast.makeText(getActivity(), getString(R.string.action_cicked), Toast.LENGTH_LONG)
                     .show();
+        }
     }
 
-    @Override public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
-                                         RowPresenter.ViewHolder rowViewHolder, Row row) {
+    @Override
+    public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
+                               RowPresenter.ViewHolder rowViewHolder, Row row) {
         if (mRowsAdapter.indexOf(row) > 0) {
-            getView().setBackgroundColor(
-                    getResources().getColor(R.color.detail_view_related_background));
+            int backgroundColor = getResources().getColor(R.color.detail_view_related_background,
+                    null);
+            getView().setBackgroundColor(backgroundColor);
         } else {
             getView().setBackgroundResource(R.drawable.background_canyon);
         }

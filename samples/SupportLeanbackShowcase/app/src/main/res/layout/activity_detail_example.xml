@@ -14,9 +14,12 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/song_row_background_focused" android:state_focused="true"></item>
-    <item>
-        <color android:color="#384248"></color>
-    </item>
-</selector>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+    <fragment
+        android:id="@+id/detailsFragment"
+        android:name="android.support.v17.leanback.supportleanbackshowcase.DetailViewExampleFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></fragment>
+</RelativeLayout>

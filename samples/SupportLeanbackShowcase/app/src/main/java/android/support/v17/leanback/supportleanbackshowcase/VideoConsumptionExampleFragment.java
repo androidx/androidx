@@ -34,13 +34,11 @@ public class VideoConsumptionExampleFragment extends PlaybackOverlayFragment imp
         OnItemViewClickedListener, MediaPlayerGlue.OnMediaFileFinishedPlayingListener {
 
     private static final String URL = "http://techslides.com/demos/sample-videos/small.mp4";
-    private static final String TAG = "VideoConsumptionExampleFragment";
     private ArrayObjectAdapter mRowsAdapter;
     private MediaPlayerGlue mGlue;
 
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Constants.LOCAL_LOGD) Log.d(TAG, "onCreate");
 
         mGlue = new VideoMediaPlayerGlue(getActivity(), this) {
 
@@ -61,7 +59,6 @@ public class VideoConsumptionExampleFragment extends PlaybackOverlayFragment imp
         SurfaceView surface = (SurfaceView) videoSurfaceFragment.getView();
         surface.getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override public void surfaceCreated(SurfaceHolder holder) {
-                Log.d(TAG, "surfaceCreated(SurfaceHolder)");
                 mGlue.setDisplay(holder);
             }
 
@@ -71,7 +68,6 @@ public class VideoConsumptionExampleFragment extends PlaybackOverlayFragment imp
             }
 
             @Override public void surfaceDestroyed(SurfaceHolder holder) {
-                Log.d(TAG, "surfaceDestroyed(SurfaceHolder)");
             }
         });
 

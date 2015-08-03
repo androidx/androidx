@@ -178,12 +178,9 @@ public class MainFragment extends BrowseFragment {
                     break;
                 }
                 case 3: {
-                    updateBackgroundImage(
-                            getResources().getDrawable(R.drawable.background_canyon, null));
-                    Fragment fragment = new DetailViewExampleFragment();
-                    getFragmentManager().beginTransaction()
-                                        .replace(R.id.fragmentContainer, fragment)
-                                        .addToBackStack(null).commit();
+                    Intent intent = new Intent(getActivity().getBaseContext(),
+                            DetailViewExampleActivity.class);
+                    startActivity(intent);
                     break;
                 }
                 case 4: {

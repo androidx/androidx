@@ -39,6 +39,9 @@
         <activity
             android:name=".DialogExampleActivity"
             android:theme="@style/Theme.Example.LeanbackDialog"></activity>
+        <activity
+            android:name=".DetailViewExampleActivity"
+            android:theme="@style/Theme.Example.LeanbackDetailView"></activity>
     </application>
 
 </manifest>

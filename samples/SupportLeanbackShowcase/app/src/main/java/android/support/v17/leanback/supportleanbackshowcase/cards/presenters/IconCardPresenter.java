@@ -16,51 +16,36 @@ package android.support.v17.leanback.supportleanbackshowcase.cards.presenters;
 
 import android.content.Context;
 import android.support.v17.leanback.supportleanbackshowcase.R;
-import android.support.v17.leanback.supportleanbackshowcase.cards.models.Card;
-import android.support.v17.leanback.supportleanbackshowcase.cards.views.BaseCardViewEx;
-import android.view.LayoutInflater;
+import android.support.v17.leanback.widget.ImageCardView;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.TextView;
-
-import com.squareup.picasso.Picasso;
 
 /**
  * This Presenter will display cards which consists of a single icon which will be highlighted by a
  * surrounding circle when the card is focused. AndroidTV uses these cards for entering settings
  * menu.
  */
-public class IconCardPresenter extends AbstractCardPresenter<BaseCardViewEx> {
-
-    private static final String TAG = "IconCardPresenter";
+public class IconCardPresenter extends ImageCardViewPresenter {
 
     public IconCardPresenter(Context context) {
-        super(context);
+        super(context, R.style.IconCardStyle);
     }
 
-    @Override protected BaseCardViewEx onCreateView() {
-        final BaseCardViewEx cardView = new BaseCardViewEx(getContext());
-        LayoutInflater.from(getContext()).inflate(R.layout.icon_card, cardView);
-        LayoutInflater.from(getContext()).inflate(R.layout.icon_card_footer, cardView);
-        cardView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) cardView.getViewById(R.id.container)
-                                      .setBackgroundResource(R.drawable.icon_focused);
-                else cardView.getViewById(R.id.container).setBackground(null);
+    @Override
+    protected ImageCardView onCreateView() {
+        final ImageCardView imageCardView = super.onCreateView();
+        final ImageView image = imageCardView.getMainImageView();
+        imageCardView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    image.setBackgroundResource(R.drawable.icon_focused);
+                } else {
+                    image.setBackground(null);
+                }
             }
         });
-        return cardView;
-    }
-
-    @Override public void onBindViewHolder(Card card, BaseCardViewEx cardView) {
-        TextView primaryText = cardView.getViewById(R.id.primary_text);
-        ImageView imageView = cardView.getViewById(R.id.main_image);
-
-        primaryText.setText(card.getTitle());
-        if (card.getLocalImageResourceName() != null) {
-            int resourceId = card.getLocalImageResourceId(getContext());
-            Picasso.with(getContext()).load(resourceId).into(imageView);
-        }
+        return imageCardView;
     }
 
 }

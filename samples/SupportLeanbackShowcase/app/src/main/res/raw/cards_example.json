@@ -3,55 +3,55 @@
     "title": "Standard",
     "cards": [
       {
-        "type": "THIN",
-        "title": "The Amazing Spuder-Man",
+        "type": "MOVIE",
+        "title": "The Amazing Spider-Man",
         "description": "$3.99",
         "localImageResource": "card_image_movie_01"
       },
       {
-        "type": "THIN",
+        "type": "MOVIE",
         "title": "American Psycho",
         "description": "$3.99",
         "localImageResource": "card_image_movie_02"
       },
       {
-        "type": "THIN",
+        "type": "MOVIE",
         "title": "Big Hero 6",
         "description": "$3.99",
         "localImageResource": "card_image_movie_03"
       },
       {
-        "type": "THIN",
+        "type": "MOVIE",
         "title": "Edge of Tomorrow",
         "description": "$3.99",
         "localImageResource": "card_image_movie_04"
       },
       {
-        "type": "THIN",
+        "type": "MOVIE",
         "title": "The Hobbit: The Desolation of Smaug",
         "description": "$3.99",
         "localImageResource": "card_image_movie_05"
       },
       {
-        "type": "THIN",
+        "type": "MOVIE",
         "title": "Interstellar",
         "description": "$3.99",
         "localImageResource": "card_image_movie_06"
       },
       {
-        "type": "THIN",
+        "type": "MOVIE",
         "title": "Jurassic Park",
         "description": "$3.99",
         "localImageResource": "card_image_movie_07"
       },
       {
-        "type": "THIN",
+        "type": "MOVIE",
         "title": "The Hunger Games: Mockingjay Part I",
         "description": "$3.99",
         "localImageResource": "card_image_movie_08"
       },
       {
-        "type": "THIN",
+        "type": "MOVIE",
         "title": "Planes",
         "description": "$3.99",
         "localImageResource": "card_image_movie_09"
@@ -62,47 +62,47 @@
     "title": "Two Line Title",
     "cards": [
       {
-        "type": "THIN_RATING",
-        "title": "The Amazing Spuder-Man",
+        "type": "MOVIE_BASE",
+        "title": "The Amazing Spider-Man",
         "localImageResource": "card_image_movie_01"
       },
       {
-        "type": "THIN_RATING",
+        "type": "MOVIE_BASE",
         "title": "American Psycho",
         "localImageResource": "card_image_movie_02"
       },
       {
-        "type": "THIN_RATING",
+        "type": "MOVIE_BASE",
         "title": "Big Hero 6",
         "localImageResource": "card_image_movie_03"
       },
       {
-        "type": "THIN_RATING",
+        "type": "MOVIE_BASE",
         "title": "Edge of Tomorrow",
         "localImageResource": "card_image_movie_04"
       },
       {
-        "type": "THIN_RATING",
+        "type": "MOVIE_BASE",
         "title": "The Hobbit: The Desolation of Smaug",
         "localImageResource": "card_image_movie_05"
       },
       {
-        "type": "THIN_RATING",
+        "type": "MOVIE_BASE",
         "title": "Interstellar",
         "localImageResource": "card_image_movie_06"
       },
       {
-        "type": "THIN_RATING",
+        "type": "MOVIE_BASE",
         "title": "Jurassic Park",
         "localImageResource": "card_image_movie_07"
       },
       {
-        "type": "THIN_RATING",
+        "type": "MOVIE_BASE",
         "title": "The Hunger Games: Mockingjay Part I",
         "localImageResource": "card_image_movie_08"
       },
       {
-        "type": "THIN_RATING",
+        "type": "MOVIE_BASE",
         "title": "Planes",
         "localImageResource": "card_image_movie_09"
       }
@@ -112,63 +112,63 @@
     "title": "Two Line Title + Icon",
     "cards": [
       {
-        "type": "THIN_RATING",
+        "type": "MOVIE_COMPLETE",
         "description": "$3.99",
         "title": "The Amazing Spider-Man",
         "footerIconLocalImageResource": "stars_red",
         "localImageResource": "card_image_movie_01"
       },
       {
-        "type": "THIN_RATING",
+        "type": "MOVIE_COMPLETE",
         "title": "American Psycho",
         "description": "$3.99",
         "footerIconLocalImageResource": "stars_red",
         "localImageResource": "card_image_movie_02"
       },
       {
-        "type": "THIN_RATING",
+        "type": "MOVIE_COMPLETE",
         "title": "Big Hero 6",
         "description": "$3.99",
         "footerIconLocalImageResource": "stars_red",
         "localImageResource": "card_image_movie_03"
       },
       {
-        "type": "THIN_RATING",
+        "type": "MOVIE_COMPLETE",
         "title": "Edge of Tomorrow",
         "description": "$3.99",
         "footerIconLocalImageResource": "stars_red",
         "localImageResource": "card_image_movie_04"
       },
       {
-        "type": "THIN_RATING",
+        "type": "MOVIE_COMPLETE",
         "title": "The Hobbit: The Desolation of Smaug",
         "description": "$3.99",
         "footerIconLocalImageResource": "stars_red",
         "localImageResource": "card_image_movie_05"
       },
       {
-        "type": "THIN_RATING",
+        "type": "MOVIE_COMPLETE",
         "title": "Interstellar",
         "description": "$3.99",
         "footerIconLocalImageResource": "stars_red",
         "localImageResource": "card_image_movie_06"
       },
       {
-        "type": "THIN_RATING",
+        "type": "MOVIE_COMPLETE",
         "title": "Jurassic Park",
         "description": "$3.99",
         "footerIconLocalImageResource": "stars_red",
         "localImageResource": "card_image_movie_07"
       },
       {
-        "type": "THIN_RATING",
+        "type": "MOVIE_COMPLETE",
         "description": "$3.99",
         "title": "The Hunger Games: Mockingjay Part I",
         "footerIconLocalImageResource": "stars_red",
         "localImageResource": "card_image_movie_08"
       },
       {
-        "type": "THIN_RATING",
+        "type": "MOVIE_COMPLETE",
         "title": "Planes",
         "description": "$3.99",
         "footerIconLocalImageResource": "stars_red",
@@ -288,35 +288,35 @@
     "title": "Wide (Games)",
     "cards": [
       {
-        "type": "WIDE_SHORT",
+        "type": "GAME",
         "title": "Angry Birds",
         "description": "Purchased",
         "localImageResource": "game_angry_bird_w",
         "footerIconLocalImageResource": "ic_installed"
       },
       {
-        "type": "WIDE_SHORT",
+        "type": "GAME",
         "title": "Badland",
         "description": "Purchased",
         "localImageResource": "game_badland_w",
         "footerIconLocalImageResource": "ic_installed"
       },
       {
-        "type": "WIDE_SHORT",
+        "type": "GAME",
         "title": "Leo's Fortune",
         "description": "Purchased",
         "localImageResource": "game_leos_fortune_w",
         "footerIconLocalImageResource": "ic_installed"
       },
       {
-        "type": "WIDE_SHORT",
+        "type": "GAME",
         "title": "Minion Rush",
         "description": "Purchased",
         "localImageResource": "game_minion_rush_w",
         "footerIconLocalImageResource": "ic_installed"
       },
       {
-        "type": "WIDE_SHORT",
+        "type": "GAME",
         "title": "Monument Valley",
         "description": "Purchased",
         "localImageResource": "game_monument_valley_w",
@@ -431,99 +431,46 @@
     ]
   },
   {
-    "title": "Launcher",
-    "cards": [
-      {
-        "type": "SIDE_INFO_TEST_1",
-        "title": "Harry Potter",
-        "description": "$3.99",
-        "localImageResource": "coffee_and_tea_01"
-      },
-      {
-        "type": "SIDE_INFO_TEST_1",
-        "title": "Harry Potter",
-        "description": "$3.99",
-        "localImageResource": "coffee_and_tea_02"
-      },
-      {
-        "type": "SIDE_INFO_TEST_1",
-        "title": "Harry Potter",
-        "description": "$3.99",
-        "localImageResource": "coffee_and_tea_03"
-      },
-      {
-        "type": "SIDE_INFO_TEST_1",
-        "title": "Harry Potter",
-        "description": "$3.99",
-        "localImageResource": "coffee_and_tea_04"
-      },
-      {
-        "type": "SIDE_INFO_TEST_1",
-        "title": "Harry Potter",
-        "description": "$3.99",
-        "localImageResource": "coffee_and_tea_05"
-      },
-      {
-        "type": "SIDE_INFO_TEST_1",
-        "title": "Harry Potter",
-        "description": "$3.99",
-        "localImageResource": "coffee_and_tea_06"
-      },
-      {
-        "type": "SIDE_INFO_TEST_1",
-        "title": "Harry Potter",
-        "description": "$3.99",
-        "localImageResource": "coffee_and_tea_07"
-      },
-      {
-        "type": "SIDE_INFO_TEST_1",
-        "title": "Harry Potter",
-        "description": "$3.99",
-        "localImageResource": "coffee_and_tea_08"
-      }
-    ]
-  },
-  {
     "title": "Single Line",
     "cards": [
       {
-        "type": "SQUARE",
+        "type": "SINGLE_LINE",
         "title": "Action & Adventure",
         "footerColor": "#dd004e",
         "localImageResource": "category_action"
       },
       {
-        "type": "SQUARE",
+        "type": "SINGLE_LINE",
         "title": "Animation",
         "footerColor": "#c51162",
         "localImageResource": "category_animation"
       },
       {
-        "type": "SQUARE",
+        "type": "SINGLE_LINE",
         "title": "Classics",
         "footerColor": "#9c27b0",
         "localImageResource": "category_classics"
       },
       {
-        "type": "SQUARE",
+        "type": "SINGLE_LINE",
         "title": "Comedy",
         "footerColor": "#cf4900",
         "localImageResource": "category_comedy"
       },
       {
-        "type": "SQUARE",
+        "type": "SINGLE_LINE",
         "title": "Crime",
         "footerColor": "#3f51b5",
         "localImageResource": "category_crime"
       },
       {
-        "type": "SQUARE",
+        "type": "SINGLE_LINE",
         "title": "Documentary",
         "footerColor": "#02639b",
         "localImageResource": "category_documentary"
       },
       {
-        "type": "SQUARE",
+        "type": "SINGLE_LINE",
         "title": "Drama",
         "footerColor": "#2a56c6",
         "localImageResource": "category_drama"

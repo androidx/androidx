@@ -49,55 +49,55 @@
   ],
   "recommended": [
     {
-      "type": "THIN",
+      "type": "MOVIE",
       "title": "The Amazing Spuder-Man",
       "description": "$3.99",
       "localImageResource": "card_image_movie_01"
     },
     {
-      "type": "THIN",
+      "type": "MOVIE",
       "title": "American Psycho",
       "description": "$3.99",
       "localImageResource": "card_image_movie_02"
     },
     {
-      "type": "THIN",
+      "type": "MOVIE",
       "title": "Big Hero 6",
       "description": "$3.99",
       "localImageResource": "card_image_movie_03"
     },
     {
-      "type": "THIN",
+      "type": "MOVIE",
       "title": "Edge of Tomorrow",
       "description": "$3.99",
       "localImageResource": "card_image_movie_04"
     },
     {
-      "type": "THIN",
+      "type": "MOVIE",
       "title": "The Hobbit: The Desolation of Smaug",
       "description": "$3.99",
       "localImageResource": "card_image_movie_05"
     },
     {
-      "type": "THIN",
+      "type": "MOVIE",
       "title": "Interstellar",
       "description": "$3.99",
       "localImageResource": "card_image_movie_06"
     },
     {
-      "type": "THIN",
+      "type": "MOVIE",
       "title": "Jurassic Park",
       "description": "$3.99",
       "localImageResource": "card_image_movie_07"
     },
     {
-      "type": "THIN",
+      "type": "MOVIE",
       "title": "The Hunger Games: Mockingjay Part I",
       "description": "$3.99",
       "localImageResource": "card_image_movie_08"
     },
     {
-      "type": "THIN",
+      "type": "MOVIE",
       "title": "Planes",
       "description": "$3.99",
       "localImageResource": "card_image_movie_09"

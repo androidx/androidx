@@ -25,9 +25,6 @@ import java.util.HashMap;
 
 /**
  * This PresenterSelector will decide what Presenter to use depending on a given card's type.
- * <p/>
- * TODO: leanbackteam@ Discuss whether leanback's PresenterSelector should be renamed to
- * AbstractPresenterSelector.
  */
 public class CardPresenterSelector extends PresenterSelector {
 
@@ -38,68 +35,55 @@ public class CardPresenterSelector extends PresenterSelector {
         mContext = context;
     }
 
-    @Override public Presenter getPresenter(Object item) {
+    @Override
+    public Presenter getPresenter(Object item) {
         if (!(item instanceof Card)) throw new RuntimeException(
                 String.format("The PresenterSelector only supports data items of type '%s'",
-                              Card.class.getName()));
+                        Card.class.getName()));
         Card card = (Card) item;
         Presenter presenter = presenters.get(card.getType());
-        if (presenter == null) switch (card.getType()) {
-            case SQUARE:
-                presenter = new SingleLineCardPresenter(mContext);
-                break;
-            case THIN_RATING:
-                presenter = new MovieRatingCardPresenter(mContext);
-                break;
-            case SIDE_INFO:
-                presenter = new SideInfoCardPresenter(mContext);
-                break;
-            case SIDE_INFO_TEST_1:
-                presenter = new LauncherCardPresenter(mContext);
-                break;
-            case TEXT:
-                presenter = new TextCardPresenter(mContext);
-                break;
-            case ICON:
-                presenter = new IconCardPresenter(mContext);
-                break;
-            case CHARACTER:
-                presenter = new CharacterCardPresenter(mContext);
-                break;
-            case THIN: {
-                int width = (int) mContext.getResources()
-                                          .getDimension(R.dimen.thin_image_card_width);
-                int height = (int) mContext.getResources()
-                                           .getDimension(R.dimen.thin_image_card_height);
-                presenter = new ImageCardViewPresenter1(mContext, width, height);
+        if (presenter == null) {
+            switch (card.getType()) {
+                case SINGLE_LINE:
+                    presenter = new SingleLineCardPresenter(mContext);
+                    break;
+                case MOVIE:
+                case MOVIE_BASE:
+                case MOVIE_COMPLETE:
+                case SQUARE_BIG:
+                case GRID_SQUARE:
+                case GAME: {
+                    int style = R.style.MovieCardSimpleStyle;
+                    if (card.getType() == Card.Type.MOVIE_BASE) {
+                        style = R.style.MovieCardBasicStyle;
+                    } else if (card.getType() == Card.Type.MOVIE_COMPLETE) {
+                        style = R.style.MovieCardCompleteStyle;
+                    } else if (card.getType() == Card.Type.SQUARE_BIG) {
+                        style = R.style.SquareBigCard;
+                    } else if (card.getType() == Card.Type.GRID_SQUARE) {
+                        style = R.style.GridCardStyle;
+                    } else if (card.getType() == Card.Type.GAME) {
+                        style = R.style.GameCardStyle;
+                    }
+                    presenter = new ImageCardViewPresenter(mContext, style);
+                    break;
+                }
+                case SIDE_INFO:
+                    presenter = new SideInfoCardPresenter(mContext);
+                    break;
+                case TEXT:
+                    presenter = new TextCardPresenter(mContext);
+                    break;
+                case ICON:
+                    presenter = new IconCardPresenter(mContext);
+                    break;
+                case CHARACTER:
+                    presenter = new CharacterCardPresenter(mContext);
+                    break;
+                default:
+                    presenter = new ImageCardViewPresenter(mContext);
+                    break;
             }
-            break;
-            case SQUARE_BIG: {
-                int width = (int) mContext.getResources()
-                                          .getDimension(R.dimen.big_square_image_card_width);
-                int height = (int) mContext.getResources()
-                                           .getDimension(R.dimen.big_square_image_card_height);
-                presenter = new ImageCardViewPresenter(mContext, width, height);
-            }
-            break;
-            case GRID_SQUARE: {
-                int width = (int) mContext.getResources().getDimension(R.dimen.grid_card_width);
-                int height = (int) mContext.getResources().getDimension(R.dimen.grid_card_height);
-                presenter = new ImageCardViewPresenter(mContext, width, height);
-            }
-            break;
-            case WIDE_SHORT: {
-                presenter = new GameBannerCardPresenter(mContext);
-            }
-            break;
-            default: {
-                int width = (int) mContext.getResources()
-                                          .getDimension(R.dimen.default_image_card_width);
-                int height = (int) mContext.getResources()
-                                           .getDimension(R.dimen.default_image_card_height);
-                presenter = new ImageCardViewPresenter(mContext, width, height);
-            }
-            break;
         }
         presenters.put(card.getType(), presenter);
         return presenter;

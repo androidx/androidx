@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
-           xmlns:lb="http://schemas.android.com/apk/res-auto"
-           lb:layout_viewType="main"
-           android:layout_width="match_parent"
-           android:id="@+id/image_card_view_main_image"
-           android:layout_height="match_parent">
-
-</ImageView>

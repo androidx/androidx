@@ -17,8 +17,6 @@ package android.support.v17.leanback.supportleanbackshowcase.cards.presenters;
 import android.content.Context;
 import android.support.v17.leanback.supportleanbackshowcase.R;
 import android.support.v17.leanback.supportleanbackshowcase.cards.models.Card;
-import android.support.v17.leanback.supportleanbackshowcase.cards.views.BaseCardViewEx;
-import android.support.v17.leanback.supportleanbackshowcase.cards.views.OnActivateStateChangeHandler;
 import android.support.v17.leanback.widget.BaseCardView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,49 +31,55 @@ import com.squareup.picasso.Picasso;
  * box, thus it will be hidden if the parent row is inactive. This behavior is unique to this card
  * and requires a special focus handler.
  */
-public class SideInfoCardPresenter extends AbstractCardPresenter<BaseCardViewEx> implements
-        OnActivateStateChangeHandler {
-
-    private static final String TAG = "SideInfoCardPresenter";
+public class SideInfoCardPresenter extends AbstractCardPresenter<BaseCardView> {
 
     public SideInfoCardPresenter(Context context) {
         super(context);
     }
 
-    @Override protected BaseCardViewEx onCreateView() {
-        BaseCardViewEx cardView = new BaseCardViewEx(getContext());
+    @Override
+    protected BaseCardView onCreateView() {
+        final BaseCardView cardView = new BaseCardView(getContext()) {
+
+            @Override
+            public void setActivated(boolean activated) {
+                super.setActivated(activated);
+                onActivateStateChanged(this, activated);
+            }
+        };
+        cardView.setFocusable(true);
         cardView.setCardType(BaseCardView.CARD_TYPE_MAIN_ONLY);
         cardView.addView(LayoutInflater.from(getContext()).inflate(R.layout.side_info_card, null));
-        cardView.setOnActivateStateChangeHandler(this);
         onActivateStateChanged(cardView, cardView.isActivated());
         return cardView;
     }
 
-    @Override public void onBindViewHolder(Card card, BaseCardViewEx cardView) {
-        ImageView imageView = cardView.getViewById(R.id.main_image);
+    @Override
+    public void onBindViewHolder(Card card, BaseCardView cardView) {
+        ImageView imageView = (ImageView) cardView.findViewById(R.id.main_image);
         if (card.getLocalImageResourceName() != null) {
             int width = (int) getContext().getResources()
-                                          .getDimension(R.dimen.sidetext_image_card_width);
+                    .getDimension(R.dimen.sidetext_image_card_width);
             int height = (int) getContext().getResources()
-                                           .getDimension(R.dimen.sidetext_image_card_height);
+                    .getDimension(R.dimen.sidetext_image_card_height);
             int resourceId = getContext().getResources()
-                                         .getIdentifier(card.getLocalImageResourceName(),
-                                                        "drawable", getContext().getPackageName());
+                    .getIdentifier(card.getLocalImageResourceName(),
+                            "drawable", getContext().getPackageName());
             Picasso.with(getContext()).load(resourceId).resize(width, height).centerCrop()
-                   .into(imageView);
+                    .into(imageView);
         }
 
-        TextView primaryText = cardView.getViewById(R.id.primary_text);
+        TextView primaryText = (TextView) cardView.findViewById(R.id.primary_text);
         primaryText.setText(card.getTitle());
 
-        TextView secondaryText = cardView.getViewById(R.id.secondary_text);
+        TextView secondaryText = (TextView) cardView.findViewById(R.id.secondary_text);
         secondaryText.setText(card.getDescription());
 
-        TextView extraText = cardView.getViewById(R.id.extra_text);
+        TextView extraText = (TextView) cardView.findViewById(R.id.extra_text);
         extraText.setText(card.getExtraText());
     }
 
-    @Override public void onActivateStateChanged(final BaseCardViewEx cardView, boolean activated) {
-        cardView.getViewById(R.id.info).setVisibility(activated ? View.VISIBLE : View.GONE);
+    public void onActivateStateChanged(final BaseCardView cardView, boolean activated) {
+        cardView.findViewById(R.id.info).setVisibility(activated ? View.VISIBLE : View.GONE);
     }
 }

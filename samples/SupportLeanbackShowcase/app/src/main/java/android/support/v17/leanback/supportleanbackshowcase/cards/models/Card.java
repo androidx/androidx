@@ -109,12 +109,13 @@ public class Card {
 
     public enum Type {
 
-        THIN,
-        THIN_RATING,
+        MOVIE_COMPLETE,
+        MOVIE,
+        MOVIE_BASE,
         ICON,
         SQUARE_BIG,
-        SQUARE,
-        WIDE_SHORT,
+        SINGLE_LINE,
+        GAME,
         SQUARE_SMALL,
         DEFAULT,
         SIDE_INFO,
