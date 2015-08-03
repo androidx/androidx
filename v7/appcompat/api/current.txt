@@ -626,9 +626,9 @@ package android.support.v7.appcompat {
     ctor public R.dimen();
     field public static int abc_action_bar_content_inset_material;
     field public static int abc_action_bar_default_height_material;
-    field public static int abc_action_bar_default_padding_material;
+    field public static int abc_action_bar_default_padding_end_material;
+    field public static int abc_action_bar_default_padding_start_material;
     field public static int abc_action_bar_icon_vertical_padding_material;
-    field public static int abc_action_bar_navigation_padding_start_material;
     field public static int abc_action_bar_overflow_padding_end_material;
     field public static int abc_action_bar_overflow_padding_start_material;
     field public static int abc_action_bar_progress_bar_size;
@@ -1097,7 +1097,6 @@ package android.support.v7.appcompat {
     field public static int RtlOverlay_Widget_AppCompat_Search_DropDown_Icon2;
     field public static int RtlOverlay_Widget_AppCompat_Search_DropDown_Query;
     field public static int RtlOverlay_Widget_AppCompat_Search_DropDown_Text;
-    field public static int RtlOverlay_Widget_AppCompat_Toolbar_Button_Navigation;
     field public static int TextAppearance_AppCompat;
     field public static int TextAppearance_AppCompat_Body1;
     field public static int TextAppearance_AppCompat_Body2;
