@@ -588,8 +588,6 @@ package android.support.v7.appcompat {
     field public static int highlighted_text_material_light;
     field public static int hint_foreground_material_dark;
     field public static int hint_foreground_material_light;
-    field public static int link_text_material_dark;
-    field public static int link_text_material_light;
     field public static int material_blue_grey_800;
     field public static int material_blue_grey_900;
     field public static int material_blue_grey_950;
