@@ -101,8 +101,6 @@
         <item name="cardType">infoUnder</item>
         <item name="infoVisibility">activated</item>
         <item name="android:background">@color/lb_basic_card_bg_color</item>
-        <item name="android:focusable">true</item>
-        <item name="android:focusableInTouchMode">true</item>
         <!-- In order to keep backward compatibility we have to create an icon on right. -->
         <item name="lbImageCardViewType">Title|Content|IconOnRight</item>
         <item name="lbImageCardViewImageStyle">@style/Widget.Leanback.ImageCardView.ImageStyle</item>

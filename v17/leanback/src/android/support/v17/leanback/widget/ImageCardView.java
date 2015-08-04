@@ -164,6 +164,10 @@ public class ImageCardView extends BaseCardView {
     }
 
     private void buildImageCardView(int styleResId) {
+        // Make sure the ImageCardView is focusable.
+        setFocusable(true);
+        setFocusableInTouchMode(true);
+
         LayoutInflater inflater = LayoutInflater.from(getContext());
         inflater.inflate(R.layout.lb_image_card_view, this);
         TypedArray cardAttrs = getContext().obtainStyledAttributes(styleResId, R.styleable.lbImageCardView);
