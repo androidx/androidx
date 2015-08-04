@@ -15,6 +15,7 @@ package android.support.v17.leanback.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.system.Settings;
 import android.util.Log;
@@ -96,6 +97,13 @@ public class ListRowPresenter extends RowPresenter {
         }
 
         @Override
+        protected void onCreate(ItemBridgeAdapter.ViewHolder viewHolder) {
+            if (mShadowOverlayHelper != null) {
+                mShadowOverlayHelper.onViewCreated(viewHolder.itemView);
+            }
+        }
+
+        @Override
         public void onBind(final ItemBridgeAdapter.ViewHolder viewHolder) {
             // Only when having an OnItemClickListner, we will attach the OnClickListener.
             if (mRowViewHolder.getOnItemViewClickedListener() != null) {
@@ -122,9 +130,9 @@ public class ListRowPresenter extends RowPresenter {
 
         @Override
         public void onAttachedToWindow(ItemBridgeAdapter.ViewHolder viewHolder) {
-            if (needsDefaultListSelectEffect()) {
+            if (mShadowOverlayHelper != null && mShadowOverlayHelper.needsOverlay()) {
                 int dimmedColor = mRowViewHolder.mColorDimmer.getPaint().getColor();
-                ((ShadowOverlayContainer) viewHolder.itemView).setOverlayColor(dimmedColor);
+                mShadowOverlayHelper.setOverlayColor(viewHolder.itemView, dimmedColor);
             }
             mRowViewHolder.syncActivatedStatus(viewHolder.itemView);
         }
@@ -145,6 +153,7 @@ public class ListRowPresenter extends RowPresenter {
     private int mBrowseRowsFadingEdgeLength = -1;
     private boolean mRoundedCornersEnabled = true;
     private HashMap<Presenter, Integer> mRecycledPoolSize = new HashMap<Presenter, Integer>();
+    private ShadowOverlayHelper mShadowOverlayHelper;
 
     private static int sSelectedRowTopPadding;
     private static int sExpandedSelectedRowTopPadding;
@@ -253,44 +262,24 @@ public class ListRowPresenter extends RowPresenter {
         return mUseFocusDimmer;
     }
 
-    private ItemBridgeAdapter.Wrapper mCardWrapper = new ItemBridgeAdapter.Wrapper() {
-        @Override
-        public View createWrapper(View root) {
-            ShadowOverlayContainer wrapper = new ShadowOverlayContainer(root.getContext());
-            wrapper.setLayoutParams(
-                    new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-            if (isUsingZOrder(root.getContext())) {
-                wrapper.useDynamicShadow();
-            } else {
-                wrapper.useStaticShadow();
-            }
-            wrapper.initialize(needsDefaultShadow(),
-                    needsDefaultListSelectEffect(),
-                    areChildRoundedCornersEnabled());
-            return wrapper;
-        }
-        @Override
-        public void wrap(View wrapper, View wrapped) {
-            ((ShadowOverlayContainer) wrapper).wrap(wrapped);
-        }
-    };
-
     @Override
     protected void initializeRowViewHolder(RowPresenter.ViewHolder holder) {
         super.initializeRowViewHolder(holder);
         final ViewHolder rowViewHolder = (ViewHolder) holder;
+        Context context = holder.view.getContext();
+        if (mShadowOverlayHelper == null) {
+            mShadowOverlayHelper = new ShadowOverlayHelper(context, needsDefaultListSelectEffect(),
+                    needsDefaultShadow(), areChildRoundedCornersEnabled(), isUsingZOrder(context));
+        }
         rowViewHolder.mItemBridgeAdapter = new ListRowPresenterItemBridgeAdapter(rowViewHolder);
-        if (needsDefaultListSelectEffect() || needsDefaultShadow()
-                || areChildRoundedCornersEnabled()) {
-            rowViewHolder.mItemBridgeAdapter.setWrapper(mCardWrapper);
-        }
-        if (needsDefaultShadow()) {
-            ShadowOverlayContainer.prepareParentForShadow(rowViewHolder.mGridView);
-        }
+        // set wrapper if needed
+        rowViewHolder.mItemBridgeAdapter.setWrapper(mShadowOverlayHelper.getWrapper());
+        mShadowOverlayHelper.prepareParentForShadow(rowViewHolder.mGridView);
+
         FocusHighlightHelper.setupBrowseItemFocusHighlight(rowViewHolder.mItemBridgeAdapter,
                 mFocusZoomFactor, mUseFocusDimmer);
-        rowViewHolder.mGridView.setFocusDrawingOrderEnabled(
-                !isUsingZOrder(rowViewHolder.getGridView().getContext()));
+        rowViewHolder.mGridView.setFocusDrawingOrderEnabled(mShadowOverlayHelper.getShadowType()
+                == ShadowOverlayHelper.SHADOW_STATIC);
         rowViewHolder.mGridView.setOnChildSelectedListener(
                 new OnChildSelectedListener() {
             @Override
@@ -545,7 +534,7 @@ public class ListRowPresenter extends RowPresenter {
      * Subclass may return false to disable.
      */
     public boolean isUsingDefaultShadow() {
-        return ShadowOverlayContainer.supportsShadow();
+        return ShadowOverlayHelper.supportsShadow();
     }
 
     /**
@@ -554,8 +543,7 @@ public class ListRowPresenter extends RowPresenter {
      * and does not use Z-shadow on SDK >= L, it should override isUsingZOrder() return false.
      */
     public boolean isUsingZOrder(Context context) {
-        return ShadowOverlayContainer.supportsDynamicShadow() &&
-                !Settings.getInstance(context).preferStaticShadows();
+        return !Settings.getInstance(context).preferStaticShadows();
     }
 
     /**
@@ -615,12 +603,11 @@ public class ListRowPresenter extends RowPresenter {
     @Override
     protected void onSelectLevelChanged(RowPresenter.ViewHolder holder) {
         super.onSelectLevelChanged(holder);
-        if (needsDefaultListSelectEffect()) {
+        if (mShadowOverlayHelper != null && mShadowOverlayHelper.needsOverlay()) {
             ViewHolder vh = (ViewHolder) holder;
             int dimmedColor = vh.mColorDimmer.getPaint().getColor();
             for (int i = 0, count = vh.mGridView.getChildCount(); i < count; i++) {
-                ShadowOverlayContainer wrapper = (ShadowOverlayContainer) vh.mGridView.getChildAt(i);
-                wrapper.setOverlayColor(dimmedColor);
+                mShadowOverlayHelper.setOverlayColor(vh.mGridView.getChildAt(i), dimmedColor);
             }
             if (vh.mGridView.getFadingLeftEdge()) {
                 vh.mGridView.invalidate();
