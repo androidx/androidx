@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -19,14 +19,14 @@ import android.graphics.Color;
 import android.graphics.Outline;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.view.ViewGroup;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
 
 class ShadowHelperApi21 {
 
     static class ShadowImpl {
-        ViewGroup mShadowContainer;
+        View mShadowContainer;
         float mNormalZ;
         float mFocusedZ;
     }
@@ -41,7 +41,7 @@ class ShadowHelperApi21 {
 
     /* add shadows and return a implementation detail object */
     public static Object addDynamicShadow(
-            ViewGroup shadowContainer, float unfocusedZ, float focusedZ, boolean roundedCorners) {
+            View shadowContainer, float unfocusedZ, float focusedZ, boolean roundedCorners) {
         if (roundedCorners) {
             RoundedRectHelperApi21.setClipToRoundedOutline(shadowContainer, true);
         } else {
@@ -52,7 +52,9 @@ class ShadowHelperApi21 {
         impl.mNormalZ = unfocusedZ;
         impl.mFocusedZ = focusedZ;
         shadowContainer.setZ(impl.mNormalZ);
-        shadowContainer.setTransitionGroup(true);
+        if (shadowContainer instanceof ViewGroup) {
+            ((ViewGroup) shadowContainer).setTransitionGroup(true);
+        }
         return impl;
     }
 

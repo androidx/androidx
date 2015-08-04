@@ -97,12 +97,10 @@ public class FocusHighlightHelper {
             float scale = 1f + mScaleDiff * level;
             mView.setScaleX(scale);
             mView.setScaleY(scale);
-            if (mWrapper != null) {
-                mWrapper.setShadowFocusLevel(level);
-                if (mDimmer != null) {
-                    mDimmer.setActiveLevel(level);
-                    mWrapper.setOverlayColor(mDimmer.getPaint().getColor());
-                }
+            ShadowOverlayHelper.setShadowFocusLevel(mView, level);
+            if (mWrapper != null && mDimmer != null) {
+                mDimmer.setActiveLevel(level);
+                mWrapper.setOverlayColor(mDimmer.getPaint().getColor());
             }
         }
 

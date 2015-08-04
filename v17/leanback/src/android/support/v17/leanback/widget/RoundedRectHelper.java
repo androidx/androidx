@@ -33,6 +33,10 @@ final class RoundedRectHelper {
         return sInstance;
     }
 
+    public static boolean supportsRoundedCorner() {
+        return Build.VERSION.SDK_INT >= 21;
+    }
+
     /**
      * Sets or removes a rounded rectangle outline on the given view.
      */
@@ -65,7 +69,7 @@ final class RoundedRectHelper {
     }
 
     private RoundedRectHelper() {
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (supportsRoundedCorner()) {
             mImpl = new Api21Impl();
         } else {
             mImpl = new StubImpl();

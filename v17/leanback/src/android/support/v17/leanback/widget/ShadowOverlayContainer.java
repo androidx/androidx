@@ -20,6 +20,9 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Rect;
 
 /**
@@ -51,20 +54,19 @@ public class ShadowOverlayContainer extends ViewGroup {
     /**
      * No shadow.
      */
-    public static final int SHADOW_NONE = 1;
+    public static final int SHADOW_NONE = ShadowOverlayHelper.SHADOW_NONE;
 
     /**
      * Shadows are fixed.
      */
-    public static final int SHADOW_STATIC = 2;
+    public static final int SHADOW_STATIC = ShadowOverlayHelper.SHADOW_STATIC;
 
     /**
      * Shadows depend on the size, shape, and position of the view.
      */
-    public static final int SHADOW_DYNAMIC = 3;
+    public static final int SHADOW_DYNAMIC = ShadowOverlayHelper.SHADOW_DYNAMIC;
 
     private boolean mInitialized;
-    private View mColorDimOverlay;
     private Object mShadowImpl;
     private View mWrappedView;
     private boolean mRoundedCorners;
@@ -72,19 +74,41 @@ public class ShadowOverlayContainer extends ViewGroup {
     private float mUnfocusedZ;
     private float mFocusedZ;
     private static final Rect sTempRect = new Rect();
+    private Paint mOverlayPaint;
+    private int mOverlayColor;
 
+    /**
+     * Create ShadowOverlayContainer and auto select shadow type.
+     */
     public ShadowOverlayContainer(Context context) {
         this(context, null, 0);
     }
 
+    /**
+     * Create ShadowOverlayContainer and auto select shadow type.
+     */
     public ShadowOverlayContainer(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
+    /**
+     * Create ShadowOverlayContainer and auto select shadow type.
+     */
     public ShadowOverlayContainer(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         useStaticShadow();
         useDynamicShadow();
+    }
+
+    /**
+     * Create ShadowOverlayContainer with specific shadowType.
+     */
+    public ShadowOverlayContainer(Context context,
+            int shadowType, boolean hasColorDimOverlay, boolean roundedCorners) {
+        super(context);
+        mUnfocusedZ = getResources().getDimension(R.dimen.lb_material_shadow_normal_z);
+        mFocusedZ = getResources().getDimension(R.dimen.lb_material_shadow_focused_z);
+        initialize(shadowType, hasColorDimOverlay, roundedCorners);
     }
 
     /**
@@ -164,29 +188,59 @@ public class ShadowOverlayContainer extends ViewGroup {
 
     /**
      * Initialize shadows, color overlay, and rounded corners.  All are optional.
+     * Shadow type are auto-selected based on {@link #useStaticShadow()} and
+     * {@link #useDynamicShadow()} call.
+     * @deprecated use {@link #initialize(int, boolean, boolean)} instead.
      */
+    @Deprecated
     public void initialize(boolean hasShadow, boolean hasColorDimOverlay, boolean roundedCorners) {
+        int shadowType;
+        if (!hasShadow) {
+            shadowType = SHADOW_NONE;
+        } else {
+            shadowType = mShadowType;
+        }
+        initialize(shadowType, hasColorDimOverlay, roundedCorners);
+    }
+
+    /**
+     * Initialize shadows, color overlay, and rounded corners.  All are optional.
+     */
+    public void initialize(int shadowType, boolean hasColorDimOverlay, boolean roundedCorners) {
         if (mInitialized) {
             throw new IllegalStateException();
         }
         mInitialized = true;
-        if (hasShadow) {
-            switch (mShadowType) {
-                case SHADOW_DYNAMIC:
-                    mShadowImpl = ShadowHelper.getInstance().addDynamicShadow(
-                            this, mUnfocusedZ, mFocusedZ, roundedCorners);
-                    break;
-                case SHADOW_STATIC:
-                    mShadowImpl = StaticShadowHelper.getInstance().addStaticShadow(
-                            this, roundedCorners);
-                    break;
-            }
+        mShadowType = shadowType;
+        switch (mShadowType) {
+            case SHADOW_DYNAMIC:
+                mShadowImpl = ShadowHelper.getInstance().addDynamicShadow(
+                        this, mUnfocusedZ, mFocusedZ, roundedCorners);
+                break;
+            case SHADOW_STATIC:
+                mShadowImpl = StaticShadowHelper.getInstance().addStaticShadow(this);
+                break;
         }
         mRoundedCorners = roundedCorners;
         if (hasColorDimOverlay) {
-            mColorDimOverlay = LayoutInflater.from(getContext())
-                    .inflate(R.layout.lb_card_color_overlay, this, false);
-            addView(mColorDimOverlay);
+            setWillNotDraw(false);
+            mOverlayColor = Color.TRANSPARENT;
+            mOverlayPaint = new Paint();
+            mOverlayPaint.setColor(mOverlayColor);
+            mOverlayPaint.setStyle(Paint.Style.FILL);
+        } else {
+            setWillNotDraw(true);
+            mOverlayPaint = null;
+        }
+    }
+
+    @Override
+    public void draw(Canvas canvas) {
+        super.draw(canvas);
+        if (mOverlayPaint != null && mOverlayColor != Color.TRANSPARENT) {
+            canvas.drawRect(mWrappedView.getLeft(), mWrappedView.getTop(),
+                    mWrappedView.getRight(), mWrappedView.getBottom(),
+                    mOverlayPaint);
         }
     }
 
@@ -195,19 +249,7 @@ public class ShadowOverlayContainer extends ViewGroup {
      */
     public void setShadowFocusLevel(float level) {
         if (mShadowImpl != null) {
-            if (level < 0f) {
-                level = 0f;
-            } else if (level > 1f) {
-                level = 1f;
-            }
-            switch (mShadowType) {
-                case SHADOW_DYNAMIC:
-                    ShadowHelper.getInstance().setShadowFocusLevel(mShadowImpl, level);
-                    break;
-                case SHADOW_STATIC:
-                    StaticShadowHelper.getInstance().setShadowFocusLevel(mShadowImpl, level);
-                    break;
-            }
+            ShadowOverlayHelper.setShadowFocusLevel(mShadowImpl, mShadowType, level);
         }
     }
 
@@ -215,8 +257,12 @@ public class ShadowOverlayContainer extends ViewGroup {
      * Set color (with alpha) of the overlay.
      */
     public void setOverlayColor(@ColorInt int overlayColor) {
-        if (mColorDimOverlay != null) {
-            mColorDimOverlay.setBackgroundColor(overlayColor);
+        if (mOverlayPaint != null) {
+            if (overlayColor != mOverlayColor) {
+                mOverlayColor = overlayColor;
+                mOverlayPaint.setColor(overlayColor);
+                invalidate();
+            }
         }
     }
 
@@ -227,15 +273,11 @@ public class ShadowOverlayContainer extends ViewGroup {
         if (!mInitialized || mWrappedView != null) {
             throw new IllegalStateException();
         }
-        if (mColorDimOverlay != null) {
-            addView(view, indexOfChild(mColorDimOverlay));
-        } else {
-            addView(view);
+        addView(view);
+        if (mRoundedCorners && mShadowType == SHADOW_STATIC) {
+            RoundedRectHelper.getInstance().setClipToRoundedOutline(view, true);
         }
         mWrappedView = view;
-        if (mRoundedCorners) {
-            RoundedRectHelper.getInstance().setClipToRoundedOutline(mWrappedView, true);
-        }
     }
 
     /**

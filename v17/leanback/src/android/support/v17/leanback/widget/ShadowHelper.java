@@ -32,7 +32,7 @@ final class ShadowHelper {
      */
     static interface ShadowHelperVersionImpl {
         public Object addDynamicShadow(
-                ViewGroup shadowContainer, float unfocusedZ, float focusedZ, boolean roundedCorners);
+                View shadowContainer, float unfocusedZ, float focusedZ, boolean roundedCorners);
         public void setZ(View view, float z);
         public void setShadowFocusLevel(Object impl, float level);
     }
@@ -43,7 +43,7 @@ final class ShadowHelper {
     private static final class ShadowHelperStubImpl implements ShadowHelperVersionImpl {
         @Override
         public Object addDynamicShadow(
-                ViewGroup shadowContainer, float focusedZ, float unfocusedZ, boolean roundedCorners) {
+                View shadowContainer, float focusedZ, float unfocusedZ, boolean roundedCorners) {
             // do nothing
             return null;
         }
@@ -65,7 +65,7 @@ final class ShadowHelper {
     private static final class ShadowHelperApi21Impl implements ShadowHelperVersionImpl {
         @Override
         public Object addDynamicShadow(
-                ViewGroup shadowContainer, float unfocusedZ, float focusedZ, boolean roundedCorners) {
+                View shadowContainer, float unfocusedZ, float focusedZ, boolean roundedCorners) {
             return ShadowHelperApi21.addDynamicShadow(
                     shadowContainer, unfocusedZ, focusedZ, roundedCorners);
         }
@@ -102,7 +102,7 @@ final class ShadowHelper {
     }
 
     public Object addDynamicShadow(
-            ViewGroup shadowContainer, float unfocusedZ, float focusedZ, boolean roundedCorners) {
+            View shadowContainer, float unfocusedZ, float focusedZ, boolean roundedCorners) {
         return mImpl.addDynamicShadow(shadowContainer, unfocusedZ, focusedZ, roundedCorners);
     }
 
