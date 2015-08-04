@@ -103,7 +103,7 @@ public final class ShadowOverlayHelper {
 
         // Force to use wrapper to avoid rebuildOutline() on animating foreground drawable.
         // See b/22724385
-        final boolean forceWrapperForOverlay = false;
+        final boolean forceWrapperForOverlay = true;
 
         // figure out shadow type and if we need use wrapper:
         if (mNeedsShadow) {
