@@ -16,7 +16,7 @@ package android.support.v17.leanback.supportleanbackshowcase.cards.presenters;
 
 import android.content.Context;
 import android.support.v17.leanback.supportleanbackshowcase.cards.TextCardView;
-import android.support.v17.leanback.supportleanbackshowcase.cards.models.Card;
+import android.support.v17.leanback.supportleanbackshowcase.models.Card;
 
 /**
  * The Presenter displays a card consisting of text as a replacement for a big image. The footer is

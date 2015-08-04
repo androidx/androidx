@@ -17,7 +17,7 @@ package android.support.v17.leanback.supportleanbackshowcase.cards.presenters;
 
 import android.content.Context;
 import android.support.v17.leanback.supportleanbackshowcase.R;
-import android.support.v17.leanback.supportleanbackshowcase.cards.models.Card;
+import android.support.v17.leanback.supportleanbackshowcase.models.Card;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
 
