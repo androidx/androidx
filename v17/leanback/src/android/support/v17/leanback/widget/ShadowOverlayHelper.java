@@ -27,7 +27,15 @@ import android.view.View;
 
 
 /**
- * Helper for shadow.
+ * ShadowOverlayHelper is a helper class for shadow, overlay and rounded corner.
+ * Initialize it with all the options and it decides the best strategy.
+ * <li> For shadow:  it may use 9-patch with opticalBounds or Z-value based shadow for
+ *                   API >= 21.  When 9-patch is used, it requires a ShadowOverlayContainer
+ *                   created by ItemBridgeAdapter.Wrapper to include 9-patch views.
+ * <li> For overlay: it may use ShadowOverlayContainer which overrides draw() or it may
+ *                   use setForeground(new ColorDrawable()) for API>=23.  The foreground support
+ *                   might be disabled if rounded corner is applied due to performance reason.
+ * <li> For rounded-corner:  it uses a ViewOutlineProvider for API>=21.
  * @hide
  */
 public final class ShadowOverlayHelper {
@@ -101,9 +109,9 @@ public final class ShadowOverlayHelper {
         mNeedsRoundedCorner = needsRoundedCorner && supportsRoundedCorner();
         mNeedsShadow = needsShadow && supportsShadow();
 
-        // Force to use wrapper to avoid rebuildOutline() on animating foreground drawable.
-        // See b/22724385
-        final boolean forceWrapperForOverlay = true;
+        // Force to use wrapper to avoid rebuild rounded corner outline on animating foreground
+        // drawable.  See b/22724385
+        final boolean forceWrapperForOverlay = mNeedsRoundedCorner;
 
         // figure out shadow type and if we need use wrapper:
         if (mNeedsShadow) {
@@ -184,16 +192,15 @@ public final class ShadowOverlayHelper {
         return mCardWrapper;
     }
 
-    public void setOverlayColor(View view, int color) {
-        if (mNeedsWrapper) {
-            ((ShadowOverlayContainer) view).setOverlayColor(color);
+    /**
+     * Set foreground color for view other than ShadowOverlayContainer.
+     */
+    public static void setForegroundColor(View view, int color) {
+        Drawable d = ForegroundHelper.getInstance().getForeground(view);
+        if (d instanceof ColorDrawable) {
+            ((ColorDrawable) d).setColor(color);
         } else {
-            Drawable d = ForegroundHelper.getInstance().getForeground(view);
-            if (d instanceof ColorDrawable) {
-                ((ColorDrawable) d).setColor(color);
-            } else {
-                ForegroundHelper.getInstance().setForeground(view, new ColorDrawable(color));
-            }
+            ForegroundHelper.getInstance().setForeground(view, new ColorDrawable(color));
         }
     }
 
@@ -223,13 +230,10 @@ public final class ShadowOverlayHelper {
 
     /**
      * Set shadow focus level (0 to 1). 0 for unfocused, 1f for fully focused.
+     * This is for view other than ShadowOverlayContainer.
      */
     public static void setShadowFocusLevel(View view, float level) {
-        if (view instanceof ShadowOverlayContainer) {
-            ((ShadowOverlayContainer) view).setShadowFocusLevel(level);
-        } else {
-            setShadowFocusLevel(getNoneWrapperDyamicShadowImpl(view), SHADOW_DYNAMIC, level);
-        }
+        setShadowFocusLevel(getNoneWrapperDyamicShadowImpl(view), SHADOW_DYNAMIC, level);
     }
 
     static void setShadowFocusLevel(Object impl, int shadowType, float level) {
