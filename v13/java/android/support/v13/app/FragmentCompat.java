@@ -17,6 +17,7 @@
 package android.support.v13.app;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
@@ -49,7 +50,21 @@ public class FragmentCompat {
                 @Override
                 public void run() {
                     final int[] grantResults = new int[permissions.length];
-                    Arrays.fill(grantResults, PackageManager.PERMISSION_GRANTED);
+
+                    Context context = fragment.getActivity();
+                    if (context != null) {
+                        PackageManager packageManager = context.getPackageManager();
+                        String packageName = context.getPackageName();
+
+                        final int permissionCount = permissions.length;
+                        for (int i = 0; i < permissionCount; i++) {
+                            grantResults[i] = packageManager.checkPermission(
+                                    permissions[i], packageName);
+                        }
+                    } else {
+                        Arrays.fill(grantResults, PackageManager.PERMISSION_DENIED);
+                    }
+
                     ((OnRequestPermissionsResultCallback) fragment).onRequestPermissionsResult(
                             requestCode, permissions, grantResults);
                 }
@@ -59,7 +74,7 @@ public class FragmentCompat {
             return false;
         }
     }
- 
+
     static class ICSFragmentCompatImpl extends BaseFragmentCompatImpl {
         @Override
         public void setMenuVisibility(Fragment f, boolean visible) {
