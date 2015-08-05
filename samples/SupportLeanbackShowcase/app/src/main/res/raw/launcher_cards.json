@@ -10,13 +10,6 @@
         "description": "Showcase of various card design and layouts"
       },
       {
-        "id": 1,
-        "type": "DEFAULT",
-        "title": "Browsing Examples",
-        "localImageResource": "thumbnail_example_browse",
-        "description": "Showcase of various card design and layouts"
-      },
-      {
         "id": 2,
         "type": "DEFAULT",
         "title": "Grid Examples",

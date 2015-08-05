@@ -98,7 +98,7 @@ public class MainFragment extends BrowseFragment {
 
     private void createRows() {
         String json = Utils
-                .inputStreamToString(getResources().openRawResource(R.raw.cards_launcher));
+                .inputStreamToString(getResources().openRawResource(R.raw.launcher_cards));
         CardRow[] rows = new Gson().fromJson(json, CardRow[].class);
         for (CardRow row : rows) {
             mRowsAdapter.add(createCardRow(row));
