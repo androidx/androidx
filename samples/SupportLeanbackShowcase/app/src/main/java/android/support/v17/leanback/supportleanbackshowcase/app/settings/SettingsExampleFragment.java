@@ -18,7 +18,6 @@ import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v14.preference.PreferenceFragment;
-import android.support.v17.leanback.supportleanbackshowcase.utils.Constants;
 import android.support.v17.leanback.supportleanbackshowcase.R;
 import android.support.v17.preference.LeanbackPreferenceFragment;
 import android.support.v17.preference.LeanbackSettingsFragment;
@@ -26,13 +25,13 @@ import android.support.v7.preference.DialogPreference;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceScreen;
-import android.util.Log;
+import android.widget.Toast;
 
+import java.util.Arrays;
 import java.util.Stack;
 
 public class SettingsExampleFragment extends LeanbackSettingsFragment implements DialogPreference.TargetFragment {
 
-    public static final String TAG = "SettingsExampleFragment";
     private final Stack<Fragment> fragments = new Stack<Fragment>();
 
     @Override
@@ -50,12 +49,6 @@ public class SettingsExampleFragment extends LeanbackSettingsFragment implements
     public boolean onPreferenceStartScreen(PreferenceFragment preferenceFragment,
                                            PreferenceScreen preferenceScreen) {
         PreferenceFragment frag = buildPreferenceFragment(R.xml.prefs, preferenceScreen.getKey());
-        if ("prefs_wifi_screen_key".equals(preferenceScreen.getKey())) {
-            ListPreference pref = (ListPreference)preferenceScreen.findPreference("prefs_wifi_key");
-            pref.setEntries(new String[] {"Wi-Fi Network 01"});
-            pref.setEntryValues(new String[] {"01"});
-            if (Constants.LOCAL_LOGD) Log.d(TAG, "pref: " + pref);
-        }
         startPreferenceFragment(frag);
         return true;
     }
@@ -85,6 +78,18 @@ public class SettingsExampleFragment extends LeanbackSettingsFragment implements
             } else {
                 setPreferencesFromResource(prefResId, root);
             }
+        }
+
+        @Override
+        public boolean onPreferenceTreeClick(Preference preference) {
+            final String[] keys = {"prefs_wifi_connect_wps", "prefs_date", "prefs_time",
+                    "prefs_date_time_use_timezone", "app_banner_sample_app", "pref_force_stop",
+                    "pref_uninstall", "pref_more_info"};
+            if (Arrays.asList(keys).contains(preference.getKey())) {
+                Toast.makeText(getActivity(), "Implement your own action handler.", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+            return super.onPreferenceTreeClick(preference);
         }
 
         @Override

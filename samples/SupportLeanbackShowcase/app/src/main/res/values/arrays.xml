@@ -33,4 +33,12 @@
         <item>This description becomes visible only on focus.</item>
         <item>This description becomes visible only on focus.</item>
     </array>
+    <array name="pref_wifi_networks">
+        <item>Wi-Fi network 1</item>
+        <item>Wi-Fi network 2</item>
+        <item>Wi-Fi network 3</item>
+        <item>Wi-Fi network 4</item>
+        <item>Wi-Fi network 5</item>
+        <item>Wi-Fi network 6</item>
+    </array>
 </resources>

@@ -42,6 +42,10 @@
         <item name="android:visibility">invisible</item>
     </style>
 
+    <style name="MovieCardContentStyle" parent="Widget.Leanback.ImageCardView.ContentStyle">
+        <item name="android:gravity">right</item>
+    </style>
+
     <style name="MovieCardImageStyle" parent="Widget.Leanback.ImageCardView.ImageStyle">
         <item name="android:layout_width">@dimen/movie_image_card_width</item>
         <item name="android:layout_height">@dimen/movie_image_card_height</item>
@@ -55,6 +59,7 @@
     <style name="MovieCardCompleteStyle" parent="MovieCardSimpleStyle">
         <item name="lbImageCardViewTitleStyle">@style/MovieCardTitleTwoLineStyle</item>
         <item name="lbImageCardViewBadgeStyle">@style/MovieCardBadgeStyle</item>
+        <item name="lbImageCardViewContentStyle">@style/MovieCardContentStyle</item>
         <item name="lbImageCardViewType">Title|Content|IconOnLeft</item>
     </style>
 

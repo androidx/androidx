@@ -23,9 +23,13 @@
         <item name="android:windowAllowReturnTransitionOverlap">true</item>
         <item name="android:windowAllowEnterTransitionOverlap">true</item>
         <item name="android:windowContentTransitions">true</item>
-        <item name="android:colorPrimary">@color/search_color</item>
+        <item name="android:colorPrimary">#00A2B8</item>
         <item name="android:colorAccent">@color/accent</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14</item>
+    </style>
+
+    <style name="Theme.Example.LeanbackLauncher" parent="Theme.Example.Leanback">
+        <item name="browseRowsMarginTop">275dp</item>
     </style>
 
     <style name="Theme.Example.LeanbackWizard" parent="Theme.Leanback.GuidedStep">

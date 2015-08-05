@@ -16,11 +16,12 @@
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
-                android:background="@drawable/background_canyon"
                 android:layout_height="match_parent">
-    <fragment
-        android:id="@+id/detailsFragment"
-        android:name="android.support.v17.leanback.supportleanbackshowcase.app.details.DetailViewExampleFragment"
+
+    <RelativeLayout
+        android:id="@+id/videoFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></fragment>
+        android:layout_height="match_parent">
+
+    </RelativeLayout>
 </RelativeLayout>

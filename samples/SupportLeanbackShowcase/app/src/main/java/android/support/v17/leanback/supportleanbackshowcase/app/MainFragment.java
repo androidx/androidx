@@ -14,29 +14,23 @@
 
 package android.support.v17.leanback.supportleanbackshowcase.app;
 
-import android.app.Fragment;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.v17.leanback.app.BackgroundManager;
 import android.support.v17.leanback.app.BrowseFragment;
+import android.support.v17.leanback.supportleanbackshowcase.R;
+import android.support.v17.leanback.supportleanbackshowcase.app.cards.CardExampleActivity;
 import android.support.v17.leanback.supportleanbackshowcase.app.details.DetailViewExampleActivity;
 import android.support.v17.leanback.supportleanbackshowcase.app.dialog.DialogExampleActivity;
-import android.support.v17.leanback.supportleanbackshowcase.app.media.MusicConsumptionExampleFragment;
-import android.support.v17.leanback.supportleanbackshowcase.app.media.VideoConsumptionExampleFragment;
-import android.support.v17.leanback.supportleanbackshowcase.app.media.VideoSurfaceFragment;
+import android.support.v17.leanback.supportleanbackshowcase.app.grid.GridExampleActivity;
+import android.support.v17.leanback.supportleanbackshowcase.app.media.MusicExampleActivity;
+import android.support.v17.leanback.supportleanbackshowcase.app.media.VideoExampleActivity;
 import android.support.v17.leanback.supportleanbackshowcase.app.settings.SettingsExampleActivity;
 import android.support.v17.leanback.supportleanbackshowcase.app.wizard.WizardExampleActivity;
-import android.support.v17.leanback.supportleanbackshowcase.utils.Constants;
-import android.support.v17.leanback.supportleanbackshowcase.models.Movie;
-import android.support.v17.leanback.supportleanbackshowcase.utils.PicassoBackgroundManagerTarget;
-import android.support.v17.leanback.supportleanbackshowcase.R;
-import android.support.v17.leanback.supportleanbackshowcase.utils.Utils;
+import android.support.v17.leanback.supportleanbackshowcase.cards.presenters.CardPresenterSelector;
 import android.support.v17.leanback.supportleanbackshowcase.models.Card;
 import android.support.v17.leanback.supportleanbackshowcase.models.CardRow;
-import android.support.v17.leanback.supportleanbackshowcase.cards.presenters.CardPresenterSelector;
+import android.support.v17.leanback.supportleanbackshowcase.models.Movie;
+import android.support.v17.leanback.supportleanbackshowcase.utils.Utils;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
@@ -46,48 +40,21 @@ import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
-import android.util.DisplayMetrics;
-import android.util.Log;
 
 import com.google.gson.Gson;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
-
-import java.net.URI;
-import java.util.Timer;
-import java.util.TimerTask;
 
 
 public class MainFragment extends BrowseFragment {
 
-    public static final String VIDEO_SURFACE_FRAGMENT_TAG = "VIDEO_SURFACE";
-    private static final String TAG = "MainFragment";
-    private static final int BACKGROUND_UPDATE_DELAY = 300;
-    private static final int DEFAULT_BACKGROUND_IMAGE = R.drawable.default_background;
-    private final Handler mHandler = new Handler();
     private ArrayObjectAdapter mRowsAdapter;
-    private Target mBackgroundTarget;
-    private Timer mBackgroundTimer;
-    private URI mBackgroundURI;
-    private BackgroundManager mBackgroundManager;
-    private DisplayMetrics mMetrics;
 
-    @Override public void onActivityCreated(Bundle savedInstanceState) {
-        if (Constants.LOCAL_LOGD) Log.d(TAG, "onActivityCreated");
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        setupBackgroundManager();
         setupUIElements();
         setupRowAdapter();
         setupEventListeners();
-    }
-
-    @Override public void onDestroy() {
-        super.onDestroy();
-        if (null != mBackgroundTimer) {
-            if (Constants.LOCAL_LOGD) Log.d(TAG, "onDestroy: " + mBackgroundTimer.toString());
-            mBackgroundTimer.cancel();
-        }
     }
 
     private void setupRowAdapter() {
@@ -114,18 +81,6 @@ public class MainFragment extends BrowseFragment {
         return new ListRow(listRowAdapter);
     }
 
-    private void setupBackgroundManager() {
-        mBackgroundManager = BackgroundManager.getInstance(getActivity());
-        mBackgroundManager.setThemeDrawableResourceId(DEFAULT_BACKGROUND_IMAGE);
-        mBackgroundManager.attach(getActivity().getWindow());
-
-        mBackgroundTarget = new PicassoBackgroundManagerTarget(mBackgroundManager);
-        mMetrics = new DisplayMetrics();
-        getActivity().getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
-        getView().setBackgroundResource(R.drawable.bg_living_room_wide);
-        //updateBackgroundImage(R.drawable.bg_living_room_wide);
-    }
-
     private void setupUIElements() {
         setTitle(getString(R.string.browse_title));
         setBadgeDrawable(getResources().getDrawable(R.drawable.title_android_tv, null));
@@ -139,53 +94,24 @@ public class MainFragment extends BrowseFragment {
         setOnItemViewSelectedListener(new ItemViewSelectedListener());
     }
 
-    protected void updateBackgroundImage(URI uri) {
-        // Deactivated until we decide whether to load a background image from an URL or resource. @hahnr
-        if (true) return;
-        Picasso.with(getActivity()).load(uri.toString())
-               .resize(mMetrics.widthPixels, mMetrics.heightPixels).centerCrop()
-               .error(DEFAULT_BACKGROUND_IMAGE).into(mBackgroundTarget);
-    }
-
-    protected void updateBackgroundImage(Drawable drawable) {
-        mBackgroundManager.setDrawable(drawable);
-    }
-
-    protected void updateBackgroundImage(int resId) {
-        mBackgroundManager.setDrawable(getResources().getDrawable(resId, null));
-    }
-
-    private void startBackgroundTimer() {
-        if (null != mBackgroundTimer) {
-            mBackgroundTimer.cancel();
-        }
-        mBackgroundTimer = new Timer();
-        mBackgroundTimer.schedule(new UpdateBackgroundTask(), BACKGROUND_UPDATE_DELAY);
-    }
-
     private final class ItemViewClickedListener implements OnItemViewClickedListener {
 
-        @Override public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
-                                            RowPresenter.ViewHolder rowViewHolder, Row row) {
+        @Override
+        public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                                  RowPresenter.ViewHolder rowViewHolder, Row row) {
             Card card = (Card) item;
             int id = card.getId();
             switch (id) {
                 case 0: {
-                    updateBackgroundImage(new ColorDrawable(
-                            getResources().getColor(R.color.card_examples_background)));
-                    Fragment fragment = new CardExampleFragment();
-                    getFragmentManager().beginTransaction()
-                                        .replace(R.id.fragmentContainer, fragment)
-                                        .addToBackStack(null).commit();
+                    Intent intent = new Intent(getActivity().getBaseContext(),
+                            CardExampleActivity.class);
+                    startActivity(intent);
                     break;
                 }
                 case 2: {
-                    updateBackgroundImage(
-                            getResources().getDrawable(R.drawable.background_canyon, null));
-                    Fragment fragment = new GridExample();
-                    getFragmentManager().beginTransaction()
-                                        .replace(R.id.fragmentContainer, fragment)
-                                        .addToBackStack(null).commit();
+                    Intent intent = new Intent(getActivity().getBaseContext(),
+                            GridExampleActivity.class);
+                    startActivity(intent);
                     break;
                 }
                 case 3: {
@@ -195,23 +121,15 @@ public class MainFragment extends BrowseFragment {
                     break;
                 }
                 case 4: {
-                    updateBackgroundImage(
-                            getResources().getDrawable(R.drawable.background_canyon, null));
-                    Fragment fragment = new VideoConsumptionExampleFragment();
-                    getFragmentManager().beginTransaction()
-                                        .replace(R.id.fragmentContainer, new VideoSurfaceFragment(),
-                                                 VIDEO_SURFACE_FRAGMENT_TAG)
-                                        .add(R.id.fragmentContainer, fragment).addToBackStack(null)
-                                        .commit();
+                    Intent intent = new Intent(getActivity().getBaseContext(),
+                            VideoExampleActivity.class);
+                    startActivity(intent);
                     break;
                 }
                 case 5: {
-                    updateBackgroundImage(
-                            getResources().getDrawable(R.drawable.background_sax, null));
-                    Fragment fragment = new MusicConsumptionExampleFragment();
-                    getFragmentManager().beginTransaction()
-                                        .replace(R.id.fragmentContainer, fragment)
-                                        .addToBackStack(null).commit();
+                    Intent intent = new Intent(getActivity().getBaseContext(),
+                            MusicExampleActivity.class);
+                    startActivity(intent);
                     break;
                 }
                 case 6: {
@@ -254,21 +172,9 @@ public class MainFragment extends BrowseFragment {
 
     private final class ItemViewSelectedListener implements OnItemViewSelectedListener {
 
-        @Override public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
-                                             RowPresenter.ViewHolder rowViewHolder, Row row) {
-        }
-    }
-
-    private class UpdateBackgroundTask extends TimerTask {
-
-        @Override public void run() {
-            mHandler.post(new Runnable() {
-                @Override public void run() {
-                    if (mBackgroundURI != null) {
-                        updateBackgroundImage(mBackgroundURI);
-                    }
-                }
-            });
+        @Override
+        public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
+                                   RowPresenter.ViewHolder rowViewHolder, Row row) {
         }
     }
 }

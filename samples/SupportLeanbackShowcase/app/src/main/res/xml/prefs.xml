@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+                  xmlns:app="http://schemas.android.com/apk/res-auto"
                   android:summary="This is a dummy activitiy only to show case how to build a settings in an application. Changing configurations in this example doesn't affect anything."
                   android:title="Settings Example">
     <PreferenceScreen
@@ -11,14 +12,19 @@
             android:title="Available Wi-Fi networks">
             <ListPreference
                 android:defaultValue="-1"
-                android:title="More Wi-Fi networks"
+                android:entries="@array/pref_wifi_networks"
+                android:entryValues="@array/pref_wifi_networks"
+                android:title="Available Wi-Fi networks"
                 android:key="prefs_wifi_key">
             </ListPreference>
         </PreferenceCategory>
         <PreferenceCategory
             android:key="prefs_wifi_others_key"
             android:title="Other options">
-            <Preference android:title="Connect via WPS"><!-- You can use Intents here --></Preference>
+            <Preference
+                android:title="Connect via WPS"
+                android:key="prefs_wifi_connect_wps"><!-- You can use Intents here -->
+            </Preference>
         </PreferenceCategory>
     </PreferenceScreen>
     <PreferenceScreen
@@ -53,18 +59,15 @@
             android:summary="GMT 07:00 Pacific Daylight Time"
             android:title="Time zone"></Preference>
     </PreferenceScreen>
-    <PreferenceScreen
+    <ListPreference
+        android:defaultValue="everyone"
         android:icon="@drawable/ic_settings_parental_control"
-        android:key="prefs_parental_control_screen_key"
+        android:entries="@array/pref_parent_control_entries"
+        android:entryValues="@array/pref_parent_control_entries_values"
+        android:key="prefs_parental_control_level_key"
+        android:dialogMessage="Allow contents rated for"
         android:title="Parental Control">
-        <ListPreference
-            android:defaultValue="everyone"
-            android:entries="@array/pref_parent_control_entries"
-            android:entryValues="@array/pref_parent_control_entries_values"
-            android:key="prefs_parental_control_level_key"
-            android:title="Allow contents rated for">
-        </ListPreference>
-    </PreferenceScreen>
+    </ListPreference>
     <PreferenceScreen
         android:icon="@drawable/ic_settings_apps"
         android:key="prefs_apps_screen_key"
@@ -77,14 +80,34 @@
                 android:summary="Lorem ipsum dolor sit amet consectur adipiscing."
                 android:title="App permissions">
                 <Preference
-                    android:icon="@drawable/face_01"
+                    android:icon="@mipmap/app_banner_sample_app"
                     android:summary="45.5 MB"
+                    android:selectable="false"
                     android:title="Application A"></Preference>
-                <Preference android:summary="Hier steht ein voelligst sinnfreier Text den ja sowieso niemandhier lesen kann. Deshalb macht es auch keinen Unterschied ob hier sinnvolles und nicht so sinnvolles Zeug steht."></Preference>
-                <Preference android:title="Force Stop"><!-- Start an Intent --></Preference>
-                <Preference android:title="Uninstall"><!-- Start an Intent --></Preference>
-                <Preference android:title="More Information"></Preference>
+                <Preference
+                    android:selectable="false"
+                    android:summary="Hier steht ein voelligst sinnfreier Text den ja sowieso niemandhier lesen kann. Deshalb macht es auch keinen Unterschied ob hier sinnvolles und nicht so sinnvolles Zeug steht. Hm... Sasha, du kannst das vielleicht lesen und denkst dir jetzt auch, dass ich voll haengen geblieben bin, oder?... ^_^"></Preference>
+                <Preference
+                    android:title="Force Stop"
+                    android:key="pref_force_stop"><!-- Start an Intent --></Preference>
+                <Preference
+                    android:title="Uninstall"
+                    android:key="pref_uninstall"><!-- Start an Intent --></Preference>
+                <Preference
+                    android:title="More Information"
+                    android:key="pref_more_info"></Preference>
             </PreferenceScreen>
+        </PreferenceCategory>
+        <PreferenceCategory
+            android:key="prefs_app_downloaded_apps_category"
+            android:title="Downloaded Apps">
+            <ListPreference
+                android:defaultValue="everyone"
+                android:entries="@array/pref_parent_control_entries"
+                android:entryValues="@array/pref_parent_control_entries_values"
+                android:key="prefs_parental_control_level_key"
+                android:title="Downloaded Apps">
+            </ListPreference>
         </PreferenceCategory>
     </PreferenceScreen>
 </PreferenceScreen>

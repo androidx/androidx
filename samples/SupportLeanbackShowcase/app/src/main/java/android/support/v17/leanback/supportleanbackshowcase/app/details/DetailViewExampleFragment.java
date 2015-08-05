@@ -148,7 +148,7 @@ public class DetailViewExampleFragment extends DetailsFragment implements OnItem
                     null);
             getView().setBackgroundColor(backgroundColor);
         } else {
-            getView().setBackgroundResource(R.drawable.background_canyon);
+            getView().setBackground(null);
         }
     }
 }

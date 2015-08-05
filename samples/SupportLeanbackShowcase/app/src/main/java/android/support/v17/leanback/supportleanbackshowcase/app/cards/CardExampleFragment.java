@@ -12,7 +12,7 @@
  * the License.
  */
 
-package android.support.v17.leanback.supportleanbackshowcase.app;
+package android.support.v17.leanback.supportleanbackshowcase.app.cards;
 
 import android.os.Bundle;
 import android.support.v17.leanback.app.BrowseFragment;
@@ -38,8 +38,6 @@ import com.google.gson.Gson;
  * display multiple card types.
  */
 public class CardExampleFragment extends BrowseFragment {
-
-    private static final String TAG = "CardExampleFragment";
 
     private ArrayObjectAdapter mRowsAdapter;
 

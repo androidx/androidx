@@ -37,12 +37,14 @@ public class VideoConsumptionExampleFragment extends PlaybackOverlayFragment imp
     private ArrayObjectAdapter mRowsAdapter;
     private MediaPlayerGlue mGlue;
 
-    @Override public void onCreate(Bundle savedInstanceState) {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mGlue = new VideoMediaPlayerGlue(getActivity(), this) {
 
-            @Override protected void onRowChanged(PlaybackControlsRow row) {
+            @Override
+            protected void onRowChanged(PlaybackControlsRow row) {
                 if (mRowsAdapter == null) return;
                 mRowsAdapter.notifyArrayItemRangeChanged(0, 1);
             }
@@ -55,10 +57,11 @@ public class VideoConsumptionExampleFragment extends PlaybackOverlayFragment imp
         mGlue.setMediaSource(URL);
 
         Fragment videoSurfaceFragment = getFragmentManager()
-                .findFragmentByTag(MainFragment.VIDEO_SURFACE_FRAGMENT_TAG);
+                .findFragmentByTag(VideoExampleActivity.VIDEO_SURFACE_FRAGMENT_TAG);
         SurfaceView surface = (SurfaceView) videoSurfaceFragment.getView();
         surface.getHolder().addCallback(new SurfaceHolder.Callback() {
-            @Override public void surfaceCreated(SurfaceHolder holder) {
+            @Override
+            public void surfaceCreated(SurfaceHolder holder) {
                 mGlue.setDisplay(holder);
             }
 
@@ -67,7 +70,8 @@ public class VideoConsumptionExampleFragment extends PlaybackOverlayFragment imp
                 // Nothing to do
             }
 
-            @Override public void surfaceDestroyed(SurfaceHolder holder) {
+            @Override
+            public void surfaceDestroyed(SurfaceHolder holder) {
             }
         });
 
@@ -75,12 +79,14 @@ public class VideoConsumptionExampleFragment extends PlaybackOverlayFragment imp
         addPlaybackControlsRow();
     }
 
-    @Override public void onStart() {
+    @Override
+    public void onStart() {
         super.onStart();
         mGlue.enableProgressUpdating(mGlue.hasValidMedia() && mGlue.isMediaPlaying());
     }
 
-    @Override public void onStop() {
+    @Override
+    public void onStop() {
         super.onStop();
         mGlue.enableProgressUpdating(false);
         mGlue.reset();
@@ -95,14 +101,16 @@ public class VideoConsumptionExampleFragment extends PlaybackOverlayFragment imp
         setOnItemViewClickedListener(this);
     }
 
-    @Override public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
-                                        RowPresenter.ViewHolder rowViewHolder, Row row) {
+    @Override
+    public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                              RowPresenter.ViewHolder rowViewHolder, Row row) {
         if (!(item instanceof Action)) return;
         mGlue.onActionClicked((Action) item);
     }
 
 
-    @Override public void onMediaFileFinishedPlaying(MediaPlayerGlue.MetaData metaData) {
+    @Override
+    public void onMediaFileFinishedPlaying(MediaPlayerGlue.MetaData metaData) {
         mGlue.startPlayback();
     }
 

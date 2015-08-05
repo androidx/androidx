@@ -12,7 +12,7 @@
  * the License.
  */
 
-package android.support.v17.leanback.supportleanbackshowcase.app;
+package android.support.v17.leanback.supportleanbackshowcase.app.grid;
 
 import android.os.Bundle;
 import android.support.v17.leanback.app.VerticalGridFragment;
@@ -32,9 +32,8 @@ import com.google.gson.Gson;
  */
 public class GridExample extends VerticalGridFragment {
 
-    private static final String TAG = "GridExample";
     private static final int COLUMNS = 4;
-    private static final int ZOOM_FACTOR = FocusHighlight.ZOOM_FACTOR_NONE;
+    private static final int ZOOM_FACTOR = FocusHighlight.ZOOM_FACTOR_MEDIUM;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
