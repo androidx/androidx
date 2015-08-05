@@ -132,7 +132,11 @@ public class ListRowPresenter extends RowPresenter {
         public void onAttachedToWindow(ItemBridgeAdapter.ViewHolder viewHolder) {
             if (mShadowOverlayHelper != null && mShadowOverlayHelper.needsOverlay()) {
                 int dimmedColor = mRowViewHolder.mColorDimmer.getPaint().getColor();
-                mShadowOverlayHelper.setOverlayColor(viewHolder.itemView, dimmedColor);
+                if (mShadowOverlayHelper.getWrapper() != null) {
+                    ((ShadowOverlayContainer) viewHolder.itemView).setOverlayColor(dimmedColor);
+                } else {
+                    ShadowOverlayHelper.setForegroundColor(viewHolder.itemView, dimmedColor);
+                }
             }
             mRowViewHolder.syncActivatedStatus(viewHolder.itemView);
         }
@@ -606,8 +610,15 @@ public class ListRowPresenter extends RowPresenter {
         if (mShadowOverlayHelper != null && mShadowOverlayHelper.needsOverlay()) {
             ViewHolder vh = (ViewHolder) holder;
             int dimmedColor = vh.mColorDimmer.getPaint().getColor();
-            for (int i = 0, count = vh.mGridView.getChildCount(); i < count; i++) {
-                mShadowOverlayHelper.setOverlayColor(vh.mGridView.getChildAt(i), dimmedColor);
+            if (mShadowOverlayHelper.getWrapper() != null) {
+                for (int i = 0, count = vh.mGridView.getChildCount(); i < count; i++) {
+                    ((ShadowOverlayContainer) vh.mGridView.getChildAt(i))
+                            .setOverlayColor(dimmedColor);
+                }
+            } else {
+                for (int i = 0, count = vh.mGridView.getChildCount(); i < count; i++) {
+                    ShadowOverlayHelper.setForegroundColor(vh.mGridView.getChildAt(i), dimmedColor);
+                }
             }
             if (vh.mGridView.getFadingLeftEdge()) {
                 vh.mGridView.invalidate();

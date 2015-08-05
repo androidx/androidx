@@ -31,6 +31,13 @@ public class VerticalGridPresenter extends Presenter {
 
     class VerticalGridItemBridgeAdapter extends ItemBridgeAdapter {
         @Override
+        protected void onCreate(ItemBridgeAdapter.ViewHolder viewHolder) {
+            if (mShadowOverlayHelper != null) {
+                mShadowOverlayHelper.onViewCreated(viewHolder.itemView);
+            }
+        }
+
+        @Override
         public void onBind(final ItemBridgeAdapter.ViewHolder itemViewHolder) {
             // Only when having an OnItemClickListner, we attach the OnClickListener.
             if (getOnItemViewClickedListener() != null) {
@@ -86,6 +93,7 @@ public class VerticalGridPresenter extends Presenter {
     private OnItemViewSelectedListener mOnItemViewSelectedListener;
     private OnItemViewClickedListener mOnItemViewClickedListener;
     private boolean mRoundedCornersEnabled = true;
+    private ShadowOverlayHelper mShadowOverlayHelper;
 
     /**
      * Constructs a VerticalGridPresenter with defaults.
@@ -170,7 +178,7 @@ public class VerticalGridPresenter extends Presenter {
      * Subclass may return false to disable.
      */
     public boolean isUsingDefaultShadow() {
-        return ShadowOverlayContainer.supportsShadow();
+        return ShadowOverlayHelper.supportsShadow();
     }
 
     /**
@@ -194,8 +202,7 @@ public class VerticalGridPresenter extends Presenter {
      * and does not use Z-shadow on SDK >= L, it should override isUsingZOrder() return false.
      */
     public boolean isUsingZOrder(Context context) {
-        return ShadowOverlayContainer.supportsDynamicShadow() &&
-                !Settings.getInstance(context).preferStaticShadows();
+        return !Settings.getInstance(context).preferStaticShadows();
     }
 
     final boolean needsDefaultShadow() {
@@ -238,21 +245,6 @@ public class VerticalGridPresenter extends Presenter {
         return new ViewHolder((VerticalGridView) root.findViewById(R.id.browse_grid));
     }
 
-    private ItemBridgeAdapter.Wrapper mWrapper = new ItemBridgeAdapter.Wrapper() {
-        @Override
-        public View createWrapper(View root) {
-            ShadowOverlayContainer wrapper = new ShadowOverlayContainer(root.getContext());
-            wrapper.setLayoutParams(
-                    new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-            wrapper.initialize(needsDefaultShadow(), true, areChildRoundedCornersEnabled());
-            return wrapper;
-        }
-        @Override
-        public void wrap(View wrapper, View wrapped) {
-            ((ShadowOverlayContainer) wrapper).wrap(wrapped);
-        }
-    };
-
     /**
      * Called after a {@link VerticalGridPresenter.ViewHolder} is created.
      * Subclasses may override this method and start by calling
@@ -268,12 +260,15 @@ public class VerticalGridPresenter extends Presenter {
         vh.getGridView().setNumColumns(mNumColumns);
         vh.mInitialized = true;
 
-        vh.mItemBridgeAdapter.setWrapper(mWrapper);
-        if (needsDefaultShadow() || areChildRoundedCornersEnabled()) {
-            ShadowOverlayContainer.prepareParentForShadow(vh.getGridView());
-            ((ViewGroup) vh.view).setClipChildren(false);
+        Context context = vh.mGridView.getContext();
+        if (mShadowOverlayHelper == null) {
+            mShadowOverlayHelper = new ShadowOverlayHelper(context, mUseFocusDimmer,
+                    needsDefaultShadow(), areChildRoundedCornersEnabled(), isUsingZOrder(context));
         }
-        vh.getGridView().setFocusDrawingOrderEnabled(!isUsingZOrder(vh.getGridView().getContext()));
+        vh.mItemBridgeAdapter.setWrapper(mShadowOverlayHelper.getWrapper());
+        mShadowOverlayHelper.prepareParentForShadow(vh.mGridView);
+        vh.getGridView().setFocusDrawingOrderEnabled(mShadowOverlayHelper.getShadowType()
+                == ShadowOverlayHelper.SHADOW_STATIC);
         FocusHighlightHelper.setupBrowseItemFocusHighlight(vh.mItemBridgeAdapter,
                 mFocusZoomFactor, mUseFocusDimmer);
 
