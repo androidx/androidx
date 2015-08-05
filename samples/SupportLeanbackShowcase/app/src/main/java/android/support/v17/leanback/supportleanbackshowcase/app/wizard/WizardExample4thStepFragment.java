@@ -24,7 +24,9 @@ import android.widget.Toast;
 import java.util.List;
 
 /**
- * TODO: JavaDoc
+ * The last screen of the Wizard gives to options to either watch the rented movie now or later. Due
+ * to keep this example simple and focused on the usage of the GuidedStepFragment, clicking on
+ * either action will end the wizard. You might however start a new Activity playing the movie.
  */
 public class WizardExample4thStepFragment extends WizardExampleBaseStepFragment {
 

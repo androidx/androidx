@@ -24,7 +24,8 @@ import android.support.v17.leanback.widget.GuidedAction;
 import java.util.List;
 
 /**
- * TODO: JavaDoc
+ * The first screen of the rental wizard. Gives the user the choice between renting the movie in SD
+ * or HD quality.
  */
 public class WizardExample1stStepFragment extends WizardExampleBaseStepFragment {
 
@@ -66,10 +67,8 @@ public class WizardExample1stStepFragment extends WizardExampleBaseStepFragment 
 
     @Override
     public void onGuidedActionClicked(GuidedAction action) {
-        GuidedStepFragment fragment = new WizardExample2ndStepFragment();
-        Bundle args = getArguments(); // Reuse the same arguments this fragment was given.
-        args.putBoolean("hd", ACTION_ID_BUY_HD == action.getId());
-        fragment.setArguments(args);
+        boolean rentHd = ACTION_ID_BUY_HD == action.getId();
+        GuidedStepFragment fragment = WizardExample2ndStepFragment.build(rentHd, this);
         add(getFragmentManager(), fragment);
     }
 }

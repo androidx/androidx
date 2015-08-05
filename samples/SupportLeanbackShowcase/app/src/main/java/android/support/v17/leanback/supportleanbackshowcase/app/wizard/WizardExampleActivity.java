@@ -21,7 +21,7 @@ import android.support.v17.leanback.app.GuidedStepFragment;
 import android.support.v17.leanback.supportleanbackshowcase.R;
 
 /**
- * TODO: Javadoc
+ * An Activity displaying a wizard for renting a movie.
  */
 public class WizardExampleActivity extends Activity {
 

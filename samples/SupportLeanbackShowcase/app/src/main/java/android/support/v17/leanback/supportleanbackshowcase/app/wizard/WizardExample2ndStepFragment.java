@@ -28,12 +28,22 @@ import android.widget.Toast;
 import java.util.List;
 
 /**
- * TODO: JavaDoc
+ * Displays the second screen of the rental wizard which requires the user to confirm his purchase.
  */
 public class WizardExample2ndStepFragment extends WizardExampleBaseStepFragment {
 
+    private static final String ARG_HD = "hd";
     private static final int ACTION_ID_CONFIRM = 1;
     private static final int ACTION_ID_PAYMENT_METHOD = ACTION_ID_CONFIRM + 1;
+
+    public static GuidedStepFragment build(boolean hd, WizardExampleBaseStepFragment previousFragment) {
+        GuidedStepFragment fragment = new WizardExample2ndStepFragment();
+        // Reuse the same arguments this fragment was given.
+        Bundle args = previousFragment.getArguments();
+        args.putBoolean(ARG_HD, hd);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -51,34 +61,8 @@ public class WizardExample2ndStepFragment extends WizardExampleBaseStepFragment 
     }
 
     @Override
-    public GuidedActionsStylist onCreateActionsStylist() {
-        GuidedActionsStylist stylist = new GuidedActionsStylist() {
-
-            @Override
-            public void onBindViewHolder(ViewHolder vh, GuidedAction action) {
-                super.onBindViewHolder(vh, action);
-
-                if (ACTION_ID_CONFIRM == action.getId()) {
-                    Drawable background = getResources().getDrawable(
-                            R.drawable.wizard_important_action_item_background, null);
-                    vh.view.setBackground(background);
-                    vh.getTitleView().setTextColor(Color.parseColor("#666666"));
-                    vh.getDescriptionView().setTextColor(Color.parseColor("#666666"));
-                } else {
-                    vh.view.setBackground(null);
-                    vh.getTitleView().setTextColor(getResources().getColor(android.support.v17.leanback.R.color.lb_guidedactions_item_unselected_text_color,
-                            getActivity().getTheme()));
-                    vh.getDescriptionView().setTextColor(getResources().getColor(android.support.v17.leanback.R.color.lb_guidedactions_item_unselected_text_color,
-                            getActivity().getTheme()));
-                }
-            }
-        };
-        return stylist;
-    }
-
-    @Override
     public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
-        boolean rentHighDefinition = getArguments().getBoolean("hd");
+        boolean rentHighDefinition = getArguments().getBoolean(ARG_HD);
 
         GuidedAction action = new GuidedAction.Builder()
                 .id(ACTION_ID_CONFIRM)
@@ -89,7 +73,7 @@ public class WizardExample2ndStepFragment extends WizardExampleBaseStepFragment 
         action = new GuidedAction.Builder()
                 .id(ACTION_ID_PAYMENT_METHOD)
                 .title(getString(R.string.wizard_example_payment_method))
-                .description("Visa - 1234 Balance $60.00")
+                .description(getString(R.string.wizard_example_visa_balance))
                 .build();
         actions.add(action);
     }

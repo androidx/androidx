@@ -85,4 +85,6 @@
     <string name="wizard_example_watch_now">Watch now</string>
     <string name="wizard_example_later">Later</string>
     <string name="wizard_example_watch_now_clicked">\'Watch now\' clicked.</string>
+    <string name="wizard_example_visa_balance">Visa - 1234 Balance $60.00</string>
+    <string name="wizard_example_just_a_second">Just a second...</string>
 </resources>

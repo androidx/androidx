@@ -26,7 +26,9 @@ import android.support.v17.leanback.widget.GuidedActionsStylist;
 import java.util.List;
 
 /**
- * TODO: JavaDoc
+ * This is the third screen of the rental wizard which will display a progressbar while waiting for
+ * the server to process the rental. The server communication is faked for the sake of this example
+ * by waiting four seconds until continuing.
  */
 public class WizardExample3rdStepFragment extends WizardExampleBaseStepFragment {
 
@@ -75,7 +77,7 @@ public class WizardExample3rdStepFragment extends WizardExampleBaseStepFragment 
     @Override
     public GuidanceStylist.Guidance onCreateGuidance(Bundle savedInstanceState) {
         GuidanceStylist.Guidance guidance = new GuidanceStylist.Guidance(mMovie.getTitle(),
-                "Just a second...",
+                getString(R.string.wizard_example_just_a_second),
                 mMovie.getBreadcrump(), null);
         return guidance;
     }

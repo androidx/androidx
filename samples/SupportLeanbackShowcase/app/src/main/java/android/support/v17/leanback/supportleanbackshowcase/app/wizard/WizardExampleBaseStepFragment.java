@@ -20,9 +20,10 @@ import android.support.v17.leanback.supportleanbackshowcase.models.Movie;
 import android.support.v17.leanback.supportleanbackshowcase.R;
 
 /**
- * TODO: JavaDoc
+ * A base class which provides all it's implementations with a method #getWizardActivity(). It also
+ * makes sure that the wizard is using the correct theme.
  */
-public class WizardExampleBaseStepFragment extends GuidedStepFragment {
+public abstract class WizardExampleBaseStepFragment extends GuidedStepFragment {
 
     protected Movie mMovie;
 
@@ -35,12 +36,12 @@ public class WizardExampleBaseStepFragment extends GuidedStepFragment {
         if (!(getActivity() instanceof WizardExampleActivity)) {
             throw new IllegalStateException(WizardExampleActivity.class.getName() + " expected.");
         }
-        return (WizardExampleActivity)getActivity();
+        return (WizardExampleActivity) getActivity();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        mMovie = (Movie)getArguments().getSerializable("movie");
+        mMovie = (Movie) getArguments().getSerializable("movie");
         super.onCreate(savedInstanceState);
     }
 }
