@@ -54,6 +54,8 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
     boolean mIsFloating;
     // true if this activity has no title
     boolean mWindowNoTitle;
+    // true if the theme has been read
+    boolean mThemeRead;
 
     private CharSequence mTitle;
 
@@ -106,13 +108,11 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         TypedArray a = mContext.obtainStyledAttributes(R.styleable.Theme);
-
         if (!a.hasValue(R.styleable.Theme_windowActionBar)) {
             a.recycle();
             throw new IllegalStateException(
                     "You need to use a Theme.AppCompat theme (or descendant) with this activity.");
         }
-
         if (a.getBoolean(R.styleable.Theme_windowNoTitle, false)) {
             requestWindowFeature(Window.FEATURE_NO_TITLE);
         } else if (a.getBoolean(R.styleable.Theme_windowActionBar, false)) {
@@ -127,6 +127,7 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
         }
         mIsFloating = a.getBoolean(R.styleable.Theme_android_windowIsFloating, false);
         a.recycle();
+        mThemeRead = true;
     }
 
     // Methods used to create and respond to options menu
