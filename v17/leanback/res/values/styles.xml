@@ -87,7 +87,8 @@
     <style name="Widget.Leanback" parent="Widget.LeanbackBase" />
 
     <style name="Widget.Leanback.BaseCardViewStyle">
-        <item name="android:foreground">@drawable/lb_card_foreground</item>
+        <item name="cardForeground">@drawable/lb_card_foreground</item>
+        <item name="cardBackground">@color/lb_basic_card_bg_color</item>
     </style>
 
     <style name="Widget.Leanback.TitleView" >
@@ -100,7 +101,6 @@
     <style name="Widget.Leanback.ImageCardViewStyle" parent="Widget.Leanback.BaseCardViewStyle">
         <item name="cardType">infoUnder</item>
         <item name="infoVisibility">activated</item>
-        <item name="android:background">@color/lb_basic_card_bg_color</item>
         <!-- In order to keep backward compatibility we have to create an icon on right. -->
         <item name="lbImageCardViewType">Title|Content|IconOnRight</item>
         <item name="lbImageCardViewImageStyle">@style/Widget.Leanback.ImageCardView.ImageStyle</item>
@@ -121,7 +121,6 @@
         <item name="android:contentDescription">@null</item>
         <item name="android:scaleType">centerCrop</item>
         <item name="layout_viewType">main</item>
-        <item name="android:background">@null</item>
     </style>
 
     <style name="Widget.Leanback.ImageCardView.InfoAreaStyle">
@@ -146,7 +145,6 @@
         <item name="android:textColor">@color/lb_basic_card_title_text_color</item>
         <item name="android:textSize">@dimen/lb_basic_card_title_text_size</item>
         <item name="android:ellipsize">end</item>
-        <item name="android:background">@null</item>
     </style>
 
     <style name="Widget.Leanback.ImageCardView.ContentStyle">
@@ -161,7 +159,6 @@
         <item name="android:textColor">@color/lb_basic_card_content_text_color</item>
         <item name="android:textSize">@dimen/lb_basic_card_content_text_size</item>
         <item name="android:ellipsize">none</item>
-        <item name="android:background">@null</item>
     </style>
 
     <style name="Widget.Leanback.ImageCardView.BadgeStyle">
@@ -170,7 +167,6 @@
         <item name="android:layout_height">@dimen/lb_basic_card_info_badge_size</item>
         <item name="android:contentDescription">@null</item>
         <item name="android:scaleType">fitCenter</item>
-        <item name="android:background">@null</item>
     </style>
 
     <style name="Widget.Leanback.Title" />
