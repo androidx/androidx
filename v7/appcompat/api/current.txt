@@ -478,6 +478,7 @@ package android.support.v7.appcompat {
     field public static int searchHintIcon;
     field public static int searchIcon;
     field public static int searchViewStyle;
+    field public static int seekBarStyle;
     field public static int selectableItemBackground;
     field public static int selectableItemBackgroundBorderless;
     field public static int showAsAction;
@@ -666,6 +667,8 @@ package android.support.v7.appcompat {
     field public static int abc_panel_menu_list_width;
     field public static int abc_search_view_preferred_width;
     field public static int abc_search_view_text_min_width;
+    field public static int abc_seekbar_track_background_height_material;
+    field public static int abc_seekbar_track_progress_height_material;
     field public static int abc_switch_padding;
     field public static int abc_text_size_body_1_material;
     field public static int abc_text_size_body_2_material;
@@ -750,6 +753,13 @@ package android.support.v7.appcompat {
     field public static int abc_menu_hardkey_panel_mtrl_mult;
     field public static int abc_popup_background_mtrl_mult;
     field public static int abc_ratingbar_full_material;
+    field public static int abc_scrubber_control_off_mtrl_alpha;
+    field public static int abc_scrubber_control_to_pressed_mtrl_000;
+    field public static int abc_scrubber_control_to_pressed_mtrl_005;
+    field public static int abc_scrubber_primary_mtrl_alpha;
+    field public static int abc_scrubber_track_mtrl_alpha;
+    field public static int abc_seekbar_thumb_material;
+    field public static int abc_seekbar_track_material;
     field public static int abc_spinner_mtrl_am_alpha;
     field public static int abc_spinner_textfield_background_material;
     field public static int abc_switch_thumb_material;
@@ -1071,6 +1081,7 @@ package android.support.v7.appcompat {
     field public static int Base_Widget_AppCompat_RatingBar;
     field public static int Base_Widget_AppCompat_SearchView;
     field public static int Base_Widget_AppCompat_SearchView_ActionBar;
+    field public static int Base_Widget_AppCompat_SeekBar;
     field public static int Base_Widget_AppCompat_Spinner;
     field public static int Base_Widget_AppCompat_Spinner_Underlined;
     field public static int Base_Widget_AppCompat_TextView_SpinnerItem;
@@ -1229,6 +1240,7 @@ package android.support.v7.appcompat {
     field public static int Widget_AppCompat_RatingBar;
     field public static int Widget_AppCompat_SearchView;
     field public static int Widget_AppCompat_SearchView_ActionBar;
+    field public static int Widget_AppCompat_SeekBar;
     field public static int Widget_AppCompat_Spinner;
     field public static int Widget_AppCompat_Spinner_DropDown;
     field public static int Widget_AppCompat_Spinner_DropDown_ActionBar;
@@ -1488,6 +1500,7 @@ package android.support.v7.appcompat {
     field public static int Theme_radioButtonStyle;
     field public static int Theme_ratingBarStyle;
     field public static int Theme_searchViewStyle;
+    field public static int Theme_seekBarStyle;
     field public static int Theme_selectableItemBackground;
     field public static int Theme_selectableItemBackgroundBorderless;
     field public static int Theme_spinnerDropDownItemStyle;
@@ -1711,6 +1724,12 @@ package android.support.v7.widget {
     ctor public AppCompatRatingBar(android.content.Context);
     ctor public AppCompatRatingBar(android.content.Context, android.util.AttributeSet);
     ctor public AppCompatRatingBar(android.content.Context, android.util.AttributeSet, int);
+  }
+
+  public class AppCompatSeekBar extends android.widget.SeekBar {
+    ctor public AppCompatSeekBar(android.content.Context);
+    ctor public AppCompatSeekBar(android.content.Context, android.util.AttributeSet);
+    ctor public AppCompatSeekBar(android.content.Context, android.util.AttributeSet, int);
   }
 
   public class AppCompatSpinner extends android.widget.Spinner {

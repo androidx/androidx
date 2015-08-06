@@ -224,6 +224,8 @@
 
     <style name="AlertDialog.AppCompat.Light" parent="Base.AlertDialog.AppCompat.Light" />
 
+    <style name="Widget.AppCompat.SeekBar" parent="Base.Widget.AppCompat.SeekBar" />
+
     <!-- Toolbar -->
 
     <style name="Widget.AppCompat.Toolbar" parent="Base.Widget.AppCompat.Toolbar" />

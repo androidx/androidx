@@ -172,6 +172,8 @@
 
     <style name="Base.Widget.AppCompat.RatingBar" parent="android:Widget.Material.RatingBar" />
 
+    <style name="Base.Widget.AppCompat.SeekBar" parent="android:Widget.Material.SeekBar" />
+
     <style name="Base.Widget.AppCompat.Button" parent="android:Widget.Material.Button" />
 
     <style name="Base.Widget.AppCompat.Button.Small" parent="android:Widget.Material.Button.Small" />
