@@ -382,6 +382,13 @@ public class FragmentActivity extends BaseFragmentActivityHoneycomb implements
     }
 
     /**
+     * Hook in to note that fragment state is no longer saved.
+     */
+    public void onStateNotSaved() {
+        mFragments.noteStateNotSaved();
+    }
+
+    /**
      * Dispatch onResume() to fragments.  Note that for better inter-operation
      * with older versions of the platform, at the point of this call the
      * fragments attached to the activity are <em>not</em> resumed.  This means
