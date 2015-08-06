@@ -17,20 +17,12 @@
 <resources>
     <style name="Widget.MediaRouter.MediaRouteButton"
             parent="Widget.AppCompat.ActionButton">
-        <item name="android:minWidth">56dp</item>
-        <item name="android:minHeight">48dp</item>
-        <item name="android:padding">0dp</item>
-        <item name="android:focusable">true</item>
         <item name="android:contentDescription">@string/mr_media_route_button_content_description</item>
         <item name="externalRouteEnabledDrawable">@drawable/mr_ic_media_route_mono_dark</item>
     </style>
 
     <style name="Widget.MediaRouter.Light.MediaRouteButton"
             parent="Widget.AppCompat.Light.ActionButton">
-        <item name="android:minWidth">56dp</item>
-        <item name="android:minHeight">48dp</item>
-        <item name="android:padding">0dp</item>
-        <item name="android:focusable">true</item>
         <item name="android:contentDescription">@string/mr_media_route_button_content_description</item>
         <item name="externalRouteEnabledDrawable">@drawable/mr_ic_media_route_mono_light</item>
     </style>
