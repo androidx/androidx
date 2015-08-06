@@ -81,7 +81,17 @@ import java.util.List;
  * </ul><p>
  * These view IDs are allowed to be missing, in which case the corresponding views in {@link
  * GuidedActionsStylist.ViewHolder} will be null.
+ * <p>
+ * In order to support editable actions, the view associated with guidedactions_item_title should
+ * be a subclass of {@link android.widget.EditText}, and should satisfy the {@link
+ * ImeKeyMonitor} interface.
  *
+ * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepEntryAnimation
+ * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepExitAnimation
+ * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepReentryAnimation
+ * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepReturnAnimation
+ * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepImeAppearingAnimation
+ * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepImeDisappearingAnimation
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsEntryAnimation
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsSelectorShowAnimation
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsSelectorHideAnimation
@@ -481,6 +491,24 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     public void onFragmentReturn(@NonNull List<Animator> animators) {
         animators.add(createAnimator(mActionsGridView, R.attr.guidedStepReturnAnimation));
         animators.add(createAnimator(mSelectorView, R.attr.guidedStepReturnAnimation));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onImeAppearing(@NonNull List<Animator> animators) {
+        animators.add(createAnimator(mActionsGridView, R.attr.guidedStepImeAppearingAnimation));
+        animators.add(createAnimator(mSelectorView, R.attr.guidedStepImeAppearingAnimation));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onImeDisappearing(@NonNull List<Animator> animators) {
+        animators.add(createAnimator(mActionsGridView, R.attr.guidedStepImeDisappearingAnimation));
+        animators.add(createAnimator(mSelectorView, R.attr.guidedStepImeDisappearingAnimation));
     }
 
     /*

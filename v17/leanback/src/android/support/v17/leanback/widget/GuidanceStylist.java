@@ -59,6 +59,8 @@ import java.util.List;
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepExitAnimation
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepReentryAnimation
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepReturnAnimation
+ * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepImeAppearingAnimation
+ * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepImeDisappearingAnimation
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidanceContainerStyle
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidanceTitleStyle
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidanceDescriptionStyle
@@ -278,6 +280,28 @@ public class GuidanceStylist implements FragmentAnimationProvider {
         addAnimator(animators, mBreadcrumbView, R.attr.guidedStepReturnAnimation);
         addAnimator(animators, mDescriptionView, R.attr.guidedStepReturnAnimation);
         addAnimator(animators, mIconView, R.attr.guidedStepReturnAnimation);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onImeAppearing(@NonNull List<Animator> animators) {
+        addAnimator(animators, mTitleView, R.attr.guidedStepImeAppearingAnimation);
+        addAnimator(animators, mBreadcrumbView, R.attr.guidedStepImeAppearingAnimation);
+        addAnimator(animators, mDescriptionView, R.attr.guidedStepImeAppearingAnimation);
+        addAnimator(animators, mIconView, R.attr.guidedStepImeAppearingAnimation);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onImeDisappearing(@NonNull List<Animator> animators) {
+        addAnimator(animators, mTitleView, R.attr.guidedStepImeDisappearingAnimation);
+        addAnimator(animators, mBreadcrumbView, R.attr.guidedStepImeDisappearingAnimation);
+        addAnimator(animators, mDescriptionView, R.attr.guidedStepImeDisappearingAnimation);
+        addAnimator(animators, mIconView, R.attr.guidedStepImeDisappearingAnimation);
     }
 
     private void addAnimator(List<Animator> animators, View v, int attrId) {

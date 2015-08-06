@@ -324,6 +324,14 @@
              fragment stack pop. Default is {@link
              android.support.v17.leanback.R.animator#lb_guidedstep_slide_out_to_end}. -->
         <attr name="guidedStepReturnAnimation" format="reference" />
+        <!-- Theme attribute for the animation used when a guided step element is animated in
+             response to the IME appearing. Default is {@link
+             android.support.v17.leanback.R.animator#lb_guidedstep_slide_up}. -->
+        <attr name="guidedStepImeAppearingAnimation" format="reference" />
+        <!-- Theme attribute for the animation used when a guided step element is animated in
+             response to the IME disappearing. Default is {@link
+             android.support.v17.leanback.R.animator#lb_guidedstep_slide_down}. -->
+        <attr name="guidedStepImeDisappearingAnimation" format="reference" />
 
         <!-- Theme attribute for the animation used when the guidance is animated in at activity
              start. Default is {@link android.support.v17.leanback.R.animator#lb_guidance_entry}.

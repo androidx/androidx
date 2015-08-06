@@ -34,7 +34,7 @@
         android:id="@+id/guidedactions_item_content"
         style="?attr/guidedActionItemContentStyle" >
 
-        <TextView
+        <android.support.v17.leanback.widget.LeanbackEditText
             android:id="@+id/guidedactions_item_title"
             style="?attr/guidedActionItemTitleStyle" />
 

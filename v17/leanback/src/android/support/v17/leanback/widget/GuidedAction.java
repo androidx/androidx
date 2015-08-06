@@ -50,6 +50,7 @@ public class GuidedAction extends Action {
         private boolean mMultilineDescription;
         private boolean mHasNext;
         private boolean mInfoOnly;
+        private boolean mEditable = false;
         private int mCheckSetId = NO_CHECK_SET;
         private boolean mEnabled = true;
         private Intent mIntent;
@@ -68,6 +69,7 @@ public class GuidedAction extends Action {
 
             // Subclass values
             action.mIntent = mIntent;
+            action.mEditable = mEditable;
             action.mChecked = mChecked;
             action.mCheckSetId = mCheckSetId;
             action.mMultilineDescription = mMultilineDescription;
@@ -138,11 +140,27 @@ public class GuidedAction extends Action {
         }
 
         /**
+         * Indicates whether this action is editable. Note: Editable actions cannot also be
+         * checked, or belong to a check set.
+         * @param editable Whether this action is editable.
+         */
+        public Builder editable(boolean editable) {
+            mEditable = editable;
+            if (mChecked || mCheckSetId != NO_CHECK_SET) {
+                throw new IllegalArgumentException("Editable actions cannot also be checked");
+            }
+            return this;
+        }
+
+        /**
          * Indicates whether this action is initially checked.
          * @param checked Whether this action is checked.
          */
         public Builder checked(boolean checked) {
             mChecked = checked;
+            if (mEditable) {
+                throw new IllegalArgumentException("Editable actions cannot also be checked");
+            }
             return this;
         }
 
@@ -154,6 +172,9 @@ public class GuidedAction extends Action {
          */
         public Builder checkSetId(int checkSetId) {
             mCheckSetId = checkSetId;
+            if (mEditable) {
+                throw new IllegalArgumentException("Editable actions cannot also be in check sets");
+            }
             return this;
         }
 
@@ -195,9 +216,10 @@ public class GuidedAction extends Action {
         }
     }
 
-    private boolean mChecked;
+    private boolean mEditable;
     private boolean mMultilineDescription;
     private boolean mHasNext;
+    private boolean mChecked;
     private boolean mInfoOnly;
     private int mCheckSetId;
     private boolean mEnabled;
@@ -217,6 +239,14 @@ public class GuidedAction extends Action {
     }
 
     /**
+     * Returns the title of this action.
+     * @return The title set when this action was built.
+     */
+    public void setTitle(CharSequence title) {
+        setLabel1(title);
+    }
+
+    /**
      * Returns the description of this action.
      * @return The description set when this action was built.
      */
@@ -230,6 +260,14 @@ public class GuidedAction extends Action {
      */
     public Intent getIntent() {
         return mIntent;
+    }
+
+    /**
+     * Returns whether this action is editable.
+     * @return true if the action is editable, false otherwise.
+     */
+    public boolean isEditable() {
+        return mEditable;
     }
 
     /**
