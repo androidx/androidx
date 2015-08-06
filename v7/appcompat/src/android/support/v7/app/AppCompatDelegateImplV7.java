@@ -277,6 +277,12 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
 
     private void ensureSubDecor() {
         if (!mSubDecorInstalled) {
+            if (!mThemeRead) {
+                throw new IllegalStateException("AppCompat can not install it's decor before "
+                        + "reading the theme. This is usually caused by calling setContentView() "
+                        + "before super.onCreate().");
+            }
+
             final LayoutInflater inflater = LayoutInflater.from(mContext);
 
             if (!mWindowNoTitle) {
