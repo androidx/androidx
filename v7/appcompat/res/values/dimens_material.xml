@@ -68,4 +68,7 @@
     <item name="abc_disabled_alpha_material_light" format="float" type="dimen">0.26</item>
     <item name="abc_disabled_alpha_material_dark" format="float" type="dimen">0.30</item>
 
+    <dimen name="abc_seekbar_track_background_height_material">2dp</dimen>
+    <dimen name="abc_seekbar_track_progress_height_material">2dp</dimen>
+
 </resources>
