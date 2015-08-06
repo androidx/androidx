@@ -43,7 +43,7 @@ import android.widget.TextView;
  * 
  * <pre>
  * {@code <style name="CustomImageCardViewStyle" parent="Widget.Leanback.ImageCardViewStyle">
-        <item name="android:background">#F0F</item>
+        <item name="cardBackground">#F0F</item>
         <item name="lbImageCardViewType">Title|Content</item>
         <item name="lbImageCardViewInfoAreaStyle">@style/ImageCardViewColoredInfoArea</item>
         <item name="lbImageCardViewTitleStyle">@style/ImageCardViewColoredTitle</item>
