@@ -17,9 +17,9 @@
 package android.support.v4.graphics;
 
 import android.graphics.Color;
-import android.support.v4.graphics.ColorUtils;
 import android.test.AndroidTestCase;
 
+import java.lang.Integer;
 import java.util.ArrayList;
 
 /**
@@ -31,21 +31,31 @@ public class ColorUtilsTest extends AndroidTestCase {
     private static final float ALLOWED_OFFSET_HUE = 360 * 0.005f;
     private static final float ALLOWED_OFFSET_SATURATION = 0.005f;
     private static final float ALLOWED_OFFSET_LIGHTNESS = 0.005f;
+    private static final float ALLOWED_OFFSET_MIN_ALPHA = 0.01f;
 
     private static final int ALLOWED_OFFSET_RGB_COMPONENT = 2;
 
     private static final ArrayList<TestEntry> sEntryList = new ArrayList<>();
 
     static {
-        sEntryList.add(new TestEntry(Color.BLACK).setHsl(0f, 0f, 0f));
-        sEntryList.add(new TestEntry(Color.WHITE).setHsl(0f, 0f, 1f));
-        sEntryList.add(new TestEntry(Color.BLUE).setHsl(240f, 1f, 0.5f));
-        sEntryList.add(new TestEntry(Color.GREEN).setHsl(120f, 1f, 0.5f));
-        sEntryList.add(new TestEntry(Color.RED).setHsl(0f, 1f, 0.5f));
-        sEntryList.add(new TestEntry(Color.CYAN).setHsl(180f, 1f, 0.5f));
-        sEntryList.add(new TestEntry(0x2196F3).setHsl(207f, 0.9f, 0.54f));
-        sEntryList.add(new TestEntry(0xD1C4E9).setHsl(261f, 0.46f, 0.84f));
-        sEntryList.add(new TestEntry(0x311B92).setHsl(251.09f, 0.687f, 0.339f));
+        sEntryList.add(new TestEntry(Color.BLACK).setHsl(0f, 0f, 0f)
+                .setWhiteMinAlpha30(0.35f).setWhiteMinAlpha45(0.46f));
+        sEntryList.add(new TestEntry(Color.WHITE).setHsl(0f, 0f, 1f)
+                .setBlackMinAlpha30(0.42f).setBlackMinAlpha45(0.54f));
+        sEntryList.add(new TestEntry(Color.BLUE).setHsl(240f, 1f, 0.5f)
+                .setWhiteMinAlpha30(0.55f).setWhiteMinAlpha45(0.71f));
+        sEntryList.add(new TestEntry(Color.GREEN).setHsl(120f, 1f, 0.5f)
+                .setBlackMinAlpha30(0.43f).setBlackMinAlpha45(0.55f));
+        sEntryList.add(new TestEntry(Color.RED).setHsl(0f, 1f, 0.5f)
+                .setWhiteMinAlpha30(0.84f).setBlackMinAlpha30(0.55f).setBlackMinAlpha45(0.78f));
+        sEntryList.add(new TestEntry(Color.CYAN).setHsl(180f, 1f, 0.5f)
+                .setBlackMinAlpha30(0.43f).setBlackMinAlpha45(0.55f));
+        sEntryList.add(new TestEntry(0xFF2196F3).setHsl(207f, 0.9f, 0.54f)
+                .setBlackMinAlpha30(0.52f).setWhiteMinAlpha30(0.97f).setBlackMinAlpha45(0.7f));
+        sEntryList.add(new TestEntry(0xFFD1C4E9).setHsl(261f, 0.46f, 0.84f)
+                .setBlackMinAlpha30(0.45f).setBlackMinAlpha45(0.58f));
+        sEntryList.add(new TestEntry(0xFF311B92).setHsl(251.09f, 0.687f, 0.339f)
+                .setWhiteMinAlpha30(0.39f).setWhiteMinAlpha45(0.54f));
     }
 
     public void testToHSL() {
@@ -69,6 +79,28 @@ public class ColorUtilsTest extends AndroidTestCase {
             assertTrue(hsl[0] >= 0f && hsl[0] <= 360f);
             assertTrue(hsl[1] >= 0f && hsl[1] <= 1f);
             assertTrue(hsl[2] >= 0f && hsl[2] <= 1f);
+        }
+    }
+
+    public void testMinAlphas() {
+        for (TestEntry entry : sEntryList) {
+            testMinAlpha("Black title", entry.rgb, entry.blackMinAlpha30,
+                    ColorUtils.calculateMinimumAlpha(Color.BLACK, entry.rgb, 3.0f));
+            testMinAlpha("Black body", entry.rgb, entry.blackMinAlpha45,
+                    ColorUtils.calculateMinimumAlpha(Color.BLACK, entry.rgb, 4.5f));
+            testMinAlpha("White title", entry.rgb, entry.whiteMinAlpha30,
+                    ColorUtils.calculateMinimumAlpha(Color.WHITE, entry.rgb, 3.0f));
+            testMinAlpha("White body", entry.rgb, entry.whiteMinAlpha45,
+                    ColorUtils.calculateMinimumAlpha(Color.WHITE, entry.rgb, 4.5f));
+        }
+    }
+
+    private static void testMinAlpha(String title, int color, float expected, int actual) {
+        final String message = title + " text within error for #" + Integer.toHexString(color);
+        if (expected < 0) {
+            assertEquals(message, actual, -1);
+        } else {
+            assertClose(message, expected, actual / 255f, ALLOWED_OFFSET_MIN_ALPHA);
         }
     }
 
@@ -114,6 +146,10 @@ public class ColorUtilsTest extends AndroidTestCase {
     private static class TestEntry {
         final int rgb;
         final float[] hsl = new float[3];
+        float blackMinAlpha45 = -1;
+        float blackMinAlpha30 = -1;
+        float whiteMinAlpha45 = -1;
+        float whiteMinAlpha30 = -1;
 
         TestEntry(int rgb) {
             this.rgb = rgb;
@@ -123,6 +159,26 @@ public class ColorUtilsTest extends AndroidTestCase {
             hsl[0] = h;
             hsl[1] = s;
             hsl[2] = l;
+            return this;
+        }
+
+        TestEntry setBlackMinAlpha30(float minAlpha) {
+            blackMinAlpha30 = minAlpha;
+            return this;
+        }
+
+        TestEntry setBlackMinAlpha45(float minAlpha) {
+            blackMinAlpha45 = minAlpha;
+            return this;
+        }
+
+        TestEntry setWhiteMinAlpha30(float minAlpha) {
+            whiteMinAlpha30 = minAlpha;
+            return this;
+        }
+
+        TestEntry setWhiteMinAlpha45(float minAlpha) {
+            whiteMinAlpha45 = minAlpha;
             return this;
         }
     }
