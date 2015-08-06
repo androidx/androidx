@@ -49,6 +49,10 @@
     </declare-styleable>
 
     <declare-styleable name="lbBaseCardView">
+        <!-- Defines the background of card -->
+        <attr name="cardForeground" format="reference|color"/>
+        <!-- Defines the background of card -->
+        <attr name="cardBackground" format="reference|color"/>
         <!-- Defines the type of the card layout -->
         <attr name="cardType" format="enum">
             <!-- A simple card layout with a single layout region. -->
