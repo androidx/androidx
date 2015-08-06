@@ -211,6 +211,12 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
     }
 
     /**
+     * Callback invoked when an action's title has been edited.
+     */
+    public void onGuidedActionEdited(GuidedAction action) {
+    }
+
+    /**
      * Adds the specified GuidedStepFragment to the fragment stack, replacing any existing
      * GuidedStepFragments in the stack, and configuring the fragment-to-fragment custom animations.
      * <p>
@@ -354,7 +360,17 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
         View actionsView = mActionsStylist.onCreateView(inflater, actionContainer);
         actionContainer.addView(actionsView);
 
-        mAdapter = new GuidedActionAdapter(mActions, this, this, mActionsStylist);
+        GuidedActionAdapter.EditListener editListener = new GuidedActionAdapter.EditListener() {
+                @Override
+                public void onGuidedActionEdited(GuidedAction action, boolean entering) {
+                    runImeAnimations(entering);
+                    if (!entering) {
+                        GuidedStepFragment.this.onGuidedActionEdited(action);
+                    }
+                }
+        };
+
+        mAdapter = new GuidedActionAdapter(mActions, this, this, editListener, mActionsStylist);
 
         mListView = mActionsStylist.getActionsGridView();
         mListView.setAdapter(mAdapter);
@@ -520,6 +536,20 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
                         animator.start();
                     }
                 });
+    }
+
+    private void runImeAnimations(boolean entering) {
+        ArrayList<Animator> animators = new ArrayList<Animator>();
+        if (entering) {
+            mGuidanceStylist.onImeAppearing(animators);
+            mActionsStylist.onImeAppearing(animators);
+        } else {
+            mGuidanceStylist.onImeDisappearing(animators);
+            mActionsStylist.onImeDisappearing(animators);
+        }
+        AnimatorSet set = new AnimatorSet();
+        set.playTogether(animators);
+        set.start();
     }
 
     private Animator createDummyAnimator(final View v, ArrayList<Animator> animators) {

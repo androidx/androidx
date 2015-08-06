@@ -227,6 +227,7 @@
     <dimen name="lb_guidedstep_guidance_section_width">576dp</dimen>
     <dimen name="lb_guidedstep_slide_start_distance">-200dp</dimen>
     <dimen name="lb_guidedstep_slide_end_distance">200dp</dimen>
+    <dimen name="lb_guidedstep_slide_ime_distance">-100dp</dimen>
 
     <dimen name="lb_guidance_entry_translationX">-120dp</dimen>
 

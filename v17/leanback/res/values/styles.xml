@@ -499,11 +499,13 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:alpha">@string/lb_guidedactions_item_unselected_text_alpha</item>
-        <item name="android:ellipsize">marquee</item>
+        <item name="android:ellipsize">end</item>
         <item name="android:fontFamily">sans-serif-condensed</item>
         <item name="android:maxLines">@integer/lb_guidedactions_item_title_min_lines</item>
         <item name="android:textColor">@color/lb_guidedactions_item_unselected_text_color</item>
         <item name="android:textSize">@dimen/lb_guidedactions_item_title_font_size</item>
+        <item name="android:background">@null</item>
+        <item name="android:inputType">text</item>
     </style>
 
     <!-- Style for an action's description in a GuidedActionsStylist's default item layout. -->

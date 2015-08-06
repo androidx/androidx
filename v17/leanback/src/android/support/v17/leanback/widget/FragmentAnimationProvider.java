@@ -69,4 +69,16 @@ public interface FragmentAnimationProvider {
      */
     public abstract void onFragmentReturn(@NonNull List<Animator> animators);
 
+    /**
+     * Animates the fragment in response to the IME appearing.
+     * @param animators A list of animations to which this provider's animations should be added.
+     */
+    public abstract void onImeAppearing(@NonNull List<Animator> animators);
+
+    /**
+     * Animates the fragment in response to the IME disappearing.
+     * @param animators A list of animations to which this provider's animations should be added.
+     */
+    public abstract void onImeDisappearing(@NonNull List<Animator> animators);
+
 }
