@@ -320,7 +320,16 @@ public class ActivityCompat extends ContextCompat {
                 @Override
                 public void run() {
                     final int[] grantResults = new int[permissions.length];
-                    Arrays.fill(grantResults, PackageManager.PERMISSION_GRANTED);
+
+                    PackageManager packageManager = activity.getPackageManager();
+                    String packageName = activity.getPackageName();
+
+                    final int permissionCount = permissions.length;
+                    for (int i = 0; i < permissionCount; i++) {
+                        grantResults[i] = packageManager.checkPermission(
+                                permissions[i], packageName);
+                    }
+
                     ((OnRequestPermissionsResultCallback) activity).onRequestPermissionsResult(
                             requestCode, permissions, grantResults);
                 }
