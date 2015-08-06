@@ -17,6 +17,10 @@
 package android.support.v4.graphics;
 
 import android.graphics.Color;
+import android.support.annotation.ColorInt;
+import android.support.annotation.FloatRange;
+import android.support.annotation.IntRange;
+import android.support.annotation.NonNull;
 
 /**
  * A set of color-related utility methods, building upon those available in {@code Color}.
@@ -24,14 +28,14 @@ import android.graphics.Color;
 public class ColorUtils {
 
     private static final int MIN_ALPHA_SEARCH_MAX_ITERATIONS = 10;
-    private static final int MIN_ALPHA_SEARCH_PRECISION = 10;
+    private static final int MIN_ALPHA_SEARCH_PRECISION = 1;
 
     private ColorUtils() {}
 
     /**
      * Composite two potentially translucent colors over each other and returns the result.
      */
-    public static int compositeColors(int foreground, int background) {
+    public static int compositeColors(@ColorInt int foreground, @ColorInt int background) {
         int bgAlpha = Color.alpha(background);
         int fgAlpha = Color.alpha(foreground);
         int a = compositeAlpha(fgAlpha, bgAlpha);
@@ -57,10 +61,13 @@ public class ColorUtils {
 
     /**
      * Returns the luminance of a color.
-     *
-     * Formula defined here: http://www.w3.org/TR/2008/REC-WCAG20-20081211/#relativeluminancedef
+     * <p>
+     * Formula defined
+     * <a href="http://www.w3.org/TR/2008/REC-WCAG20-20081211/#relativeluminancedef">here</a>.
+     * </p>
      */
-    public static double calculateLuminance(int color) {
+    @FloatRange(from = 0.0, to = 1.0)
+    public static double calculateLuminance(@ColorInt int color) {
         double red = Color.red(color) / 255d;
         red = red < 0.03928 ? red / 12.92 : Math.pow((red + 0.055) / 1.055, 2.4);
 
@@ -80,9 +87,10 @@ public class ColorUtils {
      * Formula defined
      * <a href="http://www.w3.org/TR/2008/REC-WCAG20-20081211/#contrast-ratiodef">here</a>.
      */
-    public static double calculateContrast(int foreground, int background) {
+    public static double calculateContrast(@ColorInt int foreground, @ColorInt int background) {
         if (Color.alpha(background) != 255) {
-            throw new IllegalArgumentException("background can not be translucent");
+            throw new IllegalArgumentException("background can not be translucent: #"
+                    + Integer.toHexString(background));
         }
         if (Color.alpha(foreground) < 255) {
             // If the foreground is translucent, composite the foreground over the background
@@ -106,10 +114,11 @@ public class ColorUtils {
      * @param minContrastRatio the minimum contrast ratio.
      * @return the alpha value in the range 0-255, or -1 if no value could be calculated.
      */
-    public static int calculateMinimumAlpha(int foreground, int background,
+    public static int calculateMinimumAlpha(@ColorInt int foreground, @ColorInt int background,
             float minContrastRatio) {
         if (Color.alpha(background) != 255) {
-            throw new IllegalArgumentException("background can not be translucent");
+            throw new IllegalArgumentException("background can not be translucent: #"
+                    + Integer.toHexString(background));
         }
 
         // First lets check that a fully opaque foreground has sufficient contrast
@@ -158,7 +167,9 @@ public class ColorUtils {
      * @param b   blue component value [0..255]
      * @param hsl 3 element array which holds the resulting HSL components.
      */
-    public static void RGBToHSL(int r, int g, int b, float[] hsl) {
+    public static void RGBToHSL(@IntRange(from = 0x0, to = 0xFF) int r,
+            @IntRange(from = 0x0, to = 0xFF) int g, @IntRange(from = 0x0, to = 0xFF) int b,
+            @NonNull float[] hsl) {
         final float rf = r / 255f;
         final float gf = g / 255f;
         final float bf = b / 255f;
@@ -206,7 +217,7 @@ public class ColorUtils {
      * @param color the ARGB color to convert. The alpha component is ignored.
      * @param hsl 3 element array which holds the resulting HSL components.
      */
-    public static void colorToHSL(int color, float[] hsl) {
+    public static void colorToHSL(@ColorInt int color, @NonNull float[] hsl) {
         RGBToHSL(Color.red(color), Color.green(color), Color.blue(color), hsl);
     }
 
@@ -222,7 +233,8 @@ public class ColorUtils {
      * @param hsl 3 element array which holds the input HSL components.
      * @return the resulting RGB color
      */
-    public static int HSLToColor(float[] hsl) {
+    @ColorInt
+    public static int HSLToColor(@NonNull float[] hsl) {
         final float h = hsl[0];
         final float s = hsl[1];
         final float l = hsl[2];
@@ -279,7 +291,9 @@ public class ColorUtils {
     /**
      * Set the alpha component of {@code color} to be {@code alpha}.
      */
-    public static int setAlphaComponent(int color, int alpha) {
+    @ColorInt
+    public static int setAlphaComponent(@ColorInt int color,
+            @IntRange(from = 0x0, to = 0xFF) int alpha) {
         if (alpha < 0 || alpha > 255) {
             throw new IllegalArgumentException("alpha must be between 0 and 255.");
         }
