@@ -32,6 +32,7 @@ import android.support.v17.leanback.supportleanbackshowcase.models.CardRow;
 import android.support.v17.leanback.supportleanbackshowcase.models.Movie;
 import android.support.v17.leanback.supportleanbackshowcase.utils.Utils;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
+import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
@@ -40,6 +41,7 @@ import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
+import android.support.v4.app.ActivityOptionsCompat;
 
 import com.google.gson.Gson;
 
@@ -99,44 +101,40 @@ public class MainFragment extends BrowseFragment {
         @Override
         public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
                                   RowPresenter.ViewHolder rowViewHolder, Row row) {
+            Intent intent = null;
             Card card = (Card) item;
             int id = card.getId();
             switch (id) {
                 case 0: {
-                    Intent intent = new Intent(getActivity().getBaseContext(),
+                    intent = new Intent(getActivity().getBaseContext(),
                             CardExampleActivity.class);
-                    startActivity(intent);
                     break;
                 }
                 case 2: {
-                    Intent intent = new Intent(getActivity().getBaseContext(),
+                    intent = new Intent(getActivity().getBaseContext(),
                             GridExampleActivity.class);
-                    startActivity(intent);
                     break;
                 }
                 case 3: {
-                    Intent intent = new Intent(getActivity().getBaseContext(),
+                    intent = new Intent(getActivity().getBaseContext(),
                             DetailViewExampleActivity.class);
-                    startActivity(intent);
                     break;
                 }
                 case 4: {
-                    Intent intent = new Intent(getActivity().getBaseContext(),
+                    intent = new Intent(getActivity().getBaseContext(),
                             VideoExampleActivity.class);
-                    startActivity(intent);
                     break;
                 }
                 case 5: {
-                    Intent intent = new Intent(getActivity().getBaseContext(),
+                    intent = new Intent(getActivity().getBaseContext(),
                             MusicExampleActivity.class);
-                    startActivity(intent);
                     break;
                 }
                 case 6: {
                     // Let's create a new Wizard for a given Movie. The movie can come from any sort
                     // of data source. To simplify this example we decode it from a JSON source
                     // which might be loaded from a server in a real world example.
-                    Intent intent = new Intent(getActivity().getBaseContext(),
+                    intent = new Intent(getActivity().getBaseContext(),
                             WizardExampleActivity.class);
 
                     // Prepare extras which contains the Movie and will be passed to the Activity
@@ -149,23 +147,27 @@ public class MainFragment extends BrowseFragment {
                     intent.putExtras(extras);
 
                     // Finally, start the wizard Activity.
-                    startActivity(intent);
                     break;
                 }
                 case 7: {
-                    Intent intent = new Intent(getActivity().getBaseContext(),
+                    intent = new Intent(getActivity().getBaseContext(),
                             SettingsExampleActivity.class);
                     startActivity(intent);
-                    break;
+                    return;
                 }
                 case 8: {
-                    Intent intent = new Intent(getActivity().getBaseContext(),
+                    intent = new Intent(getActivity().getBaseContext(),
                             DialogExampleActivity.class);
-                    startActivity(intent);
                     break;
                 }
                 default:
                     break;
+            }
+            if (intent != null) {
+                Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(),
+                        ((ImageCardView) itemViewHolder.view).getMainImageView(), "transition")
+                        .toBundle();
+                startActivity(intent, bundle);
             }
         }
     }
