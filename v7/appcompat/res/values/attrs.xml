@@ -371,6 +371,8 @@
         <attr name="radioButtonStyle" format="reference" />
         <!-- Default RatingBar style. -->
         <attr name="ratingBarStyle" format="reference" />
+        <!-- Default SeekBar style. -->
+        <attr name="seekBarStyle" format="reference" />
         <!-- Default Spinner style. -->
         <attr name="spinnerStyle" format="reference" />
         <!-- Default style for the Switch widget. -->

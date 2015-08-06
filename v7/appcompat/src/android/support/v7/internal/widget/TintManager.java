@@ -191,10 +191,18 @@ public final class TintManager {
                     DrawableCompat.setTintMode(drawable, tintMode);
                 }
             } else if (resId == R.drawable.abc_cab_background_top_material) {
-                return new LayerDrawable(new Drawable[] {
+                return new LayerDrawable(new Drawable[]{
                         getDrawable(R.drawable.abc_cab_background_internal_bg),
                         getDrawable(R.drawable.abc_cab_background_top_mtrl_alpha)
                 });
+            } else if (resId == R.drawable.abc_seekbar_track_material) {
+                LayerDrawable ld = (LayerDrawable) drawable;
+                setPorterDuffColorFilter(ld.findDrawableByLayerId(android.R.id.background),
+                        getThemeAttrColor(context, R.attr.colorControlNormal), DEFAULT_MODE);
+                setPorterDuffColorFilter(ld.findDrawableByLayerId(android.R.id.secondaryProgress),
+                        getThemeAttrColor(context, R.attr.colorControlNormal), DEFAULT_MODE);
+                setPorterDuffColorFilter(ld.findDrawableByLayerId(android.R.id.progress),
+                        getThemeAttrColor(context, R.attr.colorControlActivated), DEFAULT_MODE);
             } else {
                 final boolean usedColorFilter = tintDrawableUsingColorFilter(resId, drawable);
                 if (!usedColorFilter && failIfNotKnown) {
@@ -307,6 +315,8 @@ public final class TintManager {
                 tint = getDefaultColorStateList(context);
             } else if (arrayContains(TINT_CHECKABLE_BUTTON_LIST, resId)) {
                 tint = createCheckableButtonColorStateList(context);
+            } else if (resId == R.drawable.abc_seekbar_thumb_material) {
+                tint = createSeekbarThumbColorStateList(context);
             }
 
             if (tint != null) {
@@ -541,6 +551,23 @@ public final class TintManager {
         return new ColorStateList(states, colors);
     }
 
+    private ColorStateList createSeekbarThumbColorStateList(Context context) {
+        final int[][] states = new int[2][];
+        final int[] colors = new int[2];
+        int i = 0;
+
+        // Disabled state
+        states[i] = ThemeUtils.DISABLED_STATE_SET;
+        colors[i] = getDisabledThemeAttrColor(context, R.attr.colorControlActivated);
+        i++;
+
+        states[i] = ThemeUtils.EMPTY_STATE_SET;
+        colors[i] = getThemeAttrColor(context, R.attr.colorControlActivated);
+        i++;
+
+        return new ColorStateList(states, colors);
+    }
+
     private static class ColorFilterLruCache extends LruCache<Integer, PorterDuffColorFilter> {
 
         public ColorFilterLruCache(int maxSize) {
@@ -601,5 +628,9 @@ public final class TintManager {
         }
 
         return filter;
+    }
+
+    private static void setPorterDuffColorFilter(Drawable d, int color, PorterDuff.Mode mode) {
+        d.setColorFilter(getPorterDuffColorFilter(color, mode == null ? DEFAULT_MODE : mode));
     }
 }

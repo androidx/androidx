@@ -30,6 +30,7 @@ import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.AppCompatMultiAutoCompleteTextView;
 import android.support.v7.widget.AppCompatRadioButton;
 import android.support.v7.widget.AppCompatRatingBar;
+import android.support.v7.widget.AppCompatSeekBar;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.internal.widget.ViewUtils;
 import android.support.v7.widget.AppCompatTextView;
@@ -101,6 +102,8 @@ public class AppCompatViewInflater {
                 return new AppCompatButton(context, attrs);
             case "TextView":
                 return new AppCompatTextView(context, attrs);
+            case "SeekBar":
+                return new AppCompatSeekBar(context, attrs);
         }
 
         if (originalContext != context) {
