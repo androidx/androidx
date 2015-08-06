@@ -142,8 +142,8 @@ public final class PermissionChecker {
         if (Binder.getCallingPid() == Process.myPid()) {
             return PackageManager.PERMISSION_DENIED;
         }
-        return checkPermission(context, permission, android.os.Process.myPid(),
-                android.os.Process.myUid(), packageName);
+        return checkPermission(context, permission, Binder.getCallingPid(),
+                Binder.getCallingUid(), packageName);
     }
 
     /**
