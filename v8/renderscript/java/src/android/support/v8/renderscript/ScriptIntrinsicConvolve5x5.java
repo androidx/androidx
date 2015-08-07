@@ -117,7 +117,7 @@ public class ScriptIntrinsicConvolve5x5 extends ScriptIntrinsic {
      *             type.
      */
     public void forEach(Allocation aout) {
-        forEach(0, null, aout, null);
+        forEach(0, (Allocation) null, aout, null);
     }
 
     /**
