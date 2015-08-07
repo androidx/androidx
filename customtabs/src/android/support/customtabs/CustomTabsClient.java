@@ -91,11 +91,6 @@ public class CustomTabsClient {
             public void onNavigationEvent(int navigationEvent, Bundle extras) {
                 if (callback != null) callback.onNavigationEvent(navigationEvent, extras);
             }
-
-            @Override
-            public void extraCallback(String callbackName, Bundle args) throws RemoteException {
-                if (callback != null) callback.extraCallback(callbackName, args);
-            }
         };
 
         try {
@@ -104,13 +99,5 @@ public class CustomTabsClient {
             return null;
         }
         return new CustomTabsSession(mService, wrapper, mServiceComponentName);
-    }
-
-    public Bundle extraCommand(String commandName, Bundle args) {
-        try {
-            return mService.extraCommand(commandName, args);
-        } catch (RemoteException e) {
-            return null;
-        }
     }
 }
