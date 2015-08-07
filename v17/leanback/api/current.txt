@@ -874,6 +874,13 @@ package android.support.v17.leanback.widget {
     method public android.support.v17.leanback.widget.GuidedAction.Builder title(java.lang.String);
   }
 
+  public class GuidedActionEditText extends android.widget.EditText implements android.support.v17.leanback.widget.ImeKeyMonitor {
+    ctor public GuidedActionEditText(android.content.Context);
+    ctor public GuidedActionEditText(android.content.Context, android.util.AttributeSet);
+    ctor public GuidedActionEditText(android.content.Context, android.util.AttributeSet, int);
+    method public void setImeKeyListener(android.support.v17.leanback.widget.ImeKeyMonitor.ImeKeyListener);
+  }
+
   public class GuidedActionsStylist implements android.support.v17.leanback.widget.FragmentAnimationProvider {
     ctor public GuidedActionsStylist();
     method public android.support.v17.leanback.widget.VerticalGridView getActionsGridView();
@@ -904,6 +911,7 @@ package android.support.v17.leanback.widget {
     method public android.widget.ImageView getChevronView();
     method public android.view.View getContentView();
     method public android.widget.TextView getDescriptionView();
+    method public android.widget.EditText getEditableTitleView();
     method public android.widget.ImageView getIconView();
     method public android.widget.TextView getTitleView();
     field public final android.view.View view;
