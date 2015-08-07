@@ -39,4 +39,20 @@ public class CustomTabsCallback {
      * @param extras Reserved for future use.
      */
     public void onNavigationEvent(int navigationEvent, Bundle extras) {}
+
+    /**
+     * Unsupported callbacks that may be provided by the implementation.
+     *
+     * <p>
+     * <strong>Note:</strong>Clients should <strong>never</strong> rely on this callback to be
+     * called and/or to have a defined behavior, as it is entirely implementation-defined and not
+     * supported.
+     *
+     * <p> This can be used by implementations to add extra callbacks, for testing or experimental
+     * purposes.
+     *
+     * @param callbackName Name of the extra callback.
+     * @param args Arguments for the calback
+     */
+    public void extraCallback(String callbackName, Bundle args) {}
 }
