@@ -930,6 +930,8 @@ package android.support.v7.appcompat {
     field public static int abc_action_mode_done;
     field public static int abc_activity_chooser_view_see_all;
     field public static int abc_activitychooserview_choose_application;
+    field public static int abc_capital_off;
+    field public static int abc_capital_on;
     field public static int abc_search_hint;
     field public static int abc_searchview_description_clear;
     field public static int abc_searchview_description_query;
