@@ -52,9 +52,10 @@ public class RenderScript {
 
     static private ArrayList<RenderScript> mProcessContextList = new ArrayList<RenderScript>();
     private boolean mIsProcessContext = false;
+    private boolean mEnableMultiInput = false;
+
     private int mContextFlags = 0;
     private int mContextSdkVersion = 0;
-
 
     private Context mApplicationContext;
     private String mNativeLibDir;
@@ -644,6 +645,19 @@ public class RenderScript {
         }
     }
 
+    native void rsnScriptForEach(long con, long id, int slot, long[] ains,
+                                 long aout, byte[] params, int[] limits);
+
+    synchronized void nScriptForEach(long id, int slot, long[] ains, long aout,
+                                     byte[] params, int[] limits) {
+        if (!mEnableMultiInput) {
+            Log.e(LOG_TAG, "Multi-input kernels are not supported, please change targetSdkVersion to >= 23");
+            throw new RSRuntimeException("Multi-input kernels are not supported before API 23)");
+        }
+        validate();
+        rsnScriptForEach(mContext, id, slot, ains, aout, params, limits);
+    }
+
     native void rsnScriptInvokeV(long con, long id, int slot, byte[] params, boolean mUseInc);
     synchronized void nScriptInvokeV(long id, int slot, byte[] params, boolean mUseInc) {
         validate();
@@ -1178,6 +1192,14 @@ public class RenderScript {
         }
     }
 
+    void validateObject(BaseObj o) {
+        if (o != null) {
+            if (o.mRS != this) {
+                throw new RSIllegalArgumentException("Attempting to use an object across contexts.");
+            }
+        }
+    }
+
     void validate() {
         if (mContext == 0) {
             throw new RSInvalidStateException("Calling RS with no Context active.");
@@ -1358,6 +1380,7 @@ public class RenderScript {
             // If the device API is higher than target API level, init dispatch table based on device API.
             dispatchAPI = android.os.Build.VERSION.SDK_INT;
         }
+
         if (!rs.nLoadSO(useNative, dispatchAPI)) {
             if (useNative) {
                 android.util.Log.v(LOG_TAG, "Unable to load libRS.so, falling back to compat mode");
@@ -1389,6 +1412,8 @@ public class RenderScript {
         // For old APIs with dlopen bug, need to load blas lib in Java first.
         // Only try load to blasV8 when the desired API level includes IntrinsicBLAS.
         if (dispatchAPI >= 23) {
+            // Enable multi-input kernels only when diapatchAPI is M+.
+            rs.mEnableMultiInput = true;
             try {
                 System.loadLibrary("blasV8");
             } catch (UnsatisfiedLinkError e) {
