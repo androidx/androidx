@@ -43,10 +43,9 @@ import java.util.NoSuchElementException;
              "android.support.customtabs.action.CustomTabsService";
 
      /**
-     * For {@link CustomTabsService#mayLaunchUrl(long, Uri, Bundle, List)} calls that wants to
-     * specify more than one url, this key can be used with
-     * {@link Bundle#putParcelable(String, android.os.Parcelable)}
-     * to insert a new url to each bundle inside list of bundles.
+      * For {@link CustomTabsService#mayLaunchUrl} calls that wants to specify more than one url,
+      * this key can be used with {@link Bundle#putParcelable(String, android.os.Parcelable)}
+      * to insert a new url to each bundle inside list of bundles.
       */
      public static final String KEY_URL =
              "android.support.customtabs.otherurls.URL";
