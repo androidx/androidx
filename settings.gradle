@@ -42,3 +42,6 @@ project(':support-design').projectDir = new File(rootDir, 'design')
 
 include ':support-percent'
 project(':support-percent').projectDir = new File(rootDir, 'percent')
+
+include ':support-customtabs'
+project(':support-customtabs').projectDir = new File(rootDir, 'customtabs')
