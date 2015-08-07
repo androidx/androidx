@@ -933,6 +933,10 @@
         <attr name="android:textStyle" />
         <attr name="android:typeface" />
         <attr name="textAllCaps" />
+        <attr name="android:shadowColor"/>
+        <attr name="android:shadowDy"/>
+        <attr name="android:shadowDx"/>
+        <attr name="android:shadowRadius"/>
     </declare-styleable>
 
     <!-- The set of attributes that describe a AlertDialog's theme. -->
