@@ -53,8 +53,8 @@ GEN := $(addprefix $(generated_sources_dir)/, \
         )
 
 $(GEN) : PRIVATE_PATH := $(LOCAL_PATH)
-$(GEN) : PRIVATE_CUSTOM_TOOL = $(RSG_GENERATOR_SUPPORT) $< $@ <$(PRIVATE_PATH)/rs.spec
-$(GEN) : $(RSG_GENERATOR_SUPPORT) $(LOCAL_PATH)/rs.spec
+$(GEN) : PRIVATE_CUSTOM_TOOL = cat $(PRIVATE_PATH)/rs.spec $(PRIVATE_PATH)/rs_compat.spec | $(RSG_GENERATOR_SUPPORT) $< $@
+$(GEN) : $(RSG_GENERATOR_SUPPORT) $(LOCAL_PATH)/rs.spec $(LOCAL_PATH)/rs_compat.spec
 $(GEN): $(generated_sources_dir)/%.h : $(LOCAL_PATH)/%.h.rsg
 	$(transform-generated-source)
 
@@ -70,8 +70,8 @@ GEN := $(addprefix $(generated_sources_dir)/, \
         )
 
 $(GEN) : PRIVATE_PATH := $(LOCAL_PATH)
-$(GEN) : PRIVATE_CUSTOM_TOOL = $(RSG_GENERATOR_SUPPORT) $< $@ <$(PRIVATE_PATH)/rs.spec
-$(GEN) : $(RSG_GENERATOR_SUPPORT) $(LOCAL_PATH)/rs.spec
+$(GEN) : PRIVATE_CUSTOM_TOOL = cat $(PRIVATE_PATH)/rs.spec $(PRIVATE_PATH)/rs_compat.spec | $(RSG_GENERATOR_SUPPORT) $< $@
+$(GEN) : $(RSG_GENERATOR_SUPPORT) $(LOCAL_PATH)/rs.spec $(LOCAL_PATH)/rs_compat.spec
 $(GEN): $(generated_sources_dir)/%.cpp : $(LOCAL_PATH)/%.cpp.rsg
 	$(transform-generated-source)
 

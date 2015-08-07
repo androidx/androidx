@@ -1005,10 +1005,10 @@ public class RenderScript {
         validate();
         return rsnIncTypeCreate(mIncCon, eid, x, y, z, mips, faces, yuv);
     }
-    native long  rsnIncAllocationCreateTyped(long con, long incCon, long alloc, long type);
-    synchronized long nIncAllocationCreateTyped(long alloc, long type) {
+    native long  rsnIncAllocationCreateTyped(long con, long incCon, long alloc, long type, int xBytesSize);
+    synchronized long nIncAllocationCreateTyped(long alloc, long type, int xBytesSize) {
         validate();
-        return rsnIncAllocationCreateTyped(mContext, mIncCon, alloc, type);
+        return rsnIncAllocationCreateTyped(mContext, mIncCon, alloc, type, xBytesSize);
     }
 
     long     mDev;
