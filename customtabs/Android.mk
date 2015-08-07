@@ -24,6 +24,7 @@ LOCAL_SDK_VERSION := current
 LOCAL_AIDL_INCLUDES := $LOCAL_PATH/src
 LOCAL_SRC_FILES := $(call all-java-files-under, src) \
     $(call all-Iaidl-files-under, src)
+LOCAL_JAVA_LIBRARIES := android-support-annotations
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # API Check
@@ -31,6 +32,6 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 support_module := $(LOCAL_MODULE)
 support_module_api_dir := $(LOCAL_PATH)/api
 support_module_src_files := $(LOCAL_SRC_FILES)
-support_module_java_libraries := android-support-customtabs
+support_module_java_libraries := $(LOCAL_JAVA_LIBRARIES)
 support_module_java_packages := android.support.customtabs
 include $(SUPPORT_API_CHECK)
