@@ -1411,6 +1411,10 @@ package android.support.v7.appcompat {
     field public static int SwitchCompat_thumbTextPadding;
     field public static int SwitchCompat_track;
     field public static final int[] TextAppearance;
+    field public static int TextAppearance_android_shadowColor;
+    field public static int TextAppearance_android_shadowDx;
+    field public static int TextAppearance_android_shadowDy;
+    field public static int TextAppearance_android_shadowRadius;
     field public static int TextAppearance_android_textColor;
     field public static int TextAppearance_android_textSize;
     field public static int TextAppearance_android_textStyle;
