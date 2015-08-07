@@ -23,6 +23,9 @@
     android:paddingEnd="@dimen/lb_details_overview_margin_end"
     android:paddingBottom="@dimen/lb_details_overview_margin_bottom"
     android:clipToPadding="false"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:descendantFocusability="afterDescendants"
     >
 
     <!--  Used for dimming -->
