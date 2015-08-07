@@ -1945,6 +1945,11 @@ static jboolean nIncLoadSO(JNIEnv *_env, jobject _this, jint deviceApi) {
         LOG_API("%s init failed!", filename);
         return false;
     }
+    dispatchTabInc.AllocationCreateStrided = (AllocationCreateStridedFnPtr)dlsym(handle, "rsAllocationCreateStrided");
+    if (dispatchTabInc.AllocationCreateStrided == NULL) {
+        LOG_API("Couldn't initialize dispatchTabInc.AllocationCreateStrided");
+        return false;
+    }
     LOG_API("Successfully loaded %s", filename);
     return true;
 }
@@ -2023,7 +2028,7 @@ nIncTypeCreate(JNIEnv *_env, jobject _this, jlong con, jlong eid,
 // -----------------------------------
 // Create Allocation from pointer
 static jlong
-nIncAllocationCreateTyped(JNIEnv *_env, jobject _this, jlong con, jlong incCon, jlong alloc, jlong type)
+nIncAllocationCreateTyped(JNIEnv *_env, jobject _this, jlong con, jlong incCon, jlong alloc, jlong type, jint xBytesSize)
 {
     LOG_API("nAllocationCreateTyped, con(%p), type(%p), mip(%i), usage(%i), ptr(%p)",
             incCon, (RsElement)type, mips, usage, (void *)pointer);
@@ -2034,10 +2039,26 @@ nIncAllocationCreateTyped(JNIEnv *_env, jobject _this, jlong con, jlong incCon, 
         pIn = dispatchTab.AllocationGetPointer((RsContext)con, (RsAllocation)alloc, 0,
                                                RS_ALLOCATION_CUBEMAP_FACE_POSITIVE_X, 0, 0,
                                                &strideIn, sizeof(size_t));
-        ainI = dispatchTabInc.AllocationCreateTyped((RsContext)incCon, (RsType)type,
-                                                    RS_ALLOCATION_MIPMAP_NONE,
-                                                    RS_ALLOCATION_USAGE_SCRIPT | RS_ALLOCATION_USAGE_SHARED,
-                                                    (uintptr_t)pIn);
+        /*
+         * By definition stride is a roundup of xBytesSize with requiredAlignment, so requiredAlignment must
+         * be strictly larger than the difference of (stride - xBytesSize).
+         *
+         * We can prove that as long as requiredAlignment satisfies the following two conditions, the
+         * memory layout will be identical :
+         * 1. Smaller or equal than stride;
+         * 2. Larger than minRequiredAlignment.
+         *
+         * In this case we can simply choose the first power of 2 that satisfies both conditions.
+         */
+        size_t requiredAlignment = 16;
+        size_t minRequiredAlignment = strideIn - xBytesSize;
+        while (requiredAlignment <= minRequiredAlignment) {
+            requiredAlignment <<= 1;
+        }
+        ainI = dispatchTabInc.AllocationCreateStrided((RsContext)incCon, (RsType)type,
+                                                      RS_ALLOCATION_MIPMAP_NONE,
+                                                      RS_ALLOCATION_USAGE_INCREMENTAL_SUPPORT | RS_ALLOCATION_USAGE_SHARED,
+                                                      (uintptr_t)pIn, requiredAlignment);
     }
     return (jlong)(uintptr_t) ainI;
 }
@@ -2156,7 +2177,7 @@ static JNINativeMethod methods[] = {
 {"rsnIncObjDestroy",                 "(JJ)V",                                 (void*)nIncObjDestroy },
 {"rsnIncElementCreate",              "(JJIZI)J",                              (void*)nIncElementCreate },
 {"rsnIncTypeCreate",                 "(JJIIIZZI)J",                           (void*)nIncTypeCreate },
-{"rsnIncAllocationCreateTyped",      "(JJJJ)J",                               (void*)nIncAllocationCreateTyped },
+{"rsnIncAllocationCreateTyped",      "(JJJJI)J",                              (void*)nIncAllocationCreateTyped },
 };
 
 // ---------------------------------------------------------------------------
