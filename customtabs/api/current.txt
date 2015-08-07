@@ -2,7 +2,6 @@ package android.support.customtabs {
 
   public class CustomTabsCallback {
     ctor public CustomTabsCallback();
-    method public void extraCallback(java.lang.String, android.os.Bundle);
     method public void onNavigationEvent(int, android.os.Bundle);
     field public static final int NAVIGATION_FINISHED = 2; // 0x2
     field public static final int NAVIGATION_STARTED = 1; // 0x1
@@ -10,7 +9,6 @@ package android.support.customtabs {
 
   public class CustomTabsClient {
     method public static boolean bindCustomTabsService(android.content.Context, java.lang.String, android.support.customtabs.CustomTabsServiceConnection);
-    method public android.os.Bundle extraCommand(java.lang.String, android.os.Bundle);
     method public android.support.customtabs.CustomTabsSession newSession(android.support.customtabs.CustomTabsCallback);
     method public boolean warmup(long);
   }
@@ -31,7 +29,6 @@ package android.support.customtabs {
   public abstract class CustomTabsService extends android.app.Service {
     ctor public CustomTabsService();
     method protected boolean cleanUpSession(android.support.customtabs.CustomTabsSessionToken);
-    method protected abstract android.os.Bundle extraCommand(java.lang.String, android.os.Bundle);
     method protected abstract boolean mayLaunchUrl(android.support.customtabs.CustomTabsSessionToken, android.net.Uri, android.os.Bundle, java.util.List<android.os.Bundle>);
     method protected abstract boolean newSession(android.support.customtabs.CustomTabsSessionToken);
     method public android.os.IBinder onBind(android.content.Intent);
