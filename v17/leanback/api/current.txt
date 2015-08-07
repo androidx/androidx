@@ -1046,6 +1046,12 @@ package android.support.v17.leanback.widget {
     method public abstract void wrap(android.view.View, android.view.View);
   }
 
+  public class ItemBridgeAdapterShadowOverlayWrapper extends android.support.v17.leanback.widget.ItemBridgeAdapter.Wrapper {
+    ctor public ItemBridgeAdapterShadowOverlayWrapper(android.support.v17.leanback.widget.ShadowOverlayHelper);
+    method public android.view.View createWrapper(android.view.View);
+    method public void wrap(android.view.View, android.view.View);
+  }
+
   public class ListRow extends android.support.v17.leanback.widget.Row {
     ctor public ListRow(android.support.v17.leanback.widget.HeaderItem, android.support.v17.leanback.widget.ObjectAdapter);
     ctor public ListRow(long, android.support.v17.leanback.widget.HeaderItem, android.support.v17.leanback.widget.ObjectAdapter);
@@ -1069,6 +1075,7 @@ package android.support.v17.leanback.widget {
     ctor public ListRowPresenter(int, boolean);
     method public final boolean areChildRoundedCornersEnabled();
     method protected android.support.v17.leanback.widget.RowPresenter.ViewHolder createRowViewHolder(android.view.ViewGroup);
+    method protected android.support.v17.leanback.widget.ShadowOverlayHelper.Options createShadowOverlayOptions();
     method public final void enableChildRoundedCorners(boolean);
     method public int getExpandedRowHeight();
     method public final int getFocusZoomFactor();
@@ -1078,12 +1085,14 @@ package android.support.v17.leanback.widget {
     method public final boolean getShadowEnabled();
     method public final deprecated int getZoomFactor();
     method public final boolean isFocusDimmerUsed();
+    method public final boolean isKeepChildForeground();
     method public boolean isUsingDefaultListSelectEffect();
     method public final boolean isUsingDefaultSelectEffect();
     method public boolean isUsingDefaultShadow();
     method public boolean isUsingZOrder(android.content.Context);
     method public void setExpandedRowHeight(int);
     method public final void setHoverCardPresenterSelector(android.support.v17.leanback.widget.PresenterSelector);
+    method public final void setKeepChildForeground(boolean);
     method public void setRecycledPoolSize(android.support.v17.leanback.widget.Presenter, int);
     method public void setRowHeight(int);
     method public final void setShadowEnabled(boolean);
@@ -1361,7 +1370,6 @@ package android.support.v17.leanback.widget {
 
   public abstract class RowPresenter extends android.support.v17.leanback.widget.Presenter {
     ctor public RowPresenter();
-    method public boolean canDrawOutOfBounds();
     method protected abstract android.support.v17.leanback.widget.RowPresenter.ViewHolder createRowViewHolder(android.view.ViewGroup);
     method protected void dispatchItemSelectedListener(android.support.v17.leanback.widget.RowPresenter.ViewHolder, boolean);
     method public void freeze(android.support.v17.leanback.widget.RowPresenter.ViewHolder, boolean);
@@ -1478,17 +1486,14 @@ package android.support.v17.leanback.widget {
     field public int iconColor;
   }
 
-  public class ShadowOverlayContainer extends android.view.ViewGroup {
+  public class ShadowOverlayContainer extends android.widget.FrameLayout {
     ctor public ShadowOverlayContainer(android.content.Context);
     ctor public ShadowOverlayContainer(android.content.Context, android.util.AttributeSet);
     ctor public ShadowOverlayContainer(android.content.Context, android.util.AttributeSet, int);
-    ctor public ShadowOverlayContainer(android.content.Context, int, boolean, boolean);
     method public int getShadowType();
     method public android.view.View getWrappedView();
     method public deprecated void initialize(boolean, boolean);
     method public deprecated void initialize(boolean, boolean, boolean);
-    method public void initialize(int, boolean, boolean);
-    method protected void onLayout(boolean, int, int, int, int);
     method public static void prepareParentForShadow(android.view.ViewGroup);
     method public void setOverlayColor(int);
     method public void setShadowFocusLevel(float);
@@ -1501,6 +1506,48 @@ package android.support.v17.leanback.widget {
     field public static final int SHADOW_DYNAMIC = 3; // 0x3
     field public static final int SHADOW_NONE = 1; // 0x1
     field public static final int SHADOW_STATIC = 2; // 0x2
+  }
+
+  public final class ShadowOverlayHelper {
+    method public android.support.v17.leanback.widget.ShadowOverlayContainer createShadowOverlayContainer(android.content.Context);
+    method public int getShadowType();
+    method public boolean needsOverlay();
+    method public boolean needsRoundedCorner();
+    method public boolean needsWrapper();
+    method public void onViewCreated(android.view.View);
+    method public void prepareParentForShadow(android.view.ViewGroup);
+    method public static void setNoneWrapperOverlayColor(android.view.View, int);
+    method public static void setNoneWrapperShadowFocusLevel(android.view.View, float);
+    method public void setOverlayColor(android.view.View, int);
+    method public void setShadowFocusLevel(android.view.View, float);
+    method public static boolean supportsDynamicShadow();
+    method public static boolean supportsForeground();
+    method public static boolean supportsRoundedCorner();
+    method public static boolean supportsShadow();
+    field public static final int SHADOW_DYNAMIC = 3; // 0x3
+    field public static final int SHADOW_NONE = 1; // 0x1
+    field public static final int SHADOW_STATIC = 2; // 0x2
+  }
+
+  public static final class ShadowOverlayHelper.Builder {
+    ctor public ShadowOverlayHelper.Builder();
+    method public android.support.v17.leanback.widget.ShadowOverlayHelper build(android.content.Context);
+    method public android.support.v17.leanback.widget.ShadowOverlayHelper.Builder keepForegroundDrawable(boolean);
+    method public android.support.v17.leanback.widget.ShadowOverlayHelper.Builder needsOverlay(boolean);
+    method public android.support.v17.leanback.widget.ShadowOverlayHelper.Builder needsRoundedCorner(boolean);
+    method public android.support.v17.leanback.widget.ShadowOverlayHelper.Builder needsShadow(boolean);
+    method public android.support.v17.leanback.widget.ShadowOverlayHelper.Builder options(android.support.v17.leanback.widget.ShadowOverlayHelper.Options);
+    method public android.support.v17.leanback.widget.ShadowOverlayHelper.Builder preferZOrder(boolean);
+  }
+
+  public static final class ShadowOverlayHelper.Options {
+    ctor public ShadowOverlayHelper.Options();
+    method public android.support.v17.leanback.widget.ShadowOverlayHelper.Options dynamicShadowZ(float, float);
+    method public final float getDynamicShadowFocusedZ();
+    method public final float getDynamicShadowUnfocusedZ();
+    method public final int getRoundedCornerRadius();
+    method public android.support.v17.leanback.widget.ShadowOverlayHelper.Options roundedCornerRadius(int);
+    field public static final android.support.v17.leanback.widget.ShadowOverlayHelper.Options DEFAULT;
   }
 
   public final class SinglePresenterSelector extends android.support.v17.leanback.widget.PresenterSelector {
@@ -1575,8 +1622,10 @@ package android.support.v17.leanback.widget {
     ctor public VerticalGridPresenter(int, boolean);
     method public final boolean areChildRoundedCornersEnabled();
     method protected android.support.v17.leanback.widget.VerticalGridPresenter.ViewHolder createGridViewHolder(android.view.ViewGroup);
+    method protected android.support.v17.leanback.widget.ShadowOverlayHelper.Options createShadowOverlayOptions();
     method public final void enableChildRoundedCorners(boolean);
     method public final int getFocusZoomFactor();
+    method public final boolean getKeepChildForeground();
     method public int getNumberOfColumns();
     method public final android.support.v17.leanback.widget.OnItemViewClickedListener getOnItemViewClickedListener();
     method public final android.support.v17.leanback.widget.OnItemViewSelectedListener getOnItemViewSelectedListener();
@@ -1589,6 +1638,7 @@ package android.support.v17.leanback.widget {
     method public final android.support.v17.leanback.widget.VerticalGridPresenter.ViewHolder onCreateViewHolder(android.view.ViewGroup);
     method public void onUnbindViewHolder(android.support.v17.leanback.widget.Presenter.ViewHolder);
     method public void setEntranceTransitionState(android.support.v17.leanback.widget.VerticalGridPresenter.ViewHolder, boolean);
+    method public final void setKeepChildForeground(boolean);
     method public void setNumberOfColumns(int);
     method public final void setOnItemViewClickedListener(android.support.v17.leanback.widget.OnItemViewClickedListener);
     method public final void setOnItemViewSelectedListener(android.support.v17.leanback.widget.OnItemViewSelectedListener);
