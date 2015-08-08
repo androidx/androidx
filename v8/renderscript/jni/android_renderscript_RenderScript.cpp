@@ -1627,6 +1627,108 @@ nScriptForEachClippedV(JNIEnv *_env, jobject _this, jlong con, jlong incCon,
     _env->ReleaseByteArrayElements(params, ptr, JNI_ABORT);
 }
 
+static void
+nScriptForEachMulti(JNIEnv *_env, jobject _this, jlong con, jlong script, jint slot,
+                    jlongArray ains, jlong aout, jbyteArray params,
+                    jintArray limits)
+{
+    LOG_API("nScriptForEach, con(%p), s(%p), slot(%i) ains(%p) aout(%" PRId64 ")", (RsContext)con, (void *)script, slot, ains, aout);
+
+    jint   in_len = 0;
+    jlong *in_ptr = nullptr;
+
+    RsAllocation *in_allocs = nullptr;
+
+    if (ains != nullptr) {
+        in_len = _env->GetArrayLength(ains);
+        if (in_len > (jint)RS_KERNEL_MAX_ARGUMENTS) {
+            LOG_API("Too many arguments in kernel launch.");
+            // TODO (b/20758983): Report back to Java and throw an exception
+            return;
+        }
+
+        // TODO (b/20760800): Check in_ptr is not null
+        in_ptr = _env->GetLongArrayElements(ains, nullptr);
+        if (sizeof(RsAllocation) == sizeof(jlong)) {
+            in_allocs = (RsAllocation*)in_ptr;
+
+        } else {
+            // Convert from 64-bit jlong types to the native pointer type.
+
+            in_allocs = (RsAllocation*)alloca(in_len * sizeof(RsAllocation));
+            if (in_allocs == nullptr) {
+                LOG_API("Failed launching kernel for lack of memory.");
+                _env->ReleaseLongArrayElements(ains, in_ptr, JNI_ABORT);
+                return;
+            }
+
+            for (int index = in_len; --index >= 0;) {
+                in_allocs[index] = (RsAllocation)in_ptr[index];
+            }
+        }
+    }
+
+    jint   param_len = 0;
+    jbyte *param_ptr = nullptr;
+
+    if (params != nullptr) {
+        param_len = _env->GetArrayLength(params);
+        param_ptr = _env->GetByteArrayElements(params, nullptr);
+    }
+
+    RsScriptCall sc, *sca = nullptr;
+    uint32_t sc_size = 0;
+
+    jint  limit_len = 0;
+    jint *limit_ptr = nullptr;
+
+    if (limits != nullptr) {
+        limit_len = _env->GetArrayLength(limits);
+        limit_ptr = _env->GetIntArrayElements(limits, nullptr);
+
+        if (limit_len != 6) {
+            LOG_API("LaunchOptions cannot be recognized.");
+            goto exit;
+        }
+
+        sc.xStart     = limit_ptr[0];
+        sc.xEnd       = limit_ptr[1];
+        sc.yStart     = limit_ptr[2];
+        sc.yEnd       = limit_ptr[3];
+        sc.zStart     = limit_ptr[4];
+        sc.zEnd       = limit_ptr[5];
+        sc.strategy   = RS_FOR_EACH_STRATEGY_DONT_CARE;
+        sc.arrayStart = 0;
+        sc.arrayEnd = 0;
+        sc.array2Start = 0;
+        sc.array2End = 0;
+        sc.array3Start = 0;
+        sc.array3End = 0;
+        sc.array4Start = 0;
+        sc.array4End = 0;
+
+        sca = &sc;
+    }
+
+    dispatchTabInc.ScriptForEachMulti((RsContext)con, (RsScript)script, slot,
+                                      in_allocs, in_len, (RsAllocation)aout,
+                                      param_ptr, param_len, sca, sc_size);
+
+exit:
+
+    if (ains != nullptr) {
+        _env->ReleaseLongArrayElements(ains, in_ptr, JNI_ABORT);
+    }
+
+    if (params != nullptr) {
+        _env->ReleaseByteArrayElements(params, param_ptr, JNI_ABORT);
+    }
+
+    if (limits != nullptr) {
+        _env->ReleaseIntArrayElements(limits, limit_ptr, JNI_ABORT);
+    }
+}
+
 // -----------------------------------
 
 static jlong
@@ -2010,6 +2112,7 @@ static JNINativeMethod methods[] = {
 {"rsnScriptInvokeV",                 "(JJI[BZ)V",                             (void*)nScriptInvokeV },
 {"rsnScriptForEach",                 "(JJJIJJZ)V",                            (void*)nScriptForEach },
 {"rsnScriptForEach",                 "(JJJIJJ[BZ)V",                          (void*)nScriptForEachV },
+{"rsnScriptForEach",                 "(JJI[JJ[B[I)V",                         (void*)nScriptForEachMulti },
 {"rsnScriptForEachClipped",          "(JJJIJJIIIIIIZ)V",                      (void*)nScriptForEachClipped },
 {"rsnScriptForEachClipped",          "(JJJIJJ[BIIIIIIZ)V",                    (void*)nScriptForEachClippedV },
 {"rsnScriptSetVarI",                 "(JJIIZ)V",                              (void*)nScriptSetVarI },
