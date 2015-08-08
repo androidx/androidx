@@ -505,22 +505,6 @@ package android.support.v17.leanback.system {
 
 }
 
-package android.support.v17.leanback.view {
-
-  public class ViewGroupOverlayHelper {
-    ctor public ViewGroupOverlayHelper();
-    method public static void addChildToOverlay(android.view.ViewGroup, android.view.View);
-    method public static void removeChildFromOverlay(android.view.ViewGroup, android.view.View);
-    method public static boolean supportsOverlay();
-  }
-
-  public static abstract interface ViewGroupOverlayHelper.Impl {
-    method public abstract void addChildToOverlay(android.view.ViewGroup, android.view.View);
-    method public abstract void removeChildFromOverlay(android.view.ViewGroup, android.view.View);
-  }
-
-}
-
 package android.support.v17.leanback.widget {
 
   public abstract class AbstractDetailsDescriptionPresenter extends android.support.v17.leanback.widget.Presenter {
