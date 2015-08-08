@@ -40,6 +40,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.ViewPropertyAnimator;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -165,6 +166,14 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
          */
         public TextView getTitleView() {
             return mTitleView;
+        }
+
+        /**
+         * Convenience method to return an editable version of the title, if possible,
+         * or null if the title view isn't an EditText.
+         */
+        public EditText getEditableTitleView() {
+            return (mTitleView instanceof EditText) ? (EditText)mTitleView : null;
         }
 
         /**
@@ -310,7 +319,10 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      * Subclasses may override to provide their own customized layouts. The base implementation
      * returns {@link android.support.v17.leanback.R.layout#lb_guidedactions_item}. If overridden,
      * the substituted layout should contain matching IDs for any views that should be managed by
-     * the base class; this can be achieved by starting with a copy of the base layout file.
+     * the base class; this can be achieved by starting with a copy of the base layout file. Note
+     * that in order for the item to support editing, the title view should both subclass {@link
+     * android.widget.EditText} and implement {@link ImeKeyMonitor}; see {@link
+     * GuidedActionEditText}.
      * @return The resource ID of the layout to be inflated to define the view to display an
      * individual GuidedAction.
      */
