@@ -21,22 +21,20 @@ import android.view.KeyEvent;
 
 /**
  * A custom EditText that satisfies the IME key monitoring requirements of GuidedStepFragment.
- *
- * @hide
  */
-public class LeanbackEditText extends EditText implements ImeKeyMonitor {
+public class GuidedActionEditText extends EditText implements ImeKeyMonitor {
 
     private ImeKeyListener mKeyListener;
 
-    public LeanbackEditText(Context ctx) {
+    public GuidedActionEditText(Context ctx) {
         this(ctx, null);
     }
 
-    public LeanbackEditText(Context ctx, AttributeSet attrs) {
+    public GuidedActionEditText(Context ctx, AttributeSet attrs) {
         this(ctx, attrs, android.R.attr.editTextStyle);
     }
 
-    public LeanbackEditText(Context ctx, AttributeSet attrs, int defStyleAttr) {
+    public GuidedActionEditText(Context ctx, AttributeSet attrs, int defStyleAttr) {
         super(ctx, attrs, defStyleAttr);
     }
 
