@@ -44,9 +44,11 @@ public class Script extends BaseObj {
         long dInType = 0;
         long dummyAlloc = 0;
         if (ain != null) {
-            dInElement = ain.getType().getElement().getDummyElement(mRS);
-            dInType = ain.getType().getDummyType(mRS, dInElement);
-            dummyAlloc = mRS.nIncAllocationCreateTyped(ain.getID(mRS), dInType);
+            Type inType = ain.getType();
+            dInElement = inType.getElement().getDummyElement(mRS);
+            dInType = inType.getDummyType(mRS, dInElement);
+            int xBytesSize = inType.getX() * inType.getElement().getBytesSize();
+            dummyAlloc = mRS.nIncAllocationCreateTyped(ain.getID(mRS), dInType, xBytesSize);
             ain.setIncAllocID(dummyAlloc);
         }
 
