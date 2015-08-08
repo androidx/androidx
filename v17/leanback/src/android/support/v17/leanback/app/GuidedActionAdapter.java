@@ -237,12 +237,12 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
         v.setOnClickListener(mOnClickListener);
         v.setOnFocusChangeListener(mActionOnFocusListener);
 
-        final EditText edit = (EditText)vh.getTitleView();
+        final EditText edit = vh.getEditableTitleView();
         if (edit != null) {
             edit.setPrivateImeOptions("EscapeNorth=1;");
             edit.setOnEditorActionListener(mActionEditListener);
-            ImeKeyMonitor monitor = (ImeKeyMonitor)edit;
-            if (monitor != null) {
+            if (edit instanceof ImeKeyMonitor) {
+                ImeKeyMonitor monitor = (ImeKeyMonitor)edit;
                 monitor.setImeKeyListener(mActionEditListener);
             }
         }
@@ -263,7 +263,7 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
         avh.setAction(action);
         mStylist.onBindViewHolder(avh.mStylistViewHolder, action);
 
-        final EditText edit = (EditText)avh.mStylistViewHolder.getTitleView();
+        final EditText edit = avh.mStylistViewHolder.getEditableTitleView();
         if (edit != null) {
             int next = getNextEditableActionIndex(action);
             int flag = (next == -1) ? EditorInfo.IME_ACTION_DONE : EditorInfo.IME_ACTION_NEXT;
