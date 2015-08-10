@@ -37,6 +37,7 @@ package android.support.v17.leanback.app {
   public class BrowseFragment extends android.support.v17.leanback.app.BrandedFragment {
     ctor public BrowseFragment();
     method public static android.os.Bundle createArgs(android.os.Bundle, java.lang.String, int);
+    method protected java.lang.Object createEntranceTransition();
     method public void enableRowScaling(boolean);
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public int getBrandColor();
@@ -46,6 +47,12 @@ package android.support.v17.leanback.app {
     method public final boolean isHeadersTransitionOnBackEnabled();
     method public boolean isInHeadersTransition();
     method public boolean isShowingHeaders();
+    method protected void onEntranceTransitionEnd();
+    method protected void onEntranceTransitionPrepare();
+    method protected void onEntranceTransitionStart();
+    method public void onSaveInstanceState(android.os.Bundle);
+    method public void onStart();
+    method protected void runEntranceTransition(java.lang.Object);
     method public void setAdapter(android.support.v17.leanback.widget.ObjectAdapter);
     method public void setBrandColor(int);
     method public void setBrowseTransitionListener(android.support.v17.leanback.app.BrowseFragment.BrowseTransitionListener);
@@ -71,6 +78,7 @@ package android.support.v17.leanback.app {
   public class BrowseSupportFragment extends android.support.v17.leanback.app.BrandedSupportFragment {
     ctor public BrowseSupportFragment();
     method public static android.os.Bundle createArgs(android.os.Bundle, java.lang.String, int);
+    method protected java.lang.Object createEntranceTransition();
     method public void enableRowScaling(boolean);
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public int getBrandColor();
@@ -80,6 +88,12 @@ package android.support.v17.leanback.app {
     method public final boolean isHeadersTransitionOnBackEnabled();
     method public boolean isInHeadersTransition();
     method public boolean isShowingHeaders();
+    method protected void onEntranceTransitionEnd();
+    method protected void onEntranceTransitionPrepare();
+    method protected void onEntranceTransitionStart();
+    method public void onSaveInstanceState(android.os.Bundle);
+    method public void onStart();
+    method protected void runEntranceTransition(java.lang.Object);
     method public void setAdapter(android.support.v17.leanback.widget.ObjectAdapter);
     method public void setBrandColor(int);
     method public void setBrowseTransitionListener(android.support.v17.leanback.app.BrowseSupportFragment.BrowseTransitionListener);
@@ -104,11 +118,17 @@ package android.support.v17.leanback.app {
 
   public class DetailsFragment extends android.support.v17.leanback.app.BrandedFragment {
     ctor public DetailsFragment();
+    method protected java.lang.Object createEntranceTransition();
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public android.support.v17.leanback.widget.OnItemViewClickedListener getOnItemViewClickedListener();
     method protected android.view.View inflateTitle(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
+    method protected void onEntranceTransitionEnd();
+    method protected void onEntranceTransitionPrepare();
+    method protected void onEntranceTransitionStart();
     method protected void onSetDetailsOverviewRowStatus(android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter, android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder, int, int, int);
     method protected void onSetRowStatus(android.support.v17.leanback.widget.RowPresenter, android.support.v17.leanback.widget.RowPresenter.ViewHolder, int, int, int);
+    method public void onStart();
+    method protected void runEntranceTransition(java.lang.Object);
     method public void setAdapter(android.support.v17.leanback.widget.ObjectAdapter);
     method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.OnItemViewClickedListener);
     method public void setOnItemViewSelectedListener(android.support.v17.leanback.widget.OnItemViewSelectedListener);
@@ -120,11 +140,17 @@ package android.support.v17.leanback.app {
 
   public class DetailsSupportFragment extends android.support.v17.leanback.app.BrandedSupportFragment {
     ctor public DetailsSupportFragment();
+    method protected java.lang.Object createEntranceTransition();
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public android.support.v17.leanback.widget.OnItemViewClickedListener getOnItemViewClickedListener();
     method protected android.view.View inflateTitle(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
+    method protected void onEntranceTransitionEnd();
+    method protected void onEntranceTransitionPrepare();
+    method protected void onEntranceTransitionStart();
     method protected void onSetDetailsOverviewRowStatus(android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter, android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder, int, int, int);
     method protected void onSetRowStatus(android.support.v17.leanback.widget.RowPresenter, android.support.v17.leanback.widget.RowPresenter.ViewHolder, int, int, int);
+    method public void onStart();
+    method protected void runEntranceTransition(java.lang.Object);
     method public void setAdapter(android.support.v17.leanback.widget.ObjectAdapter);
     method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.OnItemViewClickedListener);
     method public void setOnItemViewSelectedListener(android.support.v17.leanback.widget.OnItemViewSelectedListener);
@@ -307,6 +333,8 @@ package android.support.v17.leanback.app {
     method public android.support.v17.leanback.app.PlaybackOverlayFragment.OnFadeCompleteListener getFadeCompleteListener();
     method public final android.support.v17.leanback.app.PlaybackOverlayFragment.InputEventHandler getInputEventHandler();
     method public boolean isFadingEnabled();
+    method public void onDestroyView();
+    method public void onResume();
     method public void setBackgroundType(int);
     method public void setFadeCompleteListener(android.support.v17.leanback.app.PlaybackOverlayFragment.OnFadeCompleteListener);
     method public void setFadingEnabled(boolean);
@@ -333,6 +361,8 @@ package android.support.v17.leanback.app {
     method public android.support.v17.leanback.app.PlaybackOverlaySupportFragment.OnFadeCompleteListener getFadeCompleteListener();
     method public final android.support.v17.leanback.app.PlaybackOverlaySupportFragment.InputEventHandler getInputEventHandler();
     method public boolean isFadingEnabled();
+    method public void onDestroyView();
+    method public void onResume();
     method public void setBackgroundType(int);
     method public void setFadeCompleteListener(android.support.v17.leanback.app.PlaybackOverlaySupportFragment.OnFadeCompleteListener);
     method public void setFadingEnabled(boolean);
@@ -431,9 +461,14 @@ package android.support.v17.leanback.app {
 
   public class VerticalGridFragment extends android.support.v17.leanback.app.BrandedFragment {
     ctor public VerticalGridFragment();
+    method protected java.lang.Object createEntranceTransition();
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public android.support.v17.leanback.widget.VerticalGridPresenter getGridPresenter();
     method public android.support.v17.leanback.widget.OnItemViewClickedListener getOnItemViewClickedListener();
+    method public void onDestroyView();
+    method public void onStart();
+    method public void onViewCreated(android.view.View, android.os.Bundle);
+    method protected void runEntranceTransition(java.lang.Object);
     method public void setAdapter(android.support.v17.leanback.widget.ObjectAdapter);
     method public void setGridPresenter(android.support.v17.leanback.widget.VerticalGridPresenter);
     method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.OnItemViewClickedListener);
@@ -443,9 +478,14 @@ package android.support.v17.leanback.app {
 
   public class VerticalGridSupportFragment extends android.support.v17.leanback.app.BrandedSupportFragment {
     ctor public VerticalGridSupportFragment();
+    method protected java.lang.Object createEntranceTransition();
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public android.support.v17.leanback.widget.VerticalGridPresenter getGridPresenter();
     method public android.support.v17.leanback.widget.OnItemViewClickedListener getOnItemViewClickedListener();
+    method public void onDestroyView();
+    method public void onStart();
+    method public void onViewCreated(android.view.View, android.os.Bundle);
+    method protected void runEntranceTransition(java.lang.Object);
     method public void setAdapter(android.support.v17.leanback.widget.ObjectAdapter);
     method public void setGridPresenter(android.support.v17.leanback.widget.VerticalGridPresenter);
     method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.OnItemViewClickedListener);
@@ -503,6 +543,22 @@ package android.support.v17.leanback.system {
     method public static android.support.v17.leanback.system.Settings getInstance(android.content.Context);
     method public void setBoolean(java.lang.String, boolean);
     field public static final java.lang.String PREFER_STATIC_SHADOWS = "PREFER_STATIC_SHADOWS";
+  }
+
+}
+
+package android.support.v17.leanback.view {
+
+  public class ViewGroupOverlayHelper {
+    ctor public ViewGroupOverlayHelper();
+    method public static void addChildToOverlay(android.view.ViewGroup, android.view.View);
+    method public static void removeChildFromOverlay(android.view.ViewGroup, android.view.View);
+    method public static boolean supportsOverlay();
+  }
+
+  public static abstract interface ViewGroupOverlayHelper.Impl {
+    method public abstract void addChildToOverlay(android.view.ViewGroup, android.view.View);
+    method public abstract void removeChildFromOverlay(android.view.ViewGroup, android.view.View);
   }
 
 }
