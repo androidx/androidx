@@ -83,16 +83,25 @@ public final class CustomTabsIntent {
     public static final int SHOW_PAGE_TITLE = 1;
 
     /**
-     * Bundle used for adding a custom action button to the custom tab toolbar. The client can
-     * provide an icon {@link Bitmap} and a {@link PendingIntent} for the button.
+     * Bundle used for adding a custom action button to the custom tab toolbar. The client should
+     * provide a description, an icon {@link Bitmap} and a {@link PendingIntent} for the button.
+     * All three keys must be present.
      */
     public static final String EXTRA_ACTION_BUTTON_BUNDLE =
             "android.support.customtabs.extra.ACTION_BUTTON_BUNDLE";
 
     /**
      * Key that specifies the {@link Bitmap} to be used as the image source for the action button.
+     *  The icon should't be more than 24dp in height (No padding needed. The button itself will be
+     *  48dp in height) and have a width/height ratio of less than 2.
      */
     public static final String KEY_ICON = "android.support.customtabs.customaction.ICON";
+
+    /**
+     * Key that specifies the content description for the custom action button.
+     */
+    public static final String KEY_DESCRIPTION =
+            "android.support.customtabs.customaction.DESCRIPTION";
 
     /**
      * Key that specifies the PendingIntent to launch when the action button or menu item was
@@ -234,11 +243,14 @@ public final class CustomTabsIntent {
          * Set the action button.
          *
          * @param icon The icon.
+         * @param description The description for the button. To be used for accessibility.
          * @param pendingIntent pending intent delivered when the button is clicked.
          */
-        public Builder setActionButton(@NonNull Bitmap icon, @NonNull PendingIntent pendingIntent) {
+        public Builder setActionButton(@NonNull Bitmap icon,
+                @NonNull String description, @NonNull PendingIntent pendingIntent) {
             Bundle bundle = new Bundle();
             bundle.putParcelable(KEY_ICON, icon);
+            bundle.putString(KEY_DESCRIPTION, description);
             bundle.putParcelable(KEY_PENDING_INTENT, pendingIntent);
             mIntent.putExtra(EXTRA_ACTION_BUTTON_BUNDLE, bundle);
             return this;
