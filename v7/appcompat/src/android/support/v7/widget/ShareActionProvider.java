@@ -251,18 +251,19 @@ public class ShareActionProvider extends ActionProvider {
      * for all view created by {@link #onCreateActionView()}. Defaults to
      * {@link #DEFAULT_SHARE_HISTORY_FILE_NAME}. Set to <code>null</code>
      * if share history should not be persisted between sessions.
-     * <p>
+     *
+     * <p class="note">
      * <strong>Note:</strong> The history file name can be set any time, however
      * only the action views created by {@link #onCreateActionView()} after setting
      * the file name will be backed by the provided file. Therefore, if you want to
      * use different history files for sharing specific types of content, every time
-     * you change the history file {@link #setShareHistoryFileName(String)} you must
-     * call {@link android.app.Activity#invalidateOptionsMenu()} to recreate the
-     * action view. You should <strong>not</strong> call
-     * {@link android.app.Activity#invalidateOptionsMenu()} from
-     * {@link android.app.Activity#onCreateOptionsMenu(Menu)}."
-     * <p>
-     * <code>
+     * you change the history file with {@link #setShareHistoryFileName(String)} you must
+     * call {@link android.support.v7.app.AppCompatActivity#supportInvalidateOptionsMenu()}
+     * to recreate the action view. You should <strong>not</strong> call
+     * {@link android.support.v7.app.AppCompatActivity#supportInvalidateOptionsMenu()} from
+     * {@link android.support.v7.app.AppCompatActivity#onCreateOptionsMenu(Menu)}.
+     *
+     * <pre>
      * private void doShare(Intent intent) {
      *     if (IMAGE.equals(intent.getMimeType())) {
      *         mShareActionProvider.setHistoryFileName(SHARE_IMAGE_HISTORY_FILE_NAME);
@@ -270,9 +271,9 @@ public class ShareActionProvider extends ActionProvider {
      *         mShareActionProvider.setHistoryFileName(SHARE_TEXT_HISTORY_FILE_NAME);
      *     }
      *     mShareActionProvider.setIntent(intent);
-     *     invalidateOptionsMenu();
+     *     supportInvalidateOptionsMenu();
      * }
-     * <code>
+     * </pre>
      *
      * @param shareHistoryFile The share history file name.
      */
@@ -284,16 +285,13 @@ public class ShareActionProvider extends ActionProvider {
     /**
      * Sets an intent with information about the share action. Here is a
      * sample for constructing a share intent:
-     * <p>
+     *
      * <pre>
-     * <code>
      *  Intent shareIntent = new Intent(Intent.ACTION_SEND);
      *  shareIntent.setType("image/*");
      *  Uri uri = Uri.fromFile(new File(getFilesDir(), "foo.jpg"));
      *  shareIntent.putExtra(Intent.EXTRA_STREAM, uri.toString());
      * </pre>
-     * </code>
-     * </p>
      *
      * @param shareIntent The share intent.
      *
