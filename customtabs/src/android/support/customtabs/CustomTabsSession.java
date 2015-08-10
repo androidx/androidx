@@ -18,12 +18,10 @@ package android.support.customtabs;
 
 import android.content.ComponentName;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-import java.lang.reflect.Method;
 import java.util.List;
 
 /**
