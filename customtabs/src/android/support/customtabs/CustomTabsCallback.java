@@ -33,6 +33,17 @@ public class CustomTabsCallback {
     public static final int NAVIGATION_FINISHED = 2;
 
     /**
+     * Sent when the tab couldn't finish loading due to a failure.
+     */
+    public static final int NAVIGATION_FAILED = 3;
+
+    /**
+     * Sent when loading was aborted by a user action before it finishes like clicking on a link
+     * or refreshing the page.
+     */
+    public static final int NAVIGATION_ABORTED = 4;
+
+    /**
      * To be called when a navigation event happens.
      *
      * @param navigationEvent The code corresponding to the navigation event.
