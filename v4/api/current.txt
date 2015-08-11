@@ -1516,6 +1516,7 @@ package android.support.v4.media.session {
   }
 
   public class MediaSessionCompat {
+    ctor public MediaSessionCompat(android.content.Context, java.lang.String);
     ctor public MediaSessionCompat(android.content.Context, java.lang.String, android.content.ComponentName, android.app.PendingIntent);
     method public void addOnActiveChangeListener(android.support.v4.media.session.MediaSessionCompat.OnActiveChangeListener);
     method public android.support.v4.media.session.MediaControllerCompat getController();
