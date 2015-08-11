@@ -27,6 +27,7 @@ import javax.crypto.Mac;
 
 /**
  * Actual FingerprintManagerCompat implementation for API level 23 and later.
+ * @hide
  */
 public final class FingerprintManagerCompatApi23 {
 
