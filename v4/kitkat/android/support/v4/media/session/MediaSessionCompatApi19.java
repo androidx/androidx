@@ -15,14 +15,13 @@
  */
 package android.support.v4.media.session;
 
-import android.graphics.Bitmap;
 import android.media.MediaMetadataEditor;
 import android.media.MediaMetadataRetriever;
 import android.media.Rating;
 import android.media.RemoteControlClient;
 import android.os.Bundle;
 
-public class MediaSessionCompatApi19 {
+class MediaSessionCompatApi19 {
     /***** PlaybackState actions *****/
     private static final long ACTION_SET_RATING = 1 << 7;
 

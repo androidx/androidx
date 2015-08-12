@@ -21,7 +21,7 @@ import android.media.AudioManager;
 import android.media.RemoteControlClient;
 import android.os.SystemClock;
 
-public class MediaSessionCompatApi18 {
+class MediaSessionCompatApi18 {
     /***** PlaybackState actions *****/
     private static final long ACTION_SEEK_TO = 1 << 8;
 
