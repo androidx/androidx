@@ -17,10 +17,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="fill_parent"
               android:layout_height="wrap_content"
-              android:orientation="vertical">
+              android:orientation="vertical"
+              android:paddingTop="24dp"
+              android:paddingBottom="24dp">
+
     <ListView android:id="@+id/media_route_list"
               android:layout_width="fill_parent"
-              android:layout_height="wrap_content" />
+              android:layout_height="wrap_content"
+              android:divider="@android:color/transparent"
+              android:dividerHeight="@dimen/mr_list_item_margin"/>
 
     <LinearLayout android:id="@android:id/empty"
               android:layout_width="fill_parent"

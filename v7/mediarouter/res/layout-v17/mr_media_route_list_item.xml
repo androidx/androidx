@@ -16,29 +16,37 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
-              android:layout_height="?android:attr/listPreferredItemHeight"
+              android:layout_height="wrap_content"
+              android:orientation="horizontal"
               android:gravity="center_vertical">
 
+    <ImageView android:id="@+id/routeIcon"
+               android:layout_width="24dp"
+               android:layout_height="24dp"
+               android:layout_marginLeft="24dp"
+               android:layout_marginRight="24dp"
+               android:src="?attr/mediaRouteDefaultIconDrawable" />
+
     <LinearLayout android:layout_width="0dp"
-                  android:layout_height="match_parent"
+                  android:layout_height="wrap_content"
                   android:layout_weight="1"
+                  android:layout_marginRight="24dp"
                   android:orientation="vertical"
                   android:gravity="start|center_vertical"
-                  android:paddingStart="?android:attr/listPreferredItemPaddingStart"
-                  android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
                   android:duplicateParentState="true">
 
         <TextView android:id="@android:id/text1"
                   android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
+                  android:layout_height="32dp"
                   android:singleLine="true"
+                  android:gravity="bottom"
                   android:ellipsize="marquee"
                   android:textAppearance="?android:attr/textAppearanceMedium"
                   android:duplicateParentState="true" />
 
         <TextView android:id="@android:id/text2"
                   android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
+                  android:layout_height="24dp"
                   android:singleLine="true"
                   android:ellipsize="marquee"
                   android:textAppearance="?android:attr/textAppearanceSmall"
