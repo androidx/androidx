@@ -194,7 +194,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      * parent view.
      */
     public void invalidateRoot() {
-        invalidateVirtualView(HOST_ID);
+        invalidateVirtualView(HOST_ID, AccessibilityEventCompat.CONTENT_CHANGE_TYPE_SUBTREE);
     }
 
     /**
@@ -204,11 +204,43 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      * You <b>must</b> call this method after changing any of the properties set
      * in {@link #onPopulateNodeForVirtualView}.
      *
-     * @param virtualViewId The virtual view id to invalidate.
+     * @param virtualViewId The virtual view id to invalidate, or
+     *                      {@link #HOST_ID} to invalidate the root view.
+     * @see #invalidateVirtualView(int, int)
      */
     public void invalidateVirtualView(int virtualViewId) {
-        sendEventForVirtualView(
-                virtualViewId, AccessibilityEventCompat.TYPE_WINDOW_CONTENT_CHANGED);
+        invalidateVirtualView(virtualViewId,
+                AccessibilityEventCompat.CONTENT_CHANGE_TYPE_UNDEFINED);
+    }
+
+    /**
+     * Notifies the accessibility framework that the properties of a particular
+     * item have changed.
+     * <p>
+     * You <b>must</b> call this method after changing any of the properties set
+     * in {@link #onPopulateNodeForVirtualView}.
+     *
+     * @param virtualViewId The virtual view id to invalidate, or
+     *                      {@link #HOST_ID} to invalidate the root view.
+     * @param changeTypes The bit mask of change types. May be {@code 0} for the
+     *                    default (undefined) change type or one or more of:
+     *         <ul>
+     *         <li>{@link AccessibilityEventCompat#CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION}
+     *         <li>{@link AccessibilityEventCompat#CONTENT_CHANGE_TYPE_SUBTREE}
+     *         <li>{@link AccessibilityEventCompat#CONTENT_CHANGE_TYPE_TEXT}
+     *         <li>{@link AccessibilityEventCompat#CONTENT_CHANGE_TYPE_UNDEFINED}
+     *         </ul>
+     */
+    public void invalidateVirtualView(int virtualViewId, int changeTypes) {
+        if (virtualViewId != INVALID_ID && mManager.isEnabled()) {
+            final ViewParent parent = mView.getParent();
+            if (parent != null) {
+                final AccessibilityEvent event = createEvent(virtualViewId,
+                        AccessibilityEventCompat.TYPE_WINDOW_CONTENT_CHANGED);
+                AccessibilityEventCompat.setContentChangeTypes(event, changeTypes);
+                ViewParentCompat.requestSendAccessibilityEvent(parent, mView, event);
+            }
+        }
     }
 
     /**
