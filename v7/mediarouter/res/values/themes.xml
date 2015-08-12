@@ -17,6 +17,7 @@
 <resources>
 
     <style name="Theme.MediaRouter" parent="">
+        <item name="android:windowNoTitle">false</item>
         <item name="mediaRouteButtonStyle">@style/Widget.MediaRouter.MediaRouteButton</item>
 
         <item name="mediaRouteOffDrawable">@drawable/ic_media_route_off_mono_dark</item>
@@ -29,6 +30,7 @@
     </style>
 
     <style name="Theme.MediaRouter.Light" parent="">
+        <item name="android:windowNoTitle">false</item>
         <item name="mediaRouteButtonStyle">@style/Widget.MediaRouter.Light.MediaRouteButton</item>
 
         <item name="mediaRouteOffDrawable">@drawable/ic_cast_off_light</item>
