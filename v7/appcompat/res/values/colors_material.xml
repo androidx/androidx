@@ -30,8 +30,8 @@
     <color name="primary_dark_material_dark">@android:color/black</color>
     <color name="primary_dark_material_light">@color/material_grey_600</color>
 
-    <!-- 26% white (foreground) -->
-    <color name="ripple_material_dark">#42ffffff</color>
+    <!-- 20% white (foreground) -->
+    <color name="ripple_material_dark">#33ffffff</color>
     <!-- 12% black (foreground) -->
     <color name="ripple_material_light">#1f000000</color>
 
