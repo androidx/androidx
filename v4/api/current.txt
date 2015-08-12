@@ -3196,6 +3196,7 @@ package android.support.v4.widget {
     method protected abstract void getVisibleVirtualViews(java.util.List<java.lang.Integer>);
     method public void invalidateRoot();
     method public void invalidateVirtualView(int);
+    method public void invalidateVirtualView(int, int);
     method protected abstract boolean onPerformActionForVirtualView(int, int, android.os.Bundle);
     method protected abstract void onPopulateEventForVirtualView(int, android.view.accessibility.AccessibilityEvent);
     method public void onPopulateNodeForHost(android.support.v4.view.accessibility.AccessibilityNodeInfoCompat);
