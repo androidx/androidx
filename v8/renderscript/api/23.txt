@@ -1,0 +1,1011 @@
+package android.support.v8.renderscript {
+
+  public class Allocation extends android.support.v8.renderscript.BaseObj {
+    method public void copy1DRangeFrom(int, int, java.lang.Object);
+    method public void copy1DRangeFrom(int, int, int[]);
+    method public void copy1DRangeFrom(int, int, short[]);
+    method public void copy1DRangeFrom(int, int, byte[]);
+    method public void copy1DRangeFrom(int, int, float[]);
+    method public void copy1DRangeFrom(int, int, android.support.v8.renderscript.Allocation, int);
+    method public void copy1DRangeFromUnchecked(int, int, java.lang.Object);
+    method public void copy1DRangeFromUnchecked(int, int, int[]);
+    method public void copy1DRangeFromUnchecked(int, int, short[]);
+    method public void copy1DRangeFromUnchecked(int, int, byte[]);
+    method public void copy1DRangeFromUnchecked(int, int, float[]);
+    method public void copy1DRangeTo(int, int, java.lang.Object);
+    method public void copy1DRangeTo(int, int, int[]);
+    method public void copy1DRangeTo(int, int, short[]);
+    method public void copy1DRangeTo(int, int, byte[]);
+    method public void copy1DRangeTo(int, int, float[]);
+    method public void copy1DRangeToUnchecked(int, int, java.lang.Object);
+    method public void copy1DRangeToUnchecked(int, int, int[]);
+    method public void copy1DRangeToUnchecked(int, int, short[]);
+    method public void copy1DRangeToUnchecked(int, int, byte[]);
+    method public void copy1DRangeToUnchecked(int, int, float[]);
+    method public void copy2DRangeFrom(int, int, int, int, java.lang.Object);
+    method public void copy2DRangeFrom(int, int, int, int, byte[]);
+    method public void copy2DRangeFrom(int, int, int, int, short[]);
+    method public void copy2DRangeFrom(int, int, int, int, int[]);
+    method public void copy2DRangeFrom(int, int, int, int, float[]);
+    method public void copy2DRangeFrom(int, int, int, int, android.support.v8.renderscript.Allocation, int, int);
+    method public void copy2DRangeFrom(int, int, android.graphics.Bitmap);
+    method public void copy2DRangeTo(int, int, int, int, java.lang.Object);
+    method public void copy2DRangeTo(int, int, int, int, byte[]);
+    method public void copy2DRangeTo(int, int, int, int, short[]);
+    method public void copy2DRangeTo(int, int, int, int, int[]);
+    method public void copy2DRangeTo(int, int, int, int, float[]);
+    method public void copy3DRangeFrom(int, int, int, int, int, int, java.lang.Object);
+    method public void copy3DRangeFrom(int, int, int, int, int, int, android.support.v8.renderscript.Allocation, int, int, int);
+    method public void copyFrom(android.support.v8.renderscript.BaseObj[]);
+    method public void copyFrom(java.lang.Object);
+    method public void copyFrom(int[]);
+    method public void copyFrom(short[]);
+    method public void copyFrom(byte[]);
+    method public void copyFrom(float[]);
+    method public void copyFrom(android.graphics.Bitmap);
+    method public void copyFrom(android.support.v8.renderscript.Allocation);
+    method public void copyFromUnchecked(java.lang.Object);
+    method public void copyFromUnchecked(int[]);
+    method public void copyFromUnchecked(short[]);
+    method public void copyFromUnchecked(byte[]);
+    method public void copyFromUnchecked(float[]);
+    method public void copyTo(android.graphics.Bitmap);
+    method public void copyTo(java.lang.Object);
+    method public void copyTo(byte[]);
+    method public void copyTo(short[]);
+    method public void copyTo(int[]);
+    method public void copyTo(float[]);
+    method public static android.support.v8.renderscript.Allocation createCubemapFromBitmap(android.support.v8.renderscript.RenderScript, android.graphics.Bitmap, android.support.v8.renderscript.Allocation.MipmapControl, int);
+    method public static android.support.v8.renderscript.Allocation createCubemapFromBitmap(android.support.v8.renderscript.RenderScript, android.graphics.Bitmap);
+    method public static android.support.v8.renderscript.Allocation createCubemapFromCubeFaces(android.support.v8.renderscript.RenderScript, android.graphics.Bitmap, android.graphics.Bitmap, android.graphics.Bitmap, android.graphics.Bitmap, android.graphics.Bitmap, android.graphics.Bitmap, android.support.v8.renderscript.Allocation.MipmapControl, int);
+    method public static android.support.v8.renderscript.Allocation createCubemapFromCubeFaces(android.support.v8.renderscript.RenderScript, android.graphics.Bitmap, android.graphics.Bitmap, android.graphics.Bitmap, android.graphics.Bitmap, android.graphics.Bitmap, android.graphics.Bitmap);
+    method public static android.support.v8.renderscript.Allocation createFromBitmap(android.support.v8.renderscript.RenderScript, android.graphics.Bitmap, android.support.v8.renderscript.Allocation.MipmapControl, int);
+    method public static android.support.v8.renderscript.Allocation createFromBitmap(android.support.v8.renderscript.RenderScript, android.graphics.Bitmap);
+    method public static android.support.v8.renderscript.Allocation createFromBitmapResource(android.support.v8.renderscript.RenderScript, android.content.res.Resources, int, android.support.v8.renderscript.Allocation.MipmapControl, int);
+    method public static android.support.v8.renderscript.Allocation createFromBitmapResource(android.support.v8.renderscript.RenderScript, android.content.res.Resources, int);
+    method public static android.support.v8.renderscript.Allocation createFromString(android.support.v8.renderscript.RenderScript, java.lang.String, int);
+    method public static android.support.v8.renderscript.Allocation createSized(android.support.v8.renderscript.RenderScript, android.support.v8.renderscript.Element, int, int);
+    method public static android.support.v8.renderscript.Allocation createSized(android.support.v8.renderscript.RenderScript, android.support.v8.renderscript.Element, int);
+    method public static android.support.v8.renderscript.Allocation createTyped(android.support.v8.renderscript.RenderScript, android.support.v8.renderscript.Type, android.support.v8.renderscript.Allocation.MipmapControl, int);
+    method public static android.support.v8.renderscript.Allocation createTyped(android.support.v8.renderscript.RenderScript, android.support.v8.renderscript.Type, int);
+    method public static android.support.v8.renderscript.Allocation createTyped(android.support.v8.renderscript.RenderScript, android.support.v8.renderscript.Type);
+    method public void generateMipmaps();
+    method public int getBytesSize();
+    method public android.support.v8.renderscript.Element getElement();
+    method public long getIncAllocID();
+    method public android.support.v8.renderscript.Type getType();
+    method public int getUsage();
+    method public void ioReceive();
+    method public void ioSend();
+    method public void ioSendOutput();
+    method public void setAutoPadding(boolean);
+    method public void setFromFieldPacker(int, android.support.v8.renderscript.FieldPacker);
+    method public void setFromFieldPacker(int, int, android.support.v8.renderscript.FieldPacker);
+    method public void setIncAllocID(long);
+    method public void setSurface(android.view.Surface);
+    method public void syncAll(int);
+    field public static final int USAGE_GRAPHICS_TEXTURE = 2; // 0x2
+    field public static final int USAGE_IO_INPUT = 32; // 0x20
+    field public static final int USAGE_IO_OUTPUT = 64; // 0x40
+    field public static final int USAGE_SCRIPT = 1; // 0x1
+    field public static final int USAGE_SHARED = 128; // 0x80
+  }
+
+  public static final class Allocation.MipmapControl extends java.lang.Enum {
+    method public static android.support.v8.renderscript.Allocation.MipmapControl valueOf(java.lang.String);
+    method public static final android.support.v8.renderscript.Allocation.MipmapControl[] values();
+    enum_constant public static final android.support.v8.renderscript.Allocation.MipmapControl MIPMAP_FULL;
+    enum_constant public static final android.support.v8.renderscript.Allocation.MipmapControl MIPMAP_NONE;
+    enum_constant public static final android.support.v8.renderscript.Allocation.MipmapControl MIPMAP_ON_SYNC_TO_TEXTURE;
+  }
+
+  public class BaseObj {
+    method public void destroy();
+  }
+
+  public class Byte2 {
+    ctor public Byte2();
+    ctor public Byte2(byte, byte);
+    field public byte x;
+    field public byte y;
+  }
+
+  public class Byte3 {
+    ctor public Byte3();
+    ctor public Byte3(byte, byte, byte);
+    field public byte x;
+    field public byte y;
+    field public byte z;
+  }
+
+  public class Byte4 {
+    ctor public Byte4();
+    ctor public Byte4(byte, byte, byte, byte);
+    field public byte w;
+    field public byte x;
+    field public byte y;
+    field public byte z;
+  }
+
+  public class Double2 {
+    ctor public Double2();
+    ctor public Double2(double, double);
+    field public double x;
+    field public double y;
+  }
+
+  public class Double3 {
+    ctor public Double3();
+    ctor public Double3(double, double, double);
+    field public double x;
+    field public double y;
+    field public double z;
+  }
+
+  public class Double4 {
+    ctor public Double4();
+    ctor public Double4(double, double, double, double);
+    field public double w;
+    field public double x;
+    field public double y;
+    field public double z;
+  }
+
+  public class Element extends android.support.v8.renderscript.BaseObj {
+    method public static android.support.v8.renderscript.Element ALLOCATION(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element A_8(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element BOOLEAN(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element ELEMENT(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element F32(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element F32_2(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element F32_3(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element F32_4(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element F64(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element F64_2(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element F64_3(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element F64_4(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element I16(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element I16_2(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element I16_3(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element I16_4(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element I32(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element I32_2(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element I32_3(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element I32_4(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element I64(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element I64_2(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element I64_3(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element I64_4(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element I8(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element I8_2(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element I8_3(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element I8_4(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element MATRIX_2X2(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element MATRIX_3X3(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element MATRIX_4X4(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element RGBA_4444(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element RGBA_5551(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element RGBA_8888(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element RGB_565(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element RGB_888(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element SAMPLER(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element SCRIPT(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element TYPE(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element U16(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element U16_2(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element U16_3(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element U16_4(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element U32(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element U32_2(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element U32_3(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element U32_4(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element U64(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element U64_2(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element U64_3(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element U64_4(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element U8(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element U8_2(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element U8_3(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element U8_4(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Element createPixel(android.support.v8.renderscript.RenderScript, android.support.v8.renderscript.Element.DataType, android.support.v8.renderscript.Element.DataKind);
+    method public static android.support.v8.renderscript.Element createVector(android.support.v8.renderscript.RenderScript, android.support.v8.renderscript.Element.DataType, int);
+    method public int getBytesSize();
+    method public android.support.v8.renderscript.Element.DataKind getDataKind();
+    method public android.support.v8.renderscript.Element.DataType getDataType();
+    method public long getDummyElement(android.support.v8.renderscript.RenderScript);
+    method public android.support.v8.renderscript.Element getSubElement(int);
+    method public int getSubElementArraySize(int);
+    method public int getSubElementCount();
+    method public java.lang.String getSubElementName(int);
+    method public int getSubElementOffsetBytes(int);
+    method public int getVectorSize();
+    method public boolean isCompatible(android.support.v8.renderscript.Element);
+    method public boolean isComplex();
+  }
+
+  public static class Element.Builder {
+    ctor public Element.Builder(android.support.v8.renderscript.RenderScript);
+    method public android.support.v8.renderscript.Element.Builder add(android.support.v8.renderscript.Element, java.lang.String, int);
+    method public android.support.v8.renderscript.Element.Builder add(android.support.v8.renderscript.Element, java.lang.String);
+    method public android.support.v8.renderscript.Element create();
+  }
+
+  public static final class Element.DataKind extends java.lang.Enum {
+    method public static android.support.v8.renderscript.Element.DataKind valueOf(java.lang.String);
+    method public static final android.support.v8.renderscript.Element.DataKind[] values();
+    enum_constant public static final android.support.v8.renderscript.Element.DataKind PIXEL_A;
+    enum_constant public static final android.support.v8.renderscript.Element.DataKind PIXEL_DEPTH;
+    enum_constant public static final android.support.v8.renderscript.Element.DataKind PIXEL_L;
+    enum_constant public static final android.support.v8.renderscript.Element.DataKind PIXEL_LA;
+    enum_constant public static final android.support.v8.renderscript.Element.DataKind PIXEL_RGB;
+    enum_constant public static final android.support.v8.renderscript.Element.DataKind PIXEL_RGBA;
+    enum_constant public static final android.support.v8.renderscript.Element.DataKind PIXEL_YUV;
+    enum_constant public static final android.support.v8.renderscript.Element.DataKind USER;
+  }
+
+  public static final class Element.DataType extends java.lang.Enum {
+    method public static android.support.v8.renderscript.Element.DataType valueOf(java.lang.String);
+    method public static final android.support.v8.renderscript.Element.DataType[] values();
+    enum_constant public static final android.support.v8.renderscript.Element.DataType BOOLEAN;
+    enum_constant public static final android.support.v8.renderscript.Element.DataType FLOAT_32;
+    enum_constant public static final android.support.v8.renderscript.Element.DataType FLOAT_64;
+    enum_constant public static final android.support.v8.renderscript.Element.DataType MATRIX_2X2;
+    enum_constant public static final android.support.v8.renderscript.Element.DataType MATRIX_3X3;
+    enum_constant public static final android.support.v8.renderscript.Element.DataType MATRIX_4X4;
+    enum_constant public static final android.support.v8.renderscript.Element.DataType NONE;
+    enum_constant public static final android.support.v8.renderscript.Element.DataType RS_ALLOCATION;
+    enum_constant public static final android.support.v8.renderscript.Element.DataType RS_ELEMENT;
+    enum_constant public static final android.support.v8.renderscript.Element.DataType RS_SAMPLER;
+    enum_constant public static final android.support.v8.renderscript.Element.DataType RS_SCRIPT;
+    enum_constant public static final android.support.v8.renderscript.Element.DataType RS_TYPE;
+    enum_constant public static final android.support.v8.renderscript.Element.DataType SIGNED_16;
+    enum_constant public static final android.support.v8.renderscript.Element.DataType SIGNED_32;
+    enum_constant public static final android.support.v8.renderscript.Element.DataType SIGNED_64;
+    enum_constant public static final android.support.v8.renderscript.Element.DataType SIGNED_8;
+    enum_constant public static final android.support.v8.renderscript.Element.DataType UNSIGNED_16;
+    enum_constant public static final android.support.v8.renderscript.Element.DataType UNSIGNED_32;
+    enum_constant public static final android.support.v8.renderscript.Element.DataType UNSIGNED_4_4_4_4;
+    enum_constant public static final android.support.v8.renderscript.Element.DataType UNSIGNED_5_5_5_1;
+    enum_constant public static final android.support.v8.renderscript.Element.DataType UNSIGNED_5_6_5;
+    enum_constant public static final android.support.v8.renderscript.Element.DataType UNSIGNED_64;
+    enum_constant public static final android.support.v8.renderscript.Element.DataType UNSIGNED_8;
+  }
+
+  public class FieldPacker {
+    ctor public FieldPacker(int);
+    ctor public FieldPacker(byte[]);
+    method public void addBoolean(boolean);
+    method public void addF32(float);
+    method public void addF32(android.support.v8.renderscript.Float2);
+    method public void addF32(android.support.v8.renderscript.Float3);
+    method public void addF32(android.support.v8.renderscript.Float4);
+    method public void addF64(double);
+    method public void addF64(android.support.v8.renderscript.Double2);
+    method public void addF64(android.support.v8.renderscript.Double3);
+    method public void addF64(android.support.v8.renderscript.Double4);
+    method public void addI16(short);
+    method public void addI16(android.support.v8.renderscript.Short2);
+    method public void addI16(android.support.v8.renderscript.Short3);
+    method public void addI16(android.support.v8.renderscript.Short4);
+    method public void addI32(int);
+    method public void addI32(android.support.v8.renderscript.Int2);
+    method public void addI32(android.support.v8.renderscript.Int3);
+    method public void addI32(android.support.v8.renderscript.Int4);
+    method public void addI64(long);
+    method public void addI64(android.support.v8.renderscript.Long2);
+    method public void addI64(android.support.v8.renderscript.Long3);
+    method public void addI64(android.support.v8.renderscript.Long4);
+    method public void addI8(byte);
+    method public void addI8(android.support.v8.renderscript.Byte2);
+    method public void addI8(android.support.v8.renderscript.Byte3);
+    method public void addI8(android.support.v8.renderscript.Byte4);
+    method public void addMatrix(android.support.v8.renderscript.Matrix4f);
+    method public void addMatrix(android.support.v8.renderscript.Matrix3f);
+    method public void addMatrix(android.support.v8.renderscript.Matrix2f);
+    method public void addObj(android.support.v8.renderscript.BaseObj);
+    method public void addU16(int);
+    method public void addU16(android.support.v8.renderscript.Int2);
+    method public void addU16(android.support.v8.renderscript.Int3);
+    method public void addU16(android.support.v8.renderscript.Int4);
+    method public void addU32(long);
+    method public void addU32(android.support.v8.renderscript.Long2);
+    method public void addU32(android.support.v8.renderscript.Long3);
+    method public void addU32(android.support.v8.renderscript.Long4);
+    method public void addU64(long);
+    method public void addU64(android.support.v8.renderscript.Long2);
+    method public void addU64(android.support.v8.renderscript.Long3);
+    method public void addU64(android.support.v8.renderscript.Long4);
+    method public void addU8(short);
+    method public void addU8(android.support.v8.renderscript.Short2);
+    method public void addU8(android.support.v8.renderscript.Short3);
+    method public void addU8(android.support.v8.renderscript.Short4);
+    method public void align(int);
+    method public final byte[] getData();
+    method public void reset();
+    method public void reset(int);
+    method public void skip(int);
+    method public boolean subBoolean();
+    method public android.support.v8.renderscript.Byte2 subByte2();
+    method public android.support.v8.renderscript.Byte3 subByte3();
+    method public android.support.v8.renderscript.Byte4 subByte4();
+    method public android.support.v8.renderscript.Double2 subDouble2();
+    method public android.support.v8.renderscript.Double3 subDouble3();
+    method public android.support.v8.renderscript.Double4 subDouble4();
+    method public float subF32();
+    method public double subF64();
+    method public android.support.v8.renderscript.Float2 subFloat2();
+    method public android.support.v8.renderscript.Float3 subFloat3();
+    method public android.support.v8.renderscript.Float4 subFloat4();
+    method public short subI16();
+    method public int subI32();
+    method public long subI64();
+    method public byte subI8();
+    method public android.support.v8.renderscript.Int2 subInt2();
+    method public android.support.v8.renderscript.Int3 subInt3();
+    method public android.support.v8.renderscript.Int4 subInt4();
+    method public android.support.v8.renderscript.Long2 subLong2();
+    method public android.support.v8.renderscript.Long3 subLong3();
+    method public android.support.v8.renderscript.Long4 subLong4();
+    method public android.support.v8.renderscript.Matrix2f subMatrix2f();
+    method public android.support.v8.renderscript.Matrix3f subMatrix3f();
+    method public android.support.v8.renderscript.Matrix4f subMatrix4f();
+    method public android.support.v8.renderscript.Short2 subShort2();
+    method public android.support.v8.renderscript.Short3 subShort3();
+    method public android.support.v8.renderscript.Short4 subShort4();
+    method public void subalign(int);
+  }
+
+  public class Float2 {
+    ctor public Float2();
+    ctor public Float2(float, float);
+    field public float x;
+    field public float y;
+  }
+
+  public class Float3 {
+    ctor public Float3();
+    ctor public Float3(float, float, float);
+    field public float x;
+    field public float y;
+    field public float z;
+  }
+
+  public class Float4 {
+    ctor public Float4();
+    ctor public Float4(float, float, float, float);
+    field public float w;
+    field public float x;
+    field public float y;
+    field public float z;
+  }
+
+  public class Int2 {
+    ctor public Int2();
+    ctor public Int2(int, int);
+    field public int x;
+    field public int y;
+  }
+
+  public class Int3 {
+    ctor public Int3();
+    ctor public Int3(int, int, int);
+    field public int x;
+    field public int y;
+    field public int z;
+  }
+
+  public class Int4 {
+    ctor public Int4();
+    ctor public Int4(int, int, int, int);
+    field public int w;
+    field public int x;
+    field public int y;
+    field public int z;
+  }
+
+  public class Long2 {
+    ctor public Long2();
+    ctor public Long2(long, long);
+    field public long x;
+    field public long y;
+  }
+
+  public class Long3 {
+    ctor public Long3();
+    ctor public Long3(long, long, long);
+    field public long x;
+    field public long y;
+    field public long z;
+  }
+
+  public class Long4 {
+    ctor public Long4();
+    ctor public Long4(long, long, long, long);
+    field public long w;
+    field public long x;
+    field public long y;
+    field public long z;
+  }
+
+  public class Matrix2f {
+    ctor public Matrix2f();
+    ctor public Matrix2f(float[]);
+    method public float get(int, int);
+    method public float[] getArray();
+    method public void load(android.support.v8.renderscript.Matrix2f);
+    method public void loadIdentity();
+    method public void loadMultiply(android.support.v8.renderscript.Matrix2f, android.support.v8.renderscript.Matrix2f);
+    method public void loadRotate(float);
+    method public void loadScale(float, float);
+    method public void multiply(android.support.v8.renderscript.Matrix2f);
+    method public void rotate(float);
+    method public void scale(float, float);
+    method public void set(int, int, float);
+    method public void transpose();
+  }
+
+  public class Matrix3f {
+    ctor public Matrix3f();
+    ctor public Matrix3f(float[]);
+    method public float get(int, int);
+    method public float[] getArray();
+    method public void load(android.support.v8.renderscript.Matrix3f);
+    method public void loadIdentity();
+    method public void loadMultiply(android.support.v8.renderscript.Matrix3f, android.support.v8.renderscript.Matrix3f);
+    method public void loadRotate(float, float, float, float);
+    method public void loadRotate(float);
+    method public void loadScale(float, float);
+    method public void loadScale(float, float, float);
+    method public void loadTranslate(float, float);
+    method public void multiply(android.support.v8.renderscript.Matrix3f);
+    method public void rotate(float, float, float, float);
+    method public void rotate(float);
+    method public void scale(float, float);
+    method public void scale(float, float, float);
+    method public void set(int, int, float);
+    method public void translate(float, float);
+    method public void transpose();
+  }
+
+  public class Matrix4f {
+    ctor public Matrix4f();
+    ctor public Matrix4f(float[]);
+    method public float get(int, int);
+    method public float[] getArray();
+    method public boolean inverse();
+    method public boolean inverseTranspose();
+    method public void load(android.support.v8.renderscript.Matrix4f);
+    method public void loadFrustum(float, float, float, float, float, float);
+    method public void loadIdentity();
+    method public void loadMultiply(android.support.v8.renderscript.Matrix4f, android.support.v8.renderscript.Matrix4f);
+    method public void loadOrtho(float, float, float, float, float, float);
+    method public void loadOrthoWindow(int, int);
+    method public void loadPerspective(float, float, float, float);
+    method public void loadProjectionNormalized(int, int);
+    method public void loadRotate(float, float, float, float);
+    method public void loadScale(float, float, float);
+    method public void loadTranslate(float, float, float);
+    method public void multiply(android.support.v8.renderscript.Matrix4f);
+    method public void rotate(float, float, float, float);
+    method public void scale(float, float, float);
+    method public void set(int, int, float);
+    method public void translate(float, float, float);
+    method public void transpose();
+  }
+
+  public class RSDriverException extends android.support.v8.renderscript.RSRuntimeException {
+    ctor public RSDriverException(java.lang.String);
+  }
+
+  public class RSIllegalArgumentException extends android.support.v8.renderscript.RSRuntimeException {
+    ctor public RSIllegalArgumentException(java.lang.String);
+  }
+
+  public class RSInvalidStateException extends android.support.v8.renderscript.RSRuntimeException {
+    ctor public RSInvalidStateException(java.lang.String);
+  }
+
+  public class RSRuntimeException extends java.lang.RuntimeException {
+    ctor public RSRuntimeException(java.lang.String);
+  }
+
+  public class RenderScript {
+    method public void contextDump();
+    method public static android.support.v8.renderscript.RenderScript create(android.content.Context);
+    method public static android.support.v8.renderscript.RenderScript create(android.content.Context, android.support.v8.renderscript.RenderScript.ContextType);
+    method public static android.support.v8.renderscript.RenderScript create(android.content.Context, android.support.v8.renderscript.RenderScript.ContextType, int);
+    method public static android.support.v8.renderscript.RenderScript create(android.content.Context, int, android.support.v8.renderscript.RenderScript.ContextType, int);
+    method public static android.support.v8.renderscript.RenderScript createMultiContext(android.content.Context, android.support.v8.renderscript.RenderScript.ContextType, int, int);
+    method public void destroy();
+    method public void finish();
+    method public static void forceCompat();
+    method public final android.content.Context getApplicationContext();
+    method public android.support.v8.renderscript.RenderScript.RSErrorHandler getErrorHandler();
+    method public android.support.v8.renderscript.RenderScript.RSMessageHandler getMessageHandler();
+    method public static void releaseAllContexts();
+    method public void sendMessage(int, int[]);
+    method public static void setBlackList(java.lang.String);
+    method public void setErrorHandler(android.support.v8.renderscript.RenderScript.RSErrorHandler);
+    method public void setMessageHandler(android.support.v8.renderscript.RenderScript.RSMessageHandler);
+    method public void setPriority(android.support.v8.renderscript.RenderScript.Priority);
+    field public static final int CREATE_FLAG_NONE = 0; // 0x0
+  }
+
+  public static final class RenderScript.ContextType extends java.lang.Enum {
+    method public static android.support.v8.renderscript.RenderScript.ContextType valueOf(java.lang.String);
+    method public static final android.support.v8.renderscript.RenderScript.ContextType[] values();
+    enum_constant public static final android.support.v8.renderscript.RenderScript.ContextType DEBUG;
+    enum_constant public static final android.support.v8.renderscript.RenderScript.ContextType NORMAL;
+    enum_constant public static final android.support.v8.renderscript.RenderScript.ContextType PROFILE;
+  }
+
+  public static final class RenderScript.Priority extends java.lang.Enum {
+    method public static android.support.v8.renderscript.RenderScript.Priority valueOf(java.lang.String);
+    method public static final android.support.v8.renderscript.RenderScript.Priority[] values();
+    enum_constant public static final android.support.v8.renderscript.RenderScript.Priority LOW;
+    enum_constant public static final android.support.v8.renderscript.RenderScript.Priority NORMAL;
+  }
+
+  public static class RenderScript.RSErrorHandler implements java.lang.Runnable {
+    ctor public RenderScript.RSErrorHandler();
+    method public void run();
+    field protected java.lang.String mErrorMessage;
+    field protected int mErrorNum;
+  }
+
+  public static class RenderScript.RSMessageHandler implements java.lang.Runnable {
+    ctor public RenderScript.RSMessageHandler();
+    method public void run();
+    field protected int[] mData;
+    field protected int mID;
+    field protected int mLength;
+  }
+
+  public class Sampler extends android.support.v8.renderscript.BaseObj {
+    method public static android.support.v8.renderscript.Sampler CLAMP_LINEAR(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Sampler CLAMP_LINEAR_MIP_LINEAR(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Sampler CLAMP_NEAREST(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Sampler MIRRORED_REPEAT_LINEAR(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Sampler MIRRORED_REPEAT_NEAREST(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Sampler WRAP_LINEAR(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Sampler WRAP_LINEAR_MIP_LINEAR(android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.Sampler WRAP_NEAREST(android.support.v8.renderscript.RenderScript);
+    method public float getAnisotropy();
+    method public android.support.v8.renderscript.Sampler.Value getMagnification();
+    method public android.support.v8.renderscript.Sampler.Value getMinification();
+    method public android.support.v8.renderscript.Sampler.Value getWrapS();
+    method public android.support.v8.renderscript.Sampler.Value getWrapT();
+  }
+
+  public static class Sampler.Builder {
+    ctor public Sampler.Builder(android.support.v8.renderscript.RenderScript);
+    method public android.support.v8.renderscript.Sampler create();
+    method public void setAnisotropy(float);
+    method public void setMagnification(android.support.v8.renderscript.Sampler.Value);
+    method public void setMinification(android.support.v8.renderscript.Sampler.Value);
+    method public void setWrapS(android.support.v8.renderscript.Sampler.Value);
+    method public void setWrapT(android.support.v8.renderscript.Sampler.Value);
+  }
+
+  public static final class Sampler.Value extends java.lang.Enum {
+    method public static android.support.v8.renderscript.Sampler.Value valueOf(java.lang.String);
+    method public static final android.support.v8.renderscript.Sampler.Value[] values();
+    enum_constant public static final android.support.v8.renderscript.Sampler.Value CLAMP;
+    enum_constant public static final android.support.v8.renderscript.Sampler.Value LINEAR;
+    enum_constant public static final android.support.v8.renderscript.Sampler.Value LINEAR_MIP_LINEAR;
+    enum_constant public static final android.support.v8.renderscript.Sampler.Value LINEAR_MIP_NEAREST;
+    enum_constant public static final android.support.v8.renderscript.Sampler.Value MIRRORED_REPEAT;
+    enum_constant public static final android.support.v8.renderscript.Sampler.Value NEAREST;
+    enum_constant public static final android.support.v8.renderscript.Sampler.Value WRAP;
+  }
+
+  public class Script extends android.support.v8.renderscript.BaseObj {
+    method public void bindAllocation(android.support.v8.renderscript.Allocation, int);
+    method protected android.support.v8.renderscript.Script.FieldID createFieldID(int, android.support.v8.renderscript.Element);
+    method protected android.support.v8.renderscript.Script.InvokeID createInvokeID(int);
+    method protected android.support.v8.renderscript.Script.KernelID createKernelID(int, int, android.support.v8.renderscript.Element, android.support.v8.renderscript.Element);
+    method protected void forEach(int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.FieldPacker);
+    method protected void forEach(int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.FieldPacker, android.support.v8.renderscript.Script.LaunchOptions);
+    method protected void invoke(int);
+    method protected void invoke(int, android.support.v8.renderscript.FieldPacker);
+    method protected boolean isIncSupp();
+    method protected void setIncSupp(boolean);
+    method public void setTimeZone(java.lang.String);
+    method public void setVar(int, float);
+    method public void setVar(int, double);
+    method public void setVar(int, int);
+    method public void setVar(int, long);
+    method public void setVar(int, boolean);
+    method public void setVar(int, android.support.v8.renderscript.BaseObj);
+    method public void setVar(int, android.support.v8.renderscript.FieldPacker);
+    method public void setVar(int, android.support.v8.renderscript.FieldPacker, android.support.v8.renderscript.Element, int[]);
+  }
+
+  public static class Script.Builder {
+  }
+
+  public static class Script.FieldBase {
+    ctor protected Script.FieldBase();
+    method public android.support.v8.renderscript.Allocation getAllocation();
+    method public android.support.v8.renderscript.Element getElement();
+    method public android.support.v8.renderscript.Type getType();
+    method protected void init(android.support.v8.renderscript.RenderScript, int);
+    method protected void init(android.support.v8.renderscript.RenderScript, int, int);
+    method public void updateAllocation();
+    field protected android.support.v8.renderscript.Allocation mAllocation;
+    field protected android.support.v8.renderscript.Element mElement;
+  }
+
+  public static final class Script.FieldID extends android.support.v8.renderscript.BaseObj {
+  }
+
+  public static final class Script.InvokeID extends android.support.v8.renderscript.BaseObj {
+  }
+
+  public static final class Script.KernelID extends android.support.v8.renderscript.BaseObj {
+  }
+
+  public static final class Script.LaunchOptions {
+    ctor public Script.LaunchOptions();
+    method public int getXEnd();
+    method public int getXStart();
+    method public int getYEnd();
+    method public int getYStart();
+    method public int getZEnd();
+    method public int getZStart();
+    method public android.support.v8.renderscript.Script.LaunchOptions setX(int, int);
+    method public android.support.v8.renderscript.Script.LaunchOptions setY(int, int);
+    method public android.support.v8.renderscript.Script.LaunchOptions setZ(int, int);
+  }
+
+  public class ScriptC extends android.support.v8.renderscript.Script {
+    ctor protected ScriptC(long, android.support.v8.renderscript.RenderScript);
+    ctor protected ScriptC(android.support.v8.renderscript.RenderScript, android.content.res.Resources, int);
+    ctor protected ScriptC(android.support.v8.renderscript.RenderScript, java.lang.String, byte[], byte[]);
+  }
+
+  public final class ScriptGroup extends android.support.v8.renderscript.BaseObj {
+    method public java.lang.Object[] execute(java.lang.Object...);
+    method public deprecated void execute();
+    method public deprecated void setInput(android.support.v8.renderscript.Script.KernelID, android.support.v8.renderscript.Allocation);
+    method public deprecated void setOutput(android.support.v8.renderscript.Script.KernelID, android.support.v8.renderscript.Allocation);
+  }
+
+  public static final class ScriptGroup.Binding {
+    ctor public ScriptGroup.Binding(android.support.v8.renderscript.Script.FieldID, java.lang.Object);
+    method public android.support.v8.renderscript.Script.FieldID getField();
+    method public java.lang.Object getValue();
+  }
+
+  public static final deprecated class ScriptGroup.Builder {
+    ctor public ScriptGroup.Builder(android.support.v8.renderscript.RenderScript);
+    method public android.support.v8.renderscript.ScriptGroup.Builder addConnection(android.support.v8.renderscript.Type, android.support.v8.renderscript.Script.KernelID, android.support.v8.renderscript.Script.FieldID);
+    method public android.support.v8.renderscript.ScriptGroup.Builder addConnection(android.support.v8.renderscript.Type, android.support.v8.renderscript.Script.KernelID, android.support.v8.renderscript.Script.KernelID);
+    method public android.support.v8.renderscript.ScriptGroup.Builder addKernel(android.support.v8.renderscript.Script.KernelID);
+    method public android.support.v8.renderscript.ScriptGroup create();
+  }
+
+  public static final class ScriptGroup.Builder2 {
+    ctor public ScriptGroup.Builder2(android.support.v8.renderscript.RenderScript);
+    method public android.support.v8.renderscript.ScriptGroup.Input addInput();
+    method public android.support.v8.renderscript.ScriptGroup.Closure addInvoke(android.support.v8.renderscript.Script.InvokeID, java.lang.Object...);
+    method public android.support.v8.renderscript.ScriptGroup.Closure addKernel(android.support.v8.renderscript.Script.KernelID, android.support.v8.renderscript.Type, java.lang.Object...);
+    method public android.support.v8.renderscript.ScriptGroup create(java.lang.String, android.support.v8.renderscript.ScriptGroup.Future...);
+  }
+
+  public static final class ScriptGroup.Closure extends android.support.v8.renderscript.BaseObj {
+    method public android.support.v8.renderscript.ScriptGroup.Future getGlobal(android.support.v8.renderscript.Script.FieldID);
+    method public android.support.v8.renderscript.ScriptGroup.Future getReturn();
+  }
+
+  public static final class ScriptGroup.Future {
+  }
+
+  public static final class ScriptGroup.Input {
+  }
+
+  public abstract class ScriptIntrinsic extends android.support.v8.renderscript.Script {
+  }
+
+  public class ScriptIntrinsic3DLUT extends android.support.v8.renderscript.ScriptIntrinsic {
+    ctor protected ScriptIntrinsic3DLUT(long, android.support.v8.renderscript.RenderScript, android.support.v8.renderscript.Element);
+    method public static android.support.v8.renderscript.ScriptIntrinsic3DLUT create(android.support.v8.renderscript.RenderScript, android.support.v8.renderscript.Element);
+    method public void forEach(android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public android.support.v8.renderscript.Script.KernelID getKernelID();
+    method public void setLUT(android.support.v8.renderscript.Allocation);
+  }
+
+  public final class ScriptIntrinsicBLAS extends android.support.v8.renderscript.ScriptIntrinsic {
+    method public void BNNM(android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, int);
+    method public void CGBMV(int, int, int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, int);
+    method public void CGEMM(int, int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation);
+    method public void CGEMV(int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, int);
+    method public void CGERC(android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void CGERU(android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void CHBMV(int, int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, int);
+    method public void CHEMM(int, int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation);
+    method public void CHEMV(int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, int);
+    method public void CHER(int, float, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void CHER2(int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void CHER2K(int, int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, float, android.support.v8.renderscript.Allocation);
+    method public void CHERK(int, int, float, android.support.v8.renderscript.Allocation, float, android.support.v8.renderscript.Allocation);
+    method public void CHPMV(int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, int);
+    method public void CHPR(int, float, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void CHPR2(int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void CSYMM(int, int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation);
+    method public void CSYR2K(int, int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation);
+    method public void CSYRK(int, int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation);
+    method public void CTBMV(int, int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void CTBSV(int, int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void CTPMV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void CTPSV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void CTRMM(int, int, int, int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void CTRMV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void CTRSM(int, int, int, int, android.support.v8.renderscript.Float2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void CTRSV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void DGBMV(int, int, int, double, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, double, android.support.v8.renderscript.Allocation, int);
+    method public void DGEMM(int, int, double, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, double, android.support.v8.renderscript.Allocation);
+    method public void DGEMV(int, double, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, double, android.support.v8.renderscript.Allocation, int);
+    method public void DGER(double, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void DSBMV(int, int, double, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, double, android.support.v8.renderscript.Allocation, int);
+    method public void DSPMV(int, double, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, double, android.support.v8.renderscript.Allocation, int);
+    method public void DSPR(int, double, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void DSPR2(int, double, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void DSYMM(int, int, double, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, double, android.support.v8.renderscript.Allocation);
+    method public void DSYMV(int, double, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, double, android.support.v8.renderscript.Allocation, int);
+    method public void DSYR(int, double, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void DSYR2(int, double, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void DSYR2K(int, int, double, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, double, android.support.v8.renderscript.Allocation);
+    method public void DSYRK(int, int, double, android.support.v8.renderscript.Allocation, double, android.support.v8.renderscript.Allocation);
+    method public void DTBMV(int, int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void DTBSV(int, int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void DTPMV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void DTPSV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void DTRMM(int, int, int, int, double, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void DTRMV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void DTRSM(int, int, int, int, double, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void DTRSV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void SGBMV(int, int, int, float, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, float, android.support.v8.renderscript.Allocation, int);
+    method public void SGEMM(int, int, float, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, float, android.support.v8.renderscript.Allocation);
+    method public void SGEMV(int, float, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, float, android.support.v8.renderscript.Allocation, int);
+    method public void SGER(float, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void SSBMV(int, int, float, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, float, android.support.v8.renderscript.Allocation, int);
+    method public void SSPMV(int, float, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, float, android.support.v8.renderscript.Allocation, int);
+    method public void SSPR(int, float, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void SSPR2(int, float, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void SSYMM(int, int, float, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, float, android.support.v8.renderscript.Allocation);
+    method public void SSYMV(int, float, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, float, android.support.v8.renderscript.Allocation, int);
+    method public void SSYR(int, float, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void SSYR2(int, float, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void SSYR2K(int, int, float, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, float, android.support.v8.renderscript.Allocation);
+    method public void SSYRK(int, int, float, android.support.v8.renderscript.Allocation, float, android.support.v8.renderscript.Allocation);
+    method public void STBMV(int, int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void STBSV(int, int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void STPMV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void STPSV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void STRMM(int, int, int, int, float, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void STRMV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void STRSM(int, int, int, int, float, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void STRSV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void ZGBMV(int, int, int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, int);
+    method public void ZGEMM(int, int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation);
+    method public void ZGEMV(int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, int);
+    method public void ZGERC(android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void ZGERU(android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void ZHBMV(int, int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, int);
+    method public void ZHEMM(int, int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation);
+    method public void ZHEMV(int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, int);
+    method public void ZHER(int, double, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void ZHER2(int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void ZHER2K(int, int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, double, android.support.v8.renderscript.Allocation);
+    method public void ZHERK(int, int, double, android.support.v8.renderscript.Allocation, double, android.support.v8.renderscript.Allocation);
+    method public void ZHPMV(int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, int);
+    method public void ZHPR(int, double, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void ZHPR2(int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation, int, android.support.v8.renderscript.Allocation);
+    method public void ZSYMM(int, int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation);
+    method public void ZSYR2K(int, int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation);
+    method public void ZSYRK(int, int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation);
+    method public void ZTBMV(int, int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void ZTBSV(int, int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void ZTPMV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void ZTPSV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void ZTRMM(int, int, int, int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void ZTRMV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public void ZTRSM(int, int, int, int, android.support.v8.renderscript.Double2, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void ZTRSV(int, int, int, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, int);
+    method public static android.support.v8.renderscript.ScriptIntrinsicBLAS create(android.support.v8.renderscript.RenderScript);
+    field public static final int CONJ_TRANSPOSE = 113; // 0x71
+    field public static final int LEFT = 141; // 0x8d
+    field public static final int LOWER = 122; // 0x7a
+    field public static final int NON_UNIT = 131; // 0x83
+    field public static final int NO_TRANSPOSE = 111; // 0x6f
+    field public static final int RIGHT = 142; // 0x8e
+    field public static final int TRANSPOSE = 112; // 0x70
+    field public static final int UNIT = 132; // 0x84
+    field public static final int UPPER = 121; // 0x79
+  }
+
+  public class ScriptIntrinsicBlend extends android.support.v8.renderscript.ScriptIntrinsic {
+    method public static android.support.v8.renderscript.ScriptIntrinsicBlend create(android.support.v8.renderscript.RenderScript, android.support.v8.renderscript.Element);
+    method public void forEachAdd(android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void forEachClear(android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void forEachDst(android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void forEachDstAtop(android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void forEachDstIn(android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void forEachDstOut(android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void forEachDstOver(android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void forEachMultiply(android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void forEachSrc(android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void forEachSrcAtop(android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void forEachSrcIn(android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void forEachSrcOut(android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void forEachSrcOver(android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void forEachSubtract(android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void forEachXor(android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public android.support.v8.renderscript.Script.KernelID getKernelIDAdd();
+    method public android.support.v8.renderscript.Script.KernelID getKernelIDClear();
+    method public android.support.v8.renderscript.Script.KernelID getKernelIDDst();
+    method public android.support.v8.renderscript.Script.KernelID getKernelIDDstAtop();
+    method public android.support.v8.renderscript.Script.KernelID getKernelIDDstIn();
+    method public android.support.v8.renderscript.Script.KernelID getKernelIDDstOut();
+    method public android.support.v8.renderscript.Script.KernelID getKernelIDDstOver();
+    method public android.support.v8.renderscript.Script.KernelID getKernelIDMultiply();
+    method public android.support.v8.renderscript.Script.KernelID getKernelIDSrc();
+    method public android.support.v8.renderscript.Script.KernelID getKernelIDSrcAtop();
+    method public android.support.v8.renderscript.Script.KernelID getKernelIDSrcIn();
+    method public android.support.v8.renderscript.Script.KernelID getKernelIDSrcOut();
+    method public android.support.v8.renderscript.Script.KernelID getKernelIDSrcOver();
+    method public android.support.v8.renderscript.Script.KernelID getKernelIDSubtract();
+    method public android.support.v8.renderscript.Script.KernelID getKernelIDXor();
+  }
+
+  public class ScriptIntrinsicBlur extends android.support.v8.renderscript.ScriptIntrinsic {
+    ctor protected ScriptIntrinsicBlur(long, android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.ScriptIntrinsicBlur create(android.support.v8.renderscript.RenderScript, android.support.v8.renderscript.Element);
+    method public void forEach(android.support.v8.renderscript.Allocation);
+    method public android.support.v8.renderscript.Script.FieldID getFieldID_Input();
+    method public android.support.v8.renderscript.Script.KernelID getKernelID();
+    method public void setInput(android.support.v8.renderscript.Allocation);
+    method public void setRadius(float);
+  }
+
+  public class ScriptIntrinsicColorMatrix extends android.support.v8.renderscript.ScriptIntrinsic {
+    ctor protected ScriptIntrinsicColorMatrix(long, android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.ScriptIntrinsicColorMatrix create(android.support.v8.renderscript.RenderScript, android.support.v8.renderscript.Element);
+    method public void forEach(android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public void forEach(android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Script.LaunchOptions);
+    method public android.support.v8.renderscript.Script.KernelID getKernelID();
+    method public void setAdd(android.support.v8.renderscript.Float4);
+    method public void setAdd(float, float, float, float);
+    method public void setColorMatrix(android.support.v8.renderscript.Matrix4f);
+    method public void setColorMatrix(android.support.v8.renderscript.Matrix3f);
+    method public void setGreyscale();
+    method public void setRGBtoYUV();
+    method public void setYUVtoRGB();
+  }
+
+  public class ScriptIntrinsicConvolve3x3 extends android.support.v8.renderscript.ScriptIntrinsic {
+    method public static android.support.v8.renderscript.ScriptIntrinsicConvolve3x3 create(android.support.v8.renderscript.RenderScript, android.support.v8.renderscript.Element);
+    method public void forEach(android.support.v8.renderscript.Allocation);
+    method public void forEach(android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Script.LaunchOptions);
+    method public android.support.v8.renderscript.Script.FieldID getFieldID_Input();
+    method public android.support.v8.renderscript.Script.KernelID getKernelID();
+    method public void setCoefficients(float[]);
+    method public void setInput(android.support.v8.renderscript.Allocation);
+  }
+
+  public class ScriptIntrinsicConvolve5x5 extends android.support.v8.renderscript.ScriptIntrinsic {
+    method public static android.support.v8.renderscript.ScriptIntrinsicConvolve5x5 create(android.support.v8.renderscript.RenderScript, android.support.v8.renderscript.Element);
+    method public void forEach(android.support.v8.renderscript.Allocation);
+    method public void forEach(android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Script.LaunchOptions);
+    method public android.support.v8.renderscript.Script.FieldID getFieldID_Input();
+    method public android.support.v8.renderscript.Script.KernelID getKernelID();
+    method public void setCoefficients(float[]);
+    method public void setInput(android.support.v8.renderscript.Allocation);
+  }
+
+  public class ScriptIntrinsicHistogram extends android.support.v8.renderscript.ScriptIntrinsic {
+    ctor protected ScriptIntrinsicHistogram(long, android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.ScriptIntrinsicHistogram create(android.support.v8.renderscript.RenderScript, android.support.v8.renderscript.Element);
+    method public void forEach(android.support.v8.renderscript.Allocation);
+    method public void forEach(android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Script.LaunchOptions);
+    method public void forEach_Dot(android.support.v8.renderscript.Allocation);
+    method public void forEach_Dot(android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Script.LaunchOptions);
+    method public android.support.v8.renderscript.Script.FieldID getFieldID_Input();
+    method public android.support.v8.renderscript.Script.KernelID getKernelID_Separate();
+    method public void setDotCoefficients(float, float, float, float);
+    method public void setOutput(android.support.v8.renderscript.Allocation);
+  }
+
+  public class ScriptIntrinsicLUT extends android.support.v8.renderscript.ScriptIntrinsic {
+    ctor protected ScriptIntrinsicLUT(long, android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.ScriptIntrinsicLUT create(android.support.v8.renderscript.RenderScript, android.support.v8.renderscript.Element);
+    method public void forEach(android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Allocation);
+    method public android.support.v8.renderscript.Script.KernelID getKernelID();
+    method public void setAlpha(int, int);
+    method public void setBlue(int, int);
+    method public void setGreen(int, int);
+    method public void setRed(int, int);
+  }
+
+  public class ScriptIntrinsicResize extends android.support.v8.renderscript.ScriptIntrinsic {
+    ctor protected ScriptIntrinsicResize(long, android.support.v8.renderscript.RenderScript);
+    method public static android.support.v8.renderscript.ScriptIntrinsicResize create(android.support.v8.renderscript.RenderScript);
+    method public void forEach_bicubic(android.support.v8.renderscript.Allocation);
+    method public void forEach_bicubic(android.support.v8.renderscript.Allocation, android.support.v8.renderscript.Script.LaunchOptions);
+    method public android.support.v8.renderscript.Script.FieldID getFieldID_Input();
+    method public android.support.v8.renderscript.Script.KernelID getKernelID_bicubic();
+    method public void setInput(android.support.v8.renderscript.Allocation);
+  }
+
+  public class ScriptIntrinsicYuvToRGB extends android.support.v8.renderscript.ScriptIntrinsic {
+    method public static android.support.v8.renderscript.ScriptIntrinsicYuvToRGB create(android.support.v8.renderscript.RenderScript, android.support.v8.renderscript.Element);
+    method public void forEach(android.support.v8.renderscript.Allocation);
+    method public android.support.v8.renderscript.Script.FieldID getFieldID_Input();
+    method public android.support.v8.renderscript.Script.KernelID getKernelID();
+    method public void setInput(android.support.v8.renderscript.Allocation);
+  }
+
+  public class Short2 {
+    ctor public Short2();
+    ctor public Short2(short, short);
+    field public short x;
+    field public short y;
+  }
+
+  public class Short3 {
+    ctor public Short3();
+    ctor public Short3(short, short, short);
+    field public short x;
+    field public short y;
+    field public short z;
+  }
+
+  public class Short4 {
+    ctor public Short4();
+    ctor public Short4(short, short, short, short);
+    field public short w;
+    field public short x;
+    field public short y;
+    field public short z;
+  }
+
+  public class Type extends android.support.v8.renderscript.BaseObj {
+    method public static android.support.v8.renderscript.Type createX(android.support.v8.renderscript.RenderScript, android.support.v8.renderscript.Element, int);
+    method public static android.support.v8.renderscript.Type createXY(android.support.v8.renderscript.RenderScript, android.support.v8.renderscript.Element, int, int);
+    method public static android.support.v8.renderscript.Type createXYZ(android.support.v8.renderscript.RenderScript, android.support.v8.renderscript.Element, int, int, int);
+    method public int getCount();
+    method public long getDummyType(android.support.v8.renderscript.RenderScript, long);
+    method public android.support.v8.renderscript.Element getElement();
+    method public int getX();
+    method public int getY();
+    method public int getYuv();
+    method public int getZ();
+    method public boolean hasFaces();
+    method public boolean hasMipmaps();
+  }
+
+  public static class Type.Builder {
+    ctor public Type.Builder(android.support.v8.renderscript.RenderScript, android.support.v8.renderscript.Element);
+    method public android.support.v8.renderscript.Type create();
+    method public android.support.v8.renderscript.Type.Builder setFaces(boolean);
+    method public android.support.v8.renderscript.Type.Builder setMipmaps(boolean);
+    method public android.support.v8.renderscript.Type.Builder setX(int);
+    method public android.support.v8.renderscript.Type.Builder setY(int);
+    method public android.support.v8.renderscript.Type.Builder setYuvFormat(int);
+    method public android.support.v8.renderscript.Type.Builder setZ(int);
+  }
+
+  public static final class Type.CubemapFace extends java.lang.Enum {
+    method public static android.support.v8.renderscript.Type.CubemapFace valueOf(java.lang.String);
+    method public static final android.support.v8.renderscript.Type.CubemapFace[] values();
+    enum_constant public static final android.support.v8.renderscript.Type.CubemapFace NEGATIVE_X;
+    enum_constant public static final android.support.v8.renderscript.Type.CubemapFace NEGATIVE_Y;
+    enum_constant public static final android.support.v8.renderscript.Type.CubemapFace NEGATIVE_Z;
+    enum_constant public static final android.support.v8.renderscript.Type.CubemapFace POSITIVE_X;
+    enum_constant public static final android.support.v8.renderscript.Type.CubemapFace POSITIVE_Y;
+    enum_constant public static final android.support.v8.renderscript.Type.CubemapFace POSITIVE_Z;
+  }
+
+}
+
