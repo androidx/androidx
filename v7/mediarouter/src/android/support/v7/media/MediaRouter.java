@@ -17,7 +17,6 @@
 package android.support.v7.media;
 
 import android.app.ActivityManager;
-import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -1340,7 +1339,8 @@ public final class MediaRouter {
             return mDescriptorId;
         }
 
-        MediaRouteProvider getProviderInstance() {
+        /** @hide */
+        public MediaRouteProvider getProviderInstance() {
             return mProvider.getProviderInstance();
         }
     }
