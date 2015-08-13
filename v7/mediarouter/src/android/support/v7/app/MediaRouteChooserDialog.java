@@ -20,8 +20,9 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v7.media.MediaRouter;
+import android.support.v7.media.MediaControlIntent;
 import android.support.v7.media.MediaRouteSelector;
+import android.support.v7.media.MediaRouter;
 import android.support.v7.mediarouter.R;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -260,11 +261,32 @@ public class MediaRouteChooserDialog extends Dialog {
     }
 
     private static final class RouteComparator implements Comparator<MediaRouter.RouteInfo> {
+        // Should match to SystemMediaRouteProvider.PACKAGE_NAME.
+        static final String SYSTEM_MEDIA_ROUTE_PROVIDER_PACKAGE_NAME = "android";
+
         public static final RouteComparator sInstance = new RouteComparator();
 
         @Override
         public int compare(MediaRouter.RouteInfo lhs, MediaRouter.RouteInfo rhs) {
+            if (isSystemLiveAudioOnlyRoute(lhs))  {
+                if (!isSystemLiveAudioOnlyRoute(rhs)) {
+                    return 1;
+                }
+            } else if (isSystemLiveAudioOnlyRoute(rhs)) {
+                return -1;
+            }
             return lhs.getName().compareTo(rhs.getName());
+        }
+
+        private boolean isSystemLiveAudioOnlyRoute(MediaRouter.RouteInfo route) {
+            return isSystemMediaRouteProvider(route)
+                    && route.supportsControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
+                    && !route.supportsControlCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO);
+        }
+
+        private boolean isSystemMediaRouteProvider(MediaRouter.RouteInfo route) {
+            return TextUtils.equals(route.getProviderInstance().getMetadata().getPackageName(),
+                    SYSTEM_MEDIA_ROUTE_PROVIDER_PACKAGE_NAME);
         }
     }
 }
