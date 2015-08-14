@@ -20,6 +20,8 @@
     <dimen name="lb_preference_decor_title_margin_start">24dp</dimen>
     <dimen name="lb_preference_decor_title_margin_end">56dp</dimen>
     <dimen name="lb_preference_decor_title_text_size">20sp</dimen>
+    <dimen name="lb_preference_decor_title_container_elevation">2dp</dimen>
+    <dimen name="lb_preference_decor_elevation">6dp</dimen>
 
     <dimen name="lb_preference_item_padding_start">24dp</dimen>
     <dimen name="lb_preference_item_padding_end">56dp</dimen>
