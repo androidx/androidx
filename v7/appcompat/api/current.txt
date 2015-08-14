@@ -1601,6 +1601,7 @@ package android.support.v7.graphics.drawable {
     method public int getDirection();
     method public float getGapSize();
     method public int getOpacity();
+    method public final android.graphics.Paint getPaint();
     method public float getProgress();
     method public boolean isSpinEnabled();
     method public void setAlpha(int);
