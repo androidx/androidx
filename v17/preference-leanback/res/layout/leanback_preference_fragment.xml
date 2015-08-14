@@ -20,6 +20,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/lb_preference_decor_list_background"
+    android:elevation="@dimen/lb_preference_decor_elevation"
     android:orientation="vertical"
     android:transitionGroup="false"
     >
@@ -29,6 +30,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/defaultBrandColor"
+        android:elevation="@dimen/lb_preference_decor_title_container_elevation"
         android:transitionGroup="false"
         >
         <TextView
