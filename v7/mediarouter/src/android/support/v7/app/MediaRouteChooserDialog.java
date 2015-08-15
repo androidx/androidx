@@ -18,6 +18,8 @@ package android.support.v7.app;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.media.MediaControlIntent;
@@ -139,15 +141,8 @@ public class MediaRouteChooserDialog extends Dialog {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getWindow().requestFeature(Window.FEATURE_LEFT_ICON);
-
         setContentView(R.layout.mr_media_route_chooser_dialog);
         setTitle(R.string.mr_media_route_chooser_title);
-
-        // Must be called after setContentView.
-        getWindow().setFeatureDrawableResource(Window.FEATURE_LEFT_ICON,
-                MediaRouterThemeHelper.getThemeResource(
-                        getContext(), R.attr.mediaRouteOffDrawable));
 
         mRoutes = new ArrayList<MediaRouter.RouteInfo>();
         mAdapter = new RouteAdapter(getContext(), mRoutes);
