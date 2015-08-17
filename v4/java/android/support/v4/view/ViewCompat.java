@@ -384,6 +384,7 @@ public class ViewCompat {
         int combineMeasuredStates(int curState, int newState);
         public float getZ(View view);
         public boolean isAttachedToWindow(View view);
+        public boolean hasOnClickListeners(View view);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -963,6 +964,11 @@ public class ViewCompat {
         public boolean isAttachedToWindow(View view) {
             return ViewCompatBase.isAttachedToWindow(view);
         }
+
+        @Override
+        public boolean hasOnClickListeners(View view) {
+            return false;
+        }
     }
 
     static class EclairMr1ViewCompatImpl extends BaseViewCompatImpl {
@@ -1222,7 +1228,14 @@ public class ViewCompat {
         }
     }
 
-    static class JBViewCompatImpl extends ICSViewCompatImpl {
+    static class ICSMr1ViewCompatImpl extends ICSViewCompatImpl {
+        @Override
+        public boolean hasOnClickListeners(View view) {
+            return ViewCompatICSMr1.hasOnClickListeners(view);
+        }
+    }
+
+    static class JBViewCompatImpl extends ICSMr1ViewCompatImpl {
         @Override
         public boolean hasTransientState(View view) {
             return ViewCompatJB.hasTransientState(view);
@@ -1540,6 +1553,8 @@ public class ViewCompat {
             IMPL = new JbMr1ViewCompatImpl();
         } else if (version >= 16) {
             IMPL = new JBViewCompatImpl();
+        } else if (version >= 15) {
+            IMPL = new ICSMr1ViewCompatImpl();
         } else if (version >= 14) {
             IMPL = new ICSViewCompatImpl();
         } else if (version >= 11) {
@@ -3084,5 +3099,14 @@ public class ViewCompat {
      */
     public static boolean isAttachedToWindow(View view) {
         return IMPL.isAttachedToWindow(view);
+    }
+
+    /**
+     * Returns whether the provided view has an attached {@link View.OnClickListener}.
+     *
+     * @return true if there is a listener, false if there is none.
+     */
+    public static boolean hasOnClickListeners(View view) {
+        return IMPL.hasOnClickListeners(view);
     }
 }

@@ -17,9 +17,13 @@
 package android.support.v7.internal.app;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.view.ContextThemeWrapper;
 import android.support.v7.widget.AppCompatAutoCompleteTextView;
@@ -32,7 +36,6 @@ import android.support.v7.widget.AppCompatRadioButton;
 import android.support.v7.widget.AppCompatRatingBar;
 import android.support.v7.widget.AppCompatSeekBar;
 import android.support.v7.widget.AppCompatSpinner;
-import android.support.v7.internal.widget.ViewUtils;
 import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -40,7 +43,8 @@ import android.view.InflateException;
 import android.view.View;
 
 import java.lang.reflect.Constructor;
-import java.util.HashMap;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Map;
 
 /**
@@ -55,8 +59,9 @@ import java.util.Map;
  */
 public class AppCompatViewInflater {
 
-    static final Class<?>[] sConstructorSignature = new Class[]{
+    private static final Class<?>[] sConstructorSignature = new Class[]{
             Context.class, AttributeSet.class};
+    private static final int[] sOnClickAttrs = new int[]{android.R.attr.onClick};
 
     private static final String LOG_TAG = "AppCompatViewInflater";
 
@@ -80,39 +85,57 @@ public class AppCompatViewInflater {
             context = themifyContext(context, attrs, readAndroidTheme, readAppTheme);
         }
 
+        View view = null;
+
         // We need to 'inject' our tint aware Views in place of the standard framework versions
         switch (name) {
             case "EditText":
-                return new AppCompatEditText(context, attrs);
+                view = new AppCompatEditText(context, attrs);
+                break;
             case "Spinner":
-                return new AppCompatSpinner(context, attrs);
+                view = new AppCompatSpinner(context, attrs);
+                break;
             case "CheckBox":
-                return new AppCompatCheckBox(context, attrs);
+                view = new AppCompatCheckBox(context, attrs);
+                break;
             case "RadioButton":
-                return new AppCompatRadioButton(context, attrs);
+                view = new AppCompatRadioButton(context, attrs);
+                break;
             case "CheckedTextView":
-                return new AppCompatCheckedTextView(context, attrs);
+                view = new AppCompatCheckedTextView(context, attrs);
+                break;
             case "AutoCompleteTextView":
-                return new AppCompatAutoCompleteTextView(context, attrs);
+                view = new AppCompatAutoCompleteTextView(context, attrs);
+                break;
             case "MultiAutoCompleteTextView":
-                return new AppCompatMultiAutoCompleteTextView(context, attrs);
+                view = new AppCompatMultiAutoCompleteTextView(context, attrs);
+                break;
             case "RatingBar":
-                return new AppCompatRatingBar(context, attrs);
+                view = new AppCompatRatingBar(context, attrs);
+                break;
             case "Button":
-                return new AppCompatButton(context, attrs);
+                view = new AppCompatButton(context, attrs);
+                break;
             case "TextView":
-                return new AppCompatTextView(context, attrs);
+                view = new AppCompatTextView(context, attrs);
+                break;
             case "SeekBar":
-                return new AppCompatSeekBar(context, attrs);
+                view = new AppCompatSeekBar(context, attrs);
+                break;
         }
 
-        if (originalContext != context) {
+        if (view == null && originalContext != context) {
             // If the original context does not equal our themed context, then we need to manually
             // inflate it using the name so that android:theme takes effect.
-            return createViewFromTag(context, name, attrs);
+            view = createViewFromTag(context, name, attrs);
         }
 
-        return null;
+        if (view != null) {
+            // If we have created a view, check it's android:onClick
+            checkOnClickListener(view, attrs);
+        }
+
+        return view;
     }
 
     private View createViewFromTag(Context context, String name, AttributeSet attrs) {
@@ -139,6 +162,28 @@ public class AppCompatViewInflater {
             mConstructorArgs[0] = null;
             mConstructorArgs[1] = null;
         }
+    }
+
+    /**
+     * android:onClick doesn't handle views with a ContextWrapper context. This method
+     * backports new framework functionality to traverse the Context wrappers to find a
+     * suitable target.
+     */
+    private void checkOnClickListener(View view, AttributeSet attrs) {
+        final Context context = view.getContext();
+
+        if (!ViewCompat.hasOnClickListeners(view) || !(context instanceof ContextWrapper)) {
+            // Skip our compat functionality if: the view doesn't have an onClickListener,
+            // or the Context isn't a ContextWrapper
+            return;
+        }
+
+        final TypedArray a = context.obtainStyledAttributes(attrs, sOnClickAttrs);
+        final String handlerName = a.getString(0);
+        if (handlerName != null) {
+            view.setOnClickListener(new DeclaredOnClickListener(view, handlerName));
+        }
+        a.recycle();
     }
 
     private View createView(Context context, String name, String prefix)
@@ -192,5 +237,71 @@ public class AppCompatViewInflater {
             context = new ContextThemeWrapper(context, themeId);
         }
         return context;
+    }
+
+    /**
+     * An implementation of OnClickListener that attempts to lazily load a
+     * named click handling method from a parent or ancestor context.
+     */
+    private static class DeclaredOnClickListener implements View.OnClickListener {
+        private final View mHostView;
+        private final String mMethodName;
+
+        private Method mResolvedMethod;
+        private Context mResolvedContext;
+
+        public DeclaredOnClickListener(@NonNull View hostView, @NonNull String methodName) {
+            mHostView = hostView;
+            mMethodName = methodName;
+        }
+
+        @Override
+        public void onClick(@NonNull View v) {
+            if (mResolvedMethod == null) {
+                resolveMethod(mHostView.getContext(), mMethodName);
+            }
+
+            try {
+                mResolvedMethod.invoke(mResolvedContext, v);
+            } catch (IllegalAccessException e) {
+                throw new IllegalStateException(
+                        "Could not execute non-public method for android:onClick", e);
+            } catch (InvocationTargetException e) {
+                throw new IllegalStateException(
+                        "Could not execute method for android:onClick", e);
+            }
+        }
+
+        @NonNull
+        private void resolveMethod(@Nullable Context context, @NonNull String name) {
+            while (context != null) {
+                try {
+                    if (!context.isRestricted()) {
+                        final Method method = context.getClass().getMethod(mMethodName, View.class);
+                        if (method != null) {
+                            mResolvedMethod = method;
+                            mResolvedContext = context;
+                            return;
+                        }
+                    }
+                } catch (NoSuchMethodException e) {
+                    // Failed to find method, keep searching up the hierarchy.
+                }
+
+                if (context instanceof ContextWrapper) {
+                    context = ((ContextWrapper) context).getBaseContext();
+                } else {
+                    // Can't search up the hierarchy, null out and fail.
+                    context = null;
+                }
+            }
+
+            final int id = mHostView.getId();
+            final String idText = id == View.NO_ID ? "" : " with id '"
+                    + mHostView.getContext().getResources().getResourceEntryName(id) + "'";
+            throw new IllegalStateException("Could not find method " + mMethodName
+                    + "(View) in a parent or ancestor Context for android:onClick "
+                    + "attribute defined on view " + mHostView.getClass() + idText);
+        }
     }
 }
