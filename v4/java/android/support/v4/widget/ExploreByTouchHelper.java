@@ -305,6 +305,10 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
     private AccessibilityEvent createEventForHost(int eventType) {
         final AccessibilityEvent event = AccessibilityEvent.obtain(eventType);
         ViewCompat.onInitializeAccessibilityEvent(mView, event);
+
+        // Allow the client to populate the event.
+        onPopulateEventForHost(event);
+
         return event;
     }
 
@@ -369,13 +373,17 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
     private AccessibilityNodeInfoCompat createNodeForHost() {
         final AccessibilityNodeInfoCompat node = AccessibilityNodeInfoCompat.obtain(mView);
         ViewCompat.onInitializeAccessibilityNodeInfo(mView, node);
+        final int realNodeCount = node.getChildCount();
 
         // Allow the client to populate the host node.
         onPopulateNodeForHost(node);
 
         // Add the virtual descendants.
-        final LinkedList<Integer> virtualViewIds = new LinkedList<Integer>();
+        final LinkedList<Integer> virtualViewIds = new LinkedList<>();
         getVisibleVirtualViews(virtualViewIds);
+        if (realNodeCount > 0 && virtualViewIds.size() > 0) {
+            throw new RuntimeException("Views cannot have both real and virtual children");
+        }
 
         for (Integer childVirtualViewId : virtualViewIds) {
             node.addChild(mView, childVirtualViewId);
@@ -671,6 +679,18 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
             int virtualViewId, AccessibilityEvent event);
 
     /**
+     * Populates an {@link AccessibilityEvent} with information about the host
+     * view.
+     * <p>
+     * The default implementation is a no-op.
+     *
+     * @param event the event to populate with information about the host view
+     */
+    protected void onPopulateEventForHost(AccessibilityEvent event) {
+        // Default implementation is no-op.
+    }
+
+    /**
      * Populates an {@link AccessibilityNodeInfoCompat} with information
      * about the specified item.
      * <p>
@@ -732,10 +752,11 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      * Populates an {@link AccessibilityNodeInfoCompat} with information
      * about the host view.
      * <p>
-     * The following required fields are automatically populated by the
-     * helper class and may not be overridden:
+     * The default implementation is a no-op.
+     *
+     * @param node the node to populate with information about the host view
      */
-    public void onPopulateNodeForHost(AccessibilityNodeInfoCompat node) {
+    protected void onPopulateNodeForHost(AccessibilityNodeInfoCompat node) {
         // Default implementation is no-op.
     }
 
