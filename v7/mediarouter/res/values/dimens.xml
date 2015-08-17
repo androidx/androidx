@@ -16,5 +16,4 @@
 
 <resources>
     <dimen name="mr_media_route_controller_art_max_height">320dp</dimen>
-    <dimen name="mr_list_item_margin">0dp</dimen>
 </resources>
