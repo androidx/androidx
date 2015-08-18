@@ -17,12 +17,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityOptionsCompat;
-import android.app.FragmentManager;
-import android.graphics.drawable.Drawable;
-import android.support.v17.leanback.app.GuidedStepFragment;
-import android.support.v17.leanback.widget.GuidedAction;
-import android.support.v17.leanback.widget.GuidanceStylist;
-import android.support.v17.leanback.widget.GuidanceStylist.Guidance;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ImageCardView;
@@ -36,9 +30,6 @@ import android.support.v17.leanback.widget.RowPresenter;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-
-import java.util.List;
-import java.util.ArrayList;
 
 public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragment {
     private static final String TAG = "leanback.BrowseFragment";
@@ -134,77 +125,26 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         @Override
         public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
                 RowPresenter.ViewHolder rowViewHolder, Row row) {
-            ConfirmPhotoView step = new ConfirmPhotoView((PhotoItem)item,
-                    (ImageCardView)itemViewHolder.view);
-            GuidedStepFragment.add(getFragmentManager(), step);
-        }
-    }
 
-    private class ConfirmPhotoView extends GuidedStepFragment {
-        private static final int CONTINUE = 1;
-        private static final int BACK = 2;
-
-        private PhotoItem mItem;
-        private ImageCardView mImageCardView;
-
-        private void addAction(List<GuidedAction> actions, long id, String title, String desc) {
-            actions.add(new GuidedAction.Builder()
-                    .id(id)
-                    .title(title)
-                    .description(desc)
-                    .build());
-        }
-
-        ConfirmPhotoView(PhotoItem item, ImageCardView imageCardView) {
-            mItem = item;
-            mImageCardView = imageCardView;
-        }
-
-        @Override
-        public Guidance onCreateGuidance(Bundle savedInstanceState) {
-            String title = "Confirm";
-            String breadcrumb = "BrowseFragment";
-            String description = "Confirm intent to view this photo";
-            Drawable icon = getActivity().getDrawable(R.drawable.ic_main_icon);
-            return new Guidance(title, description, breadcrumb, icon);
-        }
-
-        @Override
-        public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
-            addAction(actions, CONTINUE, "Continue", "Let's do it");
-            addAction(actions, BACK, "Cancel", "Nevermind");
-        }
-
-        @Override
-        public void onGuidedActionClicked(GuidedAction action) {
-            FragmentManager fm = getFragmentManager();
-            if (action.getId() == CONTINUE) {
-                launchPhotoActivity(mItem, mImageCardView);
+            Intent intent;
+            Bundle bundle;
+            if ( ((PhotoItem) item).getImageResourceId() == R.drawable.gallery_photo_8) {
+                intent = new Intent(getActivity(), BrowseActivity.class);
+                bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity())
+                        .toBundle();
+            } else if ( ((PhotoItem) item).getImageResourceId() == R.drawable.gallery_photo_7) {
+                intent = new Intent(getActivity(), RowsActivity.class);
+                bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity())
+                        .toBundle();
             } else {
-                fm.popBackStack();
+                intent = new Intent(getActivity(), DetailsActivity.class);
+                intent.putExtra(DetailsActivity.EXTRA_ITEM, (PhotoItem) item);
+                bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                        getActivity(),
+                        ((ImageCardView)itemViewHolder.view).getMainImageView(),
+                        DetailsActivity.SHARED_ELEMENT_NAME).toBundle();
             }
+            getActivity().startActivity(intent, bundle);
         }
-    }
-
-    private void launchPhotoActivity(PhotoItem item, ImageCardView imageCardView) {
-        Intent intent;
-        Bundle bundle;
-        if ( item.getImageResourceId() == R.drawable.gallery_photo_8) {
-            intent = new Intent(getActivity(), BrowseActivity.class);
-            bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity())
-                    .toBundle();
-        } else if ( item.getImageResourceId() == R.drawable.gallery_photo_7) {
-            intent = new Intent(getActivity(), RowsActivity.class);
-            bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity())
-                    .toBundle();
-        } else {
-            intent = new Intent(getActivity(), DetailsActivity.class);
-            intent.putExtra(DetailsActivity.EXTRA_ITEM, item);
-            bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                    getActivity(),
-                    imageCardView.getMainImageView(),
-                    DetailsActivity.SHARED_ELEMENT_NAME).toBundle();
-        }
-        getActivity().startActivity(intent, bundle);
     }
 }
