@@ -109,10 +109,17 @@ public final class MediaRouteDescriptor {
     }
 
     /**
-     * Gets whether the route can be disconnected without stopping playback. To
-     * specify that the route should disconnect without stopping use
+     * Gets whether the route can be disconnected without stopping playback.
+     * <p>
+     * The route can normally be disconnected without stopping playback when
+     * the destination device on the route is connected to two or more source
+     * devices. The route provider should update the route immediately when the
+     * number of connected devices changes.
+     * </p><p>
+     * To specify that the route should disconnect without stopping use
      * {@link MediaRouter#unselect(int)} with
      * {@link MediaRouter#UNSELECT_REASON_DISCONNECTED}.
+     * </p>
      */
     public boolean canDisconnectAndKeepPlaying() {
         return mBundle.getBoolean(KEY_CAN_DISCONNECT, false);
