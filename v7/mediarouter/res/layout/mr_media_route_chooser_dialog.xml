@@ -24,18 +24,20 @@
 
     <LinearLayout android:id="@android:id/empty"
               android:layout_width="fill_parent"
-              android:layout_height="64dp"
-              android:orientation="horizontal"
+              android:layout_height="240dp"
+              android:orientation="vertical"
+              android:paddingTop="90dp"
               android:paddingLeft="16dp"
               android:paddingRight="16dp"
               android:visibility="gone">
-        <ProgressBar android:layout_width="wrap_content"
-                     android:layout_height="wrap_content"
-                     android:layout_gravity="center" />
         <TextView android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:layout_gravity="center"
-                  android:paddingLeft="16dp"
                   android:text="@string/mr_media_route_chooser_searching" />
+        <ProgressBar android:layout_width="150dp"
+                     android:layout_height="wrap_content"
+                     android:layout_gravity="center"
+                     android:indeterminate="true"
+                     style="?android:attr/progressBarStyleHorizontal" />
     </LinearLayout>
 </LinearLayout>
