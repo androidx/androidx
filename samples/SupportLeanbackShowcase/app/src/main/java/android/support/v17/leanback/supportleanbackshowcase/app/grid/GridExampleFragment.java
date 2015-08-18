@@ -30,7 +30,7 @@ import com.google.gson.Gson;
 /**
  * An example how to use leanback's {@link VerticalGridFragment}.
  */
-public class GridExample extends VerticalGridFragment {
+public class GridExampleFragment extends VerticalGridFragment {
 
     private static final int COLUMNS = 4;
     private static final int ZOOM_FACTOR = FocusHighlight.ZOOM_FACTOR_MEDIUM;

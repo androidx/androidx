@@ -52,6 +52,7 @@ public class WizardExample1stStepFragment extends WizardExampleBaseStepFragment 
         GuidedAction action = new GuidedAction.Builder()
                 .id(ACTION_ID_BUY_HD)
                 .title(getString(R.string.wizard_example_rent_hd))
+                .editable(false)
                 .description(mMovie.getPriceHd() + " " +
                         getString(R.string.wizard_example_watch_hd))
                 .build();
@@ -59,6 +60,7 @@ public class WizardExample1stStepFragment extends WizardExampleBaseStepFragment 
         action = new GuidedAction.Builder()
                 .id(ACTION_ID_BUY_SD)
                 .title(getString(R.string.wizard_example_rent_sd))
+                .editable(false)
                 .description(mMovie.getPriceSd() + " " +
                         getString(R.string.wizard_example_watch_sd))
                 .build();

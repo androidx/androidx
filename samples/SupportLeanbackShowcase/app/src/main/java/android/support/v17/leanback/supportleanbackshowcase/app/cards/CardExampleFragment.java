@@ -14,21 +14,32 @@
 
 package android.support.v17.leanback.supportleanbackshowcase.app.cards;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v17.leanback.app.BrowseFragment;
-import android.support.v17.leanback.supportleanbackshowcase.utils.CardListRow;
 import android.support.v17.leanback.supportleanbackshowcase.R;
+import android.support.v17.leanback.supportleanbackshowcase.app.details.DetailViewExampleActivity;
+import android.support.v17.leanback.supportleanbackshowcase.app.details.DetailViewExampleFragment;
 import android.support.v17.leanback.supportleanbackshowcase.app.details.ShadowRowPresenterSelector;
-import android.support.v17.leanback.supportleanbackshowcase.utils.Utils;
+import android.support.v17.leanback.supportleanbackshowcase.cards.presenters.CardPresenterSelector;
 import android.support.v17.leanback.supportleanbackshowcase.models.Card;
 import android.support.v17.leanback.supportleanbackshowcase.models.CardRow;
-import android.support.v17.leanback.supportleanbackshowcase.cards.presenters.CardPresenterSelector;
+import android.support.v17.leanback.supportleanbackshowcase.utils.CardListRow;
+import android.support.v17.leanback.supportleanbackshowcase.utils.Utils;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
+import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.ListRow;
+import android.support.v17.leanback.widget.OnItemViewClickedListener;
+import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
+import android.support.v17.leanback.widget.Row;
+import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.SearchOrbView;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -52,22 +63,50 @@ public class CardExampleFragment extends BrowseFragment {
         setHeadersTransitionOnBackEnabled(true);
         setSearchAffordanceColors(
                 new SearchOrbView.Colors(getResources().getColor(R.color.search_color),
-                                         getResources().getColor(R.color.search_bright_color),
-                                         getResources().getColor(R.color.search_icon_color)));
+                        getResources().getColor(R.color.search_bright_color),
+                        getResources().getColor(R.color.search_icon_color)));
         setBrandColor(getResources().getColor(R.color.fastlane_background));
         setTitle(getString(R.string.card_examples_title));
         setOnSearchClickedListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
+            @Override
+            public void onClick(View v) {
                 Toast.makeText(getActivity(), getString(R.string.implement_search),
-                               Toast.LENGTH_LONG).show();
+                        Toast.LENGTH_LONG).show();
             }
         });
+        setOnItemViewClickedListener(new OnItemViewClickedListener() {
+
+            @Override
+            public void onItemClicked(Presenter.ViewHolder viewHolder, Object item, RowPresenter.ViewHolder viewHolder1, Row row) {
+                if (!(item instanceof Card)) return;
+                if (!(viewHolder.view instanceof ImageCardView)) return;
+
+                ImageView imageView = ((ImageCardView) viewHolder.view).getMainImageView();
+                Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(),
+                        imageView, DetailViewExampleFragment.TRANSITION_NAME).toBundle();
+                Intent intent = new Intent(getActivity().getBaseContext(),
+                        DetailViewExampleActivity.class);
+                Card card = (Card) item;
+                int imageResId = card.getLocalImageResourceId(getContext());
+                intent.putExtra(DetailViewExampleFragment.EXTRA_CARD, imageResId);
+                startActivity(intent, bundle);
+            }
+
+        });
+
+        prepareEntranceTransition();
     }
 
     private void setupRowAdapter() {
         mRowsAdapter = new ArrayObjectAdapter(new ShadowRowPresenterSelector());
-        createRows();
         setAdapter(mRowsAdapter);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                createRows();
+                startEntranceTransition();
+            }
+        }, 500);
     }
 
     private void createRows() {

@@ -14,7 +14,10 @@
 
 package android.support.v17.leanback.supportleanbackshowcase.app.details;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v17.leanback.app.DetailsFragment;
 import android.support.v17.leanback.supportleanbackshowcase.models.DetailedCard;
 import android.support.v17.leanback.supportleanbackshowcase.R;
@@ -27,6 +30,7 @@ import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.ClassPresenterSelector;
 import android.support.v17.leanback.widget.DetailsOverviewRow;
 import android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter;
+import android.support.v17.leanback.widget.FullWidthDetailsOverviewSharedElementHelper;
 import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
@@ -47,11 +51,14 @@ import com.google.gson.Gson;
 public class DetailViewExampleFragment extends DetailsFragment implements OnItemViewClickedListener,
         OnItemViewSelectedListener {
 
+    public static final String TRANSITION_NAME = "t_for_transition";
+    public static final String EXTRA_CARD = "card";
+
     private ArrayObjectAdapter mRowsAdapter;
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setupUi();
         setupEventListeners();
     }
@@ -85,6 +92,13 @@ public class DetailViewExampleFragment extends DetailsFragment implements OnItem
                 return viewHolder;
             }
         };
+
+        FullWidthDetailsOverviewSharedElementHelper mHelper = new FullWidthDetailsOverviewSharedElementHelper();
+        mHelper.setSharedElementEnterTransition(getActivity(), TRANSITION_NAME);
+        rowPresenter.setListener(mHelper);
+        rowPresenter.setParticipatingEntranceTransition(false);
+        prepareEntranceTransition();
+
         ListRowPresenter shadowDisabledRowPresenter = new ListRowPresenter();
         shadowDisabledRowPresenter.setShadowEnabled(false);
 
@@ -98,6 +112,11 @@ public class DetailViewExampleFragment extends DetailsFragment implements OnItem
         // Setup action and detail row.
         DetailsOverviewRow detailsOverview = new DetailsOverviewRow(data);
         int imageResId = data.getLocalImageResourceId(getActivity());
+
+        Bundle extras = getActivity().getIntent().getExtras();
+        if (extras != null && extras.containsKey(EXTRA_CARD)) {
+            imageResId = extras.getInt(EXTRA_CARD, imageResId);
+        }
         detailsOverview.setImageDrawable(getResources().getDrawable(imageResId, null));
         ArrayObjectAdapter actionAdapter = new ArrayObjectAdapter();
         actionAdapter.add(new Action(1, getString(R.string.action_buy) + data.getPrice()));
@@ -120,6 +139,12 @@ public class DetailViewExampleFragment extends DetailsFragment implements OnItem
         mRowsAdapter.add(new ListRow(header, listRowAdapter));
 
         setAdapter(mRowsAdapter);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                startEntranceTransition();
+            }
+        }, 500);
     }
 
     private void setupEventListeners() {

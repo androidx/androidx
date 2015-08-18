@@ -47,6 +47,7 @@ public class CharacterCardView extends BaseCardView {
             }
         });
         setFocusable(true);
+        setBackground(null);
     }
 
     public void updateUi(Card card) {

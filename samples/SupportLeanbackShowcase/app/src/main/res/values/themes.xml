@@ -32,6 +32,9 @@
         <item name="browseRowsMarginTop">275dp</item>
     </style>
 
+    <style name="Theme.Example.LeanbackBrowse" parent="Theme.Leanback.Browse">
+    </style>
+
     <style name="Theme.Example.LeanbackWizard" parent="Theme.Leanback.GuidedStep">
         <item name="guidedActionsContainerStyle">@style/WizardActionsContainerStyle</item>
     </style>
@@ -48,7 +51,7 @@
         <item name="android:colorPrimary">@color/settings_background</item>
     </style>
 
-    <style name="Theme.Example.LeanbackDetailView" parent="Theme.Leanback">
+    <style name="Theme.Example.LeanbackDetails" parent="Theme.Leanback.Details">
         <item name="android:colorPrimary">@color/detail_view_actionbar_background</item>
     </style>
 </resources>

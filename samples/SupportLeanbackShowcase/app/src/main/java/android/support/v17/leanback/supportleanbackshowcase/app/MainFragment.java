@@ -164,8 +164,7 @@ public class MainFragment extends BrowseFragment {
                     break;
             }
             if (intent != null) {
-                Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(),
-                        ((ImageCardView) itemViewHolder.view).getMainImageView(), "transition")
+                Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity())
                         .toBundle();
                 startActivity(intent, bundle);
             }

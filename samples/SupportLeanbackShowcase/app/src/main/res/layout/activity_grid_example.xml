@@ -21,7 +21,7 @@
 
     <fragment
         android:id="@+id/cardsFragment"
-        android:name="android.support.v17.leanback.supportleanbackshowcase.app.grid.GridExample"
+        android:name="android.support.v17.leanback.supportleanbackshowcase.app.grid.GridExampleFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"></fragment>
 </RelativeLayout>

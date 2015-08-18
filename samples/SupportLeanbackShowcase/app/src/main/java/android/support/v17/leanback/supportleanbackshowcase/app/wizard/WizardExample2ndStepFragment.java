@@ -58,6 +58,7 @@ public class WizardExample2ndStepFragment extends WizardExampleBaseStepFragment 
                 getString(R.string.wizard_example_rental_period),
                 mMovie.getBreadcrump(), null);
         return guidance;
+
     }
 
     @Override
@@ -68,12 +69,14 @@ public class WizardExample2ndStepFragment extends WizardExampleBaseStepFragment 
                 .id(ACTION_ID_CONFIRM)
                 .title(getString(R.string.wizard_example_rent))
                 .description(rentHighDefinition ? mMovie.getPriceHd() : mMovie.getPriceSd())
+                .editable(false)
                 .build();
         actions.add(action);
         action = new GuidedAction.Builder()
                 .id(ACTION_ID_PAYMENT_METHOD)
                 .title(getString(R.string.wizard_example_payment_method))
                 .description(getString(R.string.wizard_example_visa_balance))
+                .editable(false)
                 .build();
         actions.add(action);
     }

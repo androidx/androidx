@@ -41,10 +41,10 @@
             android:theme="@style/Theme.Example.LeanbackDialog"></activity>
         <activity
             android:name=".app.details.DetailViewExampleActivity"
-            android:theme="@style/Theme.Example.LeanbackDetailView"></activity>
+            android:theme="@style/Theme.Example.LeanbackDetails"></activity>
         <activity
             android:name=".app.cards.CardExampleActivity"
-            android:theme="@style/Theme.Example.Leanback"></activity>
+            android:theme="@style/Theme.Example.LeanbackBrowse"></activity>
         <activity
             android:name=".app.grid.GridExampleActivity"
             android:theme="@style/Theme.Example.Leanback"></activity>
