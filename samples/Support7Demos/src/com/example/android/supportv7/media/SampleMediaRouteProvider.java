@@ -16,31 +16,26 @@
 
 package com.example.android.supportv7.media;
 
-import com.example.android.supportv7.R;
-
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentFilter.MalformedMimeTypeException;
 import android.content.IntentSender;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.MediaRouter;
 import android.net.Uri;
 import android.os.Bundle;
-import android.app.PendingIntent;
 import android.support.v7.media.MediaControlIntent;
-import android.support.v7.media.MediaItemStatus;
-import android.support.v7.media.MediaRouteProvider;
-import android.support.v7.media.MediaRouter.ControlRequestCallback;
-import android.support.v7.media.MediaRouteProviderDescriptor;
 import android.support.v7.media.MediaRouteDescriptor;
+import android.support.v7.media.MediaRouteProvider;
+import android.support.v7.media.MediaRouteProviderDescriptor;
+import android.support.v7.media.MediaRouter.ControlRequestCallback;
 import android.support.v7.media.MediaSessionStatus;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.Surface;
-import android.view.SurfaceHolder;
+
+import com.example.android.supportv7.R;
 
 import java.util.ArrayList;
 
@@ -56,6 +51,9 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
     private static final String VARIABLE_VOLUME_BASIC_ROUTE_ID = "variable_basic";
     private static final String VARIABLE_VOLUME_QUEUING_ROUTE_ID = "variable_queuing";
     private static final String VARIABLE_VOLUME_SESSION_ROUTE_ID = "variable_session";
+    private static final String VARIABLE_VOLUME_ROUTE_GROUP_ID = "variable_group";
+    private static final String MIXED_VOLUME_ROUTE_GROUP_ID = "mixed_group";
+
     private static final int VOLUME_MAX = 10;
 
     /**
@@ -230,12 +228,43 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
                 .setVolume(mVolume)
                 .build();
 
-        MediaRouteProviderDescriptor providerDescriptor =
-                new MediaRouteProviderDescriptor.Builder()
+        MediaRouteDescriptor routeDescriptor5 = new MediaRouteDescriptor.Builder(
+                VARIABLE_VOLUME_ROUTE_GROUP_ID,
+                r.getString(R.string.variable_volume_route_group_name))
+                .addChildId(VARIABLE_VOLUME_BASIC_ROUTE_ID)
+                .addChildId(VARIABLE_VOLUME_QUEUING_ROUTE_ID)
+                .addChildId(VARIABLE_VOLUME_SESSION_ROUTE_ID)
+                .setDescription(r.getString(R.string.sample_route_description))
+                .addControlFilters(CONTROL_FILTERS_SESSION)
+                .setPlaybackStream(AudioManager.STREAM_MUSIC)
+                .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
+                .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)
+                .setVolumeMax(VOLUME_MAX)
+                .setVolume(mVolume)
+                .build();
+
+        MediaRouteDescriptor routeDescriptor6 = new MediaRouteDescriptor.Builder(
+                MIXED_VOLUME_ROUTE_GROUP_ID,
+                r.getString(R.string.mixed_volume_route_group_name))
+                .addChildId(FIXED_VOLUME_ROUTE_ID)
+                .addChildId(VARIABLE_VOLUME_BASIC_ROUTE_ID)
+                .addChildId(VARIABLE_VOLUME_QUEUING_ROUTE_ID)
+                .setDescription(r.getString(R.string.sample_route_description))
+                .addControlFilters(CONTROL_FILTERS_SESSION)
+                .setPlaybackStream(AudioManager.STREAM_MUSIC)
+                .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
+                .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)
+                .setVolumeMax(VOLUME_MAX)
+                .setVolume(mVolume)
+                .build();
+
+        MediaRouteProviderDescriptor providerDescriptor = new MediaRouteProviderDescriptor.Builder()
                 .addRoute(routeDescriptor1)
                 .addRoute(routeDescriptor2)
                 .addRoute(routeDescriptor3)
                 .addRoute(routeDescriptor4)
+                .addRoute(routeDescriptor5)
+                .addRoute(routeDescriptor6)
                 .build();
         setDescriptor(providerDescriptor);
     }
