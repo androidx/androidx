@@ -58,12 +58,7 @@ public class GuidedStepActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         Log.v(TAG, "onCreate");
         super.onCreate(savedInstanceState);
-        GuidedStepFragment.add(getFragmentManager(), new FirstStepFragment());
-        getWindow().getDecorView().getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
-            @Override public void onGlobalLayout() {
-                //Log.v(TAG, "onGlobalLayout", new Exception());
-            }
-        });
+        GuidedStepFragment.addAsRoot(this, new FirstStepFragment(), android.R.id.content);
     }
 
     @Override
@@ -139,14 +134,14 @@ public class GuidedStepActivity extends Activity {
         public void onGuidedActionClicked(GuidedAction action) {
             FragmentManager fm = getFragmentManager();
             if (action.getId() == CONTINUE) {
-                GuidedStepFragment.add(fm, new SecondStepFragment());
+                GuidedStepFragment.add(fm, new SecondStepFragment(), android.R.id.content);
             } else {
                 getActivity().finish();
             }
         }
     }
 
-    private static class SecondStepFragment extends GuidedStepFragment {
+    public static class SecondStepFragment extends GuidedStepFragment {
 
         @Override
         public Guidance onCreateGuidance(Bundle savedInstanceState) {
@@ -173,7 +168,7 @@ public class GuidedStepActivity extends Activity {
 
     }
 
-    private static class ThirdStepFragment extends GuidedStepFragment {
+    public static class ThirdStepFragment extends GuidedStepFragment {
 
         private int mSelectedOption = DEFAULT_OPTION;
 
@@ -221,7 +216,11 @@ public class GuidedStepActivity extends Activity {
         public void onGuidedActionClicked(GuidedAction action) {
             if (action.getId() == CONTINUE) {
                 FragmentManager fm = getFragmentManager();
-                GuidedStepFragment.add(fm, new FourthStepFragment(mSelectedOption));
+                FourthStepFragment f = new FourthStepFragment();
+                Bundle arguments = new Bundle();
+                arguments.putInt(FourthStepFragment.EXTRA_OPTION, mSelectedOption);
+                f.setArguments(arguments);
+                GuidedStepFragment.add(fm, f, android.R.id.content);
             } else {
                 mSelectedOption = getSelectedActionPosition()-1;
             }
@@ -229,18 +228,23 @@ public class GuidedStepActivity extends Activity {
 
     }
 
-    private static class FourthStepFragment extends GuidedStepFragment {
-        private final int mOption;
+    public static class FourthStepFragment extends GuidedStepFragment {
+        public static final String EXTRA_OPTION = "extra_option";
 
-        public FourthStepFragment(int option) {
-            mOption = option;
+        public FourthStepFragment() {
+        }
+
+        public int getOption() {
+            Bundle b = getArguments();
+            if (b == null) return 0;
+            return b.getInt(EXTRA_OPTION, 0);
         }
 
         @Override
         public Guidance onCreateGuidance(Bundle savedInstanceState) {
             String title = getString(R.string.guidedstep_fourth_title);
             String breadcrumb = getString(R.string.guidedstep_fourth_breadcrumb);
-            String description = "You chose: " + OPTION_NAMES[mOption];
+            String description = "You chose: " + OPTION_NAMES[getOption()];
             Drawable icon = getActivity().getDrawable(R.drawable.ic_main_icon);
             return new Guidance(title, description, breadcrumb, icon);
         }

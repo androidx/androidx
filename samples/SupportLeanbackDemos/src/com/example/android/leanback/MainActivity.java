@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v17.leanback.app.GuidedStepFragment;
 import android.support.v17.leanback.widget.GuidedAction;
 import android.support.v17.leanback.widget.GuidanceStylist.Guidance;
@@ -39,7 +40,8 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         mGuidedStepFragment = new StepFragment();
-        GuidedStepFragment.add(getFragmentManager(), mGuidedStepFragment);
+        GuidedStepFragment.addAsRoot(this, mGuidedStepFragment, android.R.id.content);
+
     }
 
     public static class StepFragment extends GuidedStepFragment {
@@ -90,7 +92,9 @@ public class MainActivity extends Activity {
         public void onGuidedActionClicked(GuidedAction action) {
             Intent intent = action.getIntent();
             if (intent != null) {
-                startActivity(intent);
+                Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity())
+                        .toBundle();
+                startActivity(intent, bundle);
             }
         }
 
