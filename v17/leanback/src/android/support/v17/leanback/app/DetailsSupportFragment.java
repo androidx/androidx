@@ -396,7 +396,6 @@ public class DetailsSupportFragment extends BaseSupportFragment {
         super.onStart();
         setupChildFragmentLayout();
         setupFocusSearchListener();
-        mRowsSupportFragment.getView().requestFocus();
         if (isEntranceTransitionEnabled()) {
             // make sure recycler view animation is disabled
             mRowsSupportFragment.onTransitionPrepare();
