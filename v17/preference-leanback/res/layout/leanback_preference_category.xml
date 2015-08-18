@@ -18,6 +18,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="@dimen/lb_preference_category_height"
+    android:clipToPadding="false"
     android:paddingStart="@dimen/lb_preference_item_padding_start"
     android:paddingEnd="@dimen/lb_preference_item_padding_end">
 
