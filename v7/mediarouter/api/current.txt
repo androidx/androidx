@@ -572,7 +572,7 @@ package android.support.v7.media {
     method public java.util.List<android.support.v7.media.MediaRouter.RouteInfo> getRoutes();
   }
 
-  public static final class MediaRouter.RouteInfo {
+  public static class MediaRouter.RouteInfo {
     method public boolean canDisconnect();
     method public java.util.List<android.content.IntentFilter> getControlFilters();
     method public java.lang.String getDescription();
