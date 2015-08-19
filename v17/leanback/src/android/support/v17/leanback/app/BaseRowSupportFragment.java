@@ -188,17 +188,22 @@ abstract class BaseRowSupportFragment extends Fragment {
     }
 
     void onTransitionStart() {
-        mVerticalGridView.setPruneChild(false);
-        mVerticalGridView.setLayoutFrozen(true);
-        mVerticalGridView.setFocusSearchDisabled(true);
+        if (mVerticalGridView != null) {
+            mVerticalGridView.setPruneChild(false);
+            mVerticalGridView.setLayoutFrozen(true);
+            mVerticalGridView.setFocusSearchDisabled(true);
+        }
     }
 
     void onTransitionEnd() {
-        mVerticalGridView.setLayoutFrozen(false);
-        mVerticalGridView.setAnimateChildLayout(true);
-        mVerticalGridView.setPruneChild(true);
-        mVerticalGridView.setFocusSearchDisabled(false);
-        mVerticalGridView.setScrollEnabled(true);
+        // be careful that fragment might be destroyed before header transition ends.
+        if (mVerticalGridView != null) {
+            mVerticalGridView.setLayoutFrozen(false);
+            mVerticalGridView.setAnimateChildLayout(true);
+            mVerticalGridView.setPruneChild(true);
+            mVerticalGridView.setFocusSearchDisabled(false);
+            mVerticalGridView.setScrollEnabled(true);
+        }
     }
 
     void setItemAlignment() {
