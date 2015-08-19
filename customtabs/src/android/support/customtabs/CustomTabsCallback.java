@@ -44,6 +44,16 @@ public class CustomTabsCallback {
     public static final int NAVIGATION_ABORTED = 4;
 
     /**
+     * Sent when the tab becomes visible.
+     */
+    public static final int TAB_SHOWN = 5;
+
+    /**
+     * Sent when the tab becomes hidden.
+     */
+    public static final int TAB_HIDDEN = 6;
+
+    /**
      * To be called when a navigation event happens.
      *
      * @param navigationEvent The code corresponding to the navigation event.
