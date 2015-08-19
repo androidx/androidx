@@ -427,7 +427,7 @@ package android.support.v17.leanback.app {
     method public abstract boolean onQueryTextSubmit(java.lang.String);
   }
 
-  public class VerticalGridFragment extends android.app.Fragment {
+  public class VerticalGridFragment extends android.support.v17.leanback.app.BrandedFragment {
     ctor public VerticalGridFragment();
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public android.support.v17.leanback.widget.VerticalGridPresenter getGridPresenter();
@@ -439,7 +439,7 @@ package android.support.v17.leanback.app {
     method public void setSelectedPosition(int);
   }
 
-  public class VerticalGridSupportFragment extends android.support.v4.app.Fragment {
+  public class VerticalGridSupportFragment extends android.support.v17.leanback.app.BrandedSupportFragment {
     ctor public VerticalGridSupportFragment();
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public android.support.v17.leanback.widget.VerticalGridPresenter getGridPresenter();
@@ -1585,6 +1585,7 @@ package android.support.v17.leanback.widget {
     method public void onBindViewHolder(android.support.v17.leanback.widget.Presenter.ViewHolder, java.lang.Object);
     method public final android.support.v17.leanback.widget.VerticalGridPresenter.ViewHolder onCreateViewHolder(android.view.ViewGroup);
     method public void onUnbindViewHolder(android.support.v17.leanback.widget.Presenter.ViewHolder);
+    method public void setEntranceTransitionState(android.support.v17.leanback.widget.VerticalGridPresenter.ViewHolder, boolean);
     method public void setNumberOfColumns(int);
     method public final void setOnItemViewClickedListener(android.support.v17.leanback.widget.OnItemViewClickedListener);
     method public final void setOnItemViewSelectedListener(android.support.v17.leanback.widget.OnItemViewSelectedListener);

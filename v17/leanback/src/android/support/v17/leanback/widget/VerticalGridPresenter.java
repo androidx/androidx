@@ -340,4 +340,18 @@ public class VerticalGridPresenter extends Presenter {
             }
         }
     }
+
+    /**
+     * Changes the visibility of views.  The entrance transition will be run against the views that
+     * change visibilities.  This method is called by the fragment, it should not be called
+     * directly by the application.
+     *
+     * @param holder         The ViewHolder for the vertical grid.
+     * @param afterEntrance  true if children of vertical grid participating in entrance transition
+     *                       should be set to visible, false otherwise.
+     */
+    public void setEntranceTransitionState(VerticalGridPresenter.ViewHolder holder,
+            boolean afterEntrance) {
+        holder.mGridView.setChildrenVisibility(afterEntrance? View.VISIBLE : View.INVISIBLE);
+    }
 }

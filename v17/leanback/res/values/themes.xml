@@ -95,6 +95,11 @@
         <item name="android:windowReturnTransition">@transition/lb_browse_return_transition</item>
     </style>
 
+    <style name="Theme.Leanback.VerticalGrid" parent="Theme.Leanback">
+        <item name="android:windowEnterTransition">@transition/lb_vertical_grid_enter_transition</item>
+        <item name="android:windowReturnTransition">@transition/lb_vertical_grid_return_transition</item>
+    </style>
+
     <style name="Theme.Leanback.Details" parent="Theme.Leanback">
         <item name="android:windowEnterTransition">@transition/lb_details_enter_transition</item>
         <item name="android:windowReturnTransition">@transition/lb_details_return_transition</item>
