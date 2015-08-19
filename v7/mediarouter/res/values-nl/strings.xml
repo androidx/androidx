@@ -19,9 +19,8 @@
     <string name="mr_system_route_name" msgid="5441529851481176817">"Systeem"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"Apparaten"</string>
     <string name="mr_media_route_button_content_description" msgid="8327680881775995150">"Casten"</string>
-    <!-- no translation found for mr_media_route_chooser_title (2245097672217008651) -->
-    <skip />
-    <string name="mr_media_route_chooser_searching" msgid="7553005460920830010">"Zoeken naar apparaten…"</string>
+    <string name="mr_media_route_chooser_title" msgid="2245097672217008651">"Casten naar"</string>
+    <string name="mr_media_route_chooser_searching" msgid="1855108583904057166">"Apparaten zoeken"</string>
     <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"Verbinding verbreken"</string>
     <string name="mr_media_route_controller_stop" msgid="5398645111664294430">"Casten stoppen"</string>
     <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"Route-instellingen"</string>
