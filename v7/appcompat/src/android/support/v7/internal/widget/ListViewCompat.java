@@ -23,6 +23,7 @@ import android.graphics.drawable.Drawable;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.graphics.drawable.DrawableWrapper;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -49,6 +50,8 @@ public class ListViewCompat extends ListView {
     int mSelectionTopPadding = 0;
     int mSelectionRightPadding = 0;
     int mSelectionBottomPadding = 0;
+
+    protected int mMotionPosition;
 
     private Field mIsChildViewEnabled;
 
@@ -105,6 +108,16 @@ public class ListViewCompat extends ListView {
         }
 
         super.dispatchDraw(canvas);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        switch (ev.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                mMotionPosition = pointToPosition((int) ev.getX(), (int) ev.getY());
+                break;
+        }
+        return super.onTouchEvent(ev);
     }
 
     protected void updateSelectorStateCompat() {
