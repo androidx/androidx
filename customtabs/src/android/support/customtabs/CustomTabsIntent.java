@@ -60,6 +60,12 @@ public final class CustomTabsIntent {
             "android.support.customtabs.extra.TOOLBAR_COLOR";
 
     /**
+     * Boolean extra that enables the url bar to hide as the user scrolls down the page
+     */
+    public static final String EXTRA_ENABLE_URLBAR_HIDING =
+            "android.support.customtabs.extra.ENABLE_URLBAR_HIDING";
+
+    /**
      * Extra bitmap that specifies the icon of the back button on the toolbar. If the client chooses
      * not to customize it, a default close button will be used.
      */
@@ -110,6 +116,13 @@ public final class CustomTabsIntent {
      */
     public static final String KEY_PENDING_INTENT =
             "android.support.customtabs.customaction.PENDING_INTENT";
+
+    /**
+     * Extra boolean that specifies whether the custom action button should be tinted. Default is
+     * false and the action button will not be tinted.
+     */
+    public static final String EXTRA_TINT_ACTION_BUTTON =
+            "android.support.customtabs.extra.TINT_ACTION_BUTTON";
 
     /**
      * Use an {@code ArrayList<Bundle>} for specifying menu related params. There should be a
@@ -204,6 +217,14 @@ public final class CustomTabsIntent {
         }
 
         /**
+         * Enables the url bar to hide as the user scrolls down on the page.
+         */
+        public Builder enableUrlBarHiding() {
+            mIntent.putExtra(EXTRA_ENABLE_URLBAR_HIDING, true);
+            return this;
+        }
+
+        /**
          * Sets the Close button icon for the custom tab.
          *
          * @param icon The icon {@link Bitmap}
@@ -245,15 +266,26 @@ public final class CustomTabsIntent {
          * @param icon The icon.
          * @param description The description for the button. To be used for accessibility.
          * @param pendingIntent pending intent delivered when the button is clicked.
+         * @param shouldTint Whether the action button should be tinted.
          */
-        public Builder setActionButton(@NonNull Bitmap icon,
-                @NonNull String description, @NonNull PendingIntent pendingIntent) {
+        public Builder setActionButton(@NonNull Bitmap icon, @NonNull String description,
+                @NonNull PendingIntent pendingIntent, boolean shouldTint) {
             Bundle bundle = new Bundle();
             bundle.putParcelable(KEY_ICON, icon);
             bundle.putString(KEY_DESCRIPTION, description);
             bundle.putParcelable(KEY_PENDING_INTENT, pendingIntent);
             mIntent.putExtra(EXTRA_ACTION_BUTTON_BUNDLE, bundle);
+            mIntent.putExtra(EXTRA_TINT_ACTION_BUTTON, shouldTint);
             return this;
+        }
+
+        /**
+         * See {@link CustomTabsIntent.Builder#setActionButton(
+         * Bitmap, String, PendingIntent, boolean)}
+         */
+        public Builder setActionButton(@NonNull Bitmap icon, @NonNull String description,
+                @NonNull PendingIntent pendingIntent) {
+            return setActionButton(icon, description, pendingIntent, false);
         }
 
         /**
