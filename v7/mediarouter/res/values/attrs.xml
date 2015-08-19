@@ -35,4 +35,6 @@
     <attr name="mediaRoutePauseDrawable" format="reference" />
     <attr name="mediaRouteCastDrawable" format="reference" />
     <attr name="mediaRouteDefaultIconDrawable" format="reference" />
+    <attr name="mediaRouteSpeakerIconDrawable" format="reference" />
+    <attr name="mediaRouteSpeakerGroupIconDrawable" format="reference" />
 </resources>
