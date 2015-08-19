@@ -87,4 +87,9 @@ class ScrollerCompatGingerbread {
     public static int getFinalY(Object scroller) {
         return ((OverScroller) scroller).getFinalY();
     }
+
+    public static boolean springBack(Object scroller, int startX, int startY, int minX, int maxX,
+            int minY, int maxY) {
+        return ((OverScroller) scroller).springBack(startX, startY, minX, maxX, minY, maxY);
+    }
 }
