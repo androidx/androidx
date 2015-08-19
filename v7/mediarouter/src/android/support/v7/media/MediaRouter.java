@@ -36,6 +36,7 @@ import android.support.v4.app.ActivityManagerCompat;
 import android.support.v4.hardware.display.DisplayManagerCompat;
 import android.support.v4.media.VolumeProviderCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.util.Pair;
 import android.support.v7.media.MediaRouteProvider.ProviderMetadata;
 import android.util.Log;
 import android.view.Display;
@@ -761,7 +762,7 @@ public final class MediaRouter {
      * route and the manner in which it is used and controlled.
      * </p>
      */
-    public static final class RouteInfo {
+    public static class RouteInfo {
         private final ProviderInfo mProvider;
         private final String mDescriptorId;
         private final String mUniqueId;
@@ -770,7 +771,7 @@ public final class MediaRouter {
         private boolean mEnabled;
         private boolean mConnecting;
         private boolean mCanDisconnect;
-        private final ArrayList<IntentFilter> mControlFilters = new ArrayList<IntentFilter>();
+        private final ArrayList<IntentFilter> mControlFilters = new ArrayList<>();
         private int mPlaybackType;
         private int mPlaybackStream;
         private int mVolumeHandling;
@@ -780,7 +781,7 @@ public final class MediaRouter {
         private int mPresentationDisplayId = -1;
         private Bundle mExtras;
         private IntentSender mSettingsIntent;
-        private MediaRouteDescriptor mDescriptor;
+        MediaRouteDescriptor mDescriptor;
 
         /** @hide */
         @IntDef({PLAYBACK_TYPE_LOCAL,PLAYBACK_TYPE_REMOTE})
@@ -1267,69 +1268,75 @@ public final class MediaRouter {
                     + " }";
         }
 
-        int updateDescriptor(MediaRouteDescriptor descriptor) {
+        int maybeUpdateDescriptor(MediaRouteDescriptor descriptor) {
             int changes = 0;
             if (mDescriptor != descriptor) {
-                mDescriptor = descriptor;
-                if (descriptor != null) {
-                    if (!equal(mName, descriptor.getName())) {
-                        mName = descriptor.getName();
-                        changes |= CHANGE_GENERAL;
-                    }
-                    if (!equal(mDescription, descriptor.getDescription())) {
-                        mDescription = descriptor.getDescription();
-                        changes |= CHANGE_GENERAL;
-                    }
-                    if (mEnabled != descriptor.isEnabled()) {
-                        mEnabled = descriptor.isEnabled();
-                        changes |= CHANGE_GENERAL;
-                    }
-                    if (mConnecting != descriptor.isConnecting()) {
-                        mConnecting = descriptor.isConnecting();
-                        changes |= CHANGE_GENERAL;
-                    }
-                    if (!mControlFilters.equals(descriptor.getControlFilters())) {
-                        mControlFilters.clear();
-                        mControlFilters.addAll(descriptor.getControlFilters());
-                        changes |= CHANGE_GENERAL;
-                    }
-                    if (mPlaybackType != descriptor.getPlaybackType()) {
-                        mPlaybackType = descriptor.getPlaybackType();
-                        changes |= CHANGE_GENERAL;
-                    }
-                    if (mPlaybackStream != descriptor.getPlaybackStream()) {
-                        mPlaybackStream = descriptor.getPlaybackStream();
-                        changes |= CHANGE_GENERAL;
-                    }
-                    if (mVolumeHandling != descriptor.getVolumeHandling()) {
-                        mVolumeHandling = descriptor.getVolumeHandling();
-                        changes |= CHANGE_GENERAL | CHANGE_VOLUME;
-                    }
-                    if (mVolume != descriptor.getVolume()) {
-                        mVolume = descriptor.getVolume();
-                        changes |= CHANGE_GENERAL | CHANGE_VOLUME;
-                    }
-                    if (mVolumeMax != descriptor.getVolumeMax()) {
-                        mVolumeMax = descriptor.getVolumeMax();
-                        changes |= CHANGE_GENERAL | CHANGE_VOLUME;
-                    }
-                    if (mPresentationDisplayId != descriptor.getPresentationDisplayId()) {
-                        mPresentationDisplayId = descriptor.getPresentationDisplayId();
-                        mPresentationDisplay = null;
-                        changes |= CHANGE_GENERAL | CHANGE_PRESENTATION_DISPLAY;
-                    }
-                    if (!equal(mExtras, descriptor.getExtras())) {
-                        mExtras = descriptor.getExtras();
-                        changes |= CHANGE_GENERAL;
-                    }
-                    if (!equal(mSettingsIntent, descriptor.getSettingsActivity())) {
-                        mSettingsIntent = descriptor.getSettingsActivity();
-                        changes |= CHANGE_GENERAL;
-                    }
-                    if (mCanDisconnect != descriptor.canDisconnectAndKeepPlaying()) {
-                        mCanDisconnect = descriptor.canDisconnectAndKeepPlaying();
-                        changes |= CHANGE_GENERAL | CHANGE_PRESENTATION_DISPLAY;
-                    }
+                changes = updateDescriptor(descriptor);
+            }
+            return changes;
+        }
+
+        int updateDescriptor(MediaRouteDescriptor descriptor) {
+            int changes = 0;
+            mDescriptor = descriptor;
+            if (descriptor != null) {
+                if (!equal(mName, descriptor.getName())) {
+                    mName = descriptor.getName();
+                    changes |= CHANGE_GENERAL;
+                }
+                if (!equal(mDescription, descriptor.getDescription())) {
+                    mDescription = descriptor.getDescription();
+                    changes |= CHANGE_GENERAL;
+                }
+                if (mEnabled != descriptor.isEnabled()) {
+                    mEnabled = descriptor.isEnabled();
+                    changes |= CHANGE_GENERAL;
+                }
+                if (mConnecting != descriptor.isConnecting()) {
+                    mConnecting = descriptor.isConnecting();
+                    changes |= CHANGE_GENERAL;
+                }
+                if (!mControlFilters.equals(descriptor.getControlFilters())) {
+                    mControlFilters.clear();
+                    mControlFilters.addAll(descriptor.getControlFilters());
+                    changes |= CHANGE_GENERAL;
+                }
+                if (mPlaybackType != descriptor.getPlaybackType()) {
+                    mPlaybackType = descriptor.getPlaybackType();
+                    changes |= CHANGE_GENERAL;
+                }
+                if (mPlaybackStream != descriptor.getPlaybackStream()) {
+                    mPlaybackStream = descriptor.getPlaybackStream();
+                    changes |= CHANGE_GENERAL;
+                }
+                if (mVolumeHandling != descriptor.getVolumeHandling()) {
+                    mVolumeHandling = descriptor.getVolumeHandling();
+                    changes |= CHANGE_GENERAL | CHANGE_VOLUME;
+                }
+                if (mVolume != descriptor.getVolume()) {
+                    mVolume = descriptor.getVolume();
+                    changes |= CHANGE_GENERAL | CHANGE_VOLUME;
+                }
+                if (mVolumeMax != descriptor.getVolumeMax()) {
+                    mVolumeMax = descriptor.getVolumeMax();
+                    changes |= CHANGE_GENERAL | CHANGE_VOLUME;
+                }
+                if (mPresentationDisplayId != descriptor.getPresentationDisplayId()) {
+                    mPresentationDisplayId = descriptor.getPresentationDisplayId();
+                    mPresentationDisplay = null;
+                    changes |= CHANGE_GENERAL | CHANGE_PRESENTATION_DISPLAY;
+                }
+                if (!equal(mExtras, descriptor.getExtras())) {
+                    mExtras = descriptor.getExtras();
+                    changes |= CHANGE_GENERAL;
+                }
+                if (!equal(mSettingsIntent, descriptor.getSettingsActivity())) {
+                    mSettingsIntent = descriptor.getSettingsActivity();
+                    changes |= CHANGE_GENERAL;
+                }
+                if (mCanDisconnect != descriptor.canDisconnectAndKeepPlaying()) {
+                    mCanDisconnect = descriptor.canDisconnectAndKeepPlaying();
+                    changes |= CHANGE_GENERAL | CHANGE_PRESENTATION_DISPLAY;
                 }
             }
             return changes;
@@ -1346,6 +1353,75 @@ public final class MediaRouter {
     }
 
     /**
+     * Information about a route that consists of multiple other routes in a group.
+     * @hide
+     * STOPSHIP: Unhide or remove.
+     */
+    public static class RouteGroup extends RouteInfo {
+        private List<RouteInfo> mRoutes = new ArrayList<>();
+
+        RouteGroup(ProviderInfo provider, String descriptorId, String uniqueId) {
+            super(provider, descriptorId, uniqueId);
+        }
+
+        /**
+         * @return The number of routes in this group
+         */
+        public int getRouteCount() {
+            return mRoutes.size();
+        }
+
+        /**
+         * Returns the route in this group at the specified index
+         *
+         * @param index Index to fetch
+         * @return The route at index
+         */
+        public RouteInfo getRouteAt(int index) {
+            return mRoutes.get(index);
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder(super.toString());
+            sb.append('[');
+            final int count = mRoutes.size();
+            for (int i = 0; i < count; i++) {
+                if (i > 0) sb.append(", ");
+                sb.append(mRoutes.get(i));
+            }
+            sb.append(']');
+            return sb.toString();
+        }
+
+        @Override
+        int maybeUpdateDescriptor(MediaRouteDescriptor descriptor) {
+            boolean changed = false;
+            if (mDescriptor != descriptor) {
+                mDescriptor = descriptor;
+                if (descriptor != null) {
+                    List<String> childIds = descriptor.getChildIds();
+                    List<RouteInfo> routes = new ArrayList<>();
+                    changed = childIds.size() != mRoutes.size();
+                    for (String childId : childIds) {
+                        RouteInfo child = sGlobal.getRoute(childId);
+                        if (child != null) {
+                            routes.add(child);
+                            if (!changed && !mRoutes.contains(child)) {
+                                changed = true;
+                            }
+                        }
+                    }
+                    if (changed) {
+                        mRoutes = routes;
+                    }
+                }
+            }
+            return (changed ? CHANGE_GENERAL : 0) | super.updateDescriptor(descriptor);
+        }
+    }
+
+    /**
      * Provides information about a media route provider.
      * <p>
      * This object may be used to determine which media route provider has
@@ -1354,7 +1430,7 @@ public final class MediaRouter {
      */
     public static final class ProviderInfo {
         private final MediaRouteProvider mProviderInstance;
-        private final ArrayList<RouteInfo> mRoutes = new ArrayList<RouteInfo>();
+        private final List<RouteInfo> mRoutes = new ArrayList<>();
 
         private final ProviderMetadata mMetadata;
         private MediaRouteProviderDescriptor mDescriptor;
@@ -1720,6 +1796,15 @@ public final class MediaRouter {
             }
         }
 
+        public RouteInfo getRoute(String uniqueId) {
+            for (RouteInfo info : mRoutes) {
+                if (info.mUniqueId.equals(uniqueId)) {
+                    return info;
+                }
+            }
+            return null;
+        }
+
         public List<RouteInfo> getRoutes() {
             return mRoutes;
         }
@@ -1930,6 +2015,11 @@ public final class MediaRouter {
                         final List<MediaRouteDescriptor> routeDescriptors =
                                 providerDescriptor.getRoutes();
                         final int routeCount = routeDescriptors.size();
+                        // Updating route group's contents requires all member routes' information.
+                        // Add the groups to the lists and update them later.
+                        List<Pair<RouteInfo, MediaRouteDescriptor>> addedGroups = new ArrayList<>();
+                        List<Pair<RouteInfo, MediaRouteDescriptor>> updatedGroups =
+                                new ArrayList<>();
                         for (int i = 0; i < routeCount; i++) {
                             final MediaRouteDescriptor routeDescriptor = routeDescriptors.get(i);
                             final String id = routeDescriptor.getId();
@@ -1937,16 +2027,23 @@ public final class MediaRouter {
                             if (sourceIndex < 0) {
                                 // 1. Add the route to the list.
                                 String uniqueId = assignRouteUniqueId(provider, id);
-                                RouteInfo route = new RouteInfo(provider, id, uniqueId);
+                                boolean isGroup = routeDescriptor.getChildIds() != null;
+                                RouteInfo route = isGroup ? new RouteGroup(provider, id, uniqueId) :
+                                        new RouteInfo(provider, id, uniqueId);
                                 provider.mRoutes.add(targetIndex++, route);
                                 mRoutes.add(route);
                                 // 2. Create the route's contents.
-                                route.updateDescriptor(routeDescriptor);
-                                // 3. Notify clients about addition.
-                                if (DEBUG) {
-                                    Log.d(TAG, "Route added: " + route);
+                                if (isGroup) {
+                                    addedGroups.add(new Pair(route, routeDescriptor));
+                                } else {
+                                    route.maybeUpdateDescriptor(routeDescriptor);
+                                    // 3. Notify clients about addition.
+                                    if (DEBUG) {
+                                        Log.d(TAG, "Route added: " + route);
+                                    }
+                                    mCallbackHandler.post(CallbackHandler.MSG_ROUTE_ADDED, route);
                                 }
-                                mCallbackHandler.post(CallbackHandler.MSG_ROUTE_ADDED, route);
+
                             } else if (sourceIndex < targetIndex) {
                                 Log.w(TAG, "Ignoring route descriptor with duplicate id: "
                                         + routeDescriptor);
@@ -1956,34 +2053,33 @@ public final class MediaRouter {
                                 Collections.swap(provider.mRoutes,
                                         sourceIndex, targetIndex++);
                                 // 2. Update the route's contents.
-                                int changes = route.updateDescriptor(routeDescriptor);
-                                // 3. Notify clients about changes.
-                                if (changes != 0) {
-                                    if ((changes & RouteInfo.CHANGE_GENERAL) != 0) {
-                                        if (DEBUG) {
-                                            Log.d(TAG, "Route changed: " + route);
+                                if (route instanceof RouteGroup) {
+                                    updatedGroups.add(new Pair(route, routeDescriptor));
+                                } else {
+                                    // 3. Notify clients about changes.
+                                    if (updateRouteDescriptorAndNotify(route, routeDescriptor)
+                                            != 0) {
+                                        if (route == mSelectedRoute) {
+                                            selectedRouteDescriptorChanged = true;
                                         }
-                                        mCallbackHandler.post(
-                                                CallbackHandler.MSG_ROUTE_CHANGED, route);
                                     }
-                                    if ((changes & RouteInfo.CHANGE_VOLUME) != 0) {
-                                        if (DEBUG) {
-                                            Log.d(TAG, "Route volume changed: " + route);
-                                        }
-                                        mCallbackHandler.post(
-                                                CallbackHandler.MSG_ROUTE_VOLUME_CHANGED, route);
-                                    }
-                                    if ((changes & RouteInfo.CHANGE_PRESENTATION_DISPLAY) != 0) {
-                                        if (DEBUG) {
-                                            Log.d(TAG, "Route presentation display changed: "
-                                                    + route);
-                                        }
-                                        mCallbackHandler.post(CallbackHandler.
-                                                MSG_ROUTE_PRESENTATION_DISPLAY_CHANGED, route);
-                                    }
-                                    if (route == mSelectedRoute) {
-                                        selectedRouteDescriptorChanged = true;
-                                    }
+                                }
+                            }
+                        }
+                        // Update the new and/or existing groups.
+                        for (Pair<RouteInfo, MediaRouteDescriptor> pair : addedGroups) {
+                            RouteInfo route = pair.first;
+                            route.maybeUpdateDescriptor(pair.second);
+                            if (DEBUG) {
+                                Log.d(TAG, "Route added: " + route);
+                            }
+                            mCallbackHandler.post(CallbackHandler.MSG_ROUTE_ADDED, route);
+                        }
+                        for (Pair<RouteInfo, MediaRouteDescriptor> pair : updatedGroups) {
+                            RouteInfo route = pair.first;
+                            if (updateRouteDescriptorAndNotify(route, pair.second) != 0) {
+                                if (route == mSelectedRoute) {
+                                    selectedRouteDescriptorChanged = true;
                                 }
                             }
                         }
@@ -1996,7 +2092,7 @@ public final class MediaRouter {
                 for (int i = provider.mRoutes.size() - 1; i >= targetIndex; i--) {
                     // 1. Delete the route's contents.
                     RouteInfo route = provider.mRoutes.get(i);
-                    route.updateDescriptor(null);
+                    route.maybeUpdateDescriptor(null);
                     // 2. Remove the route from the list.
                     mRoutes.remove(route);
                 }
@@ -2023,6 +2119,36 @@ public final class MediaRouter {
                 }
                 mCallbackHandler.post(CallbackHandler.MSG_PROVIDER_CHANGED, provider);
             }
+        }
+
+        private int updateRouteDescriptorAndNotify(RouteInfo route,
+                MediaRouteDescriptor routeDescriptor) {
+            int changes = route.maybeUpdateDescriptor(routeDescriptor);
+            if (changes != 0) {
+                if ((changes & RouteInfo.CHANGE_GENERAL) != 0) {
+                    if (DEBUG) {
+                        Log.d(TAG, "Route changed: " + route);
+                    }
+                    mCallbackHandler.post(
+                            CallbackHandler.MSG_ROUTE_CHANGED, route);
+                }
+                if ((changes & RouteInfo.CHANGE_VOLUME) != 0) {
+                    if (DEBUG) {
+                        Log.d(TAG, "Route volume changed: " + route);
+                    }
+                    mCallbackHandler.post(
+                            CallbackHandler.MSG_ROUTE_VOLUME_CHANGED, route);
+                }
+                if ((changes & RouteInfo.CHANGE_PRESENTATION_DISPLAY) != 0) {
+                    if (DEBUG) {
+                        Log.d(TAG, "Route presentation display changed: "
+                                + route);
+                    }
+                    mCallbackHandler.post(CallbackHandler.
+                            MSG_ROUTE_PRESENTATION_DISPLAY_CHANGED, route);
+                }
+            }
+            return changes;
         }
 
         private String assignRouteUniqueId(ProviderInfo provider, String routeDescriptorId) {

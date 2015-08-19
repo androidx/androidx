@@ -37,6 +37,7 @@ import java.util.List;
  */
 public final class MediaRouteDescriptor {
     private static final String KEY_ID = "id";
+    private static final String KEY_CHILD_IDS = "child_ids";
     private static final String KEY_NAME = "name";
     private static final String KEY_DESCRIPTION = "status";
     private static final String KEY_ENABLED = "enabled";
@@ -70,6 +71,19 @@ public final class MediaRouteDescriptor {
      */
     public String getId() {
         return mBundle.getString(KEY_ID);
+    }
+
+    /**
+     * Gets the child ids of the route.
+     * <p>
+     * A route descriptor that has one or more child route ids represents a
+     * route group. A child route may belong to another group.
+     * </p>
+     * @hide
+     * STOPSHIP: Unhide or remove.
+     */
+    public List<String> getChildIds() {
+        return mBundle.getStringArrayList(KEY_CHILD_IDS);
     }
 
     /**
@@ -216,6 +230,7 @@ public final class MediaRouteDescriptor {
         StringBuilder result = new StringBuilder();
         result.append("MediaRouteDescriptor{ ");
         result.append("id=").append(getId());
+        result.append(", childIds=").append(getChildIds());
         result.append(", name=").append(getName());
         result.append(", description=").append(getDescription());
         result.append(", isEnabled=").append(isEnabled());
@@ -257,6 +272,7 @@ public final class MediaRouteDescriptor {
      */
     public static final class Builder {
         private final Bundle mBundle;
+        private ArrayList<String> mChildIds;
         private ArrayList<IntentFilter> mControlFilters;
 
         /**
@@ -298,6 +314,51 @@ public final class MediaRouteDescriptor {
          */
         public Builder setId(String id) {
             mBundle.putString(KEY_ID, id);
+            return this;
+        }
+
+        /**
+         * Adds a child id of the route.
+         * <p>
+         * A route descriptor that has one or more child route ids represents a
+         * route group. A child route may belong to another group.
+         * </p>
+         * @hide
+         * STOPSHIP: Unhide or remove.
+         */
+        public Builder addChildId(String childId) {
+            if (TextUtils.isEmpty(childId)) {
+                throw new IllegalArgumentException("childId must not be empty");
+            }
+
+            if (mChildIds == null) {
+                mChildIds = new ArrayList<>();
+            }
+            if (!mChildIds.contains(childId)) {
+                mChildIds.add(childId);
+            }
+            return this;
+        }
+
+        /**
+         * Adds a list of child ids of the route.
+         * <p>
+         * A route descriptor that has one or more child route ids represents a
+         * route group. A child route may belong to another group.
+         * </p>
+         * @hide
+         * STOPSHIP: Unhide or remove.
+         */
+        public Builder addChildIds(Collection<String> childIds) {
+            if (childIds == null) {
+                throw new IllegalArgumentException("childIds must not be null");
+            }
+
+            if (!childIds.isEmpty()) {
+                for (String childId : childIds) {
+                    addChildId(childId);
+                }
+            }
             return this;
         }
 
@@ -460,6 +521,9 @@ public final class MediaRouteDescriptor {
         public MediaRouteDescriptor build() {
             if (mControlFilters != null) {
                 mBundle.putParcelableArrayList(KEY_CONTROL_FILTERS, mControlFilters);
+            }
+            if (mChildIds != null) {
+                mBundle.putStringArrayList(KEY_CHILD_IDS, mChildIds);
             }
             return new MediaRouteDescriptor(mBundle, mControlFilters);
         }
