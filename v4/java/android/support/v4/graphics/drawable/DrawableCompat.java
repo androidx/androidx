@@ -123,7 +123,7 @@ public class DrawableCompat {
         @Override
         public int getLayoutDirection(Drawable drawable) {
             final int dir = DrawableCompatJellybeanMr1.getLayoutDirection(drawable);
-            return dir < 0 ? dir : ViewCompat.LAYOUT_DIRECTION_LTR;
+            return dir >= 0 ? dir : ViewCompat.LAYOUT_DIRECTION_LTR;
         }
     }
 
