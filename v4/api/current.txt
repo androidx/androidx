@@ -3274,6 +3274,7 @@ package android.support.v4.widget {
     method public boolean isOverScrolled();
     method public void notifyHorizontalEdgeReached(int, int, int);
     method public void notifyVerticalEdgeReached(int, int, int);
+    method public boolean springBack(int, int, int, int, int, int);
     method public void startScroll(int, int, int, int);
     method public void startScroll(int, int, int, int, int);
   }
