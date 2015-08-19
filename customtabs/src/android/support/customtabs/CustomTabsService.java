@@ -50,7 +50,7 @@ import java.util.NoSuchElementException;
      public static final String KEY_URL =
              "android.support.customtabs.otherurls.URL";
 
-     private Map<IBinder, DeathRecipient> mDeathRecipientMap = new ArrayMap<>();
+     private final Map<IBinder, DeathRecipient> mDeathRecipientMap = new ArrayMap<>();
 
      private ICustomTabsService.Stub mBinder = new ICustomTabsService.Stub() {
 
