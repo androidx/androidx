@@ -18,8 +18,8 @@ package android.support.v7.app;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
+import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.media.MediaControlIntent;
@@ -30,9 +30,9 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -185,10 +185,21 @@ public class MediaRouteChooserDialog extends Dialog {
     private final class RouteAdapter extends ArrayAdapter<MediaRouter.RouteInfo>
             implements ListView.OnItemClickListener {
         private final LayoutInflater mInflater;
+        private final Drawable mDefaultIcon;
+        private final Drawable mSpeakerIcon;
+        private final Drawable mSpeakerGroupIcon;
 
         public RouteAdapter(Context context, List<MediaRouter.RouteInfo> routes) {
             super(context, 0, routes);
             mInflater = LayoutInflater.from(context);
+            int[] attrs = new int[] {
+                    R.attr.mediaRouteDefaultIconDrawable,
+                    R.attr.mediaRouteSpeakerIconDrawable,
+                    R.attr.mediaRouteSpeakerGroupIconDrawable };
+            TypedArray styledAttributes = getContext().obtainStyledAttributes(attrs);
+            mDefaultIcon = styledAttributes.getDrawable(0);
+            mSpeakerIcon = styledAttributes.getDrawable(1);
+            mSpeakerGroupIcon = styledAttributes.getDrawable(2);
         }
 
         @Override
@@ -207,9 +218,10 @@ public class MediaRouteChooserDialog extends Dialog {
             if (view == null) {
                 view = mInflater.inflate(R.layout.mr_media_route_list_item, parent, false);
             }
+
             MediaRouter.RouteInfo route = getItem(position);
-            TextView text1 = (TextView)view.findViewById(android.R.id.text1);
-            TextView text2 = (TextView)view.findViewById(android.R.id.text2);
+            TextView text1 = (TextView) view.findViewById(android.R.id.text1);
+            TextView text2 = (TextView) view.findViewById(android.R.id.text2);
             text1.setText(route.getName());
             String description = route.getDescription();
             if (TextUtils.isEmpty(description)) {
@@ -220,6 +232,11 @@ public class MediaRouteChooserDialog extends Dialog {
                 text2.setText(description);
             }
             view.setEnabled(route.isEnabled());
+
+            ImageView iconView = (ImageView) view.findViewById(R.id.routeIcon);
+            if (iconView != null) {
+                iconView.setImageDrawable(getIconDrawable(route));
+            }
             return view;
         }
 
@@ -230,6 +247,18 @@ public class MediaRouteChooserDialog extends Dialog {
                 route.select();
                 dismiss();
             }
+        }
+
+        private Drawable getIconDrawable(MediaRouter.RouteInfo route) {
+            if (route instanceof MediaRouter.RouteGroup) {
+                // Only speakers can be grouped for now.
+                return mSpeakerGroupIcon;
+            }
+            if (route.supportsControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
+                    && !route.supportsControlCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO)) {
+                return mSpeakerIcon;
+            }
+            return mDefaultIcon;
         }
     }
 
