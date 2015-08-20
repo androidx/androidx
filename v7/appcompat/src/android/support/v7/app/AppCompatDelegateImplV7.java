@@ -863,9 +863,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
         // On API v7-10 we need to manually call onKeyShortcut() as this is not called
         // from the Activity
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            if (onKeyShortcut(keyCode, event)) {
-                return true;
-            }
+            onKeyShortcut(keyCode, event);
         }
         return false;
     }
