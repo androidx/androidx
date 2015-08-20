@@ -28,6 +28,8 @@
         <item name="mediaRoutePauseDrawable">@drawable/mr_ic_pause_dark</item>
         <item name="mediaRouteCastDrawable">@drawable/mr_ic_cast_dark</item>
         <item name="mediaRouteDefaultIconDrawable">@drawable/ic_tv_dark</item>
+        <item name="mediaRouteSpeakerIconDrawable">@drawable/ic_speaker_dark</item>
+        <item name="mediaRouteSpeakerGroupIconDrawable">@drawable/ic_speaker_group_dark</item>
     </style>
 
     <style name="Theme.MediaRouter.Light" parent="">
@@ -42,6 +44,8 @@
         <item name="mediaRoutePauseDrawable">@drawable/mr_ic_pause_light</item>
         <item name="mediaRouteCastDrawable">@drawable/mr_ic_cast_light</item>
         <item name="mediaRouteDefaultIconDrawable">@drawable/ic_tv_light</item>
+        <item name="mediaRouteSpeakerIconDrawable">@drawable/ic_speaker_light</item>
+        <item name="mediaRouteSpeakerGroupIconDrawable">@drawable/ic_speaker_group_light</item>
     </style>
 
 </resources>
