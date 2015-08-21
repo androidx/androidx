@@ -50,4 +50,8 @@ android {
         // TODO: fix errors and reenable.
         abortOnError false
     }
+
+    buildTypes.all {
+        consumerProguardFiles 'proguard-rules.pro'
+    }
 }
