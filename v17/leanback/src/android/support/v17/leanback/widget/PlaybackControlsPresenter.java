@@ -58,7 +58,7 @@ class PlaybackControlsPresenter extends ControlBarPresenter {
         final TextView mCurrentTime;
         final TextView mTotalTime;
         final ProgressBar mProgressBar;
-        int mCurrentTimeInSeconds;
+        int mCurrentTimeInSeconds = -1;
         StringBuilder mTotalTimeStringBuilder = new StringBuilder();
         StringBuilder mCurrentTimeStringBuilder = new StringBuilder();
         int mCurrentTimeMarginStart;
