@@ -397,9 +397,6 @@ public class DetailsSupportFragment extends BaseSupportFragment {
         setupChildFragmentLayout();
         setupFocusSearchListener();
         if (isEntranceTransitionEnabled()) {
-            // make sure recycler view animation is disabled
-            mRowsSupportFragment.onTransitionPrepare();
-            mRowsSupportFragment.onTransitionStart();
             mRowsSupportFragment.setEntranceTransitionState(false);
         }
     }
@@ -421,4 +418,13 @@ public class DetailsSupportFragment extends BaseSupportFragment {
         mRowsSupportFragment.onTransitionEnd();
     }
 
+    @Override
+    protected void onEntranceTransitionPrepare() {
+        mRowsSupportFragment.onTransitionPrepare();
+    }
+
+    @Override
+    protected void onEntranceTransitionStart() {
+        mRowsSupportFragment.onTransitionStart();
+    }
 }
