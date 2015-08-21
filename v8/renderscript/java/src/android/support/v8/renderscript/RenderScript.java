@@ -53,6 +53,8 @@ public class RenderScript {
     static private ArrayList<RenderScript> mProcessContextList = new ArrayList<RenderScript>();
     private boolean mIsProcessContext = false;
     private boolean mEnableMultiInput = false;
+    // TODO: Update to set to true at the correct API level when reduce is added.
+    private boolean mEnableReduce = false;
 
     private int mContextFlags = 0;
     private int mContextSdkVersion = 0;
@@ -658,6 +660,18 @@ public class RenderScript {
         }
         validate();
         rsnScriptForEach(mContext, id, slot, ains, aout, params, limits);
+    }
+
+    native void rsnScriptReduce(long con, long id, int slot, long ain, long aout,
+                                int[] limits);
+    synchronized void nScriptReduce(long id, int slot, long ain, long aout, int[] limits) {
+        if (!mEnableReduce) {
+            // TODO: Update to include the API level when reduce is added.
+            Log.e(LOG_TAG, "Reduce kernels are not supported");
+            throw new RSRuntimeException("Reduce kernels are not supported");
+        }
+        validate();
+        rsnScriptReduce(mContext, id, slot, ain, aout, limits);
     }
 
     native void rsnScriptInvokeV(long con, long id, int slot, byte[] params, boolean mUseInc);
