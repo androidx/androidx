@@ -1,0 +1,31 @@
+apply plugin: 'android-library'
+
+archivesBaseName = 'recommendation'
+
+dependencies {
+    compile project(':support-v4')
+}
+
+android {
+    compileSdkVersion 'current'
+
+    defaultConfig {
+        minSdkVersion 21
+    }
+
+    sourceSets {
+        main.manifest.srcFile 'AndroidManifest.xml'
+        main.java.srcDirs = ['src']
+        main.res.srcDirs = ['res']
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
+    lintOptions {
+        // TODO: fix errors and reenable.
+        abortOnError false
+    }
+}
