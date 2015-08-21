@@ -9,6 +9,10 @@ dependencies {
 android {
     compileSdkVersion 'current'
 
+    defaultConfig {
+        minSdkVersion 21
+    }
+
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'
         main.java.srcDirs = ['src']
