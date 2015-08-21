@@ -981,6 +981,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * android.content.Context#checkSelfPermission(String)}.
      * </p>
      * <p>
+     * Calling this API for permissions already granted to your app would show UI
+     * to the user to decided whether the app can still hold these permissions. This
+     * can be useful if the way your app uses the data guarded by the permissions
+     * changes significantly.
+     * </p>
+     * <p>
      * A sample permissions request looks like this:
      * </p>
      * <code><pre><p>

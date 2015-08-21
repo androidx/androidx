@@ -300,6 +300,12 @@ public class ActivityCompat extends ContextCompat {
      * When checking whether you have a permission you should use {@link
      * #checkSelfPermission(android.content.Context, String)}.
      * </p>
+     * <p>
+     * Calling this API for permissions already granted to your app would show UI
+     * to the user to decided whether the app can still hold these permissions. This
+     * can be useful if the way your app uses the data guarded by the permissions
+     * changes significantly.
+     * </p>
      *
      * @param activity The target activity.
      * @param permissions The requested permissions.
