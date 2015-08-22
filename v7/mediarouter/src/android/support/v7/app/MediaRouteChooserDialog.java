@@ -16,6 +16,9 @@
 
 package android.support.v7.app;
 
+import static android.support.v7.media.MediaRouter.RouteInfo.CONNECTION_STATE_CONNECTED;
+import static android.support.v7.media.MediaRouter.RouteInfo.CONNECTION_STATE_CONNECTING;
+
 import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -275,12 +278,15 @@ public class MediaRouteChooserDialog extends Dialog {
             TextView text2 = (TextView) view.findViewById(android.R.id.text2);
             text1.setText(route.getName());
             String description = route.getDescription();
-            if (TextUtils.isEmpty(description)) {
-                text2.setVisibility(View.GONE);
-                text2.setText("");
-            } else {
+            boolean isConnectedOrConnecting =
+                    route.getConnectionState() == CONNECTION_STATE_CONNECTED
+                            || route.getConnectionState() == CONNECTION_STATE_CONNECTING;
+            if (isConnectedOrConnecting && !TextUtils.isEmpty(description)) {
                 text2.setVisibility(View.VISIBLE);
                 text2.setText(description);
+            } else {
+                text2.setVisibility(View.GONE);
+                text2.setText("");
             }
             view.setEnabled(route.isEnabled());
 
