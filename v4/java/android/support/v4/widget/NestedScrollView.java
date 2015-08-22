@@ -576,13 +576,6 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
             return true;
         }
 
-        /*
-         * Don't try to intercept touch if we can't scroll anyway.
-         */
-        if (getScrollY() == 0 && !ViewCompat.canScrollVertically(this, 1)) {
-            return false;
-        }
-
         switch (action & MotionEventCompat.ACTION_MASK) {
             case MotionEvent.ACTION_MOVE: {
                 /*
