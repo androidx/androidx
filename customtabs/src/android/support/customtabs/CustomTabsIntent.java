@@ -24,16 +24,13 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.annotation.AnimRes;
-import android.support.annotation.NonNull;
 import android.support.annotation.ColorInt;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.BundleCompat;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 /**
@@ -189,7 +186,8 @@ public final class CustomTabsIntent {
         public Builder(@Nullable CustomTabsSession session) {
             if (session != null) mIntent.setPackage(session.getComponentName().getPackageName());
             Bundle bundle = new Bundle();
-            safePutBinder(bundle, EXTRA_SESSION, session == null ? null : session.getBinder());
+            BundleCompat.putBinder(
+                    bundle, EXTRA_SESSION, session == null ? null : session.getBinder());
             mIntent.putExtras(bundle);
         }
 
@@ -294,33 +292,6 @@ public final class CustomTabsIntent {
                 mIntent.putParcelableArrayListExtra(CustomTabsIntent.EXTRA_MENU_ITEMS, mMenuItems);
             }
             return new CustomTabsIntent(mIntent, mStartAnimationBundle);
-        }
-
-        /**
-         * A convenience method to handle putting an {@link IBinder} inside a {@link Bundle} for all
-         * Android version.
-         * @param bundle The bundle to insert the {@link IBinder}.
-         * @param key    The key to use while putting the {@link IBinder}.
-         * @param binder The {@link IBinder} to put.
-         * @return       Whether the operation was successful.
-         */
-        private boolean safePutBinder(Bundle bundle, String key, IBinder binder) {
-            try {
-                // {@link Bundle#putBinder} exists since JB MR2, but we have
-                // {@link Bundle#putIBinder} which is the same method since the dawn of time. Use
-                // reflection when necessary to call it.
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                    bundle.putBinder(key, binder);
-                } else {
-                    Method putBinderMethod =
-                            Bundle.class.getMethod("putIBinder", String.class, IBinder.class);
-                    putBinderMethod.invoke(bundle, key, binder);
-                }
-            } catch (InvocationTargetException | IllegalAccessException
-                    | IllegalArgumentException | NoSuchMethodException e) {
-                return false;
-            }
-            return true;
         }
     }
 }

@@ -16,10 +16,11 @@
 
 package android.support.customtabs;
 
-import android.net.Uri;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.support.v4.app.BundleCompat;
 import android.util.Log;
 
 /**
@@ -30,6 +31,20 @@ public class CustomTabsSessionToken {
     private static final String TAG = "CustomTabsSessionToken";
     private final ICustomTabsCallback mCallbackBinder;
     private final CustomTabsCallback mCallback;
+
+    /**
+     * Obtain a {@link CustomTabsSessionToken} from an intent. See {@link CustomTabsIntent.Builder}
+     * for ways to generate an intent for custom tabs.
+     * @param intent The intent to generate the token from. This has to include an extra for
+     *               {@link CustomTabsIntent#EXTRA_SESSION}.
+     * @return The token that was generated.
+     */
+    public static CustomTabsSessionToken getSessionTokenFromIntent(Intent intent) {
+        Bundle b = intent.getExtras();
+        IBinder binder = BundleCompat.getBinder(b, CustomTabsIntent.EXTRA_SESSION);
+        if (binder == null) return null;
+        return new CustomTabsSessionToken(ICustomTabsCallback.Stub.asInterface(binder));
+    }
 
     /**@hide*/
     CustomTabsSessionToken(ICustomTabsCallback callbackBinder) {
