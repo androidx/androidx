@@ -156,6 +156,8 @@
 
     <string name="sample_transport_controller_activity">Media/TransportController</string>
 
+    <string name="view_pager_layout_support">View/View pager</string>
+
     <string name="drawer_layout_support">Widget/Drawer layout</string>
 
     <string name="drawer_layout_summary">This activity illustrates the use of sliding drawers. The drawer may be pulled out from the starting edge, which is left on left-to-right locales, with an edge swipe. If this demo is running on Ice Cream Sandwich or newer you may tap the icon at the starting side of the action bar to open the drawer as well.</string>
