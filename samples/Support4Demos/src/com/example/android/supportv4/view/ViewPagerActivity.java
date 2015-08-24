@@ -14,97 +14,97 @@
  * limitations under the License.
  */
 
-
 package com.example.android.supportv4.view;
 
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.TextView;
-import android.widget.Toast;
 import com.example.android.supportv4.R;
 
-import java.lang.Override;
-import java.lang.Runnable;
+import android.app.Activity;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.PagerTitleStrip;
+import android.support.v4.view.ViewPager;
+import android.util.Pair;
+import android.view.View;
+import android.view.ViewGroup;
 
-public class ViewPagerActivity extends FragmentActivity {
-    private static int[] PAGE_COLORS = { 0xFF700000, 0xFF500020, 0xFF300030, 0xFF200050,
-            0xFF000070};
+import java.util.ArrayList;
+
+public class ViewPagerActivity extends Activity {
+    private ViewPager mPager;
+    private PagerTitleStrip mTitles;
+    private ColorPagerAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.view_pager_sample);
+        setContentView(R.layout.view_pager_layout);
 
-        final ViewPager viewPager = (ViewPager) findViewById(R.id.view_pager);
-        viewPager.setAdapter(new FragmentStatePagerAdapter(getSupportFragmentManager()) {
-            @Override
-            public int getCount() {
-                return PAGE_COLORS.length;
-            }
+        mAdapter = new ColorPagerAdapter();
+        mAdapter.add("Red", Color.RED);
+        mAdapter.add("Green", Color.GREEN);
+        mAdapter.add("Blue", Color.BLUE);
 
-            @Override
-            public CharSequence getPageTitle(int position) {
-                return "Page " + position;
-            }
+        mPager = (ViewPager) findViewById(R.id.pager);
+        mPager.setAdapter(mAdapter);
 
-            @Override
-            public Fragment getItem(int position) {
-                Fragment fragment = new DemoObjectFragment();
-                Bundle args = new Bundle();
-                args.putInt(DemoObjectFragment.ARG_INDEX, position);
-                fragment.setArguments(args);
-                return fragment;
-            }
-        });
-
-        final CheckBox smoothScroll = (CheckBox) findViewById(R.id.view_pager_smooth_scroll);
-
-        Button switchTabsButton = (Button) findViewById(R.id.view_pager_switch_tabs_button);
-        switchTabsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                viewPager.setCurrentItem(2, smoothScroll.isChecked());
-                Toast.makeText(view.getContext(), "Current item = " + viewPager.getCurrentItem(),
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        Button doubleSwitchTabsButton =
-                (Button) findViewById(R.id.view_pager_double_switch_tabs_button);
-        doubleSwitchTabsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                viewPager.setCurrentItem(0, smoothScroll.isChecked());
-                viewPager.setCurrentItem(2, smoothScroll.isChecked());
-                Toast.makeText(view.getContext(), "Current item = " + viewPager.getCurrentItem(),
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
+        mTitles = (PagerTitleStrip) findViewById(R.id.titles);
     }
 
-    public static class DemoObjectFragment extends Fragment {
-        public static final String ARG_INDEX = "index";
+    private static class ColorPagerAdapter extends PagerAdapter {
+        private ArrayList<Pair<String, Integer>> mEntries = new ArrayList<>();
+
+        public void add(String title, int color) {
+            mEntries.add(new Pair(title, color));
+        }
 
         @Override
-        public View onCreateView(LayoutInflater inflater,
-                ViewGroup container, Bundle savedInstanceState) {
-            // The last two arguments ensure LayoutParams are inflated
-            // properly.
-            View rootView = inflater.inflate(R.layout.view_pager_tab, container, false);
-            Bundle args = getArguments();
-            int position = args.getInt(ARG_INDEX);
-            rootView.setBackgroundColor(PAGE_COLORS[position]);
-            ((TextView) rootView).setText(Integer.toString(position));
-            return rootView;
+        public int getCount() {
+            return mEntries.size();
+        }
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            final View view = new View(container.getContext());
+            view.setBackgroundColor(mEntries.get(position).second);
+
+            // Unlike ListView adapters, the ViewPager adapter is responsible
+            // for adding the view to the container.
+            container.addView(view);
+
+            return new ViewHolder(view, position);
+        }
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            // The adapter is also responsible for removing the view.
+            container.removeView(((ViewHolder) object).view);
+        }
+
+        @Override
+        public int getItemPosition(Object object) {
+            return ((ViewHolder) object).position;
+        }
+
+        @Override
+        public boolean isViewFromObject(View view, Object object) {
+            return ((ViewHolder) object).view == view;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return mEntries.get(position).first;
+        }
+
+        private static class ViewHolder {
+            final View view;
+            final int position;
+
+            public ViewHolder(View view, int position) {
+                this.view = view;
+                this.position = position;
+            }
         }
     }
 }
