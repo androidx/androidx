@@ -15,12 +15,6 @@
   ~ limitations under the License.
 -->
 <resources>
-    <attr name="layout_snapToDimen" format="enum">
-        <enum name="none" value="0" />
-        <enum name="width" value="1" />
-        <enum name="height" value="2" />
-    </attr>
-
     <declare-styleable name="PercentLayout_Layout">
         <attr name="layout_widthPercent" format="fraction"/>
 
@@ -33,7 +27,7 @@
         <attr name="layout_marginBottomPercent" format="fraction"/>
         <attr name="layout_marginStartPercent" format="fraction"/>
         <attr name="layout_marginEndPercent" format="fraction"/>
-        <attr name="layout_snapToDimen" />
+        <attr name="layout_aspectRatio" format="fraction" />
     </declare-styleable>
 </resources>
 
