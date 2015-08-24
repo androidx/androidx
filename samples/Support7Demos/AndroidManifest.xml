@@ -60,6 +60,7 @@
         <!-- MediaRouter Support Samples -->
 
         <activity android:name=".media.SampleMediaRouterActivity"
+                android:configChanges="orientation|screenSize"
                 android:label="@string/sample_media_router_activity_dark"
                 android:theme="@style/Theme.AppCompat">
             <intent-filter>
@@ -69,6 +70,7 @@
         </activity>
 
         <activity android:name=".media.SampleMediaRouterActivity$Light"
+                android:configChanges="orientation|screenSize"
                 android:label="@string/sample_media_router_activity_light"
                 android:theme="@style/Theme.AppCompat.Light">
             <intent-filter>
@@ -78,6 +80,7 @@
         </activity>
 
         <activity android:name=".media.SampleMediaRouterActivity$LightWithDarkActionBar"
+                android:configChanges="orientation|screenSize"
                 android:label="@string/sample_media_router_activity_light_with_dark_action_bar"
                 android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
             <intent-filter>
