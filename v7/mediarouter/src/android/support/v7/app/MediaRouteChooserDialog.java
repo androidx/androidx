@@ -43,9 +43,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * This class implements the route chooser dialog for {@link MediaRouter}.
@@ -57,10 +55,6 @@ import java.util.Set;
  * @see MediaRouteActionProvider
  */
 public class MediaRouteChooserDialog extends Dialog {
-    private static final String PREF_ROUTE_IDS = "android.support.v7.media.MediaRoute_route_ids";
-    private static final float MIN_USAGE_SCORE = 0.1f;
-    private static final float MEMORY_DECAY_FACTOR = 0.95f;
-
     private final MediaRouter mRouter;
     private final MediaRouterCallback mCallback;
 
@@ -187,50 +181,10 @@ public class MediaRouteChooserDialog extends Dialog {
             mRoutes.clear();
             mRoutes.addAll(mRouter.getRoutes());
             onFilterRoutes(mRoutes);
-            readRouteUsageScore(RouteComparator.sRouteUsageScoreMap);
+            RouteComparator.loadRouteUsageScores(getContext(), mRoutes);
             Collections.sort(mRoutes, RouteComparator.sInstance);
             mAdapter.notifyDataSetChanged();
         }
-    }
-
-    private void readRouteUsageScore(HashMap<String, Float> usageScoreMap) {
-        usageScoreMap.clear();
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        for (MediaRouter.RouteInfo route : mRoutes) {
-            usageScoreMap.put(route.getId(), preferences.getFloat(route.getId(), 0f));
-        }
-    }
-
-    private void writeRouteUsageScore(String selectedRouteId) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        SharedPreferences.Editor prefEditor = preferences.edit();
-        Set<String> routeIdSet = new HashSet<String>(
-                Arrays.asList(preferences.getString(PREF_ROUTE_IDS, "").split(",")));
-        routeIdSet.add(selectedRouteId);
-        StringBuilder routeIdsBuilder = new StringBuilder();
-        for (String routeId : routeIdSet) {
-            // The next route usage score will be calculated as follows:
-            // 1) usageScore * MEMORY_DECAY_FACTOR + 1, if the route is the selected one,
-            // 2) 0, if usageScore * MEMORY_DECAY_FACTOR < MIN_USAGE_SCORE, and
-            // 3) usageScore * MEMORY_DECAY_FACTOR, otherwise,
-            float newUsageScore = preferences.getFloat(routeId, 0f) * MEMORY_DECAY_FACTOR;
-            if (selectedRouteId.equals(routeId)) {
-                newUsageScore += 1f;
-            }
-            if (newUsageScore < MIN_USAGE_SCORE) {
-                // We only keep the usage score for more than MIN_USAGE_SCORE.
-                prefEditor.remove(routeId);
-            } else {
-                prefEditor.putFloat(routeId, newUsageScore);
-                if (routeIdsBuilder.length() > 0) {
-                    routeIdsBuilder.append(',');
-                }
-                routeIdsBuilder.append(routeId);
-            }
-        }
-        // Save the route ids in order to apply MEMORY_DECAY_FACTOR for all the saved usage scores.
-        prefEditor.putString(PREF_ROUTE_IDS, routeIdsBuilder.toString());
-        prefEditor.commit();
     }
 
     private final class RouteAdapter extends ArrayAdapter<MediaRouter.RouteInfo>
@@ -296,7 +250,7 @@ public class MediaRouteChooserDialog extends Dialog {
             MediaRouter.RouteInfo route = getItem(position);
             if (route.isEnabled()) {
                 route.select();
-                writeRouteUsageScore(route.getId());
+                RouteComparator.storeRouteUsageScores(getContext(), route.getId());
                 dismiss();
             }
         }
@@ -337,6 +291,14 @@ public class MediaRouteChooserDialog extends Dialog {
     }
 
     private static final class RouteComparator implements Comparator<MediaRouter.RouteInfo> {
+        private static final String PREF_ROUTE_IDS =
+                "android.support.v7.app.MediaRouteChooserDialog_route_ids";
+        private static final String PREF_USAGE_SCORE_PREFIX =
+                "android.support.v7.app.MediaRouteChooserDialog_route_usage_score_";
+        // Routes with the usage score less than MIN_USAGE_SCORE are decayed.
+        private static final float MIN_USAGE_SCORE = 0.1f;
+        private static final float USAGE_SCORE_DECAY_FACTOR = 0.95f;
+
         // Should match to SystemMediaRouteProvider.PACKAGE_NAME.
         static final String SYSTEM_MEDIA_ROUTE_PROVIDER_PACKAGE_NAME = "android";
 
@@ -360,10 +322,10 @@ public class MediaRouteChooserDialog extends Dialog {
             if (rhsUsageScore == null) {
                 rhsUsageScore = 0f;
             }
-            if (lhsUsageScore.equals(rhsUsageScore)) {
-                return lhs.getName().compareTo(rhs.getName());
+            if (!lhsUsageScore.equals(rhsUsageScore)) {
+                return lhsUsageScore > rhsUsageScore ? -1 : 1;
             }
-            return lhsUsageScore > rhsUsageScore ? -1 : 1;
+            return lhs.getName().compareTo(rhs.getName());
         }
 
         private boolean isSystemLiveAudioOnlyRoute(MediaRouter.RouteInfo route) {
@@ -375,6 +337,50 @@ public class MediaRouteChooserDialog extends Dialog {
         private boolean isSystemMediaRouteProvider(MediaRouter.RouteInfo route) {
             return TextUtils.equals(route.getProviderInstance().getMetadata().getPackageName(),
                     SYSTEM_MEDIA_ROUTE_PROVIDER_PACKAGE_NAME);
+        }
+
+        private static void loadRouteUsageScores(
+                Context context, List<MediaRouter.RouteInfo> routes) {
+            sRouteUsageScoreMap.clear();
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+            for (MediaRouter.RouteInfo route : routes) {
+                sRouteUsageScoreMap.put(route.getId(),
+                        preferences.getFloat(PREF_USAGE_SCORE_PREFIX + route.getId(), 0f));
+            }
+        }
+
+        private static void storeRouteUsageScores(Context context, String selectedRouteId) {
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+            SharedPreferences.Editor prefEditor = preferences.edit();
+            List<String> routeIds = new ArrayList<String>(
+                    Arrays.asList(preferences.getString(PREF_ROUTE_IDS, "").split(",")));
+            if (!routeIds.contains(selectedRouteId)) {
+                routeIds.add(selectedRouteId);
+            }
+            StringBuilder routeIdsBuilder = new StringBuilder();
+            for (String routeId : routeIds) {
+                // The new route usage score is calculated as follows:
+                // 1) usageScore * USAGE_SCORE_DECAY_FACTOR + 1, if the route is selected,
+                // 2) 0, if usageScore * USAGE_SCORE_DECAY_FACTOR < MIN_USAGE_SCORE, or
+                // 3) usageScore * USAGE_SCORE_DECAY_FACTOR, otherwise,
+                String routeUsageScoreKey = PREF_USAGE_SCORE_PREFIX + routeId;
+                float newUsageScore = preferences.getFloat(routeUsageScoreKey, 0f)
+                        * USAGE_SCORE_DECAY_FACTOR;
+                if (selectedRouteId.equals(routeId)) {
+                    newUsageScore += 1f;
+                }
+                if (newUsageScore < MIN_USAGE_SCORE) {
+                    prefEditor.remove(routeId);
+                } else {
+                    prefEditor.putFloat(routeUsageScoreKey, newUsageScore);
+                    if (routeIdsBuilder.length() > 0) {
+                        routeIdsBuilder.append(',');
+                    }
+                    routeIdsBuilder.append(routeId);
+                }
+            }
+            prefEditor.putString(PREF_ROUTE_IDS, routeIdsBuilder.toString());
+            prefEditor.commit();
         }
     }
 }
