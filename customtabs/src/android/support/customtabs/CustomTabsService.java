@@ -23,7 +23,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.IBinder.DeathRecipient;
 import android.os.RemoteException;
-import android.util.ArrayMap;
+import android.support.v4.util.ArrayMap;
 
 import java.util.List;
 import java.util.Map;
