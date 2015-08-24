@@ -3,6 +3,7 @@ apply plugin: 'android-library'
 archivesBaseName = 'customtabs'
 
 dependencies {
+    compile project(':support-v4')
     compile project(':support-annotations')
 }
 
