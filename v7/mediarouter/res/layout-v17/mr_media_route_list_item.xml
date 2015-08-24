@@ -40,7 +40,7 @@
                   android:singleLine="true"
                   android:gravity="bottom"
                   android:ellipsize="marquee"
-                  android:textAppearance="?android:attr/textAppearanceMedium"
+                  android:textAppearance="?attr/mediaRouteTextStyle"
                   android:duplicateParentState="true" />
 
         <TextView android:id="@android:id/text2"
@@ -48,7 +48,7 @@
                   android:layout_height="24dp"
                   android:singleLine="true"
                   android:ellipsize="marquee"
-                  android:textAppearance="?android:attr/textAppearanceSmall"
+                  android:textAppearance="?attr/mediaRouteSecondaryTextStyle"
                   android:duplicateParentState="true" />
     </LinearLayout>
 
