@@ -15,11 +15,9 @@
 -->
 
 <!-- Layout used for PreferenceCategory in a PreferenceActivity. -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content" >
-    <TextView
-     style="?android:attr/listSeparatorTextViewStyle"
-     android:id="@+android:id/title"
+    android:layout_height="wrap_content"
+    style="?android:attr/listSeparatorTextViewStyle"
+    android:id="@android:id/title"
     />
-</FrameLayout>
