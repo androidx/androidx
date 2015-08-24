@@ -19,10 +19,8 @@
     <string name="mr_system_route_name" msgid="5441529851481176817">"સિસ્ટમ"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"ઉપકરણો"</string>
     <string name="mr_media_route_button_content_description" msgid="8327680881775995150">"કાસ્ટ કરો"</string>
-    <!-- no translation found for mr_media_route_chooser_title (2245097672217008651) -->
-    <skip />
-    <!-- no translation found for mr_media_route_chooser_searching (1855108583904057166) -->
-    <skip />
+    <string name="mr_media_route_chooser_title" msgid="2245097672217008651">"આના પર કાસ્ટ કરો"</string>
+    <string name="mr_media_route_chooser_searching" msgid="1855108583904057166">"ઉપકરણો શોધી રહ્યાં છીએ"</string>
     <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"ડિસ્કનેક્ટ કરો"</string>
     <string name="mr_media_route_controller_stop" msgid="5398645111664294430">"કાસ્ટ કરવાનું રોકો"</string>
     <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"રૂટ સેટિંગ્સ"</string>

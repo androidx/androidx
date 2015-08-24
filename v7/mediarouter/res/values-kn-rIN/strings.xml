@@ -19,10 +19,8 @@
     <string name="mr_system_route_name" msgid="5441529851481176817">"ಸಿಸ್ಟಂ"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"ಸಾಧನಗಳು"</string>
     <string name="mr_media_route_button_content_description" msgid="8327680881775995150">"ಪಾತ್ರ"</string>
-    <!-- no translation found for mr_media_route_chooser_title (2245097672217008651) -->
-    <skip />
-    <!-- no translation found for mr_media_route_chooser_searching (1855108583904057166) -->
-    <skip />
+    <string name="mr_media_route_chooser_title" msgid="2245097672217008651">"ಇದಕ್ಕೆ ಬಿತ್ತರಿಸಿ"</string>
+    <string name="mr_media_route_chooser_searching" msgid="1855108583904057166">"ಸಾಧನಗಳನ್ನು ಹುಡುಕಲಾಗುತ್ತಿದೆ"</string>
     <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"ಸಂಪರ್ಕ ಕಡಿತಗೊಳಿಸು"</string>
     <string name="mr_media_route_controller_stop" msgid="5398645111664294430">"ಬಿತ್ತರಿಸುವಿಕೆ ನಿಲ್ಲಿಸು"</string>
     <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"ಮಾರ್ಗ ಸೆಟ್ಟಿಂಗ್‌ಗಳು"</string>

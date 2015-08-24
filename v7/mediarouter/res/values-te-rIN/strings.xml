@@ -19,10 +19,8 @@
     <string name="mr_system_route_name" msgid="5441529851481176817">"సిస్టమ్"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"పరికరాలు"</string>
     <string name="mr_media_route_button_content_description" msgid="8327680881775995150">"ప్రసారం చేయండి"</string>
-    <!-- no translation found for mr_media_route_chooser_title (2245097672217008651) -->
-    <skip />
-    <!-- no translation found for mr_media_route_chooser_searching (1855108583904057166) -->
-    <skip />
+    <string name="mr_media_route_chooser_title" msgid="2245097672217008651">"దీనికి ప్రసారం చేయండి"</string>
+    <string name="mr_media_route_chooser_searching" msgid="1855108583904057166">"పరికరాలను కనుగొంటోంది"</string>
     <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"డిస్‌కనెక్ట్ చేయి"</string>
     <string name="mr_media_route_controller_stop" msgid="5398645111664294430">"ప్రసారాన్ని ఆపివేయి"</string>
     <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"మార్గ సెట్టింగ్‌లు"</string>
