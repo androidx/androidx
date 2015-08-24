@@ -79,7 +79,6 @@ package android.support.customtabs {
 
   public class CustomTabsSessionToken {
     method public android.support.customtabs.CustomTabsCallback getCallback();
-    method public static android.support.customtabs.CustomTabsSessionToken getSessionTokenFromIntent(android.content.Intent);
   }
 
 }
