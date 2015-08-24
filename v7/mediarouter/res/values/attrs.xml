@@ -37,4 +37,6 @@
     <attr name="mediaRouteDefaultIconDrawable" format="reference" />
     <attr name="mediaRouteSpeakerIconDrawable" format="reference" />
     <attr name="mediaRouteSpeakerGroupIconDrawable" format="reference" />
+    <attr name="mediaRouteTextStyle" format="reference" />
+    <attr name="mediaRouteSecondaryTextStyle" format="reference" />
 </resources>
