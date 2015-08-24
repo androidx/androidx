@@ -30,6 +30,8 @@
         <item name="mediaRouteDefaultIconDrawable">@drawable/ic_tv_dark</item>
         <item name="mediaRouteSpeakerIconDrawable">@drawable/ic_speaker_dark</item>
         <item name="mediaRouteSpeakerGroupIconDrawable">@drawable/ic_speaker_group_dark</item>
+        <item name="mediaRouteTextStyle">@style/Widget.MediaRouter.MediaRouteText.Primary.Dark</item>
+        <item name="mediaRouteSecondaryTextStyle">@style/Widget.MediaRouter.MediaRouteText.Secondary.Dark</item>
     </style>
 
     <style name="Theme.MediaRouter.Light" parent="">
@@ -46,6 +48,8 @@
         <item name="mediaRouteDefaultIconDrawable">@drawable/ic_tv_light</item>
         <item name="mediaRouteSpeakerIconDrawable">@drawable/ic_speaker_light</item>
         <item name="mediaRouteSpeakerGroupIconDrawable">@drawable/ic_speaker_group_light</item>
+        <item name="mediaRouteTextStyle">@style/Widget.MediaRouter.MediaRouteText.Primary.Light</item>
+        <item name="mediaRouteSecondaryTextStyle">@style/Widget.MediaRouter.MediaRouteText.Secondary.Light</item>
     </style>
 
 </resources>
