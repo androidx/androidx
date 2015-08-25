@@ -31,8 +31,11 @@
         <item name="mediaRouteDefaultIconDrawable">@drawable/ic_tv_dark</item>
         <item name="mediaRouteSpeakerIconDrawable">@drawable/ic_speaker_dark</item>
         <item name="mediaRouteSpeakerGroupIconDrawable">@drawable/ic_speaker_group_dark</item>
-        <item name="mediaRouteTextStyle">@style/Widget.MediaRouter.MediaRouteText.Primary.Dark</item>
-        <item name="mediaRouteSecondaryTextStyle">@style/Widget.MediaRouter.MediaRouteText.Secondary.Dark</item>
+        <item name="mediaRouteChooserPrimaryTextStyle">@style/Widget.MediaRouter.ChooserText.Primary.Dark</item>
+        <item name="mediaRouteChooserSecondaryTextStyle">@style/Widget.MediaRouter.ChooserText.Secondary.Dark</item>
+        <item name="mediaRouteControllerTitleTextStyle">@style/Widget.MediaRouter.ControllerText.Title.Dark</item>
+        <item name="mediaRouteControllerPrimaryTextStyle">@style/Widget.MediaRouter.ControllerText.Primary.Dark</item>
+        <item name="mediaRouteControllerSecondaryTextStyle">@style/Widget.MediaRouter.ControllerText.Secondary.Dark</item>
         <item name="mediaRouteExpandGroupDrawable">@drawable/ic_keyboard_arrow_down_white</item>
         <item name="mediaRouteCollapseGroupDrawable">@drawable/ic_keyboard_arrow_up_white</item>
     </style>
@@ -51,8 +54,11 @@
         <item name="mediaRouteDefaultIconDrawable">@drawable/ic_tv_light</item>
         <item name="mediaRouteSpeakerIconDrawable">@drawable/ic_speaker_light</item>
         <item name="mediaRouteSpeakerGroupIconDrawable">@drawable/ic_speaker_group_light</item>
-        <item name="mediaRouteTextStyle">@style/Widget.MediaRouter.MediaRouteText.Primary.Light</item>
-        <item name="mediaRouteSecondaryTextStyle">@style/Widget.MediaRouter.MediaRouteText.Secondary.Light</item>
+        <item name="mediaRouteChooserPrimaryTextStyle">@style/Widget.MediaRouter.ChooserText.Primary.Light</item>
+        <item name="mediaRouteChooserSecondaryTextStyle">@style/Widget.MediaRouter.ChooserText.Secondary.Light</item>
+        <item name="mediaRouteControllerTitleTextStyle">@style/Widget.MediaRouter.ControllerText.Title.Light</item>
+        <item name="mediaRouteControllerPrimaryTextStyle">@style/Widget.MediaRouter.ControllerText.Primary.Light</item>
+        <item name="mediaRouteControllerSecondaryTextStyle">@style/Widget.MediaRouter.ControllerText.Secondary.Light</item>
         <item name="mediaRouteExpandGroupDrawable">@drawable/ic_keyboard_arrow_down_black</item>
         <item name="mediaRouteCollapseGroupDrawable">@drawable/ic_keyboard_arrow_up_black</item>
     </style>

@@ -39,7 +39,7 @@
                   android:layout_height="32dp"
                   android:singleLine="true"
                   android:ellipsize="marquee"
-                  android:textAppearance="?attr/mediaRouteTextStyle"
+                  android:textAppearance="?attr/mediaRouteChooserPrimaryTextStyle"
                   android:duplicateParentState="true" />
 
         <TextView android:id="@android:id/text2"
@@ -47,7 +47,7 @@
                   android:layout_height="24dp"
                   android:singleLine="true"
                   android:ellipsize="marquee"
-                  android:textAppearance="?attr/mediaRouteSecondaryTextStyle"
+                  android:textAppearance="?attr/mediaRouteChooserSecondaryTextStyle"
                   android:duplicateParentState="true" />
     </LinearLayout>
 

@@ -33,8 +33,7 @@
                     android:gravity="center_vertical"
                     android:singleLine="true"
                     android:ellipsize="end"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="?android:attr/textColorPrimary" />
+                    android:textAppearance="?attr/mediaRouteControllerTitleTextStyle" />
             <ImageButton android:id="@+id/settings"
                     android:layout_width="48dip"
                     android:layout_height="48dip"
@@ -53,7 +52,7 @@
             <RelativeLayout android:id="@+id/default_control_frame"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="?attr/colorPrimary" >
+                    android:background="?attr/colorPrimary">
                 <ImageView android:id="@+id/art"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -81,17 +80,12 @@
                     <TextView android:id="@+id/title"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceSmall"
-                            android:textColor="?android:attr/textColorPrimary"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
+                            android:textAppearance="?attr/mediaRouteControllerPrimaryTextStyle"
                             android:singleLine="true" />
                     <TextView android:id="@+id/subtitle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceSmall"
-                            android:textColor="?android:attr/textColorPrimary"
-                            android:textSize="14sp"
+                            android:textAppearance="?attr/mediaRouteControllerSecondaryTextStyle"
                             android:singleLine="true" />
                 </LinearLayout>
             </RelativeLayout>
@@ -102,7 +96,8 @@
                       android:layout_height="64dp"
                       android:gravity="center_vertical"
                       android:padding="8dp"
-                      android:visibility="gone">
+                      android:visibility="gone"
+                      android:background="?attr/colorPrimary">
             <ImageView android:layout_width="48dp"
                        android:layout_height="48dp"
                        android:src="?attr/mediaRouteCastDrawable"
