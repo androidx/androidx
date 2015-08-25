@@ -84,6 +84,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private Button mStopCastingButton;
     private ImageButton mPlayPauseButton;
     private ImageButton mSettingsButton;
+    private ImageButton mGroupExpandCollapseButton;
 
     private ImageView mArtView;
     private TextView mTitleView;
@@ -235,6 +236,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mPlayPauseButton.setOnClickListener(listener);
         mRouteNameView = (TextView) findViewById(R.id.route_name);
         mVolumeLayout = (LinearLayout)findViewById(R.id.media_route_volume_layout);
+        mGroupExpandCollapseButton = (ImageButton)findViewById(
+                R.id.media_route_group_expand_collapse);
         mVolumeSlider = (SeekBar)findViewById(R.id.media_route_volume_slider);
         mVolumeSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             private final Runnable mStopTrackingTouch = new Runnable() {
@@ -423,6 +426,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 mVolumeLayout.setVisibility(View.VISIBLE);
                 mVolumeSlider.setMax(mRoute.getVolumeMax());
                 mVolumeSlider.setProgress(mRoute.getVolume());
+                mGroupExpandCollapseButton.setVisibility(mRoute instanceof MediaRouter.RouteGroup
+                        ? View.VISIBLE : View.GONE);
             } else {
                 mVolumeLayout.setVisibility(View.GONE);
             }
