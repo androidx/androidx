@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -32,6 +33,7 @@ import android.support.v7.media.MediaRouteSelector;
 import android.support.v7.media.MediaRouter;
 import android.support.v7.mediarouter.R;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,6 +43,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -58,6 +62,8 @@ import java.util.List;
  * @see MediaRouteActionProvider
  */
 public class MediaRouteChooserDialog extends Dialog {
+    private static final String TAG = "MediaRouteChooserDialog";
+
     private final MediaRouter mRouter;
     private final MediaRouterCallback mCallback;
 
@@ -262,6 +268,23 @@ public class MediaRouteChooserDialog extends Dialog {
         }
 
         private Drawable getIconDrawable(MediaRouter.RouteInfo route) {
+            Uri iconUri = route.getIconUri();
+            if (iconUri != null) {
+                try {
+                    InputStream is = getContext().getContentResolver().openInputStream(iconUri);
+                    Drawable drawable = Drawable.createFromStream(is, null);
+                    if (drawable != null) {
+                        return drawable;
+                    }
+                } catch (IOException e) {
+                    Log.w(TAG, "Failed to load " + iconUri, e);
+                    // Falls back.
+                }
+            }
+            return getDefaultIconDrawable(route);
+        }
+
+        private Drawable getDefaultIconDrawable(MediaRouter.RouteInfo route) {
             if (route instanceof MediaRouter.RouteGroup) {
                 // Only speakers can be grouped for now.
                 return mSpeakerGroupIcon;

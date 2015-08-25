@@ -17,6 +17,7 @@ package android.support.v7.media;
 
 import android.content.IntentFilter;
 import android.content.IntentSender;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 
@@ -37,9 +38,10 @@ import java.util.List;
  */
 public final class MediaRouteDescriptor {
     private static final String KEY_ID = "id";
-    private static final String KEY_CHILD_IDS = "child_ids";
+    private static final String KEY_CHILD_IDS = "childIds";
     private static final String KEY_NAME = "name";
     private static final String KEY_DESCRIPTION = "status";
+    private static final String KEY_ICON_URI = "iconUri";
     private static final String KEY_ENABLED = "enabled";
     private static final String KEY_CONNECTING = "connecting";
     private static final String KEY_CONNECTION_STATE = "connectionState";
@@ -107,6 +109,19 @@ public final class MediaRouteDescriptor {
      */
     public String getDescription() {
         return mBundle.getString(KEY_DESCRIPTION);
+    }
+
+    /**
+     * Gets the URI of the icon representing this route.
+     * <p>
+     * This icon will be used in picker UIs if available.
+     * </p>
+     * @hide
+     * STOPSHIP: Unhide or remove.
+     */
+    public Uri getIconUri() {
+        String iconUri = mBundle.getString(KEY_ICON_URI);
+        return iconUri == null ? null : Uri.parse(iconUri);
     }
 
     /**
@@ -252,6 +267,7 @@ public final class MediaRouteDescriptor {
         result.append(", childIds=").append(getChildIds());
         result.append(", name=").append(getName());
         result.append(", description=").append(getDescription());
+        result.append(", iconUri=").append(getIconUri());
         result.append(", isEnabled=").append(isEnabled());
         result.append(", isConnecting=").append(isConnecting());
         result.append(", connectionState=").append(getConnectionState());
@@ -405,6 +421,31 @@ public final class MediaRouteDescriptor {
             mBundle.putString(KEY_DESCRIPTION, description);
             return this;
         }
+
+        /**
+         * Sets the URI of the icon representing this route.
+         * <p>
+         * This icon will be used in picker UIs if available.
+         * </p><p>
+         * The URI must be one of the following formats:
+         * <ul>
+         * <li>content ({@link android.content.ContentResolver#SCHEME_CONTENT})</li>
+         * <li>android.resource ({@link android.content.ContentResolver#SCHEME_ANDROID_RESOURCE})
+         * </li>
+         * <li>file ({@link android.content.ContentResolver#SCHEME_FILE})</li>
+         * </ul>
+         * </p>
+         * @hide
+         * STOPSHIP: Unhide or remove.
+         */
+        public Builder setIconUri(Uri iconUri) {
+            if (iconUri == null) {
+                throw new IllegalArgumentException("iconUri must not be null");
+            }
+            mBundle.putString(KEY_ICON_URI, iconUri.toString());
+            return this;
+        }
+
 
         /**
          * Sets whether the route is enabled.
