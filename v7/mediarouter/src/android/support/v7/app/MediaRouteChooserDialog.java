@@ -34,6 +34,7 @@ import android.support.v7.media.MediaRouter;
 import android.support.v7.mediarouter.R;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -242,9 +243,11 @@ public class MediaRouteChooserDialog extends Dialog {
                     route.getConnectionState() == CONNECTION_STATE_CONNECTED
                             || route.getConnectionState() == CONNECTION_STATE_CONNECTING;
             if (isConnectedOrConnecting && !TextUtils.isEmpty(description)) {
+                text1.setGravity(Gravity.BOTTOM);
                 text2.setVisibility(View.VISIBLE);
                 text2.setText(description);
             } else {
+                text1.setGravity(Gravity.CENTER_VERTICAL);
                 text2.setVisibility(View.GONE);
                 text2.setText("");
             }
