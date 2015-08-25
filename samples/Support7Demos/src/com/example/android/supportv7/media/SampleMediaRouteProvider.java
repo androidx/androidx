@@ -133,18 +133,16 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
         f6.addAction(MediaControlIntent.ACTION_GET_SESSION_STATUS);
         f6.addAction(MediaControlIntent.ACTION_END_SESSION);
 
-        CONTROL_FILTERS_BASIC = new ArrayList<IntentFilter>();
+        CONTROL_FILTERS_BASIC = new ArrayList<>();
         CONTROL_FILTERS_BASIC.add(f1);
         CONTROL_FILTERS_BASIC.add(f2);
         CONTROL_FILTERS_BASIC.add(f3);
 
-        CONTROL_FILTERS_QUEUING =
-                new ArrayList<IntentFilter>(CONTROL_FILTERS_BASIC);
+        CONTROL_FILTERS_QUEUING = new ArrayList<>(CONTROL_FILTERS_BASIC);
         CONTROL_FILTERS_QUEUING.add(f4);
         CONTROL_FILTERS_QUEUING.add(f5);
 
-        CONTROL_FILTERS_SESSION =
-                new ArrayList<IntentFilter>(CONTROL_FILTERS_QUEUING);
+        CONTROL_FILTERS_SESSION = new ArrayList<>(CONTROL_FILTERS_QUEUING);
         CONTROL_FILTERS_SESSION.add(f6);
     }
 
@@ -157,7 +155,6 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
     }
 
     private int mVolume = 5;
-    private int mEnqueueCount;
 
     public SampleMediaRouteProvider(Context context) {
         super(context);
@@ -243,6 +240,9 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
                 .setVolume(mVolume)
                 .build();
 
+        Uri iconUri = Uri.parse("android.resource://com.example.android.supportv7/"
+                + R.drawable.ic_android);
+
         MediaRouteDescriptor routeDescriptor6 = new MediaRouteDescriptor.Builder(
                 MIXED_VOLUME_ROUTE_GROUP_ID,
                 r.getString(R.string.mixed_volume_route_group_name))
@@ -250,6 +250,7 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
                 .addChildId(VARIABLE_VOLUME_BASIC_ROUTE_ID)
                 .addChildId(VARIABLE_VOLUME_QUEUING_ROUTE_ID)
                 .setDescription(r.getString(R.string.sample_route_description))
+                .setIconUri(iconUri)
                 .addControlFilters(CONTROL_FILTERS_SESSION)
                 .setPlaybackStream(AudioManager.STREAM_MUSIC)
                 .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
