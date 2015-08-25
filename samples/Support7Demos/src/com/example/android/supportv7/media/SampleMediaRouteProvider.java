@@ -442,7 +442,6 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
                     callback.onError("Failed to open " + uri.toString(), null);
                 }
             }
-            mEnqueueCount +=1;
             return true;
         }
 
