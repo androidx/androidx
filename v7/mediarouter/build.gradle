@@ -5,6 +5,7 @@ archivesBaseName = 'mediarouter-v7'
 
 dependencies {
     compile project(':support-appcompat-v7')
+    compile project(':support-palette-v7')
 }
 
 // some of the source requires compiling against a newer API.

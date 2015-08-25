@@ -57,9 +57,8 @@
                 <ImageView android:id="@+id/art"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:maxHeight="@dimen/mr_media_route_controller_art_max_height"
                         android:adjustViewBounds="true"
-                        android:scaleType="centerCrop"/>
+                        android:scaleType="fitCenter"/>
                 <ImageButton android:id="@+id/play_pause"
                         android:layout_width="48dip"
                         android:layout_height="48dip"
