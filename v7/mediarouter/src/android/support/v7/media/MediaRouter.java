@@ -47,8 +47,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * MediaRouter allows applications to control the routing of media channels
@@ -1479,7 +1481,8 @@ public final class MediaRouter {
                     List<RouteInfo> routes = new ArrayList<>();
                     changed = childIds.size() != mRoutes.size();
                     for (String childId : childIds) {
-                        RouteInfo child = sGlobal.getRoute(childId);
+                        String uniqueChildId = sGlobal.getUniqueId(getProvider(), childId);
+                        RouteInfo child = sGlobal.getRoute(uniqueChildId);
                         if (child != null) {
                             routes.add(child);
                             if (!changed && !mRoutes.contains(child)) {
@@ -1753,13 +1756,12 @@ public final class MediaRouter {
             implements SystemMediaRouteProvider.SyncCallback,
             RegisteredMediaRouteProviderWatcher.Callback {
         private final Context mApplicationContext;
-        private final ArrayList<WeakReference<MediaRouter>> mRouters =
-                new ArrayList<WeakReference<MediaRouter>>();
-        private final ArrayList<RouteInfo> mRoutes = new ArrayList<RouteInfo>();
-        private final ArrayList<ProviderInfo> mProviders =
-                new ArrayList<ProviderInfo>();
+        private final ArrayList<WeakReference<MediaRouter>> mRouters = new ArrayList<>();
+        private final ArrayList<RouteInfo> mRoutes = new ArrayList<>();
+        private final Map<Pair<String, String>, String> mUniqueIdMap = new HashMap<>();
+        private final ArrayList<ProviderInfo> mProviders = new ArrayList<>();
         private final ArrayList<RemoteControlClientRecord> mRemoteControlClients =
-                new ArrayList<RemoteControlClientRecord>();
+                new ArrayList<>();
         private final RemoteControlClientCompat.PlaybackInfo mPlaybackInfo =
                 new RemoteControlClientCompat.PlaybackInfo();
         private final ProviderCallback mProviderCallback = new ProviderCallback();
@@ -2230,14 +2232,18 @@ public final class MediaRouter {
             // Although route descriptor ids are unique within a provider, it's
             // possible for there to be two providers with the same package name.
             // Therefore we must dedupe the composite id.
-            String uniqueId = provider.getComponentName().flattenToShortString()
-                    + ":" + routeDescriptorId;
+            String componentName = provider.getComponentName().flattenToShortString();
+            String uniqueId = componentName + ":" + routeDescriptorId;
             if (findRouteByUniqueId(uniqueId) < 0) {
+                mUniqueIdMap.put(new Pair(componentName, routeDescriptorId), uniqueId);
                 return uniqueId;
             }
+            Log.w(TAG, "Either " + routeDescriptorId + " isn't unique in " + componentName
+                    + " or you're trying to assign a unique ID for an already added route");
             for (int i = 2; ; i++) {
                 String newUniqueId = String.format(Locale.US, "%s_%d", uniqueId, i);
                 if (findRouteByUniqueId(newUniqueId) < 0) {
+                    mUniqueIdMap.put(new Pair(componentName, routeDescriptorId), newUniqueId);
                     return newUniqueId;
                 }
             }
@@ -2251,6 +2257,11 @@ public final class MediaRouter {
                 }
             }
             return -1;
+        }
+
+        private String getUniqueId(ProviderInfo provider, String routeDescriptorId) {
+            String componentName = provider.getComponentName().flattenToShortString();
+            return mUniqueIdMap.get(new Pair(componentName, routeDescriptorId));
         }
 
         private void updateSelectedRouteIfNeeded(boolean selectedRouteDescriptorChanged) {
