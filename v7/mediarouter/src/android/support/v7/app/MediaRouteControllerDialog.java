@@ -16,9 +16,14 @@
 
 package android.support.v7.app;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.IntentSender;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -26,6 +31,7 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.support.v7.graphics.Palette;
 import android.support.v7.media.MediaRouteSelector;
 import android.support.v7.media.MediaRouter;
 import android.support.v7.mediarouter.R;
@@ -40,6 +46,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import java.io.BufferedInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * This class implements the route controller dialog for {@link MediaRouter}.
@@ -89,6 +100,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private PlaybackStateCompat mState;
     private MediaDescriptionCompat mDescription;
 
+    private FetchArtTask mFetchArtTask;
 
     public MediaRouteControllerDialog(Context context) {
         this(context, 0);
@@ -335,17 +347,12 @@ public class MediaRouteControllerDialog extends AlertDialog {
         }
 
         if (mControlView == null) {
-            if (mDescription != null && mDescription.getIconBitmap() != null) {
-                mArtView.setImageBitmap(mDescription.getIconBitmap());
-                mArtView.setVisibility(View.VISIBLE);
-            } else if (mDescription != null && mDescription.getIconUri() != null) {
-                // TODO replace with background load of icon
-                mArtView.setImageURI(mDescription.getIconUri());
-                mArtView.setVisibility(View.VISIBLE);
-            } else {
-                mArtView.setImageDrawable(null);
-                mArtView.setVisibility(View.GONE);
+            if (mFetchArtTask != null) {
+                mFetchArtTask.cancel(true);
             }
+            mArtView.setVisibility(View.GONE);
+            mFetchArtTask = new FetchArtTask();
+            mFetchArtTask.execute();
 
             CharSequence title = mDescription == null ? null : mDescription.getTitle();
             boolean hasTitle = !TextUtils.isEmpty(title);
@@ -497,6 +504,110 @@ public class MediaRouteControllerDialog extends AlertDialog {
                         Log.e(TAG, "Error opening route settings.", e);
                     }
                 }
+            }
+        }
+    }
+
+    private class FetchArtTask extends AsyncTask<Void, Void, Bitmap> {
+        private int mBackgroundColor;
+
+        @Override
+        protected Bitmap doInBackground(Void... arg) {
+            Bitmap bitmap = null;
+            if (mDescription == null) {
+                return null;
+            }
+            if (mDescription.getIconBitmap() != null) {
+                bitmap = mDescription.getIconBitmap();
+            } else if (mDescription.getIconUri() != null) {
+                Uri iconUri = mDescription.getIconUri();
+                String scheme = iconUri.getScheme();
+                if (!(ContentResolver.SCHEME_ANDROID_RESOURCE.equals(scheme)
+                        || ContentResolver.SCHEME_CONTENT.equals(scheme)
+                        || ContentResolver.SCHEME_FILE.equals(scheme))) {
+                    Log.w(TAG, "Icon Uri should point to local resources.");
+                    return null;
+                }
+                BufferedInputStream stream = null;
+                try {
+                    stream = new BufferedInputStream(
+                            getContext().getContentResolver().openInputStream(iconUri));
+
+                    // Query bitmap size.
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inJustDecodeBounds = true;
+                    BitmapFactory.decodeStream(stream, null, options);
+
+                    // Rewind the stream in order to restart bitmap decoding.
+                    try {
+                        stream.reset();
+                    } catch (IOException e) {
+                        // Failed to rewind the stream, try to reopen it.
+                        stream.close();
+                        stream = new BufferedInputStream(getContext().getContentResolver()
+                                .openInputStream(iconUri));
+                    }
+
+                    // Caculate required size to decode the bitmap and possibly resize it.
+                    options.inJustDecodeBounds = false;
+                    int reqWidth;
+                    int reqHeight;
+                    if (options.outWidth >= options.outHeight) {
+                        // For landscape image, fit width to dialog width.
+                        reqWidth = getWindow().getDecorView().getWidth();
+                        reqHeight = reqWidth * (options.outHeight / options.outWidth);
+                    } else {
+                        // For portrait image, fit height to 16:9 ratio case's height.
+                        reqHeight = getWindow().getDecorView().getWidth() * 9 / 16;
+                        reqWidth = reqHeight * (options.outWidth / options.outHeight);
+                    }
+                    int ratio = Math.max(
+                            options.outWidth / reqWidth, options.outHeight / reqHeight);
+                    options.inSampleSize = Math.max(1, Integer.highestOneBit(ratio));
+                    if (isCancelled()) {
+                        return null;
+                    }
+                    bitmap = BitmapFactory.decodeStream(stream, null, options);
+                } catch (IOException e){
+                    Log.w(TAG, "Unable to open content: " + iconUri, e);
+                } finally {
+                    if (stream != null) {
+                        try {
+                            stream.close();
+                        } catch (IOException e) {
+                        }
+                    }
+                }
+            }
+            if (bitmap != null) {
+                if (bitmap.getWidth() < bitmap.getHeight()) {
+                    // Portrait image requires background color.
+                    mBackgroundColor =
+                            new Palette.Builder(bitmap).generate().getDarkVibrantColor(0);
+                }
+            }
+            return bitmap;
+        }
+
+        @Override
+        protected void onCancelled() {
+            mFetchArtTask = null;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            mFetchArtTask = null;
+            mArtView.setImageBitmap(bitmap);
+            if (bitmap != null) {
+                mArtView.setVisibility(View.VISIBLE);
+                if (bitmap.getWidth() < bitmap.getHeight()) {
+                    mArtView.setMaxHeight(getWindow().getDecorView().getWidth() * 9 / 16);
+                    mArtView.setBackgroundColor(mBackgroundColor);
+                } else {
+                    mArtView.setMaxHeight(Integer.MAX_VALUE);
+                }
+            } else {
+                mArtView.setVisibility(View.GONE);
             }
         }
     }
