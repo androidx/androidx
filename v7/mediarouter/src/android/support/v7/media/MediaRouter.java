@@ -770,6 +770,7 @@ public final class MediaRouter {
         private String mDescription;
         private boolean mEnabled;
         private boolean mConnecting;
+        private int mConnectionState;
         private boolean mCanDisconnect;
         private final ArrayList<IntentFilter> mControlFilters = new ArrayList<>();
         private int mPlaybackType;
@@ -782,6 +783,40 @@ public final class MediaRouter {
         private Bundle mExtras;
         private IntentSender mSettingsIntent;
         MediaRouteDescriptor mDescriptor;
+
+        /** @hide */
+        @IntDef({CONNECTION_STATE_DISCONNECTED, CONNECTION_STATE_CONNECTING,
+                CONNECTION_STATE_CONNECTED})
+        @Retention(RetentionPolicy.SOURCE)
+        private @interface ConnectionState {}
+
+        /**
+         * The default connection state indicating the route is disconnected.
+         *
+         * @see #getConnectionState
+         * @hide
+         * STOPSHIP: Unhide or remove.
+         */
+        public static final int CONNECTION_STATE_DISCONNECTED = 0;
+
+        /**
+         * A connection state indicating the route is in the process of connecting and is not yet
+         * ready for use.
+         *
+         * @see #getConnectionState
+         * @hide
+         * STOPSHIP: Unhide or remove.
+         */
+        public static final int CONNECTION_STATE_CONNECTING = 1;
+
+        /**
+         * A connection state indicating the route is connected.
+         *
+         * @see #getConnectionState
+         * @hide
+         * STOPSHIP: Unhide or remove.
+         */
+        public static final int CONNECTION_STATE_CONNECTED = 2;
 
         /** @hide */
         @IntDef({PLAYBACK_TYPE_LOCAL,PLAYBACK_TYPE_REMOTE})
@@ -902,9 +937,23 @@ public final class MediaRouter {
          * yet ready for use.
          *
          * @return True if this route is in the process of connecting.
+         * STOPSHIP: Deprecate or keep.
          */
         public boolean isConnecting() {
             return mConnecting;
+        }
+
+        /**
+         * Gets the connection state of the route.
+         *
+         * @return The connection state of this route: {@link #CONNECTION_STATE_DISCONNECTED},
+         * {@link #CONNECTION_STATE_CONNECTING}, or {@link #CONNECTION_STATE_CONNECTED}.
+         * @hide
+         * STOPSHIP: Unhide or remove.
+         */
+        @ConnectionState
+        public int getConnectionState() {
+            return mConnectionState;
         }
 
         /**
@@ -1255,6 +1304,7 @@ public final class MediaRouter {
                     + ", description=" + mDescription
                     + ", enabled=" + mEnabled
                     + ", connecting=" + mConnecting
+                    + ", connectionState=" + mConnectionState
                     + ", canDisconnect=" + mCanDisconnect
                     + ", playbackType=" + mPlaybackType
                     + ", playbackStream=" + mPlaybackStream
@@ -1294,6 +1344,10 @@ public final class MediaRouter {
                 }
                 if (mConnecting != descriptor.isConnecting()) {
                     mConnecting = descriptor.isConnecting();
+                    changes |= CHANGE_GENERAL;
+                }
+                if (mConnectionState != descriptor.getConnectionState()) {
+                    mConnectionState = descriptor.getConnectionState();
                     changes |= CHANGE_GENERAL;
                 }
                 if (!mControlFilters.equals(descriptor.getControlFilters())) {
