@@ -1458,6 +1458,15 @@ public final class MediaRouter {
             return mRoutes.get(index);
         }
 
+        /**
+         * Returns the routes in this group
+         *
+         * @return The list of the routes in this group
+         */
+        public List<RouteInfo> getRoutes() {
+            return mRoutes;
+        }
+
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder(super.toString());

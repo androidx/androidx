@@ -27,6 +27,7 @@
         <item name="mediaRoutePlayDrawable">@drawable/mr_ic_play_dark</item>
         <item name="mediaRoutePauseDrawable">@drawable/mr_ic_pause_dark</item>
         <item name="mediaRouteCastDrawable">@drawable/mr_ic_cast_dark</item>
+        <item name="mediaRouteAudioTrackDrawable">@drawable/ic_audiotrack</item>
         <item name="mediaRouteDefaultIconDrawable">@drawable/ic_tv_dark</item>
         <item name="mediaRouteSpeakerIconDrawable">@drawable/ic_speaker_dark</item>
         <item name="mediaRouteSpeakerGroupIconDrawable">@drawable/ic_speaker_group_dark</item>
@@ -36,8 +37,7 @@
         <item name="mediaRouteCollapseGroupDrawable">@drawable/ic_keyboard_arrow_up_white</item>
     </style>
 
-    <style name="Theme.MediaRouter.Light" parent="">
-        <item name="android:windowNoTitle">false</item>
+    <style name="Theme.MediaRouter.Light">
         <item name="mediaRouteButtonStyle">@style/Widget.MediaRouter.Light.MediaRouteButton</item>
 
         <item name="mediaRouteOffDrawable">@drawable/ic_cast_off_light</item>
@@ -47,6 +47,7 @@
         <item name="mediaRoutePlayDrawable">@drawable/mr_ic_play_light</item>
         <item name="mediaRoutePauseDrawable">@drawable/mr_ic_pause_light</item>
         <item name="mediaRouteCastDrawable">@drawable/mr_ic_cast_light</item>
+        <item name="mediaRouteAudioTrackDrawable">@drawable/ic_audiotrack_light</item>
         <item name="mediaRouteDefaultIconDrawable">@drawable/ic_tv_light</item>
         <item name="mediaRouteSpeakerIconDrawable">@drawable/ic_speaker_light</item>
         <item name="mediaRouteSpeakerGroupIconDrawable">@drawable/ic_speaker_group_light</item>

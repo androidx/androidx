@@ -207,14 +207,14 @@ public class MediaRouteChooserDialog extends Dialog {
         public RouteAdapter(Context context, List<MediaRouter.RouteInfo> routes) {
             super(context, 0, routes);
             mInflater = LayoutInflater.from(context);
-            int[] attrs = new int[] {
+            TypedArray styledAttributes = getContext().obtainStyledAttributes(new int[] {
                     R.attr.mediaRouteDefaultIconDrawable,
                     R.attr.mediaRouteSpeakerIconDrawable,
-                    R.attr.mediaRouteSpeakerGroupIconDrawable };
-            TypedArray styledAttributes = getContext().obtainStyledAttributes(attrs);
+                    R.attr.mediaRouteSpeakerGroupIconDrawable });
             mDefaultIcon = styledAttributes.getDrawable(0);
             mSpeakerIcon = styledAttributes.getDrawable(1);
             mSpeakerGroupIcon = styledAttributes.getDrawable(2);
+            styledAttributes.recycle();
         }
 
         @Override
