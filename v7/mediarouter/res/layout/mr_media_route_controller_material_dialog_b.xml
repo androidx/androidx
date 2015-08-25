@@ -114,6 +114,14 @@
                      android:layout_weight="1"
                      android:layout_marginLeft="8dp"
                      android:layout_marginRight="8dp" />
+            <ImageButton android:id="@+id/media_route_group_expand_collapse"
+                         android:layout_width="48dip"
+                         android:layout_height="48dip"
+                         android:padding="12dip"
+                         android:contentDescription="@string/mr_media_route_controller_expand_group"
+                         android:src="?attr/mediaRouteExpandGroupDrawable"
+                         android:background="?attr/selectableItemBackgroundBorderless"
+                         android:visibility="gone"/>
         </LinearLayout>
         <LinearLayout android:id="@+id/buttons"
                 android:layout_width="match_parent"

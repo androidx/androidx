@@ -46,6 +46,12 @@
     <!-- Accessibility description for the pause button -->
     <string name="mr_media_route_controller_pause">Pause</string>
 
+    <!-- Accessibility description for the collapse group button -->
+    <string name="mr_media_route_controller_collapse_group">Collapse group</string>
+
+    <!-- Accessibility description for the expand group button -->
+    <string name="mr_media_route_controller_expand_group">Expand group</string>
+
     <!-- Placeholder text to show when no title/description have been found for a given song/video. [CHAR LIMIT=50] -->
     <string name="mr_media_route_controller_no_info_available">No info available</string>
 </resources>
