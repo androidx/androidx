@@ -16,32 +16,38 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="fill_parent"
-              android:layout_height="64dp"
+              android:layout_height="wrap_content"
+              android:orientation="horizontal"
               android:gravity="center_vertical">
 
+    <ImageView android:id="@+id/routeIcon"
+               android:layout_width="24dp"
+               android:layout_height="24dp"
+               android:layout_marginLeft="24dp"
+               android:layout_marginRight="24dp" />
+
     <LinearLayout android:layout_width="0dp"
-                  android:layout_height="fill_parent"
+                  android:layout_height="wrap_content"
                   android:layout_weight="1"
+                  android:layout_marginRight="24dp"
                   android:orientation="vertical"
                   android:gravity="left|center_vertical"
-                  android:paddingLeft="16dp"
-                  android:paddingRight="16dp"
                   android:duplicateParentState="true">
 
         <TextView android:id="@android:id/text1"
                   android:layout_width="fill_parent"
-                  android:layout_height="wrap_content"
+                  android:layout_height="32dp"
                   android:singleLine="true"
                   android:ellipsize="marquee"
-                  android:textAppearance="?android:attr/textAppearanceMedium"
+                  android:textAppearance="?attr/mediaRouteTextStyle"
                   android:duplicateParentState="true" />
 
         <TextView android:id="@android:id/text2"
                   android:layout_width="fill_parent"
-                  android:layout_height="wrap_content"
+                  android:layout_height="24dp"
                   android:singleLine="true"
                   android:ellipsize="marquee"
-                  android:textAppearance="?android:attr/textAppearanceSmall"
+                  android:textAppearance="?attr/mediaRouteSecondaryTextStyle"
                   android:duplicateParentState="true" />
     </LinearLayout>
 
