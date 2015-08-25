@@ -42,6 +42,7 @@ public final class MediaRouteDescriptor {
     private static final String KEY_DESCRIPTION = "status";
     private static final String KEY_ENABLED = "enabled";
     private static final String KEY_CONNECTING = "connecting";
+    private static final String KEY_CONNECTION_STATE = "connectionState";
     private static final String KEY_CONTROL_FILTERS = "controlFilters";
     private static final String KEY_PLAYBACK_TYPE = "playbackType";
     private static final String KEY_PLAYBACK_STREAM = "playbackStream";
@@ -117,9 +118,20 @@ public final class MediaRouteDescriptor {
 
     /**
      * Gets whether the route is connecting.
+     * STOPSHIP: Deprecate or keep.
      */
     public boolean isConnecting() {
         return mBundle.getBoolean(KEY_CONNECTING, false);
+    }
+
+    /**
+     * Gets the connection state of the route.
+     * @hide
+     * STOPSHIP: Unhide or remove.
+     */
+    public int getConnectionState() {
+        return mBundle.getInt(KEY_CONNECTION_STATE,
+                MediaRouter.RouteInfo.CONNECTION_STATE_DISCONNECTED);
     }
 
     /**
@@ -242,6 +254,7 @@ public final class MediaRouteDescriptor {
         result.append(", description=").append(getDescription());
         result.append(", isEnabled=").append(isEnabled());
         result.append(", isConnecting=").append(isConnecting());
+        result.append(", connectionState=").append(getConnectionState());
         result.append(", controlFilters=").append(Arrays.toString(getControlFilters().toArray()));
         result.append(", playbackType=").append(getPlaybackType());
         result.append(", playbackStream=").append(getPlaybackStream());
@@ -408,9 +421,20 @@ public final class MediaRouteDescriptor {
         /**
          * Sets whether the route is in the process of connecting and is not yet
          * ready for use.
+         * STOPSHIP: Deprecate or keep.
          */
         public Builder setConnecting(boolean connecting) {
             mBundle.putBoolean(KEY_CONNECTING, connecting);
+            return this;
+        }
+
+        /**
+         * Sets the route's connection state.
+         * @hide
+         * STOPSHIP: Unhide or remove.
+         */
+        public Builder setConnectionState(int connectionState) {
+            mBundle.putInt(KEY_CONNECTION_STATE, connectionState);
             return this;
         }
 
