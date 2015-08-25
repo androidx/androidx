@@ -25,6 +25,7 @@ import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -768,6 +769,7 @@ public final class MediaRouter {
         private final String mUniqueId;
         private String mName;
         private String mDescription;
+        private Uri mIconUri;
         private boolean mEnabled;
         private boolean mConnecting;
         private int mConnectionState;
@@ -921,6 +923,20 @@ public final class MediaRouter {
         @Nullable
         public String getDescription() {
             return mDescription;
+        }
+
+        /**
+         * Gets the URI of the icon representing this route.
+         * <p>
+         * This icon will be used in picker UIs if available.
+         * </p>
+         *
+         * @return The URI of the icon representing this route, or null if none.
+         * @hide
+         * STOPSHIP: Unhide or remove.
+         */
+        public Uri getIconUri() {
+            return mIconUri;
         }
 
         /**
@@ -1302,6 +1318,7 @@ public final class MediaRouter {
             return "MediaRouter.RouteInfo{ uniqueId=" + mUniqueId
                     + ", name=" + mName
                     + ", description=" + mDescription
+                    + ", iconUri=" + mIconUri
                     + ", enabled=" + mEnabled
                     + ", connecting=" + mConnecting
                     + ", connectionState=" + mConnectionState
@@ -1336,6 +1353,10 @@ public final class MediaRouter {
                 }
                 if (!equal(mDescription, descriptor.getDescription())) {
                     mDescription = descriptor.getDescription();
+                    changes |= CHANGE_GENERAL;
+                }
+                if (!equal(mIconUri, descriptor.getIconUri())) {
+                    mIconUri = descriptor.getIconUri();
                     changes |= CHANGE_GENERAL;
                 }
                 if (mEnabled != descriptor.isEnabled()) {
