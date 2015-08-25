@@ -52,6 +52,7 @@ import android.view.ViewGroup;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -414,8 +415,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
 
     static class AnimateOnHWLayerIfNeededListener implements AnimationListener {
+        private AnimationListener mOrignalListener = null;
         private boolean mShouldRunOnHWLayer = false;
-        private View mView;
+        private View mView = null;
         public AnimateOnHWLayerIfNeededListener(final View v, Animation anim) {
             if (v == null || anim == null) {
                 return;
@@ -423,25 +425,45 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             mView = v;
         }
 
+        public AnimateOnHWLayerIfNeededListener(final View v, Animation anim,
+                AnimationListener listener) {
+            if (v == null || anim == null) {
+                return;
+            }
+            mOrignalListener = listener;
+            mView = v;
+        }
+
         @Override
         @CallSuper
         public void onAnimationStart(Animation animation) {
-            mShouldRunOnHWLayer = shouldRunOnHWLayer(mView, animation);
-            if (mShouldRunOnHWLayer) {
-                ViewCompat.setLayerType(mView, ViewCompat.LAYER_TYPE_HARDWARE, null);
+            if (mView != null) {
+                mShouldRunOnHWLayer = shouldRunOnHWLayer(mView, animation);
+                if (mShouldRunOnHWLayer) {
+                    ViewCompat.setLayerType(mView, ViewCompat.LAYER_TYPE_HARDWARE, null);
+                }
+            }
+            if (mOrignalListener != null) {
+                mOrignalListener.onAnimationStart(animation);
             }
         }
 
         @Override
         @CallSuper
         public void onAnimationEnd(Animation animation) {
-            if (mShouldRunOnHWLayer) {
+            if (mView != null && mShouldRunOnHWLayer) {
                 ViewCompat.setLayerType(mView, ViewCompat.LAYER_TYPE_NONE, null);
+            }
+            if (mOrignalListener != null) {
+                mOrignalListener.onAnimationEnd(animation);
             }
         }
 
         @Override
         public void onAnimationRepeat(Animation animation) {
+            if (mOrignalListener != null) {
+                mOrignalListener.onAnimationRepeat(animation);
+            }
         }
     }
 
@@ -466,6 +488,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     FragmentController mController;
     FragmentContainer mContainer;
     Fragment mParent;
+
+    static Field sAnimationListenerField = null;
     
     boolean mNeedMenuInvalidate;
     boolean mStateSaved;
@@ -904,7 +928,23 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             return;
         }
         if (shouldRunOnHWLayer(v, anim)) {
-            anim.setAnimationListener(new AnimateOnHWLayerIfNeededListener(v, anim));
+            AnimationListener originalListener = null;
+            try {
+                if (sAnimationListenerField == null) {
+                    sAnimationListenerField = Animation.class.getDeclaredField("mListener");
+                    sAnimationListenerField.setAccessible(true);
+                }
+                originalListener = (AnimationListener) sAnimationListenerField.get(anim);
+            } catch (NoSuchFieldException e) {
+                Log.e(TAG, "No field with the name mListener is found in Animation class", e);
+            } catch (IllegalAccessException e) {
+                Log.e(TAG, "Cannot access Animation's mListener field", e);
+            }
+            // If there's already a listener set on the animation, we need wrap the new listener
+            // around the existing listener, so that they will both get animation listener
+            // callbacks.
+            anim.setAnimationListener(new AnimateOnHWLayerIfNeededListener(v, anim,
+                    originalListener));
         }
     }
 
