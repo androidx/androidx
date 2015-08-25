@@ -29,6 +29,7 @@
 
     <style name="Widget.MediaRouter.MediaRouteText" parent="">
         <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">normal</item>
     </style>
 
     <style name="Widget.MediaRouter.MediaRouteText.Primary">
