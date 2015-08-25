@@ -303,8 +303,9 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
 
         @Override
         public boolean onMenuOpened(int featureId, Menu menu) {
-            return super.onMenuOpened(featureId, menu)
-                    || AppCompatDelegateImplBase.this.onMenuOpened(featureId, menu);
+            super.onMenuOpened(featureId, menu);
+            AppCompatDelegateImplBase.this.onMenuOpened(featureId, menu);
+            return true;
         }
 
         @Override
