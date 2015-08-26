@@ -84,8 +84,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
     private boolean mCreated;
     private boolean mAttachedToWindow;
-    private Drawable mMediaRouteConnectingDrawable;
-    private Drawable mMediaRouteOnDrawable;
 
     private View mControlView;
 
@@ -445,22 +443,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
             }
         }
         return true;
-    }
-
-    private Drawable getIconDrawable() {
-        if (mRoute.isConnecting()) {
-            if (mMediaRouteConnectingDrawable == null) {
-                mMediaRouteConnectingDrawable = MediaRouterThemeHelper.getThemeDrawable(
-                        getContext(), R.attr.mediaRouteConnectingDrawable);
-            }
-            return mMediaRouteConnectingDrawable;
-        } else {
-            if (mMediaRouteOnDrawable == null) {
-                mMediaRouteOnDrawable = MediaRouterThemeHelper.getThemeDrawable(
-                        getContext(), R.attr.mediaRouteOnDrawable);
-            }
-            return mMediaRouteOnDrawable;
-        }
     }
 
     private void updateVolume() {
