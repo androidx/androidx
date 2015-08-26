@@ -546,6 +546,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
                     int position = (int) seekBar.getTag();
+                    // TODO: Verify
                     getGroup().getRouteAt(position).requestSetVolume(progress);
                 }
             }
@@ -578,8 +579,16 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 textView.setText(route.getName());
 
                 SeekBar volumeSlider = (SeekBar) v.findViewById(R.id.media_route_volume_slider);
+                if (route.getVolumeHandling() == MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE) {
+                    volumeSlider.setMax(route.getVolumeMax());
+                    volumeSlider.setProgress(route.getVolume());
+                    volumeSlider.setOnSeekBarChangeListener(mOnSeekBarChangeListener);
+                } else {
+                    volumeSlider.setMax(100);
+                    volumeSlider.setProgress(100);
+                    volumeSlider.setEnabled(false);
+                }
                 volumeSlider.setTag(position);
-                volumeSlider.setOnSeekBarChangeListener(mOnSeekBarChangeListener);
             }
             return v;
         }

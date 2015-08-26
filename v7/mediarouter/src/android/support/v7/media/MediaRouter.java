@@ -2248,7 +2248,7 @@ public final class MediaRouter {
                 return uniqueId;
             }
             Log.w(TAG, "Either " + routeDescriptorId + " isn't unique in " + componentName
-                    + " or you're trying to assign a unique ID for an already added route");
+                    + " or we're trying to assign a unique ID for an already added route");
             for (int i = 2; ; i++) {
                 String newUniqueId = String.format(Locale.US, "%s_%d", uniqueId, i);
                 if (findRouteByUniqueId(newUniqueId) < 0) {
