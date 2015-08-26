@@ -523,7 +523,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     static boolean shouldRunOnHWLayer(View v, Animation anim) {
-        return ViewCompat.getLayerType(v) == ViewCompat.LAYER_TYPE_NONE
+        // HW layers result in crashes on ICS so we only use it on JB+
+        return Build.VERSION.SDK_INT >= 16
+                && ViewCompat.getLayerType(v) == ViewCompat.LAYER_TYPE_NONE
                 && ViewCompat.hasOverlappingRendering(v)
                 && modifiesAlpha(anim);
     }
