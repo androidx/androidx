@@ -34,6 +34,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.CompletionInfo;
 import android.widget.FrameLayout;
 import android.support.v17.leanback.R;
 
@@ -474,6 +475,17 @@ public class SearchFragment extends Fragment {
      *        null or empty will clear the list.
      */
     public void displayCompletions(List<String> completions) {
+        mSearchBar.displayCompletions(completions);
+    }
+
+    /**
+     * Displays the completions shown by the IME. An application may provide
+     * a list of query completions that the system will show in the IME.
+     *
+     * @param completions A list of completions to show in the IME. Setting to
+     *        null or empty will clear the list.
+     */
+    public void displayCompletions(CompletionInfo[] completions) {
         mSearchBar.displayCompletions(completions);
     }
 
