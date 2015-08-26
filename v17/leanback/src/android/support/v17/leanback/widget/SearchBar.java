@@ -406,15 +406,23 @@ public class SearchBar extends RelativeLayout {
      * @param completions list of completions shown in the IME, can be null or empty to clear them
      */
     public void displayCompletions(List<String> completions) {
-        List<CompletionInfo> infos = new ArrayList<CompletionInfo>();
+        List<CompletionInfo> infos = new ArrayList<>();
         if (null != completions) {
             for (String completion : completions) {
                 infos.add(new CompletionInfo(infos.size(), infos.size(), completion));
             }
         }
+        CompletionInfo[] array = new CompletionInfo[infos.size()];
+        displayCompletions(infos.toArray(array));
+    }
 
-        mInputMethodManager.displayCompletions(mSearchTextEditor,
-                infos.toArray(new CompletionInfo[] {}));
+    /**
+     * Updates the completion list shown by the IME
+     *
+     * @param completions list of completions shown in the IME, can be null or empty to clear them
+     */
+    public void displayCompletions(CompletionInfo[] completions) {
+        mInputMethodManager.displayCompletions(mSearchTextEditor, completions);
     }
 
     /**
