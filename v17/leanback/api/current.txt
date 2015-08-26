@@ -380,6 +380,7 @@ package android.support.v17.leanback.app {
     method public static android.os.Bundle createArgs(android.os.Bundle, java.lang.String);
     method public static android.os.Bundle createArgs(android.os.Bundle, java.lang.String, java.lang.String);
     method public void displayCompletions(java.util.List<java.lang.String>);
+    method public void displayCompletions(android.view.inputmethod.CompletionInfo[]);
     method public android.graphics.drawable.Drawable getBadgeDrawable();
     method public android.content.Intent getRecognizerIntent();
     method public java.lang.String getTitle();
@@ -406,6 +407,7 @@ package android.support.v17.leanback.app {
     method public static android.os.Bundle createArgs(android.os.Bundle, java.lang.String);
     method public static android.os.Bundle createArgs(android.os.Bundle, java.lang.String, java.lang.String);
     method public void displayCompletions(java.util.List<java.lang.String>);
+    method public void displayCompletions(android.view.inputmethod.CompletionInfo[]);
     method public android.graphics.drawable.Drawable getBadgeDrawable();
     method public android.content.Intent getRecognizerIntent();
     method public java.lang.String getTitle();
@@ -1419,6 +1421,7 @@ package android.support.v17.leanback.widget {
     ctor public SearchBar(android.content.Context, android.util.AttributeSet);
     ctor public SearchBar(android.content.Context, android.util.AttributeSet, int);
     method public void displayCompletions(java.util.List<java.lang.String>);
+    method public void displayCompletions(android.view.inputmethod.CompletionInfo[]);
     method public android.graphics.drawable.Drawable getBadgeDrawable();
     method public java.lang.CharSequence getHint();
     method public java.lang.String getTitle();
