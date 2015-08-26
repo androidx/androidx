@@ -103,32 +103,6 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
         return mMenuInflater;
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        TypedArray a = mContext.obtainStyledAttributes(R.styleable.Theme);
-
-        if (!a.hasValue(R.styleable.Theme_windowActionBar)) {
-            a.recycle();
-            throw new IllegalStateException(
-                    "You need to use a Theme.AppCompat theme (or descendant) with this activity.");
-        }
-
-        if (a.getBoolean(R.styleable.Theme_windowNoTitle, false)) {
-            requestWindowFeature(Window.FEATURE_NO_TITLE);
-        } else if (a.getBoolean(R.styleable.Theme_windowActionBar, false)) {
-            // Don't allow an action bar if there is no title.
-            requestWindowFeature(FEATURE_SUPPORT_ACTION_BAR);
-        }
-        if (a.getBoolean(R.styleable.Theme_windowActionBarOverlay, false)) {
-            requestWindowFeature(FEATURE_SUPPORT_ACTION_BAR_OVERLAY);
-        }
-        if (a.getBoolean(R.styleable.Theme_windowActionModeOverlay, false)) {
-            requestWindowFeature(FEATURE_ACTION_MODE_OVERLAY);
-        }
-        mIsFloating = a.getBoolean(R.styleable.Theme_android_windowIsFloating, false);
-        a.recycle();
-    }
-
     // Methods used to create and respond to options menu
     abstract void onPanelClosed(int featureId, Menu menu);
 

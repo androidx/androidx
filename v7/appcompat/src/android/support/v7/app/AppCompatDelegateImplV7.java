@@ -145,8 +145,6 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
         mWindowDecor = (ViewGroup) mWindow.getDecorView();
 
         if (mOriginalWindowCallback instanceof Activity) {
@@ -277,139 +275,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
 
     private void ensureSubDecor() {
         if (!mSubDecorInstalled) {
-            final LayoutInflater inflater = LayoutInflater.from(mContext);
-
-            if (!mWindowNoTitle) {
-                if (mIsFloating) {
-                    // If we're floating, inflate the dialog title decor
-                    mSubDecor = (ViewGroup) inflater.inflate(
-                            R.layout.abc_dialog_title_material, null);
-
-                    // Floating windows can never have an action bar, reset the flags
-                    mHasActionBar = mOverlayActionBar = false;
-                } else if (mHasActionBar) {
-                    /**
-                     * This needs some explanation. As we can not use the android:theme attribute
-                     * pre-L, we emulate it by manually creating a LayoutInflater using a
-                     * ContextThemeWrapper pointing to actionBarTheme.
-                     */
-                    TypedValue outValue = new TypedValue();
-                    mContext.getTheme().resolveAttribute(R.attr.actionBarTheme, outValue, true);
-
-                    Context themedContext;
-                    if (outValue.resourceId != 0) {
-                        themedContext = new ContextThemeWrapper(mContext, outValue.resourceId);
-                    } else {
-                        themedContext = mContext;
-                    }
-
-                    // Now inflate the view using the themed context and set it as the content view
-                    mSubDecor = (ViewGroup) LayoutInflater.from(themedContext)
-                            .inflate(R.layout.abc_screen_toolbar, null);
-
-                    mDecorContentParent = (DecorContentParent) mSubDecor
-                            .findViewById(R.id.decor_content_parent);
-                    mDecorContentParent.setWindowCallback(getWindowCallback());
-
-                    /**
-                     * Propagate features to DecorContentParent
-                     */
-                    if (mOverlayActionBar) {
-                        mDecorContentParent.initFeature(FEATURE_SUPPORT_ACTION_BAR_OVERLAY);
-                    }
-                    if (mFeatureProgress) {
-                        mDecorContentParent.initFeature(Window.FEATURE_PROGRESS);
-                    }
-                    if (mFeatureIndeterminateProgress) {
-                        mDecorContentParent.initFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-                    }
-                }
-            } else {
-                if (mOverlayActionMode) {
-                    mSubDecor = (ViewGroup) inflater.inflate(
-                            R.layout.abc_screen_simple_overlay_action_mode, null);
-                } else {
-                    mSubDecor = (ViewGroup) inflater.inflate(R.layout.abc_screen_simple, null);
-                }
-
-                if (Build.VERSION.SDK_INT >= 21) {
-                    // If we're running on L or above, we can rely on ViewCompat's
-                    // setOnApplyWindowInsetsListener
-                    ViewCompat.setOnApplyWindowInsetsListener(mSubDecor,
-                            new OnApplyWindowInsetsListener() {
-                                @Override
-                                public WindowInsetsCompat onApplyWindowInsets(View v,
-                                        WindowInsetsCompat insets) {
-                                    final int top = insets.getSystemWindowInsetTop();
-                                    final int newTop = updateStatusGuard(top);
-
-                                    if (top != newTop) {
-                                        insets = insets.replaceSystemWindowInsets(
-                                                insets.getSystemWindowInsetLeft(),
-                                                newTop,
-                                                insets.getSystemWindowInsetRight(),
-                                                insets.getSystemWindowInsetBottom());
-                                    }
-
-                                    // Now apply the insets on our view
-                                    return ViewCompat.onApplyWindowInsets(v, insets);
-                                }
-                            });
-                } else {
-                    // Else, we need to use our own FitWindowsViewGroup handling
-                    ((FitWindowsViewGroup) mSubDecor).setOnFitSystemWindowsListener(
-                            new FitWindowsViewGroup.OnFitSystemWindowsListener() {
-                                @Override
-                                public void onFitSystemWindows(Rect insets) {
-                                    insets.top = updateStatusGuard(insets.top);
-                                }
-                            });
-                }
-            }
-
-            if (mSubDecor == null) {
-                throw new IllegalArgumentException(
-                        "AppCompat does not support the current theme features: { "
-                                + "windowActionBar: " + mHasActionBar
-                                + ", windowActionBarOverlay: "+ mOverlayActionBar
-                                + ", android:windowIsFloating: " + mIsFloating
-                                + ", windowActionModeOverlay: " + mOverlayActionMode
-                                + ", windowNoTitle: " + mWindowNoTitle
-                                + " }");
-            }
-
-            if (mDecorContentParent == null) {
-                mTitleView = (TextView) mSubDecor.findViewById(R.id.title);
-            }
-
-            // Make the decor optionally fit system windows, like the window's decor
-            ViewUtils.makeOptionalFitsSystemWindows(mSubDecor);
-
-            final ViewGroup decorContent = (ViewGroup) mWindow.findViewById(android.R.id.content);
-            final ContentFrameLayout abcContent = (ContentFrameLayout) mSubDecor.findViewById(
-                    R.id.action_bar_activity_content);
-
-            // There might be Views already added to the Window's content view so we need to
-            // migrate them to our content view
-            while (decorContent.getChildCount() > 0) {
-                final View child = decorContent.getChildAt(0);
-                decorContent.removeViewAt(0);
-                abcContent.addView(child);
-            }
-
-            // Now set the Window's content view with the decor
-            mWindow.setContentView(mSubDecor);
-
-            // Change our content FrameLayout to use the android.R.id.content id.
-            // Useful for fragments.
-            decorContent.setId(View.NO_ID);
-            abcContent.setId(android.R.id.content);
-
-            // The decorContent may have a foreground drawable set (windowContentOverlay).
-            // Remove this as we handle it ourselves
-            if (decorContent instanceof FrameLayout) {
-                ((FrameLayout) decorContent).setForeground(null);
-            }
+            mSubDecor = createSubDecor();
 
             // If a title was set before we installed the decor, propogate it now
             CharSequence title = getTitle();
@@ -417,7 +283,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
                 onTitleChanged(title);
             }
 
-            applyFixedSizeWindow(abcContent);
+            applyFixedSizeWindow();
 
             onSubDecorInstalled(mSubDecor);
 
@@ -435,41 +301,201 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
         }
     }
 
+    private ViewGroup createSubDecor() {
+        TypedArray a = mContext.obtainStyledAttributes(R.styleable.Theme);
+
+        if (!a.hasValue(R.styleable.Theme_windowActionBar)) {
+            a.recycle();
+            throw new IllegalStateException(
+                    "You need to use a Theme.AppCompat theme (or descendant) with this activity.");
+        }
+
+        if (a.getBoolean(R.styleable.Theme_windowNoTitle, false)) {
+            requestWindowFeature(Window.FEATURE_NO_TITLE);
+        } else if (a.getBoolean(R.styleable.Theme_windowActionBar, false)) {
+            // Don't allow an action bar if there is no title.
+            requestWindowFeature(FEATURE_SUPPORT_ACTION_BAR);
+        }
+        if (a.getBoolean(R.styleable.Theme_windowActionBarOverlay, false)) {
+            requestWindowFeature(FEATURE_SUPPORT_ACTION_BAR_OVERLAY);
+        }
+        if (a.getBoolean(R.styleable.Theme_windowActionModeOverlay, false)) {
+            requestWindowFeature(FEATURE_ACTION_MODE_OVERLAY);
+        }
+        mIsFloating = a.getBoolean(R.styleable.Theme_android_windowIsFloating, false);
+        a.recycle();
+
+        final LayoutInflater inflater = LayoutInflater.from(mContext);
+        ViewGroup subDecor = null;
+
+
+        if (!mWindowNoTitle) {
+            if (mIsFloating) {
+                // If we're floating, inflate the dialog title decor
+                subDecor = (ViewGroup) inflater.inflate(
+                        R.layout.abc_dialog_title_material, null);
+
+                // Floating windows can never have an action bar, reset the flags
+                mHasActionBar = mOverlayActionBar = false;
+            } else if (mHasActionBar) {
+                /**
+                 * This needs some explanation. As we can not use the android:theme attribute
+                 * pre-L, we emulate it by manually creating a LayoutInflater using a
+                 * ContextThemeWrapper pointing to actionBarTheme.
+                 */
+                TypedValue outValue = new TypedValue();
+                mContext.getTheme().resolveAttribute(R.attr.actionBarTheme, outValue, true);
+
+                Context themedContext;
+                if (outValue.resourceId != 0) {
+                    themedContext = new ContextThemeWrapper(mContext, outValue.resourceId);
+                } else {
+                    themedContext = mContext;
+                }
+
+                // Now inflate the view using the themed context and set it as the content view
+                subDecor = (ViewGroup) LayoutInflater.from(themedContext)
+                        .inflate(R.layout.abc_screen_toolbar, null);
+
+                mDecorContentParent = (DecorContentParent) subDecor
+                        .findViewById(R.id.decor_content_parent);
+                mDecorContentParent.setWindowCallback(getWindowCallback());
+
+                /**
+                 * Propagate features to DecorContentParent
+                 */
+                if (mOverlayActionBar) {
+                    mDecorContentParent.initFeature(FEATURE_SUPPORT_ACTION_BAR_OVERLAY);
+                }
+                if (mFeatureProgress) {
+                    mDecorContentParent.initFeature(Window.FEATURE_PROGRESS);
+                }
+                if (mFeatureIndeterminateProgress) {
+                    mDecorContentParent.initFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+                }
+            }
+        } else {
+            if (mOverlayActionMode) {
+                subDecor = (ViewGroup) inflater.inflate(
+                        R.layout.abc_screen_simple_overlay_action_mode, null);
+            } else {
+                subDecor = (ViewGroup) inflater.inflate(R.layout.abc_screen_simple, null);
+            }
+
+            if (Build.VERSION.SDK_INT >= 21) {
+                // If we're running on L or above, we can rely on ViewCompat's
+                // setOnApplyWindowInsetsListener
+                ViewCompat.setOnApplyWindowInsetsListener(subDecor,
+                        new OnApplyWindowInsetsListener() {
+                            @Override
+                            public WindowInsetsCompat onApplyWindowInsets(View v,
+                                    WindowInsetsCompat insets) {
+                                final int top = insets.getSystemWindowInsetTop();
+                                final int newTop = updateStatusGuard(top);
+
+                                if (top != newTop) {
+                                    insets = insets.replaceSystemWindowInsets(
+                                            insets.getSystemWindowInsetLeft(),
+                                            newTop,
+                                            insets.getSystemWindowInsetRight(),
+                                            insets.getSystemWindowInsetBottom());
+                                }
+
+                                // Now apply the insets on our view
+                                return ViewCompat.onApplyWindowInsets(v, insets);
+                            }
+                        });
+            } else {
+                // Else, we need to use our own FitWindowsViewGroup handling
+                ((FitWindowsViewGroup) subDecor).setOnFitSystemWindowsListener(
+                        new FitWindowsViewGroup.OnFitSystemWindowsListener() {
+                            @Override
+                            public void onFitSystemWindows(Rect insets) {
+                                insets.top = updateStatusGuard(insets.top);
+                            }
+                        });
+            }
+        }
+
+        if (subDecor == null) {
+            throw new IllegalArgumentException(
+                    "AppCompat does not support the current theme features: { "
+                            + "windowActionBar: " + mHasActionBar
+                            + ", windowActionBarOverlay: "+ mOverlayActionBar
+                            + ", android:windowIsFloating: " + mIsFloating
+                            + ", windowActionModeOverlay: " + mOverlayActionMode
+                            + ", windowNoTitle: " + mWindowNoTitle
+                            + " }");
+        }
+
+        if (mDecorContentParent == null) {
+            mTitleView = (TextView) subDecor.findViewById(R.id.title);
+        }
+
+        // Make the decor optionally fit system windows, like the window's decor
+        ViewUtils.makeOptionalFitsSystemWindows(subDecor);
+
+        final ViewGroup decorContent = (ViewGroup) mWindow.findViewById(android.R.id.content);
+        final ContentFrameLayout abcContent = (ContentFrameLayout) subDecor.findViewById(
+                R.id.action_bar_activity_content);
+
+        // There might be Views already added to the Window's content view so we need to
+        // migrate them to our content view
+        while (decorContent.getChildCount() > 0) {
+            final View child = decorContent.getChildAt(0);
+            decorContent.removeViewAt(0);
+            abcContent.addView(child);
+        }
+
+        // Now set the Window's content view with the decor
+        mWindow.setContentView(subDecor);
+
+        // Change our content FrameLayout to use the android.R.id.content id.
+        // Useful for fragments.
+        decorContent.setId(View.NO_ID);
+        abcContent.setId(android.R.id.content);
+
+        // The decorContent may have a foreground drawable set (windowContentOverlay).
+        // Remove this as we handle it ourselves
+        if (decorContent instanceof FrameLayout) {
+            ((FrameLayout) decorContent).setForeground(null);
+        }
+
+        return subDecor;
+    }
+
     void onSubDecorInstalled(ViewGroup subDecor) {}
 
-    private void applyFixedSizeWindow(ContentFrameLayout contentFrameLayout) {
+    private void applyFixedSizeWindow() {
+        ContentFrameLayout cfl = (ContentFrameLayout) mSubDecor.findViewById(android.R.id.content);
+
         // This is a bit weird. In the framework, the window sizing attributes control
         // the decor view's size, meaning that any padding is inset for the min/max widths below.
         // We don't control measurement at that level, so we need to workaround it by making sure
         // that the decor view's padding is taken into account.
-        contentFrameLayout.setDecorPadding(mWindowDecor.getPaddingLeft(),
+        cfl.setDecorPadding(mWindowDecor.getPaddingLeft(),
                 mWindowDecor.getPaddingTop(), mWindowDecor.getPaddingRight(),
                 mWindowDecor.getPaddingBottom());
 
-
         TypedArray a = mContext.obtainStyledAttributes(R.styleable.Theme);
-        a.getValue(R.styleable.Theme_windowMinWidthMajor, contentFrameLayout.getMinWidthMajor());
-        a.getValue(R.styleable.Theme_windowMinWidthMinor, contentFrameLayout.getMinWidthMinor());
+        a.getValue(R.styleable.Theme_windowMinWidthMajor, cfl.getMinWidthMajor());
+        a.getValue(R.styleable.Theme_windowMinWidthMinor, cfl.getMinWidthMinor());
 
         if (a.hasValue(R.styleable.Theme_windowFixedWidthMajor)) {
-            a.getValue(R.styleable.Theme_windowFixedWidthMajor,
-                    contentFrameLayout.getFixedWidthMajor());
+            a.getValue(R.styleable.Theme_windowFixedWidthMajor, cfl.getFixedWidthMajor());
         }
         if (a.hasValue(R.styleable.Theme_windowFixedWidthMinor)) {
-            a.getValue(R.styleable.Theme_windowFixedWidthMinor,
-                    contentFrameLayout.getFixedWidthMinor());
+            a.getValue(R.styleable.Theme_windowFixedWidthMinor, cfl.getFixedWidthMinor());
         }
         if (a.hasValue(R.styleable.Theme_windowFixedHeightMajor)) {
-            a.getValue(R.styleable.Theme_windowFixedHeightMajor,
-                    contentFrameLayout.getFixedHeightMajor());
+            a.getValue(R.styleable.Theme_windowFixedHeightMajor, cfl.getFixedHeightMajor());
         }
         if (a.hasValue(R.styleable.Theme_windowFixedHeightMinor)) {
-            a.getValue(R.styleable.Theme_windowFixedHeightMinor,
-                    contentFrameLayout.getFixedHeightMinor());
+            a.getValue(R.styleable.Theme_windowFixedHeightMinor, cfl.getFixedHeightMinor());
         }
         a.recycle();
 
-        contentFrameLayout.requestLayout();
+        cfl.requestLayout();
     }
 
     @Override
@@ -863,6 +889,8 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
         // On API v7-10 we need to manually call onKeyShortcut() as this is not called
         // from the Activity
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            // We do not return true here otherwise dispatchKeyEvent will not reach the Activity
+            // (which results in the back button not working)
             onKeyShortcut(keyCode, event);
         }
         return false;
