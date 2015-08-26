@@ -123,6 +123,11 @@
                          android:background="?attr/selectableItemBackgroundBorderless"
                          android:visibility="gone"/>
         </LinearLayout>
+        <ListView android:id="@+id/media_route_volume_group_list"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:visibility="gone">
+        </ListView>
         <LinearLayout android:id="@+id/buttons"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

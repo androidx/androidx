@@ -16,9 +16,12 @@
 
 package android.support.v7.app;
 
+import static android.widget.SeekBar.OnSeekBarChangeListener;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.IntentSender;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
@@ -38,19 +41,22 @@ import android.support.v7.mediarouter.R;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.io.BufferedInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.List;
 
 /**
  * This class implements the route controller dialog for {@link MediaRouter}.
@@ -96,6 +102,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
     private boolean mVolumeControlEnabled = true;
     private LinearLayout mVolumeLayout;
+    private ListView mVolumeGroupList;
     private SeekBar mVolumeSlider;
     private boolean mVolumeSliderTouched;
 
@@ -126,6 +133,13 @@ public class MediaRouteControllerDialog extends AlertDialog {
      */
     public MediaRouter.RouteInfo getRoute() {
         return mRoute;
+    }
+
+    private MediaRouter.RouteGroup getGroup() {
+        if (mRoute instanceof MediaRouter.RouteGroup) {
+            return (MediaRouter.RouteGroup) mRoute;
+        }
+        return null;
     }
 
     /**
@@ -239,8 +253,34 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mPlayPauseButton.setOnClickListener(listener);
         mRouteNameView = (TextView) findViewById(R.id.route_name);
         mVolumeLayout = (LinearLayout)findViewById(R.id.media_route_volume_layout);
+        mVolumeGroupList = (ListView)findViewById(R.id.media_route_volume_group_list);
+
+        TypedArray styledAttributes = getContext().obtainStyledAttributes(new int[] {
+                R.attr.mediaRouteExpandGroupDrawable,
+                R.attr.mediaRouteCollapseGroupDrawable });
+        final Drawable expandGroupDrawable = styledAttributes.getDrawable(0);
+        final Drawable collapseGroupDrawable = styledAttributes.getDrawable(1);
+        styledAttributes.recycle();
+
         mGroupExpandCollapseButton = (ImageButton)findViewById(
                 R.id.media_route_group_expand_collapse);
+        mGroupExpandCollapseButton.setOnClickListener(new View.OnClickListener() {
+            private boolean mIsExpanded;
+
+            @Override
+            public void onClick(View v) {
+                mIsExpanded = !mIsExpanded;
+                if (mIsExpanded) {
+                    mGroupExpandCollapseButton.setImageDrawable(collapseGroupDrawable);
+                    mVolumeGroupList.setVisibility(View.VISIBLE);
+                    mVolumeGroupList.setAdapter(
+                            new VolumeGroupAdapter(getContext(), getGroup().getRoutes()));
+                } else {
+                    mGroupExpandCollapseButton.setImageDrawable(expandGroupDrawable);
+                    mVolumeGroupList.setVisibility(View.GONE);
+                }
+            }
+        });
         mVolumeSlider = (SeekBar)findViewById(R.id.media_route_volume_slider);
         mVolumeSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             private final Runnable mStopTrackingTouch = new Runnable() {
@@ -431,7 +471,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 mVolumeSlider.setProgress(mRoute.getVolume());
                 if (USE_GROUP) {
                     mGroupExpandCollapseButton.setVisibility(
-                            mRoute instanceof MediaRouter.RouteGroup ? View.VISIBLE : View.GONE);
+                            getGroup() != null ? View.VISIBLE : View.GONE);
                 }
             } else {
                 mVolumeLayout.setVisibility(View.GONE);
@@ -515,6 +555,51 @@ public class MediaRouteControllerDialog extends AlertDialog {
                     }
                 }
             }
+        }
+    }
+
+    private class VolumeGroupAdapter extends ArrayAdapter<MediaRouter.RouteInfo> {
+        final OnSeekBarChangeListener mOnSeekBarChangeListener = new OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser) {
+                    int position = (int) seekBar.getTag();
+                    getGroup().getRouteAt(position).requestSetVolume(progress);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // TODO: Implement
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // TODO: Implement
+            }
+        };
+
+        public VolumeGroupAdapter(Context context, List<MediaRouter.RouteInfo> objects) {
+            super(context, 0, objects);
+        }
+
+        @Override
+        public View getView(final int position, View convertView, ViewGroup parent) {
+            View v = convertView;
+            if (v == null) {
+                v = LayoutInflater.from(getContext()).inflate(
+                        R.layout.mr_media_route_controller_volume_item, null);
+            }
+            MediaRouter.RouteInfo route = getItem(position);
+            if (route != null) {
+                TextView textView = (TextView) v.findViewById(R.id.media_route_name);
+                textView.setText(route.getName());
+
+                SeekBar volumeSlider = (SeekBar) v.findViewById(R.id.media_route_volume_slider);
+                volumeSlider.setTag(position);
+                volumeSlider.setOnSeekBarChangeListener(mOnSeekBarChangeListener);
+            }
+            return v;
         }
     }
 
