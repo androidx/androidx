@@ -16,49 +16,39 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:minHeight="?android:attr/listPreferredItemHeightSmall"
     android:gravity="center_vertical"
     android:paddingStart="?android:attr/listPreferredItemPaddingStart"
-    android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
-    android:background="?android:attr/activatedBackgroundIndicator"
-    android:clipToPadding="false"
-    android:focusable="true" >
+    android:paddingEnd="?android:attr/listPreferredItemPaddingEnd">
 
     <LinearLayout
         android:id="@+id/icon_frame"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="-4dp"
-        android:minWidth="60dp"
+        android:layout_height="match_parent"
+        android:minWidth="58dip"
         android:gravity="start|center_vertical"
-        android:orientation="horizontal"
-        android:paddingEnd="12dp"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp">
-        <android.support.v7.internal.widget.PreferenceImageView
+        android:orientation="horizontal">
+        <ImageView
             android:id="@android:id/icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:maxWidth="48dp"
-            app:maxHeight="48dp" />
+            android:layout_marginEnd="8dip" />
     </LinearLayout>
 
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp">
+        android:paddingTop="16dip"
+        android:paddingBottom="16dip">
 
         <TextView android:id="@android:id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:singleLine="true"
-            android:textAppearance="?android:attr/textAppearanceListItem"
-            android:ellipsize="marquee" />
+            android:textAppearance="?android:attr/textAppearanceListItem" />
 
         <TextView android:id="@android:id/summary"
             android:layout_width="wrap_content"
@@ -75,8 +65,8 @@
     <LinearLayout android:id="@android:id/widget_frame"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:minWidth="58dip"
         android:gravity="end|center_vertical"
-        android:paddingStart="16dp"
         android:orientation="vertical" />
 
 </LinearLayout>
