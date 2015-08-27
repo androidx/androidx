@@ -100,7 +100,7 @@ public class FocusHighlightHelper {
             if (mWrapper != null) {
                 mWrapper.setShadowFocusLevel(level);
             } else {
-                ShadowOverlayHelper.setShadowFocusLevel(mView, level);
+                ShadowOverlayHelper.setNoneWrapperShadowFocusLevel(mView, level);
             }
             if (mDimmer != null) {
                 mDimmer.setActiveLevel(level);
@@ -108,7 +108,7 @@ public class FocusHighlightHelper {
                 if (mWrapper != null) {
                     mWrapper.setOverlayColor(color);
                 } else {
-                    ShadowOverlayHelper.setForegroundColor(mView, color);
+                    ShadowOverlayHelper.setNoneWrapperOverlayColor(mView, color);
                 }
             }
         }

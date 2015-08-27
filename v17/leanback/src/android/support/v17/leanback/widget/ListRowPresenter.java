@@ -132,11 +132,7 @@ public class ListRowPresenter extends RowPresenter {
         public void onAttachedToWindow(ItemBridgeAdapter.ViewHolder viewHolder) {
             if (mShadowOverlayHelper != null && mShadowOverlayHelper.needsOverlay()) {
                 int dimmedColor = mRowViewHolder.mColorDimmer.getPaint().getColor();
-                if (mShadowOverlayHelper.getWrapper() != null) {
-                    ((ShadowOverlayContainer) viewHolder.itemView).setOverlayColor(dimmedColor);
-                } else {
-                    ShadowOverlayHelper.setForegroundColor(viewHolder.itemView, dimmedColor);
-                }
+                mShadowOverlayHelper.setOverlayColor(viewHolder.itemView, dimmedColor);
             }
             mRowViewHolder.syncActivatedStatus(viewHolder.itemView);
         }
@@ -156,8 +152,10 @@ public class ListRowPresenter extends RowPresenter {
     private boolean mShadowEnabled = true;
     private int mBrowseRowsFadingEdgeLength = -1;
     private boolean mRoundedCornersEnabled = true;
+    private boolean mKeepChildForeground = true;
     private HashMap<Presenter, Integer> mRecycledPoolSize = new HashMap<Presenter, Integer>();
     private ShadowOverlayHelper mShadowOverlayHelper;
+    private ItemBridgeAdapter.Wrapper mShadowOverlayWrapper;
 
     private static int sSelectedRowTopPadding;
     private static int sExpandedSelectedRowTopPadding;
@@ -272,12 +270,22 @@ public class ListRowPresenter extends RowPresenter {
         final ViewHolder rowViewHolder = (ViewHolder) holder;
         Context context = holder.view.getContext();
         if (mShadowOverlayHelper == null) {
-            mShadowOverlayHelper = new ShadowOverlayHelper(context, needsDefaultListSelectEffect(),
-                    needsDefaultShadow(), areChildRoundedCornersEnabled(), isUsingZOrder(context));
+            mShadowOverlayHelper = new ShadowOverlayHelper.Builder()
+                    .needsOverlay(needsDefaultListSelectEffect())
+                    .needsShadow(needsDefaultShadow())
+                    .needsRoundedCorner(areChildRoundedCornersEnabled())
+                    .preferZOrder(isUsingZOrder(context))
+                    .keepForegroundDrawable(mKeepChildForeground)
+                    .options(createShadowOverlayOptions())
+                    .build(context);
+            if (mShadowOverlayHelper.needsWrapper()) {
+                mShadowOverlayWrapper = new ItemBridgeAdapterShadowOverlayWrapper(
+                        mShadowOverlayHelper);
+            }
         }
         rowViewHolder.mItemBridgeAdapter = new ListRowPresenterItemBridgeAdapter(rowViewHolder);
         // set wrapper if needed
-        rowViewHolder.mItemBridgeAdapter.setWrapper(mShadowOverlayHelper.getWrapper());
+        rowViewHolder.mItemBridgeAdapter.setWrapper(mShadowOverlayWrapper);
         mShadowOverlayHelper.prepareParentForShadow(rowViewHolder.mGridView);
 
         FocusHighlightHelper.setupBrowseItemFocusHighlight(rowViewHolder.mItemBridgeAdapter,
@@ -587,9 +595,39 @@ public class ListRowPresenter extends RowPresenter {
         return isUsingDefaultShadow() && getShadowEnabled();
     }
 
-    @Override
-    public boolean canDrawOutOfBounds() {
-        return needsDefaultShadow();
+    /**
+     * When ListRowPresenter applies overlay color on the child,  it may change child's foreground
+     * Drawable.  If application uses child's foreground for other purposes such as ripple effect,
+     * it needs tell ListRowPresenter to keep the child's foreground.  The default value is true.
+     *
+     * @param keep true if keep foreground of child of this row, false ListRowPresenter might change
+     *             the foreground of the child.
+     */
+    public final void setKeepChildForeground(boolean keep) {
+        mKeepChildForeground = keep;
+    }
+
+    /**
+     * Returns true if keeps foreground of child of this row, false ListRowPresenter might change
+     * child's foreground for applying overlay on the child.
+     *
+     * @return true if keeps foreground of child of this row, false otherwise.
+     */
+    public final boolean isKeepChildForeground() {
+        return mKeepChildForeground;
+    }
+
+    /**
+     * Create ShadowOverlayHelper Options.  Subclass may override.
+     * e.g.
+     * <code>
+     * return new ShadowOverlayHelper.Options().roundedCornerRadius(10);
+     * </code>
+     *
+     * @return The options to be used for shadow, overlay and rouded corner.
+     */
+    protected ShadowOverlayHelper.Options createShadowOverlayOptions() {
+        return ShadowOverlayHelper.Options.DEFAULT;
     }
 
     /**
@@ -610,15 +648,8 @@ public class ListRowPresenter extends RowPresenter {
         if (mShadowOverlayHelper != null && mShadowOverlayHelper.needsOverlay()) {
             ViewHolder vh = (ViewHolder) holder;
             int dimmedColor = vh.mColorDimmer.getPaint().getColor();
-            if (mShadowOverlayHelper.getWrapper() != null) {
-                for (int i = 0, count = vh.mGridView.getChildCount(); i < count; i++) {
-                    ((ShadowOverlayContainer) vh.mGridView.getChildAt(i))
-                            .setOverlayColor(dimmedColor);
-                }
-            } else {
-                for (int i = 0, count = vh.mGridView.getChildCount(); i < count; i++) {
-                    ShadowOverlayHelper.setForegroundColor(vh.mGridView.getChildAt(i), dimmedColor);
-                }
+            for (int i = 0, count = vh.mGridView.getChildCount(); i < count; i++) {
+                mShadowOverlayHelper.setOverlayColor(vh.mGridView.getChildAt(i), dimmedColor);
             }
             if (vh.mGridView.getFadingLeftEdge()) {
                 vh.mGridView.invalidate();
