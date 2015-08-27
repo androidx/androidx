@@ -90,7 +90,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private Button mDisconnectButton;
     private Button mStopCastingButton;
     private ImageButton mPlayPauseButton;
-    private ImageButton mSettingsButton;
+    private ImageButton mCloseButton;
     private ImageButton mGroupExpandCollapseButton;
 
     private ImageView mArtView;
@@ -241,8 +241,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mStopCastingButton = (Button) findViewById(R.id.stop);
         mStopCastingButton.setOnClickListener(listener);
 
-        mSettingsButton = (ImageButton) findViewById(R.id.settings);
-        mSettingsButton.setOnClickListener(listener);
+        mCloseButton = (ImageButton) findViewById(R.id.close);
+        mCloseButton.setOnClickListener(listener);
 
         mArtView = (ImageView) findViewById(R.id.art);
         mTitleView = (TextView) findViewById(R.id.title);
@@ -385,9 +385,9 @@ public class MediaRouteControllerDialog extends AlertDialog {
         }
 
         if (mRoute.getSettingsIntent() != null) {
-            mSettingsButton.setVisibility(View.VISIBLE);
+            mCloseButton.setVisibility(View.VISIBLE);
         } else {
-            mSettingsButton.setVisibility(View.GONE);
+            mCloseButton.setVisibility(View.GONE);
         }
 
         if (mControlView == null) {
@@ -526,16 +526,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
                         mMediaController.getTransportControls().play();
                     }
                 }
-            } else if (id == R.id.settings) {
-                IntentSender is = mRoute.getSettingsIntent();
-                if (is != null) {
-                    try {
-                        is.sendIntent(null, 0, null, null, null);
-                        dismiss();
-                    } catch (Exception e) {
-                        Log.e(TAG, "Error opening route settings.", e);
-                    }
-                }
+            } else if (id == R.id.close) {
+                dismiss();
             }
         }
     }
