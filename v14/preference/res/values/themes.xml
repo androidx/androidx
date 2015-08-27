@@ -19,4 +19,16 @@
     <style name="PreferenceThemeOverlay.v14">
         <item name="switchPreferenceStyle">@style/Preference.SwitchPreference</item>
     </style>
+
+    <style name="PreferenceThemeOverlay.v14.Material">
+        <item name="preferenceScreenStyle">@style/Preference.PreferenceScreen.Material</item>
+        <item name="preferenceCategoryStyle">@style/Preference.Category.Material</item>
+        <item name="preferenceStyle">@style/Preference.Material</item>
+        <item name="preferenceInformationStyle">@style/Preference.Information.Material</item>
+        <item name="checkBoxPreferenceStyle">@style/Preference.CheckBoxPreference.Material</item>
+        <item name="switchPreferenceCompatStyle">@style/Preference.SwitchPreferenceCompat.Material</item>
+        <item name="switchPreferenceStyle">@style/Preference.SwitchPreference.Material</item>
+        <item name="dialogPreferenceStyle">@style/Preference.DialogPreference.Material</item>
+        <item name="editTextPreferenceStyle">@style/Preference.DialogPreference.EditTextPreference.Material</item>
+    </style>
 </resources>
