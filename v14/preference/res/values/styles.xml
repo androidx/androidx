@@ -22,4 +22,48 @@
         <item name="switchTextOff">@string/v7_preference_off</item>
     </style>
 
+    <style name="Preference.Material">
+        <item name="layout">@layout/preference_material</item>
+    </style>
+
+    <style name="Preference.Information.Material">
+        <item name="layout">@layout/preference_information_material</item>
+        <item name="enabled">false</item>
+        <item name="shouldDisableView">false</item>
+    </style>
+
+    <style name="Preference.Category.Material">
+        <item name="layout">@layout/preference_category_material</item>
+    </style>
+
+    <style name="Preference.CheckBoxPreference.Material">
+        <item name="layout">@layout/preference_material</item>
+    </style>
+
+    <style name="Preference.SwitchPreferenceCompat.Material">
+        <item name="layout">@layout/preference_material</item>
+    </style>
+
+    <style name="Preference.SwitchPreference.Material">
+        <item name="layout">@layout/preference_material</item>
+    </style>
+
+    <style name="Preference.PreferenceScreen.Material">
+        <item name="layout">@layout/preference_material</item>
+    </style>
+
+    <style name="Preference.DialogPreference.Material">
+        <item name="layout">@layout/preference_material</item>
+    </style>
+
+    <style name="Preference.DialogPreference.EditTextPreference.Material">
+        <item name="layout">@layout/preference_material</item>
+    </style>
+
+    <style name="Preference_TextAppearanceMaterialBody2">
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    </style>
+
 </resources>
