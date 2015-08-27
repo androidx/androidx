@@ -37,8 +37,8 @@
     <!-- Button to stop playback and disconnect from a media route.  [CHAR LIMIT=30] -->
     <string name="mr_media_route_controller_stop">Stop casting</string>
 
-    <!-- Description for a button that takes you to settings for the active route -->
-    <string name="mr_media_route_controller_settings_description">Route settings</string>
+    <!-- Description for a button that closes the controller dialog -->
+    <string name="mr_media_route_controller_close_description">Close the controller dialog</string>
 
     <!-- Accessibility description for the play button -->
     <string name="mr_media_route_controller_play">Play</string>
