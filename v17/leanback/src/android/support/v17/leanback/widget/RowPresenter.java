@@ -565,13 +565,6 @@ public abstract class RowPresenter extends Presenter {
         return mHeaderPresenter != null || needsDefaultSelectEffect();
     }
 
-    /**
-     * Returns true if the Row view can draw outside its bounds.
-     */
-    public boolean canDrawOutOfBounds() {
-        return false;
-    }
-
     @Override
     public final void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
         onBindRowViewHolder(getRowViewHolder(viewHolder), item);

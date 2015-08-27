@@ -41,9 +41,10 @@ class ShadowHelperApi21 {
 
     /* add shadows and return a implementation detail object */
     public static Object addDynamicShadow(
-            View shadowContainer, float unfocusedZ, float focusedZ, boolean roundedCorners) {
-        if (roundedCorners) {
-            RoundedRectHelperApi21.setClipToRoundedOutline(shadowContainer, true);
+            View shadowContainer, float unfocusedZ, float focusedZ, int roundedCornerRadius) {
+        if (roundedCornerRadius > 0) {
+            RoundedRectHelperApi21.setClipToRoundedOutline(shadowContainer, true,
+                    roundedCornerRadius);
         } else {
             shadowContainer.setOutlineProvider(sOutlineProvider);
         }
