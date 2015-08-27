@@ -27,32 +27,73 @@
         <item name="externalRouteEnabledDrawable">@drawable/mr_ic_media_route_mono_light</item>
     </style>
 
-    <style name="Widget.MediaRouter.MediaRouteText" parent="">
+    <!-- MediaRouteChooserDialog text styles -->
+    <style name="Widget.MediaRouter.ChooserText" parent="">
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:textStyle">normal</item>
     </style>
 
-    <style name="Widget.MediaRouter.MediaRouteText.Primary">
+    <style name="Widget.MediaRouter.ChooserText.Primary">
         <item name="android:textSize">18sp</item>
     </style>
 
-    <style name="Widget.MediaRouter.MediaRouteText.Secondary">
+    <style name="Widget.MediaRouter.ChooserText.Secondary">
         <item name="android:textSize">14sp</item>
     </style>
 
-    <style name="Widget.MediaRouter.MediaRouteText.Primary.Dark">
+    <style name="Widget.MediaRouter.ChooserText.Primary.Dark">
         <item name="android:textColor">#FFFFFFFF</item>
     </style>
 
-    <style name="Widget.MediaRouter.MediaRouteText.Primary.Light">
+    <style name="Widget.MediaRouter.ChooserText.Primary.Light">
         <item name="android:textColor">#DE000000</item>
     </style>
 
-    <style name="Widget.MediaRouter.MediaRouteText.Secondary.Dark">
+    <style name="Widget.MediaRouter.ChooserText.Secondary.Dark">
         <item name="android:textColor">#8AFFFFFF</item>
     </style>
 
-    <style name="Widget.MediaRouter.MediaRouteText.Secondary.Light">
+    <style name="Widget.MediaRouter.ChooserText.Secondary.Light">
         <item name="android:textColor">#8A000000</item>
+    </style>
+
+    <!-- MediaRouteControllerDialog text styles -->
+    <style name="Widget.MediaRouter.ControllerText" parent="Widget.MediaRouter.ChooserText" />
+
+    <style name="Widget.MediaRouter.ControllerText.Title">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="Widget.MediaRouter.ControllerText.Primary">
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="Widget.MediaRouter.ControllerText.Secondary">
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="Widget.MediaRouter.ControllerText.Title.Dark">
+        <item name="android:textColor">#FFFFFFFF</item>
+    </style>
+
+    <style name="Widget.MediaRouter.ControllerText.Title.Light">
+        <item name="android:textColor">#DE000000</item>
+    </style>
+
+    <style name="Widget.MediaRouter.ControllerText.Primary.Dark">
+        <item name="android:textColor">#FFFFFFFF</item>
+    </style>
+
+    <style name="Widget.MediaRouter.ControllerText.Primary.Light">
+        <item name="android:textColor">#DE000000</item>
+    </style>
+
+    <style name="Widget.MediaRouter.ControllerText.Secondary.Dark">
+        <item name="android:textColor">#FFFFFFFF</item>
+    </style>
+
+    <style name="Widget.MediaRouter.ControllerText.Secondary.Light">
+        <item name="android:textColor">#DE000000</item>
     </style>
 </resources>
