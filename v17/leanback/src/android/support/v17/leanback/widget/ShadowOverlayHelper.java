@@ -27,18 +27,231 @@ import android.view.View;
 
 
 /**
- * ShadowOverlayHelper is a helper class for shadow, overlay and rounded corner.
- * Initialize it with all the options and it decides the best strategy.
+ * ShadowOverlayHelper is a helper class for shadow, overlay color and rounded corner.
+ * There are many choices to implement Shadow, overlay color.
+ * Initialize it with ShadowOverlayHelper.Builder and it decides the best strategy based
+ * on options user choose and current platform version.
+ *
  * <li> For shadow:  it may use 9-patch with opticalBounds or Z-value based shadow for
  *                   API >= 21.  When 9-patch is used, it requires a ShadowOverlayContainer
- *                   created by ItemBridgeAdapter.Wrapper to include 9-patch views.
+ *                   to include 9-patch views.
  * <li> For overlay: it may use ShadowOverlayContainer which overrides draw() or it may
  *                   use setForeground(new ColorDrawable()) for API>=23.  The foreground support
  *                   might be disabled if rounded corner is applied due to performance reason.
  * <li> For rounded-corner:  it uses a ViewOutlineProvider for API>=21.
- * @hide
+ *
+ * There are two different strategies: use Wrapper with a ShadowOverlayContainer;
+ * or apply rounded corner, overlay and rounded-corner to the view itself.  Below is an example
+ * of how helper is used.
+ *
+ * <code>
+ * ShadowOverlayHelper mHelper = new ShadowOverlayHelper.Builder().
+ *         .needsOverlay(true).needsRoundedCorner(true).needsShadow(true)
+ *         .build();
+ * mHelper.prepareParentForShadow(parentView); // apply optical-bounds for 9-patch shadow.
+ * mHelper.setOverlayColor(view, Color.argb(0x80, 0x80, 0x80, 0x80));
+ * mHelper.setShadowFocusLevel(view, 1.0f);
+ * ...
+ * View initializeView(View view) {
+ *     if (mHelper.needsWrapper()) {
+ *         ShadowOverlayContainer wrapper = mHelper.createShadowOverlayContainer(context);
+ *         wrapper.wrap(view);
+ *         return wrapper;
+ *     } else {
+ *         mHelper.onViewCreated(view);
+ *         return view;
+ *     }
+ * }
+ * ...
+ *
+ * </code>
  */
 public final class ShadowOverlayHelper {
+
+    /**
+     * Builder for creating ShadowOverlayHelper.
+     */
+    public static final class Builder {
+
+        private boolean needsOverlay;
+        private boolean needsRoundedCorner;
+        private boolean needsShadow;
+        private boolean preferZOrder = true;
+        private boolean keepForegroundDrawable;
+        private Options options = Options.DEFAULT;
+
+        /**
+         * Set if needs overlay color.
+         * @param needsOverlay   True if needs overlay.
+         * @return  The Builder object itself.
+         */
+        public Builder needsOverlay(boolean needsOverlay) {
+            this.needsOverlay = needsOverlay;
+            return this;
+        }
+
+        /**
+         * Set if needs shadow.
+         * @param needsShadow   True if needs shadow.
+         * @return  The Builder object itself.
+         */
+        public Builder needsShadow(boolean needsShadow) {
+            this.needsShadow = needsShadow;
+            return this;
+        }
+
+        /**
+         * Set if needs rounded corner.
+         * @param needsRoundedCorner   True if needs rounded corner.
+         * @return  The Builder object itself.
+         */
+        public Builder needsRoundedCorner(boolean needsRoundedCorner) {
+            this.needsRoundedCorner = needsRoundedCorner;
+            return this;
+        }
+
+        /**
+         * Set if prefer z-order shadow.  On old devices,  z-order shadow might be slow,
+         * set to false to fall back to static 9-patch shadow.  Recommend to read
+         * from system wide Setting value: see {@link Settings}.
+         *
+         * @param preferZOrder   True if prefer Z shadow.  Default is true.
+         * @return The Builder object itself.
+         */
+        public Builder preferZOrder(boolean preferZOrder) {
+            this.preferZOrder = preferZOrder;
+            return this;
+        }
+
+        /**
+         * Set if not using foreground drawable for overlay color.  For example if
+         * the view has already assigned a foreground drawable for other purposes.
+         * When it's true, helper will use a ShadowOverlayContainer for overlay color.
+         *
+         * @param keepForegroundDrawable   True to keep the original foreground drawable.
+         * @return The Builder object itself.
+         */
+        public Builder keepForegroundDrawable(boolean keepForegroundDrawable) {
+            this.keepForegroundDrawable = keepForegroundDrawable;
+            return this;
+        }
+
+        /**
+         * Set option values e.g. Shadow Z value, rounded corner radius.
+         *
+         * @param options   The Options object to create ShadowOverlayHelper.
+         */
+        public Builder options(Options options) {
+            this.options = options;
+            return this;
+        }
+
+        /**
+         * Create ShadowOverlayHelper object
+         * @param context    The context uses to read Resources settings.
+         * @return           The ShadowOverlayHelper object.
+         */
+        public ShadowOverlayHelper build(Context context) {
+            final ShadowOverlayHelper helper = new ShadowOverlayHelper();
+            helper.mNeedsOverlay = needsOverlay;
+            helper.mNeedsRoundedCorner = needsRoundedCorner && supportsRoundedCorner();
+            helper.mNeedsShadow = needsShadow && supportsShadow();
+
+            if (helper.mNeedsRoundedCorner) {
+                helper.setupRoundedCornerRadius(options, context);
+            }
+
+            // figure out shadow type and if we need use wrapper:
+            if (helper.mNeedsShadow) {
+                // if static shadow is prefered or dynamic shadow is not supported,
+                // use static shadow,  otherwise use dynamic shadow.
+                if (!preferZOrder || !supportsDynamicShadow()) {
+                    helper.mShadowType = SHADOW_STATIC;
+                    // static shadow requires ShadowOverlayContainer to support crossfading
+                    // of two shadow views.
+                    helper.mNeedsWrapper = true;
+                } else {
+                    helper.mShadowType = SHADOW_DYNAMIC;
+                    helper.setupDynamicShadowZ(options, context);
+                    helper.mNeedsWrapper = ((!supportsForeground() || keepForegroundDrawable)
+                            && helper.mNeedsOverlay);
+                }
+            } else {
+                helper.mShadowType = SHADOW_NONE;
+                helper.mNeedsWrapper = ((!supportsForeground() || keepForegroundDrawable)
+                        && helper.mNeedsOverlay);
+            }
+
+            return helper;
+        }
+
+    }
+
+    /**
+     * Option values for ShadowOverlayContainer.
+     */
+    public static final class Options {
+
+        /**
+         * Default Options for values.
+         */
+        public static final Options DEFAULT = new Options();
+
+        private int roundedCornerRadius = 0; // 0 for default value
+        private float dynamicShadowUnfocusedZ = -1; // < 0 for default value
+        private float dynamicShadowFocusedZ = -1;   // < 0 for default value
+        /**
+         * Set value of rounded corner radius.
+         *
+         * @param roundedCornerRadius   Number of pixels of rounded corner radius.
+         *                              Set to 0 to use default settings.
+         * @return  The Options object itself.
+         */
+        public Options roundedCornerRadius(int roundedCornerRadius){
+            this.roundedCornerRadius = roundedCornerRadius;
+            return this;
+        }
+
+        /**
+         * Set value of focused and unfocused Z value for shadow.
+         *
+         * @param unfocusedZ   Number of pixels for unfocused Z value.
+         * @param focusedZ     Number of pixels for foucsed Z value.
+         * @return  The Options object itself.
+         */
+        public Options dynamicShadowZ(float unfocusedZ, float focusedZ){
+            this.dynamicShadowUnfocusedZ = unfocusedZ;
+            this.dynamicShadowFocusedZ = focusedZ;
+            return this;
+        }
+
+        /**
+         * Get radius of rounded corner in pixels.
+         *
+         * @return Radius of rounded corner in pixels.
+         */
+        public final int getRoundedCornerRadius() {
+            return roundedCornerRadius;
+        }
+
+        /**
+         * Get z value of shadow when a view is not focused.
+         *
+         * @return Z value of shadow when a view is not focused.
+         */
+        public final float getDynamicShadowUnfocusedZ() {
+            return dynamicShadowUnfocusedZ;
+        }
+
+        /**
+         * Get z value of shadow when a view is focused.
+         *
+         * @return Z value of shadow when a view is focused.
+         */
+        public final float getDynamicShadowFocusedZ() {
+            return dynamicShadowFocusedZ;
+        }
+    }
 
     /**
      * No shadow.
@@ -60,8 +273,8 @@ public final class ShadowOverlayHelper {
     boolean mNeedsRoundedCorner;
     boolean mNeedsShadow;
     boolean mNeedsWrapper;
-    private ItemBridgeAdapter.Wrapper mCardWrapper;
 
+    int mRoundedCornerRadius;
     float mUnfocusedZ;
     float mFocusedZ;
 
@@ -93,60 +306,10 @@ public final class ShadowOverlayHelper {
         return ForegroundHelper.supportsForeground();
     }
 
-    /**
-     * Create ShadowHelper that includes all options.
-     *
-     * @param context               Context that required to query options
-     * @param needsOverlay          true if overlay (dim) is needed
-     * @param needsShadow           true if shadow is needed
-     * @param needsRoundedCorner    true if roundedCorner is needed.
-     * @param preferZOrder          true if prefer dynamic shadow otherwise static shadow is used.
+    /*
+     * hide from external, should be only created by ShadowOverlayHelper.Options.
      */
-    public ShadowOverlayHelper(Context context,
-            boolean needsOverlay, boolean needsShadow, boolean needsRoundedCorner,
-            boolean preferZOrder) {
-        mNeedsOverlay = needsOverlay;
-        mNeedsRoundedCorner = needsRoundedCorner && supportsRoundedCorner();
-        mNeedsShadow = needsShadow && supportsShadow();
-
-        // Force to use wrapper to avoid rebuild rounded corner outline on animating foreground
-        // drawable.  See b/22724385
-        final boolean forceWrapperForOverlay = mNeedsRoundedCorner;
-
-        // figure out shadow type and if we need use wrapper:
-        if (mNeedsShadow) {
-            // if static shadow is prefered or dynamic shadow is not supported,
-            // use static shadow,  otherwise use dynamic shadow.
-            if (!preferZOrder || !supportsDynamicShadow()) {
-                mShadowType = SHADOW_STATIC;
-                // static shadow requires ShadowOverlayContainer to support crossfading
-                // of two shadow views.
-                mNeedsWrapper = true;
-            } else {
-                useDynamicShadow(context);
-                mNeedsWrapper = ((!supportsForeground() || forceWrapperForOverlay) && mNeedsOverlay);
-            }
-        } else {
-            mShadowType = SHADOW_NONE;
-            mNeedsWrapper = ((!supportsForeground() || forceWrapperForOverlay) && mNeedsOverlay);
-        }
-
-        if (mNeedsWrapper) {
-            mCardWrapper = new ItemBridgeAdapter.Wrapper() {
-                @Override
-                public View createWrapper(View root) {
-                    Context context = root.getContext();
-                    ShadowOverlayContainer wrapper = createShadowOverlayContainer(context);
-                    wrapper.setLayoutParams(
-                            new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-                    return wrapper;
-                }
-                @Override
-                public void wrap(View wrapper, View wrapped) {
-                    ((ShadowOverlayContainer) wrapper).wrap(wrapped);
-                }
-            };
-        }
+    ShadowOverlayHelper() {
     }
 
     /**
@@ -157,18 +320,6 @@ public final class ShadowOverlayHelper {
         if (mShadowType == SHADOW_STATIC) {
             StaticShadowHelper.getInstance().prepareParent(parent);
         }
-    }
-
-    void useDynamicShadow(Context context) {
-        Resources res = context.getResources();
-        useDynamicShadow(res.getDimension(R.dimen.lb_material_shadow_normal_z),
-                res.getDimension(R.dimen.lb_material_shadow_focused_z));
-    }
-
-    void useDynamicShadow(float unfocusedZ, float focusedZ) {
-        mShadowType = SHADOW_DYNAMIC;
-        mUnfocusedZ = unfocusedZ;
-        mFocusedZ = focusedZ;
     }
 
     public int getShadowType() {
@@ -183,19 +334,33 @@ public final class ShadowOverlayHelper {
         return mNeedsRoundedCorner;
     }
 
-    ShadowOverlayContainer createShadowOverlayContainer(Context context) {
-        return new ShadowOverlayContainer(context, mShadowType, mNeedsOverlay,
-                mNeedsRoundedCorner);
-    }
-
-    public ItemBridgeAdapter.Wrapper getWrapper() {
-        return mCardWrapper;
+    /**
+     * Returns true if a "wrapper" ShadowOverlayContainer is needed.
+     * When needsWrapper() is true,  call {@link #createShadowOverlayContainer(Context)}
+     * to create the wrapper.
+     */
+    public boolean needsWrapper() {
+        return mNeedsWrapper;
     }
 
     /**
-     * Set foreground color for view other than ShadowOverlayContainer.
+     * Create ShadowOverlayContainer for this helper.
+     * @param context   Context to create view.
+     * @return          ShadowOverlayContainer.
      */
-    public static void setForegroundColor(View view, int color) {
+    public ShadowOverlayContainer createShadowOverlayContainer(Context context) {
+        if (!needsWrapper()) {
+            throw new IllegalArgumentException();
+        }
+        return new ShadowOverlayContainer(context, mShadowType, mNeedsOverlay,
+                mUnfocusedZ, mFocusedZ, mRoundedCornerRadius);
+    }
+
+    /**
+     * Set overlay color for view other than ShadowOverlayContainer.
+     * See also {@link ShadowOverlayContainer#setOverlayColor(int)}.
+     */
+    public static void setNoneWrapperOverlayColor(View view, int color) {
         Drawable d = ForegroundHelper.getInstance().getForeground(view);
         if (d instanceof ColorDrawable) {
             ((ColorDrawable) d).setColor(color);
@@ -205,35 +370,81 @@ public final class ShadowOverlayHelper {
     }
 
     /**
-     * Called on view is created.
+     * Set overlay color for view, it can be a ShadowOverlayContainer if needsWrapper() is true,
+     * or other view type.
+     */
+    public void setOverlayColor(View view, int color) {
+        if (needsWrapper()) {
+            ((ShadowOverlayContainer) view).setOverlayColor(color);
+        } else {
+            setNoneWrapperOverlayColor(view, color);
+        }
+    }
+
+    /**
+     * Must be called when view is created for cases {@link #needsWrapper()} is false.
      * @param view
      */
     public void onViewCreated(View view) {
-        if (!mNeedsWrapper) {
+        if (!needsWrapper()) {
             if (!mNeedsShadow) {
                 if (mNeedsRoundedCorner) {
-                    RoundedRectHelper.getInstance().setClipToRoundedOutline(view, true);
+                    RoundedRectHelper.getInstance().setClipToRoundedOutline(view,
+                            true, mRoundedCornerRadius);
                 }
             } else {
                 if (mShadowType == SHADOW_DYNAMIC) {
                     Object tag = ShadowHelper.getInstance().addDynamicShadow(
-                            view, mUnfocusedZ, mFocusedZ, mNeedsRoundedCorner);
+                            view, mUnfocusedZ, mFocusedZ, mRoundedCornerRadius);
                     view.setTag(R.id.lb_shadow_impl, tag);
                 }
             }
         }
     }
 
-    public static Object getNoneWrapperDyamicShadowImpl(View view) {
-        return view.getTag(R.id.lb_shadow_impl);
+    /**
+     * Set shadow focus level (0 to 1). 0 for unfocused, 1f for fully focused.
+     * This is for view other than ShadowOverlayContainer.
+     * See also {@link ShadowOverlayContainer#setShadowFocusLevel(float)}.
+     */
+    public static void setNoneWrapperShadowFocusLevel(View view, float level) {
+        setShadowFocusLevel(getNoneWrapperDyamicShadowImpl(view), SHADOW_DYNAMIC, level);
     }
 
     /**
      * Set shadow focus level (0 to 1). 0 for unfocused, 1f for fully focused.
-     * This is for view other than ShadowOverlayContainer.
      */
-    public static void setShadowFocusLevel(View view, float level) {
-        setShadowFocusLevel(getNoneWrapperDyamicShadowImpl(view), SHADOW_DYNAMIC, level);
+    public void setShadowFocusLevel(View view, float level) {
+        if (needsWrapper()) {
+            ((ShadowOverlayContainer) view).setShadowFocusLevel(level);
+        } else {
+            setShadowFocusLevel(getNoneWrapperDyamicShadowImpl(view), SHADOW_DYNAMIC, level);
+        }
+    }
+
+    void setupDynamicShadowZ(Options options, Context context) {
+        if (options.getDynamicShadowUnfocusedZ() < 0f) {
+            Resources res = context.getResources();
+            mFocusedZ = res.getDimension(R.dimen.lb_material_shadow_focused_z);
+            mUnfocusedZ = res.getDimension(R.dimen.lb_material_shadow_normal_z);
+        } else {
+            mFocusedZ = options.getDynamicShadowFocusedZ();
+            mUnfocusedZ = options.getDynamicShadowUnfocusedZ();
+        }
+    }
+
+    void setupRoundedCornerRadius(Options options, Context context) {
+        if (options.getRoundedCornerRadius() == 0) {
+            Resources res = context.getResources();
+            mRoundedCornerRadius = res.getDimensionPixelSize(
+                        R.dimen.lb_rounded_rect_corner_radius);
+        } else {
+            mRoundedCornerRadius = options.getRoundedCornerRadius();
+        }
+    }
+
+    static Object getNoneWrapperDyamicShadowImpl(View view) {
+        return view.getTag(R.id.lb_shadow_impl);
     }
 
     static void setShadowFocusLevel(Object impl, int shadowType, float level) {

@@ -20,6 +20,7 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -27,7 +28,8 @@ import android.graphics.Rect;
 
 /**
  * Provides an SDK version-independent wrapper to support shadows, color overlays, and rounded
- * corners.
+ * corners.  It's not always preferred to create a ShadowOverlayContainer, use
+ * {@link ShadowOverlayHelper} instead.
  * <p>
  * {@link #prepareParentForShadow(ViewGroup)} must be called on parent of container
  * before using shadow.  Depending on sdk version, optical bounds might be applied
@@ -49,7 +51,7 @@ import android.graphics.Rect;
  * Call {@link #setOverlayColor(int)} to control overlay color.
  * </p>
  */
-public class ShadowOverlayContainer extends ViewGroup {
+public class ShadowOverlayContainer extends FrameLayout {
 
     /**
      * No shadow.
@@ -73,6 +75,7 @@ public class ShadowOverlayContainer extends ViewGroup {
     private int mShadowType = SHADOW_NONE;
     private float mUnfocusedZ;
     private float mFocusedZ;
+    private int mRoundedCornerRadius;
     private static final Rect sTempRect = new Rect();
     private Paint mOverlayPaint;
     private int mOverlayColor;
@@ -103,12 +106,13 @@ public class ShadowOverlayContainer extends ViewGroup {
     /**
      * Create ShadowOverlayContainer with specific shadowType.
      */
-    public ShadowOverlayContainer(Context context,
-            int shadowType, boolean hasColorDimOverlay, boolean roundedCorners) {
+    ShadowOverlayContainer(Context context,
+            int shadowType, boolean hasColorDimOverlay,
+            float unfocusedZ, float focusedZ, int roundedCornerRadius) {
         super(context);
-        mUnfocusedZ = getResources().getDimension(R.dimen.lb_material_shadow_normal_z);
-        mFocusedZ = getResources().getDimension(R.dimen.lb_material_shadow_focused_z);
-        initialize(shadowType, hasColorDimOverlay, roundedCorners);
+        mUnfocusedZ = unfocusedZ;
+        mFocusedZ = focusedZ;
+        initialize(shadowType, hasColorDimOverlay, roundedCornerRadius);
     }
 
     /**
@@ -179,7 +183,7 @@ public class ShadowOverlayContainer extends ViewGroup {
 
     /**
      * Initialize shadows, color overlay.
-     * @deprecated use {@link #initialize(boolean, boolean, boolean)} instead.
+     * @deprecated use {@link ShadowOverlayHelper#createShadowOverlayContainer(Context)} instead.
      */
     @Deprecated
     public void initialize(boolean hasShadow, boolean hasColorDimOverlay) {
@@ -190,7 +194,7 @@ public class ShadowOverlayContainer extends ViewGroup {
      * Initialize shadows, color overlay, and rounded corners.  All are optional.
      * Shadow type are auto-selected based on {@link #useStaticShadow()} and
      * {@link #useDynamicShadow()} call.
-     * @deprecated use {@link #initialize(int, boolean, boolean)} instead.
+     * @deprecated use {@link ShadowOverlayHelper#createShadowOverlayContainer(Context)} instead.
      */
     @Deprecated
     public void initialize(boolean hasShadow, boolean hasColorDimOverlay, boolean roundedCorners) {
@@ -200,28 +204,31 @@ public class ShadowOverlayContainer extends ViewGroup {
         } else {
             shadowType = mShadowType;
         }
-        initialize(shadowType, hasColorDimOverlay, roundedCorners);
+        int roundedCornerRadius = roundedCorners ? getContext().getResources().getDimensionPixelSize(
+                R.dimen.lb_rounded_rect_corner_radius) : 0;
+        initialize(shadowType, hasColorDimOverlay, roundedCornerRadius);
     }
 
     /**
      * Initialize shadows, color overlay, and rounded corners.  All are optional.
      */
-    public void initialize(int shadowType, boolean hasColorDimOverlay, boolean roundedCorners) {
+    void initialize(int shadowType, boolean hasColorDimOverlay, int roundedCornerRadius) {
         if (mInitialized) {
             throw new IllegalStateException();
         }
         mInitialized = true;
+        mRoundedCornerRadius = roundedCornerRadius;
+        mRoundedCorners = roundedCornerRadius > 0;
         mShadowType = shadowType;
         switch (mShadowType) {
             case SHADOW_DYNAMIC:
                 mShadowImpl = ShadowHelper.getInstance().addDynamicShadow(
-                        this, mUnfocusedZ, mFocusedZ, roundedCorners);
+                        this, mUnfocusedZ, mFocusedZ, mRoundedCornerRadius);
                 break;
             case SHADOW_STATIC:
                 mShadowImpl = StaticShadowHelper.getInstance().addStaticShadow(this);
                 break;
         }
-        mRoundedCorners = roundedCorners;
         if (hasColorDimOverlay) {
             setWillNotDraw(false);
             mOverlayColor = Color.TRANSPARENT;
@@ -273,7 +280,20 @@ public class ShadowOverlayContainer extends ViewGroup {
         if (!mInitialized || mWrappedView != null) {
             throw new IllegalStateException();
         }
-        addView(view);
+        ViewGroup.LayoutParams lp = view.getLayoutParams();
+        if (lp != null) {
+            // if wrapped view has layout params, inherit everything but width/height.
+            // Wrapped view is assigned a FrameLayout.LayoutParams with width
+            // and height only.  User can still change wrapped view width/height afterwards.
+            // Margins, etc are assigned to the wrapper and take effect in parent container.
+            ViewGroup.LayoutParams wrapped_lp = new FrameLayout.LayoutParams(lp.width, lp.height);
+            lp.width = LayoutParams.WRAP_CONTENT;
+            lp.height = LayoutParams.WRAP_CONTENT;
+            this.setLayoutParams(lp);
+            addView(view, wrapped_lp);
+        } else {
+            addView(view);
+        }
         if (mRoundedCorners && mShadowType == SHADOW_STATIC) {
             RoundedRectHelper.getInstance().setClipToRoundedOutline(view, true);
         }
@@ -288,67 +308,9 @@ public class ShadowOverlayContainer extends ViewGroup {
     }
 
     @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        if (mWrappedView == null) {
-            throw new IllegalStateException();
-        }
-        // padding and child margin are not supported.
-        // first measure the wrapped view, then measure the shadow view and/or overlay view.
-        int childWidthMeasureSpec, childHeightMeasureSpec;
-        LayoutParams lp = mWrappedView.getLayoutParams();
-        if (lp.width == LayoutParams.MATCH_PARENT) {
-            childWidthMeasureSpec = MeasureSpec.makeMeasureSpec
-                    (MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.EXACTLY);
-        } else {
-            childWidthMeasureSpec = getChildMeasureSpec(widthMeasureSpec, 0, lp.width);
-        }
-        if (lp.height == LayoutParams.MATCH_PARENT) {
-            childHeightMeasureSpec = MeasureSpec.makeMeasureSpec
-                    (MeasureSpec.getSize(heightMeasureSpec), MeasureSpec.EXACTLY);
-        } else {
-            childHeightMeasureSpec = getChildMeasureSpec(heightMeasureSpec, 0, lp.height);
-        }
-        mWrappedView.measure(childWidthMeasureSpec, childHeightMeasureSpec);
-
-        int measuredWidth = mWrappedView.getMeasuredWidth();
-        int measuredHeight = mWrappedView.getMeasuredHeight();
-
-        for (int i = 0; i < getChildCount(); i++) {
-            View child = getChildAt(i);
-            if (child == mWrappedView) {
-                continue;
-            }
-            lp = child.getLayoutParams();
-            if (lp.width == LayoutParams.MATCH_PARENT) {
-                childWidthMeasureSpec = MeasureSpec.makeMeasureSpec
-                        (measuredWidth, MeasureSpec.EXACTLY);
-            } else {
-                childWidthMeasureSpec = getChildMeasureSpec(widthMeasureSpec, 0, lp.width);
-            }
-
-            if (lp.height == LayoutParams.MATCH_PARENT) {
-                childHeightMeasureSpec = MeasureSpec.makeMeasureSpec
-                        (measuredHeight, MeasureSpec.EXACTLY);
-            } else {
-                childHeightMeasureSpec = getChildMeasureSpec(heightMeasureSpec, 0, lp.height);
-            }
-            child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
-        }
-        setMeasuredDimension(measuredWidth, measuredHeight);
-    }
-
-    @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        final int count = getChildCount();
-        for (int i = 0; i < count; i++) {
-            final View child = getChildAt(i);
-            if (child.getVisibility() != GONE) {
-                final int width = child.getMeasuredWidth();
-                final int height = child.getMeasuredHeight();
-                child.layout(0, 0, width, height);
-            }
-        }
-        if (mWrappedView != null) {
+        super.onLayout(changed, l, t, r, b);
+        if (changed && mWrappedView != null) {
             sTempRect.left = (int) mWrappedView.getPivotX();
             sTempRect.top = (int) mWrappedView.getPivotY();
             offsetDescendantRectToMyCoords(mWrappedView, sTempRect);
@@ -357,4 +319,8 @@ public class ShadowOverlayContainer extends ViewGroup {
         }
     }
 
+    @Override
+    public boolean hasOverlappingRendering() {
+        return false;
+    }
 }

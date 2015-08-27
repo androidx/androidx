@@ -90,10 +90,12 @@ public class VerticalGridPresenter extends Presenter {
     private int mFocusZoomFactor;
     private boolean mUseFocusDimmer;
     private boolean mShadowEnabled = true;
+    private boolean mKeepChildForeground = true;
     private OnItemViewSelectedListener mOnItemViewSelectedListener;
     private OnItemViewClickedListener mOnItemViewClickedListener;
     private boolean mRoundedCornersEnabled = true;
     private ShadowOverlayHelper mShadowOverlayHelper;
+    private ItemBridgeAdapter.Wrapper mShadowOverlayWrapper;
 
     /**
      * Constructs a VerticalGridPresenter with defaults.
@@ -223,7 +225,6 @@ public class VerticalGridPresenter extends Presenter {
         return mUseFocusDimmer;
     }
 
-
     @Override
     public final ViewHolder onCreateViewHolder(ViewGroup parent) {
         ViewHolder vh = createGridViewHolder(parent);
@@ -262,10 +263,20 @@ public class VerticalGridPresenter extends Presenter {
 
         Context context = vh.mGridView.getContext();
         if (mShadowOverlayHelper == null) {
-            mShadowOverlayHelper = new ShadowOverlayHelper(context, mUseFocusDimmer,
-                    needsDefaultShadow(), areChildRoundedCornersEnabled(), isUsingZOrder(context));
+            mShadowOverlayHelper = new ShadowOverlayHelper.Builder()
+                    .needsOverlay(mUseFocusDimmer)
+                    .needsShadow(needsDefaultShadow())
+                    .needsRoundedCorner(areChildRoundedCornersEnabled())
+                    .preferZOrder(isUsingZOrder(context))
+                    .keepForegroundDrawable(mKeepChildForeground)
+                    .options(createShadowOverlayOptions())
+                    .build(context);
+            if (mShadowOverlayHelper.needsWrapper()) {
+                mShadowOverlayWrapper = new ItemBridgeAdapterShadowOverlayWrapper(
+                        mShadowOverlayHelper);
+            }
         }
-        vh.mItemBridgeAdapter.setWrapper(mShadowOverlayHelper.getWrapper());
+        vh.mItemBridgeAdapter.setWrapper(mShadowOverlayWrapper);
         mShadowOverlayHelper.prepareParentForShadow(vh.mGridView);
         vh.getGridView().setFocusDrawingOrderEnabled(mShadowOverlayHelper.getShadowType()
                 == ShadowOverlayHelper.SHADOW_STATIC);
@@ -279,6 +290,39 @@ public class VerticalGridPresenter extends Presenter {
                 selectChildView(gridViewHolder, view);
             }
         });
+    }
+
+    /**
+     * Set if keeps foreground of child of this grid, the foreground will not
+     * be used for overlay color.  Default value is true.
+     *
+     * @param keep   True if keep foreground of child of this grid.
+     */
+    public final void setKeepChildForeground(boolean keep) {
+        mKeepChildForeground = keep;
+    }
+
+    /**
+     * Returns true if keeps foreground of child of this grid, the foreground will not
+     * be used for overlay color.  Default value is true.
+     *
+     * @return   True if keeps foreground of child of this grid.
+     */
+    public final boolean getKeepChildForeground() {
+        return mKeepChildForeground;
+    }
+
+    /**
+     * Create ShadowOverlayHelper Options.  Subclass may override.
+     * e.g.
+     * <code>
+     * return new ShadowOverlayHelper.Options().roundedCornerRadius(10);
+     * </code>
+     *
+     * @return   The options to be used for shadow, overlay and rouded corner.
+     */
+    protected ShadowOverlayHelper.Options createShadowOverlayOptions() {
+        return ShadowOverlayHelper.Options.DEFAULT;
     }
 
     @Override
