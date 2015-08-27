@@ -72,10 +72,6 @@ import android.support.percent.R;
 public class PercentLayoutHelper {
     private static final String TAG = "PercentLayout";
 
-    private static final int SNAP_TO_NONE = 0;
-    private static final int SNAP_TO_WIDTH = 1;
-    private static final int SNAP_TO_HEIGHT = 2;
-
     private final ViewGroup mHost;
 
     public PercentLayoutHelper(ViewGroup host) {
@@ -123,9 +119,9 @@ public class PercentLayoutHelper {
                 if (info != null) {
                     if (params instanceof ViewGroup.MarginLayoutParams) {
                         info.fillMarginLayoutParams((ViewGroup.MarginLayoutParams) params,
-                                widthHint, heightHint, info.snapToDimen);
+                                widthHint, heightHint);
                     } else {
-                        info.fillLayoutParams(params, widthHint, heightHint, info.snapToDimen);
+                        info.fillLayoutParams(params, widthHint, heightHint);
                     }
                 }
             }
@@ -223,12 +219,13 @@ public class PercentLayoutHelper {
             info.endMarginPercent = value;
         }
 
-        int snapToDimen = array.getInt(R.styleable.PercentLayout_Layout_layout_snapToDimen,
-                SNAP_TO_NONE);
-
-        if (snapToDimen != SNAP_TO_NONE) {
+        value = array.getFraction(R.styleable.PercentLayout_Layout_layout_aspectRatio, 1, 1, -1f);
+        if (value != -1f) {
+            if (Log.isLoggable(TAG, Log.VERBOSE)) {
+                Log.v(TAG, "aspect ratio: " + value);
+            }
             info = info != null ? info : new PercentLayoutInfo();
-            info.snapToDimen = snapToDimen;
+            info.aspectRatio = value;
         }
 
         array.recycle();
@@ -343,7 +340,7 @@ public class PercentLayoutHelper {
 
         public float endMarginPercent;
 
-        public int snapToDimen;
+        public float aspectRatio;
 
         /* package */ final ViewGroup.MarginLayoutParams mPreservedParams;
 
@@ -363,10 +360,17 @@ public class PercentLayoutHelper {
          * Fills {@code ViewGroup.LayoutParams} dimensions based on percentage values.
          */
         public void fillLayoutParams(ViewGroup.LayoutParams params, int widthHint,
-                int heightHint, int snapToDimen) {
+                int heightHint) {
             // Preserve the original layout params, so we can restore them after the measure step.
             mPreservedParams.width = params.width;
             mPreservedParams.height = params.height;
+
+            // We assume that width/height set to 0 means that value was unset. This might not
+            // necessarily be true, as the user might explicitly set it to 0. However, we use this
+            // information only for the aspect ratio. If the user set the aspect ratio attribute,
+            // it means they accept or soon discover that it will be disregarded.
+            final boolean widthNotSet = params.width == 0 && widthPercent < 0;
+            final boolean heightNotSet = params.height == 0 && heightPercent < 0;
 
             if (widthPercent >= 0) {
                 params.width = (int) (widthHint * widthPercent);
@@ -376,13 +380,13 @@ public class PercentLayoutHelper {
                 params.height = (int) (heightHint * heightPercent);
             }
 
-            switch (snapToDimen) {
-                case SNAP_TO_HEIGHT:
-                    params.width = params.height;
-                    break;
-                case SNAP_TO_WIDTH:
-                    params.height = params.width;
-                    break;
+            if (aspectRatio >= 0) {
+                if (widthNotSet) {
+                    params.width = (int) (params.height * aspectRatio);
+                }
+                if (heightNotSet) {
+                    params.height = (int) (params.width / aspectRatio);
+                }
             }
 
             if (Log.isLoggable(TAG, Log.DEBUG)) {
@@ -395,8 +399,8 @@ public class PercentLayoutHelper {
          * values.
          */
         public void fillMarginLayoutParams(ViewGroup.MarginLayoutParams params, int widthHint,
-                int heightHint, int snapToDimen) {
-            fillLayoutParams(params, widthHint, heightHint, snapToDimen);
+                int heightHint) {
+            fillLayoutParams(params, widthHint, heightHint);
 
             // Preserver the original margins, so we can restore them after the measure step.
             mPreservedParams.leftMargin = params.leftMargin;
