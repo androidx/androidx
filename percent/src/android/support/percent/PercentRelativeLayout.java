@@ -34,7 +34,7 @@ import android.widget.RelativeLayout;
  *         xmlns:android="http://schemas.android.com/apk/res/android"
  *         xmlns:app="http://schemas.android.com/apk/res-auto"
  *         android:layout_width="match_parent"
- *         android:layout_height="match_parent"/&gt
+ *         android:layout_height="match_parent"&gt
  *     &lt;ImageView
  *         app:layout_widthPercent="50%"
  *         app:layout_heightPercent="50%"
@@ -54,6 +54,7 @@ import android.widget.RelativeLayout;
  *     <li>{@code layout_marginBottomPercent}
  *     <li>{@code layout_marginStartPercent}
  *     <li>{@code layout_marginEndPercent}
+ *     <li>{@code layout_aspectRatio}
  * </ul>
  *
  * It is not necessary to specify {@code layout_width/height} if you specify {@code
@@ -61,6 +62,17 @@ import android.widget.RelativeLayout;
  * percentage value permits, you can add {@code layout_width/height="wrap_content"}. In that case
  * if the percentage size is too small for the View's content, it will be resized using
  * {@code wrap_content} rule.
+ *
+ * <p>
+ * You can also make one dimension be a fraction of the other by setting only width or height and
+ * using {@code layout_aspectRatio} for the second one to be calculated automatically. For
+ * example, if you would like to achieve 16:9 aspect ratio, you can write:
+ * <pre class="prettyprint">
+ *     android:layout_width="300dp"
+ *     app:layout_aspectRatio="178%"
+ * </pre>
+ * This will make the aspect ratio 16:9 (1.78:1) with the width fixed at 300dp and height adjusted
+ * accordingly.
  */
 public class PercentRelativeLayout extends RelativeLayout {
     private final PercentLayoutHelper mHelper = new PercentLayoutHelper(this);
