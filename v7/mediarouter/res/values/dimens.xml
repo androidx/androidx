@@ -15,6 +15,8 @@
 -->
 
 <resources>
+    <dimen name="mr_dialog_content_width_portrait">288dp</dimen>
+    <dimen name="mr_dialog_content_width_landscape">356dp</dimen>
     <dimen name="mr_media_route_controller_art_max_height">320dp</dimen>
     <dimen name="mr_list_item_margin">24dp</dimen>
 </resources>
