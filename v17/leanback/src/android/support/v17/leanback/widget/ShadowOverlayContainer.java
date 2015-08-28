@@ -283,12 +283,15 @@ public class ShadowOverlayContainer extends FrameLayout {
         ViewGroup.LayoutParams lp = view.getLayoutParams();
         if (lp != null) {
             // if wrapped view has layout params, inherit everything but width/height.
-            // Wrapped view is assigned a FrameLayout.LayoutParams with width
-            // and height only.  User can still change wrapped view width/height afterwards.
+            // Wrapped view is assigned a FrameLayout.LayoutParams with width and height only.
             // Margins, etc are assigned to the wrapper and take effect in parent container.
             ViewGroup.LayoutParams wrapped_lp = new FrameLayout.LayoutParams(lp.width, lp.height);
-            lp.width = LayoutParams.WRAP_CONTENT;
-            lp.height = LayoutParams.WRAP_CONTENT;
+            // Uses MATCH_PARENT for MATCH_PARENT, WRAP_CONTENT for WRAP_CONTENT and fixed size,
+            // App can still change wrapped view fixed width/height afterwards.
+            lp.width = lp.width == LayoutParams.MATCH_PARENT ?
+                    LayoutParams.MATCH_PARENT : LayoutParams.WRAP_CONTENT;
+            lp.height = lp.height == LayoutParams.MATCH_PARENT ?
+                    LayoutParams.MATCH_PARENT : LayoutParams.WRAP_CONTENT;
             this.setLayoutParams(lp);
             addView(view, wrapped_lp);
         } else {
