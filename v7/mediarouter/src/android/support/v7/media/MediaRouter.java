@@ -39,6 +39,7 @@ import android.support.v4.media.VolumeProviderCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.media.MediaRouteProvider.ProviderMetadata;
+import android.support.v7.media.MediaRouteProvider.RouteController;
 import android.util.Log;
 import android.view.Display;
 
@@ -1782,7 +1783,8 @@ public final class MediaRouter {
         private RegisteredMediaRouteProviderWatcher mRegisteredProviderWatcher;
         private RouteInfo mDefaultRoute;
         private RouteInfo mSelectedRoute;
-        private MediaRouteProvider.RouteController mSelectedRouteController;
+        private RouteController mSelectedRouteController;
+        private Map<String, RouteController> mChildControllers;
         private MediaRouteDiscoveryRequest mDiscoveryRequest;
         private MediaSessionRecord mMediaSession;
         private MediaSessionCompat mRccMediaSession;
@@ -1873,6 +1875,11 @@ public final class MediaRouter {
         public void requestSetVolume(RouteInfo route, int volume) {
             if (route == mSelectedRoute && mSelectedRouteController != null) {
                 mSelectedRouteController.onSetVolume(volume);
+            } else if (mChildControllers != null) {
+                RouteController controller = mChildControllers.get(route.mDescriptorId);
+                if (controller != null) {
+                    controller.onSetVolume(volume);
+                }
             }
         }
 
@@ -2355,6 +2362,13 @@ public final class MediaRouter {
                         mSelectedRouteController.onRelease();
                         mSelectedRouteController = null;
                     }
+                    if (mChildControllers != null) {
+                        for (RouteController ctrl : mChildControllers.values()) {
+                            ctrl.onUnselect();
+                            ctrl.onRelease();
+                        }
+                        mChildControllers = null;
+                    }
                 }
 
                 mSelectedRoute = route;
@@ -2369,6 +2383,17 @@ public final class MediaRouter {
                         Log.d(TAG, "Route selected: " + mSelectedRoute);
                     }
                     mCallbackHandler.post(CallbackHandler.MSG_ROUTE_SELECTED, mSelectedRoute);
+
+                    if (mSelectedRoute instanceof RouteGroup) {
+                        mChildControllers = new HashMap<>();
+                        RouteGroup group = (RouteGroup) mSelectedRoute;
+                        for (RouteInfo child : group.getRoutes()) {
+                            RouteController controller = child.getProviderInstance()
+                                    .onCreateRouteController(child.mDescriptorId);
+                            controller.onSelect();
+                            mChildControllers.put(child.mDescriptorId, controller);
+                        }
+                    }
                 }
 
                 updatePlaybackInfoFromSelectedRoute();

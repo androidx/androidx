@@ -538,7 +538,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
                     int position = (int) seekBar.getTag();
-                    // TODO: Verify
                     getGroup().getRouteAt(position).requestSetVolume(progress);
                 }
             }
