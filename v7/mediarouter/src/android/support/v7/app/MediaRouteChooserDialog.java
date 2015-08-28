@@ -296,6 +296,12 @@ public class MediaRouteChooserDialog extends Dialog {
                     && !route.supportsControlCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO)) {
                 return mSpeakerIcon;
             }
+            // A workaround to get the speaker icon for known audio devices.
+            // TODO: Remove once the new setIconUri API is fully launched.
+            if (TextUtils.equals(route.getProvider().getPackageName(), "com.sonos.acr")
+                    || route.getDescription().toLowerCase().contains("audio") ) {
+                return mSpeakerIcon;
+            }
             return mDefaultIcon;
         }
     }
