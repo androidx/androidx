@@ -25,6 +25,7 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -40,6 +41,7 @@ import android.support.v7.media.MediaRouteSelector;
 import android.support.v7.media.MediaRouter;
 import android.support.v7.mediarouter.R;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -88,6 +90,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private int mOrientation;
     private int mDialogWidthPortrait;
     private int mDialogWidthLandscape;
+    private int mDialogPaddingVertical;
 
     private View mControlView;
 
@@ -243,6 +246,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 R.dimen.mr_dialog_content_width_portrait) + dialogHorizontalPadding;
         mDialogWidthLandscape = res.getDimensionPixelSize(
                 R.dimen.mr_dialog_content_width_landscape) + dialogHorizontalPadding;
+        mDialogPaddingVertical = decorView.getPaddingTop() + decorView.getPaddingBottom();
 
         ClickListener listener = new ClickListener();
 
@@ -357,6 +361,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 mOrientation == Configuration.ORIENTATION_LANDSCAPE
                         ? mDialogWidthLandscape : mDialogWidthPortrait,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
+        updateArtView();
     }
 
     @Override
@@ -506,6 +511,49 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE;
     }
 
+    private void updateArtView() {
+        if (!(mArtView.getDrawable() instanceof BitmapDrawable)) {
+            return;
+        }
+        Bitmap art = ((BitmapDrawable) mArtView.getDrawable()).getBitmap();
+        if (art == null) {
+            return;
+        }
+        int desiredArtHeight = getDesiredArtHeight(art.getWidth(), art.getHeight());
+        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+        int dialogWidth = displayMetrics.widthPixels < displayMetrics.heightPixels
+                ? mDialogWidthPortrait : mDialogWidthLandscape;
+        View decorView = getWindow().getDecorView();
+        decorView.measure(dialogWidth, View.MeasureSpec.UNSPECIFIED);
+        // Show art if and only if it fits in the screen.
+        if (mArtView.getVisibility() == View.GONE) {
+            if (decorView.getMeasuredHeight() + desiredArtHeight <= displayMetrics.heightPixels) {
+                mArtView.setVisibility(View.VISIBLE);
+                mArtView.setMaxHeight(desiredArtHeight);
+            }
+        } else {
+            if (decorView.getMeasuredHeight() - mArtView.getMeasuredHeight() + desiredArtHeight
+                    <= displayMetrics.heightPixels) {
+                mArtView.setMaxHeight(desiredArtHeight);
+            } else {
+                mArtView.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    /**
+     * Returns desired art height to fit into controller dialog.
+     */
+    private int getDesiredArtHeight(int originalWidth, int originalHeight) {
+        int dialogWidth = getWindow().getAttributes().width - mDialogPaddingVertical;
+        if (originalWidth >= originalHeight) {
+            // For landscape art, fit width to dialog width.
+            return dialogWidth * originalHeight / originalWidth;
+        }
+        // For portrait art, fit height to 16:9 ratio case's height.
+        return dialogWidth * 9 / 16;
+    }
+
     private final class MediaRouterCallback extends MediaRouter.Callback {
         @Override
         public void onRouteUnselected(MediaRouter router, MediaRouter.RouteInfo route) {
@@ -647,12 +695,12 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
         @Override
         protected Bitmap doInBackground(Void... arg) {
-            Bitmap bitmap = null;
+            Bitmap art = null;
             if (mDescription == null) {
                 return null;
             }
             if (mDescription.getIconBitmap() != null) {
-                bitmap = mDescription.getIconBitmap();
+                art = mDescription.getIconBitmap();
             } else if (mDescription.getIconUri() != null) {
                 Uri iconUri = mDescription.getIconUri();
                 String scheme = iconUri.getScheme();
@@ -667,12 +715,14 @@ public class MediaRouteControllerDialog extends AlertDialog {
                     stream = new BufferedInputStream(
                             getContext().getContentResolver().openInputStream(iconUri));
 
-                    // Query bitmap size.
+                    // Query art size.
                     BitmapFactory.Options options = new BitmapFactory.Options();
                     options.inJustDecodeBounds = true;
                     BitmapFactory.decodeStream(stream, null, options);
-
-                    // Rewind the stream in order to restart bitmap decoding.
+                    if (options.outWidth == 0 || options.outHeight == 0) {
+                        return null;
+                    }
+                    // Rewind the stream in order to restart art decoding.
                     try {
                         stream.reset();
                     } catch (IOException e) {
@@ -681,27 +731,15 @@ public class MediaRouteControllerDialog extends AlertDialog {
                         stream = new BufferedInputStream(getContext().getContentResolver()
                                 .openInputStream(iconUri));
                     }
-
-                    // Caculate required size to decode the bitmap and possibly resize it.
+                    // Calculate required size to decode the art and possibly resize it.
                     options.inJustDecodeBounds = false;
-                    int reqWidth;
-                    int reqHeight;
-                    if (options.outWidth >= options.outHeight) {
-                        // For landscape image, fit width to dialog width.
-                        reqWidth = getWindow().getDecorView().getWidth();
-                        reqHeight = reqWidth * (options.outHeight / options.outWidth);
-                    } else {
-                        // For portrait image, fit height to 16:9 ratio case's height.
-                        reqHeight = getWindow().getDecorView().getWidth() * 9 / 16;
-                        reqWidth = reqHeight * (options.outWidth / options.outHeight);
-                    }
-                    int ratio = Math.max(
-                            options.outWidth / reqWidth, options.outHeight / reqHeight);
+                    int reqHeight = getDesiredArtHeight(options.outWidth, options.outHeight);
+                    int ratio = options.outHeight / reqHeight;
                     options.inSampleSize = Math.max(1, Integer.highestOneBit(ratio));
                     if (isCancelled()) {
                         return null;
                     }
-                    bitmap = BitmapFactory.decodeStream(stream, null, options);
+                    art = BitmapFactory.decodeStream(stream, null, options);
                 } catch (IOException e){
                     Log.w(TAG, "Unable to open content: " + iconUri, e);
                 } finally {
@@ -713,14 +751,14 @@ public class MediaRouteControllerDialog extends AlertDialog {
                     }
                 }
             }
-            if (bitmap != null) {
-                if (bitmap.getWidth() < bitmap.getHeight()) {
-                    // Portrait image requires background color.
+            if (art != null) {
+                if (art.getWidth() < art.getHeight()) {
+                    // Portrait art requires background color.
                     mBackgroundColor =
-                            new Palette.Builder(bitmap).generate().getDarkVibrantColor(0);
+                            new Palette.Builder(art).generate().getDarkVibrantColor(0);
                 }
             }
-            return bitmap;
+            return art;
         }
 
         @Override
@@ -729,20 +767,11 @@ public class MediaRouteControllerDialog extends AlertDialog {
         }
 
         @Override
-        protected void onPostExecute(Bitmap bitmap) {
+        protected void onPostExecute(Bitmap art) {
             mFetchArtTask = null;
-            mArtView.setImageBitmap(bitmap);
-            if (bitmap != null) {
-                mArtView.setVisibility(View.VISIBLE);
-                if (bitmap.getWidth() < bitmap.getHeight()) {
-                    mArtView.setMaxHeight(getWindow().getDecorView().getWidth() * 9 / 16);
-                    mArtView.setBackgroundColor(mBackgroundColor);
-                } else {
-                    mArtView.setMaxHeight(Integer.MAX_VALUE);
-                }
-            } else {
-                mArtView.setVisibility(View.GONE);
-            }
+            mArtView.setImageBitmap(art);
+            mArtView.setBackgroundColor(mBackgroundColor);
+            updateArtView();
         }
     }
 }
