@@ -23,8 +23,11 @@
     <string name="mr_media_route_chooser_searching" msgid="1855108583904057166">"Проналажење уређаја"</string>
     <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"Прекини везу"</string>
     <string name="mr_media_route_controller_stop" msgid="5398645111664294430">"Заустави пребацивање"</string>
-    <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"Подешавања путање"</string>
+    <!-- no translation found for mr_media_route_controller_close_description (5186870671694587471) -->
+    <skip />
     <string name="mr_media_route_controller_play" msgid="5214423499524760404">"Пусти"</string>
     <string name="mr_media_route_controller_pause" msgid="8315773974194466049">"Паузирај"</string>
+    <string name="mr_media_route_controller_collapse_group" msgid="7960189357116735582">"Скупи групу"</string>
+    <string name="mr_media_route_controller_expand_group" msgid="6859072322232853473">"Прошири групу"</string>
     <string name="mr_media_route_controller_no_info_available" msgid="3641544772007543920">"Нису доступне никакве информације"</string>
 </resources>

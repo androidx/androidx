@@ -23,8 +23,11 @@
     <string name="mr_media_route_chooser_searching" msgid="1855108583904057166">"ກຳລັງ​ຊອກ​ຫາ​ອຸ​ປະ​ກອນ"</string>
     <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"ຕັດການເຊື່ອມຕໍ່"</string>
     <string name="mr_media_route_controller_stop" msgid="5398645111664294430">"ຢຸດການສົ່ງສັນຍານ"</string>
-    <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"ການ​ຕັ້ງ​ຄ່າ​ເສັ້ນ​ທາງ"</string>
+    <!-- no translation found for mr_media_route_controller_close_description (5186870671694587471) -->
+    <skip />
     <string name="mr_media_route_controller_play" msgid="5214423499524760404">"ຫຼິ້ນ"</string>
     <string name="mr_media_route_controller_pause" msgid="8315773974194466049">"ຢຸດຊົ່ວຄາວ"</string>
+    <string name="mr_media_route_controller_collapse_group" msgid="7960189357116735582">"ຫຍໍ້​ກຸ່ມ​ລົງ"</string>
+    <string name="mr_media_route_controller_expand_group" msgid="6859072322232853473">"ຂະ​ຫ​ຍາຍ​ກຸ່ມ​ອອກ"</string>
     <string name="mr_media_route_controller_no_info_available" msgid="3641544772007543920">"ບໍ່​ມີ​ຂໍ້​ມູນ​ຢູ່"</string>
 </resources>

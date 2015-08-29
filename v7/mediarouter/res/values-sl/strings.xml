@@ -23,8 +23,10 @@
     <string name="mr_media_route_chooser_searching" msgid="1855108583904057166">"Iskanje naprav"</string>
     <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"Prekini povezavo"</string>
     <string name="mr_media_route_controller_stop" msgid="5398645111664294430">"Ustavi predvajanje"</string>
-    <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"Nastavitve poti"</string>
+    <string name="mr_media_route_controller_close_description" msgid="5186870671694587471">"Zapri pogovorno okno krmilnika"</string>
     <string name="mr_media_route_controller_play" msgid="5214423499524760404">"Predvajaj"</string>
     <string name="mr_media_route_controller_pause" msgid="8315773974194466049">"Zaustavi"</string>
+    <string name="mr_media_route_controller_collapse_group" msgid="7960189357116735582">"Strnitev skupine"</string>
+    <string name="mr_media_route_controller_expand_group" msgid="6859072322232853473">"Razširitev skupine"</string>
     <string name="mr_media_route_controller_no_info_available" msgid="3641544772007543920">"Podatki niso na voljo"</string>
 </resources>

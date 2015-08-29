@@ -23,8 +23,10 @@
     <string name="mr_media_route_chooser_searching" msgid="1855108583904057166">"Localizando dispositivos"</string>
     <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"Desconectar"</string>
     <string name="mr_media_route_controller_stop" msgid="5398645111664294430">"Interromper transmissão"</string>
-    <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"Configurações de rota"</string>
+    <string name="mr_media_route_controller_close_description" msgid="5186870671694587471">"Fechar a caixa de diálogo de controle"</string>
     <string name="mr_media_route_controller_play" msgid="5214423499524760404">"Reproduzir"</string>
     <string name="mr_media_route_controller_pause" msgid="8315773974194466049">"Pausar"</string>
+    <string name="mr_media_route_controller_collapse_group" msgid="7960189357116735582">"Recolher grupo"</string>
+    <string name="mr_media_route_controller_expand_group" msgid="6859072322232853473">"Expandir grupo"</string>
     <string name="mr_media_route_controller_no_info_available" msgid="3641544772007543920">"Nenhuma informação disponível"</string>
 </resources>
