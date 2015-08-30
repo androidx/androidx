@@ -28,7 +28,6 @@ import android.graphics.PointF;
 import android.graphics.Rect;
 import android.os.SystemClock;
 import android.support.v4.view.ViewCompat;
-import android.support.v7.widget.RecyclerView;
 import android.test.TouchUtils;
 import android.util.Log;
 import android.view.Gravity;
@@ -196,8 +195,8 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
             }
 
             @Override
-            public View onFocusSearchFailed(View focused, int direction, RecyclerView.Recycler recycler,
-                    RecyclerView.State state) {
+            public View onFocusSearchFailed(View focused, int direction,
+                    RecyclerView.Recycler recycler, RecyclerView.State state) {
                 focusSearchCalled.addAndGet(1);
                 focusLatch.countDown();
                 return null;
@@ -218,7 +217,6 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
             }
         });
         assertTrue(c.hasFocus());
-
         freezeLayout(true);
         sendKeys(KeyEvent.KEYCODE_DPAD_DOWN);
         assertEquals("onFocusSearchFailed should not be called when layout is frozen",
@@ -1259,7 +1257,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         RecyclerView recyclerView = new RecyclerView(getActivity());
         recyclerView.setAdapter(testAdapter);
         recyclerView.setLayoutManager(lm);
-        recyclerView.getItemAnimator().setSupportsChangeAnimations(true);
+        ((SimpleItemAnimator)recyclerView.getItemAnimator()).setSupportsChangeAnimations(true);
         lm.expectLayouts(1);
         setRecyclerView(recyclerView);
         lm.waitForLayout(2);

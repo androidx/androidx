@@ -164,7 +164,7 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         } catch (Exception e) {
             throw e;
         } catch (Throwable throwable) {
-            throw new Exception(throwable);
+            throw new Exception(Log.getStackTraceString(throwable));
         }
     }
 
@@ -709,6 +709,16 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
                 @Override
                 public void run() {
                     notifyItemRangeChanged(start, count);
+                }
+            });
+        }
+
+        public void changeAndNotifyWithPayload(final int start, final int count,
+                final Object payload) throws Throwable {
+            runTestOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    notifyItemRangeChanged(start, count, payload);
                 }
             });
         }

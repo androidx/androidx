@@ -1040,7 +1040,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         final int mode = View.MeasureSpec.getMode(spec);
         if (mode == View.MeasureSpec.AT_MOST || mode == View.MeasureSpec.EXACTLY) {
             return View.MeasureSpec.makeMeasureSpec(
-                    View.MeasureSpec.getSize(spec) - startInset - endInset, mode);
+                    Math.max(0, View.MeasureSpec.getSize(spec) - startInset - endInset), mode);
         }
         return spec;
     }
