@@ -65,6 +65,9 @@ import java.util.List;
 public class MediaRouteChooserDialog extends Dialog {
     private static final String TAG = "MediaRouteChooserDialog";
 
+    // Should match to SystemMediaRouteProvider.PACKAGE_NAME.
+    static final String SYSTEM_MEDIA_ROUTE_PROVIDER_PACKAGE_NAME = "android";
+
     private final MediaRouter mRouter;
     private final MediaRouterCallback mCallback;
 
@@ -203,6 +206,7 @@ public class MediaRouteChooserDialog extends Dialog {
         private final Drawable mDefaultIcon;
         private final Drawable mSpeakerIcon;
         private final Drawable mSpeakerGroupIcon;
+        private final Drawable mBluetoothIcon;
 
         public RouteAdapter(Context context, List<MediaRouter.RouteInfo> routes) {
             super(context, 0, routes);
@@ -210,10 +214,12 @@ public class MediaRouteChooserDialog extends Dialog {
             TypedArray styledAttributes = getContext().obtainStyledAttributes(new int[] {
                     R.attr.mediaRouteDefaultIconDrawable,
                     R.attr.mediaRouteSpeakerIconDrawable,
-                    R.attr.mediaRouteSpeakerGroupIconDrawable });
+                    R.attr.mediaRouteSpeakerGroupIconDrawable,
+                    R.attr.mediaRouteBluetoothIconDrawable });
             mDefaultIcon = styledAttributes.getDrawable(0);
             mSpeakerIcon = styledAttributes.getDrawable(1);
             mSpeakerGroupIcon = styledAttributes.getDrawable(2);
+            mBluetoothIcon = styledAttributes.getDrawable(3);
             styledAttributes.recycle();
         }
 
@@ -292,6 +298,9 @@ public class MediaRouteChooserDialog extends Dialog {
                 // Only speakers can be grouped for now.
                 return mSpeakerGroupIcon;
             }
+            if (isSystemLiveAudioOnlyRoute(route)) {
+                return mBluetoothIcon;
+            }
             if (route.supportsControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
                     && !route.supportsControlCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO)) {
                 return mSpeakerIcon;
@@ -337,9 +346,6 @@ public class MediaRouteChooserDialog extends Dialog {
         private static final float MIN_USAGE_SCORE = 0.1f;
         private static final float USAGE_SCORE_DECAY_FACTOR = 0.95f;
 
-        // Should match to SystemMediaRouteProvider.PACKAGE_NAME.
-        static final String SYSTEM_MEDIA_ROUTE_PROVIDER_PACKAGE_NAME = "android";
-
         public static final RouteComparator sInstance = new RouteComparator();
         public static final HashMap<String, Float> sRouteUsageScoreMap = new HashMap();
 
@@ -364,17 +370,6 @@ public class MediaRouteChooserDialog extends Dialog {
                 return lhsUsageScore > rhsUsageScore ? -1 : 1;
             }
             return lhs.getName().compareTo(rhs.getName());
-        }
-
-        private boolean isSystemLiveAudioOnlyRoute(MediaRouter.RouteInfo route) {
-            return isSystemMediaRouteProvider(route)
-                    && route.supportsControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
-                    && !route.supportsControlCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO);
-        }
-
-        private boolean isSystemMediaRouteProvider(MediaRouter.RouteInfo route) {
-            return TextUtils.equals(route.getProviderInstance().getMetadata().getPackageName(),
-                    SYSTEM_MEDIA_ROUTE_PROVIDER_PACKAGE_NAME);
         }
 
         private static void loadRouteUsageScores(
@@ -420,5 +415,18 @@ public class MediaRouteChooserDialog extends Dialog {
             prefEditor.putString(PREF_ROUTE_IDS, routeIdsBuilder.toString());
             prefEditor.commit();
         }
+    }
+
+    // Used to determine whether the route represents a bluetooth device.
+    // TODO: Find a better way to precisely detect bluetooth routes.
+    private static boolean isSystemLiveAudioOnlyRoute(MediaRouter.RouteInfo route) {
+        return isSystemMediaRouteProvider(route)
+                && route.supportsControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
+                && !route.supportsControlCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO);
+    }
+
+    private static boolean isSystemMediaRouteProvider(MediaRouter.RouteInfo route) {
+        return TextUtils.equals(route.getProviderInstance().getMetadata().getPackageName(),
+                SYSTEM_MEDIA_ROUTE_PROVIDER_PACKAGE_NAME);
     }
 }
