@@ -18,12 +18,12 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="5441529851481176817">"시스템"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"기기"</string>
-    <string name="mr_media_route_button_content_description" msgid="8327680881775995150">"전송"</string>
-    <string name="mr_media_route_chooser_title" msgid="7106830097177242655">"기기에 연결"</string>
-    <string name="mr_media_route_chooser_searching" msgid="7553005460920830010">"기기 검색 중…"</string>
-    <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"연결 해제"</string>
-    <string name="mr_media_route_controller_stop" msgid="5398645111664294430">"전송 중지"</string>
+    <string name="mr_button_content_description" msgid="8327680881775995150">"전송"</string>
+    <string name="mr_chooser_title" msgid="7106830097177242655">"기기에 연결"</string>
+    <string name="mr_chooser_searching" msgid="7553005460920830010">"기기 검색 중…"</string>
+    <string name="mr_controller_disconnect" msgid="109793632378378069">"연결 해제"</string>
+    <string name="mr_controller_stop" msgid="5398645111664294430">"전송 중지"</string>
     <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"경로 설정"</string>
-    <string name="mr_media_route_controller_play" msgid="5214423499524760404">"재생"</string>
-    <string name="mr_media_route_controller_pause" msgid="8315773974194466049">"일시중지"</string>
+    <string name="mr_controller_play" msgid="5214423499524760404">"재생"</string>
+    <string name="mr_controller_pause" msgid="8315773974194466049">"일시중지"</string>
 </resources>
