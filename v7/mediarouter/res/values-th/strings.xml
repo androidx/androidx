@@ -18,12 +18,12 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="5441529851481176817">"ระบบ"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"อุปกรณ์"</string>
-    <string name="mr_media_route_button_content_description" msgid="8327680881775995150">"ส่ง"</string>
-    <string name="mr_media_route_chooser_title" msgid="7106830097177242655">"เชื่อมต่อกับอุปกรณ์"</string>
-    <string name="mr_media_route_chooser_searching" msgid="7553005460920830010">"กำลังค้นหาอุปกรณ์…"</string>
-    <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"ยกเลิกการเชื่อมต่อ"</string>
-    <string name="mr_media_route_controller_stop" msgid="5398645111664294430">"หยุดการส่ง"</string>
+    <string name="mr_button_content_description" msgid="8327680881775995150">"ส่ง"</string>
+    <string name="mr_chooser_title" msgid="7106830097177242655">"เชื่อมต่อกับอุปกรณ์"</string>
+    <string name="mr_chooser_searching" msgid="7553005460920830010">"กำลังค้นหาอุปกรณ์…"</string>
+    <string name="mr_controller_disconnect" msgid="109793632378378069">"ยกเลิกการเชื่อมต่อ"</string>
+    <string name="mr_controller_stop" msgid="5398645111664294430">"หยุดการส่ง"</string>
     <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"การตั้งค่าเส้นทาง"</string>
-    <string name="mr_media_route_controller_play" msgid="5214423499524760404">"เล่น"</string>
-    <string name="mr_media_route_controller_pause" msgid="8315773974194466049">"หยุดชั่วคราว"</string>
+    <string name="mr_controller_play" msgid="5214423499524760404">"เล่น"</string>
+    <string name="mr_controller_pause" msgid="8315773974194466049">"หยุดชั่วคราว"</string>
 </resources>

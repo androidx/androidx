@@ -158,8 +158,8 @@ public class MediaRouteChooserDialog extends Dialog {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.mr_media_route_chooser_dialog);
-        setTitle(R.string.mr_media_route_chooser_title);
+        setContentView(R.layout.mr_chooser_dialog);
+        setTitle(R.string.mr_chooser_title);
 
         mRoutes = new ArrayList<MediaRouter.RouteInfo>();
         mAdapter = new RouteAdapter(getContext(), mRoutes);
@@ -237,7 +237,7 @@ public class MediaRouteChooserDialog extends Dialog {
         public View getView(int position, View convertView, ViewGroup parent) {
             View view = convertView;
             if (view == null) {
-                view = mInflater.inflate(R.layout.mr_media_route_list_item, parent, false);
+                view = mInflater.inflate(R.layout.mr_list_item, parent, false);
             }
 
             MediaRouter.RouteInfo route = getItem(position);

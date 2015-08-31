@@ -18,12 +18,12 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="5441529851481176817">"સિસ્ટમ"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"ઉપકરણો"</string>
-    <string name="mr_media_route_button_content_description" msgid="8327680881775995150">"કાસ્ટ કરો"</string>
-    <string name="mr_media_route_chooser_title" msgid="7106830097177242655">"ઉપકરણ સાથે કનેક્ટ કરો"</string>
-    <string name="mr_media_route_chooser_searching" msgid="7553005460920830010">"ઉપકરણો માટે શોધી રહ્યું છે…"</string>
-    <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"ડિસ્કનેક્ટ કરો"</string>
-    <string name="mr_media_route_controller_stop" msgid="5398645111664294430">"કાસ્ટ કરવાનું રોકો"</string>
+    <string name="mr_button_content_description" msgid="8327680881775995150">"કાસ્ટ કરો"</string>
+    <string name="mr_chooser_title" msgid="7106830097177242655">"ઉપકરણ સાથે કનેક્ટ કરો"</string>
+    <string name="mr_chooser_searching" msgid="7553005460920830010">"ઉપકરણો માટે શોધી રહ્યું છે…"</string>
+    <string name="mr_controller_disconnect" msgid="109793632378378069">"ડિસ્કનેક્ટ કરો"</string>
+    <string name="mr_controller_stop" msgid="5398645111664294430">"કાસ્ટ કરવાનું રોકો"</string>
     <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"રૂટ સેટિંગ્સ"</string>
-    <string name="mr_media_route_controller_play" msgid="5214423499524760404">"ચલાવો"</string>
-    <string name="mr_media_route_controller_pause" msgid="8315773974194466049">"થોભો"</string>
+    <string name="mr_controller_play" msgid="5214423499524760404">"ચલાવો"</string>
+    <string name="mr_controller_pause" msgid="8315773974194466049">"થોભો"</string>
 </resources>
