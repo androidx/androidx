@@ -604,7 +604,7 @@ public final class Palette {
 
                 // Now generate a quantizer from the Bitmap
                 final ColorCutQuantizer quantizer = new ColorCutQuantizer(
-                        getPixelsFromBitmap(),
+                        getPixelsFromBitmap(bitmap),
                         mMaxColors,
                         mFilters.isEmpty() ? null : mFilters.toArray(new Filter[mFilters.size()]));
 
@@ -669,8 +669,7 @@ public final class Palette {
                     }, mBitmap);
         }
 
-        private int[] getPixelsFromBitmap() {
-            final Bitmap bitmap = mBitmap;
+        private int[] getPixelsFromBitmap(Bitmap bitmap) {
             final int bitmapWidth = bitmap.getWidth();
             final int bitmapHeight = bitmap.getHeight();
             final int[] pixels = new int[bitmapWidth * bitmapHeight];
