@@ -23,8 +23,7 @@
     <string name="mr_media_route_chooser_searching" msgid="1855108583904057166">"ಸಾಧನಗಳನ್ನು ಹುಡುಕಲಾಗುತ್ತಿದೆ"</string>
     <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"ಸಂಪರ್ಕ ಕಡಿತಗೊಳಿಸು"</string>
     <string name="mr_media_route_controller_stop" msgid="5398645111664294430">"ಬಿತ್ತರಿಸುವಿಕೆ ನಿಲ್ಲಿಸು"</string>
-    <!-- no translation found for mr_media_route_controller_close_description (5186870671694587471) -->
-    <skip />
+    <string name="mr_media_route_controller_close_description" msgid="5186870671694587471">"ನಿಯಂತ್ರಕ ಸಂವಾದವನ್ನು ಮುಚ್ಚಿ"</string>
     <string name="mr_media_route_controller_play" msgid="5214423499524760404">"ಪ್ಲೇ ಮಾಡು"</string>
     <string name="mr_media_route_controller_pause" msgid="8315773974194466049">"ವಿರಾಮ"</string>
     <string name="mr_media_route_controller_collapse_group" msgid="7960189357116735582">"ಗುಂಪು ಕುಗ್ಗಿಸಿ"</string>

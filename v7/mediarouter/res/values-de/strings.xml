@@ -23,8 +23,7 @@
     <string name="mr_media_route_chooser_searching" msgid="1855108583904057166">"Geräte werden gesucht."</string>
     <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"Verbindung aufheben"</string>
     <string name="mr_media_route_controller_stop" msgid="5398645111664294430">"Übertragung stoppen"</string>
-    <!-- no translation found for mr_media_route_controller_close_description (5186870671694587471) -->
-    <skip />
+    <string name="mr_media_route_controller_close_description" msgid="5186870671694587471">"Controller-Dialogfenster schließen"</string>
     <string name="mr_media_route_controller_play" msgid="5214423499524760404">"Wiedergabe"</string>
     <string name="mr_media_route_controller_pause" msgid="8315773974194466049">"Pause"</string>
     <string name="mr_media_route_controller_collapse_group" msgid="7960189357116735582">"Gruppe minimieren"</string>

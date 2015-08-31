@@ -23,8 +23,7 @@
     <string name="mr_media_route_chooser_searching" msgid="1855108583904057166">"Gjetja e pajisjeve"</string>
     <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"Shkëputu"</string>
     <string name="mr_media_route_controller_stop" msgid="5398645111664294430">"Ndalo transmetimin"</string>
-    <!-- no translation found for mr_media_route_controller_close_description (5186870671694587471) -->
-    <skip />
+    <string name="mr_media_route_controller_close_description" msgid="5186870671694587471">"Mbylle dialogun e kontrolluesit"</string>
     <string name="mr_media_route_controller_play" msgid="5214423499524760404">"Luaj"</string>
     <string name="mr_media_route_controller_pause" msgid="8315773974194466049">"Pauzë"</string>
     <string name="mr_media_route_controller_collapse_group" msgid="7960189357116735582">"Palose grupin"</string>
