@@ -26,50 +26,6 @@ import java.util.List;
 public interface FragmentAnimationProvider {
 
     /**
-     * Animates the entry of the fragment in the case where the activity is first being presented.
-     * @param animators A list of animations to which this provider's animations should be added.
-     */
-    public abstract void onActivityEnter(@NonNull List<Animator> animators);
-
-    /**
-     * Animates the exit of the fragment in the case where the activity is about to pause.
-     * @param animators A list of animations to which this provider's animations should be added.
-     */
-    public abstract void onActivityExit(@NonNull List<Animator> animators);
-
-    /**
-     * Animates the entry of the fragment in the case where there is a previous step fragment
-     * participating in the animation. Entry occurs when the fragment is preparing to be shown
-     * as it is pushed onto the back stack.
-     * @param animators A list of animations to which this provider's animations should be added.
-     */
-    public abstract void onFragmentEnter(@NonNull List<Animator> animators);
-
-    /**
-     * Animates the exit of the fragment in the case where there is a previous step fragment
-     * participating in the animation. Exit occurs when the fragment is preparing to be removed,
-     * hidden, or detached due to pushing another fragment onto the back stack.
-     * @param animators A list of animations to which this provider's animations should be added.
-     */
-    public abstract void onFragmentExit(@NonNull List<Animator> animators);
-
-    /**
-     * Animates the re-entry of the fragment in the case where there is a previous step fragment
-     * participating in the animation. Re-entry occurs when the fragment is preparing to be shown
-     * due to popping the back stack.
-     * @param animators A list of animations to which this provider's animations should be added.
-     */
-    public abstract void onFragmentReenter(@NonNull List<Animator> animators);
-
-    /**
-     * Animates the return of the fragment in the case where there is a previous step fragment
-     * participating in the animation. Return occurs when the fragment is preparing to be removed,
-     * hidden, or detached due to popping the back stack.
-     * @param animators A list of animations to which this provider's animations should be added.
-     */
-    public abstract void onFragmentReturn(@NonNull List<Animator> animators);
-
-    /**
      * Animates the fragment in response to the IME appearing.
      * @param animators A list of animations to which this provider's animations should be added.
      */
