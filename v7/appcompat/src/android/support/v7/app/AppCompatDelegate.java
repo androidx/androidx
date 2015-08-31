@@ -175,7 +175,16 @@ public abstract class AppCompatDelegate {
     public abstract MenuInflater getMenuInflater();
 
     /**
-     * Should be called from {@link Activity#onCreate Activity.onCreate()}
+     * Should be called from {@link Activity#onCreate Activity.onCreate()}.
+     *
+     * <p>This should be called before {@code super.onCreate()} as so:</p>
+     * <pre class="prettyprint">
+     * protected void onCreate(Bundle savedInstanceState) {
+     *     getDelegate().onCreate(savedInstanceState);
+     *     super.onCreate(savedInstanceState);
+     *     // ...
+     * }
+     * </pre>
      */
     public abstract void onCreate(Bundle savedInstanceState);
 
@@ -280,8 +289,8 @@ public abstract class AppCompatDelegate {
      * <pre class="prettyprint">
      * protected void onCreate(Bundle savedInstanceState) {
      *     getDelegate().installViewFactory();
-     *     super.onCreate(savedInstanceState);
      *     getDelegate().onCreate(savedInstanceState);
+     *     super.onCreate(savedInstanceState);
      *
      *     // ...
      * }
