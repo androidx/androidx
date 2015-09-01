@@ -155,7 +155,7 @@
     <string name="checkbox_stack_from_end">Stack From End</string>
     <string name="enableAnimations">Animate</string>
     <string name="enablePredictiveAnimations">Predictive</string>
-    <string name="enableChangeAnimations">Change Anims</string>
+    <string name="enableInPlaceChange">In Place Change</string>
     <string name="add_item">Add</string>
     <string name="delete_item">Del</string>
     <string name="add_delete_item">A+D</string>

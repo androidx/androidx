@@ -15,13 +15,20 @@
  */
 package com.example.android.supportv7.widget;
 
-import android.support.v4.util.ArrayMap;
-import android.widget.CompoundButton;
 import com.example.android.supportv7.R;
+
+import android.animation.Animator;
+import android.animation.ValueAnimator;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.util.ArrayMap;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.ViewPropertyAnimatorListener;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -30,10 +37,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class AnimatedRecyclerView extends Activity {
@@ -49,6 +56,7 @@ public class AnimatedRecyclerView extends Activity {
     boolean mAnimationsEnabled = true;
     boolean mPredictiveAnimationsEnabled = true;
     RecyclerView.ItemAnimator mCachedAnimator = null;
+    boolean mEnableInPlaceChange = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +65,9 @@ public class AnimatedRecyclerView extends Activity {
 
         ViewGroup container = (ViewGroup) findViewById(R.id.container);
         mRecyclerView = new RecyclerView(this);
-        mCachedAnimator = mRecyclerView.getItemAnimator();
+        mCachedAnimator = createAnimator();
+        mCachedAnimator.setChangeDuration(2000);
+        mRecyclerView.setItemAnimator(mCachedAnimator);
         mRecyclerView.setLayoutManager(new MyLayoutManager(this));
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
@@ -91,14 +101,241 @@ public class AnimatedRecyclerView extends Activity {
             }
         });
 
-        CheckBox enableChangeAnimations =
-                (CheckBox) findViewById(R.id.enableChangeAnimations);
-        enableChangeAnimations.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        CheckBox enableInPlaceChange = (CheckBox) findViewById(R.id.enableInPlaceChange);
+        enableInPlaceChange.setChecked(mEnableInPlaceChange);
+        enableInPlaceChange.setOnCheckedChangeListener(
+                new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        mEnableInPlaceChange = isChecked;
+                    }
+                });
+    }
+
+    private RecyclerView.ItemAnimator createAnimator() {
+        return new DefaultItemAnimator() {
+            List<ItemChangeAnimator> mPendingChangeAnimations = new ArrayList<>();
+            ArrayMap<RecyclerView.ViewHolder, ItemChangeAnimator> mRunningAnimations
+                    = new ArrayMap<>();
+            ArrayMap<MyViewHolder, Long> mPendingSettleList = new ArrayMap<>();
+
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                mCachedAnimator.setSupportsChangeAnimations(isChecked);
+            public void runPendingAnimations() {
+                super.runPendingAnimations();
+                for (ItemChangeAnimator anim : mPendingChangeAnimations) {
+                    anim.start();
+                    mRunningAnimations.put(anim.mViewHolder, anim);
+                }
+                mPendingChangeAnimations.clear();
+                for (int i = mPendingSettleList.size() - 1; i >=0; i--) {
+                    final MyViewHolder vh = mPendingSettleList.keyAt(i);
+                    final long duration = mPendingSettleList.valueAt(i);
+                    ViewCompat.animate(vh.textView).translationX(0f).alpha(1f)
+                            .setDuration(duration).setListener(
+                            new ViewPropertyAnimatorListener() {
+                                @Override
+                                public void onAnimationStart(View view) {
+                                    dispatchAnimationStarted(vh);
+                                }
+
+                                @Override
+                                public void onAnimationEnd(View view) {
+                                    ViewCompat.setTranslationX(vh.textView, 0f);
+                                    ViewCompat.setAlpha(vh.textView, 1f);
+                                    dispatchAnimationFinished(vh);
+                                }
+
+                                @Override
+                                public void onAnimationCancel(View view) {
+
+                                }
+                            }).start();
+                }
+                mPendingSettleList.clear();
             }
-        });
+
+            @Override
+            public ItemHolderInfo recordPreLayoutInformation(RecyclerView.State state,
+                    RecyclerView.ViewHolder viewHolder,
+                    @AdapterChanges int changeFlags, List<Object> payloads) {
+                MyItemInfo info = (MyItemInfo) super
+                        .recordPreLayoutInformation(state, viewHolder, changeFlags, payloads);
+                info.text = ((MyViewHolder) viewHolder).textView.getText();
+                return info;
+            }
+
+            @Override
+            public ItemHolderInfo recordPostLayoutInformation(RecyclerView.State state,
+                    RecyclerView.ViewHolder viewHolder) {
+                MyItemInfo info = (MyItemInfo) super.recordPostLayoutInformation(state, viewHolder);
+                info.text = ((MyViewHolder) viewHolder).textView.getText();
+                return info;
+            }
+
+
+            @Override
+            public boolean canReuseUpdatedViewHolder(RecyclerView.ViewHolder viewHolder) {
+                return mEnableInPlaceChange;
+            }
+
+            @Override
+            public void endAnimation(RecyclerView.ViewHolder item) {
+                super.endAnimation(item);
+                for (int i = mPendingChangeAnimations.size() - 1; i >= 0; i--) {
+                    ItemChangeAnimator anim = mPendingChangeAnimations.get(i);
+                    if (anim.mViewHolder == item) {
+                        mPendingChangeAnimations.remove(i);
+                        anim.setFraction(1f);
+                        dispatchChangeFinished(item, true);
+                    }
+                }
+                for (int i = mRunningAnimations.size() - 1; i >= 0; i--) {
+                    ItemChangeAnimator animator = mRunningAnimations.get(item);
+                    if (animator != null) {
+                        animator.end();
+                        mRunningAnimations.removeAt(i);
+                    }
+                }
+                for (int  i = mPendingSettleList.size() - 1; i >= 0; i--) {
+                    final MyViewHolder vh = mPendingSettleList.keyAt(i);
+                    if (vh == item) {
+                        mPendingSettleList.removeAt(i);
+                        dispatchChangeFinished(item, true);
+                    }
+                }
+            }
+
+            @Override
+            public boolean animateChange(RecyclerView.ViewHolder oldHolder,
+                    RecyclerView.ViewHolder newHolder, ItemHolderInfo preInfo,
+                    ItemHolderInfo postInfo) {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB_MR1
+                        || oldHolder != newHolder) {
+                    return super.animateChange(oldHolder, newHolder, preInfo, postInfo);
+                }
+                return animateChangeApiHoneycombMr1(oldHolder, newHolder, preInfo, postInfo);
+            }
+
+            @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
+            private boolean animateChangeApiHoneycombMr1(RecyclerView.ViewHolder oldHolder,
+                    RecyclerView.ViewHolder newHolder,
+                    ItemHolderInfo preInfo, ItemHolderInfo postInfo) {
+                endAnimation(oldHolder);
+                MyItemInfo pre = (MyItemInfo) preInfo;
+                MyItemInfo post = (MyItemInfo) postInfo;
+                MyViewHolder vh = (MyViewHolder) oldHolder;
+
+                CharSequence finalText = post.text;
+
+                if (pre.text.equals(post.text)) {
+                    // same content. Just translate back to 0
+                    final long duration = (long) (getChangeDuration()
+                            * (ViewCompat.getTranslationX(vh.textView) / vh.textView.getWidth()));
+                    mPendingSettleList.put(vh, duration);
+                    // we set it here because previous endAnimation would set it to other value.
+                    vh.textView.setText(finalText);
+                } else {
+                    // different content, get out and come back.
+                    vh.textView.setText(pre.text);
+                    final ItemChangeAnimator anim = new ItemChangeAnimator(vh, finalText,
+                            getChangeDuration()) {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            setFraction(1f);
+                            dispatchChangeFinished(mViewHolder, true);
+                        }
+
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+                            dispatchChangeStarting(mViewHolder, true);
+                        }
+                    };
+                    mPendingChangeAnimations.add(anim);
+                }
+                return true;
+            }
+
+            @Override
+            public ItemHolderInfo obtainHolderInfo() {
+                return new MyItemInfo();
+            }
+        };
+    }
+
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
+    abstract private static class ItemChangeAnimator implements
+            ValueAnimator.AnimatorUpdateListener, Animator.AnimatorListener {
+        CharSequence mFinalText;
+        ValueAnimator mValueAnimator;
+        MyViewHolder mViewHolder;
+        final float mMaxX;
+        final float mStartRatio;
+        public ItemChangeAnimator(MyViewHolder viewHolder, CharSequence finalText, long duration) {
+            mViewHolder = viewHolder;
+            mMaxX = mViewHolder.itemView.getWidth();
+            mStartRatio = ViewCompat.getTranslationX(mViewHolder.textView) / mMaxX;
+            mFinalText = finalText;
+            mValueAnimator = ValueAnimator.ofFloat(0f, 1f);
+            mValueAnimator.addUpdateListener(this);
+            mValueAnimator.addListener(this);
+            mValueAnimator.setDuration(duration);
+            mValueAnimator.setTarget(mViewHolder.itemView);
+        }
+
+        void setFraction(float fraction) {
+            fraction = mStartRatio + (1f - mStartRatio) * fraction;
+            if (fraction < .5f) {
+                ViewCompat.setTranslationX(mViewHolder.textView, fraction * mMaxX);
+                ViewCompat.setAlpha(mViewHolder.textView, 1f - fraction);
+            } else {
+                ViewCompat.setTranslationX(mViewHolder.textView, (1f - fraction) * mMaxX);
+                ViewCompat.setAlpha(mViewHolder.textView, fraction);
+                maybeSetFinalText();
+            }
+        }
+
+        @Override
+        public void onAnimationUpdate(ValueAnimator valueAnimator) {
+            setFraction(valueAnimator.getAnimatedFraction());
+        }
+
+        public void start() {
+            mValueAnimator.start();
+        }
+
+        @Override
+        public void onAnimationEnd(Animator animation) {
+            maybeSetFinalText();
+            ViewCompat.setAlpha(mViewHolder.textView, 1f);
+        }
+
+        public void maybeSetFinalText() {
+            if (mFinalText != null) {
+                mViewHolder.textView.setText(mFinalText);
+                mFinalText = null;
+            }
+        }
+
+        public void end() {
+            mValueAnimator.cancel();
+        }
+
+        @Override
+        public void onAnimationStart(Animator animation) {
+        }
+
+        @Override
+        public void onAnimationCancel(Animator animation) {
+        }
+
+        @Override
+        public void onAnimationRepeat(Animator animation) {
+        }
+    }
+
+    private static class MyItemInfo extends DefaultItemAnimator.ItemHolderInfo {
+        CharSequence text;
     }
 
     @Override
@@ -114,6 +351,7 @@ public class AnimatedRecyclerView extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressWarnings("unused")
     public void checkboxClicked(View view) {
         ViewGroup parent = (ViewGroup) view.getParent();
         boolean selected = ((CheckBox) view).isChecked();
@@ -121,6 +359,7 @@ public class AnimatedRecyclerView extends Activity {
         mAdapter.selectItem(holder, selected);
     }
 
+    @SuppressWarnings("unused")
     public void itemClicked(View view) {
         ViewGroup parent = (ViewGroup) view;
         MyViewHolder holder = (MyViewHolder) mRecyclerView.getChildViewHolder(parent);
@@ -462,20 +701,19 @@ public class AnimatedRecyclerView extends Activity {
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
             String itemText = mData.get(position);
-            ((MyViewHolder) holder).textView.setText(itemText);
-            ((MyViewHolder) holder).expandedText.setText("More text for the expanded version");
+            MyViewHolder myViewHolder = (MyViewHolder) holder;
+            myViewHolder.boundText = itemText;
+            myViewHolder.textView.setText(itemText);
             boolean selected = false;
             if (mSelected.get(itemText) != null) {
                 selected = mSelected.get(itemText);
             }
-            ((MyViewHolder) holder).checkBox.setChecked(selected);
+            myViewHolder.checkBox.setChecked(selected);
             Boolean expanded = mExpanded.get(itemText);
-            if (expanded != null && expanded) {
-                ((MyViewHolder) holder).expandedText.setVisibility(View.VISIBLE);
-                ((MyViewHolder) holder).textView.setVisibility(View.GONE);
+            if (Boolean.TRUE.equals(expanded)) {
+                myViewHolder.textView.setText("More text for the expanded version");
             } else {
-                ((MyViewHolder) holder).expandedText.setVisibility(View.GONE);
-                ((MyViewHolder) holder).textView.setVisibility(View.VISIBLE);
+                myViewHolder.textView.setText(itemText);
             }
         }
 
@@ -484,28 +722,22 @@ public class AnimatedRecyclerView extends Activity {
             return mData.size();
         }
 
-        public void selectItem(String itemText, boolean selected) {
-            mSelected.put(itemText, selected);
-        }
-
         public void selectItem(MyViewHolder holder, boolean selected) {
-            mSelected.put((String) holder.textView.getText().toString(), selected);
+            mSelected.put(holder.boundText, selected);
         }
 
         public void toggleExpanded(MyViewHolder holder) {
-            String text = (String) holder.textView.getText();
-            mExpanded.put(text, !mExpanded.get(text));
+            mExpanded.put(holder.boundText, !mExpanded.get(holder.boundText));
         }
     }
 
     static class MyViewHolder extends RecyclerView.ViewHolder {
-        public TextView expandedText;
         public TextView textView;
         public CheckBox checkBox;
+        public String boundText;
 
         public MyViewHolder(View v) {
             super(v);
-            expandedText = (TextView) v.findViewById(R.id.expandedText);
             textView = (TextView) v.findViewById(R.id.text);
             checkBox = (CheckBox) v.findViewById(R.id.selected);
         }

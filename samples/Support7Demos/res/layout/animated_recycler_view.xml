@@ -26,9 +26,9 @@
                 android:layout_height="wrap_content"/>
 
         <CheckBox
-                android:id="@+id/enableChangeAnimations"
+                android:id="@+id/enableInPlaceChange"
                 android:checked="false"
-                android:text="@string/enableChangeAnimations"
+                android:text="@string/enableInPlaceChange"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
