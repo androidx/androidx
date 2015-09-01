@@ -38,7 +38,7 @@ import java.util.List;
  */
 public final class MediaRouteDescriptor {
     private static final String KEY_ID = "id";
-    private static final String KEY_CHILD_IDS = "childIds";
+    private static final String KEY_GROUP_MEMBER_IDS = "groupMemberIds";
     private static final String KEY_NAME = "name";
     private static final String KEY_DESCRIPTION = "status";
     private static final String KEY_ICON_URI = "iconUri";
@@ -77,16 +77,16 @@ public final class MediaRouteDescriptor {
     }
 
     /**
-     * Gets the child ids of the route.
+     * Gets the group member ids of the route.
      * <p>
-     * A route descriptor that has one or more child route ids represents a
-     * route group. A child route may belong to another group.
+     * A route descriptor that has one or more group member route ids
+     * represents a route group. A member route may belong to another group.
      * </p>
      * @hide
      * STOPSHIP: Unhide or remove.
      */
-    public List<String> getChildIds() {
-        return mBundle.getStringArrayList(KEY_CHILD_IDS);
+    public List<String> getGroupMemberIds() {
+        return mBundle.getStringArrayList(KEY_GROUP_MEMBER_IDS);
     }
 
     /**
@@ -264,7 +264,7 @@ public final class MediaRouteDescriptor {
         StringBuilder result = new StringBuilder();
         result.append("MediaRouteDescriptor{ ");
         result.append("id=").append(getId());
-        result.append(", childIds=").append(getChildIds());
+        result.append(", groupMemberIds=").append(getGroupMemberIds());
         result.append(", name=").append(getName());
         result.append(", description=").append(getDescription());
         result.append(", iconUri=").append(getIconUri());
@@ -308,7 +308,7 @@ public final class MediaRouteDescriptor {
      */
     public static final class Builder {
         private final Bundle mBundle;
-        private ArrayList<String> mChildIds;
+        private ArrayList<String> mGroupMemberIds;
         private ArrayList<IntentFilter> mControlFilters;
 
         /**
@@ -354,45 +354,45 @@ public final class MediaRouteDescriptor {
         }
 
         /**
-         * Adds a child id of the route.
+         * Adds a group member id of the route.
          * <p>
-         * A route descriptor that has one or more child route ids represents a
-         * route group. A child route may belong to another group.
+         * A route descriptor that has one or more group member route ids
+         * represents a route group. A member route may belong to another group.
          * </p>
          * @hide
          * STOPSHIP: Unhide or remove.
          */
-        public Builder addChildId(String childId) {
-            if (TextUtils.isEmpty(childId)) {
-                throw new IllegalArgumentException("childId must not be empty");
+        public Builder addGroupMemberId(String groupMemberId) {
+            if (TextUtils.isEmpty(groupMemberId)) {
+                throw new IllegalArgumentException("groupMemberId must not be empty");
             }
 
-            if (mChildIds == null) {
-                mChildIds = new ArrayList<>();
+            if (mGroupMemberIds == null) {
+                mGroupMemberIds = new ArrayList<>();
             }
-            if (!mChildIds.contains(childId)) {
-                mChildIds.add(childId);
+            if (!mGroupMemberIds.contains(groupMemberId)) {
+                mGroupMemberIds.add(groupMemberId);
             }
             return this;
         }
 
         /**
-         * Adds a list of child ids of the route.
+         * Adds a list of group member ids of the route.
          * <p>
-         * A route descriptor that has one or more child route ids represents a
-         * route group. A child route may belong to another group.
+         * A route descriptor that has one or more group member route ids
+         * represents a route group. A member route may belong to another group.
          * </p>
          * @hide
          * STOPSHIP: Unhide or remove.
          */
-        public Builder addChildIds(Collection<String> childIds) {
-            if (childIds == null) {
-                throw new IllegalArgumentException("childIds must not be null");
+        public Builder addGroupMemberIds(Collection<String> groupMemberIds) {
+            if (groupMemberIds == null) {
+                throw new IllegalArgumentException("groupMemberIds must not be null");
             }
 
-            if (!childIds.isEmpty()) {
-                for (String childId : childIds) {
-                    addChildId(childId);
+            if (!groupMemberIds.isEmpty()) {
+                for (String groupMemberId : groupMemberIds) {
+                    addGroupMemberId(groupMemberId);
                 }
             }
             return this;
@@ -594,8 +594,8 @@ public final class MediaRouteDescriptor {
             if (mControlFilters != null) {
                 mBundle.putParcelableArrayList(KEY_CONTROL_FILTERS, mControlFilters);
             }
-            if (mChildIds != null) {
-                mBundle.putStringArrayList(KEY_CHILD_IDS, mChildIds);
+            if (mGroupMemberIds != null) {
+                mBundle.putStringArrayList(KEY_GROUP_MEMBER_IDS, mGroupMemberIds);
             }
             return new MediaRouteDescriptor(mBundle, mControlFilters);
         }

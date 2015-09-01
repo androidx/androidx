@@ -1487,15 +1487,15 @@ public final class MediaRouter {
             if (mDescriptor != descriptor) {
                 mDescriptor = descriptor;
                 if (descriptor != null) {
-                    List<String> childIds = descriptor.getChildIds();
+                    List<String> groupMemberIds = descriptor.getGroupMemberIds();
                     List<RouteInfo> routes = new ArrayList<>();
-                    changed = childIds.size() != mRoutes.size();
-                    for (String childId : childIds) {
-                        String uniqueChildId = sGlobal.getUniqueId(getProvider(), childId);
-                        RouteInfo child = sGlobal.getRoute(uniqueChildId);
-                        if (child != null) {
-                            routes.add(child);
-                            if (!changed && !mRoutes.contains(child)) {
+                    changed = groupMemberIds.size() != mRoutes.size();
+                    for (String groupMemberId : groupMemberIds) {
+                        String uniqueId = sGlobal.getUniqueId(getProvider(), groupMemberId);
+                        RouteInfo groupMember = sGlobal.getRoute(uniqueId);
+                        if (groupMember != null) {
+                            routes.add(groupMember);
+                            if (!changed && !mRoutes.contains(groupMember)) {
                                 changed = true;
                             }
                         }
@@ -1784,7 +1784,7 @@ public final class MediaRouter {
         private RouteInfo mDefaultRoute;
         private RouteInfo mSelectedRoute;
         private RouteController mSelectedRouteController;
-        private Map<String, RouteController> mChildControllers;
+        private Map<String, RouteController> mGroupMemberControllers;
         private MediaRouteDiscoveryRequest mDiscoveryRequest;
         private MediaSessionRecord mMediaSession;
         private MediaSessionCompat mRccMediaSession;
@@ -1875,8 +1875,8 @@ public final class MediaRouter {
         public void requestSetVolume(RouteInfo route, int volume) {
             if (route == mSelectedRoute && mSelectedRouteController != null) {
                 mSelectedRouteController.onSetVolume(volume);
-            } else if (mChildControllers != null) {
-                RouteController controller = mChildControllers.get(route.mDescriptorId);
+            } else if (mGroupMemberControllers != null) {
+                RouteController controller = mGroupMemberControllers.get(route.mDescriptorId);
                 if (controller != null) {
                     controller.onSetVolume(volume);
                 }
@@ -2120,7 +2120,7 @@ public final class MediaRouter {
                             if (sourceIndex < 0) {
                                 // 1. Add the route to the list.
                                 String uniqueId = assignRouteUniqueId(provider, id);
-                                boolean isGroup = routeDescriptor.getChildIds() != null;
+                                boolean isGroup = routeDescriptor.getGroupMemberIds() != null;
                                 RouteInfo route = isGroup ? new RouteGroup(provider, id, uniqueId) :
                                         new RouteInfo(provider, id, uniqueId);
                                 provider.mRoutes.add(targetIndex++, route);
@@ -2362,12 +2362,12 @@ public final class MediaRouter {
                         mSelectedRouteController.onRelease();
                         mSelectedRouteController = null;
                     }
-                    if (mChildControllers != null) {
-                        for (RouteController ctrl : mChildControllers.values()) {
-                            ctrl.onUnselect();
-                            ctrl.onRelease();
+                    if (mGroupMemberControllers != null) {
+                        for (RouteController controller : mGroupMemberControllers.values()) {
+                            controller.onUnselect();
+                            controller.onRelease();
                         }
-                        mChildControllers = null;
+                        mGroupMemberControllers = null;
                     }
                 }
 
@@ -2385,13 +2385,13 @@ public final class MediaRouter {
                     mCallbackHandler.post(CallbackHandler.MSG_ROUTE_SELECTED, mSelectedRoute);
 
                     if (mSelectedRoute instanceof RouteGroup) {
-                        mChildControllers = new HashMap<>();
+                        mGroupMemberControllers = new HashMap<>();
                         RouteGroup group = (RouteGroup) mSelectedRoute;
-                        for (RouteInfo child : group.getRoutes()) {
-                            RouteController controller = child.getProviderInstance()
-                                    .onCreateRouteController(child.mDescriptorId);
+                        for (RouteInfo groupMember : group.getRoutes()) {
+                            RouteController controller = groupMember.getProviderInstance()
+                                    .onCreateRouteController(groupMember.mDescriptorId);
                             controller.onSelect();
-                            mChildControllers.put(child.mDescriptorId, controller);
+                            mGroupMemberControllers.put(groupMember.mDescriptorId, controller);
                         }
                     }
                 }
