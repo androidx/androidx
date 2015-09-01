@@ -50,13 +50,15 @@
      <public type="attr" name="actionViewClass"/>
      <public type="attr" name="alertDialogStyle"/>
      <public type="attr" name="alertDialogTheme"/>
+     <public type="attr" name="arrowHeadLength"/>
+     <public type="attr" name="arrowShaftLength"/>
      <public type="attr" name="autoCompleteTextViewStyle"/>
      <public type="attr" name="background"/>
      <public type="attr" name="backgroundSplit"/>
      <public type="attr" name="backgroundStacked"/>
      <public type="attr" name="backgroundTint"/>
      <public type="attr" name="backgroundTintMode"/>
-     <public type="attr" name="barSize"/>
+     <public type="attr" name="barLength"/>
      <public type="attr" name="borderlessButtonStyle"/>
      <public type="attr" name="buttonBarButtonStyle"/>
      <public type="attr" name="buttonBarNegativeButtonStyle"/>
@@ -140,7 +142,6 @@
      <public type="attr" name="preserveIconSpacing"/>
      <public type="attr" name="progressBarPadding"/>
      <public type="attr" name="progressBarStyle"/>
-     <public type="attr" name="prompt"/>
      <public type="attr" name="queryBackground"/>
      <public type="attr" name="queryHint"/>
      <public type="attr" name="radioButtonStyle"/>
@@ -155,7 +156,6 @@
      <public type="attr" name="showText"/>
      <public type="attr" name="spinBars"/>
      <public type="attr" name="spinnerDropDownItemStyle"/>
-     <public type="attr" name="spinnerMode"/>
      <public type="attr" name="spinnerStyle"/>
      <public type="attr" name="splitTrack"/>
      <public type="attr" name="submitBackground"/>
@@ -190,7 +190,6 @@
      <public type="attr" name="titleTextStyle"/>
      <public type="attr" name="toolbarNavigationButtonStyle"/>
      <public type="attr" name="toolbarStyle"/>
-     <public type="attr" name="topBottomBarArrowSize"/>
      <public type="attr" name="track"/>
      <public type="attr" name="voiceIcon"/>
      <public type="attr" name="windowActionBar"/>
