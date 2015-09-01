@@ -440,7 +440,12 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             if (mView != null) {
                 mShouldRunOnHWLayer = shouldRunOnHWLayer(mView, animation);
                 if (mShouldRunOnHWLayer) {
-                    ViewCompat.setLayerType(mView, ViewCompat.LAYER_TYPE_HARDWARE, null);
+                    mView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            ViewCompat.setLayerType(mView, ViewCompat.LAYER_TYPE_HARDWARE, null);
+                        }
+                    });
                 }
             }
             if (mOrignalListener != null) {
@@ -452,7 +457,12 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         @CallSuper
         public void onAnimationEnd(Animation animation) {
             if (mView != null && mShouldRunOnHWLayer) {
-                ViewCompat.setLayerType(mView, ViewCompat.LAYER_TYPE_NONE, null);
+                mView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        ViewCompat.setLayerType(mView, ViewCompat.LAYER_TYPE_NONE, null);
+                    }
+                });
             }
             if (mOrignalListener != null) {
                 mOrignalListener.onAnimationEnd(animation);
@@ -523,9 +533,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     static boolean shouldRunOnHWLayer(View v, Animation anim) {
-        // HW layers result in crashes on ICS so we only use it on JB+
-        return Build.VERSION.SDK_INT >= 16
-                && ViewCompat.getLayerType(v) == ViewCompat.LAYER_TYPE_NONE
+        return ViewCompat.getLayerType(v) == ViewCompat.LAYER_TYPE_NONE
                 && ViewCompat.hasOverlappingRendering(v)
                 && modifiesAlpha(anim);
     }
