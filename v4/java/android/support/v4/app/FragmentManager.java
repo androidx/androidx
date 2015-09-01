@@ -2278,6 +2278,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             fragment.mTag = tag;
             fragment.mInLayout = true;
             fragment.mFragmentManager = this;
+            fragment.mHost = mHost;
             fragment.onInflate(mHost.getContext(), attrs, fragment.mSavedFragmentState);
             addFragment(fragment, true);
 
