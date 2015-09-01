@@ -18,15 +18,16 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="5441529851481176817">"Sistēma"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"Ierīces"</string>
-    <string name="mr_media_route_button_content_description" msgid="8327680881775995150">"Apraidīt"</string>
-    <string name="mr_media_route_chooser_title" msgid="2245097672217008651">"Apraidīšana uz ierīci"</string>
-    <string name="mr_media_route_chooser_searching" msgid="1855108583904057166">"Notiek ierīču meklēšana"</string>
-    <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"Atvienot"</string>
-    <string name="mr_media_route_controller_stop" msgid="5398645111664294430">"Pārtraukt apraidi"</string>
-    <string name="mr_media_route_controller_close_description" msgid="5186870671694587471">"Aizvērt vadāmierīces dialoglodziņu"</string>
-    <string name="mr_media_route_controller_play" msgid="5214423499524760404">"Atskaņot"</string>
-    <string name="mr_media_route_controller_pause" msgid="8315773974194466049">"Apturēt"</string>
-    <string name="mr_media_route_controller_collapse_group" msgid="7960189357116735582">"Sakļaut grupu"</string>
-    <string name="mr_media_route_controller_expand_group" msgid="6859072322232853473">"Izvērst grupu"</string>
-    <string name="mr_media_route_controller_no_info_available" msgid="3641544772007543920">"Nav pieejama informācija"</string>
+    <string name="mr_button_content_description" msgid="8327680881775995150">"Apraidīt"</string>
+    <string name="mr_chooser_title" msgid="2245097672217008651">"Apraidīšana uz ierīci"</string>
+    <string name="mr_chooser_searching" msgid="1855108583904057166">"Notiek ierīču meklēšana"</string>
+    <string name="mr_controller_disconnect" msgid="109793632378378069">"Atvienot"</string>
+    <string name="mr_controller_stop" msgid="5398645111664294430">"Pārtraukt apraidi"</string>
+    <string name="mr_controller_close_description" msgid="5186870671694587471">"Aizvērt vadāmierīces dialoglodziņu"</string>
+    <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"Maršruta iestatījumi"</string>
+    <string name="mr_controller_play" msgid="5214423499524760404">"Atskaņot"</string>
+    <string name="mr_controller_pause" msgid="8315773974194466049">"Apturēt"</string>
+    <string name="mr_controller_collapse_group" msgid="7960189357116735582">"Sakļaut grupu"</string>
+    <string name="mr_controller_expand_group" msgid="6859072322232853473">"Izvērst grupu"</string>
+    <string name="mr_controller_no_info_available" msgid="3641544772007543920">"Nav pieejama informācija"</string>
 </resources>

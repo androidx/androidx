@@ -39,7 +39,7 @@
                     android:layout_height="24dp"
                     android:layout_marginLeft="12dp"
                     android:layout_gravity="center_vertical"
-                    android:contentDescription="@string/mr_media_route_controller_close_description"
+                    android:contentDescription="@string/mr_controller_close_description"
                     android:src="?attr/mediaRouteCloseDrawable"
                     android:background="?attr/selectableItemBackgroundBorderless" />
         </LinearLayout>
@@ -63,7 +63,7 @@
                         android:layout_marginBottom="8dip"
                         android:layout_alignParentRight="true"
                         android:layout_below="@id/art"
-                        android:contentDescription="@string/mr_media_route_controller_play"
+                        android:contentDescription="@string/mr_controller_play"
                         android:background="?attr/selectableItemBackgroundBorderless"/>
                 <LinearLayout android:orientation="vertical"
                         android:layout_height="wrap_content"
@@ -110,7 +110,7 @@
                          android:layout_width="48dip"
                          android:layout_height="48dip"
                          android:padding="12dip"
-                         android:contentDescription="@string/mr_media_route_controller_expand_group"
+                         android:contentDescription="@string/mr_controller_expand_group"
                          android:src="?attr/mediaRouteExpandGroupDrawable"
                          android:background="?attr/selectableItemBackgroundBorderless"
                          android:visibility="gone"/>
@@ -130,7 +130,7 @@
                 android:gravity="center"
                 android:layout_weight="1"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:text="@string/mr_media_route_controller_disconnect"
+                android:text="@string/mr_controller_disconnect"
                 android:visibility="gone" />
             <Button android:id="@+id/stop"
                 android:layout_width="0dp"
@@ -139,7 +139,7 @@
                 android:layout_weight="1"
                 android:textColor="?attr/colorAccent"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:text="@string/mr_media_route_controller_stop" />
+                android:text="@string/mr_controller_stop" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

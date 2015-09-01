@@ -18,15 +18,16 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="5441529851481176817">"Sistema"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"Dispositivos"</string>
-    <string name="mr_media_route_button_content_description" msgid="8327680881775995150">"Emitir"</string>
-    <string name="mr_media_route_chooser_title" msgid="2245097672217008651">"Emitir en"</string>
-    <string name="mr_media_route_chooser_searching" msgid="1855108583904057166">"Buscando dispositivos"</string>
-    <string name="mr_media_route_controller_disconnect" msgid="109793632378378069">"Desconectar"</string>
-    <string name="mr_media_route_controller_stop" msgid="5398645111664294430">"Parar de emitir"</string>
-    <string name="mr_media_route_controller_close_description" msgid="5186870671694587471">"Pecha o cadro de diálogo do controlador"</string>
-    <string name="mr_media_route_controller_play" msgid="5214423499524760404">"Reproduce"</string>
-    <string name="mr_media_route_controller_pause" msgid="8315773974194466049">"Pausa"</string>
-    <string name="mr_media_route_controller_collapse_group" msgid="7960189357116735582">"Contraer grupo"</string>
-    <string name="mr_media_route_controller_expand_group" msgid="6859072322232853473">"Ampliar grupo"</string>
-    <string name="mr_media_route_controller_no_info_available" msgid="3641544772007543920">"Non hai información dispoñible"</string>
+    <string name="mr_button_content_description" msgid="8327680881775995150">"Emitir"</string>
+    <string name="mr_chooser_title" msgid="2245097672217008651">"Emitir en"</string>
+    <string name="mr_chooser_searching" msgid="1855108583904057166">"Buscando dispositivos"</string>
+    <string name="mr_controller_disconnect" msgid="109793632378378069">"Desconectar"</string>
+    <string name="mr_controller_stop" msgid="5398645111664294430">"Parar de emitir"</string>
+    <string name="mr_controller_close_description" msgid="5186870671694587471">"Pecha o cadro de diálogo do controlador"</string>
+    <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"Configuración da ruta"</string>
+    <string name="mr_controller_play" msgid="5214423499524760404">"Reproduce"</string>
+    <string name="mr_controller_pause" msgid="8315773974194466049">"Pausa"</string>
+    <string name="mr_controller_collapse_group" msgid="7960189357116735582">"Contraer grupo"</string>
+    <string name="mr_controller_expand_group" msgid="6859072322232853473">"Ampliar grupo"</string>
+    <string name="mr_controller_no_info_available" msgid="3641544772007543920">"Non hai información dispoñible"</string>
 </resources>

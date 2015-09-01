@@ -38,7 +38,7 @@
         <TextView android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:layout_gravity="center"
-                  android:text="@string/mr_media_route_chooser_searching" />
+                  android:text="@string/mr_chooser_searching" />
         <ProgressBar android:layout_width="150dp"
                      android:layout_height="wrap_content"
                      android:layout_gravity="center"

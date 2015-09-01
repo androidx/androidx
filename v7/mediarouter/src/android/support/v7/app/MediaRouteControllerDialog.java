@@ -20,7 +20,6 @@ import static android.widget.SeekBar.OnSeekBarChangeListener;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.IntentSender;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -231,7 +230,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.mr_media_route_controller_material_dialog_b);
+        setContentView(R.layout.mr_controller_material_dialog_b);
 
         ClickListener listener = new ClickListener();
 
@@ -255,7 +254,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
         TypedArray styledAttributes = getContext().obtainStyledAttributes(new int[] {
                 R.attr.mediaRouteExpandGroupDrawable,
-                R.attr.mediaRouteCollapseGroupDrawable });
+                R.attr.mediaRouteCollapseGroupDrawable
+        });
         final Drawable expandGroupDrawable = styledAttributes.getDrawable(0);
         final Drawable collapseGroupDrawable = styledAttributes.getDrawable(1);
         styledAttributes.recycle();
@@ -405,7 +405,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
             boolean hasSubtitle = !TextUtils.isEmpty(subtitle);
 
             if (!hasTitle && !hasSubtitle) {
-                mTitleView.setText(R.string.mr_media_route_controller_no_info_available);
+                mTitleView.setText(R.string.mr_controller_no_info_available);
                 mTitleView.setEnabled(false);
                 mTitleView.setVisibility(View.VISIBLE);
                 mSubtitleView.setVisibility(View.GONE);
@@ -428,13 +428,13 @@ public class MediaRouteControllerDialog extends AlertDialog {
                     mPlayPauseButton.setImageResource(MediaRouterThemeHelper.getThemeResource(
                             getContext(), R.attr.mediaRoutePauseDrawable));
                     mPlayPauseButton.setContentDescription(getContext().getResources()
-                            .getText(R.string.mr_media_route_controller_pause));
+                            .getText(R.string.mr_controller_pause));
                 } else if (!isPlaying && supportsPlay) {
                     mPlayPauseButton.setVisibility(View.VISIBLE);
                     mPlayPauseButton.setImageResource(MediaRouterThemeHelper.getThemeResource(
                             getContext(), R.attr.mediaRoutePlayDrawable));
                     mPlayPauseButton.setContentDescription(getContext().getResources()
-                            .getText(R.string.mr_media_route_controller_play));
+                            .getText(R.string.mr_controller_play));
                 } else {
                     mPlayPauseButton.setVisibility(View.GONE);
                 }
@@ -562,7 +562,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
             View v = convertView;
             if (v == null) {
                 v = LayoutInflater.from(getContext()).inflate(
-                        R.layout.mr_media_route_controller_volume_item, null);
+                        R.layout.mr_controller_volume_item, null);
             }
             MediaRouter.RouteInfo route = getItem(position);
             if (route != null) {
