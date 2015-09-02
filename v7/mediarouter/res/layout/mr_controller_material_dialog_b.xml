@@ -50,7 +50,8 @@
                android:layout_height="wrap_content"
                android:adjustViewBounds="true"
                android:scaleType="fitCenter"
-               android:background="?attr/colorPrimary" />
+               android:background="?attr/colorPrimary"
+               android:visibility="gone" />
     <ListView android:id="@+id/mr_control"
               android:layout_width="fill_parent"
               android:layout_height="wrap_content"
