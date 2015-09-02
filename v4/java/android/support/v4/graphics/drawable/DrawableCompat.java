@@ -27,12 +27,19 @@ import android.support.v4.view.ViewCompat;
  */
 public class DrawableCompat {
     /**
+     * The standard maximum value for calls to {@link #setLevel(Drawable, float)}.
+     */
+    public static final float MAX_LEVEL_FLOAT = 10000.0f;
+
+    /**
      * Interface for the full API.
      */
     interface DrawableImpl {
         void jumpToCurrentState(Drawable drawable);
         void setAutoMirrored(Drawable drawable, boolean mirrored);
         boolean isAutoMirrored(Drawable drawable);
+        boolean setLevel(Drawable drawable, float level);
+        float getLevelFloat(Drawable drawable);
         void setHotspot(Drawable drawable, float x, float y);
         void setHotspotBounds(Drawable drawable, int left, int top, int right, int bottom);
         void setTint(Drawable drawable, int tint);
@@ -58,6 +65,16 @@ public class DrawableCompat {
         @Override
         public boolean isAutoMirrored(Drawable drawable) {
             return false;
+        }
+
+        @Override
+        public boolean setLevel(Drawable drawable, float level) {
+            return drawable.setLevel(Math.round(level));
+        }
+
+        @Override
+        public float getLevelFloat(Drawable drawable) {
+            return drawable.getLevel();
         }
 
         @Override
@@ -208,12 +225,29 @@ public class DrawableCompat {
     }
 
     /**
+     * Interface implementation for devices with at least N APIs.
+     */
+    static class NDrawableImpl extends MDrawableImpl {
+        @Override
+        public boolean setLevel(Drawable drawable, float level) {
+            return DrawableCompatN.setLevel(drawable, level);
+        }
+
+        @Override
+        public float getLevelFloat(Drawable drawable) {
+            return DrawableCompatN.getLevelFloat(drawable);
+        }
+    }
+
+    /**
      * Select the correct implementation to use for the current platform.
      */
     static final DrawableImpl IMPL;
     static {
         final int version = android.os.Build.VERSION.SDK_INT;
-        if (version >= 23) {
+        if (version > 23) {
+            IMPL = new NDrawableImpl();
+        } else if (version >= 23) {
             IMPL = new MDrawableImpl();
         } else if (version >= 22) {
             IMPL = new LollipopMr1DrawableImpl();
@@ -271,6 +305,44 @@ public class DrawableCompat {
      */
     public static boolean isAutoMirrored(Drawable drawable) {
         return IMPL.isAutoMirrored(drawable);
+    }
+
+    /**
+     * Sets the level for the drawable as a floating-point value where
+     * typically the minimum level is 0.0 and the maximum is 10000.0; however,
+     * the range may vary based on the Drawable implementation and is not
+     * clamped.
+     * <p>
+     * This allows a drawable to vary its imagery based on a continuous
+     * controller. For example, it may be used to show progress or volume
+     * level.
+     * <p>
+     * <strong>Note:</strong> When called on API <= 23, this method will pass
+     * the rounded value of <var>level</var> to {@link Drawable#setLevel(int)}.
+     *
+     * @param level the new level, typically between 0.0 and 10000.0
+     *              ({@link #MAX_LEVEL_FLOAT})
+     * @return {@code true} if this change in level has caused the appearance
+     *         of the drawable to change and will require a subsequent call to
+     *         invalidate, {@code false} otherwise
+     * @see #getLevelFloat(Drawable)
+     */
+    public static boolean setLevel(Drawable drawable, float level) {
+        return IMPL.setLevel(drawable, level);
+    }
+
+    /**
+     * Returns the current level as a floating-point value.
+     * <p>
+     * <strong>Note:</strong> When called on API <= 23, this method will return
+     * the result of {@link Drawable#getLevel()} as a floating-point value.
+     *
+     * @return the current level, typically between 0.0 and 10000.0
+     *         ({@link #MAX_LEVEL_FLOAT})
+     * @see #setLevel(Drawable, float)
+     */
+    public static float getLevelFloat(Drawable drawable) {
+        return IMPL.getLevelFloat(drawable);
     }
 
     /**
