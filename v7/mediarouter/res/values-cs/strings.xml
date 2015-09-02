@@ -18,16 +18,15 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="5441529851481176817">"Systém"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"Zařízení"</string>
-    <string name="mr_button_content_description" msgid="8327680881775995150">"Odeslat"</string>
-    <string name="mr_chooser_title" msgid="2245097672217008651">"Odesílat do"</string>
-    <string name="mr_chooser_searching" msgid="1855108583904057166">"Hledání zařízení"</string>
-    <string name="mr_controller_disconnect" msgid="109793632378378069">"Odpojit"</string>
-    <string name="mr_controller_stop" msgid="5398645111664294430">"Ukončit odesílání"</string>
-    <string name="mr_controller_close_description" msgid="5186870671694587471">"Zavřít dialogové okno ovladače"</string>
-    <string name="mr_controller_settings_description" msgid="379358765881274425">"Nastavení trasy"</string>
-    <string name="mr_controller_play" msgid="5214423499524760404">"Přehrát"</string>
-    <string name="mr_controller_pause" msgid="8315773974194466049">"Pozastavit"</string>
-    <string name="mr_controller_collapse_group" msgid="7960189357116735582">"Sbalit skupinu"</string>
-    <string name="mr_controller_expand_group" msgid="6859072322232853473">"Rozbalit skupinu"</string>
-    <string name="mr_controller_no_info_available" msgid="3641544772007543920">"Žádné informace"</string>
+    <string name="mr_button_content_description" msgid="4324764887951330391">"Odeslat"</string>
+    <string name="mr_chooser_title" msgid="414301941546135990">"Odesílat do"</string>
+    <string name="mr_chooser_searching" msgid="6349900579507521956">"Hledání zařízení"</string>
+    <string name="mr_controller_disconnect" msgid="1227264889412989580">"Odpojit"</string>
+    <string name="mr_controller_stop" msgid="4570331844078181931">"Zastavit odesílání"</string>
+    <string name="mr_controller_close_description" msgid="4486012669499843598">"Zavřít dialogové okno ovladače"</string>
+    <string name="mr_controller_play" msgid="683634565969987458">"Přehrát"</string>
+    <string name="mr_controller_pause" msgid="5451884435510905406">"Pozastavit"</string>
+    <string name="mr_controller_collapse_group" msgid="6536023685722551262">"Sbalit skupinu"</string>
+    <string name="mr_controller_expand_group" msgid="6892977944835020618">"Rozbalit skupinu"</string>
+    <string name="mr_controller_no_info_available" msgid="5585418471741142924">"Nejsou k dispozici žádné informace"</string>
 </resources>
