@@ -401,10 +401,10 @@ public class MediaRouteControllerDialog extends AlertDialog {
         int dialogWidth = getWindow().getAttributes().width - mDialogPaddingVertical;
         if (originalWidth >= originalHeight) {
             // For landscape art, fit width to dialog width.
-            return dialogWidth * originalHeight / originalWidth;
+            return (int) ((float) dialogWidth * originalHeight / originalWidth + 0.5f);
         }
         // For portrait art, fit height to 16:9 ratio case's height.
-        return dialogWidth * 9 / 16;
+        return (int) ((float) dialogWidth * 9 / 16 + 0.5f);
     }
 
     private final class MediaRouterCallback extends MediaRouter.Callback {
