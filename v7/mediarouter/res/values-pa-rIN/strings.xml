@@ -18,16 +18,26 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="5441529851481176817">"ਸਿਸਟਮ"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"ਡਿਵਾਈਸਾਂ"</string>
-    <string name="mr_button_content_description" msgid="8327680881775995150">"ਜੋੜੋ"</string>
-    <string name="mr_chooser_title" msgid="2245097672217008651">"ਇਸ ਨਾਲ ਕਾਸਟ ਕਰੋ"</string>
-    <string name="mr_chooser_searching" msgid="1855108583904057166">"ਡਿਵਾਈਸਾਂ ਲੱਭ ਰਿਹਾ ਹੈ"</string>
-    <string name="mr_controller_disconnect" msgid="109793632378378069">"ਡਿਸਕਨੈਕਟ ਕਰੋ"</string>
-    <string name="mr_controller_stop" msgid="5398645111664294430">"ਜੋੜਨਾ ਰੋਕੋ"</string>
-    <string name="mr_controller_close_description" msgid="5186870671694587471">"ਕੰਟ੍ਰੌਲਰ ਡਾਇਲੌਗ ਬੰਦ ਕਰੋ"</string>
-    <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"ਰੂਟ ਸੈਟਿੰਗਾਂ"</string>
-    <string name="mr_controller_play" msgid="5214423499524760404">"ਪਲੇ ਕਰੋ"</string>
-    <string name="mr_controller_pause" msgid="8315773974194466049">"ਰੋਕੋ"</string>
-    <string name="mr_controller_collapse_group" msgid="7960189357116735582">"ਸਮੂਹ ਸੰਕੁਚਿਤ ਕਰੋ"</string>
-    <string name="mr_controller_expand_group" msgid="6859072322232853473">"ਸਮੂਹ ਦਾ ਵਿਸਤਾਰ ਕਰੋ"</string>
-    <string name="mr_controller_no_info_available" msgid="3641544772007543920">"ਕੋਈ ਜਾਣਕਾਰੀ ਉਪਲਬਧ ਨਹੀਂ"</string>
+    <!-- no translation found for mr_button_content_description (4324764887951330391) -->
+    <skip />
+    <!-- no translation found for mr_chooser_title (414301941546135990) -->
+    <skip />
+    <!-- no translation found for mr_chooser_searching (6349900579507521956) -->
+    <skip />
+    <!-- no translation found for mr_controller_disconnect (1227264889412989580) -->
+    <skip />
+    <!-- no translation found for mr_controller_stop (4570331844078181931) -->
+    <skip />
+    <!-- no translation found for mr_controller_close_description (4486012669499843598) -->
+    <skip />
+    <!-- no translation found for mr_controller_play (683634565969987458) -->
+    <skip />
+    <!-- no translation found for mr_controller_pause (5451884435510905406) -->
+    <skip />
+    <!-- no translation found for mr_controller_collapse_group (6536023685722551262) -->
+    <skip />
+    <!-- no translation found for mr_controller_expand_group (6892977944835020618) -->
+    <skip />
+    <!-- no translation found for mr_controller_no_info_available (5585418471741142924) -->
+    <skip />
 </resources>

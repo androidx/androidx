@@ -18,16 +18,15 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="5441529851481176817">"系統"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"裝置"</string>
-    <string name="mr_button_content_description" msgid="8327680881775995150">"投放"</string>
-    <string name="mr_chooser_title" msgid="2245097672217008651">"投放至"</string>
-    <string name="mr_chooser_searching" msgid="1855108583904057166">"正在尋找裝置"</string>
-    <string name="mr_controller_disconnect" msgid="109793632378378069">"中斷連線"</string>
-    <string name="mr_controller_stop" msgid="5398645111664294430">"停止投放"</string>
-    <string name="mr_controller_close_description" msgid="5186870671694587471">"關閉控制器對話框"</string>
-    <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"路由設定"</string>
-    <string name="mr_controller_play" msgid="5214423499524760404">"播放"</string>
-    <string name="mr_controller_pause" msgid="8315773974194466049">"暫停"</string>
-    <string name="mr_controller_collapse_group" msgid="7960189357116735582">"收合群組"</string>
-    <string name="mr_controller_expand_group" msgid="6859072322232853473">"展開群組"</string>
-    <string name="mr_controller_no_info_available" msgid="3641544772007543920">"沒有詳細資料"</string>
+    <string name="mr_button_content_description" msgid="4324764887951330391">"投放"</string>
+    <string name="mr_chooser_title" msgid="414301941546135990">"投放至"</string>
+    <string name="mr_chooser_searching" msgid="6349900579507521956">"正在尋找裝置"</string>
+    <string name="mr_controller_disconnect" msgid="1227264889412989580">"中斷連線"</string>
+    <string name="mr_controller_stop" msgid="4570331844078181931">"停止投放"</string>
+    <string name="mr_controller_close_description" msgid="4486012669499843598">"關閉控制器對話框"</string>
+    <string name="mr_controller_play" msgid="683634565969987458">"播放"</string>
+    <string name="mr_controller_pause" msgid="5451884435510905406">"暫停"</string>
+    <string name="mr_controller_collapse_group" msgid="6536023685722551262">"收合群組"</string>
+    <string name="mr_controller_expand_group" msgid="6892977944835020618">"展開群組"</string>
+    <string name="mr_controller_no_info_available" msgid="5585418471741142924">"沒有詳細資料"</string>
 </resources>

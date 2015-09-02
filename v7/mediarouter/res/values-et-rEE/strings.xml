@@ -18,16 +18,15 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="5441529851481176817">"Süsteem"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"Seadmed"</string>
-    <string name="mr_button_content_description" msgid="8327680881775995150">"Ülekandmine"</string>
-    <string name="mr_chooser_title" msgid="2245097672217008651">"Ülekandmine seadmes"</string>
-    <string name="mr_chooser_searching" msgid="1855108583904057166">"Seadmete otsimine"</string>
-    <string name="mr_controller_disconnect" msgid="109793632378378069">"Katkesta ühendus"</string>
-    <string name="mr_controller_stop" msgid="5398645111664294430">"Lõpeta ülekanne"</string>
-    <string name="mr_controller_close_description" msgid="5186870671694587471">"Kontrolleri dialoogi sulgemine"</string>
-    <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"Marsruudi seaded"</string>
-    <string name="mr_controller_play" msgid="5214423499524760404">"Esitamine"</string>
-    <string name="mr_controller_pause" msgid="8315773974194466049">"Peatamine"</string>
-    <string name="mr_controller_collapse_group" msgid="7960189357116735582">"Grupi ahendamine"</string>
-    <string name="mr_controller_expand_group" msgid="6859072322232853473">"Grupi laiendamine"</string>
-    <string name="mr_controller_no_info_available" msgid="3641544772007543920">"Teave pole saadaval"</string>
+    <string name="mr_button_content_description" msgid="4324764887951330391">"Ülekandmine"</string>
+    <string name="mr_chooser_title" msgid="414301941546135990">"Ülekandmine seadmesse"</string>
+    <string name="mr_chooser_searching" msgid="6349900579507521956">"Seadmete otsimine"</string>
+    <string name="mr_controller_disconnect" msgid="1227264889412989580">"Katkesta ühendus"</string>
+    <string name="mr_controller_stop" msgid="4570331844078181931">"Peata ülekanne"</string>
+    <string name="mr_controller_close_description" msgid="4486012669499843598">"Kontrolleri dialoogi sulgemine"</string>
+    <string name="mr_controller_play" msgid="683634565969987458">"Esitamine"</string>
+    <string name="mr_controller_pause" msgid="5451884435510905406">"Peatamine"</string>
+    <string name="mr_controller_collapse_group" msgid="6536023685722551262">"Grupi ahendamine"</string>
+    <string name="mr_controller_expand_group" msgid="6892977944835020618">"Grupi laiendamine"</string>
+    <string name="mr_controller_no_info_available" msgid="5585418471741142924">"Teave puudub"</string>
 </resources>
