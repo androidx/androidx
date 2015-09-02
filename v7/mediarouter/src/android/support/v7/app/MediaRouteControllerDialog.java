@@ -797,11 +797,11 @@ public class MediaRouteControllerDialog extends AlertDialog {
                     }
                 }
             }
-            if (art != null) {
-                if (art.getWidth() < art.getHeight()) {
-                    // Portrait art requires background color.
-                    mBackgroundColor = new Palette.Builder(art).generate().getDarkVibrantColor(0);
-                }
+            if (art != null && art.getWidth() < art.getHeight()) {
+                // Portrait art requires background color.
+                Palette palette = new Palette.Builder(art).maximumColorCount(1).generate();
+                mBackgroundColor = (palette.getSwatches() == null)
+                        ? 0 : palette.getSwatches().get(0).getRgb();
             }
             return art;
         }
