@@ -623,7 +623,10 @@ public class MediaRouteControllerDialog extends AlertDialog {
                         // The user is currently casting screen.
                         mTitleView.setText(R.string.mr_controller_casting_screen);
                     } else {
-                        mTitleView.setText(R.string.mr_controller_no_info_available);
+                        mTitleView.setText((mState == null
+                                || mState.getState() == PlaybackStateCompat.STATE_NONE)
+                                        ? R.string.mr_controller_no_media_selected
+                                        : R.string.mr_controller_no_info_available);
                     }
                     mTitleView.setEnabled(false);
                     mTitleView.setVisibility(View.VISIBLE);
