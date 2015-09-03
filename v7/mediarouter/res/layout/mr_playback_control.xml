@@ -27,10 +27,11 @@
                  android:layout_alignParentRight="true"
                  android:layout_centerInParent="true"
                  android:contentDescription="@string/mr_controller_play"
-                 android:background="?attr/selectableItemBackgroundBorderless"/>
+                 android:background="?attr/selectableItemBackgroundBorderless"
+                 android:visibility="gone" />
     <LinearLayout android:orientation="vertical"
-                  android:layout_height="fill_parent"
                   android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
                   android:layout_marginLeft="24dp"
                   android:layout_alignParentLeft="true"
                   android:layout_toLeftOf="@id/mr_control_play_pause"

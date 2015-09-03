@@ -60,7 +60,6 @@ import android.widget.TextView;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -105,8 +104,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private TextView mRouteNameTextView;
 
     private boolean mVolumeControlEnabled = true;
-    private MediaRouteControlAdapter mControlAdapter;
-    private ListView mControlView;
+    private LinearLayout mControlView;
+    private MediaRouteControlHelper mControlHelper;
     private ListView mVolumeGroupList;
 
     private MediaControllerCompat mMediaController;
@@ -177,7 +176,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         if (mVolumeControlEnabled != enable) {
             mVolumeControlEnabled = enable;
             if (mCreated) {
-                mControlAdapter.updateVolumeControl();
+                mControlHelper.updateVolumeControl();
             }
         }
     }
@@ -261,10 +260,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mCustomControlFrame = (FrameLayout) findViewById(R.id.custom_control_frame);
         mArtView = (ImageView) findViewById(R.id.mr_art);
 
-        mControlAdapter = new MediaRouteControlAdapter(
-                getContext(), new ArrayList<View>(), listener);
-        mControlView = (ListView) findViewById(R.id.mr_control);
-        mControlView.setAdapter(mControlAdapter);
+        mControlView = (LinearLayout) findViewById(R.id.mr_control);
+        mControlHelper = new MediaRouteControlHelper(listener);
         mVolumeGroupList = (ListView)findViewById(R.id.mr_volume_group_list);
 
         mCreated = true;
@@ -345,7 +342,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         }
 
         mRouteNameTextView.setText(mRoute.getName());
-        mDisconnectButton.setVisibility(mRoute.canDisconnect() ? View.VISIBLE : View.GONE);
+        mDisconnectButton.setVisibility(mRoute.canDisconnect() ? View.VISIBLE : View.INVISIBLE);
 
         if (mCustomControlView == null) {
             if (mFetchArtTask != null) {
@@ -354,8 +351,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
             mFetchArtTask = new FetchArtTask();
             mFetchArtTask.execute();
         }
-        mControlAdapter.updateVolumeControl();
-        mControlAdapter.updatePlaybackControl();
+        mControlHelper.updateVolumeControl();
+        mControlHelper.updatePlaybackControl();
     }
 
     private boolean isVolumeControlAvailable() {
@@ -422,7 +419,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         @Override
         public void onRouteVolumeChanged(MediaRouter router, MediaRouter.RouteInfo route) {
             if (route == mRoute) {
-                mControlAdapter.updateVolumeControl();
+                mControlHelper.updateVolumeControl();
             }
         }
     }
@@ -474,10 +471,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         }
     }
 
-    // TODO: Consider to implement the default controls using LinearLayout instead of ListView.
-    private class MediaRouteControlAdapter extends ArrayAdapter<View> {
-        private List<View> mItemViews;
-
+    private class MediaRouteControlHelper {
         private RelativeLayout mPlaybackControl;
         private TextView mTitleView;
         private TextView mSubtitleView;
@@ -488,23 +482,17 @@ public class MediaRouteControllerDialog extends AlertDialog {
         private ImageButton mGroupExpandCollapseButton;
         private boolean mVolumeSliderTouched;
 
+        private View mDividerView;
 
-        public MediaRouteControlAdapter(Context context, List<View> itemViews,
-                ClickListener listener) {
-            super(context, 0, itemViews);
-            mItemViews = itemViews;
-
-            mPlaybackControl = (RelativeLayout) LayoutInflater.from(context).inflate(
-                    R.layout.mr_playback_control, mControlView);
-            mTitleView = (TextView) mPlaybackControl.findViewById(R.id.mr_control_title);
-            mSubtitleView = (TextView) mPlaybackControl.findViewById(R.id.mr_control_subtitle);
-            mPlayPauseButton = (ImageButton) mPlaybackControl.findViewById(
-                    R.id.mr_control_play_pause);
+        public MediaRouteControlHelper(ClickListener listener) {
+            mPlaybackControl = (RelativeLayout) findViewById(R.id.mr_playback_control);
+            mTitleView = (TextView) findViewById(R.id.mr_control_title);
+            mSubtitleView = (TextView) findViewById(R.id.mr_control_subtitle);
+            mPlayPauseButton = (ImageButton) findViewById(R.id.mr_control_play_pause);
             mPlayPauseButton.setOnClickListener(listener);
 
-            mVolumeControl = (LinearLayout) LayoutInflater.from(context).inflate(
-                    R.layout.mr_volume_control, mControlView);
-            mVolumeSlider = (SeekBar) mVolumeControl.findViewById(R.id.mr_volume_slider);
+            mVolumeControl = (LinearLayout) findViewById(R.id.mr_volume_control);
+            mVolumeSlider = (SeekBar) findViewById(R.id.mr_volume_slider);
             mVolumeSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 private final Runnable mStopTrackingTouch = new Runnable() {
                     @Override
@@ -541,7 +529,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 }
             });
 
-            TypedArray styledAttributes = context.obtainStyledAttributes(new int[] {
+            TypedArray styledAttributes = getContext().obtainStyledAttributes(new int[] {
                     R.attr.mediaRouteExpandGroupDrawable,
                     R.attr.mediaRouteCollapseGroupDrawable
             });
@@ -549,8 +537,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
             final Drawable collapseGroupDrawable = styledAttributes.getDrawable(1);
             styledAttributes.recycle();
 
-            mGroupExpandCollapseButton = (ImageButton) mVolumeControl.findViewById(
-                    R.id.mr_group_expand_collapse);
+            mGroupExpandCollapseButton = (ImageButton) findViewById(R.id.mr_group_expand_collapse);
             mGroupExpandCollapseButton.setOnClickListener(new View.OnClickListener() {
                 private boolean mIsExpanded;
 
@@ -568,21 +555,14 @@ public class MediaRouteControllerDialog extends AlertDialog {
                     }
                 }
             });
-        }
 
-        @Override
-        public View getView(final int position, View convertView, ViewGroup parent) {
-            return mItemViews.get(position);
+            mDividerView = findViewById(R.id.mr_control_divider);
         }
 
         public void updateVolumeControl() {
             if (!mVolumeSliderTouched) {
                 if (isVolumeControlAvailable()) {
-                    if (!mItemViews.contains(mVolumeControl)) {
-                        mItemViews.add(mVolumeControl);
-
-                        notifyDataSetChanged();
-                    }
+                    mVolumeControl.setVisibility(View.VISIBLE);
                     mVolumeSlider.setMax(mRoute.getVolumeMax());
                     mVolumeSlider.setProgress(mRoute.getVolume());
                     if (USE_GROUP) {
@@ -597,20 +577,16 @@ public class MediaRouteControllerDialog extends AlertDialog {
                             }
                         }
                     }
-                } else if (mItemViews.contains(mVolumeControl)) {
-                    mItemViews.remove(mVolumeControl);
-                    notifyDataSetChanged();
+                } else {
+                    mVolumeControl.setVisibility(View.GONE);
                 }
-                mControlView.setVisibility(mItemViews.isEmpty() ? View.GONE : View.VISIBLE);
+                adjustControlViewVisibilities();
             }
         }
 
         public void updatePlaybackControl() {
             if (mCustomControlView == null && (mDescription != null || mState != null)) {
-                if (!mItemViews.contains(mPlaybackControl)) {
-                    mItemViews.add(0, mPlaybackControl);
-                    notifyDataSetChanged();
-                }
+                mPlaybackControl.setVisibility(View.VISIBLE);
                 CharSequence title = mDescription == null ? null : mDescription.getTitle();
                 boolean hasTitle = !TextUtils.isEmpty(title);
 
@@ -661,11 +637,19 @@ public class MediaRouteControllerDialog extends AlertDialog {
                         mPlayPauseButton.setVisibility(View.GONE);
                     }
                 }
-            } else if (mItemViews.contains(mPlaybackControl)) {
-                mItemViews.remove(mPlaybackControl);
-                notifyDataSetChanged();
+            } else {
+                mPlaybackControl.setVisibility(View.GONE);
             }
-            mControlView.setVisibility(mItemViews.isEmpty() ? View.GONE : View.VISIBLE);
+            adjustControlViewVisibilities();
+        }
+
+        private void adjustControlViewVisibilities() {
+            mDividerView.setVisibility((mVolumeControl.getVisibility() == View.VISIBLE
+                    && mPlaybackControl.getVisibility() == View.VISIBLE)
+                            ? View.VISIBLE : View.GONE);
+            mControlView.setVisibility((mVolumeControl.getVisibility() == View.GONE
+                    && mPlaybackControl.getVisibility() == View.GONE)
+                            ? View.GONE : View.VISIBLE);
         }
     }
 
