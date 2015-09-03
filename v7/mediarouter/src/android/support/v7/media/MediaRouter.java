@@ -784,7 +784,7 @@ public final class MediaRouter {
         private int mVolume;
         private int mVolumeMax;
         private Display mPresentationDisplay;
-        private int mPresentationDisplayId = -1;
+        private int mPresentationDisplayId = PRESENTATION_DISPLAY_ID_NONE;
         private Bundle mExtras;
         private IntentSender mSettingsIntent;
         MediaRouteDescriptor mDescriptor;
@@ -867,6 +867,13 @@ public final class MediaRouter {
          * @see #getVolumeHandling
          */
         public static final int PLAYBACK_VOLUME_VARIABLE = 1;
+
+        /**
+         * The default presentation display id indicating no presentation display is associated
+         * with the route.
+         * @hide
+         */
+        public static final int PRESENTATION_DISPLAY_ID_NONE = -1;
 
         static final int CHANGE_GENERAL = 1 << 0;
         static final int CHANGE_VOLUME = 1 << 1;
@@ -1288,6 +1295,14 @@ public final class MediaRouter {
                 mPresentationDisplay = sGlobal.getDisplay(mPresentationDisplayId);
             }
             return mPresentationDisplay;
+        }
+
+        /**
+         * Gets the route's presentation display id, or -1 if none.
+         * @hide
+         */
+        public int getPresentationDisplayId() {
+            return mPresentationDisplayId;
         }
 
         /**

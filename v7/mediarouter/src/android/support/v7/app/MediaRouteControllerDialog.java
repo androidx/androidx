@@ -616,7 +616,13 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 boolean hasSubtitle = !TextUtils.isEmpty(subtitle);
 
                 if (!hasTitle && !hasSubtitle) {
-                    mTitleView.setText(R.string.mr_controller_no_info_available);
+                    if (mRoute.getPresentationDisplayId()
+                            != MediaRouter.RouteInfo.PRESENTATION_DISPLAY_ID_NONE) {
+                        // The user is currently casting screen.
+                        mTitleView.setText(R.string.mr_controller_casting_screen);
+                    } else {
+                        mTitleView.setText(R.string.mr_controller_no_info_available);
+                    }
                     mTitleView.setEnabled(false);
                     mTitleView.setVisibility(View.VISIBLE);
                     mSubtitleView.setVisibility(View.GONE);
@@ -721,7 +727,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
                 ImageView volumeItemIcon =
                         (ImageView) v.findViewById(R.id.mr_volume_item_icon);
-                volumeItemIcon.setAlpha(isEnabled ? 255 : (int)(255 * DISABLED_ALPHA));
+                volumeItemIcon.setAlpha(isEnabled ? 255 : (int) (255 * DISABLED_ALPHA));
             }
             return v;
         }
