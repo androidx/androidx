@@ -601,11 +601,12 @@ public class MediaRouteControllerDialog extends AlertDialog {
                     mItemViews.remove(mVolumeControl);
                     notifyDataSetChanged();
                 }
+                mControlView.setVisibility(mItemViews.isEmpty() ? View.GONE : View.VISIBLE);
             }
         }
 
         public void updatePlaybackControl() {
-            if (mCustomControlView == null) {
+            if (mCustomControlView == null && (mDescription != null || mState != null)) {
                 if (!mItemViews.contains(mPlaybackControl)) {
                     mItemViews.add(0, mPlaybackControl);
                     notifyDataSetChanged();
@@ -661,6 +662,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 mItemViews.remove(mPlaybackControl);
                 notifyDataSetChanged();
             }
+            mControlView.setVisibility(mItemViews.isEmpty() ? View.GONE : View.VISIBLE);
         }
     }
 
