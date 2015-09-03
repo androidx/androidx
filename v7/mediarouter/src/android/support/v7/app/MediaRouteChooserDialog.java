@@ -22,6 +22,8 @@ import static android.support.v7.media.MediaRouter.RouteInfo.CONNECTION_STATE_CO
 import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -76,6 +78,10 @@ public class MediaRouteChooserDialog extends Dialog {
     private RouteAdapter mAdapter;
     private ListView mListView;
     private boolean mAttachedToWindow;
+
+    private int mOrientation;
+    private int mDialogWidthPortrait;
+    private int mDialogWidthLandscape;
 
     public MediaRouteChooserDialog(Context context) {
         this(context, 0);
@@ -160,6 +166,13 @@ public class MediaRouteChooserDialog extends Dialog {
 
         setContentView(R.layout.mr_chooser_dialog);
         setTitle(R.string.mr_chooser_title);
+        View decorView = getWindow().getDecorView();
+        int dialogHorizontalPadding = decorView.getPaddingLeft() + decorView.getPaddingRight();
+        Resources res = getContext().getResources();
+        mDialogWidthPortrait = res.getDimensionPixelSize(
+                R.dimen.mr_dialog_content_width_portrait) + dialogHorizontalPadding;
+        mDialogWidthLandscape = res.getDimensionPixelSize(
+                R.dimen.mr_dialog_content_width_landscape) + dialogHorizontalPadding;
 
         mRoutes = new ArrayList<MediaRouter.RouteInfo>();
         mAdapter = new RouteAdapter(getContext(), mRoutes);
@@ -169,12 +182,31 @@ public class MediaRouteChooserDialog extends Dialog {
         mListView.setEmptyView(findViewById(android.R.id.empty));
     }
 
+    /**
+     * Called by {@link MediaRouteChooserDialogFragment} when the device configuration is changed.
+     */
+    void onConfigurationChanged(Configuration newConfig) {
+        onOrientationChanged(newConfig.orientation);
+    }
+
+    private void onOrientationChanged(int orientation) {
+        if (!mAttachedToWindow || mOrientation == orientation) {
+            return;
+        }
+        mOrientation = orientation;
+        getWindow().setLayout(
+                mOrientation == Configuration.ORIENTATION_PORTRAIT
+                        ? mDialogWidthPortrait : mDialogWidthLandscape,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+    }
+
     @Override
     public void onAttachedToWindow() {
         super.onAttachedToWindow();
 
         mAttachedToWindow = true;
         mRouter.addCallback(mSelector, mCallback, MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
+        onOrientationChanged(getContext().getResources().getConfiguration().orientation);
         refreshRoutes();
     }
 
