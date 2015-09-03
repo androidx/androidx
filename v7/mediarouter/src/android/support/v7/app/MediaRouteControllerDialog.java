@@ -20,6 +20,8 @@ import static android.widget.SeekBar.OnSeekBarChangeListener;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -83,6 +85,9 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
     private boolean mCreated;
     private boolean mAttachedToWindow;
+    private int mOrientation;
+    private int mDialogWidthPortrait;
+    private int mDialogWidthLandscape;
 
     private View mControlView;
 
@@ -231,6 +236,13 @@ public class MediaRouteControllerDialog extends AlertDialog {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.mr_controller_material_dialog_b);
+        View decorView = getWindow().getDecorView();
+        int dialogHorizontalPadding = decorView.getPaddingLeft() + decorView.getPaddingRight();
+        Resources res = getContext().getResources();
+        mDialogWidthPortrait = res.getDimensionPixelSize(
+                R.dimen.mr_dialog_content_width_portrait) + dialogHorizontalPadding;
+        mDialogWidthLandscape = res.getDimensionPixelSize(
+                R.dimen.mr_dialog_content_width_landscape) + dialogHorizontalPadding;
 
         ClickListener listener = new ClickListener();
 
@@ -328,6 +340,25 @@ public class MediaRouteControllerDialog extends AlertDialog {
         }
     }
 
+    /**
+     * Called by {@link MediaRouteControllerDialogFragment} when the device configuration
+     * is changed.
+     */
+    void onConfigurationChanged(Configuration newConfig) {
+        onOrientationChanged(newConfig.orientation);
+    }
+
+    private void onOrientationChanged(int orientation) {
+        if (!mAttachedToWindow || mOrientation == orientation) {
+            return;
+        }
+        mOrientation = orientation;
+        getWindow().setLayout(
+                mOrientation == Configuration.ORIENTATION_LANDSCAPE
+                        ? mDialogWidthLandscape : mDialogWidthPortrait,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+    }
+
     @Override
     public void onAttachedToWindow() {
         super.onAttachedToWindow();
@@ -336,6 +367,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mRouter.addCallback(MediaRouteSelector.EMPTY, mCallback,
                 MediaRouter.CALLBACK_FLAG_UNFILTERED_EVENTS);
         setMediaSession(mRouter.getMediaSessionToken());
+        onOrientationChanged(getContext().getResources().getConfiguration().orientation);
     }
 
     @Override
