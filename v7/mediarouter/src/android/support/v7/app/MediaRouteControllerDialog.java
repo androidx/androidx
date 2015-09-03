@@ -16,6 +16,8 @@
 
 package android.support.v7.app;
 
+import static android.widget.SeekBar.OnSeekBarChangeListener;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -60,8 +62,6 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.widget.SeekBar.OnSeekBarChangeListener;
 
 /**
  * This class implements the route controller dialog for {@link MediaRouter}.
@@ -351,7 +351,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
             if (mFetchArtTask != null) {
                 mFetchArtTask.cancel(true);
             }
-            mArtView.setVisibility(View.GONE);
             mFetchArtTask = new FetchArtTask();
             mFetchArtTask.execute();
         }
@@ -366,10 +365,12 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
     private void updateArtView() {
         if (!(mArtView.getDrawable() instanceof BitmapDrawable)) {
+            mArtView.setVisibility(View.GONE);
             return;
         }
         Bitmap art = ((BitmapDrawable) mArtView.getDrawable()).getBitmap();
         if (art == null) {
+            mArtView.setVisibility(View.GONE);
             return;
         }
         int desiredArtHeight = getDesiredArtHeight(art.getWidth(), art.getHeight());
@@ -797,8 +798,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
             if (art != null) {
                 if (art.getWidth() < art.getHeight()) {
                     // Portrait art requires background color.
-                    mBackgroundColor =
-                            new Palette.Builder(art).generate().getDarkVibrantColor(0);
+                    mBackgroundColor = new Palette.Builder(art).generate().getDarkVibrantColor(0);
                 }
             }
             return art;
