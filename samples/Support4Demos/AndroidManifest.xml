@@ -367,6 +367,14 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".graphics.DrawableCompatActivity"
+                  android:label="Graphics/DrawableCompat">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
 <!-- BEGIN_INCLUDE(file_provider_declaration) -->
         <provider
             android:name="android.support.v4.content.FileProvider"
