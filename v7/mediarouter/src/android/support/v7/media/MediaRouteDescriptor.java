@@ -234,7 +234,8 @@ public final class MediaRouteDescriptor {
      * Gets the route's presentation display id, or -1 if none.
      */
     public int getPresentationDisplayId() {
-        return mBundle.getInt(KEY_PRESENTATION_DISPLAY_ID, -1);
+        return mBundle.getInt(
+                KEY_PRESENTATION_DISPLAY_ID, MediaRouter.RouteInfo.PRESENTATION_DISPLAY_ID_NONE);
     }
 
     /**
