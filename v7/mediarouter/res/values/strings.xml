@@ -52,6 +52,9 @@
     <!-- Accessibility description for the group collapse button that hides group members of a selected group. [CHAR LIMIT=NONE] -->
     <string name="mr_controller_collapse_group">Group collapse</string>
 
+    <!-- Placeholder text to show when no media have been selected on the connected route. [CHAR LIMIT=50] -->
+    <string name="mr_controller_no_media_selected">No media selected</string>
+
     <!-- Placeholder text to show when no title/description have been found for a given song/video. [CHAR LIMIT=50] -->
     <string name="mr_controller_no_info_available">No info available</string>
 
