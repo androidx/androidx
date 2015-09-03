@@ -41,7 +41,8 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v17-preference-leanback-api21
 LOCAL_SDK_VERSION := 21
 LOCAL_SRC_FILES := $(call all-java-files-under, api21)
-LOCAL_JAVA_LIBRARIES := android-support-v17-preference-leanback-res
+LOCAL_JAVA_LIBRARIES := android-support-v17-preference-leanback-res \
+        android-support-v17-leanback
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # Here is the final static library that apps can link against.
