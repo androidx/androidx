@@ -14,117 +14,61 @@
      limitations under the License.
 -->
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-    <LinearLayout android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-        <LinearLayout android:id="@+id/title_bar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingLeft="24dp"
-                android:paddingRight="24dp"
-                android:orientation="horizontal" >
-            <TextView android:id="@+id/route_name"
-                    android:layout_width="0dp"
-                    android:layout_height="72dp"
-                    android:layout_weight="1"
-                    android:gravity="center_vertical"
-                    android:singleLine="true"
-                    android:ellipsize="end"
-                    android:textAppearance="?attr/mediaRouteControllerTitleTextStyle" />
-            <ImageButton android:id="@+id/close"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_marginLeft="12dp"
-                    android:layout_gravity="center_vertical"
-                    android:contentDescription="@string/mr_controller_close_description"
-                    android:src="?attr/mediaRouteCloseDrawable"
-                    android:background="?attr/selectableItemBackgroundBorderless" />
-        </LinearLayout>
-        <FrameLayout android:id="@+id/media_route_control_frame"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
-            <RelativeLayout android:id="@+id/default_control_frame"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="?attr/colorPrimary">
-                <ImageView android:id="@+id/art"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:adjustViewBounds="true"
-                        android:scaleType="fitCenter"/>
-                <ImageButton android:id="@+id/play_pause"
-                        android:layout_width="48dip"
-                        android:layout_height="48dip"
-                        android:padding="12dip"
-                        android:layout_marginTop="8dip"
-                        android:layout_marginBottom="8dip"
-                        android:layout_alignParentRight="true"
-                        android:layout_below="@id/art"
-                        android:contentDescription="@string/mr_controller_play"
-                        android:background="?attr/selectableItemBackgroundBorderless"/>
-                <LinearLayout android:orientation="vertical"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"
-                        android:minHeight="64dip"
-                        android:layout_marginLeft="24dip"
-                        android:gravity="center_vertical"
-                        android:layout_toLeftOf="@id/play_pause"
-                        android:layout_below="@id/art"
-                        android:layout_alignParentLeft="true" >
-                    <TextView android:id="@+id/title"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?attr/mediaRouteControllerPrimaryTextStyle"
-                            android:singleLine="true" />
-                    <TextView android:id="@+id/subtitle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?attr/mediaRouteControllerSecondaryTextStyle"
-                            android:singleLine="true" />
-                </LinearLayout>
-            </RelativeLayout>
-        </FrameLayout>
-        <!-- Optional volume slider section. -->
-        <LinearLayout android:id="@+id/media_route_volume_layout"
-                      android:layout_width="fill_parent"
-                      android:layout_height="64dp"
-                      android:gravity="center_vertical"
-                      android:padding="8dp"
-                      android:visibility="gone"
-                      android:background="?attr/colorPrimary">
-            <ImageView android:layout_width="48dp"
-                       android:layout_height="48dp"
-                       android:src="?attr/mediaRouteCastDrawable"
-                       android:gravity="center"
-                       android:scaleType="center" />
-            <SeekBar android:id="@+id/media_route_volume_slider"
-                     android:layout_width="0dp"
-                     android:layout_height="wrap_content"
-                     android:layout_weight="1"
-                     android:layout_marginLeft="8dp"
-                     android:layout_marginRight="8dp" />
-            <ImageButton android:id="@+id/media_route_group_expand_collapse"
-                         android:layout_width="48dip"
-                         android:layout_height="48dip"
-                         android:padding="12dip"
-                         android:contentDescription="@string/mr_controller_expand_group"
-                         android:src="?attr/mediaRouteExpandGroupDrawable"
-                         android:background="?attr/selectableItemBackgroundBorderless"
-                         android:visibility="gone"/>
-        </LinearLayout>
-        <ListView android:id="@+id/media_route_volume_group_list"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical">
+    <LinearLayout android:id="@+id/title_bar"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingLeft="24dp"
+                  android:paddingRight="24dp"
+                  android:orientation="horizontal" >
+        <TextView android:id="@+id/route_name"
+                  android:layout_width="0dp"
+                  android:layout_height="72dp"
+                  android:layout_weight="1"
+                  android:gravity="center_vertical"
+                  android:singleLine="true"
+                  android:ellipsize="end"
+                  android:textAppearance="?attr/mediaRouteControllerTitleTextStyle" />
+        <ImageButton android:id="@+id/close"
+                     android:layout_width="24dp"
+                     android:layout_height="24dp"
+                     android:layout_marginLeft="12dp"
+                     android:layout_gravity="center_vertical"
+                     android:contentDescription="@string/mr_controller_close_description"
+                     android:src="?attr/mediaRouteCloseDrawable"
+                     android:background="?attr/selectableItemBackgroundBorderless" />
+    </LinearLayout>
+    <FrameLayout android:id="@+id/custom_control_frame"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:visibility="gone" />
+    <ImageView android:id="@+id/mr_art"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:adjustViewBounds="true"
+               android:scaleType="fitCenter"
+               android:background="?attr/colorPrimary" />
+    <ListView android:id="@+id/mr_control"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:paddingTop="16dp"
+              android:paddingBottom="16dp"
+              android:divider="?attr/colorPrimary"
+              android:dividerHeight="8dp"
+              android:background="?attr/colorPrimary" />
+    <ListView android:id="@+id/mr_volume_group_list"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:background="?attr/colorPrimaryDark"
+              android:visibility="gone" />
+    <LinearLayout android:id="@+id/buttons"
                   android:layout_width="fill_parent"
                   android:layout_height="wrap_content"
-                  android:visibility="gone">
-        </ListView>
-        <LinearLayout android:id="@+id/buttons"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal" >
-            <Button android:id="@+id/disconnect"
+                  android:orientation="horizontal">
+        <Button android:id="@+id/disconnect"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:gravity="center"
@@ -132,7 +76,7 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:text="@string/mr_controller_disconnect"
                 android:visibility="gone" />
-            <Button android:id="@+id/stop"
+        <Button android:id="@+id/stop"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:gravity="center"
@@ -140,6 +84,5 @@
                 android:textColor="?attr/colorAccent"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:text="@string/mr_controller_stop" />
-        </LinearLayout>
     </LinearLayout>
-</ScrollView>
+</LinearLayout>

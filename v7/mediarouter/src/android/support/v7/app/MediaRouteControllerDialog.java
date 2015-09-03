@@ -16,8 +16,6 @@
 
 package android.support.v7.app;
 
-import static android.widget.SeekBar.OnSeekBarChangeListener;
-
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -54,12 +52,16 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+
+import static android.widget.SeekBar.OnSeekBarChangeListener;
 
 /**
  * This class implements the route controller dialog for {@link MediaRouter}.
@@ -92,24 +94,20 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private int mDialogWidthLandscape;
     private int mDialogPaddingVertical;
 
-    private View mControlView;
+    private View mCustomControlView;
 
     private Button mDisconnectButton;
     private Button mStopCastingButton;
-    private ImageButton mPlayPauseButton;
     private ImageButton mCloseButton;
-    private ImageButton mGroupExpandCollapseButton;
 
+    private FrameLayout mCustomControlFrame;
     private ImageView mArtView;
-    private TextView mTitleView;
-    private TextView mSubtitleView;
-    private TextView mRouteNameView;
+    private TextView mRouteNameTextView;
 
     private boolean mVolumeControlEnabled = true;
-    private LinearLayout mVolumeLayout;
+    private MediaRouteControlAdapter mControlAdapter;
+    private ListView mControlView;
     private ListView mVolumeGroupList;
-    private SeekBar mVolumeSlider;
-    private boolean mVolumeSliderTouched;
 
     private MediaControllerCompat mMediaController;
     private MediaControllerCallback mControllerCallback;
@@ -165,7 +163,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
      * @return The media control view, or null if none.
      */
     public View getMediaControlView() {
-        return mControlView;
+        return mCustomControlView;
     }
 
     /**
@@ -179,7 +177,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         if (mVolumeControlEnabled != enable) {
             mVolumeControlEnabled = enable;
             if (mCreated) {
-                updateVolume();
+                mControlAdapter.updateVolumeControl();
             }
         }
     }
@@ -256,92 +254,27 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mStopCastingButton = (Button) findViewById(R.id.stop);
         mStopCastingButton.setOnClickListener(listener);
 
+        mRouteNameTextView = (TextView) findViewById(R.id.route_name);
         mCloseButton = (ImageButton) findViewById(R.id.close);
         mCloseButton.setOnClickListener(listener);
 
-        mArtView = (ImageView) findViewById(R.id.art);
-        mTitleView = (TextView) findViewById(R.id.title);
-        mSubtitleView = (TextView) findViewById(R.id.subtitle);
-        mPlayPauseButton = (ImageButton) findViewById(R.id.play_pause);
-        mPlayPauseButton.setOnClickListener(listener);
-        mRouteNameView = (TextView) findViewById(R.id.route_name);
-        mVolumeLayout = (LinearLayout)findViewById(R.id.media_route_volume_layout);
-        mVolumeGroupList = (ListView)findViewById(R.id.media_route_volume_group_list);
+        mCustomControlFrame = (FrameLayout) findViewById(R.id.custom_control_frame);
+        mArtView = (ImageView) findViewById(R.id.mr_art);
 
-        TypedArray styledAttributes = getContext().obtainStyledAttributes(new int[] {
-                R.attr.mediaRouteExpandGroupDrawable,
-                R.attr.mediaRouteCollapseGroupDrawable
-        });
-        final Drawable expandGroupDrawable = styledAttributes.getDrawable(0);
-        final Drawable collapseGroupDrawable = styledAttributes.getDrawable(1);
-        styledAttributes.recycle();
-
-        mGroupExpandCollapseButton = (ImageButton)findViewById(
-                R.id.media_route_group_expand_collapse);
-        mGroupExpandCollapseButton.setOnClickListener(new View.OnClickListener() {
-            private boolean mIsExpanded;
-
-            @Override
-            public void onClick(View v) {
-                mIsExpanded = !mIsExpanded;
-                if (mIsExpanded) {
-                    mGroupExpandCollapseButton.setImageDrawable(collapseGroupDrawable);
-                    mVolumeGroupList.setVisibility(View.VISIBLE);
-                    mVolumeGroupList.setAdapter(
-                            new VolumeGroupAdapter(getContext(), getGroup().getRoutes()));
-                } else {
-                    mGroupExpandCollapseButton.setImageDrawable(expandGroupDrawable);
-                    mVolumeGroupList.setVisibility(View.GONE);
-                }
-            }
-        });
-        mVolumeSlider = (SeekBar)findViewById(R.id.media_route_volume_slider);
-        mVolumeSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            private final Runnable mStopTrackingTouch = new Runnable() {
-                @Override
-                public void run() {
-                    if (mVolumeSliderTouched) {
-                        mVolumeSliderTouched = false;
-                        updateVolume();
-                    }
-                }
-            };
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                if (mVolumeSliderTouched) {
-                    mVolumeSlider.removeCallbacks(mStopTrackingTouch);
-                } else {
-                    mVolumeSliderTouched = true;
-                }
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                // Defer resetting mVolumeSliderTouched to allow the media route provider
-                // a little time to settle into its new state and publish the final
-                // volume update.
-                mVolumeSlider.postDelayed(mStopTrackingTouch, VOLUME_UPDATE_DELAY_MILLIS);
-            }
-
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (fromUser) {
-                    mRoute.requestSetVolume(progress);
-                }
-            }
-        });
+        mControlAdapter = new MediaRouteControlAdapter(
+                getContext(), new ArrayList<View>(), listener);
+        mControlView = (ListView) findViewById(R.id.mr_control);
+        mControlView.setAdapter(mControlAdapter);
+        mVolumeGroupList = (ListView)findViewById(R.id.mr_volume_group_list);
 
         mCreated = true;
-        if (update()) {
-            mControlView = onCreateMediaControlView(savedInstanceState);
-            FrameLayout controlFrame =
-                    (FrameLayout)findViewById(R.id.media_route_control_frame);
-            if (mControlView != null) {
-                controlFrame.findViewById(R.id.default_control_frame).setVisibility(View.GONE);
-                controlFrame.addView(mControlView);
-            }
+        mCustomControlView = onCreateMediaControlView(savedInstanceState);
+        if (mCustomControlView != null) {
+            mCustomControlFrame.addView(mCustomControlView);
+            mCustomControlFrame.setVisibility(View.VISIBLE);
+            mArtView.setVisibility(View.GONE);
         }
+        update();
     }
 
     /**
@@ -402,108 +335,28 @@ public class MediaRouteControllerDialog extends AlertDialog {
         return super.onKeyUp(keyCode, event);
     }
 
-    private boolean update() {
+    private void update() {
         if (!mRoute.isSelected() || mRoute.isDefault()) {
             dismiss();
-            return false;
+            return;
         }
         if (!mCreated) {
-            return false;
+            return;
         }
 
-        updateVolume();
+        mRouteNameTextView.setText(mRoute.getName());
+        mDisconnectButton.setVisibility(mRoute.canDisconnect() ? View.VISIBLE : View.GONE);
 
-        mRouteNameView.setText(mRoute.getName());
-
-        if (mRoute.canDisconnect()) {
-            mDisconnectButton.setVisibility(View.VISIBLE);
-        } else {
-            mDisconnectButton.setVisibility(View.GONE);
-        }
-
-        if (mRoute.getSettingsIntent() != null) {
-            mCloseButton.setVisibility(View.VISIBLE);
-        } else {
-            mCloseButton.setVisibility(View.GONE);
-        }
-
-        if (mControlView == null) {
+        if (mCustomControlView == null) {
             if (mFetchArtTask != null) {
                 mFetchArtTask.cancel(true);
             }
             mArtView.setVisibility(View.GONE);
             mFetchArtTask = new FetchArtTask();
             mFetchArtTask.execute();
-
-            CharSequence title = mDescription == null ? null : mDescription.getTitle();
-            boolean hasTitle = !TextUtils.isEmpty(title);
-
-            CharSequence subtitle = mDescription == null ? null : mDescription.getSubtitle();
-            boolean hasSubtitle = !TextUtils.isEmpty(subtitle);
-
-            if (!hasTitle && !hasSubtitle) {
-                mTitleView.setText(R.string.mr_controller_no_info_available);
-                mTitleView.setEnabled(false);
-                mTitleView.setVisibility(View.VISIBLE);
-                mSubtitleView.setVisibility(View.GONE);
-            } else {
-                mTitleView.setText(title);
-                mTitleView.setEnabled(hasTitle);
-                mTitleView.setVisibility(hasTitle ? View.VISIBLE : View.GONE);
-                mSubtitleView.setText(subtitle);
-                mSubtitleView.setVisibility(hasSubtitle ? View.VISIBLE : View.GONE);
-            }
-            if (mState != null) {
-                boolean isPlaying = mState.getState() == PlaybackStateCompat.STATE_BUFFERING
-                        || mState.getState() == PlaybackStateCompat.STATE_PLAYING;
-                boolean supportsPlay = (mState.getActions() & (PlaybackStateCompat.ACTION_PLAY
-                        | PlaybackStateCompat.ACTION_PLAY_PAUSE)) != 0;
-                boolean supportsPause = (mState.getActions() & (PlaybackStateCompat.ACTION_PAUSE
-                                | PlaybackStateCompat.ACTION_PLAY_PAUSE)) != 0;
-                if (isPlaying && supportsPause) {
-                    mPlayPauseButton.setVisibility(View.VISIBLE);
-                    mPlayPauseButton.setImageResource(MediaRouterThemeHelper.getThemeResource(
-                            getContext(), R.attr.mediaRoutePauseDrawable));
-                    mPlayPauseButton.setContentDescription(getContext().getResources()
-                            .getText(R.string.mr_controller_pause));
-                } else if (!isPlaying && supportsPlay) {
-                    mPlayPauseButton.setVisibility(View.VISIBLE);
-                    mPlayPauseButton.setImageResource(MediaRouterThemeHelper.getThemeResource(
-                            getContext(), R.attr.mediaRoutePlayDrawable));
-                    mPlayPauseButton.setContentDescription(getContext().getResources()
-                            .getText(R.string.mr_controller_play));
-                } else {
-                    mPlayPauseButton.setVisibility(View.GONE);
-                }
-            } else {
-                mPlayPauseButton.setVisibility(View.GONE);
-            }
         }
-        return true;
-    }
-
-    private void updateVolume() {
-        if (!mVolumeSliderTouched) {
-            if (isVolumeControlAvailable()) {
-                mVolumeLayout.setVisibility(View.VISIBLE);
-                mVolumeSlider.setMax(mRoute.getVolumeMax());
-                mVolumeSlider.setProgress(mRoute.getVolume());
-                if (USE_GROUP) {
-                    if (getGroup() == null) {
-                        mGroupExpandCollapseButton.setVisibility(View.GONE);
-                    } else {
-                        mGroupExpandCollapseButton.setVisibility(View.VISIBLE);
-                        VolumeGroupAdapter adapter =
-                                (VolumeGroupAdapter) mVolumeGroupList.getAdapter();
-                        if (adapter != null) {
-                            adapter.notifyDataSetChanged();
-                        }
-                    }
-                }
-            } else {
-                mVolumeLayout.setVisibility(View.GONE);
-            }
-        }
+        mControlAdapter.updateVolumeControl();
+        mControlAdapter.updatePlaybackControl();
     }
 
     private boolean isVolumeControlAvailable() {
@@ -568,7 +421,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         @Override
         public void onRouteVolumeChanged(MediaRouter router, MediaRouter.RouteInfo route) {
             if (route == mRoute) {
-                updateVolume();
+                mControlAdapter.updateVolumeControl();
             }
         }
     }
@@ -606,7 +459,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                             MediaRouter.UNSELECT_REASON_DISCONNECTED);
                 }
                 dismiss();
-            } else if (id == R.id.play_pause) {
+            } else if (id == R.id.mr_control_play_pause) {
                 if (mMediaController != null && mState != null) {
                     if (mState.getState() == PlaybackStateCompat.STATE_PLAYING) {
                         mMediaController.getTransportControls().pause();
@@ -616,6 +469,190 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 }
             } else if (id == R.id.close) {
                 dismiss();
+            }
+        }
+    }
+
+    // TODO: Consider to implement the default controls using LinearLayout instead of ListView.
+    private class MediaRouteControlAdapter extends ArrayAdapter<View> {
+        private List<View> mItemViews;
+
+        private RelativeLayout mPlaybackControl;
+        private TextView mTitleView;
+        private TextView mSubtitleView;
+        private ImageButton mPlayPauseButton;
+
+        private LinearLayout mVolumeControl;
+        private SeekBar mVolumeSlider;
+        private ImageButton mGroupExpandCollapseButton;
+        private boolean mVolumeSliderTouched;
+
+
+        public MediaRouteControlAdapter(Context context, List<View> itemViews,
+                ClickListener listener) {
+            super(context, 0, itemViews);
+            mItemViews = itemViews;
+
+            mPlaybackControl = (RelativeLayout) LayoutInflater.from(context).inflate(
+                    R.layout.mr_playback_control, mControlView);
+            mTitleView = (TextView) mPlaybackControl.findViewById(R.id.mr_control_title);
+            mSubtitleView = (TextView) mPlaybackControl.findViewById(R.id.mr_control_subtitle);
+            mPlayPauseButton = (ImageButton) mPlaybackControl.findViewById(
+                    R.id.mr_control_play_pause);
+            mPlayPauseButton.setOnClickListener(listener);
+
+            mVolumeControl = (LinearLayout) LayoutInflater.from(context).inflate(
+                    R.layout.mr_volume_control, mControlView);
+            mVolumeSlider = (SeekBar) mVolumeControl.findViewById(R.id.mr_volume_slider);
+            mVolumeSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                private final Runnable mStopTrackingTouch = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mVolumeSliderTouched) {
+                            mVolumeSliderTouched = false;
+                            updateVolumeControl();
+                        }
+                    }
+                };
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+                    if (mVolumeSliderTouched) {
+                        mVolumeSlider.removeCallbacks(mStopTrackingTouch);
+                    } else {
+                        mVolumeSliderTouched = true;
+                    }
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                    // Defer resetting mVolumeSliderTouched to allow the media route provider
+                    // a little time to settle into its new state and publish the final
+                    // volume update.
+                    mVolumeSlider.postDelayed(mStopTrackingTouch, VOLUME_UPDATE_DELAY_MILLIS);
+                }
+
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    if (fromUser) {
+                        mRoute.requestSetVolume(progress);
+                    }
+                }
+            });
+
+            TypedArray styledAttributes = context.obtainStyledAttributes(new int[] {
+                    R.attr.mediaRouteExpandGroupDrawable,
+                    R.attr.mediaRouteCollapseGroupDrawable
+            });
+            final Drawable expandGroupDrawable = styledAttributes.getDrawable(0);
+            final Drawable collapseGroupDrawable = styledAttributes.getDrawable(1);
+            styledAttributes.recycle();
+
+            mGroupExpandCollapseButton = (ImageButton) mVolumeControl.findViewById(
+                    R.id.mr_group_expand_collapse);
+            mGroupExpandCollapseButton.setOnClickListener(new View.OnClickListener() {
+                private boolean mIsExpanded;
+
+                @Override
+                public void onClick(View v) {
+                    mIsExpanded = !mIsExpanded;
+                    if (mIsExpanded) {
+                        mGroupExpandCollapseButton.setImageDrawable(collapseGroupDrawable);
+                        mVolumeGroupList.setVisibility(View.VISIBLE);
+                        mVolumeGroupList.setAdapter(
+                                new VolumeGroupAdapter(getContext(), getGroup().getRoutes()));
+                    } else {
+                        mGroupExpandCollapseButton.setImageDrawable(expandGroupDrawable);
+                        mVolumeGroupList.setVisibility(View.GONE);
+                    }
+                }
+            });
+        }
+
+        @Override
+        public View getView(final int position, View convertView, ViewGroup parent) {
+            return mItemViews.get(position);
+        }
+
+        public void updateVolumeControl() {
+            if (!mVolumeSliderTouched) {
+                if (isVolumeControlAvailable()) {
+                    if (!mItemViews.contains(mVolumeControl)) {
+                        mItemViews.add(mVolumeControl);
+
+                        notifyDataSetChanged();
+                    }
+                    mVolumeSlider.setMax(mRoute.getVolumeMax());
+                    mVolumeSlider.setProgress(mRoute.getVolume());
+                    if (USE_GROUP) {
+                        if (getGroup() == null) {
+                            mGroupExpandCollapseButton.setVisibility(View.GONE);
+                        } else {
+                            mGroupExpandCollapseButton.setVisibility(View.VISIBLE);
+                            VolumeGroupAdapter adapter =
+                                    (VolumeGroupAdapter) mVolumeGroupList.getAdapter();
+                            if (adapter != null) {
+                                adapter.notifyDataSetChanged();
+                            }
+                        }
+                    }
+                } else if (mItemViews.contains(mVolumeControl)) {
+                    mItemViews.remove(mVolumeControl);
+                    notifyDataSetChanged();
+                }
+            }
+        }
+
+        public void updatePlaybackControl() {
+            if (mCustomControlView == null) {
+                if (!mItemViews.contains(mPlaybackControl)) {
+                    mItemViews.add(0, mPlaybackControl);
+                    notifyDataSetChanged();
+                }
+                CharSequence title = mDescription == null ? null : mDescription.getTitle();
+                boolean hasTitle = !TextUtils.isEmpty(title);
+
+                CharSequence subtitle = mDescription == null ? null : mDescription.getSubtitle();
+                boolean hasSubtitle = !TextUtils.isEmpty(subtitle);
+
+                if (!hasTitle && !hasSubtitle) {
+                    mTitleView.setText(R.string.mr_controller_no_info_available);
+                    mTitleView.setEnabled(false);
+                    mTitleView.setVisibility(View.VISIBLE);
+                    mSubtitleView.setVisibility(View.GONE);
+                } else {
+                    mTitleView.setText(title);
+                    mTitleView.setEnabled(hasTitle);
+                    mTitleView.setVisibility(hasTitle ? View.VISIBLE : View.GONE);
+                    mSubtitleView.setText(subtitle);
+                    mSubtitleView.setVisibility(hasSubtitle ? View.VISIBLE : View.GONE);
+                }
+                if (mState != null) {
+                    boolean isPlaying = mState.getState() == PlaybackStateCompat.STATE_BUFFERING
+                            || mState.getState() == PlaybackStateCompat.STATE_PLAYING;
+                    boolean supportsPlay = (mState.getActions() & (PlaybackStateCompat.ACTION_PLAY
+                            | PlaybackStateCompat.ACTION_PLAY_PAUSE)) != 0;
+                    boolean supportsPause = (mState.getActions() & (PlaybackStateCompat.ACTION_PAUSE
+                            | PlaybackStateCompat.ACTION_PLAY_PAUSE)) != 0;
+                    if (isPlaying && supportsPause) {
+                        mPlayPauseButton.setVisibility(View.VISIBLE);
+                        mPlayPauseButton.setImageResource(MediaRouterThemeHelper.getThemeResource(
+                                getContext(), R.attr.mediaRoutePauseDrawable));
+                        mPlayPauseButton.setContentDescription(getContext().getResources()
+                                .getText(R.string.mr_controller_pause));
+                    } else if (!isPlaying && supportsPlay) {
+                        mPlayPauseButton.setVisibility(View.VISIBLE);
+                        mPlayPauseButton.setImageResource(MediaRouterThemeHelper.getThemeResource(
+                                getContext(), R.attr.mediaRoutePlayDrawable));
+                        mPlayPauseButton.setContentDescription(getContext().getResources()
+                                .getText(R.string.mr_controller_play));
+                    } else {
+                        mPlayPauseButton.setVisibility(View.GONE);
+                    }
+                }
+            } else if (mItemViews.contains(mPlaybackControl)) {
+                mItemViews.remove(mPlaybackControl);
+                notifyDataSetChanged();
             }
         }
     }
@@ -658,11 +695,11 @@ public class MediaRouteControllerDialog extends AlertDialog {
             if (route != null) {
                 boolean isEnabled = route.isEnabled();
 
-                TextView routeName = (TextView) v.findViewById(R.id.media_route_name);
+                TextView routeName = (TextView) v.findViewById(R.id.mr_name);
                 routeName.setEnabled(isEnabled);
                 routeName.setText(route.getName());
 
-                SeekBar volumeSlider = (SeekBar) v.findViewById(R.id.media_route_volume_slider);
+                SeekBar volumeSlider = (SeekBar) v.findViewById(R.id.mr_volume_slider);
                 volumeSlider.setEnabled(isEnabled);
                 volumeSlider.setTag(position);
                 if (isEnabled) {
@@ -683,7 +720,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 // }
 
                 ImageView volumeItemIcon =
-                        (ImageView) v.findViewById(R.id.media_route_volume_item_icon);
+                        (ImageView) v.findViewById(R.id.mr_volume_item_icon);
                 volumeItemIcon.setAlpha(isEnabled ? 255 : (int)(255 * DISABLED_ALPHA));
             }
             return v;
