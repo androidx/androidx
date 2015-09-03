@@ -452,8 +452,16 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 mVolumeSlider.setMax(mRoute.getVolumeMax());
                 mVolumeSlider.setProgress(mRoute.getVolume());
                 if (USE_GROUP) {
-                    mGroupExpandCollapseButton.setVisibility(
-                            getGroup() != null ? View.VISIBLE : View.GONE);
+                    if (getGroup() == null) {
+                        mGroupExpandCollapseButton.setVisibility(View.GONE);
+                    } else {
+                        mGroupExpandCollapseButton.setVisibility(View.VISIBLE);
+                        VolumeGroupAdapter adapter =
+                                (VolumeGroupAdapter) mVolumeGroupList.getAdapter();
+                        if (adapter != null) {
+                            adapter.notifyDataSetChanged();
+                        }
+                    }
                 }
             } else {
                 mVolumeLayout.setVisibility(View.GONE);
@@ -533,6 +541,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
     }
 
     private class VolumeGroupAdapter extends ArrayAdapter<MediaRouter.RouteInfo> {
+        final static float DISABLED_ALPHA = .3f;
+
         final OnSeekBarChangeListener mOnSeekBarChangeListener = new OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -566,20 +576,35 @@ public class MediaRouteControllerDialog extends AlertDialog {
             }
             MediaRouter.RouteInfo route = getItem(position);
             if (route != null) {
-                TextView textView = (TextView) v.findViewById(R.id.media_route_name);
-                textView.setText(route.getName());
+                boolean isEnabled = route.isEnabled();
+
+                TextView routeName = (TextView) v.findViewById(R.id.media_route_name);
+                routeName.setEnabled(isEnabled);
+                routeName.setText(route.getName());
 
                 SeekBar volumeSlider = (SeekBar) v.findViewById(R.id.media_route_volume_slider);
-                if (route.getVolumeHandling() == MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE) {
-                    volumeSlider.setMax(route.getVolumeMax());
-                    volumeSlider.setProgress(route.getVolume());
-                    volumeSlider.setOnSeekBarChangeListener(mOnSeekBarChangeListener);
-                } else {
-                    volumeSlider.setMax(100);
-                    volumeSlider.setProgress(100);
-                    volumeSlider.setEnabled(false);
-                }
+                volumeSlider.setEnabled(isEnabled);
                 volumeSlider.setTag(position);
+                if (isEnabled) {
+                    if (route.getVolumeHandling()
+                            == MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE) {
+                        volumeSlider.setMax(route.getVolumeMax());
+                        volumeSlider.setProgress(route.getVolume());
+                        volumeSlider.setOnSeekBarChangeListener(mOnSeekBarChangeListener);
+                    } else {
+                        volumeSlider.setMax(100);
+                        volumeSlider.setProgress(100);
+                        volumeSlider.setEnabled(false);
+                    }
+                }
+                // TODO: Find a way to hide the scroll thumb.
+                // if (Build.VERSION.SDK_INT >= 16) {
+                //     volumeSlider.getThumb().setAlpha(isEnabled ? 255 : 0);
+                // }
+
+                ImageView volumeItemIcon =
+                        (ImageView) v.findViewById(R.id.media_route_volume_item_icon);
+                volumeItemIcon.setAlpha(isEnabled ? 255 : (int)(255 * DISABLED_ALPHA));
             }
             return v;
         }
