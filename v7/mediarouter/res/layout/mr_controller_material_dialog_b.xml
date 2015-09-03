@@ -18,13 +18,13 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:orientation="vertical">
-    <LinearLayout android:id="@+id/title_bar"
+    <LinearLayout android:id="@+id/mr_title_bar"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:paddingLeft="24dp"
                   android:paddingRight="24dp"
                   android:orientation="horizontal" >
-        <TextView android:id="@+id/route_name"
+        <TextView android:id="@+id/mr_name"
                   android:layout_width="0dp"
                   android:layout_height="72dp"
                   android:layout_weight="1"
@@ -32,7 +32,7 @@
                   android:singleLine="true"
                   android:ellipsize="end"
                   android:textAppearance="?attr/mediaRouteControllerTitleTextStyle" />
-        <ImageButton android:id="@+id/close"
+        <ImageButton android:id="@+id/mr_close"
                      android:layout_width="24dp"
                      android:layout_height="24dp"
                      android:layout_marginLeft="12dp"
@@ -41,7 +41,7 @@
                      android:src="?attr/mediaRouteCloseDrawable"
                      android:background="?attr/selectableItemBackgroundBorderless" />
     </LinearLayout>
-    <FrameLayout android:id="@+id/custom_control_frame"
+    <FrameLayout android:id="@+id/mr_custom_control"
                  android:layout_width="match_parent"
                  android:layout_height="wrap_content"
                  android:visibility="gone" />
@@ -74,11 +74,11 @@
               android:layout_height="wrap_content"
               android:background="?attr/colorPrimaryDark"
               android:visibility="gone" />
-    <LinearLayout android:id="@+id/buttons"
+    <LinearLayout android:id="@+id/mr_buttons"
                   android:layout_width="fill_parent"
                   android:layout_height="wrap_content"
                   android:orientation="horizontal">
-        <Button android:id="@+id/disconnect"
+        <Button android:id="@+id/mr_button_disconnect"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:gravity="center"
@@ -86,7 +86,7 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:text="@string/mr_controller_disconnect"
                 android:visibility="invisible" />
-        <Button android:id="@+id/stop"
+        <Button android:id="@+id/mr_button_stop"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:gravity="center"
