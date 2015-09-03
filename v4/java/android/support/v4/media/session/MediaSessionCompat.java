@@ -2012,12 +2012,14 @@ public class MediaSessionCompat {
 
         @Override
         public void setPlaybackState(PlaybackStateCompat state) {
-            MediaSessionCompatApi21.setPlaybackState(mSessionObj, state.getPlaybackState());
+            MediaSessionCompatApi21.setPlaybackState(mSessionObj,
+                    state == null ? null : state.getPlaybackState());
         }
 
         @Override
         public void setMetadata(MediaMetadataCompat metadata) {
-            MediaSessionCompatApi21.setMetadata(mSessionObj, metadata.getMediaMetadata());
+            MediaSessionCompatApi21.setMetadata(mSessionObj,
+                    metadata == null ? null : metadata.getMediaMetadata());
         }
 
         @Override
