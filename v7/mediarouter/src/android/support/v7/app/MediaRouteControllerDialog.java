@@ -29,6 +29,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -39,6 +40,7 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.graphics.Palette;
 import android.support.v7.media.MediaRouteSelector;
 import android.support.v7.media.MediaRouter;
+import android.support.v7.media.SeekBarJellybean;
 import android.support.v7.mediarouter.R;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -710,10 +712,10 @@ public class MediaRouteControllerDialog extends AlertDialog {
                         volumeSlider.setEnabled(false);
                     }
                 }
-                // TODO: Find a way to hide the scroll thumb.
-                // if (Build.VERSION.SDK_INT >= 16) {
-                //     volumeSlider.getThumb().setAlpha(isEnabled ? 255 : 0);
-                // }
+                if (Build.VERSION.SDK_INT >= 16) {
+                    SeekBarJellybean.getThumb(volumeSlider).mutate().setAlpha(isEnabled ? 255 : 0);
+                    // TODO: Still see an artifact even though the thumb is transparent. Remove it.
+                }
 
                 ImageView volumeItemIcon =
                         (ImageView) v.findViewById(R.id.mr_volume_item_icon);
