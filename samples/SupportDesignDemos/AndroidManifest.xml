@@ -109,6 +109,15 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".widget.AppBarLayoutToolbarScrollTabsScrollSnap"
+                  android:label="@string/design_appbar_toolbar_scroll_tabs_scroll_snap"
+                  android:theme="@style/Theme.Design">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.support.design.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".widget.AppBarLayoutToolbarScrollTabsPin"
                   android:label="@string/design_appbar_toolbar_scroll_tabs_pin"
                   android:theme="@style/Theme.Design">
