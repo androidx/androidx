@@ -93,7 +93,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private int mOrientation;
     private int mDialogWidthPortrait;
     private int mDialogWidthLandscape;
-    private int mDialogPaddingVertical;
     private int mDialogPaddingHorizontal;
 
     private View mCustomControlView;
@@ -255,7 +254,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 R.dimen.mr_dialog_content_width_portrait) + mDialogPaddingHorizontal;
         mDialogWidthLandscape = res.getDimensionPixelSize(
                 R.dimen.mr_dialog_content_width_landscape) + mDialogPaddingHorizontal;
-        mDialogPaddingVertical = decorView.getPaddingTop() + decorView.getPaddingBottom();
 
         ClickListener listener = new ClickListener();
 
@@ -369,10 +367,20 @@ public class MediaRouteControllerDialog extends AlertDialog {
             return;
         }
         mOrientation = orientation;
-        getWindow().setLayout(
-                mOrientation == Configuration.ORIENTATION_LANDSCAPE
-                        ? mDialogWidthLandscape : mDialogWidthPortrait,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
+        int dialogWidth = mOrientation == Configuration.ORIENTATION_LANDSCAPE
+                ? mDialogWidthLandscape : mDialogWidthPortrait;
+        int buttonWidth = (dialogWidth - mDialogPaddingHorizontal) / 2;
+        getWindow().setLayout(dialogWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+        // Manually set the width of buttons to workaround unexpected text alignment changes.
+        ViewGroup.LayoutParams lp = mStopCastingButton.getLayoutParams();
+        lp.width = buttonWidth;
+        mStopCastingButton.setLayoutParams(lp);
+
+        lp = mDisconnectButton.getLayoutParams();
+        lp.width = buttonWidth;
+        mDisconnectButton.setLayoutParams(lp);
+
         updateArtView();
     }
 
@@ -458,7 +466,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
             } else {
                 mVolumeControl.setVisibility(View.GONE);
             }
-            adjustControlLayoutHeight();
+            updateControlLayoutHeight();
         }
     }
 
@@ -518,11 +526,11 @@ public class MediaRouteControllerDialog extends AlertDialog {
         } else {
             mPlaybackControl.setVisibility(View.GONE);
         }
-        adjustControlLayoutHeight();
+        updateControlLayoutHeight();
     }
 
-    private void adjustControlLayoutHeight() {
-        // TODO: Adjust the top and bottom padding of the control layout according to the display
+    private void updateControlLayoutHeight() {
+        // TODO: Update the top and bottom padding of the control layout according to the display
         // height.
         mDividerView.setVisibility((mVolumeControl.getVisibility() == View.VISIBLE
                 && mPlaybackControl.getVisibility() == View.VISIBLE)
