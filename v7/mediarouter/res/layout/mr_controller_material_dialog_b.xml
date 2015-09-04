@@ -89,13 +89,16 @@
                 android:gravity="center"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:text="@string/mr_controller_disconnect"
+                android:textColor="?attr/colorPrimary"
+                android:textStyle="bold"
                 android:visibility="invisible" />
         <Button android:id="@+id/mr_button_stop"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:gravity="center"
-                android:textColor="?attr/colorAccent"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:text="@string/mr_controller_stop" />
+                android:text="@string/mr_controller_stop"
+                android:textColor="?attr/colorPrimary"
+                android:textStyle="bold" />
     </LinearLayout>
 </LinearLayout>
