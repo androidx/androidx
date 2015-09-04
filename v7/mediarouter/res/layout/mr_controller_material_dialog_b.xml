@@ -82,7 +82,6 @@
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:gravity="center"
-                android:layout_weight="1"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:text="@string/mr_controller_disconnect"
                 android:visibility="invisible" />
@@ -90,7 +89,6 @@
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:gravity="center"
-                android:layout_weight="1"
                 android:textColor="?attr/colorAccent"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:text="@string/mr_controller_stop" />
