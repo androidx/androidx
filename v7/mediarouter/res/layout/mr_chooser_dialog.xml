@@ -14,18 +14,15 @@
      limitations under the License.
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="fill_parent"
-              android:layout_height="wrap_content"
-              android:orientation="vertical"
-              android:paddingTop="24dp"
-              android:paddingBottom="24dp">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="fill_parent"
+             android:layout_height="wrap_content" >
 
-    <ListView android:id="@+id/media_route_list"
+    <ListView android:id="@+id/mr_chooser_list"
               android:layout_width="fill_parent"
               android:layout_height="wrap_content"
               android:divider="@android:color/transparent"
-              android:dividerHeight="@dimen/mr_list_item_margin"/>
+              android:dividerHeight="0dp" />
 
     <LinearLayout android:id="@android:id/empty"
               android:layout_width="fill_parent"
@@ -45,4 +42,4 @@
                      android:indeterminate="true"
                      style="?android:attr/progressBarStyleHorizontal" />
     </LinearLayout>
-</LinearLayout>
+</FrameLayout>

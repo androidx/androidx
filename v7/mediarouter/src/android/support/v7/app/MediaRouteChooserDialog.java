@@ -174,9 +174,9 @@ public class MediaRouteChooserDialog extends Dialog {
         mDialogWidthLandscape = res.getDimensionPixelSize(
                 R.dimen.mr_dialog_content_width_landscape) + dialogHorizontalPadding;
 
-        mRoutes = new ArrayList<MediaRouter.RouteInfo>();
+        mRoutes = new ArrayList<>();
         mAdapter = new RouteAdapter(getContext(), mRoutes);
-        mListView = (ListView)findViewById(R.id.media_route_list);
+        mListView = (ListView)findViewById(R.id.mr_chooser_list);
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(mAdapter);
         mListView.setEmptyView(findViewById(android.R.id.empty));
@@ -269,12 +269,12 @@ public class MediaRouteChooserDialog extends Dialog {
         public View getView(int position, View convertView, ViewGroup parent) {
             View view = convertView;
             if (view == null) {
-                view = mInflater.inflate(R.layout.mr_list_item, parent, false);
+                view = mInflater.inflate(R.layout.mr_chooser_list_item, parent, false);
             }
 
             MediaRouter.RouteInfo route = getItem(position);
-            TextView text1 = (TextView) view.findViewById(android.R.id.text1);
-            TextView text2 = (TextView) view.findViewById(android.R.id.text2);
+            TextView text1 = (TextView) view.findViewById(R.id.mr_chooser_route_name);
+            TextView text2 = (TextView) view.findViewById(R.id.mr_chooser_route_desc);
             text1.setText(route.getName());
             String description = route.getDescription();
             boolean isConnectedOrConnecting =
@@ -291,7 +291,7 @@ public class MediaRouteChooserDialog extends Dialog {
             }
             view.setEnabled(route.isEnabled());
 
-            ImageView iconView = (ImageView) view.findViewById(R.id.routeIcon);
+            ImageView iconView = (ImageView) view.findViewById(R.id.mr_chooser_route_icon);
             if (iconView != null) {
                 iconView.setImageDrawable(getIconDrawable(route));
             }
