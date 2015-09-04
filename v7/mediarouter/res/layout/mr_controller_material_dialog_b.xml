@@ -22,7 +22,7 @@
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:paddingLeft="24dp"
-                  android:paddingRight="24dp"
+                  android:paddingRight="12dp"
                   android:orientation="horizontal" >
         <TextView android:id="@+id/mr_name"
                   android:layout_width="0dp"
@@ -33,9 +33,8 @@
                   android:ellipsize="end"
                   android:textAppearance="?attr/mediaRouteControllerTitleTextStyle" />
         <ImageButton android:id="@+id/mr_close"
-                     android:layout_width="24dp"
-                     android:layout_height="24dp"
-                     android:layout_marginLeft="12dp"
+                     android:layout_width="48dp"
+                     android:layout_height="48dp"
                      android:layout_gravity="center_vertical"
                      android:contentDescription="@string/mr_controller_close_description"
                      android:src="?attr/mediaRouteCloseDrawable"
