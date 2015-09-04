@@ -211,6 +211,43 @@ package android.support.v17.leanback.app {
     method protected void onProvideFragmentTransitions();
   }
 
+  public class GuidedStepSupportFragment extends android.support.v4.app.Fragment {
+    ctor public GuidedStepSupportFragment();
+    method public static int add(android.support.v4.app.FragmentManager, android.support.v17.leanback.app.GuidedStepSupportFragment);
+    method public static int add(android.support.v4.app.FragmentManager, android.support.v17.leanback.app.GuidedStepSupportFragment, int);
+    method public static int addAsRoot(android.support.v4.app.FragmentActivity, android.support.v17.leanback.app.GuidedStepSupportFragment, int);
+    method public android.view.View getActionItemView(int);
+    method public java.util.List<android.support.v17.leanback.widget.GuidedAction> getActions();
+    method protected int getContainerIdForBackground();
+    method public static android.support.v17.leanback.app.GuidedStepSupportFragment getCurrentGuidedStepSupportFragment(android.support.v4.app.FragmentManager);
+    method public android.support.v17.leanback.widget.GuidanceStylist getGuidanceStylist();
+    method public android.support.v17.leanback.widget.GuidedActionsStylist getGuidedActionsStylist();
+    method public int getSelectedActionPosition();
+    method public int getUiStyle();
+    method public void onCreateActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>, android.os.Bundle);
+    method public android.support.v17.leanback.widget.GuidedActionsStylist onCreateActionsStylist();
+    method public android.support.v17.leanback.widget.GuidanceStylist.Guidance onCreateGuidance(android.os.Bundle);
+    method public android.support.v17.leanback.widget.GuidanceStylist onCreateGuidanceStylist();
+    method public void onGuidedActionClicked(android.support.v17.leanback.widget.GuidedAction);
+    method public void onGuidedActionEdited(android.support.v17.leanback.widget.GuidedAction);
+    method public void onGuidedActionFocused(android.support.v17.leanback.widget.GuidedAction);
+    method protected android.support.v4.app.Fragment onProvideBackgroundSupportFragment();
+    method protected void onProvideFragmentTransitions();
+    method public int onProvideTheme();
+    method public void setActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>);
+    method public void setSelectedActionPosition(int);
+    method public void setUiStyle(int);
+    field public static final java.lang.String EXTRA_UI_STYLE = "uiStyle";
+    field public static final int UI_STYLE_ACTIVITY_ROOT = 2; // 0x2
+    field public static final int UI_STYLE_DEFAULT = 0; // 0x0
+    field public static final int UI_STYLE_ENTRANCE = 1; // 0x1
+  }
+
+  public static class GuidedStepSupportFragment.GuidedStepBackgroundSupportFragment extends android.support.v4.app.Fragment {
+    ctor public GuidedStepSupportFragment.GuidedStepBackgroundSupportFragment();
+    method protected void onProvideFragmentTransitions();
+  }
+
   public class HeadersFragment extends android.support.v17.leanback.app.BaseRowFragment {
     ctor public HeadersFragment();
     method public void setOnHeaderClickedListener(android.support.v17.leanback.app.HeadersFragment.OnHeaderClickedListener);
