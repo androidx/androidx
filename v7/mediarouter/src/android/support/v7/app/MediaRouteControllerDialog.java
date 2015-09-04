@@ -94,6 +94,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private int mDialogWidthPortrait;
     private int mDialogWidthLandscape;
     private int mDialogPaddingVertical;
+    private int mDialogPaddingHorizontal;
 
     private View mCustomControlView;
 
@@ -248,12 +249,12 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
         setContentView(R.layout.mr_controller_material_dialog_b);
         View decorView = getWindow().getDecorView();
-        int dialogHorizontalPadding = decorView.getPaddingLeft() + decorView.getPaddingRight();
+        mDialogPaddingHorizontal = decorView.getPaddingLeft() + decorView.getPaddingRight();
         Resources res = getContext().getResources();
         mDialogWidthPortrait = res.getDimensionPixelSize(
-                R.dimen.mr_dialog_content_width_portrait) + dialogHorizontalPadding;
+                R.dimen.mr_dialog_content_width_portrait) + mDialogPaddingHorizontal;
         mDialogWidthLandscape = res.getDimensionPixelSize(
-                R.dimen.mr_dialog_content_width_landscape) + dialogHorizontalPadding;
+                R.dimen.mr_dialog_content_width_landscape) + mDialogPaddingHorizontal;
         mDialogPaddingVertical = decorView.getPaddingTop() + decorView.getPaddingBottom();
 
         ClickListener listener = new ClickListener();
@@ -572,7 +573,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
      * Returns desired art height to fit into controller dialog.
      */
     private int getDesiredArtHeight(int originalWidth, int originalHeight) {
-        int dialogWidth = getWindow().getAttributes().width - mDialogPaddingVertical;
+        int dialogWidth = getWindow().getAttributes().width - mDialogPaddingHorizontal;
         if (originalWidth >= originalHeight) {
             // For landscape art, fit width to dialog width.
             return (int) ((float) dialogWidth * originalHeight / originalWidth + 0.5f);
