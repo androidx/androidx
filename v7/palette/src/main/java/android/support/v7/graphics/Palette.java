@@ -24,6 +24,7 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.support.v4.graphics.ColorUtils;
 import android.support.v4.os.AsyncTaskCompat;
+import android.util.Log;
 import android.util.TimingLogger;
 
 import java.util.ArrayList;
@@ -659,7 +660,12 @@ public final class Palette {
                     new AsyncTask<Bitmap, Void, Palette>() {
                         @Override
                         protected Palette doInBackground(Bitmap... params) {
-                            return generate();
+                            try {
+                                return generate();
+                            } catch (Exception e) {
+                                Log.e(LOG_TAG, "Exception thrown during async generate", e);
+                                return null;
+                            }
                         }
 
                         @Override
