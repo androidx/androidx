@@ -91,6 +91,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
     private boolean mCreated;
     private boolean mAttachedToWindow;
+
     private int mOrientation;
     private int mDialogWidthPortrait;
     private int mDialogWidthLandscape;
@@ -251,13 +252,10 @@ public class MediaRouteControllerDialog extends AlertDialog {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.mr_controller_material_dialog_b);
-        View decorView = getWindow().getDecorView();
-        mDialogPaddingHorizontal = decorView.getPaddingLeft() + decorView.getPaddingRight();
         Resources res = getContext().getResources();
-        mDialogWidthPortrait = res.getDimensionPixelSize(
-                R.dimen.mr_dialog_content_width_portrait) + mDialogPaddingHorizontal;
+        mDialogWidthPortrait = res.getDimensionPixelSize(R.dimen.mr_dialog_content_width_portrait);
         mDialogWidthLandscape = res.getDimensionPixelSize(
-                R.dimen.mr_dialog_content_width_landscape) + mDialogPaddingHorizontal;
+                R.dimen.mr_dialog_content_width_landscape);
 
         ClickListener listener = new ClickListener();
 
@@ -380,10 +378,14 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mOrientation = orientation;
         int dialogWidth = mOrientation == Configuration.ORIENTATION_LANDSCAPE
                 ? mDialogWidthLandscape : mDialogWidthPortrait;
-        int buttonWidth = (dialogWidth - mDialogPaddingHorizontal) / 2;
         getWindow().setLayout(dialogWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
 
+        View decorView = getWindow().getDecorView();
+        mDialogPaddingHorizontal = decorView.getPaddingLeft() + decorView.getPaddingRight();
+
         // Manually set the width of buttons to workaround unexpected text alignment changes.
+        int buttonWidth = (dialogWidth - mDialogPaddingHorizontal) / 2;
+
         ViewGroup.LayoutParams lp = mStopCastingButton.getLayoutParams();
         lp.width = buttonWidth;
         mStopCastingButton.setLayoutParams(lp);
