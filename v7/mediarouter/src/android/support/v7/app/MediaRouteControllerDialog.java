@@ -49,6 +49,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -104,6 +105,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private ImageButton mGroupExpandCollapseButton;
 
     private FrameLayout mCustomControlLayout;
+    private FrameLayout mDefaultControlLayout;
+    private boolean mNeedToAdjustControlFrameLayout = true;
     private ImageView mArtView;
     private TextView mTitleView;
     private TextView mSubtitleView;
@@ -125,6 +128,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private MediaDescriptionCompat mDescription;
 
     private FetchArtTask mFetchArtTask;
+    private boolean mIsGroupExpanded;
 
     public MediaRouteControllerDialog(Context context) {
         this(context, 0);
@@ -267,6 +271,14 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mCloseButton = (ImageButton) findViewById(R.id.mr_close);
         mCloseButton.setOnClickListener(listener);
         mCustomControlLayout = (FrameLayout) findViewById(R.id.mr_custom_control);
+        mDefaultControlLayout = (FrameLayout) findViewById(R.id.mr_default_control);
+        ViewTreeObserver observer = mDefaultControlLayout.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                updateControlFrameLayout();
+            }
+        });
         mArtView = (ImageView) findViewById(R.id.mr_art);
 
         mControlLayout = (LinearLayout) findViewById(R.id.mr_control);
@@ -327,12 +339,10 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mVolumeGroupList = (ListView)findViewById(R.id.mr_volume_group_list);
         mGroupExpandCollapseButton = (ImageButton) findViewById(R.id.mr_group_expand_collapse);
         mGroupExpandCollapseButton.setOnClickListener(new View.OnClickListener() {
-            private boolean mIsExpanded;
-
             @Override
             public void onClick(View v) {
-                mIsExpanded = !mIsExpanded;
-                if (mIsExpanded) {
+                mIsGroupExpanded = !mIsGroupExpanded;
+                if (mIsGroupExpanded) {
                     mGroupExpandCollapseButton.setImageDrawable(collapseGroupDrawable);
                     mVolumeGroupList.setVisibility(View.VISIBLE);
                     mVolumeGroupList.setAdapter(
@@ -341,6 +351,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                     mGroupExpandCollapseButton.setImageDrawable(expandGroupDrawable);
                     mVolumeGroupList.setVisibility(View.GONE);
                 }
+                mNeedToAdjustControlFrameLayout = true;
             }
         });
 
@@ -540,12 +551,37 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 ? View.GONE : View.VISIBLE);
     }
 
+    private void updateControlFrameLayout() {
+        if (!mNeedToAdjustControlFrameLayout) {
+            return;
+        }
+        int height;
+        if (mArtView.getVisibility() == View.GONE) {
+            height = LinearLayout.LayoutParams.WRAP_CONTENT;
+        } else if (!mIsGroupExpanded) {
+            height = mArtView.getHeight() + mControlLayout.getHeight();
+        } else {
+            if (mVolumeGroupList.getAdapter().getCount() <= 2) {
+                // Push the controls up and cover the artwork.
+                height = mArtView.getHeight() + mControlLayout.getHeight()
+                        - mVolumeGroupList.getHeight();
+            } else {
+                // If there are 3 or more, the controls completely cover the artwork.
+                height = mControlLayout.getHeight();
+            }
+        }
+        mDefaultControlLayout.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.FILL_PARENT, height));
+        mNeedToAdjustControlFrameLayout = false;
+    }
+
     private boolean isVolumeControlAvailable() {
         return mVolumeControlEnabled && mRoute.getVolumeHandling() ==
                 MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE;
     }
 
     private void updateArtView() {
+        mNeedToAdjustControlFrameLayout = true;
         if (!(mArtView.getDrawable() instanceof BitmapDrawable)) {
             mArtView.setVisibility(View.GONE);
             return;
