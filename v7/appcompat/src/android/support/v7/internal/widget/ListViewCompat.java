@@ -304,14 +304,24 @@ public class ListViewCompat extends ListView {
 
             // Compute child height spec
             int heightMeasureSpec;
-            final ViewGroup.LayoutParams childLp = child.getLayoutParams();
-            if (childLp != null && childLp.height > 0) {
+            ViewGroup.LayoutParams childLp = child.getLayoutParams();
+
+            if (childLp == null) {
+                childLp = generateDefaultLayoutParams();
+                child.setLayoutParams(childLp);
+            }
+
+            if (childLp.height > 0) {
                 heightMeasureSpec = MeasureSpec.makeMeasureSpec(childLp.height,
                         MeasureSpec.EXACTLY);
             } else {
                 heightMeasureSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
             }
             child.measure(widthMeasureSpec, heightMeasureSpec);
+
+            // Since this view was measured directly aginst the parent measure
+            // spec, we must measure it again before reuse.
+            child.forceLayout();
 
             if (i > 0) {
                 // Count the divider for all but one child
@@ -396,6 +406,4 @@ public class ListViewCompat extends ListView {
             return false;
         }
     }
-
-
 }
