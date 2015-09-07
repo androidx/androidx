@@ -50,6 +50,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
@@ -602,7 +603,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
         int dialogWidth = displayMetrics.widthPixels < displayMetrics.heightPixels
                 ? mDialogWidthPortrait : mDialogWidthLandscape;
         View decorView = getWindow().getDecorView();
-        decorView.measure(dialogWidth, View.MeasureSpec.UNSPECIFIED);
+        int widthMeasureSpec = MeasureSpec.makeMeasureSpec(dialogWidth, MeasureSpec.EXACTLY);
+        decorView.measure(widthMeasureSpec, MeasureSpec.UNSPECIFIED);
         // Show art if and only if it fits in the screen.
         if (mArtView.getVisibility() == View.GONE) {
             if (decorView.getMeasuredHeight() + desiredArtHeight <= displayMetrics.heightPixels) {
