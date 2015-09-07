@@ -257,9 +257,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
         setContentView(R.layout.mr_controller_material_dialog_b);
         Resources res = getContext().getResources();
-        mDialogWidthPortrait = res.getDimensionPixelSize(R.dimen.mr_dialog_content_width_portrait);
-        mDialogWidthLandscape = res.getDimensionPixelSize(
-                R.dimen.mr_dialog_content_width_landscape);
+        mDialogWidthPortrait = res.getDimensionPixelSize(R.dimen.mr_dialog_fixed_width_minor);
+        mDialogWidthLandscape = res.getDimensionPixelSize(R.dimen.mr_dialog_fixed_width_major);
 
         ClickListener listener = new ClickListener();
 
