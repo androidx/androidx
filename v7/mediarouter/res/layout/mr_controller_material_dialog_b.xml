@@ -55,7 +55,7 @@
                    android:background="?attr/colorPrimary"
                    android:layout_gravity="top"
                    android:visibility="gone" />
-        <LinearLayout android:id="@+id/mr_control"
+        <LinearLayout android:id="@+id/mr_media_control"
                       android:layout_width="fill_parent"
                       android:layout_height="wrap_content"
                       android:orientation="vertical"
