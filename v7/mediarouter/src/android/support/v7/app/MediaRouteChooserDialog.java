@@ -161,15 +161,22 @@ public class MediaRouteChooserDialog extends Dialog {
         setContentView(R.layout.mr_chooser_dialog);
         setTitle(R.string.mr_chooser_title);
 
-        getWindow().setLayout(MediaRouteDialogHelper.getDialogWidth(getContext()),
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-
         mRoutes = new ArrayList<>();
         mAdapter = new RouteAdapter(getContext(), mRoutes);
         mListView = (ListView)findViewById(R.id.mr_chooser_list);
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(mAdapter);
         mListView.setEmptyView(findViewById(android.R.id.empty));
+
+        updateLayout();
+    }
+
+    /**
+     * Sets the width of the dialog. Also called when configuration changes.
+     */
+    void updateLayout() {
+        getWindow().setLayout(MediaRouteDialogHelper.getDialogWidth(getContext()),
+                ViewGroup.LayoutParams.WRAP_CONTENT);
     }
 
     @Override
