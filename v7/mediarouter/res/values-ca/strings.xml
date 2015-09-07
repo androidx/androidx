@@ -23,10 +23,12 @@
     <string name="mr_chooser_searching" msgid="6349900579507521956">"S\'estan cercant dispositius"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"Desconnecta"</string>
     <string name="mr_controller_stop" msgid="4570331844078181931">"Atura l\'emissió"</string>
-    <string name="mr_controller_close_description" msgid="4486012669499843598">"Tanca el quadre de diàleg del controlador"</string>
+    <string name="mr_controller_close_description" msgid="7333862312480583260">"Tanca"</string>
     <string name="mr_controller_play" msgid="683634565969987458">"Reprodueix"</string>
     <string name="mr_controller_pause" msgid="5451884435510905406">"Posa en pausa"</string>
-    <string name="mr_controller_collapse_group" msgid="6536023685722551262">"Replega el grup"</string>
-    <string name="mr_controller_expand_group" msgid="6892977944835020618">"Desplega el grup"</string>
+    <string name="mr_controller_expand_group" msgid="6901500538649315763">"Desplegament del grup"</string>
+    <string name="mr_controller_collapse_group" msgid="1521128951309799184">"Replegament del grup"</string>
+    <string name="mr_controller_no_media_selected" msgid="6547130360349182381">"No s\'ha seleccionat cap fitxer multimèdia"</string>
     <string name="mr_controller_no_info_available" msgid="5585418471741142924">"No hi ha informació disponible"</string>
+    <string name="mr_controller_casting_screen" msgid="4868457957151124867">"Emissió de pantalla"</string>
 </resources>

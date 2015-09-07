@@ -23,10 +23,12 @@
     <string name="mr_chooser_searching" msgid="6349900579507521956">"正在尋找裝置"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"中斷連線"</string>
     <string name="mr_controller_stop" msgid="4570331844078181931">"停止投放"</string>
-    <string name="mr_controller_close_description" msgid="4486012669499843598">"關閉控制器對話框"</string>
+    <string name="mr_controller_close_description" msgid="7333862312480583260">"關閉"</string>
     <string name="mr_controller_play" msgid="683634565969987458">"播放"</string>
     <string name="mr_controller_pause" msgid="5451884435510905406">"暫停"</string>
-    <string name="mr_controller_collapse_group" msgid="6536023685722551262">"收合群組"</string>
-    <string name="mr_controller_expand_group" msgid="6892977944835020618">"展開群組"</string>
+    <string name="mr_controller_expand_group" msgid="6901500538649315763">"群組展開"</string>
+    <string name="mr_controller_collapse_group" msgid="1521128951309799184">"群組收合"</string>
+    <string name="mr_controller_no_media_selected" msgid="6547130360349182381">"尚未選擇媒體"</string>
     <string name="mr_controller_no_info_available" msgid="5585418471741142924">"沒有詳細資料"</string>
+    <string name="mr_controller_casting_screen" msgid="4868457957151124867">"正在投放螢幕"</string>
 </resources>
