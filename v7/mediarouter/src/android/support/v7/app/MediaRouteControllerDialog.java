@@ -25,6 +25,7 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -46,6 +47,7 @@ import android.support.v7.mediarouter.R;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -86,6 +88,10 @@ public class MediaRouteControllerDialog extends AlertDialog {
     // to allow the route provider time to propagate the change and publish a new
     // route descriptor.
     private static final int VOLUME_UPDATE_DELAY_MILLIS = 250;
+
+    private static final int BUTTON_NEUTRAL_RES_ID = android.R.id.button3;
+    private static final int BUTTON_DISCONNECT_RES_ID = android.R.id.button2;
+    private static final int BUTTON_STOP_RES_ID = android.R.id.button1;
 
     private final MediaRouter mRouter;
     private final MediaRouterCallback mCallback;
@@ -261,13 +267,24 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mDialogWidthPortrait = res.getDimensionPixelSize(R.dimen.mr_dialog_fixed_width_minor);
         mDialogWidthLandscape = res.getDimensionPixelSize(R.dimen.mr_dialog_fixed_width_major);
 
+        // Remove the neutral button.
+        findViewById(BUTTON_NEUTRAL_RES_ID).setVisibility(View.GONE);
+
         ClickListener listener = new ClickListener();
 
-        mDisconnectButton = (Button) findViewById(R.id.mr_button_disconnect);
+        mDisconnectButton = (Button) findViewById(BUTTON_DISCONNECT_RES_ID);
+        mDisconnectButton.setText(R.string.mr_controller_disconnect);
         mDisconnectButton.setOnClickListener(listener);
 
-        mStopCastingButton = (Button) findViewById(R.id.mr_button_stop);
+        mStopCastingButton = (Button) findViewById(BUTTON_STOP_RES_ID);
+        mStopCastingButton.setText(R.string.mr_controller_stop);
         mStopCastingButton.setOnClickListener(listener);
+
+        TypedValue value = new TypedValue();
+        if (getContext().getTheme().resolveAttribute(R.attr.colorPrimary, value, true)) {
+            mDisconnectButton.setTextColor(value.data);
+            mStopCastingButton.setTextColor(value.data);
+        }
 
         mRouteNameTextView = (TextView) findViewById(R.id.mr_name);
         mCloseButton = (ImageButton) findViewById(R.id.mr_close);
@@ -390,17 +407,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
         View decorView = getWindow().getDecorView();
         mDialogPaddingHorizontal = decorView.getPaddingLeft() + decorView.getPaddingRight();
 
-        // Manually set the width of buttons to workaround unexpected text alignment changes.
-        int buttonWidth = (dialogWidth - mDialogPaddingHorizontal) / 2;
-
-        ViewGroup.LayoutParams lp = mStopCastingButton.getLayoutParams();
-        lp.width = buttonWidth;
-        mStopCastingButton.setLayoutParams(lp);
-
-        lp = mDisconnectButton.getLayoutParams();
-        lp.width = buttonWidth;
-        mDisconnectButton.setLayoutParams(lp);
-
         updateArtView();
     }
 
@@ -452,7 +458,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         }
 
         mRouteNameTextView.setText(mRoute.getName());
-        mDisconnectButton.setVisibility(mRoute.canDisconnect() ? View.VISIBLE : View.INVISIBLE);
+        mDisconnectButton.setVisibility(mRoute.canDisconnect() ? View.VISIBLE : View.GONE);
 
         if (mCustomControlView == null) {
             if (mFetchArtTask != null) {
@@ -692,9 +698,9 @@ public class MediaRouteControllerDialog extends AlertDialog {
         @Override
         public void onClick(View v) {
             int id = v.getId();
-            if (id == R.id.mr_button_stop || id == R.id.mr_button_disconnect) {
+            if (id == BUTTON_STOP_RES_ID || id == BUTTON_DISCONNECT_RES_ID) {
                 if (mRoute.isSelected()) {
-                    mRouter.unselect(id == R.id.mr_button_stop ?
+                    mRouter.unselect(id == BUTTON_STOP_RES_ID ?
                             MediaRouter.UNSELECT_REASON_STOPPED :
                             MediaRouter.UNSELECT_REASON_DISCONNECTED);
                 }
