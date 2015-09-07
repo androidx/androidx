@@ -115,7 +115,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
     private FrameLayout mCustomControlLayout;
     private FrameLayout mDefaultControlLayout;
-    private boolean mNeedToAdjustControlFrameLayout = true;
     private ImageView mArtView;
     private TextView mTitleView;
     private TextView mSubtitleView;
@@ -291,13 +290,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mCloseButton.setOnClickListener(listener);
         mCustomControlLayout = (FrameLayout) findViewById(R.id.mr_custom_control);
         mDefaultControlLayout = (FrameLayout) findViewById(R.id.mr_default_control);
-        ViewTreeObserver observer = mDefaultControlLayout.getViewTreeObserver();
-        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                updateControlFrameLayout();
-            }
-        });
         mArtView = (ImageView) findViewById(R.id.mr_art);
 
         mMediaControlLayout = (LinearLayout) findViewById(R.id.mr_media_control);
@@ -372,7 +364,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                     mGroupExpandCollapseButton.setImageDrawable(expandGroupDrawable);
                     mVolumeGroupList.setVisibility(View.GONE);
                 }
-                mNeedToAdjustControlFrameLayout = true;
+                updateControlFrameLayout();
             }
         });
 
@@ -382,7 +374,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
             mCustomControlLayout.setVisibility(View.VISIBLE);
             mArtView.setVisibility(View.GONE);
         }
-
         mCreated = true;
         update();
     }
@@ -408,6 +399,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mDialogPaddingHorizontal = decorView.getPaddingLeft() + decorView.getPaddingRight();
 
         updateArtView();
+        updateControlFrameLayout();
     }
 
     @Override
@@ -565,27 +557,27 @@ public class MediaRouteControllerDialog extends AlertDialog {
     }
 
     private void updateControlFrameLayout() {
-        if (!mNeedToAdjustControlFrameLayout) {
-            return;
-        }
         int height;
         if (mArtView.getVisibility() == View.GONE) {
             height = LinearLayout.LayoutParams.WRAP_CONTENT;
-        } else if (!mIsGroupExpanded) {
-            height = mArtView.getHeight() + mMediaControlLayout.getHeight();
         } else {
-            if (mVolumeGroupList.getAdapter().getCount() <= 2) {
-                // Push the controls up and cover the artwork.
-                height = mArtView.getHeight() + mMediaControlLayout.getHeight()
-                        - mVolumeGroupList.getHeight();
+            measureandGetDecorView();
+            if (!mIsGroupExpanded) {
+                height = mArtView.getMeasuredHeight() + mMediaControlLayout.getMeasuredHeight();
             } else {
-                // If there are 3 or more, the controls completely cover the artwork.
-                height = mMediaControlLayout.getHeight();
+                if (mVolumeGroupList.getAdapter().getCount() <= 2
+                        && mArtView.getMeasuredHeight() > mVolumeGroupList.getMeasuredHeight()) {
+                    // Push the controls up and partially cover the artwork.
+                    height = mArtView.getMeasuredHeight() + mMediaControlLayout.getMeasuredHeight()
+                            - mVolumeGroupList.getMeasuredHeight();
+                } else {
+                    // Completely cover the artwork.
+                    height = LinearLayout.LayoutParams.WRAP_CONTENT;
+                }
             }
         }
-        mDefaultControlLayout.setLayoutParams(
-                new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, height));
-        mNeedToAdjustControlFrameLayout = false;
+        mDefaultControlLayout.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.FILL_PARENT, height));
     }
 
     private boolean isVolumeControlAvailable() {
@@ -593,8 +585,17 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE;
     }
 
+    private View measureandGetDecorView() {
+        int orientation = getContext().getResources().getConfiguration().orientation;
+        int dialogWidth = orientation == Configuration.ORIENTATION_LANDSCAPE
+                ? mDialogWidthLandscape : mDialogWidthPortrait;
+        View decorView = getWindow().getDecorView();
+        int widthMeasureSpec = MeasureSpec.makeMeasureSpec(dialogWidth, MeasureSpec.EXACTLY);
+        decorView.measure(widthMeasureSpec, MeasureSpec.UNSPECIFIED);
+        return decorView;
+    }
+
     private void updateArtView() {
-        mNeedToAdjustControlFrameLayout = true;
         if (!(mArtView.getDrawable() instanceof BitmapDrawable)) {
             mArtView.setVisibility(View.GONE);
             return;
@@ -606,11 +607,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         }
         int desiredArtHeight = getDesiredArtHeight(art.getWidth(), art.getHeight());
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
-        int dialogWidth = displayMetrics.widthPixels < displayMetrics.heightPixels
-                ? mDialogWidthPortrait : mDialogWidthLandscape;
-        View decorView = getWindow().getDecorView();
-        int widthMeasureSpec = MeasureSpec.makeMeasureSpec(dialogWidth, MeasureSpec.EXACTLY);
-        decorView.measure(widthMeasureSpec, MeasureSpec.UNSPECIFIED);
+        View decorView = measureandGetDecorView();
         // Show art if and only if it fits in the screen.
         if (mArtView.getVisibility() == View.GONE) {
             if (decorView.getMeasuredHeight() + desiredArtHeight <= displayMetrics.heightPixels) {
@@ -887,6 +884,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 mArtView.setImageBitmap(art);
                 mArtView.setBackgroundColor(mBackgroundColor);
                 updateArtView();
+                updateControlFrameLayout();
             }
         }
     }
