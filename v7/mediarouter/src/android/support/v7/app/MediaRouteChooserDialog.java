@@ -167,9 +167,8 @@ public class MediaRouteChooserDialog extends Dialog {
         setContentView(R.layout.mr_chooser_dialog);
         setTitle(R.string.mr_chooser_title);
         Resources res = getContext().getResources();
-        mDialogWidthPortrait = res.getDimensionPixelSize(R.dimen.mr_dialog_content_width_portrait);
-        mDialogWidthLandscape = res.getDimensionPixelSize(
-                R.dimen.mr_dialog_content_width_landscape);
+        mDialogWidthPortrait = res.getDimensionPixelSize(R.dimen.mr_dialog_fixed_width_minor);
+        mDialogWidthLandscape = res.getDimensionPixelSize(R.dimen.mr_dialog_fixed_width_major);
 
         mRoutes = new ArrayList<>();
         mAdapter = new RouteAdapter(getContext(), mRoutes);
