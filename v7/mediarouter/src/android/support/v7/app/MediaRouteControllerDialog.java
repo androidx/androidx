@@ -116,7 +116,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private TextView mRouteNameTextView;
 
     private boolean mVolumeControlEnabled = true;
-    private LinearLayout mControlLayout;
+    private LinearLayout mMediaControlLayout;
     private RelativeLayout mPlaybackControl;
     private LinearLayout mVolumeControl;
     private View mDividerView;
@@ -281,7 +281,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         });
         mArtView = (ImageView) findViewById(R.id.mr_art);
 
-        mControlLayout = (LinearLayout) findViewById(R.id.mr_control);
+        mMediaControlLayout = (LinearLayout) findViewById(R.id.mr_media_control);
         mDividerView = findViewById(R.id.mr_control_divider);
 
         mPlaybackControl = (RelativeLayout) findViewById(R.id.mr_playback_control);
@@ -551,7 +551,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mDividerView.setVisibility((mVolumeControl.getVisibility() == View.VISIBLE
                 && mPlaybackControl.getVisibility() == View.VISIBLE)
                 ? View.VISIBLE : View.GONE);
-        mControlLayout.setVisibility((mVolumeControl.getVisibility() == View.GONE
+        mMediaControlLayout.setVisibility((mVolumeControl.getVisibility() == View.GONE
                 && mPlaybackControl.getVisibility() == View.GONE)
                 ? View.GONE : View.VISIBLE);
     }
@@ -564,15 +564,15 @@ public class MediaRouteControllerDialog extends AlertDialog {
         if (mArtView.getVisibility() == View.GONE) {
             height = LinearLayout.LayoutParams.WRAP_CONTENT;
         } else if (!mIsGroupExpanded) {
-            height = mArtView.getHeight() + mControlLayout.getHeight();
+            height = mArtView.getHeight() + mMediaControlLayout.getHeight();
         } else {
             if (mVolumeGroupList.getAdapter().getCount() <= 2) {
                 // Push the controls up and cover the artwork.
-                height = mArtView.getHeight() + mControlLayout.getHeight()
+                height = mArtView.getHeight() + mMediaControlLayout.getHeight()
                         - mVolumeGroupList.getHeight();
             } else {
                 // If there are 3 or more, the controls completely cover the artwork.
-                height = mControlLayout.getHeight();
+                height = mMediaControlLayout.getHeight();
             }
         }
         mDefaultControlLayout.setLayoutParams(
