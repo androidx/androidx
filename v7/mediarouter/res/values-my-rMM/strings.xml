@@ -23,10 +23,12 @@
     <string name="mr_chooser_searching" msgid="6349900579507521956">"စက်ပစ္စည်းများ ရှာဖွေခြင်း"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"ဆက်သွယ်မှု ဖြတ်ရန်"</string>
     <string name="mr_controller_stop" msgid="4570331844078181931">"ကာစ်တ်လုပ်ခြင်း ရပ်တန့်ရန်"</string>
-    <string name="mr_controller_close_description" msgid="4486012669499843598">"အဆိုပါ ထိန်ချုပ်မှု မေးဖြေကွက်ကို ပိတ်ပါ"</string>
+    <string name="mr_controller_close_description" msgid="7333862312480583260">"ပိတ်ရန်"</string>
     <string name="mr_controller_play" msgid="683634565969987458">"ဖွင့်ရန်"</string>
     <string name="mr_controller_pause" msgid="5451884435510905406">"ခဏရပ်ရန်"</string>
-    <string name="mr_controller_collapse_group" msgid="6536023685722551262">"အုပ်စုကို ခေါက်သိမ်းရန်"</string>
-    <string name="mr_controller_expand_group" msgid="6892977944835020618">"အုပ်စုကို ဖြန့်ရန်"</string>
+    <string name="mr_controller_expand_group" msgid="6901500538649315763">"အုပ်စုချဲ့ထွင်ခြင်း"</string>
+    <string name="mr_controller_collapse_group" msgid="1521128951309799184">"အုပ်စု လျှော့ပြခြင်း"</string>
+    <string name="mr_controller_no_media_selected" msgid="6547130360349182381">"မည်သည့်မီဒီမှ မရွေးချယ်ထားပါ"</string>
     <string name="mr_controller_no_info_available" msgid="5585418471741142924">"အချက်အလက် မရရှိနိုင်ပါ"</string>
+    <string name="mr_controller_casting_screen" msgid="4868457957151124867">"တည်းဖြတ်ရေး မျက်နှာပြင်"</string>
 </resources>
