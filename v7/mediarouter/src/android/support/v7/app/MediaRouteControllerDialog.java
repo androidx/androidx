@@ -20,12 +20,9 @@ import static android.widget.SeekBar.OnSeekBarChangeListener;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -53,7 +50,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -100,10 +96,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private boolean mCreated;
     private boolean mAttachedToWindow;
 
-    private int mOrientation;
-    private int mDialogWidthPortrait;
-    private int mDialogWidthLandscape;
-    private int mDialogPaddingHorizontal;
+    private int mDialogContentWidth;
 
     private View mCustomControlView;
 
@@ -262,9 +255,13 @@ public class MediaRouteControllerDialog extends AlertDialog {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.mr_controller_material_dialog_b);
-        Resources res = getContext().getResources();
-        mDialogWidthPortrait = res.getDimensionPixelSize(R.dimen.mr_dialog_fixed_width_minor);
-        mDialogWidthLandscape = res.getDimensionPixelSize(R.dimen.mr_dialog_fixed_width_major);
+
+        int dialogWidth = MediaRouteDialogHelper.getDialogWidth(getContext());
+        getWindow().setLayout(dialogWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+        View decorView = getWindow().getDecorView();
+        mDialogContentWidth =
+                dialogWidth - decorView.getPaddingLeft() - decorView.getPaddingRight();
 
         // Remove the neutral button.
         findViewById(BUTTON_NEUTRAL_RES_ID).setVisibility(View.GONE);
@@ -378,30 +375,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
         update();
     }
 
-    /**
-     * Called by {@link MediaRouteControllerDialogFragment} when the device configuration
-     * is changed.
-     */
-    void onConfigurationChanged(Configuration newConfig) {
-        onOrientationChanged(newConfig.orientation);
-    }
-
-    private void onOrientationChanged(int orientation) {
-        if (!mAttachedToWindow || mOrientation == orientation) {
-            return;
-        }
-        mOrientation = orientation;
-        int dialogWidth = mOrientation == Configuration.ORIENTATION_LANDSCAPE
-                ? mDialogWidthLandscape : mDialogWidthPortrait;
-        getWindow().setLayout(dialogWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
-
-        View decorView = getWindow().getDecorView();
-        mDialogPaddingHorizontal = decorView.getPaddingLeft() + decorView.getPaddingRight();
-
-        updateArtView();
-        updateControlFrameLayout();
-    }
-
     @Override
     public void onAttachedToWindow() {
         super.onAttachedToWindow();
@@ -410,7 +383,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mRouter.addCallback(MediaRouteSelector.EMPTY, mCallback,
                 MediaRouter.CALLBACK_FLAG_UNFILTERED_EVENTS);
         setMediaSession(mRouter.getMediaSessionToken());
-        onOrientationChanged(getContext().getResources().getConfiguration().orientation);
     }
 
     @Override
@@ -561,7 +533,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         if (mArtView.getVisibility() == View.GONE) {
             height = LinearLayout.LayoutParams.WRAP_CONTENT;
         } else {
-            measureandGetDecorView();
+            measureAndGetDecorView();
             if (!mIsGroupExpanded) {
                 height = mArtView.getMeasuredHeight() + mMediaControlLayout.getMeasuredHeight();
             } else {
@@ -585,13 +557,9 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE;
     }
 
-    private View measureandGetDecorView() {
-        int orientation = getContext().getResources().getConfiguration().orientation;
-        int dialogWidth = orientation == Configuration.ORIENTATION_LANDSCAPE
-                ? mDialogWidthLandscape : mDialogWidthPortrait;
+    private View measureAndGetDecorView() {
         View decorView = getWindow().getDecorView();
-        int widthMeasureSpec = MeasureSpec.makeMeasureSpec(dialogWidth, MeasureSpec.EXACTLY);
-        decorView.measure(widthMeasureSpec, MeasureSpec.UNSPECIFIED);
+        decorView.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
         return decorView;
     }
 
@@ -607,7 +575,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         }
         int desiredArtHeight = getDesiredArtHeight(art.getWidth(), art.getHeight());
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
-        View decorView = measureandGetDecorView();
+        View decorView = measureAndGetDecorView();
         // Show art if and only if it fits in the screen.
         if (mArtView.getVisibility() == View.GONE) {
             if (decorView.getMeasuredHeight() + desiredArtHeight <= displayMetrics.heightPixels) {
@@ -641,13 +609,12 @@ public class MediaRouteControllerDialog extends AlertDialog {
      * Returns desired art height to fit into controller dialog.
      */
     private int getDesiredArtHeight(int originalWidth, int originalHeight) {
-        int dialogWidth = getWindow().getAttributes().width - mDialogPaddingHorizontal;
         if (originalWidth >= originalHeight) {
             // For landscape art, fit width to dialog width.
-            return (int) ((float) dialogWidth * originalHeight / originalWidth + 0.5f);
+            return (int) ((float) mDialogContentWidth * originalHeight / originalWidth + 0.5f);
         }
         // For portrait art, fit height to 16:9 ratio case's height.
-        return (int) ((float) dialogWidth * 9 / 16 + 0.5f);
+        return (int) ((float) mDialogContentWidth * 9 / 16 + 0.5f);
     }
 
     private final class MediaRouterCallback extends MediaRouter.Callback {
