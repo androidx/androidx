@@ -509,12 +509,10 @@ public class MediaRouteControllerDialog extends AlertDialog {
                                     ? R.string.mr_controller_no_media_selected
                                     : R.string.mr_controller_no_info_available);
                 }
-                mTitleView.setEnabled(false);
                 mTitleView.setVisibility(View.VISIBLE);
                 mSubtitleView.setVisibility(View.GONE);
             } else {
                 mTitleView.setText(title);
-                mTitleView.setEnabled(hasTitle);
                 mTitleView.setVisibility(hasTitle ? View.VISIBLE : View.GONE);
                 mSubtitleView.setText(subtitle);
                 mSubtitleView.setVisibility(hasSubtitle ? View.VISIBLE : View.GONE);
