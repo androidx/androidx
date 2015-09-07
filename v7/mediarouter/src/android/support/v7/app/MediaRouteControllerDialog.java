@@ -25,7 +25,6 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -321,7 +320,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
             }
         });
         mVolumeSliderColor = MediaRouterThemeHelper.getVolumeSliderColor(getContext());
-        setVolumeSliderColor(mVolumeSlider, mVolumeSliderColor);
+        setVolumeSliderColor(getContext(), mVolumeSlider, mVolumeSliderColor);
 
         TypedArray styledAttributes = getContext().obtainStyledAttributes(new int[] {
                 R.attr.mediaRouteExpandGroupDrawable,
@@ -619,10 +618,16 @@ public class MediaRouteControllerDialog extends AlertDialog {
         }
     }
 
-    private static void setVolumeSliderColor(SeekBar volumeSlider, int color) {
+    private static void setVolumeSliderColor(Context context, SeekBar volumeSlider, int color) {
         volumeSlider.getProgressDrawable().setColorFilter(color, PorterDuff.Mode.SRC_IN);
         if (Build.VERSION.SDK_INT >= 16) {
             SeekBarJellybean.getThumb(volumeSlider).setColorFilter(color, PorterDuff.Mode.SRC_IN);
+        } else {
+            // In case getThumb() isn't available, use the thumb drawable from AppCompat.
+            Drawable thumb =
+                    context.getResources().getDrawable(R.drawable.abc_seekbar_thumb_material);
+            thumb.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+            volumeSlider.setThumb(thumb);
         }
     }
 
@@ -738,8 +743,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
             if (v == null) {
                 v = LayoutInflater.from(getContext()).inflate(
                         R.layout.mr_controller_volume_item, null);
-                setVolumeSliderColor(
-                        (SeekBar) v.findViewById(R.id.mr_volume_slider), mVolumeSliderColor);
+                setVolumeSliderColor(getContext(), (SeekBar) v.findViewById(R.id.mr_volume_slider),
+                        mVolumeSliderColor);
             }
             MediaRouter.RouteInfo route = getItem(position);
             if (route != null) {
