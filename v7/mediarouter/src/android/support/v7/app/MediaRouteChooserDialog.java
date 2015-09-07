@@ -166,13 +166,10 @@ public class MediaRouteChooserDialog extends Dialog {
 
         setContentView(R.layout.mr_chooser_dialog);
         setTitle(R.string.mr_chooser_title);
-        View decorView = getWindow().getDecorView();
-        int dialogHorizontalPadding = decorView.getPaddingLeft() + decorView.getPaddingRight();
         Resources res = getContext().getResources();
-        mDialogWidthPortrait = res.getDimensionPixelSize(
-                R.dimen.mr_dialog_content_width_portrait) + dialogHorizontalPadding;
+        mDialogWidthPortrait = res.getDimensionPixelSize(R.dimen.mr_dialog_content_width_portrait);
         mDialogWidthLandscape = res.getDimensionPixelSize(
-                R.dimen.mr_dialog_content_width_landscape) + dialogHorizontalPadding;
+                R.dimen.mr_dialog_content_width_landscape);
 
         mRoutes = new ArrayList<>();
         mAdapter = new RouteAdapter(getContext(), mRoutes);
@@ -194,10 +191,9 @@ public class MediaRouteChooserDialog extends Dialog {
             return;
         }
         mOrientation = orientation;
-        getWindow().setLayout(
-                mOrientation == Configuration.ORIENTATION_PORTRAIT
-                        ? mDialogWidthPortrait : mDialogWidthLandscape,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
+        int dialogWidth = mOrientation == Configuration.ORIENTATION_LANDSCAPE
+                ? mDialogWidthLandscape : mDialogWidthPortrait;
+        getWindow().setLayout(dialogWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
     }
 
     @Override
