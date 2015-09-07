@@ -110,6 +110,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
     private FrameLayout mCustomControlLayout;
     private FrameLayout mDefaultControlLayout;
+    private boolean mNeedToAdjustControlFrameLayout = true;
     private ImageView mArtView;
     private TextView mTitleView;
     private TextView mSubtitleView;
@@ -272,6 +273,13 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mCloseButton.setOnClickListener(listener);
         mCustomControlLayout = (FrameLayout) findViewById(R.id.mr_custom_control);
         mDefaultControlLayout = (FrameLayout) findViewById(R.id.mr_default_control);
+        ViewTreeObserver observer = mDefaultControlLayout.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                updateControlFrameLayout();
+            }
+        });
         mArtView = (ImageView) findViewById(R.id.mr_art);
 
         mControlLayout = (LinearLayout) findViewById(R.id.mr_control);
@@ -346,7 +354,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                     mGroupExpandCollapseButton.setImageDrawable(expandGroupDrawable);
                     mVolumeGroupList.setVisibility(View.GONE);
                 }
-                updateControlFrameLayout();
+                mNeedToAdjustControlFrameLayout = true;
             }
         });
 
@@ -356,7 +364,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
             mCustomControlLayout.setVisibility(View.VISIBLE);
             mArtView.setVisibility(View.GONE);
         }
-        mOrientation = res.getConfiguration().orientation;
 
         mCreated = true;
         update();
@@ -394,7 +401,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mDisconnectButton.setLayoutParams(lp);
 
         updateArtView();
-        updateControlFrameLayout();
     }
 
     @Override
@@ -552,27 +558,27 @@ public class MediaRouteControllerDialog extends AlertDialog {
     }
 
     private void updateControlFrameLayout() {
+        if (!mNeedToAdjustControlFrameLayout) {
+            return;
+        }
         int height;
         if (mArtView.getVisibility() == View.GONE) {
             height = LinearLayout.LayoutParams.WRAP_CONTENT;
+        } else if (!mIsGroupExpanded) {
+            height = mArtView.getHeight() + mControlLayout.getHeight();
         } else {
-            measureDecorView();
-            if (!mIsGroupExpanded) {
-                height = mArtView.getMeasuredHeight() + mControlLayout.getMeasuredHeight();
+            if (mVolumeGroupList.getAdapter().getCount() <= 2) {
+                // Push the controls up and cover the artwork.
+                height = mArtView.getHeight() + mControlLayout.getHeight()
+                        - mVolumeGroupList.getHeight();
             } else {
-                if (mVolumeGroupList.getAdapter().getCount() <= 2
-                        && mArtView.getMeasuredHeight() > mVolumeGroupList.getMeasuredHeight()) {
-                    // Push the controls up and partially cover the artwork.
-                    height = mArtView.getMeasuredHeight() + mControlLayout.getMeasuredHeight()
-                            - mVolumeGroupList.getMeasuredHeight();
-                } else {
-                    // Completely cover the artwork.
-                    height = LinearLayout.LayoutParams.WRAP_CONTENT;
-                }
+                // If there are 3 or more, the controls completely cover the artwork.
+                height = mControlLayout.getHeight();
             }
         }
-        mDefaultControlLayout.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.FILL_PARENT, height));
+        mDefaultControlLayout.setLayoutParams(
+                new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, height));
+        mNeedToAdjustControlFrameLayout = false;
     }
 
     private boolean isVolumeControlAvailable() {
@@ -580,17 +586,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE;
     }
 
-    private View measureDecorView() {
-        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
-        int dialogWidth = mOrientation == Configuration.ORIENTATION_LANDSCAPE
-                ? mDialogWidthLandscape : mDialogWidthPortrait;
-        View decorView = getWindow().getDecorView();
-        int widthMeasureSpec = MeasureSpec.makeMeasureSpec(dialogWidth, MeasureSpec.EXACTLY);
-        decorView.measure(widthMeasureSpec, MeasureSpec.UNSPECIFIED);
-        return decorView;
-    }
-
     private void updateArtView() {
+        mNeedToAdjustControlFrameLayout = true;
         if (!(mArtView.getDrawable() instanceof BitmapDrawable)) {
             mArtView.setVisibility(View.GONE);
             return;
@@ -602,7 +599,11 @@ public class MediaRouteControllerDialog extends AlertDialog {
         }
         int desiredArtHeight = getDesiredArtHeight(art.getWidth(), art.getHeight());
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
-        View decorView = measureDecorView();
+        int dialogWidth = displayMetrics.widthPixels < displayMetrics.heightPixels
+                ? mDialogWidthPortrait : mDialogWidthLandscape;
+        View decorView = getWindow().getDecorView();
+        int widthMeasureSpec = MeasureSpec.makeMeasureSpec(dialogWidth, MeasureSpec.EXACTLY);
+        decorView.measure(widthMeasureSpec, MeasureSpec.UNSPECIFIED);
         // Show art if and only if it fits in the screen.
         if (mArtView.getVisibility() == View.GONE) {
             if (decorView.getMeasuredHeight() + desiredArtHeight <= displayMetrics.heightPixels) {
@@ -858,7 +859,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
             mArtView.setImageBitmap(art);
             mArtView.setBackgroundColor(mBackgroundColor);
             updateArtView();
-            updateControlFrameLayout();
         }
     }
 }
