@@ -15,11 +15,11 @@
 -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
+              android:layout_width="fill_parent"
               android:layout_height="wrap_content"
               android:orientation="vertical">
     <LinearLayout android:id="@+id/mr_title_bar"
-                  android:layout_width="match_parent"
+                  android:layout_width="fill_parent"
                   android:layout_height="wrap_content"
                   android:paddingLeft="24dp"
                   android:paddingRight="12dp"
@@ -41,14 +41,14 @@
                      android:background="?attr/selectableItemBackgroundBorderless" />
     </LinearLayout>
     <FrameLayout android:id="@+id/mr_custom_control"
-                 android:layout_width="match_parent"
+                 android:layout_width="fill_parent"
                  android:layout_height="wrap_content"
                  android:visibility="gone" />
     <FrameLayout android:id="@+id/mr_default_control"
-                 android:layout_width="match_parent"
+                 android:layout_width="fill_parent"
                  android:layout_height="wrap_content">
         <ImageView android:id="@+id/mr_art"
-                   android:layout_width="match_parent"
+                   android:layout_width="fill_parent"
                    android:layout_height="wrap_content"
                    android:adjustViewBounds="true"
                    android:scaleType="fitCenter"
