@@ -79,7 +79,6 @@
             <ListView android:id="@+id/mr_volume_group_list"
                       android:layout_width="fill_parent"
                       android:layout_height="wrap_content"
-                      android:maxHeight="256dp"
                       android:background="?attr/colorPrimaryDark"
                       android:visibility="gone" />
         </LinearLayout>
