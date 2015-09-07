@@ -83,26 +83,6 @@
                       android:visibility="gone" />
         </LinearLayout>
     </FrameLayout>
-    <LinearLayout android:id="@+id/mr_buttons"
-                  android:layout_width="fill_parent"
-                  android:layout_height="wrap_content"
-                  android:orientation="horizontal">
-        <Button android:id="@+id/mr_button_disconnect"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:gravity="center"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:text="@string/mr_controller_disconnect"
-                android:textColor="?attr/colorPrimary"
-                android:textStyle="bold"
-                android:visibility="invisible" />
-        <Button android:id="@+id/mr_button_stop"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:gravity="center"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:text="@string/mr_controller_stop"
-                android:textColor="?attr/colorPrimary"
-                android:textStyle="bold" />
-    </LinearLayout>
+
+    <include layout="@layout/abc_alert_dialog_button_bar_material" />
 </LinearLayout>
