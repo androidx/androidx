@@ -30,16 +30,16 @@ final class MediaRouterThemeHelper {
     public static Context createThemedContext(Context context) {
         int style;
         if (isLightTheme(context)) {
-            if (isPrimaryColorDark(context)) {
-                style = R.style.Theme_MediaRouter_Light_DarkControlPanel;
-            } else {
+            if (isPrimaryColorLight(context)) {
                 style = R.style.Theme_MediaRouter_Light;
+            } else {
+                style = R.style.Theme_MediaRouter_Light_DarkControlPanel;
             }
         } else {
-            if (isPrimaryColorDark(context)) {
-                style = R.style.Theme_MediaRouter;
-            } else {
+            if (isPrimaryColorLight(context)) {
                 style = R.style.Theme_MediaRouter_LightControlPanel;
+            } else {
+                style = R.style.Theme_MediaRouter;
             }
         }
         return new ContextThemeWrapper(context, style);
@@ -55,16 +55,20 @@ final class MediaRouterThemeHelper {
         return res != 0 ? context.getResources().getDrawable(res) : null;
     }
 
+    public static int getVolumeSliderColor(Context context) {
+        return isPrimaryColorLight(context) ? Color.BLACK : Color.WHITE;
+    }
+
     private static boolean isLightTheme(Context context) {
         TypedValue value = new TypedValue();
         return context.getTheme().resolveAttribute(R.attr.isLightTheme, value, true)
                 && value.data != 0;
     }
 
-    private static boolean isPrimaryColorDark(Context context) {
+    private static boolean isPrimaryColorLight(Context context) {
         TypedValue value = new TypedValue();
         context.getTheme().resolveAttribute(R.attr.colorPrimary, value, true);
-        return luminance(value.data) < 0.5;
+        return luminance(value.data) >= 0.5;
     }
 
     private static float luminance(int color) {

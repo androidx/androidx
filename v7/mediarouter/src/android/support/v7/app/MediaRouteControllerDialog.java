@@ -25,6 +25,8 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -122,6 +124,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private ListView mVolumeGroupList;
     private SeekBar mVolumeSlider;
     private boolean mVolumeSliderTouched;
+    private int mVolumeSliderColor;
 
     private MediaControllerCompat mMediaController;
     private MediaControllerCallback mControllerCallback;
@@ -325,6 +328,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 }
             }
         });
+        mVolumeSliderColor = MediaRouterThemeHelper.getVolumeSliderColor(getContext());
+        setVolumeSliderColor(mVolumeSlider, mVolumeSliderColor);
 
         TypedArray styledAttributes = getContext().obtainStyledAttributes(new int[] {
                 R.attr.mediaRouteExpandGroupDrawable,
@@ -353,13 +358,14 @@ public class MediaRouteControllerDialog extends AlertDialog {
             }
         });
 
-        mCreated = true;
         mCustomControlView = onCreateMediaControlView(savedInstanceState);
         if (mCustomControlView != null) {
             mCustomControlLayout.addView(mCustomControlView);
             mCustomControlLayout.setVisibility(View.VISIBLE);
             mArtView.setVisibility(View.GONE);
         }
+
+        mCreated = true;
         update();
     }
 
@@ -572,8 +578,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 height = mControlLayout.getHeight();
             }
         }
-        mDefaultControlLayout.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.FILL_PARENT, height));
+        mDefaultControlLayout.setLayoutParams(
+                new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, height));
         mNeedToAdjustControlFrameLayout = false;
     }
 
@@ -612,6 +618,13 @@ public class MediaRouteControllerDialog extends AlertDialog {
             } else {
                 mArtView.setVisibility(View.GONE);
             }
+        }
+    }
+
+    private static void setVolumeSliderColor(SeekBar volumeSlider, int color) {
+        volumeSlider.getProgressDrawable().setColorFilter(color, PorterDuff.Mode.SRC_IN);
+        if (Build.VERSION.SDK_INT >= 16) {
+            SeekBarJellybean.getThumb(volumeSlider).setColorFilter(color, PorterDuff.Mode.SRC_IN);
         }
     }
 
@@ -727,6 +740,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
             if (v == null) {
                 v = LayoutInflater.from(getContext()).inflate(
                         R.layout.mr_controller_volume_item, null);
+                setVolumeSliderColor(
+                        (SeekBar) v.findViewById(R.id.mr_volume_slider), mVolumeSliderColor);
             }
             MediaRouter.RouteInfo route = getItem(position);
             if (route != null) {
