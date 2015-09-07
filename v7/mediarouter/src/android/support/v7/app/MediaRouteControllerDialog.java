@@ -132,6 +132,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private MediaDescriptionCompat mDescription;
 
     private FetchArtTask mFetchArtTask;
+    private Bitmap mArtIconBitmap;
+    private Uri mArtIconUri;
     private boolean mIsGroupExpanded;
 
     public MediaRouteControllerDialog(Context context) {
@@ -784,19 +786,30 @@ public class MediaRouteControllerDialog extends AlertDialog {
     }
 
     private class FetchArtTask extends AsyncTask<Void, Void, Bitmap> {
-        private int mBackgroundColor;
+        final Bitmap mIconBitmap;
+        final Uri mIconUri;
+        int mBackgroundColor;
+
+        FetchArtTask() {
+            mIconBitmap = mDescription == null ? null : mDescription.getIconBitmap();
+            mIconUri = mDescription == null ? null : mDescription.getIconUri();
+        }
+
+        @Override
+        protected void onPreExecute() {
+            if (mArtIconBitmap == mIconBitmap && mArtIconUri == mIconUri) {
+                // Already handled the current art.
+                cancel(true);
+            }
+        }
 
         @Override
         protected Bitmap doInBackground(Void... arg) {
             Bitmap art = null;
-            if (mDescription == null) {
-                return null;
-            }
-            if (mDescription.getIconBitmap() != null) {
-                art = mDescription.getIconBitmap();
-            } else if (mDescription.getIconUri() != null) {
-                Uri iconUri = mDescription.getIconUri();
-                String scheme = iconUri.getScheme();
+            if (mIconBitmap != null) {
+                art = mIconBitmap;
+            } else if (mIconUri != null) {
+                String scheme = mIconUri.getScheme();
                 if (!(ContentResolver.SCHEME_ANDROID_RESOURCE.equals(scheme)
                         || ContentResolver.SCHEME_CONTENT.equals(scheme)
                         || ContentResolver.SCHEME_FILE.equals(scheme))) {
@@ -806,7 +819,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 BufferedInputStream stream = null;
                 try {
                     stream = new BufferedInputStream(
-                            getContext().getContentResolver().openInputStream(iconUri));
+                            getContext().getContentResolver().openInputStream(mIconUri));
 
                     // Query art size.
                     BitmapFactory.Options options = new BitmapFactory.Options();
@@ -822,7 +835,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                         // Failed to rewind the stream, try to reopen it.
                         stream.close();
                         stream = new BufferedInputStream(getContext().getContentResolver()
-                                .openInputStream(iconUri));
+                                .openInputStream(mIconUri));
                     }
                     // Calculate required size to decode the art and possibly resize it.
                     options.inJustDecodeBounds = false;
@@ -834,7 +847,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                     }
                     art = BitmapFactory.decodeStream(stream, null, options);
                 } catch (IOException e){
-                    Log.w(TAG, "Unable to open content: " + iconUri, e);
+                    Log.w(TAG, "Unable to open: " + mIconUri, e);
                 } finally {
                     if (stream != null) {
                         try {
@@ -861,9 +874,14 @@ public class MediaRouteControllerDialog extends AlertDialog {
         @Override
         protected void onPostExecute(Bitmap art) {
             mFetchArtTask = null;
-            mArtView.setImageBitmap(art);
-            mArtView.setBackgroundColor(mBackgroundColor);
-            updateArtView();
+            if (mArtIconBitmap != mIconBitmap || mArtIconUri != mIconUri) {
+                mArtIconBitmap = mIconBitmap;
+                mArtIconUri = mIconUri;
+
+                mArtView.setImageBitmap(art);
+                mArtView.setBackgroundColor(mBackgroundColor);
+                updateArtView();
+            }
         }
     }
 }
