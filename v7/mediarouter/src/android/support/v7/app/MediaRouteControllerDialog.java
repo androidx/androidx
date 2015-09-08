@@ -350,6 +350,10 @@ public class MediaRouteControllerDialog extends AlertDialog {
                     mVolumeGroupList.setVisibility(View.VISIBLE);
                     mVolumeGroupList.setAdapter(
                             new VolumeGroupAdapter(getContext(), getGroup().getRoutes()));
+                    ViewGroup.LayoutParams lp = mVolumeGroupList.getLayoutParams();
+                    lp.height = MediaRouteDialogHelper.getControllerVolumeGroupListHeight(
+                            getContext(), mVolumeGroupList.getAdapter().getCount());
+                    mVolumeGroupList.setLayoutParams(lp);
                 } else {
                     mGroupExpandCollapseButton.setImageDrawable(expandGroupDrawable);
                     mVolumeGroupList.setVisibility(View.GONE);
