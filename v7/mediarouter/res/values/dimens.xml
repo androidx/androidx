@@ -21,4 +21,5 @@
     <!-- The platform's desired fixed width for a dialog along the minor axis
          (the screen is in portrait). This may be either a fraction or a dimension.-->
     <dimen name="mr_dialog_fixed_width_minor">320dp</dimen>
+    <dimen name="mr_controller_volume_group_list_max_height">256dp</dimen>
 </resources>
