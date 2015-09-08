@@ -18,6 +18,7 @@ package android.support.v7.app;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 
@@ -55,5 +56,13 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         mDialog = onCreateControllerDialog(getActivity(), savedInstanceState);
         return mDialog;
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if (mDialog != null) {
+            mDialog.updateLayout();
+        }
     }
 }
