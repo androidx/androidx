@@ -256,13 +256,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
         setContentView(R.layout.mr_controller_material_dialog_b);
 
-        int dialogWidth = MediaRouteDialogHelper.getDialogWidth(getContext());
-        getWindow().setLayout(dialogWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
-
-        View decorView = getWindow().getDecorView();
-        mDialogContentWidth =
-                dialogWidth - decorView.getPaddingLeft() - decorView.getPaddingRight();
-
         // Remove the neutral button.
         findViewById(BUTTON_NEUTRAL_RES_ID).setVisibility(View.GONE);
 
@@ -372,6 +365,19 @@ public class MediaRouteControllerDialog extends AlertDialog {
             mArtView.setVisibility(View.GONE);
         }
         mCreated = true;
+        updateLayout();
+    }
+
+    /**
+     * Sets the width of the dialog. Also called when configuration changes.
+     */
+    void updateLayout() {
+        int width = MediaRouteDialogHelper.getDialogWidth(getContext());
+        getWindow().setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+        View decorView = getWindow().getDecorView();
+        mDialogContentWidth = width - decorView.getPaddingLeft() - decorView.getPaddingRight();
+
         update();
     }
 
