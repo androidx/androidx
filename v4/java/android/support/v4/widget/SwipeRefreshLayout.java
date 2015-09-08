@@ -728,7 +728,8 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
 
     @Override
     public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {
-        if (isEnabled() && (nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0) {
+        if (isEnabled() && !mReturningToStart && !canChildScrollUp() && !mRefreshing
+                && (nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0) {
             // Dispatch up to the nested parent
             startNestedScroll(nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL);
             return true;
@@ -800,16 +801,6 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
     // NestedScrollingChild
 
     @Override
-    public boolean onNestedPreFling(View target, float velocityX, float velocityY) {
-        return false;
-    }
-
-    @Override
-    public boolean onNestedFling(View target, float velocityX, float velocityY, boolean consumed) {
-        return false;
-    }
-
-    @Override
     public void setNestedScrollingEnabled(boolean enabled) {
         mNestedScrollingChildHelper.setNestedScrollingEnabled(enabled);
     }
@@ -844,6 +835,18 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
     @Override
     public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow) {
         return mNestedScrollingChildHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow);
+    }
+
+    @Override
+    public boolean onNestedPreFling(View target, float velocityX,
+            float velocityY) {
+        return dispatchNestedPreFling(velocityX, velocityY);
+    }
+
+    @Override
+    public boolean onNestedFling(View target, float velocityX, float velocityY,
+            boolean consumed) {
+        return dispatchNestedFling(velocityX, velocityY, consumed);
     }
 
     @Override
@@ -1020,18 +1023,6 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         mCircleView.startAnimation(mAnimateToCorrectPosition);
     }
 
-    private void peek(int from, AnimationListener listener) {
-        mFrom = from;
-        mPeek.reset();
-        mPeek.setDuration(500);
-        mPeek.setInterpolator(mDecelerateInterpolator);
-        if (listener != null) {
-            mCircleView.setAnimationListener(listener);
-        }
-        mCircleView.clearAnimation();
-        mCircleView.startAnimation(mPeek);
-    }
-
     private void animateOffsetToStartPosition(int from, AnimationListener listener) {
         if (mScale) {
             // Scale the item back down
@@ -1058,23 +1049,6 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
                 endTarget = (int) (mSpinnerFinalOffset - Math.abs(mOriginalOffsetTop));
             } else {
                 endTarget = (int) mSpinnerFinalOffset;
-            }
-            targetTop = (mFrom + (int) ((endTarget - mFrom) * interpolatedTime));
-            int offset = targetTop - mCircleView.getTop();
-            setTargetOffsetTopAndBottom(offset, false /* requires update */);
-            mProgress.setArrowScale(1 - interpolatedTime);
-        }
-    };
-
-    private final Animation mPeek = new Animation() {
-        @Override
-        public void applyTransformation(float interpolatedTime, Transformation t) {
-            int targetTop = 0;
-            int endTarget = 0;
-            if (!mUsingCustomStart) {
-                endTarget = (int) (mSpinnerFinalOffset - Math.abs(mOriginalOffsetTop));
-            } else {
-                endTarget = (int) mSpinnerFinalOffset; //mSpinnerFinalOffset;
             }
             targetTop = (mFrom + (int) ((endTarget - mFrom) * interpolatedTime));
             int offset = targetTop - mCircleView.getTop();
