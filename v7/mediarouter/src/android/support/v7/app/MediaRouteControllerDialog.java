@@ -350,10 +350,9 @@ public class MediaRouteControllerDialog extends AlertDialog {
                     mVolumeGroupList.setVisibility(View.VISIBLE);
                     mVolumeGroupList.setAdapter(
                             new VolumeGroupAdapter(getContext(), getGroup().getRoutes()));
-                    ViewGroup.LayoutParams lp = mVolumeGroupList.getLayoutParams();
-                    lp.height = MediaRouteDialogHelper.getControllerVolumeGroupListHeight(
-                            getContext(), mVolumeGroupList.getAdapter().getCount());
-                    mVolumeGroupList.setLayoutParams(lp);
+                    setLayoutHeight(mVolumeGroupList,
+                            MediaRouteDialogHelper.getControllerVolumeGroupListHeight(
+                                    getContext(), mVolumeGroupList.getAdapter().getCount()));
                 } else {
                     mGroupExpandCollapseButton.setImageDrawable(expandGroupDrawable);
                     mVolumeGroupList.setVisibility(View.GONE);
@@ -561,8 +560,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 }
             }
         }
-        mDefaultControlLayout.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.FILL_PARENT, height));
+        setLayoutHeight(mDefaultControlLayout, height);
     }
 
     private boolean isVolumeControlAvailable() {
@@ -593,16 +591,26 @@ public class MediaRouteControllerDialog extends AlertDialog {
         if (mArtView.getVisibility() == View.GONE) {
             if (decorView.getMeasuredHeight() + desiredArtHeight <= displayMetrics.heightPixels) {
                 mArtView.setVisibility(View.VISIBLE);
-                mArtView.setMaxHeight(desiredArtHeight);
+                setLayoutHeight(mArtView, desiredArtHeight);
+                mArtView.setScaleType(art.getWidth() >= art.getHeight()
+                        ? ImageView.ScaleType.FIT_XY : ImageView.ScaleType.FIT_CENTER);
             }
         } else {
             if (decorView.getMeasuredHeight() - mArtView.getMeasuredHeight() + desiredArtHeight
                     <= displayMetrics.heightPixels) {
-                mArtView.setMaxHeight(desiredArtHeight);
+                setLayoutHeight(mArtView, desiredArtHeight);
+                mArtView.setScaleType(art.getWidth() >= art.getHeight()
+                        ? ImageView.ScaleType.FIT_XY : ImageView.ScaleType.FIT_CENTER);
             } else {
                 mArtView.setVisibility(View.GONE);
             }
         }
+    }
+
+    private static void setLayoutHeight(View view, int height) {
+        ViewGroup.LayoutParams lp = view.getLayoutParams();
+        lp.height = height;
+        view.setLayoutParams(lp);
     }
 
     private static void setVolumeSliderColor(Context context, SeekBar volumeSlider, int color) {
@@ -843,7 +851,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
             if (art != null && art.getWidth() < art.getHeight()) {
                 // Portrait art requires background color.
                 Palette palette = new Palette.Builder(art).maximumColorCount(1).generate();
-                mBackgroundColor = (palette.getSwatches() == null)
+                mBackgroundColor = palette.getSwatches().isEmpty()
                         ? 0 : palette.getSwatches().get(0).getRgb();
             }
             return art;
