@@ -111,8 +111,10 @@
 
     <!-- Base platform-dependent theme providing an action bar in a dark-themed activity. -->
     <style name="Base.V7.Theme.AppCompat" parent="Platform.AppCompat">
+        <item name="windowNoTitle">false</item>
         <item name="windowActionBar">true</item>
         <item name="windowActionBarOverlay">false</item>
+        <item name="windowActionModeOverlay">false</item>
         <item name="actionBarPopupTheme">@null</item>
 
         <!-- Used by MediaRouter -->
@@ -262,8 +264,10 @@
 
     <!-- Base platform-dependent theme providing an action bar in a light-themed activity. -->
     <style name="Base.V7.Theme.AppCompat.Light" parent="Platform.AppCompat.Light">
+        <item name="windowNoTitle">false</item>
         <item name="windowActionBar">true</item>
         <item name="windowActionBarOverlay">false</item>
+        <item name="windowActionModeOverlay">false</item>
         <item name="actionBarPopupTheme">@null</item>
 
         <!-- Used by MediaRouter -->
