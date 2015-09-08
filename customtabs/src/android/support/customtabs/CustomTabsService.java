@@ -90,6 +90,12 @@ import java.util.NoSuchElementException;
          public Bundle extraCommand(String commandName, Bundle args) {
              return CustomTabsService.this.extraCommand(commandName, args);
          }
+
+         @Override
+         public boolean updateVisuals(ICustomTabsCallback callback, Bundle bundle) {
+             return CustomTabsService.this.updateVisuals(
+                     new CustomTabsSessionToken(callback), bundle);
+         }
      };
 
      @Override
@@ -176,4 +182,15 @@ import java.util.NoSuchElementException;
       * @return The result {@link Bundle}, or null.
       */
      protected abstract Bundle extraCommand(String commandName, Bundle args);
+
+    /**
+     * Updates the visuals of custom tabs for the given session. Will only succeed if the given
+     * session matches the currently active one.
+     * @param sessionToken The currently active session that the custom tab belongs to.
+     * @param bundle       The action button configuration bundle. This bundle should be constructed
+     *                     with the same structure in {@link CustomTabsIntent.Builder}.
+     * @return Whether the operation was successful.
+     */
+     protected abstract boolean updateVisuals(CustomTabsSessionToken sessionToken,
+             Bundle bundle);
  }

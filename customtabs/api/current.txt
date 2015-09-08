@@ -62,6 +62,7 @@ package android.support.customtabs {
     method protected abstract boolean mayLaunchUrl(android.support.customtabs.CustomTabsSessionToken, android.net.Uri, android.os.Bundle, java.util.List<android.os.Bundle>);
     method protected abstract boolean newSession(android.support.customtabs.CustomTabsSessionToken);
     method public android.os.IBinder onBind(android.content.Intent);
+    method protected abstract boolean updateVisuals(android.support.customtabs.CustomTabsSessionToken, android.os.Bundle);
     method protected abstract boolean warmup(long);
     field public static final java.lang.String ACTION_CUSTOM_TABS_CONNECTION = "android.support.customtabs.action.CustomTabsService";
     field public static final java.lang.String KEY_URL = "android.support.customtabs.otherurls.URL";
@@ -75,6 +76,7 @@ package android.support.customtabs {
 
   public final class CustomTabsSession {
     method public boolean mayLaunchUrl(android.net.Uri, android.os.Bundle, java.util.List<android.os.Bundle>);
+    method public boolean setActionButton(android.graphics.Bitmap, java.lang.String);
   }
 
   public class CustomTabsSessionToken {
