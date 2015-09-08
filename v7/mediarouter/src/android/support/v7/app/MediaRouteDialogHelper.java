@@ -21,12 +21,13 @@ import android.support.v7.mediarouter.R;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
-/**
- * The framework should set the dialog width properly, but somehow it doesn't work, hence
- * duplicating a similar logic here to determine the appropriate dialog width.
- */
 final class MediaRouteDialogHelper {
+    /**
+     * The framework should set the dialog width properly, but somehow it doesn't work, hence
+     * duplicating a similar logic here to determine the appropriate dialog width.
+     */
     public static int getDialogWidth(Context context) {
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         boolean isPortrait = metrics.widthPixels < metrics.heightPixels;
@@ -40,5 +41,16 @@ final class MediaRouteDialogHelper {
             return (int) value.getFraction(metrics.widthPixels, metrics.widthPixels);
         }
         return ViewGroup.LayoutParams.WRAP_CONTENT;
+    }
+
+    /**
+     * Returns the height of the volume group list in the controller dialog.
+     */
+    public static int getControllerVolumeGroupListHeight(Context context, int itemCount) {
+        if (itemCount >= 4) {
+            return context.getResources().getDimensionPixelSize(
+                    R.dimen.mr_controller_volume_group_list_max_height);
+        }
+        return LinearLayout.LayoutParams.WRAP_CONTENT;
     }
 }
