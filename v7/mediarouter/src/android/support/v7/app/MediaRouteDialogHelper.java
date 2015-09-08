@@ -21,7 +21,6 @@ import android.support.v7.mediarouter.R;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 
 final class MediaRouteDialogHelper {
     /**
@@ -41,16 +40,5 @@ final class MediaRouteDialogHelper {
             return (int) value.getFraction(metrics.widthPixels, metrics.widthPixels);
         }
         return ViewGroup.LayoutParams.WRAP_CONTENT;
-    }
-
-    /**
-     * Returns the height of the volume group list in the controller dialog.
-     */
-    public static int getControllerVolumeGroupListHeight(Context context, int itemCount) {
-        if (itemCount >= 4) {
-            return context.getResources().getDimensionPixelSize(
-                    R.dimen.mr_controller_volume_group_list_max_height);
-        }
-        return LinearLayout.LayoutParams.WRAP_CONTENT;
     }
 }

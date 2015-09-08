@@ -60,7 +60,8 @@
                       android:layout_height="wrap_content"
                       android:orientation="vertical"
                       android:layout_gravity="bottom">
-            <LinearLayout android:layout_width="fill_parent"
+            <LinearLayout android:id="@+id/mr_media_main_control"
+                          android:layout_width="fill_parent"
                           android:layout_height="wrap_content"
                           android:orientation="vertical"
                           android:paddingTop="16dp"
