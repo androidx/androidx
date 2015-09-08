@@ -382,6 +382,9 @@ public class MediaRouteControllerDialog extends AlertDialog {
         View decorView = getWindow().getDecorView();
         mDialogContentWidth = width - decorView.getPaddingLeft() - decorView.getPaddingRight();
 
+        // Ensure the mArtView is updated.
+        mArtIconBitmap = null;
+        mArtIconUri = null;
         update();
     }
 
