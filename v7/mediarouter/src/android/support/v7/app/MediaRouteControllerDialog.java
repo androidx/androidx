@@ -128,6 +128,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private boolean mVolumeSliderTouched;
     private int mVolumeSliderColor;
     private final int mVolumeGroupListItemHeight;
+    private final int mVolumeGroupListMaxHeight;
+    private final int mVolumeGroupListPaddingBottom;
 
     private MediaControllerCompat mMediaController;
     private MediaControllerCallback mControllerCallback;
@@ -154,6 +156,10 @@ public class MediaRouteControllerDialog extends AlertDialog {
         setMediaSession(mRouter.getMediaSessionToken());
         mVolumeGroupListItemHeight = context.getResources().getDimensionPixelSize(
                 R.dimen.mr_controller_volume_group_list_item_height);
+        mVolumeGroupListMaxHeight = context.getResources().getDimensionPixelSize(
+                R.dimen.mr_controller_volume_group_list_max_height);
+        mVolumeGroupListPaddingBottom = context.getResources().getDimensionPixelSize(
+                R.dimen.mr_controller_volume_group_list_padding_bottom);
     }
 
     /**
@@ -501,14 +507,10 @@ public class MediaRouteControllerDialog extends AlertDialog {
         int mainControllerHeight = getMainControllerHeight(isPlaybackControlAvailable());
         int volumeGroupListCount = mVolumeGroupList.getVisibility() == View.VISIBLE
                 ? mVolumeGroupList.getAdapter().getCount() : 0;
-        int volumeGroupHeight = 0;
-        if (0 < volumeGroupListCount && volumeGroupListCount <= 2) {
-            volumeGroupHeight = mVolumeGroupListItemHeight * 2;
-        } else if (volumeGroupListCount >= 3) {
-            volumeGroupHeight = Math.min(mVolumeGroupListItemHeight * volumeGroupListCount,
-                    getContext().getResources().getDimensionPixelSize(
-                            R.dimen.mr_controller_volume_group_list_max_height));
-        }
+        int volumeGroupHeight = mVolumeGroupListItemHeight * volumeGroupListCount
+                + mVolumeGroupListPaddingBottom;
+        volumeGroupHeight = Math.min(volumeGroupHeight, mVolumeGroupListMaxHeight);
+
         int desiredControlLayoutHeight =
                 Math.max(artViewHeight, volumeGroupHeight) + mainControllerHeight;
         Rect visibleRect = new Rect();
@@ -780,6 +782,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 setVolumeSliderColor(getContext(), (SeekBar) v.findViewById(R.id.mr_volume_slider),
                         mVolumeSliderColor);
             }
+            setViewPaddingBottom(v, position == getCount() - 1 ? mVolumeGroupListPaddingBottom : 0);
+
             MediaRouter.RouteInfo route = getItem(position);
             if (route != null) {
                 boolean isEnabled = route.isEnabled();
@@ -814,6 +818,13 @@ public class MediaRouteControllerDialog extends AlertDialog {
             }
             return v;
         }
+    }
+
+    private static void setViewPaddingBottom(View view, int bottom) {
+        int left = view.getPaddingLeft();
+        int top = view.getPaddingTop();
+        int right = view.getPaddingRight();
+        view.setPadding(left, top, right, bottom);
     }
 
     private class FetchArtTask extends AsyncTask<Void, Void, Bitmap> {
