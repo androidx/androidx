@@ -173,6 +173,7 @@ public class NotificationCompatImplBase {
         // On versions before Jellybean, the large icon was shown by SystemUI, so we need to hide
         // it here.
         if (largeIcon != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            contentView.setViewVisibility(R.id.icon, View.VISIBLE);
             contentView.setImageViewBitmap(R.id.icon, largeIcon);
         } else {
             contentView.setViewVisibility(R.id.icon, View.GONE);
