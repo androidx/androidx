@@ -478,6 +478,17 @@ public class MediaRouteControllerDialog extends AlertDialog {
         return height;
     }
 
+    private void updateMediaControlVisibility() {
+        // TODO: Update the top and bottom padding of the control layout according to the display
+        // height.
+        mDividerView.setVisibility((mVolumeControl.getVisibility() == View.VISIBLE
+                && mPlaybackControl.getVisibility() == View.VISIBLE)
+                ? View.VISIBLE : View.GONE);
+        mMediaControlLayout.setVisibility((mVolumeControl.getVisibility() == View.GONE
+                && mPlaybackControl.getVisibility() == View.GONE)
+                ? View.GONE : View.VISIBLE);
+    }
+
     /**
      * Updates the height of views and hide artwork or metadata if space is limited.
      */
@@ -485,6 +496,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         if (mCustomControlView != null) {
             return;
         }
+        updateMediaControlVisibility();
         View decorView = getWindow().getDecorView();
         decorView.measure(
                 MeasureSpec.makeMeasureSpec(getWindow().getAttributes().width, MeasureSpec.EXACTLY),
@@ -538,14 +550,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         } else {
             mPlaybackControl.setVisibility(View.GONE);
         }
-        // TODO: Update the top and bottom padding of the control layout according to the display
-        // height.
-        mDividerView.setVisibility((mVolumeControl.getVisibility() == View.VISIBLE
-                && mPlaybackControl.getVisibility() == View.VISIBLE)
-                ? View.VISIBLE : View.GONE);
-        mMediaControlLayout.setVisibility((mVolumeControl.getVisibility() == View.GONE
-                && mPlaybackControl.getVisibility() == View.GONE)
-                ? View.GONE : View.VISIBLE);
+        updateMediaControlVisibility();
         mainControllerHeight = getMainControllerHeight(
                 mPlaybackControl.getVisibility() == View.VISIBLE);
         desiredControlLayoutHeight =
