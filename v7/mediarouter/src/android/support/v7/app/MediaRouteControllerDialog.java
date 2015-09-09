@@ -456,8 +456,10 @@ public class MediaRouteControllerDialog extends AlertDialog {
         return mCustomControlView == null && (mDescription != null || mState != null);
     }
 
-    // Returns the height of main media controllers which includes playback control and master
-    // volume control.
+    /**
+     * Returns the height of main media controller which includes playback control and master
+     * volume control.
+     */
     private int getMainControllerHeight(boolean showPlaybackControl) {
         int height = 0;
         if (showPlaybackControl || mVolumeControl.getVisibility() == View.VISIBLE) {
@@ -476,7 +478,9 @@ public class MediaRouteControllerDialog extends AlertDialog {
         return height;
     }
 
-    // Updates the height of views and hide artwork or metadata if space is limited.
+    /**
+     * Updates the height of views and hide artwork or metadata if space is limited.
+     */
     private void updateLayoutHeight() {
         if (mCustomControlView != null) {
             return;
@@ -501,7 +505,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
         if (0 < volumeGroupListCount && volumeGroupListCount <= 2) {
             volumeGroupHeight = mVolumeGroupListItemHeight * 2;
         } else if (volumeGroupListCount >= 3) {
-            artViewHeight = 0;
             volumeGroupHeight = Math.min(mVolumeGroupListItemHeight * volumeGroupListCount,
                     getContext().getResources().getDimensionPixelSize(
                             R.dimen.mr_controller_volume_group_list_max_height));
@@ -518,8 +521,9 @@ public class MediaRouteControllerDialog extends AlertDialog {
         // Maximum allowed height for controls to fit screen.
         int maximumControlViewHeight = visibleRect.height() - nonControlViewHeight;
 
-        // Show artwork if it fits the screen
-        if (artViewHeight > 0 && desiredControlViewHeight <= maximumControlViewHeight) {
+        // Show artwork if it fits the screen and expanded volume group list has fewer than 3 items.
+        if (artViewHeight > 0 && volumeGroupListCount < 3
+                && desiredControlViewHeight <= maximumControlViewHeight) {
             mArtView.setVisibility(View.VISIBLE);
             setLayoutHeight(mArtView, artViewHeight);
         } else {
