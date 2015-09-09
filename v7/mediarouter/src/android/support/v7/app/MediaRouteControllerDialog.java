@@ -509,7 +509,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                     getContext().getResources().getDimensionPixelSize(
                             R.dimen.mr_controller_volume_group_list_max_height));
         }
-        int desiredControlViewHeight =
+        int desiredControlLayoutHeight =
                 Math.max(artViewHeight, volumeGroupHeight) + mainControllerHeight;
         Rect visibleRect = new Rect();
         decorView.getWindowVisibleDisplayFrame(visibleRect);
@@ -523,17 +523,17 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
         // Show artwork if it fits the screen and expanded volume group list has fewer than 3 items.
         if (artViewHeight > 0 && volumeGroupListCount < 3
-                && desiredControlViewHeight <= maximumControlViewHeight) {
+                && desiredControlLayoutHeight <= maximumControlViewHeight) {
             mArtView.setVisibility(View.VISIBLE);
             setLayoutHeight(mArtView, artViewHeight);
         } else {
             mArtView.setVisibility(View.GONE);
             artViewHeight = 0;
-            desiredControlViewHeight = volumeGroupHeight + mainControllerHeight;
+            desiredControlLayoutHeight = volumeGroupHeight + mainControllerHeight;
         }
         // Show control if it fits the screen
         if (isPlaybackControlAvailable()
-                && desiredControlViewHeight <= maximumControlViewHeight) {
+                && desiredControlLayoutHeight <= maximumControlViewHeight) {
             mPlaybackControl.setVisibility(View.VISIBLE);
         } else {
             mPlaybackControl.setVisibility(View.GONE);
@@ -548,16 +548,16 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 ? View.GONE : View.VISIBLE);
         mainControllerHeight = getMainControllerHeight(
                 mPlaybackControl.getVisibility() == View.VISIBLE);
-        desiredControlViewHeight =
+        desiredControlLayoutHeight =
                 Math.max(artViewHeight, volumeGroupHeight) + mainControllerHeight;
 
         // Limit the volume group list height to fit the screen.
-        if (desiredControlViewHeight > maximumControlViewHeight) {
-            volumeGroupHeight -= (desiredControlViewHeight - maximumControlViewHeight);
-            desiredControlViewHeight = maximumControlViewHeight;
+        if (desiredControlLayoutHeight > maximumControlViewHeight) {
+            volumeGroupHeight -= (desiredControlLayoutHeight - maximumControlViewHeight);
+            desiredControlLayoutHeight = maximumControlViewHeight;
         }
         setLayoutHeight(mVolumeGroupList, volumeGroupHeight);
-        setLayoutHeight(mDefaultControlLayout, desiredControlViewHeight);
+        setLayoutHeight(mDefaultControlLayout, desiredControlLayoutHeight);
     }
 
     private void updateVolumeControl() {
