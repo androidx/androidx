@@ -24,6 +24,7 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -42,7 +43,6 @@ import android.support.v7.media.MediaRouter;
 import android.support.v7.media.SeekBarJellybean;
 import android.support.v7.mediarouter.R;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
@@ -114,7 +114,11 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private TextView mRouteNameTextView;
 
     private boolean mVolumeControlEnabled = true;
+    // Layout for media controllers including play/pause button, volume slider,
+    // and group volume sliders.
     private LinearLayout mMediaControlLayout;
+    // Layout for media controllers including play/pause button and volume slider.
+    private LinearLayout mMediaMainControlLayout;
     private RelativeLayout mPlaybackControl;
     private LinearLayout mVolumeControl;
     private View mDividerView;
@@ -123,6 +127,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private SeekBar mVolumeSlider;
     private boolean mVolumeSliderTouched;
     private int mVolumeSliderColor;
+    private final int mVolumeGroupListItemHeight;
 
     private MediaControllerCompat mMediaController;
     private MediaControllerCallback mControllerCallback;
@@ -147,6 +152,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mCallback = new MediaRouterCallback();
         mRoute = mRouter.getSelectedRoute();
         setMediaSession(mRouter.getMediaSessionToken());
+        mVolumeGroupListItemHeight = context.getResources().getDimensionPixelSize(
+                R.dimen.mr_controller_volume_group_list_item_height);
     }
 
     /**
@@ -283,6 +290,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mArtView = (ImageView) findViewById(R.id.mr_art);
 
         mMediaControlLayout = (LinearLayout) findViewById(R.id.mr_media_control);
+        mMediaMainControlLayout = (LinearLayout) findViewById(R.id.mr_media_main_control);
         mDividerView = findViewById(R.id.mr_control_divider);
 
         mPlaybackControl = (RelativeLayout) findViewById(R.id.mr_playback_control);
@@ -350,14 +358,11 @@ public class MediaRouteControllerDialog extends AlertDialog {
                     mVolumeGroupList.setVisibility(View.VISIBLE);
                     mVolumeGroupList.setAdapter(
                             new VolumeGroupAdapter(getContext(), getGroup().getRoutes()));
-                    setLayoutHeight(mVolumeGroupList,
-                            MediaRouteDialogHelper.getControllerVolumeGroupListHeight(
-                                    getContext(), mVolumeGroupList.getAdapter().getCount()));
                 } else {
                     mGroupExpandCollapseButton.setImageDrawable(expandGroupDrawable);
                     mVolumeGroupList.setVisibility(View.GONE);
                 }
-                updateControlFrameLayout();
+                updateLayoutHeight();
             }
         });
 
@@ -447,6 +452,110 @@ public class MediaRouteControllerDialog extends AlertDialog {
         updatePlaybackControl();
     }
 
+    private boolean isPlaybackControlAvailable() {
+        return mCustomControlView == null && (mDescription != null || mState != null);
+    }
+
+    // Returns the height of main media controllers which includes playback control and master
+    // volume control.
+    private int getMainControllerHeight(boolean showPlaybackControl) {
+        int height = 0;
+        if (showPlaybackControl || mVolumeControl.getVisibility() == View.VISIBLE) {
+            height += mMediaMainControlLayout.getPaddingTop()
+                    + mMediaMainControlLayout.getPaddingBottom();
+            if (showPlaybackControl) {
+                height +=  mPlaybackControl.getMeasuredHeight();
+            }
+            if (mVolumeControl.getVisibility() == View.VISIBLE) {
+                height += mVolumeControl.getMeasuredHeight();
+            }
+            if (showPlaybackControl && mVolumeControl.getVisibility() == View.VISIBLE) {
+                height += mDividerView.getMeasuredHeight();
+            }
+        }
+        return height;
+    }
+
+    // Updates the height of views and hide artwork or metadata if space is limited.
+    private void updateLayoutHeight() {
+        if (mCustomControlView != null) {
+            return;
+        }
+        View decorView = getWindow().getDecorView();
+        decorView.measure(
+                MeasureSpec.makeMeasureSpec(getWindow().getAttributes().width, MeasureSpec.EXACTLY),
+                MeasureSpec.UNSPECIFIED);
+        int artViewHeight = 0;
+        if (mArtView.getDrawable() instanceof BitmapDrawable) {
+            Bitmap art = ((BitmapDrawable) mArtView.getDrawable()).getBitmap();
+            if (art != null) {
+                artViewHeight = getDesiredArtHeight(art.getWidth(), art.getHeight());
+                mArtView.setScaleType(art.getWidth() >= art.getHeight()
+                        ? ImageView.ScaleType.FIT_XY : ImageView.ScaleType.FIT_CENTER);
+            }
+        }
+        int mainControllerHeight = getMainControllerHeight(isPlaybackControlAvailable());
+        int volumeGroupListCount = mVolumeGroupList.getVisibility() == View.VISIBLE
+                ? mVolumeGroupList.getAdapter().getCount() : 0;
+        int volumeGroupHeight = 0;
+        if (0 < volumeGroupListCount && volumeGroupListCount <= 2) {
+            volumeGroupHeight = mVolumeGroupListItemHeight * 2;
+        } else if (volumeGroupListCount >= 3) {
+            artViewHeight = 0;
+            volumeGroupHeight = Math.min(mVolumeGroupListItemHeight * volumeGroupListCount,
+                    getContext().getResources().getDimensionPixelSize(
+                            R.dimen.mr_controller_volume_group_list_max_height));
+        }
+        int desiredControlViewHeight =
+                Math.max(artViewHeight, volumeGroupHeight) + mainControllerHeight;
+        Rect visibleRect = new Rect();
+        decorView.getWindowVisibleDisplayFrame(visibleRect);
+        // Height of non-control views in decor view.
+        // This includes title bar, button bar, and dialog's vertical padding which should be
+        // always shown.
+        int nonControlViewHeight = decorView.getMeasuredHeight()
+                - mDefaultControlLayout.getMeasuredHeight();
+        // Maximum allowed height for controls to fit screen.
+        int maximumControlViewHeight = visibleRect.height() - nonControlViewHeight;
+
+        // Show artwork if it fits the screen
+        if (artViewHeight > 0 && desiredControlViewHeight <= maximumControlViewHeight) {
+            mArtView.setVisibility(View.VISIBLE);
+            setLayoutHeight(mArtView, artViewHeight);
+        } else {
+            mArtView.setVisibility(View.GONE);
+            artViewHeight = 0;
+            desiredControlViewHeight = volumeGroupHeight + mainControllerHeight;
+        }
+        // Show control if it fits the screen
+        if (isPlaybackControlAvailable()
+                && desiredControlViewHeight <= maximumControlViewHeight) {
+            mPlaybackControl.setVisibility(View.VISIBLE);
+        } else {
+            mPlaybackControl.setVisibility(View.GONE);
+        }
+        // TODO: Update the top and bottom padding of the control layout according to the display
+        // height.
+        mDividerView.setVisibility((mVolumeControl.getVisibility() == View.VISIBLE
+                && mPlaybackControl.getVisibility() == View.VISIBLE)
+                ? View.VISIBLE : View.GONE);
+        mMediaControlLayout.setVisibility((mVolumeControl.getVisibility() == View.GONE
+                && mPlaybackControl.getVisibility() == View.GONE)
+                ? View.GONE : View.VISIBLE);
+        mainControllerHeight = getMainControllerHeight(
+                mPlaybackControl.getVisibility() == View.VISIBLE);
+        desiredControlViewHeight =
+                Math.max(artViewHeight, volumeGroupHeight) + mainControllerHeight;
+
+        // Limit the volume group list height to fit the screen.
+        if (desiredControlViewHeight > maximumControlViewHeight) {
+            volumeGroupHeight -= (desiredControlViewHeight - maximumControlViewHeight);
+            desiredControlViewHeight = maximumControlViewHeight;
+        }
+        setLayoutHeight(mVolumeGroupList, volumeGroupHeight);
+        setLayoutHeight(mDefaultControlLayout, desiredControlViewHeight);
+    }
+
     private void updateVolumeControl() {
         if (!mVolumeSliderTouched) {
             if (isVolumeControlAvailable()) {
@@ -468,12 +577,12 @@ public class MediaRouteControllerDialog extends AlertDialog {
             } else {
                 mVolumeControl.setVisibility(View.GONE);
             }
-            updateControlLayoutHeight();
+            updateLayoutHeight();
         }
     }
 
     private void updatePlaybackControl() {
-        if (mCustomControlView == null && (mDescription != null || mState != null)) {
+        if (isPlaybackControlAvailable()) {
             mPlaybackControl.setVisibility(View.VISIBLE);
             CharSequence title = mDescription == null ? null : mDescription.getTitle();
             boolean hasTitle = !TextUtils.isEmpty(title);
@@ -526,85 +635,12 @@ public class MediaRouteControllerDialog extends AlertDialog {
         } else {
             mPlaybackControl.setVisibility(View.GONE);
         }
-        updateControlLayoutHeight();
-    }
-
-    private void updateControlLayoutHeight() {
-        // TODO: Update the top and bottom padding of the control layout according to the display
-        // height.
-        mDividerView.setVisibility((mVolumeControl.getVisibility() == View.VISIBLE
-                && mPlaybackControl.getVisibility() == View.VISIBLE)
-                ? View.VISIBLE : View.GONE);
-        mMediaControlLayout.setVisibility((mVolumeControl.getVisibility() == View.GONE
-                && mPlaybackControl.getVisibility() == View.GONE)
-                ? View.GONE : View.VISIBLE);
-    }
-
-    private void updateControlFrameLayout() {
-        int height;
-        if (mArtView.getVisibility() == View.GONE) {
-            height = LinearLayout.LayoutParams.WRAP_CONTENT;
-        } else {
-            measureAndGetDecorView();
-            if (!mIsGroupExpanded) {
-                height = mArtView.getMeasuredHeight() + mMediaControlLayout.getMeasuredHeight();
-            } else {
-                if (mVolumeGroupList.getAdapter().getCount() <= 2
-                        && mArtView.getMeasuredHeight() > mVolumeGroupList.getMeasuredHeight()) {
-                    // Push the controls up and partially cover the artwork.
-                    height = mArtView.getMeasuredHeight() + mMediaControlLayout.getMeasuredHeight()
-                            - mVolumeGroupList.getMeasuredHeight();
-                } else {
-                    // Completely cover the artwork.
-                    height = LinearLayout.LayoutParams.WRAP_CONTENT;
-                }
-            }
-        }
-        setLayoutHeight(mDefaultControlLayout, height);
+        updateLayoutHeight();
     }
 
     private boolean isVolumeControlAvailable() {
         return mVolumeControlEnabled && mRoute.getVolumeHandling() ==
                 MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE;
-    }
-
-    private View measureAndGetDecorView() {
-        View decorView = getWindow().getDecorView();
-        decorView.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
-        return decorView;
-    }
-
-    private void updateArtView() {
-        if (!(mArtView.getDrawable() instanceof BitmapDrawable)) {
-            mArtView.setVisibility(View.GONE);
-            return;
-        }
-        Bitmap art = ((BitmapDrawable) mArtView.getDrawable()).getBitmap();
-        if (art == null) {
-            mArtView.setVisibility(View.GONE);
-            return;
-        }
-        int desiredArtHeight = getDesiredArtHeight(art.getWidth(), art.getHeight());
-        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
-        View decorView = measureAndGetDecorView();
-        // Show art if and only if it fits in the screen.
-        if (mArtView.getVisibility() == View.GONE) {
-            if (decorView.getMeasuredHeight() + desiredArtHeight <= displayMetrics.heightPixels) {
-                mArtView.setVisibility(View.VISIBLE);
-                setLayoutHeight(mArtView, desiredArtHeight);
-                mArtView.setScaleType(art.getWidth() >= art.getHeight()
-                        ? ImageView.ScaleType.FIT_XY : ImageView.ScaleType.FIT_CENTER);
-            }
-        } else {
-            if (decorView.getMeasuredHeight() - mArtView.getMeasuredHeight() + desiredArtHeight
-                    <= displayMetrics.heightPixels) {
-                setLayoutHeight(mArtView, desiredArtHeight);
-                mArtView.setScaleType(art.getWidth() >= art.getHeight()
-                        ? ImageView.ScaleType.FIT_XY : ImageView.ScaleType.FIT_CENTER);
-            } else {
-                mArtView.setVisibility(View.GONE);
-            }
-        }
     }
 
     private static void setLayoutHeight(View view, int height) {
@@ -736,7 +772,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
             View v = convertView;
             if (v == null) {
                 v = LayoutInflater.from(getContext()).inflate(
-                        R.layout.mr_controller_volume_item, null);
+                        R.layout.mr_controller_volume_item, parent, false);
                 setVolumeSliderColor(getContext(), (SeekBar) v.findViewById(R.id.mr_volume_slider),
                         mVolumeSliderColor);
             }
@@ -871,8 +907,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
                 mArtView.setImageBitmap(art);
                 mArtView.setBackgroundColor(mBackgroundColor);
-                updateArtView();
-                updateControlFrameLayout();
+                updateLayoutHeight();
             }
         }
     }
