@@ -37,4 +37,5 @@ LOCAL_AAPT_FLAGS := \
         --extra-packages android.support.v7.appcompat \
         --extra-packages android.support.v7.recyclerview \
         --extra-packages android.support.design
+LOCAL_PROGUARD_FLAG_FILES := proguard.flags
 include $(BUILD_PACKAGE)
