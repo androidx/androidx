@@ -106,10 +106,30 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity>
         getInstrumentation().waitForIdleSync();
         assertTrue("onMenuOpened called", getActivity().wasOnMenuOpenedCalled());
 
-        // TODO Re-enable this in v23
-        //getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
-        //getInstrumentation().waitForIdleSync();
-        //assertTrue("onPanelClosed called", getActivity().wasOnPanelClosedCalled());
+        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
+        getInstrumentation().waitForIdleSync();
+        assertTrue("onPanelClosed called", getActivity().wasOnPanelClosedCalled());
+    }
+
+    @Test
+    public void testBackPressWithMenuInvokesOnPanelClosed() throws InterruptedException {
+        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
+        getInstrumentation().waitForIdleSync();
+
+        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
+        getInstrumentation().waitForIdleSync();
+        assertTrue("onPanelClosed called", getActivity().wasOnPanelClosedCalled());
+    }
+
+    @Test
+    public void testBackPressWithEmptyMenuDestroysActivity() throws InterruptedException {
+        repopulateWithEmptyMenu();
+
+        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
+        getInstrumentation().waitForIdleSync();
+
+        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
+        waitAssertDestroyed();
     }
 
     @Test
@@ -141,4 +161,28 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity>
         assertEquals("onKeyDown event matches", KeyEvent.KEYCODE_MENU, upEvent.getKeyCode());
     }
 
+    private void waitAssertDestroyed() throws InterruptedException {
+        int count = 0;
+        while (count++ < 10) {
+            if (!getActivity().isDestroyed()) {
+                Thread.sleep(50);
+            } else {
+                break;
+            }
+        }
+        assertTrue("Activity destroyed", getActivity().isDestroyed());
+    }
+
+    private void repopulateWithEmptyMenu() throws InterruptedException {
+        int count = 0;
+        getActivity().setShouldPopulateOptionsMenu(false);
+        while (count++ < 10) {
+            Menu menu = getActivity().getMenu();
+            if (menu == null || menu.size() != 0) {
+                Thread.sleep(50);
+            } else {
+                return;
+            }
+        }
+    }
 }
