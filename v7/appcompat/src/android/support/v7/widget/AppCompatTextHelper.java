@@ -56,8 +56,8 @@ class AppCompatTextHelper {
 
         // Now read the style's value
         a = context.obtainStyledAttributes(attrs, TEXT_APPEARANCE_ATTRS, defStyleAttr, 0);
-        if (a.hasValue(0)) {
-            setAllCaps(a.getBoolean(0, false));
+        if (a.getBoolean(0, false)) {
+            setAllCaps(true);
         }
         a.recycle();
 
