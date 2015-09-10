@@ -461,6 +461,16 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
             ((FrameLayout) decorContent).setForeground(null);
         }
 
+        abcContent.setAttachListener(new ContentFrameLayout.OnAttachListener() {
+            @Override
+            public void onAttachedFromWindow() {}
+
+            @Override
+            public void onDetachedFromWindow() {
+                dismissPopups();
+            }
+        });
+
         return subDecor;
     }
 
@@ -1630,6 +1640,26 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
         return mSubDecor;
     }
 
+    private void dismissPopups() {
+        if (mDecorContentParent != null) {
+            mDecorContentParent.dismissPopups();
+        }
+
+        if (mActionModePopup != null) {
+            mWindowDecor.removeCallbacks(mShowActionModePopup);
+            if (mActionModePopup.isShowing()) {
+                mActionModePopup.dismiss();
+            }
+            mActionModePopup = null;
+        }
+        endOnGoingFadeAnimation();
+
+        PanelFeatureState st = getPanelState(FEATURE_OPTIONS_PANEL, false);
+        if (st != null && st.menu != null) {
+            st.menu.close();
+        }
+    }
+
     /**
      * Clears out internal reference when the action mode is destroyed.
      */
@@ -1949,7 +1979,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
         }
     }
 
-    private class ListMenuDecorView extends FrameLayout {
+    private class ListMenuDecorView extends ContentFrameLayout {
         public ListMenuDecorView(Context context) {
             super(context);
         }
@@ -1983,5 +2013,4 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
             return x < -5 || y < -5 || x > (getWidth() + 5) || y > (getHeight() + 5);
         }
     }
-
 }
