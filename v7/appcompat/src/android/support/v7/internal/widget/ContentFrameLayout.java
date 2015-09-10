@@ -33,6 +33,11 @@ import static android.view.View.MeasureSpec.getMode;
  */
 public class ContentFrameLayout extends FrameLayout {
 
+    public interface OnAttachListener {
+        void onDetachedFromWindow();
+        void onAttachedFromWindow();
+    }
+
     private TypedValue mMinWidthMajor;
     private TypedValue mMinWidthMinor;
     private TypedValue mFixedWidthMajor;
@@ -41,6 +46,8 @@ public class ContentFrameLayout extends FrameLayout {
     private TypedValue mFixedHeightMinor;
 
     private final Rect mDecorPadding;
+
+    private OnAttachListener mAttachListener;
 
     public ContentFrameLayout(Context context) {
         this(context, null);
@@ -60,6 +67,10 @@ public class ContentFrameLayout extends FrameLayout {
      */
     public void dispatchFitSystemWindows(Rect insets) {
         fitSystemWindows(insets);
+    }
+
+    public void setAttachListener(OnAttachListener attachListener) {
+        mAttachListener = attachListener;
     }
 
     /**
@@ -180,5 +191,21 @@ public class ContentFrameLayout extends FrameLayout {
     public TypedValue getFixedHeightMinor() {
         if (mFixedHeightMinor == null) mFixedHeightMinor = new TypedValue();
         return mFixedHeightMinor;
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        if (mAttachListener != null) {
+            mAttachListener.onAttachedFromWindow();
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (mAttachListener != null) {
+            mAttachListener.onDetachedFromWindow();
+        }
     }
 }
