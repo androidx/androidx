@@ -27,4 +27,6 @@
     <!-- Height of MediaRouteController's volume group item.
          TODO: Define value for landscape once we know how to adjust SeekBar height. -->
     <dimen name="mr_controller_volume_group_list_item_height">75dp</dimen>
+
+    <dimen name="mr_controller_volume_group_list_padding_bottom">8dp</dimen>
 </resources>
