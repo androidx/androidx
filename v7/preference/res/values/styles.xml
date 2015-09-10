@@ -17,7 +17,7 @@
 
 <resources>
     <style name="Preference">
-        <item name="layout">@layout/preference</item>
+        <item name="android:layout">@layout/preference</item>
     </style>
 
     <style name="PreferenceFragment">
@@ -26,38 +26,38 @@
     </style>
 
     <style name="Preference.Information">
-        <item name="layout">@layout/preference_information</item>
-        <item name="enabled">false</item>
-        <item name="shouldDisableView">false</item>
+        <item name="android:layout">@layout/preference_information</item>
+        <item name="android:enabled">false</item>
+        <item name="android:shouldDisableView">false</item>
     </style>
 
     <style name="Preference.Category">
-        <item name="layout">@layout/preference_category</item>
+        <item name="android:layout">@layout/preference_category</item>
         <!-- The title should not dim if the category is disabled, instead only the preference children should dim. -->
-        <item name="shouldDisableView">false</item>
-        <item name="selectable">false</item>
+        <item name="android:shouldDisableView">false</item>
+        <item name="android:selectable">false</item>
     </style>
 
     <style name="Preference.CheckBoxPreference">
-        <item name="widgetLayout">@layout/preference_widget_checkbox</item>
+        <item name="android:widgetLayout">@layout/preference_widget_checkbox</item>
     </style>
 
     <style name="Preference.SwitchPreferenceCompat">
-        <item name="widgetLayout">@layout/preference_widget_switch_compat</item>
-        <item name="switchTextOn">@string/v7_preference_on</item>
-        <item name="switchTextOff">@string/v7_preference_off</item>
+        <item name="android:widgetLayout">@layout/preference_widget_switch_compat</item>
+        <item name="android:switchTextOn">@string/v7_preference_on</item>
+        <item name="android:switchTextOff">@string/v7_preference_off</item>
     </style>
 
     <style name="Preference.PreferenceScreen">
     </style>
 
     <style name="Preference.DialogPreference">
-        <item name="positiveButtonText">@android:string/ok</item>
-        <item name="negativeButtonText">@android:string/cancel</item>
+        <item name="android:positiveButtonText">@android:string/ok</item>
+        <item name="android:negativeButtonText">@android:string/cancel</item>
     </style>
 
     <style name="Preference.DialogPreference.EditTextPreference">
-        <item name="dialogLayout">@layout/preference_dialog_edittext</item>
+        <item name="android:dialogLayout">@layout/preference_dialog_edittext</item>
     </style>
 
     <style name="PreferenceFragmentList">
