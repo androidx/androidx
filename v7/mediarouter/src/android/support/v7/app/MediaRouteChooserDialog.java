@@ -317,8 +317,13 @@ public class MediaRouteChooserDialog extends Dialog {
             }
             // A workaround to get the speaker icon for known audio devices.
             // TODO: Remove once the new setIconUri API is fully launched.
-            if (TextUtils.equals(route.getProvider().getPackageName(), "com.sonos.acr")
-                    || route.getDescription().toLowerCase().contains("audio") ) {
+            String packageName = route.getProvider().getPackageName();
+            if (TextUtils.equals(packageName, "com.google.android.music.dial")
+                    || TextUtils.equals(packageName, "com.sonos.acr")) {
+                return mSpeakerIcon;
+            }
+            String description = route.getDescription();
+            if (!TextUtils.isEmpty(description) && description.contains("audio")) {
                 return mSpeakerIcon;
             }
             return mDefaultIcon;
