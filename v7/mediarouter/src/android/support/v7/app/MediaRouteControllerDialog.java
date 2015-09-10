@@ -833,8 +833,11 @@ public class MediaRouteControllerDialog extends AlertDialog {
         view.setPadding(left, top, right, newBottom);
 
         ViewGroup.LayoutParams lp = view.getLayoutParams();
-        lp.height = lp.height - bottom + newBottom;
-        view.setLayoutParams(lp);
+        if (lp.height != ViewGroup.LayoutParams.FILL_PARENT
+                && lp.height != ViewGroup.LayoutParams.WRAP_CONTENT) {
+            lp.height = lp.height - bottom + newBottom;
+            view.setLayoutParams(lp);
+        }
     }
 
     private class FetchArtTask extends AsyncTask<Void, Void, Bitmap> {
