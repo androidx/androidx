@@ -64,6 +64,7 @@
     <string name="snackbar_show_long_long_action">Show (long message + long action)</string>
 
     <string name="design_appbar_toolbar_scroll_tabs_scroll">AppBar/Toolbar Scroll + Tabs Scroll</string>
+    <string name="design_appbar_toolbar_scroll_tabs_scroll_snap">AppBar/Toolbar Scroll + Tabs Scroll + Snap</string>
     <string name="design_appbar_toolbar_scroll_tabs_pin">AppBar/Toolbar Scroll + Tabs Pin</string>
     <string name="design_appbar_toolbar_scroll_tabs_pin_with_swiperefresh">AppBar/Toolbar Scroll + Tabs Pin + Swipe Refresh</string>
     <string name="design_appbar_collapsing_toolbar_pin">AppBar/Collapsing Toolbar (pinned)</string>
