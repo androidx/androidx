@@ -28,7 +28,7 @@
     <string name="mr_controller_pause" msgid="5451884435510905406">"Pausatu"</string>
     <string name="mr_controller_expand_group" msgid="6901500538649315763">"Zabaldu taldea"</string>
     <string name="mr_controller_collapse_group" msgid="1521128951309799184">"Tolestu taldea"</string>
-    <string name="mr_controller_no_media_selected" msgid="6547130360349182381">"Ez da hautatu gailurik"</string>
+    <string name="mr_controller_no_media_selected" msgid="6547130360349182381">"Ez da hautatu multimedia-edukirik"</string>
     <string name="mr_controller_no_info_available" msgid="5585418471741142924">"Ez dago informaziorik"</string>
     <string name="mr_controller_casting_screen" msgid="4868457957151124867">"Pantaila igortzen"</string>
 </resources>
