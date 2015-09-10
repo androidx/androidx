@@ -614,25 +614,32 @@ public class MediaRouteControllerDialog extends AlertDialog {
             CharSequence subtitle = mDescription == null ? null : mDescription.getSubtitle();
             boolean hasSubtitle = !TextUtils.isEmpty(subtitle);
 
-            if (!hasTitle && !hasSubtitle) {
-                if (mRoute.getPresentationDisplayId()
-                        != MediaRouter.RouteInfo.PRESENTATION_DISPLAY_ID_NONE) {
-                    // The user is currently casting screen.
-                    mTitleView.setText(R.string.mr_controller_casting_screen);
-                } else {
-                    mTitleView.setText((mState == null
-                            || mState.getState() == PlaybackStateCompat.STATE_NONE)
-                                    ? R.string.mr_controller_no_media_selected
-                                    : R.string.mr_controller_no_info_available);
-                }
-                mTitleView.setVisibility(View.VISIBLE);
-                mSubtitleView.setVisibility(View.GONE);
+            boolean showTitle = false;
+            boolean showSubtitle = false;
+            if (mRoute.getPresentationDisplayId()
+                    != MediaRouter.RouteInfo.PRESENTATION_DISPLAY_ID_NONE) {
+                // The user is currently casting screen.
+                mTitleView.setText(R.string.mr_controller_casting_screen);
+                showTitle = true;
+            } else if (mState == null || mState.getState() == PlaybackStateCompat.STATE_NONE) {
+                mTitleView.setText(R.string.mr_controller_no_media_selected);
+                showTitle = true;
+            } else if (!hasTitle && !hasSubtitle) {
+                mTitleView.setText(R.string.mr_controller_no_info_available);
+                showTitle = true;
             } else {
-                mTitleView.setText(title);
-                mTitleView.setVisibility(hasTitle ? View.VISIBLE : View.GONE);
-                mSubtitleView.setText(subtitle);
-                mSubtitleView.setVisibility(hasSubtitle ? View.VISIBLE : View.GONE);
+                if (hasTitle) {
+                    mTitleView.setText(title);
+                    showTitle = true;
+                }
+                if (hasSubtitle) {
+                    mSubtitleView.setText(subtitle);
+                    showSubtitle = true;
+                }
             }
+            mTitleView.setVisibility(showTitle ? View.VISIBLE : View.GONE);
+            mSubtitleView.setVisibility(showSubtitle ? View.VISIBLE : View.GONE);
+
             if (mState != null) {
                 boolean isPlaying = mState.getState() == PlaybackStateCompat.STATE_BUFFERING
                         || mState.getState() == PlaybackStateCompat.STATE_PLAYING;
