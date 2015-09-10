@@ -50,6 +50,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -488,17 +489,29 @@ public class MediaRouteControllerDialog extends AlertDialog {
         // TODO: Update the top and bottom padding of the control layout according to the display
         // height.
         mDividerView.setVisibility((mVolumeControl.getVisibility() == View.VISIBLE
-                && mPlaybackControl.getVisibility() == View.VISIBLE)
-                ? View.VISIBLE : View.GONE);
+                && mPlaybackControl.getVisibility() == View.VISIBLE) ? View.VISIBLE : View.GONE);
         mMediaControlLayout.setVisibility((mVolumeControl.getVisibility() == View.GONE
-                && mPlaybackControl.getVisibility() == View.GONE)
-                ? View.GONE : View.VISIBLE);
+                && mPlaybackControl.getVisibility() == View.GONE) ? View.GONE : View.VISIBLE);
+    }
+
+    private void updateLayoutHeight() {
+        // We need to defer the update until the first layout has occurred, as we don't yet know the
+        // overall visible display size in which the window this view is attached to has been
+        // positioned in.
+        ViewTreeObserver observer = mDefaultControlLayout.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                mDefaultControlLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                updateLayoutHeightInternal();
+            }
+        });
     }
 
     /**
      * Updates the height of views and hide artwork or metadata if space is limited.
      */
-    private void updateLayoutHeight() {
+    private void updateLayoutHeightInternal() {
         if (mCustomControlView != null) {
             return;
         }
