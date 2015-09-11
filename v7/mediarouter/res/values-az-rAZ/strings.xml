@@ -26,8 +26,8 @@
     <string name="mr_controller_close_description" msgid="7333862312480583260">"Qapadın"</string>
     <string name="mr_controller_play" msgid="683634565969987458">"Oynadın"</string>
     <string name="mr_controller_pause" msgid="5451884435510905406">"Durdurun"</string>
-    <string name="mr_controller_expand_group" msgid="6901500538649315763">"Qrupun genişləndirilməsi"</string>
-    <string name="mr_controller_collapse_group" msgid="1521128951309799184">"Qrupun yığcamlaşdırılması"</string>
+    <string name="mr_controller_expand_group" msgid="6901500538649315763">"Qrupun genişlənməsi"</string>
+    <string name="mr_controller_collapse_group" msgid="1521128951309799184">"Qrupun yığcamlaşması"</string>
     <string name="mr_controller_no_media_selected" msgid="6547130360349182381">"Heç bir media seçilməyib"</string>
     <string name="mr_controller_no_info_available" msgid="5585418471741142924">"Əlçatan məlumat yoxdur"</string>
     <string name="mr_controller_casting_screen" msgid="4868457957151124867">"Ekran yayımlanır"</string>
