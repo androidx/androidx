@@ -304,8 +304,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     /**
      * Returns the current orientaion of the layout.
      *
-     * @return Current orientation.
-     * @see #mOrientation
+     * @return Current orientation,  either {@link #HORIZONTAL} or {@link #VERTICAL}
      * @see #setOrientation(int)
      */
     public int getOrientation() {
@@ -349,7 +348,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
      * Returns if views are laid out from the opposite direction of the layout.
      *
      * @return If layout is reversed or not.
-     * @see {@link #setReverseLayout(boolean)}
+     * @see #setReverseLayout(boolean)
      */
     public boolean getReverseLayout() {
         return mReverseLayout;
