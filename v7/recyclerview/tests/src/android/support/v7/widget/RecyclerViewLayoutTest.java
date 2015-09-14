@@ -62,7 +62,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     private static final int FLAG_VERTICAL = 1 << 1;
     private static final int FLAG_FLING = 1 << 2;
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private static final String TAG = "RecyclerViewLayoutTest";
 
@@ -174,9 +174,9 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     }
 
     @Test
-    public void testFocusSearchFailFrozen() throws Throwable {
+    public void  testFocusSearchFailFrozen() throws Throwable {
         RecyclerView recyclerView = new RecyclerView(getActivity());
-
+        final CountDownLatch focusLatch = new CountDownLatch(1);
         final AtomicInteger focusSearchCalled = new AtomicInteger(0);
         TestLayoutManager tlm = new TestLayoutManager() {
             @Override
@@ -199,6 +199,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
             public View onFocusSearchFailed(View focused, int direction, RecyclerView.Recycler recycler,
                     RecyclerView.State state) {
                 focusSearchCalled.addAndGet(1);
+                focusLatch.countDown();
                 return null;
             }
         };
@@ -222,9 +223,9 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         sendKeys(KeyEvent.KEYCODE_DPAD_DOWN);
         assertEquals("onFocusSearchFailed should not be called when layout is frozen",
                 0, focusSearchCalled.get());
-
         freezeLayout(false);
         sendKeys(KeyEvent.KEYCODE_DPAD_DOWN);
+        assertTrue(focusLatch.await(2, TimeUnit.SECONDS));
         assertEquals(1, focusSearchCalled.get());
     }
 
