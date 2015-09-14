@@ -60,29 +60,6 @@ class AppCompatTextHelper {
             setAllCaps(a.getBoolean(0, false));
         }
         a.recycle();
-
-        final ColorStateList textColors = mView.getTextColors();
-        if (textColors != null && !textColors.isStateful()) {
-            // If we have a ColorStateList which isn't stateful, create one which includes
-            // a disabled state
-
-            final int disabledTextColor;
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                // Pre-Lollipop, we will use textColorSecondary with android:disabledAlpha
-                // applied
-                disabledTextColor = ThemeUtils.getDisabledThemeAttrColor(context,
-                        android.R.attr.textColorSecondary);
-            } else {
-                // With certain styles on Lollipop, there is a StateListAnimator which sets
-                // an alpha on the whole view, so we don't need to apply disabledAlpha to
-                // textColorSecondary
-                disabledTextColor = ThemeUtils.getThemeAttrColor(context,
-                        android.R.attr.textColorSecondary);
-            }
-
-            mView.setTextColor(ThemeUtils.createDisabledStateList(
-                    textColors.getDefaultColor(), disabledTextColor));
-        }
     }
 
     void onSetTextAppearance(Context context, int resId) {
