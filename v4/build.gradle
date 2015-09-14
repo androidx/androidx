@@ -13,7 +13,7 @@ tasks.create(name: "internalJar", type: Jar) {
 
 ext.allSS = []
 
-def baseSS         = createApiSourceset('donut',        'donut',         '4',       null)
+def baseSS         = createApiSourceset('donut',         'donut',          '4',       null)
 def eclairSS       = createApiSourceset('eclair',       'eclair',        '5',       baseSS)
 def eclairMr1SS    = createApiSourceset('eclairmr1',    'eclair-mr1',    '7',       eclairSS)
 def froyoSS        = createApiSourceset('froyo',        'froyo',         '8',       eclairMr1SS)
@@ -30,8 +30,7 @@ def kitkatSS       = createApiSourceset('kitkat',       'kitkat',        '19',  
 def api20SS        = createApiSourceset('api20',        'api20',         '20',      kitkatSS)
 def api21SS        = createApiSourceset('api21',        'api21',         '21',      api20SS)
 def api22SS        = createApiSourceset('api22',        'api22',         '22',      api21SS)
-def api23SS        = createApiSourceset('api23',        'api23',         '23',      api22SS)
-def nSS            = createApiSourceset('n',            'n',             'current', api23SS)
+def api23SS        = createApiSourceset('api23',        'api23',         'current', api22SS)
 
 
 def createApiSourceset(String name, String folder, String apiLevel, SourceSet previousSource) {
