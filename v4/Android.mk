@@ -177,7 +177,7 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 # A helper sub-library that makes direct use of V22 APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v4-api22
-LOCAL_SDK_VERSION := 22
+LOCAL_SDK_VERSION := current
 LOCAL_SRC_FILES := $(call all-java-files-under, api22)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-api21
 include $(BUILD_STATIC_JAVA_LIBRARY)
@@ -187,19 +187,9 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 # A helper sub-library that makes direct use of V23 APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v4-api23
-LOCAL_SDK_VERSION := 23
+LOCAL_SDK_VERSION := current
 LOCAL_SRC_FILES := $(call all-java-files-under, api23)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-api22
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-# -----------------------------------------------------------------------
-
-# A helper sub-library that makes direct use of N APIs.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-v4-n
-LOCAL_SDK_VERSION := current
-LOCAL_SRC_FILES := $(call all-java-files-under, n)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-api23
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # -----------------------------------------------------------------------
@@ -211,7 +201,7 @@ LOCAL_SDK_VERSION := 4
 LOCAL_AIDL_INCLUDES := frameworks/support/v4/java
 LOCAL_SRC_FILES := $(call all-java-files-under, java) \
     $(call all-Iaidl-files-under, java)
-LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4-n
+LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4-api23
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # API Check

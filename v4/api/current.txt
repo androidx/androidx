@@ -1160,20 +1160,17 @@ package android.support.v4.graphics.drawable {
   public class DrawableCompat {
     ctor public DrawableCompat();
     method public static int getLayoutDirection(android.graphics.drawable.Drawable);
-    method public static float getLevelFloat(android.graphics.drawable.Drawable);
     method public static boolean isAutoMirrored(android.graphics.drawable.Drawable);
     method public static void jumpToCurrentState(android.graphics.drawable.Drawable);
     method public static void setAutoMirrored(android.graphics.drawable.Drawable, boolean);
     method public static void setHotspot(android.graphics.drawable.Drawable, float, float);
     method public static void setHotspotBounds(android.graphics.drawable.Drawable, int, int, int, int);
     method public static void setLayoutDirection(android.graphics.drawable.Drawable, int);
-    method public static boolean setLevel(android.graphics.drawable.Drawable, float);
     method public static void setTint(android.graphics.drawable.Drawable, int);
     method public static void setTintList(android.graphics.drawable.Drawable, android.content.res.ColorStateList);
     method public static void setTintMode(android.graphics.drawable.Drawable, android.graphics.PorterDuff.Mode);
     method public static T unwrap(android.graphics.drawable.Drawable);
     method public static android.graphics.drawable.Drawable wrap(android.graphics.drawable.Drawable);
-    field public static final float MAX_LEVEL_FLOAT = 10000.0f;
   }
 
   public abstract class RoundedBitmapDrawable extends android.graphics.drawable.Drawable {
