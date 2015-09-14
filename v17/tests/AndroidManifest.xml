@@ -15,7 +15,7 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="android.support.v17.leanback.tests">
-    <uses-sdk android:minSdkVersion="17"  android:targetSdkVersion="17"/>
+    <uses-sdk android:minSdkVersion="17"  android:targetSdkVersion="23"/>
 
     <!--
         This declares that this application uses the instrumentation test runner targeting
@@ -33,6 +33,14 @@
         <activity android:name="android.support.v17.leanback.widget.GridActivity"
             android:exported="true" />
 
-    </application>
+        <activity android:name="android.support.v17.leanback.app.BrowseFragmentTestActivity"
+            android:theme="@style/Theme.Leanback.Browse"
+            android:exported="true" />
+
+        <activity android:name="android.support.v17.leanback.app.BrowseSupportFragmentTestActivity"
+            android:theme="@style/Theme.Leanback.Browse"
+            android:exported="true" />
+
+        </application>
 
 </manifest>

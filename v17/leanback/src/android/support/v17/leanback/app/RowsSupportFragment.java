@@ -450,6 +450,10 @@ public class RowsSupportFragment extends BaseRowSupportFragment {
 
         @Override
         public boolean onPreDraw() {
+            if (getView() == null || getActivity() == null) {
+                mVerticalView.getViewTreeObserver().removeOnPreDrawListener(this);
+                return true;
+            }
             if (mState == STATE_INIT) {
                 setExpand(true);
                 mState = STATE_FIRST_DRAW;
