@@ -92,6 +92,36 @@ class FragmentTransitionCompat21 {
         return transitionSet;
     }
 
+    private static void excludeViews(Transition transition, Transition fromTransition,
+            ArrayList<View> views, boolean exclude) {
+        if (transition != null) {
+            final int viewCount = fromTransition == null ? 0 : views.size();
+            for (int i = 0; i < viewCount; i++) {
+                transition.excludeTarget(views.get(i), exclude);
+            }
+        }
+    }
+
+    /**
+     * Exclude (or remove the exclude) of shared element views from the enter and exit transitions.
+     *
+     * @param enterTransitionObj The enter transition
+     * @param exitTransitionObj The exit transition
+     * @param sharedElementTransitionObj The shared element transition
+     * @param views The shared element target views.
+     * @param exclude <code>true</code> to exclude or <code>false</code> to remove the excluded
+     *                views.
+     */
+    public static void excludeSharedElementViews(Object enterTransitionObj,
+            Object exitTransitionObj, Object sharedElementTransitionObj, ArrayList<View> views,
+            boolean exclude) {
+        Transition enterTransition = (Transition) enterTransitionObj;
+        Transition exitTransition = (Transition) exitTransitionObj;
+        Transition sharedElementTransition = (Transition) sharedElementTransitionObj;
+        excludeViews(enterTransition, sharedElementTransition, views, exclude);
+        excludeViews(exitTransition, sharedElementTransition, views, exclude);
+    }
+
     /**
      * Prepares the enter transition by adding a non-existent view to the transition's target list
      * and setting it epicenter callback. By adding a non-existent view to the target list,
@@ -104,35 +134,42 @@ class FragmentTransitionCompat21 {
      *  capturing the final state of the Transition.</p>
      */
     public static void addTransitionTargets(Object enterTransitionObject,
-            Object sharedElementTransitionObject, final View container,
+            Object sharedElementTransitionObject, Object exitTransitionObject, final View container,
             final ViewRetriever inFragment, final View nonExistentView,
             EpicenterView epicenterView, final Map<String, String> nameOverrides,
-            final ArrayList<View> enteringViews, final Map<String, View> namedViews,
-            final Map<String, View> renamedViews, final ArrayList<View> sharedElementTargets) {
+            final ArrayList<View> enteringViews, final ArrayList<View> exitingViews,
+            final Map<String, View> namedViews, final Map<String, View> renamedViews,
+            final ArrayList<View> sharedElementTargets) {
+        final Transition enterTransition = (Transition) enterTransitionObject;
+        final Transition exitTransition = (Transition) exitTransitionObject;
+        final Transition sharedElementTransition = (Transition) sharedElementTransitionObject;
+        excludeViews(enterTransition, exitTransition, exitingViews, true);
         if (enterTransitionObject != null || sharedElementTransitionObject != null) {
-            final Transition enterTransition = (Transition) enterTransitionObject;
             if (enterTransition != null) {
                 enterTransition.addTarget(nonExistentView);
             }
             if (sharedElementTransitionObject != null) {
-                setSharedElementTargets(sharedElementTransitionObject, nonExistentView,
+                setSharedElementTargets(sharedElementTransition, nonExistentView,
                         namedViews, sharedElementTargets);
+                excludeViews(enterTransition, sharedElementTransition, sharedElementTargets, true);
+                excludeViews(exitTransition, sharedElementTransition, sharedElementTargets, true);
             }
 
-            if (inFragment != null) {
-                container.getViewTreeObserver().addOnPreDrawListener(
-                        new ViewTreeObserver.OnPreDrawListener() {
-                            public boolean onPreDraw() {
-                                container.getViewTreeObserver().removeOnPreDrawListener(this);
-                                if (enterTransition != null) {
-                                    enterTransition.removeTarget(nonExistentView);
-                                }
+            container.getViewTreeObserver().addOnPreDrawListener(
+                    new ViewTreeObserver.OnPreDrawListener() {
+                        public boolean onPreDraw() {
+                            container.getViewTreeObserver().removeOnPreDrawListener(this);
+                            if (enterTransition != null) {
+                                enterTransition.removeTarget(nonExistentView);
+                            }
+                            if (inFragment != null) {
                                 View fragmentView = inFragment.getView();
                                 if (fragmentView != null) {
                                     if (!nameOverrides.isEmpty()) {
                                         findNamedViews(renamedViews, fragmentView);
                                         renamedViews.keySet().retainAll(nameOverrides.values());
-                                        for (Map.Entry<String, String> entry : nameOverrides.entrySet()) {
+                                        for (Map.Entry<String, String> entry : nameOverrides
+                                                .entrySet()) {
                                             String to = entry.getValue();
                                             View view = renamedViews.get(to);
                                             if (view != null) {
@@ -148,10 +185,12 @@ class FragmentTransitionCompat21 {
                                         addTargets(enterTransition, enteringViews);
                                     }
                                 }
-                                return true;
                             }
-                        });
-            }
+                            excludeViews(exitTransition, enterTransition, enteringViews, true);
+
+                            return true;
+                        }
+                    });
             setSharedElementEpicenter(enterTransition, epicenterView);
         }
     }
@@ -355,9 +394,15 @@ class FragmentTransitionCompat21 {
                     sceneRoot.getViewTreeObserver().removeOnPreDrawListener(this);
                     if (enterTransition != null) {
                         removeTargets(enterTransition, enteringViews);
+                        excludeViews(enterTransition, exitTransition, exitingViews, false);
+                        excludeViews(enterTransition, sharedElementTransition, sharedElementTargets,
+                                false);
                     }
                     if (exitTransition != null) {
                         removeTargets(exitTransition, exitingViews);
+                        excludeViews(exitTransition, enterTransition, enteringViews, false);
+                        excludeViews(exitTransition, sharedElementTransition, sharedElementTargets,
+                                false);
                     }
                     if (sharedElementTransition != null) {
                         removeTargets(sharedElementTransition, sharedElementTargets);

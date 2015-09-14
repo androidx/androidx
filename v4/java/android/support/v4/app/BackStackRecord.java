@@ -1158,7 +1158,8 @@ final class BackStackRecord extends FragmentTransaction implements
                     callback.onSharedElementStart(names, views, null);
                 }
                 prepareSharedElementTransition(state, sceneRoot, sharedElementTransition,
-                        inFragment, outFragment, isBack, sharedElementTargets);
+                        inFragment, outFragment, isBack, sharedElementTargets, enterTransition,
+                        exitTransition);
             }
         }
         if (enterTransition == null && sharedElementTransition == null &&
@@ -1205,9 +1206,9 @@ final class BackStackRecord extends FragmentTransaction implements
 
         if (transition != null) {
             FragmentTransitionCompat21.addTransitionTargets(enterTransition,
-                    sharedElementTransition, sceneRoot, viewRetriever, state.nonExistentView,
-                    state.enteringEpicenterView, state.nameOverrides, enteringViews,
-                    namedViews, renamedViews, sharedElementTargets);
+                    sharedElementTransition, exitTransition, sceneRoot, viewRetriever,
+                    state.nonExistentView, state.enteringEpicenterView, state.nameOverrides,
+                    enteringViews, exitingViews, namedViews, renamedViews, sharedElementTargets);
             excludeHiddenFragmentsAfterEnter(sceneRoot, state, containerId, transition);
 
             // We want to exclude hidden views later, so we need a non-null list in the
@@ -1229,16 +1230,22 @@ final class BackStackRecord extends FragmentTransaction implements
     private void prepareSharedElementTransition(final TransitionState state, final View sceneRoot,
             final Object sharedElementTransition, final Fragment inFragment,
             final Fragment outFragment, final boolean isBack,
-            final ArrayList<View> sharedElementTargets) {
-        sceneRoot.getViewTreeObserver().addOnPreDrawListener(
-                new ViewTreeObserver.OnPreDrawListener() {
-            @Override
-            public boolean onPreDraw() {
-                sceneRoot.getViewTreeObserver().removeOnPreDrawListener(this);
+            final ArrayList<View> sharedElementTargets, final Object enterTransition,
+            final Object exitTransition) {
+        if (sharedElementTransition != null) {
+            sceneRoot.getViewTreeObserver().addOnPreDrawListener(
+                    new ViewTreeObserver.OnPreDrawListener() {
+                @Override
+                public boolean onPreDraw() {
+                    sceneRoot.getViewTreeObserver().removeOnPreDrawListener(this);
 
-                if (sharedElementTransition != null) {
+                    // Remove the exclude for the shared elements from the exiting fragment.
                     FragmentTransitionCompat21.removeTargets(sharedElementTransition,
                             sharedElementTargets);
+                    // keep the nonExistentView as excluded so the list doesn't get emptied
+                    sharedElementTargets.remove(state.nonExistentView);
+                    FragmentTransitionCompat21.excludeSharedElementViews(enterTransition,
+                            exitTransition, sharedElementTransition, sharedElementTargets, false);
                     sharedElementTargets.clear();
 
                     ArrayMap<String, View> namedViews = mapSharedElementsIn(
@@ -1250,11 +1257,14 @@ final class BackStackRecord extends FragmentTransaction implements
 
                     callSharedElementEnd(state, inFragment, outFragment, isBack,
                             namedViews);
-                }
 
-                return true;
-            }
-        });
+                    // Exclude the shared elements from the entering fragment.
+                    FragmentTransitionCompat21.excludeSharedElementViews(enterTransition,
+                            exitTransition, sharedElementTransition, sharedElementTargets, true);
+                    return true;
+                }
+            });
+        }
     }
 
     private void callSharedElementEnd(TransitionState state, Fragment inFragment,
