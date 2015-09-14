@@ -15,6 +15,12 @@
 -->
 
 <resources>
-    <!-- Maximum height of MediaRouteController's volume group list. -->
+    <!-- MediaRouteController's volume group list -->
+    <eat-comment />
+    <!-- Maximum height of volume group list. -->
     <dimen name="mr_controller_volume_group_list_max_height">132dp</dimen>
+    <!-- Height of volume group item. -->
+    <dimen name="mr_controller_volume_group_list_item_height">61dp</dimen>
+    <!-- Size of an item's icon. -->
+    <dimen name="mr_controller_volume_group_list_item_icon_size">18dp</dimen>
 </resources>
