@@ -17,47 +17,47 @@
 
 <resources>
     <style name="Preference.SwitchPreference">
-        <item name="widgetLayout">@layout/preference_widget_switch</item>
-        <item name="switchTextOn">@string/v7_preference_on</item>
-        <item name="switchTextOff">@string/v7_preference_off</item>
+        <item name="android:widgetLayout">@layout/preference_widget_switch</item>
+        <item name="android:switchTextOn">@string/v7_preference_on</item>
+        <item name="android:switchTextOff">@string/v7_preference_off</item>
     </style>
 
     <style name="Preference.Material">
-        <item name="layout">@layout/preference_material</item>
+        <item name="android:layout">@layout/preference_material</item>
     </style>
 
     <style name="Preference.Information.Material">
-        <item name="layout">@layout/preference_information_material</item>
-        <item name="enabled">false</item>
-        <item name="shouldDisableView">false</item>
+        <item name="android:layout">@layout/preference_information_material</item>
+        <item name="android:enabled">false</item>
+        <item name="android:shouldDisableView">false</item>
     </style>
 
     <style name="Preference.Category.Material">
-        <item name="layout">@layout/preference_category_material</item>
+        <item name="android:layout">@layout/preference_category_material</item>
     </style>
 
     <style name="Preference.CheckBoxPreference.Material">
-        <item name="layout">@layout/preference_material</item>
+        <item name="android:layout">@layout/preference_material</item>
     </style>
 
     <style name="Preference.SwitchPreferenceCompat.Material">
-        <item name="layout">@layout/preference_material</item>
+        <item name="android:layout">@layout/preference_material</item>
     </style>
 
     <style name="Preference.SwitchPreference.Material">
-        <item name="layout">@layout/preference_material</item>
+        <item name="android:layout">@layout/preference_material</item>
     </style>
 
     <style name="Preference.PreferenceScreen.Material">
-        <item name="layout">@layout/preference_material</item>
+        <item name="android:layout">@layout/preference_material</item>
     </style>
 
     <style name="Preference.DialogPreference.Material">
-        <item name="layout">@layout/preference_material</item>
+        <item name="android:layout">@layout/preference_material</item>
     </style>
 
     <style name="Preference.DialogPreference.EditTextPreference.Material">
-        <item name="layout">@layout/preference_material</item>
+        <item name="android:layout">@layout/preference_material</item>
     </style>
 
     <style name="Preference_TextAppearanceMaterialBody2">
