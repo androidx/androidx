@@ -780,6 +780,7 @@ public final class MediaRouter {
         private final ArrayList<IntentFilter> mControlFilters = new ArrayList<>();
         private int mPlaybackType;
         private int mPlaybackStream;
+        private int mDeviceType;
         private int mVolumeHandling;
         private int mVolume;
         private int mVolumeMax;
@@ -844,6 +845,51 @@ public final class MediaRouter {
          * @see #getPlaybackType
          */
         public static final int PLAYBACK_TYPE_REMOTE = 1;
+
+        /** @hide */
+        @IntDef({DEVICE_TYPE_UNKNOWN, DEVICE_TYPE_TV, DEVICE_TYPE_SPEAKER, DEVICE_TYPE_BLUETOOTH})
+        @Retention(RetentionPolicy.SOURCE)
+        private @interface DeviceType {}
+
+        /**
+         * The default receiver device type of the route indicating the type is unknown.
+         *
+         * @see #getDeviceType
+         * @hide
+         * STOPSHIP: Unhide or remove.
+         */
+        public static final int DEVICE_TYPE_UNKNOWN = 0;
+
+
+        /**
+         * A receiver device type of the route indicating the presentation of the media is happening
+         * on a bluetooth device such as a bluetooth speaker.
+         *
+         * @see #getDeviceType
+         * @hide
+         * STOPSHIP: Unhide or remove.
+         */
+        public static final int DEVICE_TYPE_BLUETOOTH = -1;
+
+        /**
+         * A receiver device type of the route indicating the presentation of the media is happening
+         * on a TV.
+         *
+         * @see #getDeviceType
+         * @hide
+         * STOPSHIP: Unhide or remove.
+         */
+        public static final int DEVICE_TYPE_TV = 1;
+
+        /**
+         * A receiver device type of the route indicating the presentation of the media is happening
+         * on a speaker.
+         *
+         * @see #getDeviceType
+         * @hide
+         * STOPSHIP: Unhide or remove.
+         */
+        public static final int DEVICE_TYPE_SPEAKER = 2;
 
         /** @hide */
         @IntDef({PLAYBACK_VOLUME_FIXED,PLAYBACK_VOLUME_VARIABLE})
@@ -1188,6 +1234,18 @@ public final class MediaRouter {
         }
 
         /**
+         * Gets the type of the receiver device associated with this route.
+         *
+         * @return The type of the receiver device associated with this route:
+         * {@link #DEVICE_TYPE_TV}, {@link #DEVICE_TYPE_SPEAKER} or {@link #DEVICE_TYPE_BLUETOOTH}.
+         * @hide
+         * STOPSHIP: Unhide or remove.
+         */
+        public int getDeviceType() {
+            return mDeviceType;
+        }
+
+        /**
          * Gets information about how volume is handled on the route.
          *
          * @return How volume is handled on the route: {@link #PLAYBACK_VOLUME_FIXED}
@@ -1343,6 +1401,7 @@ public final class MediaRouter {
                     + ", canDisconnect=" + mCanDisconnect
                     + ", playbackType=" + mPlaybackType
                     + ", playbackStream=" + mPlaybackStream
+                    + ", deviceType=" + mDeviceType
                     + ", volumeHandling=" + mVolumeHandling
                     + ", volume=" + mVolume
                     + ", volumeMax=" + mVolumeMax
@@ -1400,6 +1459,10 @@ public final class MediaRouter {
                 }
                 if (mPlaybackStream != descriptor.getPlaybackStream()) {
                     mPlaybackStream = descriptor.getPlaybackStream();
+                    changes |= CHANGE_GENERAL;
+                }
+                if (mDeviceType != descriptor.getDeviceType()) {
+                    mDeviceType = descriptor.getDeviceType();
                     changes |= CHANGE_GENERAL;
                 }
                 if (mVolumeHandling != descriptor.getVolumeHandling()) {

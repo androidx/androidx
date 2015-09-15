@@ -304,6 +304,14 @@ public class MediaRouteChooserDialog extends Dialog {
         }
 
         private Drawable getDefaultIconDrawable(MediaRouter.RouteInfo route) {
+            // If the type of the receiver device is specified, use it.
+            int deviceType = route.getDeviceType();
+            if (deviceType == MediaRouter.RouteInfo.DEVICE_TYPE_SPEAKER) {
+                return mSpeakerIcon;
+            } else if (deviceType == MediaRouter.RouteInfo.DEVICE_TYPE_BLUETOOTH) {
+                return mBluetoothIcon;
+            }
+            // Otherwise, make the best guess based on other route information.
             if (route instanceof MediaRouter.RouteGroup) {
                 // Only speakers can be grouped for now.
                 return mSpeakerGroupIcon;
