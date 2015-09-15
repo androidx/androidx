@@ -113,7 +113,7 @@
 
     <style name="Base.Widget.AppCompat.Spinner" parent="android:Widget.Material.Spinner" />
 
-    <style name="Base.Widget.AppCompat.Spinner.Underlined" parent="android:Widget.Material.Spinner.Underlined" />
+    <!-- Base.Widget.AppCompat.Spinner.Underlined is overridden in ldltr-v21 and v23 -->
 
     <style name="Base.Widget.AppCompat.ListView" parent="android:Widget.Material.ListView" />
     <style name="Base.Widget.AppCompat.ListView.Menu" />
