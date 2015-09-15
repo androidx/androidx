@@ -2528,7 +2528,7 @@ public class ViewCompat {
      * @param value The y location of the pivot point.
      */
     public static void setPivotY(View view, float value) {
-        IMPL.setPivotX(view, value);
+        IMPL.setPivotY(view, value);
     }
 
     public static float getRotation(View view) {
