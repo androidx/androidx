@@ -21,6 +21,7 @@
     <string name="design_navigation">NavigationView/Usage</string>
     <string name="design_tabs_basic">TabLayout/Usage</string>
     <string name="design_text_input">Text Input</string>
+    <string name="design_bottomsheet">BottomSheet/Usage</string>
 
     <string name="fab_size_normal">Normal size</string>
     <string name="fab_size_mini">Mini size</string>
@@ -78,5 +79,6 @@
     <string name="menu_search">Search</string>
     <string name="menu_settings">Settings</string>
 
+    <string name="bottom_sheet">Bottom sheet</string>
 
 </resources>

@@ -190,5 +190,14 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".widget.BottomSheetUsage"
+                  android:label="@string/design_bottomsheet"
+                  android:theme="@style/Theme.Design">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.support.design.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
     </application>
 </manifest>
