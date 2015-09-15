@@ -532,8 +532,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
         int mainControllerHeight = getMainControllerHeight(isPlaybackControlAvailable());
         int volumeGroupListCount = mVolumeGroupList.getVisibility() == View.VISIBLE
                 ? mVolumeGroupList.getAdapter().getCount() : 0;
-        int volumeGroupHeight = mVolumeGroupListItemHeight * volumeGroupListCount
-                + mVolumeGroupListPaddingBottom;
+        int volumeGroupHeight = (volumeGroupListCount == 0) ? 0
+                : mVolumeGroupListItemHeight * volumeGroupListCount + mVolumeGroupListPaddingBottom;
         volumeGroupHeight = Math.min(volumeGroupHeight, mVolumeGroupListMaxHeight);
 
         int desiredControlLayoutHeight =
