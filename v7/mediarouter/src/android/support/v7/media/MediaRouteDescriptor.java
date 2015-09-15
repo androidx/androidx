@@ -48,6 +48,7 @@ public final class MediaRouteDescriptor {
     private static final String KEY_CONTROL_FILTERS = "controlFilters";
     private static final String KEY_PLAYBACK_TYPE = "playbackType";
     private static final String KEY_PLAYBACK_STREAM = "playbackStream";
+    private static final String KEY_DEVICE_TYPE = "deviceType";
     private static final String KEY_VOLUME = "volume";
     private static final String KEY_VOLUME_MAX = "volumeMax";
     private static final String KEY_VOLUME_HANDLING = "volumeHandling";
@@ -209,6 +210,16 @@ public final class MediaRouteDescriptor {
     }
 
     /**
+     * Gets the route's receiver device type.
+     *
+     * @hide
+     * STOPSHIP: Unhide or remove.
+     */
+    public int getDeviceType() {
+        return mBundle.getInt(KEY_DEVICE_TYPE);
+    }
+
+    /**
      * Gets the route's current volume, or 0 if unknown.
      */
     public int getVolume() {
@@ -275,6 +286,7 @@ public final class MediaRouteDescriptor {
         result.append(", controlFilters=").append(Arrays.toString(getControlFilters().toArray()));
         result.append(", playbackType=").append(getPlaybackType());
         result.append(", playbackStream=").append(getPlaybackStream());
+        result.append(", deviceType=").append(getDeviceType());
         result.append(", volume=").append(getVolume());
         result.append(", volumeMax=").append(getVolumeMax());
         result.append(", volumeHandling=").append(getVolumeHandling());
@@ -447,7 +459,6 @@ public final class MediaRouteDescriptor {
             return this;
         }
 
-
         /**
          * Sets whether the route is enabled.
          * <p>
@@ -543,6 +554,17 @@ public final class MediaRouteDescriptor {
          */
         public Builder setPlaybackStream(int playbackStream) {
             mBundle.putInt(KEY_PLAYBACK_STREAM, playbackStream);
+            return this;
+        }
+
+        /**
+         * Sets the route's receiver device type.
+         *
+         * @hide
+         * STOPSHIP: Unhide or remove.
+         */
+        public Builder setDeviceType(int deviceType) {
+            mBundle.putInt(KEY_DEVICE_TYPE, deviceType);
             return this;
         }
 
