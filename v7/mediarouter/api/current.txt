@@ -381,9 +381,13 @@ package android.support.v7.media {
     method public android.os.Bundle asBundle();
     method public boolean canDisconnectAndKeepPlaying();
     method public static android.support.v7.media.MediaRouteDescriptor fromBundle(android.os.Bundle);
+    method public int getConnectionState();
     method public java.util.List<android.content.IntentFilter> getControlFilters();
     method public java.lang.String getDescription();
+    method public int getDeviceType();
     method public android.os.Bundle getExtras();
+    method public java.util.List<java.lang.String> getGroupMemberIds();
+    method public android.net.Uri getIconUri();
     method public java.lang.String getId();
     method public java.lang.String getName();
     method public int getPlaybackStream();
@@ -393,7 +397,7 @@ package android.support.v7.media {
     method public int getVolume();
     method public int getVolumeHandling();
     method public int getVolumeMax();
-    method public boolean isConnecting();
+    method public deprecated boolean isConnecting();
     method public boolean isEnabled();
     method public boolean isValid();
   }
@@ -403,12 +407,17 @@ package android.support.v7.media {
     ctor public MediaRouteDescriptor.Builder(android.support.v7.media.MediaRouteDescriptor);
     method public android.support.v7.media.MediaRouteDescriptor.Builder addControlFilter(android.content.IntentFilter);
     method public android.support.v7.media.MediaRouteDescriptor.Builder addControlFilters(java.util.Collection<android.content.IntentFilter>);
+    method public android.support.v7.media.MediaRouteDescriptor.Builder addGroupMemberId(java.lang.String);
+    method public android.support.v7.media.MediaRouteDescriptor.Builder addGroupMemberIds(java.util.Collection<java.lang.String>);
     method public android.support.v7.media.MediaRouteDescriptor build();
     method public android.support.v7.media.MediaRouteDescriptor.Builder setCanDisconnect(boolean);
-    method public android.support.v7.media.MediaRouteDescriptor.Builder setConnecting(boolean);
+    method public deprecated android.support.v7.media.MediaRouteDescriptor.Builder setConnecting(boolean);
+    method public android.support.v7.media.MediaRouteDescriptor.Builder setConnectionState(int);
     method public android.support.v7.media.MediaRouteDescriptor.Builder setDescription(java.lang.String);
+    method public android.support.v7.media.MediaRouteDescriptor.Builder setDeviceType(int);
     method public android.support.v7.media.MediaRouteDescriptor.Builder setEnabled(boolean);
     method public android.support.v7.media.MediaRouteDescriptor.Builder setExtras(android.os.Bundle);
+    method public android.support.v7.media.MediaRouteDescriptor.Builder setIconUri(android.net.Uri);
     method public android.support.v7.media.MediaRouteDescriptor.Builder setId(java.lang.String);
     method public android.support.v7.media.MediaRouteDescriptor.Builder setName(java.lang.String);
     method public android.support.v7.media.MediaRouteDescriptor.Builder setPlaybackStream(int);
@@ -567,11 +576,20 @@ package android.support.v7.media {
     method public java.util.List<android.support.v7.media.MediaRouter.RouteInfo> getRoutes();
   }
 
+  public static class MediaRouter.RouteGroup extends android.support.v7.media.MediaRouter.RouteInfo {
+    method public android.support.v7.media.MediaRouter.RouteInfo getRouteAt(int);
+    method public int getRouteCount();
+    method public java.util.List<android.support.v7.media.MediaRouter.RouteInfo> getRoutes();
+  }
+
   public static class MediaRouter.RouteInfo {
     method public boolean canDisconnect();
+    method public int getConnectionState();
     method public java.util.List<android.content.IntentFilter> getControlFilters();
     method public java.lang.String getDescription();
+    method public int getDeviceType();
     method public android.os.Bundle getExtras();
+    method public android.net.Uri getIconUri();
     method public java.lang.String getId();
     method public java.lang.String getName();
     method public int getPlaybackStream();
@@ -594,6 +612,11 @@ package android.support.v7.media {
     method public boolean supportsControlAction(java.lang.String, java.lang.String);
     method public boolean supportsControlCategory(java.lang.String);
     method public boolean supportsControlRequest(android.content.Intent);
+    field public static final int CONNECTION_STATE_CONNECTED = 2; // 0x2
+    field public static final int CONNECTION_STATE_CONNECTING = 1; // 0x1
+    field public static final int CONNECTION_STATE_DISCONNECTED = 0; // 0x0
+    field public static final int DEVICE_TYPE_SPEAKER = 2; // 0x2
+    field public static final int DEVICE_TYPE_TV = 1; // 0x1
     field public static final int PLAYBACK_TYPE_LOCAL = 0; // 0x0
     field public static final int PLAYBACK_TYPE_REMOTE = 1; // 0x1
     field public static final int PLAYBACK_VOLUME_FIXED = 0; // 0x0
