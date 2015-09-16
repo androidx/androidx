@@ -170,6 +170,17 @@ subprojects {
     }
 }
 
+project.gradle.buildFinished { buildResult ->
+    if (buildResult.getFailure() != null) {
+        println()
+        println 'Build failed. Possible causes include:'
+        println '    1) Bad codes'
+        println '    2) Out of date prebuilts in prebuilts/sdk'
+        println '    3) Need to update the compileSdkVersion in a library's build.gradle'
+        println()
+    }
+}
+
 FileCollection getAndroidPrebuilt(String apiLevel) {
     files("$rootDir/../../prebuilts/sdk/$apiLevel/android.jar")
 }
