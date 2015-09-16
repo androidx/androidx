@@ -788,7 +788,7 @@ public class SwitchCompat extends CompoundButton {
         // recursively with a different value, so load the REAL value...
         checked = isChecked();
 
-        if (getWindowToken() != null && ViewCompat.isLaidOut(this)) {
+        if (getWindowToken() != null && ViewCompat.isLaidOut(this) && isShown()) {
             animateThumbToCheckedState(checked);
         } else {
             // Immediately move the thumb to the new position.
