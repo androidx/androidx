@@ -36,6 +36,7 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v7.graphics.Palette;
 import android.support.v7.media.MediaRouteSelector;
 import android.support.v7.media.MediaRouter;
@@ -49,6 +50,8 @@ import android.view.View;
 import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -143,6 +146,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private Uri mArtIconUri;
     private boolean mIsGroupExpanded;
 
+    private final AccessibilityManager mAccessibilityManager;
+
     public MediaRouteControllerDialog(Context context) {
         this(context, 0);
     }
@@ -158,6 +163,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
         setMediaSession(mRouter.getMediaSessionToken());
         mVolumeGroupListPaddingTop = context.getResources().getDimensionPixelSize(
                 R.dimen.mr_controller_volume_group_list_padding_top);
+        mAccessibilityManager =
+                (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
     }
 
     /**
@@ -742,10 +749,22 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 dismiss();
             } else if (id == R.id.mr_control_play_pause) {
                 if (mMediaController != null && mState != null) {
-                    if (mState.getState() == PlaybackStateCompat.STATE_PLAYING) {
+                    boolean isPlaying = mState.getState() == PlaybackStateCompat.STATE_PLAYING;
+                    if (isPlaying) {
                         mMediaController.getTransportControls().pause();
                     } else {
                         mMediaController.getTransportControls().play();
+                    }
+                    // Announce the action for accessibility.
+                    if (mAccessibilityManager != null && mAccessibilityManager.isEnabled()) {
+                        AccessibilityEvent event = AccessibilityEvent.obtain(
+                                AccessibilityEventCompat.TYPE_ANNOUNCEMENT);
+                        event.setPackageName(getContext().getPackageName());
+                        event.setClassName(getClass().getName());
+                        int resId = isPlaying ?
+                                R.string.mr_controller_pause : R.string.mr_controller_play;
+                        event.getText().add(getContext().getString(resId));
+                        mAccessibilityManager.sendAccessibilityEvent(event);
                     }
                 }
             } else if (id == R.id.mr_close) {
