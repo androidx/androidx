@@ -892,8 +892,10 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
         switch (keyCode) {
             case KeyEvent.KEYCODE_MENU:
                 onKeyDownPanel(Window.FEATURE_OPTIONS_PANEL, event);
-                // Break, and let this fall through to the original callback
-                break;
+                // We need to return true here and not let it bubble up to the Window.
+                // For empty menus, PhoneWindow's KEYCODE_BACK handling will steals all events,
+                // not allowing the Activity to call onBackPressed().
+                return true;
         }
 
         // On API v7-10 we need to manually call onKeyShortcut() as this is not called
