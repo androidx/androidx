@@ -354,6 +354,11 @@ public class MediaRouteControllerDialog extends AlertDialog {
         final Drawable collapseGroupDrawable = styledAttributes.getDrawable(1);
         styledAttributes.recycle();
 
+        final String expandGroupDescription = getContext().getString(
+                R.string.mr_controller_expand_group);
+        final String collapseGroupDescription = getContext().getString(
+                R.string.mr_controller_collapse_group);
+
         mVolumeGroupList = (ListView)findViewById(R.id.mr_volume_group_list);
         mGroupExpandCollapseButton = (ImageButton) findViewById(R.id.mr_group_expand_collapse);
         mGroupExpandCollapseButton.setOnClickListener(new View.OnClickListener() {
@@ -362,11 +367,13 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 mIsGroupExpanded = !mIsGroupExpanded;
                 if (mIsGroupExpanded) {
                     mGroupExpandCollapseButton.setImageDrawable(collapseGroupDrawable);
+                    mGroupExpandCollapseButton.setContentDescription(collapseGroupDescription);
                     mVolumeGroupList.setVisibility(View.VISIBLE);
                     mVolumeGroupList.setAdapter(
                             new VolumeGroupAdapter(getContext(), getGroup().getRoutes()));
                 } else {
                     mGroupExpandCollapseButton.setImageDrawable(expandGroupDrawable);
+                    mGroupExpandCollapseButton.setContentDescription(expandGroupDescription);
                     mVolumeGroupList.setVisibility(View.GONE);
                 }
                 updateLayoutHeight();
