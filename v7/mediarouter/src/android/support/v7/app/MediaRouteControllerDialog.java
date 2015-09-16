@@ -485,13 +485,13 @@ public class MediaRouteControllerDialog extends AlertDialog {
         return height;
     }
 
-    private void updateMediaControlVisibility() {
+    private void updateMediaControlVisibility(boolean showPlaybackControl) {
         // TODO: Update the top and bottom padding of the control layout according to the display
         // height.
         mDividerView.setVisibility((mVolumeControl.getVisibility() == View.VISIBLE
-                && mPlaybackControl.getVisibility() == View.VISIBLE) ? View.VISIBLE : View.GONE);
+                && showPlaybackControl) ? View.VISIBLE : View.GONE);
         mMediaControlLayout.setVisibility((mVolumeControl.getVisibility() == View.GONE
-                && mPlaybackControl.getVisibility() == View.GONE) ? View.GONE : View.VISIBLE);
+                && showPlaybackControl) ? View.GONE : View.VISIBLE);
     }
 
     private void updateLayoutHeight() {
@@ -515,7 +515,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         if (mCustomControlView != null) {
             return;
         }
-        updateMediaControlVisibility();
+        updateMediaControlVisibility(isPlaybackControlAvailable());
         View decorView = getWindow().getDecorView();
         decorView.measure(
                 MeasureSpec.makeMeasureSpec(getWindow().getAttributes().width, MeasureSpec.EXACTLY),
@@ -565,7 +565,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         } else {
             mPlaybackControl.setVisibility(View.GONE);
         }
-        updateMediaControlVisibility();
+        updateMediaControlVisibility(mPlaybackControl.getVisibility() == View.VISIBLE);
         mainControllerHeight = getMainControllerHeight(
                 mPlaybackControl.getVisibility() == View.VISIBLE);
         desiredControlLayoutHeight =
@@ -607,7 +607,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
     private void updatePlaybackControl() {
         if (isPlaybackControlAvailable()) {
-            mPlaybackControl.setVisibility(View.VISIBLE);
             CharSequence title = mDescription == null ? null : mDescription.getTitle();
             boolean hasTitle = !TextUtils.isEmpty(title);
 
@@ -663,8 +662,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
                     mPlayPauseButton.setVisibility(View.GONE);
                 }
             }
-        } else {
-            mPlaybackControl.setVisibility(View.GONE);
         }
         updateLayoutHeight();
     }
