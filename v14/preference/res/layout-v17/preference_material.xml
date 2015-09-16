@@ -57,7 +57,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:singleLine="true"
-            android:textAppearance="?android:attr/textAppearanceListItem"
+            android:textAppearance="@style/Preference_TextAppearanceMaterialSubhead"
             android:ellipsize="marquee" />
 
         <TextView android:id="@android:id/summary"
