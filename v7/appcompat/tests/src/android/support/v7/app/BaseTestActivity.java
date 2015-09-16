@@ -37,6 +37,11 @@ abstract class BaseTestActivity extends AppCompatActivity {
     private boolean mOnMenuOpenedCalled;
     private boolean mOnPanelClosedCalled;
 
+    private boolean mShouldPopulateOptionsMenu = true;
+
+    private boolean mOnBackPressedCalled;
+    private boolean mDestroyed;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -113,8 +118,13 @@ abstract class BaseTestActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         mMenu = menu;
-        getMenuInflater().inflate(R.menu.sample_actions, menu);
-        return true;
+        if (mShouldPopulateOptionsMenu) {
+            getMenuInflater().inflate(R.menu.sample_actions, menu);
+            return true;
+        } else {
+            menu.clear();
+            return super.onCreateOptionsMenu(menu);
+        }
     }
 
     public boolean expandSearchView() {
@@ -139,5 +149,37 @@ abstract class BaseTestActivity extends AppCompatActivity {
         mOnKeyShortcutEvent = null;
         mOnMenuOpenedCalled = false;
         mOnPanelClosedCalled = false;
+    }
+
+    public void setShouldPopulateOptionsMenu(boolean populate) {
+        mShouldPopulateOptionsMenu = populate;
+        if (mMenu != null) {
+            supportInvalidateOptionsMenu();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mDestroyed = true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        mOnBackPressedCalled = true;
+    }
+
+    public boolean wasOnBackPressedCalled() {
+        return mOnBackPressedCalled;
+    }
+
+    public Menu getMenu() {
+        return mMenu;
+    }
+
+    @Override
+    public boolean isDestroyed() {
+        return mDestroyed;
     }
 }
