@@ -37,20 +37,20 @@
     <!-- Button to stop playback and disconnect from a media route. [CHAR LIMIT=30] -->
     <string name="mr_controller_stop">Stop casting</string>
 
-    <!-- Accessibility description for the close button that closes the controller dialog. [CHAR LIMIT=NONE] -->
+    <!-- Content description for accessibility (not shown on the screen): dialog close button. [CHAR LIMIT=NONE] -->
     <string name="mr_controller_close_description">Close</string>
 
-    <!-- Accessibility description for the play button that starts playback. [CHAR LIMIT=NONE] -->
+    <!-- Content description for accessibility (not shown on the screen): media play button. [CHAR LIMIT=NONE] -->
     <string name="mr_controller_play">Play</string>
 
-    <!-- Accessibility description for the pause button that pauses playback. [CHAR LIMIT=NONE] -->
+    <!-- Content description for accessibility (not shown on the screen): media pause button. [CHAR LIMIT=NONE] -->
     <string name="mr_controller_pause">Pause</string>
 
-    <!-- Accessibility description for the group expand button that shows group members of a selected route group. [CHAR LIMIT=NONE] -->
-    <string name="mr_controller_expand_group">Group expand</string>
+    <!-- Content description for accessibility (not shown on the screen): group expand button. Pressing button shows group members of a selected route group. [CHAR LIMIT=NONE] -->
+    <string name="mr_controller_expand_group">Expand</string>
 
-    <!-- Accessibility description for the group collapse button that hides group members of a selected group. [CHAR LIMIT=NONE] -->
-    <string name="mr_controller_collapse_group">Group collapse</string>
+    <!-- Content description for accessibility (not shown on the screen): group collapse button. Pressing button hides group members of a selected route group. [CHAR LIMIT=NONE] -->
+    <string name="mr_controller_collapse_group">Collapse</string>
 
     <!-- Placeholder text to show when no media have been selected for playback. [CHAR LIMIT=50] -->
     <string name="mr_controller_no_media_selected">No media selected</string>
