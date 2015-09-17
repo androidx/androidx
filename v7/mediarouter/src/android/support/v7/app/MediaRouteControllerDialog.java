@@ -498,7 +498,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mDividerView.setVisibility((mVolumeControl.getVisibility() == View.VISIBLE
                 && showPlaybackControl) ? View.VISIBLE : View.GONE);
         mMediaControlLayout.setVisibility((mVolumeControl.getVisibility() == View.GONE
-                && showPlaybackControl) ? View.GONE : View.VISIBLE);
+                && !showPlaybackControl) ? View.GONE : View.VISIBLE);
     }
 
     private void updateLayoutHeight() {
