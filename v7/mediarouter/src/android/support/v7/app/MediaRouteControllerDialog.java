@@ -250,9 +250,9 @@ public class MediaRouteControllerDialog extends AlertDialog {
     }
 
     /**
-     * Gets the description being used by the default UI.
+     * Gets the associated session's token.
      *
-     * @return The current description.
+     * @return session token.
      */
     public MediaSessionCompat.Token getMediaSession() {
         return mMediaController == null ? null : mMediaController.getSessionToken();
@@ -913,7 +913,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 }
             }
             if (art != null && art.getWidth() < art.getHeight()) {
-                // Portrait art requires background color.
+                // Portrait art requires dominant color as background color.
                 Palette palette = new Palette.Builder(art).maximumColorCount(1).generate();
                 mBackgroundColor = palette.getSwatches().isEmpty()
                         ? 0 : palette.getSwatches().get(0).getRgb();
