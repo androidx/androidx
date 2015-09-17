@@ -248,7 +248,15 @@ public abstract class PreferenceFragment extends Fragment implements
 
         a.recycle();
 
-        final View view = inflater.inflate(mLayoutResId, container, false);
+        // Need to theme the inflater to pick up the preferenceFragmentListStyle
+        final TypedValue tv = new TypedValue();
+        getActivity().getTheme().resolveAttribute(R.attr.preferenceTheme, tv, true);
+        final int theme = tv.resourceId;
+
+        final Context themedContext = new ContextThemeWrapper(inflater.getContext(), theme);
+        final LayoutInflater themedInflater = inflater.cloneInContext(themedContext);
+
+        final View view = themedInflater.inflate(mLayoutResId, container, false);
 
         final View rawListContainer = view.findViewById(R.id.list_container);
         if (!(rawListContainer instanceof ViewGroup)) {
@@ -258,7 +266,7 @@ public abstract class PreferenceFragment extends Fragment implements
 
         final ViewGroup listContainer = (ViewGroup) rawListContainer;
 
-        final RecyclerView listView = onCreateRecyclerView(inflater, listContainer,
+        final RecyclerView listView = onCreateRecyclerView(themedInflater, listContainer,
                 savedInstanceState);
         if (listView == null) {
             throw new RuntimeException("Could not create RecyclerView");
