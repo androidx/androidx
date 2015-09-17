@@ -83,6 +83,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
     // to allow the route provider time to propagate the change and publish a new
     // route descriptor.
     private static final int VOLUME_UPDATE_DELAY_MILLIS = 250;
+    private static final int VOLUME_SLIDER_TAG_MASTER = 0;
+    private static final int VOLUME_SLIDER_TAG_BASE = 100;
 
     private static final int BUTTON_NEUTRAL_RES_ID = android.R.id.button3;
     private static final int BUTTON_DISCONNECT_RES_ID = android.R.id.button2;
@@ -124,6 +126,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
     private ListView mVolumeGroupList;
     private SeekBar mVolumeSlider;
+    private VolumeChangeListener mVolumeChangeListener;
     private boolean mVolumeSliderTouched;
     private int mVolumeGroupListItemIconSize;
     private int mVolumeGroupListItemHeight;
@@ -302,41 +305,9 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
         mVolumeControl = (LinearLayout) findViewById(R.id.mr_volume_control);
         mVolumeSlider = (SeekBar) findViewById(R.id.mr_volume_slider);
-        mVolumeSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            private final Runnable mStopTrackingTouch = new Runnable() {
-                @Override
-                public void run() {
-                    if (mVolumeSliderTouched) {
-                        mVolumeSliderTouched = false;
-                        updateVolumeControl();
-                    }
-                }
-            };
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                if (mVolumeSliderTouched) {
-                    mVolumeSlider.removeCallbacks(mStopTrackingTouch);
-                } else {
-                    mVolumeSliderTouched = true;
-                }
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                // Defer resetting mVolumeSliderTouched to allow the media route provider
-                // a little time to settle into its new state and publish the final
-                // volume update.
-                mVolumeSlider.postDelayed(mStopTrackingTouch, VOLUME_UPDATE_DELAY_MILLIS);
-            }
-
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (fromUser) {
-                    mRoute.requestSetVolume(progress);
-                }
-            }
-        });
+        mVolumeSlider.setTag(VOLUME_SLIDER_TAG_MASTER);
+        mVolumeChangeListener = new VolumeChangeListener();
+        mVolumeSlider.setOnSeekBarChangeListener(mVolumeChangeListener);
 
         TypedArray styledAttributes = getContext().obtainStyledAttributes(new int[] {
                 R.attr.mediaRouteExpandGroupDrawable,
@@ -771,28 +742,50 @@ public class MediaRouteControllerDialog extends AlertDialog {
         }
     }
 
-    private class VolumeGroupAdapter extends ArrayAdapter<MediaRouter.RouteInfo> {
-        final static float DISABLED_ALPHA = .3f;
-
-        final OnSeekBarChangeListener mOnSeekBarChangeListener = new OnSeekBarChangeListener() {
+    private class VolumeChangeListener implements OnSeekBarChangeListener {
+        private final Runnable mStopTrackingTouch = new Runnable() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (fromUser) {
-                    int position = (int) seekBar.getTag();
-                    getGroup().getRouteAt(position).requestSetVolume(progress);
+            public void run() {
+                if (mVolumeSliderTouched) {
+                    mVolumeSliderTouched = false;
+                    updateVolumeControl();
                 }
             }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                // TODO: Implement
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                // TODO: Implement
-            }
         };
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+            if (mVolumeSliderTouched) {
+                mVolumeSlider.removeCallbacks(mStopTrackingTouch);
+            } else {
+                mVolumeSliderTouched = true;
+            }
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+            // Defer resetting mVolumeSliderTouched to allow the media route provider
+            // a little time to settle into its new state and publish the final
+            // volume update.
+            mVolumeSlider.postDelayed(mStopTrackingTouch, VOLUME_UPDATE_DELAY_MILLIS);
+        }
+
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            if (fromUser) {
+                int tag = (int) seekBar.getTag();
+                if (tag == VOLUME_SLIDER_TAG_MASTER) {
+                    mRoute.requestSetVolume(progress);
+                } else if (tag - VOLUME_SLIDER_TAG_BASE >= 0
+                        && tag - VOLUME_SLIDER_TAG_BASE < getGroup().getRouteCount()) {
+                    getGroup().getRouteAt(tag - VOLUME_SLIDER_TAG_BASE).requestSetVolume(progress);
+                }
+            }
+        }
+    }
+
+    private class VolumeGroupAdapter extends ArrayAdapter<MediaRouter.RouteInfo> {
+        final static float DISABLED_ALPHA = .3f;
 
         public VolumeGroupAdapter(Context context, List<MediaRouter.RouteInfo> objects) {
             super(context, 0, objects);
@@ -816,14 +809,14 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
                 MediaRouteVolumeSlider volumeSlider =
                         (MediaRouteVolumeSlider) v.findViewById(R.id.mr_volume_slider);
-                volumeSlider.setTag(position);
+                volumeSlider.setTag(VOLUME_SLIDER_TAG_BASE + position);
                 volumeSlider.setShowThumb(isEnabled);
                 if (isEnabled) {
                     if (route.getVolumeHandling()
                             == MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE) {
                         volumeSlider.setMax(route.getVolumeMax());
                         volumeSlider.setProgress(route.getVolume());
-                        volumeSlider.setOnSeekBarChangeListener(mOnSeekBarChangeListener);
+                        volumeSlider.setOnSeekBarChangeListener(mVolumeChangeListener);
                         volumeSlider.setEnabled(true);
                     } else {
                         volumeSlider.setMax(100);
