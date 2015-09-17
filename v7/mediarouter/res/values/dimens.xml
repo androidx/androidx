@@ -15,6 +15,8 @@
 -->
 
 <resources>
+    <!-- Dialog size -->
+    <eat-comment />
     <!-- The platform's desired fixed width for a dialog along the major axis
          (the screen is in landscape). This may be either a fraction or a dimension.-->
     <dimen name="mr_dialog_fixed_width_major">320dp</dimen>
@@ -22,11 +24,14 @@
          (the screen is in portrait). This may be either a fraction or a dimension.-->
     <dimen name="mr_dialog_fixed_width_minor">320dp</dimen>
 
-    <!-- Maximum height of MediaRouteController's volume group list. -->
+    <!-- MediaRouteController's volume group list -->
+    <eat-comment />
+    <!-- Maximum height of volume group list. -->
     <dimen name="mr_controller_volume_group_list_max_height">256dp</dimen>
-    <!-- Height of MediaRouteController's volume group item.
-         TODO: Define value for landscape once we know how to adjust SeekBar height. -->
-    <dimen name="mr_controller_volume_group_list_item_height">75dp</dimen>
+    <!-- Height of volume group item. -->
+    <dimen name="mr_controller_volume_group_list_item_height">67dp</dimen>
+    <!-- Size of an item's icon. -->
+    <dimen name="mr_controller_volume_group_list_item_icon_size">24dp</dimen>
 
-    <dimen name="mr_controller_volume_group_list_padding_bottom">8dp</dimen>
+    <dimen name="mr_controller_volume_group_list_padding_top">16dp</dimen>
 </resources>

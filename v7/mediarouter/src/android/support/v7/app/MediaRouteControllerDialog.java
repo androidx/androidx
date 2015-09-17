@@ -20,6 +20,7 @@ import static android.widget.SeekBar.OnSeekBarChangeListener;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -124,9 +125,10 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private ListView mVolumeGroupList;
     private SeekBar mVolumeSlider;
     private boolean mVolumeSliderTouched;
-    private final int mVolumeGroupListItemHeight;
-    private final int mVolumeGroupListMaxHeight;
-    private final int mVolumeGroupListPaddingBottom;
+    private int mVolumeGroupListItemIconSize;
+    private int mVolumeGroupListItemHeight;
+    private int mVolumeGroupListMaxHeight;
+    private final int mVolumeGroupListPaddingTop;
 
     private MediaControllerCompat mMediaController;
     private MediaControllerCallback mControllerCallback;
@@ -151,12 +153,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mCallback = new MediaRouterCallback();
         mRoute = mRouter.getSelectedRoute();
         setMediaSession(mRouter.getMediaSessionToken());
-        mVolumeGroupListItemHeight = context.getResources().getDimensionPixelSize(
-                R.dimen.mr_controller_volume_group_list_item_height);
-        mVolumeGroupListMaxHeight = context.getResources().getDimensionPixelSize(
-                R.dimen.mr_controller_volume_group_list_max_height);
-        mVolumeGroupListPaddingBottom = context.getResources().getDimensionPixelSize(
-                R.dimen.mr_controller_volume_group_list_padding_bottom);
+        mVolumeGroupListPaddingTop = context.getResources().getDimensionPixelSize(
+                R.dimen.mr_controller_volume_group_list_padding_top);
     }
 
     /**
@@ -394,6 +392,14 @@ public class MediaRouteControllerDialog extends AlertDialog {
         View decorView = getWindow().getDecorView();
         mDialogContentWidth = width - decorView.getPaddingLeft() - decorView.getPaddingRight();
 
+        Resources res = getContext().getResources();
+        mVolumeGroupListItemIconSize = res.getDimensionPixelSize(
+                R.dimen.mr_controller_volume_group_list_item_icon_size);
+        mVolumeGroupListItemHeight = res.getDimensionPixelSize(
+                R.dimen.mr_controller_volume_group_list_item_height);
+        mVolumeGroupListMaxHeight = res.getDimensionPixelSize(
+                R.dimen.mr_controller_volume_group_list_max_height);
+
         // Ensure the mArtView is updated.
         mArtIconBitmap = null;
         mArtIconUri = null;
@@ -533,8 +539,17 @@ public class MediaRouteControllerDialog extends AlertDialog {
         int mainControllerHeight = getMainControllerHeight(isPlaybackControlAvailable());
         int volumeGroupListCount = mVolumeGroupList.getVisibility() == View.VISIBLE
                 ? mVolumeGroupList.getAdapter().getCount() : 0;
+        // Scale down volume group list items in landscape mode.
+        for (int i = 0; i < volumeGroupListCount; i++) {
+            View item = mVolumeGroupList.getChildAt(i);
+            if (item != null) {
+                setLayoutHeight(item, mVolumeGroupListItemHeight);
+                setLayoutHeight(item.findViewById(R.id.mr_volume_item_icon),
+                        mVolumeGroupListItemIconSize);
+            }
+        }
         int volumeGroupHeight = (volumeGroupListCount == 0) ? 0
-                : mVolumeGroupListItemHeight * volumeGroupListCount + mVolumeGroupListPaddingBottom;
+                : mVolumeGroupListItemHeight * volumeGroupListCount + mVolumeGroupListPaddingTop;
         volumeGroupHeight = Math.min(volumeGroupHeight, mVolumeGroupListMaxHeight);
 
         int desiredControlLayoutHeight =
@@ -790,7 +805,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 v = LayoutInflater.from(getContext()).inflate(
                         R.layout.mr_controller_volume_item, parent, false);
             }
-            setViewPaddingBottom(v, position == getCount() - 1 ? mVolumeGroupListPaddingBottom : 0);
 
             MediaRouter.RouteInfo route = getItem(position);
             if (route != null) {
@@ -823,21 +837,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 volumeItemIcon.setAlpha(isEnabled ? 255 : (int) (255 * DISABLED_ALPHA));
             }
             return v;
-        }
-    }
-
-    private static void setViewPaddingBottom(View view, int newBottom) {
-        int left = view.getPaddingLeft();
-        int top = view.getPaddingTop();
-        int right = view.getPaddingRight();
-        int bottom = view.getPaddingBottom();
-        view.setPadding(left, top, right, newBottom);
-
-        ViewGroup.LayoutParams lp = view.getLayoutParams();
-        if (lp.height != ViewGroup.LayoutParams.FILL_PARENT
-                && lp.height != ViewGroup.LayoutParams.WRAP_CONTENT) {
-            lp.height = lp.height - bottom + newBottom;
-            view.setLayoutParams(lp);
         }
     }
 
