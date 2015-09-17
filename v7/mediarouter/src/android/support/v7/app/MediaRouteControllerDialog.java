@@ -569,7 +569,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
     private void updateVolumeControl() {
         if (!mVolumeSliderTouched) {
-            if (isVolumeControlAvailable()) {
+            if (isVolumeControlAvailable(mRoute)) {
                 mVolumeControl.setVisibility(View.VISIBLE);
                 mVolumeSlider.setMax(mRoute.getVolumeMax());
                 mVolumeSlider.setProgress(mRoute.getVolume());
@@ -589,6 +589,18 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 mVolumeControl.setVisibility(View.GONE);
             }
             updateLayoutHeight();
+        } else if (mVolumeControl.getVisibility() == View.VISIBLE) {
+            mVolumeSlider.setProgress(mRoute.getVolume());
+            if (mIsGroupExpanded) {
+                for (int i = 0; i < mVolumeGroupList.getChildCount(); ++i) {
+                    MediaRouter.RouteInfo route = getGroup().getRouteAt(i);
+                    if (isVolumeControlAvailable(route)) {
+                        SeekBar volumeSlider = (SeekBar) mVolumeGroupList.getChildAt(i)
+                                .findViewById(R.id.mr_volume_slider);
+                        volumeSlider.setProgress(route.getVolume());
+                    }
+                }
+            }
         }
     }
 
@@ -653,9 +665,9 @@ public class MediaRouteControllerDialog extends AlertDialog {
         updateLayoutHeight();
     }
 
-    private boolean isVolumeControlAvailable() {
-        return mVolumeControlEnabled && mRoute.getVolumeHandling() ==
-                MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE;
+    private boolean isVolumeControlAvailable(MediaRouter.RouteInfo route) {
+        return mVolumeControlEnabled && route.getVolumeHandling()
+                == MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE;
     }
 
     private static void setLayoutHeight(View view, int height) {
@@ -812,8 +824,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 volumeSlider.setTag(VOLUME_SLIDER_TAG_BASE + position);
                 volumeSlider.setShowThumb(isEnabled);
                 if (isEnabled) {
-                    if (route.getVolumeHandling()
-                            == MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE) {
+                    if (isVolumeControlAvailable(route)) {
                         volumeSlider.setMax(route.getVolumeMax());
                         volumeSlider.setProgress(route.getVolume());
                         volumeSlider.setOnSeekBarChangeListener(mVolumeChangeListener);
