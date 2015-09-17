@@ -23,13 +23,11 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -40,7 +38,6 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.graphics.Palette;
 import android.support.v7.media.MediaRouteSelector;
 import android.support.v7.media.MediaRouter;
-import android.support.v7.media.SeekBarJellybean;
 import android.support.v7.mediarouter.R;
 import android.text.TextUtils;
 import android.util.Log;
@@ -127,7 +124,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private ListView mVolumeGroupList;
     private SeekBar mVolumeSlider;
     private boolean mVolumeSliderTouched;
-    private int mVolumeSliderColor;
     private final int mVolumeGroupListItemHeight;
     private final int mVolumeGroupListMaxHeight;
     private final int mVolumeGroupListPaddingBottom;
@@ -343,8 +339,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 }
             }
         });
-        mVolumeSliderColor = MediaRouterThemeHelper.getVolumeSliderColor(getContext());
-        setVolumeSliderColor(getContext(), mVolumeSlider, mVolumeSliderColor);
 
         TypedArray styledAttributes = getContext().obtainStyledAttributes(new int[] {
                 R.attr.mediaRouteExpandGroupDrawable,
@@ -684,19 +678,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
         view.setLayoutParams(lp);
     }
 
-    private static void setVolumeSliderColor(Context context, SeekBar volumeSlider, int color) {
-        volumeSlider.getProgressDrawable().setColorFilter(color, PorterDuff.Mode.SRC_IN);
-        if (Build.VERSION.SDK_INT >= 16) {
-            SeekBarJellybean.getThumb(volumeSlider).setColorFilter(color, PorterDuff.Mode.SRC_IN);
-        } else {
-            // In case getThumb() isn't available, use the thumb drawable from AppCompat.
-            Drawable thumb =
-                    context.getResources().getDrawable(R.drawable.abc_seekbar_thumb_material);
-            thumb.setColorFilter(color, PorterDuff.Mode.SRC_IN);
-            volumeSlider.setThumb(thumb);
-        }
-    }
-
     /**
      * Returns desired art height to fit into controller dialog.
      */
@@ -808,8 +789,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
             if (v == null) {
                 v = LayoutInflater.from(getContext()).inflate(
                         R.layout.mr_controller_volume_item, parent, false);
-                setVolumeSliderColor(getContext(), (SeekBar) v.findViewById(R.id.mr_volume_slider),
-                        mVolumeSliderColor);
             }
             setViewPaddingBottom(v, position == getCount() - 1 ? mVolumeGroupListPaddingBottom : 0);
 
@@ -821,24 +800,22 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 routeName.setEnabled(isEnabled);
                 routeName.setText(route.getName());
 
-                SeekBar volumeSlider = (SeekBar) v.findViewById(R.id.mr_volume_slider);
-                volumeSlider.setEnabled(isEnabled);
+                MediaRouteVolumeSlider volumeSlider =
+                        (MediaRouteVolumeSlider) v.findViewById(R.id.mr_volume_slider);
                 volumeSlider.setTag(position);
+                volumeSlider.setShowThumb(isEnabled);
                 if (isEnabled) {
                     if (route.getVolumeHandling()
                             == MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE) {
                         volumeSlider.setMax(route.getVolumeMax());
                         volumeSlider.setProgress(route.getVolume());
                         volumeSlider.setOnSeekBarChangeListener(mOnSeekBarChangeListener);
+                        volumeSlider.setEnabled(true);
                     } else {
                         volumeSlider.setMax(100);
                         volumeSlider.setProgress(100);
                         volumeSlider.setEnabled(false);
                     }
-                }
-                if (Build.VERSION.SDK_INT >= 16) {
-                    SeekBarJellybean.getThumb(volumeSlider).mutate().setAlpha(isEnabled ? 255 : 0);
-                    // TODO: Still see an artifact even though the thumb is transparent. Remove it.
                 }
 
                 ImageView volumeItemIcon =

@@ -27,7 +27,7 @@
                android:src="?attr/mediaRouteAudioTrackDrawable"
                android:gravity="center"
                android:scaleType="center" />
-    <SeekBar android:id="@+id/mr_volume_slider"
+    <android.support.v7.app.MediaRouteVolumeSlider android:id="@+id/mr_volume_slider"
              android:layout_width="0dp"
              android:layout_height="wrap_content"
              android:layout_weight="1" />
