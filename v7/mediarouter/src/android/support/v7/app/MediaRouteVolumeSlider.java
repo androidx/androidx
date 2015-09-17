@@ -18,7 +18,6 @@ package android.support.v7.app;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
@@ -48,7 +47,7 @@ class MediaRouteVolumeSlider extends AppCompatSeekBar {
         super(context, attrs, defStyleAttr);
         mThumb = ContextCompat.getDrawable(context, R.drawable.mr_seekbar_thumb);
         setThumb(mThumb);
-        int color = MediaRouterThemeHelper.getVolumeSliderColor(context);
+        int color = MediaRouterThemeHelper.getControllerColor(context);
         ColorFilter colorFilter = new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN);
         getProgressDrawable().setColorFilter(colorFilter);
         mThumb.setColorFilter(colorFilter);

@@ -21,12 +21,10 @@ import static android.widget.SeekBar.OnSeekBarChangeListener;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -105,7 +103,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private Button mStopCastingButton;
     private ImageButton mPlayPauseButton;
     private ImageButton mCloseButton;
-    private ImageButton mGroupExpandCollapseButton;
+    private MediaRouteExpandCollapseButton mGroupExpandCollapseButton;
 
     private FrameLayout mCustomControlLayout;
     private FrameLayout mDefaultControlLayout;
@@ -313,34 +311,18 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mVolumeChangeListener = new VolumeChangeListener();
         mVolumeSlider.setOnSeekBarChangeListener(mVolumeChangeListener);
 
-        TypedArray styledAttributes = getContext().obtainStyledAttributes(new int[] {
-                R.attr.mediaRouteExpandGroupDrawable,
-                R.attr.mediaRouteCollapseGroupDrawable
-        });
-        final Drawable expandGroupDrawable = styledAttributes.getDrawable(0);
-        final Drawable collapseGroupDrawable = styledAttributes.getDrawable(1);
-        styledAttributes.recycle();
-
-        final String expandGroupDescription = getContext().getString(
-                R.string.mr_controller_expand_group);
-        final String collapseGroupDescription = getContext().getString(
-                R.string.mr_controller_collapse_group);
-
-        mVolumeGroupList = (ListView)findViewById(R.id.mr_volume_group_list);
-        mGroupExpandCollapseButton = (ImageButton) findViewById(R.id.mr_group_expand_collapse);
+        mVolumeGroupList = (ListView) findViewById(R.id.mr_volume_group_list);
+        mGroupExpandCollapseButton =
+                (MediaRouteExpandCollapseButton) findViewById(R.id.mr_group_expand_collapse);
         mGroupExpandCollapseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mIsGroupExpanded = !mIsGroupExpanded;
                 if (mIsGroupExpanded) {
-                    mGroupExpandCollapseButton.setImageDrawable(collapseGroupDrawable);
-                    mGroupExpandCollapseButton.setContentDescription(collapseGroupDescription);
                     mVolumeGroupList.setVisibility(View.VISIBLE);
                     mVolumeGroupList.setAdapter(
                             new VolumeGroupAdapter(getContext(), getGroup().getRoutes()));
                 } else {
-                    mGroupExpandCollapseButton.setImageDrawable(expandGroupDrawable);
-                    mGroupExpandCollapseButton.setContentDescription(expandGroupDescription);
                     mVolumeGroupList.setVisibility(View.GONE);
                 }
                 updateLayoutHeight();
