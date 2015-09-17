@@ -1071,6 +1071,11 @@ package android.support.v4.content {
     method public void unregisterReceiver(android.content.BroadcastReceiver);
   }
 
+  public class ParallelExecutorCompat {
+    ctor public ParallelExecutorCompat();
+    method public static java.util.concurrent.Executor getParallelExecutor();
+  }
+
   public final class PermissionChecker {
     method public static int checkCallingOrSelfPermission(android.content.Context, java.lang.String);
     method public static int checkCallingPermission(android.content.Context, java.lang.String, java.lang.String);
@@ -1091,11 +1096,6 @@ package android.support.v4.content {
   public static class SharedPreferencesCompat.EditorCompat {
     method public void apply(android.content.SharedPreferences.Editor);
     method public static android.support.v4.content.SharedPreferencesCompat.EditorCompat getInstance();
-  }
-
-  public class ParallelExecutorCompat {
-    ctor public ParallelExecutorCompat();
-    method public static java.util.concurrent.Executor getParallelExecutor();
   }
 
   public abstract class WakefulBroadcastReceiver extends android.content.BroadcastReceiver {
