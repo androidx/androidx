@@ -630,4 +630,69 @@ public class BaseRecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentat
             }
         }
     }
+
+    static class LoggingInfo extends RecyclerView.ItemAnimator.ItemHolderInfo {
+        final RecyclerView.ViewHolder viewHolder;
+        @RecyclerView.ItemAnimator.AdapterChanges
+        final int changeFlags;
+        final List<Object> payloads;
+
+        LoggingInfo(RecyclerView.ViewHolder viewHolder, int changeFlags, List<Object> payloads) {
+            this.viewHolder = viewHolder;
+            this.changeFlags = changeFlags;
+            if (payloads != null) {
+                this.payloads = new ArrayList<>();
+                this.payloads.addAll(payloads);
+            } else {
+                this.payloads = null;
+            }
+            setFrom(viewHolder);
+        }
+    }
+
+    static class AnimateChange extends AnimatePersistence {
+
+        final RecyclerView.ViewHolder newHolder;
+
+        public AnimateChange(RecyclerView.ViewHolder oldHolder, RecyclerView.ViewHolder newHolder,
+                LoggingInfo pre, LoggingInfo post) {
+            super(oldHolder, pre, post);
+            this.newHolder = newHolder;
+        }
+    }
+
+    static class AnimatePersistence extends AnimateAppearance {
+
+        public AnimatePersistence(RecyclerView.ViewHolder viewHolder, LoggingInfo pre,
+                LoggingInfo post) {
+            super(viewHolder, pre, post);
+        }
+    }
+
+    static class AnimateAppearance extends AnimateDisappearance {
+
+        final LoggingInfo postInfo;
+
+        public AnimateAppearance(RecyclerView.ViewHolder viewHolder, LoggingInfo pre,
+                LoggingInfo post) {
+            super(viewHolder, pre);
+            this.postInfo = post;
+        }
+    }
+
+    static class AnimateDisappearance extends AnimateLogBase {
+        public AnimateDisappearance(RecyclerView.ViewHolder viewHolder, LoggingInfo pre) {
+            super(viewHolder, pre);
+        }
+    }
+    static class AnimateLogBase {
+
+        final RecyclerView.ViewHolder viewHolder;
+        final LoggingInfo preInfo;
+
+        public AnimateLogBase(RecyclerView.ViewHolder viewHolder, LoggingInfo pre) {
+            this.viewHolder = viewHolder;
+            this.preInfo = pre;
+        }
+    }
 }

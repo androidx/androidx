@@ -440,7 +440,7 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         @Override
         public boolean animateDisappearance(RecyclerView.ViewHolder viewHolder,
                 ItemHolderInfo preInfo) {
-            animateDisappearanceList.add(new AnimateDisappearance(viewHolder, preInfo));
+            animateDisappearanceList.add(new AnimateDisappearance(viewHolder, (LoggingInfo) preInfo));
             assertSame(preLayoutInfo.get(viewHolder), preInfo);
             dispatchAnimationFinished(viewHolder);
 
@@ -451,7 +451,7 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         public boolean animateAppearance(RecyclerView.ViewHolder viewHolder, ItemHolderInfo preInfo,
                 ItemHolderInfo postInfo) {
             animateAppearanceList.add(
-                    new AnimateAppearance(viewHolder, preInfo, postInfo));
+                    new AnimateAppearance(viewHolder, (LoggingInfo) preInfo, (LoggingInfo) postInfo));
             assertSame(preLayoutInfo.get(viewHolder), preInfo);
             assertSame(postLayoutInfo.get(viewHolder), postInfo);
             dispatchAnimationFinished(viewHolder);
@@ -462,7 +462,8 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         public boolean animatePersistence(RecyclerView.ViewHolder viewHolder,
                 ItemHolderInfo preInfo,
                 ItemHolderInfo postInfo) {
-            animatePersistenceList.add(new AnimatePersistence(viewHolder, preInfo, postInfo));
+            animatePersistenceList.add(new AnimatePersistence(viewHolder, (LoggingInfo) preInfo,
+                    (LoggingInfo) postInfo));
             dispatchAnimationFinished(viewHolder);
             assertSame(preLayoutInfo.get(viewHolder), preInfo);
             assertSame(postLayoutInfo.get(viewHolder), postInfo);
@@ -473,7 +474,8 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         public boolean animateChange(RecyclerView.ViewHolder oldHolder,
                 RecyclerView.ViewHolder newHolder, ItemHolderInfo preInfo,
                 ItemHolderInfo postInfo) {
-            animateChangeList.add(new AnimateChange(oldHolder, newHolder, preInfo, postInfo));
+            animateChangeList.add(new AnimateChange(oldHolder, newHolder, (LoggingInfo) preInfo,
+                    (LoggingInfo) postInfo));
             if (oldHolder != null) {
                 dispatchAnimationFinished(oldHolder);
                 assertSame(preLayoutInfo.get(oldHolder), preInfo);
@@ -503,65 +505,6 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         @Override
         public boolean isRunning() {
             return false;
-        }
-    }
-
-    static class LoggingInfo extends RecyclerView.ItemAnimator.ItemHolderInfo {
-
-        final RecyclerView.ViewHolder viewHolder;
-        @RecyclerView.ItemAnimator.AdapterChanges
-        final int changeFlags;
-        final List<Object> payloads;
-
-        LoggingInfo(RecyclerView.ViewHolder viewHolder, int changeFlags, List<Object> payloads) {
-            this.viewHolder = viewHolder;
-            this.changeFlags = changeFlags;
-            if (payloads != null) {
-                this.payloads = new ArrayList<>();
-                this.payloads.addAll(payloads);
-            } else {
-                this.payloads = null;
-            }
-            setFrom(viewHolder);
-        }
-    }
-
-    static class AnimateChange extends AnimatePersistence {
-
-        final RecyclerView.ViewHolder newHolder;
-
-        public AnimateChange(RecyclerView.ViewHolder oldHolder, RecyclerView.ViewHolder newHolder,
-                Object pre, Object post) {
-            super(oldHolder, pre, post);
-            this.newHolder = newHolder;
-        }
-    }
-
-    static class AnimatePersistence extends AnimateAppearance {
-
-        public AnimatePersistence(RecyclerView.ViewHolder viewHolder, Object pre, Object post) {
-            super(viewHolder, pre, post);
-        }
-    }
-
-    static class AnimateAppearance extends AnimateDisappearance {
-
-        final LoggingInfo postInfo;
-
-        public AnimateAppearance(RecyclerView.ViewHolder viewHolder, Object pre, Object post) {
-            super(viewHolder, pre);
-            this.postInfo = (LoggingInfo) post;
-        }
-    }
-
-    static class AnimateDisappearance {
-
-        final RecyclerView.ViewHolder viewHolder;
-        final LoggingInfo preInfo;
-
-        public AnimateDisappearance(RecyclerView.ViewHolder viewHolder, Object pre) {
-            this.viewHolder = viewHolder;
-            this.preInfo = (LoggingInfo) pre;
         }
     }
 
