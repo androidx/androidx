@@ -257,9 +257,9 @@ public class MediaRouteControllerDialog extends AlertDialog {
     }
 
     /**
-     * Gets the associated session's token.
+     * Gets the session to use for metadata and transport controls.
      *
-     * @return session token.
+     * @return The token for the session to use or null if none.
      */
     public MediaSessionCompat.Token getMediaSession() {
         return mMediaController == null ? null : mMediaController.getSessionToken();
