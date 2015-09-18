@@ -191,8 +191,10 @@ package android.support.design.widget {
     ctor public FloatingActionButton(android.content.Context, android.util.AttributeSet);
     ctor public FloatingActionButton(android.content.Context, android.util.AttributeSet, int);
     method public void hide();
+    method public void hide(android.support.design.widget.FloatingActionButton.OnVisibilityChangedListener);
     method public void setRippleColor(int);
     method public void show();
+    method public void show(android.support.design.widget.FloatingActionButton.OnVisibilityChangedListener);
   }
 
   public static class FloatingActionButton.Behavior extends android.support.design.widget.CoordinatorLayout.Behavior {
@@ -201,6 +203,12 @@ package android.support.design.widget {
     method public boolean onDependentViewChanged(android.support.design.widget.CoordinatorLayout, android.support.design.widget.FloatingActionButton, android.view.View);
     method public void onDependentViewRemoved(android.support.design.widget.CoordinatorLayout, android.support.design.widget.FloatingActionButton, android.view.View);
     method public boolean onLayoutChild(android.support.design.widget.CoordinatorLayout, android.support.design.widget.FloatingActionButton, int);
+  }
+
+  public static abstract class FloatingActionButton.OnVisibilityChangedListener {
+    ctor public FloatingActionButton.OnVisibilityChangedListener();
+    method public void onHidden(android.support.design.widget.FloatingActionButton);
+    method public void onShown(android.support.design.widget.FloatingActionButton);
   }
 
    abstract class HeaderBehavior extends android.support.design.widget.ViewOffsetBehavior {
@@ -404,17 +412,17 @@ package android.support.design.widget {
     ctor public TextInputLayout(android.content.Context);
     ctor public TextInputLayout(android.content.Context, android.util.AttributeSet);
     ctor public TextInputLayout(android.content.Context, android.util.AttributeSet, int);
+    method public int getCounterMaxLength();
     method public android.widget.EditText getEditText();
     method public java.lang.CharSequence getError();
     method public java.lang.CharSequence getHint();
     method public android.graphics.Typeface getTypeface();
     method public boolean isErrorEnabled();
     method public boolean isHintAnimationEnabled();
-    method public void setError(java.lang.CharSequence);
-    method public void setErrorEnabled(boolean);
     method public void setCounterEnabled(boolean);
     method public void setCounterMaxLength(int);
-    method public int getCounterMaxLength();
+    method public void setError(java.lang.CharSequence);
+    method public void setErrorEnabled(boolean);
     method public void setHint(java.lang.CharSequence);
     method public void setHintAnimationEnabled(boolean);
     method public void setHintTextAppearance(int);
