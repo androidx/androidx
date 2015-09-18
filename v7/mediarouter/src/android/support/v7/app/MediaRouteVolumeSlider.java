@@ -18,7 +18,6 @@ package android.support.v7.app;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
@@ -41,7 +40,7 @@ class MediaRouteVolumeSlider extends AppCompatSeekBar {
     }
 
     public MediaRouteVolumeSlider(Context context, AttributeSet attrs) {
-        this(context, attrs, android.support.v7.appcompat.R.attr.seekBarStyle);
+        this(context, attrs, R.attr.seekBarStyle);
     }
 
     public MediaRouteVolumeSlider(Context context, AttributeSet attrs, int defStyleAttr) {
