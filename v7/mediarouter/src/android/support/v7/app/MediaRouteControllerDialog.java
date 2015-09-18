@@ -79,9 +79,6 @@ import java.util.List;
 public class MediaRouteControllerDialog extends AlertDialog {
     private static final String TAG = "MediaRouteControllerDialog";
 
-    // STOPSHIP: Remove the flag when the group volume control implementation completes.
-    private static final boolean USE_GROUP = false;
-
     // Time to wait before updating the volume when the user lets go of the seek bar
     // to allow the route provider time to propagate the change and publish a new
     // route descriptor.
@@ -580,16 +577,14 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 mVolumeControl.setVisibility(View.VISIBLE);
                 mVolumeSlider.setMax(mRoute.getVolumeMax());
                 mVolumeSlider.setProgress(mRoute.getVolume());
-                if (USE_GROUP) {
-                    if (getGroup() == null) {
-                        mGroupExpandCollapseButton.setVisibility(View.GONE);
-                    } else {
-                        mGroupExpandCollapseButton.setVisibility(View.VISIBLE);
-                        VolumeGroupAdapter adapter =
-                                (VolumeGroupAdapter) mVolumeGroupList.getAdapter();
-                        if (adapter != null) {
-                            adapter.notifyDataSetChanged();
-                        }
+                if (getGroup() == null) {
+                    mGroupExpandCollapseButton.setVisibility(View.GONE);
+                } else {
+                    mGroupExpandCollapseButton.setVisibility(View.VISIBLE);
+                    VolumeGroupAdapter adapter =
+                            (VolumeGroupAdapter) mVolumeGroupList.getAdapter();
+                    if (adapter != null) {
+                        adapter.notifyDataSetChanged();
                     }
                 }
             } else {

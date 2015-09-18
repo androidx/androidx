@@ -83,8 +83,6 @@ public final class MediaRouteDescriptor {
      * A route descriptor that has one or more group member route ids
      * represents a route group. A member route may belong to another group.
      * </p>
-     * @hide
-     * STOPSHIP: Unhide or remove.
      */
     public List<String> getGroupMemberIds() {
         return mBundle.getStringArrayList(KEY_GROUP_MEMBER_IDS);
@@ -117,8 +115,6 @@ public final class MediaRouteDescriptor {
      * <p>
      * This icon will be used in picker UIs if available.
      * </p>
-     * @hide
-     * STOPSHIP: Unhide or remove.
      */
     public Uri getIconUri() {
         String iconUri = mBundle.getString(KEY_ICON_URI);
@@ -134,7 +130,7 @@ public final class MediaRouteDescriptor {
 
     /**
      * Gets whether the route is connecting.
-     * STOPSHIP: Deprecate or keep.
+     * @deprecated Use {@link #getConnectionState} instead
      */
     public boolean isConnecting() {
         return mBundle.getBoolean(KEY_CONNECTING, false);
@@ -142,8 +138,6 @@ public final class MediaRouteDescriptor {
 
     /**
      * Gets the connection state of the route.
-     * @hide
-     * STOPSHIP: Unhide or remove.
      */
     public int getConnectionState() {
         return mBundle.getInt(KEY_CONNECTION_STATE,
@@ -211,9 +205,6 @@ public final class MediaRouteDescriptor {
 
     /**
      * Gets the route's receiver device type.
-     *
-     * @hide
-     * STOPSHIP: Unhide or remove.
      */
     public int getDeviceType() {
         return mBundle.getInt(KEY_DEVICE_TYPE);
@@ -372,8 +363,6 @@ public final class MediaRouteDescriptor {
          * A route descriptor that has one or more group member route ids
          * represents a route group. A member route may belong to another group.
          * </p>
-         * @hide
-         * STOPSHIP: Unhide or remove.
          */
         public Builder addGroupMemberId(String groupMemberId) {
             if (TextUtils.isEmpty(groupMemberId)) {
@@ -395,8 +384,6 @@ public final class MediaRouteDescriptor {
          * A route descriptor that has one or more group member route ids
          * represents a route group. A member route may belong to another group.
          * </p>
-         * @hide
-         * STOPSHIP: Unhide or remove.
          */
         public Builder addGroupMemberIds(Collection<String> groupMemberIds) {
             if (groupMemberIds == null) {
@@ -448,8 +435,6 @@ public final class MediaRouteDescriptor {
          * <li>file ({@link android.content.ContentResolver#SCHEME_FILE})</li>
          * </ul>
          * </p>
-         * @hide
-         * STOPSHIP: Unhide or remove.
          */
         public Builder setIconUri(Uri iconUri) {
             if (iconUri == null) {
@@ -474,7 +459,7 @@ public final class MediaRouteDescriptor {
         /**
          * Sets whether the route is in the process of connecting and is not yet
          * ready for use.
-         * STOPSHIP: Deprecate or keep.
+         * @deprecated Use {@link #setConnectionState} instead.
          */
         public Builder setConnecting(boolean connecting) {
             mBundle.putBoolean(KEY_CONNECTING, connecting);
@@ -483,8 +468,6 @@ public final class MediaRouteDescriptor {
 
         /**
          * Sets the route's connection state.
-         * @hide
-         * STOPSHIP: Unhide or remove.
          */
         public Builder setConnectionState(int connectionState) {
             mBundle.putInt(KEY_CONNECTION_STATE, connectionState);
@@ -559,9 +542,6 @@ public final class MediaRouteDescriptor {
 
         /**
          * Sets the route's receiver device type.
-         *
-         * @hide
-         * STOPSHIP: Unhide or remove.
          */
         public Builder setDeviceType(int deviceType) {
             mBundle.putInt(KEY_DEVICE_TYPE, deviceType);
