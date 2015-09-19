@@ -28,7 +28,7 @@ limitations under the License.
     <string name="lb_playback_controls_pause" msgid="6189521112079849518">"To‘xtatib turish"</string>
     <string name="lb_playback_controls_fast_forward" msgid="8569951318244687220">"Oldinga o‘tkazish"</string>
     <string name="lb_playback_controls_fast_forward_multiplier" msgid="1058753672110224526">"%1$dX tezlikda oldinga o‘tkazish"</string>
-    <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"Orqaga qaytarish"</string>
+    <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"Orqaga o‘tkazish"</string>
     <string name="lb_playback_controls_rewind_multiplier" msgid="1640629531440849942">"%1$dX tezlikda orqaga qaytarish"</string>
     <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"Keyingisiga o‘tish"</string>
     <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"Avvalgisiga qaytish"</string>
