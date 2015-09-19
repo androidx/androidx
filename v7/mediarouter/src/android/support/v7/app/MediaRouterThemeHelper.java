@@ -55,7 +55,7 @@ final class MediaRouterThemeHelper {
         return res != 0 ? context.getResources().getDrawable(res) : null;
     }
 
-    public static int getVolumeSliderColor(Context context) {
+    public static int getControllerColor(Context context) {
         return isPrimaryColorLight(context) ? Color.BLACK : Color.WHITE;
     }
 
