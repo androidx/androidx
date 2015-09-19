@@ -15,27 +15,29 @@
 -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="fill_parent"
-              android:layout_height="wrap_content"
-              android:minHeight="48dp"
-              android:gravity="center_vertical"
-              android:paddingLeft="24dp"
-              android:paddingRight="12dp"
-              android:background="?attr/colorPrimary">
-    <ImageView android:layout_width="24dp"
-               android:layout_height="24dp"
-               android:src="?attr/mediaRouteAudioTrackDrawable"
-               android:gravity="center"
-               android:scaleType="center" />
-    <android.support.v7.app.MediaRouteVolumeSlider android:id="@+id/mr_volume_slider"
-             android:layout_width="0dp"
-             android:layout_height="wrap_content"
-             android:layout_weight="1" />
-    <ImageButton android:id="@+id/mr_group_expand_collapse"
-                 android:layout_width="48dp"
-                 android:layout_height="48dp"
-                 android:contentDescription="@string/mr_controller_expand_group"
-                 android:src="?attr/mediaRouteExpandGroupDrawable"
-                 android:background="?attr/selectableItemBackgroundBorderless"
-                 android:visibility="gone" />
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:gravity="center_vertical"
+        android:paddingLeft="24dp"
+        android:paddingRight="12dp"
+        android:background="?attr/colorPrimary">
+    <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="?attr/mediaRouteAudioTrackDrawable"
+            android:gravity="center"
+            android:scaleType="center"/>
+    <android.support.v7.app.MediaRouteVolumeSlider
+            android:id="@+id/mr_volume_slider"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+    <android.support.v7.app.MediaRouteExpandCollapseButton
+            android:id="@+id/mr_group_expand_collapse"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="12dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:visibility="gone"/>
 </LinearLayout>
