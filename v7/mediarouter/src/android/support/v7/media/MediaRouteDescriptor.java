@@ -138,6 +138,11 @@ public final class MediaRouteDescriptor {
 
     /**
      * Gets the connection state of the route.
+     *
+     * @return The connection state of this route:
+     * {@link MediaRouter.RouteInfo#CONNECTION_STATE_DISCONNECTED},
+     * {@link MediaRouter.RouteInfo#CONNECTION_STATE_CONNECTING}, or
+     * {@link MediaRouter.RouteInfo#CONNECTION_STATE_CONNECTED}.
      */
     public int getConnectionState() {
         return mBundle.getInt(KEY_CONNECTION_STATE,
@@ -190,7 +195,11 @@ public final class MediaRouteDescriptor {
     }
 
     /**
-     * Gets the route's playback type.
+     * Gets the type of playback associated with this route.
+     *
+     * @return The type of playback associated with this route:
+     * {@link MediaRouter.RouteInfo#PLAYBACK_TYPE_LOCAL} or
+     * {@link MediaRouter.RouteInfo#PLAYBACK_TYPE_REMOTE}.
      */
     public int getPlaybackType() {
         return mBundle.getInt(KEY_PLAYBACK_TYPE, MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE);
@@ -204,7 +213,11 @@ public final class MediaRouteDescriptor {
     }
 
     /**
-     * Gets the route's receiver device type.
+     * Gets the type of the receiver device associated with this route.
+     *
+     * @return The type of the receiver device associated with this route:
+     * {@link MediaRouter.RouteInfo#DEVICE_TYPE_TV} or
+     * {@link MediaRouter.RouteInfo#DEVICE_TYPE_SPEAKER}.
      */
     public int getDeviceType() {
         return mBundle.getInt(KEY_DEVICE_TYPE);
@@ -225,7 +238,11 @@ public final class MediaRouteDescriptor {
     }
 
     /**
-     * Gets the route's volume handling.
+     * Gets information about how volume is handled on the route.
+     *
+     * @return How volume is handled on the route:
+     * {@link MediaRouter.RouteInfo#PLAYBACK_VOLUME_FIXED} or
+     * {@link MediaRouter.RouteInfo#PLAYBACK_VOLUME_VARIABLE}.
      */
     public int getVolumeHandling() {
         return mBundle.getInt(KEY_VOLUME_HANDLING,
@@ -468,6 +485,11 @@ public final class MediaRouteDescriptor {
 
         /**
          * Sets the route's connection state.
+         *
+         * @param connectionState The connection state of the route:
+         * {@link MediaRouter.RouteInfo#CONNECTION_STATE_DISCONNECTED},
+         * {@link MediaRouter.RouteInfo#CONNECTION_STATE_CONNECTING}, or
+         * {@link MediaRouter.RouteInfo#CONNECTION_STATE_CONNECTED}.
          */
         public Builder setConnectionState(int connectionState) {
             mBundle.putInt(KEY_CONNECTION_STATE, connectionState);
@@ -526,6 +548,10 @@ public final class MediaRouteDescriptor {
 
         /**
          * Sets the route's playback type.
+         *
+         * @param playbackType The playback type of the route:
+         * {@link MediaRouter.RouteInfo#PLAYBACK_TYPE_LOCAL} or
+         * {@link MediaRouter.RouteInfo#PLAYBACK_TYPE_REMOTE}.
          */
         public Builder setPlaybackType(int playbackType) {
             mBundle.putInt(KEY_PLAYBACK_TYPE, playbackType);
@@ -542,6 +568,10 @@ public final class MediaRouteDescriptor {
 
         /**
          * Sets the route's receiver device type.
+         *
+         * @param deviceType The receive device type of the route:
+         * {@link MediaRouter.RouteInfo#DEVICE_TYPE_TV} or
+         * {@link MediaRouter.RouteInfo#DEVICE_TYPE_SPEAKER}.
          */
         public Builder setDeviceType(int deviceType) {
             mBundle.putInt(KEY_DEVICE_TYPE, deviceType);
@@ -566,6 +596,10 @@ public final class MediaRouteDescriptor {
 
         /**
          * Sets the route's volume handling.
+         *
+         * @param volumeHandling how volume is handled on the route:
+         * {@link MediaRouter.RouteInfo#PLAYBACK_VOLUME_FIXED} or
+         * {@link MediaRouter.RouteInfo#PLAYBACK_VOLUME_VARIABLE}.
          */
         public Builder setVolumeHandling(int volumeHandling) {
             mBundle.putInt(KEY_VOLUME_HANDLING, volumeHandling);
