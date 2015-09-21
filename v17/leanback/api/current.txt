@@ -177,13 +177,16 @@ package android.support.v17.leanback.app {
   public class GuidedStepFragment extends android.app.Fragment {
     ctor public GuidedStepFragment();
     method public static int add(android.app.FragmentManager, android.support.v17.leanback.app.GuidedStepFragment);
+    method public static int add(android.app.FragmentManager, android.support.v17.leanback.app.GuidedStepFragment, int);
+    method public static int addAsRoot(android.app.Activity, android.support.v17.leanback.app.GuidedStepFragment, int);
     method public android.view.View getActionItemView(int);
     method public java.util.List<android.support.v17.leanback.widget.GuidedAction> getActions();
+    method protected int getContainerIdForBackground();
     method public static android.support.v17.leanback.app.GuidedStepFragment getCurrentGuidedStepFragment(android.app.FragmentManager);
     method public android.support.v17.leanback.widget.GuidanceStylist getGuidanceStylist();
     method public android.support.v17.leanback.widget.GuidedActionsStylist getGuidedActionsStylist();
     method public int getSelectedActionPosition();
-    method protected boolean isEntryTransitionEnabled();
+    method public int getUiStyle();
     method public void onCreateActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>, android.os.Bundle);
     method public android.support.v17.leanback.widget.GuidedActionsStylist onCreateActionsStylist();
     method public android.support.v17.leanback.widget.GuidanceStylist.Guidance onCreateGuidance(android.os.Bundle);
@@ -191,10 +194,21 @@ package android.support.v17.leanback.app {
     method public void onGuidedActionClicked(android.support.v17.leanback.widget.GuidedAction);
     method public void onGuidedActionEdited(android.support.v17.leanback.widget.GuidedAction);
     method public void onGuidedActionFocused(android.support.v17.leanback.widget.GuidedAction);
+    method protected android.app.Fragment onProvideBackgroundFragment();
+    method protected void onProvideFragmentTransitions();
     method public int onProvideTheme();
     method public void setActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>);
-    method protected void setEntryTransitionEnabled(boolean);
     method public void setSelectedActionPosition(int);
+    method public void setUiStyle(int);
+    field public static final java.lang.String EXTRA_UI_STYLE = "uiStyle";
+    field public static final int UI_STYLE_ACTIVITY_ROOT = 2; // 0x2
+    field public static final int UI_STYLE_DEFAULT = 0; // 0x0
+    field public static final int UI_STYLE_ENTRANCE = 1; // 0x1
+  }
+
+  public static class GuidedStepFragment.GuidedStepBackgroundFragment extends android.app.Fragment {
+    ctor public GuidedStepFragment.GuidedStepBackgroundFragment();
+    method protected void onProvideFragmentTransitions();
   }
 
   public class HeadersFragment extends android.support.v17.leanback.app.BaseRowFragment {
@@ -725,12 +739,6 @@ package android.support.v17.leanback.widget {
   }
 
   public abstract interface FragmentAnimationProvider {
-    method public abstract void onActivityEnter(java.util.List<android.animation.Animator>);
-    method public abstract void onActivityExit(java.util.List<android.animation.Animator>);
-    method public abstract void onFragmentEnter(java.util.List<android.animation.Animator>);
-    method public abstract void onFragmentExit(java.util.List<android.animation.Animator>);
-    method public abstract void onFragmentReenter(java.util.List<android.animation.Animator>);
-    method public abstract void onFragmentReturn(java.util.List<android.animation.Animator>);
     method public abstract void onImeAppearing(java.util.List<android.animation.Animator>);
     method public abstract void onImeDisappearing(java.util.List<android.animation.Animator>);
   }
@@ -803,13 +811,7 @@ package android.support.v17.leanback.widget {
     method public android.widget.TextView getDescriptionView();
     method public android.widget.ImageView getIconView();
     method public android.widget.TextView getTitleView();
-    method public void onActivityEnter(java.util.List<android.animation.Animator>);
-    method public void onActivityExit(java.util.List<android.animation.Animator>);
     method public android.view.View onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.support.v17.leanback.widget.GuidanceStylist.Guidance);
-    method public void onFragmentEnter(java.util.List<android.animation.Animator>);
-    method public void onFragmentExit(java.util.List<android.animation.Animator>);
-    method public void onFragmentReenter(java.util.List<android.animation.Animator>);
-    method public void onFragmentReturn(java.util.List<android.animation.Animator>);
     method public void onImeAppearing(java.util.List<android.animation.Animator>);
     method public void onImeDisappearing(java.util.List<android.animation.Animator>);
     method public int onProvideLayoutId();
@@ -870,18 +872,12 @@ package android.support.v17.leanback.widget {
   public class GuidedActionsStylist implements android.support.v17.leanback.widget.FragmentAnimationProvider {
     ctor public GuidedActionsStylist();
     method public android.support.v17.leanback.widget.VerticalGridView getActionsGridView();
-    method public void onActivityEnter(java.util.List<android.animation.Animator>);
-    method public void onActivityExit(java.util.List<android.animation.Animator>);
     method public void onAnimateItemChecked(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, boolean);
     method public void onAnimateItemFocused(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, boolean);
     method public void onAnimateItemPressed(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, boolean);
     method public void onBindViewHolder(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, android.support.v17.leanback.widget.GuidedAction);
     method public android.view.View onCreateView(android.view.LayoutInflater, android.view.ViewGroup);
     method public android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder onCreateViewHolder(android.view.ViewGroup);
-    method public void onFragmentEnter(java.util.List<android.animation.Animator>);
-    method public void onFragmentExit(java.util.List<android.animation.Animator>);
-    method public void onFragmentReenter(java.util.List<android.animation.Animator>);
-    method public void onFragmentReturn(java.util.List<android.animation.Animator>);
     method public void onImeAppearing(java.util.List<android.animation.Animator>);
     method public void onImeDisappearing(java.util.List<android.animation.Animator>);
     method public int onProvideItemLayoutId();
