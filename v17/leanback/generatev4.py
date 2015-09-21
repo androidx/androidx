@@ -20,7 +20,7 @@ import sys
 print "Generate v4 fragment related code for leanback"
 
 cls = ['Background', 'Base', 'BaseRow', 'Browse', 'Details', 'Error', 'Headers',
-      'PlaybackOverlay', 'Rows', 'Search', 'VerticalGrid', 'Branded']
+      'PlaybackOverlay', 'Rows', 'Search', 'VerticalGrid', 'Branded', 'GuidedStep']
 
 for w in cls:
     print "copy {}Fragment to {}SupportFragment".format(w, w)
@@ -35,6 +35,8 @@ for w in cls:
             line = line.replace('{}Fragment'.format(w), '{}SupportFragment'.format(w))
         line = line.replace('android.app.Fragment', 'android.support.v4.app.Fragment')
         line = line.replace('android.app.Activity', 'android.support.v4.app.FragmentActivity')
+        line = line.replace('activity.getFragmentManager()', 'activity.getSupportFragmentManager()')
+        line = line.replace('Activity activity', 'FragmentActivity activity')
         outfile.write(line)
     file.close()
     outfile.close()
