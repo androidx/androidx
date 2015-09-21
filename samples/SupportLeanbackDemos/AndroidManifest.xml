@@ -45,14 +45,12 @@
             android:exported="true" />
 
         <activity android:name="VerticalGridActivity"
-            android:theme="@style/Theme.Example.Leanback.VerticalGrid"
             android:exported="true" />
 
         <activity android:name="SearchActivity"
             android:exported="true" />
 
         <activity android:name="BrowseErrorActivity"
-            android:theme="@style/Theme.Example.Leanback.Browse"
             android:exported="true" />
 
         <activity android:name="HorizontalGridTestActivity"
