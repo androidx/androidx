@@ -17,7 +17,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v17.leanback.app.GuidedStepFragment;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ImageCardView;
@@ -42,10 +41,6 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
 
     private ArrayObjectAdapter mRowsAdapter;
     private BackgroundHelper mBackgroundHelper = new BackgroundHelper();
-
-    // For good performance, it's important to use a single instance of
-    // a card presenter for all rows using that presenter.
-    final static CardPresenter sCardPresenter = new CardPresenter();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -82,18 +77,17 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
             }
         });
         if (TEST_ENTRANCE_TRANSITION) {
-            // don't run entrance transition if fragment is restored.
+            // don't run entrance transition if Activity is restored.
             if (savedInstanceState == null) {
                 prepareEntranceTransition();
             }
+            // simulate delay loading data
+            new Handler().postDelayed(new Runnable() {
+                public void run() {
+                    startEntranceTransition();
+                }
+            }, 2000);
         }
-        // simulates in a real world use case  data being loaded two seconds later
-        new Handler().postDelayed(new Runnable() {
-            public void run() {
-                loadData();
-                startEntranceTransition();
-            }
-        }, 2000);
     }
 
     private void setupRows() {
@@ -106,24 +100,25 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
 
         mRowsAdapter = new ArrayObjectAdapter(lrp);
 
-        setAdapter(mRowsAdapter);
-    }
+        // For good performance, it's important to use a single instance of
+        // a card presenter for all rows using that presenter.
+        final CardPresenter cardPresenter = new CardPresenter();
 
-    private void loadData() {
         for (int i = 0; i < NUM_ROWS; ++i) {
-            ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(sCardPresenter);
+            ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
             listRowAdapter.add(new PhotoItem("Hello world", R.drawable.gallery_photo_1));
             listRowAdapter.add(new PhotoItem("This is a test", "Only a test", R.drawable.gallery_photo_2));
             listRowAdapter.add(new PhotoItem("Android TV", "by Google", R.drawable.gallery_photo_3));
             listRowAdapter.add(new PhotoItem("Leanback", R.drawable.gallery_photo_4));
             listRowAdapter.add(new PhotoItem("Hello world", R.drawable.gallery_photo_5));
-            listRowAdapter.add(new PhotoItem("This is a test", "Open GuidedStepFragment", R.drawable.gallery_photo_6));
+            listRowAdapter.add(new PhotoItem("This is a test", "Only a test", R.drawable.gallery_photo_6));
             listRowAdapter.add(new PhotoItem("Android TV", "open RowsActivity", R.drawable.gallery_photo_7));
             listRowAdapter.add(new PhotoItem("Leanback", "open BrowseActivity", R.drawable.gallery_photo_8));
             HeaderItem header = new HeaderItem(i, "Row " + i);
             mRowsAdapter.add(new ListRow(header, listRowAdapter));
         }
 
+        setAdapter(mRowsAdapter);
     }
 
     private final class ItemViewClickedListener implements OnItemViewClickedListener {
@@ -133,12 +128,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
 
             Intent intent;
             Bundle bundle;
-            if (((PhotoItem) item).getImageResourceId() == R.drawable.gallery_photo_6) {
-                GuidedStepFragment.add(getFragmentManager(),
-                        new GuidedStepActivity.FirstStepFragment(),
-                        android.R.id.content);
-                return;
-            } else if ( ((PhotoItem) item).getImageResourceId() == R.drawable.gallery_photo_8) {
+            if ( ((PhotoItem) item).getImageResourceId() == R.drawable.gallery_photo_8) {
                 intent = new Intent(getActivity(), BrowseActivity.class);
                 bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity())
                         .toBundle();
