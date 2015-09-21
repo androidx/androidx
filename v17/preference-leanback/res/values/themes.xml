@@ -26,5 +26,6 @@
         <item name="switchPreferenceStyle">@style/LeanbackPreference.SwitchPreference</item>
         <item name="dialogPreferenceStyle">@style/LeanbackPreference.DialogPreference</item>
         <item name="editTextPreferenceStyle">@style/LeanbackPreference.DialogPreference.EditTextPreference</item>
+        <item name="preferenceFragmentListStyle">@style/PreferenceFragmentList.Leanback</item>
     </style>
 </resources>
