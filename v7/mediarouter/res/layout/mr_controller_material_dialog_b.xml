@@ -47,36 +47,16 @@
     <FrameLayout android:id="@+id/mr_default_control"
                  android:layout_width="fill_parent"
                  android:layout_height="wrap_content">
-        <ImageView android:id="@+id/mr_art"
-                   android:layout_width="fill_parent"
-                   android:layout_height="wrap_content"
-                   android:adjustViewBounds="true"
-                   android:scaleType="fitXY"
-                   android:background="?attr/colorPrimary"
-                   android:layout_gravity="top"
-                   android:visibility="gone" />
-        <LinearLayout android:id="@+id/mr_media_control"
-                      android:layout_width="fill_parent"
-                      android:layout_height="wrap_content"
-                      android:orientation="vertical"
-                      android:layout_gravity="bottom">
-            <LinearLayout android:id="@+id/mr_media_main_control"
-                          android:layout_width="fill_parent"
-                          android:layout_height="wrap_content"
-                          android:orientation="vertical"
-                          android:paddingTop="16dp"
-                          android:paddingBottom="16dp"
-                          android:background="?attr/colorPrimary">
-                <include android:id="@+id/mr_playback_control"
-                         layout="@layout/mr_playback_control" />
-                <View android:id="@+id/mr_control_divider"
-                      android:layout_width="fill_parent"
-                      android:layout_height="8dp"
-                      android:background="?attr/colorPrimary"
-                      android:visibility="gone" />
-                <include android:id="@+id/mr_volume_control"
-                         layout="@layout/mr_volume_control" />
-            </LinearLayout>
+        <FrameLayout android:layout_width="fill_parent"
+                     android:layout_height="fill_parent">
+            <ImageView android:id="@+id/mr_art"
+                       android:layout_width="fill_parent"
+                       android:layout_height="wrap_content"
+                       android:adjustViewBounds="true"
+                       android:scaleType="fitXY"
+                       android:background="?attr/colorPrimary"
+                       android:layout_gravity="top"
+                       android:visibility="gone" />
             <ListView android:id="@+id/mr_volume_group_list"
                       android:layout_width="fill_parent"
                       android:layout_height="wrap_content"
@@ -84,7 +64,26 @@
                       android:scrollbarStyle="outsideInset"
                       android:clipToPadding="false"
                       android:background="?attr/colorPrimaryDark"
+                      android:layout_gravity="bottom"
                       android:visibility="gone" />
+        </FrameLayout>
+        <LinearLayout android:id="@+id/mr_media_main_control"
+                      android:layout_width="fill_parent"
+                      android:layout_height="wrap_content"
+                      android:orientation="vertical"
+                      android:paddingTop="16dp"
+                      android:paddingBottom="16dp"
+                      android:background="?attr/colorPrimary"
+                      android:layout_gravity="bottom">
+            <include android:id="@+id/mr_playback_control"
+                     layout="@layout/mr_playback_control" />
+            <View android:id="@+id/mr_control_divider"
+                  android:layout_width="fill_parent"
+                  android:layout_height="8dp"
+                  android:background="?attr/colorPrimary"
+                  android:visibility="gone" />
+            <include android:id="@+id/mr_volume_control"
+                     layout="@layout/mr_volume_control" />
         </LinearLayout>
     </FrameLayout>
 
