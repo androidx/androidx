@@ -17,10 +17,12 @@
 package android.support.customtabs;
 
 import android.content.ComponentName;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.support.annotation.NonNull;
 
 import java.util.List;
 
@@ -60,6 +62,27 @@ public final class CustomTabsSession {
     public boolean mayLaunchUrl(Uri url, Bundle extras, List<Bundle> otherLikelyBundles) {
         try {
             return mService.mayLaunchUrl(mCallback, url, extras, otherLikelyBundles);
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Update the visuals for the button on a custom tab. Will only succeed if the given
+     * session is the active one in browser.
+     * @param icon          The new icon of tbe action button.
+     * @param description   Content description of the action button.
+     * @return              Whether the update succeeded.
+     */
+    public boolean setActionButton(@NonNull Bitmap icon, @NonNull String description) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(CustomTabsIntent.KEY_ICON, icon);
+        bundle.putString(CustomTabsIntent.KEY_DESCRIPTION, description);
+
+        Bundle metaBundle = new Bundle();
+        metaBundle.putBundle(CustomTabsIntent.EXTRA_ACTION_BUTTON_BUNDLE, bundle);
+        try {
+            return mService.updateVisuals(mCallback, metaBundle);
         } catch (RemoteException e) {
             return false;
         }
