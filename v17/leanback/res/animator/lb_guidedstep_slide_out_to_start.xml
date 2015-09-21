@@ -14,22 +14,21 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<!-- Layout for the settings list fragment -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:ordering="together" >
 
-    <RelativeLayout
-        style="?attr/guidedActionsContainerStyle" >
+    <objectAnimator
+        android:duration="@android:integer/config_longAnimTime"
+        android:propertyName="translationX"
+        android:valueFrom="0.0"
+        android:valueTo="@dimen/lb_guidedstep_slide_start_distance"
+        android:valueType="floatType" />
 
-        <FrameLayout
-            android:id="@+id/guidedactions_selector"
-            style="?attr/guidedActionsSelectorStyle" />
+    <objectAnimator
+        android:duration="@android:integer/config_longAnimTime"
+        android:propertyName="alpha"
+        android:valueFrom="1.0"
+        android:valueTo="0.0"
+        android:valueType="floatType" />
 
-        <android.support.v17.leanback.widget.VerticalGridView
-            android:id="@+id/guidedactions_list"
-            style="?attr/guidedActionsListStyle" />
-
-    </RelativeLayout>
-
-</RelativeLayout>
+</set>
