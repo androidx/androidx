@@ -233,7 +233,7 @@
 
     <dimen name="lb_guidedactions_entry_translationX">384dp</dimen>
     <dimen name="lb_guidedactions_section_width">384dp</dimen>
-    <dimen name="lb_guidedactions_section_shadow_width">16dp</dimen>
+    <dimen name="lb_guidedactions_section_width_with_shadow">400dp</dimen>
     <dimen name="lb_guidedactions_elevation">12dp</dimen>
     <dimen name="lb_guidedactions_selector_min_height">8dp</dimen>
     <dimen name="lb_guidedactions_vertical_padding">12dp</dimen>
