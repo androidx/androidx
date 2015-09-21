@@ -65,7 +65,14 @@
             android:layout_weight="1"
             android:minHeight="48dp">
 
-        <ScrollView
+        <View android:id="@+id/scrollIndicatorUp"
+              android:visibility="gone"
+              android:layout_width="match_parent"
+              android:layout_height="1dp"
+              android:layout_gravity="top"
+              android:background="?attr/colorControlHighlight"/>
+
+        <android.support.v4.widget.NestedScrollView
                 android:id="@+id/scrollView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -91,7 +98,14 @@
                         android:layout_width="0dp"
                         android:layout_height="@dimen/abc_dialog_padding_top_material"/>
             </LinearLayout>
-        </ScrollView>
+        </android.support.v4.widget.NestedScrollView>
+
+        <View android:id="@+id/scrollIndicatorDown"
+              android:visibility="gone"
+              android:layout_width="match_parent"
+              android:layout_height="1dp"
+              android:layout_gravity="bottom"
+              android:background="?attr/colorControlHighlight"/>
 
     </FrameLayout>
 
