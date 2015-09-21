@@ -62,6 +62,10 @@ public final class TransitionHelper {
      */
     static interface TransitionHelperVersionImpl {
 
+        public void setEnterTransition(android.app.Fragment fragment, Object transition);
+
+        public void setExitTransition(android.app.Fragment fragment, Object transition);
+
         public Object getSharedElementEnterTransition(Window window);
 
         public Object getSharedElementReturnTransition(Window window);
@@ -89,6 +93,8 @@ public final class TransitionHelper {
         public Object createFadeTransition(int fadingMode);
 
         public Object createChangeBounds(boolean reparent);
+
+        public Object createFadeAndShortSlide(int edge);
 
         public void setChangeBoundsStartDelay(Object changeBounds, View view, int startDelay);
 
@@ -135,10 +141,16 @@ public final class TransitionHelper {
     /**
      * Interface used when we do not support Transition animations.
      */
-    private static final class TransitionHelperStubImpl implements TransitionHelperVersionImpl {
+    static class TransitionHelperStubImpl implements TransitionHelperVersionImpl {
 
         private static class TransitionStub {
             TransitionListener mTransitionListener;
+        }
+
+        public void setEnterTransition(android.app.Fragment fragment, Object transition) {
+        }
+
+        public void setExitTransition(android.app.Fragment fragment, Object transition) {
         }
 
         @Override
@@ -198,6 +210,11 @@ public final class TransitionHelper {
 
         @Override
         public Object createChangeBounds(boolean reparent) {
+            return new TransitionStub();
+        }
+
+        @Override
+        public Object createFadeAndShortSlide(int edge) {
             return new TransitionStub();
         }
 
@@ -311,47 +328,7 @@ public final class TransitionHelper {
     /**
      * Implementation used on KitKat (and above).
      */
-    private static class TransitionHelperKitkatImpl implements TransitionHelperVersionImpl {
-
-        @Override
-        public Object getSharedElementEnterTransition(Window window) {
-            return null;
-        }
-
-        @Override
-        public Object getSharedElementReturnTransition(Window window) {
-            return null;
-        }
-
-        @Override
-        public Object getSharedElementExitTransition(Window window) {
-            return null;
-        }
-
-        @Override
-        public Object getSharedElementReenterTransition(Window window) {
-            return null;
-        }
-
-        @Override
-        public Object getEnterTransition(Window window) {
-            return null;
-        }
-
-        @Override
-        public Object getReturnTransition(Window window) {
-            return null;
-        }
-
-        @Override
-        public Object getExitTransition(Window window) {
-            return null;
-        }
-
-        @Override
-        public Object getReenterTransition(Window window) {
-            return null;
-        }
+    static class TransitionHelperKitkatImpl extends TransitionHelperStubImpl {
 
         @Override
         public Object createScene(ViewGroup sceneRoot, Runnable r) {
@@ -485,7 +462,15 @@ public final class TransitionHelper {
         }
     }
 
-    private static final class TransitionHelperApi21Impl extends TransitionHelperKitkatImpl {
+    static final class TransitionHelperApi21Impl extends TransitionHelperKitkatImpl {
+
+        public void setEnterTransition(android.app.Fragment fragment, Object transition) {
+            TransitionHelperApi21.setEnterTransition(fragment, transition);
+        }
+
+        public void setExitTransition(android.app.Fragment fragment, Object transition) {
+            TransitionHelperApi21.setExitTransition(fragment, transition);
+        }
 
         @Override
         public Object getSharedElementEnterTransition(Window window) {
@@ -505,6 +490,11 @@ public final class TransitionHelper {
         @Override
         public Object getSharedElementReenterTransition(Window window) {
             return TransitionHelperApi21.getSharedElementReenterTransition(window);
+        }
+
+        @Override
+        public Object createFadeAndShortSlide(int edge) {
+            return TransitionHelperApi21.createFadeAndShortSlide(edge);
         }
 
         @Override
@@ -690,5 +680,25 @@ public final class TransitionHelper {
 
     public Object loadTransition(Context context, int resId) {
         return mImpl.loadTransition(context, resId);
+    }
+
+    public void setEnterTransition(android.app.Fragment fragment, Object transition) {
+        mImpl.setEnterTransition(fragment, transition);
+    }
+
+    public void setExitTransition(android.app.Fragment fragment, Object transition) {
+        mImpl.setExitTransition(fragment, transition);
+    }
+
+    public void setEnterTransition(android.support.v4.app.Fragment fragment, Object transition) {
+        fragment.setEnterTransition(transition);
+    }
+
+    public void setExitTransition(android.support.v4.app.Fragment fragment, Object transition) {
+        fragment.setExitTransition(transition);
+    }
+
+    public Object createFadeAndShortSlide(int edge) {
+        return mImpl.createFadeAndShortSlide(edge);
     }
 }
