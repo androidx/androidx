@@ -588,7 +588,9 @@ public class MediaRouteControllerDialog extends AlertDialog {
         final boolean isExpanding = bottomMargin != 0;
         if (!animation) {
             setLayoutBottomMargin(mMediaMainControlLayout, bottomMargin);
-            (isExpanding ? mVolumeGroupList : mArtView).bringToFront();
+            View frontView = isExpanding ? mVolumeGroupList : mArtView;
+            frontView.bringToFront();
+            ((View) frontView.getParent()).invalidate();
         } else {
             Animation existingAnim = mMediaMainControlLayout.getAnimation();
             boolean animationInProgress = existingAnim != null && !existingAnim.hasEnded();
@@ -616,11 +618,13 @@ public class MediaRouteControllerDialog extends AlertDialog {
                         if (isExpanding) {
                             if (margin + mainControllerHeight >= volumeGroupListHeight) {
                                 mVolumeGroupList.bringToFront();
+                                ((View) mVolumeGroupList.getParent()).invalidate();
                                 mReordered = true;
                             }
                         } else {
                             if (volumeGroupListHeight >= margin + mainControllerHeight) {
                                 mArtView.bringToFront();
+                                ((View) mArtView.getParent()).invalidate();
                                 mReordered = true;
                             }
                         }
