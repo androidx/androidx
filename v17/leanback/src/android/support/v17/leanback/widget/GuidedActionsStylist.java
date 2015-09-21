@@ -87,8 +87,13 @@ import java.util.List;
  * be a subclass of {@link android.widget.EditText}, and should satisfy the {@link
  * ImeKeyMonitor} interface.
  *
+ * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepEntryAnimation
+ * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepExitAnimation
+ * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepReentryAnimation
+ * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepReturnAnimation
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepImeAppearingAnimation
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepImeDisappearingAnimation
+ * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsEntryAnimation
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsSelectorShowAnimation
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsSelectorHideAnimation
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsContainerStyle
@@ -449,6 +454,56 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      * FragmentAnimationProvider overrides
      * ==========================================
      */
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onActivityEnter(@NonNull List<Animator> animators) {
+        animators.add(createAnimator(mMainView, R.attr.guidedActionsEntryAnimation));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onActivityExit(@NonNull List<Animator> animators) {}
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onFragmentEnter(@NonNull List<Animator> animators) {
+        animators.add(createAnimator(mActionsGridView, R.attr.guidedStepEntryAnimation));
+        animators.add(createAnimator(mSelectorView, R.attr.guidedStepEntryAnimation));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onFragmentExit(@NonNull List<Animator> animators) {
+        animators.add(createAnimator(mActionsGridView, R.attr.guidedStepExitAnimation));
+        animators.add(createAnimator(mSelectorView, R.attr.guidedStepExitAnimation));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onFragmentReenter(@NonNull List<Animator> animators) {
+        animators.add(createAnimator(mActionsGridView, R.attr.guidedStepReentryAnimation));
+        animators.add(createAnimator(mSelectorView, R.attr.guidedStepReentryAnimation));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onFragmentReturn(@NonNull List<Animator> animators) {
+        animators.add(createAnimator(mActionsGridView, R.attr.guidedStepReturnAnimation));
+        animators.add(createAnimator(mSelectorView, R.attr.guidedStepReturnAnimation));
+    }
 
     /**
      * {@inheritDoc}

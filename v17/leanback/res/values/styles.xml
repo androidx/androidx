@@ -424,16 +424,15 @@
 
     <!-- Style for the container view in a GuidedActionsStylist's default layout. -->
     <style name="Widget.Leanback.GuidedActionsContainerStyle">
-        <item name="android:elevation">@dimen/lb_guidedactions_elevation</item>
         <item name="android:layout_width">@dimen/lb_guidedactions_section_width</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:layout_alignParentEnd">true</item>
         <item name="android:background">@color/lb_guidedactions_background</item>
+        <item name="android:elevation">@dimen/lb_guidedactions_elevation</item>
     </style>
 
     <!-- Style for the selector view in a GuidedActionsStylist's default layout. -->
     <style name="Widget.Leanback.GuidedActionsSelectorStyle">
-        <item name="android:elevation">@dimen/lb_guidedactions_elevation</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">@dimen/lb_guidedactions_selector_min_height</item>
         <item name="android:layout_centerVertical">true</item>
@@ -443,7 +442,6 @@
 
     <!-- Style for the vertical grid of actions in a GuidedActionsStylist's default layout. -->
     <style name="Widget.Leanback.GuidedActionsListStyle">
-        <item name="android:elevation">@dimen/lb_guidedactions_elevation</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:focusable">true</item>
