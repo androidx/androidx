@@ -23,6 +23,8 @@
     </style>
     <style name="Theme.Example.Leanback.Details" parent="Theme.Leanback.Details">
     </style>
+    <style name="Theme.Example.Leanback.VerticalGrid" parent="Theme.Leanback.VerticalGrid">
+    </style>
     <style name="Theme.Example.Leanback.Rows" parent="Theme.Leanback">
         <item name="browseTitleTextStyle">@style/Widget.Example.Leanback.Title.Text</item>
         <item name="rowsVerticalGridStyle">@style/Widget.Example.Leanback.Rows.VerticalGridView</item>
