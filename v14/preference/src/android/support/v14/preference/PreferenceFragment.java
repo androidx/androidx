@@ -130,11 +130,6 @@ public abstract class PreferenceFragment extends Fragment implements
 
     private int mLayoutResId = R.layout.preference_list_fragment;
 
-    /**
-     * The starting request code given out to preference framework.
-     */
-    private static final int FIRST_REQUEST_CODE = 100;
-
     private static final int MSG_BIND_PREFERENCES = 1;
     private Handler mHandler = new Handler() {
         @Override
