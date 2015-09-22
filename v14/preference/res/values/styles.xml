@@ -74,4 +74,9 @@
         <item name="android:textStyle">normal</item>
     </style>
 
+    <style name="PreferenceFragmentList.Material">
+        <item name="android:paddingLeft">0dp</item>
+        <item name="android:paddingRight">0dp</item>
+    </style>
+
 </resources>
