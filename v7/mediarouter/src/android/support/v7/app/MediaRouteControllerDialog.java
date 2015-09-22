@@ -94,6 +94,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private final MediaRouterCallback mCallback;
     private final MediaRouter.RouteInfo mRoute;
 
+    private Context mContext;
     private boolean mCreated;
     private boolean mAttachedToWindow;
 
@@ -150,7 +151,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
     public MediaRouteControllerDialog(Context context, int theme) {
         super(MediaRouterThemeHelper.createThemedContext(context), theme);
-        context = getContext();
+        mContext = getContext();
 
         mControllerCallback = new MediaControllerCallback();
         mRouter = MediaRouter.getInstance(context);
@@ -241,7 +242,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
             return;
         }
         try {
-            mMediaController = new MediaControllerCompat(getContext(), sessionToken);
+            mMediaController = new MediaControllerCompat(mContext, sessionToken);
         } catch (RemoteException e) {
             Log.e(TAG, "Error creating media controller in setMediaSession.", e);
         }
@@ -284,7 +285,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mStopCastingButton.setOnClickListener(listener);
 
         TypedValue value = new TypedValue();
-        if (getContext().getTheme().resolveAttribute(R.attr.colorPrimary, value, true)) {
+        if (mContext.getTheme().resolveAttribute(R.attr.colorPrimary, value, true)) {
             mDisconnectButton.setTextColor(value.data);
             mStopCastingButton.setTextColor(value.data);
         }
@@ -321,7 +322,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 if (mIsGroupExpanded) {
                     mVolumeGroupList.setVisibility(View.VISIBLE);
                     mVolumeGroupList.setAdapter(
-                            new VolumeGroupAdapter(getContext(), getGroup().getRoutes()));
+                            new VolumeGroupAdapter(mContext, getGroup().getRoutes()));
                 } else {
                     // Request layout to update UI based on {@code mIsGroupExpanded}.
                     mDefaultControlLayout.requestLayout();
@@ -330,7 +331,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 updateLayoutHeight();
             }
         });
-        mGroupListAnimationDurationMs = getContext().getResources().getInteger(
+        mGroupListAnimationDurationMs = mContext.getResources().getInteger(
                         R.integer.mr_controller_volume_group_list_animation_duration_ms);
 
         mCustomControlView = onCreateMediaControlView(savedInstanceState);
@@ -347,13 +348,13 @@ public class MediaRouteControllerDialog extends AlertDialog {
      * Sets the width of the dialog. Also called when configuration changes.
      */
     void updateLayout() {
-        int width = MediaRouteDialogHelper.getDialogWidth(getContext());
+        int width = MediaRouteDialogHelper.getDialogWidth(mContext);
         getWindow().setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT);
 
         View decorView = getWindow().getDecorView();
         mDialogContentWidth = width - decorView.getPaddingLeft() - decorView.getPaddingRight();
 
-        Resources res = getContext().getResources();
+        Resources res = mContext.getResources();
         mVolumeGroupListItemIconSize = res.getDimensionPixelSize(
                 R.dimen.mr_controller_volume_group_list_item_icon_size);
         mVolumeGroupListItemHeight = res.getDimensionPixelSize(
@@ -715,14 +716,14 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 if (isPlaying && supportsPause) {
                     mPlayPauseButton.setVisibility(View.VISIBLE);
                     mPlayPauseButton.setImageResource(MediaRouterThemeHelper.getThemeResource(
-                            getContext(), R.attr.mediaRoutePauseDrawable));
-                    mPlayPauseButton.setContentDescription(getContext().getResources()
+                            mContext, R.attr.mediaRoutePauseDrawable));
+                    mPlayPauseButton.setContentDescription(mContext.getResources()
                             .getText(R.string.mr_controller_pause));
                 } else if (!isPlaying && supportsPlay) {
                     mPlayPauseButton.setVisibility(View.VISIBLE);
                     mPlayPauseButton.setImageResource(MediaRouterThemeHelper.getThemeResource(
-                            getContext(), R.attr.mediaRoutePlayDrawable));
-                    mPlayPauseButton.setContentDescription(getContext().getResources()
+                            mContext, R.attr.mediaRoutePlayDrawable));
+                    mPlayPauseButton.setContentDescription(mContext.getResources()
                             .getText(R.string.mr_controller_play));
                 } else {
                     mPlayPauseButton.setVisibility(View.GONE);
@@ -833,11 +834,11 @@ public class MediaRouteControllerDialog extends AlertDialog {
                     if (mAccessibilityManager != null && mAccessibilityManager.isEnabled()) {
                         AccessibilityEvent event = AccessibilityEvent.obtain(
                                 AccessibilityEventCompat.TYPE_ANNOUNCEMENT);
-                        event.setPackageName(getContext().getPackageName());
+                        event.setPackageName(mContext.getPackageName());
                         event.setClassName(getClass().getName());
                         int resId = isPlaying ?
                                 R.string.mr_controller_pause : R.string.mr_controller_play;
-                        event.getText().add(getContext().getString(resId));
+                        event.getText().add(mContext.getString(resId));
                         mAccessibilityManager.sendAccessibilityEvent(event);
                     }
                 }
@@ -900,7 +901,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         public View getView(final int position, View convertView, ViewGroup parent) {
             View v = convertView;
             if (v == null) {
-                v = LayoutInflater.from(getContext()).inflate(
+                v = LayoutInflater.from(mContext).inflate(
                         R.layout.mr_controller_volume_item, parent, false);
             }
 
@@ -971,7 +972,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 BufferedInputStream stream = null;
                 try {
                     stream = new BufferedInputStream(
-                            getContext().getContentResolver().openInputStream(mIconUri));
+                            mContext.getContentResolver().openInputStream(mIconUri));
 
                     // Query art size.
                     BitmapFactory.Options options = new BitmapFactory.Options();
@@ -986,7 +987,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                     } catch (IOException e) {
                         // Failed to rewind the stream, try to reopen it.
                         stream.close();
-                        stream = new BufferedInputStream(getContext().getContentResolver()
+                        stream = new BufferedInputStream(mContext.getContentResolver()
                                 .openInputStream(mIconUri));
                     }
                     // Calculate required size to decode the art and possibly resize it.
