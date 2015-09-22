@@ -829,7 +829,15 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
         mSearchButton.setVisibility(visCollapsed);
         updateSubmitButton(hasText);
         mSearchEditFrame.setVisibility(collapsed ? GONE : VISIBLE);
-        mCollapsedIcon.setVisibility(mIconifiedByDefault ? GONE : VISIBLE);
+
+        final int iconVisibility;
+        if (mCollapsedIcon.getDrawable() == null || mIconifiedByDefault) {
+            iconVisibility = GONE;
+        } else {
+            iconVisibility = VISIBLE;
+        }
+        mCollapsedIcon.setVisibility(iconVisibility);
+
         updateCloseButton();
         updateVoiceButton(!hasText);
         updateSubmitArea();
