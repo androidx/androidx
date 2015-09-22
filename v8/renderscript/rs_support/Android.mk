@@ -159,7 +159,7 @@ LOCAL_C_INCLUDES += frameworks/compile/libbcc/include
 LOCAL_C_INCLUDES += external/cblas/include
 LOCAL_C_INCLUDES += external/gemmlowp/eight_bit_int_gemm
 
-LOCAL_CFLAGS += $(rs_base_CFLAGS) -DGEMMLOWP_USE_OLD_ANDROID_SDK
+LOCAL_CFLAGS += $(rs_base_CFLAGS) -DGEMMLOWP_USE_STLPORT
 
 LOCAL_MODULE:= libRSSupport
 LOCAL_MODULE_TAGS := optional
