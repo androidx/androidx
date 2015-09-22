@@ -312,22 +312,9 @@
              Theme attribute used to inspect theme inheritance. -->
         <attr name="guidedStepThemeFlag" format="boolean" />
 
-        <!-- Theme attribute for the animation used when a guided step element is animated in on
-             fragment stack push. Default is {@link
-             android.support.v17.leanback.R.animator#lb_guidedstep_slide_in_from_end}. -->
-        <attr name="guidedStepEntryAnimation" format="reference" />
-        <!-- Theme attribute for the animation used when a guided step element is animated out on
-             fragment stack push. Default is {@link
-             android.support.v17.leanback.R.animator#lb_guidedstep_slide_out_to_start}. -->
-        <attr name="guidedStepExitAnimation" format="reference" />
-        <!-- Theme attribute for the animation used when a guided step element is animated in on
-             fragment stack pop. Default is {@link
-             android.support.v17.leanback.R.animator#lb_guidedstep_slide_in_from_start}. -->
-        <attr name="guidedStepReentryAnimation" format="reference" />
-        <!-- Theme attribute for the animation used when a guided step element is animated out on
-             fragment stack pop. Default is {@link
-             android.support.v17.leanback.R.animator#lb_guidedstep_slide_out_to_end}. -->
-        <attr name="guidedStepReturnAnimation" format="reference" />
+        <!-- Theme attribute of background drawable used by GuidedStepFragment. -->
+        <attr name="guidedStepBackground" format="reference|color" />
+
         <!-- Theme attribute for the animation used when a guided step element is animated in
              response to the IME appearing. Default is {@link
              android.support.v17.leanback.R.animator#lb_guidedstep_slide_up}. -->
@@ -337,10 +324,6 @@
              android.support.v17.leanback.R.animator#lb_guidedstep_slide_down}. -->
         <attr name="guidedStepImeDisappearingAnimation" format="reference" />
 
-        <!-- Theme attribute for the animation used when the guidance is animated in at activity
-             start. Default is {@link android.support.v17.leanback.R.animator#lb_guidance_entry}.
-             -->
-        <attr name="guidanceEntryAnimation" format="reference" />
         <!-- Theme attribute for the style of the main container in a GuidanceStylist. Default is
              {@link android.support.v17.leanback.R.style#Widget_Leanback_GuidanceContainerStyle}.-->
         <attr name="guidanceContainerStyle" format="reference" />
@@ -357,10 +340,6 @@
              {@link android.support.v17.leanback.R.style#Widget_Leanback_GuidanceIconStyle}. -->
         <attr name="guidanceIconStyle" format="reference" />
 
-        <!-- Theme attribute for the animation used in a GuidedActionsPresenter when the actions
-             list is animated in at activity start. Default is {@link
-             android.support.v17.leanback.R.animator#lb_guidedactions_entry}. -->
-        <attr name="guidedActionsEntryAnimation" format="reference" />
         <!-- Theme attribute for the animation used in a GuidedActionsPresenter when the action
              selector is animated in at activity start. Default is {@link
              android.support.v17.leanback.R.animator#lb_guidedactions_selector_show}. -->
