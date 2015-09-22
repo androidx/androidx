@@ -49,7 +49,7 @@ public class DetailsPresenterSelectionActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        GuidedStepFragment.add(getFragmentManager(), new SetupFragment());
+        GuidedStepFragment.addAsRoot(this, new SetupFragment(), android.R.id.content);
     }
 
     private static void addAction(List<GuidedAction> actions, long id, String title, String desc) {

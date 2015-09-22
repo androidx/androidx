@@ -15,6 +15,7 @@ package com.example.android.leanback;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.RowPresenter;
@@ -34,6 +35,7 @@ public class VerticalGridFragment extends android.support.v17.leanback.app.Verti
     private static final int NUM_COLUMNS = 3;
     private static final int NUM_ITEMS = 50;
     private static final int HEIGHT = 200;
+    private static final boolean TEST_ENTRANCE_TRANSITION = true;
 
     private static class Adapter extends ArrayObjectAdapter {
         public Adapter(StringPresenter presenter) {
@@ -54,6 +56,25 @@ public class VerticalGridFragment extends android.support.v17.leanback.app.Verti
         setTitle("Leanback Vertical Grid Demo");
 
         setupFragment();
+        if (TEST_ENTRANCE_TRANSITION) {
+            // don't run entrance transition if fragment is restored.
+            if (savedInstanceState == null) {
+                prepareEntranceTransition();
+            }
+        }
+        // simulates in a real world use case  data being loaded two seconds later
+        new Handler().postDelayed(new Runnable() {
+            public void run() {
+                loadData();
+                startEntranceTransition();
+            }
+        }, 2000);
+    }
+
+    private void loadData() {
+        for (int i = 0; i < NUM_ITEMS; i++) {
+            mAdapter.add(Integer.toString(i));
+        }
     }
 
     private void setupFragment() {
@@ -62,9 +83,6 @@ public class VerticalGridFragment extends android.support.v17.leanback.app.Verti
         setGridPresenter(gridPresenter);
 
         mAdapter = new Adapter(new StringPresenter());
-        for (int i = 0; i < NUM_ITEMS; i++) {
-            mAdapter.add(Integer.toString(i));
-        }
         setAdapter(mAdapter);
 
         setOnItemViewSelectedListener(new OnItemViewSelectedListener() {
