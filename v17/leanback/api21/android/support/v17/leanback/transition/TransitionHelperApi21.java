@@ -14,14 +14,24 @@
 package android.support.v17.leanback.transition;
 
 import android.R;
+import android.app.Fragment;
 import android.content.Context;
 import android.transition.ChangeTransform;
+import android.transition.Transition;
 import android.view.Window;
 import android.view.animation.AnimationUtils;
 
 final class TransitionHelperApi21 {
 
     TransitionHelperApi21() {
+    }
+
+    public static void setEnterTransition(android.app.Fragment fragment, Object transition) {
+        fragment.setEnterTransition((Transition)transition);
+    }
+
+    public static void setExitTransition(android.app.Fragment fragment, Object transition) {
+       fragment.setExitTransition((Transition)transition);
     }
 
     public static Object getSharedElementEnterTransition(Window window) {
@@ -62,5 +72,9 @@ final class TransitionHelperApi21 {
 
     public static Object createDefaultInterpolator(Context context) {
         return AnimationUtils.loadInterpolator(context, R.interpolator.fast_out_linear_in);
+    }
+
+    public static Object createFadeAndShortSlide(int edge) {
+        return new FadeAndShortSlide(edge);
     }
 }
