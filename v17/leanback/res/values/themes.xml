@@ -116,14 +116,12 @@
     <style name="Theme.Leanback.GuidedStep" parent="Theme.LeanbackBase">
         <item name="guidedStepThemeFlag">true</item>
 
-        <item name="guidedStepEntryAnimation">@animator/lb_guidedstep_slide_in_from_end</item>
-        <item name="guidedStepExitAnimation">@animator/lb_guidedstep_slide_out_to_start</item>
-        <item name="guidedStepReentryAnimation">@animator/lb_guidedstep_slide_in_from_start</item>
-        <item name="guidedStepReturnAnimation">@animator/lb_guidedstep_slide_out_to_end</item>
+        <item name="android:windowEnterTransition">@transition/lb_guidedstep_activity_enter</item>
+
+        <item name="guidedStepBackground">?android:attr/windowBackground</item>
+
         <item name="guidedStepImeAppearingAnimation">@animator/lb_guidedstep_slide_up</item>
         <item name="guidedStepImeDisappearingAnimation">@animator/lb_guidedstep_slide_down</item>
-        <item name="guidanceEntryAnimation">@animator/lb_guidance_entry</item>
-        <item name="guidedActionsEntryAnimation">@animator/lb_guidedactions_entry</item>
 
         <item name="guidanceContainerStyle">@style/Widget.Leanback.GuidanceContainerStyle</item>
         <item name="guidanceIconStyle">@style/Widget.Leanback.GuidanceIconStyle</item>

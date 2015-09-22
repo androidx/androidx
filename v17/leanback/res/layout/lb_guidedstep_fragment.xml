@@ -28,7 +28,11 @@
 
     <FrameLayout
         android:id="@+id/action_fragment"
-        android:layout_width="@dimen/lb_guidedactions_section_width_with_shadow"
+        android:layout_toEndOf="@+id/content_fragment"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        android:paddingLeft="@dimen/lb_guidedactions_section_shadow_width"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentEnd="true" />
 
