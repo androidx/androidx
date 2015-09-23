@@ -37,6 +37,7 @@ for w in cls:
         line = line.replace('android.app.Activity', 'android.support.v4.app.FragmentActivity')
         line = line.replace('activity.getFragmentManager()', 'activity.getSupportFragmentManager()')
         line = line.replace('Activity activity', 'FragmentActivity activity')
+        line = line.replace('(Activity', '(FragmentActivity')
         outfile.write(line)
     file.close()
     outfile.close()
