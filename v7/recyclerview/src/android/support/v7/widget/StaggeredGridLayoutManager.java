@@ -2676,7 +2676,10 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
-    static class SavedState implements Parcelable {
+    /**
+     * @hide
+     */
+    public static class SavedState implements Parcelable {
 
         int mAnchorPosition;
         int mVisibleAnchorPosition; // Replacement for span info when spans are invalidated
