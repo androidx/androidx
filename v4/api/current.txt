@@ -2408,6 +2408,7 @@ package android.support.v4.view {
     method public static float getRotationY(android.view.View);
     method public static float getScaleX(android.view.View);
     method public static float getScaleY(android.view.View);
+    method public static int getScrollIndicators(android.view.View);
     method public static java.lang.String getTransitionName(android.view.View);
     method public static float getTranslationX(android.view.View);
     method public static float getTranslationY(android.view.View);
@@ -2468,6 +2469,8 @@ package android.support.v4.view {
     method public static void setSaveFromParentEnabled(android.view.View, boolean);
     method public static void setScaleX(android.view.View, float);
     method public static void setScaleY(android.view.View, float);
+    method public static void setScrollIndicators(android.view.View, int);
+    method public static void setScrollIndicators(android.view.View, int, int);
     method public static void setTransitionName(android.view.View, java.lang.String);
     method public static void setTranslationX(android.view.View, float);
     method public static void setTranslationY(android.view.View, float);
@@ -2500,6 +2503,12 @@ package android.support.v4.view {
     field public static final int SCROLL_AXIS_HORIZONTAL = 1; // 0x1
     field public static final int SCROLL_AXIS_NONE = 0; // 0x0
     field public static final int SCROLL_AXIS_VERTICAL = 2; // 0x2
+    field public static final int SCROLL_INDICATOR_BOTTOM = 2; // 0x2
+    field public static final int SCROLL_INDICATOR_END = 32; // 0x20
+    field public static final int SCROLL_INDICATOR_LEFT = 4; // 0x4
+    field public static final int SCROLL_INDICATOR_RIGHT = 8; // 0x8
+    field public static final int SCROLL_INDICATOR_START = 16; // 0x10
+    field public static final int SCROLL_INDICATOR_TOP = 1; // 0x1
   }
 
   public class ViewConfigurationCompat {
@@ -3245,9 +3254,14 @@ package android.support.v4.widget {
     method public void onAttachedToWindow();
     method public boolean pageScroll(int);
     method public void setFillViewport(boolean);
+    method public void setOnScrollChangeListener(android.support.v4.widget.NestedScrollView.OnScrollChangeListener);
     method public void setSmoothScrollingEnabled(boolean);
     method public final void smoothScrollBy(int, int);
     method public final void smoothScrollTo(int, int);
+  }
+
+  public static abstract interface NestedScrollView.OnScrollChangeListener {
+    method public abstract void onScrollChange(android.support.v4.widget.NestedScrollView, int, int, int, int);
   }
 
   public class PopupMenuCompat {
