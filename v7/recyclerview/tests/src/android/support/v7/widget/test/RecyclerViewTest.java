@@ -20,7 +20,9 @@ import android.app.Activity;
 import android.support.v7.recyclerview.test.CustomLayoutManager;
 import android.support.v7.recyclerview.test.R;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.test.ActivityInstrumentationTestCase2;
 import android.widget.LinearLayout;
 
@@ -38,6 +40,14 @@ public class RecyclerViewTest extends ActivityInstrumentationTestCase2<RecyclerV
                 activity.setContentView(layoutId);
             }
         });
+    }
+
+    public void testSavedStateAccess() throws ClassNotFoundException {
+        // this class should be accessible outside RecyclerView package
+        assertNotNull(RecyclerView.SavedState.class);
+        assertNotNull(LinearLayoutManager.SavedState.class);
+        assertNotNull(GridLayoutManager.SavedState.class);
+        assertNotNull(StaggeredGridLayoutManager.SavedState.class);
     }
 
     public void testInflation() throws Throwable {
