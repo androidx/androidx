@@ -67,7 +67,7 @@ import java.util.List;
  * <p>
  * Clients use following helper functions to add GuidedStepSupportFragment to Activity or FragmentManager:
  * <ul>
- * <li>{@link #addAsRoot(Activity, GuidedStepSupportFragment, int)}, to be called during Activity onCreate,
+ * <li>{@link #addAsRoot(FragmentActivity, GuidedStepSupportFragment, int)}, to be called during Activity onCreate,
  * adds GuidedStepSupportFragment as the first Fragment in activity.</li>
  * <li>{@link #add(FragmentManager, GuidedStepSupportFragment)} or {@link #add(FragmentManager,
  * GuidedStepSupportFragment, int)}, to add GuidedStepSupportFragment on top of existing Fragments or
@@ -137,7 +137,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
      * The value is initially {@link #UI_STYLE_DEFAULT} and might be changed in one of the three
      * helper functions:
      * <ul>
-     * <li>{@link #addAsRoot(Activity, GuidedStepSupportFragment, int)}</li>
+     * <li>{@link #addAsRoot(FragmentActivity, GuidedStepSupportFragment, int)}</li>
      * <li>{@link #add(FragmentManager, GuidedStepSupportFragment)} or {@link #add(FragmentManager,
      * GuidedStepSupportFragment, int)}</li>
      * </ul>
