@@ -31,7 +31,7 @@
     <android.support.v7.app.MediaRouteVolumeSlider
             android:id="@+id/mr_volume_slider"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="fill_parent"
             android:layout_weight="1"/>
     <android.support.v7.app.MediaRouteExpandCollapseButton
             android:id="@+id/mr_group_expand_collapse"
