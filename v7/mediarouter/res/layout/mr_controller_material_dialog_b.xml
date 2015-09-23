@@ -14,41 +14,46 @@
      limitations under the License.
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="fill_parent"
-              android:layout_height="wrap_content"
-              android:orientation="vertical">
-    <LinearLayout android:id="@+id/mr_title_bar"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+          android:id="@+id/mr_expandable_area"
+          android:background="@android:color/transparent"
+          android:layout_width="fill_parent"
+          android:layout_height="fill_parent">
+    <LinearLayout android:id="@+id/mr_dialog_area"
                   android:layout_width="fill_parent"
                   android:layout_height="wrap_content"
-                  android:paddingLeft="24dp"
-                  android:paddingRight="12dp"
-                  android:orientation="horizontal" >
-        <TextView android:id="@+id/mr_name"
-                  android:layout_width="0dp"
-                  android:layout_height="72dp"
-                  android:layout_weight="1"
-                  android:gravity="center_vertical"
-                  android:singleLine="true"
-                  android:ellipsize="end"
-                  android:textAppearance="?attr/mediaRouteControllerTitleTextStyle" />
-        <ImageButton android:id="@+id/mr_close"
-                     android:layout_width="48dp"
-                     android:layout_height="48dp"
-                     android:layout_gravity="center_vertical"
-                     android:contentDescription="@string/mr_controller_close_description"
-                     android:src="?attr/mediaRouteCloseDrawable"
-                     android:background="?attr/selectableItemBackgroundBorderless" />
-    </LinearLayout>
-    <FrameLayout android:id="@+id/mr_custom_control"
-                 android:layout_width="fill_parent"
-                 android:layout_height="wrap_content"
-                 android:visibility="gone" />
-    <FrameLayout android:id="@+id/mr_default_control"
-                 android:layout_width="fill_parent"
-                 android:layout_height="wrap_content">
-        <FrameLayout android:layout_width="fill_parent"
-                     android:layout_height="fill_parent">
+                  android:background="?android:attr/windowBackground"
+                  android:layout_gravity="center"
+                  android:orientation="vertical">
+        <LinearLayout android:id="@+id/mr_title_bar"
+                      android:layout_width="fill_parent"
+                      android:layout_height="wrap_content"
+                      android:paddingLeft="24dp"
+                      android:paddingRight="12dp"
+                      android:orientation="horizontal" >
+            <TextView android:id="@+id/mr_name"
+                      android:layout_width="0dp"
+                      android:layout_height="72dp"
+                      android:layout_weight="1"
+                      android:gravity="center_vertical"
+                      android:singleLine="true"
+                      android:ellipsize="end"
+                      android:textAppearance="?attr/mediaRouteControllerTitleTextStyle" />
+            <ImageButton android:id="@+id/mr_close"
+                         android:layout_width="48dp"
+                         android:layout_height="48dp"
+                         android:layout_gravity="center_vertical"
+                         android:contentDescription="@string/mr_controller_close_description"
+                         android:src="?attr/mediaRouteCloseDrawable"
+                         android:background="?attr/selectableItemBackgroundBorderless" />
+        </LinearLayout>
+        <FrameLayout android:id="@+id/mr_custom_control"
+                     android:layout_width="fill_parent"
+                     android:layout_height="wrap_content"
+                     android:visibility="gone" />
+        <FrameLayout android:id="@+id/mr_default_control"
+                     android:layout_width="fill_parent"
+                     android:layout_height="wrap_content">
             <ImageView android:id="@+id/mr_art"
                        android:layout_width="fill_parent"
                        android:layout_height="wrap_content"
@@ -57,35 +62,39 @@
                        android:background="?attr/colorPrimary"
                        android:layout_gravity="top"
                        android:visibility="gone" />
-            <ListView android:id="@+id/mr_volume_group_list"
-                      android:layout_width="fill_parent"
-                      android:layout_height="wrap_content"
-                      android:paddingTop="@dimen/mr_controller_volume_group_list_padding_top"
-                      android:scrollbarStyle="outsideInset"
-                      android:clipToPadding="false"
-                      android:background="?attr/colorPrimaryDark"
-                      android:layout_gravity="bottom"
-                      android:visibility="gone" />
+            <LinearLayout android:layout_width="fill_parent"
+                          android:layout_height="wrap_content"
+                          android:orientation="vertical"
+                          android:layout_gravity="bottom">
+                <LinearLayout android:id="@+id/mr_media_main_control"
+                              android:layout_width="fill_parent"
+                              android:layout_height="wrap_content"
+                              android:orientation="vertical"
+                              android:paddingTop="16dp"
+                              android:paddingBottom="16dp"
+                              android:background="?attr/colorPrimary"
+                              android:layout_gravity="bottom">
+                    <include android:id="@+id/mr_playback_control"
+                             layout="@layout/mr_playback_control" />
+                    <View android:id="@+id/mr_control_divider"
+                          android:layout_width="fill_parent"
+                          android:layout_height="8dp"
+                          android:background="?attr/colorPrimary"
+                          android:visibility="gone" />
+                    <include android:id="@+id/mr_volume_control"
+                             layout="@layout/mr_volume_control" />
+                </LinearLayout>
+                <ListView android:id="@+id/mr_volume_group_list"
+                          android:layout_width="fill_parent"
+                          android:layout_height="wrap_content"
+                          android:paddingTop="@dimen/mr_controller_volume_group_list_padding_top"
+                          android:scrollbarStyle="outsideInset"
+                          android:clipToPadding="false"
+                          android:background="?attr/colorPrimaryDark"
+                          android:transcriptMode="alwaysScroll"
+                          android:visibility="gone" />
+            </LinearLayout>
         </FrameLayout>
-        <LinearLayout android:id="@+id/mr_media_main_control"
-                      android:layout_width="fill_parent"
-                      android:layout_height="wrap_content"
-                      android:orientation="vertical"
-                      android:paddingTop="16dp"
-                      android:paddingBottom="16dp"
-                      android:background="?attr/colorPrimary"
-                      android:layout_gravity="bottom">
-            <include android:id="@+id/mr_playback_control"
-                     layout="@layout/mr_playback_control" />
-            <View android:id="@+id/mr_control_divider"
-                  android:layout_width="fill_parent"
-                  android:layout_height="8dp"
-                  android:background="?attr/colorPrimary"
-                  android:visibility="gone" />
-            <include android:id="@+id/mr_volume_control"
-                     layout="@layout/mr_volume_control" />
-        </LinearLayout>
-    </FrameLayout>
-
-    <include layout="@layout/abc_alert_dialog_button_bar_material" />
-</LinearLayout>
+        <include layout="@layout/abc_alert_dialog_button_bar_material" />
+    </LinearLayout>
+</FrameLayout>

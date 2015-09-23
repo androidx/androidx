@@ -107,8 +107,10 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private ImageButton mCloseButton;
     private MediaRouteExpandCollapseButton mGroupExpandCollapseButton;
 
-    private FrameLayout mCustomControlLayout;
+    private FrameLayout mExpandableAreaLayout;
+    private LinearLayout mDialogAreaLayout;
     private FrameLayout mDefaultControlLayout;
+    private FrameLayout mCustomControlLayout;
     private ImageView mArtView;
     private TextView mTitleView;
     private TextView mSubtitleView;
@@ -268,6 +270,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         setContentView(R.layout.mr_controller_material_dialog_b);
 
         // Remove the neutral button.
@@ -275,6 +278,20 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
         ClickListener listener = new ClickListener();
 
+        mExpandableAreaLayout = (FrameLayout) findViewById(R.id.mr_expandable_area);
+        mExpandableAreaLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+            }
+        });
+        mDialogAreaLayout = (LinearLayout) findViewById(R.id.mr_dialog_area);
+        mDialogAreaLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Eat unhandled touch events.
+            }
+        });
         int color = MediaRouterThemeHelper.getButtonTextColor(mContext);
         mDisconnectButton = (Button) findViewById(BUTTON_DISCONNECT_RES_ID);
         mDisconnectButton.setText(R.string.mr_controller_disconnect);
@@ -328,7 +345,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
             }
         });
         mGroupListAnimationDurationMs = mContext.getResources().getInteger(
-                        R.integer.mr_controller_volume_group_list_animation_duration_ms);
+                R.integer.mr_controller_volume_group_list_animation_duration_ms);
 
         mCustomControlView = onCreateMediaControlView(savedInstanceState);
         if (mCustomControlView != null) {
@@ -481,14 +498,14 @@ public class MediaRouteControllerDialog extends AlertDialog {
             return;
         }
         // Measure the size of widgets and get the height of main components.
+        int oldHeight = getLayoutHeight(mMediaMainControlLayout);
+        setLayoutHeight(mMediaMainControlLayout, ViewGroup.LayoutParams.FILL_PARENT);
         updateMediaControlVisibility(isPlaybackControlAvailable());
-        int oldBottomMargin = getLayoutBottomMargin(mMediaMainControlLayout);
-        setLayoutBottomMargin(mMediaMainControlLayout, 0);
         View decorView = getWindow().getDecorView();
         decorView.measure(
                 MeasureSpec.makeMeasureSpec(getWindow().getAttributes().width, MeasureSpec.EXACTLY),
                 MeasureSpec.UNSPECIFIED);
-        setLayoutBottomMargin(mMediaMainControlLayout, oldBottomMargin);
+        setLayoutHeight(mMediaMainControlLayout, oldHeight);
         int artViewHeight = 0;
         if (mArtView.getDrawable() instanceof BitmapDrawable) {
             Bitmap art = ((BitmapDrawable) mArtView.getDrawable()).getBitmap();
@@ -527,7 +544,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         // Height of non-control views in decor view.
         // This includes title bar, button bar, and dialog's vertical padding which should be
         // always shown.
-        int nonControlViewHeight = decorView.getMeasuredHeight()
+        int nonControlViewHeight = mDialogAreaLayout.getMeasuredHeight()
                 - mDefaultControlLayout.getMeasuredHeight();
         // Maximum allowed height for controls to fit screen.
         int maximumControlViewHeight = visibleRect.height() - nonControlViewHeight;
@@ -537,10 +554,14 @@ public class MediaRouteControllerDialog extends AlertDialog {
             mArtView.setVisibility(View.VISIBLE);
             setLayoutHeight(mArtView, artViewHeight);
         } else {
+            if (getLayoutHeight(mVolumeGroupList) + mMediaMainControlLayout.getMeasuredHeight()
+                    >= mDefaultControlLayout.getMeasuredHeight()) {
+                mArtView.setVisibility(View.GONE);
+            }
             artViewHeight = 0;
             desiredControlLayoutHeight = visibleGroupListHeight + mainControllerHeight;
         }
-        // Show control if it fits the screen
+        // Show the playback control if it fits the screen.
         if (isPlaybackControlAvailable()
                 && desiredControlLayoutHeight <= maximumControlViewHeight) {
             mPlaybackControl.setVisibility(View.VISIBLE);
@@ -558,82 +579,40 @@ public class MediaRouteControllerDialog extends AlertDialog {
             visibleGroupListHeight -= (desiredControlLayoutHeight - maximumControlViewHeight);
             desiredControlLayoutHeight = maximumControlViewHeight;
         }
-        setLayoutHeight(mDefaultControlLayout, desiredControlLayoutHeight);
-
-        // Animate the main control position if needed.
-        if (mVolumeGroupList.getVisibility() == View.VISIBLE
-                && mArtView.getVisibility() == View.VISIBLE && mIsGroupListAnimationNeeded) {
-            setLayoutHeight(mVolumeGroupList, mIsGroupExpanded ? expandedGroupListHeight
-                    : Math.min(mArtView.getHeight(), getLayoutHeight(mVolumeGroupList)));
-            updateMainControlBottomMargin(visibleGroupListHeight, mainControllerHeight,
-                    true /* animation */);
+        // Update the layouts with the computed heights.
+        mMediaMainControlLayout.clearAnimation();
+        mVolumeGroupList.clearAnimation();
+        mDefaultControlLayout.clearAnimation();
+        if (mIsGroupListAnimationNeeded) {
+            animateLayoutHeight(mMediaMainControlLayout, mainControllerHeight);
+            animateLayoutHeight(mVolumeGroupList, visibleGroupListHeight);
+            animateLayoutHeight(mDefaultControlLayout, desiredControlLayoutHeight);
         } else {
-            // Rely on AlertDialog's animation if there is no art work.
-            // TODO: Add group list animation even when there is no art work.
+            setLayoutHeight(mMediaMainControlLayout, mainControllerHeight);
             setLayoutHeight(mVolumeGroupList, visibleGroupListHeight);
-            updateMainControlBottomMargin(visibleGroupListHeight, mainControllerHeight,
-                    false /* animation */);
-            if (artViewHeight == 0) {
-                mArtView.setVisibility(View.GONE);
-            }
-            if (!mIsGroupExpanded) {
-                mVolumeGroupList.setVisibility(View.GONE);
-            }
+            setLayoutHeight(mDefaultControlLayout, desiredControlLayoutHeight);
         }
         mIsGroupListAnimationNeeded = false;
+        // Maximize the window size with a transparent layout in advance for smooth animation.
+        setLayoutHeight(mExpandableAreaLayout, visibleRect.height());
     }
 
-    private void updateMainControlBottomMargin(final int bottomMargin,
-            final int mainControllerHeight, boolean animation) {
-        final boolean isExpanding = bottomMargin != 0;
-        if (!animation) {
-            setLayoutBottomMargin(mMediaMainControlLayout, bottomMargin);
-            View frontView = isExpanding ? mVolumeGroupList : mArtView;
-            frontView.bringToFront();
-            ((View) frontView.getParent()).invalidate();
-        } else {
-            Animation existingAnim = mMediaMainControlLayout.getAnimation();
-            boolean animationInProgress = existingAnim != null && !existingAnim.hasEnded();
-            if (animationInProgress) {
-                mMediaMainControlLayout.clearAnimation();
+    private void animateLayoutHeight(final View view, int targetHeight) {
+        final int startValue = getLayoutHeight(view);
+        final int endValue = targetHeight;
+        Animation anim = new Animation() {
+            @Override
+            protected void applyTransformation(float interpolatedTime, Transformation t) {
+                int height = startValue - (int) ((startValue - endValue) * interpolatedTime);
+                setLayoutHeight(view, height);
             }
-            final int volumeGroupListHeight = getLayoutHeight(mVolumeGroupList);
-            int rightBelowArtWork = getLayoutHeight(mDefaultControlLayout)
-                    - mArtView.getHeight() - mainControllerHeight;
-            final int startValue = animationInProgress
-                    ? getLayoutBottomMargin(mMediaMainControlLayout)
-                    : isExpanding ? rightBelowArtWork : volumeGroupListHeight;
-            final int endValue = bottomMargin;
-            Animation anim = new Animation() {
-                private boolean mReordered;
-
-                @Override
-                protected void applyTransformation(float interpolatedTime, Transformation t) {
-                    int margin = startValue - (int) ((startValue - endValue) * interpolatedTime);
-                    setLayoutBottomMargin(mMediaMainControlLayout, margin);
-                    // Since there could be an overlapping area of the artwork and volume group list
-                    // , z-order of the art work and volume group list should be exchanged when the
-                    // main control covers the overlapping area.
-                    if (!mReordered) {
-                        if (isExpanding) {
-                            if (margin + mainControllerHeight >= volumeGroupListHeight) {
-                                mVolumeGroupList.bringToFront();
-                                ((View) mVolumeGroupList.getParent()).invalidate();
-                                mReordered = true;
-                            }
-                        } else {
-                            if (volumeGroupListHeight >= margin + mainControllerHeight) {
-                                mArtView.bringToFront();
-                                ((View) mArtView.getParent()).invalidate();
-                                mReordered = true;
-                            }
-                        }
-                    }
-                }
-            };
-            anim.setDuration(mGroupListAnimationDurationMs);
-            mMediaMainControlLayout.startAnimation(anim);
+        };
+        anim.setDuration(mGroupListAnimationDurationMs);
+        if (android.os.Build.VERSION.SDK_INT >= 21) {
+            anim.setInterpolator(mContext, mIsGroupExpanded ? R.interpolator.mr_linear_out_slow_in
+                    : R.interpolator.mr_fast_out_slow_in);
         }
+        view.startAnimation(anim);
     }
 
     private void updateVolumeControl() {
@@ -649,7 +628,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                     VolumeGroupAdapter adapter =
                             (VolumeGroupAdapter) mVolumeGroupList.getAdapter();
                     if (adapter != null) {
-                        adapter.notifyDataSetChanged();
+                       adapter.notifyDataSetChanged();
                     }
                 }
             } else {
