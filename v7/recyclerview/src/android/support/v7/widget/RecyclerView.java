@@ -9320,7 +9320,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
     }
 
-    static class SavedState extends android.view.View.BaseSavedState {
+    /**
+     * This is public so that the CREATOR can be access on cold launch.
+     * @hide
+     */
+    public static class SavedState extends android.view.View.BaseSavedState {
 
         Parcelable mLayoutState;
 
