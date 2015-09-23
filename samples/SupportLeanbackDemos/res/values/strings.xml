@@ -35,6 +35,8 @@
     <string name="vgrid_description">VerticalGridView test</string>
     <string name="guidedstep">Guided Step</string>
     <string name="guidedstep_description">GuidedStepFragment test</string>
+    <string name="guidedstepsupport">Guided Step(support version)</string>
+    <string name="guidedstepsupport_description">GuidedStepSupportFragment test</string>
     <string name="browseerror">Browse Error</string>
     <string name="browseerror_description">BrowseError test</string>
     <string name="detail_presenter_options">Choose Presenter for Details</string>

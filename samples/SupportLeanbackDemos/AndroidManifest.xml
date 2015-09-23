@@ -63,6 +63,11 @@
             android:windowSoftInputMode="adjustResize"
             android:exported="true" />
 
+        <activity android:name="GuidedStepSupportActivity"
+            android:theme="@style/Theme.Example.Leanback.GuidedStep"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="true" />
+
         <activity android:name="DetailsPresenterSelectionActivity"
             android:theme="@style/Theme.Example.Leanback.GuidedStep"
             android:exported="true" />
