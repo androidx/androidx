@@ -73,6 +73,8 @@ public class MainActivity extends Activity {
                     R.string.vgrid_description);
             addAction(actions, GuidedStepActivity.class, R.string.guidedstep,
                     R.string.guidedstep_description);
+            addAction(actions, GuidedStepSupportActivity.class, R.string.guidedstepsupport,
+                    R.string.guidedstepsupport_description);
             addAction(actions, BrowseErrorActivity.class, R.string.browseerror,
                     R.string.browseerror_description);
             addAction(actions, DetailsPresenterSelectionActivity.class,
