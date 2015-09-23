@@ -760,6 +760,15 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
             moveSpinner(mTotalUnconsumed);
         }
 
+        // If a client layout is using a custom start position for the circle
+        // view, they mean to hide it again before scrolling the child view
+        // If we get back to mTotalUnconsumed == 0 and there is more to go, hide
+        // the circle so it isn't exposed if its blocking content is moved
+        if (mUsingCustomStart && dy > 0 && mTotalUnconsumed == 0
+                && Math.abs(dy - consumed[1]) > 0) {
+            mCircleView.setVisibility(View.GONE);
+        }
+
         // Now let our nested parent consume the leftovers
         final int[] parentConsumed = mParentScrollConsumed;
         if (dispatchNestedPreScroll(dx - consumed[0], dy - consumed[1], parentConsumed, null)) {
