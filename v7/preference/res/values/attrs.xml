@@ -1,243 +1,248 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (C) 2015 The Android Open Source Project
-  ~
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~      http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License
-  -->
+    Copyright (C) 2015 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License
+    -->
 
 <resources>
-  <declare-styleable name="Theme">
+    <declare-styleable name="Theme">
 
-    <!-- =================== -->
-    <!-- Preference styles   -->
-    <!-- =================== -->
-    <eat-comment />
+        <!-- =================== -->
+        <!-- Preference styles   -->
+        <!-- =================== -->
+        <eat-comment />
 
-    <!-- Theme for inflating Preference objects -->
-    <attr name="preferenceTheme" format="reference" />
+        <!-- Theme for inflating Preference objects -->
+        <attr name="preferenceTheme" format="reference" />
 
-    <!-- Default style for PreferenceScreen. -->
-    <attr name="preferenceScreenStyle" format="reference" />
-    <!-- Default style for the PreferenceActivity. -->
-    <attr name="preferenceActivityStyle" format="reference" />
-    <!-- Default style for Headers pane in PreferenceActivity. -->
-    <attr name="preferenceFragmentStyle" format="reference" />
-    <!-- Default style for PreferenceCategory. -->
-    <attr name="preferenceCategoryStyle" format="reference" />
-    <!-- Default style for Preference. -->
-    <attr name="preferenceStyle" format="reference" />
-    <!-- Default style for informational Preference. -->
-    <attr name="preferenceInformationStyle" format="reference" />
-    <!-- Default style for CheckBoxPreference. -->
-    <attr name="checkBoxPreferenceStyle" format="reference" />
-    <!-- Default style for YesNoPreference. -->
-    <attr name="yesNoPreferenceStyle" format="reference" />
-    <!-- Default style for DialogPreference. -->
-    <attr name="dialogPreferenceStyle" format="reference" />
-    <!-- Default style for EditTextPreference. -->
-    <attr name="editTextPreferenceStyle" format="reference" />
-    <!-- Default style for RingtonePreference. -->
-    <attr name="ringtonePreferenceStyle" format="reference" />
-    <!-- The preference layout that has the child/tabbed effect. -->
-    <attr name="preferenceLayoutChild" format="reference" />
-    <!-- Preference panel style -->
-    <attr name="preferencePanelStyle" format="reference" />
-    <!-- Preference headers panel style -->
-    <attr name="preferenceHeaderPanelStyle" format="reference" />
-    <!-- Preference list style -->
-    <attr name="preferenceListStyle" format="reference" />
-    <!-- Preference fragment list style -->
-    <attr name="preferenceFragmentListStyle" format="reference" />
-    <!-- Preference fragment padding side -->
-    <attr name="preferenceFragmentPaddingSide" format="dimension" />
-    <!-- Default style for switch preferences. -->
-    <attr name="switchPreferenceStyle" format="reference" />
-    <!-- Default style for switch compat preferences. -->
-    <attr name="switchPreferenceCompatStyle" format="reference" />
-    <!-- Default style for seekbar preferences. -->
-    <attr name="seekBarPreferenceStyle" format="reference" />
-  </declare-styleable>
+        <!-- Default style for PreferenceScreen. -->
+        <attr name="preferenceScreenStyle" format="reference" />
+        <!-- Default style for the PreferenceActivity. -->
+        <attr name="preferenceActivityStyle" format="reference" />
+        <!-- Default style for Headers pane in PreferenceActivity. -->
+        <attr name="preferenceFragmentStyle" format="reference" />
+        <!-- Default style for Headers pane in PreferenceActivity. -->
+        <attr name="preferenceFragmentCompatStyle" format="reference" />
+        <!-- Default style for PreferenceCategory. -->
+        <attr name="preferenceCategoryStyle" format="reference" />
+        <!-- Default style for Preference. -->
+        <attr name="preferenceStyle" format="reference" />
+        <!-- Default style for informational Preference. -->
+        <attr name="preferenceInformationStyle" format="reference" />
+        <!-- Default style for CheckBoxPreference. -->
+        <attr name="checkBoxPreferenceStyle" format="reference" />
+        <!-- Default style for YesNoPreference. -->
+        <attr name="yesNoPreferenceStyle" format="reference" />
+        <!-- Default style for DialogPreference. -->
+        <attr name="dialogPreferenceStyle" format="reference" />
+        <!-- Default style for EditTextPreference. -->
+        <attr name="editTextPreferenceStyle" format="reference" />
+        <!-- Default style for RingtonePreference. -->
+        <attr name="ringtonePreferenceStyle" format="reference" />
+        <!-- The preference layout that has the child/tabbed effect. -->
+        <attr name="preferenceLayoutChild" format="reference" />
+        <!-- Preference panel style -->
+        <attr name="preferencePanelStyle" format="reference" />
+        <!-- Preference headers panel style -->
+        <attr name="preferenceHeaderPanelStyle" format="reference" />
+        <!-- Preference list style -->
+        <attr name="preferenceListStyle" format="reference" />
+        <!-- Preference fragment list style -->
+        <attr name="preferenceFragmentListStyle" format="reference" />
+        <!-- Preference fragment padding side -->
+        <attr name="preferenceFragmentPaddingSide" format="dimension" />
+        <!-- Default style for switch preferences. -->
+        <attr name="switchPreferenceStyle" format="reference" />
+        <!-- Default style for switch compat preferences. -->
+        <attr name="switchPreferenceCompatStyle" format="reference" />
+        <!-- Default style for seekbar preferences. -->
+        <attr name="seekBarPreferenceStyle" format="reference" />
+    </declare-styleable>
 
-  <!-- Base attributes available to PreferenceFragment. -->
-  <declare-styleable name="PreferenceFragmentCompat">
-    <!-- The layout for the PreferenceFragment. This should rarely need to be changed. -->
-    <attr name="layout" />
-    <attr name="android:layout" />
-  </declare-styleable>
+    <!-- Base attributes available to PreferenceFragment. -->
+    <declare-styleable name="PreferenceFragmentCompat">
+        <!-- The layout for the PreferenceFragment. This should rarely need to be changed. -->
+        <attr name="android:layout" />
+        <!-- List separator to draw between preference views -->
+        <attr name="android:divider" />
+        <!-- List separator height -->
+        <attr name="android:dividerHeight" />
+    </declare-styleable>
 
-  <!-- Base attributes available to PreferenceGroup. -->
-  <declare-styleable name="PreferenceGroup">
-    <!-- Whether to order the Preference under this group as they appear in the XML file.
-         If this is false, the ordering will follow the Preference order attribute and
-         default to alphabetic for those without the order attribute. -->
-    <attr name="orderingFromXml" format="boolean" />
-    <attr name="android:orderingFromXml" />
-  </declare-styleable>
+    <!-- Base attributes available to PreferenceGroup. -->
+    <declare-styleable name="PreferenceGroup">
+        <!-- Whether to order the Preference under this group as they appear in the XML file.
+             If this is false, the ordering will follow the Preference order attribute and
+             default to alphabetic for those without the order attribute. -->
+        <attr name="orderingFromXml" format="boolean" />
+        <attr name="android:orderingFromXml" />
+    </declare-styleable>
 
-  <!-- Base attributes available to Preference. -->
-  <declare-styleable name="Preference">
-    <!-- The optional icon for the preference -->
-    <attr name="icon" />
-    <attr name="android:icon" />
-    <!-- The key to store the Preference value. -->
-    <attr name="key" format="string" />
-    <attr name="android:key" />
-    <!-- The title for the Preference in a PreferenceActivity screen. -->
-    <attr name="title" />
-    <attr name="android:title" />
-    <!-- The summary for the Preference in a PreferenceActivity screen. -->
-    <attr name="summary" format="string" />
-    <attr name="android:summary" />
-    <!-- The order for the Preference (lower values are to be ordered first). If this is not
-         specified, the default ordering will be alphabetic. -->
-    <attr name="order" format="integer" />
-    <attr name="android:order" />
-    <!-- When used inside of a modern PreferenceActivity, this declares
-         a new PreferenceFragment to be shown when the user selects this item. -->
-    <attr name="fragment" format="string" />
-    <attr name="android:fragment" />
-    <!-- The layout for the Preference in a PreferenceActivity screen. This should
-         rarely need to be changed, look at widgetLayout instead. -->
-    <attr name="layout" />
-    <attr name="android:layout" />
-    <!-- The layout for the controllable widget portion of a Preference. This is inflated
-         into the layout for a Preference and should be used more frequently than
-         the layout attribute. For example, a checkbox preference would specify
-         a custom layout (consisting of just the CheckBox) here. -->
-    <attr name="widgetLayout" format="reference" />
-    <attr name="android:widgetLayout" />
-    <!-- Whether the Preference is enabled. -->
-    <attr name="enabled" format="boolean" />
-    <attr name="android:enabled" />
-    <!-- Whether the Preference is selectable. -->
-    <attr name="selectable" format="boolean" />
-    <attr name="android:selectable" />
-    <!-- The key of another Preference that this Preference will depend on.  If the other
-         Preference is not set or is off, this Preference will be disabled. -->
-    <attr name="dependency" format="string" />
-    <attr name="android:dependency" />
-    <!-- Whether the Preference stores its value to the shared preferences. -->
-    <attr name="persistent" format="boolean" />
-    <attr name="android:persistent" />
-    <!-- The default value for the preference, which will be set either if persistence
-         is off or persistence is on and the preference is not found in the persistent
-         storage.  -->
-    <attr name="defaultValue" format="string|boolean|integer|reference|float" />
-    <attr name="android:defaultValue" />
-    <!-- Whether the view of this Preference should be disabled when
-         this Preference is disabled. -->
-    <attr name="shouldDisableView" format="boolean" />
-    <attr name="android:shouldDisableView" />
-  </declare-styleable>
+    <!-- Base attributes available to Preference. -->
+    <declare-styleable name="Preference">
+        <!-- The optional icon for the preference -->
+        <attr name="icon" />
+        <attr name="android:icon" />
+        <!-- The key to store the Preference value. -->
+        <attr name="key" format="string" />
+        <attr name="android:key" />
+        <!-- The title for the Preference in a PreferenceActivity screen. -->
+        <attr name="title" />
+        <attr name="android:title" />
+        <!-- The summary for the Preference in a PreferenceActivity screen. -->
+        <attr name="summary" format="string" />
+        <attr name="android:summary" />
+        <!-- The order for the Preference (lower values are to be ordered first). If this is not
+             specified, the default ordering will be alphabetic. -->
+        <attr name="order" format="integer" />
+        <attr name="android:order" />
+        <!-- When used inside of a modern PreferenceActivity, this declares
+             a new PreferenceFragment to be shown when the user selects this item. -->
+        <attr name="fragment" format="string" />
+        <attr name="android:fragment" />
+        <!-- The layout for the Preference in a PreferenceActivity screen. This should
+             rarely need to be changed, look at widgetLayout instead. -->
+        <attr name="layout" />
+        <attr name="android:layout" />
+        <!-- The layout for the controllable widget portion of a Preference. This is inflated
+             into the layout for a Preference and should be used more frequently than
+             the layout attribute. For example, a checkbox preference would specify
+             a custom layout (consisting of just the CheckBox) here. -->
+        <attr name="widgetLayout" format="reference" />
+        <attr name="android:widgetLayout" />
+        <!-- Whether the Preference is enabled. -->
+        <attr name="enabled" format="boolean" />
+        <attr name="android:enabled" />
+        <!-- Whether the Preference is selectable. -->
+        <attr name="selectable" format="boolean" />
+        <attr name="android:selectable" />
+        <!-- The key of another Preference that this Preference will depend on.  If the other
+             Preference is not set or is off, this Preference will be disabled. -->
+        <attr name="dependency" format="string" />
+        <attr name="android:dependency" />
+        <!-- Whether the Preference stores its value to the shared preferences. -->
+        <attr name="persistent" format="boolean" />
+        <attr name="android:persistent" />
+        <!-- The default value for the preference, which will be set either if persistence
+             is off or persistence is on and the preference is not found in the persistent
+             storage.  -->
+        <attr name="defaultValue" format="string|boolean|integer|reference|float" />
+        <attr name="android:defaultValue" />
+        <!-- Whether the view of this Preference should be disabled when
+             this Preference is disabled. -->
+        <attr name="shouldDisableView" format="boolean" />
+        <attr name="android:shouldDisableView" />
+    </declare-styleable>
 
-  <!-- Base attributes available to CheckBoxPreference. -->
-  <declare-styleable name="CheckBoxPreference">
-    <!-- The summary for the Preference in a PreferenceActivity screen when the
-         CheckBoxPreference is checked. If separate on/off summaries are not
-         needed, the summary attribute can be used instead. -->
-    <attr name="summaryOn" format="string" />
-    <attr name="android:summaryOn" />
-    <!-- The summary for the Preference in a PreferenceActivity screen when the
-         CheckBoxPreference is unchecked. If separate on/off summaries are not
-         needed, the summary attribute can be used instead. -->
-    <attr name="summaryOff" format="string" />
-    <attr name="android:summaryOff" />
-    <!-- The state (true for on, or false for off) that causes dependents to be disabled. By default,
-         dependents will be disabled when this is unchecked, so the value of this preference is false. -->
-    <attr name="disableDependentsState" format="boolean" />
-    <attr name="android:disableDependentsState" />
-  </declare-styleable>
+    <!-- Base attributes available to CheckBoxPreference. -->
+    <declare-styleable name="CheckBoxPreference">
+        <!-- The summary for the Preference in a PreferenceActivity screen when the
+             CheckBoxPreference is checked. If separate on/off summaries are not
+             needed, the summary attribute can be used instead. -->
+        <attr name="summaryOn" format="string" />
+        <attr name="android:summaryOn" />
+        <!-- The summary for the Preference in a PreferenceActivity screen when the
+             CheckBoxPreference is unchecked. If separate on/off summaries are not
+             needed, the summary attribute can be used instead. -->
+        <attr name="summaryOff" format="string" />
+        <attr name="android:summaryOff" />
+        <!-- The state (true for on, or false for off) that causes dependents to be disabled. By default,
+             dependents will be disabled when this is unchecked, so the value of this preference is false. -->
+        <attr name="disableDependentsState" format="boolean" />
+        <attr name="android:disableDependentsState" />
+    </declare-styleable>
 
-  <!-- Base attributes available to DialogPreference. -->
-  <declare-styleable name="DialogPreference">
-    <!-- The title in the dialog. -->
-    <attr name="dialogTitle" format="string" />
-    <attr name="android:dialogTitle" />
-    <!-- The message in the dialog. If a dialogLayout is provided and contains
-         a TextView with ID android:id/message, this message will be placed in there. -->
-    <attr name="dialogMessage" format="string" />
-    <attr name="android:dialogMessage" />
-    <!-- The icon for the dialog. -->
-    <attr name="dialogIcon" format="reference" />
-    <attr name="android:dialogIcon" />
-    <!-- The positive button text for the dialog. Set to @null to hide the positive button. -->
-    <attr name="positiveButtonText" format="string" />
-    <attr name="android:positiveButtonText" />
-    <!-- The negative button text for the dialog. Set to @null to hide the negative button. -->
-    <attr name="negativeButtonText" format="string" />
-    <attr name="android:negativeButtonText" />
-    <!-- A layout to be used as the content View for the dialog. By default, this shouldn't
-         be needed. If a custom DialogPreference is required, this should be set. For example,
-         the EditTextPreference uses a layout with an EditText as this attribute. -->
-    <attr name="dialogLayout" format="reference" />
-    <attr name="android:dialogLayout" />
-  </declare-styleable>
+    <!-- Base attributes available to DialogPreference. -->
+    <declare-styleable name="DialogPreference">
+        <!-- The title in the dialog. -->
+        <attr name="dialogTitle" format="string" />
+        <attr name="android:dialogTitle" />
+        <!-- The message in the dialog. If a dialogLayout is provided and contains
+             a TextView with ID android:id/message, this message will be placed in there. -->
+        <attr name="dialogMessage" format="string" />
+        <attr name="android:dialogMessage" />
+        <!-- The icon for the dialog. -->
+        <attr name="dialogIcon" format="reference" />
+        <attr name="android:dialogIcon" />
+        <!-- The positive button text for the dialog. Set to @null to hide the positive button. -->
+        <attr name="positiveButtonText" format="string" />
+        <attr name="android:positiveButtonText" />
+        <!-- The negative button text for the dialog. Set to @null to hide the negative button. -->
+        <attr name="negativeButtonText" format="string" />
+        <attr name="android:negativeButtonText" />
+        <!-- A layout to be used as the content View for the dialog. By default, this shouldn't
+             be needed. If a custom DialogPreference is required, this should be set. For example,
+             the EditTextPreference uses a layout with an EditText as this attribute. -->
+        <attr name="dialogLayout" format="reference" />
+        <attr name="android:dialogLayout" />
+    </declare-styleable>
 
-  <!-- Base attributes available to ListPreference. -->
-  <declare-styleable name="ListPreference">
-    <!-- The human-readable array to present as a list. Each entry must have a corresponding
-         index in entryValues. -->
-    <attr name="entries" format="reference" />
-    <attr name="android:entries" />
-    <!-- The array to find the value to save for a preference when an entry from
-         entries is selected. If a user clicks on the second item in entries, the
-         second item in this array will be saved to the preference. -->
-    <attr name="entryValues" format="reference" />
-    <attr name="android:entryValues" />
-  </declare-styleable>
+    <!-- Base attributes available to ListPreference. -->
+    <declare-styleable name="ListPreference">
+        <!-- The human-readable array to present as a list. Each entry must have a corresponding
+             index in entryValues. -->
+        <attr name="entries" format="reference" />
+        <attr name="android:entries" />
+        <!-- The array to find the value to save for a preference when an entry from
+             entries is selected. If a user clicks on the second item in entries, the
+             second item in this array will be saved to the preference. -->
+        <attr name="entryValues" format="reference" />
+        <attr name="android:entryValues" />
+    </declare-styleable>
 
-  <declare-styleable name="MultiSelectListPreference">
-    <!-- The human-readable array to present as a list. Each entry must have a corresponding
-         index in entryValues. -->
-    <attr name="entries" />
-    <attr name="android:entries" />
-    <!-- The array to find the value to save for a preference when an entry from
-         entries is selected. If a user clicks the second item in entries, the
-         second item in this array will be saved to the preference. -->
-    <attr name="entryValues" />
-    <attr name="android:entryValues" />
-  </declare-styleable>
+    <declare-styleable name="MultiSelectListPreference">
+        <!-- The human-readable array to present as a list. Each entry must have a corresponding
+             index in entryValues. -->
+        <attr name="entries" />
+        <attr name="android:entries" />
+        <!-- The array to find the value to save for a preference when an entry from
+             entries is selected. If a user clicks the second item in entries, the
+             second item in this array will be saved to the preference. -->
+        <attr name="entryValues" />
+        <attr name="android:entryValues" />
+    </declare-styleable>
 
-  <declare-styleable name="SwitchPreferenceCompat">
-    <!-- The summary for the Preference in a PreferenceActivity screen when the
-         SwitchPreference is checked. If separate on/off summaries are not
-         needed, the summary attribute can be used instead. -->
-    <attr name="summaryOn" />
-    <attr name="android:summaryOn" />
-    <!-- The summary for the Preference in a PreferenceActivity screen when the
-         SwitchPreference is unchecked. If separate on/off summaries are not
-         needed, the summary attribute can be used instead. -->
-    <attr name="summaryOff" />
-    <attr name="android:summaryOff" />
-    <!-- The text used on the switch itself when in the "on" state.
-         This should be a very SHORT string, as it appears in a small space. -->
-    <attr name="switchTextOn" format="string" />
-    <attr name="android:switchTextOn" />
-    <!-- The text used on the switch itself when in the "off" state.
-         This should be a very SHORT string, as it appears in a small space. -->
-    <attr name="switchTextOff" format="string" />
-    <attr name="android:switchTextOff" />
-    <!-- The state (true for on, or false for off) that causes dependents to be disabled. By default,
-         dependents will be disabled when this is unchecked, so the value of this preference is false. -->
-    <attr name="disableDependentsState" />
-    <attr name="android:disableDependentsState" />
-  </declare-styleable>
+    <declare-styleable name="SwitchPreferenceCompat">
+        <!-- The summary for the Preference in a PreferenceActivity screen when the
+             SwitchPreference is checked. If separate on/off summaries are not
+             needed, the summary attribute can be used instead. -->
+        <attr name="summaryOn" />
+        <attr name="android:summaryOn" />
+        <!-- The summary for the Preference in a PreferenceActivity screen when the
+             SwitchPreference is unchecked. If separate on/off summaries are not
+             needed, the summary attribute can be used instead. -->
+        <attr name="summaryOff" />
+        <attr name="android:summaryOff" />
+        <!-- The text used on the switch itself when in the "on" state.
+             This should be a very SHORT string, as it appears in a small space. -->
+        <attr name="switchTextOn" format="string" />
+        <attr name="android:switchTextOn" />
+        <!-- The text used on the switch itself when in the "off" state.
+             This should be a very SHORT string, as it appears in a small space. -->
+        <attr name="switchTextOff" format="string" />
+        <attr name="android:switchTextOff" />
+        <!-- The state (true for on, or false for off) that causes dependents to be disabled. By default,
+             dependents will be disabled when this is unchecked, so the value of this preference is false. -->
+        <attr name="disableDependentsState" />
+        <attr name="android:disableDependentsState" />
+    </declare-styleable>
 
-  <declare-styleable name="PreferenceImageView">
-    <attr name="maxWidth" format="dimension" />
-    <attr name="android:maxWidth" />
-    <attr name="maxHeight" format="dimension" />
-    <attr name="android:maxHeight" />
-  </declare-styleable>
+    <declare-styleable name="PreferenceImageView">
+        <attr name="maxWidth" format="dimension" />
+        <attr name="android:maxWidth" />
+        <attr name="maxHeight" format="dimension" />
+        <attr name="android:maxHeight" />
+    </declare-styleable>
 
 </resources>

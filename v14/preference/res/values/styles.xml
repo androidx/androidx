@@ -74,6 +74,10 @@
         <item name="android:textStyle">normal</item>
     </style>
 
+    <style name="PreferenceFragment.Material">
+        <item name="android:divider">@drawable/preference_list_divider_material</item>
+    </style>
+
     <style name="PreferenceFragmentList.Material">
         <item name="android:paddingLeft">0dp</item>
         <item name="android:paddingRight">0dp</item>

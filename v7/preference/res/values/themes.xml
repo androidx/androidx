@@ -18,7 +18,7 @@
 <resources>
     <style name="PreferenceThemeOverlay">
         <item name="preferenceScreenStyle">@style/Preference.PreferenceScreen</item>
-        <item name="preferenceFragmentStyle">@style/PreferenceFragment</item>
+        <item name="preferenceFragmentCompatStyle">@style/PreferenceFragment</item>
         <item name="preferenceCategoryStyle">@style/Preference.Category</item>
         <item name="preferenceStyle">@style/Preference</item>
         <item name="preferenceInformationStyle">@style/Preference.Information</item>

@@ -28,6 +28,8 @@ import android.view.View;
  */
 public class PreferenceViewHolder extends RecyclerView.ViewHolder {
     private final SparseArray<View> mCachedViews = new SparseArray<>(4);
+    private boolean mDividerAllowedAbove;
+    private boolean mDividerAllowedBelow;
 
     /* package */ PreferenceViewHolder(View itemView) {
         super(itemView);
@@ -57,5 +59,45 @@ public class PreferenceViewHolder extends RecyclerView.ViewHolder {
             }
             return v;
         }
+    }
+
+    /**
+     * Dividers are only drawn between items if both items allow it, or above the first and below
+     * the last item if that item allows it.
+     *
+     * @return true if dividers are allowed above this item
+     */
+    public boolean isDividerAllowedAbove() {
+        return mDividerAllowedAbove;
+    }
+
+    /**
+     * Dividers are only drawn between items if both items allow it, or above the first and below
+     * the last item if that item allows it.
+     *
+     * @param allowed false to prevent dividers being drawn above this item
+     */
+    public void setDividerAllowedAbove(boolean allowed) {
+        mDividerAllowedAbove = allowed;
+    }
+
+    /**
+     * Dividers are only drawn between items if both items allow it, or above the first and below
+     * the last item if that item allows it.
+     *
+     * @return true if dividers are allowed below this item
+     */
+    public boolean isDividerAllowedBelow() {
+        return mDividerAllowedBelow;
+    }
+
+    /**
+     * Dividers are only drawn between items if both items allow it, or above the first and below
+     * the last item if that item allows it.
+     *
+     * @param allowed false to prevent dividers being drawn below this item
+     */
+    public void setDividerAllowedBelow(boolean allowed) {
+        mDividerAllowedBelow = allowed;
     }
 }

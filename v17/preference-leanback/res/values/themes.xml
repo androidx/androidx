@@ -18,6 +18,8 @@
 <resources>
     <style name="PreferenceThemeOverlay.v14.Leanback">
         <item name="preferenceScreenStyle">@style/LeanbackPreference.PreferenceScreen</item>
+        <item name="preferenceFragmentCompatStyle">@style/PreferenceFragment.Leanback</item>
+        <item name="preferenceFragmentStyle">@style/PreferenceFragment.Leanback</item>
         <item name="preferenceCategoryStyle">@style/LeanbackPreference.Category</item>
         <item name="preferenceStyle">@style/LeanbackPreference</item>
         <item name="preferenceInformationStyle">@style/LeanbackPreference.Information</item>
