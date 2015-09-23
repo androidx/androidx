@@ -105,6 +105,23 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         Thread.sleep(500);
     }
 
+    protected void waitForScrollIdleAndItemAnimation(Runnable verify) throws Throwable {
+        waitForScrollIdle();
+        waitForItemAnimation();
+        verify.run();
+    }
+
+    protected void waitForItemAnimation() throws Throwable {
+        Thread.sleep(100);
+        while (mGridView.getItemAnimator() != null && mGridView.getItemAnimator().isRunning()) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ex) {
+                break;
+            }
+        }
+    }
+
     /**
      * Wait for grid view stop scroll and optionally verify state of grid view.
      */
@@ -1161,12 +1178,12 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         initActivity(intent);
 
         mGridView.setSelectedPositionSmooth(0);
-        waitForScrollIdle(mVerifyLayout);
+        waitForScrollIdleAndItemAnimation(mVerifyLayout);
 
         for (int i = 0; i < pressDown; i++) {
             sendKeys(KeyEvent.KEYCODE_DPAD_DOWN);
         }
-        waitForScrollIdle(mVerifyLayout);
+        waitForScrollIdleAndItemAnimation(mVerifyLayout);
         assertFalse(mGridView.isFocused());
 
     }
@@ -1656,7 +1673,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
                 mGridView.setSelectedPositionSmooth(0);
             }
         });
-        waitForScrollIdle(mVerifyLayout);
+        waitForScrollIdleAndItemAnimation(mVerifyLayout);
         verifyMargin();
 
         runTestOnUiThread(new Runnable() {
@@ -1664,7 +1681,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
                 mGridView.setSelectedPositionSmooth(1);
             }
         });
-        waitForScrollIdle(mVerifyLayout);
+        waitForScrollIdleAndItemAnimation(mVerifyLayout);
         verifyMargin();
     }
 
@@ -1735,7 +1752,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
                 mGridView.setSelectedPositionSmooth(1);
             }
         });
-        waitForScrollIdle(mVerifyLayout);
+        waitForScrollIdleAndItemAnimation(mVerifyLayout);
         assertEquals(((TextView) mGridView.getChildAt(0)).getSelectionStart(), 1);
         assertEquals(((TextView) mGridView.getChildAt(0)).getSelectionEnd(), 2);
         assertEquals(((TextView) mGridView.getChildAt(1)).getSelectionStart(), 1);
@@ -1753,7 +1770,7 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
                 mGridView.setSelectedPositionSmooth(0);
             }
         });
-        waitForScrollIdle(mVerifyLayout);
+        waitForScrollIdleAndItemAnimation(mVerifyLayout);
         assertEquals(((TextView) mGridView.getChildAt(0)).getSelectionStart(), 1);
         assertEquals(((TextView) mGridView.getChildAt(0)).getSelectionEnd(), 2);
         assertEquals(((TextView) mGridView.getChildAt(1)).getSelectionStart(), 1);
