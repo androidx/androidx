@@ -18,6 +18,9 @@ package android.support.v7.preference;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Canvas;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -25,6 +28,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.XmlRes;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
@@ -122,6 +126,8 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
     private Context mStyledContext;
 
     private int mLayoutResId = R.layout.preference_list_fragment;
+
+    private final DividerDecoration mDividerDecoration = new DividerDecoration();
 
     private static final int MSG_BIND_PREFERENCES = 1;
     private Handler mHandler = new Handler() {
@@ -228,11 +234,16 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
 
         TypedArray a = mStyledContext.obtainStyledAttributes(null,
                 R.styleable.PreferenceFragmentCompat,
-                R.attr.preferenceFragmentStyle,
+                R.attr.preferenceFragmentCompatStyle,
                 0);
 
-        mLayoutResId = a.getResourceId(R.styleable.PreferenceFragmentCompat_layout,
+        mLayoutResId = a.getResourceId(R.styleable.PreferenceFragmentCompat_android_layout,
                 mLayoutResId);
+
+        final Drawable divider = a.getDrawable(
+                R.styleable.PreferenceFragmentCompat_android_divider);
+        final int dividerHeight = a.getInt(
+                R.styleable.PreferenceFragmentCompat_android_dividerHeight, -1);
 
         a.recycle();
 
@@ -261,9 +272,40 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
         }
 
         mList = listView;
+
+        listView.addItemDecoration(mDividerDecoration);
+        setDivider(divider);
+        if (dividerHeight != -1) {
+            setDividerHeight(dividerHeight);
+        }
+
         listContainer.addView(mList);
         mHandler.post(mRequestFocus);
         return view;
+    }
+
+    /**
+     * Sets the drawable that will be drawn between each item in the list.
+     * <p>
+     * <strong>Note:</strong> If the drawable does not have an intrinsic
+     * height, you should also call {@link #setDividerHeight(int)}.
+     *
+     * @param divider the drawable to use
+     * @attr ref R.styleable#PreferenceFragmentCompat_android_divider
+     */
+    public void setDivider(Drawable divider) {
+        mDividerDecoration.setDivider(divider);
+    }
+
+    /**
+     * Sets the height of the divider that will be drawn between each item in the list. Calling
+     * this will override the intrinsic height as set by {@link #setDivider(Drawable)}
+     *
+     * @param height The new height of the divider in pixels.
+     * @attr ref R.styleable#PreferenceFragmentCompat_android_dividerHeight
+     */
+    public void setDividerHeight(int height) {
+        mDividerDecoration.setDividerHeight(height);
     }
 
     @Override
@@ -576,5 +618,79 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
      */
     public Fragment getCallbackFragment() {
         return null;
+    }
+
+    private class DividerDecoration extends RecyclerView.ItemDecoration {
+
+        private Drawable mDivider;
+        private int mDividerHeight;
+
+        @Override
+        public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
+            if (mDivider == null) {
+                return;
+            }
+            final int childCount = parent.getChildCount();
+            final int width = parent.getWidth();
+            for (int childViewIndex = 0; childViewIndex < childCount; childViewIndex++) {
+                final View view = parent.getChildAt(childViewIndex);
+                if (shouldDrawDividerAbove(view, parent)) {
+                    int top = (int) ViewCompat.getY(view);
+                    mDivider.setBounds(0, top, width, top + mDividerHeight);
+                    mDivider.draw(c);
+                }
+                if (shouldDrawDividerBelow(view, parent)) {
+                    int top = (int) ViewCompat.getY(view) + view.getHeight();
+                    mDivider.setBounds(0, top, width, top + mDividerHeight);
+                    mDivider.draw(c);
+                }
+            }
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
+                RecyclerView.State state) {
+            if (shouldDrawDividerAbove(view, parent)) {
+                outRect.top = mDividerHeight;
+            }
+            if (shouldDrawDividerBelow(view, parent)) {
+                outRect.bottom = mDividerHeight;
+            }
+        }
+
+        private boolean shouldDrawDividerAbove(View view, RecyclerView parent) {
+            final RecyclerView.ViewHolder holder = parent.getChildViewHolder(view);
+            return holder.getAdapterPosition() == 0 &&
+                    ((PreferenceViewHolder) holder).isDividerAllowedAbove();
+        }
+
+        private boolean shouldDrawDividerBelow(View view, RecyclerView parent) {
+            final PreferenceViewHolder holder =
+                    (PreferenceViewHolder) parent.getChildViewHolder(view);
+            boolean nextAllowed = true;
+            int index = parent.indexOfChild(view);
+            if (index < parent.getChildCount() - 1) {
+                final View nextView = parent.getChildAt(index + 1);
+                final PreferenceViewHolder nextHolder =
+                        (PreferenceViewHolder) parent.getChildViewHolder(nextView);
+                nextAllowed = nextHolder.isDividerAllowedAbove();
+            }
+            return nextAllowed && holder.isDividerAllowedBelow();
+        }
+
+        public void setDivider(Drawable divider) {
+            if (divider != null) {
+                mDividerHeight = divider.getIntrinsicHeight();
+            } else {
+                mDividerHeight = 0;
+            }
+            mDivider = divider;
+            mList.invalidateItemDecorations();
+        }
+
+        public void setDividerHeight(int dividerHeight) {
+            mDividerHeight = dividerHeight;
+            mList.invalidateItemDecorations();
+        }
     }
 }
