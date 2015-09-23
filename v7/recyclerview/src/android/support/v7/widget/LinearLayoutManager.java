@@ -2035,7 +2035,10 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         }
     }
 
-    static class SavedState implements Parcelable {
+    /**
+     * @hide
+     */
+    public static class SavedState implements Parcelable {
 
         int mAnchorPosition;
 
