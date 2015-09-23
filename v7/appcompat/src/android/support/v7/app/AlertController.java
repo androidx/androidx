@@ -21,20 +21,25 @@ import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.Nullable;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.appcompat.R;
-import android.support.v7.internal.widget.TintTypedArray;
 import android.text.TextUtils;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.ViewParent;
+import android.view.ViewStub;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -46,7 +51,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.ScrollView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
@@ -84,7 +88,7 @@ class AlertController {
     private CharSequence mButtonNeutralText;
     private Message mButtonNeutralMessage;
 
-    private ScrollView mScrollView;
+    private NestedScrollView mScrollView;
 
     private int mIconId = 0;
     private Drawable mIcon;
@@ -159,19 +163,13 @@ class AlertController {
         }
     }
 
-    private static boolean shouldCenterSingleButton(Context context) {
-        TypedValue outValue = new TypedValue();
-        context.getTheme().resolveAttribute(R.attr.alertDialogCenterButtons, outValue, true);
-        return outValue.data != 0;
-    }
-
     public AlertController(Context context, AppCompatDialog di, Window window) {
         mContext = context;
         mDialog = di;
         mWindow = window;
         mHandler = new ButtonHandler(di);
 
-        TypedArray a = context.obtainStyledAttributes(null, R.styleable.AlertDialog,
+        final TypedArray a = context.obtainStyledAttributes(null, R.styleable.AlertDialog,
                 R.attr.alertDialogStyle, 0);
 
         mAlertDialogLayout = a.getResourceId(R.styleable.AlertDialog_android_layout, 0);
@@ -211,7 +209,6 @@ class AlertController {
     public void installContent() {
         /* We use a custom title so never request a window title */
         mDialog.supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
-
         final int contentView = selectContentView();
         mDialog.setContentView(contentView);
         setupView();
@@ -368,6 +365,7 @@ class AlertController {
     /**
      * @param attrId the attributeId of the theme-specific drawable
      *               to resolve the resourceId for.
+     *
      * @return resId the resourceId of the theme-specific drawable
      */
     public int getIconAttributeResId(int attrId) {
@@ -403,26 +401,194 @@ class AlertController {
         return mScrollView != null && mScrollView.executeKeyEvent(event);
     }
 
-    private void setupView() {
-        final ViewGroup contentPanel = (ViewGroup) mWindow.findViewById(R.id.contentPanel);
-        setupContent(contentPanel);
-        final boolean hasButtons = setupButtons();
+    /**
+     * Resolves whether a custom or default panel should be used. Removes the
+     * default panel if a custom panel should be used. If the resolved panel is
+     * a view stub, inflates before returning.
+     *
+     * @param customPanel the custom panel
+     * @param defaultPanel the default panel
+     * @return the panel to use
+     */
+    @Nullable
+    private ViewGroup resolvePanel(@Nullable View customPanel, @Nullable View defaultPanel) {
+        if (customPanel == null) {
+            // Inflate the default panel, if needed.
+            if (defaultPanel instanceof ViewStub) {
+                defaultPanel = ((ViewStub) defaultPanel).inflate();
+            }
 
-        final ViewGroup topPanel = (ViewGroup) mWindow.findViewById(R.id.topPanel);
-        final TintTypedArray a = TintTypedArray.obtainStyledAttributes(mContext,
-                null, R.styleable.AlertDialog, R.attr.alertDialogStyle, 0);
-        final boolean hasTitle = setupTitle(topPanel);
+            return (ViewGroup) defaultPanel;
+        }
 
-        final View buttonPanel = mWindow.findViewById(R.id.buttonPanel);
-        if (!hasButtons) {
-            buttonPanel.setVisibility(View.GONE);
-            final View spacer = mWindow.findViewById(R.id.textSpacerNoButtons);
-            if (spacer != null) {
-                spacer.setVisibility(View.VISIBLE);
+        // Remove the default panel entirely.
+        if (defaultPanel != null) {
+            final ViewParent parent = defaultPanel.getParent();
+            if (parent instanceof ViewGroup) {
+                ((ViewGroup) parent).removeView(defaultPanel);
             }
         }
 
-        final FrameLayout customPanel = (FrameLayout) mWindow.findViewById(R.id.customPanel);
+        // Inflate the custom panel, if needed.
+        if (customPanel instanceof ViewStub) {
+            customPanel = ((ViewStub) customPanel).inflate();
+        }
+
+        return (ViewGroup) customPanel;
+    }
+
+    private void setupView() {
+        final View parentPanel = mWindow.findViewById(R.id.parentPanel);
+        final View defaultTopPanel = parentPanel.findViewById(R.id.topPanel);
+        final View defaultContentPanel = parentPanel.findViewById(R.id.contentPanel);
+        final View defaultButtonPanel = parentPanel.findViewById(R.id.buttonPanel);
+
+        // Install custom content before setting up the title or buttons so
+        // that we can handle panel overrides.
+        final ViewGroup customPanel = (ViewGroup) parentPanel.findViewById(R.id.customPanel);
+        setupCustomContent(customPanel);
+
+        final View customTopPanel = customPanel.findViewById(R.id.topPanel);
+        final View customContentPanel = customPanel.findViewById(R.id.contentPanel);
+        final View customButtonPanel = customPanel.findViewById(R.id.buttonPanel);
+
+        // Resolve the correct panels and remove the defaults, if needed.
+        final ViewGroup topPanel = resolvePanel(customTopPanel, defaultTopPanel);
+        final ViewGroup contentPanel = resolvePanel(customContentPanel, defaultContentPanel);
+        final ViewGroup buttonPanel = resolvePanel(customButtonPanel, defaultButtonPanel);
+
+        setupContent(contentPanel);
+        setupButtons(buttonPanel);
+        setupTitle(topPanel);
+
+        final boolean hasCustomPanel = customPanel != null
+                && customPanel.getVisibility() != View.GONE;
+        final boolean hasTopPanel = topPanel != null
+                && topPanel.getVisibility() != View.GONE;
+        final boolean hasButtonPanel = buttonPanel != null
+                && buttonPanel.getVisibility() != View.GONE;
+
+        // Only display the text spacer if we don't have buttons.
+        if (!hasButtonPanel) {
+            if (contentPanel != null) {
+                final View spacer = contentPanel.findViewById(R.id.textSpacerNoButtons);
+                if (spacer != null) {
+                    spacer.setVisibility(View.VISIBLE);
+                }
+            }
+        }
+
+        if (hasTopPanel) {
+            // Only clip scrolling content to padding if we have a title.
+            if (mScrollView != null) {
+                mScrollView.setClipToPadding(true);
+            }
+        }
+
+        // Update scroll indicators as needed.
+        if (!hasCustomPanel) {
+            final View content = mListView != null ? mListView : mScrollView;
+            if (content != null) {
+                final int indicators = (hasTopPanel ? ViewCompat.SCROLL_INDICATOR_TOP : 0)
+                        | (hasButtonPanel ? ViewCompat.SCROLL_INDICATOR_BOTTOM : 0);
+                setScrollIndicators(contentPanel, content, indicators,
+                        ViewCompat.SCROLL_INDICATOR_TOP | ViewCompat.SCROLL_INDICATOR_BOTTOM);
+            }
+        }
+
+        final ListView listView = mListView;
+        if (listView != null && mAdapter != null) {
+            listView.setAdapter(mAdapter);
+            final int checkedItem = mCheckedItem;
+            if (checkedItem > -1) {
+                listView.setItemChecked(checkedItem, true);
+                listView.setSelection(checkedItem);
+            }
+        }
+    }
+
+    private void setScrollIndicators(ViewGroup contentPanel, View content,
+            final int indicators, final int mask) {
+        // Set up scroll indicators (if present).
+        View indicatorUp = mWindow.findViewById(R.id.scrollIndicatorUp);
+        View indicatorDown = mWindow.findViewById(R.id.scrollIndicatorDown);
+
+        if (Build.VERSION.SDK_INT >= 23) {
+            // We're on Marshmallow so can rely on the View APIs
+            ViewCompat.setScrollIndicators(content, indicators, mask);
+            // We can also remove the compat indicator views
+            if (indicatorUp != null) {
+                contentPanel.removeView(indicatorUp);
+            }
+            if (indicatorDown != null) {
+                contentPanel.removeView(indicatorDown);
+            }
+        } else {
+            // First, remove the indicator views if we're not set to use them
+            if (indicatorUp != null && (indicators & ViewCompat.SCROLL_INDICATOR_TOP) == 0) {
+                contentPanel.removeView(indicatorUp);
+                indicatorUp = null;
+            }
+            if (indicatorDown != null && (indicators & ViewCompat.SCROLL_INDICATOR_BOTTOM) == 0) {
+                contentPanel.removeView(indicatorDown);
+                indicatorDown = null;
+            }
+
+            if (indicatorUp != null || indicatorDown != null) {
+                final View top = indicatorUp;
+                final View bottom = indicatorDown;
+
+                if (mMessage != null) {
+                    // We're just showing the ScrollView, set up listener.
+                    mScrollView.setOnScrollChangeListener(
+                            new NestedScrollView.OnScrollChangeListener() {
+                                @Override
+                                public void onScrollChange(NestedScrollView v, int scrollX,
+                                        int scrollY,
+                                        int oldScrollX, int oldScrollY) {
+                                    manageScrollIndicators(v, top, bottom);
+                                }
+                            });
+                    // Set up the indicators following layout.
+                    mScrollView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            manageScrollIndicators(mScrollView, top, bottom);
+                        }
+                    });
+                } else if (mListView != null) {
+                    // We're just showing the AbsListView, set up listener.
+                    mListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+                        @Override
+                        public void onScrollStateChanged(AbsListView view, int scrollState) {}
+
+                        @Override
+                        public void onScroll(AbsListView v, int firstVisibleItem,
+                                int visibleItemCount, int totalItemCount) {
+                            manageScrollIndicators(v, top, bottom);
+                        }
+                    });
+                    // Set up the indicators following layout.
+                    mListView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            manageScrollIndicators(mListView, top, bottom);
+                        }
+                    });
+                } else {
+                    // We don't have any content to scroll, remove the indicators.
+                    if (top != null) {
+                        contentPanel.removeView(top);
+                    }
+                    if (bottom != null) {
+                        contentPanel.removeView(bottom);
+                    }
+                }
+            }
+        }
+    }
+
+    private void setupCustomContent(ViewGroup customPanel) {
         final View customView;
         if (mView != null) {
             customView = mView;
@@ -454,23 +620,9 @@ class AlertController {
         } else {
             customPanel.setVisibility(View.GONE);
         }
-
-        final ListView listView = mListView;
-        if (listView != null && mAdapter != null) {
-            listView.setAdapter(mAdapter);
-            final int checkedItem = mCheckedItem;
-            if (checkedItem > -1) {
-                listView.setItemChecked(checkedItem, true);
-                listView.setSelection(checkedItem);
-            }
-        }
-
-        a.recycle();
     }
 
-    private boolean setupTitle(ViewGroup topPanel) {
-        boolean hasTitle = true;
-
+    private void setupTitle(ViewGroup topPanel) {
         if (mCustomTitleView != null) {
             // Add the custom title view directly to the topPanel layout
             LayoutParams lp = new LayoutParams(
@@ -512,18 +664,17 @@ class AlertController {
                 titleTemplate.setVisibility(View.GONE);
                 mIconView.setVisibility(View.GONE);
                 topPanel.setVisibility(View.GONE);
-                hasTitle = false;
             }
         }
-        return hasTitle;
     }
 
     private void setupContent(ViewGroup contentPanel) {
-        mScrollView = (ScrollView) mWindow.findViewById(R.id.scrollView);
+        mScrollView = (NestedScrollView) mWindow.findViewById(R.id.scrollView);
         mScrollView.setFocusable(false);
+        mScrollView.setNestedScrollingEnabled(false);
 
         // Special case for users that only want to display a String
-        mMessageView = (TextView) mWindow.findViewById(android.R.id.message);
+        mMessageView = (TextView) contentPanel.findViewById(android.R.id.message);
         if (mMessageView == null) {
             return;
         }
@@ -546,12 +697,23 @@ class AlertController {
         }
     }
 
-    private boolean setupButtons() {
+    private static void manageScrollIndicators(View v, View upIndicator, View downIndicator) {
+        if (upIndicator != null) {
+            upIndicator.setVisibility(
+                    ViewCompat.canScrollVertically(v, -1) ? View.VISIBLE : View.INVISIBLE);
+        }
+        if (downIndicator != null) {
+            downIndicator.setVisibility(
+                    ViewCompat.canScrollVertically(v, 1) ? View.VISIBLE : View.INVISIBLE);
+        }
+    }
+
+    private void setupButtons(ViewGroup buttonPanel) {
         int BIT_BUTTON_POSITIVE = 1;
         int BIT_BUTTON_NEGATIVE = 2;
         int BIT_BUTTON_NEUTRAL = 4;
         int whichButtons = 0;
-        mButtonPositive = (Button) mWindow.findViewById(android.R.id.button1);
+        mButtonPositive = (Button) buttonPanel.findViewById(android.R.id.button1);
         mButtonPositive.setOnClickListener(mButtonHandler);
 
         if (TextUtils.isEmpty(mButtonPositiveText)) {
@@ -562,7 +724,7 @@ class AlertController {
             whichButtons = whichButtons | BIT_BUTTON_POSITIVE;
         }
 
-        mButtonNegative = (Button) mWindow.findViewById(android.R.id.button2);
+        mButtonNegative = (Button) buttonPanel.findViewById(android.R.id.button2);
         mButtonNegative.setOnClickListener(mButtonHandler);
 
         if (TextUtils.isEmpty(mButtonNegativeText)) {
@@ -574,7 +736,7 @@ class AlertController {
             whichButtons = whichButtons | BIT_BUTTON_NEGATIVE;
         }
 
-        mButtonNeutral = (Button) mWindow.findViewById(android.R.id.button3);
+        mButtonNeutral = (Button) buttonPanel.findViewById(android.R.id.button3);
         mButtonNeutral.setOnClickListener(mButtonHandler);
 
         if (TextUtils.isEmpty(mButtonNeutralText)) {
@@ -586,28 +748,10 @@ class AlertController {
             whichButtons = whichButtons | BIT_BUTTON_NEUTRAL;
         }
 
-        if (shouldCenterSingleButton(mContext)) {
-            /*
-             * If we only have 1 button it should be centered on the layout and
-             * expand to fill 50% of the available space.
-             */
-            if (whichButtons == BIT_BUTTON_POSITIVE) {
-                centerButton(mButtonPositive);
-            } else if (whichButtons == BIT_BUTTON_NEGATIVE) {
-                centerButton(mButtonNegative);
-            } else if (whichButtons == BIT_BUTTON_NEUTRAL) {
-                centerButton(mButtonNeutral);
-            }
+        final boolean hasButtons = whichButtons != 0;
+        if (!hasButtons) {
+            buttonPanel.setVisibility(View.GONE);
         }
-
-        return whichButtons != 0;
-    }
-
-    private void centerButton(Button button) {
-        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) button.getLayoutParams();
-        params.gravity = Gravity.CENTER_HORIZONTAL;
-        params.weight = 0.5f;
-        button.setLayoutParams(params);
     }
 
     public static class AlertParams {
@@ -661,7 +805,6 @@ class AlertController {
 
             /**
              * Called before the ListView is bound to an adapter.
-             *
              * @param listView The ListView that will be shown in the dialog.
              */
             void onPrepareListView(ListView listView);
@@ -732,7 +875,7 @@ class AlertController {
 
         private void createListView(final AlertController dialog) {
             final ListView listView = (ListView) mInflater.inflate(dialog.mListLayout, null);
-            ListAdapter adapter;
+            final ListAdapter adapter;
 
             if (mIsMultiChoice) {
                 if (mCursor == null) {
@@ -763,8 +906,8 @@ class AlertController {
 
                         @Override
                         public void bindView(View view, Context context, Cursor cursor) {
-                            CheckedTextView text = (CheckedTextView) view
-                                    .findViewById(android.R.id.text1);
+                            CheckedTextView text = (CheckedTextView) view.findViewById(
+                                    android.R.id.text1);
                             text.setText(cursor.getString(mLabelIndex));
                             listView.setItemChecked(cursor.getPosition(),
                                     cursor.getInt(mIsCheckedIndex) == 1);
@@ -779,14 +922,20 @@ class AlertController {
                     };
                 }
             } else {
-                int layout = mIsSingleChoice
-                        ? dialog.mSingleChoiceItemLayout : dialog.mListItemLayout;
-                if (mCursor == null) {
-                    adapter = (mAdapter != null) ? mAdapter
-                            : new CheckedItemAdapter(mContext, layout, android.R.id.text1, mItems);
+                final int layout;
+                if (mIsSingleChoice) {
+                    layout = dialog.mSingleChoiceItemLayout;
                 } else {
-                    adapter = new SimpleCursorAdapter(mContext, layout,
-                            mCursor, new String[]{mLabelColumn}, new int[]{android.R.id.text1});
+                    layout = dialog.mListItemLayout;
+                }
+
+                if (mCursor != null) {
+                    adapter = new SimpleCursorAdapter(mContext, layout, mCursor,
+                            new String[] { mLabelColumn }, new int[] { android.R.id.text1 });
+                } else if (mAdapter != null) {
+                    adapter = mAdapter;
+                } else {
+                    adapter = new CheckedItemAdapter(mContext, layout, android.R.id.text1, mItems);
                 }
             }
 

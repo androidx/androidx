@@ -510,17 +510,17 @@
     </style>
 
     <style name="Base.Theme.AppCompat.Dialog.FixedSize">
-        <item name="windowFixedWidthMajor">@dimen/dialog_fixed_width_major</item>
-        <item name="windowFixedWidthMinor">@dimen/dialog_fixed_width_minor</item>
-        <item name="windowFixedHeightMajor">@dimen/dialog_fixed_height_major</item>
-        <item name="windowFixedHeightMinor">@dimen/dialog_fixed_height_minor</item>
+        <item name="windowFixedWidthMajor">@dimen/abc_dialog_fixed_width_major</item>
+        <item name="windowFixedWidthMinor">@dimen/abc_dialog_fixed_width_minor</item>
+        <item name="windowFixedHeightMajor">@dimen/abc_dialog_fixed_height_major</item>
+        <item name="windowFixedHeightMinor">@dimen/abc_dialog_fixed_height_minor</item>
     </style>
 
     <style name="Base.Theme.AppCompat.Light.Dialog.FixedSize">
-        <item name="windowFixedWidthMajor">@dimen/dialog_fixed_width_major</item>
-        <item name="windowFixedWidthMinor">@dimen/dialog_fixed_width_minor</item>
-        <item name="windowFixedHeightMajor">@dimen/dialog_fixed_height_major</item>
-        <item name="windowFixedHeightMinor">@dimen/dialog_fixed_height_minor</item>
+        <item name="windowFixedWidthMajor">@dimen/abc_dialog_fixed_width_major</item>
+        <item name="windowFixedWidthMinor">@dimen/abc_dialog_fixed_width_minor</item>
+        <item name="windowFixedHeightMajor">@dimen/abc_dialog_fixed_height_major</item>
+        <item name="windowFixedHeightMinor">@dimen/abc_dialog_fixed_height_minor</item>
     </style>
 
     <!-- We're not large, so redirect to Theme.AppCompat -->

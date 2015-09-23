@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.support.annotation.FloatRange;
 import android.support.annotation.IdRes;
 import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeProviderCompat;
@@ -276,6 +277,73 @@ public class ViewCompat {
      */
     public static final int SCROLL_AXIS_VERTICAL = 1 << 1;
 
+    /** @hide */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef(flag = true,
+            value = {
+                    SCROLL_INDICATOR_TOP,
+                    SCROLL_INDICATOR_BOTTOM,
+                    SCROLL_INDICATOR_LEFT,
+                    SCROLL_INDICATOR_RIGHT,
+                    SCROLL_INDICATOR_START,
+                    SCROLL_INDICATOR_END,
+            })
+    public @interface ScrollIndicators {}
+
+    /**
+     * Scroll indicator direction for the top edge of the view.
+     *
+     * @see #setScrollIndicators(int)
+     * @see #setScrollIndicators(int, int)
+     * @see #getScrollIndicators()
+     */
+    public static final int SCROLL_INDICATOR_TOP = 0x1;
+
+    /**
+     * Scroll indicator direction for the bottom edge of the view.
+     *
+     * @see #setScrollIndicators(int)
+     * @see #setScrollIndicators(int, int)
+     * @see #getScrollIndicators()
+     */
+    public static final int SCROLL_INDICATOR_BOTTOM = 0x2;
+
+    /**
+     * Scroll indicator direction for the left edge of the view.
+     *
+     * @see #setScrollIndicators(int)
+     * @see #setScrollIndicators(int, int)
+     * @see #getScrollIndicators()
+     */
+    public static final int SCROLL_INDICATOR_LEFT = 0x4;
+
+    /**
+     * Scroll indicator direction for the right edge of the view.
+     *
+     * @see #setScrollIndicators(int)
+     * @see #setScrollIndicators(int, int)
+     * @see #getScrollIndicators()
+     */
+    public static final int SCROLL_INDICATOR_RIGHT = 0x8;
+
+    /**
+     * Scroll indicator direction for the starting edge of the view.
+     *
+     * @see #setScrollIndicators(View, int)
+     * @see #setScrollIndicators(View, int, int)
+     * @see #getScrollIndicators(View)
+     */
+    public static final int SCROLL_INDICATOR_START = 0x10;
+
+    /**
+     * Scroll indicator direction for the ending edge of the view.
+     *
+     * @see #setScrollIndicators(int)
+     * @see #setScrollIndicators(int, int)
+     * @see #getScrollIndicators()
+     */
+    public static final int SCROLL_INDICATOR_END = 0x20;
+
     interface ViewCompatImpl {
         public boolean canScrollHorizontally(View v, int direction);
         public boolean canScrollVertically(View v, int direction);
@@ -385,6 +453,9 @@ public class ViewCompat {
         public float getZ(View view);
         public boolean isAttachedToWindow(View view);
         public boolean hasOnClickListeners(View view);
+        public void setScrollIndicators(View view, int indicators);
+        public void setScrollIndicators(View view, int indicators, int mask);
+        public int getScrollIndicators(View view);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -969,6 +1040,21 @@ public class ViewCompat {
         public boolean hasOnClickListeners(View view) {
             return false;
         }
+
+        @Override
+        public int getScrollIndicators(View view) {
+            return 0;
+        }
+
+        @Override
+        public void setScrollIndicators(View view, int indicators) {
+            // no-op
+        }
+
+        @Override
+        public void setScrollIndicators(View view, int indicators, int mask) {
+            // no-op
+        }
     }
 
     static class EclairMr1ViewCompatImpl extends BaseViewCompatImpl {
@@ -1542,10 +1628,29 @@ public class ViewCompat {
         }
     }
 
+    static class MarshmallowViewCompatImpl extends LollipopViewCompatImpl {
+        @Override
+        public void setScrollIndicators(View view, int indicators) {
+            ViewCompatMarshmallow.setScrollIndicators(view, indicators);
+        }
+
+        @Override
+        public void setScrollIndicators(View view, int indicators, int mask) {
+            ViewCompatMarshmallow.setScrollIndicators(view, indicators, mask);
+        }
+
+        @Override
+        public int getScrollIndicators(View view) {
+            return ViewCompatMarshmallow.getScrollIndicators(view);
+        }
+    }
+
     static final ViewCompatImpl IMPL;
     static {
         final int version = android.os.Build.VERSION.SDK_INT;
-        if (version >= 21) {
+        if (version >= 23) {
+            IMPL = new MarshmallowViewCompatImpl();
+        } else if (version >= 21) {
             IMPL = new LollipopViewCompatImpl();
         } else if (version >= 19) {
             IMPL = new KitKatViewCompatImpl();
@@ -3108,5 +3213,68 @@ public class ViewCompat {
      */
     public static boolean hasOnClickListeners(View view) {
         return IMPL.hasOnClickListeners(view);
+    }
+
+    /**
+     * Sets the state of all scroll indicators.
+     * <p>
+     * See {@link #setScrollIndicators(View, int, int)} for usage information.
+     *
+     * @param indicators a bitmask of indicators that should be enabled, or
+     *                   {@code 0} to disable all indicators
+     *
+     * @see #setScrollIndicators(View, int, int)
+     * @see #getScrollIndicators(View)
+     */
+    public static void setScrollIndicators(@NonNull View view, @ScrollIndicators int indicators) {
+        IMPL.setScrollIndicators(view, indicators);
+    }
+
+    /**
+     * Sets the state of the scroll indicators specified by the mask. To change
+     * all scroll indicators at once, see {@link #setScrollIndicators(View, int)}.
+     * <p>
+     * When a scroll indicator is enabled, it will be displayed if the view
+     * can scroll in the direction of the indicator.
+     * <p>
+     * Multiple indicator types may be enabled or disabled by passing the
+     * logical OR of the desired types. If multiple types are specified, they
+     * will all be set to the same enabled state.
+     * <p>
+     * For example, to enable the top scroll indicatorExample: {@code setScrollIndicators}
+     *
+     * @param indicators the indicator direction, or the logical OR of multiple
+     *             indicator directions. One or more of:
+     *             <ul>
+     *               <li>{@link #SCROLL_INDICATOR_TOP}</li>
+     *               <li>{@link #SCROLL_INDICATOR_BOTTOM}</li>
+     *               <li>{@link #SCROLL_INDICATOR_LEFT}</li>
+     *               <li>{@link #SCROLL_INDICATOR_RIGHT}</li>
+     *               <li>{@link #SCROLL_INDICATOR_START}</li>
+     *               <li>{@link #SCROLL_INDICATOR_END}</li>
+     *             </ul>
+     *
+     * @see #setScrollIndicators(View, int)
+     * @see #getScrollIndicators(View)
+     */
+    public static void setScrollIndicators(@NonNull View view, @ScrollIndicators int indicators,
+            @ScrollIndicators int mask) {
+        IMPL.setScrollIndicators(view, indicators, mask);
+    }
+
+    /**
+     * Returns a bitmask representing the enabled scroll indicators.
+     * <p>
+     * For example, if the top and left scroll indicators are enabled and all
+     * other indicators are disabled, the return value will be
+     * {@code ViewCompat.SCROLL_INDICATOR_TOP | ViewCompat.SCROLL_INDICATOR_LEFT}.
+     * <p>
+     * To check whether the bottom scroll indicator is enabled, use the value
+     * of {@code (ViewCompat.getScrollIndicators(view) & ViewCompat.SCROLL_INDICATOR_BOTTOM) != 0}.
+     *
+     * @return a bitmask representing the enabled scroll indicators
+     */
+    public static int getScrollIndicators(@NonNull View view) {
+        return IMPL.getScrollIndicators(view);
     }
 }

@@ -649,6 +649,10 @@ package android.support.v7.appcompat {
     field public static int abc_control_corner_material;
     field public static int abc_control_inset_material;
     field public static int abc_control_padding_material;
+    field public static int abc_dialog_fixed_height_major;
+    field public static int abc_dialog_fixed_height_minor;
+    field public static int abc_dialog_fixed_width_major;
+    field public static int abc_dialog_fixed_width_minor;
     field public static int abc_dialog_list_padding_vertical_material;
     field public static int abc_dialog_min_width_major;
     field public static int abc_dialog_min_width_minor;
@@ -687,10 +691,6 @@ package android.support.v7.appcompat {
     field public static int abc_text_size_subtitle_material_toolbar;
     field public static int abc_text_size_title_material;
     field public static int abc_text_size_title_material_toolbar;
-    field public static int dialog_fixed_height_major;
-    field public static int dialog_fixed_height_minor;
-    field public static int dialog_fixed_width_major;
-    field public static int dialog_fixed_width_minor;
     field public static int disabled_alpha_material_dark;
     field public static int disabled_alpha_material_light;
     field public static int highlight_alpha_material_colored;
@@ -833,6 +833,8 @@ package android.support.v7.appcompat {
     field public static int progress_horizontal;
     field public static int radio;
     field public static int screen;
+    field public static int scrollIndicatorDown;
+    field public static int scrollIndicatorUp;
     field public static int scrollView;
     field public static int search_badge;
     field public static int search_bar;
