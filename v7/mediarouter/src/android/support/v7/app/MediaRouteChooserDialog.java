@@ -331,7 +331,7 @@ public class MediaRouteChooserDialog extends Dialog {
                 return mSpeakerIcon;
             }
             String description = route.getDescription();
-            if (!TextUtils.isEmpty(description) && description.contains("audio")) {
+            if (!TextUtils.isEmpty(description) && description.toLowerCase().contains("audio")) {
                 return mSpeakerIcon;
             }
             return mDefaultIcon;
