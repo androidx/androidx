@@ -522,17 +522,42 @@ public class SimpleArrayMap<K, V> {
     /**
      * {@inheritDoc}
      *
-     * <p>This implementation returns false if the object is not a map, or
-     * if the maps have different sizes. Otherwise, for each key in this map,
-     * values of both maps are compared. If the values for any key are not
-     * equal, the method returns false, otherwise it returns true.
+     * <p>This implementation returns false if the object is not a Map or
+     * SimpleArrayMap, or if the maps have different sizes. Otherwise, for each
+     * key in this map, values of both maps are compared. If the values for any
+     * key are not equal, the method returns false, otherwise it returns true.
      */
     @Override
     public boolean equals(Object object) {
         if (this == object) {
             return true;
         }
-        if (object instanceof Map) {
+        if (object instanceof SimpleArrayMap) {
+            SimpleArrayMap<?, ?> map = (SimpleArrayMap<?, ?>) object;
+            if (size() != map.size()) {
+                return false;
+            }
+
+            try {
+                for (int i=0; i<mSize; i++) {
+                    K key = keyAt(i);
+                    V mine = valueAt(i);
+                    Object theirs = map.get(key);
+                    if (mine == null) {
+                        if (theirs != null || !map.containsKey(key)) {
+                            return false;
+                        }
+                    } else if (!mine.equals(theirs)) {
+                        return false;
+                    }
+                }
+            } catch (NullPointerException ignored) {
+                return false;
+            } catch (ClassCastException ignored) {
+                return false;
+            }
+            return true;
+        } else if (object instanceof Map) {
             Map<?, ?> map = (Map<?, ?>) object;
             if (size() != map.size()) {
                 return false;
