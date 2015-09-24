@@ -58,10 +58,7 @@ public class DefaultItemAnimatorTest extends ActivityInstrumentationTestCase2<Te
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        mAnimator = new DefaultItemAnimator();
-        mAdapter = new Adapter(20);
-        mDummyParent = getActivity().mContainer;
-        mAnimator.setListener(new RecyclerView.ItemAnimator.ItemAnimatorListener() {
+        mAnimator = new DefaultItemAnimator() {
             @Override
             public void onRemoveFinished(RecyclerView.ViewHolder item) {
                 try {
@@ -93,7 +90,7 @@ public class DefaultItemAnimatorTest extends ActivityInstrumentationTestCase2<Te
             }
 
             @Override
-            public void onChangeFinished(RecyclerView.ViewHolder item) {
+            public void onChangeFinished(RecyclerView.ViewHolder item, boolean oldItem) {
                 try {
                     assertTrue(mChangeFinished.add(item));
                     onFinished(item);
@@ -106,7 +103,9 @@ public class DefaultItemAnimatorTest extends ActivityInstrumentationTestCase2<Te
                 assertNotNull(mExpectedItems.remove(item));
                 mExpectedItemCount.release(1);
             }
-        });
+        };
+        mAdapter = new Adapter(20);
+        mDummyParent = getActivity().mContainer;
     }
 
     void checkForMainThreadException() throws Throwable {

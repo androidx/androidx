@@ -32,7 +32,7 @@ import java.util.List;
  *
  * @see RecyclerView#setItemAnimator(RecyclerView.ItemAnimator)
  */
-public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
+public class DefaultItemAnimator extends SimpleItemAnimator {
     private static final boolean DEBUG = false;
 
     private ArrayList<ViewHolder> mPendingRemovals = new ArrayList<ViewHolder>();
@@ -310,6 +310,11 @@ public class DefaultItemAnimator extends RecyclerView.ItemAnimator {
     @Override
     public boolean animateChange(ViewHolder oldHolder, ViewHolder newHolder,
             int fromX, int fromY, int toX, int toY) {
+        if (oldHolder == newHolder) {
+            // Don't know how to run change animations when the same view holder is re-used.
+            // run a move animation to handle position changes.
+            return animateMove(oldHolder, fromX, fromY, toX, toY);
+        }
         final float prevTranslationX = ViewCompat.getTranslationX(oldHolder.itemView);
         final float prevTranslationY = ViewCompat.getTranslationY(oldHolder.itemView);
         final float prevAlpha = ViewCompat.getAlpha(oldHolder.itemView);
