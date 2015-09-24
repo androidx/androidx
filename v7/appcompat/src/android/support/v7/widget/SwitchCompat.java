@@ -748,9 +748,30 @@ public class SwitchCompat extends CompoundButton {
         cancelSuperTouch(ev);
     }
 
-    private void animateThumbToCheckedState(boolean newCheckedState) {
-        mPositionAnimator = new ThumbAnimation(mThumbPosition, newCheckedState ? 1 : 0);
+    private void animateThumbToCheckedState(final boolean newCheckedState) {
+        if (mPositionAnimator != null) {
+            // If there's a current animator running, cancel it
+            cancelPositionAnimator();
+        }
+
+        mPositionAnimator = new ThumbAnimation(mThumbPosition, newCheckedState ? 1f : 0f);
         mPositionAnimator.setDuration(THUMB_ANIMATION_DURATION);
+        mPositionAnimator.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {}
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                if (mPositionAnimator == animation) {
+                    // If we're still the active animation, ensure the final position
+                    setThumbPosition(newCheckedState ? 1f : 0f);
+                    mPositionAnimator = null;
+                }
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {}
+        });
         startAnimation(mPositionAnimator);
     }
 
@@ -882,7 +903,7 @@ public class SwitchCompat extends CompoundButton {
             int trackTop = switchTop;
             int trackRight = switchRight;
             int trackBottom = switchBottom;
-            if (thumbInsets != null && !thumbInsets.isEmpty()) {
+            if (thumbInsets != null) {
                 if (thumbInsets.left > padding.left) {
                     trackLeft += thumbInsets.left - padding.left;
                 }
@@ -1101,12 +1122,7 @@ public class SwitchCompat extends CompoundButton {
                 mTrackDrawable.jumpToCurrentState();
             }
 
-            if (mPositionAnimator != null && !mPositionAnimator.hasEnded()) {
-                clearAnimation();
-                // Manually set our thumb position to the end state
-                setThumbPosition(mPositionAnimator.mEndPosition);
-                mPositionAnimator = null;
-            }
+            cancelPositionAnimator();
         }
     }
 
