@@ -18,7 +18,6 @@ package android.support.v7.widget;
 
 import android.content.Context;
 import android.graphics.Rect;
-import android.os.Debug;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.util.Log;
@@ -291,7 +290,7 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
                 return 3;
             }
         });
-        rv.getItemAnimator().setSupportsChangeAnimations(true);
+        ((SimpleItemAnimator)rv.getItemAnimator()).setSupportsChangeAnimations(true);
         waitForFirstLayout(rv);
         View lastView = rv.getChildAt(rv.getChildCount() - 1);
         final int lastPos = rv.getChildAdapterPosition(lastView);

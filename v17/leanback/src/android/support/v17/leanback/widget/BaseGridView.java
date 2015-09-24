@@ -23,6 +23,7 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.support.v7.widget.SimpleItemAnimator;
 
 /**
  * An abstract base class for vertically and horizontally scrolling lists. The items come
@@ -201,7 +202,7 @@ abstract class BaseGridView extends RecyclerView {
         // Disable change animation by default on leanback.
         // Change animation will create a new view and cause undesired
         // focus animation between the old view and new view.
-        getItemAnimator().setSupportsChangeAnimations(false);
+        ((SimpleItemAnimator)getItemAnimator()).setSupportsChangeAnimations(false);
         super.setRecyclerListener(new RecyclerView.RecyclerListener() {
             @Override
             public void onViewRecycled(RecyclerView.ViewHolder holder) {
