@@ -53,6 +53,21 @@ import java.util.WeakHashMap;
 public class ViewCompat {
     private static final String TAG = "ViewCompat";
 
+    /** @hide */
+    @IntDef({View.FOCUS_LEFT, View.FOCUS_UP, View.FOCUS_RIGHT, View.FOCUS_DOWN,
+            View.FOCUS_FORWARD, View.FOCUS_BACKWARD})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface FocusDirection {}
+
+    /** @hide */
+    @IntDef({View.FOCUS_LEFT, View.FOCUS_UP, View.FOCUS_RIGHT, View.FOCUS_DOWN})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface FocusRealDirection {}
+
+    /** @hide */
+    @IntDef({View.FOCUS_FORWARD, View.FOCUS_BACKWARD})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface FocusRelativeDirection {}
 
     /** @hide */
     @IntDef({OVER_SCROLL_ALWAYS, OVER_SCROLL_IF_CONTENT_SCROLLS, OVER_SCROLL_NEVER})

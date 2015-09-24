@@ -3211,19 +3211,26 @@ package android.support.v4.widget {
 
   public abstract class ExploreByTouchHelper extends android.support.v4.view.AccessibilityDelegateCompat {
     ctor public ExploreByTouchHelper(android.view.View);
-    method public boolean dispatchHoverEvent(android.view.MotionEvent);
-    method public int getFocusedVirtualView();
+    method public final boolean clearKeyboardFocusForVirtualView(int);
+    method public final boolean dispatchHoverEvent(android.view.MotionEvent);
+    method public final boolean dispatchKeyEvent(android.view.KeyEvent);
+    method public final int getAccessibilityFocusedVirtualViewId();
+    method public deprecated int getFocusedVirtualView();
+    method public final int getKeyboardFocusedVirtualViewId();
     method protected abstract int getVirtualViewAt(float, float);
     method protected abstract void getVisibleVirtualViews(java.util.List<java.lang.Integer>);
-    method public void invalidateRoot();
-    method public void invalidateVirtualView(int);
-    method public void invalidateVirtualView(int, int);
+    method public final void invalidateRoot();
+    method public final void invalidateVirtualView(int);
+    method public final void invalidateVirtualView(int, int);
+    method public final void onFocusChanged(boolean, int, android.graphics.Rect);
     method protected abstract boolean onPerformActionForVirtualView(int, int, android.os.Bundle);
     method protected void onPopulateEventForHost(android.view.accessibility.AccessibilityEvent);
-    method protected abstract void onPopulateEventForVirtualView(int, android.view.accessibility.AccessibilityEvent);
+    method protected void onPopulateEventForVirtualView(int, android.view.accessibility.AccessibilityEvent);
     method protected void onPopulateNodeForHost(android.support.v4.view.accessibility.AccessibilityNodeInfoCompat);
     method protected abstract void onPopulateNodeForVirtualView(int, android.support.v4.view.accessibility.AccessibilityNodeInfoCompat);
-    method public boolean sendEventForVirtualView(int, int);
+    method protected void onVirtualViewKeyboardFocusChanged(int, boolean);
+    method public final boolean requestKeyboardFocusForVirtualView(int);
+    method public final boolean sendEventForVirtualView(int, int);
     field public static final int HOST_ID = -1; // 0xffffffff
     field public static final int INVALID_ID = -2147483648; // 0x80000000
   }
