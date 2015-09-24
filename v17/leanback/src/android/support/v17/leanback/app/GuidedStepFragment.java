@@ -130,6 +130,8 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
     private static final String TAG_LEAN_BACK_ACTIONS_FRAGMENT = "leanBackGuidedStepFragment";
     private static final String EXTRA_ACTION_SELECTED_INDEX = "selectedIndex";
 
+    private static final boolean IS_FRAMEWORK_FRAGMENT = true;
+
     /**
      * Fragment argument name for UI style.  The argument value is persisted in fragment state.
      * The value is initially {@link #UI_STYLE_DEFAULT} and might be changed in one of the three
@@ -314,6 +316,14 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
      */
     public static int add(FragmentManager fragmentManager, GuidedStepFragment fragment, int id) {
         boolean inGuidedStep = getCurrentGuidedStepFragment(fragmentManager) != null;
+        if (IS_FRAMEWORK_FRAGMENT && Build.VERSION.SDK_INT >= 21 && Build.VERSION.SDK_INT < 23
+                && !inGuidedStep) {
+            // workaround b/22631964 for framework fragment
+            fragmentManager.beginTransaction()
+                .replace(id, new DummyFragment(), TAG_LEAN_BACK_ACTIONS_FRAGMENT)
+                .replace(fragment.getContainerIdForBackground(), new DummyFragment())
+                .commit();
+        }
         FragmentTransaction ft = fragmentManager.beginTransaction();
 
         ft.addToBackStack(null);
@@ -347,10 +357,6 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
     static void initialBackground(GuidedStepFragment fragment, int id, FragmentTransaction ft) {
         Fragment backgroundFragment = fragment.onProvideBackgroundFragment();
         if (backgroundFragment != null) {
-            if (Build.VERSION.SDK_INT < 23) {
-                // workaround b/22631964
-                ft.replace(id, new DummyFragment());
-            }
             ft.replace(fragment.getContainerIdForBackground(), backgroundFragment);
         }
     }

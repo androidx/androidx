@@ -31,6 +31,7 @@ for w in cls:
     outfile.write("/* This file is auto-generated from {}Fragment.java.  DO NOT MODIFY. */\n\n".format(w))
 
     for line in file:
+        line = line.replace('IS_FRAMEWORK_FRAGMENT = true', 'IS_FRAMEWORK_FRAGMENT = false');
         for w in cls:
             line = line.replace('{}Fragment'.format(w), '{}SupportFragment'.format(w))
         line = line.replace('android.app.Fragment', 'android.support.v4.app.Fragment')
