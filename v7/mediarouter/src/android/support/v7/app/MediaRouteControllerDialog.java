@@ -41,7 +41,6 @@ import android.support.v7.media.MediaRouter;
 import android.support.v7.mediarouter.R;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -276,19 +275,16 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
         ClickListener listener = new ClickListener();
 
+        int color = MediaRouterThemeHelper.getButtonTextColor(mContext);
         mDisconnectButton = (Button) findViewById(BUTTON_DISCONNECT_RES_ID);
         mDisconnectButton.setText(R.string.mr_controller_disconnect);
+        mDisconnectButton.setTextColor(color);
         mDisconnectButton.setOnClickListener(listener);
 
         mStopCastingButton = (Button) findViewById(BUTTON_STOP_RES_ID);
         mStopCastingButton.setText(R.string.mr_controller_stop);
+        mStopCastingButton.setTextColor(color);
         mStopCastingButton.setOnClickListener(listener);
-
-        TypedValue value = new TypedValue();
-        if (mContext.getTheme().resolveAttribute(R.attr.colorPrimary, value, true)) {
-            mDisconnectButton.setTextColor(value.data);
-            mStopCastingButton.setTextColor(value.data);
-        }
 
         mRouteNameTextView = (TextView) findViewById(R.id.mr_name);
         mCloseButton = (ImageButton) findViewById(R.id.mr_close);
