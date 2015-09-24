@@ -506,8 +506,11 @@ public class MediaRouteControllerDialog extends AlertDialog {
             View item = mVolumeGroupList.getChildAt(i);
             if (item != null) {
                 setLayoutHeight(item, mVolumeGroupListItemHeight);
-                setLayoutHeight(item.findViewById(R.id.mr_volume_item_icon),
-                        mVolumeGroupListItemIconSize);
+                View icon = item.findViewById(R.id.mr_volume_item_icon);
+                ViewGroup.LayoutParams lp = icon.getLayoutParams();
+                lp.width = mVolumeGroupListItemIconSize;
+                lp.height = mVolumeGroupListItemIconSize;
+                icon.setLayoutParams(lp);
             }
         }
         int expandedGroupListHeight = mVolumeGroupListItemHeight * volumeGroupListCount;
