@@ -65,17 +65,13 @@ final class MediaRouterThemeHelper {
     }
 
     public static int getButtonTextColor(Context context) {
-        int primaryColor = getPrimaryColor(context);
-
-        TypedValue value = new TypedValue();
-        context.getTheme().resolveAttribute(android.R.attr.colorBackground, value, true);
-        int backgroundColor = context.getResources().getColor(value.resourceId);
+        int primaryColor = getThemeColor(context, R.attr.colorPrimary);
+        int backgroundColor = getThemeColor(context, android.R.attr.colorBackground);
 
         double contrast = ColorUtils.calculateContrast(primaryColor, backgroundColor);
         if (contrast < MIN_CONTRAST_BUTTON_TEXT) {
-            // Default to textColorPrimary if the contrast ratio is low.
-            context.getTheme().resolveAttribute(android.R.attr.textColorPrimary, value, true);
-            return context.getResources().getColor(value.resourceId);
+            // Default to colorAccent if the contrast ratio is low.
+            return getThemeColor(context, R.attr.colorAccent);
         }
         return primaryColor;
     }
@@ -87,13 +83,16 @@ final class MediaRouterThemeHelper {
     }
 
     private static boolean isPrimaryColorLight(Context context) {
-        int primaryColor = getPrimaryColor(context);
+        int primaryColor = getThemeColor(context, R.attr.colorPrimary);
         return ColorUtils.calculateLuminance(primaryColor) >= 0.5;
     }
 
-    private static int getPrimaryColor(Context context) {
+    private static int getThemeColor(Context context, int attr) {
         TypedValue value = new TypedValue();
-        context.getTheme().resolveAttribute(R.attr.colorPrimary, value, true);
+        context.getTheme().resolveAttribute(attr, value, true);
+        if (value.resourceId != 0) {
+            return context.getResources().getColor(value.resourceId);
+        }
         return value.data;
     }
 }
