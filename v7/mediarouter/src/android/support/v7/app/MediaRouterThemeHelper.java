@@ -19,11 +19,16 @@ package android.support.v7.app;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.support.v4.graphics.ColorUtils;
 import android.support.v7.mediarouter.R;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 
 final class MediaRouterThemeHelper {
+
+    // http://www.w3.org/TR/UNDERSTANDING-WCAG20/visual-audio-contrast-contrast.html
+    private static final float MIN_CONTRAST_BUTTON_TEXT = 4.5f;
+
     private MediaRouterThemeHelper() {
     }
 
@@ -59,6 +64,22 @@ final class MediaRouterThemeHelper {
         return isPrimaryColorLight(context) ? Color.BLACK : Color.WHITE;
     }
 
+    public static int getButtonTextColor(Context context) {
+        int primaryColor = getPrimaryColor(context);
+
+        TypedValue value = new TypedValue();
+        context.getTheme().resolveAttribute(android.R.attr.colorBackground, value, true);
+        int backgroundColor = context.getResources().getColor(value.resourceId);
+
+        double contrast = ColorUtils.calculateContrast(primaryColor, backgroundColor);
+        if (contrast < MIN_CONTRAST_BUTTON_TEXT) {
+            // Default to textColorPrimary if the contrast ratio is low.
+            context.getTheme().resolveAttribute(android.R.attr.textColorPrimary, value, true);
+            return context.getResources().getColor(value.resourceId);
+        }
+        return primaryColor;
+    }
+
     private static boolean isLightTheme(Context context) {
         TypedValue value = new TypedValue();
         return context.getTheme().resolveAttribute(R.attr.isLightTheme, value, true)
@@ -66,18 +87,13 @@ final class MediaRouterThemeHelper {
     }
 
     private static boolean isPrimaryColorLight(Context context) {
-        TypedValue value = new TypedValue();
-        context.getTheme().resolveAttribute(R.attr.colorPrimary, value, true);
-        return luminance(value.data) >= 0.5;
+        int primaryColor = getPrimaryColor(context);
+        return ColorUtils.calculateLuminance(primaryColor) >= 0.5;
     }
 
-    private static float luminance(int color) {
-        double red = Color.red(color) / 255.0;
-        red = red < 0.03928 ? red / 12.92 : Math.pow((red + 0.055) / 1.055, 2.4);
-        double green = Color.green(color) / 255.0;
-        green = green < 0.03928 ? green / 12.92 : Math.pow((green + 0.055) / 1.055, 2.4);
-        double blue = Color.blue(color) / 255.0;
-        blue = blue < 0.03928 ? blue / 12.92 : Math.pow((blue + 0.055) / 1.055, 2.4);
-        return (float) ((0.2126 * red) + (0.7152 * green) + (0.0722 * blue));
+    private static int getPrimaryColor(Context context) {
+        TypedValue value = new TypedValue();
+        context.getTheme().resolveAttribute(R.attr.colorPrimary, value, true);
+        return value.data;
     }
 }
