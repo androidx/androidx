@@ -44,12 +44,12 @@ public class FadeAndShortSlide extends Visibility {
     private interface CalculateSlide {
 
         /** Returns the translation value for view when it goes out of the scene */
-        float getGoneX(ViewGroup sceneRoot, View view);
+        float getGoneX(ViewGroup sceneRoot, View view, int[] position);
     }
 
     private static final CalculateSlide sCalculateStart = new CalculateSlide() {
         @Override
-        public float getGoneX(ViewGroup sceneRoot, View view) {
+        public float getGoneX(ViewGroup sceneRoot, View view, int[] position) {
             final boolean isRtl = sceneRoot.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
             final float x;
             if (isRtl) {
@@ -63,7 +63,7 @@ public class FadeAndShortSlide extends Visibility {
 
     private static final CalculateSlide sCalculateEnd = new CalculateSlide() {
         @Override
-        public float getGoneX(ViewGroup sceneRoot, View view) {
+        public float getGoneX(ViewGroup sceneRoot, View view, int[] position) {
             final boolean isRtl = sceneRoot.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
             final float x;
             if (isRtl) {
@@ -72,6 +72,21 @@ public class FadeAndShortSlide extends Visibility {
                 x = view.getTranslationX() + sceneRoot.getWidth() / 4;
             }
             return x;
+        }
+    };
+
+    private static final CalculateSlide sCalculateBoth = new CalculateSlide() {
+
+        @Override
+        public float getGoneX(ViewGroup sceneRoot, View view, int[] position) {
+            final int viewCenter = position[0] + view.getWidth() / 2;
+            sceneRoot.getLocationOnScreen(position);
+            final int sceneRootCenter = position[0] + sceneRoot.getWidth() / 2;
+            if (viewCenter < sceneRootCenter) {
+                return view.getTranslationX() - sceneRoot.getWidth() / 2;
+            } else {
+                return view.getTranslationX() + sceneRoot.getWidth() / 2;
+            }
         }
     };
 
@@ -93,7 +108,7 @@ public class FadeAndShortSlide extends Visibility {
         View view = transitionValues.view;
         int[] position = new int[2];
         view.getLocationOnScreen(position);
-        transitionValues.values.put(PROPNAME_SCREEN_POSITION, position[0]);
+        transitionValues.values.put(PROPNAME_SCREEN_POSITION, position);
     }
 
     @Override
@@ -118,6 +133,9 @@ public class FadeAndShortSlide extends Visibility {
             case Gravity.END:
                 mSlideCalculator = sCalculateEnd;
                 break;
+            case Gravity.START | Gravity.END:
+                mSlideCalculator = sCalculateBoth;
+                break;
             default:
                 throw new IllegalArgumentException("Invalid slide direction");
         }
@@ -132,11 +150,12 @@ public class FadeAndShortSlide extends Visibility {
         if (endValues == null) {
             return null;
         }
-        Integer position = (Integer) endValues.values.get(PROPNAME_SCREEN_POSITION);
+        int[] position = (int[]) endValues.values.get(PROPNAME_SCREEN_POSITION);
+        int left = position[0];
         float endX = view.getTranslationX();
-        float startX = mSlideCalculator.getGoneX(sceneRoot, view);
+        float startX = mSlideCalculator.getGoneX(sceneRoot, view, position);
         final Animator slideAnimator = TranslationAnimationCreator.createAnimation(view, endValues,
-                position, startX, endX, sDecelerate, this);
+                left, startX, endX, sDecelerate, this);
         final AnimatorSet set = new AnimatorSet();
         set.play(slideAnimator).with(mFade.onAppear(sceneRoot, view, startValues, endValues));
 
@@ -149,11 +168,12 @@ public class FadeAndShortSlide extends Visibility {
         if (startValues == null) {
             return null;
         }
-        Integer position = (Integer) startValues.values.get(PROPNAME_SCREEN_POSITION);
+        int[] position = (int[]) startValues.values.get(PROPNAME_SCREEN_POSITION);
+        int left = position[0];
         float startX = view.getTranslationX();
-        float endX = mSlideCalculator.getGoneX(sceneRoot, view);
+        float endX = mSlideCalculator.getGoneX(sceneRoot, view, position);
         final Animator slideAnimator = TranslationAnimationCreator.createAnimation(view,
-                startValues, position, startX, endX, sDecelerate /* sAccelerate */, this);
+                startValues, left, startX, endX, sDecelerate /* sAccelerate */, this);
         final AnimatorSet set = new AnimatorSet();
         set.play(slideAnimator).with(mFade.onDisappear(sceneRoot, view, startValues, endValues));
 
