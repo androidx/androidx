@@ -67,6 +67,8 @@ class AdapterHelper implements OpReorderer.Callback {
 
     final OpReorderer mOpReorderer;
 
+    private int mExistingUpdateTypes = 0;
+
     AdapterHelper(Callback callback) {
         this(callback, false);
     }
@@ -85,6 +87,7 @@ class AdapterHelper implements OpReorderer.Callback {
     void reset() {
         recycleUpdateOpsAndClearList(mPendingUpdates);
         recycleUpdateOpsAndClearList(mPostponedList);
+        mExistingUpdateTypes = 0;
     }
 
     void preProcess() {
@@ -119,6 +122,7 @@ class AdapterHelper implements OpReorderer.Callback {
             mCallback.onDispatchSecondPass(mPostponedList.get(i));
         }
         recycleUpdateOpsAndClearList(mPostponedList);
+        mExistingUpdateTypes = 0;
     }
 
     private void applyMove(UpdateOp op) {
@@ -457,6 +461,10 @@ class AdapterHelper implements OpReorderer.Callback {
         return mPendingUpdates.size() > 0;
     }
 
+    boolean hasAnyUpdateTypes(int updateTypes) {
+        return (mExistingUpdateTypes & updateTypes) != 0;
+    }
+
     int findPositionOffset(int position) {
         return findPositionOffset(position, 0);
     }
@@ -495,6 +503,7 @@ class AdapterHelper implements OpReorderer.Callback {
      */
     boolean onItemRangeChanged(int positionStart, int itemCount, Object payload) {
         mPendingUpdates.add(obtainUpdateOp(UpdateOp.UPDATE, positionStart, itemCount, payload));
+        mExistingUpdateTypes |= UpdateOp.UPDATE;
         return mPendingUpdates.size() == 1;
     }
 
@@ -503,6 +512,7 @@ class AdapterHelper implements OpReorderer.Callback {
      */
     boolean onItemRangeInserted(int positionStart, int itemCount) {
         mPendingUpdates.add(obtainUpdateOp(UpdateOp.ADD, positionStart, itemCount, null));
+        mExistingUpdateTypes |= UpdateOp.ADD;
         return mPendingUpdates.size() == 1;
     }
 
@@ -511,6 +521,7 @@ class AdapterHelper implements OpReorderer.Callback {
      */
     boolean onItemRangeRemoved(int positionStart, int itemCount) {
         mPendingUpdates.add(obtainUpdateOp(UpdateOp.REMOVE, positionStart, itemCount, null));
+        mExistingUpdateTypes |= UpdateOp.REMOVE;
         return mPendingUpdates.size() == 1;
     }
 
@@ -525,6 +536,7 @@ class AdapterHelper implements OpReorderer.Callback {
             throw new IllegalArgumentException("Moving more than 1 item is not supported yet");
         }
         mPendingUpdates.add(obtainUpdateOp(UpdateOp.MOVE, from, to, null));
+        mExistingUpdateTypes |= UpdateOp.MOVE;
         return mPendingUpdates.size() == 1;
     }
 
@@ -561,6 +573,7 @@ class AdapterHelper implements OpReorderer.Callback {
             }
         }
         recycleUpdateOpsAndClearList(mPendingUpdates);
+        mExistingUpdateTypes = 0;
     }
 
     public int applyPendingUpdatesToPosition(int position) {
@@ -604,13 +617,13 @@ class AdapterHelper implements OpReorderer.Callback {
      */
     static class UpdateOp {
 
-        static final int ADD = 0;
+        static final int ADD = 1;
 
-        static final int REMOVE = 1;
+        static final int REMOVE = 1 << 1;
 
-        static final int UPDATE = 2;
+        static final int UPDATE = 1 << 2;
 
-        static final int MOVE = 3;
+        static final int MOVE = 1 << 3;
 
         static final int POOL_SIZE = 30;
 

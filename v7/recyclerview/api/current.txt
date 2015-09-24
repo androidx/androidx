@@ -110,7 +110,7 @@ package android.support.v7.util {
 
 package android.support.v7.widget {
 
-  public class DefaultItemAnimator extends android.support.v7.widget.RecyclerView.ItemAnimator {
+  public class DefaultItemAnimator extends android.support.v7.widget.SimpleItemAnimator {
     ctor public DefaultItemAnimator();
     method public boolean animateAdd(android.support.v7.widget.RecyclerView.ViewHolder);
     method public boolean animateChange(android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ViewHolder, int, int, int, int);
@@ -378,46 +378,55 @@ package android.support.v7.widget {
 
   public static abstract class RecyclerView.ItemAnimator {
     ctor public RecyclerView.ItemAnimator();
-    method public abstract boolean animateAdd(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public abstract boolean animateChange(android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ViewHolder, int, int, int, int);
-    method public abstract boolean animateMove(android.support.v7.widget.RecyclerView.ViewHolder, int, int, int, int);
-    method public abstract boolean animateRemove(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public final void dispatchAddFinished(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public final void dispatchAddStarting(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public abstract boolean animateAppearance(android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
+    method public abstract boolean animateChange(android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
+    method public abstract boolean animateDisappearance(android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
+    method public abstract boolean animatePersistence(android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
+    method public boolean canReuseUpdatedViewHolder(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public final void dispatchAnimationFinished(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public final void dispatchAnimationStarted(android.support.v7.widget.RecyclerView.ViewHolder);
     method public final void dispatchAnimationsFinished();
-    method public final void dispatchChangeFinished(android.support.v7.widget.RecyclerView.ViewHolder, boolean);
-    method public final void dispatchChangeStarting(android.support.v7.widget.RecyclerView.ViewHolder, boolean);
-    method public final void dispatchMoveFinished(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public final void dispatchMoveStarting(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public final void dispatchRemoveFinished(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public final void dispatchRemoveStarting(android.support.v7.widget.RecyclerView.ViewHolder);
     method public abstract void endAnimation(android.support.v7.widget.RecyclerView.ViewHolder);
     method public abstract void endAnimations();
     method public long getAddDuration();
     method public long getChangeDuration();
     method public long getMoveDuration();
     method public long getRemoveDuration();
-    method public boolean getSupportsChangeAnimations();
     method public abstract boolean isRunning();
     method public final boolean isRunning(android.support.v7.widget.RecyclerView.ItemAnimator.ItemAnimatorFinishedListener);
-    method public void onAddFinished(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public void onAddStarting(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public void onChangeFinished(android.support.v7.widget.RecyclerView.ViewHolder, boolean);
-    method public void onChangeStarting(android.support.v7.widget.RecyclerView.ViewHolder, boolean);
-    method public void onMoveFinished(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public void onMoveStarting(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public void onRemoveFinished(android.support.v7.widget.RecyclerView.ViewHolder);
-    method public void onRemoveStarting(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo obtainHolderInfo();
+    method public void onAnimationFinished(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public void onAnimationStarted(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo recordPostLayoutInformation(android.support.v7.widget.RecyclerView.State, android.support.v7.widget.RecyclerView.ViewHolder);
+    method public android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo recordPreLayoutInformation(android.support.v7.widget.RecyclerView.State, android.support.v7.widget.RecyclerView.ViewHolder, int, java.util.List<java.lang.Object>);
     method public abstract void runPendingAnimations();
     method public void setAddDuration(long);
     method public void setChangeDuration(long);
     method public void setMoveDuration(long);
     method public void setRemoveDuration(long);
-    method public void setSupportsChangeAnimations(boolean);
+    field public static final int FLAG_APPEARED_IN_PRE_LAYOUT = 4096; // 0x1000
+    field public static final int FLAG_CHANGED = 2; // 0x2
+    field public static final int FLAG_INVALIDATED = 4; // 0x4
+    field public static final int FLAG_MOVED = 2048; // 0x800
+    field public static final int FLAG_REMOVED = 8; // 0x8
+  }
+
+  public static abstract class RecyclerView.ItemAnimator.AdapterChanges implements java.lang.annotation.Annotation {
   }
 
   public static abstract interface RecyclerView.ItemAnimator.ItemAnimatorFinishedListener {
     method public abstract void onAnimationsFinished();
+  }
+
+  public static class RecyclerView.ItemAnimator.ItemHolderInfo {
+    ctor public RecyclerView.ItemAnimator.ItemHolderInfo();
+    method public android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo setFrom(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo setFrom(android.support.v7.widget.RecyclerView.ViewHolder, int);
+    field public int bottom;
+    field public int changeFlags;
+    field public int left;
+    field public int right;
+    field public int top;
   }
 
   public static abstract class RecyclerView.ItemDecoration {
@@ -697,6 +706,36 @@ package android.support.v7.widget {
 
   public class RecyclerViewAccessibilityDelegate extends android.support.v4.view.AccessibilityDelegateCompat {
     ctor public RecyclerViewAccessibilityDelegate(android.support.v7.widget.RecyclerView);
+  }
+
+  public abstract class SimpleItemAnimator extends android.support.v7.widget.RecyclerView.ItemAnimator {
+    ctor public SimpleItemAnimator();
+    method public abstract boolean animateAdd(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public boolean animateAppearance(android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
+    method public boolean animateChange(android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
+    method public abstract boolean animateChange(android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ViewHolder, int, int, int, int);
+    method public boolean animateDisappearance(android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
+    method public abstract boolean animateMove(android.support.v7.widget.RecyclerView.ViewHolder, int, int, int, int);
+    method public boolean animatePersistence(android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
+    method public abstract boolean animateRemove(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public final void dispatchAddFinished(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public final void dispatchAddStarting(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public final void dispatchChangeFinished(android.support.v7.widget.RecyclerView.ViewHolder, boolean);
+    method public final void dispatchChangeStarting(android.support.v7.widget.RecyclerView.ViewHolder, boolean);
+    method public final void dispatchMoveFinished(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public final void dispatchMoveStarting(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public final void dispatchRemoveFinished(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public final void dispatchRemoveStarting(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public boolean getSupportsChangeAnimations();
+    method public void onAddFinished(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public void onAddStarting(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public void onChangeFinished(android.support.v7.widget.RecyclerView.ViewHolder, boolean);
+    method public void onChangeStarting(android.support.v7.widget.RecyclerView.ViewHolder, boolean);
+    method public void onMoveFinished(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public void onMoveStarting(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public void onRemoveFinished(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public void onRemoveStarting(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public void setSupportsChangeAnimations(boolean);
   }
 
   public class StaggeredGridLayoutManager extends android.support.v7.widget.RecyclerView.LayoutManager {
