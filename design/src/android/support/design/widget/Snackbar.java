@@ -507,7 +507,8 @@ public final class Snackbar {
     private void animateViewIn() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             ViewCompat.setTranslationY(mView, mView.getHeight());
-            ViewCompat.animate(mView).translationY(0f)
+            ViewCompat.animate(mView)
+                    .translationY(0f)
                     .setInterpolator(FAST_OUT_SLOW_IN_INTERPOLATOR)
                     .setDuration(ANIMATION_DURATION)
                     .setListener(new ViewPropertyAnimatorListenerAdapter() {
@@ -526,7 +527,8 @@ public final class Snackbar {
                         }
                     }).start();
         } else {
-            Animation anim = AnimationUtils.loadAnimation(mView.getContext(), R.anim.design_snackbar_in);
+            Animation anim = AnimationUtils.loadAnimation(mView.getContext(),
+                    R.anim.design_snackbar_in);
             anim.setInterpolator(FAST_OUT_SLOW_IN_INTERPOLATOR);
             anim.setDuration(ANIMATION_DURATION);
             anim.setAnimationListener(new Animation.AnimationListener() {
@@ -550,7 +552,8 @@ public final class Snackbar {
 
     private void animateViewOut(final int event) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            ViewCompat.animate(mView).translationY(mView.getHeight())
+            ViewCompat.animate(mView)
+                    .translationY(mView.getHeight())
                     .setInterpolator(FAST_OUT_SLOW_IN_INTERPOLATOR)
                     .setDuration(ANIMATION_DURATION)
                     .setListener(new ViewPropertyAnimatorListenerAdapter() {
@@ -668,6 +671,9 @@ public final class Snackbar {
             // in the layout since older versions of the Android do not inflate includes with
             // the correct Context.
             LayoutInflater.from(context).inflate(R.layout.design_layout_snackbar_include, this);
+
+            ViewCompat.setAccessibilityLiveRegion(this,
+                    ViewCompat.ACCESSIBILITY_LIVE_REGION_POLITE);
         }
 
         @Override
