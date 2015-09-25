@@ -587,37 +587,31 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
     }
 
     @Override
-    public ViewPropertyAnimatorCompat setupAnimatorToVisibility(int visibility, long duration) {
-        if (visibility == View.GONE) {
-            ViewPropertyAnimatorCompat anim = ViewCompat.animate(mToolbar).alpha(0f);
-            anim.setDuration(duration);
-            anim.setListener(new ViewPropertyAnimatorListenerAdapter() {
-                private boolean mCanceled = false;
-                @Override
-                public void onAnimationEnd(View view) {
-                    if (!mCanceled) {
-                        mToolbar.setVisibility(View.GONE);
-                    }
-                }
+    public ViewPropertyAnimatorCompat setupAnimatorToVisibility(final int visibility,
+            final long duration) {
+        return ViewCompat.animate(mToolbar)
+                .alpha(visibility == View.VISIBLE ? 1f : 0f)
+                .setDuration(duration)
+                .setListener(new ViewPropertyAnimatorListenerAdapter() {
+                    private boolean mCanceled = false;
 
-                @Override
-                public void onAnimationCancel(View view) {
-                    mCanceled = true;
-                }
-            });
-            return anim;
-        } else if (visibility == View.VISIBLE) {
-            ViewPropertyAnimatorCompat anim = ViewCompat.animate(mToolbar).alpha(1f);
-            anim.setDuration(duration);
-            anim.setListener(new ViewPropertyAnimatorListenerAdapter() {
-                @Override
-                public void onAnimationStart(View view) {
-                    mToolbar.setVisibility(View.VISIBLE);
-                }
-            });
-            return anim;
-        }
-        return null;
+                    @Override
+                    public void onAnimationStart(View view) {
+                        mToolbar.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationEnd(View view) {
+                        if (!mCanceled) {
+                            mToolbar.setVisibility(visibility);
+                        }
+                    }
+
+                    @Override
+                    public void onAnimationCancel(View view) {
+                        mCanceled = true;
+                    }
+                });
     }
 
     @Override
