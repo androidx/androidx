@@ -36,6 +36,7 @@ public class AppCompatCheckedTextView extends CheckedTextView {
     };
 
     private TintManager mTintManager;
+    private AppCompatTextHelper mTextHelper;
 
     public AppCompatCheckedTextView(Context context) {
         this(context, null);
@@ -47,6 +48,10 @@ public class AppCompatCheckedTextView extends CheckedTextView {
 
     public AppCompatCheckedTextView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+
+        mTextHelper = AppCompatTextHelper.create(this);
+        mTextHelper.loadFromAttributes(attrs, defStyleAttr);
+        mTextHelper.applyCompoundDrawablesTints();
 
         if (TintManager.SHOULD_BE_USED) {
             TintTypedArray a = TintTypedArray.obtainStyledAttributes(getContext(), attrs,
@@ -67,4 +72,19 @@ public class AppCompatCheckedTextView extends CheckedTextView {
         }
     }
 
+    @Override
+    public void setTextAppearance(Context context, int resId) {
+        super.setTextAppearance(context, resId);
+        if (mTextHelper != null) {
+            mTextHelper.onSetTextAppearance(context, resId);
+        }
+    }
+
+    @Override
+    protected void drawableStateChanged() {
+        super.drawableStateChanged();
+        if (mTextHelper != null) {
+            mTextHelper.applyCompoundDrawablesTints();
+        }
+    }
 }

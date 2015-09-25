@@ -65,8 +65,9 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
         mBackgroundTintHelper = new AppCompatBackgroundHelper(this, mTintManager);
         mBackgroundTintHelper.loadFromAttributes(attrs, defStyleAttr);
 
-        mTextHelper = new AppCompatTextHelper(this);
+        mTextHelper = AppCompatTextHelper.create(this);
         mTextHelper.loadFromAttributes(attrs, defStyleAttr);
+        mTextHelper.applyCompoundDrawablesTints();
     }
 
     @Override
@@ -142,6 +143,9 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
         super.drawableStateChanged();
         if (mBackgroundTintHelper != null) {
             mBackgroundTintHelper.applySupportBackgroundTint();
+        }
+        if (mTextHelper != null) {
+            mTextHelper.applyCompoundDrawablesTints();
         }
     }
 
