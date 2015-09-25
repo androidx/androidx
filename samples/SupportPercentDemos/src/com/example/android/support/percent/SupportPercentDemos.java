@@ -44,6 +44,7 @@ public class SupportPercentDemos extends Activity {
             super(fm);
         }
 
+
         @Override
         public Fragment getItem(int position) {
             PercentFragment fragment = new PercentFragment();
@@ -54,6 +55,10 @@ public class SupportPercentDemos extends Activity {
                     break;
                 case 1:
                     args.putInt(LAYOUT_RESOURCE_ID, R.layout.demo_2);
+                    break;
+                case 2:
+                    args.putInt(LAYOUT_RESOURCE_ID, R.layout.demo_3);
+                    break;
                 default:
                     break;
             }
@@ -63,7 +68,7 @@ public class SupportPercentDemos extends Activity {
 
         @Override
         public int getCount() {
-            return 2;
+            return 3;
         }
     }
 
