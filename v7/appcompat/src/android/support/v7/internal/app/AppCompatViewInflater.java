@@ -31,6 +31,8 @@ import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.AppCompatCheckedTextView;
 import android.support.v7.widget.AppCompatEditText;
+import android.support.v7.widget.AppCompatImageButton;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatMultiAutoCompleteTextView;
 import android.support.v7.widget.AppCompatRadioButton;
 import android.support.v7.widget.AppCompatRatingBar;
@@ -89,11 +91,23 @@ public class AppCompatViewInflater {
 
         // We need to 'inject' our tint aware Views in place of the standard framework versions
         switch (name) {
+            case "TextView":
+                view = new AppCompatTextView(context, attrs);
+                break;
+            case "ImageView":
+                view = new AppCompatImageView(context, attrs);
+                break;
+            case "Button":
+                view = new AppCompatButton(context, attrs);
+                break;
             case "EditText":
                 view = new AppCompatEditText(context, attrs);
                 break;
             case "Spinner":
                 view = new AppCompatSpinner(context, attrs);
+                break;
+            case "ImageButton":
+                view = new AppCompatImageButton(context, attrs);
                 break;
             case "CheckBox":
                 view = new AppCompatCheckBox(context, attrs);
@@ -112,12 +126,6 @@ public class AppCompatViewInflater {
                 break;
             case "RatingBar":
                 view = new AppCompatRatingBar(context, attrs);
-                break;
-            case "Button":
-                view = new AppCompatButton(context, attrs);
-                break;
-            case "TextView":
-                view = new AppCompatTextView(context, attrs);
                 break;
             case "SeekBar":
                 view = new AppCompatSeekBar(context, attrs);

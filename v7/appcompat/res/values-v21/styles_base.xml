@@ -188,6 +188,8 @@
 
     <style name="Base.Widget.AppCompat.CompoundButton.RadioButton" parent="android:Widget.Material.CompoundButton.RadioButton" />
 
+    <style name="Base.Widget.AppCompat.ImageButton" parent="android:Widget.Material.ImageButton" />
+
     <!-- Progress Bar -->
 
     <style name="Base.Widget.AppCompat.ProgressBar.Horizontal"
