@@ -76,6 +76,7 @@ public class ListPopupWindow {
     private static final int EXPAND_LIST_TIMEOUT = 250;
 
     private static Method sClipToWindowEnabledMethod;
+    private static Method sGetMaxAvailableHeightMethod;
 
     static {
         try {
@@ -83,6 +84,13 @@ public class ListPopupWindow {
                     "setClipToScreenEnabled", boolean.class);
         } catch (NoSuchMethodException e) {
             Log.i(TAG, "Could not find method setClipToScreenEnabled() on PopupWindow. Oh well.");
+        }
+        try {
+            sGetMaxAvailableHeightMethod = PopupWindow.class.getDeclaredMethod(
+                    "getMaxAvailableHeight", View.class, int.class, boolean.class);
+        } catch (NoSuchMethodException e) {
+            Log.i(TAG, "Could not find method getMaxAvailableHeight(View, int, boolean)"
+                    + " on PopupWindow. Oh well.");
         }
     }
 
@@ -1198,11 +1206,10 @@ public class ListPopupWindow {
         }
 
         // Max height available on the screen for a popup.
-        boolean ignoreBottomDecorations =
+        final boolean ignoreBottomDecorations =
                 mPopup.getInputMethodMode() == PopupWindow.INPUT_METHOD_NOT_NEEDED;
-        final int maxHeight = mPopup.getMaxAvailableHeight(
-                getAnchorView(), mDropDownVerticalOffset /*, ignoreBottomDecorations*/);
-
+        final int maxHeight = getMaxAvailableHeight(getAnchorView(), mDropDownVerticalOffset,
+                ignoreBottomDecorations);
         if (mDropDownAlwaysVisible || mDropDownHeight == ViewGroup.LayoutParams.MATCH_PARENT) {
             return maxHeight + padding;
         }
@@ -1837,4 +1844,16 @@ public class ListPopupWindow {
         }
     }
 
+    private int getMaxAvailableHeight(View anchor, int yOffset, boolean ignoreBottomDecorations) {
+        if (sGetMaxAvailableHeightMethod != null) {
+            try {
+                return (int) sGetMaxAvailableHeightMethod.invoke(mPopup, anchor, yOffset,
+                        ignoreBottomDecorations);
+            } catch (Exception e) {
+                Log.i(TAG, "Could not call getMaxAvailableHeightMethod(View, int, boolean)"
+                        + " on PopupWindow. Using the public version.");
+            }
+        }
+        return mPopup.getMaxAvailableHeight(anchor, yOffset);
+    }
 }
