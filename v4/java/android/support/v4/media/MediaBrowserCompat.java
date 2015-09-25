@@ -29,8 +29,8 @@ import android.os.RemoteException;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.media.IMediaBrowserService;
-import android.support.v4.media.IMediaBrowserServiceCallbacks;
+import android.support.v4.media.IMediaBrowserServiceCompat;
+import android.support.v4.media.IMediaBrowserServiceCompatCallbacks;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.os.ResultReceiver;
 import android.support.v4.util.ArrayMap;
@@ -44,15 +44,15 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Browses media content offered by a link MediaBrowserService.
+ * Browses media content offered by a {@link MediaBrowserServiceCompat}.
  * <p>
  * This object is not thread-safe. All calls should happen on the thread on which the browser
  * was constructed.
  * </p>
  * @hide
  */
-public final class MediaBrowser {
-    private static final String TAG = "MediaBrowser";
+public final class MediaBrowserCompat {
+    private static final String TAG = "MediaBrowserCompat";
     private static final boolean DBG = false;
 
     private static final int CONNECT_STATE_DISCONNECTED = 0;
@@ -66,12 +66,12 @@ public final class MediaBrowser {
     private final Bundle mRootHints;
     private final Handler mHandler = new Handler();
     private final ArrayMap<String,Subscription> mSubscriptions =
-            new ArrayMap<String, MediaBrowser.Subscription>();
+            new ArrayMap<String, MediaBrowserCompat.Subscription>();
 
     private int mState = CONNECT_STATE_DISCONNECTED;
     private MediaServiceConnection mServiceConnection;
-    private IMediaBrowserService mServiceBinder;
-    private IMediaBrowserServiceCallbacks mServiceCallbacks;
+    private IMediaBrowserServiceCompat mServiceBinder;
+    private IMediaBrowserServiceCompatCallbacks mServiceCallbacks;
     private String mRootId;
     private MediaSessionCompat.Token mMediaSessionToken;
     private Bundle mExtras;
@@ -87,7 +87,7 @@ public final class MediaBrowser {
      * for browsing, or null if none.  The contents of this bundle may affect
      * the information returned when browsing.
      */
-    public MediaBrowser(Context context, ComponentName serviceComponent,
+    public MediaBrowserCompat(Context context, ComponentName serviceComponent,
             ConnectionCallback callback, Bundle rootHints) {
         if (context == null) {
             throw new IllegalArgumentException("context must not be null");
@@ -134,7 +134,7 @@ public final class MediaBrowser {
 
         mState = CONNECT_STATE_CONNECTING;
 
-        final Intent intent = new Intent(MediaBrowserService.SERVICE_INTERFACE);
+        final Intent intent = new Intent(MediaBrowserServiceCompat.SERVICE_INTERFACE);
         intent.setComponent(mServiceComponent);
 
         final ServiceConnection thisConnection = mServiceConnection = new MediaServiceConnection();
@@ -395,11 +395,12 @@ public final class MediaBrowser {
             @Override
             protected void onReceiveResult(int resultCode, Bundle resultData) {
                 if (resultCode != 0 || resultData == null
-                        || !resultData.containsKey(MediaBrowserService.KEY_MEDIA_ITEM)) {
+                        || !resultData.containsKey(MediaBrowserServiceCompat.KEY_MEDIA_ITEM)) {
                     cb.onError(mediaId);
                     return;
                 }
-                Parcelable item = resultData.getParcelable(MediaBrowserService.KEY_MEDIA_ITEM);
+                Parcelable item =
+                        resultData.getParcelable(MediaBrowserServiceCompat.KEY_MEDIA_ITEM);
                 if (!(item instanceof MediaItem)) {
                     cb.onError(mediaId);
                     return;
@@ -438,7 +439,7 @@ public final class MediaBrowser {
         }
     }
 
-    private final void onServiceConnected(final IMediaBrowserServiceCallbacks callback,
+    private final void onServiceConnected(final IMediaBrowserServiceCompatCallbacks callback,
             final String root, final MediaSessionCompat.Token session, final Bundle extra) {
         mHandler.post(new Runnable() {
             @Override
@@ -480,7 +481,7 @@ public final class MediaBrowser {
         });
     }
 
-    private final void onConnectionFailed(final IMediaBrowserServiceCallbacks callback) {
+    private final void onConnectionFailed(final IMediaBrowserServiceCompatCallbacks callback) {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -507,7 +508,7 @@ public final class MediaBrowser {
         });
     }
 
-    private final void onLoadChildren(final IMediaBrowserServiceCallbacks callback,
+    private final void onLoadChildren(final IMediaBrowserServiceCompatCallbacks callback,
             final String parentId, final List list) {
         mHandler.post(new Runnable() {
             @Override
@@ -545,7 +546,7 @@ public final class MediaBrowser {
     /**
      * Return true if {@code callback} is the current ServiceCallbacks.  Also logs if it's not.
      */
-    private boolean isCurrent(IMediaBrowserServiceCallbacks callback, String funcName) {
+    private boolean isCurrent(IMediaBrowserServiceCompatCallbacks callback, String funcName) {
         if (mServiceCallbacks != callback) {
             if (mState != CONNECT_STATE_DISCONNECTED) {
                 Log.i(TAG, funcName + " for " + mServiceComponent + " with mServiceConnection="
@@ -565,7 +566,7 @@ public final class MediaBrowser {
      * @hide
      */
     void dump() {
-        Log.d(TAG, "MediaBrowser...");
+        Log.d(TAG, "MediaBrowserCompat...");
         Log.d(TAG, "  mServiceComponent=" + mServiceComponent);
         Log.d(TAG, "  mCallback=" + mCallback);
         Log.d(TAG, "  mRootHints=" + mRootHints);
@@ -703,7 +704,8 @@ public final class MediaBrowser {
      */
     public static class ConnectionCallback {
         /**
-         * Invoked after {@link MediaBrowser#connect()} when the request has successfully completed.
+         * Invoked after {@link MediaBrowserCompat#connect()} when the request has successfully
+         * completed.
          */
         public void onConnected() {
         }
@@ -738,7 +740,7 @@ public final class MediaBrowser {
         /**
          * Called when the id doesn't exist or other errors in subscribing.
          * <p>
-         * If this is called, the subscription remains until {@link MediaBrowser#unsubscribe}
+         * If this is called, the subscription remains until {@link MediaBrowserCompat#unsubscribe}
          * called, because some errors may heal themselves.
          * </p>
          *
@@ -789,7 +791,7 @@ public final class MediaBrowser {
             }
 
             // Save their binder
-            mServiceBinder = IMediaBrowserService.Stub.asInterface(binder);
+            mServiceBinder = IMediaBrowserServiceCompat.Stub.asInterface(binder);
 
             // We make a new mServiceCallbacks each time we connect so that we can drop
             // responses from previous connections.
@@ -858,11 +860,11 @@ public final class MediaBrowser {
     /**
      * Callbacks from the service.
      */
-    private static class ServiceCallbacks extends IMediaBrowserServiceCallbacks.Stub {
-        private WeakReference<MediaBrowser> mMediaBrowser;
+    private static class ServiceCallbacks extends IMediaBrowserServiceCompatCallbacks.Stub {
+        private WeakReference<MediaBrowserCompat> mMediaBrowser;
 
-        public ServiceCallbacks(MediaBrowser mediaBrowser) {
-            mMediaBrowser = new WeakReference<MediaBrowser>(mediaBrowser);
+        public ServiceCallbacks(MediaBrowserCompat mediaBrowser) {
+            mMediaBrowser = new WeakReference<MediaBrowserCompat>(mediaBrowser);
         }
 
         /**
@@ -872,7 +874,7 @@ public final class MediaBrowser {
         @Override
         public void onConnect(final String root, final MediaSessionCompat.Token session,
                 final Bundle extras) {
-            MediaBrowser mediaBrowser = mMediaBrowser.get();
+            MediaBrowserCompat mediaBrowser = mMediaBrowser.get();
             if (mediaBrowser != null) {
                 mediaBrowser.onServiceConnected(this, root, session, extras);
             }
@@ -883,7 +885,7 @@ public final class MediaBrowser {
          */
         @Override
         public void onConnectFailed() {
-            MediaBrowser mediaBrowser = mMediaBrowser.get();
+            MediaBrowserCompat mediaBrowser = mMediaBrowser.get();
             if (mediaBrowser != null) {
                 mediaBrowser.onConnectionFailed(this);
             }
@@ -891,7 +893,7 @@ public final class MediaBrowser {
 
         @Override
         public void onLoadChildren(final String parentId, final List list) {
-            MediaBrowser mediaBrowser = mMediaBrowser.get();
+            MediaBrowserCompat mediaBrowser = mMediaBrowser.get();
             if (mediaBrowser != null) {
                 mediaBrowser.onLoadChildren(this, parentId, list);
             }
