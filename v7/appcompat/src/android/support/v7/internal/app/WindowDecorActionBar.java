@@ -846,7 +846,11 @@ public class WindowDecorActionBar extends ActionBar implements
 
         ViewPropertyAnimatorCompat fadeIn, fadeOut;
         if (toActionMode) {
-            fadeOut = mDecorToolbar.setupAnimatorToVisibility(View.GONE,
+            // We use INVISIBLE for the Toolbar to make sure that the container has a non-zero
+            // height throughout. The context view is GONE initially, so will not have been laid
+            // out when the animation starts. This can lead to the container collapsing to 0px
+            // height for a short period.
+            fadeOut = mDecorToolbar.setupAnimatorToVisibility(View.INVISIBLE,
                     FADE_OUT_DURATION_MS);
             fadeIn = mContextView.setupAnimatorToVisibility(View.VISIBLE,
                     FADE_IN_DURATION_MS);
