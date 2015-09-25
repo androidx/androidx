@@ -590,21 +590,22 @@ public final class TintManager {
         }
     }
 
-    public static void tintViewBackground(View view, TintInfo tint) {
-        final Drawable background = view.getBackground();
-        if (tint.mHasTintList || tint.mHasTintMode) {
-            background.setColorFilter(createTintFilter(
-                    tint.mHasTintList ? tint.mTintList : null,
-                    tint.mHasTintMode ? tint.mTintMode : DEFAULT_MODE,
-                    view.getDrawableState()));
-        } else {
-            background.clearColorFilter();
-        }
+    public static void tintDrawable(Drawable drawable, TintInfo tint, int[] state) {
+        if (drawable == drawable.mutate()) {
+            if (tint.mHasTintList || tint.mHasTintMode) {
+                drawable.setColorFilter(createTintFilter(
+                        tint.mHasTintList ? tint.mTintList : null,
+                        tint.mHasTintMode ? tint.mTintMode : DEFAULT_MODE,
+                        state));
+            } else {
+                drawable.clearColorFilter();
+            }
 
-        if (Build.VERSION.SDK_INT <= 10) {
-            // On Gingerbread, GradientDrawable does not invalidate itself when it's ColorFilter
-            // has changed, so we need to force an invalidation
-            view.invalidate();
+            if (Build.VERSION.SDK_INT <= 10) {
+                // On Gingerbread, GradientDrawable does not invalidate itself when it's
+                // ColorFilter has changed, so we need to force an invalidation
+                drawable.invalidateSelf();
+            }
         }
     }
 

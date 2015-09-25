@@ -87,6 +87,9 @@
     <!-- Padding above and below selection dialog lists. -->
     <dimen name="abc_dialog_list_padding_vertical_material">8dp</dimen>
 
+    <!-- Dialog padding minus control padding, used to fix alignment. -->
+    <dimen name="abc_select_dialog_padding_start_material">20dp</dimen>
+
     <!-- The platform's desired minimum size for a dialog's width when it
          is along the major axis (that is the screen is landscape).  This may
          be either a fraction or a dimension. -->

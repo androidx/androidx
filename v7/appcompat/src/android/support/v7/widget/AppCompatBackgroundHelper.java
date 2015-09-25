@@ -106,11 +106,13 @@ class AppCompatBackgroundHelper {
     }
 
     void applySupportBackgroundTint() {
-        if (mView.getBackground() != null) {
+        final Drawable background = mView.getBackground();
+        if (background != null) {
             if (mBackgroundTint != null) {
-                TintManager.tintViewBackground(mView, mBackgroundTint);
+                TintManager.tintDrawable(background, mBackgroundTint, mView.getDrawableState());
             } else if (mInternalBackgroundTint != null) {
-                TintManager.tintViewBackground(mView, mInternalBackgroundTint);
+                TintManager.tintDrawable(background, mInternalBackgroundTint,
+                        mView.getDrawableState());
             }
         }
     }

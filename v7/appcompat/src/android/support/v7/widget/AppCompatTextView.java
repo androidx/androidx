@@ -47,8 +47,9 @@ public class AppCompatTextView extends TextView {
     public AppCompatTextView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        mTextHelper = new AppCompatTextHelper(this);
+        mTextHelper = AppCompatTextHelper.create(this);
         mTextHelper.loadFromAttributes(attrs, defStyleAttr);
+        mTextHelper.applyCompoundDrawablesTints();
     }
 
     @Override
@@ -56,6 +57,14 @@ public class AppCompatTextView extends TextView {
         super.setTextAppearance(context, resId);
         if (mTextHelper != null) {
             mTextHelper.onSetTextAppearance(context, resId);
+        }
+    }
+
+    @Override
+    protected void drawableStateChanged() {
+        super.drawableStateChanged();
+        if (mTextHelper != null) {
+            mTextHelper.applyCompoundDrawablesTints();
         }
     }
 }
