@@ -2228,10 +2228,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                         startScroll = true;
                     }
                     if (startScroll) {
-                        final ViewParent parent = getParent();
-                        if (parent != null) {
-                            parent.requestDisallowInterceptTouchEvent(true);
-                        }
                         setScrollState(SCROLL_STATE_DRAGGING);
                     }
                 }
@@ -2357,10 +2353,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                         startScroll = true;
                     }
                     if (startScroll) {
-                        final ViewParent parent = getParent();
-                        if (parent != null) {
-                            parent.requestDisallowInterceptTouchEvent(true);
-                        }
                         setScrollState(SCROLL_STATE_DRAGGING);
                     }
                 }
