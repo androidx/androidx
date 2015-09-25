@@ -673,6 +673,7 @@ package android.support.v7.appcompat {
     field public static int abc_search_view_text_min_width;
     field public static int abc_seekbar_track_background_height_material;
     field public static int abc_seekbar_track_progress_height_material;
+    field public static int abc_select_dialog_padding_start_material;
     field public static int abc_switch_padding;
     field public static int abc_text_size_body_1_material;
     field public static int abc_text_size_body_2_material;
