@@ -23,8 +23,15 @@ api_check_last_msg_file := $(LOCAL_PATH)/apicheck_msg_last.txt
 .PHONY: update-support-api
 .PHONY: check-support-api
 
+.PHONY: support-gradle-archive
+support-gradle-archive: PRIVATE_LOCAL_PATH := $(LOCAL_PATH)
+support-gradle-archive:
+	$(PRIVATE_LOCAL_PATH)/gradlew -p $(PRIVATE_LOCAL_PATH) createArchive
+
 # Run the check-support-api task on a SDK build
 sdk: check-support-api
+# Run the support-gradle-archive task on a SDK build
+sdk: support-gradle-archive
 
 # Build all support libraries
 include $(call all-makefiles-under,$(LOCAL_PATH))
