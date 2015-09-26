@@ -1966,7 +1966,8 @@ public class MediaSessionCompat {
 
         @Override
         public void setCallback(Callback callback, Handler handler) {
-            MediaSessionCompatApi21.setCallback(mSessionObj, callback.mCallbackObj, handler);
+            MediaSessionCompatApi21.setCallback(mSessionObj,
+                    callback == null ? null : callback.mCallbackObj, handler);
         }
 
         @Override
