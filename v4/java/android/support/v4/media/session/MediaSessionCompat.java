@@ -1347,7 +1347,7 @@ public class MediaSessionCompat {
                     if (!mIsMbrRegistered && (mFlags & FLAG_HANDLES_MEDIA_BUTTONS) != 0) {
                         if (android.os.Build.VERSION.SDK_INT >= 18) {
                             MediaSessionCompatApi18.registerMediaButtonEventReceiver(mContext,
-                                    mMediaButtonEventReceiver);
+                                    mMediaButtonEventReceiver, mComponentName);
                         } else {
                             MediaSessionCompatApi8.registerMediaButtonEventReceiver(mContext,
                                     mComponentName);
@@ -1356,7 +1356,7 @@ public class MediaSessionCompat {
                     } else if (mIsMbrRegistered && (mFlags & FLAG_HANDLES_MEDIA_BUTTONS) == 0) {
                         if (android.os.Build.VERSION.SDK_INT >= 18) {
                             MediaSessionCompatApi18.unregisterMediaButtonEventReceiver(mContext,
-                                    mMediaButtonEventReceiver);
+                                    mMediaButtonEventReceiver, mComponentName);
                         } else {
                             MediaSessionCompatApi8.unregisterMediaButtonEventReceiver(mContext,
                                     mComponentName);
@@ -1386,7 +1386,7 @@ public class MediaSessionCompat {
                 if (mIsMbrRegistered) {
                     if (android.os.Build.VERSION.SDK_INT >= 18) {
                         MediaSessionCompatApi18.unregisterMediaButtonEventReceiver(mContext,
-                                mMediaButtonEventReceiver);
+                                mMediaButtonEventReceiver, mComponentName);
                     } else {
                         MediaSessionCompatApi8.unregisterMediaButtonEventReceiver(mContext,
                                 mComponentName);
