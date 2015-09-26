@@ -136,6 +136,8 @@ public final class TransitionHelper {
         public Object createDefaultInterpolator(Context context);
 
         public Object loadTransition(Context context, int resId);
+
+        public void setTransitionGroup(ViewGroup viewGroup, boolean transitionGroup);
     }
 
     /**
@@ -322,6 +324,10 @@ public final class TransitionHelper {
         @Override
         public Object loadTransition(Context context, int resId) {
             return new TransitionStub();
+        }
+
+        @Override
+        public void setTransitionGroup(ViewGroup viewGroup, boolean transitionGroup) {
         }
     }
 
@@ -526,6 +532,11 @@ public final class TransitionHelper {
         public Object createDefaultInterpolator(Context context) {
             return TransitionHelperApi21.createDefaultInterpolator(context);
         }
+
+        @Override
+        public void setTransitionGroup(ViewGroup viewGroup, boolean transitionGroup) {
+            TransitionHelperApi21.setTransitionGroup(viewGroup, transitionGroup);
+        }
     }
 
     /**
@@ -700,5 +711,9 @@ public final class TransitionHelper {
 
     public Object createFadeAndShortSlide(int edge) {
         return mImpl.createFadeAndShortSlide(edge);
+    }
+
+    public void setTransitionGroup(ViewGroup viewGroup, boolean transitionGroup) {
+        mImpl.setTransitionGroup(viewGroup, transitionGroup);
     }
 }
