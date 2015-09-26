@@ -21,7 +21,7 @@ limitations under the License.
     <string name="lb_search_bar_hint" msgid="8325490927970116252">"Haku"</string>
     <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"Tee haku puhumalla"</string>
     <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"Haku: <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
-    <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"Puhehaku: <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
+    <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"Hae <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> puhehaulla"</string>
     <string name="lb_control_display_fast_forward_multiplier" msgid="4541442045214207774">"%1$dX"</string>
     <string name="lb_control_display_rewind_multiplier" msgid="3097220783222910245">"%1$dX"</string>
     <string name="lb_playback_controls_play" msgid="731953341987346903">"Toista"</string>
