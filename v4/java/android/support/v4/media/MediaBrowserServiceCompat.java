@@ -26,8 +26,8 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.media.IMediaBrowserService;
-import android.support.v4.media.IMediaBrowserServiceCallbacks;
+import android.support.v4.media.IMediaBrowserServiceCompat;
+import android.support.v4.media.IMediaBrowserServiceCompatCallbacks;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.os.ResultReceiver;
 import android.support.v4.util.ArrayMap;
@@ -44,7 +44,7 @@ import java.util.List;
  * <p>
  * Media browse services enable applications to browse media content provided by an application
  * and ask the application to start playing it.  They may also be used to control content that
- * is already playing by way of a {@link MediaSession}.
+ * is already playing by way of a {@link MediaSessionCompat}.
  * </p>
  *
  * To extend this class, you must declare the service in your manifest file with
@@ -52,23 +52,23 @@ import java.util.List;
  *
  * For example:
  * </p><pre>
- * &lt;service android:name=".MyMediaBrowserService"
+ * &lt;service android:name=".MyMediaBrowserServiceCompat"
  *          android:label="&#64;string/service_name" >
  *     &lt;intent-filter>
- *         &lt;action android:name="android.media.browse.MediaBrowserService" />
+ *         &lt;action android:name="android.media.browse.MediaBrowserServiceCompat" />
  *     &lt;/intent-filter>
  * &lt;/service>
  * </pre>
  * @hide
  */
-public abstract class MediaBrowserService extends Service {
-    private static final String TAG = "MediaBrowserService";
+public abstract class MediaBrowserServiceCompat extends Service {
+    private static final String TAG = "MediaBrowserServiceCompat";
     private static final boolean DBG = false;
 
     /**
      * The {@link Intent} that must be declared as handled by the service.
      */
-    public static final String SERVICE_INTERFACE = "android.media.browse.MediaBrowserService";
+    public static final String SERVICE_INTERFACE = "android.media.browse.MediaBrowserServiceCompat";
 
     /**
      * A key for passing the MediaItem to the ResultReceiver in getItem.
@@ -88,13 +88,13 @@ public abstract class MediaBrowserService extends Service {
     private class ConnectionRecord {
         String pkg;
         Bundle rootHints;
-        IMediaBrowserServiceCallbacks callbacks;
+        IMediaBrowserServiceCompatCallbacks callbacks;
         BrowserRoot root;
         HashSet<String> subscriptions = new HashSet();
     }
 
     /**
-     * Completion handler for asynchronous callback methods in {@link MediaBrowserService}.
+     * Completion handler for asynchronous callback methods in {@link MediaBrowserServiceCompat}.
      * <p>
      * Each of the methods that takes one of these to send the result must call
      * {@link #sendResult} to respond to the caller with the given results.  If those
@@ -103,8 +103,8 @@ public abstract class MediaBrowserService extends Service {
      * they are done.  If more than one of those methods is called, an exception will
      * be thrown.
      *
-     * @see MediaBrowserService#onLoadChildren
-     * @see MediaBrowserService#onGetMediaItem
+     * @see MediaBrowserServiceCompat#onLoadChildren
+     * @see MediaBrowserServiceCompat#onLoadItem
      */
     public class Result<T> {
         private Object mDebug;
@@ -154,10 +154,10 @@ public abstract class MediaBrowserService extends Service {
         }
     }
 
-    private class ServiceBinder extends IMediaBrowserService.Stub {
+    private class ServiceBinder extends IMediaBrowserServiceCompat.Stub {
         @Override
         public void connect(final String pkg, final Bundle rootHints,
-                final IMediaBrowserServiceCallbacks callbacks) {
+                final IMediaBrowserServiceCompatCallbacks callbacks) {
 
             final int uid = Binder.getCallingUid();
             if (!isValidPackage(pkg, uid)) {
@@ -178,7 +178,8 @@ public abstract class MediaBrowserService extends Service {
                         connection.rootHints = rootHints;
                         connection.callbacks = callbacks;
 
-                        connection.root = MediaBrowserService.this.onGetRoot(pkg, uid, rootHints);
+                        connection.root =
+                                MediaBrowserServiceCompat.this.onGetRoot(pkg, uid, rootHints);
 
                         // If they didn't return something, don't allow this client.
                         if (connection.root == null) {
@@ -208,7 +209,7 @@ public abstract class MediaBrowserService extends Service {
         }
 
         @Override
-        public void disconnect(final IMediaBrowserServiceCallbacks callbacks) {
+        public void disconnect(final IMediaBrowserServiceCompatCallbacks callbacks) {
             mHandler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -225,7 +226,8 @@ public abstract class MediaBrowserService extends Service {
 
 
         @Override
-        public void addSubscription(final String id, final IMediaBrowserServiceCallbacks callbacks) {
+        public void addSubscription(
+                final String id, final IMediaBrowserServiceCompatCallbacks callbacks) {
             mHandler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -239,14 +241,14 @@ public abstract class MediaBrowserService extends Service {
                             return;
                         }
 
-                        MediaBrowserService.this.addSubscription(id, connection);
+                        MediaBrowserServiceCompat.this.addSubscription(id, connection);
                     }
                 });
         }
 
         @Override
         public void removeSubscription(final String id,
-                final IMediaBrowserServiceCallbacks callbacks) {
+                final IMediaBrowserServiceCompatCallbacks callbacks) {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -337,7 +339,7 @@ public abstract class MediaBrowserService extends Service {
      *            id is invalid.
      */
     public abstract void onLoadChildren(@NonNull String parentId,
-            @NonNull Result<List<MediaBrowser.MediaItem>> result);
+            @NonNull Result<List<MediaBrowserCompat.MediaItem>> result);
 
     /**
      * Called to get information about a specific media item.
@@ -351,11 +353,11 @@ public abstract class MediaBrowserService extends Service {
      * The default implementation sends a null result.
      *
      * @param itemId The id for the specific
-     *            {@link android.media.browse.MediaBrowser.MediaItem}.
+     *            {@link MediaBrowserCompat.MediaItem}.
      * @param result The Result to send the item to, or null if the id is
      *            invalid.
      */
-    public void onLoadItem(String itemId, Result<MediaBrowser.MediaItem> result) {
+    public void onLoadItem(String itemId, Result<MediaBrowserCompat.MediaItem> result) {
         result.sendResult(null);
     }
 
@@ -365,7 +367,7 @@ public abstract class MediaBrowserService extends Service {
      * This should be called as soon as possible during the service's startup.
      * It may only be called once.
      *
-     * @param token The token for the service's {@link MediaSession}.
+     * @param token The token for the service's {@link MediaSessionCompat}.
      */
     public void setSessionToken(final MediaSessionCompat.Token token) {
         if (token == null) {
@@ -460,10 +462,10 @@ public abstract class MediaBrowserService extends Service {
      * Callers must make sure that this connection is still connected.
      */
     private void performLoadChildren(final String parentId, final ConnectionRecord connection) {
-        final Result<List<MediaBrowser.MediaItem>> result
-                = new Result<List<MediaBrowser.MediaItem>>(parentId) {
+        final Result<List<MediaBrowserCompat.MediaItem>> result
+                = new Result<List<MediaBrowserCompat.MediaItem>>(parentId) {
             @Override
-            void onResultSent(List<MediaBrowser.MediaItem> list) {
+            void onResultSent(List<MediaBrowserCompat.MediaItem> list) {
                 if (list == null) {
                     throw new IllegalStateException("onLoadChildren sent null list for id "
                             + parentId);
@@ -495,17 +497,17 @@ public abstract class MediaBrowserService extends Service {
     }
 
     private void performLoadItem(String itemId, final ResultReceiver receiver) {
-        final Result<MediaBrowser.MediaItem> result =
-                new Result<MediaBrowser.MediaItem>(itemId) {
+        final Result<MediaBrowserCompat.MediaItem> result =
+                new Result<MediaBrowserCompat.MediaItem>(itemId) {
             @Override
-            void onResultSent(MediaBrowser.MediaItem item) {
+            void onResultSent(MediaBrowserCompat.MediaItem item) {
                 Bundle bundle = new Bundle();
                 bundle.putParcelable(KEY_MEDIA_ITEM, item);
                 receiver.send(0, bundle);
             }
         };
 
-        MediaBrowserService.this.onLoadItem(itemId, result);
+        MediaBrowserServiceCompat.this.onLoadItem(itemId, result);
 
         if (!result.isDone()) {
             throw new IllegalStateException("onLoadItem must call detach() or sendResult()"
