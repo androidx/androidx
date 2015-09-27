@@ -26,8 +26,8 @@
     <string name="mr_controller_close_description" msgid="7333862312480583260">"ಮುಚ್ಚು"</string>
     <string name="mr_controller_play" msgid="683634565969987458">"ಪ್ಲೇ ಮಾಡಿ"</string>
     <string name="mr_controller_pause" msgid="5451884435510905406">"ವಿರಾಮ"</string>
-    <string name="mr_controller_expand_group" msgid="6901500538649315763">"ಗುಂಪು ವಿಸ್ತರಿಸಿ"</string>
-    <string name="mr_controller_collapse_group" msgid="1521128951309799184">"ಗುಂಪು ಕುಗ್ಗಿಸಿ"</string>
+    <string name="mr_controller_expand_group" msgid="8062427022744266907">"ವಿಸ್ತರಿಸು"</string>
+    <string name="mr_controller_collapse_group" msgid="7924809056904240926">"ಸಂಕುಚಿಸು"</string>
     <string name="mr_controller_no_media_selected" msgid="6547130360349182381">"ಯಾವುದೇ ಮಾಧ್ಯಮ ಆಯ್ಕೆಮಾಡಲಾಗಿಲ್ಲ"</string>
     <string name="mr_controller_no_info_available" msgid="5585418471741142924">"ಯಾವುದೇ ಮಾಹಿತಿ ಲಭ್ಯವಿಲ್ಲ"</string>
     <string name="mr_controller_casting_screen" msgid="4868457957151124867">"ಪರದೆಯನ್ನು ಬಿತ್ತರಿಸಲಾಗುತ್ತಿದೆ"</string>
