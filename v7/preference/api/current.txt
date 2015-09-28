@@ -47,7 +47,6 @@ package android.support.v7.preference {
   public class EditTextPreferenceDialogFragmentCompat extends android.support.v7.preference.PreferenceDialogFragmentCompat {
     ctor public EditTextPreferenceDialogFragmentCompat();
     method public static android.support.v7.preference.EditTextPreferenceDialogFragmentCompat newInstance(java.lang.String);
-    method protected void onAddEditTextToDialogView(android.view.View, android.widget.EditText);
     method public void onDialogClosed(boolean);
   }
 

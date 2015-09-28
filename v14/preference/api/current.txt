@@ -3,7 +3,6 @@ package android.support.v14.preference {
   public class EditTextPreferenceDialogFragment extends android.support.v14.preference.PreferenceDialogFragment {
     ctor public EditTextPreferenceDialogFragment();
     method public static android.support.v14.preference.EditTextPreferenceDialogFragment newInstance(java.lang.String);
-    method protected void onAddEditTextToDialogView(android.view.View, android.widget.EditText);
     method public void onDialogClosed(boolean);
   }
 
