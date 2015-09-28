@@ -1106,7 +1106,6 @@ package android.support.v7.appcompat {
     field public static int Platform_Widget_AppCompat_Spinner;
     field public static int RtlOverlay_DialogWindowTitle_AppCompat;
     field public static int RtlOverlay_Widget_AppCompat_ActionBar_TitleItem;
-    field public static int RtlOverlay_Widget_AppCompat_ActionButton_Overflow;
     field public static int RtlOverlay_Widget_AppCompat_DialogTitle_Icon;
     field public static int RtlOverlay_Widget_AppCompat_PopupMenuItem;
     field public static int RtlOverlay_Widget_AppCompat_PopupMenuItem_InternalGroup;
@@ -1117,6 +1116,8 @@ package android.support.v7.appcompat {
     field public static int RtlOverlay_Widget_AppCompat_Search_DropDown_Icon2;
     field public static int RtlOverlay_Widget_AppCompat_Search_DropDown_Query;
     field public static int RtlOverlay_Widget_AppCompat_Search_DropDown_Text;
+    field public static int RtlUnderlay_Widget_AppCompat_ActionButton;
+    field public static int RtlUnderlay_Widget_AppCompat_ActionButton_Overflow;
     field public static int TextAppearance_AppCompat;
     field public static int TextAppearance_AppCompat_Body1;
     field public static int TextAppearance_AppCompat_Body2;
