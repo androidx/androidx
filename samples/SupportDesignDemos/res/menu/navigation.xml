@@ -14,7 +14,8 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <!-- Main items -->
     <group android:checkableBehavior="single">
@@ -30,7 +31,8 @@
         <item
                 android:id="@+id/navigation_item_3"
                 android:icon="@drawable/ic_android"
-                android:title="@string/navigation_item_3"/>
+                android:title="@string/navigation_item_3"
+                app:actionLayout="@layout/action_layout"/>
         <item
                 android:id="@+id/navigation_item_disabled"
                 android:icon="@drawable/ic_android"
