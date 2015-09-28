@@ -23,7 +23,6 @@
     android:overScrollMode="ifContentScrolls">
 
   <LinearLayout
-      android:id="@+id/edittext_container"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:padding="5dip"
@@ -35,6 +34,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="?android:attr/textColorSecondary" />
+
+      <EditText
+          android:id="@android:id/edit"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content" />
 
   </LinearLayout>
 

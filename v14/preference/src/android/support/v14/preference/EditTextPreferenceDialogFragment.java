@@ -19,8 +19,6 @@ package android.support.v14.preference;
 import android.os.Bundle;
 import android.support.v7.preference.EditTextPreference;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.EditText;
 
 public class EditTextPreferenceDialogFragment extends PreferenceDialogFragment {
@@ -40,19 +38,14 @@ public class EditTextPreferenceDialogFragment extends PreferenceDialogFragment {
     protected void onBindDialogView(View view) {
         super.onBindDialogView(view);
 
-        mEditText = new EditText(view.getContext());
-        // Give it an ID so it can be saved/restored
-        mEditText.setId(android.R.id.edit);
+        mEditText = (EditText) view.findViewById(android.R.id.edit);
+
+        if (mEditText == null) {
+            throw new IllegalStateException("Dialog view must contain an EditText with id" +
+                    " @android:id/edit");
+        }
 
         mEditText.setText(getEditTextPreference().getText());
-
-        ViewParent oldParent = mEditText.getParent();
-        if (oldParent != view) {
-            if (oldParent != null) {
-                ((ViewGroup) oldParent).removeView(mEditText);
-            }
-            onAddEditTextToDialogView(view, mEditText);
-        }
     }
 
     private EditTextPreference getEditTextPreference() {
@@ -64,20 +57,6 @@ public class EditTextPreferenceDialogFragment extends PreferenceDialogFragment {
     protected boolean needInputMethod() {
         // We want the input method to show, if possible, when dialog is displayed
         return true;
-    }
-
-    /**
-     * Adds the EditText widget of this preference to the dialog's view.
-     *
-     * @param dialogView The dialog view.
-     */
-    protected void onAddEditTextToDialogView(View dialogView, EditText editText) {
-        ViewGroup container = (ViewGroup) dialogView
-                .findViewById(R.id.edittext_container);
-        if (container != null) {
-            container.addView(editText, ViewGroup.LayoutParams.FILL_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
-        }
     }
 
     @Override
