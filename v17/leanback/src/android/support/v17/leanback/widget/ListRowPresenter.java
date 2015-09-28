@@ -18,6 +18,7 @@ import android.content.res.TypedArray;
 import android.os.Build;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.system.Settings;
+import android.support.v17.leanback.transition.TransitionHelper;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -98,6 +99,10 @@ public class ListRowPresenter extends RowPresenter {
 
         @Override
         protected void onCreate(ItemBridgeAdapter.ViewHolder viewHolder) {
+            if (viewHolder.itemView instanceof ViewGroup) {
+                TransitionHelper.getInstance().setTransitionGroup((ViewGroup) viewHolder.itemView,
+                        true);
+            }
             if (mShadowOverlayHelper != null) {
                 mShadowOverlayHelper.onViewCreated(viewHolder.itemView);
             }

@@ -13,12 +13,7 @@
  */
 package android.support.v17.leanback.widget;
 
-import android.support.v17.leanback.R;
-import android.content.res.Resources;
-import android.graphics.Color;
 import android.graphics.Outline;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
@@ -53,9 +48,6 @@ class ShadowHelperApi21 {
         impl.mNormalZ = unfocusedZ;
         impl.mFocusedZ = focusedZ;
         shadowContainer.setZ(impl.mNormalZ);
-        if (shadowContainer instanceof ViewGroup) {
-            ((ViewGroup) shadowContainer).setTransitionGroup(true);
-        }
         return impl;
     }
 
