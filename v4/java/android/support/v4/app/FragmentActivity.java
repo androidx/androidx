@@ -27,6 +27,7 @@ import android.os.Message;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.util.SimpleArrayMap;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -124,6 +125,8 @@ public class FragmentActivity extends BaseFragmentActivityHoneycomb implements
         SimpleArrayMap<String, LoaderManager> loaders;
     }
 
+    MediaControllerCompat mMediaController;
+
     // ------------------------------------------------------------------------
     // HOOKS INTO ACTIVITY
     // ------------------------------------------------------------------------
@@ -166,6 +169,39 @@ public class FragmentActivity extends BaseFragmentActivityHoneycomb implements
         if (!mFragments.getSupportFragmentManager().popBackStackImmediate()) {
             supportFinishAfterTransition();
         }
+    }
+
+    /**
+     * Sets a {@link MediaControllerCompat} for later retrieval via
+     * {@link #getSupportMediaController()}.
+     *
+     * <p>On API 21 and later, this controller will be tied to the window of the activity and
+     * media key and volume events which are received while the Activity is in the foreground
+     * will be forwarded to the controller and used to invoke transport controls or adjust the
+     * volume. Prior to API 21, the global handling of media key and volume events through an
+     * active {@link android.support.v4.media.session.MediaSessionCompat} and media button receiver
+     * will still be respected.</p>
+     *
+     * @param mediaController The controller for the session which should receive
+     *     media keys and volume changes on API 21 and later.
+     * @see #setMediaController(android.media.session.MediaController)
+     */
+    final public void setSupportMediaController(MediaControllerCompat mediaController) {
+        mMediaController = mediaController;
+        if (android.os.Build.VERSION.SDK_INT >= 21) {
+            ActivityCompat21.setMediaController(this, mediaController.getMediaController());
+        }
+    }
+
+    /**
+     * Retrieves the current {@link MediaControllerCompat} for sending media key and volume events.
+     *
+     * @return The controller which should receive events.
+     * @see #setSupportMediaController(android.support.v4.media.session.MediaController)
+     * @see #getMediaController()
+     */
+    final public MediaControllerCompat getSupportMediaController() {
+        return mMediaController;
     }
 
     /**
