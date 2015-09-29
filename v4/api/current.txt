@@ -274,12 +274,14 @@ package android.support.v4.app {
     method public java.lang.Object getLastCustomNonConfigurationInstance();
     method public android.support.v4.app.FragmentManager getSupportFragmentManager();
     method public android.support.v4.app.LoaderManager getSupportLoaderManager();
+    method public final android.support.v4.media.session.MediaControllerCompat getSupportMediaController();
     method public void onAttachFragment(android.support.v4.app.Fragment);
     method protected void onResumeFragments();
     method public java.lang.Object onRetainCustomNonConfigurationInstance();
     method public final java.lang.Object onRetainNonConfigurationInstance();
     method public void setEnterSharedElementCallback(android.support.v4.app.SharedElementCallback);
     method public void setExitSharedElementCallback(android.support.v4.app.SharedElementCallback);
+    method public final void setSupportMediaController(android.support.v4.media.session.MediaControllerCompat);
     method public void startActivityFromFragment(android.support.v4.app.Fragment, android.content.Intent, int);
     method public void supportFinishAfterTransition();
     method public void supportInvalidateOptionsMenu();
