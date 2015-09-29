@@ -239,6 +239,9 @@
         <!-- EditText background drawable. -->
         <attr name="editTextBackground" format="reference" />
 
+        <!-- ImageButton background drawable. -->
+        <attr name="imageButtonStyle" format="reference" />
+
         <!-- ============================ -->
         <!-- SearchView styles and assets -->
         <!-- ============================ -->

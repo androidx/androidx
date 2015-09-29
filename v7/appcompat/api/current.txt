@@ -441,6 +441,7 @@ package android.support.v7.appcompat {
     field public static int homeLayout;
     field public static int icon;
     field public static int iconifiedByDefault;
+    field public static int imageButtonStyle;
     field public static int indeterminateProgressStyle;
     field public static int initialActivityCount;
     field public static int isLightTheme;
@@ -1071,6 +1072,7 @@ package android.support.v7.appcompat {
     field public static int Base_Widget_AppCompat_DrawerArrowToggle_Common;
     field public static int Base_Widget_AppCompat_DropDownItem_Spinner;
     field public static int Base_Widget_AppCompat_EditText;
+    field public static int Base_Widget_AppCompat_ImageButton;
     field public static int Base_Widget_AppCompat_Light_ActionBar;
     field public static int Base_Widget_AppCompat_Light_ActionBar_Solid;
     field public static int Base_Widget_AppCompat_Light_ActionBar_TabBar;
@@ -1223,6 +1225,7 @@ package android.support.v7.appcompat {
     field public static int Widget_AppCompat_DrawerArrowToggle;
     field public static int Widget_AppCompat_DropDownItem_Spinner;
     field public static int Widget_AppCompat_EditText;
+    field public static int Widget_AppCompat_ImageButton;
     field public static int Widget_AppCompat_Light_ActionBar;
     field public static int Widget_AppCompat_Light_ActionBar_Solid;
     field public static int Widget_AppCompat_Light_ActionBar_Solid_Inverse;
@@ -1505,6 +1508,7 @@ package android.support.v7.appcompat {
     field public static int Theme_editTextColor;
     field public static int Theme_editTextStyle;
     field public static int Theme_homeAsUpIndicator;
+    field public static int Theme_imageButtonStyle;
     field public static int Theme_listChoiceBackgroundIndicator;
     field public static int Theme_listDividerAlertDialog;
     field public static int Theme_listPopupWindowStyle;
@@ -1728,6 +1732,18 @@ package android.support.v7.widget {
     ctor public AppCompatEditText(android.content.Context);
     ctor public AppCompatEditText(android.content.Context, android.util.AttributeSet);
     ctor public AppCompatEditText(android.content.Context, android.util.AttributeSet, int);
+  }
+
+  public class AppCompatImageButton extends android.widget.ImageButton {
+    ctor public AppCompatImageButton(android.content.Context);
+    ctor public AppCompatImageButton(android.content.Context, android.util.AttributeSet);
+    ctor public AppCompatImageButton(android.content.Context, android.util.AttributeSet, int);
+  }
+
+  public class AppCompatImageView extends android.widget.ImageView {
+    ctor public AppCompatImageView(android.content.Context);
+    ctor public AppCompatImageView(android.content.Context, android.util.AttributeSet);
+    ctor public AppCompatImageView(android.content.Context, android.util.AttributeSet, int);
   }
 
   public class AppCompatMultiAutoCompleteTextView extends android.widget.MultiAutoCompleteTextView {
