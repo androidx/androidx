@@ -25,7 +25,7 @@ import java.net.SocketException;
  * Helper for accessing features in TrafficStats introduced after API level 14
  * in a backwards compatible fashion.
  */
-public class TrafficStatsCompat {
+public final class TrafficStatsCompat {
 
     interface TrafficStatsCompatImpl {
         void clearThreadStatsTag();
@@ -200,4 +200,6 @@ public class TrafficStatsCompat {
     public static void untagSocket(Socket socket) throws SocketException {
         IMPL.untagSocket(socket);
     }
+
+    private TrafficStatsCompat() {}
 }

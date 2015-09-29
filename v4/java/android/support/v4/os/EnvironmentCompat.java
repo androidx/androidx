@@ -27,7 +27,7 @@ import java.io.IOException;
  * Helper for accessing features in {@link Environment} introduced after API
  * level 4 in a backwards compatible fashion.
  */
-public class EnvironmentCompat {
+public final class EnvironmentCompat {
     private static final String TAG = "EnvironmentCompat";
 
     /**
@@ -72,4 +72,6 @@ public class EnvironmentCompat {
 
         return MEDIA_UNKNOWN;
     }
+
+    private EnvironmentCompat() {}
 }

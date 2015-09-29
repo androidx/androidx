@@ -23,7 +23,7 @@ import android.view.MotionEvent;
  * Helper for accessing features in {@link MotionEvent} introduced
  * after API level 4 in a backwards compatible fashion.
  */
-public class MotionEventCompat {
+public final class MotionEventCompat {
     /**
      * Interface for the full API.
      */
@@ -516,4 +516,6 @@ public class MotionEventCompat {
     public static float getAxisValue(MotionEvent event, int axis, int pointerIndex) {
         return IMPL.getAxisValue(event, axis, pointerIndex);
     }
+
+    private MotionEventCompat() {}
 }

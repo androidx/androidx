@@ -24,7 +24,7 @@ import android.view.ViewGroup;
  * Helper for accessing API features in
  * {@link android.view.ViewGroup.MarginLayoutParams MarginLayoutParams} added after API 4.
  */
-public class MarginLayoutParamsCompat {
+public final class MarginLayoutParamsCompat {
     interface MarginLayoutParamsCompatImpl {
         int getMarginStart(ViewGroup.MarginLayoutParams lp);
         int getMarginEnd(ViewGroup.MarginLayoutParams lp);
@@ -237,4 +237,6 @@ public class MarginLayoutParamsCompat {
             int layoutDirection) {
         IMPL.resolveLayoutDirection(lp, layoutDirection);
     }
+
+    private MarginLayoutParamsCompat() {}
 }

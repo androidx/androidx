@@ -35,7 +35,7 @@ import android.util.Log;
  * from the developer guide and <a href="{@docRoot}design/patterns/navigation.html">Navigation</a>
  * from the design guide.
  */
-public class NavUtils {
+public final class NavUtils {
     private static final String TAG = "NavUtils";
     public static final String PARENT_ACTIVITY = "android.support.PARENT_ACTIVITY";
 

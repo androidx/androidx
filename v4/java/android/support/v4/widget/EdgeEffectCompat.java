@@ -28,7 +28,7 @@ import android.os.Build;
  * be used by views that wish to use the standard Android visual effects at the edges       
  * of scrolling containers.
  */
-public class EdgeEffectCompat {
+public final class EdgeEffectCompat {
     private Object mEdgeEffect;
 
     private static final EdgeEffectImpl IMPL;
