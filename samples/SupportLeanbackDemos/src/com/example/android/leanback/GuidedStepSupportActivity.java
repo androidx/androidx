@@ -1,4 +1,4 @@
-/* This file is auto-generated from GuidedStepActivity.  DO NOT MODIFY. */
+/* This file is auto-generated from GuidedStepActivity.java.  DO NOT MODIFY. */
 
 /*
  * Copyright (C) 2014 The Android Open Source Project

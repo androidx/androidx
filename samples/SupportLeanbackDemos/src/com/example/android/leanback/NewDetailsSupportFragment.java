@@ -1,3 +1,5 @@
+/* This file is auto-generated from NewDetailsFragment.java.  DO NOT MODIFY. */
+
 /*
  * Copyright (C) 2014 The Android Open Source Project
  *
@@ -13,7 +15,7 @@
  */
 package com.example.android.leanback;
 
-import android.app.Activity;
+import android.support.v4.app.FragmentActivity;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -40,8 +42,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-public class NewDetailsFragment extends android.support.v17.leanback.app.DetailsFragment {
-    private static final String TAG = "leanback.DetailsFragment";
+public class NewDetailsSupportFragment extends android.support.v17.leanback.app.DetailsSupportFragment {
+    private static final String TAG = "leanback.DetailsSupportFragment";
     private static final String ITEM = "item";
 
     private static final int NUM_ROWS = 3;
@@ -84,7 +86,7 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
         setOnSearchClickedListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), SearchActivity.class);
+                Intent intent = new Intent(getActivity(), SearchSupportActivity.class);
                 startActivity(intent);
             }
         });
@@ -146,13 +148,13 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
                     RowPresenter.ViewHolder rowViewHolder, Row row) {
                 Log.i(TAG, "onItemClicked: " + item + " row " + row);
                 if (item instanceof PhotoItem){
-                    Intent intent = new Intent(getActivity(), DetailsActivity.class);
-                    intent.putExtra(DetailsActivity.EXTRA_ITEM, (PhotoItem) item);
+                    Intent intent = new Intent(getActivity(), DetailsSupportActivity.class);
+                    intent.putExtra(DetailsSupportActivity.EXTRA_ITEM, (PhotoItem) item);
 
                     Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
                             getActivity(),
                             ((ImageCardView)itemViewHolder.view).getMainImageView(),
-                            DetailsActivity.SHARED_ELEMENT_NAME).toBundle();
+                            DetailsSupportActivity.SHARED_ELEMENT_NAME).toBundle();
                     getActivity().startActivity(intent, bundle);
                 }
             }
@@ -168,7 +170,7 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
         if (TEST_SHARED_ELEMENT_TRANSITION) {
             mHelper = new FullWidthDetailsOverviewSharedElementHelper();
             mHelper.setSharedElementEnterTransition(getActivity(),
-                    DetailsActivity.SHARED_ELEMENT_NAME);
+                    DetailsSupportActivity.SHARED_ELEMENT_NAME);
             dorPresenter.setListener(mHelper);
             dorPresenter.setParticipatingEntranceTransition(false);
         } else {

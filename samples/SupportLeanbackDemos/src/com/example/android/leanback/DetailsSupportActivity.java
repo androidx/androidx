@@ -1,3 +1,5 @@
+/* This file is auto-generated from DetailsActivity.java.  DO NOT MODIFY. */
+
 /*
  * Copyright (C) 2014 The Android Open Source Project
  *
@@ -13,17 +15,17 @@
  */
 package com.example.android.leanback;
 
-import android.app.Activity;
+import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
-public class DetailsActivity extends Activity
+public class DetailsSupportActivity extends FragmentActivity
 {
     public static final String EXTRA_ITEM = "item";
     public static final String SHARED_ELEMENT_NAME = "hero";
 
     private boolean useLegacyFragment() {
         return (DetailsPresenterSelectionActivity.USE_LEGACY_PRESENTER
-                && !(this instanceof SearchDetailsActivity));
+                && !(this instanceof SearchDetailsSupportActivity));
     }
 
     /** Called when the activity is first created. */
@@ -31,15 +33,15 @@ public class DetailsActivity extends Activity
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(useLegacyFragment() ? R.layout.legacy_details : R.layout.details);
+        setContentView(useLegacyFragment() ? R.layout.legacy_details_support : R.layout.details_support);
         if (savedInstanceState == null) {
             // Only pass object to fragment when activity is first time created,
             // later object is modified and persisted with fragment state.
             if (useLegacyFragment()) {
-                ((DetailsFragment)getFragmentManager().findFragmentById(R.id.details_fragment))
+                ((DetailsSupportFragment)getSupportFragmentManager().findFragmentById(R.id.details_fragment))
                     .setItem((PhotoItem) getIntent().getParcelableExtra(EXTRA_ITEM));
             } else {
-                ((NewDetailsFragment)getFragmentManager().findFragmentById(R.id.details_fragment))
+                ((NewDetailsSupportFragment)getSupportFragmentManager().findFragmentById(R.id.details_fragment))
                     .setItem((PhotoItem) getIntent().getParcelableExtra(EXTRA_ITEM));
             }
         }
