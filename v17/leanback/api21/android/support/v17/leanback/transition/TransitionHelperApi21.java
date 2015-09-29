@@ -18,6 +18,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.transition.ChangeTransform;
 import android.transition.Transition;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.animation.AnimationUtils;
 
@@ -76,5 +77,9 @@ final class TransitionHelperApi21 {
 
     public static Object createFadeAndShortSlide(int edge) {
         return new FadeAndShortSlide(edge);
+    }
+
+    public static void setTransitionGroup(ViewGroup viewGroup, boolean transitionGroup) {
+        viewGroup.setTransitionGroup(transitionGroup);
     }
 }
