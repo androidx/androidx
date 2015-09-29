@@ -26,4 +26,5 @@
     <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"ການ​ຕັ້ງ​ຄ່າ​ເສັ້ນ​ທາງ"</string>
     <string name="mr_media_route_controller_play" msgid="5214423499524760404">"ຫຼິ້ນ"</string>
     <string name="mr_media_route_controller_pause" msgid="8315773974194466049">"ຢຸດຊົ່ວຄາວ"</string>
+    <string name="mr_media_route_controller_no_info_available" msgid="3641544772007543920">"ບໍ່​ມີ​ຂໍ້​ມູນ​ຢູ່"</string>
 </resources>
