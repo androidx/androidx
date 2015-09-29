@@ -446,6 +446,10 @@
         <item name="android:minHeight">@dimen/abc_alert_dialog_button_bar_height</item>
     </style>
 
+    <style name="Base.Widget.AppCompat.ImageButton" parent="android:Widget.ImageButton">
+        <item name="android:background">@drawable/abc_btn_default_mtrl_shape</item>
+    </style>
+
     <style name="Base.Widget.AppCompat.TextView.SpinnerItem" parent="android:Widget.TextView.SpinnerItem">
         <item name="android:textAppearance">@style/TextAppearance.AppCompat.Widget.TextView.SpinnerItem</item>
         <item name="android:paddingLeft">8dp</item>
