@@ -308,36 +308,36 @@ public class ViewCompat {
     /**
      * Scroll indicator direction for the top edge of the view.
      *
-     * @see #setScrollIndicators(int)
-     * @see #setScrollIndicators(int, int)
-     * @see #getScrollIndicators()
+     * @see #setScrollIndicators(View, int)
+     * @see #setScrollIndicators(View, int, int)
+     * @see #getScrollIndicators(View)
      */
     public static final int SCROLL_INDICATOR_TOP = 0x1;
 
     /**
      * Scroll indicator direction for the bottom edge of the view.
      *
-     * @see #setScrollIndicators(int)
-     * @see #setScrollIndicators(int, int)
-     * @see #getScrollIndicators()
+     * @see #setScrollIndicators(View, int)
+     * @see #setScrollIndicators(View, int, int)
+     * @see #getScrollIndicators(View)
      */
     public static final int SCROLL_INDICATOR_BOTTOM = 0x2;
 
     /**
      * Scroll indicator direction for the left edge of the view.
      *
-     * @see #setScrollIndicators(int)
-     * @see #setScrollIndicators(int, int)
-     * @see #getScrollIndicators()
+     * @see #setScrollIndicators(View, int)
+     * @see #setScrollIndicators(View, int, int)
+     * @see #getScrollIndicators(View)
      */
     public static final int SCROLL_INDICATOR_LEFT = 0x4;
 
     /**
      * Scroll indicator direction for the right edge of the view.
      *
-     * @see #setScrollIndicators(int)
-     * @see #setScrollIndicators(int, int)
-     * @see #getScrollIndicators()
+     * @see #setScrollIndicators(View, int)
+     * @see #setScrollIndicators(View, int, int)
+     * @see #getScrollIndicators(View)
      */
     public static final int SCROLL_INDICATOR_RIGHT = 0x8;
 
@@ -353,93 +353,93 @@ public class ViewCompat {
     /**
      * Scroll indicator direction for the ending edge of the view.
      *
-     * @see #setScrollIndicators(int)
-     * @see #setScrollIndicators(int, int)
-     * @see #getScrollIndicators()
+     * @see #setScrollIndicators(View, int)
+     * @see #setScrollIndicators(View, int, int)
+     * @see #getScrollIndicators(View)
      */
     public static final int SCROLL_INDICATOR_END = 0x20;
 
     interface ViewCompatImpl {
-        public boolean canScrollHorizontally(View v, int direction);
-        public boolean canScrollVertically(View v, int direction);
-        public int getOverScrollMode(View v);
-        public void setOverScrollMode(View v, int mode);
-        public void onInitializeAccessibilityEvent(View v, AccessibilityEvent event);
-        public void onPopulateAccessibilityEvent(View v, AccessibilityEvent event);
-        public void onInitializeAccessibilityNodeInfo(View v, AccessibilityNodeInfoCompat info);
-        public void setAccessibilityDelegate(View v, @Nullable AccessibilityDelegateCompat delegate);
-        public boolean hasAccessibilityDelegate(View v);
-        public boolean hasTransientState(View view);
-        public void setHasTransientState(View view, boolean hasTransientState);
-        public void postInvalidateOnAnimation(View view);
-        public void postInvalidateOnAnimation(View view, int left, int top, int right, int bottom);
-        public void postOnAnimation(View view, Runnable action);
-        public void postOnAnimationDelayed(View view, Runnable action, long delayMillis);
-        public int getImportantForAccessibility(View view);
-        public void setImportantForAccessibility(View view, int mode);
-        public boolean isImportantForAccessibility(View view);
-        public boolean performAccessibilityAction(View view, int action, Bundle arguments);
-        public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View view);
-        public float getAlpha(View view);
-        public void setLayerType(View view, int layerType, Paint paint);
-        public int getLayerType(View view);
-        public int getLabelFor(View view);
-        public void setLabelFor(View view, int id);
-        public void setLayerPaint(View view, Paint paint);
-        public int getLayoutDirection(View view);
-        public void setLayoutDirection(View view, int layoutDirection);
-        public ViewParent getParentForAccessibility(View view);
-        public boolean isOpaque(View view);
-        public int resolveSizeAndState(int size, int measureSpec, int childMeasuredState);
-        public int getMeasuredWidthAndState(View view);
-        public int getMeasuredHeightAndState(View view);
-        public int getMeasuredState(View view);
-        public int getAccessibilityLiveRegion(View view);
-        public void setAccessibilityLiveRegion(View view, int mode);
-        public int getPaddingStart(View view);
-        public int getPaddingEnd(View view);
-        public void setPaddingRelative(View view, int start, int top, int end, int bottom);
-        public void dispatchStartTemporaryDetach(View view);
-        public void dispatchFinishTemporaryDetach(View view);
-        public float getX(View view);
-        public float getY(View view);
-        public float getRotation(View view);
-        public float getRotationX(View view);
-        public float getRotationY(View view);
-        public float getScaleX(View view);
-        public float getScaleY(View view);
-        public float getTranslationX(View view);
-        public float getTranslationY(View view);
-        public int getMinimumWidth(View view);
-        public int getMinimumHeight(View view);
-        public ViewPropertyAnimatorCompat animate(View view);
-        public void setRotation(View view, float value);
-        public void setRotationX(View view, float value);
-        public void setRotationY(View view, float value);
-        public void setScaleX(View view, float value);
-        public void setScaleY(View view, float value);
-        public void setTranslationX(View view, float value);
-        public void setTranslationY(View view, float value);
-        public void setX(View view, float value);
-        public void setY(View view, float value);
-        public void setAlpha(View view, float value);
-        public void setPivotX(View view, float value);
-        public void setPivotY(View view, float value);
-        public float getPivotX(View view);
-        public float getPivotY(View view);
-        public void setElevation(View view, float elevation);
-        public float getElevation(View view);
-        public void setTranslationZ(View view, float translationZ);
-        public float getTranslationZ(View view);
-        public void setClipBounds(View view, Rect clipBounds);
-        public Rect getClipBounds(View view);
-        public void setTransitionName(View view, String transitionName);
-        public String getTransitionName(View view);
-        public int getWindowSystemUiVisibility(View view);
-        public void requestApplyInsets(View view);
-        public void setChildrenDrawingOrderEnabled(ViewGroup viewGroup, boolean enabled);
-        public boolean getFitsSystemWindows(View view);
-        public boolean hasOverlappingRendering(View view);
+        boolean canScrollHorizontally(View v, int direction);
+        boolean canScrollVertically(View v, int direction);
+        int getOverScrollMode(View v);
+        void setOverScrollMode(View v, int mode);
+        void onInitializeAccessibilityEvent(View v, AccessibilityEvent event);
+        void onPopulateAccessibilityEvent(View v, AccessibilityEvent event);
+        void onInitializeAccessibilityNodeInfo(View v, AccessibilityNodeInfoCompat info);
+        void setAccessibilityDelegate(View v, @Nullable AccessibilityDelegateCompat delegate);
+        boolean hasAccessibilityDelegate(View v);
+        boolean hasTransientState(View view);
+        void setHasTransientState(View view, boolean hasTransientState);
+        void postInvalidateOnAnimation(View view);
+        void postInvalidateOnAnimation(View view, int left, int top, int right, int bottom);
+        void postOnAnimation(View view, Runnable action);
+        void postOnAnimationDelayed(View view, Runnable action, long delayMillis);
+        int getImportantForAccessibility(View view);
+        void setImportantForAccessibility(View view, int mode);
+        boolean isImportantForAccessibility(View view);
+        boolean performAccessibilityAction(View view, int action, Bundle arguments);
+        AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View view);
+        float getAlpha(View view);
+        void setLayerType(View view, int layerType, Paint paint);
+        int getLayerType(View view);
+        int getLabelFor(View view);
+        void setLabelFor(View view, int id);
+        void setLayerPaint(View view, Paint paint);
+        int getLayoutDirection(View view);
+        void setLayoutDirection(View view, int layoutDirection);
+        ViewParent getParentForAccessibility(View view);
+        boolean isOpaque(View view);
+        int resolveSizeAndState(int size, int measureSpec, int childMeasuredState);
+        int getMeasuredWidthAndState(View view);
+        int getMeasuredHeightAndState(View view);
+        int getMeasuredState(View view);
+        int getAccessibilityLiveRegion(View view);
+        void setAccessibilityLiveRegion(View view, int mode);
+        int getPaddingStart(View view);
+        int getPaddingEnd(View view);
+        void setPaddingRelative(View view, int start, int top, int end, int bottom);
+        void dispatchStartTemporaryDetach(View view);
+        void dispatchFinishTemporaryDetach(View view);
+        float getX(View view);
+        float getY(View view);
+        float getRotation(View view);
+        float getRotationX(View view);
+        float getRotationY(View view);
+        float getScaleX(View view);
+        float getScaleY(View view);
+        float getTranslationX(View view);
+        float getTranslationY(View view);
+        int getMinimumWidth(View view);
+        int getMinimumHeight(View view);
+        ViewPropertyAnimatorCompat animate(View view);
+        void setRotation(View view, float value);
+        void setRotationX(View view, float value);
+        void setRotationY(View view, float value);
+        void setScaleX(View view, float value);
+        void setScaleY(View view, float value);
+        void setTranslationX(View view, float value);
+        void setTranslationY(View view, float value);
+        void setX(View view, float value);
+        void setY(View view, float value);
+        void setAlpha(View view, float value);
+        void setPivotX(View view, float value);
+        void setPivotY(View view, float value);
+        float getPivotX(View view);
+        float getPivotY(View view);
+        void setElevation(View view, float elevation);
+        float getElevation(View view);
+        void setTranslationZ(View view, float translationZ);
+        float getTranslationZ(View view);
+        void setClipBounds(View view, Rect clipBounds);
+        Rect getClipBounds(View view);
+        void setTransitionName(View view, String transitionName);
+        String getTransitionName(View view);
+        int getWindowSystemUiVisibility(View view);
+        void requestApplyInsets(View view);
+        void setChildrenDrawingOrderEnabled(ViewGroup viewGroup, boolean enabled);
+        boolean getFitsSystemWindows(View view);
+        boolean hasOverlappingRendering(View view);
         void setFitsSystemWindows(View view, boolean fitSystemWindows);
         void jumpDrawablesToCurrentState(View v);
         void setOnApplyWindowInsetsListener(View view, OnApplyWindowInsetsListener listener);
@@ -465,12 +465,12 @@ public class ViewCompat {
         boolean dispatchNestedPreFling(View view, float velocityX, float velocityY);
         boolean isLaidOut(View view);
         int combineMeasuredStates(int curState, int newState);
-        public float getZ(View view);
-        public boolean isAttachedToWindow(View view);
-        public boolean hasOnClickListeners(View view);
-        public void setScrollIndicators(View view, int indicators);
-        public void setScrollIndicators(View view, int indicators, int mask);
-        public int getScrollIndicators(View view);
+        float getZ(View view);
+        boolean isAttachedToWindow(View view);
+        boolean hasOnClickListeners(View view);
+        void setScrollIndicators(View view, int indicators);
+        void setScrollIndicators(View view, int indicators, int mask);
+        int getScrollIndicators(View view);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -1312,8 +1312,7 @@ public class ViewCompat {
         @Override
         public ViewPropertyAnimatorCompat animate(View view) {
             if (mViewPropertyAnimatorCompatMap == null) {
-                mViewPropertyAnimatorCompatMap =
-                        new WeakHashMap<View, ViewPropertyAnimatorCompat>();
+                mViewPropertyAnimatorCompatMap = new WeakHashMap<>();
             }
             ViewPropertyAnimatorCompat vpa = mViewPropertyAnimatorCompatMap.get(view);
             if (vpa == null) {
@@ -1721,6 +1720,7 @@ public class ViewCompat {
      */
     @OverScroll
     public static int getOverScrollMode(View v) {
+        //noinspection ResourceType
         return IMPL.getOverScrollMode(v);
     }
 
@@ -1971,6 +1971,7 @@ public class ViewCompat {
      */
     @ImportantForAccessibility
     public static int getImportantForAccessibility(View view) {
+        //noinspection ResourceType
         return IMPL.getImportantForAccessibility(view);
     }
 
@@ -2078,13 +2079,6 @@ public class ViewCompat {
      * {@link #LAYER_TYPE_SOFTWARE software} and {@link #LAYER_TYPE_HARDWARE hardware}
      * for more information on when and how to use layers.</p>
      *
-     * @param layerType The ype of layer to use with this view, must be one of
-     *        {@link #LAYER_TYPE_NONE}, {@link #LAYER_TYPE_SOFTWARE} or
-     *        {@link #LAYER_TYPE_HARDWARE}
-     * @param paint The paint used to compose the layer. This argument is optional
-     *        and can be null. It is ignored when the layer type is
-     *        {@link #LAYER_TYPE_NONE}
-     *
      * @param view View to set the layer type for
      * @param layerType The type of layer to use with this view, must be one of
      *        {@link #LAYER_TYPE_NONE}, {@link #LAYER_TYPE_SOFTWARE} or
@@ -2115,6 +2109,7 @@ public class ViewCompat {
      */
     @LayerType
     public static int getLayerType(View view) {
+        //noinspection ResourceType
         return IMPL.getLayerType(view);
     }
 
@@ -2186,6 +2181,7 @@ public class ViewCompat {
      */
     @ResolvedLayoutDirectionMode
     public static int getLayoutDirection(View view) {
+        //noinspection ResourceType
         return IMPL.getLayoutDirection(view);
     }
 
@@ -2312,6 +2308,7 @@ public class ViewCompat {
      */
     @AccessibilityLiveRegion
     public static int getAccessibilityLiveRegion(View view) {
+        //noinspection ResourceType
         return IMPL.getAccessibilityLiveRegion(view);
     }
 
