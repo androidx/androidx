@@ -478,10 +478,10 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
                 helper.exclude(exitTransition, R.id.guidedactions_selector, true);
                 TransitionHelper.getInstance().setExitTransition(this, exitTransition);
             } else if (getUiStyle() == UI_STYLE_ENTRANCE) {
-                // TODO implement slide from/to two sides
-                Object enterTransition = helper.createFadeAndShortSlide(Gravity.END);
-                helper.exclude(enterTransition, R.id.guidedactions_background, true);
-                helper.exclude(enterTransition, R.id.guidedactions_selector, true);
+                Object enterTransition = helper.createFadeAndShortSlide(Gravity.END |
+                        Gravity.START);
+                helper.include(enterTransition, R.id.content_fragment);
+                helper.include(enterTransition, R.id.action_fragment);
                 TransitionHelper.getInstance().setEnterTransition(this, enterTransition);
                 // exit transition is unchanged, same as UI_STYLE_DEFAULT
             } else if (getUiStyle() == UI_STYLE_ACTIVITY_ROOT) {
