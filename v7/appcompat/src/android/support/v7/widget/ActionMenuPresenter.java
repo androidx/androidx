@@ -35,7 +35,6 @@ import android.support.v7.internal.view.menu.MenuItemImpl;
 import android.support.v7.internal.view.menu.MenuPopupHelper;
 import android.support.v7.internal.view.menu.MenuView;
 import android.support.v7.internal.view.menu.SubMenuBuilder;
-import android.support.v7.internal.widget.TintImageView;
 import android.util.SparseBooleanArray;
 import android.view.MenuItem;
 import android.view.SoundEffectConstants;
@@ -606,7 +605,8 @@ public class ActionMenuPresenter extends BaseMenuPresenter
         };
     }
 
-    private class OverflowMenuButton extends TintImageView implements ActionMenuView.ActionMenuChildView {
+    private class OverflowMenuButton extends AppCompatImageView
+            implements ActionMenuView.ActionMenuChildView {
         private final float[] mTempPts = new float[2];
 
         public OverflowMenuButton(Context context) {

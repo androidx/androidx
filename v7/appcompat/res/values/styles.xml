@@ -218,6 +218,8 @@
 
     <style name="Widget.AppCompat.ButtonBar.AlertDialog" parent="Base.Widget.AppCompat.ButtonBar.AlertDialog" />
 
+    <style name="Widget.AppCompat.ImageButton" parent="Base.Widget.AppCompat.ImageButton" />
+
     <style name="Widget.AppCompat.TextView.SpinnerItem" parent="Base.Widget.AppCompat.TextView.SpinnerItem" />
 
     <style name="AlertDialog.AppCompat" parent="Base.AlertDialog.AppCompat" />
