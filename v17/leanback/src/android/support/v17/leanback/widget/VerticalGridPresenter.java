@@ -16,6 +16,7 @@ package android.support.v17.leanback.widget;
 import android.content.Context;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.system.Settings;
+import android.support.v17.leanback.transition.TransitionHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +33,10 @@ public class VerticalGridPresenter extends Presenter {
     class VerticalGridItemBridgeAdapter extends ItemBridgeAdapter {
         @Override
         protected void onCreate(ItemBridgeAdapter.ViewHolder viewHolder) {
+            if (viewHolder.itemView instanceof ViewGroup) {
+                TransitionHelper.getInstance().setTransitionGroup((ViewGroup) viewHolder.itemView,
+                        true);
+            }
             if (mShadowOverlayHelper != null) {
                 mShadowOverlayHelper.onViewCreated(viewHolder.itemView);
             }
