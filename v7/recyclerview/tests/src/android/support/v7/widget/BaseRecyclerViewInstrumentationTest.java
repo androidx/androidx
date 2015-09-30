@@ -202,19 +202,23 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         mRecyclerView = null;
     }
 
-    void waitForAnimations(int seconds) throws InterruptedException {
-        final CountDownLatch latch = new CountDownLatch(2);
-        boolean running = mRecyclerView.mItemAnimator
-                .isRunning(new RecyclerView.ItemAnimator.ItemAnimatorFinishedListener() {
-                    @Override
-                    public void onAnimationsFinished() {
-                        latch.countDown();
-                    }
-                });
-        if (running) {
-            latch.countDown();
-            latch.await(seconds, TimeUnit.SECONDS);
-        }
+    void waitForAnimations(int seconds) throws Throwable {
+        final CountDownLatch latch = new CountDownLatch(1);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.mItemAnimator
+                        .isRunning(new RecyclerView.ItemAnimator.ItemAnimatorFinishedListener() {
+                            @Override
+                            public void onAnimationsFinished() {
+                                latch.countDown();
+                            }
+                        });
+            }
+        });
+
+        assertTrue("animations didn't finish on expected time of " + seconds + " seconds",
+                latch.await(seconds, TimeUnit.SECONDS));
     }
 
     public boolean requestFocus(final View view) {
@@ -548,6 +552,7 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         int mAdapterIndex;
 
         final String mText;
+        int mType = 0;
 
         Item(int adapterIndex, String text) {
             mAdapterIndex = adapterIndex;
@@ -581,6 +586,11 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             for (int i = 0; i < count; i++, pos++) {
                 mItems.add(pos, new Item(pos, prefix));
             }
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return getItemAt(position).mType;
         }
 
         @Override

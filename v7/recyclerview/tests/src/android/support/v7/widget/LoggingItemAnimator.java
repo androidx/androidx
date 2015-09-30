@@ -14,6 +14,7 @@
 package android.support.v7.widget;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -29,7 +30,58 @@ public class LoggingItemAnimator extends DefaultItemAnimator {
 
     final ArrayList<RecyclerView.ViewHolder> mChangeNewVHs = new ArrayList<RecyclerView.ViewHolder>();
 
+    List<BaseRecyclerViewAnimationsTest.AnimateAppearance> mAnimateAppearanceList = new ArrayList<>();
+    List<BaseRecyclerViewAnimationsTest.AnimateDisappearance> mAnimateDisappearanceList = new ArrayList<>();
+    List<BaseRecyclerViewAnimationsTest.AnimatePersistence> mAnimatePersistenceList = new ArrayList<>();
+    List<BaseRecyclerViewAnimationsTest.AnimateChange> mAnimateChangeList = new ArrayList<>();
+
     CountDownLatch mWaitForPendingAnimations;
+
+    public boolean contains(RecyclerView.ViewHolder viewHolder,
+            List<? extends BaseRecyclerViewAnimationsTest.AnimateLogBase> list) {
+        for (BaseRecyclerViewAnimationsTest.AnimateLogBase log : list) {
+            if (log.viewHolder == viewHolder) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean animateDisappearance(RecyclerView.ViewHolder viewHolder,
+            ItemHolderInfo preLayoutInfo) {
+        mAnimateDisappearanceList
+                .add(new BaseRecyclerViewAnimationsTest.AnimateDisappearance(viewHolder, null));
+        return super.animateDisappearance(viewHolder, preLayoutInfo);
+    }
+
+    @Override
+    public boolean animateAppearance(RecyclerView.ViewHolder viewHolder,
+            ItemHolderInfo preLayoutInfo,
+            ItemHolderInfo postLayoutInfo) {
+        mAnimateAppearanceList
+                .add(new BaseRecyclerViewAnimationsTest.AnimateAppearance(viewHolder, null, null));
+        return super.animateAppearance(viewHolder, preLayoutInfo, postLayoutInfo);
+    }
+
+    @Override
+    public boolean animatePersistence(RecyclerView.ViewHolder viewHolder,
+            ItemHolderInfo preInfo,
+            ItemHolderInfo postInfo) {
+        mAnimatePersistenceList
+                .add(new BaseRecyclerViewAnimationsTest.AnimatePersistence(viewHolder, null, null));
+        return super.animatePersistence(viewHolder, preInfo, postInfo);
+    }
+
+    @Override
+    public boolean animateChange(RecyclerView.ViewHolder oldHolder,
+            RecyclerView.ViewHolder newHolder, ItemHolderInfo preInfo,
+            ItemHolderInfo postInfo) {
+        mAnimateChangeList
+                .add(new BaseRecyclerViewAnimationsTest.AnimateChange(oldHolder, newHolder, null,
+                        null));
+        return super.animateChange(oldHolder, newHolder, preInfo, postInfo);
+    }
 
     @Override
     public void runPendingAnimations() {
@@ -84,5 +136,9 @@ public class LoggingItemAnimator extends DefaultItemAnimator {
         mMoveVHs.clear();
         mChangeOldVHs.clear();
         mChangeNewVHs.clear();
+        mAnimateChangeList.clear();
+        mAnimatePersistenceList.clear();
+        mAnimateAppearanceList.clear();
+        mAnimateDisappearanceList.clear();
     }
 }
