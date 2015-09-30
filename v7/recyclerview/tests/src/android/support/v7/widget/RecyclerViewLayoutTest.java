@@ -1213,6 +1213,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         TestLayoutManager lm = new TestLayoutManager() {
             @Override
             public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                ViewInfoStore infoStore = mRecyclerView.mViewInfoStore;
                 if (test.get()) {
                     try {
                         detachAndScrapAttachedViews(recycler);
@@ -1224,25 +1225,26 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                                         recycler);
                             }
                         }
-                        if (state.mOldChangedHolders != null) {
-                            for (int i = state.mOldChangedHolders.size() - 1; i >= 0; i--) {
+                        if (infoStore.mOldChangedHolders != null) {
+                            for (int i = infoStore.mOldChangedHolders.size() - 1; i >= 0; i--) {
                                 if (useRecycler) {
                                     recycler.recycleView(
-                                            state.mOldChangedHolders.valueAt(i).itemView);
+                                            infoStore.mOldChangedHolders.valueAt(i).itemView);
                                 } else {
                                     removeAndRecycleView(
-                                            state.mOldChangedHolders.valueAt(i).itemView, recycler);
+                                            infoStore.mOldChangedHolders.valueAt(i).itemView,
+                                            recycler);
                                 }
                             }
                         }
                         assertEquals("no scrap should be left over", 0, recycler.getScrapCount());
                         assertEquals("pre layout map should be empty", 0,
-                                state.mPreLayoutHolderMap.size());
+                                InfoStoreTrojan.sizeOfPreLayout(infoStore));
                         assertEquals("post layout map should be empty", 0,
-                                state.mPostLayoutHolderMap.size());
-                        if (state.mOldChangedHolders != null) {
+                                InfoStoreTrojan.sizeOfPostLayout(infoStore));
+                        if (infoStore.mOldChangedHolders != null) {
                             assertEquals("post old change map should be empty", 0,
-                                    state.mOldChangedHolders.size());
+                                    infoStore.mOldChangedHolders.size());
                         }
                     } catch (Throwable t) {
                         postExceptionToInstrumentation(t);
