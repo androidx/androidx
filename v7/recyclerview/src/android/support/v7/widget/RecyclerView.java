@@ -72,6 +72,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static android.support.v7.widget.AdapterHelper.Callback;
+import static android.support.v7.widget.AdapterHelper.POSITION_TYPE_INVISIBLE;
 import static android.support.v7.widget.AdapterHelper.UpdateOp;
 import android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo;
 
@@ -2773,8 +2774,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         onEnterLayoutOrScroll();
 
         processAdapterUpdatesAndSetAnimationFlags();
-        final boolean trackOldChangeHolders = mState.mRunSimpleAnimations && mItemsChanged;
-        if (trackOldChangeHolders && mState.mOldChangedHolders == null) {
+        mState.mTrackOldChangeHolders = mState.mRunSimpleAnimations && mItemsChanged;
+        if (mState.mTrackOldChangeHolders && mState.mOldChangedHolders == null) {
             mState.mOldChangedHolders = new ArrayMap<>();
         }
         mItemsAddedOrRemoved = mItemsChanged = false;
@@ -2798,9 +2799,16 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                                 ItemAnimator.buildAdapterChangeFlagsForAnimations(holder),
                                 holder.getUnmodifiedPayloads());
                 mState.mPreLayoutHolderMap.put(holder, animationInfo);
-                if (trackOldChangeHolders && holder.isUpdated() && !holder.isRemoved()
+                if (mState.mTrackOldChangeHolders && holder.isUpdated() && !holder.isRemoved()
                         && !holder.shouldIgnore() && !holder.isInvalid()) {
                     long key = getChangedHolderKey(holder);
+                    // This is NOT the only place where a ViewHolder is added to old change holders
+                    // list. There is another case where:
+                    //    * A VH is currently hidden but not deleted
+                    //    * The hidden item is changed in the adapter
+                    //    * Layout manager decides to layout the item in the pre-Layout pass (step1)
+                    // When this case is detected, RV will un-hide that view and add to the old
+                    // change holders list.
                     mState.mOldChangedHolders.put(key, holder);
                 }
             }
@@ -2836,10 +2844,18 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 }
                 if (!found) {
                     int flags = ItemAnimator.buildAdapterChangeFlagsForAnimations(viewHolder);
-                    flags |= ItemAnimator.FLAG_APPEARED_IN_PRE_LAYOUT;
+                    boolean wasHidden = viewHolder
+                            .hasAnyOfTheFlags(ViewHolder.FLAG_BOUNCED_FROM_HIDDEN_LIST);
+                    if (!wasHidden) {
+                        flags |= ItemAnimator.FLAG_APPEARED_IN_PRE_LAYOUT;
+                    }
                     final ItemHolderInfo animationInfo = mItemAnimator.recordPreLayoutInformation(
                             mState, viewHolder, flags, viewHolder.getUnmodifiedPayloads());
-                    appearingViewInfo.put(child, animationInfo);
+                    if (wasHidden) {
+                        recordAnimationInfoIfBouncedHiddenView(viewHolder, animationInfo);
+                    } else {
+                        appearingViewInfo.put(child, animationInfo);
+                    }
                 }
             }
             // we don't process disappearing list because they may re-appear in post layout pass.
@@ -2872,7 +2888,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 long key = getChangedHolderKey(holder);
                 final ItemHolderInfo animationInfo = mItemAnimator
                         .recordPostLayoutInformation(mState, holder);
-                ViewHolder oldChangeViewHolder = trackOldChangeHolders ?
+                ViewHolder oldChangeViewHolder = mState.mTrackOldChangeHolders ?
                         mState.mOldChangedHolders.get(key) : null;
                 if (oldChangeViewHolder != null && !oldChangeViewHolder.shouldIgnore()) {
                     // run a change animation
@@ -2938,6 +2954,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         mState.mPreviousLayoutItemCount = mState.mItemCount;
         mDataSetHasChangedAfterLayout = false;
         mState.mRunSimpleAnimations = false;
+        mState.mPreLayoutHolderMap.clear();
+        mState.mPostLayoutHolderMap.clear();
         mState.mRunPredictiveAnimations = false;
         onExitLayoutOrScroll();
         mLayout.mRequestedSimpleAnimations = false;
@@ -2951,6 +2969,22 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         if (didChildRangeChange(mMinMaxLayoutPositions[0], mMinMaxLayoutPositions[1])) {
             dispatchOnScrolled(0, 0);
         }
+    }
+
+    /**
+     * Records the animation information for a view holder that was bounced from hidden list. It
+     * also clears the bounce back flag.
+     */
+    private void recordAnimationInfoIfBouncedHiddenView(ViewHolder viewHolder,
+            ItemHolderInfo animationInfo) {
+        // looks like this view bounced back from hidden list!
+        viewHolder.setFlags(0, ViewHolder.FLAG_BOUNCED_FROM_HIDDEN_LIST);
+        if (mState.mTrackOldChangeHolders && viewHolder.isUpdated()
+                && !viewHolder.isRemoved() && !viewHolder.shouldIgnore()) {
+            long key = getChangedHolderKey(viewHolder);
+            mState.mOldChangedHolders.put(key, viewHolder);
+        }
+        mState.mPreLayoutHolderMap.put(viewHolder, animationInfo);
     }
 
     private void findMinMaxChildLayoutPositions(int[] into) {
@@ -4466,6 +4500,23 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     }
                 }
             }
+
+            // This is very ugly but the only place we can grab this information
+            // before the View is rebound and returned to the LayoutManager for post layout ops.
+            // We don't need this in pre-layout since the VH is not updated by the LM.
+            if (fromScrap && !mState.isPreLayout() && holder
+                    .hasAnyOfTheFlags(ViewHolder.FLAG_BOUNCED_FROM_HIDDEN_LIST)) {
+                holder.setFlags(0, ViewHolder.FLAG_BOUNCED_FROM_HIDDEN_LIST);
+                if (mState.mRunSimpleAnimations) {
+                    int changeFlags = ItemAnimator
+                            .buildAdapterChangeFlagsForAnimations(holder);
+                    changeFlags |= ItemAnimator.FLAG_APPEARED_IN_PRE_LAYOUT;
+                    final ItemHolderInfo info = mItemAnimator.recordPreLayoutInformation(mState,
+                            holder, changeFlags, holder.getUnmodifiedPayloads());
+                    recordAnimationInfoIfBouncedHiddenView(holder, info);
+                }
+            }
+
             boolean bound = false;
             if (mState.isPreLayout() && holder.isBound()) {
                 // do not update unless we absolutely have to.
@@ -4812,8 +4863,20 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             if (!dryRun) {
                 View view = mChildHelper.findHiddenNonRemovedView(position, type);
                 if (view != null) {
-                    // ending the animation should cause it to get recycled before we reuse it
-                    mItemAnimator.endAnimation(getChildViewHolder(view));
+                    // This View is good to be used. We just need to unhide, detach and move to the
+                    // scrap list.
+                    final ViewHolder vh = getChildViewHolderInt(view);
+                    mChildHelper.unhide(view);
+                    int layoutIndex = mChildHelper.indexOfChild(view);
+                    if (layoutIndex == RecyclerView.NO_POSITION) {
+                        throw new IllegalStateException("layout index should not be -1 after "
+                                + "unhiding a view:" + vh);
+                    }
+                    mChildHelper.detachViewFromParent(layoutIndex);
+                    scrapView(view);
+                    vh.addFlags(ViewHolder.FLAG_RETURNED_FROM_SCRAP
+                            | ViewHolder.FLAG_BOUNCED_FROM_HIDDEN_LIST);
+                    return vh;
                 }
             }
 
@@ -8192,6 +8255,21 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          */
         static final int FLAG_APPEARED_IN_PRE_LAYOUT = 1 << 12;
 
+        /**
+         * Used when a ViewHolder starts the layout pass as a hidden ViewHolder but is re-used from
+         * hidden list (as if it was scrap) without being recycled in between.
+         *
+         * When a ViewHolder is hidden, there are 2 paths it can be re-used:
+         *   a) Animation ends, view is recycled and used from the recycle pool.
+         *   b) LayoutManager asks for the View for that position while the ViewHolder is hidden.
+         *
+         * This flag is used to represent "case b" where the ViewHolder is reused without being
+         * recycled (thus "bounced" from the hidden list). This state requires special handling
+         * because the ViewHolder must be added to pre layout maps for animations as if it was
+         * already there.
+         */
+        static final int FLAG_BOUNCED_FROM_HIDDEN_LIST = 1 << 13;
+
         private int mFlags;
 
         private static final List<Object> FULLUPDATE_PAYLOADS = Collections.EMPTY_LIST;
@@ -9343,6 +9421,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         private boolean mRunSimpleAnimations = false;
 
         private boolean mRunPredictiveAnimations = false;
+
+        private boolean mTrackOldChangeHolders = false;
 
         State reset() {
             mTargetPosition = RecyclerView.NO_POSITION;
