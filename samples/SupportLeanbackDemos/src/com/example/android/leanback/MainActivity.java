@@ -89,6 +89,8 @@ public class MainActivity extends Activity {
                     R.string.browseerror_support_description);
             addAction(actions, PlaybackOverlayActivity.class, R.string.playback,
                     R.string.playback_description);
+            addAction(actions, PlaybackOverlaySupportActivity.class, R.string.playback_support,
+                    R.string.playback_support_description);
             addAction(actions, HorizontalGridTestActivity.class, R.string.hgrid,
                     R.string.hgrid_description);
             addAction(actions, DetailsPresenterSelectionActivity.class,

@@ -60,6 +60,9 @@
         <activity android:name="PlaybackOverlayActivity"
             android:exported="true" />
 
+        <activity android:name="PlaybackOverlaySupportActivity"
+            android:exported="true" />
+
         <activity android:name="VerticalGridActivity"
             android:theme="@style/Theme.Example.Leanback.VerticalGrid"
             android:exported="true" />

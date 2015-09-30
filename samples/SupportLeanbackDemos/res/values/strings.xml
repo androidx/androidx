@@ -37,6 +37,8 @@
     <string name="search_details_support_description">Search style DetailsSupportFragment test</string>
     <string name="playback">Playback</string>
     <string name="playback_description">PlaybackOverlayFragment test</string>
+    <string name="playback_support">Playback(support version)</string>
+    <string name="playback_support_description">PlaybackOverlaySupportFragment test</string>
     <string name="hgrid">Horizontal Grid</string>
     <string name="hgrid_description">HorizontalGridView test</string>
     <string name="vgrid">Vertical Grid</string>
