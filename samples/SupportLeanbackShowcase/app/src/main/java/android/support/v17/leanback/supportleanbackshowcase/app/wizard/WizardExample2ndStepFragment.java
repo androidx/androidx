@@ -45,12 +45,6 @@ public class WizardExample2ndStepFragment extends WizardExampleBaseStepFragment 
         return fragment;
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        getWizardActivity().setStep(2);
-    }
-
     @NonNull
     @Override
     public GuidanceStylist.Guidance onCreateGuidance(Bundle savedInstanceState) {

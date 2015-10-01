@@ -30,6 +30,6 @@ public class DialogExampleActivity extends Activity {
         getWindow().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#21272A")));
 
         GuidedStepFragment fragment = new DialogExampleFragment();
-        GuidedStepFragment.add(getFragmentManager(), fragment);
+        GuidedStepFragment.addAsRoot(this, fragment, android.R.id.content);
     }
 }

@@ -25,46 +25,23 @@ import android.support.v17.leanback.supportleanbackshowcase.R;
  */
 public class WizardExampleActivity extends Activity {
 
-    // When the user 'bought' the product and presses back, we don't want to show the 'Processing..'
-    // screen again, instead we want to go back to the very first step or close the wizard. Thus, we
-    // have to save the current step of the wizard and make it accessible to it's children.
-    private int mStep = 0;
-
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setBackgroundDrawableResource(R.drawable.wizard_background_blackned);
 
-        // Recover old step state.
-        if (savedInstanceState != null) {
-            mStep = savedInstanceState.getInt("step");
-        }
-
         GuidedStepFragment fragment = new WizardExample1stStepFragment();
         fragment.setArguments(getIntent().getExtras()); // Delegate Movie to first step.
-        GuidedStepFragment.add(getFragmentManager(), fragment);
-    }
-
-    public int getStep() {
-        return mStep;
-    }
-
-    public void setStep(int step) {
-        mStep = step;
+        GuidedStepFragment.addAsRoot(this, fragment, android.R.id.content);
     }
 
     @Override
     public void onBackPressed() {
-        if (4 == getStep()) {
+        if (GuidedStepFragment.getCurrentGuidedStepFragment(getFragmentManager())
+                instanceof WizardExample4thStepFragment) {
             // The user 'bought' the product. When he presses 'Back' the Wizard will be closed and
             // he will not be send back to 'Processing Payment...'-Screen.
             finish();
         } else super.onBackPressed();
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        // Save current step persitently.
-        outPersistentState.putInt("step", mStep);
-        super.onSaveInstanceState(outState, outPersistentState);
-    }
 }

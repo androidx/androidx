@@ -32,12 +32,6 @@ public class WizardExample1stStepFragment extends WizardExampleBaseStepFragment 
     private static final int ACTION_ID_BUY_HD = 1;
     private static final int ACTION_ID_BUY_SD = ACTION_ID_BUY_HD + 1;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        getWizardActivity().setStep(1);
-    }
-
     @NonNull
     @Override
     public GuidanceStylist.Guidance onCreateGuidance(Bundle savedInstanceState) {

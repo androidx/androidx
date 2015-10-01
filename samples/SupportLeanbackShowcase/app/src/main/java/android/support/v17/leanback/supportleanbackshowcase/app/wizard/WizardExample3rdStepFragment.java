@@ -36,12 +36,6 @@ public class WizardExample3rdStepFragment extends WizardExampleBaseStepFragment 
     private final Handler mFakeHttpHandler = new Handler();
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        getWizardActivity().setStep(3);
-    }
-
-    @Override
     public void onStart() {
         super.onStart();
 

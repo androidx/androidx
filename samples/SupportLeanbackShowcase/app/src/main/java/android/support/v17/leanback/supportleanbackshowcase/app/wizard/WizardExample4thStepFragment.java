@@ -33,12 +33,6 @@ public class WizardExample4thStepFragment extends WizardExampleBaseStepFragment 
     private static final int ACTION_ID_WATCH = 1;
     private static final int ACTION_ID_LATER = ACTION_ID_WATCH + 1;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        getWizardActivity().setStep(4);
-    }
-
     @NonNull
     @Override
     public GuidanceStylist.Guidance onCreateGuidance(Bundle savedInstanceState) {
