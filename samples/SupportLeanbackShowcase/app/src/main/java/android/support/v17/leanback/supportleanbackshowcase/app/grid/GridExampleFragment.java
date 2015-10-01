@@ -15,6 +15,7 @@
 package android.support.v17.leanback.supportleanbackshowcase.app.grid;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v17.leanback.app.VerticalGridFragment;
 import android.support.v17.leanback.supportleanbackshowcase.R;
 import android.support.v17.leanback.supportleanbackshowcase.utils.Utils;
@@ -35,6 +36,8 @@ public class GridExampleFragment extends VerticalGridFragment {
     private static final int COLUMNS = 4;
     private static final int ZOOM_FACTOR = FocusHighlight.ZOOM_FACTOR_MEDIUM;
 
+    private ArrayObjectAdapter mAdapter;
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTitle(getString(R.string.grid_example_title));
@@ -47,11 +50,23 @@ public class GridExampleFragment extends VerticalGridFragment {
         setGridPresenter(gridPresenter);
 
         PresenterSelector cardPresenterSelector = new CardPresenterSelector(getActivity());
-        ArrayObjectAdapter adapter = new ArrayObjectAdapter(cardPresenterSelector);
-        String json = Utils.inputStreamToString(getResources().openRawResource(R.raw.grid_example));
-        CardRow row = new Gson().fromJson(json, CardRow.class);
-        adapter.addAll(0, row.getCards());
-        setAdapter(adapter);
+        mAdapter = new ArrayObjectAdapter(cardPresenterSelector);
+        setAdapter(mAdapter);
+
+        prepareEntranceTransition();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                createRows();
+                startEntranceTransition();
+            }
+        }, 1000);
     }
 
+    private void createRows() {
+        String json = Utils.inputStreamToString(getResources()
+                .openRawResource(R.raw.grid_example));
+        CardRow row = new Gson().fromJson(json, CardRow.class);
+        mAdapter.addAll(0, row.getCards());
+    }
 }

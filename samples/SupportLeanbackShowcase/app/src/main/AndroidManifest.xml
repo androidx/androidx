@@ -47,7 +47,7 @@
             android:theme="@style/Theme.Example.LeanbackBrowse"></activity>
         <activity
             android:name=".app.grid.GridExampleActivity"
-            android:theme="@style/Theme.Example.Leanback"></activity>
+            android:theme="@style/Theme.Example.LeanbackVerticalGrid"></activity>
         <activity
             android:name=".app.media.VideoExampleActivity"
             android:theme="@style/Theme.Example.Leanback"></activity>

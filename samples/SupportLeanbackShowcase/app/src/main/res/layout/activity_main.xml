@@ -21,6 +21,5 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:deviceIds="tv"
-    android:background="@drawable/bg_living_room_wide"
     tools:ignore="MergeRootFrame">
 </RelativeLayout>
