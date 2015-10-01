@@ -32,6 +32,8 @@
             android:id="@+id/mr_volume_slider"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:maxHeight="48dp"
             android:layout_weight="1"/>
     <android.support.v7.app.MediaRouteExpandCollapseButton
             android:id="@+id/mr_group_expand_collapse"
