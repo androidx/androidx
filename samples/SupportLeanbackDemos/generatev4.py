@@ -83,6 +83,7 @@ for line in file:
     line = line.replace('android.app.Activity', 'android.support.v4.app.FragmentActivity')
     line = line.replace('DetailsFragment', 'DetailsSupportFragment')
     line = line.replace('DetailsActivity', 'DetailsSupportActivity')
+    line = line.replace('PlaybackOverlayActivity', 'PlaybackOverlaySupportActivity')
     line = line.replace('SearchActivity', 'SearchSupportActivity')
     outfile.write(line)
 file.close()
@@ -96,6 +97,7 @@ for line in file:
     line = line.replace('android.app.Activity', 'android.support.v4.app.FragmentActivity')
     line = line.replace('DetailsFragment', 'DetailsSupportFragment')
     line = line.replace('DetailsActivity', 'DetailsSupportActivity')
+    line = line.replace('PlaybackOverlayActivity', 'PlaybackOverlaySupportActivity')
     line = line.replace('SearchActivity', 'SearchSupportActivity')
     outfile.write(line)
 file.close()
@@ -274,3 +276,45 @@ for line in file:
 file.close()
 outfile.close()
 
+
+file = open('src/com/example/android/leanback/PlaybackOverlayFragment.java', 'r')
+outfile = open('src/com/example/android/leanback/PlaybackOverlaySupportFragment.java', 'w')
+write_java_head(outfile, "PlaybackOverlayFragment")
+for line in file:
+    line = line.replace('PlaybackOverlayFragment', 'PlaybackOverlaySupportFragment')
+    line = line.replace('PlaybackControlHelper', 'PlaybackControlSupportHelper')
+    outfile.write(line)
+file.close()
+outfile.close()
+
+file = open('src/com/example/android/leanback/PlaybackControlHelper.java', 'r')
+outfile = open('src/com/example/android/leanback/PlaybackControlSupportHelper.java', 'w')
+write_java_head(outfile, "PlaybackControlHelper")
+for line in file:
+    line = line.replace('PlaybackControlHelper', 'PlaybackControlSupportHelper')
+    line = line.replace('PlaybackControlGlue', 'PlaybackControlSupportGlue')
+    line = line.replace('PlaybackOverlayFragment', 'PlaybackOverlaySupportFragment')
+    outfile.write(line)
+file.close()
+outfile.close()
+
+file = open('src/com/example/android/leanback/PlaybackOverlayActivity.java', 'r')
+outfile = open('src/com/example/android/leanback/PlaybackOverlaySupportActivity.java', 'w')
+write_java_head(outfile, "PlaybackOverlayActivity")
+for line in file:
+    line = line.replace('PlaybackOverlayActivity', 'PlaybackOverlaySupportActivity')
+    line = line.replace('extends Activity', 'extends FragmentActivity')
+    line = line.replace('R.layout.playback_controls', 'R.layout.playback_controls_support')
+    line = line.replace('android.app.Activity', 'android.support.v4.app.FragmentActivity')
+    outfile.write(line)
+file.close()
+outfile.close()
+
+file = open('res/layout/playback_controls.xml', 'r')
+outfile = open('res/layout/playback_controls_support.xml', 'w')
+for line in file:
+    line = replace_xml_head(line, "playback_controls")
+    line = line.replace('com.example.android.leanback.PlaybackOverlayFragment', 'com.example.android.leanback.PlaybackOverlaySupportFragment')
+    outfile.write(line)
+file.close()
+outfile.close()
