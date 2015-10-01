@@ -117,7 +117,7 @@ uploadArchives {
             }
 
             pom.project {
-                name 'Android Support Library v4'
+                name 'Android MediaRouter Support Library'
                 description "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs. Compatible on devices running API 4 or later."
                 url 'http://developer.android.com/tools/extras/support-library.html'
                 inceptionYear '2011'
