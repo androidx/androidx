@@ -175,7 +175,8 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
      * fragment transition asks for exit transition before uiStyle is restored in Fragment
      * .onCreate().</li>
      * <li> {@link #onProvideBackgroundSupportFragment()} will create {@link GuidedStepBackgroundSupportFragment}
-     * to covering underneath content.</li>
+     * to covering underneath content. The activity must provide a container to host background
+     * fragment and override {@link #getContainerIdForBackground()}</li>
      * </ul>
      */
     public static final int UI_STYLE_ENTRANCE = 1;
@@ -288,7 +289,8 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
     /**
      * Adds the specified GuidedStepSupportFragment to the fragment stack, replacing any existing
      * GuidedStepSupportFragments in the stack, and configuring the fragment-to-fragment custom
-     * transitions.
+     * transitions.  A backstack entry is added, so the fragment will be dismissed when BACK key
+     * is pressed.
      * <li>If current fragment on stack is GuidedStepSupportFragment: assign {@link #UI_STYLE_DEFAULT}
      * <li>If current fragment on stack is not GuidedStepSupportFragment: assign {@link #UI_STYLE_ENTRANCE}
      * <p>
@@ -305,7 +307,8 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
     /**
      * Adds the specified GuidedStepSupportFragment to the fragment stack, replacing any existing
      * GuidedStepSupportFragments in the stack, and configuring the fragment-to-fragment custom
-     * transitions.
+     * transitions.  A backstack entry is added, so the fragment will be dismissed when BACK key
+     * is pressed.
      * <li>If current fragment on stack is GuidedStepSupportFragment: assign {@link #UI_STYLE_DEFAULT}
      * <li>If current fragment on stack is not GuidedStepSupportFragment: assign {@link #UI_STYLE_ENTRANCE}
      * <p>
@@ -319,7 +322,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
     public static int add(FragmentManager fragmentManager, GuidedStepSupportFragment fragment, int id) {
         boolean inGuidedStep = getCurrentGuidedStepSupportFragment(fragmentManager) != null;
         if (IS_FRAMEWORK_FRAGMENT && Build.VERSION.SDK_INT >= 21 && Build.VERSION.SDK_INT < 23
-                && !inGuidedStep) {
+                && !inGuidedStep && fragment.getContainerIdForBackground() != View.NO_ID) {
             // workaround b/22631964 for framework fragment
             fragmentManager.beginTransaction()
                 .replace(id, new DummyFragment(), TAG_LEAN_BACK_ACTIONS_FRAGMENT)
@@ -335,7 +338,8 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
     }
 
     /**
-     * Adds the specified GuidedStepSupportFragment as content of Activity.
+     * Adds the specified GuidedStepSupportFragment as content of Activity; no backstack entry is added so
+     * the activity will be dismissed when BACK key is pressed.
      * {@link #UI_STYLE_ACTIVITY_ROOT} is assigned.
      *
      * Note: currently fragments added using this method must be created programmatically rather
@@ -357,9 +361,11 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
     }
 
     static void initialBackground(GuidedStepSupportFragment fragment, int id, FragmentTransaction ft) {
-        Fragment backgroundFragment = fragment.onProvideBackgroundSupportFragment();
-        if (backgroundFragment != null) {
-            ft.replace(fragment.getContainerIdForBackground(), backgroundFragment);
+        if (fragment.getContainerIdForBackground() != View.NO_ID) {
+            Fragment backgroundFragment = fragment.onProvideBackgroundSupportFragment();
+            if (backgroundFragment != null) {
+                ft.replace(fragment.getContainerIdForBackground(), backgroundFragment);
+            }
         }
     }
 
@@ -564,11 +570,11 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
     /**
      * Returns container id for inserting {@link #onProvideBackgroundSupportFragment()}.  The id should be
      * different than container id for inserting GuidedStepSupportFragment.
-     * Default value is {@link R.id#lb_guidedstep_background}.  Subclass may override.
+     * Default value is {@link View#NO_ID}.  Subclass must override to host background fragment.
      * @return container id for inserting {@link #onProvideBackgroundSupportFragment()}
      */
     protected int getContainerIdForBackground() {
-        return R.id.lb_guidedstep_background;
+        return View.NO_ID;
     }
 
 
