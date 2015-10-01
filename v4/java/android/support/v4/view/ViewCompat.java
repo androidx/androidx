@@ -1757,10 +1757,9 @@ public class ViewCompat {
      *     event.getText().add(selectedDateUtterance);
      * }</pre>
      * <p>
-     * If an {@link android.view.View.AccessibilityDelegate} has been specified via calling
-     * {@link View#setAccessibilityDelegate(android.view.View.AccessibilityDelegate)} its
-     * {@link android.view.View.AccessibilityDelegate#onPopulateAccessibilityEvent(View,
-     *  AccessibilityEvent)}
+     * If an {@link AccessibilityDelegateCompat} has been specified via calling
+     * {@link ViewCompat#setAccessibilityDelegate(View, AccessibilityDelegateCompat)} its
+     * {@link AccessibilityDelegateCompat#onPopulateAccessibilityEvent(View, AccessibilityEvent)}
      * is responsible for handling this call.
      * </p>
      * <p class="note"><strong>Note:</strong> Always call the super implementation before adding
@@ -1790,15 +1789,10 @@ public class ViewCompat {
      *     event.setPassword(true);
      * }</pre>
      * <p>
-     * If an {@link android.view.View.AccessibilityDelegate} has been specified via calling
-     * {@link View#setAccessibilityDelegate(android.view.View.AccessibilityDelegate)} its
-     * {@link android.view.View.AccessibilityDelegate#onInitializeAccessibilityEvent(View,
-     *  AccessibilityEvent)}
+     * If an {@link AccessibilityDelegateCompat} has been specified via calling
+     * {@link ViewCompat#setAccessibilityDelegate(View, AccessibilityDelegateCompat)}, its
+     * {@link AccessibilityDelegateCompat#onInitializeAccessibilityEvent(View, AccessibilityEvent)}
      * is responsible for handling this call.
-     * </p>
-     * <p class="note"><strong>Note:</strong> Always call the super implementation before adding
-     * information to the event, in case the default implementation has basic information to add.
-     * </p>
      *
      * @param v The View against which to invoke the method.
      * @param event The event to initialize.
@@ -1811,33 +1805,27 @@ public class ViewCompat {
     }
 
     /**
-     * Initializes an {@link android.view.accessibility.AccessibilityNodeInfo} with information
+     * Initializes an {@link AccessibilityNodeInfoCompat} with information
      * about this view. The base implementation sets:
      * <ul>
-     * <li>{@link android.view.accessibility.AccessibilityNodeInfo#setParent(View)},</li>
-     * <li>{@link android.view.accessibility.AccessibilityNodeInfo#setBoundsInParent(Rect)},</li>
-     * <li>{@link android.view.accessibility.AccessibilityNodeInfo#setBoundsInScreen(Rect)},</li>
-     * <li>{@link android.view.accessibility.AccessibilityNodeInfo#setPackageName(CharSequence)},</li>
-     * <li>{@link android.view.accessibility.AccessibilityNodeInfo#setClassName(CharSequence)},</li>
-     * <li>{@link android.view.accessibility.AccessibilityNodeInfo#setContentDescription(CharSequence)},</li>
-     * <li>{@link android.view.accessibility.AccessibilityNodeInfo#setEnabled(boolean)},</li>
-     * <li>{@link android.view.accessibility.AccessibilityNodeInfo#setClickable(boolean)},</li>
-     * <li>{@link android.view.accessibility.AccessibilityNodeInfo#setFocusable(boolean)},</li>
-     * <li>{@link android.view.accessibility.AccessibilityNodeInfo#setFocused(boolean)},</li>
-     * <li>{@link android.view.accessibility.AccessibilityNodeInfo#setLongClickable(boolean)},</li>
-     * <li>{@link android.view.accessibility.AccessibilityNodeInfo#setSelected(boolean)},</li>
+     * <li>{@link AccessibilityNodeInfoCompat#setParent(View)},</li>
+     * <li>{@link AccessibilityNodeInfoCompat#setBoundsInParent(Rect)},</li>
+     * <li>{@link AccessibilityNodeInfoCompat#setBoundsInScreen(Rect)},</li>
+     * <li>{@link AccessibilityNodeInfoCompat#setPackageName(CharSequence)},</li>
+     * <li>{@link AccessibilityNodeInfoCompat#setClassName(CharSequence)},</li>
+     * <li>{@link AccessibilityNodeInfoCompat#setContentDescription(CharSequence)},</li>
+     * <li>{@link AccessibilityNodeInfoCompat#setEnabled(boolean)},</li>
+     * <li>{@link AccessibilityNodeInfoCompat#setClickable(boolean)},</li>
+     * <li>{@link AccessibilityNodeInfoCompat#setFocusable(boolean)},</li>
+     * <li>{@link AccessibilityNodeInfoCompat#setFocused(boolean)},</li>
+     * <li>{@link AccessibilityNodeInfoCompat#setLongClickable(boolean)},</li>
+     * <li>{@link AccessibilityNodeInfoCompat#setSelected(boolean)},</li>
      * </ul>
      * <p>
-     * Subclasses should override this method, call the super implementation,
-     * and set additional attributes.
-     * </p>
-     * <p>
-     * If an {@link android.view.View.AccessibilityDelegate} has been specified via calling
-     * {@link View#setAccessibilityDelegate(android.view.View.AccessibilityDelegate)} its
-     * {@link android.view.View.AccessibilityDelegate#onInitializeAccessibilityNodeInfo(View,
-     *  android.view.accessibility.AccessibilityNodeInfo)}
-     * is responsible for handling this call.
-     * </p>
+     * If an {@link AccessibilityDelegateCompat} has been specified via calling
+     * {@link ViewCompat#setAccessibilityDelegate(View, AccessibilityDelegateCompat)}, its
+     * {@link AccessibilityDelegateCompat#onInitializeAccessibilityNodeInfo(View, AccessibilityNodeInfoCompat)}
+     * method is responsible for handling this call.
      *
      * @param v The View against which to invoke the method.
      * @param info The instance to initialize.
@@ -1847,15 +1835,27 @@ public class ViewCompat {
     }
 
     /**
-     * Sets a delegate for implementing accessibility support via compositon as
-     * opposed to inheritance. The delegate's primary use is for implementing
-     * backwards compatible widgets. For more details see
-     * {@link android.view.View.AccessibilityDelegate}.
+     * Sets a delegate for implementing accessibility support via composition
+     * (as opposed to inheritance). For more details, see
+     * {@link AccessibilityDelegateCompat}.
+     * <p>
+     * On platform versions prior to API 14, this method is a no-op.
+     * <p>
+     * <strong>Note:</strong> On platform versions prior to
+     * {@link android.os.Build.VERSION_CODES#M API 23}, delegate methods on
+     * views in the {@code android.widget.*} package are called <i>before</i>
+     * host methods. This prevents certain properties such as class name from
+     * being modified by overriding
+     * {@link AccessibilityDelegateCompat#onInitializeAccessibilityNodeInfo(View, AccessibilityNodeInfoCompat)},
+     * as any changes will be overwritten by the host class.
+     * <p>
+     * Starting in {@link android.os.Build.VERSION_CODES#M API 23}, delegate
+     * methods are called <i>after</i> host methods, which all properties to be
+     * modified without being overwritten by the host class.
      *
-     * @param v The View against which to invoke the method.
-     * @param delegate The delegate instance.
-     *
-     * @see android.view.View.AccessibilityDelegate
+     * @param delegate the object to which accessibility method calls should be
+     *                 delegated
+     * @see AccessibilityDelegateCompat
      */
     public static void setAccessibilityDelegate(View v, AccessibilityDelegateCompat delegate) {
         IMPL.setAccessibilityDelegate(v, delegate);

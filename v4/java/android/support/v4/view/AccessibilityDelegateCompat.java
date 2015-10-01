@@ -27,6 +27,18 @@ import android.view.accessibility.AccessibilityEvent;
 /**
  * Helper for accessing {@link View.AccessibilityDelegate} introduced after
  * API level 4 in a backwards compatible fashion.
+ * <p>
+ * <strong>Note:</strong> On platform versions prior to
+ * {@link android.os.Build.VERSION_CODES#M API 23}, delegate methods on
+ * views in the {@code android.widget.*} package are called <i>before</i>
+ * host methods. This prevents certain properties such as class name from
+ * being modified by overriding
+ * {@link AccessibilityDelegateCompat#onInitializeAccessibilityNodeInfo(View, AccessibilityNodeInfoCompat)},
+ * as any changes will be overwritten by the host class.
+ * <p>
+ * Starting in {@link android.os.Build.VERSION_CODES#M API 23}, delegate
+ * methods are called <i>after</i> host methods, which all properties to be
+ * modified without being overwritten by the host class.
  */
 public class AccessibilityDelegateCompat {
 
