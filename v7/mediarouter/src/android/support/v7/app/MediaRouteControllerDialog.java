@@ -612,6 +612,22 @@ public class MediaRouteControllerDialog extends AlertDialog {
             anim.setInterpolator(mContext, mIsGroupExpanded ? R.interpolator.mr_linear_out_slow_in
                     : R.interpolator.mr_fast_out_slow_in);
         }
+        if (view == mVolumeGroupList) {
+            anim.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+                    mVolumeGroupList.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    mVolumeGroupList.setTranscriptMode(ListView.TRANSCRIPT_MODE_DISABLED);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) { }
+            });
+        }
         view.startAnimation(anim);
     }
 
