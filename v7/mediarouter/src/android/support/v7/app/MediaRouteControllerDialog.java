@@ -519,16 +519,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
         int volumeGroupListCount = mVolumeGroupList.getAdapter() != null
                 ? mVolumeGroupList.getAdapter().getCount() : 0;
         // Scale down volume group list items in landscape mode.
-        for (int i = 0; i < volumeGroupListCount; i++) {
-            View item = mVolumeGroupList.getChildAt(i);
-            if (item != null) {
-                setLayoutHeight(item, mVolumeGroupListItemHeight);
-                View icon = item.findViewById(R.id.mr_volume_item_icon);
-                ViewGroup.LayoutParams lp = icon.getLayoutParams();
-                lp.width = mVolumeGroupListItemIconSize;
-                lp.height = mVolumeGroupListItemIconSize;
-                icon.setLayoutParams(lp);
-            }
+        for (int i = 0; i < mVolumeGroupList.getChildCount(); i++) {
+            updateVolumeGroupItemHeight(mVolumeGroupList.getChildAt(i));
         }
         int expandedGroupListHeight = mVolumeGroupListItemHeight * volumeGroupListCount;
         if (volumeGroupListCount > 0) {
@@ -595,6 +587,15 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mIsGroupListAnimationNeeded = false;
         // Maximize the window size with a transparent layout in advance for smooth animation.
         setLayoutHeight(mExpandableAreaLayout, visibleRect.height());
+    }
+
+    private void updateVolumeGroupItemHeight(View item) {
+        setLayoutHeight(item, mVolumeGroupListItemHeight);
+        View icon = item.findViewById(R.id.mr_volume_item_icon);
+        ViewGroup.LayoutParams lp = icon.getLayoutParams();
+        lp.width = mVolumeGroupListItemIconSize;
+        lp.height = mVolumeGroupListItemIconSize;
+        icon.setLayoutParams(lp);
     }
 
     private void animateLayoutHeight(final View view, int targetHeight) {
@@ -881,6 +882,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
             if (v == null) {
                 v = LayoutInflater.from(mContext).inflate(
                         R.layout.mr_controller_volume_item, parent, false);
+            } else {
+                updateVolumeGroupItemHeight(v);
             }
 
             MediaRouter.RouteInfo route = getItem(position);
