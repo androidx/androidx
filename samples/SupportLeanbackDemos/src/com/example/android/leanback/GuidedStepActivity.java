@@ -106,9 +106,6 @@ public class GuidedStepActivity extends Activity {
                 .build());
     }
 
-    /**
-     * The first fragment is instantiated via XML, so it must be public.
-     */
     public static class FirstStepFragment extends GuidedStepFragment {
         @Override
         public int onProvideTheme() {
@@ -138,6 +135,11 @@ public class GuidedStepActivity extends Activity {
             } else {
                 getActivity().finish();
             }
+        }
+
+        @Override
+        protected int getContainerIdForBackground() {
+            return R.id.lb_guidedstep_background;
         }
     }
 
