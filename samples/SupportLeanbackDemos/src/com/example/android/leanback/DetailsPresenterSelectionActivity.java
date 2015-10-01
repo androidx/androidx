@@ -40,6 +40,7 @@ public class DetailsPresenterSelectionActivity extends Activity {
     private static final long ACTION_ID_SWITCH_LEGACY_ON = 10000;
     private static final long ACTION_ID_SWITCH_LEGACY_OFF = 10001;
 
+    public static boolean USE_LEGACY_PRESENTER = false;
 
     private static final String[] OPTION_NAMES = { "Use new details presenter", "Use legacy details presenter" };
     private static final String[] OPTION_DESCRIPTIONS = { "Use new details presenter",
@@ -97,11 +98,11 @@ public class DetailsPresenterSelectionActivity extends Activity {
             for (int i = 0; i < OPTION_NAMES.length; i++) {
                 boolean checked = false;
                 if (OPTION_IDS[i] == ACTION_ID_SWITCH_LEGACY_ON) {
-                    if (DetailsActivity.USE_LEGACY_PRESENTER) {
+                    if (USE_LEGACY_PRESENTER) {
                         checked = true;
                     }
                 } else if (OPTION_IDS[i] == ACTION_ID_SWITCH_LEGACY_OFF) {
-                    if (!DetailsActivity.USE_LEGACY_PRESENTER) {
+                    if (!USE_LEGACY_PRESENTER) {
                         checked = true;
                     }
                 }
@@ -113,9 +114,9 @@ public class DetailsPresenterSelectionActivity extends Activity {
         @Override
         public void onGuidedActionClicked(GuidedAction action) {
             if (action.getId() == ACTION_ID_SWITCH_LEGACY_ON) {
-                DetailsActivity.USE_LEGACY_PRESENTER = action.isChecked();
+                USE_LEGACY_PRESENTER = action.isChecked();
             } else if (action.getId() == ACTION_ID_SWITCH_LEGACY_OFF) {
-                DetailsActivity.USE_LEGACY_PRESENTER = !action.isChecked();
+                USE_LEGACY_PRESENTER = !action.isChecked();
             }
             getActivity().finish();
         }
