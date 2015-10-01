@@ -1878,13 +1878,7 @@ public class ViewPager extends ViewGroup {
         if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
             // Release the drag.
             if (DEBUG) Log.v(TAG, "Intercept done!");
-            mIsBeingDragged = false;
-            mIsUnableToDrag = false;
-            mActivePointerId = INVALID_POINTER;
-            if (mVelocityTracker != null) {
-                mVelocityTracker.recycle();
-                mVelocityTracker = null;
-            }
+            resetTouch();
             return false;
         }
 
@@ -2051,6 +2045,11 @@ public class ViewPager extends ViewGroup {
             case MotionEvent.ACTION_MOVE:
                 if (!mIsBeingDragged) {
                     final int pointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
+                    if (pointerIndex == -1) {
+                        // A child has consumed some touch events and put us into an inconsistent state.
+                        needsInvalidate = resetTouch();
+                        break;
+                    }
                     final float x = MotionEventCompat.getX(ev, pointerIndex);
                     final float xDiff = Math.abs(x - mLastMotionX);
                     final float y = MotionEventCompat.getY(ev, pointerIndex);
@@ -2102,17 +2101,13 @@ public class ViewPager extends ViewGroup {
                             totalDelta);
                     setCurrentItemInternal(nextPage, true, true, initialVelocity);
 
-                    mActivePointerId = INVALID_POINTER;
-                    endDrag();
-                    needsInvalidate = mLeftEdge.onRelease() | mRightEdge.onRelease();
+                    needsInvalidate = resetTouch();
                 }
                 break;
             case MotionEvent.ACTION_CANCEL:
                 if (mIsBeingDragged) {
                     scrollToItem(mCurItem, true, 0, false);
-                    mActivePointerId = INVALID_POINTER;
-                    endDrag();
-                    needsInvalidate = mLeftEdge.onRelease() | mRightEdge.onRelease();
+                    needsInvalidate = resetTouch();
                 }
                 break;
             case MotionEventCompat.ACTION_POINTER_DOWN: {
@@ -2132,6 +2127,14 @@ public class ViewPager extends ViewGroup {
             ViewCompat.postInvalidateOnAnimation(this);
         }
         return true;
+    }
+
+    private boolean resetTouch() {
+        boolean needsInvalidate;
+        mActivePointerId = INVALID_POINTER;
+        endDrag();
+        needsInvalidate = mLeftEdge.onRelease() | mRightEdge.onRelease();
+        return needsInvalidate;
     }
 
     private void requestParentDisallowInterceptTouchEvent(boolean disallowIntercept) {
