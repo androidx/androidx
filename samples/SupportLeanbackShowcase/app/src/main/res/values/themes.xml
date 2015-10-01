@@ -27,6 +27,7 @@
     </style>
 
     <style name="Theme.Example.LeanbackBrowse" parent="Theme.Leanback.Browse">
+        <item name="android:windowBackground">@color/card_examples_background</item>
     </style>
 
     <style name="Theme.Example.LeanbackVerticalGrid" parent="Theme.Leanback.VerticalGrid">
@@ -51,5 +52,11 @@
 
     <style name="Theme.Example.LeanbackDetails" parent="Theme.Leanback.Details">
         <item name="android:colorPrimary">@color/detail_view_actionbar_background</item>
-    </style>
+        <item name="android:windowBackground">@drawable/background_canyon</item>
+     </style>
+
+    <style name="Theme.Example.LeanbackMusic" parent="Theme.Example.Leanback">
+        <item name="android:windowBackground">@drawable/background_sax</item>
+     </style>
+
 </resources>

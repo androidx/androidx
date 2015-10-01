@@ -53,7 +53,7 @@
             android:theme="@style/Theme.Example.Leanback"></activity>
         <activity
             android:name=".app.media.MusicExampleActivity"
-            android:theme="@style/Theme.Example.Leanback"></activity>
+            android:theme="@style/Theme.Example.LeanbackMusic"></activity>
     </application>
 
 </manifest>
