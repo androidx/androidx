@@ -60,10 +60,8 @@
         <item name="backgroundSplit">?attr/colorPrimary</item>
     </style>
 
-    <style name="Base.Widget.AppCompat.ActionButton" parent="">
+    <style name="Base.Widget.AppCompat.ActionButton" parent="RtlUnderlay.Widget.AppCompat.ActionButton">
         <item name="android:background">?attr/actionBarItemBackground</item>
-        <item name="android:paddingLeft">12dip</item>
-        <item name="android:paddingRight">12dip</item>
         <item name="android:minWidth">@dimen/abc_action_button_min_width_material</item>
         <item name="android:minHeight">@dimen/abc_action_button_min_height_material</item>
         <item name="android:scaleType">center</item>
@@ -76,7 +74,7 @@
         <item name="android:background">?attr/controlBackground</item>
     </style>
 
-    <style name="Base.Widget.AppCompat.ActionButton.Overflow">
+    <style name="Base.Widget.AppCompat.ActionButton.Overflow" parent="RtlUnderlay.Widget.AppCompat.ActionButton.Overflow">
         <item name="android:src">@drawable/abc_ic_menu_moreoverflow_mtrl_alpha</item>
         <item name="android:background">?attr/actionBarItemBackground</item>
         <item name="android:contentDescription">@string/abc_action_menu_overflow_description</item>
