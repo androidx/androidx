@@ -302,7 +302,8 @@ public final class TintManager {
             } else if (resId == R.drawable.abc_switch_thumb_material) {
                 tint = createSwitchThumbColorStateList(context);
             } else if (resId == R.drawable.abc_btn_default_mtrl_shape
-                    || resId == R.drawable.abc_btn_borderless_material) {
+                    || resId == R.drawable.abc_btn_borderless_material
+                    || resId == R.drawable.abc_btn_default_material) {
                 tint = createDefaultButtonColorStateList(context);
             } else if (resId == R.drawable.abc_btn_colored_material) {
                 tint = createColoredButtonColorStateList(context);

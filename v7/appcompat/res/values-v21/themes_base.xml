@@ -72,8 +72,6 @@
 
         <!-- Copy the platform default styles for the AppCompat widgets -->
         <item name="autoCompleteTextViewStyle">?android:attr/autoCompleteTextViewStyle</item>
-        <item name="buttonStyle">?android:attr/buttonStyle</item>
-        <item name="buttonStyleSmall">?android:attr/buttonStyleSmall</item>
         <item name="checkboxStyle">?android:attr/checkboxStyle</item>
         <item name="checkedTextViewStyle">?android:attr/checkedTextViewStyle</item>
         <item name="editTextStyle">?android:attr/editTextStyle</item>
@@ -121,8 +119,6 @@
 
         <!-- Copy the platform default styles for the AppCompat widgets -->
         <item name="autoCompleteTextViewStyle">?android:attr/autoCompleteTextViewStyle</item>
-        <item name="buttonStyle">?android:attr/buttonStyle</item>
-        <item name="buttonStyleSmall">?android:attr/buttonStyleSmall</item>
         <item name="checkboxStyle">?android:attr/checkboxStyle</item>
         <item name="checkedTextViewStyle">?android:attr/checkedTextViewStyle</item>
         <item name="editTextStyle">?android:attr/editTextStyle</item>
