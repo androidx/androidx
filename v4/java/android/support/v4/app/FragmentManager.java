@@ -533,7 +533,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     static boolean shouldRunOnHWLayer(View v, Animation anim) {
-        return ViewCompat.getLayerType(v) == ViewCompat.LAYER_TYPE_NONE
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT
+                && ViewCompat.getLayerType(v) == ViewCompat.LAYER_TYPE_NONE
                 && ViewCompat.hasOverlappingRendering(v)
                 && modifiesAlpha(anim);
     }
