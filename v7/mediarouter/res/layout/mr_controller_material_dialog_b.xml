@@ -91,7 +91,6 @@
                           android:scrollbarStyle="outsideInset"
                           android:clipToPadding="false"
                           android:background="?attr/colorPrimaryDark"
-                          android:transcriptMode="alwaysScroll"
                           android:visibility="gone" />
             </LinearLayout>
         </FrameLayout>
