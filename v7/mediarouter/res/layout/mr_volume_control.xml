@@ -28,13 +28,17 @@
             android:src="?attr/mediaRouteAudioTrackDrawable"
             android:gravity="center"
             android:scaleType="center"/>
+    <!-- Since dialog's top layout mr_expandable_area is clickable, it propagates pressed state
+         to its non-clickable children. Specify android:clickable="true" to prevent volume slider
+         from having false pressed state. -->
     <android.support.v7.app.MediaRouteVolumeSlider
             android:id="@+id/mr_volume_slider"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:minHeight="48dp"
             android:maxHeight="48dp"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:clickable="true" />
     <android.support.v7.app.MediaRouteExpandCollapseButton
             android:id="@+id/mr_group_expand_collapse"
             android:layout_width="48dp"
