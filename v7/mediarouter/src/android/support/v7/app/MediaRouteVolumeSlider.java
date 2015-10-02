@@ -62,8 +62,8 @@ class MediaRouteVolumeSlider extends AppCompatSeekBar {
         int alpha = isEnabled() ? 0xFF : (int)(mDisabledAlpha * 0xFF);
         getProgressDrawable().setAlpha(alpha);
         mThumb.setAlpha(alpha);
-        // Thumb drawable is collections of drawables which is changed per state changes.
-        // We need to manually apply color filters whenever the current drawable is changed.
+        // The thumb drawable is a collection of drawables and its current drawable is changed per
+        // state changes. Apply color filters whenever the current drawable is changed.
         getProgressDrawable().setColorFilter(mColor, PorterDuff.Mode.SRC_IN);
         mThumb.setColorFilter(mColor, PorterDuff.Mode.SRC_IN);
     }
