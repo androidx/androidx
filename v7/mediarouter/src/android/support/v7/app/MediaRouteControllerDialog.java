@@ -913,7 +913,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 MediaRouteVolumeSlider volumeSlider =
                         (MediaRouteVolumeSlider) v.findViewById(R.id.mr_volume_slider);
                 volumeSlider.setTag(VOLUME_SLIDER_TAG_BASE + position);
-                volumeSlider.setShowThumb(isEnabled);
+                volumeSlider.setHideThumb(!isEnabled);
                 if (isEnabled) {
                     if (isVolumeControlAvailable(route)) {
                         volumeSlider.setMax(route.getVolumeMax());

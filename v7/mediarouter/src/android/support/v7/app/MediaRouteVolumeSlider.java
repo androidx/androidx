@@ -18,11 +18,8 @@ package android.support.v7.app;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.mediarouter.R;
 import android.support.v7.widget.AppCompatSeekBar;
 import android.util.AttributeSet;
@@ -31,8 +28,9 @@ import android.util.AttributeSet;
  * Volume slider with showing, hiding, and applying alpha supports to the thumb.
  */
 class MediaRouteVolumeSlider extends AppCompatSeekBar {
-    private boolean mShowThumb = true;
+    private boolean mHideThumb;
     private Drawable mThumb;
+    private int mColor;
     private float mDisabledAlpha;
 
     public MediaRouteVolumeSlider(Context context) {
@@ -45,32 +43,39 @@ class MediaRouteVolumeSlider extends AppCompatSeekBar {
 
     public MediaRouteVolumeSlider(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        mThumb = ContextCompat.getDrawable(context, R.drawable.mr_seekbar_thumb);
-        setThumb(mThumb);
-        int color = MediaRouterThemeHelper.getControllerColor(context);
-        ColorFilter colorFilter = new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN);
-        getProgressDrawable().setColorFilter(colorFilter);
-        mThumb.setColorFilter(colorFilter);
+        mColor = MediaRouterThemeHelper.getControllerColor(context);
         TypedArray ta = context.obtainStyledAttributes(
                 attrs, new int[] {android.R.attr.disabledAlpha}, defStyleAttr, 0);
         mDisabledAlpha = ta.getFloat(0, 0.5f);
         ta.recycle();
     }
 
-    /**
-     * Sets whether to show/hide thumb.
-     */
-    public void setShowThumb(boolean showThumb) {
-        if (mShowThumb == showThumb) {
-            return;
-        }
-        mShowThumb = showThumb;
-        setThumb(mShowThumb ? mThumb : null);
+    @Override
+    public void setThumb(Drawable thumb) {
+        mThumb = thumb;
+        super.setThumb(mHideThumb ? null : mThumb);
     }
 
     @Override
     protected void drawableStateChanged() {
-        mThumb.setAlpha(isEnabled() ? 0xFF : (int)(0xFF * mDisabledAlpha));
         super.drawableStateChanged();
+        int alpha = isEnabled() ? 0xFF : (int)(mDisabledAlpha * 0xFF);
+        getProgressDrawable().setAlpha(alpha);
+        mThumb.setAlpha(alpha);
+        // Thumb drawable is collections of drawables which is changed per state changes.
+        // We need to manually apply color filters whenever the current drawable is changed.
+        getProgressDrawable().setColorFilter(mColor, PorterDuff.Mode.SRC_IN);
+        mThumb.setColorFilter(mColor, PorterDuff.Mode.SRC_IN);
+    }
+
+    /**
+     * Sets whether to show/hide thumb.
+     */
+    public void setHideThumb(boolean hideThumb) {
+        if (mHideThumb == hideThumb) {
+            return;
+        }
+        mHideThumb = hideThumb;
+        super.setThumb(mHideThumb ? null : mThumb);
     }
 }
