@@ -326,6 +326,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mVolumeSlider.setOnSeekBarChangeListener(mVolumeChangeListener);
 
         mVolumeGroupList = (ListView) findViewById(R.id.mr_volume_group_list);
+        mVolumeGroupList.setBackgroundColor(
+                MediaRouterThemeHelper.getVolumeGroupListBackgroundColor(mContext));
         mGroupExpandCollapseButton =
                 (MediaRouteExpandCollapseButton) findViewById(R.id.mr_group_expand_collapse);
         mGroupExpandCollapseButton.setOnClickListener(new View.OnClickListener() {

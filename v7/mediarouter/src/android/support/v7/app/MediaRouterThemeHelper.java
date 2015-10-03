@@ -27,7 +27,11 @@ import android.view.ContextThemeWrapper;
 final class MediaRouterThemeHelper {
 
     // http://www.w3.org/TR/UNDERSTANDING-WCAG20/visual-audio-contrast-contrast.html
-    private static final float MIN_CONTRAST_BUTTON_TEXT = 4.5f;
+    private static final float MIN_CONTRAST = 4.5f;
+
+    private static final float LIGHT_LUMINANCE_THRESHOLD = 0.5f;
+
+    private static final float COLOR_LIGHTNESS_MULTIPLIER = 1.15f;
 
     private MediaRouterThemeHelper() {
     }
@@ -69,11 +73,26 @@ final class MediaRouterThemeHelper {
         int backgroundColor = getThemeColor(context, android.R.attr.colorBackground);
 
         double contrast = ColorUtils.calculateContrast(primaryColor, backgroundColor);
-        if (contrast < MIN_CONTRAST_BUTTON_TEXT) {
+        if (contrast < MIN_CONTRAST) {
             // Default to colorAccent if the contrast ratio is low.
             return getThemeColor(context, R.attr.colorAccent);
         }
         return primaryColor;
+    }
+
+    public static int getVolumeGroupListBackgroundColor(Context context) {
+        int primaryColor = getThemeColor(context, R.attr.colorPrimary);
+        int primaryDarkColor = getThemeColor(context, R.attr.colorPrimaryDark);
+
+        if (ColorUtils.calculateLuminance(primaryColor) >= LIGHT_LUMINANCE_THRESHOLD) {
+            // This means the volume sliders are colored black.
+            double contrast = ColorUtils.calculateContrast(Color.BLACK, primaryDarkColor);
+            if (contrast < MIN_CONTRAST) {
+                // Use a lighter color for better contrast.
+                return adjustColorLightness(primaryColor, COLOR_LIGHTNESS_MULTIPLIER);
+            }
+        }
+        return primaryDarkColor;
     }
 
     private static boolean isLightTheme(Context context) {
@@ -84,7 +103,15 @@ final class MediaRouterThemeHelper {
 
     private static boolean isPrimaryColorLight(Context context) {
         int primaryColor = getThemeColor(context, R.attr.colorPrimary);
-        return ColorUtils.calculateLuminance(primaryColor) >= 0.5;
+        return ColorUtils.calculateLuminance(primaryColor) >= LIGHT_LUMINANCE_THRESHOLD;
+    }
+
+    private static int adjustColorLightness(int color, float lightness) {
+        float[] hsl = new float[3];
+        ColorUtils.colorToHSL(color, hsl);
+        // Clip the lightness to 100%
+        hsl[2] = Math.min(1f, hsl[2] * lightness);
+        return ColorUtils.HSLToColor(hsl);
     }
 
     private static int getThemeColor(Context context, int attr) {
