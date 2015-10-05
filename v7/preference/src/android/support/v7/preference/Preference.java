@@ -516,6 +516,9 @@ public class Preference implements Comparable<Preference> {
         } else {
             setEnabledStateOnViews(holder.itemView, true);
         }
+
+        holder.setDividerAllowedAbove(isEnabled());
+        holder.setDividerAllowedBelow(isEnabled());
     }
 
     /**
