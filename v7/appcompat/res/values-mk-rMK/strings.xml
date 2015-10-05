@@ -38,4 +38,6 @@
     <skip />
     <string name="abc_shareactionprovider_share_with" msgid="3421042268587513524">"Сподели со"</string>
     <string name="status_bar_notification_info_overflow" msgid="2869576371154716097">"999+"</string>
+    <string name="abc_capital_on" msgid="3405795526292276155">"ВКЛУЧЕНО"</string>
+    <string name="abc_capital_off" msgid="121134116657445385">"ИСКЛУЧЕНО"</string>
 </resources>
