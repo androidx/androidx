@@ -353,7 +353,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
         if (mCustomControlView != null) {
             mCustomControlLayout.addView(mCustomControlView);
             mCustomControlLayout.setVisibility(View.VISIBLE);
-            mArtView.setVisibility(View.GONE);
         }
         mCreated = true;
         updateLayout();
@@ -496,9 +495,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
      * Updates the height of views and hide artwork or metadata if space is limited.
      */
     private void updateLayoutHeightInternal() {
-        if (mCustomControlView != null) {
-            return;
-        }
         // Measure the size of widgets and get the height of main components.
         int oldHeight = getLayoutHeight(mMediaMainControlLayout);
         setLayoutHeight(mMediaMainControlLayout, ViewGroup.LayoutParams.FILL_PARENT);
@@ -509,7 +505,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 MeasureSpec.UNSPECIFIED);
         setLayoutHeight(mMediaMainControlLayout, oldHeight);
         int artViewHeight = 0;
-        if (mArtView.getDrawable() instanceof BitmapDrawable) {
+        if (mCustomControlView == null && mArtView.getDrawable() instanceof BitmapDrawable) {
             Bitmap art = ((BitmapDrawable) mArtView.getDrawable()).getBitmap();
             if (art != null) {
                 artViewHeight = getDesiredArtHeight(art.getWidth(), art.getHeight());
@@ -544,7 +540,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
         int maximumControlViewHeight = visibleRect.height() - nonControlViewHeight;
 
         // Show artwork if it fits the screen.
-        if (artViewHeight > 0 && desiredControlLayoutHeight <= maximumControlViewHeight) {
+        if (mCustomControlView == null && artViewHeight > 0
+                && desiredControlLayoutHeight <= maximumControlViewHeight) {
             mArtView.setVisibility(View.VISIBLE);
             setLayoutHeight(mArtView, artViewHeight);
         } else {
@@ -556,7 +553,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
             desiredControlLayoutHeight = visibleGroupListHeight + mainControllerHeight;
         }
         // Show the playback control if it fits the screen.
-        if (isPlaybackControlAvailable()
+        if (mCustomControlView == null && isPlaybackControlAvailable()
                 && desiredControlLayoutHeight <= maximumControlViewHeight) {
             mPlaybackControl.setVisibility(View.VISIBLE);
         } else {
