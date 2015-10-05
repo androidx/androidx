@@ -17,6 +17,7 @@ package android.support.v17.leanback.supportleanbackshowcase.app.wizard;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.support.annotation.NonNull;
 import android.support.v17.leanback.app.GuidedStepFragment;
 import android.support.v17.leanback.supportleanbackshowcase.R;
@@ -69,19 +70,29 @@ public class WizardExample2ndStepFragment extends WizardExampleBaseStepFragment 
         action = new GuidedAction.Builder()
                 .id(ACTION_ID_PAYMENT_METHOD)
                 .title(getString(R.string.wizard_example_payment_method))
-                .description(getString(R.string.wizard_example_visa_balance))
-                .editable(false)
+                .editTitle("")
+                .description(getString(R.string.wizard_example_input_credit))
+                .editable(true)
                 .build();
         actions.add(action);
     }
 
     @Override
-    public void onGuidedActionClicked(GuidedAction action) {
-        if (ACTION_ID_PAYMENT_METHOD == action.getId()) {
-            Toast.makeText(getActivity(),
-                    getString(R.string.wizard_example_toast_payment_method_clicked),
-                    Toast.LENGTH_SHORT).show();
+    public void onGuidedActionEdited(GuidedAction action) {
+        CharSequence editTitle = action.getEditTitle();
+        if (TextUtils.isDigitsOnly(editTitle) && editTitle.length() == 16) {
+            action.setDescription(getString(R.string.wizard_example_visa,
+                    editTitle.subSequence(editTitle.length() - 4, editTitle.length())));
+        } else if (editTitle.length() == 0) {
+            action.setDescription(getString(R.string.wizard_example_input_credit));
         } else {
+            action.setDescription(getString(R.string.wizard_example_input_credit_wrong));
+        }
+    }
+
+    @Override
+    public void onGuidedActionClicked(GuidedAction action) {
+        if (ACTION_ID_CONFIRM == action.getId()) {
             GuidedStepFragment fragment = new WizardExample3rdStepFragment();
             fragment.setArguments(getArguments());
             add(getFragmentManager(), fragment);
