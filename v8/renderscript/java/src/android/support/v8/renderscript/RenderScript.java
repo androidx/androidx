@@ -1638,9 +1638,21 @@ public class RenderScript {
         }
         nContextDeinitToClient(mContext);
         mMessageThread.mRun = false;
-        try {
-            mMessageThread.join();
-        } catch(InterruptedException e) {
+
+        // Wait for mMessageThread to join.  Try in a loop, in case this thread gets interrupted
+        // during the wait.  If interrupted, set the "interrupted" status of the current thread.
+        boolean hasJoined = false, interrupted = false;
+        while (!hasJoined) {
+            try {
+                mMessageThread.join();
+                hasJoined = true;
+            } catch (InterruptedException e) {
+                interrupted = true;
+            }
+        }
+        if (interrupted) {
+            Log.v(LOG_TAG, "Interrupted during wait for MessageThread to join");
+            Thread.currentThread().interrupt();
         }
 
         nContextDestroy();
