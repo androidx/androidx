@@ -31,6 +31,7 @@ import android.support.v4.view.NestedScrollingChild;
 import android.support.v4.view.NestedScrollingChildHelper;
 import android.support.v4.view.NestedScrollingParent;
 import android.support.v4.view.NestedScrollingParentHelper;
+import android.support.v4.view.ScrollingView;
 import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
@@ -61,7 +62,7 @@ import java.util.List;
  * Nested scrolling is enabled by default.
  */
 public class NestedScrollView extends FrameLayout implements NestedScrollingParent,
-        NestedScrollingChild {
+        NestedScrollingChild, ScrollingView {
     static final int ANIMATED_SCROLL_GAP = 250;
 
     static final float MAX_SCROLL_FACTOR = 0.5f;
@@ -1333,9 +1334,10 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     /**
      * <p>The scroll range of a scroll view is the overall height of all of its
      * children.</p>
+     * @hide
      */
     @Override
-    protected int computeVerticalScrollRange() {
+    public int computeVerticalScrollRange() {
         final int count = getChildCount();
         final int contentHeight = getHeight() - getPaddingBottom() - getPaddingTop();
         if (count == 0) {
@@ -1354,9 +1356,34 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         return scrollRange;
     }
 
+    /** @hide */
     @Override
-    protected int computeVerticalScrollOffset() {
+    public int computeVerticalScrollOffset() {
         return Math.max(0, super.computeVerticalScrollOffset());
+    }
+
+    /** @hide */
+    @Override
+    public int computeVerticalScrollExtent() {
+        return super.computeVerticalScrollExtent();
+    }
+
+    /** @hide */
+    @Override
+    public int computeHorizontalScrollRange() {
+        return super.computeHorizontalScrollRange();
+    }
+
+    /** @hide */
+    @Override
+    public int computeHorizontalScrollOffset() {
+        return super.computeHorizontalScrollOffset();
+    }
+
+    /** @hide */
+    @Override
+    public int computeHorizontalScrollExtent() {
+        return super.computeHorizontalScrollExtent();
     }
 
     @Override
