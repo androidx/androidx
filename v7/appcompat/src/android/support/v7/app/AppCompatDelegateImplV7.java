@@ -31,6 +31,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NavUtils;
+import android.support.v4.os.ParcelableCompat;
+import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 import android.support.v4.view.LayoutInflaterCompat;
 import android.support.v4.view.LayoutInflaterFactory;
 import android.support.v4.view.OnApplyWindowInsetsListener;
@@ -1956,28 +1958,31 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
                 }
             }
 
-            private static SavedState readFromParcel(Parcel source) {
+            private static SavedState readFromParcel(Parcel source, ClassLoader loader) {
                 SavedState savedState = new SavedState();
                 savedState.featureId = source.readInt();
                 savedState.isOpen = source.readInt() == 1;
 
                 if (savedState.isOpen) {
-                    savedState.menuState = source.readBundle();
+                    savedState.menuState = source.readBundle(loader);
                 }
 
                 return savedState;
             }
 
             public static final Parcelable.Creator<SavedState> CREATOR
-                    = new Parcelable.Creator<SavedState>() {
-                public SavedState createFromParcel(Parcel in) {
-                    return readFromParcel(in);
-                }
+                    = ParcelableCompat.newCreator(
+                    new ParcelableCompatCreatorCallbacks<SavedState>() {
+                        @Override
+                        public SavedState createFromParcel(Parcel in, ClassLoader loader) {
+                            return readFromParcel(in, loader);
+                        }
 
-                public SavedState[] newArray(int size) {
-                    return new SavedState[size];
-                }
-            };
+                        @Override
+                        public SavedState[] newArray(int size) {
+                            return new SavedState[size];
+                        }
+                    });
         }
     }
 
