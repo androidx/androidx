@@ -291,7 +291,6 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
      * height, you should also call {@link #setDividerHeight(int)}.
      *
      * @param divider the drawable to use
-     * @attr ref R.styleable#PreferenceFragmentCompat_divider
      * @attr ref R.styleable#PreferenceFragmentCompat_android_divider
      */
     public void setDivider(Drawable divider) {
@@ -303,7 +302,6 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
      * this will override the intrinsic height as set by {@link #setDivider(Drawable)}
      *
      * @param height The new height of the divider in pixels.
-     * @attr ref R.styleable#PreferenceFragmentCompat_dividerHeight
      * @attr ref R.styleable#PreferenceFragmentCompat_android_dividerHeight
      */
     public void setDividerHeight(int height) {
