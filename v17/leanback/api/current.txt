@@ -960,15 +960,19 @@ package android.support.v17.leanback.widget {
   public class GuidedAction extends android.support.v17.leanback.widget.Action {
     method public int getCheckSetId();
     method public java.lang.CharSequence getDescription();
+    method public java.lang.CharSequence getEditTitle();
     method public android.content.Intent getIntent();
     method public java.lang.CharSequence getTitle();
     method public boolean hasMultilineDescription();
     method public boolean hasNext();
     method public boolean infoOnly();
     method public boolean isChecked();
+    method public boolean isEditTitleUsed();
     method public boolean isEditable();
     method public boolean isEnabled();
     method public void setChecked(boolean);
+    method public void setDescription(java.lang.CharSequence);
+    method public void setEditTitle(java.lang.CharSequence);
     method public void setEnabled(boolean);
     method public void setTitle(java.lang.CharSequence);
     field public static final int DEFAULT_CHECK_SET_ID = 1; // 0x1
@@ -982,6 +986,7 @@ package android.support.v17.leanback.widget {
     method public android.support.v17.leanback.widget.GuidedAction.Builder checkSetId(int);
     method public android.support.v17.leanback.widget.GuidedAction.Builder checked(boolean);
     method public android.support.v17.leanback.widget.GuidedAction.Builder description(java.lang.String);
+    method public android.support.v17.leanback.widget.GuidedAction.Builder editTitle(java.lang.String);
     method public android.support.v17.leanback.widget.GuidedAction.Builder editable(boolean);
     method public android.support.v17.leanback.widget.GuidedAction.Builder enabled(boolean);
     method public android.support.v17.leanback.widget.GuidedAction.Builder hasNext(boolean);
