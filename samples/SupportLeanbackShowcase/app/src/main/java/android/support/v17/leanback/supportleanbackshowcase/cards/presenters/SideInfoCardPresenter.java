@@ -39,18 +39,10 @@ public class SideInfoCardPresenter extends AbstractCardPresenter<BaseCardView> {
 
     @Override
     protected BaseCardView onCreateView() {
-        final BaseCardView cardView = new BaseCardView(getContext()) {
-
-            @Override
-            public void setActivated(boolean activated) {
-                super.setActivated(activated);
-                onActivateStateChanged(this, activated);
-            }
-        };
+        final BaseCardView cardView = new BaseCardView(getContext());
         cardView.setFocusable(true);
         cardView.setCardType(BaseCardView.CARD_TYPE_MAIN_ONLY);
         cardView.addView(LayoutInflater.from(getContext()).inflate(R.layout.side_info_card, null));
-        onActivateStateChanged(cardView, cardView.isActivated());
         return cardView;
     }
 
@@ -79,7 +71,4 @@ public class SideInfoCardPresenter extends AbstractCardPresenter<BaseCardView> {
         extraText.setText(card.getExtraText());
     }
 
-    public void onActivateStateChanged(final BaseCardView cardView, boolean activated) {
-        cardView.findViewById(R.id.info).setVisibility(activated ? View.VISIBLE : View.GONE);
-    }
 }
