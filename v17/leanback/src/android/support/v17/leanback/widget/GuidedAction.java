@@ -44,6 +44,7 @@ public class GuidedAction extends Action {
     public static class Builder {
         private long mId;
         private String mTitle;
+        private String mEditTitle;
         private String mDescription;
         private Drawable mIcon;
         private boolean mChecked;
@@ -64,6 +65,7 @@ public class GuidedAction extends Action {
             // Base Action values
             action.setId(mId);
             action.setLabel1(mTitle);
+            action.setEditTitle(mEditTitle);
             action.setLabel2(mDescription);
             action.setIcon(mIcon);
 
@@ -96,6 +98,15 @@ public class GuidedAction extends Action {
          */
         public Builder title(String title) {
             mTitle = title;
+            return this;
+        }
+
+        /**
+         * Sets the optional title text to edit.  When TextView is activated, the edit title
+         * replaces the string of title.
+         */
+        public Builder editTitle(String editTitle) {
+            mEditTitle = editTitle;
             return this;
         }
 
@@ -216,6 +227,7 @@ public class GuidedAction extends Action {
         }
     }
 
+    private CharSequence mEditTitle;
     private boolean mEditable;
     private boolean mMultilineDescription;
     private boolean mHasNext;
@@ -239,19 +251,53 @@ public class GuidedAction extends Action {
     }
 
     /**
-     * Returns the title of this action.
-     * @return The title set when this action was built.
+     * Sets the title of this action.
+     * @param title The title set when this action was built.
      */
     public void setTitle(CharSequence title) {
         setLabel1(title);
     }
 
     /**
+     * Returns the optional title text to edit.  When not null, it is being edited instead of
+     * {@link #getTitle()}.
+     * @return Optional title text to edit instead of {@link #getTitle()}.
+     */
+    public CharSequence getEditTitle() {
+        return mEditTitle;
+    }
+
+    /**
+     * Sets the optional title text to edit instead of {@link #setTitle(CharSequence)}.
+     * @param editTitle Optional title text to edit instead of {@link #setTitle(CharSequence)}.
+     */
+    public void setEditTitle(CharSequence editTitle) {
+        mEditTitle = editTitle;
+    }
+
+    /**
+     * Returns true if {@link #getEditTitle()} is not null.  When true, the {@link #getEditTitle()}
+     * is being edited instead of {@link #getTitle()}.
+     * @return true if {@link #getEditTitle()} is not null.
+     */
+    public boolean isEditTitleUsed() {
+        return mEditTitle != null;
+    }
+
+    /**
      * Returns the description of this action.
-     * @return The description set when this action was built.
+     * @return The description of this action.
      */
     public CharSequence getDescription() {
         return getLabel2();
+    }
+
+    /**
+     * Sets the description of this action.
+     * @param description The description of the action.
+     */
+    public void setDescription(CharSequence description) {
+        setLabel2(description);
     }
 
     /**
