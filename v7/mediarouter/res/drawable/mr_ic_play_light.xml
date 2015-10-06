@@ -15,5 +15,9 @@
 -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/ic_play_light" />
+    <item>
+        <bitmap
+            android:src="@drawable/ic_play_light"
+            android:alpha="0.87" />
+    </item>
 </selector>
