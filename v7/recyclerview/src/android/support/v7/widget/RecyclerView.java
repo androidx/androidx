@@ -1332,8 +1332,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
     @Override
     public void scrollTo(int x, int y) {
-        throw new UnsupportedOperationException(
-                "RecyclerView does not support scrolling to an absolute position.");
+        Log.w(TAG, "RecyclerView does not support scrolling to an absolute position. "
+                + "Use scrollToPosition instead");
     }
 
     @Override
