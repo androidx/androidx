@@ -43,7 +43,7 @@
         <item name="mediaRoutePlayDrawable">@drawable/mr_ic_play_light</item>
         <item name="mediaRoutePauseDrawable">@drawable/mr_ic_pause_light</item>
         <item name="mediaRouteCastDrawable">@drawable/mr_ic_cast_light</item>
-        <item name="mediaRouteAudioTrackDrawable">@drawable/ic_audiotrack_light</item>
+        <item name="mediaRouteAudioTrackDrawable">@drawable/mr_ic_audiotrack_light</item>
         <item name="mediaRouteControllerPrimaryTextStyle">@style/Widget.MediaRouter.ControllerText.Primary.Light</item>
         <item name="mediaRouteControllerSecondaryTextStyle">@style/Widget.MediaRouter.ControllerText.Secondary.Light</item>
     </style>
@@ -58,7 +58,7 @@
         <item name="mediaRoutePlayDrawable">@drawable/mr_ic_play_light</item>
         <item name="mediaRoutePauseDrawable">@drawable/mr_ic_pause_light</item>
         <item name="mediaRouteCastDrawable">@drawable/mr_ic_cast_light</item>
-        <item name="mediaRouteAudioTrackDrawable">@drawable/ic_audiotrack_light</item>
+        <item name="mediaRouteAudioTrackDrawable">@drawable/mr_ic_audiotrack_light</item>
         <item name="mediaRouteDefaultIconDrawable">@drawable/ic_tv_light</item>
         <item name="mediaRouteSpeakerIconDrawable">@drawable/ic_speaker_light</item>
         <item name="mediaRouteSpeakerGroupIconDrawable">@drawable/ic_speaker_group_light</item>

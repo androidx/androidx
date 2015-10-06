@@ -46,5 +46,4 @@
     <attr name="mediaRouteControllerSecondaryTextStyle" format="reference" />
     <attr name="mediaRouteExpandGroupDrawable" format="reference" />
     <attr name="mediaRouteCollapseGroupDrawable" format="reference" />
-    <attr name="mediaRouteControllerTextStyle" format="reference" />
 </resources>
