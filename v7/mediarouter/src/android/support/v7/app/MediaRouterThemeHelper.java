@@ -19,19 +19,27 @@ package android.support.v7.app;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.IntDef;
 import android.support.v4.graphics.ColorUtils;
 import android.support.v7.mediarouter.R;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 final class MediaRouterThemeHelper {
-
-    // http://www.w3.org/TR/UNDERSTANDING-WCAG20/visual-audio-contrast-contrast.html
-    private static final float MIN_CONTRAST = 4.5f;
-
-    private static final float LIGHT_LUMINANCE_THRESHOLD = 0.5f;
+    private static final float MIN_CONTRAST = 3.0f;
+    private static final float MIN_CONTRAST_GROUP_VOLUMES = 4.5f;
 
     private static final float COLOR_LIGHTNESS_MULTIPLIER = 1.15f;
+
+    @IntDef({COLOR_DARK_ON_LIGHT_BACKGROUND, COLOR_WHITE_ON_DARK_BACKGROUND})
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface ControllerColorType {}
+
+    private static final int COLOR_DARK_ON_LIGHT_BACKGROUND = 0xDE000000; /* Opacity of 87% */
+    private static final int COLOR_WHITE_ON_DARK_BACKGROUND = Color.WHITE;
 
     private MediaRouterThemeHelper() {
     }
@@ -39,13 +47,13 @@ final class MediaRouterThemeHelper {
     public static Context createThemedContext(Context context) {
         int style;
         if (isLightTheme(context)) {
-            if (isPrimaryColorLight(context)) {
+            if (getControllerColor(context) == COLOR_DARK_ON_LIGHT_BACKGROUND) {
                 style = R.style.Theme_MediaRouter_Light;
             } else {
                 style = R.style.Theme_MediaRouter_Light_DarkControlPanel;
             }
         } else {
-            if (isPrimaryColorLight(context)) {
+            if (getControllerColor(context) == COLOR_DARK_ON_LIGHT_BACKGROUND) {
                 style = R.style.Theme_MediaRouter_LightControlPanel;
             } else {
                 style = R.style.Theme_MediaRouter;
@@ -64,8 +72,13 @@ final class MediaRouterThemeHelper {
         return res != 0 ? context.getResources().getDrawable(res) : null;
     }
 
-    public static int getControllerColor(Context context) {
-        return isPrimaryColorLight(context) ? Color.BLACK : Color.WHITE;
+    public static @ControllerColorType int getControllerColor(Context context) {
+        int primaryColor = getThemeColor(context, R.attr.colorPrimary);
+        if (ColorUtils.calculateContrast(COLOR_WHITE_ON_DARK_BACKGROUND, primaryColor)
+                >= MIN_CONTRAST) {
+            return COLOR_WHITE_ON_DARK_BACKGROUND;
+        }
+        return COLOR_DARK_ON_LIGHT_BACKGROUND;
     }
 
     public static int getButtonTextColor(Context context) {
@@ -81,14 +94,16 @@ final class MediaRouterThemeHelper {
     }
 
     public static int getVolumeGroupListBackgroundColor(Context context) {
-        int primaryColor = getThemeColor(context, R.attr.colorPrimary);
         int primaryDarkColor = getThemeColor(context, R.attr.colorPrimaryDark);
-
-        if (ColorUtils.calculateLuminance(primaryColor) >= LIGHT_LUMINANCE_THRESHOLD) {
-            // This means the volume sliders are colored black.
-            double contrast = ColorUtils.calculateContrast(Color.BLACK, primaryDarkColor);
-            if (contrast < MIN_CONTRAST) {
-                // Use a lighter color for better contrast.
+        if (getControllerColor(context) == COLOR_DARK_ON_LIGHT_BACKGROUND) {
+            // We are showing dark volume sliders in a darker background. Check whether they have
+            // sufficient contrast.
+            double contrast = ColorUtils.calculateContrast(
+                    COLOR_DARK_ON_LIGHT_BACKGROUND, primaryDarkColor);
+            if (contrast < MIN_CONTRAST_GROUP_VOLUMES) {
+                // Generate a lighter color based on the 'colorPrimary' and use it instead for
+                // better contrast.
+                int primaryColor = getThemeColor(context, R.attr.colorPrimary);
                 return adjustColorLightness(primaryColor, COLOR_LIGHTNESS_MULTIPLIER);
             }
         }
@@ -99,11 +114,6 @@ final class MediaRouterThemeHelper {
         TypedValue value = new TypedValue();
         return context.getTheme().resolveAttribute(R.attr.isLightTheme, value, true)
                 && value.data != 0;
-    }
-
-    private static boolean isPrimaryColorLight(Context context) {
-        int primaryColor = getThemeColor(context, R.attr.colorPrimary);
-        return ColorUtils.calculateLuminance(primaryColor) >= LIGHT_LUMINANCE_THRESHOLD;
     }
 
     private static int adjustColorLightness(int color, float lightness) {
