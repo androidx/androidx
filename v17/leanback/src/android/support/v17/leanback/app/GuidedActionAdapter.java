@@ -472,7 +472,11 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
 
                 ActionViewHolder avh = findSubChildViewHolder(v);
                 GuidedAction action = avh.getAction();
-                action.setTitle(v.getText());
+                if (action.getEditTitle() != null) {
+                    action.setEditTitle(v.getText());
+                } else {
+                    action.setTitle(v.getText());
+                }
                 mClickListener.onGuidedActionClicked(action);
                 int next = getNextEditableActionIndex(action);
                 if (next != -1) {
@@ -504,15 +508,24 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
             if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
                 ActionViewHolder avh = findSubChildViewHolder(editText);
                 GuidedAction action = avh.getAction();
-                action.setTitle(editText.getText());
+                if (action.isEditTitleUsed()) {
+                    action.setEditTitle(editText.getText());
+                } else {
+                    action.setTitle(editText.getText());
+                }
                 editText.clearFocus();
                 mEditListener.onGuidedActionEdited(action, false);
+                updateTitleAndDescription(avh);
             }
             return false;
         }
 
         public void openIme(ActionViewHolder avh, boolean notify) {
             View v = avh.mStylistViewHolder.getTitleView();
+            CharSequence editTitle = avh.getAction().getEditTitle();
+            if (editTitle != null) {
+                ((TextView) v).setText(editTitle);
+            }
             InputMethodManager mgr = (InputMethodManager)
                     v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
             v.requestFocus();
@@ -529,6 +542,12 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
             v.clearFocus();
             mgr.hideSoftInputFromWindow(v.getWindowToken(), 0);
             mEditListener.onGuidedActionEdited(avh.getAction(), false);
+            updateTitleAndDescription(avh);
+        }
+
+        private void updateTitleAndDescription(ActionViewHolder avh) {
+            avh.mStylistViewHolder.getTitleView().setText(avh.getAction().getTitle());
+            avh.mStylistViewHolder.getDescriptionView().setText(avh.getAction().getDescription());
         }
 
         private ActionViewHolder findSubChildViewHolder(View v) {
