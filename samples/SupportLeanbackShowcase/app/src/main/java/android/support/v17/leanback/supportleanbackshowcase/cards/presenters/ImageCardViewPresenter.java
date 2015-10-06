@@ -18,6 +18,7 @@ import android.content.Context;
 import android.support.v17.leanback.supportleanbackshowcase.R;
 import android.support.v17.leanback.supportleanbackshowcase.models.Card;
 import android.support.v17.leanback.widget.ImageCardView;
+import com.squareup.picasso.Picasso;
 
 /**
  * A very basic {@link ImageCardView} {@link android.support.v17.leanback.widget.Presenter}.You can
@@ -52,7 +53,7 @@ public class ImageCardViewPresenter extends AbstractCardPresenter<ImageCardView>
             int resourceId = getContext().getResources()
                     .getIdentifier(card.getLocalImageResourceName(),
                             "drawable", getContext().getPackageName());
-            cardView.getMainImageView().setImageResource(resourceId);
+            Picasso.with(getContext()).load(resourceId).into(cardView.getMainImageView());
         }
     }
 
