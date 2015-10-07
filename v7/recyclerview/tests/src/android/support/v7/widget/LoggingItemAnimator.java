@@ -13,10 +13,16 @@
 
 package android.support.v7.widget;
 
+import android.support.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import android.support.v7.widget.BaseRecyclerViewAnimationsTest.AnimateDisappearance;
+import android.support.v7.widget.BaseRecyclerViewAnimationsTest.AnimateChange;
+import android.support.v7.widget.BaseRecyclerViewAnimationsTest.AnimatePersistence;
+import android.support.v7.widget.BaseRecyclerViewAnimationsTest.AnimateAppearance;
 
 public class LoggingItemAnimator extends DefaultItemAnimator {
 
@@ -30,10 +36,10 @@ public class LoggingItemAnimator extends DefaultItemAnimator {
 
     final ArrayList<RecyclerView.ViewHolder> mChangeNewVHs = new ArrayList<RecyclerView.ViewHolder>();
 
-    List<BaseRecyclerViewAnimationsTest.AnimateAppearance> mAnimateAppearanceList = new ArrayList<>();
-    List<BaseRecyclerViewAnimationsTest.AnimateDisappearance> mAnimateDisappearanceList = new ArrayList<>();
-    List<BaseRecyclerViewAnimationsTest.AnimatePersistence> mAnimatePersistenceList = new ArrayList<>();
-    List<BaseRecyclerViewAnimationsTest.AnimateChange> mAnimateChangeList = new ArrayList<>();
+    List<AnimateAppearance> mAnimateAppearanceList = new ArrayList<>();
+    List<AnimateDisappearance> mAnimateDisappearanceList = new ArrayList<>();
+    List<AnimatePersistence> mAnimatePersistenceList = new ArrayList<>();
+    List<AnimateChange> mAnimateChangeList = new ArrayList<>();
 
     CountDownLatch mWaitForPendingAnimations;
 
@@ -48,38 +54,37 @@ public class LoggingItemAnimator extends DefaultItemAnimator {
     }
 
     @Override
-    public boolean animateDisappearance(RecyclerView.ViewHolder viewHolder,
-            ItemHolderInfo preLayoutInfo) {
+    public boolean animateDisappearance(@NonNull RecyclerView.ViewHolder viewHolder,
+            @NonNull ItemHolderInfo preLayoutInfo, ItemHolderInfo postLayoutInfo) {
         mAnimateDisappearanceList
-                .add(new BaseRecyclerViewAnimationsTest.AnimateDisappearance(viewHolder, null));
-        return super.animateDisappearance(viewHolder, preLayoutInfo);
+                .add(new AnimateDisappearance(viewHolder, null, null));
+        return super.animateDisappearance(viewHolder, preLayoutInfo, postLayoutInfo);
     }
 
     @Override
-    public boolean animateAppearance(RecyclerView.ViewHolder viewHolder,
+    public boolean animateAppearance(@NonNull RecyclerView.ViewHolder viewHolder,
             ItemHolderInfo preLayoutInfo,
-            ItemHolderInfo postLayoutInfo) {
+            @NonNull ItemHolderInfo postLayoutInfo) {
         mAnimateAppearanceList
-                .add(new BaseRecyclerViewAnimationsTest.AnimateAppearance(viewHolder, null, null));
+                .add(new AnimateAppearance(viewHolder, null, null));
         return super.animateAppearance(viewHolder, preLayoutInfo, postLayoutInfo);
     }
 
     @Override
-    public boolean animatePersistence(RecyclerView.ViewHolder viewHolder,
-            ItemHolderInfo preInfo,
-            ItemHolderInfo postInfo) {
+    public boolean animatePersistence(@NonNull RecyclerView.ViewHolder viewHolder,
+            @NonNull ItemHolderInfo preInfo,
+            @NonNull ItemHolderInfo postInfo) {
         mAnimatePersistenceList
-                .add(new BaseRecyclerViewAnimationsTest.AnimatePersistence(viewHolder, null, null));
+                .add(new AnimatePersistence(viewHolder, null, null));
         return super.animatePersistence(viewHolder, preInfo, postInfo);
     }
 
     @Override
-    public boolean animateChange(RecyclerView.ViewHolder oldHolder,
-            RecyclerView.ViewHolder newHolder, ItemHolderInfo preInfo,
-            ItemHolderInfo postInfo) {
+    public boolean animateChange(@NonNull RecyclerView.ViewHolder oldHolder,
+            @NonNull RecyclerView.ViewHolder newHolder, @NonNull ItemHolderInfo preInfo,
+            @NonNull ItemHolderInfo postInfo) {
         mAnimateChangeList
-                .add(new BaseRecyclerViewAnimationsTest.AnimateChange(oldHolder, newHolder, null,
-                        null));
+                .add(new AnimateChange(oldHolder, newHolder, null, null));
         return super.animateChange(oldHolder, newHolder, preInfo, postInfo);
     }
 

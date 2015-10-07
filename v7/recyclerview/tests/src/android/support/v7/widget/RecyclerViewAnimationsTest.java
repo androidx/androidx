@@ -1028,13 +1028,17 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         // try to trigger race conditions
         int targetItemCount = mTestAdapter.getItemCount();
         for (int i = 0; i < 100; i++) {
+            checkForMainThreadException();
             mTestAdapter.addAndNotify(0, 1);
+            checkForMainThreadException();
             mTestAdapter.addAndNotify(7, 1);
             targetItemCount += 2;
         }
+        checkForMainThreadException();
         // wait until main thread runnables are consumed
         while (targetItemCount != mTestAdapter.getItemCount()) {
             Thread.sleep(100);
+            checkForMainThreadException();
         }
         mLayoutManager.waitForLayout(2);
     }
