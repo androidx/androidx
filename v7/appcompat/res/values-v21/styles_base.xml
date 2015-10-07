@@ -166,9 +166,13 @@
            parent="android:TextAppearance.Material.SearchResult.Subtitle">
     </style>
 
-    <style name="Base.Widget.AppCompat.AutoCompleteTextView" parent="android:Widget.Material.AutoCompleteTextView" />
+    <style name="Base.Widget.AppCompat.AutoCompleteTextView" parent="android:Widget.Material.AutoCompleteTextView">
+        <item name="android:background">?attr/editTextBackground</item>
+    </style>
 
-    <style name="Base.Widget.AppCompat.EditText" parent="android:Widget.Material.EditText" />
+    <style name="Base.Widget.AppCompat.EditText" parent="android:Widget.Material.EditText">
+        <item name="android:background">?attr/editTextBackground</item>
+    </style>
 
     <style name="Base.Widget.AppCompat.RatingBar" parent="android:Widget.Material.RatingBar" />
 
