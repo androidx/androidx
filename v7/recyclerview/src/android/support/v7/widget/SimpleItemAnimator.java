@@ -1,21 +1,25 @@
 package android.support.v7.widget;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v7.widget.RecyclerView.Adapter;
+import android.support.v7.widget.RecyclerView.ViewHolder;
+import android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo;
 import android.util.Log;
 import android.view.View;
 
-import android.support.v7.widget.RecyclerView.ViewHolder;
-import android.support.v7.widget.RecyclerView.Adapter;
-import android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo;
-
 /**
  * A wrapper class for ItemAnimator that records View bounds and decides whether it should run
- * move, change, add or remove animations. This class also replicates the original ItemAnimator API.
+ * move, change, add or remove animations. This class also replicates the original ItemAnimator
+ * API.
  * <p>
- * It uses {@link ItemHolderInfo} to track the bounds information of the Views. If you would like to
+ * It uses {@link ItemHolderInfo} to track the bounds information of the Views. If you would like
+ * to
  * extend this class, you can override {@link #obtainHolderInfo()} method to provide your own info
  * class that extends {@link ItemHolderInfo}.
  */
-abstract public class SimpleItemAnimator extends RecyclerView.ItemAnimator {
+abstract public class
+        SimpleItemAnimator extends RecyclerView.ItemAnimator {
 
     private static final boolean DEBUG = false;
 
@@ -41,13 +45,14 @@ abstract public class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      * {@link #animateChange(ViewHolder, ViewHolder, int, int, int, int)} implementation.
      * The value of this property is true by default.
      *
+     * @param supportsChangeAnimations true if change animations are supported by
+     *                                 this ItemAnimator, false otherwise. If the property is false,
+     *                                 the ItemAnimator
+     *                                 will not receive a call to
+     *                                 {@link #animateChange(ViewHolder, ViewHolder, int, int, int,
+     *                                 int)} when changes occur.
      * @see Adapter#notifyItemChanged(int)
      * @see Adapter#notifyItemRangeChanged(int, int)
-     *
-     * @param supportsChangeAnimations true if change animations are supported by
-     * this ItemAnimator, false otherwise. If the property is false, the ItemAnimator
-     * will not receive a call to
-     * {@link #animateChange(ViewHolder, ViewHolder, int, int, int, int)} when changes occur.
      */
     public void setSupportsChangeAnimations(boolean supportsChangeAnimations) {
         mSupportsChangeAnimations = supportsChangeAnimations;
@@ -59,12 +64,13 @@ abstract public class SimpleItemAnimator extends RecyclerView.ItemAnimator {
     }
 
     @Override
-    public boolean animateDisappearance(ViewHolder viewHolder, ItemHolderInfo preLayoutInfo) {
+    public boolean animateDisappearance(@NonNull ViewHolder viewHolder,
+            @NonNull ItemHolderInfo preLayoutInfo, @Nullable ItemHolderInfo postLayoutInfo) {
         int oldLeft = preLayoutInfo.left;
         int oldTop = preLayoutInfo.top;
         View disappearingItemView = viewHolder.itemView;
-        int newLeft = disappearingItemView.getLeft();
-        int newTop = disappearingItemView.getTop();
+        int newLeft = postLayoutInfo == null ? disappearingItemView.getLeft() : postLayoutInfo.left;
+        int newTop = postLayoutInfo == null ? disappearingItemView.getTop() : postLayoutInfo.top;
         if (!viewHolder.isRemoved() && (oldLeft != newLeft || oldTop != newTop)) {
             disappearingItemView.layout(newLeft, newTop,
                     newLeft + disappearingItemView.getWidth(),
@@ -82,9 +88,9 @@ abstract public class SimpleItemAnimator extends RecyclerView.ItemAnimator {
     }
 
     @Override
-    public boolean animateAppearance(ViewHolder viewHolder, ItemHolderInfo preLayoutInfo,
-            ItemHolderInfo postLayoutInfo) {
-        if (preLayoutInfo != null &&  (preLayoutInfo.left != postLayoutInfo.left
+    public boolean animateAppearance(@NonNull ViewHolder viewHolder,
+            @Nullable ItemHolderInfo preLayoutInfo, @NonNull ItemHolderInfo postLayoutInfo) {
+        if (preLayoutInfo != null && (preLayoutInfo.left != postLayoutInfo.left
                 || preLayoutInfo.top != postLayoutInfo.top)) {
             // slide items in if before/after locations differ
             if (DEBUG) {
@@ -101,8 +107,8 @@ abstract public class SimpleItemAnimator extends RecyclerView.ItemAnimator {
     }
 
     @Override
-    public boolean animatePersistence(ViewHolder viewHolder, ItemHolderInfo preInfo,
-            ItemHolderInfo postInfo) {
+    public boolean animatePersistence(@NonNull ViewHolder viewHolder,
+            @NonNull ItemHolderInfo preInfo, @NonNull ItemHolderInfo postInfo) {
         if (preInfo.left != postInfo.left || preInfo.top != postInfo.top) {
             if (DEBUG) {
                 Log.d(TAG, "PERSISTENT: " + viewHolder +
@@ -116,15 +122,15 @@ abstract public class SimpleItemAnimator extends RecyclerView.ItemAnimator {
     }
 
     @Override
-    public boolean animateChange(ViewHolder oldHolder,
-            ViewHolder newHolder, ItemHolderInfo preInfo, ItemHolderInfo postInfo) {
+    public boolean animateChange(@NonNull ViewHolder oldHolder, @NonNull ViewHolder newHolder,
+            @NonNull ItemHolderInfo preInfo, @NonNull ItemHolderInfo postInfo) {
         if (DEBUG) {
             Log.d(TAG, "CHANGED: " + oldHolder + " with view " + oldHolder.itemView);
         }
         final int fromLeft = preInfo.left;
         final int fromTop = preInfo.top;
         final int toLeft, toTop;
-        if (newHolder == null || newHolder.shouldIgnore()) {
+        if (newHolder.shouldIgnore()) {
             toLeft = preInfo.left;
             toTop = preInfo.top;
         } else {
@@ -238,8 +244,8 @@ abstract public class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      * Method to be called by subclasses when a remove animation is done.
      *
      * @param item The item which has been removed
-     *
-     * @see RecyclerView.ItemAnimator#animateDisappearance(ViewHolder, ItemHolderInfo)
+     * @see RecyclerView.ItemAnimator#animateDisappearance(ViewHolder, ItemHolderInfo,
+     * ItemHolderInfo)
      */
     public final void dispatchRemoveFinished(ViewHolder item) {
         onRemoveFinished(item);
@@ -250,7 +256,8 @@ abstract public class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      * Method to be called by subclasses when a move animation is done.
      *
      * @param item The item which has been moved
-     * @see RecyclerView.ItemAnimator#animateDisappearance(ViewHolder, ItemHolderInfo)
+     * @see RecyclerView.ItemAnimator#animateDisappearance(ViewHolder, ItemHolderInfo,
+     * ItemHolderInfo)
      * @see RecyclerView.ItemAnimator#animatePersistence(ViewHolder, ItemHolderInfo, ItemHolderInfo)
      * @see RecyclerView.ItemAnimator#animateAppearance(ViewHolder, ItemHolderInfo, ItemHolderInfo)
      */
@@ -272,12 +279,12 @@ abstract public class SimpleItemAnimator extends RecyclerView.ItemAnimator {
     /**
      * Method to be called by subclasses when a change animation is done.
      *
-     * @see #animateChange(ViewHolder, ViewHolder, int, int, int, int)
-     * @param item The item which has been changed (this method must be called for
-     * each non-null ViewHolder passed into
-     * {@link #animateChange(ViewHolder, ViewHolder, int, int, int, int)}).
+     * @param item    The item which has been changed (this method must be called for
+     *                each non-null ViewHolder passed into
+     *                {@link #animateChange(ViewHolder, ViewHolder, int, int, int, int)}).
      * @param oldItem true if this is the old item that was changed, false if
-     * it is the new item that replaced the old item.
+     *                it is the new item that replaced the old item.
+     * @see #animateChange(ViewHolder, ViewHolder, int, int, int, int)
      */
     public final void dispatchChangeFinished(ViewHolder item, boolean oldItem) {
         onChangeFinished(item, oldItem);
@@ -314,11 +321,11 @@ abstract public class SimpleItemAnimator extends RecyclerView.ItemAnimator {
     /**
      * Method to be called by subclasses when a change animation is being started.
      *
-     * @param item The item which has been changed (this method must be called for
-     * each non-null ViewHolder passed into
-     * {@link #animateChange(ViewHolder, ViewHolder, int, int, int, int)}).
+     * @param item    The item which has been changed (this method must be called for
+     *                each non-null ViewHolder passed into
+     *                {@link #animateChange(ViewHolder, ViewHolder, int, int, int, int)}).
      * @param oldItem true if this is the old item that was changed, false if
-     * it is the new item that replaced the old item.
+     *                it is the new item that replaced the old item.
      */
     public final void dispatchChangeStarting(ViewHolder item, boolean oldItem) {
         onChangeStarting(item, oldItem);
@@ -333,7 +340,8 @@ abstract public class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      * @param item The ViewHolder being animated.
      */
     @SuppressWarnings("UnusedParameters")
-    public void onRemoveStarting(ViewHolder item) {}
+    public void onRemoveStarting(ViewHolder item) {
+    }
 
     /**
      * Called when a remove animation has ended on the given ViewHolder.
@@ -343,7 +351,8 @@ abstract public class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      *
      * @param item The ViewHolder being animated.
      */
-    public void onRemoveFinished(ViewHolder item) {}
+    public void onRemoveFinished(ViewHolder item) {
+    }
 
     /**
      * Called when an add animation is being started on the given ViewHolder.
@@ -354,7 +363,8 @@ abstract public class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      * @param item The ViewHolder being animated.
      */
     @SuppressWarnings("UnusedParameters")
-    public void onAddStarting(ViewHolder item) {}
+    public void onAddStarting(ViewHolder item) {
+    }
 
     /**
      * Called when an add animation has ended on the given ViewHolder.
@@ -364,7 +374,8 @@ abstract public class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      *
      * @param item The ViewHolder being animated.
      */
-    public void onAddFinished(ViewHolder item) {}
+    public void onAddFinished(ViewHolder item) {
+    }
 
     /**
      * Called when a move animation is being started on the given ViewHolder.
@@ -375,7 +386,8 @@ abstract public class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      * @param item The ViewHolder being animated.
      */
     @SuppressWarnings("UnusedParameters")
-    public void onMoveStarting(ViewHolder item) {}
+    public void onMoveStarting(ViewHolder item) {
+    }
 
     /**
      * Called when a move animation has ended on the given ViewHolder.
@@ -385,7 +397,8 @@ abstract public class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      *
      * @param item The ViewHolder being animated.
      */
-    public void onMoveFinished(ViewHolder item) {}
+    public void onMoveFinished(ViewHolder item) {
+    }
 
     /**
      * Called when a change animation is being started on the given ViewHolder.
@@ -393,12 +406,13 @@ abstract public class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      * this method to handle any ViewHolder-specific operations linked to animation
      * lifecycles.
      *
-     * @param item The ViewHolder being animated.
+     * @param item    The ViewHolder being animated.
      * @param oldItem true if this is the old item that was changed, false if
-     * it is the new item that replaced the old item.
+     *                it is the new item that replaced the old item.
      */
     @SuppressWarnings("UnusedParameters")
-    public void onChangeStarting(ViewHolder item, boolean oldItem) {}
+    public void onChangeStarting(ViewHolder item, boolean oldItem) {
+    }
 
     /**
      * Called when a change animation has ended on the given ViewHolder.
@@ -406,9 +420,10 @@ abstract public class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      * this method to handle any ViewHolder-specific operations linked to animation
      * lifecycles.
      *
-     * @param item The ViewHolder being animated.
+     * @param item    The ViewHolder being animated.
      * @param oldItem true if this is the old item that was changed, false if
-     * it is the new item that replaced the old item.
+     *                it is the new item that replaced the old item.
      */
-    public void onChangeFinished(ViewHolder item, boolean oldItem) {}
+    public void onChangeFinished(ViewHolder item, boolean oldItem) {
+    }
 }

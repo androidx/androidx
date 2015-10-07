@@ -16,7 +16,6 @@
 
 
 package android.support.v7.widget;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.database.Observable;
@@ -30,9 +29,9 @@ import android.os.Parcelable;
 import android.os.SystemClock;
 import android.support.annotation.CallSuper;
 import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.os.TraceCompat;
-import android.support.v4.util.ArrayMap;
 import android.support.v4.view.InputDeviceCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.NestedScrollingChild;
@@ -72,7 +71,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static android.support.v7.widget.AdapterHelper.Callback;
-import static android.support.v7.widget.AdapterHelper.POSITION_TYPE_INVISIBLE;
 import static android.support.v7.widget.AdapterHelper.UpdateOp;
 import android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo;
 
@@ -244,9 +242,20 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
     private SavedState mPendingSavedState;
 
+    /**
+     * Handles adapter updates
+     */
     AdapterHelper mAdapterHelper;
 
+    /**
+     * Handles abstraction between LayoutManager children and RecyclerView children
+     */
     ChildHelper mChildHelper;
+
+    /**
+     * Keeps data about views to be used for animations
+     */
+    final ViewInfoStore mViewInfoStore = new ViewInfoStore();
 
     /**
      * Prior to L, there is no way to query this variable which is why we override the setter and
@@ -392,6 +401,44 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         public float getInterpolation(float t) {
             t -= 1.0f;
             return t * t * t * t * t + 1.0f;
+        }
+    };
+
+    /**
+     * The callback to convert view info diffs into animations.
+     */
+    private final ViewInfoStore.ProcessCallback mViewInfoProcessCallback =
+            new ViewInfoStore.ProcessCallback() {
+        @Override
+        public void processDisappeared(ViewHolder viewHolder, ItemHolderInfo info,
+                ItemHolderInfo postInfo) {
+            mRecycler.unscrapView(viewHolder);
+            animateDisappearance(viewHolder, info, postInfo);
+        }
+        @Override
+        public void processAppeared(ViewHolder viewHolder,
+                ItemHolderInfo preInfo, ItemHolderInfo info) {
+            animateAppearance(viewHolder, preInfo, info);
+        }
+
+        @Override
+        public void processPersistent(ViewHolder viewHolder,
+                @NonNull ItemHolderInfo preInfo, @NonNull ItemHolderInfo postInfo) {
+            viewHolder.setIsRecyclable(false);
+            if (mDataSetHasChangedAfterLayout) {
+                // since it was rebound, use change instead as we'll be mapping them from
+                // stable ids. If stable ids were false, we would not be running any
+                // animations
+                if (mItemAnimator.animateChange(viewHolder, viewHolder, preInfo, postInfo)) {
+                    postAnimationRunner();
+                }
+            } else if (mItemAnimator.animatePersistence(viewHolder, preInfo, postInfo)) {
+                postAnimationRunner();
+            }
+        }
+        @Override
+        public void unused(ViewHolder viewHolder) {
+            mLayout.removeAndRecycleView(viewHolder.itemView, mRecycler);
         }
     };
 
@@ -2027,6 +2074,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             mLayout.dispatchDetachedFromWindow(this, mRecycler);
         }
         removeCallbacks(mItemAnimatorRunner);
+        mViewInfoStore.onDetach();
     }
 
     /**
@@ -2746,7 +2794,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * PERSISTENT views are animated via
      * {@link ItemAnimator#animatePersistence(ViewHolder, ItemHolderInfo, ItemHolderInfo)}
      * DISAPPEARING views are animated via
-     * {@link ItemAnimator#animateDisappearance(ViewHolder, ItemHolderInfo)}
+     * {@link ItemAnimator#animateDisappearance(ViewHolder, ItemHolderInfo, ItemHolderInfo)}
      * APPEARING views are animated via
      * {@link ItemAnimator#animateAppearance(ViewHolder, ItemHolderInfo, ItemHolderInfo)}
      * and changed views are animated via
@@ -2761,25 +2809,19 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             Log.e(TAG, "No layout manager attached; skipping layout");
             return;
         }
-        mState.mDisappearingViewsInLayoutPass.clear();
+        mViewInfoStore.clear();
         eatRequestLayout();
         onEnterLayoutOrScroll();
 
         processAdapterUpdatesAndSetAnimationFlags();
         mState.mTrackOldChangeHolders = mState.mRunSimpleAnimations && mItemsChanged;
-        if (mState.mTrackOldChangeHolders && mState.mOldChangedHolders == null) {
-            mState.mOldChangedHolders = new ArrayMap<>();
-        }
         mItemsAddedOrRemoved = mItemsChanged = false;
-        ArrayMap<View, ItemHolderInfo> appearingViewInfo = null;
         mState.mInPreLayout = mState.mRunPredictiveAnimations;
         mState.mItemCount = mAdapter.getItemCount();
         findMinMaxChildLayoutPositions(mMinMaxLayoutPositions);
 
         if (mState.mRunSimpleAnimations) {
             // Step 0: Find out where all non-removed items are, pre-layout
-            mState.mPreLayoutHolderMap.clear();
-            mState.mPostLayoutHolderMap.clear();
             int count = mChildHelper.getChildCount();
             for (int i = 0; i < count; ++i) {
                 final ViewHolder holder = getChildViewHolderInt(mChildHelper.getChildAt(i));
@@ -2790,7 +2832,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                         .recordPreLayoutInformation(mState, holder,
                                 ItemAnimator.buildAdapterChangeFlagsForAnimations(holder),
                                 holder.getUnmodifiedPayloads());
-                mState.mPreLayoutHolderMap.put(holder, animationInfo);
+                mViewInfoStore.addToPreLayout(holder, animationInfo);
                 if (mState.mTrackOldChangeHolders && holder.isUpdated() && !holder.isRemoved()
                         && !holder.shouldIgnore() && !holder.isInvalid()) {
                     long key = getChangedHolderKey(holder);
@@ -2801,7 +2843,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     //    * Layout manager decides to layout the item in the pre-Layout pass (step1)
                     // When this case is detected, RV will un-hide that view and add to the old
                     // change holders list.
-                    mState.mOldChangedHolders.put(key, holder);
+                    mViewInfoStore.addToOldChangeHolders(key, holder);
                 }
             }
         }
@@ -2819,22 +2861,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             mLayout.onLayoutChildren(mRecycler, mState);
             mState.mStructureChanged = didStructureChange;
 
-            appearingViewInfo = new ArrayMap<View, ItemHolderInfo>();
             for (int i = 0; i < mChildHelper.getChildCount(); ++i) {
-                boolean found = false;
                 final View child = mChildHelper.getChildAt(i);
                 final ViewHolder viewHolder = getChildViewHolderInt(child);
                 if (viewHolder.shouldIgnore()) {
                     continue;
                 }
-                for (int j = 0; j < mState.mPreLayoutHolderMap.size(); ++j) {
-                    ViewHolder holder = mState.mPreLayoutHolderMap.keyAt(j);
-                    if (holder.itemView == child) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
+                if (!mViewInfoStore.isInPreLayout(viewHolder)) {
                     int flags = ItemAnimator.buildAdapterChangeFlagsForAnimations(viewHolder);
                     boolean wasHidden = viewHolder
                             .hasAnyOfTheFlags(ViewHolder.FLAG_BOUNCED_FROM_HIDDEN_LIST);
@@ -2846,7 +2879,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     if (wasHidden) {
                         recordAnimationInfoIfBouncedHiddenView(viewHolder, animationInfo);
                     } else {
-                        appearingViewInfo.put(child, animationInfo);
+                        mViewInfoStore.addToAppearedInPreLayoutHolders(viewHolder, animationInfo);
                     }
                 }
             }
@@ -2880,84 +2913,33 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 long key = getChangedHolderKey(holder);
                 final ItemHolderInfo animationInfo = mItemAnimator
                         .recordPostLayoutInformation(mState, holder);
-                ViewHolder oldChangeViewHolder = mState.mTrackOldChangeHolders ?
-                        mState.mOldChangedHolders.get(key) : null;
+                ViewHolder oldChangeViewHolder = mViewInfoStore.getFromOldChangeHolders(key);
                 if (oldChangeViewHolder != null && !oldChangeViewHolder.shouldIgnore()) {
                     // run a change animation
-                    final ItemHolderInfo preInfo = mState.mPreLayoutHolderMap
-                            .get(oldChangeViewHolder);
-                    mState.mPreLayoutHolderMap.remove(oldChangeViewHolder);
+                    final ItemHolderInfo preInfo = mViewInfoStore.popFromPreLayout(
+                            oldChangeViewHolder);
                     animateChange(oldChangeViewHolder, holder, preInfo, animationInfo);
                 } else {
-                    mState.mPostLayoutHolderMap.put(holder, animationInfo);
+                    mViewInfoStore.addToPostLayout(holder, animationInfo);
                 }
             }
 
-            processDisappearingList(appearingViewInfo);
-            // Step 4: Animate DISAPPEARING and REMOVED items
-            int preLayoutCount = mState.mPreLayoutHolderMap.size();
-            for (int i = preLayoutCount - 1; i >= 0; i--) {
-                ViewHolder itemHolder = mState.mPreLayoutHolderMap.keyAt(i);
-                if (!mState.mPostLayoutHolderMap.containsKey(itemHolder)) {
-                    ItemHolderInfo disappearingItem = mState.mPreLayoutHolderMap.valueAt(i);
-                    mState.mPreLayoutHolderMap.removeAt(i);
-                    mRecycler.unscrapView(itemHolder);
-                    animateDisappearance(itemHolder, disappearingItem);
-                }
-            }
-            // Step 5: Animate APPEARING and ADDED items
-            int postLayoutCount = mState.mPostLayoutHolderMap.size();
-            if (postLayoutCount > 0) {
-                for (int i = postLayoutCount - 1; i >= 0; i--) {
-                    ViewHolder itemHolder = mState.mPostLayoutHolderMap.keyAt(i);
-                    ItemHolderInfo info = mState.mPostLayoutHolderMap.valueAt(i);
-                    if (!mState.mPreLayoutHolderMap.containsKey(itemHolder)) {
-                        mState.mPostLayoutHolderMap.removeAt(i);
-                        ItemHolderInfo preInfo = appearingViewInfo == null ? null :
-                                appearingViewInfo.remove(itemHolder.itemView);
-                        animateAppearance(itemHolder, preInfo, info);
-                    }
-                }
-            }
-            // Step 6: Animate PERSISTENT items
-            count = mState.mPostLayoutHolderMap.size();
-            for (int i = 0; i < count; ++i) {
-                final ViewHolder postHolder = mState.mPostLayoutHolderMap.keyAt(i);
-                final ItemHolderInfo postInfo = mState.mPostLayoutHolderMap.valueAt(i);
-                final ItemHolderInfo preInfo = mState.mPreLayoutHolderMap.get(postHolder);
-                if (preInfo != null && postInfo != null) {
-                    postHolder.setIsRecyclable(false);
-                    if (mDataSetHasChangedAfterLayout) {
-                        // since it was rebound, use change instead as we'll be mapping them from
-                        // stable ids. If stable ids were false, we would not be running any
-                        // animations
-                        if (mItemAnimator
-                                .animateChange(postHolder, postHolder, preInfo, postInfo)) {
-                            postAnimationRunner();
-                        }
-                    } else if (mItemAnimator.animatePersistence(postHolder, preInfo, postInfo)) {
-                        postAnimationRunner();
-                    }
-                }
-            }
+            // Step 4: Process view info lists and trigger animations
+            mViewInfoStore.process(mViewInfoProcessCallback);
         }
         resumeRequestLayout(false);
         mLayout.removeAndRecycleScrapInt(mRecycler);
         mState.mPreviousLayoutItemCount = mState.mItemCount;
         mDataSetHasChangedAfterLayout = false;
         mState.mRunSimpleAnimations = false;
-        mState.mPreLayoutHolderMap.clear();
-        mState.mPostLayoutHolderMap.clear();
+
         mState.mRunPredictiveAnimations = false;
         onExitLayoutOrScroll();
         mLayout.mRequestedSimpleAnimations = false;
         if (mRecycler.mChangedScrap != null) {
             mRecycler.mChangedScrap.clear();
         }
-        if (mState.mOldChangedHolders != null) {
-            mState.mOldChangedHolders.clear();
-        }
-
+        mViewInfoStore.clear();
         if (didChildRangeChange(mMinMaxLayoutPositions[0], mMinMaxLayoutPositions[1])) {
             dispatchOnScrolled(0, 0);
         }
@@ -2974,9 +2956,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         if (mState.mTrackOldChangeHolders && viewHolder.isUpdated()
                 && !viewHolder.isRemoved() && !viewHolder.shouldIgnore()) {
             long key = getChangedHolderKey(viewHolder);
-            mState.mOldChangedHolders.put(key, viewHolder);
+            mViewInfoStore.addToOldChangeHolders(key, viewHolder);
         }
-        mState.mPreLayoutHolderMap.put(viewHolder, animationInfo);
+        mViewInfoStore.addToPreLayout(viewHolder, animationInfo);
     }
 
     private void findMinMaxChildLayoutPositions(int[] into) {
@@ -3046,58 +3028,33 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         return mAdapter.hasStableIds() ? holder.getItemId() : holder.mPosition;
     }
 
-    /**
-     * A LayoutManager may want to layout a view just to animate disappearance.
-     * This method handles those views and triggers remove animation on them.
-     *
-     * @param appearingViews The map of views that appeared in this layout
-     */
-    private void processDisappearingList(ArrayMap<View, ItemHolderInfo> appearingViews) {
-        final List<View> disappearingList = mState.mDisappearingViewsInLayoutPass;
-        for (int i = disappearingList.size() - 1; i >= 0; i --) {
-            View view = disappearingList.get(i);
-            ViewHolder vh = getChildViewHolderInt(view);
-            final ItemHolderInfo info = mState.mPreLayoutHolderMap.remove(vh);
-            if (!mState.isPreLayout()) {
-                mState.mPostLayoutHolderMap.remove(vh);
-            }
-            if (appearingViews.remove(view) != null) {
-                mLayout.removeAndRecycleView(view, mRecycler);
-                continue;
-            }
-            animateDisappearance(vh, info);
-        }
-        disappearingList.clear();
-    }
-
-    private void animateAppearance(ViewHolder itemHolder, ItemHolderInfo preLayoutInfo,
-            ItemHolderInfo postLayoutInfo) {
+    private void animateAppearance(@NonNull ViewHolder itemHolder,
+            @Nullable ItemHolderInfo preLayoutInfo, @NonNull ItemHolderInfo postLayoutInfo) {
         itemHolder.setIsRecyclable(false);
         if (mItemAnimator.animateAppearance(itemHolder, preLayoutInfo, postLayoutInfo)) {
             postAnimationRunner();
         }
     }
 
-    private void animateDisappearance(ViewHolder holder, ItemHolderInfo preLayoutInfo) {
+    private void animateDisappearance(@NonNull ViewHolder holder,
+            @NonNull ItemHolderInfo preLayoutInfo, @Nullable ItemHolderInfo postLayoutInfo) {
         addAnimatingView(holder);
         holder.setIsRecyclable(false);
-        if (mItemAnimator.animateDisappearance(holder, preLayoutInfo)) {
+        if (mItemAnimator.animateDisappearance(holder, preLayoutInfo, postLayoutInfo)) {
             postAnimationRunner();
         }
     }
 
-    private void animateChange(ViewHolder oldHolder, ViewHolder newHolder, ItemHolderInfo preInfo,
-            ItemHolderInfo postInfo) {
+    private void animateChange(@NonNull ViewHolder oldHolder, @NonNull ViewHolder newHolder,
+            @NonNull ItemHolderInfo preInfo, @NonNull ItemHolderInfo postInfo) {
         oldHolder.setIsRecyclable(false);
         if (oldHolder != newHolder) {
             oldHolder.mShadowedHolder = newHolder;
             // old holder should disappear after animation ends
             addAnimatingView(oldHolder);
             mRecycler.unscrapView(oldHolder);
-            if (newHolder != null) {
-                newHolder.setIsRecyclable(false);
-                newHolder.mShadowingHolder = oldHolder;
-            }
+            newHolder.setIsRecyclable(false);
+            newHolder.mShadowingHolder = oldHolder;
         }
         if (mItemAnimator.animateChange(oldHolder, newHolder, preInfo, postInfo)) {
             postAnimationRunner();
@@ -4707,7 +4664,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             }
             // even if the holder is not removed, we still call this method so that it is removed
             // from view holder lists.
-            mState.onViewRecycled(holder);
+            mViewInfoStore.removeViewHolder(holder);
             if (!cached && !recycled && transientStatePreventsRecycling) {
                 holder.mOwnerRecyclerView = null;
             }
@@ -4952,7 +4909,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 mAdapter.onViewRecycled(holder);
             }
             if (mState != null) {
-                mState.onViewRecycled(holder);
+                mViewInfoStore.removeViewHolder(holder);
             }
             if (DEBUG) Log.d(TAG, "dispatchViewRecycled: " + holder);
         }
@@ -6251,14 +6208,14 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             final ViewHolder holder = getChildViewHolderInt(child);
             if (disappearing || holder.isRemoved()) {
                 // these views will be hidden at the end of the layout pass.
-                mRecyclerView.mState.addToDisappearingList(child);
+                mRecyclerView.mViewInfoStore.addToDisappearedInLayout(holder);
             } else {
                 // This may look like unnecessary but may happen if layout manager supports
                 // predictive layouts and adapter removed then re-added the same item.
                 // In this case, added version will be visible in the post layout (because add is
                 // deferred) but RV will still bind it to the same View.
                 // So if a View re-appears in post layout pass, remove it from disappearing list.
-                mRecyclerView.mState.removeFromDisappearingList(child);
+                mRecyclerView.mViewInfoStore.removeFromDisappearedInLayout(holder);
             }
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
             if (holder.wasReturnedFromScrap() || holder.isScrap()) {
@@ -6460,9 +6417,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         public void attachView(View child, int index, LayoutParams lp) {
             ViewHolder vh = getChildViewHolderInt(child);
             if (vh.isRemoved()) {
-                mRecyclerView.mState.addToDisappearingList(child);
+                mRecyclerView.mViewInfoStore.addToDisappearedInLayout(vh);
             } else {
-                mRecyclerView.mState.removeFromDisappearingList(child);
+                mRecyclerView.mViewInfoStore.removeFromDisappearedInLayout(vh);
             }
             mChildHelper.attachViewToParent(child, index, lp, vh.isRemoved());
             if (DISPATCH_TEMP_DETACH)  {
@@ -6760,7 +6717,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             }
             final ViewHolder vh = getChildViewHolderInt(view);
             vh.addFlags(ViewHolder.FLAG_IGNORE);
-            mRecyclerView.mState.onViewIgnored(vh);
+            mRecyclerView.mViewInfoStore.removeViewHolder(vh);
         }
 
         /**
@@ -9378,15 +9335,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     public static class State {
 
         private int mTargetPosition = RecyclerView.NO_POSITION;
-        ArrayMap<ViewHolder, ItemHolderInfo> mPreLayoutHolderMap =
-                new ArrayMap<ViewHolder, ItemHolderInfo>();
-        ArrayMap<ViewHolder, ItemHolderInfo> mPostLayoutHolderMap =
-                new ArrayMap<ViewHolder, ItemHolderInfo>();
-        // nullable
-        ArrayMap<Long, ViewHolder> mOldChangedHolders = new ArrayMap<Long, ViewHolder>();
-
-        // we use this like a set
-        final List<View> mDisappearingViewsInLayoutPass = new ArrayList<View>();
 
         private SparseArray<Object> mData;
 
@@ -9552,45 +9500,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     mItemCount;
         }
 
-        void onViewRecycled(ViewHolder holder) {
-            mPreLayoutHolderMap.remove(holder);
-            mPostLayoutHolderMap.remove(holder);
-            if (mOldChangedHolders != null) {
-                removeFrom(mOldChangedHolders, holder);
-            }
-            mDisappearingViewsInLayoutPass.remove(holder.itemView);
-            // holder cannot be in new list.
-        }
-
-        public void onViewIgnored(ViewHolder holder) {
-            onViewRecycled(holder);
-        }
-
-        private void removeFrom(ArrayMap<Long, ViewHolder> holderMap, ViewHolder holder) {
-            for (int i = holderMap.size() - 1; i >= 0; i --) {
-                if (holder == holderMap.valueAt(i)) {
-                    holderMap.removeAt(i);
-                    return;
-                }
-            }
-        }
-
-        void removeFromDisappearingList(View child) {
-            mDisappearingViewsInLayoutPass.remove(child);
-        }
-
-        void addToDisappearingList(View child) {
-            if (!mDisappearingViewsInLayoutPass.contains(child)) {
-                mDisappearingViewsInLayoutPass.add(child);
-            }
-        }
-
         @Override
         public String toString() {
             return "State{" +
                     "mTargetPosition=" + mTargetPosition +
-                    ", mPreLayoutHolderMap=" + mPreLayoutHolderMap +
-                    ", mPostLayoutHolderMap=" + mPostLayoutHolderMap +
                     ", mData=" + mData +
                     ", mItemCount=" + mItemCount +
                     ", mPreviousLayoutItemCount=" + mPreviousLayoutItemCount +
@@ -9643,7 +9556,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * animateChange()}
      * {@link #animatePersistence(ViewHolder, ItemHolderInfo, ItemHolderInfo) animatePersistence()},
      * and
-     * {@link #animateDisappearance(ViewHolder, ItemHolderInfo) animateDisappearance()} call.
+     * {@link #animateDisappearance(ViewHolder, ItemHolderInfo, ItemHolderInfo)
+     * animateDisappearance()} call.
      *
      * <p>By default, RecyclerView uses {@link DefaultItemAnimator}.</p>
      *
@@ -9832,8 +9746,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * @see #animateChange(ViewHolder, ViewHolder, ItemHolderInfo, ItemHolderInfo)
          * @see #animatePersistence(ViewHolder, ItemHolderInfo, ItemHolderInfo)
          */
-        public ItemHolderInfo recordPreLayoutInformation(State state,
-                ViewHolder viewHolder, @AdapterChanges int changeFlags, List<Object> payloads) {
+        public @NonNull ItemHolderInfo recordPreLayoutInformation(@NonNull State state,
+                @NonNull ViewHolder viewHolder, @AdapterChanges int changeFlags,
+                @NonNull List<Object> payloads) {
             return obtainHolderInfo().setFrom(viewHolder);
         }
 
@@ -9857,11 +9772,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          *
          * @see #recordPreLayoutInformation(State, ViewHolder, int, List)
          * @see #animateAppearance(ViewHolder, ItemHolderInfo, ItemHolderInfo)
-         * @see #animateDisappearance(ViewHolder, ItemHolderInfo)
+         * @see #animateDisappearance(ViewHolder, ItemHolderInfo, ItemHolderInfo)
          * @see #animateChange(ViewHolder, ViewHolder, ItemHolderInfo, ItemHolderInfo)
          * @see #animatePersistence(ViewHolder, ItemHolderInfo, ItemHolderInfo)
          */
-        public ItemHolderInfo recordPostLayoutInformation(State state, ViewHolder viewHolder) {
+        public @NonNull ItemHolderInfo recordPostLayoutInformation(@NonNull State state,
+                @NonNull ViewHolder viewHolder) {
             return obtainHolderInfo().setFrom(viewHolder);
         }
 
@@ -9869,10 +9785,15 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * Called by the RecyclerView when a ViewHolder has disappeared from the layout.
          * <p>
          * This means that the View was a child of the LayoutManager when layout started but has
-         * not been re-laid-out by the LayoutManager. It might be removed from the adapter or simply
+         * been removed by the LayoutManager. It might have been removed from the adapter or simply
          * become invisible due to other factors. You can distinguish these two cases by checking
          * the change flags that were passed to
          * {@link #recordPreLayoutInformation(State, ViewHolder, int, List)}.
+         * <p>
+         * If LayoutManager supports predictive animations, it might provide a target disappear
+         * location for the View by laying it out in that location. When that happens,
+         * RecyclerView will call {@link #recordPostLayoutInformation(State, ViewHolder)} and the
+         * response of that call will be passed to this method as the <code>postLayoutInfo</code>.
          * <p>
          * ItemAnimator must call {@link #dispatchAnimationFinished(ViewHolder)} when the animation
          * is complete (or instantly call {@link #dispatchAnimationFinished(ViewHolder)} if it
@@ -9881,12 +9802,15 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * @param viewHolder    The ViewHolder which should be animated
          * @param preLayoutInfo The information that was returned from
          *                      {@link #recordPreLayoutInformation(State, ViewHolder, int, List)}.
+         * @param postLayoutInfo The information that was returned from
+         *                       {@link #recordPostLayoutInformation(State, ViewHolder)}. Might be
+         *                       null if the LayoutManager did not layout the item.
          *
          * @return true if a later call to {@link #runPendingAnimations()} is requested,
          * false otherwise.
          */
-        public abstract boolean animateDisappearance(ViewHolder viewHolder,
-                ItemHolderInfo preLayoutInfo);
+        public abstract boolean animateDisappearance(@NonNull ViewHolder viewHolder,
+                @NonNull ItemHolderInfo preLayoutInfo, @Nullable ItemHolderInfo postLayoutInfo);
 
         /**
          * Called by the RecyclerView when a ViewHolder is added to the layout.
@@ -9911,8 +9835,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * @return true if a later call to {@link #runPendingAnimations()} is requested,
          * false otherwise.
          */
-        public abstract boolean animateAppearance(ViewHolder viewHolder,
-                ItemHolderInfo preLayoutInfo, ItemHolderInfo postLayoutInfo);
+        public abstract boolean animateAppearance(@NonNull ViewHolder viewHolder,
+                @Nullable ItemHolderInfo preLayoutInfo, @NonNull ItemHolderInfo postLayoutInfo);
 
         /**
          * Called by the RecyclerView when a ViewHolder is present in both before and after the
@@ -9941,8 +9865,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * @return true if a later call to {@link #runPendingAnimations()} is requested,
          * false otherwise.
          */
-        public abstract boolean animatePersistence(ViewHolder viewHolder,
-                ItemHolderInfo preLayoutInfo, ItemHolderInfo postLayoutInfo);
+        public abstract boolean animatePersistence(@NonNull ViewHolder viewHolder,
+                @NonNull ItemHolderInfo preLayoutInfo, @NonNull ItemHolderInfo postLayoutInfo);
 
         /**
          * Called by the RecyclerView when an adapter item is present both before and after the
@@ -9996,8 +9920,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * @return true if a later call to {@link #runPendingAnimations()} is requested,
          * false otherwise.
          */
-        public abstract boolean animateChange(ViewHolder oldHolder, ViewHolder newHolder,
-                ItemHolderInfo preLayoutInfo, ItemHolderInfo postLayoutInfo);
+        public abstract boolean animateChange(@NonNull ViewHolder oldHolder,
+                @NonNull ViewHolder newHolder,
+                @NonNull ItemHolderInfo preLayoutInfo, @NonNull ItemHolderInfo postLayoutInfo);
 
         @AdapterChanges static int buildAdapterChangeFlagsForAnimations(ViewHolder viewHolder) {
             int flags = viewHolder.mFlags & (FLAG_INVALIDATED | FLAG_REMOVED | FLAG_CHANGED);
@@ -10023,10 +9948,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * animateChange()}
          * {@link #animatePersistence(ViewHolder, ItemHolderInfo, ItemHolderInfo)
          * animatePersistence()}, and
-         * {@link #animateDisappearance(ViewHolder, ItemHolderInfo) animateDisappearance()},
-         * which inform the RecyclerView that the ItemAnimator wants to be called later to start
-         * the associated animations. runPendingAnimations() will be scheduled to be run
-         * on the next frame.
+         * {@link #animateDisappearance(ViewHolder, ItemHolderInfo, ItemHolderInfo)
+         * animateDisappearance()}, which inform the RecyclerView that the ItemAnimator wants to be
+         * called later to start the associated animations. runPendingAnimations() will be scheduled
+         * to be run on the next frame.
          */
         abstract public void runPendingAnimations();
 
@@ -10071,7 +9996,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * animateAppearance()},
          * {@link #animatePersistence(ViewHolder, ItemHolderInfo, ItemHolderInfo)
          * animatePersistence()}, or
-         * {@link #animateDisappearance(ViewHolder, ItemHolderInfo) animateDisappearance()}, there
+         * {@link #animateDisappearance(ViewHolder, ItemHolderInfo, ItemHolderInfo)
+         * animateDisappearance()}, there
          * should
          * be a matching {@link #dispatchAnimationFinished(ViewHolder)} call by the subclass.
          * <p>
@@ -10108,9 +10034,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * animateAppearance()},
          * {@link #animatePersistence(ViewHolder, ItemHolderInfo, ItemHolderInfo)
          * animatePersistence()}, or
-         * {@link #animateDisappearance(ViewHolder, ItemHolderInfo) animateDisappearance()}, there
-         * should
-         * be a matching {@link #dispatchAnimationStarted(ViewHolder)} call by the subclass.
+         * {@link #animateDisappearance(ViewHolder, ItemHolderInfo, ItemHolderInfo)
+         * animateDisappearance()}, there should be a matching
+         * {@link #dispatchAnimationStarted(ViewHolder)} call by the subclass.
          * <p>
          * For {@link #animateChange(ViewHolder, ViewHolder, ItemHolderInfo, ItemHolderInfo)
          * animateChange()}, sublcass should call this method for both the <code>oldHolder</code>
