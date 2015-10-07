@@ -18,6 +18,6 @@
     <item>
         <bitmap
             android:src="@drawable/ic_pause_light"
-            android:alpha="0.87" />
+            android:alpha="0.54" />
     </item>
 </selector>
