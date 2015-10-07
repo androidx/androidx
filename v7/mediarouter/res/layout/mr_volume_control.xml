@@ -20,8 +20,7 @@
         android:minHeight="48dp"
         android:gravity="center_vertical"
         android:paddingLeft="24dp"
-        android:paddingRight="12dp"
-        android:background="?attr/colorPrimary">
+        android:paddingRight="12dp">
     <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"

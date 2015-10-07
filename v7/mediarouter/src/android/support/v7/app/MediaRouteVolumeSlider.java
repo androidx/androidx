@@ -43,7 +43,7 @@ class MediaRouteVolumeSlider extends AppCompatSeekBar {
 
     public MediaRouteVolumeSlider(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        mColor = MediaRouterThemeHelper.getControllerColor(context);
+        mColor = MediaRouterThemeHelper.getVolumeSliderColor(context);
         TypedArray ta = context.obtainStyledAttributes(
                 attrs, new int[] {android.R.attr.disabledAlpha}, defStyleAttr, 0);
         mDisabledAlpha = ta.getFloat(0, 0.5f);
@@ -60,12 +60,14 @@ class MediaRouteVolumeSlider extends AppCompatSeekBar {
     protected void drawableStateChanged() {
         super.drawableStateChanged();
         int alpha = isEnabled() ? 0xFF : (int)(mDisabledAlpha * 0xFF);
-        getProgressDrawable().setAlpha(alpha);
-        mThumb.setAlpha(alpha);
-        // The thumb drawable is a collection of drawables and its current drawable is changed per
-        // state changes. Apply color filters whenever the current drawable is changed.
-        getProgressDrawable().setColorFilter(mColor, PorterDuff.Mode.SRC_IN);
+
+        // The thumb drawable is a collection of drawables and its current drawables are changed per
+        // state. Apply the color filter and alpha on every state change.
         mThumb.setColorFilter(mColor, PorterDuff.Mode.SRC_IN);
+        mThumb.setAlpha(alpha);
+
+        getProgressDrawable().setColorFilter(mColor, PorterDuff.Mode.SRC_IN);
+        getProgressDrawable().setAlpha(alpha);
     }
 
     /**
