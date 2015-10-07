@@ -1,0 +1,2081 @@
+package android.support.v7.app {
+
+  public abstract class ActionBar {
+    ctor public ActionBar();
+    method public abstract void addOnMenuVisibilityListener(android.support.v7.app.ActionBar.OnMenuVisibilityListener);
+    method public abstract deprecated void addTab(android.support.v7.app.ActionBar.Tab);
+    method public abstract deprecated void addTab(android.support.v7.app.ActionBar.Tab, boolean);
+    method public abstract deprecated void addTab(android.support.v7.app.ActionBar.Tab, int);
+    method public abstract deprecated void addTab(android.support.v7.app.ActionBar.Tab, int, boolean);
+    method public abstract android.view.View getCustomView();
+    method public abstract int getDisplayOptions();
+    method public float getElevation();
+    method public abstract int getHeight();
+    method public int getHideOffset();
+    method public abstract deprecated int getNavigationItemCount();
+    method public abstract deprecated int getNavigationMode();
+    method public abstract deprecated int getSelectedNavigationIndex();
+    method public abstract deprecated android.support.v7.app.ActionBar.Tab getSelectedTab();
+    method public abstract java.lang.CharSequence getSubtitle();
+    method public abstract deprecated android.support.v7.app.ActionBar.Tab getTabAt(int);
+    method public abstract deprecated int getTabCount();
+    method public android.content.Context getThemedContext();
+    method public abstract java.lang.CharSequence getTitle();
+    method public abstract void hide();
+    method public boolean isHideOnContentScrollEnabled();
+    method public abstract boolean isShowing();
+    method public abstract deprecated android.support.v7.app.ActionBar.Tab newTab();
+    method public abstract deprecated void removeAllTabs();
+    method public abstract void removeOnMenuVisibilityListener(android.support.v7.app.ActionBar.OnMenuVisibilityListener);
+    method public abstract deprecated void removeTab(android.support.v7.app.ActionBar.Tab);
+    method public abstract deprecated void removeTabAt(int);
+    method public abstract deprecated void selectTab(android.support.v7.app.ActionBar.Tab);
+    method public abstract void setBackgroundDrawable(android.graphics.drawable.Drawable);
+    method public abstract void setCustomView(android.view.View);
+    method public abstract void setCustomView(android.view.View, android.support.v7.app.ActionBar.LayoutParams);
+    method public abstract void setCustomView(int);
+    method public abstract void setDisplayHomeAsUpEnabled(boolean);
+    method public abstract void setDisplayOptions(int);
+    method public abstract void setDisplayOptions(int, int);
+    method public abstract void setDisplayShowCustomEnabled(boolean);
+    method public abstract void setDisplayShowHomeEnabled(boolean);
+    method public abstract void setDisplayShowTitleEnabled(boolean);
+    method public abstract void setDisplayUseLogoEnabled(boolean);
+    method public void setElevation(float);
+    method public void setHideOffset(int);
+    method public void setHideOnContentScrollEnabled(boolean);
+    method public void setHomeActionContentDescription(java.lang.CharSequence);
+    method public void setHomeActionContentDescription(int);
+    method public void setHomeAsUpIndicator(android.graphics.drawable.Drawable);
+    method public void setHomeAsUpIndicator(int);
+    method public void setHomeButtonEnabled(boolean);
+    method public abstract void setIcon(int);
+    method public abstract void setIcon(android.graphics.drawable.Drawable);
+    method public abstract deprecated void setListNavigationCallbacks(android.widget.SpinnerAdapter, android.support.v7.app.ActionBar.OnNavigationListener);
+    method public abstract void setLogo(int);
+    method public abstract void setLogo(android.graphics.drawable.Drawable);
+    method public abstract deprecated void setNavigationMode(int);
+    method public abstract deprecated void setSelectedNavigationItem(int);
+    method public void setSplitBackgroundDrawable(android.graphics.drawable.Drawable);
+    method public void setStackedBackgroundDrawable(android.graphics.drawable.Drawable);
+    method public abstract void setSubtitle(java.lang.CharSequence);
+    method public abstract void setSubtitle(int);
+    method public abstract void setTitle(java.lang.CharSequence);
+    method public abstract void setTitle(int);
+    method public abstract void show();
+    field public static final int DISPLAY_HOME_AS_UP = 4; // 0x4
+    field public static final int DISPLAY_SHOW_CUSTOM = 16; // 0x10
+    field public static final int DISPLAY_SHOW_HOME = 2; // 0x2
+    field public static final int DISPLAY_SHOW_TITLE = 8; // 0x8
+    field public static final int DISPLAY_USE_LOGO = 1; // 0x1
+    field public static final deprecated int NAVIGATION_MODE_LIST = 1; // 0x1
+    field public static final deprecated int NAVIGATION_MODE_STANDARD = 0; // 0x0
+    field public static final deprecated int NAVIGATION_MODE_TABS = 2; // 0x2
+  }
+
+  public static class ActionBar.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
+    ctor public ActionBar.LayoutParams(android.content.Context, android.util.AttributeSet);
+    ctor public ActionBar.LayoutParams(int, int);
+    ctor public ActionBar.LayoutParams(int, int, int);
+    ctor public ActionBar.LayoutParams(int);
+    ctor public ActionBar.LayoutParams(android.support.v7.app.ActionBar.LayoutParams);
+    ctor public ActionBar.LayoutParams(android.view.ViewGroup.LayoutParams);
+    field public int gravity;
+  }
+
+  public static abstract interface ActionBar.OnMenuVisibilityListener {
+    method public abstract void onMenuVisibilityChanged(boolean);
+  }
+
+  public static abstract deprecated interface ActionBar.OnNavigationListener {
+    method public abstract boolean onNavigationItemSelected(int, long);
+  }
+
+  public static abstract deprecated class ActionBar.Tab {
+    ctor public ActionBar.Tab();
+    method public abstract java.lang.CharSequence getContentDescription();
+    method public abstract android.view.View getCustomView();
+    method public abstract android.graphics.drawable.Drawable getIcon();
+    method public abstract int getPosition();
+    method public abstract java.lang.Object getTag();
+    method public abstract java.lang.CharSequence getText();
+    method public abstract void select();
+    method public abstract android.support.v7.app.ActionBar.Tab setContentDescription(int);
+    method public abstract android.support.v7.app.ActionBar.Tab setContentDescription(java.lang.CharSequence);
+    method public abstract android.support.v7.app.ActionBar.Tab setCustomView(android.view.View);
+    method public abstract android.support.v7.app.ActionBar.Tab setCustomView(int);
+    method public abstract android.support.v7.app.ActionBar.Tab setIcon(android.graphics.drawable.Drawable);
+    method public abstract android.support.v7.app.ActionBar.Tab setIcon(int);
+    method public abstract android.support.v7.app.ActionBar.Tab setTabListener(android.support.v7.app.ActionBar.TabListener);
+    method public abstract android.support.v7.app.ActionBar.Tab setTag(java.lang.Object);
+    method public abstract android.support.v7.app.ActionBar.Tab setText(java.lang.CharSequence);
+    method public abstract android.support.v7.app.ActionBar.Tab setText(int);
+    field public static final int INVALID_POSITION = -1; // 0xffffffff
+  }
+
+  public static abstract deprecated interface ActionBar.TabListener {
+    method public abstract void onTabReselected(android.support.v7.app.ActionBar.Tab, android.support.v4.app.FragmentTransaction);
+    method public abstract void onTabSelected(android.support.v7.app.ActionBar.Tab, android.support.v4.app.FragmentTransaction);
+    method public abstract void onTabUnselected(android.support.v7.app.ActionBar.Tab, android.support.v4.app.FragmentTransaction);
+  }
+
+  public deprecated class ActionBarActivity extends android.support.v7.app.AppCompatActivity {
+    ctor public ActionBarActivity();
+  }
+
+  public class ActionBarDrawerToggle implements android.support.v4.widget.DrawerLayout.DrawerListener {
+    ctor public ActionBarDrawerToggle(android.app.Activity, android.support.v4.widget.DrawerLayout, int, int);
+    ctor public ActionBarDrawerToggle(android.app.Activity, android.support.v4.widget.DrawerLayout, android.support.v7.widget.Toolbar, int, int);
+    method public android.view.View.OnClickListener getToolbarNavigationClickListener();
+    method public boolean isDrawerIndicatorEnabled();
+    method public void onConfigurationChanged(android.content.res.Configuration);
+    method public void onDrawerClosed(android.view.View);
+    method public void onDrawerOpened(android.view.View);
+    method public void onDrawerSlide(android.view.View, float);
+    method public void onDrawerStateChanged(int);
+    method public boolean onOptionsItemSelected(android.view.MenuItem);
+    method public void setDrawerIndicatorEnabled(boolean);
+    method public void setHomeAsUpIndicator(android.graphics.drawable.Drawable);
+    method public void setHomeAsUpIndicator(int);
+    method public void setToolbarNavigationClickListener(android.view.View.OnClickListener);
+    method public void syncState();
+  }
+
+  public static abstract interface ActionBarDrawerToggle.Delegate {
+    method public abstract android.content.Context getActionBarThemedContext();
+    method public abstract android.graphics.drawable.Drawable getThemeUpIndicator();
+    method public abstract boolean isNavigationVisible();
+    method public abstract void setActionBarDescription(int);
+    method public abstract void setActionBarUpIndicator(android.graphics.drawable.Drawable, int);
+  }
+
+  public static abstract interface ActionBarDrawerToggle.DelegateProvider {
+    method public abstract android.support.v7.app.ActionBarDrawerToggle.Delegate getDrawerToggleDelegate();
+  }
+
+  public class AlertDialog extends android.support.v7.app.AppCompatDialog implements android.content.DialogInterface {
+    ctor protected AlertDialog(android.content.Context);
+    ctor protected AlertDialog(android.content.Context, int);
+    ctor protected AlertDialog(android.content.Context, boolean, android.content.DialogInterface.OnCancelListener);
+    method public android.widget.Button getButton(int);
+    method public android.widget.ListView getListView();
+    method public void setButton(int, java.lang.CharSequence, android.os.Message);
+    method public void setButton(int, java.lang.CharSequence, android.content.DialogInterface.OnClickListener);
+    method public void setCustomTitle(android.view.View);
+    method public void setIcon(int);
+    method public void setIcon(android.graphics.drawable.Drawable);
+    method public void setIconAttribute(int);
+    method public void setMessage(java.lang.CharSequence);
+    method public void setView(android.view.View);
+    method public void setView(android.view.View, int, int, int, int);
+  }
+
+  public static class AlertDialog.Builder {
+    ctor public AlertDialog.Builder(android.content.Context);
+    ctor public AlertDialog.Builder(android.content.Context, int);
+    method public android.support.v7.app.AlertDialog create();
+    method public android.content.Context getContext();
+    method public android.support.v7.app.AlertDialog.Builder setAdapter(android.widget.ListAdapter, android.content.DialogInterface.OnClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setCancelable(boolean);
+    method public android.support.v7.app.AlertDialog.Builder setCursor(android.database.Cursor, android.content.DialogInterface.OnClickListener, java.lang.String);
+    method public android.support.v7.app.AlertDialog.Builder setCustomTitle(android.view.View);
+    method public android.support.v7.app.AlertDialog.Builder setIcon(int);
+    method public android.support.v7.app.AlertDialog.Builder setIcon(android.graphics.drawable.Drawable);
+    method public android.support.v7.app.AlertDialog.Builder setIconAttribute(int);
+    method public android.support.v7.app.AlertDialog.Builder setInverseBackgroundForced(boolean);
+    method public android.support.v7.app.AlertDialog.Builder setItems(int, android.content.DialogInterface.OnClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setItems(java.lang.CharSequence[], android.content.DialogInterface.OnClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setMessage(int);
+    method public android.support.v7.app.AlertDialog.Builder setMessage(java.lang.CharSequence);
+    method public android.support.v7.app.AlertDialog.Builder setMultiChoiceItems(int, boolean[], android.content.DialogInterface.OnMultiChoiceClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setMultiChoiceItems(java.lang.CharSequence[], boolean[], android.content.DialogInterface.OnMultiChoiceClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setMultiChoiceItems(android.database.Cursor, java.lang.String, java.lang.String, android.content.DialogInterface.OnMultiChoiceClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setNegativeButton(int, android.content.DialogInterface.OnClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setNegativeButton(java.lang.CharSequence, android.content.DialogInterface.OnClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setNeutralButton(int, android.content.DialogInterface.OnClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setNeutralButton(java.lang.CharSequence, android.content.DialogInterface.OnClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setOnCancelListener(android.content.DialogInterface.OnCancelListener);
+    method public android.support.v7.app.AlertDialog.Builder setOnDismissListener(android.content.DialogInterface.OnDismissListener);
+    method public android.support.v7.app.AlertDialog.Builder setOnItemSelectedListener(android.widget.AdapterView.OnItemSelectedListener);
+    method public android.support.v7.app.AlertDialog.Builder setOnKeyListener(android.content.DialogInterface.OnKeyListener);
+    method public android.support.v7.app.AlertDialog.Builder setPositiveButton(int, android.content.DialogInterface.OnClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setPositiveButton(java.lang.CharSequence, android.content.DialogInterface.OnClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setSingleChoiceItems(int, int, android.content.DialogInterface.OnClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setSingleChoiceItems(android.database.Cursor, int, java.lang.String, android.content.DialogInterface.OnClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setSingleChoiceItems(java.lang.CharSequence[], int, android.content.DialogInterface.OnClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setSingleChoiceItems(android.widget.ListAdapter, int, android.content.DialogInterface.OnClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setTitle(int);
+    method public android.support.v7.app.AlertDialog.Builder setTitle(java.lang.CharSequence);
+    method public android.support.v7.app.AlertDialog.Builder setView(int);
+    method public android.support.v7.app.AlertDialog.Builder setView(android.view.View);
+    method public android.support.v7.app.AlertDialog show();
+  }
+
+  public class AppCompatActivity extends android.support.v4.app.FragmentActivity implements android.support.v7.app.ActionBarDrawerToggle.DelegateProvider android.support.v7.app.AppCompatCallback {
+    ctor public AppCompatActivity();
+    method public android.support.v7.app.AppCompatDelegate getDelegate();
+    method public android.support.v7.app.ActionBarDrawerToggle.Delegate getDrawerToggleDelegate();
+    method public android.support.v7.app.ActionBar getSupportActionBar();
+    method public android.content.Intent getSupportParentActivityIntent();
+    method public void onCreateSupportNavigateUpTaskStack(android.support.v4.app.TaskStackBuilder);
+    method public final boolean onMenuItemSelected(int, android.view.MenuItem);
+    method public void onPrepareSupportNavigateUpTaskStack(android.support.v4.app.TaskStackBuilder);
+    method public void onSupportActionModeFinished(android.support.v7.view.ActionMode);
+    method public void onSupportActionModeStarted(android.support.v7.view.ActionMode);
+    method public deprecated void onSupportContentChanged();
+    method public boolean onSupportNavigateUp();
+    method public android.support.v7.view.ActionMode onWindowStartingSupportActionMode(android.support.v7.view.ActionMode.Callback);
+    method public void setSupportActionBar(android.support.v7.widget.Toolbar);
+    method public deprecated void setSupportProgress(int);
+    method public deprecated void setSupportProgressBarIndeterminate(boolean);
+    method public deprecated void setSupportProgressBarIndeterminateVisibility(boolean);
+    method public deprecated void setSupportProgressBarVisibility(boolean);
+    method public android.support.v7.view.ActionMode startSupportActionMode(android.support.v7.view.ActionMode.Callback);
+    method public void supportNavigateUpTo(android.content.Intent);
+    method public boolean supportRequestWindowFeature(int);
+    method public boolean supportShouldUpRecreateTask(android.content.Intent);
+  }
+
+  public abstract interface AppCompatCallback {
+    method public abstract void onSupportActionModeFinished(android.support.v7.view.ActionMode);
+    method public abstract void onSupportActionModeStarted(android.support.v7.view.ActionMode);
+    method public abstract android.support.v7.view.ActionMode onWindowStartingSupportActionMode(android.support.v7.view.ActionMode.Callback);
+  }
+
+  public abstract class AppCompatDelegate {
+    method public abstract void addContentView(android.view.View, android.view.ViewGroup.LayoutParams);
+    method public static android.support.v7.app.AppCompatDelegate create(android.app.Activity, android.support.v7.app.AppCompatCallback);
+    method public static android.support.v7.app.AppCompatDelegate create(android.app.Dialog, android.support.v7.app.AppCompatCallback);
+    method public abstract android.view.View createView(android.view.View, java.lang.String, android.content.Context, android.util.AttributeSet);
+    method public abstract android.support.v7.app.ActionBarDrawerToggle.Delegate getDrawerToggleDelegate();
+    method public abstract android.view.MenuInflater getMenuInflater();
+    method public abstract android.support.v7.app.ActionBar getSupportActionBar();
+    method public abstract boolean hasWindowFeature(int);
+    method public abstract void installViewFactory();
+    method public abstract void invalidateOptionsMenu();
+    method public abstract boolean isHandleNativeActionModesEnabled();
+    method public abstract void onConfigurationChanged(android.content.res.Configuration);
+    method public abstract void onCreate(android.os.Bundle);
+    method public abstract void onDestroy();
+    method public abstract void onPostCreate(android.os.Bundle);
+    method public abstract void onPostResume();
+    method public abstract void onStop();
+    method public abstract boolean requestWindowFeature(int);
+    method public abstract void setContentView(android.view.View);
+    method public abstract void setContentView(int);
+    method public abstract void setContentView(android.view.View, android.view.ViewGroup.LayoutParams);
+    method public abstract void setHandleNativeActionModesEnabled(boolean);
+    method public abstract void setSupportActionBar(android.support.v7.widget.Toolbar);
+    method public abstract void setTitle(java.lang.CharSequence);
+    method public abstract android.support.v7.view.ActionMode startSupportActionMode(android.support.v7.view.ActionMode.Callback);
+    field public static final int FEATURE_ACTION_MODE_OVERLAY = 10; // 0xa
+    field public static final int FEATURE_SUPPORT_ACTION_BAR = 108; // 0x6c
+    field public static final int FEATURE_SUPPORT_ACTION_BAR_OVERLAY = 109; // 0x6d
+  }
+
+  public class AppCompatDialog extends android.app.Dialog implements android.support.v7.app.AppCompatCallback {
+    ctor public AppCompatDialog(android.content.Context);
+    ctor public AppCompatDialog(android.content.Context, int);
+    ctor protected AppCompatDialog(android.content.Context, boolean, android.content.DialogInterface.OnCancelListener);
+    method public android.support.v7.app.AppCompatDelegate getDelegate();
+    method public android.support.v7.app.ActionBar getSupportActionBar();
+    method public void onSupportActionModeFinished(android.support.v7.view.ActionMode);
+    method public void onSupportActionModeStarted(android.support.v7.view.ActionMode);
+    method public android.support.v7.view.ActionMode onWindowStartingSupportActionMode(android.support.v7.view.ActionMode.Callback);
+    method public boolean supportRequestWindowFeature(int);
+  }
+
+  public class AppCompatDialogFragment extends android.support.v4.app.DialogFragment {
+    ctor public AppCompatDialogFragment();
+  }
+
+  public class NotificationCompat extends android.support.v4.app.NotificationCompat {
+    ctor public NotificationCompat();
+  }
+
+  public static class NotificationCompat.Builder extends android.support.v4.app.NotificationCompat.Builder {
+    ctor public NotificationCompat.Builder(android.content.Context);
+  }
+
+  public static class NotificationCompat.MediaStyle extends android.support.v4.app.NotificationCompat.Style {
+    ctor public NotificationCompat.MediaStyle();
+    ctor public NotificationCompat.MediaStyle(android.support.v4.app.NotificationCompat.Builder);
+    method public android.support.v7.app.NotificationCompat.MediaStyle setCancelButtonIntent(android.app.PendingIntent);
+    method public android.support.v7.app.NotificationCompat.MediaStyle setMediaSession(android.support.v4.media.session.MediaSessionCompat.Token);
+    method public android.support.v7.app.NotificationCompat.MediaStyle setShowActionsInCompactView(int...);
+    method public android.support.v7.app.NotificationCompat.MediaStyle setShowCancelButton(boolean);
+  }
+
+}
+
+package android.support.v7.appcompat {
+
+  public final class R {
+    ctor public R();
+  }
+
+  public static final class R.anim {
+    ctor public R.anim();
+    field public static int abc_fade_in;
+    field public static int abc_fade_out;
+    field public static int abc_grow_fade_in_from_bottom;
+    field public static int abc_popup_enter;
+    field public static int abc_popup_exit;
+    field public static int abc_shrink_fade_out_from_bottom;
+    field public static int abc_slide_in_bottom;
+    field public static int abc_slide_in_top;
+    field public static int abc_slide_out_bottom;
+    field public static int abc_slide_out_top;
+  }
+
+  public static final class R.attr {
+    ctor public R.attr();
+    field public static int actionBarDivider;
+    field public static int actionBarItemBackground;
+    field public static int actionBarPopupTheme;
+    field public static int actionBarSize;
+    field public static int actionBarSplitStyle;
+    field public static int actionBarStyle;
+    field public static int actionBarTabBarStyle;
+    field public static int actionBarTabStyle;
+    field public static int actionBarTabTextStyle;
+    field public static int actionBarTheme;
+    field public static int actionBarWidgetTheme;
+    field public static int actionButtonStyle;
+    field public static int actionDropDownStyle;
+    field public static int actionLayout;
+    field public static int actionMenuTextAppearance;
+    field public static int actionMenuTextColor;
+    field public static int actionModeBackground;
+    field public static int actionModeCloseButtonStyle;
+    field public static int actionModeCloseDrawable;
+    field public static int actionModeCopyDrawable;
+    field public static int actionModeCutDrawable;
+    field public static int actionModeFindDrawable;
+    field public static int actionModePasteDrawable;
+    field public static int actionModePopupWindowStyle;
+    field public static int actionModeSelectAllDrawable;
+    field public static int actionModeShareDrawable;
+    field public static int actionModeSplitBackground;
+    field public static int actionModeStyle;
+    field public static int actionModeWebSearchDrawable;
+    field public static int actionOverflowButtonStyle;
+    field public static int actionOverflowMenuStyle;
+    field public static int actionProviderClass;
+    field public static int actionViewClass;
+    field public static int activityChooserViewStyle;
+    field public static int alertDialogButtonGroupStyle;
+    field public static int alertDialogCenterButtons;
+    field public static int alertDialogStyle;
+    field public static int alertDialogTheme;
+    field public static int allowStacking;
+    field public static int arrowHeadLength;
+    field public static int arrowShaftLength;
+    field public static int autoCompleteTextViewStyle;
+    field public static int background;
+    field public static int backgroundSplit;
+    field public static int backgroundStacked;
+    field public static int backgroundTint;
+    field public static int backgroundTintMode;
+    field public static int barLength;
+    field public static int borderlessButtonStyle;
+    field public static int buttonBarButtonStyle;
+    field public static int buttonBarNegativeButtonStyle;
+    field public static int buttonBarNeutralButtonStyle;
+    field public static int buttonBarPositiveButtonStyle;
+    field public static int buttonBarStyle;
+    field public static int buttonPanelSideLayout;
+    field public static int buttonStyle;
+    field public static int buttonStyleSmall;
+    field public static int buttonTint;
+    field public static int buttonTintMode;
+    field public static int checkboxStyle;
+    field public static int checkedTextViewStyle;
+    field public static int closeIcon;
+    field public static int closeItemLayout;
+    field public static int collapseContentDescription;
+    field public static int collapseIcon;
+    field public static int color;
+    field public static int colorAccent;
+    field public static int colorButtonNormal;
+    field public static int colorControlActivated;
+    field public static int colorControlHighlight;
+    field public static int colorControlNormal;
+    field public static int colorPrimary;
+    field public static int colorPrimaryDark;
+    field public static int colorSwitchThumbNormal;
+    field public static int commitIcon;
+    field public static int contentInsetEnd;
+    field public static int contentInsetLeft;
+    field public static int contentInsetRight;
+    field public static int contentInsetStart;
+    field public static int controlBackground;
+    field public static int customNavigationLayout;
+    field public static int defaultQueryHint;
+    field public static int dialogPreferredPadding;
+    field public static int dialogTheme;
+    field public static int displayOptions;
+    field public static int divider;
+    field public static int dividerHorizontal;
+    field public static int dividerPadding;
+    field public static int dividerVertical;
+    field public static int drawableSize;
+    field public static int drawerArrowStyle;
+    field public static int dropDownListViewStyle;
+    field public static int dropdownListPreferredItemHeight;
+    field public static int editTextBackground;
+    field public static int editTextColor;
+    field public static int editTextStyle;
+    field public static int elevation;
+    field public static int expandActivityOverflowButtonDrawable;
+    field public static int gapBetweenBars;
+    field public static int goIcon;
+    field public static int height;
+    field public static int hideOnContentScroll;
+    field public static int homeAsUpIndicator;
+    field public static int homeLayout;
+    field public static int icon;
+    field public static int iconifiedByDefault;
+    field public static int imageButtonStyle;
+    field public static int indeterminateProgressStyle;
+    field public static int initialActivityCount;
+    field public static int isLightTheme;
+    field public static int itemPadding;
+    field public static int layout;
+    field public static int listChoiceBackgroundIndicator;
+    field public static int listDividerAlertDialog;
+    field public static int listItemLayout;
+    field public static int listLayout;
+    field public static int listPopupWindowStyle;
+    field public static int listPreferredItemHeight;
+    field public static int listPreferredItemHeightLarge;
+    field public static int listPreferredItemHeightSmall;
+    field public static int listPreferredItemPaddingLeft;
+    field public static int listPreferredItemPaddingRight;
+    field public static int logo;
+    field public static int logoDescription;
+    field public static int maxButtonHeight;
+    field public static int measureWithLargestChild;
+    field public static int multiChoiceItemLayout;
+    field public static int navigationContentDescription;
+    field public static int navigationIcon;
+    field public static int navigationMode;
+    field public static int overlapAnchor;
+    field public static int paddingEnd;
+    field public static int paddingStart;
+    field public static int panelBackground;
+    field public static int panelMenuListTheme;
+    field public static int panelMenuListWidth;
+    field public static int popupMenuStyle;
+    field public static int popupTheme;
+    field public static int popupWindowStyle;
+    field public static int preserveIconSpacing;
+    field public static int progressBarPadding;
+    field public static int progressBarStyle;
+    field public static int queryBackground;
+    field public static int queryHint;
+    field public static int radioButtonStyle;
+    field public static int ratingBarStyle;
+    field public static int searchHintIcon;
+    field public static int searchIcon;
+    field public static int searchViewStyle;
+    field public static int seekBarStyle;
+    field public static int selectableItemBackground;
+    field public static int selectableItemBackgroundBorderless;
+    field public static int showAsAction;
+    field public static int showDividers;
+    field public static int showText;
+    field public static int singleChoiceItemLayout;
+    field public static int spinBars;
+    field public static int spinnerDropDownItemStyle;
+    field public static int spinnerStyle;
+    field public static int splitTrack;
+    field public static int state_above_anchor;
+    field public static int submitBackground;
+    field public static int subtitle;
+    field public static int subtitleTextAppearance;
+    field public static int subtitleTextColor;
+    field public static int subtitleTextStyle;
+    field public static int suggestionRowLayout;
+    field public static int switchMinWidth;
+    field public static int switchPadding;
+    field public static int switchStyle;
+    field public static int switchTextAppearance;
+    field public static int textAllCaps;
+    field public static int textAppearanceLargePopupMenu;
+    field public static int textAppearanceListItem;
+    field public static int textAppearanceListItemSmall;
+    field public static int textAppearanceSearchResultSubtitle;
+    field public static int textAppearanceSearchResultTitle;
+    field public static int textAppearanceSmallPopupMenu;
+    field public static int textColorAlertDialogListItem;
+    field public static int textColorSearchUrl;
+    field public static int theme;
+    field public static int thickness;
+    field public static int thumbTextPadding;
+    field public static int title;
+    field public static int titleMarginBottom;
+    field public static int titleMarginEnd;
+    field public static int titleMarginStart;
+    field public static int titleMarginTop;
+    field public static int titleMargins;
+    field public static int titleTextAppearance;
+    field public static int titleTextColor;
+    field public static int titleTextStyle;
+    field public static int toolbarNavigationButtonStyle;
+    field public static int toolbarStyle;
+    field public static int track;
+    field public static int voiceIcon;
+    field public static int windowActionBar;
+    field public static int windowActionBarOverlay;
+    field public static int windowActionModeOverlay;
+    field public static int windowFixedHeightMajor;
+    field public static int windowFixedHeightMinor;
+    field public static int windowFixedWidthMajor;
+    field public static int windowFixedWidthMinor;
+    field public static int windowMinWidthMajor;
+    field public static int windowMinWidthMinor;
+    field public static int windowNoTitle;
+  }
+
+  public static final class R.bool {
+    ctor public R.bool();
+    field public static int abc_action_bar_embed_tabs;
+    field public static int abc_action_bar_embed_tabs_pre_jb;
+    field public static int abc_action_bar_expanded_action_views_exclusive;
+    field public static int abc_allow_stacked_button_bar;
+    field public static int abc_config_actionMenuItemAllCaps;
+    field public static int abc_config_allowActionMenuItemTextWithIcon;
+    field public static int abc_config_closeDialogWhenTouchOutside;
+    field public static int abc_config_showMenuShortcutsWhenKeyboardPresent;
+  }
+
+  public static final class R.color {
+    ctor public R.color();
+    field public static int abc_background_cache_hint_selector_material_dark;
+    field public static int abc_background_cache_hint_selector_material_light;
+    field public static int abc_color_highlight_material;
+    field public static int abc_input_method_navigation_guard;
+    field public static int abc_primary_text_disable_only_material_dark;
+    field public static int abc_primary_text_disable_only_material_light;
+    field public static int abc_primary_text_material_dark;
+    field public static int abc_primary_text_material_light;
+    field public static int abc_search_url_text;
+    field public static int abc_search_url_text_normal;
+    field public static int abc_search_url_text_pressed;
+    field public static int abc_search_url_text_selected;
+    field public static int abc_secondary_text_material_dark;
+    field public static int abc_secondary_text_material_light;
+    field public static int accent_material_dark;
+    field public static int accent_material_light;
+    field public static int background_floating_material_dark;
+    field public static int background_floating_material_light;
+    field public static int background_material_dark;
+    field public static int background_material_light;
+    field public static int bright_foreground_disabled_material_dark;
+    field public static int bright_foreground_disabled_material_light;
+    field public static int bright_foreground_inverse_material_dark;
+    field public static int bright_foreground_inverse_material_light;
+    field public static int bright_foreground_material_dark;
+    field public static int bright_foreground_material_light;
+    field public static int button_material_dark;
+    field public static int button_material_light;
+    field public static int dim_foreground_disabled_material_dark;
+    field public static int dim_foreground_disabled_material_light;
+    field public static int dim_foreground_material_dark;
+    field public static int dim_foreground_material_light;
+    field public static int foreground_material_dark;
+    field public static int foreground_material_light;
+    field public static int highlighted_text_material_dark;
+    field public static int highlighted_text_material_light;
+    field public static int hint_foreground_material_dark;
+    field public static int hint_foreground_material_light;
+    field public static int material_blue_grey_800;
+    field public static int material_blue_grey_900;
+    field public static int material_blue_grey_950;
+    field public static int material_deep_teal_200;
+    field public static int material_deep_teal_500;
+    field public static int material_grey_100;
+    field public static int material_grey_300;
+    field public static int material_grey_50;
+    field public static int material_grey_600;
+    field public static int material_grey_800;
+    field public static int material_grey_850;
+    field public static int material_grey_900;
+    field public static int primary_dark_material_dark;
+    field public static int primary_dark_material_light;
+    field public static int primary_material_dark;
+    field public static int primary_material_light;
+    field public static int primary_text_default_material_dark;
+    field public static int primary_text_default_material_light;
+    field public static int primary_text_disabled_material_dark;
+    field public static int primary_text_disabled_material_light;
+    field public static int ripple_material_dark;
+    field public static int ripple_material_light;
+    field public static int secondary_text_default_material_dark;
+    field public static int secondary_text_default_material_light;
+    field public static int secondary_text_disabled_material_dark;
+    field public static int secondary_text_disabled_material_light;
+    field public static int switch_thumb_disabled_material_dark;
+    field public static int switch_thumb_disabled_material_light;
+    field public static int switch_thumb_material_dark;
+    field public static int switch_thumb_material_light;
+    field public static int switch_thumb_normal_material_dark;
+    field public static int switch_thumb_normal_material_light;
+  }
+
+  public static final class R.dimen {
+    ctor public R.dimen();
+    field public static int abc_action_bar_content_inset_material;
+    field public static int abc_action_bar_default_height_material;
+    field public static int abc_action_bar_default_padding_end_material;
+    field public static int abc_action_bar_default_padding_start_material;
+    field public static int abc_action_bar_icon_vertical_padding_material;
+    field public static int abc_action_bar_overflow_padding_end_material;
+    field public static int abc_action_bar_overflow_padding_start_material;
+    field public static int abc_action_bar_progress_bar_size;
+    field public static int abc_action_bar_stacked_max_height;
+    field public static int abc_action_bar_stacked_tab_max_width;
+    field public static int abc_action_bar_subtitle_bottom_margin_material;
+    field public static int abc_action_bar_subtitle_top_margin_material;
+    field public static int abc_action_button_min_height_material;
+    field public static int abc_action_button_min_width_material;
+    field public static int abc_action_button_min_width_overflow_material;
+    field public static int abc_alert_dialog_button_bar_height;
+    field public static int abc_button_inset_horizontal_material;
+    field public static int abc_button_inset_vertical_material;
+    field public static int abc_button_padding_horizontal_material;
+    field public static int abc_button_padding_vertical_material;
+    field public static int abc_config_prefDialogWidth;
+    field public static int abc_control_corner_material;
+    field public static int abc_control_inset_material;
+    field public static int abc_control_padding_material;
+    field public static int abc_dialog_fixed_height_major;
+    field public static int abc_dialog_fixed_height_minor;
+    field public static int abc_dialog_fixed_width_major;
+    field public static int abc_dialog_fixed_width_minor;
+    field public static int abc_dialog_list_padding_vertical_material;
+    field public static int abc_dialog_min_width_major;
+    field public static int abc_dialog_min_width_minor;
+    field public static int abc_dialog_padding_material;
+    field public static int abc_dialog_padding_top_material;
+    field public static int abc_disabled_alpha_material_dark;
+    field public static int abc_disabled_alpha_material_light;
+    field public static int abc_dropdownitem_icon_width;
+    field public static int abc_dropdownitem_text_padding_left;
+    field public static int abc_dropdownitem_text_padding_right;
+    field public static int abc_edit_text_inset_bottom_material;
+    field public static int abc_edit_text_inset_horizontal_material;
+    field public static int abc_edit_text_inset_top_material;
+    field public static int abc_floating_window_z;
+    field public static int abc_list_item_padding_horizontal_material;
+    field public static int abc_panel_menu_list_width;
+    field public static int abc_search_view_preferred_width;
+    field public static int abc_search_view_text_min_width;
+    field public static int abc_seekbar_track_background_height_material;
+    field public static int abc_seekbar_track_progress_height_material;
+    field public static int abc_select_dialog_padding_start_material;
+    field public static int abc_switch_padding;
+    field public static int abc_text_size_body_1_material;
+    field public static int abc_text_size_body_2_material;
+    field public static int abc_text_size_button_material;
+    field public static int abc_text_size_caption_material;
+    field public static int abc_text_size_display_1_material;
+    field public static int abc_text_size_display_2_material;
+    field public static int abc_text_size_display_3_material;
+    field public static int abc_text_size_display_4_material;
+    field public static int abc_text_size_headline_material;
+    field public static int abc_text_size_large_material;
+    field public static int abc_text_size_medium_material;
+    field public static int abc_text_size_menu_material;
+    field public static int abc_text_size_small_material;
+    field public static int abc_text_size_subhead_material;
+    field public static int abc_text_size_subtitle_material_toolbar;
+    field public static int abc_text_size_title_material;
+    field public static int abc_text_size_title_material_toolbar;
+    field public static int disabled_alpha_material_dark;
+    field public static int disabled_alpha_material_light;
+    field public static int highlight_alpha_material_colored;
+    field public static int highlight_alpha_material_dark;
+    field public static int highlight_alpha_material_light;
+    field public static int notification_large_icon_height;
+    field public static int notification_large_icon_width;
+    field public static int notification_subtext_size;
+  }
+
+  public static final class R.drawable {
+    ctor public R.drawable();
+    field public static int abc_ab_share_pack_mtrl_alpha;
+    field public static int abc_action_bar_item_background_material;
+    field public static int abc_btn_borderless_material;
+    field public static int abc_btn_check_material;
+    field public static int abc_btn_check_to_on_mtrl_000;
+    field public static int abc_btn_check_to_on_mtrl_015;
+    field public static int abc_btn_colored_material;
+    field public static int abc_btn_default_material;
+    field public static int abc_btn_default_mtrl_shape;
+    field public static int abc_btn_radio_material;
+    field public static int abc_btn_radio_to_on_mtrl_000;
+    field public static int abc_btn_radio_to_on_mtrl_015;
+    field public static int abc_btn_rating_star_off_mtrl_alpha;
+    field public static int abc_btn_rating_star_on_mtrl_alpha;
+    field public static int abc_btn_switch_to_on_mtrl_00001;
+    field public static int abc_btn_switch_to_on_mtrl_00012;
+    field public static int abc_cab_background_internal_bg;
+    field public static int abc_cab_background_top_material;
+    field public static int abc_cab_background_top_mtrl_alpha;
+    field public static int abc_control_background_material;
+    field public static int abc_dialog_material_background_dark;
+    field public static int abc_dialog_material_background_light;
+    field public static int abc_edit_text_material;
+    field public static int abc_ic_ab_back_mtrl_am_alpha;
+    field public static int abc_ic_clear_mtrl_alpha;
+    field public static int abc_ic_commit_search_api_mtrl_alpha;
+    field public static int abc_ic_go_search_api_mtrl_alpha;
+    field public static int abc_ic_menu_copy_mtrl_am_alpha;
+    field public static int abc_ic_menu_cut_mtrl_alpha;
+    field public static int abc_ic_menu_moreoverflow_mtrl_alpha;
+    field public static int abc_ic_menu_paste_mtrl_am_alpha;
+    field public static int abc_ic_menu_selectall_mtrl_alpha;
+    field public static int abc_ic_menu_share_mtrl_alpha;
+    field public static int abc_ic_search_api_mtrl_alpha;
+    field public static int abc_ic_voice_search_api_mtrl_alpha;
+    field public static int abc_item_background_holo_dark;
+    field public static int abc_item_background_holo_light;
+    field public static int abc_list_divider_mtrl_alpha;
+    field public static int abc_list_focused_holo;
+    field public static int abc_list_longpressed_holo;
+    field public static int abc_list_pressed_holo_dark;
+    field public static int abc_list_pressed_holo_light;
+    field public static int abc_list_selector_background_transition_holo_dark;
+    field public static int abc_list_selector_background_transition_holo_light;
+    field public static int abc_list_selector_disabled_holo_dark;
+    field public static int abc_list_selector_disabled_holo_light;
+    field public static int abc_list_selector_holo_dark;
+    field public static int abc_list_selector_holo_light;
+    field public static int abc_menu_hardkey_panel_mtrl_mult;
+    field public static int abc_popup_background_mtrl_mult;
+    field public static int abc_ratingbar_full_material;
+    field public static int abc_scrubber_control_off_mtrl_alpha;
+    field public static int abc_scrubber_control_to_pressed_mtrl_000;
+    field public static int abc_scrubber_control_to_pressed_mtrl_005;
+    field public static int abc_scrubber_primary_mtrl_alpha;
+    field public static int abc_scrubber_track_mtrl_alpha;
+    field public static int abc_seekbar_thumb_material;
+    field public static int abc_seekbar_track_material;
+    field public static int abc_spinner_mtrl_am_alpha;
+    field public static int abc_spinner_textfield_background_material;
+    field public static int abc_switch_thumb_material;
+    field public static int abc_switch_track_mtrl_alpha;
+    field public static int abc_tab_indicator_material;
+    field public static int abc_tab_indicator_mtrl_alpha;
+    field public static int abc_text_cursor_material;
+    field public static int abc_textfield_activated_mtrl_alpha;
+    field public static int abc_textfield_default_mtrl_alpha;
+    field public static int abc_textfield_search_activated_mtrl_alpha;
+    field public static int abc_textfield_search_default_mtrl_alpha;
+    field public static int abc_textfield_search_material;
+    field public static int notification_template_icon_bg;
+  }
+
+  public static final class R.id {
+    ctor public R.id();
+    field public static int action0;
+    field public static int action_bar;
+    field public static int action_bar_activity_content;
+    field public static int action_bar_container;
+    field public static int action_bar_root;
+    field public static int action_bar_spinner;
+    field public static int action_bar_subtitle;
+    field public static int action_bar_title;
+    field public static int action_context_bar;
+    field public static int action_divider;
+    field public static int action_menu_divider;
+    field public static int action_menu_presenter;
+    field public static int action_mode_bar;
+    field public static int action_mode_bar_stub;
+    field public static int action_mode_close_button;
+    field public static int activity_chooser_view_content;
+    field public static int alertTitle;
+    field public static int always;
+    field public static int beginning;
+    field public static int buttonPanel;
+    field public static int cancel_action;
+    field public static int checkbox;
+    field public static int chronometer;
+    field public static int collapseActionView;
+    field public static int contentPanel;
+    field public static int custom;
+    field public static int customPanel;
+    field public static int decor_content_parent;
+    field public static int default_activity_button;
+    field public static int disableHome;
+    field public static int edit_query;
+    field public static int end;
+    field public static int end_padder;
+    field public static int expand_activities_button;
+    field public static int expanded_menu;
+    field public static int home;
+    field public static int homeAsUp;
+    field public static int icon;
+    field public static int ifRoom;
+    field public static int image;
+    field public static int info;
+    field public static int line1;
+    field public static int line3;
+    field public static int listMode;
+    field public static int list_item;
+    field public static int media_actions;
+    field public static int middle;
+    field public static int multiply;
+    field public static int never;
+    field public static int none;
+    field public static int normal;
+    field public static int parentPanel;
+    field public static int progress_circular;
+    field public static int progress_horizontal;
+    field public static int radio;
+    field public static int screen;
+    field public static int scrollIndicatorDown;
+    field public static int scrollIndicatorUp;
+    field public static int scrollView;
+    field public static int search_badge;
+    field public static int search_bar;
+    field public static int search_button;
+    field public static int search_close_btn;
+    field public static int search_edit_frame;
+    field public static int search_go_btn;
+    field public static int search_mag_icon;
+    field public static int search_plate;
+    field public static int search_src_text;
+    field public static int search_voice_btn;
+    field public static int select_dialog_listview;
+    field public static int shortcut;
+    field public static int showCustom;
+    field public static int showHome;
+    field public static int showTitle;
+    field public static int spacer;
+    field public static int split_action_bar;
+    field public static int src_atop;
+    field public static int src_in;
+    field public static int src_over;
+    field public static int status_bar_latest_event_content;
+    field public static int submit_area;
+    field public static int tabMode;
+    field public static int text;
+    field public static int text2;
+    field public static int textSpacerNoButtons;
+    field public static int time;
+    field public static int title;
+    field public static int title_template;
+    field public static int topPanel;
+    field public static int up;
+    field public static int useLogo;
+    field public static int withText;
+    field public static int wrap_content;
+  }
+
+  public static final class R.integer {
+    ctor public R.integer();
+    field public static int abc_config_activityDefaultDur;
+    field public static int abc_config_activityShortDur;
+    field public static int abc_max_action_buttons;
+    field public static int cancel_button_image_alpha;
+    field public static int status_bar_notification_info_maxnum;
+  }
+
+  public static final class R.layout {
+    ctor public R.layout();
+    field public static int abc_action_bar_title_item;
+    field public static int abc_action_bar_up_container;
+    field public static int abc_action_bar_view_list_nav_layout;
+    field public static int abc_action_menu_item_layout;
+    field public static int abc_action_menu_layout;
+    field public static int abc_action_mode_bar;
+    field public static int abc_action_mode_close_item_material;
+    field public static int abc_activity_chooser_view;
+    field public static int abc_activity_chooser_view_list_item;
+    field public static int abc_alert_dialog_button_bar_material;
+    field public static int abc_alert_dialog_material;
+    field public static int abc_dialog_title_material;
+    field public static int abc_expanded_menu_layout;
+    field public static int abc_list_menu_item_checkbox;
+    field public static int abc_list_menu_item_icon;
+    field public static int abc_list_menu_item_layout;
+    field public static int abc_list_menu_item_radio;
+    field public static int abc_popup_menu_item_layout;
+    field public static int abc_screen_content_include;
+    field public static int abc_screen_simple;
+    field public static int abc_screen_simple_overlay_action_mode;
+    field public static int abc_screen_toolbar;
+    field public static int abc_search_dropdown_item_icons_2line;
+    field public static int abc_search_view;
+    field public static int abc_select_dialog_material;
+    field public static int notification_media_action;
+    field public static int notification_media_cancel_action;
+    field public static int notification_template_big_media;
+    field public static int notification_template_big_media_narrow;
+    field public static int notification_template_lines;
+    field public static int notification_template_media;
+    field public static int notification_template_part_chronometer;
+    field public static int notification_template_part_time;
+    field public static int select_dialog_item_material;
+    field public static int select_dialog_multichoice_material;
+    field public static int select_dialog_singlechoice_material;
+    field public static int support_simple_spinner_dropdown_item;
+  }
+
+  public static final class R.string {
+    ctor public R.string();
+    field public static int abc_action_bar_home_description;
+    field public static int abc_action_bar_home_description_format;
+    field public static int abc_action_bar_home_subtitle_description_format;
+    field public static int abc_action_bar_up_description;
+    field public static int abc_action_menu_overflow_description;
+    field public static int abc_action_mode_done;
+    field public static int abc_activity_chooser_view_see_all;
+    field public static int abc_activitychooserview_choose_application;
+    field public static int abc_capital_off;
+    field public static int abc_capital_on;
+    field public static int abc_search_hint;
+    field public static int abc_searchview_description_clear;
+    field public static int abc_searchview_description_query;
+    field public static int abc_searchview_description_search;
+    field public static int abc_searchview_description_submit;
+    field public static int abc_searchview_description_voice;
+    field public static int abc_shareactionprovider_share_with;
+    field public static int abc_shareactionprovider_share_with_application;
+    field public static int abc_toolbar_collapse_description;
+    field public static int status_bar_notification_info_overflow;
+  }
+
+  public static final class R.style {
+    ctor public R.style();
+    field public static int AlertDialog_AppCompat;
+    field public static int AlertDialog_AppCompat_Light;
+    field public static int Animation_AppCompat_Dialog;
+    field public static int Animation_AppCompat_DropDownUp;
+    field public static int Base_AlertDialog_AppCompat;
+    field public static int Base_AlertDialog_AppCompat_Light;
+    field public static int Base_Animation_AppCompat_Dialog;
+    field public static int Base_Animation_AppCompat_DropDownUp;
+    field public static int Base_DialogWindowTitleBackground_AppCompat;
+    field public static int Base_DialogWindowTitle_AppCompat;
+    field public static int Base_TextAppearance_AppCompat;
+    field public static int Base_TextAppearance_AppCompat_Body1;
+    field public static int Base_TextAppearance_AppCompat_Body2;
+    field public static int Base_TextAppearance_AppCompat_Button;
+    field public static int Base_TextAppearance_AppCompat_Caption;
+    field public static int Base_TextAppearance_AppCompat_Display1;
+    field public static int Base_TextAppearance_AppCompat_Display2;
+    field public static int Base_TextAppearance_AppCompat_Display3;
+    field public static int Base_TextAppearance_AppCompat_Display4;
+    field public static int Base_TextAppearance_AppCompat_Headline;
+    field public static int Base_TextAppearance_AppCompat_Inverse;
+    field public static int Base_TextAppearance_AppCompat_Large;
+    field public static int Base_TextAppearance_AppCompat_Large_Inverse;
+    field public static int Base_TextAppearance_AppCompat_Light_Widget_PopupMenu_Large;
+    field public static int Base_TextAppearance_AppCompat_Light_Widget_PopupMenu_Small;
+    field public static int Base_TextAppearance_AppCompat_Medium;
+    field public static int Base_TextAppearance_AppCompat_Medium_Inverse;
+    field public static int Base_TextAppearance_AppCompat_Menu;
+    field public static int Base_TextAppearance_AppCompat_SearchResult;
+    field public static int Base_TextAppearance_AppCompat_SearchResult_Subtitle;
+    field public static int Base_TextAppearance_AppCompat_SearchResult_Title;
+    field public static int Base_TextAppearance_AppCompat_Small;
+    field public static int Base_TextAppearance_AppCompat_Small_Inverse;
+    field public static int Base_TextAppearance_AppCompat_Subhead;
+    field public static int Base_TextAppearance_AppCompat_Subhead_Inverse;
+    field public static int Base_TextAppearance_AppCompat_Title;
+    field public static int Base_TextAppearance_AppCompat_Title_Inverse;
+    field public static int Base_TextAppearance_AppCompat_Widget_ActionBar_Menu;
+    field public static int Base_TextAppearance_AppCompat_Widget_ActionBar_Subtitle;
+    field public static int Base_TextAppearance_AppCompat_Widget_ActionBar_Subtitle_Inverse;
+    field public static int Base_TextAppearance_AppCompat_Widget_ActionBar_Title;
+    field public static int Base_TextAppearance_AppCompat_Widget_ActionBar_Title_Inverse;
+    field public static int Base_TextAppearance_AppCompat_Widget_ActionMode_Subtitle;
+    field public static int Base_TextAppearance_AppCompat_Widget_ActionMode_Title;
+    field public static int Base_TextAppearance_AppCompat_Widget_Button;
+    field public static int Base_TextAppearance_AppCompat_Widget_Button_Inverse;
+    field public static int Base_TextAppearance_AppCompat_Widget_DropDownItem;
+    field public static int Base_TextAppearance_AppCompat_Widget_PopupMenu_Large;
+    field public static int Base_TextAppearance_AppCompat_Widget_PopupMenu_Small;
+    field public static int Base_TextAppearance_AppCompat_Widget_Switch;
+    field public static int Base_TextAppearance_AppCompat_Widget_TextView_SpinnerItem;
+    field public static int Base_TextAppearance_Widget_AppCompat_ExpandedMenu_Item;
+    field public static int Base_TextAppearance_Widget_AppCompat_Toolbar_Subtitle;
+    field public static int Base_TextAppearance_Widget_AppCompat_Toolbar_Title;
+    field public static int Base_ThemeOverlay_AppCompat;
+    field public static int Base_ThemeOverlay_AppCompat_ActionBar;
+    field public static int Base_ThemeOverlay_AppCompat_Dark;
+    field public static int Base_ThemeOverlay_AppCompat_Dark_ActionBar;
+    field public static int Base_ThemeOverlay_AppCompat_Light;
+    field public static int Base_Theme_AppCompat;
+    field public static int Base_Theme_AppCompat_CompactMenu;
+    field public static int Base_Theme_AppCompat_Dialog;
+    field public static int Base_Theme_AppCompat_DialogWhenLarge;
+    field public static int Base_Theme_AppCompat_Dialog_Alert;
+    field public static int Base_Theme_AppCompat_Dialog_FixedSize;
+    field public static int Base_Theme_AppCompat_Dialog_MinWidth;
+    field public static int Base_Theme_AppCompat_Light;
+    field public static int Base_Theme_AppCompat_Light_DarkActionBar;
+    field public static int Base_Theme_AppCompat_Light_Dialog;
+    field public static int Base_Theme_AppCompat_Light_DialogWhenLarge;
+    field public static int Base_Theme_AppCompat_Light_Dialog_Alert;
+    field public static int Base_Theme_AppCompat_Light_Dialog_FixedSize;
+    field public static int Base_Theme_AppCompat_Light_Dialog_MinWidth;
+    field public static int Base_V11_Theme_AppCompat_Dialog;
+    field public static int Base_V11_Theme_AppCompat_Light_Dialog;
+    field public static int Base_V12_Widget_AppCompat_AutoCompleteTextView;
+    field public static int Base_V12_Widget_AppCompat_EditText;
+    field public static int Base_V21_Theme_AppCompat;
+    field public static int Base_V21_Theme_AppCompat_Dialog;
+    field public static int Base_V21_Theme_AppCompat_Light;
+    field public static int Base_V21_Theme_AppCompat_Light_Dialog;
+    field public static int Base_V22_Theme_AppCompat;
+    field public static int Base_V22_Theme_AppCompat_Light;
+    field public static int Base_V23_Theme_AppCompat;
+    field public static int Base_V23_Theme_AppCompat_Light;
+    field public static int Base_V7_Theme_AppCompat;
+    field public static int Base_V7_Theme_AppCompat_Dialog;
+    field public static int Base_V7_Theme_AppCompat_Light;
+    field public static int Base_V7_Theme_AppCompat_Light_Dialog;
+    field public static int Base_V7_Widget_AppCompat_AutoCompleteTextView;
+    field public static int Base_V7_Widget_AppCompat_EditText;
+    field public static int Base_Widget_AppCompat_ActionBar;
+    field public static int Base_Widget_AppCompat_ActionBar_Solid;
+    field public static int Base_Widget_AppCompat_ActionBar_TabBar;
+    field public static int Base_Widget_AppCompat_ActionBar_TabText;
+    field public static int Base_Widget_AppCompat_ActionBar_TabView;
+    field public static int Base_Widget_AppCompat_ActionButton;
+    field public static int Base_Widget_AppCompat_ActionButton_CloseMode;
+    field public static int Base_Widget_AppCompat_ActionButton_Overflow;
+    field public static int Base_Widget_AppCompat_ActionMode;
+    field public static int Base_Widget_AppCompat_ActivityChooserView;
+    field public static int Base_Widget_AppCompat_AutoCompleteTextView;
+    field public static int Base_Widget_AppCompat_Button;
+    field public static int Base_Widget_AppCompat_ButtonBar;
+    field public static int Base_Widget_AppCompat_ButtonBar_AlertDialog;
+    field public static int Base_Widget_AppCompat_Button_Borderless;
+    field public static int Base_Widget_AppCompat_Button_Borderless_Colored;
+    field public static int Base_Widget_AppCompat_Button_ButtonBar_AlertDialog;
+    field public static int Base_Widget_AppCompat_Button_Colored;
+    field public static int Base_Widget_AppCompat_Button_Small;
+    field public static int Base_Widget_AppCompat_CompoundButton_CheckBox;
+    field public static int Base_Widget_AppCompat_CompoundButton_RadioButton;
+    field public static int Base_Widget_AppCompat_CompoundButton_Switch;
+    field public static int Base_Widget_AppCompat_DrawerArrowToggle;
+    field public static int Base_Widget_AppCompat_DrawerArrowToggle_Common;
+    field public static int Base_Widget_AppCompat_DropDownItem_Spinner;
+    field public static int Base_Widget_AppCompat_EditText;
+    field public static int Base_Widget_AppCompat_ImageButton;
+    field public static int Base_Widget_AppCompat_Light_ActionBar;
+    field public static int Base_Widget_AppCompat_Light_ActionBar_Solid;
+    field public static int Base_Widget_AppCompat_Light_ActionBar_TabBar;
+    field public static int Base_Widget_AppCompat_Light_ActionBar_TabText;
+    field public static int Base_Widget_AppCompat_Light_ActionBar_TabText_Inverse;
+    field public static int Base_Widget_AppCompat_Light_ActionBar_TabView;
+    field public static int Base_Widget_AppCompat_Light_PopupMenu;
+    field public static int Base_Widget_AppCompat_Light_PopupMenu_Overflow;
+    field public static int Base_Widget_AppCompat_ListPopupWindow;
+    field public static int Base_Widget_AppCompat_ListView;
+    field public static int Base_Widget_AppCompat_ListView_DropDown;
+    field public static int Base_Widget_AppCompat_ListView_Menu;
+    field public static int Base_Widget_AppCompat_PopupMenu;
+    field public static int Base_Widget_AppCompat_PopupMenu_Overflow;
+    field public static int Base_Widget_AppCompat_PopupWindow;
+    field public static int Base_Widget_AppCompat_ProgressBar;
+    field public static int Base_Widget_AppCompat_ProgressBar_Horizontal;
+    field public static int Base_Widget_AppCompat_RatingBar;
+    field public static int Base_Widget_AppCompat_SearchView;
+    field public static int Base_Widget_AppCompat_SearchView_ActionBar;
+    field public static int Base_Widget_AppCompat_SeekBar;
+    field public static int Base_Widget_AppCompat_Spinner;
+    field public static int Base_Widget_AppCompat_Spinner_Underlined;
+    field public static int Base_Widget_AppCompat_TextView_SpinnerItem;
+    field public static int Base_Widget_AppCompat_Toolbar;
+    field public static int Base_Widget_AppCompat_Toolbar_Button_Navigation;
+    field public static int Platform_AppCompat;
+    field public static int Platform_AppCompat_Light;
+    field public static int Platform_ThemeOverlay_AppCompat;
+    field public static int Platform_ThemeOverlay_AppCompat_Dark;
+    field public static int Platform_ThemeOverlay_AppCompat_Light;
+    field public static int Platform_V11_AppCompat;
+    field public static int Platform_V11_AppCompat_Light;
+    field public static int Platform_V14_AppCompat;
+    field public static int Platform_V14_AppCompat_Light;
+    field public static int Platform_Widget_AppCompat_Spinner;
+    field public static int RtlOverlay_DialogWindowTitle_AppCompat;
+    field public static int RtlOverlay_Widget_AppCompat_ActionBar_TitleItem;
+    field public static int RtlOverlay_Widget_AppCompat_DialogTitle_Icon;
+    field public static int RtlOverlay_Widget_AppCompat_PopupMenuItem;
+    field public static int RtlOverlay_Widget_AppCompat_PopupMenuItem_InternalGroup;
+    field public static int RtlOverlay_Widget_AppCompat_PopupMenuItem_Text;
+    field public static int RtlOverlay_Widget_AppCompat_SearchView_MagIcon;
+    field public static int RtlOverlay_Widget_AppCompat_Search_DropDown;
+    field public static int RtlOverlay_Widget_AppCompat_Search_DropDown_Icon1;
+    field public static int RtlOverlay_Widget_AppCompat_Search_DropDown_Icon2;
+    field public static int RtlOverlay_Widget_AppCompat_Search_DropDown_Query;
+    field public static int RtlOverlay_Widget_AppCompat_Search_DropDown_Text;
+    field public static int RtlUnderlay_Widget_AppCompat_ActionButton;
+    field public static int RtlUnderlay_Widget_AppCompat_ActionButton_Overflow;
+    field public static int TextAppearance_AppCompat;
+    field public static int TextAppearance_AppCompat_Body1;
+    field public static int TextAppearance_AppCompat_Body2;
+    field public static int TextAppearance_AppCompat_Button;
+    field public static int TextAppearance_AppCompat_Caption;
+    field public static int TextAppearance_AppCompat_Display1;
+    field public static int TextAppearance_AppCompat_Display2;
+    field public static int TextAppearance_AppCompat_Display3;
+    field public static int TextAppearance_AppCompat_Display4;
+    field public static int TextAppearance_AppCompat_Headline;
+    field public static int TextAppearance_AppCompat_Inverse;
+    field public static int TextAppearance_AppCompat_Large;
+    field public static int TextAppearance_AppCompat_Large_Inverse;
+    field public static int TextAppearance_AppCompat_Light_SearchResult_Subtitle;
+    field public static int TextAppearance_AppCompat_Light_SearchResult_Title;
+    field public static int TextAppearance_AppCompat_Light_Widget_PopupMenu_Large;
+    field public static int TextAppearance_AppCompat_Light_Widget_PopupMenu_Small;
+    field public static int TextAppearance_AppCompat_Medium;
+    field public static int TextAppearance_AppCompat_Medium_Inverse;
+    field public static int TextAppearance_AppCompat_Menu;
+    field public static int TextAppearance_AppCompat_SearchResult_Subtitle;
+    field public static int TextAppearance_AppCompat_SearchResult_Title;
+    field public static int TextAppearance_AppCompat_Small;
+    field public static int TextAppearance_AppCompat_Small_Inverse;
+    field public static int TextAppearance_AppCompat_Subhead;
+    field public static int TextAppearance_AppCompat_Subhead_Inverse;
+    field public static int TextAppearance_AppCompat_Title;
+    field public static int TextAppearance_AppCompat_Title_Inverse;
+    field public static int TextAppearance_AppCompat_Widget_ActionBar_Menu;
+    field public static int TextAppearance_AppCompat_Widget_ActionBar_Subtitle;
+    field public static int TextAppearance_AppCompat_Widget_ActionBar_Subtitle_Inverse;
+    field public static int TextAppearance_AppCompat_Widget_ActionBar_Title;
+    field public static int TextAppearance_AppCompat_Widget_ActionBar_Title_Inverse;
+    field public static int TextAppearance_AppCompat_Widget_ActionMode_Subtitle;
+    field public static int TextAppearance_AppCompat_Widget_ActionMode_Subtitle_Inverse;
+    field public static int TextAppearance_AppCompat_Widget_ActionMode_Title;
+    field public static int TextAppearance_AppCompat_Widget_ActionMode_Title_Inverse;
+    field public static int TextAppearance_AppCompat_Widget_Button;
+    field public static int TextAppearance_AppCompat_Widget_Button_Inverse;
+    field public static int TextAppearance_AppCompat_Widget_DropDownItem;
+    field public static int TextAppearance_AppCompat_Widget_PopupMenu_Large;
+    field public static int TextAppearance_AppCompat_Widget_PopupMenu_Small;
+    field public static int TextAppearance_AppCompat_Widget_Switch;
+    field public static int TextAppearance_AppCompat_Widget_TextView_SpinnerItem;
+    field public static int TextAppearance_StatusBar_EventContent;
+    field public static int TextAppearance_StatusBar_EventContent_Info;
+    field public static int TextAppearance_StatusBar_EventContent_Line2;
+    field public static int TextAppearance_StatusBar_EventContent_Time;
+    field public static int TextAppearance_StatusBar_EventContent_Title;
+    field public static int TextAppearance_Widget_AppCompat_ExpandedMenu_Item;
+    field public static int TextAppearance_Widget_AppCompat_Toolbar_Subtitle;
+    field public static int TextAppearance_Widget_AppCompat_Toolbar_Title;
+    field public static int ThemeOverlay_AppCompat;
+    field public static int ThemeOverlay_AppCompat_ActionBar;
+    field public static int ThemeOverlay_AppCompat_Dark;
+    field public static int ThemeOverlay_AppCompat_Dark_ActionBar;
+    field public static int ThemeOverlay_AppCompat_Light;
+    field public static int Theme_AppCompat;
+    field public static int Theme_AppCompat_CompactMenu;
+    field public static int Theme_AppCompat_Dialog;
+    field public static int Theme_AppCompat_DialogWhenLarge;
+    field public static int Theme_AppCompat_Dialog_Alert;
+    field public static int Theme_AppCompat_Dialog_MinWidth;
+    field public static int Theme_AppCompat_Light;
+    field public static int Theme_AppCompat_Light_DarkActionBar;
+    field public static int Theme_AppCompat_Light_Dialog;
+    field public static int Theme_AppCompat_Light_DialogWhenLarge;
+    field public static int Theme_AppCompat_Light_Dialog_Alert;
+    field public static int Theme_AppCompat_Light_Dialog_MinWidth;
+    field public static int Theme_AppCompat_Light_NoActionBar;
+    field public static int Theme_AppCompat_NoActionBar;
+    field public static int Widget_AppCompat_ActionBar;
+    field public static int Widget_AppCompat_ActionBar_Solid;
+    field public static int Widget_AppCompat_ActionBar_TabBar;
+    field public static int Widget_AppCompat_ActionBar_TabText;
+    field public static int Widget_AppCompat_ActionBar_TabView;
+    field public static int Widget_AppCompat_ActionButton;
+    field public static int Widget_AppCompat_ActionButton_CloseMode;
+    field public static int Widget_AppCompat_ActionButton_Overflow;
+    field public static int Widget_AppCompat_ActionMode;
+    field public static int Widget_AppCompat_ActivityChooserView;
+    field public static int Widget_AppCompat_AutoCompleteTextView;
+    field public static int Widget_AppCompat_Button;
+    field public static int Widget_AppCompat_ButtonBar;
+    field public static int Widget_AppCompat_ButtonBar_AlertDialog;
+    field public static int Widget_AppCompat_Button_Borderless;
+    field public static int Widget_AppCompat_Button_Borderless_Colored;
+    field public static int Widget_AppCompat_Button_ButtonBar_AlertDialog;
+    field public static int Widget_AppCompat_Button_Colored;
+    field public static int Widget_AppCompat_Button_Small;
+    field public static int Widget_AppCompat_CompoundButton_CheckBox;
+    field public static int Widget_AppCompat_CompoundButton_RadioButton;
+    field public static int Widget_AppCompat_CompoundButton_Switch;
+    field public static int Widget_AppCompat_DrawerArrowToggle;
+    field public static int Widget_AppCompat_DropDownItem_Spinner;
+    field public static int Widget_AppCompat_EditText;
+    field public static int Widget_AppCompat_ImageButton;
+    field public static int Widget_AppCompat_Light_ActionBar;
+    field public static int Widget_AppCompat_Light_ActionBar_Solid;
+    field public static int Widget_AppCompat_Light_ActionBar_Solid_Inverse;
+    field public static int Widget_AppCompat_Light_ActionBar_TabBar;
+    field public static int Widget_AppCompat_Light_ActionBar_TabBar_Inverse;
+    field public static int Widget_AppCompat_Light_ActionBar_TabText;
+    field public static int Widget_AppCompat_Light_ActionBar_TabText_Inverse;
+    field public static int Widget_AppCompat_Light_ActionBar_TabView;
+    field public static int Widget_AppCompat_Light_ActionBar_TabView_Inverse;
+    field public static int Widget_AppCompat_Light_ActionButton;
+    field public static int Widget_AppCompat_Light_ActionButton_CloseMode;
+    field public static int Widget_AppCompat_Light_ActionButton_Overflow;
+    field public static int Widget_AppCompat_Light_ActionMode_Inverse;
+    field public static int Widget_AppCompat_Light_ActivityChooserView;
+    field public static int Widget_AppCompat_Light_AutoCompleteTextView;
+    field public static int Widget_AppCompat_Light_DropDownItem_Spinner;
+    field public static int Widget_AppCompat_Light_ListPopupWindow;
+    field public static int Widget_AppCompat_Light_ListView_DropDown;
+    field public static int Widget_AppCompat_Light_PopupMenu;
+    field public static int Widget_AppCompat_Light_PopupMenu_Overflow;
+    field public static int Widget_AppCompat_Light_SearchView;
+    field public static int Widget_AppCompat_Light_Spinner_DropDown_ActionBar;
+    field public static int Widget_AppCompat_ListPopupWindow;
+    field public static int Widget_AppCompat_ListView;
+    field public static int Widget_AppCompat_ListView_DropDown;
+    field public static int Widget_AppCompat_ListView_Menu;
+    field public static int Widget_AppCompat_PopupMenu;
+    field public static int Widget_AppCompat_PopupMenu_Overflow;
+    field public static int Widget_AppCompat_PopupWindow;
+    field public static int Widget_AppCompat_ProgressBar;
+    field public static int Widget_AppCompat_ProgressBar_Horizontal;
+    field public static int Widget_AppCompat_RatingBar;
+    field public static int Widget_AppCompat_SearchView;
+    field public static int Widget_AppCompat_SearchView_ActionBar;
+    field public static int Widget_AppCompat_SeekBar;
+    field public static int Widget_AppCompat_Spinner;
+    field public static int Widget_AppCompat_Spinner_DropDown;
+    field public static int Widget_AppCompat_Spinner_DropDown_ActionBar;
+    field public static int Widget_AppCompat_Spinner_Underlined;
+    field public static int Widget_AppCompat_TextView_SpinnerItem;
+    field public static int Widget_AppCompat_Toolbar;
+    field public static int Widget_AppCompat_Toolbar_Button_Navigation;
+  }
+
+  public static final class R.styleable {
+    ctor public R.styleable();
+    field public static final int[] ActionBar;
+    field public static final int[] ActionBarLayout;
+    field public static int ActionBarLayout_android_layout_gravity;
+    field public static int ActionBar_background;
+    field public static int ActionBar_backgroundSplit;
+    field public static int ActionBar_backgroundStacked;
+    field public static int ActionBar_contentInsetEnd;
+    field public static int ActionBar_contentInsetLeft;
+    field public static int ActionBar_contentInsetRight;
+    field public static int ActionBar_contentInsetStart;
+    field public static int ActionBar_customNavigationLayout;
+    field public static int ActionBar_displayOptions;
+    field public static int ActionBar_divider;
+    field public static int ActionBar_elevation;
+    field public static int ActionBar_height;
+    field public static int ActionBar_hideOnContentScroll;
+    field public static int ActionBar_homeAsUpIndicator;
+    field public static int ActionBar_homeLayout;
+    field public static int ActionBar_icon;
+    field public static int ActionBar_indeterminateProgressStyle;
+    field public static int ActionBar_itemPadding;
+    field public static int ActionBar_logo;
+    field public static int ActionBar_navigationMode;
+    field public static int ActionBar_popupTheme;
+    field public static int ActionBar_progressBarPadding;
+    field public static int ActionBar_progressBarStyle;
+    field public static int ActionBar_subtitle;
+    field public static int ActionBar_subtitleTextStyle;
+    field public static int ActionBar_title;
+    field public static int ActionBar_titleTextStyle;
+    field public static final int[] ActionMenuItemView;
+    field public static int ActionMenuItemView_android_minWidth;
+    field public static final int[] ActionMenuView;
+    field public static final int[] ActionMode;
+    field public static int ActionMode_background;
+    field public static int ActionMode_backgroundSplit;
+    field public static int ActionMode_closeItemLayout;
+    field public static int ActionMode_height;
+    field public static int ActionMode_subtitleTextStyle;
+    field public static int ActionMode_titleTextStyle;
+    field public static final int[] ActivityChooserView;
+    field public static int ActivityChooserView_expandActivityOverflowButtonDrawable;
+    field public static int ActivityChooserView_initialActivityCount;
+    field public static final int[] AlertDialog;
+    field public static int AlertDialog_android_layout;
+    field public static int AlertDialog_buttonPanelSideLayout;
+    field public static int AlertDialog_listItemLayout;
+    field public static int AlertDialog_listLayout;
+    field public static int AlertDialog_multiChoiceItemLayout;
+    field public static int AlertDialog_singleChoiceItemLayout;
+    field public static final int[] AppCompatTextView;
+    field public static int AppCompatTextView_android_textAppearance;
+    field public static int AppCompatTextView_textAllCaps;
+    field public static int ButtonBarLayout_allowStacking;
+    field public static final int[] CompoundButton;
+    field public static int CompoundButton_android_button;
+    field public static int CompoundButton_buttonTint;
+    field public static int CompoundButton_buttonTintMode;
+    field public static final int[] DrawerArrowToggle;
+    field public static int DrawerArrowToggle_arrowHeadLength;
+    field public static int DrawerArrowToggle_arrowShaftLength;
+    field public static int DrawerArrowToggle_barLength;
+    field public static int DrawerArrowToggle_color;
+    field public static int DrawerArrowToggle_drawableSize;
+    field public static int DrawerArrowToggle_gapBetweenBars;
+    field public static int DrawerArrowToggle_spinBars;
+    field public static int DrawerArrowToggle_thickness;
+    field public static final int[] LinearLayoutCompat;
+    field public static final int[] LinearLayoutCompat_Layout;
+    field public static int LinearLayoutCompat_Layout_android_layout_gravity;
+    field public static int LinearLayoutCompat_Layout_android_layout_height;
+    field public static int LinearLayoutCompat_Layout_android_layout_weight;
+    field public static int LinearLayoutCompat_Layout_android_layout_width;
+    field public static int LinearLayoutCompat_android_baselineAligned;
+    field public static int LinearLayoutCompat_android_baselineAlignedChildIndex;
+    field public static int LinearLayoutCompat_android_gravity;
+    field public static int LinearLayoutCompat_android_orientation;
+    field public static int LinearLayoutCompat_android_weightSum;
+    field public static int LinearLayoutCompat_divider;
+    field public static int LinearLayoutCompat_dividerPadding;
+    field public static int LinearLayoutCompat_measureWithLargestChild;
+    field public static int LinearLayoutCompat_showDividers;
+    field public static final int[] ListPopupWindow;
+    field public static int ListPopupWindow_android_dropDownHorizontalOffset;
+    field public static int ListPopupWindow_android_dropDownVerticalOffset;
+    field public static final int[] MenuGroup;
+    field public static int MenuGroup_android_checkableBehavior;
+    field public static int MenuGroup_android_enabled;
+    field public static int MenuGroup_android_id;
+    field public static int MenuGroup_android_menuCategory;
+    field public static int MenuGroup_android_orderInCategory;
+    field public static int MenuGroup_android_visible;
+    field public static final int[] MenuItem;
+    field public static int MenuItem_actionLayout;
+    field public static int MenuItem_actionProviderClass;
+    field public static int MenuItem_actionViewClass;
+    field public static int MenuItem_android_alphabeticShortcut;
+    field public static int MenuItem_android_checkable;
+    field public static int MenuItem_android_checked;
+    field public static int MenuItem_android_enabled;
+    field public static int MenuItem_android_icon;
+    field public static int MenuItem_android_id;
+    field public static int MenuItem_android_menuCategory;
+    field public static int MenuItem_android_numericShortcut;
+    field public static int MenuItem_android_onClick;
+    field public static int MenuItem_android_orderInCategory;
+    field public static int MenuItem_android_title;
+    field public static int MenuItem_android_titleCondensed;
+    field public static int MenuItem_android_visible;
+    field public static int MenuItem_showAsAction;
+    field public static final int[] MenuView;
+    field public static int MenuView_android_headerBackground;
+    field public static int MenuView_android_horizontalDivider;
+    field public static int MenuView_android_itemBackground;
+    field public static int MenuView_android_itemIconDisabledAlpha;
+    field public static int MenuView_android_itemTextAppearance;
+    field public static int MenuView_android_verticalDivider;
+    field public static int MenuView_android_windowAnimationStyle;
+    field public static int MenuView_preserveIconSpacing;
+    field public static final int[] PopupWindow;
+    field public static final int[] PopupWindowBackgroundState;
+    field public static int PopupWindowBackgroundState_state_above_anchor;
+    field public static int PopupWindow_android_popupBackground;
+    field public static int PopupWindow_overlapAnchor;
+    field public static final int[] SearchView;
+    field public static int SearchView_android_focusable;
+    field public static int SearchView_android_imeOptions;
+    field public static int SearchView_android_inputType;
+    field public static int SearchView_android_maxWidth;
+    field public static int SearchView_closeIcon;
+    field public static int SearchView_commitIcon;
+    field public static int SearchView_defaultQueryHint;
+    field public static int SearchView_goIcon;
+    field public static int SearchView_iconifiedByDefault;
+    field public static int SearchView_layout;
+    field public static int SearchView_queryBackground;
+    field public static int SearchView_queryHint;
+    field public static int SearchView_searchHintIcon;
+    field public static int SearchView_searchIcon;
+    field public static int SearchView_submitBackground;
+    field public static int SearchView_suggestionRowLayout;
+    field public static int SearchView_voiceIcon;
+    field public static final int[] Spinner;
+    field public static int Spinner_android_dropDownWidth;
+    field public static int Spinner_android_popupBackground;
+    field public static int Spinner_android_prompt;
+    field public static int Spinner_popupTheme;
+    field public static final int[] SwitchCompat;
+    field public static int SwitchCompat_android_textOff;
+    field public static int SwitchCompat_android_textOn;
+    field public static int SwitchCompat_android_thumb;
+    field public static int SwitchCompat_showText;
+    field public static int SwitchCompat_splitTrack;
+    field public static int SwitchCompat_switchMinWidth;
+    field public static int SwitchCompat_switchPadding;
+    field public static int SwitchCompat_switchTextAppearance;
+    field public static int SwitchCompat_thumbTextPadding;
+    field public static int SwitchCompat_track;
+    field public static final int[] TextAppearance;
+    field public static int TextAppearance_android_shadowColor;
+    field public static int TextAppearance_android_shadowDx;
+    field public static int TextAppearance_android_shadowDy;
+    field public static int TextAppearance_android_shadowRadius;
+    field public static int TextAppearance_android_textColor;
+    field public static int TextAppearance_android_textSize;
+    field public static int TextAppearance_android_textStyle;
+    field public static int TextAppearance_android_typeface;
+    field public static int TextAppearance_textAllCaps;
+    field public static final int[] Theme;
+    field public static int Theme_actionBarDivider;
+    field public static int Theme_actionBarItemBackground;
+    field public static int Theme_actionBarPopupTheme;
+    field public static int Theme_actionBarSize;
+    field public static int Theme_actionBarSplitStyle;
+    field public static int Theme_actionBarStyle;
+    field public static int Theme_actionBarTabBarStyle;
+    field public static int Theme_actionBarTabStyle;
+    field public static int Theme_actionBarTabTextStyle;
+    field public static int Theme_actionBarTheme;
+    field public static int Theme_actionBarWidgetTheme;
+    field public static int Theme_actionButtonStyle;
+    field public static int Theme_actionDropDownStyle;
+    field public static int Theme_actionMenuTextAppearance;
+    field public static int Theme_actionMenuTextColor;
+    field public static int Theme_actionModeBackground;
+    field public static int Theme_actionModeCloseButtonStyle;
+    field public static int Theme_actionModeCloseDrawable;
+    field public static int Theme_actionModeCopyDrawable;
+    field public static int Theme_actionModeCutDrawable;
+    field public static int Theme_actionModeFindDrawable;
+    field public static int Theme_actionModePasteDrawable;
+    field public static int Theme_actionModePopupWindowStyle;
+    field public static int Theme_actionModeSelectAllDrawable;
+    field public static int Theme_actionModeShareDrawable;
+    field public static int Theme_actionModeSplitBackground;
+    field public static int Theme_actionModeStyle;
+    field public static int Theme_actionModeWebSearchDrawable;
+    field public static int Theme_actionOverflowButtonStyle;
+    field public static int Theme_actionOverflowMenuStyle;
+    field public static int Theme_activityChooserViewStyle;
+    field public static int Theme_alertDialogButtonGroupStyle;
+    field public static int Theme_alertDialogCenterButtons;
+    field public static int Theme_alertDialogStyle;
+    field public static int Theme_alertDialogTheme;
+    field public static int Theme_android_windowAnimationStyle;
+    field public static int Theme_android_windowIsFloating;
+    field public static int Theme_autoCompleteTextViewStyle;
+    field public static int Theme_borderlessButtonStyle;
+    field public static int Theme_buttonBarButtonStyle;
+    field public static int Theme_buttonBarNegativeButtonStyle;
+    field public static int Theme_buttonBarNeutralButtonStyle;
+    field public static int Theme_buttonBarPositiveButtonStyle;
+    field public static int Theme_buttonBarStyle;
+    field public static int Theme_buttonStyle;
+    field public static int Theme_buttonStyleSmall;
+    field public static int Theme_checkboxStyle;
+    field public static int Theme_checkedTextViewStyle;
+    field public static int Theme_colorAccent;
+    field public static int Theme_colorButtonNormal;
+    field public static int Theme_colorControlActivated;
+    field public static int Theme_colorControlHighlight;
+    field public static int Theme_colorControlNormal;
+    field public static int Theme_colorPrimary;
+    field public static int Theme_colorPrimaryDark;
+    field public static int Theme_colorSwitchThumbNormal;
+    field public static int Theme_controlBackground;
+    field public static int Theme_dialogPreferredPadding;
+    field public static int Theme_dialogTheme;
+    field public static int Theme_dividerHorizontal;
+    field public static int Theme_dividerVertical;
+    field public static int Theme_dropDownListViewStyle;
+    field public static int Theme_dropdownListPreferredItemHeight;
+    field public static int Theme_editTextBackground;
+    field public static int Theme_editTextColor;
+    field public static int Theme_editTextStyle;
+    field public static int Theme_homeAsUpIndicator;
+    field public static int Theme_imageButtonStyle;
+    field public static int Theme_listChoiceBackgroundIndicator;
+    field public static int Theme_listDividerAlertDialog;
+    field public static int Theme_listPopupWindowStyle;
+    field public static int Theme_listPreferredItemHeight;
+    field public static int Theme_listPreferredItemHeightLarge;
+    field public static int Theme_listPreferredItemHeightSmall;
+    field public static int Theme_listPreferredItemPaddingLeft;
+    field public static int Theme_listPreferredItemPaddingRight;
+    field public static int Theme_panelBackground;
+    field public static int Theme_panelMenuListTheme;
+    field public static int Theme_panelMenuListWidth;
+    field public static int Theme_popupMenuStyle;
+    field public static int Theme_popupWindowStyle;
+    field public static int Theme_radioButtonStyle;
+    field public static int Theme_ratingBarStyle;
+    field public static int Theme_searchViewStyle;
+    field public static int Theme_seekBarStyle;
+    field public static int Theme_selectableItemBackground;
+    field public static int Theme_selectableItemBackgroundBorderless;
+    field public static int Theme_spinnerDropDownItemStyle;
+    field public static int Theme_spinnerStyle;
+    field public static int Theme_switchStyle;
+    field public static int Theme_textAppearanceLargePopupMenu;
+    field public static int Theme_textAppearanceListItem;
+    field public static int Theme_textAppearanceListItemSmall;
+    field public static int Theme_textAppearanceSearchResultSubtitle;
+    field public static int Theme_textAppearanceSearchResultTitle;
+    field public static int Theme_textAppearanceSmallPopupMenu;
+    field public static int Theme_textColorAlertDialogListItem;
+    field public static int Theme_textColorSearchUrl;
+    field public static int Theme_toolbarNavigationButtonStyle;
+    field public static int Theme_toolbarStyle;
+    field public static int Theme_windowActionBar;
+    field public static int Theme_windowActionBarOverlay;
+    field public static int Theme_windowActionModeOverlay;
+    field public static int Theme_windowFixedHeightMajor;
+    field public static int Theme_windowFixedHeightMinor;
+    field public static int Theme_windowFixedWidthMajor;
+    field public static int Theme_windowFixedWidthMinor;
+    field public static int Theme_windowMinWidthMajor;
+    field public static int Theme_windowMinWidthMinor;
+    field public static int Theme_windowNoTitle;
+    field public static final int[] Toolbar;
+    field public static int Toolbar_android_gravity;
+    field public static int Toolbar_android_minHeight;
+    field public static int Toolbar_collapseContentDescription;
+    field public static int Toolbar_collapseIcon;
+    field public static int Toolbar_contentInsetEnd;
+    field public static int Toolbar_contentInsetLeft;
+    field public static int Toolbar_contentInsetRight;
+    field public static int Toolbar_contentInsetStart;
+    field public static int Toolbar_logo;
+    field public static int Toolbar_logoDescription;
+    field public static int Toolbar_maxButtonHeight;
+    field public static int Toolbar_navigationContentDescription;
+    field public static int Toolbar_navigationIcon;
+    field public static int Toolbar_popupTheme;
+    field public static int Toolbar_subtitle;
+    field public static int Toolbar_subtitleTextAppearance;
+    field public static int Toolbar_subtitleTextColor;
+    field public static int Toolbar_title;
+    field public static int Toolbar_titleMarginBottom;
+    field public static int Toolbar_titleMarginEnd;
+    field public static int Toolbar_titleMarginStart;
+    field public static int Toolbar_titleMarginTop;
+    field public static int Toolbar_titleMargins;
+    field public static int Toolbar_titleTextAppearance;
+    field public static int Toolbar_titleTextColor;
+    field public static final int[] View;
+    field public static final int[] ViewBackgroundHelper;
+    field public static int ViewBackgroundHelper_android_background;
+    field public static int ViewBackgroundHelper_backgroundTint;
+    field public static int ViewBackgroundHelper_backgroundTintMode;
+    field public static final int[] ViewStubCompat;
+    field public static int ViewStubCompat_android_id;
+    field public static int ViewStubCompat_android_inflatedId;
+    field public static int ViewStubCompat_android_layout;
+    field public static int View_android_focusable;
+    field public static int View_android_theme;
+    field public static int View_paddingEnd;
+    field public static int View_paddingStart;
+    field public static int View_theme;
+  }
+
+}
+
+package android.support.v7.graphics.drawable {
+
+  public class DrawerArrowDrawable extends android.graphics.drawable.Drawable {
+    ctor public DrawerArrowDrawable(android.content.Context);
+    method public void draw(android.graphics.Canvas);
+    method public float getArrowHeadLength();
+    method public float getArrowShaftLength();
+    method public float getBarLength();
+    method public float getBarThickness();
+    method public int getColor();
+    method public int getDirection();
+    method public float getGapSize();
+    method public int getOpacity();
+    method public final android.graphics.Paint getPaint();
+    method public float getProgress();
+    method public boolean isSpinEnabled();
+    method public void setAlpha(int);
+    method public void setArrowHeadLength(float);
+    method public void setArrowShaftLength(float);
+    method public void setBarLength(float);
+    method public void setBarThickness(float);
+    method public void setColor(int);
+    method public void setColorFilter(android.graphics.ColorFilter);
+    method public void setDirection(int);
+    method public void setGapSize(float);
+    method public void setProgress(float);
+    method public void setSpinEnabled(boolean);
+    method public void setVerticalMirror(boolean);
+    field public static final int ARROW_DIRECTION_END = 3; // 0x3
+    field public static final int ARROW_DIRECTION_LEFT = 0; // 0x0
+    field public static final int ARROW_DIRECTION_RIGHT = 1; // 0x1
+    field public static final int ARROW_DIRECTION_START = 2; // 0x2
+  }
+
+}
+
+package android.support.v7.view {
+
+  public abstract class ActionMode {
+    ctor public ActionMode();
+    method public abstract void finish();
+    method public abstract android.view.View getCustomView();
+    method public abstract android.view.Menu getMenu();
+    method public abstract android.view.MenuInflater getMenuInflater();
+    method public abstract java.lang.CharSequence getSubtitle();
+    method public java.lang.Object getTag();
+    method public abstract java.lang.CharSequence getTitle();
+    method public boolean getTitleOptionalHint();
+    method public abstract void invalidate();
+    method public boolean isTitleOptional();
+    method public abstract void setCustomView(android.view.View);
+    method public abstract void setSubtitle(java.lang.CharSequence);
+    method public abstract void setSubtitle(int);
+    method public void setTag(java.lang.Object);
+    method public abstract void setTitle(java.lang.CharSequence);
+    method public abstract void setTitle(int);
+    method public void setTitleOptionalHint(boolean);
+  }
+
+  public static abstract interface ActionMode.Callback {
+    method public abstract boolean onActionItemClicked(android.support.v7.view.ActionMode, android.view.MenuItem);
+    method public abstract boolean onCreateActionMode(android.support.v7.view.ActionMode, android.view.Menu);
+    method public abstract void onDestroyActionMode(android.support.v7.view.ActionMode);
+    method public abstract boolean onPrepareActionMode(android.support.v7.view.ActionMode, android.view.Menu);
+  }
+
+  public abstract interface CollapsibleActionView {
+    method public abstract void onActionViewCollapsed();
+    method public abstract void onActionViewExpanded();
+  }
+
+}
+
+package android.support.v7.widget {
+
+  public class ActionMenuView extends android.support.v7.widget.LinearLayoutCompat {
+    ctor public ActionMenuView(android.content.Context);
+    ctor public ActionMenuView(android.content.Context, android.util.AttributeSet);
+    method public void dismissPopupMenus();
+    method public android.view.Menu getMenu();
+    method public android.graphics.drawable.Drawable getOverflowIcon();
+    method public int getPopupTheme();
+    method public boolean hideOverflowMenu();
+    method public boolean isOverflowMenuShowing();
+    method public void onConfigurationChanged(android.content.res.Configuration);
+    method public void onDetachedFromWindow();
+    method public void setOnMenuItemClickListener(android.support.v7.widget.ActionMenuView.OnMenuItemClickListener);
+    method public void setOverflowIcon(android.graphics.drawable.Drawable);
+    method public void setPopupTheme(int);
+    method public boolean showOverflowMenu();
+  }
+
+  public static class ActionMenuView.LayoutParams extends android.support.v7.widget.LinearLayoutCompat.LayoutParams {
+    ctor public ActionMenuView.LayoutParams(android.content.Context, android.util.AttributeSet);
+    ctor public ActionMenuView.LayoutParams(android.view.ViewGroup.LayoutParams);
+    ctor public ActionMenuView.LayoutParams(android.support.v7.widget.ActionMenuView.LayoutParams);
+    ctor public ActionMenuView.LayoutParams(int, int);
+    field public int cellsUsed;
+    field public boolean expandable;
+    field public int extraPixels;
+    field public boolean isOverflowButton;
+    field public boolean preventEdgeOffset;
+  }
+
+  public static abstract interface ActionMenuView.OnMenuItemClickListener {
+    method public abstract boolean onMenuItemClick(android.view.MenuItem);
+  }
+
+  public class AppCompatAutoCompleteTextView extends android.widget.AutoCompleteTextView {
+    ctor public AppCompatAutoCompleteTextView(android.content.Context);
+    ctor public AppCompatAutoCompleteTextView(android.content.Context, android.util.AttributeSet);
+    ctor public AppCompatAutoCompleteTextView(android.content.Context, android.util.AttributeSet, int);
+  }
+
+  public class AppCompatButton extends android.widget.Button {
+    ctor public AppCompatButton(android.content.Context);
+    ctor public AppCompatButton(android.content.Context, android.util.AttributeSet);
+    ctor public AppCompatButton(android.content.Context, android.util.AttributeSet, int);
+    method public void setSupportAllCaps(boolean);
+  }
+
+  public class AppCompatCheckBox extends android.widget.CheckBox {
+    ctor public AppCompatCheckBox(android.content.Context);
+    ctor public AppCompatCheckBox(android.content.Context, android.util.AttributeSet);
+    ctor public AppCompatCheckBox(android.content.Context, android.util.AttributeSet, int);
+  }
+
+  public class AppCompatCheckedTextView extends android.widget.CheckedTextView {
+    ctor public AppCompatCheckedTextView(android.content.Context);
+    ctor public AppCompatCheckedTextView(android.content.Context, android.util.AttributeSet);
+    ctor public AppCompatCheckedTextView(android.content.Context, android.util.AttributeSet, int);
+  }
+
+  public class AppCompatEditText extends android.widget.EditText {
+    ctor public AppCompatEditText(android.content.Context);
+    ctor public AppCompatEditText(android.content.Context, android.util.AttributeSet);
+    ctor public AppCompatEditText(android.content.Context, android.util.AttributeSet, int);
+  }
+
+  public class AppCompatImageButton extends android.widget.ImageButton {
+    ctor public AppCompatImageButton(android.content.Context);
+    ctor public AppCompatImageButton(android.content.Context, android.util.AttributeSet);
+    ctor public AppCompatImageButton(android.content.Context, android.util.AttributeSet, int);
+  }
+
+  public class AppCompatImageView extends android.widget.ImageView {
+    ctor public AppCompatImageView(android.content.Context);
+    ctor public AppCompatImageView(android.content.Context, android.util.AttributeSet);
+    ctor public AppCompatImageView(android.content.Context, android.util.AttributeSet, int);
+  }
+
+  public class AppCompatMultiAutoCompleteTextView extends android.widget.MultiAutoCompleteTextView {
+    ctor public AppCompatMultiAutoCompleteTextView(android.content.Context);
+    ctor public AppCompatMultiAutoCompleteTextView(android.content.Context, android.util.AttributeSet);
+    ctor public AppCompatMultiAutoCompleteTextView(android.content.Context, android.util.AttributeSet, int);
+  }
+
+  public class AppCompatRadioButton extends android.widget.RadioButton {
+    ctor public AppCompatRadioButton(android.content.Context);
+    ctor public AppCompatRadioButton(android.content.Context, android.util.AttributeSet);
+    ctor public AppCompatRadioButton(android.content.Context, android.util.AttributeSet, int);
+  }
+
+  public class AppCompatRatingBar extends android.widget.RatingBar {
+    ctor public AppCompatRatingBar(android.content.Context);
+    ctor public AppCompatRatingBar(android.content.Context, android.util.AttributeSet);
+    ctor public AppCompatRatingBar(android.content.Context, android.util.AttributeSet, int);
+  }
+
+  public class AppCompatSeekBar extends android.widget.SeekBar {
+    ctor public AppCompatSeekBar(android.content.Context);
+    ctor public AppCompatSeekBar(android.content.Context, android.util.AttributeSet);
+    ctor public AppCompatSeekBar(android.content.Context, android.util.AttributeSet, int);
+  }
+
+  public class AppCompatSpinner extends android.widget.Spinner {
+    ctor public AppCompatSpinner(android.content.Context);
+    ctor public AppCompatSpinner(android.content.Context, int);
+    ctor public AppCompatSpinner(android.content.Context, android.util.AttributeSet);
+    ctor public AppCompatSpinner(android.content.Context, android.util.AttributeSet, int);
+    ctor public AppCompatSpinner(android.content.Context, android.util.AttributeSet, int, int);
+    ctor public AppCompatSpinner(android.content.Context, android.util.AttributeSet, int, int, android.content.res.Resources.Theme);
+  }
+
+  public class AppCompatTextView extends android.widget.TextView {
+    ctor public AppCompatTextView(android.content.Context);
+    ctor public AppCompatTextView(android.content.Context, android.util.AttributeSet);
+    ctor public AppCompatTextView(android.content.Context, android.util.AttributeSet, int);
+  }
+
+  public class LinearLayoutCompat extends android.view.ViewGroup {
+    ctor public LinearLayoutCompat(android.content.Context);
+    ctor public LinearLayoutCompat(android.content.Context, android.util.AttributeSet);
+    ctor public LinearLayoutCompat(android.content.Context, android.util.AttributeSet, int);
+    method public int getBaselineAlignedChildIndex();
+    method public android.graphics.drawable.Drawable getDividerDrawable();
+    method public int getDividerPadding();
+    method public int getOrientation();
+    method public int getShowDividers();
+    method public float getWeightSum();
+    method public boolean isBaselineAligned();
+    method public boolean isMeasureWithLargestChildEnabled();
+    method protected void onLayout(boolean, int, int, int, int);
+    method public void setBaselineAligned(boolean);
+    method public void setBaselineAlignedChildIndex(int);
+    method public void setDividerDrawable(android.graphics.drawable.Drawable);
+    method public void setDividerPadding(int);
+    method public void setGravity(int);
+    method public void setHorizontalGravity(int);
+    method public void setMeasureWithLargestChildEnabled(boolean);
+    method public void setOrientation(int);
+    method public void setShowDividers(int);
+    method public void setVerticalGravity(int);
+    method public void setWeightSum(float);
+    field public static final int HORIZONTAL = 0; // 0x0
+    field public static final int SHOW_DIVIDER_BEGINNING = 1; // 0x1
+    field public static final int SHOW_DIVIDER_END = 4; // 0x4
+    field public static final int SHOW_DIVIDER_MIDDLE = 2; // 0x2
+    field public static final int SHOW_DIVIDER_NONE = 0; // 0x0
+    field public static final int VERTICAL = 1; // 0x1
+  }
+
+  public static class LinearLayoutCompat.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
+    ctor public LinearLayoutCompat.LayoutParams(android.content.Context, android.util.AttributeSet);
+    ctor public LinearLayoutCompat.LayoutParams(int, int);
+    ctor public LinearLayoutCompat.LayoutParams(int, int, float);
+    ctor public LinearLayoutCompat.LayoutParams(android.view.ViewGroup.LayoutParams);
+    ctor public LinearLayoutCompat.LayoutParams(android.view.ViewGroup.MarginLayoutParams);
+    ctor public LinearLayoutCompat.LayoutParams(android.support.v7.widget.LinearLayoutCompat.LayoutParams);
+    field public int gravity;
+    field public float weight;
+  }
+
+  public class ListPopupWindow {
+    ctor public ListPopupWindow(android.content.Context);
+    ctor public ListPopupWindow(android.content.Context, android.util.AttributeSet);
+    ctor public ListPopupWindow(android.content.Context, android.util.AttributeSet, int);
+    ctor public ListPopupWindow(android.content.Context, android.util.AttributeSet, int, int);
+    method public void clearListSelection();
+    method public android.view.View.OnTouchListener createDragToOpenListener(android.view.View);
+    method public void dismiss();
+    method public android.view.View getAnchorView();
+    method public int getAnimationStyle();
+    method public android.graphics.drawable.Drawable getBackground();
+    method public int getHeight();
+    method public int getHorizontalOffset();
+    method public int getInputMethodMode();
+    method public android.widget.ListView getListView();
+    method public int getPromptPosition();
+    method public java.lang.Object getSelectedItem();
+    method public long getSelectedItemId();
+    method public int getSelectedItemPosition();
+    method public android.view.View getSelectedView();
+    method public int getSoftInputMode();
+    method public int getVerticalOffset();
+    method public int getWidth();
+    method public boolean isInputMethodNotNeeded();
+    method public boolean isModal();
+    method public boolean isShowing();
+    method public boolean onKeyDown(int, android.view.KeyEvent);
+    method public boolean onKeyPreIme(int, android.view.KeyEvent);
+    method public boolean onKeyUp(int, android.view.KeyEvent);
+    method public boolean performItemClick(int);
+    method public void postShow();
+    method public void setAdapter(android.widget.ListAdapter);
+    method public void setAnchorView(android.view.View);
+    method public void setAnimationStyle(int);
+    method public void setBackgroundDrawable(android.graphics.drawable.Drawable);
+    method public void setContentWidth(int);
+    method public void setDropDownGravity(int);
+    method public void setHeight(int);
+    method public void setHorizontalOffset(int);
+    method public void setInputMethodMode(int);
+    method public void setListSelector(android.graphics.drawable.Drawable);
+    method public void setModal(boolean);
+    method public void setOnDismissListener(android.widget.PopupWindow.OnDismissListener);
+    method public void setOnItemClickListener(android.widget.AdapterView.OnItemClickListener);
+    method public void setOnItemSelectedListener(android.widget.AdapterView.OnItemSelectedListener);
+    method public void setPromptPosition(int);
+    method public void setPromptView(android.view.View);
+    method public void setSelection(int);
+    method public void setSoftInputMode(int);
+    method public void setVerticalOffset(int);
+    method public void setWidth(int);
+    method public void setWindowLayoutType(int);
+    method public void show();
+    field public static final int INPUT_METHOD_FROM_FOCUSABLE = 0; // 0x0
+    field public static final int INPUT_METHOD_NEEDED = 1; // 0x1
+    field public static final int INPUT_METHOD_NOT_NEEDED = 2; // 0x2
+    field public static final int MATCH_PARENT = -1; // 0xffffffff
+    field public static final int POSITION_PROMPT_ABOVE = 0; // 0x0
+    field public static final int POSITION_PROMPT_BELOW = 1; // 0x1
+    field public static final int WRAP_CONTENT = -2; // 0xfffffffe
+  }
+
+  public class PopupMenu {
+    ctor public PopupMenu(android.content.Context, android.view.View);
+    ctor public PopupMenu(android.content.Context, android.view.View, int);
+    ctor public PopupMenu(android.content.Context, android.view.View, int, int, int);
+    method public void dismiss();
+    method public android.view.View.OnTouchListener getDragToOpenListener();
+    method public int getGravity();
+    method public android.view.Menu getMenu();
+    method public android.view.MenuInflater getMenuInflater();
+    method public void inflate(int);
+    method public void setGravity(int);
+    method public void setOnDismissListener(android.support.v7.widget.PopupMenu.OnDismissListener);
+    method public void setOnMenuItemClickListener(android.support.v7.widget.PopupMenu.OnMenuItemClickListener);
+    method public void show();
+  }
+
+  public static abstract interface PopupMenu.OnDismissListener {
+    method public abstract void onDismiss(android.support.v7.widget.PopupMenu);
+  }
+
+  public static abstract interface PopupMenu.OnMenuItemClickListener {
+    method public abstract boolean onMenuItemClick(android.view.MenuItem);
+  }
+
+  public class SearchView extends android.support.v7.widget.LinearLayoutCompat implements android.support.v7.view.CollapsibleActionView {
+    ctor public SearchView(android.content.Context);
+    ctor public SearchView(android.content.Context, android.util.AttributeSet);
+    ctor public SearchView(android.content.Context, android.util.AttributeSet, int);
+    method public int getImeOptions();
+    method public int getInputType();
+    method public int getMaxWidth();
+    method public java.lang.CharSequence getQuery();
+    method public java.lang.CharSequence getQueryHint();
+    method public android.support.v4.widget.CursorAdapter getSuggestionsAdapter();
+    method public boolean isIconfiedByDefault();
+    method public boolean isIconified();
+    method public boolean isQueryRefinementEnabled();
+    method public boolean isSubmitButtonEnabled();
+    method public void onActionViewCollapsed();
+    method public void onActionViewExpanded();
+    method public void setIconified(boolean);
+    method public void setIconifiedByDefault(boolean);
+    method public void setImeOptions(int);
+    method public void setInputType(int);
+    method public void setMaxWidth(int);
+    method public void setOnCloseListener(android.support.v7.widget.SearchView.OnCloseListener);
+    method public void setOnQueryTextFocusChangeListener(android.view.View.OnFocusChangeListener);
+    method public void setOnQueryTextListener(android.support.v7.widget.SearchView.OnQueryTextListener);
+    method public void setOnSearchClickListener(android.view.View.OnClickListener);
+    method public void setOnSuggestionListener(android.support.v7.widget.SearchView.OnSuggestionListener);
+    method public void setQuery(java.lang.CharSequence, boolean);
+    method public void setQueryHint(java.lang.CharSequence);
+    method public void setQueryRefinementEnabled(boolean);
+    method public void setSearchableInfo(android.app.SearchableInfo);
+    method public void setSubmitButtonEnabled(boolean);
+    method public void setSuggestionsAdapter(android.support.v4.widget.CursorAdapter);
+  }
+
+  public static abstract interface SearchView.OnCloseListener {
+    method public abstract boolean onClose();
+  }
+
+  public static abstract interface SearchView.OnQueryTextListener {
+    method public abstract boolean onQueryTextChange(java.lang.String);
+    method public abstract boolean onQueryTextSubmit(java.lang.String);
+  }
+
+  public static abstract interface SearchView.OnSuggestionListener {
+    method public abstract boolean onSuggestionClick(int);
+    method public abstract boolean onSuggestionSelect(int);
+  }
+
+  public class ShareActionProvider extends android.support.v4.view.ActionProvider {
+    ctor public ShareActionProvider(android.content.Context);
+    method public android.view.View onCreateActionView();
+    method public void setOnShareTargetSelectedListener(android.support.v7.widget.ShareActionProvider.OnShareTargetSelectedListener);
+    method public void setShareHistoryFileName(java.lang.String);
+    method public void setShareIntent(android.content.Intent);
+    field public static final java.lang.String DEFAULT_SHARE_HISTORY_FILE_NAME = "share_history.xml";
+  }
+
+  public static abstract interface ShareActionProvider.OnShareTargetSelectedListener {
+    method public abstract boolean onShareTargetSelected(android.support.v7.widget.ShareActionProvider, android.content.Intent);
+  }
+
+  public class SwitchCompat extends android.widget.CompoundButton {
+    ctor public SwitchCompat(android.content.Context);
+    ctor public SwitchCompat(android.content.Context, android.util.AttributeSet);
+    ctor public SwitchCompat(android.content.Context, android.util.AttributeSet, int);
+    method public boolean getShowText();
+    method public boolean getSplitTrack();
+    method public int getSwitchMinWidth();
+    method public int getSwitchPadding();
+    method public java.lang.CharSequence getTextOff();
+    method public java.lang.CharSequence getTextOn();
+    method public android.graphics.drawable.Drawable getThumbDrawable();
+    method public int getThumbTextPadding();
+    method public android.graphics.drawable.Drawable getTrackDrawable();
+    method public void onMeasure(int, int);
+    method public void setShowText(boolean);
+    method public void setSplitTrack(boolean);
+    method public void setSwitchMinWidth(int);
+    method public void setSwitchPadding(int);
+    method public void setSwitchTextAppearance(android.content.Context, int);
+    method public void setSwitchTypeface(android.graphics.Typeface, int);
+    method public void setSwitchTypeface(android.graphics.Typeface);
+    method public void setTextOff(java.lang.CharSequence);
+    method public void setTextOn(java.lang.CharSequence);
+    method public void setThumbDrawable(android.graphics.drawable.Drawable);
+    method public void setThumbResource(int);
+    method public void setThumbTextPadding(int);
+    method public void setTrackDrawable(android.graphics.drawable.Drawable);
+    method public void setTrackResource(int);
+  }
+
+  public abstract interface ThemedSpinnerAdapter implements android.widget.SpinnerAdapter {
+    method public abstract android.content.res.Resources.Theme getDropDownViewTheme();
+    method public abstract void setDropDownViewTheme(android.content.res.Resources.Theme);
+  }
+
+  public static final class ThemedSpinnerAdapter.Helper {
+    ctor public ThemedSpinnerAdapter.Helper(android.content.Context);
+    method public android.view.LayoutInflater getDropDownViewInflater();
+    method public android.content.res.Resources.Theme getDropDownViewTheme();
+    method public void setDropDownViewTheme(android.content.res.Resources.Theme);
+  }
+
+  public class Toolbar extends android.view.ViewGroup {
+    ctor public Toolbar(android.content.Context);
+    ctor public Toolbar(android.content.Context, android.util.AttributeSet);
+    ctor public Toolbar(android.content.Context, android.util.AttributeSet, int);
+    method public void collapseActionView();
+    method public void dismissPopupMenus();
+    method public int getContentInsetEnd();
+    method public int getContentInsetLeft();
+    method public int getContentInsetRight();
+    method public int getContentInsetStart();
+    method public android.graphics.drawable.Drawable getLogo();
+    method public java.lang.CharSequence getLogoDescription();
+    method public android.view.Menu getMenu();
+    method public java.lang.CharSequence getNavigationContentDescription();
+    method public android.graphics.drawable.Drawable getNavigationIcon();
+    method public android.graphics.drawable.Drawable getOverflowIcon();
+    method public int getPopupTheme();
+    method public java.lang.CharSequence getSubtitle();
+    method public java.lang.CharSequence getTitle();
+    method public boolean hasExpandedActionView();
+    method public boolean hideOverflowMenu();
+    method public void inflateMenu(int);
+    method public boolean isOverflowMenuShowing();
+    method protected void onLayout(boolean, int, int, int, int);
+    method public void setContentInsetsAbsolute(int, int);
+    method public void setContentInsetsRelative(int, int);
+    method public void setLogo(int);
+    method public void setLogo(android.graphics.drawable.Drawable);
+    method public void setLogoDescription(int);
+    method public void setLogoDescription(java.lang.CharSequence);
+    method public void setNavigationContentDescription(int);
+    method public void setNavigationContentDescription(java.lang.CharSequence);
+    method public void setNavigationIcon(int);
+    method public void setNavigationIcon(android.graphics.drawable.Drawable);
+    method public void setNavigationOnClickListener(android.view.View.OnClickListener);
+    method public void setOnMenuItemClickListener(android.support.v7.widget.Toolbar.OnMenuItemClickListener);
+    method public void setOverflowIcon(android.graphics.drawable.Drawable);
+    method public void setPopupTheme(int);
+    method public void setSubtitle(int);
+    method public void setSubtitle(java.lang.CharSequence);
+    method public void setSubtitleTextAppearance(android.content.Context, int);
+    method public void setSubtitleTextColor(int);
+    method public void setTitle(int);
+    method public void setTitle(java.lang.CharSequence);
+    method public void setTitleTextAppearance(android.content.Context, int);
+    method public void setTitleTextColor(int);
+    method public boolean showOverflowMenu();
+  }
+
+  public static class Toolbar.LayoutParams extends android.support.v7.app.ActionBar.LayoutParams {
+    ctor public Toolbar.LayoutParams(android.content.Context, android.util.AttributeSet);
+    ctor public Toolbar.LayoutParams(int, int);
+    ctor public Toolbar.LayoutParams(int, int, int);
+    ctor public Toolbar.LayoutParams(int);
+    ctor public Toolbar.LayoutParams(android.support.v7.widget.Toolbar.LayoutParams);
+    ctor public Toolbar.LayoutParams(android.support.v7.app.ActionBar.LayoutParams);
+    ctor public Toolbar.LayoutParams(android.view.ViewGroup.MarginLayoutParams);
+    ctor public Toolbar.LayoutParams(android.view.ViewGroup.LayoutParams);
+  }
+
+  public static abstract interface Toolbar.OnMenuItemClickListener {
+    method public abstract boolean onMenuItemClick(android.view.MenuItem);
+  }
+
+  public static class Toolbar.SavedState extends android.view.View.BaseSavedState {
+    ctor public Toolbar.SavedState(android.os.Parcel);
+    ctor public Toolbar.SavedState(android.os.Parcelable);
+    field public static final android.os.Parcelable.Creator<android.support.v7.widget.Toolbar.SavedState> CREATOR;
+  }
+
+}
+

@@ -1,0 +1,694 @@
+package android.support.v7.app {
+
+  public abstract class ActionBar {
+    ctor public ActionBar();
+    method public abstract void addOnMenuVisibilityListener(android.support.v7.app.ActionBar.OnMenuVisibilityListener);
+    method public abstract void addTab(android.support.v7.app.ActionBar.Tab);
+    method public abstract void addTab(android.support.v7.app.ActionBar.Tab, boolean);
+    method public abstract void addTab(android.support.v7.app.ActionBar.Tab, int);
+    method public abstract void addTab(android.support.v7.app.ActionBar.Tab, int, boolean);
+    method public boolean collapseActionView();
+    method public void dispatchMenuVisibilityChanged(boolean);
+    method public abstract android.view.View getCustomView();
+    method public abstract int getDisplayOptions();
+    method public float getElevation();
+    method public abstract int getHeight();
+    method public int getHideOffset();
+    method public abstract int getNavigationItemCount();
+    method public abstract int getNavigationMode();
+    method public abstract int getSelectedNavigationIndex();
+    method public abstract android.support.v7.app.ActionBar.Tab getSelectedTab();
+    method public abstract java.lang.CharSequence getSubtitle();
+    method public abstract android.support.v7.app.ActionBar.Tab getTabAt(int);
+    method public abstract int getTabCount();
+    method public android.content.Context getThemedContext();
+    method public abstract java.lang.CharSequence getTitle();
+    method public abstract void hide();
+    method public boolean invalidateOptionsMenu();
+    method public boolean isHideOnContentScrollEnabled();
+    method public abstract boolean isShowing();
+    method public boolean isTitleTruncated();
+    method public abstract android.support.v7.app.ActionBar.Tab newTab();
+    method public void onConfigurationChanged(android.content.res.Configuration);
+    method public boolean onKeyShortcut(int, android.view.KeyEvent);
+    method public boolean onMenuKeyEvent(android.view.KeyEvent);
+    method public boolean openOptionsMenu();
+    method public abstract void removeAllTabs();
+    method public abstract void removeOnMenuVisibilityListener(android.support.v7.app.ActionBar.OnMenuVisibilityListener);
+    method public abstract void removeTab(android.support.v7.app.ActionBar.Tab);
+    method public abstract void removeTabAt(int);
+    method public abstract void selectTab(android.support.v7.app.ActionBar.Tab);
+    method public abstract void setBackgroundDrawable(android.graphics.drawable.Drawable);
+    method public abstract void setCustomView(android.view.View);
+    method public abstract void setCustomView(android.view.View, android.support.v7.app.ActionBar.LayoutParams);
+    method public abstract void setCustomView(int);
+    method public void setDefaultDisplayHomeAsUpEnabled(boolean);
+    method public abstract void setDisplayHomeAsUpEnabled(boolean);
+    method public abstract void setDisplayOptions(int);
+    method public abstract void setDisplayOptions(int, int);
+    method public abstract void setDisplayShowCustomEnabled(boolean);
+    method public abstract void setDisplayShowHomeEnabled(boolean);
+    method public abstract void setDisplayShowTitleEnabled(boolean);
+    method public abstract void setDisplayUseLogoEnabled(boolean);
+    method public void setElevation(float);
+    method public void setHideOffset(int);
+    method public void setHideOnContentScrollEnabled(boolean);
+    method public void setHomeActionContentDescription(java.lang.CharSequence);
+    method public void setHomeActionContentDescription(int);
+    method public void setHomeAsUpIndicator(android.graphics.drawable.Drawable);
+    method public void setHomeAsUpIndicator(int);
+    method public void setHomeButtonEnabled(boolean);
+    method public abstract void setIcon(int);
+    method public abstract void setIcon(android.graphics.drawable.Drawable);
+    method public abstract void setListNavigationCallbacks(android.widget.SpinnerAdapter, android.support.v7.app.ActionBar.OnNavigationListener);
+    method public abstract void setLogo(int);
+    method public abstract void setLogo(android.graphics.drawable.Drawable);
+    method public abstract void setNavigationMode(int);
+    method public abstract void setSelectedNavigationItem(int);
+    method public void setShowHideAnimationEnabled(boolean);
+    method public void setSplitBackgroundDrawable(android.graphics.drawable.Drawable);
+    method public void setStackedBackgroundDrawable(android.graphics.drawable.Drawable);
+    method public abstract void setSubtitle(java.lang.CharSequence);
+    method public abstract void setSubtitle(int);
+    method public abstract void setTitle(java.lang.CharSequence);
+    method public abstract void setTitle(int);
+    method public void setWindowTitle(java.lang.CharSequence);
+    method public abstract void show();
+    method public android.support.v7.view.ActionMode startActionMode(android.support.v7.view.ActionMode.Callback);
+    field public static final int DISPLAY_HOME_AS_UP = 4; // 0x4
+    field public static final int DISPLAY_SHOW_CUSTOM = 16; // 0x10
+    field public static final int DISPLAY_SHOW_HOME = 2; // 0x2
+    field public static final int DISPLAY_SHOW_TITLE = 8; // 0x8
+    field public static final int DISPLAY_USE_LOGO = 1; // 0x1
+    field public static final int NAVIGATION_MODE_LIST = 1; // 0x1
+    field public static final int NAVIGATION_MODE_STANDARD = 0; // 0x0
+    field public static final int NAVIGATION_MODE_TABS = 2; // 0x2
+  }
+
+  public static class ActionBar.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
+    ctor public ActionBar.LayoutParams(android.content.Context, android.util.AttributeSet);
+    ctor public ActionBar.LayoutParams(int, int);
+    ctor public ActionBar.LayoutParams(int, int, int);
+    ctor public ActionBar.LayoutParams(int);
+    ctor public ActionBar.LayoutParams(android.support.v7.app.ActionBar.LayoutParams);
+    ctor public ActionBar.LayoutParams(android.view.ViewGroup.LayoutParams);
+    field public int gravity;
+  }
+
+  public static abstract interface ActionBar.OnMenuVisibilityListener {
+    method public abstract void onMenuVisibilityChanged(boolean);
+  }
+
+  public static abstract interface ActionBar.OnNavigationListener {
+    method public abstract boolean onNavigationItemSelected(int, long);
+  }
+
+  public static abstract class ActionBar.Tab {
+    ctor public ActionBar.Tab();
+    method public abstract java.lang.CharSequence getContentDescription();
+    method public abstract android.view.View getCustomView();
+    method public abstract android.graphics.drawable.Drawable getIcon();
+    method public abstract int getPosition();
+    method public abstract java.lang.Object getTag();
+    method public abstract java.lang.CharSequence getText();
+    method public abstract void select();
+    method public abstract android.support.v7.app.ActionBar.Tab setContentDescription(int);
+    method public abstract android.support.v7.app.ActionBar.Tab setContentDescription(java.lang.CharSequence);
+    method public abstract android.support.v7.app.ActionBar.Tab setCustomView(android.view.View);
+    method public abstract android.support.v7.app.ActionBar.Tab setCustomView(int);
+    method public abstract android.support.v7.app.ActionBar.Tab setIcon(android.graphics.drawable.Drawable);
+    method public abstract android.support.v7.app.ActionBar.Tab setIcon(int);
+    method public abstract android.support.v7.app.ActionBar.Tab setTabListener(android.support.v7.app.ActionBar.TabListener);
+    method public abstract android.support.v7.app.ActionBar.Tab setTag(java.lang.Object);
+    method public abstract android.support.v7.app.ActionBar.Tab setText(java.lang.CharSequence);
+    method public abstract android.support.v7.app.ActionBar.Tab setText(int);
+    field public static final int INVALID_POSITION = -1; // 0xffffffff
+  }
+
+  public static abstract interface ActionBar.TabListener {
+    method public abstract void onTabReselected(android.support.v7.app.ActionBar.Tab, android.support.v4.app.FragmentTransaction);
+    method public abstract void onTabSelected(android.support.v7.app.ActionBar.Tab, android.support.v4.app.FragmentTransaction);
+    method public abstract void onTabUnselected(android.support.v7.app.ActionBar.Tab, android.support.v4.app.FragmentTransaction);
+  }
+
+  public class ActionBarDrawerToggle implements android.support.v4.widget.DrawerLayout.DrawerListener {
+    ctor public ActionBarDrawerToggle(android.app.Activity, android.support.v4.widget.DrawerLayout, int, int);
+    ctor public ActionBarDrawerToggle(android.app.Activity, android.support.v4.widget.DrawerLayout, android.support.v7.widget.Toolbar, int, int);
+    method public android.view.View.OnClickListener getToolbarNavigationClickListener();
+    method public boolean isDrawerIndicatorEnabled();
+    method public void onConfigurationChanged(android.content.res.Configuration);
+    method public void onDrawerClosed(android.view.View);
+    method public void onDrawerOpened(android.view.View);
+    method public void onDrawerSlide(android.view.View, float);
+    method public void onDrawerStateChanged(int);
+    method public boolean onOptionsItemSelected(android.view.MenuItem);
+    method public void setDrawerIndicatorEnabled(boolean);
+    method public void setHomeAsUpIndicator(android.graphics.drawable.Drawable);
+    method public void setHomeAsUpIndicator(int);
+    method public void setToolbarNavigationClickListener(android.view.View.OnClickListener);
+    method public void syncState();
+  }
+
+  public static abstract interface ActionBarDrawerToggle.Delegate {
+    method public abstract android.content.Context getActionBarThemedContext();
+    method public abstract android.graphics.drawable.Drawable getThemeUpIndicator();
+    method public abstract boolean isNavigationVisible();
+    method public abstract void setActionBarDescription(int);
+    method public abstract void setActionBarUpIndicator(android.graphics.drawable.Drawable, int);
+  }
+
+  public class AlertDialog extends android.support.v7.app.AppCompatDialog implements android.content.DialogInterface {
+    ctor protected AlertDialog(android.content.Context);
+    ctor protected AlertDialog(android.content.Context, int);
+    ctor protected AlertDialog(android.content.Context, boolean, android.content.DialogInterface.OnCancelListener);
+    method public android.widget.Button getButton(int);
+    method public android.widget.ListView getListView();
+    method public void setButton(int, java.lang.CharSequence, android.os.Message);
+    method public void setButton(int, java.lang.CharSequence, android.content.DialogInterface.OnClickListener);
+    method public void setCustomTitle(android.view.View);
+    method public void setIcon(int);
+    method public void setIcon(android.graphics.drawable.Drawable);
+    method public void setIconAttribute(int);
+    method public void setMessage(java.lang.CharSequence);
+    method public void setView(android.view.View);
+    method public void setView(android.view.View, int, int, int, int);
+  }
+
+  public abstract interface AppCompatCallback {
+    method public abstract void onSupportActionModeFinished(android.support.v7.view.ActionMode);
+    method public abstract void onSupportActionModeStarted(android.support.v7.view.ActionMode);
+    method public abstract android.support.v7.view.ActionMode onWindowStartingSupportActionMode(android.support.v7.view.ActionMode.Callback);
+  }
+
+  public abstract class AppCompatDelegate {
+    method public abstract void addContentView(android.view.View, android.view.ViewGroup.LayoutParams);
+    method public static android.support.v7.app.AppCompatDelegate create(android.app.Activity, android.support.v7.app.AppCompatCallback);
+    method public static android.support.v7.app.AppCompatDelegate create(android.app.Dialog, android.support.v7.app.AppCompatCallback);
+    method public abstract android.view.View createView(android.view.View, java.lang.String, android.content.Context, android.util.AttributeSet);
+    method public abstract android.support.v7.app.ActionBarDrawerToggle.Delegate getDrawerToggleDelegate();
+    method public abstract android.view.MenuInflater getMenuInflater();
+    method public abstract android.support.v7.app.ActionBar getSupportActionBar();
+    method public abstract boolean hasWindowFeature(int);
+    method public abstract void installViewFactory();
+    method public abstract void invalidateOptionsMenu();
+    method public abstract boolean isHandleNativeActionModesEnabled();
+    method public abstract void onConfigurationChanged(android.content.res.Configuration);
+    method public abstract void onCreate(android.os.Bundle);
+    method public abstract void onDestroy();
+    method public abstract void onPostCreate(android.os.Bundle);
+    method public abstract void onPostResume();
+    method public abstract void onStop();
+    method public abstract boolean requestWindowFeature(int);
+    method public abstract void setContentView(android.view.View);
+    method public abstract void setContentView(int);
+    method public abstract void setContentView(android.view.View, android.view.ViewGroup.LayoutParams);
+    method public abstract void setHandleNativeActionModesEnabled(boolean);
+    method public abstract void setSupportActionBar(android.support.v7.widget.Toolbar);
+    method public abstract void setTitle(java.lang.CharSequence);
+    method public abstract android.support.v7.view.ActionMode startSupportActionMode(android.support.v7.view.ActionMode.Callback);
+    field public static final int FEATURE_ACTION_MODE_OVERLAY = 10; // 0xa
+    field public static final int FEATURE_SUPPORT_ACTION_BAR = 108; // 0x6c
+    field public static final int FEATURE_SUPPORT_ACTION_BAR_OVERLAY = 109; // 0x6d
+  }
+
+  public class AppCompatDialog extends android.app.Dialog implements android.support.v7.app.AppCompatCallback {
+    ctor public AppCompatDialog(android.content.Context);
+    ctor public AppCompatDialog(android.content.Context, int);
+    ctor protected AppCompatDialog(android.content.Context, boolean, android.content.DialogInterface.OnCancelListener);
+    method public android.support.v7.app.AppCompatDelegate getDelegate();
+    method public android.support.v7.app.ActionBar getSupportActionBar();
+    method public void onSupportActionModeFinished(android.support.v7.view.ActionMode);
+    method public void onSupportActionModeStarted(android.support.v7.view.ActionMode);
+    method public android.support.v7.view.ActionMode onWindowStartingSupportActionMode(android.support.v7.view.ActionMode.Callback);
+    method public boolean supportRequestWindowFeature(int);
+  }
+
+  public class MediaRouteActionProvider extends android.support.v4.view.ActionProvider {
+    ctor public MediaRouteActionProvider(android.content.Context);
+    method public android.support.v7.app.MediaRouteDialogFactory getDialogFactory();
+    method public android.support.v7.app.MediaRouteButton getMediaRouteButton();
+    method public android.support.v7.media.MediaRouteSelector getRouteSelector();
+    method public android.view.View onCreateActionView();
+    method public android.support.v7.app.MediaRouteButton onCreateMediaRouteButton();
+    method public void setDialogFactory(android.support.v7.app.MediaRouteDialogFactory);
+    method public void setRouteSelector(android.support.v7.media.MediaRouteSelector);
+  }
+
+  public class MediaRouteButton extends android.view.View {
+    ctor public MediaRouteButton(android.content.Context);
+    ctor public MediaRouteButton(android.content.Context, android.util.AttributeSet);
+    ctor public MediaRouteButton(android.content.Context, android.util.AttributeSet, int);
+    method public android.support.v7.app.MediaRouteDialogFactory getDialogFactory();
+    method public android.support.v7.media.MediaRouteSelector getRouteSelector();
+    method public void onAttachedToWindow();
+    method public void onDetachedFromWindow();
+    method public void setDialogFactory(android.support.v7.app.MediaRouteDialogFactory);
+    method public void setRemoteIndicatorDrawable(android.graphics.drawable.Drawable);
+    method public void setRouteSelector(android.support.v7.media.MediaRouteSelector);
+    method public boolean showDialog();
+  }
+
+  public class MediaRouteChooserDialog extends android.app.Dialog {
+    ctor public MediaRouteChooserDialog(android.content.Context);
+    ctor public MediaRouteChooserDialog(android.content.Context, int);
+    method public android.support.v7.media.MediaRouteSelector getRouteSelector();
+    method public boolean onFilterRoute(android.support.v7.media.MediaRouter.RouteInfo);
+    method public void onFilterRoutes(java.util.List<android.support.v7.media.MediaRouter.RouteInfo>);
+    method public void refreshRoutes();
+    method public void setRouteSelector(android.support.v7.media.MediaRouteSelector);
+  }
+
+  public class MediaRouteChooserDialogFragment extends android.support.v4.app.DialogFragment {
+    ctor public MediaRouteChooserDialogFragment();
+    method public android.support.v7.media.MediaRouteSelector getRouteSelector();
+    method public android.support.v7.app.MediaRouteChooserDialog onCreateChooserDialog(android.content.Context, android.os.Bundle);
+    method public void setRouteSelector(android.support.v7.media.MediaRouteSelector);
+  }
+
+  public class MediaRouteControllerDialog extends android.support.v7.app.AlertDialog {
+    ctor public MediaRouteControllerDialog(android.content.Context);
+    ctor public MediaRouteControllerDialog(android.content.Context, int);
+    method public android.view.View getMediaControlView();
+    method public android.support.v4.media.session.MediaSessionCompat.Token getMediaSession();
+    method public android.support.v7.media.MediaRouter.RouteInfo getRoute();
+    method public boolean isVolumeControlEnabled();
+    method public android.view.View onCreateMediaControlView(android.os.Bundle);
+    method public void setVolumeControlEnabled(boolean);
+  }
+
+  public class MediaRouteControllerDialogFragment extends android.support.v4.app.DialogFragment {
+    ctor public MediaRouteControllerDialogFragment();
+    method public android.support.v7.app.MediaRouteControllerDialog onCreateControllerDialog(android.content.Context, android.os.Bundle);
+  }
+
+  public class MediaRouteDialogFactory {
+    ctor public MediaRouteDialogFactory();
+    method public static android.support.v7.app.MediaRouteDialogFactory getDefault();
+    method public android.support.v7.app.MediaRouteChooserDialogFragment onCreateChooserDialogFragment();
+    method public android.support.v7.app.MediaRouteControllerDialogFragment onCreateControllerDialogFragment();
+  }
+
+  public class MediaRouteDiscoveryFragment extends android.support.v4.app.Fragment {
+    ctor public MediaRouteDiscoveryFragment();
+    method public android.support.v7.media.MediaRouter getMediaRouter();
+    method public android.support.v7.media.MediaRouteSelector getRouteSelector();
+    method public android.support.v7.media.MediaRouter.Callback onCreateCallback();
+    method public int onPrepareCallbackFlags();
+    method public void setRouteSelector(android.support.v7.media.MediaRouteSelector);
+  }
+
+}
+
+package android.support.v7.media {
+
+  public final class MediaControlIntent {
+    field public static final java.lang.String ACTION_END_SESSION = "android.media.intent.action.END_SESSION";
+    field public static final java.lang.String ACTION_ENQUEUE = "android.media.intent.action.ENQUEUE";
+    field public static final java.lang.String ACTION_GET_SESSION_STATUS = "android.media.intent.action.GET_SESSION_STATUS";
+    field public static final java.lang.String ACTION_GET_STATUS = "android.media.intent.action.GET_STATUS";
+    field public static final java.lang.String ACTION_PAUSE = "android.media.intent.action.PAUSE";
+    field public static final java.lang.String ACTION_PLAY = "android.media.intent.action.PLAY";
+    field public static final java.lang.String ACTION_REMOVE = "android.media.intent.action.REMOVE";
+    field public static final java.lang.String ACTION_RESUME = "android.media.intent.action.RESUME";
+    field public static final java.lang.String ACTION_SEEK = "android.media.intent.action.SEEK";
+    field public static final java.lang.String ACTION_START_SESSION = "android.media.intent.action.START_SESSION";
+    field public static final java.lang.String ACTION_STOP = "android.media.intent.action.STOP";
+    field public static final java.lang.String CATEGORY_LIVE_AUDIO = "android.media.intent.category.LIVE_AUDIO";
+    field public static final java.lang.String CATEGORY_LIVE_VIDEO = "android.media.intent.category.LIVE_VIDEO";
+    field public static final java.lang.String CATEGORY_REMOTE_PLAYBACK = "android.media.intent.category.REMOTE_PLAYBACK";
+    field public static final int ERROR_INVALID_ITEM_ID = 3; // 0x3
+    field public static final int ERROR_INVALID_SESSION_ID = 2; // 0x2
+    field public static final int ERROR_UNKNOWN = 0; // 0x0
+    field public static final int ERROR_UNSUPPORTED_OPERATION = 1; // 0x1
+    field public static final java.lang.String EXTRA_ERROR_CODE = "android.media.intent.extra.ERROR_CODE";
+    field public static final java.lang.String EXTRA_ITEM_CONTENT_POSITION = "android.media.intent.extra.ITEM_POSITION";
+    field public static final java.lang.String EXTRA_ITEM_HTTP_HEADERS = "android.media.intent.extra.HTTP_HEADERS";
+    field public static final java.lang.String EXTRA_ITEM_ID = "android.media.intent.extra.ITEM_ID";
+    field public static final java.lang.String EXTRA_ITEM_METADATA = "android.media.intent.extra.ITEM_METADATA";
+    field public static final java.lang.String EXTRA_ITEM_STATUS = "android.media.intent.extra.ITEM_STATUS";
+    field public static final java.lang.String EXTRA_ITEM_STATUS_UPDATE_RECEIVER = "android.media.intent.extra.ITEM_STATUS_UPDATE_RECEIVER";
+    field public static final java.lang.String EXTRA_SESSION_ID = "android.media.intent.extra.SESSION_ID";
+    field public static final java.lang.String EXTRA_SESSION_STATUS = "android.media.intent.extra.SESSION_STATUS";
+    field public static final java.lang.String EXTRA_SESSION_STATUS_UPDATE_RECEIVER = "android.media.intent.extra.SESSION_STATUS_UPDATE_RECEIVER";
+  }
+
+  public final class MediaItemMetadata {
+    field public static final java.lang.String KEY_ALBUM_ARTIST = "android.media.metadata.ALBUM_ARTIST";
+    field public static final java.lang.String KEY_ALBUM_TITLE = "android.media.metadata.ALBUM_TITLE";
+    field public static final java.lang.String KEY_ARTIST = "android.media.metadata.ARTIST";
+    field public static final java.lang.String KEY_ARTWORK_URI = "android.media.metadata.ARTWORK_URI";
+    field public static final java.lang.String KEY_AUTHOR = "android.media.metadata.AUTHOR";
+    field public static final java.lang.String KEY_COMPOSER = "android.media.metadata.COMPOSER";
+    field public static final java.lang.String KEY_DISC_NUMBER = "android.media.metadata.DISC_NUMBER";
+    field public static final java.lang.String KEY_DURATION = "android.media.metadata.DURATION";
+    field public static final java.lang.String KEY_TITLE = "android.media.metadata.TITLE";
+    field public static final java.lang.String KEY_TRACK_NUMBER = "android.media.metadata.TRACK_NUMBER";
+    field public static final java.lang.String KEY_YEAR = "android.media.metadata.YEAR";
+  }
+
+  public final class MediaItemStatus {
+    method public android.os.Bundle asBundle();
+    method public static android.support.v7.media.MediaItemStatus fromBundle(android.os.Bundle);
+    method public long getContentDuration();
+    method public long getContentPosition();
+    method public android.os.Bundle getExtras();
+    method public int getPlaybackState();
+    method public long getTimestamp();
+    field public static final java.lang.String EXTRA_HTTP_RESPONSE_HEADERS = "android.media.status.extra.HTTP_RESPONSE_HEADERS";
+    field public static final java.lang.String EXTRA_HTTP_STATUS_CODE = "android.media.status.extra.HTTP_STATUS_CODE";
+    field public static final int PLAYBACK_STATE_BUFFERING = 3; // 0x3
+    field public static final int PLAYBACK_STATE_CANCELED = 5; // 0x5
+    field public static final int PLAYBACK_STATE_ERROR = 7; // 0x7
+    field public static final int PLAYBACK_STATE_FINISHED = 4; // 0x4
+    field public static final int PLAYBACK_STATE_INVALIDATED = 6; // 0x6
+    field public static final int PLAYBACK_STATE_PAUSED = 2; // 0x2
+    field public static final int PLAYBACK_STATE_PENDING = 0; // 0x0
+    field public static final int PLAYBACK_STATE_PLAYING = 1; // 0x1
+  }
+
+  public static final class MediaItemStatus.Builder {
+    ctor public MediaItemStatus.Builder(int);
+    ctor public MediaItemStatus.Builder(android.support.v7.media.MediaItemStatus);
+    method public android.support.v7.media.MediaItemStatus build();
+    method public android.support.v7.media.MediaItemStatus.Builder setContentDuration(long);
+    method public android.support.v7.media.MediaItemStatus.Builder setContentPosition(long);
+    method public android.support.v7.media.MediaItemStatus.Builder setExtras(android.os.Bundle);
+    method public android.support.v7.media.MediaItemStatus.Builder setPlaybackState(int);
+    method public android.support.v7.media.MediaItemStatus.Builder setTimestamp(long);
+  }
+
+  public final class MediaRouteDescriptor {
+    method public android.os.Bundle asBundle();
+    method public boolean canDisconnectAndKeepPlaying();
+    method public static android.support.v7.media.MediaRouteDescriptor fromBundle(android.os.Bundle);
+    method public int getConnectionState();
+    method public java.util.List<android.content.IntentFilter> getControlFilters();
+    method public java.lang.String getDescription();
+    method public int getDeviceType();
+    method public android.os.Bundle getExtras();
+    method public java.util.List<java.lang.String> getGroupMemberIds();
+    method public android.net.Uri getIconUri();
+    method public java.lang.String getId();
+    method public java.lang.String getName();
+    method public int getPlaybackStream();
+    method public int getPlaybackType();
+    method public int getPresentationDisplayId();
+    method public android.content.IntentSender getSettingsActivity();
+    method public int getVolume();
+    method public int getVolumeHandling();
+    method public int getVolumeMax();
+    method public deprecated boolean isConnecting();
+    method public boolean isEnabled();
+    method public boolean isValid();
+  }
+
+  public static final class MediaRouteDescriptor.Builder {
+    ctor public MediaRouteDescriptor.Builder(java.lang.String, java.lang.String);
+    ctor public MediaRouteDescriptor.Builder(android.support.v7.media.MediaRouteDescriptor);
+    method public android.support.v7.media.MediaRouteDescriptor.Builder addControlFilter(android.content.IntentFilter);
+    method public android.support.v7.media.MediaRouteDescriptor.Builder addControlFilters(java.util.Collection<android.content.IntentFilter>);
+    method public android.support.v7.media.MediaRouteDescriptor.Builder addGroupMemberId(java.lang.String);
+    method public android.support.v7.media.MediaRouteDescriptor.Builder addGroupMemberIds(java.util.Collection<java.lang.String>);
+    method public android.support.v7.media.MediaRouteDescriptor build();
+    method public android.support.v7.media.MediaRouteDescriptor.Builder setCanDisconnect(boolean);
+    method public deprecated android.support.v7.media.MediaRouteDescriptor.Builder setConnecting(boolean);
+    method public android.support.v7.media.MediaRouteDescriptor.Builder setConnectionState(int);
+    method public android.support.v7.media.MediaRouteDescriptor.Builder setDescription(java.lang.String);
+    method public android.support.v7.media.MediaRouteDescriptor.Builder setDeviceType(int);
+    method public android.support.v7.media.MediaRouteDescriptor.Builder setEnabled(boolean);
+    method public android.support.v7.media.MediaRouteDescriptor.Builder setExtras(android.os.Bundle);
+    method public android.support.v7.media.MediaRouteDescriptor.Builder setIconUri(android.net.Uri);
+    method public android.support.v7.media.MediaRouteDescriptor.Builder setId(java.lang.String);
+    method public android.support.v7.media.MediaRouteDescriptor.Builder setName(java.lang.String);
+    method public android.support.v7.media.MediaRouteDescriptor.Builder setPlaybackStream(int);
+    method public android.support.v7.media.MediaRouteDescriptor.Builder setPlaybackType(int);
+    method public android.support.v7.media.MediaRouteDescriptor.Builder setPresentationDisplayId(int);
+    method public android.support.v7.media.MediaRouteDescriptor.Builder setSettingsActivity(android.content.IntentSender);
+    method public android.support.v7.media.MediaRouteDescriptor.Builder setVolume(int);
+    method public android.support.v7.media.MediaRouteDescriptor.Builder setVolumeHandling(int);
+    method public android.support.v7.media.MediaRouteDescriptor.Builder setVolumeMax(int);
+  }
+
+  public final class MediaRouteDiscoveryRequest {
+    ctor public MediaRouteDiscoveryRequest(android.support.v7.media.MediaRouteSelector, boolean);
+    method public android.os.Bundle asBundle();
+    method public static android.support.v7.media.MediaRouteDiscoveryRequest fromBundle(android.os.Bundle);
+    method public android.support.v7.media.MediaRouteSelector getSelector();
+    method public boolean isActiveScan();
+    method public boolean isValid();
+  }
+
+  public abstract class MediaRouteProvider {
+    ctor public MediaRouteProvider(android.content.Context);
+    method public final android.content.Context getContext();
+    method public final android.support.v7.media.MediaRouteProviderDescriptor getDescriptor();
+    method public final android.support.v7.media.MediaRouteDiscoveryRequest getDiscoveryRequest();
+    method public final android.os.Handler getHandler();
+    method public final android.support.v7.media.MediaRouteProvider.ProviderMetadata getMetadata();
+    method public android.support.v7.media.MediaRouteProvider.RouteController onCreateRouteController(java.lang.String);
+    method public void onDiscoveryRequestChanged(android.support.v7.media.MediaRouteDiscoveryRequest);
+    method public final void setCallback(android.support.v7.media.MediaRouteProvider.Callback);
+    method public final void setDescriptor(android.support.v7.media.MediaRouteProviderDescriptor);
+    method public final void setDiscoveryRequest(android.support.v7.media.MediaRouteDiscoveryRequest);
+  }
+
+  public static abstract class MediaRouteProvider.Callback {
+    ctor public MediaRouteProvider.Callback();
+    method public void onDescriptorChanged(android.support.v7.media.MediaRouteProvider, android.support.v7.media.MediaRouteProviderDescriptor);
+  }
+
+  public static final class MediaRouteProvider.ProviderMetadata {
+    method public android.content.ComponentName getComponentName();
+    method public java.lang.String getPackageName();
+  }
+
+  public static abstract class MediaRouteProvider.RouteController {
+    ctor public MediaRouteProvider.RouteController();
+    method public boolean onControlRequest(android.content.Intent, android.support.v7.media.MediaRouter.ControlRequestCallback);
+    method public void onRelease();
+    method public void onSelect();
+    method public void onSetVolume(int);
+    method public void onUnselect();
+    method public void onUnselect(int);
+    method public void onUpdateVolume(int);
+  }
+
+  public final class MediaRouteProviderDescriptor {
+    method public android.os.Bundle asBundle();
+    method public static android.support.v7.media.MediaRouteProviderDescriptor fromBundle(android.os.Bundle);
+    method public java.util.List<android.support.v7.media.MediaRouteDescriptor> getRoutes();
+    method public boolean isValid();
+  }
+
+  public static final class MediaRouteProviderDescriptor.Builder {
+    ctor public MediaRouteProviderDescriptor.Builder();
+    ctor public MediaRouteProviderDescriptor.Builder(android.support.v7.media.MediaRouteProviderDescriptor);
+    method public android.support.v7.media.MediaRouteProviderDescriptor.Builder addRoute(android.support.v7.media.MediaRouteDescriptor);
+    method public android.support.v7.media.MediaRouteProviderDescriptor.Builder addRoutes(java.util.Collection<android.support.v7.media.MediaRouteDescriptor>);
+    method public android.support.v7.media.MediaRouteProviderDescriptor build();
+  }
+
+  public abstract class MediaRouteProviderService extends android.app.Service {
+    ctor public MediaRouteProviderService();
+    method public android.support.v7.media.MediaRouteProvider getMediaRouteProvider();
+    method public android.os.IBinder onBind(android.content.Intent);
+    method public abstract android.support.v7.media.MediaRouteProvider onCreateMediaRouteProvider();
+    field public static final java.lang.String SERVICE_INTERFACE = "android.media.MediaRouteProviderService";
+  }
+
+  public final class MediaRouteSelector {
+    method public android.os.Bundle asBundle();
+    method public boolean contains(android.support.v7.media.MediaRouteSelector);
+    method public static android.support.v7.media.MediaRouteSelector fromBundle(android.os.Bundle);
+    method public java.util.List<java.lang.String> getControlCategories();
+    method public boolean hasControlCategory(java.lang.String);
+    method public boolean isEmpty();
+    method public boolean isValid();
+    method public boolean matchesControlFilters(java.util.List<android.content.IntentFilter>);
+    field public static final android.support.v7.media.MediaRouteSelector EMPTY;
+  }
+
+  public static final class MediaRouteSelector.Builder {
+    ctor public MediaRouteSelector.Builder();
+    ctor public MediaRouteSelector.Builder(android.support.v7.media.MediaRouteSelector);
+    method public android.support.v7.media.MediaRouteSelector.Builder addControlCategories(java.util.Collection<java.lang.String>);
+    method public android.support.v7.media.MediaRouteSelector.Builder addControlCategory(java.lang.String);
+    method public android.support.v7.media.MediaRouteSelector.Builder addSelector(android.support.v7.media.MediaRouteSelector);
+    method public android.support.v7.media.MediaRouteSelector build();
+  }
+
+  public final class MediaRouter {
+    method public void addCallback(android.support.v7.media.MediaRouteSelector, android.support.v7.media.MediaRouter.Callback);
+    method public void addCallback(android.support.v7.media.MediaRouteSelector, android.support.v7.media.MediaRouter.Callback, int);
+    method public void addProvider(android.support.v7.media.MediaRouteProvider);
+    method public void addRemoteControlClient(java.lang.Object);
+    method public android.support.v7.media.MediaRouter.RouteInfo getDefaultRoute();
+    method public static android.support.v7.media.MediaRouter getInstance(android.content.Context);
+    method public android.support.v4.media.session.MediaSessionCompat.Token getMediaSessionToken();
+    method public java.util.List<android.support.v7.media.MediaRouter.ProviderInfo> getProviders();
+    method public java.util.List<android.support.v7.media.MediaRouter.RouteInfo> getRoutes();
+    method public android.support.v7.media.MediaRouter.RouteInfo getSelectedRoute();
+    method public boolean isRouteAvailable(android.support.v7.media.MediaRouteSelector, int);
+    method public void removeCallback(android.support.v7.media.MediaRouter.Callback);
+    method public void removeProvider(android.support.v7.media.MediaRouteProvider);
+    method public void removeRemoteControlClient(java.lang.Object);
+    method public void selectRoute(android.support.v7.media.MediaRouter.RouteInfo);
+    method public void setMediaSession(java.lang.Object);
+    method public void setMediaSessionCompat(android.support.v4.media.session.MediaSessionCompat);
+    method public void unselect(int);
+    method public android.support.v7.media.MediaRouter.RouteInfo updateSelectedRoute(android.support.v7.media.MediaRouteSelector);
+    field public static final int AVAILABILITY_FLAG_IGNORE_DEFAULT_ROUTE = 1; // 0x1
+    field public static final int AVAILABILITY_FLAG_REQUIRE_MATCH = 2; // 0x2
+    field public static final int CALLBACK_FLAG_FORCE_DISCOVERY = 8; // 0x8
+    field public static final int CALLBACK_FLAG_PERFORM_ACTIVE_SCAN = 1; // 0x1
+    field public static final int CALLBACK_FLAG_REQUEST_DISCOVERY = 4; // 0x4
+    field public static final int CALLBACK_FLAG_UNFILTERED_EVENTS = 2; // 0x2
+    field public static final int UNSELECT_REASON_DISCONNECTED = 1; // 0x1
+    field public static final int UNSELECT_REASON_ROUTE_CHANGED = 3; // 0x3
+    field public static final int UNSELECT_REASON_STOPPED = 2; // 0x2
+    field public static final int UNSELECT_REASON_UNKNOWN = 0; // 0x0
+  }
+
+  public static abstract class MediaRouter.Callback {
+    ctor public MediaRouter.Callback();
+    method public void onProviderAdded(android.support.v7.media.MediaRouter, android.support.v7.media.MediaRouter.ProviderInfo);
+    method public void onProviderChanged(android.support.v7.media.MediaRouter, android.support.v7.media.MediaRouter.ProviderInfo);
+    method public void onProviderRemoved(android.support.v7.media.MediaRouter, android.support.v7.media.MediaRouter.ProviderInfo);
+    method public void onRouteAdded(android.support.v7.media.MediaRouter, android.support.v7.media.MediaRouter.RouteInfo);
+    method public void onRouteChanged(android.support.v7.media.MediaRouter, android.support.v7.media.MediaRouter.RouteInfo);
+    method public void onRoutePresentationDisplayChanged(android.support.v7.media.MediaRouter, android.support.v7.media.MediaRouter.RouteInfo);
+    method public void onRouteRemoved(android.support.v7.media.MediaRouter, android.support.v7.media.MediaRouter.RouteInfo);
+    method public void onRouteSelected(android.support.v7.media.MediaRouter, android.support.v7.media.MediaRouter.RouteInfo);
+    method public void onRouteUnselected(android.support.v7.media.MediaRouter, android.support.v7.media.MediaRouter.RouteInfo);
+    method public void onRouteVolumeChanged(android.support.v7.media.MediaRouter, android.support.v7.media.MediaRouter.RouteInfo);
+  }
+
+  public static abstract class MediaRouter.ControlRequestCallback {
+    ctor public MediaRouter.ControlRequestCallback();
+    method public void onError(java.lang.String, android.os.Bundle);
+    method public void onResult(android.os.Bundle);
+  }
+
+  public static final class MediaRouter.ProviderInfo {
+    method public android.content.ComponentName getComponentName();
+    method public java.lang.String getPackageName();
+    method public android.support.v7.media.MediaRouteProvider getProviderInstance();
+    method public java.util.List<android.support.v7.media.MediaRouter.RouteInfo> getRoutes();
+  }
+
+  public static class MediaRouter.RouteGroup extends android.support.v7.media.MediaRouter.RouteInfo {
+    method public android.support.v7.media.MediaRouter.RouteInfo getRouteAt(int);
+    method public int getRouteCount();
+    method public java.util.List<android.support.v7.media.MediaRouter.RouteInfo> getRoutes();
+  }
+
+  public static class MediaRouter.RouteInfo {
+    method public boolean canDisconnect();
+    method public int getConnectionState();
+    method public java.util.List<android.content.IntentFilter> getControlFilters();
+    method public java.lang.String getDescription();
+    method public int getDeviceType();
+    method public android.os.Bundle getExtras();
+    method public android.net.Uri getIconUri();
+    method public java.lang.String getId();
+    method public java.lang.String getName();
+    method public int getPlaybackStream();
+    method public int getPlaybackType();
+    method public android.view.Display getPresentationDisplay();
+    method public android.support.v7.media.MediaRouter.ProviderInfo getProvider();
+    method public android.content.IntentSender getSettingsIntent();
+    method public int getVolume();
+    method public int getVolumeHandling();
+    method public int getVolumeMax();
+    method public boolean isConnecting();
+    method public boolean isDefault();
+    method public boolean isEnabled();
+    method public boolean isSelected();
+    method public boolean matchesSelector(android.support.v7.media.MediaRouteSelector);
+    method public void requestSetVolume(int);
+    method public void requestUpdateVolume(int);
+    method public void select();
+    method public void sendControlRequest(android.content.Intent, android.support.v7.media.MediaRouter.ControlRequestCallback);
+    method public boolean supportsControlAction(java.lang.String, java.lang.String);
+    method public boolean supportsControlCategory(java.lang.String);
+    method public boolean supportsControlRequest(android.content.Intent);
+    field public static final int CONNECTION_STATE_CONNECTED = 2; // 0x2
+    field public static final int CONNECTION_STATE_CONNECTING = 1; // 0x1
+    field public static final int CONNECTION_STATE_DISCONNECTED = 0; // 0x0
+    field public static final int DEVICE_TYPE_SPEAKER = 2; // 0x2
+    field public static final int DEVICE_TYPE_TV = 1; // 0x1
+    field public static final int PLAYBACK_TYPE_LOCAL = 0; // 0x0
+    field public static final int PLAYBACK_TYPE_REMOTE = 1; // 0x1
+    field public static final int PLAYBACK_VOLUME_FIXED = 0; // 0x0
+    field public static final int PLAYBACK_VOLUME_VARIABLE = 1; // 0x1
+  }
+
+  public final class MediaSessionStatus {
+    method public android.os.Bundle asBundle();
+    method public static android.support.v7.media.MediaSessionStatus fromBundle(android.os.Bundle);
+    method public android.os.Bundle getExtras();
+    method public int getSessionState();
+    method public long getTimestamp();
+    method public boolean isQueuePaused();
+    field public static final int SESSION_STATE_ACTIVE = 0; // 0x0
+    field public static final int SESSION_STATE_ENDED = 1; // 0x1
+    field public static final int SESSION_STATE_INVALIDATED = 2; // 0x2
+  }
+
+  public static final class MediaSessionStatus.Builder {
+    ctor public MediaSessionStatus.Builder(int);
+    ctor public MediaSessionStatus.Builder(android.support.v7.media.MediaSessionStatus);
+    method public android.support.v7.media.MediaSessionStatus build();
+    method public android.support.v7.media.MediaSessionStatus.Builder setExtras(android.os.Bundle);
+    method public android.support.v7.media.MediaSessionStatus.Builder setQueuePaused(boolean);
+    method public android.support.v7.media.MediaSessionStatus.Builder setSessionState(int);
+    method public android.support.v7.media.MediaSessionStatus.Builder setTimestamp(long);
+  }
+
+  public class RemotePlaybackClient {
+    ctor public RemotePlaybackClient(android.content.Context, android.support.v7.media.MediaRouter.RouteInfo);
+    method public void endSession(android.os.Bundle, android.support.v7.media.RemotePlaybackClient.SessionActionCallback);
+    method public void enqueue(android.net.Uri, java.lang.String, android.os.Bundle, long, android.os.Bundle, android.support.v7.media.RemotePlaybackClient.ItemActionCallback);
+    method public java.lang.String getSessionId();
+    method public void getSessionStatus(android.os.Bundle, android.support.v7.media.RemotePlaybackClient.SessionActionCallback);
+    method public void getStatus(java.lang.String, android.os.Bundle, android.support.v7.media.RemotePlaybackClient.ItemActionCallback);
+    method public boolean hasSession();
+    method public boolean isQueuingSupported();
+    method public boolean isRemotePlaybackSupported();
+    method public boolean isSessionManagementSupported();
+    method public void pause(android.os.Bundle, android.support.v7.media.RemotePlaybackClient.SessionActionCallback);
+    method public void play(android.net.Uri, java.lang.String, android.os.Bundle, long, android.os.Bundle, android.support.v7.media.RemotePlaybackClient.ItemActionCallback);
+    method public void release();
+    method public void remove(java.lang.String, android.os.Bundle, android.support.v7.media.RemotePlaybackClient.ItemActionCallback);
+    method public void resume(android.os.Bundle, android.support.v7.media.RemotePlaybackClient.SessionActionCallback);
+    method public void seek(java.lang.String, long, android.os.Bundle, android.support.v7.media.RemotePlaybackClient.ItemActionCallback);
+    method public void setSessionId(java.lang.String);
+    method public void setStatusCallback(android.support.v7.media.RemotePlaybackClient.StatusCallback);
+    method public void startSession(android.os.Bundle, android.support.v7.media.RemotePlaybackClient.SessionActionCallback);
+    method public void stop(android.os.Bundle, android.support.v7.media.RemotePlaybackClient.SessionActionCallback);
+  }
+
+  public static abstract class RemotePlaybackClient.ActionCallback {
+    ctor public RemotePlaybackClient.ActionCallback();
+    method public void onError(java.lang.String, int, android.os.Bundle);
+  }
+
+  public static abstract class RemotePlaybackClient.ItemActionCallback extends android.support.v7.media.RemotePlaybackClient.ActionCallback {
+    ctor public RemotePlaybackClient.ItemActionCallback();
+    method public void onResult(android.os.Bundle, java.lang.String, android.support.v7.media.MediaSessionStatus, java.lang.String, android.support.v7.media.MediaItemStatus);
+  }
+
+  public static abstract class RemotePlaybackClient.SessionActionCallback extends android.support.v7.media.RemotePlaybackClient.ActionCallback {
+    ctor public RemotePlaybackClient.SessionActionCallback();
+    method public void onResult(android.os.Bundle, java.lang.String, android.support.v7.media.MediaSessionStatus);
+  }
+
+  public static abstract class RemotePlaybackClient.StatusCallback {
+    ctor public RemotePlaybackClient.StatusCallback();
+    method public void onItemStatusChanged(android.os.Bundle, java.lang.String, android.support.v7.media.MediaSessionStatus, java.lang.String, android.support.v7.media.MediaItemStatus);
+    method public void onSessionChanged(java.lang.String);
+    method public void onSessionStatusChanged(android.os.Bundle, java.lang.String, android.support.v7.media.MediaSessionStatus);
+  }
+
+}
+
