@@ -84,6 +84,7 @@ public class BaseRecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentat
         recyclerView.waitForDraw(1);
         mLayoutManager.mOnLayoutCallbacks.reset();
         getInstrumentation().waitForIdleSync();
+        checkForMainThreadException();
         assertEquals("extra layouts should not happen", 1, mLayoutManager.getTotalLayoutCount());
         assertEquals("all expected children should be laid out", firstLayoutItemCount,
                 mLayoutManager.getChildCount());
@@ -650,7 +651,7 @@ public class BaseRecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentat
         }
     }
 
-    static class AnimateChange extends AnimatePersistence {
+    static class AnimateChange extends AnimateLogBase {
 
         final RecyclerView.ViewHolder newHolder;
 
@@ -661,7 +662,7 @@ public class BaseRecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentat
         }
     }
 
-    static class AnimatePersistence extends AnimateAppearance {
+    static class AnimatePersistence extends AnimateLogBase {
 
         public AnimatePersistence(RecyclerView.ViewHolder viewHolder, LoggingInfo pre,
                 LoggingInfo post) {
@@ -669,30 +670,60 @@ public class BaseRecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentat
         }
     }
 
-    static class AnimateAppearance extends AnimateDisappearance {
-
-        final LoggingInfo postInfo;
-
+    static class AnimateAppearance extends AnimateLogBase {
         public AnimateAppearance(RecyclerView.ViewHolder viewHolder, LoggingInfo pre,
                 LoggingInfo post) {
-            super(viewHolder, pre);
-            this.postInfo = post;
+            super(viewHolder, pre, post);
         }
     }
 
     static class AnimateDisappearance extends AnimateLogBase {
-        public AnimateDisappearance(RecyclerView.ViewHolder viewHolder, LoggingInfo pre) {
-            super(viewHolder, pre);
+        public AnimateDisappearance(RecyclerView.ViewHolder viewHolder, LoggingInfo pre,
+                LoggingInfo post) {
+            super(viewHolder, pre, post);
         }
     }
     static class AnimateLogBase {
 
         final RecyclerView.ViewHolder viewHolder;
         final LoggingInfo preInfo;
+        final LoggingInfo postInfo;
 
-        public AnimateLogBase(RecyclerView.ViewHolder viewHolder, LoggingInfo pre) {
+        public AnimateLogBase(RecyclerView.ViewHolder viewHolder, LoggingInfo pre,
+                LoggingInfo postInfo) {
             this.viewHolder = viewHolder;
             this.preInfo = pre;
+            this.postInfo = postInfo;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            AnimateLogBase that = (AnimateLogBase) o;
+
+            if (viewHolder != null ? !viewHolder.equals(that.viewHolder)
+                    : that.viewHolder != null) {
+                return false;
+            }
+            if (preInfo != null ? !preInfo.equals(that.preInfo) : that.preInfo != null) {
+                return false;
+            }
+            return !(postInfo != null ? !postInfo.equals(that.postInfo) : that.postInfo != null);
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = viewHolder != null ? viewHolder.hashCode() : 0;
+            result = 31 * result + (preInfo != null ? preInfo.hashCode() : 0);
+            result = 31 * result + (postInfo != null ? postInfo.hashCode() : 0);
+            return result;
         }
     }
 }

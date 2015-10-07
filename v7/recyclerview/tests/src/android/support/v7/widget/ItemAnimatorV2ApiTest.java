@@ -15,6 +15,9 @@
  */
 package android.support.v7.widget;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,10 +32,29 @@ import static android.support.v7.widget.RecyclerView.ItemAnimator.FLAG_REMOVED;
  * Includes tests for the new RecyclerView animations API (v2).
  */
 public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
-
     @Override
     protected RecyclerView.ItemAnimator createItemAnimator() {
         return mAnimator;
+    }
+
+    public void testChangeMovedOutside() throws Throwable {
+        setupBasic(10);
+        final RecyclerView.ViewHolder target = mRecyclerView.findViewHolderForAdapterPosition(9);
+        mLayoutManager.expectLayouts(2);
+        mLayoutManager.mOnLayoutCallbacks.mLayoutItemCount = 9;
+        mTestAdapter.changeAndNotify(9, 1);
+        mLayoutManager.waitForLayout(2);
+        // changed item shold not be laid out and should just receive disappear
+        LoggingInfo pre = mAnimator.preLayoutInfoMap.get(target);
+        assertNotNull("test sanity", pre);
+        assertNull("test sanity", mAnimator.postLayoutInfoMap.get(target));
+        assertTrue(mAnimator.animateChangeList.isEmpty());
+        assertEquals(1, mAnimator.animateDisappearanceList.size());
+        assertEquals(new AnimateDisappearance(target, pre, null),
+                mAnimator.animateDisappearanceList.get(0));
+        // This is kind of problematic because layout manager will never layout the updated
+        // version of this view since it went out of bounds and it won't show up in scrap.
+        // I don't think we can do much better since other option is to bind a fresh view
     }
 
     public void testSimpleAdd() throws Throwable {
@@ -49,11 +71,11 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         // the first two should not receive anything
         for (int i = 0; i < 2; i++) {
             RecyclerView.ViewHolder other = mRecyclerView.findViewHolderForAdapterPosition(i);
-            assertEquals(0, mAnimator.preLayoutInfo.get(other).changeFlags);
+            assertEquals(0, mAnimator.preLayoutInfoMap.get(other).changeFlags);
         }
         for (int i = 3; i < mTestAdapter.getItemCount(); i++) {
             RecyclerView.ViewHolder other = mRecyclerView.findViewHolderForAdapterPosition(i);
-            assertEquals(FLAG_MOVED, mAnimator.preLayoutInfo.get(other).changeFlags);
+            assertEquals(FLAG_MOVED, mAnimator.preLayoutInfoMap.get(other).changeFlags);
         }
         checkForMainThreadException();
     }
@@ -68,16 +90,16 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         assertEquals(1, mAnimator.animateDisappearanceList.size());
         AnimateDisappearance log = mAnimator.animateDisappearanceList.get(0);
         assertSame(vh, log.viewHolder);
-        assertFalse(mAnimator.postLayoutInfo.containsKey(vh));
+        assertFalse(mAnimator.postLayoutInfoMap.containsKey(vh));
         assertEquals(FLAG_REMOVED, log.preInfo.changeFlags);
         // the first two should not receive anything
         for (int i = 0; i < 2; i++) {
             RecyclerView.ViewHolder other = mRecyclerView.findViewHolderForAdapterPosition(i);
-            assertEquals(0, mAnimator.preLayoutInfo.get(other).changeFlags);
+            assertEquals(0, mAnimator.preLayoutInfoMap.get(other).changeFlags);
         }
         for (int i = 3; i < mTestAdapter.getItemCount(); i++) {
             RecyclerView.ViewHolder other = mRecyclerView.findViewHolderForAdapterPosition(i);
-            assertEquals(FLAG_MOVED, mAnimator.preLayoutInfo.get(other).changeFlags);
+            assertEquals(FLAG_MOVED, mAnimator.preLayoutInfoMap.get(other).changeFlags);
         }
         checkForMainThreadException();
     }
@@ -92,8 +114,8 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         AnimateChange log = mAnimator.animateChangeList.get(0);
         assertSame(vh, log.viewHolder);
         assertSame(vh, log.newHolder);
-        assertTrue(mAnimator.preLayoutInfo.containsKey(vh));
-        assertTrue(mAnimator.postLayoutInfo.containsKey(vh));
+        assertTrue(mAnimator.preLayoutInfoMap.containsKey(vh));
+        assertTrue(mAnimator.postLayoutInfoMap.containsKey(vh));
         assertEquals(FLAG_CHANGED, log.preInfo.changeFlags);
         assertEquals(0, log.postInfo.changeFlags);
         //others should not receive anything
@@ -102,7 +124,7 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
                 continue;
             }
             RecyclerView.ViewHolder other = mRecyclerView.findViewHolderForAdapterPosition(i);
-            assertEquals(0, mAnimator.preLayoutInfo.get(other).changeFlags);
+            assertEquals(0, mAnimator.preLayoutInfoMap.get(other).changeFlags);
         }
         checkForMainThreadException();
     }
@@ -127,9 +149,9 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         assertSame(vh, log.viewHolder);
         assertSame(newVh, log.newHolder);
         assertNull(vh.itemView.getParent());
-        assertTrue(mAnimator.preLayoutInfo.containsKey(vh));
-        assertFalse(mAnimator.postLayoutInfo.containsKey(vh));
-        assertTrue(mAnimator.postLayoutInfo.containsKey(newVh));
+        assertTrue(mAnimator.preLayoutInfoMap.containsKey(vh));
+        assertFalse(mAnimator.postLayoutInfoMap.containsKey(vh));
+        assertTrue(mAnimator.postLayoutInfoMap.containsKey(newVh));
         assertEquals(FLAG_CHANGED, log.preInfo.changeFlags);
         assertEquals(0, log.postInfo.changeFlags);
         //others should not receive anything
@@ -138,7 +160,7 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
                 continue;
             }
             RecyclerView.ViewHolder other = mRecyclerView.findViewHolderForAdapterPosition(i);
-            assertEquals(0, mAnimator.preLayoutInfo.get(other).changeFlags);
+            assertEquals(0, mAnimator.preLayoutInfoMap.get(other).changeFlags);
         }
         checkForMainThreadException();
     }
@@ -183,12 +205,12 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         assertSame(reused, logReused.viewHolder);
         assertSame(reused, logReused.newHolder);
 
-        assertTrue(mAnimator.preLayoutInfo.containsKey(replaced));
-        assertTrue(mAnimator.preLayoutInfo.containsKey(reused));
+        assertTrue(mAnimator.preLayoutInfoMap.containsKey(replaced));
+        assertTrue(mAnimator.preLayoutInfoMap.containsKey(reused));
 
-        assertTrue(mAnimator.postLayoutInfo.containsKey(newVh));
-        assertTrue(mAnimator.postLayoutInfo.containsKey(reused));
-        assertFalse(mAnimator.postLayoutInfo.containsKey(replaced));
+        assertTrue(mAnimator.postLayoutInfoMap.containsKey(newVh));
+        assertTrue(mAnimator.postLayoutInfoMap.containsKey(reused));
+        assertFalse(mAnimator.postLayoutInfoMap.containsKey(replaced));
 
         assertEquals(FLAG_CHANGED, logReplaced.preInfo.changeFlags);
         assertEquals(FLAG_CHANGED, logReused.preInfo.changeFlags);
@@ -201,7 +223,7 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
                 continue;
             }
             RecyclerView.ViewHolder other = mRecyclerView.findViewHolderForAdapterPosition(i);
-            assertEquals(0, mAnimator.preLayoutInfo.get(other).changeFlags);
+            assertEquals(0, mAnimator.preLayoutInfoMap.get(other).changeFlags);
         }
         checkForMainThreadException();
     }
@@ -216,7 +238,7 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         assertEquals(1, mAnimator.animateDisappearanceList.size());
         AnimateDisappearance log = mAnimator.animateDisappearanceList.get(0);
         assertSame(vh, log.viewHolder);
-        assertFalse(mAnimator.postLayoutInfo.containsKey(vh));
+        assertFalse(mAnimator.postLayoutInfoMap.containsKey(vh));
         assertEquals(FLAG_CHANGED, log.preInfo.changeFlags);
         assertEquals(0, mAnimator.animateChangeList.size());
         assertEquals(0, mAnimator.animateAppearanceList.size());
@@ -235,8 +257,8 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         AnimateChange log = mAnimator.animateChangeList.get(0);
         assertSame(vh, log.viewHolder);
         assertSame(vh, log.newHolder);
-        assertTrue(mAnimator.preLayoutInfo.containsKey(vh));
-        assertTrue(mAnimator.postLayoutInfo.containsKey(vh));
+        assertTrue(mAnimator.preLayoutInfoMap.containsKey(vh));
+        assertTrue(mAnimator.postLayoutInfoMap.containsKey(vh));
         assertEquals(FLAG_CHANGED, log.preInfo.changeFlags);
         assertEquals(0, log.postInfo.changeFlags);
         assertNotNull(log.preInfo.payloads);
@@ -247,7 +269,7 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
                 continue;
             }
             RecyclerView.ViewHolder other = mRecyclerView.findViewHolderForAdapterPosition(i);
-            assertEquals(0, mAnimator.preLayoutInfo.get(other).changeFlags);
+            assertEquals(0, mAnimator.preLayoutInfoMap.get(other).changeFlags);
         }
         checkForMainThreadException();
     }
@@ -407,8 +429,8 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
                 return true;
             }
         };
-        Map<RecyclerView.ViewHolder, LoggingInfo> preLayoutInfo = new HashMap<>();
-        Map<RecyclerView.ViewHolder, LoggingInfo> postLayoutInfo = new HashMap<>();
+        Map<RecyclerView.ViewHolder, LoggingInfo> preLayoutInfoMap = new HashMap<>();
+        Map<RecyclerView.ViewHolder, LoggingInfo> postLayoutInfoMap = new HashMap<>();
 
         List<AnimateAppearance> animateAppearanceList = new ArrayList<>();
         List<AnimateDisappearance> animateDisappearanceList = new ArrayList<>();
@@ -420,69 +442,73 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
             return canReUseCallback.canReUse(viewHolder);
         }
 
+        @NonNull
         @Override
-        public ItemHolderInfo recordPreLayoutInformation(RecyclerView.State state,
-                RecyclerView.ViewHolder viewHolder,
-                @AdapterChanges int changeFlags, List<Object> payloads) {
+        public ItemHolderInfo recordPreLayoutInformation(@NonNull RecyclerView.State state,
+                @NonNull RecyclerView.ViewHolder viewHolder,
+                @AdapterChanges int changeFlags, @NonNull List<Object> payloads) {
             LoggingInfo loggingInfo = new LoggingInfo(viewHolder, changeFlags, payloads);
-            preLayoutInfo.put(viewHolder, loggingInfo);
+            preLayoutInfoMap.put(viewHolder, loggingInfo);
             return loggingInfo;
         }
 
+        @NonNull
         @Override
-        public ItemHolderInfo recordPostLayoutInformation(RecyclerView.State state,
-                RecyclerView.ViewHolder viewHolder) {
+        public ItemHolderInfo recordPostLayoutInformation(@NonNull RecyclerView.State state,
+                @NonNull RecyclerView.ViewHolder viewHolder) {
             LoggingInfo loggingInfo = new LoggingInfo(viewHolder, 0, null);
-            postLayoutInfo.put(viewHolder, loggingInfo);
+            postLayoutInfoMap.put(viewHolder, loggingInfo);
             return loggingInfo;
         }
 
         @Override
-        public boolean animateDisappearance(RecyclerView.ViewHolder viewHolder,
-                ItemHolderInfo preInfo) {
-            animateDisappearanceList.add(new AnimateDisappearance(viewHolder, (LoggingInfo) preInfo));
-            assertSame(preLayoutInfo.get(viewHolder), preInfo);
+        public boolean animateDisappearance(@NonNull RecyclerView.ViewHolder viewHolder,
+                @NonNull ItemHolderInfo preLayoutInfo,
+                @Nullable ItemHolderInfo postLayoutInfo) {
+            animateDisappearanceList.add(new AnimateDisappearance(viewHolder,
+                    (LoggingInfo) preLayoutInfo, (LoggingInfo) postLayoutInfo));
+            assertSame(preLayoutInfoMap.get(viewHolder), preLayoutInfo);
+            assertSame(postLayoutInfoMap.get(viewHolder), postLayoutInfo);
             dispatchAnimationFinished(viewHolder);
 
             return false;
         }
 
         @Override
-        public boolean animateAppearance(RecyclerView.ViewHolder viewHolder, ItemHolderInfo preInfo,
-                ItemHolderInfo postInfo) {
+        public boolean animateAppearance(@NonNull RecyclerView.ViewHolder viewHolder,
+                ItemHolderInfo preInfo, @NonNull ItemHolderInfo postInfo) {
             animateAppearanceList.add(
                     new AnimateAppearance(viewHolder, (LoggingInfo) preInfo, (LoggingInfo) postInfo));
-            assertSame(preLayoutInfo.get(viewHolder), preInfo);
-            assertSame(postLayoutInfo.get(viewHolder), postInfo);
+            assertSame(preLayoutInfoMap.get(viewHolder), preInfo);
+            assertSame(postLayoutInfoMap.get(viewHolder), postInfo);
             dispatchAnimationFinished(viewHolder);
             return false;
         }
 
         @Override
-        public boolean animatePersistence(RecyclerView.ViewHolder viewHolder,
-                ItemHolderInfo preInfo,
-                ItemHolderInfo postInfo) {
+        public boolean animatePersistence(@NonNull RecyclerView.ViewHolder viewHolder,
+                @NonNull ItemHolderInfo preInfo, @NonNull ItemHolderInfo postInfo) {
             animatePersistenceList.add(new AnimatePersistence(viewHolder, (LoggingInfo) preInfo,
                     (LoggingInfo) postInfo));
             dispatchAnimationFinished(viewHolder);
-            assertSame(preLayoutInfo.get(viewHolder), preInfo);
-            assertSame(postLayoutInfo.get(viewHolder), postInfo);
+            assertSame(preLayoutInfoMap.get(viewHolder), preInfo);
+            assertSame(postLayoutInfoMap.get(viewHolder), postInfo);
             return false;
         }
 
         @Override
-        public boolean animateChange(RecyclerView.ViewHolder oldHolder,
-                RecyclerView.ViewHolder newHolder, ItemHolderInfo preInfo,
-                ItemHolderInfo postInfo) {
+        public boolean animateChange(@NonNull RecyclerView.ViewHolder oldHolder,
+                @NonNull RecyclerView.ViewHolder newHolder, @NonNull ItemHolderInfo preInfo,
+                @NonNull ItemHolderInfo postInfo) {
             animateChangeList.add(new AnimateChange(oldHolder, newHolder, (LoggingInfo) preInfo,
                     (LoggingInfo) postInfo));
             if (oldHolder != null) {
                 dispatchAnimationFinished(oldHolder);
-                assertSame(preLayoutInfo.get(oldHolder), preInfo);
+                assertSame(preLayoutInfoMap.get(oldHolder), preInfo);
             }
             if (newHolder != null) {
                 dispatchAnimationFinished(newHolder);
-                assertSame(postLayoutInfo.get(newHolder), postInfo);
+                assertSame(postLayoutInfoMap.get(newHolder), postInfo);
             }
 
             return false;
