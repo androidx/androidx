@@ -99,8 +99,6 @@
      <public type="attr" name="dividerVertical"/>
      <public type="attr" name="drawableSize"/>
      <public type="attr" name="drawerArrowStyle"/>
-     <public type="attr" name="dropdownListPreferredItemHeight"/>
-     <public type="attr" name="dropDownListViewStyle"/>
      <public type="attr" name="editTextBackground"/>
      <public type="attr" name="editTextColor"/>
      <public type="attr" name="editTextStyle"/>
