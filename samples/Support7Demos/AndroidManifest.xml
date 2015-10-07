@@ -62,7 +62,7 @@
         <activity android:name=".media.SampleMediaRouterActivity"
                 android:configChanges="orientation|screenSize"
                 android:label="@string/sample_media_router_activity_dark"
-                android:theme="@style/Theme.AppCompat">
+                android:theme="@style/Theme.SampleMediaRouter">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
@@ -72,7 +72,7 @@
         <activity android:name=".media.SampleMediaRouterActivity$Light"
                 android:configChanges="orientation|screenSize"
                 android:label="@string/sample_media_router_activity_light"
-                android:theme="@style/Theme.AppCompat.Light">
+                android:theme="@style/Theme.SampleMediaRouter.Light">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
@@ -82,7 +82,7 @@
         <activity android:name=".media.SampleMediaRouterActivity$LightWithDarkActionBar"
                 android:configChanges="orientation|screenSize"
                 android:label="@string/sample_media_router_activity_light_with_dark_action_bar"
-                android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+                android:theme="@style/Theme.SampleMediaRouter.Light.DarkActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />

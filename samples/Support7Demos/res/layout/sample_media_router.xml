@@ -76,6 +76,12 @@
         </TabHost>
 
         <!-- Control buttons for the currently selected route. -->
+        <CheckBox android:id="@+id/custom_control_view_checkbox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/use_default_media_control"
+                android:checked="true"
+                android:visibility="gone"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

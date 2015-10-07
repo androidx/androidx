@@ -29,6 +29,39 @@
         <item name="colorAccent">#ffff00</item>
     </style>
 
+    <style name="Theme.SampleMediaRouter" parent="Theme.AppCompat">
+        <item name="colorPrimary">#fff44336</item>
+        <item name="colorPrimaryDark">#d32f2f</item>
+        <item name="alertDialogTheme">@style/Theme.SampleMediaRouter.Dialog.Alert</item>
+    </style>
+
+    <style name="Theme.SampleMediaRouter.Light" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">#ffff9800</item>
+        <item name="colorPrimaryDark">#f57c00</item>
+        <item name="alertDialogTheme">@style/Theme.SampleMediaRouter.Light.Dialog.Alert</item>
+    </style>
+
+    <style name="Theme.SampleMediaRouter.Light.DarkActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">#ff2196f3</item>
+        <item name="colorPrimaryDark">#1976d2</item>
+        <item name="alertDialogTheme">@style/Theme.SampleMediaRouter.Light.DarkActionBar.Dialog.Alert</item>
+    </style>
+
+    <style name="Theme.SampleMediaRouter.Dialog.Alert" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="colorPrimary">#fff44336</item>
+        <item name="colorPrimaryDark">#d32f2f</item>
+    </style>
+
+    <style name="Theme.SampleMediaRouter.Light.Dialog.Alert" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorPrimary">#ffff9800</item>
+        <item name="colorPrimaryDark">#f57c00</item>
+    </style>
+
+    <style name="Theme.SampleMediaRouter.Light.DarkActionBar.Dialog.Alert" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorPrimary">#ff2196f3</item>
+        <item name="colorPrimaryDark">#1976d2</item>
+    </style>
+
     <style name="SortedListItem" parent="@android:style/TextAppearance.Medium">
         <item name="android:minHeight">35dp</item>
     </style>

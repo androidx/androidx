@@ -16,10 +16,7 @@
 
 package com.example.android.supportv7.media;
 
-import android.app.PendingIntent;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -32,17 +29,22 @@ import android.util.Log;
  * Abstraction of common playback operations of media items, such as play,
  * seek, etc. Used by PlaybackManager as a backend to handle actual playback
  * of media items.
+ *
+ * TODO: Introduce prepare() method and refactor subclasses accordingly.
  */
 public abstract class Player {
     private static final String TAG = "SampleMediaRoutePlayer";
     protected static final int STATE_IDLE = 0;
-    protected static final int STATE_PLAY_PENDING = 1;
-    protected static final int STATE_READY = 2;
-    protected static final int STATE_PLAYING = 3;
-    protected static final int STATE_PAUSED = 4;
+    protected static final int STATE_PREPARING_FOR_PLAY = 1;
+    protected static final int STATE_PREPARING_FOR_PAUSE = 2;
+    protected static final int STATE_READY = 3;
+    protected static final int STATE_PLAYING = 4;
+    protected static final int STATE_PAUSED = 5;
 
     private static final long PLAYBACK_ACTIONS = PlaybackStateCompat.ACTION_PAUSE
             | PlaybackStateCompat.ACTION_PLAY;
+    private static final PlaybackStateCompat INIT_PLAYBACK_STATE = new PlaybackStateCompat.Builder()
+            .setState(PlaybackStateCompat.STATE_NONE, 0, .0f).build();
 
     protected Callback mCallback;
     protected MediaSessionCompat mMediaSession;
@@ -88,13 +90,18 @@ public abstract class Player {
         } else {
             player = new LocalPlayer.OverlayPlayer(context);
         }
-        player.initMediaSession(session);
+        player.setMediaSession(session);
+        player.initMediaSession();
         player.connect(route);
         return player;
     }
 
-    public MediaSessionCompat getMediaSession() {
-        return mMediaSession;
+    protected void initMediaSession() {
+        if (mMediaSession == null) {
+            return;
+        }
+        mMediaSession.setMetadata(null);
+        mMediaSession.setPlaybackState(INIT_PLAYBACK_STATE);
     }
 
     protected void updateMetadata() {
@@ -138,11 +145,9 @@ public abstract class Player {
         }
     }
 
-    private void initMediaSession(MediaSessionCompat session) {
+    private void setMediaSession(MediaSessionCompat session) {
         mMediaSession = session;
-        updateMetadata();
     }
-
 
     public interface Callback {
         void onError();

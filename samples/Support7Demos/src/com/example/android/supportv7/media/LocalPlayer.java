@@ -20,15 +20,12 @@ import android.app.Activity;
 import android.app.Presentation;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v7.media.MediaRouter.RouteInfo;
 import android.support.v7.media.MediaItemStatus;
 import android.util.Log;
@@ -59,6 +56,7 @@ public abstract class LocalPlayer extends Player implements
 
     private final Context mContext;
     private final Handler mHandler = new Handler();
+    private final Handler mUpdateSurfaceHandler = new Handler(mHandler.getLooper());
     private MediaPlayer mMediaPlayer;
     private int mState = STATE_IDLE;
     private int mSeekToPos;
@@ -104,11 +102,6 @@ public abstract class LocalPlayer extends Player implements
         }
     }
 
-    @Override
-    public MediaSessionCompat getMediaSession() {
-        return mMediaSession;
-    }
-
     // Player
     @Override
     public void play(final PlaylistItem item) {
@@ -145,7 +138,8 @@ public abstract class LocalPlayer extends Player implements
         if (mState == STATE_PLAYING || mState == STATE_PAUSED) {
             mMediaPlayer.seekTo(pos);
             mSeekToPos = pos;
-        } else if (mState == STATE_IDLE || mState == STATE_PLAY_PENDING) {
+        } else if (mState == STATE_IDLE || mState == STATE_PREPARING_FOR_PLAY
+                || mState == STATE_PREPARING_FOR_PAUSE) {
             // Seek before onPrepared() arrives,
             // need to performed delayed seek in onPrepared()
             mSeekToPos = pos;
@@ -175,6 +169,8 @@ public abstract class LocalPlayer extends Player implements
         if (mState == STATE_PLAYING) {
             mMediaPlayer.pause();
             mState = STATE_PAUSED;
+        } else if (mState == STATE_PREPARING_FOR_PLAY) {
+            mState = STATE_PREPARING_FOR_PAUSE;
         }
     }
 
@@ -186,8 +182,8 @@ public abstract class LocalPlayer extends Player implements
         if (mState == STATE_READY || mState == STATE_PAUSED) {
             mMediaPlayer.start();
             mState = STATE_PLAYING;
-        } else if (mState == STATE_IDLE){
-            mState = STATE_PLAY_PENDING;
+        } else if (mState == STATE_IDLE || mState == STATE_PREPARING_FOR_PAUSE) {
+            mState = STATE_PREPARING_FOR_PLAY;
         }
     }
 
@@ -224,8 +220,10 @@ public abstract class LocalPlayer extends Player implements
                 if (mState == STATE_IDLE) {
                     mState = STATE_READY;
                     updateVideoRect();
-                } else if (mState == STATE_PLAY_PENDING) {
-                    mState = STATE_PLAYING;
+                } else if (mState == STATE_PREPARING_FOR_PLAY
+                        || mState == STATE_PREPARING_FOR_PAUSE) {
+                    int prevState = mState;
+                    mState = mState == STATE_PREPARING_FOR_PLAY ? STATE_PLAYING : STATE_PAUSED;
                     updateVideoRect();
                     if (mSeekToPos > 0) {
                         if (DEBUG) {
@@ -233,7 +231,9 @@ public abstract class LocalPlayer extends Player implements
                         }
                         mMediaPlayer.seekTo(mSeekToPos);
                     }
-                    mMediaPlayer.start();
+                    if (prevState == STATE_PREPARING_FOR_PLAY) {
+                        mMediaPlayer.start();
+                    }
                 }
                 if (mCallback != null) {
                     mCallback.onPlaylistChanged();
@@ -294,6 +294,7 @@ public abstract class LocalPlayer extends Player implements
     protected MediaPlayer getMediaPlayer() { return mMediaPlayer; }
     protected int getVideoWidth() { return mVideoWidth; }
     protected int getVideoHeight() { return mVideoHeight; }
+    protected int getState() { return mState; }
     protected void setSurface(Surface surface) {
         mSurface = surface;
         mSurfaceHolder = null;
@@ -313,23 +314,29 @@ public abstract class LocalPlayer extends Player implements
     }
 
     protected void updateSurface() {
-        if (mMediaPlayer == null) {
-            // just return if media player is already gone
-            return;
-        }
-        if (mSurface != null) {
-            // The setSurface API does not exist until V14+.
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                ICSMediaPlayer.setSurface(mMediaPlayer, mSurface);
-            } else {
-                throw new UnsupportedOperationException("MediaPlayer does not support "
-                        + "setSurface() on this version of the platform.");
+        mUpdateSurfaceHandler.removeCallbacksAndMessages(null);
+        mUpdateSurfaceHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (mMediaPlayer == null) {
+                    // just return if media player is already gone
+                    return;
+                }
+                if (mSurface != null) {
+                    // The setSurface API does not exist until V14+.
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                        ICSMediaPlayer.setSurface(mMediaPlayer, mSurface);
+                    } else {
+                        throw new UnsupportedOperationException("MediaPlayer does not support "
+                                + "setSurface() on this version of the platform.");
+                    }
+                } else if (mSurfaceHolder != null) {
+                    mMediaPlayer.setDisplay(mSurfaceHolder);
+                } else {
+                    mMediaPlayer.setDisplay(null);
+                }
             }
-        } else if (mSurfaceHolder != null) {
-            mMediaPlayer.setDisplay(mSurfaceHolder);
-        } else {
-            mMediaPlayer.setDisplay(null);
-        }
+        });
     }
 
     protected abstract void updateSize();
@@ -351,7 +358,8 @@ public abstract class LocalPlayer extends Player implements
     }
 
     private void updateVideoRect() {
-        if (mState != STATE_IDLE && mState != STATE_PLAY_PENDING) {
+        if (mState != STATE_IDLE && mState != STATE_PREPARING_FOR_PLAY
+                && mState != STATE_PREPARING_FOR_PAUSE) {
             int width = mMediaPlayer.getVideoWidth();
             int height = mMediaPlayer.getVideoHeight();
             if (width > 0 && height > 0) {
@@ -632,7 +640,10 @@ public abstract class LocalPlayer extends Player implements
 
         @Override
         public Bitmap getSnapshot() {
-            return mOverlay.getSnapshot();
+            if (getState() == STATE_PLAYING || getState() == STATE_PAUSED) {
+                return mOverlay.getSnapshot();
+            }
+            return null;
         }
     }
 }

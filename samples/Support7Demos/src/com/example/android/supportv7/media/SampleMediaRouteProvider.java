@@ -51,6 +51,8 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
     private static final String VARIABLE_VOLUME_BASIC_ROUTE_ID = "variable_basic";
     private static final String VARIABLE_VOLUME_QUEUING_ROUTE_ID = "variable_queuing";
     private static final String VARIABLE_VOLUME_SESSION_ROUTE_ID = "variable_session";
+    private static final String VARIABLE_VOLUME_ROUTE_GROUP_ID = "variable_group";
+    private static final String MIXED_VOLUME_ROUTE_GROUP_ID = "mixed_group";
 
     private static final int VOLUME_MAX = 10;
 
@@ -223,11 +225,46 @@ final class SampleMediaRouteProvider extends MediaRouteProvider {
                 .setVolume(mVolume)
                 .build();
 
+        MediaRouteDescriptor routeDescriptor5 = new MediaRouteDescriptor.Builder(
+                VARIABLE_VOLUME_ROUTE_GROUP_ID,
+                r.getString(R.string.variable_volume_route_group_name))
+                .addGroupMemberId(VARIABLE_VOLUME_BASIC_ROUTE_ID)
+                .addGroupMemberId(VARIABLE_VOLUME_QUEUING_ROUTE_ID)
+                .setDescription(r.getString(R.string.sample_route_description))
+                .addControlFilters(CONTROL_FILTERS_SESSION)
+                .setPlaybackStream(AudioManager.STREAM_MUSIC)
+                .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
+                .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)
+                .setVolumeMax(VOLUME_MAX)
+                .setVolume(mVolume)
+                .build();
+
+        Uri iconUri = Uri.parse("android.resource://com.example.android.supportv7/"
+                + R.drawable.ic_android);
+        MediaRouteDescriptor routeDescriptor6 = new MediaRouteDescriptor.Builder(
+                MIXED_VOLUME_ROUTE_GROUP_ID,
+                r.getString(R.string.mixed_volume_route_group_name))
+                .addGroupMemberId(FIXED_VOLUME_ROUTE_ID)
+                .addGroupMemberId(VARIABLE_VOLUME_BASIC_ROUTE_ID)
+                .addGroupMemberId(VARIABLE_VOLUME_QUEUING_ROUTE_ID)
+                .addGroupMemberId(VARIABLE_VOLUME_SESSION_ROUTE_ID)
+                .setDescription(r.getString(R.string.sample_route_description))
+                .setIconUri(iconUri)
+                .addControlFilters(CONTROL_FILTERS_SESSION)
+                .setPlaybackStream(AudioManager.STREAM_MUSIC)
+                .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
+                .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)
+                .setVolumeMax(VOLUME_MAX)
+                .setVolume(mVolume)
+                .build();
+
         MediaRouteProviderDescriptor providerDescriptor = new MediaRouteProviderDescriptor.Builder()
                 .addRoute(routeDescriptor1)
                 .addRoute(routeDescriptor2)
                 .addRoute(routeDescriptor3)
                 .addRoute(routeDescriptor4)
+                .addRoute(routeDescriptor5)
+                .addRoute(routeDescriptor6)
                 .build();
         setDescriptor(providerDescriptor);
     }

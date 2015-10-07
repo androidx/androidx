@@ -56,6 +56,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.SeekBar;
@@ -79,6 +80,7 @@ import java.io.File;
 public class SampleMediaRouterActivity extends AppCompatActivity {
     private static final String TAG = "SampleMediaRouterActivity";
     private static final String DISCOVERY_FRAGMENT_TAG = "DiscoveryFragment";
+    private static final boolean ENABLE_DEFAULT_CONTROL_CHECK_BOX = false;
 
     private MediaRouter mMediaRouter;
     private MediaRouteSelector mSelector;
@@ -87,6 +89,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
     private TextView mInfoTextView;
     private ListView mLibraryView;
     private ListView mPlayListView;
+    private CheckBox mUseDefaultControlCheckBox;
     private ImageButton mPauseResumeButton;
     private ImageButton mStopButton;
     private SeekBar mSeekBar;
@@ -308,6 +311,10 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
 
         mInfoTextView = (TextView) findViewById(R.id.info);
 
+        mUseDefaultControlCheckBox = (CheckBox) findViewById(R.id.custom_control_view_checkbox);
+        if (ENABLE_DEFAULT_CONTROL_CHECK_BOX) {
+            mUseDefaultControlCheckBox.setVisibility(View.VISIBLE);
+        }
         mPauseResumeButton = (ImageButton)findViewById(R.id.pause_resume_button);
         mPauseResumeButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -518,7 +525,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         mediaRouteActionProvider.setDialogFactory(new MediaRouteDialogFactory() {
             @Override
             public MediaRouteControllerDialogFragment onCreateControllerDialogFragment() {
-                return new ControllerDialogFragment(mPlayer);
+                return new ControllerDialogFragment(mPlayer, mUseDefaultControlCheckBox);
             }
         });
 
@@ -734,20 +741,23 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
     public static class ControllerDialogFragment extends MediaRouteControllerDialogFragment {
         private MediaRouteControllerDialog mControllerDialog;
         private Player mPlayer;
+        private CheckBox mUseDefaultControlCheckBox;
 
         public ControllerDialogFragment() {
             super();
         }
 
-        public ControllerDialogFragment(Player player) {
+        public ControllerDialogFragment(Player player, CheckBox customControlViewCheckBox) {
             mPlayer = player;
+            this.mUseDefaultControlCheckBox = customControlViewCheckBox;
         }
 
         @Override
         public MediaRouteControllerDialog onCreateControllerDialog(
                 Context context, Bundle savedInstanceState) {
-            mControllerDialog = super.onCreateControllerDialog(context,
-                    savedInstanceState);
+            mControllerDialog = this.mUseDefaultControlCheckBox.isChecked()
+                    ? super.onCreateControllerDialog(context, savedInstanceState)
+                    : new MyMediaRouteControllerDialog(context);
             mControllerDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                 @Override
                 public void onDismiss(DialogInterface dialog) {

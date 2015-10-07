@@ -27,6 +27,9 @@
     <string name="media_route_menu_title">Play on...</string>
     <string name="sample_media_route_settings_activity">Sample route settings</string>
 
+    <string name="use_default_media_control">Use default media control</string>
+    <string name="my_media_control_text">My Media Control</string>
+
     <string name="library_tab_text">Library</string>
     <string name="playlist_tab_text">Playlist</string>
     <string name="info_tab_text">Route Info</string>
@@ -36,6 +39,8 @@
     <string name="variable_volume_basic_route_name">Variable Volume (Basic) Remote Playback Route</string>
     <string name="variable_volume_queuing_route_name">Variable Volume (Queuing) Remote Playback Route</string>
     <string name="variable_volume_session_route_name">Variable Volume (Session) Remote Playback Route</string>
+    <string name="variable_volume_route_group_name">Variable Volume Route Group</string>
+    <string name="mixed_volume_route_group_name">Mixed Volume Route Group</string>
     <string name="sample_route_description">Sample route from Support7Demos</string>
 
     <!-- GridLayout -->

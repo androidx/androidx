@@ -19,7 +19,6 @@ import com.example.android.supportv7.R;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Point;
 import android.graphics.SurfaceTexture;
 import android.hardware.display.DisplayManager;
 import android.os.Build;
@@ -95,9 +94,9 @@ public abstract class OverlayDisplayWindow {
 
     // Watches for significant changes in the overlay display window lifecycle.
     public interface OverlayWindowListener {
-        public void onWindowCreated(Surface surface);
-        public void onWindowCreated(SurfaceHolder surfaceHolder);
-        public void onWindowDestroyed();
+        void onWindowCreated(Surface surface);
+        void onWindowCreated(SurfaceHolder surfaceHolder);
+        void onWindowDestroyed();
     }
 
     /**
