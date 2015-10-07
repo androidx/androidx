@@ -180,9 +180,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
     }
 
     /**
-     * Provides the subclass an opportunity to create a view that will
-     * be included within the body of the dialog to offer additional media controls
-     * for the currently playing content.
+     * Provides the subclass an opportunity to create a view that will replace the default media
+     * controls for the currently playing content.
      *
      * @param savedInstanceState The dialog's saved instance state.
      * @return The media control view, or null if none.
