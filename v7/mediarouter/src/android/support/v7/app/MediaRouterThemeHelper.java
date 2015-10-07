@@ -38,7 +38,7 @@ final class MediaRouterThemeHelper {
     @Retention(RetentionPolicy.SOURCE)
     private @interface ControllerColorType {}
 
-    private static final int COLOR_DARK_ON_LIGHT_BACKGROUND = 0xDE000000; /* Opacity of 87% */
+    private static final int COLOR_DARK_ON_LIGHT_BACKGROUND = 0x8A000000; /* Opacity of 54% */
     private static final int COLOR_WHITE_ON_DARK_BACKGROUND = Color.WHITE;
 
     private MediaRouterThemeHelper() {
@@ -79,6 +79,18 @@ final class MediaRouterThemeHelper {
             return COLOR_WHITE_ON_DARK_BACKGROUND;
         }
         return COLOR_DARK_ON_LIGHT_BACKGROUND;
+    }
+
+    public static int getVolumeSliderColor(Context context) {
+        int primaryColor = getThemeColor(context, R.attr.colorPrimary);
+        if (ColorUtils.calculateContrast(COLOR_WHITE_ON_DARK_BACKGROUND, primaryColor)
+                >= MIN_CONTRAST) {
+            return COLOR_WHITE_ON_DARK_BACKGROUND;
+        }
+        // Composite with the background in order not to show the underlying progress bar through
+        // the thumb.
+        // TODO: Use the actual background color instead and ensure the resulting color is opaque.
+        return ColorUtils.compositeColors(COLOR_DARK_ON_LIGHT_BACKGROUND, primaryColor);
     }
 
     public static int getButtonTextColor(Context context) {
