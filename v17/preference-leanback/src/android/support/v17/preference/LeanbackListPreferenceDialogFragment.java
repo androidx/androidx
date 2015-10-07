@@ -156,8 +156,15 @@ public class LeanbackListPreferenceDialogFragment extends LeanbackPreferenceDial
         public void onItemClick(ViewHolder viewHolder) {
             final int index = viewHolder.getAdapterPosition();
             final CharSequence entry = mEntryValues[index];
-            mSelectedValue = entry;
-            ((ListPreference) getPreference()).setValue(entry.toString());
+            final ListPreference preference = (ListPreference) getPreference();
+            if (index >= 0) {
+                String value = mEntryValues[index].toString();
+                if (preference.callChangeListener(value)) {
+                    preference.setValue(value);
+                    mSelectedValue = entry;
+                }
+            }
+
             getFragmentManager().popBackStack();
             notifyDataSetChanged();
         }
@@ -206,7 +213,20 @@ public class LeanbackListPreferenceDialogFragment extends LeanbackPreferenceDial
             } else {
                 mSelections.add(entry);
             }
-            ((MultiSelectListPreference) getPreference()).setValues(mSelections);
+            final MultiSelectListPreference multiSelectListPreference
+                    = (MultiSelectListPreference) getPreference();
+            // Pass copies of the set to callChangeListener and setValues to avoid mutations
+            if (multiSelectListPreference.callChangeListener(new HashSet<>(mSelections))) {
+                multiSelectListPreference.setValues(new HashSet<>(mSelections));
+            } else {
+                // Change refused, back it out
+                if (mSelections.contains(entry)) {
+                    mSelections.remove(entry);
+                } else {
+                    mSelections.add(entry);
+                }
+            }
+
             notifyDataSetChanged();
         }
     }
