@@ -71,10 +71,8 @@
         <item name="listChoiceBackgroundIndicator">?android:attr/listChoiceBackgroundIndicator</item>
 
         <!-- Copy the platform default styles for the AppCompat widgets -->
-        <item name="autoCompleteTextViewStyle">?android:attr/autoCompleteTextViewStyle</item>
         <item name="checkboxStyle">?android:attr/checkboxStyle</item>
         <item name="checkedTextViewStyle">?android:attr/checkedTextViewStyle</item>
-        <item name="editTextStyle">?android:attr/editTextStyle</item>
         <item name="radioButtonStyle">?android:attr/radioButtonStyle</item>
         <item name="ratingBarStyle">?android:attr/ratingBarStyle</item>
         <item name="spinnerStyle">?android:attr/spinnerStyle</item>
@@ -118,10 +116,8 @@
         <item name="listChoiceBackgroundIndicator">?android:attr/listChoiceBackgroundIndicator</item>
 
         <!-- Copy the platform default styles for the AppCompat widgets -->
-        <item name="autoCompleteTextViewStyle">?android:attr/autoCompleteTextViewStyle</item>
         <item name="checkboxStyle">?android:attr/checkboxStyle</item>
         <item name="checkedTextViewStyle">?android:attr/checkedTextViewStyle</item>
-        <item name="editTextStyle">?android:attr/editTextStyle</item>
         <item name="radioButtonStyle">?android:attr/radioButtonStyle</item>
         <item name="ratingBarStyle">?android:attr/ratingBarStyle</item>
         <item name="spinnerStyle">?android:attr/spinnerStyle</item>
