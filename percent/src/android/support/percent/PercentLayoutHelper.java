@@ -72,6 +72,9 @@ import android.support.percent.R;
 public class PercentLayoutHelper {
     private static final String TAG = "PercentLayout";
 
+    private static final boolean DEBUG = false;
+    private static final boolean VERBOSE = false;
+
     private final ViewGroup mHost;
 
     public PercentLayoutHelper(ViewGroup host) {
@@ -96,7 +99,7 @@ public class PercentLayoutHelper {
      * @param heightMeasureSpec Height MeasureSpec of the parent ViewGroup.
      */
     public void adjustChildren(int widthMeasureSpec, int heightMeasureSpec) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
+        if (DEBUG) {
             Log.d(TAG, "adjustChildren: " + mHost + " widthMeasureSpec: "
                     + View.MeasureSpec.toString(widthMeasureSpec) + " heightMeasureSpec: "
                     + View.MeasureSpec.toString(heightMeasureSpec));
@@ -107,13 +110,13 @@ public class PercentLayoutHelper {
         for (int i = 0, N = mHost.getChildCount(); i < N; i++) {
             View view = mHost.getChildAt(i);
             ViewGroup.LayoutParams params = view.getLayoutParams();
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
+            if (DEBUG) {
                 Log.d(TAG, "should adjust " + view + " " + params);
             }
             if (params instanceof PercentLayoutParams) {
                 PercentLayoutInfo info =
                         ((PercentLayoutParams) params).getPercentLayoutInfo();
-                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                if (DEBUG) {
                     Log.d(TAG, "using " + info);
                 }
                 if (info != null) {
@@ -139,7 +142,7 @@ public class PercentLayoutHelper {
         float value = array.getFraction(R.styleable.PercentLayout_Layout_layout_widthPercent, 1, 1,
                 -1f);
         if (value != -1f) {
-            if (Log.isLoggable(TAG, Log.VERBOSE)) {
+            if (VERBOSE) {
                 Log.v(TAG, "percent width: " + value);
             }
             info = info != null ? info : new PercentLayoutInfo();
@@ -147,7 +150,7 @@ public class PercentLayoutHelper {
         }
         value = array.getFraction(R.styleable.PercentLayout_Layout_layout_heightPercent, 1, 1, -1f);
         if (value != -1f) {
-            if (Log.isLoggable(TAG, Log.VERBOSE)) {
+            if (VERBOSE) {
                 Log.v(TAG, "percent height: " + value);
             }
             info = info != null ? info : new PercentLayoutInfo();
@@ -155,7 +158,7 @@ public class PercentLayoutHelper {
         }
         value = array.getFraction(R.styleable.PercentLayout_Layout_layout_marginPercent, 1, 1, -1f);
         if (value != -1f) {
-            if (Log.isLoggable(TAG, Log.VERBOSE)) {
+            if (VERBOSE) {
                 Log.v(TAG, "percent margin: " + value);
             }
             info = info != null ? info : new PercentLayoutInfo();
@@ -167,7 +170,7 @@ public class PercentLayoutHelper {
         value = array.getFraction(R.styleable.PercentLayout_Layout_layout_marginLeftPercent, 1, 1,
                 -1f);
         if (value != -1f) {
-            if (Log.isLoggable(TAG, Log.VERBOSE)) {
+            if (VERBOSE) {
                 Log.v(TAG, "percent left margin: " + value);
             }
             info = info != null ? info : new PercentLayoutInfo();
@@ -176,7 +179,7 @@ public class PercentLayoutHelper {
         value = array.getFraction(R.styleable.PercentLayout_Layout_layout_marginTopPercent, 1, 1,
                 -1f);
         if (value != -1f) {
-            if (Log.isLoggable(TAG, Log.VERBOSE)) {
+            if (VERBOSE) {
                 Log.v(TAG, "percent top margin: " + value);
             }
             info = info != null ? info : new PercentLayoutInfo();
@@ -185,7 +188,7 @@ public class PercentLayoutHelper {
         value = array.getFraction(R.styleable.PercentLayout_Layout_layout_marginRightPercent, 1, 1,
                 -1f);
         if (value != -1f) {
-            if (Log.isLoggable(TAG, Log.VERBOSE)) {
+            if (VERBOSE) {
                 Log.v(TAG, "percent right margin: " + value);
             }
             info = info != null ? info : new PercentLayoutInfo();
@@ -194,7 +197,7 @@ public class PercentLayoutHelper {
         value = array.getFraction(R.styleable.PercentLayout_Layout_layout_marginBottomPercent, 1, 1,
                 -1f);
         if (value != -1f) {
-            if (Log.isLoggable(TAG, Log.VERBOSE)) {
+            if (VERBOSE) {
                 Log.v(TAG, "percent bottom margin: " + value);
             }
             info = info != null ? info : new PercentLayoutInfo();
@@ -203,7 +206,7 @@ public class PercentLayoutHelper {
         value = array.getFraction(R.styleable.PercentLayout_Layout_layout_marginStartPercent, 1, 1,
                 -1f);
         if (value != -1f) {
-            if (Log.isLoggable(TAG, Log.VERBOSE)) {
+            if (VERBOSE) {
                 Log.v(TAG, "percent start margin: " + value);
             }
             info = info != null ? info : new PercentLayoutInfo();
@@ -212,7 +215,7 @@ public class PercentLayoutHelper {
         value = array.getFraction(R.styleable.PercentLayout_Layout_layout_marginEndPercent, 1, 1,
                 -1f);
         if (value != -1f) {
-            if (Log.isLoggable(TAG, Log.VERBOSE)) {
+            if (VERBOSE) {
                 Log.v(TAG, "percent end margin: " + value);
             }
             info = info != null ? info : new PercentLayoutInfo();
@@ -221,7 +224,7 @@ public class PercentLayoutHelper {
 
         value = array.getFraction(R.styleable.PercentLayout_Layout_layout_aspectRatio, 1, 1, -1f);
         if (value != -1f) {
-            if (Log.isLoggable(TAG, Log.VERBOSE)) {
+            if (VERBOSE) {
                 Log.v(TAG, "aspect ratio: " + value);
             }
             info = info != null ? info : new PercentLayoutInfo();
@@ -229,7 +232,7 @@ public class PercentLayoutHelper {
         }
 
         array.recycle();
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
+        if (DEBUG) {
             Log.d(TAG, "constructed: " + info);
         }
         return info;
@@ -244,13 +247,13 @@ public class PercentLayoutHelper {
         for (int i = 0, N = mHost.getChildCount(); i < N; i++) {
             View view = mHost.getChildAt(i);
             ViewGroup.LayoutParams params = view.getLayoutParams();
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
+            if (DEBUG) {
                 Log.d(TAG, "should restore " + view + " " + params);
             }
             if (params instanceof PercentLayoutParams) {
                 PercentLayoutInfo info =
                         ((PercentLayoutParams) params).getPercentLayoutInfo();
-                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                if (DEBUG) {
                     Log.d(TAG, "using " + info);
                 }
                 if (info != null) {
@@ -283,7 +286,7 @@ public class PercentLayoutHelper {
         for (int i = 0, N = mHost.getChildCount(); i < N; i++) {
             View view = mHost.getChildAt(i);
             ViewGroup.LayoutParams params = view.getLayoutParams();
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
+            if (DEBUG) {
                 Log.d(TAG, "should handle measured state too small " + view + " " + params);
             }
             if (params instanceof PercentLayoutParams) {
@@ -301,7 +304,7 @@ public class PercentLayoutHelper {
                 }
             }
         }
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
+        if (DEBUG) {
             Log.d(TAG, "should trigger second measure pass: " + needsSecondMeasure);
         }
         return needsSecondMeasure;
@@ -389,7 +392,7 @@ public class PercentLayoutHelper {
                 }
             }
 
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
+            if (DEBUG) {
                 Log.d(TAG, "after fillLayoutParams: (" + params.width + ", " + params.height + ")");
             }
         }
@@ -432,7 +435,7 @@ public class PercentLayoutHelper {
                 MarginLayoutParamsCompat.setMarginEnd(params,
                         (int) (widthHint * endMarginPercent));
             }
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
+            if (DEBUG) {
                 Log.d(TAG, "after fillMarginLayoutParams: (" + params.width + ", " + params.height
                         + ")");
             }
