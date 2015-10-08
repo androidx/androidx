@@ -26,6 +26,7 @@
         <attr name="android:minHeight" />
     </declare-styleable>
 
+    <attr name="MediaRouteControllerWindowBackground" format="reference" />
     <attr name="mediaRouteButtonStyle" format="reference" />
     <attr name="mediaRouteOffDrawable" format="reference" />
     <attr name="mediaRouteConnectingDrawable" format="reference" />
