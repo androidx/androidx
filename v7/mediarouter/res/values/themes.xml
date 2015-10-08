@@ -20,6 +20,7 @@
         <item name="android:windowNoTitle">false</item>
         <item name="mediaRouteButtonStyle">@style/Widget.MediaRouter.MediaRouteButton</item>
 
+        <item name="MediaRouteControllerWindowBackground">@drawable/mr_dialog_material_background_dark</item>
         <item name="mediaRouteOffDrawable">@drawable/ic_media_route_off_mono_dark</item>
         <item name="mediaRouteConnectingDrawable">@drawable/mr_ic_media_route_connecting_mono_dark</item>
         <item name="mediaRouteOnDrawable">@drawable/ic_media_route_on_mono_dark</item>
@@ -51,6 +52,7 @@
     <style name="Theme.MediaRouter.Light">
         <item name="mediaRouteButtonStyle">@style/Widget.MediaRouter.Light.MediaRouteButton</item>
 
+        <item name="MediaRouteControllerWindowBackground">@drawable/mr_dialog_material_background_light</item>
         <item name="mediaRouteOffDrawable">@drawable/ic_cast_off_light</item>
         <item name="mediaRouteConnectingDrawable">@drawable/mr_ic_media_route_connecting_mono_light</item>
         <item name="mediaRouteOnDrawable">@drawable/ic_cast_on_light</item>
