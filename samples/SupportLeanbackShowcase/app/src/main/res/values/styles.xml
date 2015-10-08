@@ -54,6 +54,7 @@
     <style name="MovieCardSimpleStyle" parent="Widget.Leanback.ImageCardViewStyle">
         <item name="lbImageCardViewType">Title</item>
         <item name="lbImageCardViewImageStyle">@style/MovieCardImageStyle</item>
+        <item name="cardBackground">@null</item>
     </style>
 
     <style name="MovieCardCompleteStyle" parent="MovieCardSimpleStyle">
@@ -75,6 +76,23 @@
 
     <style name="SquareBigCard" parent="Widget.Leanback.ImageCardViewStyle">
         <item name="lbImageCardViewImageStyle">@style/SquareBigCardImageStyle</item>
+        <item name="cardBackground">@null</item>
+    </style>
+
+    <!-- SideInfo. used in cards example -->
+    <style name="SideInfoCardStyle" parent="Widget.Leanback.BaseCardViewStyle">
+        <item name="cardType">mainOnly</item>
+        <item name="cardBackground">@null</item>
+    </style>
+
+    <!-- TextCardView. used in cards example -->
+    <style name="TextCardStyle" parent="Widget.Leanback.BaseCardViewStyle">
+        <item name="cardBackground">@null</item>
+    </style>
+
+    <!-- CharacterCardView. used in details example -->
+    <style name="CharacterCardStyle" parent="Widget.Leanback.BaseCardViewStyle">
+        <item name="cardBackground">@null</item>
     </style>
 
     <!-- Grid card style. Used by Grid example. -->
@@ -85,6 +103,7 @@
 
     <style name="GridCardStyle" parent="Widget.Leanback.ImageCardViewStyle">
         <item name="lbImageCardViewImageStyle">@style/GridCardImageStyle</item>
+        <item name="cardBackground">@null</item>
     </style>
 
     <!-- A default card style. Used in cards example. -->
@@ -94,6 +113,7 @@
     </style>
 
     <style name="DefaultCardStyle" parent="Widget.Leanback.ImageCardViewStyle">
+        <item name="cardBackground">@null</item>
         <item name="lbImageCardViewImageStyle">@style/DefaultCardImageStyle</item>
     </style>
 
@@ -155,7 +175,6 @@
     </style>
 
     <style name="IconCardStyle" parent="DefaultCardStyle">
-        <item name="cardBackground">@null</item>
         <item name="android:layout_width">96dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="lbImageCardViewTitleStyle">@style/IconCardTitleStyle</item>

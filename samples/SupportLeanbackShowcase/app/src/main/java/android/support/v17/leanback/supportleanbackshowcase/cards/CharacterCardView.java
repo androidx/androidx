@@ -30,7 +30,7 @@ import android.widget.TextView;
 public class CharacterCardView extends BaseCardView {
 
     public CharacterCardView(Context context) {
-        super(context);
+        super(context, null, R.style.CharacterCardStyle);
         LayoutInflater.from(getContext()).inflate(R.layout.character_card, this);
         setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -47,7 +47,6 @@ public class CharacterCardView extends BaseCardView {
             }
         });
         setFocusable(true);
-        setBackground(null);
     }
 
     public void updateUi(Card card) {

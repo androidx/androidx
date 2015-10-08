@@ -39,9 +39,9 @@ public class SideInfoCardPresenter extends AbstractCardPresenter<BaseCardView> {
 
     @Override
     protected BaseCardView onCreateView() {
-        final BaseCardView cardView = new BaseCardView(getContext());
+        final BaseCardView cardView = new BaseCardView(getContext(), null,
+                R.style.SideInfoCardStyle);
         cardView.setFocusable(true);
-        cardView.setCardType(BaseCardView.CARD_TYPE_MAIN_ONLY);
         cardView.addView(LayoutInflater.from(getContext()).inflate(R.layout.side_info_card, null));
         return cardView;
     }

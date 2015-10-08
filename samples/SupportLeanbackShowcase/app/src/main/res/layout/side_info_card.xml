@@ -14,55 +14,51 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:lb="http://schemas.android.com/apk/res-auto"
-             android:layout_width="wrap_content"
-             android:layout_height="wrap_content"
-             android:background="@color/default_card_footer_background_color">
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:lb="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/container"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <ImageView
+        android:id="@+id/main_image"
+        android:layout_width="144dp"
+        android:layout_height="144dp"
+        lb:layout_viewType="main"
+        />
 
     <LinearLayout
-        android:id="@+id/container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:id="@+id/info"
+        android:layout_width="144dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingLeft="11dp"
+        android:paddingRight="11dp"
+        android:paddingTop="7dp"
+        android:background="@color/default_card_footer_background_color">
 
-        <ImageView
-            android:id="@+id/main_image"
-            android:layout_width="144dp"
-            android:layout_height="144dp"
-            lb:layout_viewType="main"
-            />
+        <TextView
+            android:id="@+id/primary_text"
+            style="@style/Widget.Leanback.ImageCardView.TitleStyle"
+            android:fontFamily="sans-serif-condensed"
+            android:maxLines="2"
+            android:textSize="16sp"/>
 
-        <LinearLayout
-            android:id="@+id/info"
-            android:layout_width="144dp"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingLeft="11dp"
-            android:paddingRight="11dp"
-            android:paddingTop="7dp">
+        <TextView
+            android:id="@+id/secondary_text"
+            style="@style/Widget.Leanback.ImageCardView.ContentStyle"
+            android:layout_marginTop="4dp"
+            android:fontFamily="sans-serif-condensed"
+            android:maxLines="1"
+            android:textColor="#EEEEEE"/>
 
-            <TextView
-                android:id="@+id/primary_text"
-                style="@style/Widget.Leanback.ImageCardView.TitleStyle"
-                android:fontFamily="sans-serif-condensed"
-                android:maxLines="2"
-                android:textSize="16sp"/>
-
-            <TextView
-                android:id="@+id/secondary_text"
-                style="@style/Widget.Leanback.ImageCardView.ContentStyle"
-                android:layout_marginTop="4dp"
-                android:fontFamily="sans-serif-condensed"
-                android:maxLines="1"
-                android:textColor="#EEEEEE"/>
-
-            <TextView
-                android:id="@+id/extra_text"
-                style="@style/Widget.Leanback.ImageCardView.ContentStyle"
-                android:layout_marginTop="6dp"
-                android:fontFamily="sans-serif-condensed"
-                android:maxLines="5"/>
-        </LinearLayout>
+        <TextView
+            android:id="@+id/extra_text"
+            style="@style/Widget.Leanback.ImageCardView.ContentStyle"
+            android:layout_marginTop="6dp"
+            android:fontFamily="sans-serif-condensed"
+            android:maxLines="5"/>
     </LinearLayout>
-</FrameLayout>
+</LinearLayout>

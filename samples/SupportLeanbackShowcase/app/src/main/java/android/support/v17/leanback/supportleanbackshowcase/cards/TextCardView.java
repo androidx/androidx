@@ -29,7 +29,7 @@ import android.widget.TextView;
 public class TextCardView extends BaseCardView {
 
     public TextCardView(Context context) {
-        super(context);
+        super(context, null, R.style.TextCardStyle);
         LayoutInflater.from(getContext()).inflate(R.layout.text_icon_card, this);
         setFocusable(true);
     }
