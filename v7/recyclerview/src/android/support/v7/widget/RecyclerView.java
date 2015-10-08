@@ -2238,6 +2238,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     setScrollState(SCROLL_STATE_DRAGGING);
                 }
 
+                // Clear the nested offsets
+                mNestedOffsets[0] = mNestedOffsets[1] = 0;
+
                 int nestedScrollAxis = ViewCompat.SCROLL_AXIS_NONE;
                 if (canScrollHorizontally) {
                     nestedScrollAxis |= ViewCompat.SCROLL_AXIS_HORIZONTAL;
