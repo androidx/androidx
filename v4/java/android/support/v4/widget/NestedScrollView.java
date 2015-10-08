@@ -842,10 +842,9 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                             getScrollRange())) {
                         ViewCompat.postInvalidateOnAnimation(this);
                     }
-
-                    mActivePointerId = INVALID_POINTER;
-                    endDrag();
                 }
+                mActivePointerId = INVALID_POINTER;
+                endDrag();
                 break;
             case MotionEvent.ACTION_CANCEL:
                 if (mIsBeingDragged && getChildCount() > 0) {
@@ -853,9 +852,9 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                             getScrollRange())) {
                         ViewCompat.postInvalidateOnAnimation(this);
                     }
-                    mActivePointerId = INVALID_POINTER;
-                    endDrag();
                 }
+                mActivePointerId = INVALID_POINTER;
+                endDrag();
                 break;
             case MotionEventCompat.ACTION_POINTER_DOWN: {
                 final int index = MotionEventCompat.getActionIndex(ev);
