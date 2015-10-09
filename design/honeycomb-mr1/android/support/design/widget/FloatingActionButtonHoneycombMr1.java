@@ -52,7 +52,7 @@ class FloatingActionButtonHoneycombMr1 extends FloatingActionButtonEclairMr1 {
                     .scaleY(0f)
                     .alpha(0f)
                     .setDuration(SHOW_HIDE_ANIM_DURATION)
-                    .setInterpolator(AnimationUtils.FAST_OUT_SLOW_IN_INTERPOLATOR)
+                    .setInterpolator(AnimationUtils.FAST_OUT_LINEAR_IN_INTERPOLATOR)
                     .setListener(new AnimatorListenerAdapter() {
                         @Override
                         public void onAnimationStart(Animator animation) {
@@ -89,7 +89,7 @@ class FloatingActionButtonHoneycombMr1 extends FloatingActionButtonEclairMr1 {
                         .scaleY(1f)
                         .alpha(1f)
                         .setDuration(SHOW_HIDE_ANIM_DURATION)
-                        .setInterpolator(AnimationUtils.FAST_OUT_SLOW_IN_INTERPOLATOR)
+                        .setInterpolator(AnimationUtils.LINEAR_OUT_SLOW_IN_INTERPOLATOR)
                         .setListener(new AnimatorListenerAdapter() {
                             @Override
                             public void onAnimationStart(Animator animation) {
