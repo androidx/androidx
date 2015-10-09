@@ -16,4 +16,4 @@
 
 <bitmap xmlns:android="http://schemas.android.com/apk/res/android"
     android:src="@drawable/ic_audiotrack_light"
-    android:alpha="0.54" />
+    android:alpha="0.87" />

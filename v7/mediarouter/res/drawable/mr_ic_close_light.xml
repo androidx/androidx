@@ -18,7 +18,7 @@
     <item>
         <bitmap
             android:src="@drawable/ic_close_light"
-            android:alpha="0.54" />
+            android:alpha="0.87" />
     </item>
 
 </selector>

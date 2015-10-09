@@ -18,6 +18,6 @@
     <item>
         <bitmap
             android:src="@drawable/ic_play_light"
-            android:alpha="0.54" />
+            android:alpha="0.87" />
     </item>
 </selector>

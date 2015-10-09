@@ -83,7 +83,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
     // route descriptor.
     private static final int VOLUME_UPDATE_DELAY_MILLIS = 250;
     private static final int VOLUME_SLIDER_TAG_MASTER = 0;
-    private static final int VOLUME_SLIDER_TAG_BASE = 100;
+    private static final int VOLUME_SLIDER_TAG_GROUP_BASE = 100;
 
     private static final int BUTTON_NEUTRAL_RES_ID = android.R.id.button3;
     private static final int BUTTON_DISCONNECT_RES_ID = android.R.id.button2;
@@ -325,8 +325,11 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mVolumeSlider.setOnSeekBarChangeListener(mVolumeChangeListener);
 
         mVolumeGroupList = (ListView) findViewById(R.id.mr_volume_group_list);
-        mVolumeGroupList.setBackgroundColor(
-                MediaRouterThemeHelper.getVolumeGroupListBackgroundColor(mContext));
+        MediaRouterThemeHelper.setMediaControlsBackgroundColor(mContext,
+                mMediaMainControlLayout, mVolumeGroupList, getGroup() != null);
+        MediaRouterThemeHelper.setVolumeSliderColor(mContext,
+                (MediaRouteVolumeSlider) mVolumeSlider, mMediaMainControlLayout);
+
         mGroupExpandCollapseButton =
                 (MediaRouteExpandCollapseButton) findViewById(R.id.mr_group_expand_collapse);
         mGroupExpandCollapseButton.setOnClickListener(new View.OnClickListener() {
@@ -875,19 +878,22 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 int tag = (int) seekBar.getTag();
                 if (tag == VOLUME_SLIDER_TAG_MASTER) {
                     mRoute.requestSetVolume(progress);
-                } else if (tag - VOLUME_SLIDER_TAG_BASE >= 0
-                        && tag - VOLUME_SLIDER_TAG_BASE < getGroup().getRouteCount()) {
-                    getGroup().getRouteAt(tag - VOLUME_SLIDER_TAG_BASE).requestSetVolume(progress);
+                } else {
+                    int index = tag - VOLUME_SLIDER_TAG_GROUP_BASE;
+                    if (index >= 0 && index < getGroup().getRouteCount()) {
+                        getGroup().getRouteAt(index).requestSetVolume(progress);
+                    }
                 }
             }
         }
     }
 
     private class VolumeGroupAdapter extends ArrayAdapter<MediaRouter.RouteInfo> {
-        final static float DISABLED_ALPHA = .3f;
+        final float mDisabledAlpha;
 
         public VolumeGroupAdapter(Context context, List<MediaRouter.RouteInfo> objects) {
             super(context, 0, objects);
+            mDisabledAlpha = MediaRouterThemeHelper.getDisabledAlpha(context);
         }
 
         @Override
@@ -910,14 +916,16 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
                 MediaRouteVolumeSlider volumeSlider =
                         (MediaRouteVolumeSlider) v.findViewById(R.id.mr_volume_slider);
-                volumeSlider.setTag(VOLUME_SLIDER_TAG_BASE + position);
+                MediaRouterThemeHelper.setVolumeSliderColor(
+                        mContext, volumeSlider, mVolumeGroupList);
+                volumeSlider.setTag(VOLUME_SLIDER_TAG_GROUP_BASE + position);
                 volumeSlider.setHideThumb(!isEnabled);
+                volumeSlider.setEnabled(isEnabled);
                 if (isEnabled) {
                     if (isVolumeControlAvailable(route)) {
                         volumeSlider.setMax(route.getVolumeMax());
                         volumeSlider.setProgress(route.getVolume());
                         volumeSlider.setOnSeekBarChangeListener(mVolumeChangeListener);
-                        volumeSlider.setEnabled(true);
                     } else {
                         volumeSlider.setMax(100);
                         volumeSlider.setProgress(100);
@@ -927,7 +935,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
                 ImageView volumeItemIcon =
                         (ImageView) v.findViewById(R.id.mr_volume_item_icon);
-                volumeItemIcon.setAlpha(isEnabled ? 255 : (int) (255 * DISABLED_ALPHA));
+                volumeItemIcon.setAlpha(isEnabled ? 0xFF : (int) (0xFF * mDisabledAlpha));
             }
             return v;
         }

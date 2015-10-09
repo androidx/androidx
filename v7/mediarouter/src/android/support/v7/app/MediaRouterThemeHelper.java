@@ -18,27 +18,24 @@ package android.support.v7.app;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.IntDef;
 import android.support.v4.graphics.ColorUtils;
 import android.support.v7.mediarouter.R;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
+import android.view.View;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 final class MediaRouterThemeHelper {
     private static final float MIN_CONTRAST = 3.0f;
-    private static final float MIN_CONTRAST_GROUP_VOLUMES = 4.5f;
-
-    private static final float COLOR_LIGHTNESS_MULTIPLIER = 1.15f;
 
     @IntDef({COLOR_DARK_ON_LIGHT_BACKGROUND, COLOR_WHITE_ON_DARK_BACKGROUND})
     @Retention(RetentionPolicy.SOURCE)
     private @interface ControllerColorType {}
 
-    private static final int COLOR_DARK_ON_LIGHT_BACKGROUND = 0x8A000000; /* Opacity of 54% */
+    private static final int COLOR_DARK_ON_LIGHT_BACKGROUND = 0xDE000000; /* Opacity of 87% */
     private static final int COLOR_WHITE_ON_DARK_BACKGROUND = Color.WHITE;
 
     private MediaRouterThemeHelper() {
@@ -67,9 +64,10 @@ final class MediaRouterThemeHelper {
         return context.getTheme().resolveAttribute(attr, value, true) ? value.resourceId : 0;
     }
 
-    public static Drawable getThemeDrawable(Context context, int attr) {
-        int res = getThemeResource(context, attr);
-        return res != 0 ? context.getResources().getDrawable(res) : null;
+    public static float getDisabledAlpha(Context context) {
+        TypedValue value = new TypedValue();
+        return context.getTheme().resolveAttribute(android.R.attr.disabledAlpha, value, true)
+                ? value.getFloat() : 0.5f;
     }
 
     public static @ControllerColorType int getControllerColor(Context context) {
@@ -81,59 +79,52 @@ final class MediaRouterThemeHelper {
         return COLOR_DARK_ON_LIGHT_BACKGROUND;
     }
 
-    public static int getVolumeSliderColor(Context context) {
-        int primaryColor = getThemeColor(context, R.attr.colorPrimary);
-        if (ColorUtils.calculateContrast(COLOR_WHITE_ON_DARK_BACKGROUND, primaryColor)
-                >= MIN_CONTRAST) {
-            return COLOR_WHITE_ON_DARK_BACKGROUND;
-        }
-        // Composite with the background in order not to show the underlying progress bar through
-        // the thumb.
-        // TODO: Use the actual background color instead and ensure the resulting color is opaque.
-        return ColorUtils.compositeColors(COLOR_DARK_ON_LIGHT_BACKGROUND, primaryColor);
-    }
-
     public static int getButtonTextColor(Context context) {
         int primaryColor = getThemeColor(context, R.attr.colorPrimary);
         int backgroundColor = getThemeColor(context, android.R.attr.colorBackground);
 
-        double contrast = ColorUtils.calculateContrast(primaryColor, backgroundColor);
-        if (contrast < MIN_CONTRAST) {
+        if (ColorUtils.calculateContrast(primaryColor, backgroundColor) < MIN_CONTRAST) {
             // Default to colorAccent if the contrast ratio is low.
             return getThemeColor(context, R.attr.colorAccent);
         }
         return primaryColor;
     }
 
-    public static int getVolumeGroupListBackgroundColor(Context context) {
+    public static void setMediaControlsBackgroundColor(
+            Context context, View mainControls, View groupControls, boolean hasGroup) {
+        int primaryColor = getThemeColor(context, R.attr.colorPrimary);
         int primaryDarkColor = getThemeColor(context, R.attr.colorPrimaryDark);
-        if (getControllerColor(context) == COLOR_DARK_ON_LIGHT_BACKGROUND) {
-            // We are showing dark volume sliders in a darker background. Check whether they have
-            // sufficient contrast.
-            double contrast = ColorUtils.calculateContrast(
-                    COLOR_DARK_ON_LIGHT_BACKGROUND, primaryDarkColor);
-            if (contrast < MIN_CONTRAST_GROUP_VOLUMES) {
-                // Generate a lighter color based on the 'colorPrimary' and use it instead for
-                // better contrast.
-                int primaryColor = getThemeColor(context, R.attr.colorPrimary);
-                return adjustColorLightness(primaryColor, COLOR_LIGHTNESS_MULTIPLIER);
-            }
+        if (hasGroup && ColorUtils.calculateContrast(COLOR_WHITE_ON_DARK_BACKGROUND, primaryColor)
+                < MIN_CONTRAST) {
+            // Instead of showing dark controls in a possibly dark (i.e. the primary dark), model
+            // the white dialog and use the primary color for the group controls.
+            primaryDarkColor = primaryColor;
+            primaryColor = Color.WHITE;
         }
-        return primaryDarkColor;
+        mainControls.setBackgroundColor(primaryColor);
+        groupControls.setBackgroundColor(primaryDarkColor);
+        // Also store the background colors to the view tags. They are used in
+        // setVolumeSliderColor() below.
+        mainControls.setTag(primaryColor);
+        groupControls.setTag(primaryDarkColor);
+    }
+
+    public static void setVolumeSliderColor(
+            Context context, MediaRouteVolumeSlider volumeSlider, View backgroundView) {
+        int controllerColor = getControllerColor(context);
+        if (Color.alpha(controllerColor) != 0xFF) {
+            // Composite with the background in order not to show the underlying progress bar
+            // through the thumb.
+            int backgroundColor = (int) backgroundView.getTag();
+            controllerColor = ColorUtils.compositeColors(controllerColor, backgroundColor);
+        }
+        volumeSlider.setColor(controllerColor);
     }
 
     private static boolean isLightTheme(Context context) {
         TypedValue value = new TypedValue();
         return context.getTheme().resolveAttribute(R.attr.isLightTheme, value, true)
                 && value.data != 0;
-    }
-
-    private static int adjustColorLightness(int color, float lightness) {
-        float[] hsl = new float[3];
-        ColorUtils.colorToHSL(color, hsl);
-        // Clip the lightness to 100%
-        hsl[2] = Math.min(1f, hsl[2] * lightness);
-        return ColorUtils.HSLToColor(hsl);
     }
 
     private static int getThemeColor(Context context, int attr) {
