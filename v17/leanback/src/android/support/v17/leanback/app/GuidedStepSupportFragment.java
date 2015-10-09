@@ -154,7 +154,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
     public static final String EXTRA_UI_STYLE = "uiStyle";
 
     /**
-     * Default argument value for argument {@link #EXTRA_UI_STYLE}.  This the default value assigned
+     * Default value for argument {@link #EXTRA_UI_STYLE}.  The default value is assigned
      * in GuidedStepSupportFragment constructor.  This is the case that we use GuidedStepSupportFragment to
      * replace another existing GuidedStepSupportFragment when moving forward to next step. Default
      * behavior of this style is:
@@ -167,12 +167,12 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
     public static final int UI_STYLE_DEFAULT = 0;
 
     /**
-     * Argument value for argument {@link #EXTRA_UI_STYLE}.  This is the case that we show
+     * One possible value of argument {@link #EXTRA_UI_STYLE}.  This is the case that we show
      * GuidedStepSupportFragment on top of other content.  The default behavior of this style:
      * <ul>
      * <li>Enter transition slides in from two sides, exit transition is inherited from
-     * {@link #UI_STYLE_DEFAULT}.  Note: Changing exit transition by uiStyle is not working because
-     * fragment transition asks for exit transition before uiStyle is restored in Fragment
+     * {@link #UI_STYLE_DEFAULT}.  Note: Changing exit transition by UI style is not working because
+     * fragment transition asks for exit transition before UI style is restored in Fragment
      * .onCreate().</li>
      * <li> {@link #onProvideBackgroundSupportFragment()} will create {@link GuidedStepBackgroundSupportFragment}
      * to covering underneath content. The activity must provide a container to host background
@@ -182,12 +182,12 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
     public static final int UI_STYLE_ENTRANCE = 1;
 
     /**
-     * Argument value for argument {@link #EXTRA_UI_STYLE}.  This is the case that we show first
+     * One possible value of argument {@link #EXTRA_UI_STYLE}.  This is the case that we show first
      * GuidedStepSupportFragment in a separate activity.  The default behavior of this style:
      * <ul>
      * <li> Enter transition is assigned null (will rely on activity transition), exit transition is
-     * same as {@link #UI_STYLE_DEFAULT}.  Note: Changing exit transition by ui style is not working
-     * because fragment transition asks for exit transition before uiStyle is restored in
+     * same as {@link #UI_STYLE_DEFAULT}.  Note: Changing exit transition by UI style is not working
+     * because fragment transition asks for exit transition before UI style is restored in
      * Fragment.onCreate().</li>
      * <li> No background, see {@link #onProvideBackgroundSupportFragment()}.
      * </ul>
@@ -499,7 +499,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
     }
 
     /**
-     * Default implementation of background for covering content bellow GuidedStepSupportFragment.
+     * Default implementation of background for covering content below GuidedStepSupportFragment.
      * It uses current theme attribute guidedStepBackground which by default is read from
      * android:windowBackground.
      */
@@ -558,7 +558,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
      * for {@link #UI_STYLE_DEFAULT}.  Background fragment will be inserted in {@link
      * #getContainerIdForBackground()}.
      *
-     * @return fragment that will be inserted bellow GuidedStepSupportFragment.
+     * @return fragment that will be inserted below GuidedStepSupportFragment.
      */
     protected Fragment onProvideBackgroundSupportFragment() {
         if (getUiStyle() == UI_STYLE_ENTRANCE) {
