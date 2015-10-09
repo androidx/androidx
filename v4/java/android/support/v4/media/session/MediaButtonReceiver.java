@@ -110,8 +110,8 @@ public class MediaButtonReceiver extends BroadcastReceiver {
      * }
      * </pre>
      * @param mediaSessionCompat A {@link MediaSessionCompat} that has a
-     * {@link MediaSessionCompat.Callback} set
-     * @param intent The intent to parse
+     *            {@link MediaSessionCompat.Callback} set.
+     * @param intent The intent to parse.
      * @return The extracted {@link KeyEvent} if found, or null.
      */
     public static KeyEvent handleIntent(MediaSessionCompat mediaSessionCompat, Intent intent) {
