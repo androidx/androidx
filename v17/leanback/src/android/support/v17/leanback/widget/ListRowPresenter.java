@@ -613,8 +613,10 @@ public class ListRowPresenter extends RowPresenter {
     }
 
     /**
-     * Returns true if keeps foreground of child of this row, false ListRowPresenter might change
-     * child's foreground for applying overlay on the child.
+     * Returns true if keeps foreground of child of this row, false otherwise.  When
+     * ListRowPresenter applies overlay color on the child,  it may change child's foreground
+     * Drawable.  If application uses child's foreground for other purposes such as ripple effect,
+     * it needs tell ListRowPresenter to keep the child's foreground.  The default value is true.
      *
      * @return true if keeps foreground of child of this row, false otherwise.
      */
