@@ -70,7 +70,7 @@ public final class CustomTabsSession {
     /**
      * Update the visuals for the button on a custom tab. Will only succeed if the given
      * session is the active one in browser.
-     * @param icon          The new icon of tbe action button.
+     * @param icon          The new icon of the action button.
      * @param description   Content description of the action button.
      * @return              Whether the update succeeded.
      */
