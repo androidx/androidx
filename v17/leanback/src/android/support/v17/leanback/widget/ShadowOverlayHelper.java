@@ -403,7 +403,7 @@ public final class ShadowOverlayHelper {
     }
 
     /**
-     * Set shadow focus level (0 to 1). 0 for unfocused, 1f for fully focused.
+     * Set shadow focus level (0 to 1). 0 for unfocused, 1 for fully focused.
      * This is for view other than ShadowOverlayContainer.
      * See also {@link ShadowOverlayContainer#setShadowFocusLevel(float)}.
      */
@@ -412,7 +412,7 @@ public final class ShadowOverlayHelper {
     }
 
     /**
-     * Set shadow focus level (0 to 1). 0 for unfocused, 1f for fully focused.
+     * Set shadow focus level (0 to 1). 0 for unfocused, 1 for fully focused.
      */
     public void setShadowFocusLevel(View view, float level) {
         if (needsWrapper()) {

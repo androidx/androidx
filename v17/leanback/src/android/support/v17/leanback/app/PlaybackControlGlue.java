@@ -74,7 +74,7 @@ import android.view.View;
  */
 public abstract class PlaybackControlGlue implements OnActionClickedListener, View.OnKeyListener {
     /**
-     * The adapter key for the first custom control on the right side
+     * The adapter key for the first custom control on the left side
      * of the predefined primary controls.
      */
     public static final int ACTION_CUSTOM_LEFT_FIRST = 0x1;
