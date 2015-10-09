@@ -214,22 +214,25 @@ public class MediaRouteChooserDialog extends Dialog {
             implements ListView.OnItemClickListener {
         private final LayoutInflater mInflater;
         private final Drawable mDefaultIcon;
+        private final Drawable mBluetoothIcon;
+        private final Drawable mTvIcon;
         private final Drawable mSpeakerIcon;
         private final Drawable mSpeakerGroupIcon;
-        private final Drawable mBluetoothIcon;
 
         public RouteAdapter(Context context, List<MediaRouter.RouteInfo> routes) {
             super(context, 0, routes);
             mInflater = LayoutInflater.from(context);
             TypedArray styledAttributes = getContext().obtainStyledAttributes(new int[] {
                     R.attr.mediaRouteDefaultIconDrawable,
+                    R.attr.mediaRouteBluetoothIconDrawable,
+                    R.attr.mediaRouteTvIconDrawable,
                     R.attr.mediaRouteSpeakerIconDrawable,
-                    R.attr.mediaRouteSpeakerGroupIconDrawable,
-                    R.attr.mediaRouteBluetoothIconDrawable });
+                    R.attr.mediaRouteSpeakerGroupIconDrawable});
             mDefaultIcon = styledAttributes.getDrawable(0);
-            mSpeakerIcon = styledAttributes.getDrawable(1);
-            mSpeakerGroupIcon = styledAttributes.getDrawable(2);
-            mBluetoothIcon = styledAttributes.getDrawable(3);
+            mBluetoothIcon = styledAttributes.getDrawable(1);
+            mTvIcon = styledAttributes.getDrawable(2);
+            mSpeakerIcon = styledAttributes.getDrawable(3);
+            mSpeakerGroupIcon = styledAttributes.getDrawable(4);
             styledAttributes.recycle();
         }
 
@@ -305,12 +308,15 @@ public class MediaRouteChooserDialog extends Dialog {
 
         private Drawable getDefaultIconDrawable(MediaRouter.RouteInfo route) {
             // If the type of the receiver device is specified, use it.
-            int deviceType = route.getDeviceType();
-            if (deviceType == MediaRouter.RouteInfo.DEVICE_TYPE_SPEAKER) {
-                return mSpeakerIcon;
-            } else if (deviceType == MediaRouter.RouteInfo.DEVICE_TYPE_BLUETOOTH) {
-                return mBluetoothIcon;
+            switch (route.getDeviceType()) {
+                case MediaRouter.RouteInfo.DEVICE_TYPE_BLUETOOTH:
+                    return mBluetoothIcon;
+                case  MediaRouter.RouteInfo.DEVICE_TYPE_TV:
+                    return mTvIcon;
+                case MediaRouter.RouteInfo.DEVICE_TYPE_SPEAKER:
+                    return mSpeakerIcon;
             }
+
             // Otherwise, make the best guess based on other route information.
             if (route instanceof MediaRouter.RouteGroup) {
                 // Only speakers can be grouped for now.
@@ -318,23 +324,6 @@ public class MediaRouteChooserDialog extends Dialog {
             }
             if (isSystemLiveAudioOnlyRoute(route)) {
                 return mBluetoothIcon;
-            }
-            if (route.supportsControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
-                    && !route.supportsControlCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO)) {
-                return mSpeakerIcon;
-            }
-            // A workaround to get the speaker icon for known audio devices.
-            // TODO: Remove once the new setDeviceType(int) API is fully launched.
-            String packageName = route.getProvider().getPackageName();
-            if (packageName != null) {
-                if (packageName.startsWith("com.google.android.music")
-                        || packageName.startsWith("com.sonos")) {
-                    return mSpeakerIcon;
-                }
-            }
-            String description = route.getDescription();
-            if (!TextUtils.isEmpty(description) && description.toLowerCase().contains("audio")) {
-                return mSpeakerIcon;
             }
             return mDefaultIcon;
         }
