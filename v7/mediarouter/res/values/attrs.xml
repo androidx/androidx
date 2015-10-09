@@ -37,9 +37,10 @@
     <attr name="mediaRouteCastDrawable" format="reference" />
     <attr name="mediaRouteAudioTrackDrawable" format="reference" />
     <attr name="mediaRouteDefaultIconDrawable" format="reference" />
+    <attr name="mediaRouteBluetoothIconDrawable" format="reference" />
+    <attr name="mediaRouteTvIconDrawable" format="reference" />
     <attr name="mediaRouteSpeakerIconDrawable" format="reference" />
     <attr name="mediaRouteSpeakerGroupIconDrawable" format="reference" />
-    <attr name="mediaRouteBluetoothIconDrawable" format="reference" />
     <attr name="mediaRouteChooserPrimaryTextStyle" format="reference" />
     <attr name="mediaRouteChooserSecondaryTextStyle" format="reference" />
     <attr name="mediaRouteControllerTitleTextStyle" format="reference" />
