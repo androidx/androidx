@@ -386,7 +386,6 @@ package android.support.v7.media {
     method public java.lang.String getDescription();
     method public int getDeviceType();
     method public android.os.Bundle getExtras();
-    method public java.util.List<java.lang.String> getGroupMemberIds();
     method public android.net.Uri getIconUri();
     method public java.lang.String getId();
     method public java.lang.String getName();
@@ -407,8 +406,6 @@ package android.support.v7.media {
     ctor public MediaRouteDescriptor.Builder(android.support.v7.media.MediaRouteDescriptor);
     method public android.support.v7.media.MediaRouteDescriptor.Builder addControlFilter(android.content.IntentFilter);
     method public android.support.v7.media.MediaRouteDescriptor.Builder addControlFilters(java.util.Collection<android.content.IntentFilter>);
-    method public android.support.v7.media.MediaRouteDescriptor.Builder addGroupMemberId(java.lang.String);
-    method public android.support.v7.media.MediaRouteDescriptor.Builder addGroupMemberIds(java.util.Collection<java.lang.String>);
     method public android.support.v7.media.MediaRouteDescriptor build();
     method public android.support.v7.media.MediaRouteDescriptor.Builder setCanDisconnect(boolean);
     method public deprecated android.support.v7.media.MediaRouteDescriptor.Builder setConnecting(boolean);
@@ -573,12 +570,6 @@ package android.support.v7.media {
     method public android.content.ComponentName getComponentName();
     method public java.lang.String getPackageName();
     method public android.support.v7.media.MediaRouteProvider getProviderInstance();
-    method public java.util.List<android.support.v7.media.MediaRouter.RouteInfo> getRoutes();
-  }
-
-  public static class MediaRouter.RouteGroup extends android.support.v7.media.MediaRouter.RouteInfo {
-    method public android.support.v7.media.MediaRouter.RouteInfo getRouteAt(int);
-    method public int getRouteCount();
     method public java.util.List<android.support.v7.media.MediaRouter.RouteInfo> getRoutes();
   }
 
