@@ -54,10 +54,10 @@ import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.MenuPresenter;
 import android.support.v7.internal.view.menu.MenuView;
 import android.support.v7.internal.widget.ActionBarContextView;
+import android.support.v7.internal.widget.AppCompatDrawableManager;
 import android.support.v7.internal.widget.ContentFrameLayout;
 import android.support.v7.internal.widget.DecorContentParent;
 import android.support.v7.internal.widget.FitWindowsViewGroup;
-import android.support.v7.internal.widget.TintManager;
 import android.support.v7.internal.widget.ViewStubCompat;
 import android.support.v7.internal.widget.ViewUtils;
 import android.support.v7.view.ActionMode;
@@ -2013,7 +2013,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
 
         @Override
         public void setBackgroundResource(int resid) {
-            setBackgroundDrawable(TintManager.getDrawable(getContext(), resid));
+            setBackgroundDrawable(AppCompatDrawableManager.get().getDrawable(getContext(), resid));
         }
 
         private boolean isOutOfBounds(int x, int y) {

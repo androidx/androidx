@@ -16,11 +16,8 @@
 
 package android.support.v7.widget;
 
-import android.content.res.ColorStateList;
-import android.graphics.PorterDuff;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.internal.widget.TintInfo;
-import android.support.v7.internal.widget.TintManager;
+import android.support.v7.internal.widget.AppCompatDrawableManager;
 import android.support.v7.internal.widget.TintTypedArray;
 import android.util.AttributeSet;
 import android.widget.ImageView;
@@ -30,11 +27,11 @@ class AppCompatImageHelper {
     private static final int[] VIEW_ATTRS = {android.R.attr.src};
 
     private final ImageView mView;
-    private final TintManager mTintManager;
+    private final AppCompatDrawableManager mDrawableManager;
 
-    AppCompatImageHelper(ImageView view, TintManager tintManager) {
+    AppCompatImageHelper(ImageView view, AppCompatDrawableManager drawableManager) {
         mView = view;
-        mTintManager = tintManager;
+        mDrawableManager = drawableManager;
     }
 
     void loadFromAttributes(AttributeSet attrs, int defStyleAttr) {
@@ -50,8 +47,8 @@ class AppCompatImageHelper {
     }
 
     void setImageResource(int resId) {
-        mView.setImageDrawable(mTintManager != null
-                ? mTintManager.getDrawable(resId)
+        mView.setImageDrawable(mDrawableManager != null
+                ? mDrawableManager.getDrawable(mView.getContext(), resId)
                 : ContextCompat.getDrawable(mView.getContext(), resId));
     }
 }

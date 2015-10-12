@@ -31,7 +31,7 @@ import android.support.v4.view.TintableBackgroundView;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.view.ContextThemeWrapper;
-import android.support.v7.internal.widget.TintManager;
+import android.support.v7.internal.widget.AppCompatDrawableManager;
 import android.support.v7.internal.widget.TintTypedArray;
 import android.support.v7.internal.widget.ViewUtils;
 import android.util.AttributeSet;
@@ -77,7 +77,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
     private static final int MODE_DROPDOWN = 1;
     private static final int MODE_THEME = -1;
 
-    private TintManager mTintManager;
+    private AppCompatDrawableManager mDrawableManager;
 
     private AppCompatBackgroundHelper mBackgroundTintHelper;
 
@@ -199,8 +199,8 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
         TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs,
                 R.styleable.Spinner, defStyleAttr, 0);
 
-        mTintManager = a.getTintManager();
-        mBackgroundTintHelper = new AppCompatBackgroundHelper(this, mTintManager);
+        mDrawableManager = AppCompatDrawableManager.get();
+        mBackgroundTintHelper = new AppCompatBackgroundHelper(this, mDrawableManager);
 
         if (popupTheme != null) {
             mPopupContext = new ContextThemeWrapper(context, popupTheme);

@@ -24,7 +24,7 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.v4.view.TintableBackgroundView;
 import android.support.v7.appcompat.R;
-import android.support.v7.internal.widget.TintManager;
+import android.support.v7.internal.widget.AppCompatDrawableManager;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
@@ -45,7 +45,7 @@ import android.widget.TextView;
  */
 public class AppCompatTextView extends TextView implements TintableBackgroundView {
 
-    private TintManager mTintManager;
+    private AppCompatDrawableManager mDrawableManager;
     private AppCompatBackgroundHelper mBackgroundTintHelper;
     private AppCompatTextHelper mTextHelper;
 
@@ -60,8 +60,8 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     public AppCompatTextView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        mTintManager = TintManager.get(getContext());
-        mBackgroundTintHelper = new AppCompatBackgroundHelper(this, mTintManager);
+        mDrawableManager = AppCompatDrawableManager.get();
+        mBackgroundTintHelper = new AppCompatBackgroundHelper(this, mDrawableManager);
         mBackgroundTintHelper.loadFromAttributes(attrs, defStyleAttr);
 
         mTextHelper = AppCompatTextHelper.create(this);

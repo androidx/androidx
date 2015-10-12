@@ -22,8 +22,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.text.AllCapsTransformationMethod;
+import android.support.v7.internal.widget.AppCompatDrawableManager;
 import android.support.v7.internal.widget.TintInfo;
-import android.support.v7.internal.widget.TintManager;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
@@ -54,7 +54,7 @@ class AppCompatTextHelper {
 
     void loadFromAttributes(AttributeSet attrs, int defStyleAttr) {
         final Context context = mView.getContext();
-        final TintManager tintManager = TintManager.get(context);
+        final AppCompatDrawableManager drawableManager = AppCompatDrawableManager.get();
 
         // First read the TextAppearance style id
         TypedArray a = context.obtainStyledAttributes(attrs, VIEW_ATTRS, defStyleAttr, 0);
@@ -64,22 +64,26 @@ class AppCompatTextHelper {
         if (a.hasValue(1)) {
             mDrawableLeftTint = new TintInfo();
             mDrawableLeftTint.mHasTintList = true;
-            mDrawableLeftTint.mTintList = tintManager.getTintList(a.getResourceId(1, 0));
+            mDrawableLeftTint.mTintList = drawableManager.getTintList(
+                    context, a.getResourceId(1, 0));
         }
         if (a.hasValue(2)) {
             mDrawableTopTint = new TintInfo();
             mDrawableTopTint.mHasTintList = true;
-            mDrawableTopTint.mTintList = tintManager.getTintList(a.getResourceId(2, 0));
+            mDrawableTopTint.mTintList = drawableManager.getTintList(
+                    context, a.getResourceId(2, 0));
         }
         if (a.hasValue(3)) {
             mDrawableRightTint = new TintInfo();
             mDrawableRightTint.mHasTintList = true;
-            mDrawableRightTint.mTintList = tintManager.getTintList(a.getResourceId(3, 0));
+            mDrawableRightTint.mTintList = drawableManager.getTintList(
+                    context, a.getResourceId(3, 0));
         }
         if (a.hasValue(4)) {
             mDrawableBottomTint = new TintInfo();
             mDrawableBottomTint.mHasTintList = true;
-            mDrawableBottomTint.mTintList = tintManager.getTintList(a.getResourceId(4, 0));
+            mDrawableBottomTint.mTintList = drawableManager.getTintList(
+                    context, a.getResourceId(4, 0));
         }
         a.recycle();
 
@@ -127,7 +131,7 @@ class AppCompatTextHelper {
 
     final void applyCompoundDrawableTint(Drawable drawable, TintInfo info) {
         if (drawable != null && info != null) {
-            TintManager.tintDrawable(drawable, info, mView.getDrawableState());
+            AppCompatDrawableManager.tintDrawable(drawable, info, mView.getDrawableState());
         }
     }
 }

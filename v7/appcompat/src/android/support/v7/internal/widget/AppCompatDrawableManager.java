@@ -25,8 +25,10 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.DrawableContainer;
 import android.graphics.drawable.InsetDrawable;
 import android.graphics.drawable.LayerDrawable;
-import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
+import android.support.annotation.DrawableRes;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.ColorUtils;
 import android.support.v4.graphics.drawable.DrawableCompat;
@@ -34,9 +36,8 @@ import android.support.v4.util.LruCache;
 import android.support.v7.appcompat.R;
 import android.util.Log;
 import android.util.SparseArray;
-import android.view.View;
 
-import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.WeakHashMap;
 
 import static android.support.v7.internal.widget.ThemeUtils.getDisabledThemeAttrColor;
@@ -46,15 +47,34 @@ import static android.support.v7.internal.widget.ThemeUtils.getThemeAttrColorSta
 /**
  * @hide
  */
-public final class TintManager {
+public final class AppCompatDrawableManager {
 
-    public static final boolean SHOULD_BE_USED = Build.VERSION.SDK_INT < 21;
+    public interface InflateDelegate {
+        /**
+         * Allows custom inflation of a drawable resource.
+         *
+         * @param context Context to inflate/create with
+         * @param resId Resource ID of the drawable
+         * @return the created drawable, or {@code null} to leave inflation to
+         * AppCompatDrawableManager.
+         */
+        @Nullable
+        Drawable onInflateDrawable(@NonNull Context context, @DrawableRes int resId);
+    }
 
     private static final String TAG = "TintManager";
     private static final boolean DEBUG = false;
     private static final PorterDuff.Mode DEFAULT_MODE = PorterDuff.Mode.SRC_IN;
 
-    private static final WeakHashMap<Context, TintManager> INSTANCE_CACHE = new WeakHashMap<>();
+    private static AppCompatDrawableManager INSTANCE;
+
+    public static AppCompatDrawableManager get() {
+        if (INSTANCE == null) {
+            INSTANCE = new AppCompatDrawableManager();
+        }
+        return INSTANCE;
+    }
+
     private static final ColorFilterLruCache COLOR_FILTER_CACHE = new ColorFilterLruCache(6);
 
     /**
@@ -134,46 +154,27 @@ public final class TintManager {
             R.drawable.abc_btn_radio_material
     };
 
-    private final WeakReference<Context> mContextRef;
-    private SparseArray<ColorStateList> mTintLists;
-    private ColorStateList mDefaultColorStateList;
+    private WeakHashMap<Context, SparseArray<ColorStateList>> mTintLists;
+    private ArrayList<InflateDelegate> mDelegates;
 
-    /**
-     * A helper method to get a {@link TintManager} and then call {@link #getDrawable(int)}.
-     * This method should not be used routinely.
-     */
-    public static Drawable getDrawable(Context context, int resId) {
-        if (isInTintList(resId)) {
-            return TintManager.get(context).getDrawable(resId);
-        } else {
-            return ContextCompat.getDrawable(context, resId);
+    public Drawable getDrawable(@NonNull Context context, @DrawableRes int resId) {
+        return getDrawable(context, resId, false);
+    }
+
+    public Drawable getDrawable(@NonNull Context context, @DrawableRes int resId,
+            boolean failIfNotKnown) {
+        // Let the InflateDelegates have a go first
+        if (mDelegates != null) {
+            for (int i = 0, count = mDelegates.size(); i < count; i++) {
+                final InflateDelegate delegate = mDelegates.get(i);
+                final Drawable result = delegate.onInflateDrawable(context, resId);
+                if (result != null) {
+                    return result;
+                }
+            }
         }
-    }
 
-    /**
-     * Get a {@link android.support.v7.internal.widget.TintManager} instance.
-     */
-    public static TintManager get(Context context) {
-        TintManager tm = INSTANCE_CACHE.get(context);
-        if (tm == null) {
-            tm = new TintManager(context);
-            INSTANCE_CACHE.put(context, tm);
-        }
-        return tm;
-    }
-
-    private TintManager(Context context) {
-        mContextRef = new WeakReference<>(context);
-    }
-
-    public Drawable getDrawable(int resId) {
-        return getDrawable(resId, false);
-    }
-
-    public Drawable getDrawable(int resId, boolean failIfNotKnown) {
-        final Context context = mContextRef.get();
-        if (context == null) return null;
-
+        // The delegates failed so we'll carry on
         Drawable drawable = ContextCompat.getDrawable(context, resId);
 
         if (drawable != null) {
@@ -182,7 +183,7 @@ public final class TintManager {
                 drawable = drawable.mutate();
             }
 
-            final ColorStateList tintList = getTintList(resId);
+            final ColorStateList tintList = getTintList(context, resId);
             if (tintList != null) {
                 // First wrap the Drawable and set the tint list
                 drawable = DrawableCompat.wrap(drawable);
@@ -195,8 +196,8 @@ public final class TintManager {
                 }
             } else if (resId == R.drawable.abc_cab_background_top_material) {
                 return new LayerDrawable(new Drawable[]{
-                        getDrawable(R.drawable.abc_cab_background_internal_bg),
-                        getDrawable(R.drawable.abc_cab_background_top_mtrl_alpha)
+                        getDrawable(context, R.drawable.abc_cab_background_internal_bg),
+                        getDrawable(context, R.drawable.abc_cab_background_top_mtrl_alpha)
                 });
             } else if (resId == R.drawable.abc_seekbar_track_material) {
                 LayerDrawable ld = (LayerDrawable) drawable;
@@ -207,8 +208,8 @@ public final class TintManager {
                 setPorterDuffColorFilter(ld.findDrawableByLayerId(android.R.id.progress),
                         getThemeAttrColor(context, R.attr.colorControlActivated), DEFAULT_MODE);
             } else {
-                final boolean usedColorFilter = tintDrawableUsingColorFilter(resId, drawable);
-                if (!usedColorFilter && failIfNotKnown) {
+                final boolean tinted = tintDrawableUsingColorFilter(context, resId, drawable);
+                if (!tinted && failIfNotKnown) {
                     // If we didn't tint using a ColorFilter, and we're set to fail if we don't
                     // know the id, return null
                     drawable = null;
@@ -218,10 +219,8 @@ public final class TintManager {
         return drawable;
     }
 
-    public final boolean tintDrawableUsingColorFilter(final int resId, Drawable drawable) {
-        final Context context = mContextRef.get();
-        if (context == null) return false;
-
+    public final boolean tintDrawableUsingColorFilter(@NonNull Context context,
+            @DrawableRes final int resId, @NonNull Drawable drawable) {
         PorterDuff.Mode tintMode = DEFAULT_MODE;
         boolean colorAttrSet = false;
         int colorAttr = 0;
@@ -260,6 +259,21 @@ public final class TintManager {
         return false;
     }
 
+    public void addDelegate(@NonNull InflateDelegate delegate) {
+        if (mDelegates == null) {
+            mDelegates = new ArrayList<>();
+        }
+        if (!mDelegates.contains(delegate)) {
+            mDelegates.add(delegate);
+        }
+    }
+
+    public void removeDelegate(@NonNull InflateDelegate delegate) {
+        if (mDelegates != null) {
+            mDelegates.remove(delegate);
+        }
+    }
+
     private static boolean arrayContains(int[] array, int value) {
         for (int id : array) {
             if (id == value) {
@@ -267,16 +281,6 @@ public final class TintManager {
             }
         }
         return false;
-    }
-
-    private static boolean isInTintList(int drawableId) {
-        return arrayContains(TINT_COLOR_CONTROL_NORMAL, drawableId) ||
-                arrayContains(COLORFILTER_TINT_COLOR_CONTROL_NORMAL, drawableId) ||
-                arrayContains(COLORFILTER_COLOR_CONTROL_ACTIVATED, drawableId) ||
-                arrayContains(TINT_COLOR_CONTROL_STATE_LIST, drawableId) ||
-                arrayContains(COLORFILTER_COLOR_BACKGROUND_MULTIPLY, drawableId) ||
-                arrayContains(TINT_CHECKABLE_BUTTON_LIST, drawableId) ||
-                drawableId == R.drawable.abc_cab_background_top_material;
     }
 
     final PorterDuff.Mode getTintMode(final int resId) {
@@ -289,12 +293,9 @@ public final class TintManager {
         return mode;
     }
 
-    public final ColorStateList getTintList(int resId) {
-        final Context context = mContextRef.get();
-        if (context == null) return null;
-
+    public final ColorStateList getTintList(@NonNull Context context, @DrawableRes int resId) {
         // Try the cache first (if it exists)
-        ColorStateList tint = mTintLists != null ? mTintLists.get(resId) : null;
+        ColorStateList tint = getTintListFromCache(context, resId);
 
         if (tint == null) {
             // ...if the cache did not contain a color state list, try and create one
@@ -315,7 +316,7 @@ public final class TintManager {
             } else if (arrayContains(TINT_COLOR_CONTROL_NORMAL, resId)) {
                 tint = getThemeAttrColorStateList(context, R.attr.colorControlNormal);
             } else if (arrayContains(TINT_COLOR_CONTROL_STATE_LIST, resId)) {
-                tint = getDefaultColorStateList(context);
+                tint = createDefaultColorStateList(context);
             } else if (arrayContains(TINT_CHECKABLE_BUTTON_LIST, resId)) {
                 tint = createCheckableButtonColorStateList(context);
             } else if (resId == R.drawable.abc_seekbar_thumb_material) {
@@ -323,65 +324,78 @@ public final class TintManager {
             }
 
             if (tint != null) {
-                if (mTintLists == null) {
-                    // If our tint list cache hasn't been set up yet, create it
-                    mTintLists = new SparseArray<>();
-                }
-                // Add any newly created ColorStateList to the cache
-                mTintLists.append(resId, tint);
+                addTintListToCache(context, resId, tint);
             }
         }
         return tint;
     }
 
-    private ColorStateList getDefaultColorStateList(Context context) {
-        if (mDefaultColorStateList == null) {
-            /**
-             * Generate the default color state list which uses the colorControl attributes.
-             * Order is important here. The default enabled state needs to go at the bottom.
-             */
-
-            final int colorControlNormal = getThemeAttrColor(context, R.attr.colorControlNormal);
-            final int colorControlActivated = getThemeAttrColor(context,
-                    R.attr.colorControlActivated);
-
-            final int[][] states = new int[7][];
-            final int[] colors = new int[7];
-            int i = 0;
-
-            // Disabled state
-            states[i] = ThemeUtils.DISABLED_STATE_SET;
-            colors[i] = getDisabledThemeAttrColor(context, R.attr.colorControlNormal);
-            i++;
-
-            states[i] = ThemeUtils.FOCUSED_STATE_SET;
-            colors[i] = colorControlActivated;
-            i++;
-
-            states[i] = ThemeUtils.ACTIVATED_STATE_SET;
-            colors[i] = colorControlActivated;
-            i++;
-
-            states[i] = ThemeUtils.PRESSED_STATE_SET;
-            colors[i] = colorControlActivated;
-            i++;
-
-            states[i] = ThemeUtils.CHECKED_STATE_SET;
-            colors[i] = colorControlActivated;
-            i++;
-
-            states[i] = ThemeUtils.SELECTED_STATE_SET;
-            colors[i] = colorControlActivated;
-            i++;
-
-            // Default enabled state
-            states[i] = ThemeUtils.EMPTY_STATE_SET;
-            colors[i] = colorControlNormal;
-            i++;
-
-            mDefaultColorStateList = new ColorStateList(states, colors);
+    private ColorStateList getTintListFromCache(@NonNull Context context, @DrawableRes int resId) {
+        if (mTintLists != null) {
+            final SparseArray<ColorStateList> tints = mTintLists.get(context);
+            return tints != null ? tints.get(resId) : null;
         }
-        return mDefaultColorStateList;
+        return null;
+    }
+
+    private void addTintListToCache(@NonNull Context context, @DrawableRes int resId,
+            @NonNull ColorStateList tintList) {
+        if (mTintLists == null) {
+            mTintLists = new WeakHashMap<>();
+        }
+        SparseArray<ColorStateList> themeTints = mTintLists.get(context);
+        if (themeTints == null) {
+            themeTints = new SparseArray<>();
+            mTintLists.put(context, themeTints);
+        }
+        themeTints.append(resId, tintList);
+    }
+
+    private ColorStateList createDefaultColorStateList(Context context) {
+        /**
+         * Generate the default color state list which uses the colorControl attributes.
+         * Order is important here. The default enabled state needs to go at the bottom.
+         */
+
+        final int colorControlNormal = getThemeAttrColor(context, R.attr.colorControlNormal);
+        final int colorControlActivated = getThemeAttrColor(context,
+                R.attr.colorControlActivated);
+
+        final int[][] states = new int[7][];
+        final int[] colors = new int[7];
+        int i = 0;
+
+        // Disabled state
+        states[i] = ThemeUtils.DISABLED_STATE_SET;
+        colors[i] = getDisabledThemeAttrColor(context, R.attr.colorControlNormal);
+        i++;
+
+        states[i] = ThemeUtils.FOCUSED_STATE_SET;
+        colors[i] = colorControlActivated;
+        i++;
+
+        states[i] = ThemeUtils.ACTIVATED_STATE_SET;
+        colors[i] = colorControlActivated;
+        i++;
+
+        states[i] = ThemeUtils.PRESSED_STATE_SET;
+        colors[i] = colorControlActivated;
+        i++;
+
+        states[i] = ThemeUtils.CHECKED_STATE_SET;
+        colors[i] = colorControlActivated;
+        i++;
+
+        states[i] = ThemeUtils.SELECTED_STATE_SET;
+        colors[i] = colorControlActivated;
+        i++;
+
+        // Default enabled state
+        states[i] = ThemeUtils.EMPTY_STATE_SET;
+        colors[i] = colorControlNormal;
+        i++;
+
+        return new ColorStateList(states, colors);
     }
 
     private ColorStateList createCheckableButtonColorStateList(Context context) {
