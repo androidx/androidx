@@ -717,7 +717,6 @@ package android.support.v7.appcompat {
     field public static int abc_btn_check_to_on_mtrl_000;
     field public static int abc_btn_check_to_on_mtrl_015;
     field public static int abc_btn_colored_material;
-    field public static int abc_btn_default_material;
     field public static int abc_btn_default_mtrl_shape;
     field public static int abc_btn_radio_material;
     field public static int abc_btn_radio_to_on_mtrl_000;
