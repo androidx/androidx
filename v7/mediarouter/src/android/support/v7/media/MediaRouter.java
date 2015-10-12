@@ -1491,6 +1491,7 @@ public final class MediaRouter {
 
     /**
      * Information about a route that consists of multiple other routes in a group.
+     * @hide
      */
     public static class RouteGroup extends RouteInfo {
         private List<RouteInfo> mRoutes = new ArrayList<>();

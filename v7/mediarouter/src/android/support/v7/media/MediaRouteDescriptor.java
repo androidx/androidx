@@ -83,6 +83,7 @@ public final class MediaRouteDescriptor {
      * A route descriptor that has one or more group member route ids
      * represents a route group. A member route may belong to another group.
      * </p>
+     * @hide
      */
     public List<String> getGroupMemberIds() {
         return mBundle.getStringArrayList(KEY_GROUP_MEMBER_IDS);
@@ -380,6 +381,7 @@ public final class MediaRouteDescriptor {
          * A route descriptor that has one or more group member route ids
          * represents a route group. A member route may belong to another group.
          * </p>
+         * @hide
          */
         public Builder addGroupMemberId(String groupMemberId) {
             if (TextUtils.isEmpty(groupMemberId)) {
@@ -401,6 +403,7 @@ public final class MediaRouteDescriptor {
          * A route descriptor that has one or more group member route ids
          * represents a route group. A member route may belong to another group.
          * </p>
+         * @hide
          */
         public Builder addGroupMemberIds(Collection<String> groupMemberIds) {
             if (groupMemberIds == null) {
