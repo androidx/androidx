@@ -1411,7 +1411,7 @@ public class MediaSessionCompat {
                     mVolumeProvider.onAdjustVolume(direction);
                 }
             } else {
-                mAudioManager.adjustStreamVolume(direction, mLocalStream, flags);
+                mAudioManager.adjustStreamVolume(mLocalStream, direction, flags);
             }
         }
 
