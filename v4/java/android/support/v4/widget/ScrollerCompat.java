@@ -445,7 +445,7 @@ public class ScrollerCompat {
      * @param minX Minimum valid X value
      * @param maxX Maximum valid X value
      * @param minY Minimum valid Y value
-     * @param maxY Minimum valid Y value
+     * @param maxY Maximum valid Y value
      * @return true if a springback was initiated, false if startX and startY were
      *          already within the valid range.
      */
