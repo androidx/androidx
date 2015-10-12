@@ -178,15 +178,9 @@
 
     <style name="Base.Widget.AppCompat.SeekBar" parent="android:Widget.Material.SeekBar" />
 
-    <style name="Base.Widget.AppCompat.Button" parent="android:Widget.Material.Button">
-        <!-- Use our background so that we use our internal tinting (for disabled) -->
-        <item name="android:background">@drawable/abc_btn_default_material</item>
-    </style>
+    <style name="Base.Widget.AppCompat.Button" parent="android:Widget.Material.Button" />
 
-    <style name="Base.Widget.AppCompat.Button.Small" parent="android:Widget.Material.Button.Small">
-        <!-- Use our background so that we use our internal tinting (for disabled) -->
-        <item name="android:background">@drawable/abc_btn_default_material</item>
-    </style>
+    <style name="Base.Widget.AppCompat.Button.Small" parent="android:Widget.Material.Button.Small" />
 
     <style name="Base.Widget.AppCompat.Button.Borderless" parent="android:Widget.Material.Button.Borderless" />
 
