@@ -44,7 +44,6 @@
     <!-- Width of the icon in a dropdown list -->
     <dimen name="abc_dropdownitem_icon_width">32dip</dimen>
 
-
     <!-- The platform's desired fixed width for a dialog along the major axis
          (the screen is in landscape). This may be either a fraction or a dimension.-->
     <item type="dimen" name="abc_dialog_fixed_width_major">320dp</item>
