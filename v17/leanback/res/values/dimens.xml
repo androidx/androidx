@@ -180,7 +180,7 @@
 
 
     <!-- Search Fragment -->
-    <dimen name="lb_search_browse_rows_align_top">120dp</dimen>
+    <dimen name="lb_search_browse_rows_align_top">147dp</dimen>
     <dimen name="lb_search_browse_row_padding_start">56dp</dimen>
 
     <dimen name="lb_search_orb_size">52dp</dimen>
