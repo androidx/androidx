@@ -2022,7 +2022,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         int pos = sTwoInts[1];
         int savedMaxEdge = mWindowAlignment.mainAxis().getMaxEdge();
         mWindowAlignment.mainAxis().setMaxEdge(maxEdge);
-        int maxScroll = getPrimarySystemScrollPosition(findViewByPosition(pos));
+        int maxScroll = getPrimarySystemScrollPositionOfChildMax(findViewByPosition(pos));
         mWindowAlignment.mainAxis().setMaxEdge(savedMaxEdge);
 
         if (highAvailable) {
@@ -2371,6 +2371,16 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             }
         }
         return mWindowAlignment.mainAxis().getSystemScrollPos(viewCenterPrimary, isMin, isMax);
+    }
+
+    private int getPrimarySystemScrollPositionOfChildMax(View view) {
+        int scrollPosition = getPrimarySystemScrollPosition(view);
+        final LayoutParams lp = (LayoutParams) view.getLayoutParams();
+        int[] multipleAligns = lp.getAlignMultiple();
+        if (multipleAligns != null && multipleAligns.length > 0) {
+            scrollPosition += multipleAligns[multipleAligns.length - 1] - multipleAligns[0];
+        }
+        return scrollPosition;
     }
 
     /**
