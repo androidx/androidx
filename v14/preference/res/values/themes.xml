@@ -18,10 +18,13 @@
 <resources>
     <style name="PreferenceThemeOverlay.v14">
         <item name="switchPreferenceStyle">@style/Preference.SwitchPreference</item>
+        <item name="preferenceFragmentStyle">@style/PreferenceFragment</item>
     </style>
 
     <style name="PreferenceThemeOverlay.v14.Material">
         <item name="preferenceScreenStyle">@style/Preference.PreferenceScreen.Material</item>
+        <item name="preferenceFragmentCompatStyle">@style/PreferenceFragment.Material</item>
+        <item name="preferenceFragmentStyle">@style/PreferenceFragment.Material</item>
         <item name="preferenceCategoryStyle">@style/Preference.Category.Material</item>
         <item name="preferenceStyle">@style/Preference.Material</item>
         <item name="preferenceInformationStyle">@style/Preference.Information.Material</item>
