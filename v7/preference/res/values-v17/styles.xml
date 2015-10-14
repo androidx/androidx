@@ -19,6 +19,7 @@
     <style name="PreferenceFragment">
         <item name="android:paddingStart">0dp</item>
         <item name="android:paddingEnd">0dp</item>
+        <item name="android:divider">?android:attr/listDivider</item>
     </style>
 
     <style name="PreferenceFragmentList">
