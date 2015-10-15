@@ -24,8 +24,8 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.v4.view.TintableBackgroundView;
 import android.support.v7.appcompat.R;
+import android.support.v7.internal.widget.AppCompatDrawableManager;
 import android.support.v7.internal.widget.TintContextWrapper;
-import android.support.v7.internal.widget.TintManager;
 import android.support.v7.internal.widget.TintTypedArray;
 import android.util.AttributeSet;
 import android.widget.MultiAutoCompleteTextView;
@@ -52,7 +52,7 @@ public class AppCompatMultiAutoCompleteTextView extends MultiAutoCompleteTextVie
             android.R.attr.popupBackground
     };
 
-    private TintManager mTintManager;
+    private AppCompatDrawableManager mDrawableManager;
     private AppCompatBackgroundHelper mBackgroundTintHelper;
     private AppCompatTextHelper mTextHelper;
 
@@ -67,15 +67,16 @@ public class AppCompatMultiAutoCompleteTextView extends MultiAutoCompleteTextVie
     public AppCompatMultiAutoCompleteTextView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
 
+        mDrawableManager = AppCompatDrawableManager.get();
+
         TintTypedArray a = TintTypedArray.obtainStyledAttributes(getContext(), attrs,
                 TINT_ATTRS, defStyleAttr, 0);
-        mTintManager = a.getTintManager();
         if (a.hasValue(0)) {
             setDropDownBackgroundDrawable(a.getDrawable(0));
         }
         a.recycle();
 
-        mBackgroundTintHelper = new AppCompatBackgroundHelper(this, mTintManager);
+        mBackgroundTintHelper = new AppCompatBackgroundHelper(this, mDrawableManager);
         mBackgroundTintHelper.loadFromAttributes(attrs, defStyleAttr);
 
         mTextHelper = AppCompatTextHelper.create(this);
@@ -85,8 +86,8 @@ public class AppCompatMultiAutoCompleteTextView extends MultiAutoCompleteTextVie
 
     @Override
     public void setDropDownBackgroundResource(@DrawableRes int resId) {
-        if (mTintManager != null) {
-            setDropDownBackgroundDrawable(mTintManager.getDrawable(resId));
+        if (mDrawableManager != null) {
+            setDropDownBackgroundDrawable(mDrawableManager.getDrawable(getContext(), resId));
         } else {
             super.setDropDownBackgroundResource(resId);
         }

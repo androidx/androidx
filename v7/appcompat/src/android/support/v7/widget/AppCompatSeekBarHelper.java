@@ -17,7 +17,7 @@
 package android.support.v7.widget;
 
 import android.graphics.drawable.Drawable;
-import android.support.v7.internal.widget.TintManager;
+import android.support.v7.internal.widget.AppCompatDrawableManager;
 import android.support.v7.internal.widget.TintTypedArray;
 import android.util.AttributeSet;
 import android.widget.SeekBar;
@@ -30,8 +30,8 @@ class AppCompatSeekBarHelper extends AppCompatProgressBarHelper {
 
     private final SeekBar mView;
 
-    AppCompatSeekBarHelper(SeekBar view, TintManager tintManager) {
-        super(view, tintManager);
+    AppCompatSeekBarHelper(SeekBar view, AppCompatDrawableManager drawableManager) {
+        super(view, drawableManager);
         mView = view;
     }
 

@@ -25,7 +25,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.TintableCompoundButton;
 import android.support.v7.appcompat.R;
-import android.support.v7.internal.widget.TintManager;
+import android.support.v7.internal.widget.AppCompatDrawableManager;
 import android.util.AttributeSet;
 import android.widget.CheckBox;
 
@@ -44,7 +44,7 @@ import android.widget.CheckBox;
  */
 public class AppCompatCheckBox extends CheckBox implements TintableCompoundButton {
 
-    private TintManager mTintManager;
+    private AppCompatDrawableManager mDrawableManager;
     private AppCompatCompoundButtonHelper mCompoundButtonHelper;
 
     public AppCompatCheckBox(Context context) {
@@ -57,8 +57,8 @@ public class AppCompatCheckBox extends CheckBox implements TintableCompoundButto
 
     public AppCompatCheckBox(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        mTintManager = TintManager.get(context);
-        mCompoundButtonHelper = new AppCompatCompoundButtonHelper(this, mTintManager);
+        mDrawableManager = AppCompatDrawableManager.get();
+        mCompoundButtonHelper = new AppCompatCompoundButtonHelper(this, mDrawableManager);
         mCompoundButtonHelper.loadFromAttributes(attrs, defStyleAttr);
     }
 
@@ -72,8 +72,8 @@ public class AppCompatCheckBox extends CheckBox implements TintableCompoundButto
 
     @Override
     public void setButtonDrawable(@DrawableRes int resId) {
-        setButtonDrawable(mTintManager != null
-                ? mTintManager.getDrawable(resId)
+        setButtonDrawable(mDrawableManager != null
+                ? mDrawableManager.getDrawable(getContext(), resId)
                 : ContextCompat.getDrawable(getContext(), resId));
     }
 

@@ -18,7 +18,7 @@ package android.support.v7.widget;
 
 import android.content.Context;
 import android.support.annotation.DrawableRes;
-import android.support.v7.internal.widget.TintManager;
+import android.support.v7.internal.widget.AppCompatDrawableManager;
 import android.support.v7.internal.widget.TintTypedArray;
 import android.util.AttributeSet;
 import android.widget.CheckedTextView;
@@ -35,7 +35,7 @@ public class AppCompatCheckedTextView extends CheckedTextView {
             android.R.attr.checkMark
     };
 
-    private TintManager mTintManager;
+    private AppCompatDrawableManager mDrawableManager;
     private AppCompatTextHelper mTextHelper;
 
     public AppCompatCheckedTextView(Context context) {
@@ -53,20 +53,18 @@ public class AppCompatCheckedTextView extends CheckedTextView {
         mTextHelper.loadFromAttributes(attrs, defStyleAttr);
         mTextHelper.applyCompoundDrawablesTints();
 
-        if (TintManager.SHOULD_BE_USED) {
-            TintTypedArray a = TintTypedArray.obtainStyledAttributes(getContext(), attrs,
-                    TINT_ATTRS, defStyleAttr, 0);
-            setCheckMarkDrawable(a.getDrawable(0));
-            a.recycle();
+        mDrawableManager = AppCompatDrawableManager.get();
 
-            mTintManager = a.getTintManager();
-        }
+        TintTypedArray a = TintTypedArray.obtainStyledAttributes(getContext(), attrs,
+                TINT_ATTRS, defStyleAttr, 0);
+        setCheckMarkDrawable(a.getDrawable(0));
+        a.recycle();
     }
 
     @Override
     public void setCheckMarkDrawable(@DrawableRes int resId) {
-        if (mTintManager != null) {
-            setCheckMarkDrawable(mTintManager.getDrawable(resId));
+        if (mDrawableManager != null) {
+            setCheckMarkDrawable(mDrawableManager.getDrawable(getContext(), resId));
         } else {
             super.setCheckMarkDrawable(resId);
         }

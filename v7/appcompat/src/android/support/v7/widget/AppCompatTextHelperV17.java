@@ -19,8 +19,8 @@ package android.support.v7.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.support.v7.internal.widget.AppCompatDrawableManager;
 import android.support.v7.internal.widget.TintInfo;
-import android.support.v7.internal.widget.TintManager;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
@@ -40,19 +40,21 @@ class AppCompatTextHelperV17 extends AppCompatTextHelper {
         super.loadFromAttributes(attrs, defStyleAttr);
 
         final Context context = mView.getContext();
-        final TintManager tintManager = TintManager.get(context);
+        final AppCompatDrawableManager drawableManager = AppCompatDrawableManager.get();
 
         // First read the TextAppearance style id
         TypedArray a = context.obtainStyledAttributes(attrs, VIEW_ATTRS_v17, defStyleAttr, 0);
         if (a.hasValue(0)) {
             mDrawableStartTint = new TintInfo();
             mDrawableStartTint.mHasTintList = true;
-            mDrawableStartTint.mTintList = tintManager.getTintList(a.getResourceId(0, 0));
+            mDrawableStartTint.mTintList = drawableManager.getTintList(
+                    context, a.getResourceId(0, 0));
         }
         if (a.hasValue(1)) {
             mDrawableEndTint = new TintInfo();
             mDrawableEndTint.mHasTintList = true;
-            mDrawableEndTint.mTintList = tintManager.getTintList(a.getResourceId(1, 0));
+            mDrawableEndTint.mTintList = drawableManager.getTintList(
+                    context, a.getResourceId(1, 0));
         }
         a.recycle();
     }

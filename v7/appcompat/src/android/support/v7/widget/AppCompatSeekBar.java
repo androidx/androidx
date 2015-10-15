@@ -18,7 +18,7 @@ package android.support.v7.widget;
 
 import android.content.Context;
 import android.support.v7.appcompat.R;
-import android.support.v7.internal.widget.TintManager;
+import android.support.v7.internal.widget.AppCompatDrawableManager;
 import android.util.AttributeSet;
 import android.widget.SeekBar;
 
@@ -31,7 +31,7 @@ import android.widget.SeekBar;
 public class AppCompatSeekBar extends SeekBar {
 
     private AppCompatSeekBarHelper mAppCompatSeekBarHelper;
-    private TintManager mTintManager;
+    private AppCompatDrawableManager mDrawableManager;
 
     public AppCompatSeekBar(Context context) {
         this(context, null);
@@ -44,9 +44,9 @@ public class AppCompatSeekBar extends SeekBar {
     public AppCompatSeekBar(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        mTintManager = TintManager.get(context);
+        mDrawableManager = AppCompatDrawableManager.get();
 
-        mAppCompatSeekBarHelper = new AppCompatSeekBarHelper(this, mTintManager);
+        mAppCompatSeekBarHelper = new AppCompatSeekBarHelper(this, mDrawableManager);
         mAppCompatSeekBarHelper.loadFromAttributes(attrs, defStyleAttr);
     }
 

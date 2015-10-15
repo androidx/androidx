@@ -24,11 +24,9 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.v4.view.TintableBackgroundView;
 import android.support.v7.appcompat.R;
-import android.support.v7.internal.widget.TintManager;
+import android.support.v7.internal.widget.AppCompatDrawableManager;
 import android.util.AttributeSet;
-import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 
 /**
  * A {@link ImageButton} which supports compatible features on older version of the platform,
@@ -59,12 +57,12 @@ public class AppCompatImageButton extends ImageButton implements TintableBackgro
     public AppCompatImageButton(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        final TintManager tintManager = TintManager.get(context);
+        final AppCompatDrawableManager drawableManager = AppCompatDrawableManager.get();
 
-        mBackgroundTintHelper = new AppCompatBackgroundHelper(this, tintManager);
+        mBackgroundTintHelper = new AppCompatBackgroundHelper(this, drawableManager);
         mBackgroundTintHelper.loadFromAttributes(attrs, defStyleAttr);
 
-        mImageHelper = new AppCompatImageHelper(this, tintManager);
+        mImageHelper = new AppCompatImageHelper(this, drawableManager);
         mImageHelper.loadFromAttributes(attrs, defStyleAttr);
     }
 
