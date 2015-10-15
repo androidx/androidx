@@ -45,7 +45,7 @@ public class TintContextWrapper extends ContextWrapper {
     @Override
     public Resources getResources() {
         if (mResources == null) {
-            mResources = new TintResources(super.getResources(), TintManager.get(this));
+            mResources = new TintResources(super.getResources());
         }
         return mResources;
     }
@@ -53,13 +53,9 @@ public class TintContextWrapper extends ContextWrapper {
     /**
      * This class allows us to intercept calls so that we can tint resources (if applicable).
      */
-    static class TintResources extends ResourcesWrapper {
-
-        private final TintManager mTintManager;
-
-        public TintResources(Resources resources, TintManager tintManager) {
+    class TintResources extends ResourcesWrapper {
+        public TintResources(Resources resources) {
             super(resources);
-            mTintManager = tintManager;
         }
 
         /**
@@ -71,7 +67,8 @@ public class TintContextWrapper extends ContextWrapper {
         public Drawable getDrawable(int id) throws NotFoundException {
             Drawable d = super.getDrawable(id);
             if (d != null) {
-                mTintManager.tintDrawableUsingColorFilter(id, d);
+                AppCompatDrawableManager.get().tintDrawableUsingColorFilter(
+                        TintContextWrapper.this, id, d);
             }
             return d;
         }

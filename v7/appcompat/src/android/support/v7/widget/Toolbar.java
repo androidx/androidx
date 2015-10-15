@@ -17,9 +17,6 @@
 package android.support.v7.widget;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
-import android.content.res.TypedArray;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Parcel;
@@ -38,17 +35,15 @@ import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.appcompat.R;
-import android.support.v7.graphics.drawable.DrawableUtils;
 import android.support.v7.internal.view.SupportMenuInflater;
 import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.internal.view.menu.MenuItemImpl;
 import android.support.v7.internal.view.menu.MenuPresenter;
 import android.support.v7.internal.view.menu.MenuView;
 import android.support.v7.internal.view.menu.SubMenuBuilder;
+import android.support.v7.internal.widget.AppCompatDrawableManager;
 import android.support.v7.internal.widget.DecorToolbar;
 import android.support.v7.internal.widget.RtlSpacingHelper;
-import android.support.v7.internal.widget.TintInfo;
-import android.support.v7.internal.widget.TintManager;
 import android.support.v7.internal.widget.TintTypedArray;
 import android.support.v7.internal.widget.ToolbarWidgetWrapper;
 import android.support.v7.internal.widget.ViewUtils;
@@ -197,7 +192,7 @@ public class Toolbar extends ViewGroup {
         }
     };
 
-    private final TintManager mTintManager;
+    private final AppCompatDrawableManager mDrawableManager;
 
     public Toolbar(Context context) {
         this(context, null);
@@ -306,8 +301,7 @@ public class Toolbar extends ViewGroup {
         }
         a.recycle();
 
-        // Keep the TintManager in case we need it later
-        mTintManager = a.getTintManager();
+        mDrawableManager = AppCompatDrawableManager.get();
     }
 
     /**
@@ -354,7 +348,7 @@ public class Toolbar extends ViewGroup {
      * @param resId ID of a drawable resource
      */
     public void setLogo(@DrawableRes int resId) {
-        setLogo(mTintManager.getDrawable(resId));
+        setLogo(mDrawableManager.getDrawable(getContext(), resId));
     }
 
     /** @hide */
@@ -781,7 +775,7 @@ public class Toolbar extends ViewGroup {
      * @param resId Resource ID of a drawable to set
      */
     public void setNavigationIcon(@DrawableRes int resId) {
-        setNavigationIcon(mTintManager.getDrawable(resId));
+        setNavigationIcon(mDrawableManager.getDrawable(getContext(), resId));
     }
 
     /**

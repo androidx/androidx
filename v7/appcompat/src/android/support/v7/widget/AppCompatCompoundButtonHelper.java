@@ -26,14 +26,14 @@ import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.widget.CompoundButtonCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.graphics.drawable.DrawableUtils;
-import android.support.v7.internal.widget.TintManager;
+import android.support.v7.internal.widget.AppCompatDrawableManager;
 import android.util.AttributeSet;
 import android.widget.CompoundButton;
 
 class AppCompatCompoundButtonHelper {
 
     private final CompoundButton mView;
-    private final TintManager mTintManager;
+    private final AppCompatDrawableManager mDrawableManager;
 
     private ColorStateList mButtonTintList = null;
     private PorterDuff.Mode mButtonTintMode = null;
@@ -49,9 +49,9 @@ class AppCompatCompoundButtonHelper {
         void setButtonDrawable(Drawable buttonDrawable);
     }
 
-    AppCompatCompoundButtonHelper(CompoundButton view, TintManager tintManager) {
+    AppCompatCompoundButtonHelper(CompoundButton view, AppCompatDrawableManager drawableManager) {
         mView = view;
-        mTintManager = tintManager;
+        mDrawableManager = drawableManager;
     }
 
     void loadFromAttributes(AttributeSet attrs, int defStyleAttr) {
@@ -62,7 +62,8 @@ class AppCompatCompoundButtonHelper {
                 final int resourceId = a.getResourceId(
                         R.styleable.CompoundButton_android_button, 0);
                 if (resourceId != 0) {
-                    mView.setButtonDrawable(mTintManager.getDrawable(resourceId));
+                    mView.setButtonDrawable(
+                            mDrawableManager.getDrawable(mView.getContext(), resourceId));
                 }
             }
             if (a.hasValue(R.styleable.CompoundButton_buttonTint)) {

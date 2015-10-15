@@ -33,8 +33,8 @@ import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.text.AllCapsTransformationMethod;
+import android.support.v7.internal.widget.AppCompatDrawableManager;
 import android.support.v7.internal.widget.DrawableUtils;
-import android.support.v7.internal.widget.TintManager;
 import android.support.v7.internal.widget.TintTypedArray;
 import android.support.v7.internal.widget.ViewUtils;
 import android.text.Layout;
@@ -145,7 +145,7 @@ public class SwitchCompat extends CompoundButton {
     @SuppressWarnings("hiding")
     private final Rect mTempRect = new Rect();
 
-    private final TintManager mTintManager;
+    private final AppCompatDrawableManager mDrawableManager;
 
     private static final int[] CHECKED_STATE_SET = {
             android.R.attr.state_checked
@@ -216,7 +216,7 @@ public class SwitchCompat extends CompoundButton {
             setSwitchTextAppearance(context, appearance);
         }
 
-        mTintManager = a.getTintManager();
+        mDrawableManager = AppCompatDrawableManager.get();
 
         a.recycle();
 
@@ -408,7 +408,7 @@ public class SwitchCompat extends CompoundButton {
      * @param resId Resource ID of a track drawable
      */
     public void setTrackResource(int resId) {
-        setTrackDrawable(mTintManager.getDrawable(resId));
+        setTrackDrawable(mDrawableManager.getDrawable(getContext(), resId));
     }
 
     /**
@@ -438,7 +438,7 @@ public class SwitchCompat extends CompoundButton {
      * @param resId Resource ID of a thumb drawable
      */
     public void setThumbResource(int resId) {
-        setThumbDrawable(mTintManager.getDrawable(resId));
+        setThumbDrawable(mDrawableManager.getDrawable(getContext(), resId));
     }
 
     /**

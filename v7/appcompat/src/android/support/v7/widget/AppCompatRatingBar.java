@@ -20,7 +20,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
-import android.support.v7.internal.widget.TintManager;
+import android.support.v7.internal.widget.AppCompatDrawableManager;
 import android.util.AttributeSet;
 import android.widget.RatingBar;
 
@@ -33,7 +33,7 @@ import android.widget.RatingBar;
 public class AppCompatRatingBar extends RatingBar {
 
     private AppCompatProgressBarHelper mAppCompatProgressBarHelper;
-    private TintManager mTintManager;
+    private AppCompatDrawableManager mDrawableManager;
 
     public AppCompatRatingBar(Context context) {
         this(context, null);
@@ -46,9 +46,9 @@ public class AppCompatRatingBar extends RatingBar {
     public AppCompatRatingBar(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        mTintManager = TintManager.get(context);
+        mDrawableManager = AppCompatDrawableManager.get();
 
-        mAppCompatProgressBarHelper = new AppCompatProgressBarHelper(this, mTintManager);
+        mAppCompatProgressBarHelper = new AppCompatProgressBarHelper(this, mDrawableManager);
         mAppCompatProgressBarHelper.loadFromAttributes(attrs, defStyleAttr);
     }
 

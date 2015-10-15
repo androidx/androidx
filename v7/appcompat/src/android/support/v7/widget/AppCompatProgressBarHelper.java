@@ -28,12 +28,10 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RoundRectShape;
 import android.graphics.drawable.shapes.Shape;
 import android.support.v4.graphics.drawable.DrawableWrapper;
-import android.support.v7.appcompat.R;
-import android.support.v7.internal.widget.TintManager;
+import android.support.v7.internal.widget.AppCompatDrawableManager;
 import android.support.v7.internal.widget.TintTypedArray;
 import android.util.AttributeSet;
 import android.view.Gravity;
-import android.widget.CompoundButton;
 import android.widget.ProgressBar;
 
 class AppCompatProgressBarHelper {
@@ -44,13 +42,13 @@ class AppCompatProgressBarHelper {
     };
 
     private final ProgressBar mView;
-    final TintManager mTintManager;
+    final AppCompatDrawableManager mDrawableManager;
 
     private Bitmap mSampleTile;
 
-    AppCompatProgressBarHelper(ProgressBar view, TintManager tintManager) {
+    AppCompatProgressBarHelper(ProgressBar view, AppCompatDrawableManager drawableManager) {
         mView = view;
-        mTintManager = tintManager;
+        mDrawableManager = drawableManager;
     }
 
     void loadFromAttributes(AttributeSet attrs, int defStyleAttr) {

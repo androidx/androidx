@@ -85,7 +85,7 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
 
     private int mNavigationMode = ActionBar.NAVIGATION_MODE_STANDARD;
 
-    private final TintManager mTintManager;
+    private final AppCompatDrawableManager mDrawableManager;
     private int mDefaultNavigationContentDescription = 0;
     private Drawable mDefaultNavigationIcon;
 
@@ -174,18 +174,16 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
             }
 
             a.recycle();
-            // Keep the TintManager in case we need it later
-            mTintManager = a.getTintManager();
         } else {
             mDisplayOpts = detectDisplayOptions();
-            // Create a TintManager in case we need it later
-            mTintManager = TintManager.get(toolbar.getContext());
         }
+
+        mDrawableManager = AppCompatDrawableManager.get();
 
         setDefaultNavigationContentDescription(defaultNavigationContentDescription);
         mHomeDescription = mToolbar.getNavigationContentDescription();
 
-        setDefaultNavigationIcon(mTintManager.getDrawable(defaultNavigationIcon));
+        setDefaultNavigationIcon(mDrawableManager.getDrawable(getContext(), defaultNavigationIcon));
 
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             final ActionMenuItem mNavItem = new ActionMenuItem(mToolbar.getContext(),
@@ -322,7 +320,7 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
 
     @Override
     public void setIcon(int resId) {
-        setIcon(resId != 0 ? mTintManager.getDrawable(resId) : null);
+        setIcon(resId != 0 ? mDrawableManager.getDrawable(getContext(), resId) : null);
     }
 
     @Override
@@ -333,7 +331,7 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
 
     @Override
     public void setLogo(int resId) {
-        setLogo(resId != 0 ? mTintManager.getDrawable(resId) : null);
+        setLogo(resId != 0 ? mDrawableManager.getDrawable(getContext(), resId) : null);
     }
 
     @Override
@@ -623,8 +621,7 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
     @Override
     public void setNavigationIcon(int resId) {
         setNavigationIcon(resId != 0
-                ? mTintManager.getDrawable(resId)
-                : null);
+                ? AppCompatDrawableManager.get().getDrawable(getContext(), resId) : null);
     }
 
     @Override
