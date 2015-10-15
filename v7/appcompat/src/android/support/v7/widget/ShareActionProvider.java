@@ -25,15 +25,15 @@ import android.os.Build;
 import android.support.v4.view.ActionProvider;
 import android.support.v7.appcompat.R;
 import android.support.v7.internal.widget.ActivityChooserModel;
+import android.support.v7.internal.widget.ActivityChooserModel.OnChooseActivityListener;
 import android.support.v7.internal.widget.ActivityChooserView;
-import android.support.v7.internal.widget.TintManager;
+import android.support.v7.internal.widget.AppCompatDrawableManager;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.SubMenu;
 import android.view.View;
-import android.support.v7.internal.widget.ActivityChooserModel.OnChooseActivityListener;
 
 /**
  * This is a provider for a share action. It is responsible for creating views
@@ -188,7 +188,8 @@ public class ShareActionProvider extends ActionProvider {
         // Lookup and set the expand action icon.
         TypedValue outTypedValue = new TypedValue();
         mContext.getTheme().resolveAttribute(R.attr.actionModeShareDrawable, outTypedValue, true);
-        Drawable drawable = TintManager.getDrawable(mContext, outTypedValue.resourceId);
+        Drawable drawable = AppCompatDrawableManager.get()
+                .getDrawable(mContext, outTypedValue.resourceId);
         activityChooserView.setExpandActivityOverflowButtonDrawable(drawable);
         activityChooserView.setProvider(this);
 

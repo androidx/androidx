@@ -23,22 +23,22 @@ import android.graphics.drawable.Drawable;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.graphics.drawable.DrawableUtils;
+import android.support.v7.internal.widget.AppCompatDrawableManager;
 import android.support.v7.internal.widget.TintInfo;
-import android.support.v7.internal.widget.TintManager;
 import android.util.AttributeSet;
 import android.view.View;
 
 class AppCompatBackgroundHelper {
 
     private final View mView;
-    private final TintManager mTintManager;
+    private final AppCompatDrawableManager mDrawableManager;
 
     private TintInfo mInternalBackgroundTint;
     private TintInfo mBackgroundTint;
 
-    AppCompatBackgroundHelper(View view, TintManager tintManager) {
+    AppCompatBackgroundHelper(View view, AppCompatDrawableManager drawableManager) {
         mView = view;
-        mTintManager = tintManager;
+        mDrawableManager = drawableManager;
     }
 
     void loadFromAttributes(AttributeSet attrs, int defStyleAttr) {
@@ -46,7 +46,7 @@ class AppCompatBackgroundHelper {
                 R.styleable.ViewBackgroundHelper, defStyleAttr, 0);
         try {
             if (a.hasValue(R.styleable.ViewBackgroundHelper_android_background)) {
-                ColorStateList tint = mTintManager.getTintList(
+                ColorStateList tint = mDrawableManager.getTintList(mView.getContext(),
                         a.getResourceId(R.styleable.ViewBackgroundHelper_android_background, -1));
                 if (tint != null) {
                     setInternalBackgroundTint(tint);
@@ -69,7 +69,9 @@ class AppCompatBackgroundHelper {
 
     void onSetBackgroundResource(int resId) {
         // Update the default background tint
-        setInternalBackgroundTint(mTintManager != null ? mTintManager.getTintList(resId) : null);
+        setInternalBackgroundTint(mDrawableManager != null
+                ? mDrawableManager.getTintList(mView.getContext(), resId)
+                : null);
     }
 
     void onSetBackgroundDrawable(Drawable background) {
@@ -109,9 +111,10 @@ class AppCompatBackgroundHelper {
         final Drawable background = mView.getBackground();
         if (background != null) {
             if (mBackgroundTint != null) {
-                TintManager.tintDrawable(background, mBackgroundTint, mView.getDrawableState());
+                AppCompatDrawableManager
+                        .tintDrawable(background, mBackgroundTint, mView.getDrawableState());
             } else if (mInternalBackgroundTint != null) {
-                TintManager.tintDrawable(background, mInternalBackgroundTint,
+                AppCompatDrawableManager.tintDrawable(background, mInternalBackgroundTint,
                         mView.getDrawableState());
             }
         }

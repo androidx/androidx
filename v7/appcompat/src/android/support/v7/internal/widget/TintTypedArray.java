@@ -36,8 +36,6 @@ public class TintTypedArray {
     private final Context mContext;
     private final TypedArray mWrapped;
 
-    private TintManager mTintManager;
-
     public static TintTypedArray obtainStyledAttributes(Context context, AttributeSet set,
             int[] attrs) {
         TypedArray array = context.obtainStyledAttributes(set, attrs);
@@ -59,7 +57,7 @@ public class TintTypedArray {
         if (mWrapped.hasValue(index)) {
             final int resourceId = mWrapped.getResourceId(index, 0);
             if (resourceId != 0) {
-                return getTintManager().getDrawable(resourceId);
+                return AppCompatDrawableManager.get().getDrawable(mContext, resourceId);
             }
         }
         return mWrapped.getDrawable(index);
@@ -69,7 +67,7 @@ public class TintTypedArray {
         if (mWrapped.hasValue(index)) {
             final int resourceId = mWrapped.getResourceId(index, 0);
             if (resourceId != 0) {
-                return getTintManager().getDrawable(resourceId, true);
+                return AppCompatDrawableManager.get().getDrawable(mContext, resourceId, true);
             }
         }
         return null;
@@ -185,13 +183,6 @@ public class TintTypedArray {
 
     public int getChangingConfigurations() {
         return mWrapped.getChangingConfigurations();
-    }
-
-    public TintManager getTintManager() {
-        if (mTintManager == null) {
-            mTintManager = TintManager.get(mContext);
-        }
-        return mTintManager;
     }
 
 }

@@ -39,7 +39,7 @@ import android.speech.RecognizerIntent;
 import android.support.v4.view.KeyEventCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v7.appcompat.R;
-import android.support.v7.internal.widget.TintManager;
+import android.support.v7.internal.widget.AppCompatDrawableManager;
 import android.support.v7.internal.widget.TintTypedArray;
 import android.support.v7.internal.widget.ViewUtils;
 import android.support.v7.view.CollapsibleActionView;
@@ -162,7 +162,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
     private SearchableInfo mSearchable;
     private Bundle mAppSearchData;
 
-    private final TintManager mTintManager;
+    private final AppCompatDrawableManager mDrawableManager;
 
     static final AutoCompleteTextViewReflector HIDDEN_METHOD_INVOKER = new AutoCompleteTextViewReflector();
 
@@ -278,10 +278,10 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
     public SearchView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
+        mDrawableManager = AppCompatDrawableManager.get();
+
         final TintTypedArray a = TintTypedArray.obtainStyledAttributes(context,
                 attrs, R.styleable.SearchView, defStyleAttr, 0);
-        // Keep the TintManager in case we need it later
-        mTintManager = a.getTintManager();
 
         final LayoutInflater inflater = LayoutInflater.from(context);
         final int layoutResId = a.getResourceId(
