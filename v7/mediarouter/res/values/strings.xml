@@ -23,7 +23,7 @@
 
     <!-- Content description of a MediaRouteButton for accessibility support.
         Cast is the standard android verb for sending content to a remote device. [CHAR LIMIT=50] -->
-    <string name="mr_button_content_description">Cast</string>
+    <string name="mr_button_content_description">Cast button</string>
 
     <!-- Title of the media route chooser dialog. [CHAR LIMIT=30] -->
     <string name="mr_chooser_title">Cast to</string>
