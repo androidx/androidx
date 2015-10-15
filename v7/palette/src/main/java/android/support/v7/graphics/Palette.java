@@ -524,7 +524,7 @@ public final class Palette {
         }
 
         /**
-         * Add a filter to be able to have fine grained controlled over the colors which are
+         * Add a filter to be able to have fine grained control over which colors are
          * allowed in the resulting palette.
          *
          * @param filter filter to add.
