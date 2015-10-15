@@ -100,8 +100,7 @@ public class ListRowPresenter extends RowPresenter {
         @Override
         protected void onCreate(ItemBridgeAdapter.ViewHolder viewHolder) {
             if (viewHolder.itemView instanceof ViewGroup) {
-                TransitionHelper.getInstance().setTransitionGroup((ViewGroup) viewHolder.itemView,
-                        true);
+                TransitionHelper.setTransitionGroup((ViewGroup) viewHolder.itemView, true);
             }
             if (mShadowOverlayHelper != null) {
                 mShadowOverlayHelper.onViewCreated(viewHolder.itemView);

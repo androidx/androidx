@@ -232,11 +232,10 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
                     Log.d(TAG, "setTransitionName "+mViewHolder.mOverviewFrame);
                 }
                 ViewCompat.setTransitionName(mViewHolder.mOverviewFrame, mSharedElementName);
-                final TransitionHelper transitionHelper = TransitionHelper.getInstance();
-                Object transition = transitionHelper.getSharedElementEnterTransition(
+                Object transition = TransitionHelper.getSharedElementEnterTransition(
                         mActivityToRunTransition.getWindow());
                 if (transition != null) {
-                    transitionHelper.setTransitionListener(transition, new TransitionListener() {
+                    TransitionHelper.addTransitionListener(transition, new TransitionListener() {
                         @Override
                         public void onTransitionEnd(Object transition) {
                             if (DEBUG) {
@@ -247,7 +246,7 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
                             if (mViewHolder.mActionsRow.isFocused()) {
                                 mViewHolder.mActionsRow.requestFocus();
                             }
-                            transitionHelper.setTransitionListener(transition, null);
+                            TransitionHelper.removeTransitionListener(transition, this);
                         }
                     });
                 }

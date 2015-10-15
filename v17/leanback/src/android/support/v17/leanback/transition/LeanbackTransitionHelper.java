@@ -30,9 +30,9 @@ public class LeanbackTransitionHelper {
 
     static interface LeanbackTransitionHelperVersion {
 
-        public Object loadTitleInTransition(Context context, TransitionHelper helper);
+        public Object loadTitleInTransition(Context context);
 
-        public Object loadTitleOutTransition(Context context, TransitionHelper helper);
+        public Object loadTitleOutTransition(Context context);
     }
 
     /*
@@ -42,12 +42,12 @@ public class LeanbackTransitionHelper {
     static class LeanbackTransitionHelperKitKatImpl implements LeanbackTransitionHelperVersion {
 
         @Override
-        public Object loadTitleInTransition(Context context, TransitionHelper helper) {
+        public Object loadTitleInTransition(Context context) {
             return LeanbackTransitionHelperKitKat.loadTitleInTransition(context);
         }
 
         @Override
-        public Object loadTitleOutTransition(Context context, TransitionHelper helper) {
+        public Object loadTitleOutTransition(Context context) {
             return LeanbackTransitionHelperKitKat.loadTitleOutTransition(context);
         }
     }
@@ -58,13 +58,13 @@ public class LeanbackTransitionHelper {
     static class LeanbackTransitionHelperDefault implements LeanbackTransitionHelperVersion {
 
         @Override
-        public Object loadTitleInTransition(Context context, TransitionHelper helper) {
-            return helper.loadTransition(context, R.transition.lb_title_in);
+        public Object loadTitleInTransition(Context context) {
+            return TransitionHelper.loadTransition(context, R.transition.lb_title_in);
         }
 
         @Override
-        public Object loadTitleOutTransition(Context context, TransitionHelper helper) {
-            return helper.loadTransition(context, R.transition.lb_title_out);
+        public Object loadTitleOutTransition(Context context) {
+            return TransitionHelper.loadTransition(context, R.transition.lb_title_out);
         }
     }
 
@@ -81,11 +81,11 @@ public class LeanbackTransitionHelper {
         }
     }
 
-    static public Object loadTitleInTransition(Context context, TransitionHelper helper) {
-        return sImpl.loadTitleInTransition(context, helper);
+    static public Object loadTitleInTransition(Context context) {
+        return sImpl.loadTitleInTransition(context);
     }
 
-    static public Object loadTitleOutTransition(Context context, TransitionHelper helper) {
-        return sImpl.loadTitleOutTransition(context, helper);
+    static public Object loadTitleOutTransition(Context context) {
+        return sImpl.loadTitleOutTransition(context);
     }
 }

@@ -34,7 +34,7 @@ public class VerticalGridPresenter extends Presenter {
         @Override
         protected void onCreate(ItemBridgeAdapter.ViewHolder viewHolder) {
             if (viewHolder.itemView instanceof ViewGroup) {
-                TransitionHelper.getInstance().setTransitionGroup((ViewGroup) viewHolder.itemView,
+                TransitionHelper.setTransitionGroup((ViewGroup) viewHolder.itemView,
                         true);
             }
             if (mShadowOverlayHelper != null) {
