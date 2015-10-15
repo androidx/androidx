@@ -76,8 +76,7 @@ public class FullWidthDetailsOverviewSharedElementHelper extends
         if (DEBUG) {
             Log.d(TAG, "postponeEnterTransition " + mActivityToRunTransition);
         }
-        Object transition = TransitionHelper.getInstance()
-                .getSharedElementEnterTransition(activity.getWindow());
+        Object transition = TransitionHelper.getSharedElementEnterTransition(activity.getWindow());
         setAutoStartSharedElementTransition(transition != null);
         ActivityCompat.postponeEnterTransition(mActivityToRunTransition);
         if (timeoutMs > 0) {
@@ -140,11 +139,10 @@ public class FullWidthDetailsOverviewSharedElementHelper extends
                 }
                 ViewCompat.setTransitionName(mViewHolder.getLogoViewHolder().view,
                         mSharedElementName);
-                final TransitionHelper transitionHelper = TransitionHelper.getInstance();
-                Object transition = transitionHelper.getSharedElementEnterTransition(
+                Object transition = TransitionHelper.getSharedElementEnterTransition(
                         mActivityToRunTransition.getWindow());
                 if (transition != null) {
-                    transitionHelper.setTransitionListener(transition, new TransitionListener() {
+                    TransitionHelper.addTransitionListener(transition, new TransitionListener() {
                         @Override
                         public void onTransitionEnd(Object transition) {
                             if (DEBUG) {
@@ -155,7 +153,7 @@ public class FullWidthDetailsOverviewSharedElementHelper extends
                             if (mViewHolder.getActionsRow().isFocused()) {
                                 mViewHolder.getActionsRow().requestFocus();
                             }
-                            transitionHelper.setTransitionListener(transition, null);
+                            TransitionHelper.removeTransitionListener(transition, this);
                         }
                     });
                 }

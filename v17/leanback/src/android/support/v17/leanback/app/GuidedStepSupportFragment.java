@@ -473,26 +473,25 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
      */
     protected void onProvideFragmentTransitions() {
         if (Build.VERSION.SDK_INT >= 21) {
-            TransitionHelper helper = TransitionHelper.getInstance();
             if (getUiStyle() == UI_STYLE_DEFAULT) {
-                Object enterTransition = helper.createFadeAndShortSlide(Gravity.END);
-                helper.exclude(enterTransition, R.id.guidedactions_background, true);
-                helper.exclude(enterTransition, R.id.guidedactions_selector, true);
-                TransitionHelper.getInstance().setEnterTransition(this, enterTransition);
-                Object exitTransition = helper.createFadeAndShortSlide(Gravity.START);
-                helper.exclude(exitTransition, R.id.guidedactions_background, true);
-                helper.exclude(exitTransition, R.id.guidedactions_selector, true);
-                TransitionHelper.getInstance().setExitTransition(this, exitTransition);
+                Object enterTransition = TransitionHelper.createFadeAndShortSlide(Gravity.END);
+                TransitionHelper.exclude(enterTransition, R.id.guidedactions_background, true);
+                TransitionHelper.exclude(enterTransition, R.id.guidedactions_selector, true);
+                TransitionHelper.setEnterTransition(this, enterTransition);
+                Object exitTransition = TransitionHelper.createFadeAndShortSlide(Gravity.START);
+                TransitionHelper.exclude(exitTransition, R.id.guidedactions_background, true);
+                TransitionHelper.exclude(exitTransition, R.id.guidedactions_selector, true);
+                TransitionHelper.setExitTransition(this, exitTransition);
             } else if (getUiStyle() == UI_STYLE_ENTRANCE) {
-                Object enterTransition = helper.createFadeAndShortSlide(Gravity.END |
+                Object enterTransition = TransitionHelper.createFadeAndShortSlide(Gravity.END |
                         Gravity.START);
-                helper.include(enterTransition, R.id.content_fragment);
-                helper.include(enterTransition, R.id.action_fragment);
-                TransitionHelper.getInstance().setEnterTransition(this, enterTransition);
+                TransitionHelper.include(enterTransition, R.id.content_fragment);
+                TransitionHelper.include(enterTransition, R.id.action_fragment);
+                TransitionHelper.setEnterTransition(this, enterTransition);
                 // exit transition is unchanged, same as UI_STYLE_DEFAULT
             } else if (getUiStyle() == UI_STYLE_ACTIVITY_ROOT) {
                 // for Activity root, we dont need enter transition, use activity transition
-                TransitionHelper.getInstance().setEnterTransition(this, null);
+                TransitionHelper.setEnterTransition(this, null);
                 // exit transition is unchanged, same as UI_STYLE_DEFAULT
             }
         }
@@ -513,10 +512,9 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
          */
         protected void onProvideFragmentTransitions() {
             if (Build.VERSION.SDK_INT >= 21) {
-                TransitionHelper helper = TransitionHelper.getInstance();
-                Object enterTransition = helper.createFadeTransition(
+                Object enterTransition = TransitionHelper.createFadeTransition(
                         TransitionHelper.FADE_IN|TransitionHelper.FADE_OUT);
-                TransitionHelper.getInstance().setEnterTransition(this, enterTransition);
+                TransitionHelper.setEnterTransition(this, enterTransition);
             }
         }
 

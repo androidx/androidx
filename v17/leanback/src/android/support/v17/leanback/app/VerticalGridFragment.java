@@ -15,6 +15,7 @@ package android.support.v17.leanback.app;
 
 import android.support.annotation.ColorInt;
 import android.support.v17.leanback.R;
+import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.widget.BrowseFrameLayout;
 import android.support.v17.leanback.widget.OnChildLaidOutListener;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
@@ -171,7 +172,7 @@ public class VerticalGridFragment extends BaseFragment {
         gridDock.addView(mGridViewHolder.view);
         mGridViewHolder.getGridView().setOnChildLaidOutListener(mChildLaidOutListener);
 
-        mSceneAfterEntranceTransition = sTransitionHelper.createScene(gridDock, new Runnable() {
+        mSceneAfterEntranceTransition = TransitionHelper.createScene(gridDock, new Runnable() {
             @Override
             public void run() {
                 setEntranceTransitionState(true);
@@ -223,14 +224,13 @@ public class VerticalGridFragment extends BaseFragment {
 
     @Override
     protected Object createEntranceTransition() {
-        return sTransitionHelper.loadTransition(getActivity(),
+        return TransitionHelper.loadTransition(getActivity(),
                 R.transition.lb_vertical_grid_entrance_transition);
     }
 
     @Override
     protected void runEntranceTransition(Object entranceTransition) {
-        sTransitionHelper.runTransition(mSceneAfterEntranceTransition,
-                entranceTransition);
+        TransitionHelper.runTransition(mSceneAfterEntranceTransition, entranceTransition);
     }
 
     void setEntranceTransitionState(boolean afterTransition) {

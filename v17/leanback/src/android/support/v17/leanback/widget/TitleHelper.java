@@ -36,8 +36,6 @@ public class TitleHelper {
     private Object mSceneWithTitle;
     private Object mSceneWithoutTitle;
 
-    static TransitionHelper sTransitionHelper = TransitionHelper.getInstance();
-
     // When moving focus off the TitleView, this focus search listener assumes that the view that
     // should take focus comes before the TitleView in a focus search starting at the scene root.
     private final BrowseFrameLayout.OnFocusSearchListener mOnFocusSearchListener =
@@ -68,16 +66,16 @@ public class TitleHelper {
 
     private void createTransitions() {
         mTitleUpTransition = LeanbackTransitionHelper.loadTitleOutTransition(
-                mSceneRoot.getContext(), sTransitionHelper);
+                mSceneRoot.getContext());
         mTitleDownTransition = LeanbackTransitionHelper.loadTitleInTransition(
-                mSceneRoot.getContext(), sTransitionHelper);
-        mSceneWithTitle = sTransitionHelper.createScene(mSceneRoot, new Runnable() {
+                mSceneRoot.getContext());
+        mSceneWithTitle = TransitionHelper.createScene(mSceneRoot, new Runnable() {
             @Override
             public void run() {
                 mTitleView.setVisibility(View.VISIBLE);
             }
         });
-        mSceneWithoutTitle = sTransitionHelper.createScene(mSceneRoot, new Runnable() {
+        mSceneWithoutTitle = TransitionHelper.createScene(mSceneRoot, new Runnable() {
             @Override
             public void run() {
                 mTitleView.setVisibility(View.INVISIBLE);
@@ -90,9 +88,9 @@ public class TitleHelper {
      */
     public void showTitle(boolean show) {
         if (show) {
-            sTransitionHelper.runTransition(mSceneWithTitle, mTitleDownTransition);
+            TransitionHelper.runTransition(mSceneWithTitle, mTitleDownTransition);
         } else {
-            sTransitionHelper.runTransition(mSceneWithoutTitle, mTitleUpTransition);
+            TransitionHelper.runTransition(mSceneWithoutTitle, mTitleUpTransition);
         }
     }
 
