@@ -18,8 +18,6 @@ limitations under the License.
              android:id="@+id/lb_search_frame"
              android:layout_width="match_parent"
              android:layout_height="match_parent"
-             android:paddingTop="@dimen/lb_search_bar_padding_top"
-             android:clipToPadding="false"
              android:clipChildren="false"
         >
         <FrameLayout
@@ -28,6 +26,7 @@ limitations under the License.
                 android:layout_height="match_parent"/>
     <android.support.v17.leanback.widget.SearchBar
             android:id="@+id/lb_search_bar"
+            android:layout_marginTop="@dimen/lb_search_bar_padding_top"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clipChildren="false"
