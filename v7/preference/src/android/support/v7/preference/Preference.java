@@ -517,8 +517,11 @@ public class Preference implements Comparable<Preference> {
             setEnabledStateOnViews(holder.itemView, true);
         }
 
-        holder.setDividerAllowedAbove(isSelectable());
-        holder.setDividerAllowedBelow(isSelectable());
+        final boolean selectable = isSelectable();
+        holder.itemView.setFocusable(selectable);
+
+        holder.setDividerAllowedAbove(selectable);
+        holder.setDividerAllowedBelow(selectable);
     }
 
     /**
