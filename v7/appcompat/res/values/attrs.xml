@@ -795,17 +795,39 @@
         <attr name="title" />
         <attr name="subtitle" />
         <attr name="android:gravity" />
-        <attr name="titleMargins" format="dimension" />
+        <!--  Specifies extra space on the left, start, right and end sides
+              of the toolbar's title. Margin values should be positive. -->
+        <attr name="titleMargin" format="dimension" />
+        <!--  Specifies extra space on the start side of the toolbar's title.
+              If both this attribute and titleMargin are specified, then this
+              attribute takes precedence. Margin values should be positive. -->
         <attr name="titleMarginStart" format="dimension" />
+        <!--  Specifies extra space on the end side of the toolbar's title.
+              If both this attribute and titleMargin are specified, then this
+              attribute takes precedence. Margin values should be positive. -->
         <attr name="titleMarginEnd" format="dimension" />
+        <!--  Specifies extra space on the top side of the toolbar's title.
+              If both this attribute and titleMargin are specified, then this
+              attribute takes precedence. Margin values should be positive. -->
         <attr name="titleMarginTop" format="dimension" />
+        <!--  Specifies extra space on the bottom side of the toolbar's title.
+              If both this attribute and titleMargin are specified, then this
+              attribute takes precedence. Margin values should be positive. -->
         <attr name="titleMarginBottom" format="dimension" />
+        <!-- {@deprecated Use titleMargin} -->
+        <attr name="titleMargins" format="dimension" />
         <attr name="contentInsetStart" />
         <attr name="contentInsetEnd" />
         <attr name="contentInsetLeft" />
         <attr name="contentInsetRight" />
         <attr name="maxButtonHeight" format="dimension" />
-
+        <attr name="buttonGravity">
+            <!-- Push object to the top of its container, not changing its size. -->
+            <flag name="top" value="0x30" />
+            <!-- Push object to the bottom of its container, not changing its size. -->
+            <flag name="bottom" value="0x50" />
+        </attr>
+        <!-- Icon drawable to use for the collapse button. -->
         <attr name="collapseIcon" format="reference" />
         <!-- Text to set as the content description for the collapse button. -->
         <attr name="collapseContentDescription" format="string" />
@@ -818,10 +840,6 @@
         <!-- Text to set as the content description for the navigation button
              located at the start of the toolbar. -->
         <attr name="navigationContentDescription" format="string" />
-
-        <!-- Allows us to read in the minHeight attr pre-v16 -->
-        <attr name="android:minHeight" />
-
         <!-- Drawable to set as the logo that appears at the starting side of
              the Toolbar, just after the navigation button. -->
         <attr name="logo" />
@@ -832,6 +850,7 @@
         <attr name="titleTextColor" format="color" />
         <!-- A color to apply to the subtitle string. -->
         <attr name="subtitleTextColor" format="color" />
+        <attr name="android:minHeight" />
     </declare-styleable>
 
     <declare-styleable name="PopupWindowBackgroundState">

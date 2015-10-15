@@ -65,6 +65,7 @@
      <public type="attr" name="buttonBarNeutralButtonStyle"/>
      <public type="attr" name="buttonBarPositiveButtonStyle"/>
      <public type="attr" name="buttonBarStyle"/>
+     <public type="attr" name="buttonGravity" />
      <public type="attr" name="buttonStyle"/>
      <public type="attr" name="buttonStyleSmall"/>
      <public type="attr" name="buttonTint"/>
@@ -126,6 +127,7 @@
      <public type="attr" name="listPreferredItemPaddingRight"/>
      <public type="attr" name="logo"/>
      <public type="attr" name="logoDescription"/>
+     <public type="attr" name="maxButtonHeight" />
      <public type="attr" name="measureWithLargestChild"/>
      <public type="attr" name="middleBarArrowSize"/>
      <public type="attr" name="navigationContentDescription"/>
@@ -181,6 +183,7 @@
      <public type="attr" name="title"/>
      <public type="attr" name="titleMarginBottom"/>
      <public type="attr" name="titleMarginEnd"/>
+     <public type="attr" name="titleMargin"/>
      <public type="attr" name="titleMargins"/>
      <public type="attr" name="titleMarginStart"/>
      <public type="attr" name="titleMarginTop"/>
