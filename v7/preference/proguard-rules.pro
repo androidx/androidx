@@ -13,5 +13,6 @@
 # limitations under the License.
 
 # Preference objects are inflated via reflection
+-keep public class android.support.v7.preference.Preference
 -keep public class * extends android.support.v7.preference.Preference
 
