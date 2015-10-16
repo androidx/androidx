@@ -86,7 +86,7 @@ public abstract class DocumentFile {
 
     /**
      * Create a {@link DocumentFile} representing the filesystem tree rooted at
-     * the given {@link Uri}. This doesn't give you any additional access to the
+     * the given {@link File}. This doesn't give you any additional access to the
      * underlying files beyond what your app already has.
      * <p>
      * {@link #getUri()} will return {@code file://} Uris for files explored
