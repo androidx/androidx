@@ -16,4 +16,6 @@
 -->
 <resources>
     <dimen name="bottom_sheet_horizontal_margin">0dp</dimen>
+    <dimen name="bottom_sheet_elevation">16dp</dimen>
+    <dimen name="bottom_sheet_peek_height">128dp</dimen>
 </resources>

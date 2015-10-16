@@ -199,8 +199,17 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".widget.BottomSheetUsage"
-                  android:label="@string/design_bottomsheet"
+        <activity android:name=".widget.BottomSheetPersistent"
+                  android:label="@string/design_bottomsheet_persistent"
+                  android:theme="@style/Theme.Design">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.support.design.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".widget.BottomSheetHideable"
+                  android:label="@string/design_bottomsheet_hideable"
                   android:theme="@style/Theme.Design">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

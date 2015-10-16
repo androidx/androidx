@@ -20,6 +20,7 @@ import com.example.android.support.design.R;
 import com.example.android.support.design.Shakespeare;
 
 import android.os.Bundle;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v7.app.AppCompatActivity;
@@ -30,25 +31,31 @@ import android.widget.TextView;
 /**
  * This demonstrates basic usage of {@link BottomSheetBehavior}.
  */
-public class BottomSheetUsage extends AppCompatActivity {
+abstract class BottomSheetUsageBase extends AppCompatActivity {
 
-    private BottomSheetBehavior<LinearLayout> mBehavior;
+    protected BottomSheetBehavior<LinearLayout> mBehavior;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.design_bottom_sheet);
+        setContentView(getLayoutId());
         ((TextView) findViewById(R.id.dialogue)).setText(TextUtils.concat(Shakespeare.DIALOGUE));
         mBehavior = BottomSheetBehavior.from((LinearLayout) findViewById(R.id.bottom_sheet));
     }
 
     @Override
     public void onBackPressed() {
-        if (mBehavior != null && mBehavior.getState() != BottomSheetBehavior.STATE_COLLAPSED) {
-            mBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-        } else {
-            super.onBackPressed();
+        if (mBehavior != null) {
+            int state = mBehavior.getState();
+            if (state != BottomSheetBehavior.STATE_COLLAPSED &&
+                    state != BottomSheetBehavior.STATE_HIDDEN) {
+                mBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                return;
+            }
         }
+        super.onBackPressed();
     }
+
+    protected abstract int getLayoutId();
 
 }
