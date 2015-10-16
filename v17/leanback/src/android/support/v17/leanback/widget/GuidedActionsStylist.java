@@ -133,6 +133,8 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         private ImageView mIconView;
         private ImageView mCheckmarkView;
         private ImageView mChevronView;
+        private boolean mInEditing;
+        private boolean mInEditingDescription;
 
         /**
          * Constructs an ViewHolder and caches the relevant subviews.
@@ -179,6 +181,14 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         }
 
         /**
+         * Convenience method to return an editable version of the description, if possible,
+         * or null if the description view isn't an EditText.
+         */
+        public EditText getEditableDescriptionView() {
+            return (mDescriptionView instanceof EditText) ? (EditText)mDescriptionView : null;
+        }
+
+        /**
          * Returns the icon view within this view holder's view.
          */
         public ImageView getIconView() {
@@ -199,6 +209,27 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             return mChevronView;
         }
 
+        /**
+         * Returns true if the TextView is in editing title or description, false otherwise.
+         */
+        public boolean isInEditing() {
+            return mInEditing;
+        }
+
+        /**
+         * Returns true if the TextView is in editing description, false otherwise.
+         */
+        public boolean isInEditingDescription() {
+            return mInEditingDescription;
+        }
+
+        public View getEditingView() {
+            if (mInEditing) {
+                return mInEditingDescription ?  mDescriptionView : mTitleView;
+            } else {
+                return null;
+            }
+        }
     }
 
     private static String TAG = "GuidedActionsStylist";
@@ -208,6 +239,10 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     protected View mSelectorView;
 
     // Cached values from resources
+    private float mEnabledTextAlpha;
+    private float mDisabledTextAlpha;
+    private float mEnabledDescriptionAlpha;
+    private float mDisabledDescriptionAlpha;
     private float mEnabledChevronAlpha;
     private float mDisabledChevronAlpha;
     private int mContentWidth;
@@ -285,6 +320,14 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         mDisplayHeight = ((WindowManager) ctx.getSystemService(Context.WINDOW_SERVICE))
                 .getDefaultDisplay().getHeight();
 
+        mEnabledTextAlpha = Float.valueOf(ctx.getResources().getString(R.string
+                .lb_guidedactions_item_unselected_text_alpha));
+        mDisabledTextAlpha = Float.valueOf(ctx.getResources().getString(R.string
+                .lb_guidedactions_item_disabled_text_alpha));
+        mEnabledDescriptionAlpha = Float.valueOf(ctx.getResources().getString(R.string
+                .lb_guidedactions_item_unselected_description_text_alpha));
+        mDisabledDescriptionAlpha = Float.valueOf(ctx.getResources().getString(R.string
+                .lb_guidedactions_item_disabled_description_text_alpha));
         return mMainView;
     }
 
@@ -350,11 +393,14 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
 
         if (vh.mTitleView != null) {
             vh.mTitleView.setText(action.getTitle());
+            vh.mTitleView.setAlpha(action.isEnabled() ? mEnabledTextAlpha : mDisabledTextAlpha);
         }
         if (vh.mDescriptionView != null) {
             vh.mDescriptionView.setText(action.getDescription());
             vh.mDescriptionView.setVisibility(TextUtils.isEmpty(action.getDescription()) ?
                     View.GONE : View.VISIBLE);
+            vh.mDescriptionView.setAlpha(action.isEnabled() ? mEnabledDescriptionAlpha :
+                mDisabledDescriptionAlpha);
         }
         // Clients might want the check mark view to be gone entirely, in which case, ignore it.
         if (vh.mCheckmarkView != null && vh.mCheckmarkView.getVisibility() != View.GONE) {
@@ -391,6 +437,51 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             }
             if (vh.mDescriptionView != null) {
                 vh.mDescriptionView.setMaxLines(mDescriptionMinLines);
+            }
+        }
+        setEditingMode(vh, action, false);
+    }
+
+    public void setEditingMode(ViewHolder vh, GuidedAction action, boolean editing) {
+        if (editing != vh.mInEditing) {
+            vh.mInEditing = editing;
+            onEditingModeChange(vh, action, editing);
+        }
+    }
+
+    protected void onEditingModeChange(ViewHolder vh, GuidedAction action, boolean editing) {
+        TextView titleView = vh.getTitleView();
+        TextView descriptionView = vh.getDescriptionView();
+        if (editing) {
+            CharSequence editTitle = action.getEditTitle();
+            if (titleView != null && editTitle != null) {
+                titleView.setText(editTitle);
+            }
+            CharSequence editDescription = action.getEditDescription();
+            if (descriptionView != null && editDescription != null) {
+                descriptionView.setText(editDescription);
+            }
+            if (action.isDescriptionEditable()) {
+                if (descriptionView != null) {
+                    descriptionView.setVisibility(View.VISIBLE);
+                }
+                vh.mInEditingDescription = true;
+            } else {
+                vh.mInEditingDescription = false;
+            }
+        } else {
+            if (titleView != null) {
+                titleView.setText(action.getTitle());
+            }
+            if (descriptionView != null) {
+                descriptionView.setText(action.getDescription());
+            }
+            if (vh.mInEditingDescription) {
+                if (descriptionView != null) {
+                    descriptionView.setVisibility(TextUtils.isEmpty(action.getDescription()) ?
+                            View.GONE : View.VISIBLE);
+                }
+                vh.mInEditingDescription = false;
             }
         }
     }
