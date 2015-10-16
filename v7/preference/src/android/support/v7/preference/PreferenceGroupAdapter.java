@@ -79,6 +79,14 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
         private int widgetResId;
         private String name;
 
+        public PreferenceLayout() {}
+
+        public PreferenceLayout(PreferenceLayout other) {
+            resId = other.resId;
+            widgetResId = other.widgetResId;
+            name = other.name;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (!(o instanceof PreferenceLayout)) {
@@ -249,7 +257,14 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
 
         mTempPreferenceLayout = createPreferenceLayout(preference, mTempPreferenceLayout);
 
-        return mPreferenceLayouts.indexOf(mTempPreferenceLayout);
+        int viewType = mPreferenceLayouts.indexOf(mTempPreferenceLayout);
+        if (viewType != -1) {
+            return viewType;
+        } else {
+            viewType = mPreferenceLayouts.size();
+            mPreferenceLayouts.add(new PreferenceLayout(mTempPreferenceLayout));
+            return viewType;
+        }
     }
 
     @Override
