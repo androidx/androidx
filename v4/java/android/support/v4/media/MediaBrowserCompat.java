@@ -40,6 +40,7 @@ import android.util.Log;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -52,7 +53,7 @@ import java.util.List;
  * @hide
  */
 public final class MediaBrowserCompat {
-    private final MediaBrowserImplBase mImpl;
+    private final MediaBrowserImpl mImpl;
 
     /**
      * Creates a media browser for the specified media browse service.
@@ -67,7 +68,12 @@ public final class MediaBrowserCompat {
      */
     public MediaBrowserCompat(Context context, ComponentName serviceComponent,
             ConnectionCallback callback, Bundle rootHints) {
-        mImpl = new MediaBrowserImplBase(context, serviceComponent, callback, rootHints);
+        // TODO: Implement MediaBrowserImplApi23.
+        if (android.os.Build.VERSION.SDK_INT >= 21) {
+            mImpl = new MediaBrowserImplApi21(context, serviceComponent, callback, rootHints);
+        } else {
+            mImpl = new MediaBrowserImplBase(context, serviceComponent, callback, rootHints);
+        }
     }
 
     /**
@@ -315,6 +321,17 @@ public final class MediaBrowserCompat {
      * Callbacks for connection related events.
      */
     public static class ConnectionCallback {
+        final Object mConnectionCallbackObj;
+
+        public ConnectionCallback() {
+            if (android.os.Build.VERSION.SDK_INT >= 21) {
+                mConnectionCallbackObj =
+                        MediaBrowserCompatApi21.createConnectionCallback(new StubApi21());
+            } else {
+                mConnectionCallbackObj = null;
+            }
+        }
+
         /**
          * Invoked after {@link MediaBrowserCompat#connect()} when the request has successfully
          * completed.
@@ -333,12 +350,41 @@ public final class MediaBrowserCompat {
          */
         public void onConnectionFailed() {
         }
+
+
+        private class StubApi21 implements MediaBrowserCompatApi21.ConnectionCallback {
+            @Override
+            public void onConnected() {
+                ConnectionCallback.this.onConnected();
+            }
+
+            @Override
+            public void onConnectionSuspended() {
+                ConnectionCallback.this.onConnectionSuspended();
+            }
+
+            @Override
+            public void onConnectionFailed() {
+                ConnectionCallback.this.onConnectionFailed();
+            }
+        }
     }
 
     /**
      * Callbacks for subscription related events.
      */
     public static abstract class SubscriptionCallback {
+        final Object mSubscriptionCallbackObj;
+
+        public SubscriptionCallback() {
+            if (android.os.Build.VERSION.SDK_INT >= 21) {
+                mSubscriptionCallbackObj =
+                        MediaBrowserCompatApi21.createSubscriptionCallback(new StubApi21());
+            } else {
+                mSubscriptionCallbackObj = null;
+            }
+        }
+
         /**
          * Called when the list of children is loaded or updated.
          *
@@ -360,6 +406,28 @@ public final class MediaBrowserCompat {
          * not be loaded.
          */
         public void onError(@NonNull String parentId) {
+        }
+
+        private class StubApi21 implements MediaBrowserCompatApi21.SubscriptionCallback {
+            @Override
+            public void onChildrenLoaded(@NonNull String parentId, @NonNull List<Parcel> children) {
+                List<MediaBrowserCompat.MediaItem> mediaItems = null;
+                if (children != null) {
+                    mediaItems = new ArrayList<>();
+                    for (Parcel parcel : children) {
+                        parcel.setDataPosition(0);
+                        mediaItems.add(
+                                MediaBrowserCompat.MediaItem.CREATOR.createFromParcel(parcel));
+                        parcel.recycle();
+                    }
+                }
+                SubscriptionCallback.this.onChildrenLoaded(parentId, mediaItems);
+            }
+
+            @Override
+            public void onError(@NonNull String parentId) {
+                SubscriptionCallback.this.onError(parentId);
+            }
         }
     }
 
@@ -384,7 +452,20 @@ public final class MediaBrowserCompat {
         }
     }
 
-    static class MediaBrowserImplBase {
+    interface MediaBrowserImpl {
+        void connect();
+        void disconnect();
+        boolean isConnected();
+        ComponentName getServiceComponent();
+        @NonNull String getRoot();
+        @Nullable Bundle getExtras();
+        @NonNull MediaSessionCompat.Token getSessionToken();
+        void subscribe(@NonNull String parentId, @NonNull SubscriptionCallback callback);
+        void unsubscribe(@NonNull String parentId);
+        void getItem(final @NonNull String mediaId, @NonNull final ItemCallback cb);
+    }
+
+    static class MediaBrowserImplBase implements MediaBrowserImpl {
         private static final String TAG = "MediaBrowserCompat";
         private static final boolean DBG = false;
 
@@ -960,6 +1041,72 @@ public final class MediaBrowserCompat {
             Subscription(String id) {
                 this.id = id;
             }
+        }
+    }
+
+    static class MediaBrowserImplApi21 implements MediaBrowserImpl {
+        Object mBrowserObj;
+
+        public MediaBrowserImplApi21(Context context, ComponentName serviceComponent,
+                ConnectionCallback callback, Bundle rootHints) {
+            mBrowserObj = MediaBrowserCompatApi21.createBrowser(context, serviceComponent,
+                    callback.mConnectionCallbackObj, rootHints);
+        }
+
+        @Override
+        public void connect() {
+            MediaBrowserCompatApi21.connect(mBrowserObj);
+        }
+
+        @Override
+        public void disconnect() {
+            MediaBrowserCompatApi21.disconnect(mBrowserObj);
+        }
+
+        @Override
+        public boolean isConnected() {
+            return MediaBrowserCompatApi21.isConnected(mBrowserObj);
+        }
+
+        @Override
+        public ComponentName getServiceComponent() {
+            return MediaBrowserCompatApi21.getServiceComponent(mBrowserObj);
+        }
+
+        @NonNull
+        @Override
+        public String getRoot() {
+            return MediaBrowserCompatApi21.getRoot(mBrowserObj);
+        }
+
+        @Nullable
+        @Override
+        public Bundle getExtras() {
+            return MediaBrowserCompatApi21.getExtras(mBrowserObj);
+        }
+
+        @NonNull
+        @Override
+        public MediaSessionCompat.Token getSessionToken() {
+            return MediaSessionCompat.Token.fromToken(
+                    MediaBrowserCompatApi21.getSessionToken(mBrowserObj));
+        }
+
+        @Override
+        public void subscribe(@NonNull String parentId, @NonNull SubscriptionCallback callback) {
+            MediaBrowserCompatApi21.subscribe(
+                    mBrowserObj, parentId, callback.mSubscriptionCallbackObj);
+        }
+
+        @Override
+        public void unsubscribe(@NonNull String parentId) {
+            MediaBrowserCompatApi21.unsubscribe(mBrowserObj, parentId);
+        }
+
+        @Override
+        public void getItem(@NonNull String mediaId, @NonNull ItemCallback cb) {
+            // TODO Implement individual item loading on API 21-22 devices
+            cb.onItemLoaded(null);
         }
     }
 }
