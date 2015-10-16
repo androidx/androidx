@@ -162,7 +162,7 @@ public abstract class FragmentTransaction {
     public static final int TRANSIT_EXIT_MASK = 0x2000;
 
     /** @hide */
-    @IntDef({TRANSIT_NONE, TRANSIT_FRAGMENT_OPEN, TRANSIT_FRAGMENT_CLOSE})
+    @IntDef({TRANSIT_NONE, TRANSIT_FRAGMENT_OPEN, TRANSIT_FRAGMENT_CLOSE, TRANSIT_FRAGMENT_FADE})
     @Retention(RetentionPolicy.SOURCE)
     private @interface Transit {}
 
@@ -212,7 +212,7 @@ public abstract class FragmentTransaction {
     /**
      * Select a standard transition animation for this transaction.  May be
      * one of {@link #TRANSIT_NONE}, {@link #TRANSIT_FRAGMENT_OPEN},
-     * or {@link #TRANSIT_FRAGMENT_CLOSE}
+     * {@link #TRANSIT_FRAGMENT_CLOSE}, or {@link #TRANSIT_FRAGMENT_FADE}.
      */
     public abstract FragmentTransaction setTransition(@Transit int transit);
 
