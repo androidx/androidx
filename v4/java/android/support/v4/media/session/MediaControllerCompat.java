@@ -92,7 +92,9 @@ public final class MediaControllerCompat {
         }
         mToken = sessionToken;
 
-        if (android.os.Build.VERSION.SDK_INT >= 21) {
+        if (android.os.Build.VERSION.SDK_INT >= 23) {
+            mImpl = new MediaControllerImplApi23(context, sessionToken);
+        } else if (android.os.Build.VERSION.SDK_INT >= 21) {
             mImpl = new MediaControllerImplApi21(context, sessionToken);
         } else {
             mImpl = new MediaControllerImplBase(mToken);
