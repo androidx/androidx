@@ -117,7 +117,7 @@ public class ResourcesCompat {
      */
     @ColorInt
     @SuppressWarnings("deprecation")
-    public int getColor(@NonNull Resources res, @ColorRes int id, @Nullable Theme theme)
+    public static int getColor(@NonNull Resources res, @ColorRes int id, @Nullable Theme theme)
             throws NotFoundException {
         if (SDK_INT >= 23) {
             return ResourcesCompatApi23.getColor(res, id, theme);
@@ -147,7 +147,7 @@ public class ResourcesCompat {
      */
     @Nullable
     @SuppressWarnings("deprecation")
-    public ColorStateList getColorStateList(@NonNull Resources res, @ColorRes int id,
+    public static ColorStateList getColorStateList(@NonNull Resources res, @ColorRes int id,
             @Nullable Theme theme) throws NotFoundException {
         if (SDK_INT >= 23) {
             return ResourcesCompatApi23.getColorStateList(res, id, theme);
