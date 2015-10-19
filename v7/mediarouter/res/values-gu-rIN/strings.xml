@@ -18,7 +18,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="5441529851481176817">"સિસ્ટમ"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"ઉપકરણો"</string>
-    <string name="mr_button_content_description" msgid="4324764887951330391">"કાસ્ટ કરો"</string>
+    <string name="mr_button_content_description" msgid="3698378085901466129">"કાસ્ટ કરો બટન"</string>
     <string name="mr_chooser_title" msgid="414301941546135990">"આના પર કાસ્ટ કરો"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"ઉપકરણો શોધી રહ્યાં છીએ"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"ડિસ્કનેક્ટ કરો"</string>
