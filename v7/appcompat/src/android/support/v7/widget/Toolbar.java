@@ -111,6 +111,32 @@ import java.util.List;
  * <p>In modern Android UIs developers should lean more on a visually distinct color scheme for
  * toolbars than on their application icon. The use of application icon plus title as a standard
  * layout is discouraged on API 21 devices and newer.</p>
+ *
+ * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_buttonGravity
+ * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_collapseContentDescription
+ * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_collapseIcon
+ * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_contentInsetEnd
+ * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_contentInsetLeft
+ * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_contentInsetRight
+ * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_contentInsetStart
+ * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_android_gravity
+ * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_logo
+ * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_logoDescription
+ * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_maxButtonHeight
+ * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_navigationContentDescription
+ * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_navigationIcon
+ * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_popupTheme
+ * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_subtitle
+ * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_subtitleTextAppearance
+ * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_subtitleTextColor
+ * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_title
+ * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_titleMargin
+ * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_titleMarginBottom
+ * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_titleMarginEnd
+ * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_titleMarginStart
+ * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_titleMarginTop
+ * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_titleTextAppearance
+ * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_titleTextColor
  */
 public class Toolbar extends ViewGroup {
     private static final String TAG = "Toolbar";
@@ -212,9 +238,15 @@ public class Toolbar extends ViewGroup {
         mTitleTextAppearance = a.getResourceId(R.styleable.Toolbar_titleTextAppearance, 0);
         mSubtitleTextAppearance = a.getResourceId(R.styleable.Toolbar_subtitleTextAppearance, 0);
         mGravity = a.getInteger(R.styleable.Toolbar_android_gravity, mGravity);
-        mButtonGravity = Gravity.TOP;
-        mTitleMarginStart = mTitleMarginEnd = mTitleMarginTop = mTitleMarginBottom =
-                a.getDimensionPixelOffset(R.styleable.Toolbar_titleMargins, 0);
+        mButtonGravity = a.getInteger(R.styleable.Toolbar_buttonGravity, Gravity.TOP);
+
+        // First read the correct attribute
+        int titleMargin = a.getDimensionPixelOffset(R.styleable.Toolbar_titleMargin, 0);
+        if (a.hasValue(R.styleable.Toolbar_titleMargins)) {
+            // Now read the deprecated attribute, if it has a value
+            titleMargin = a.getDimensionPixelOffset(R.styleable.Toolbar_titleMargins, titleMargin);
+        }
+        mTitleMarginStart = mTitleMarginEnd = mTitleMarginTop = mTitleMarginBottom = titleMargin;
 
         final int marginStart = a.getDimensionPixelOffset(R.styleable.Toolbar_titleMarginStart, -1);
         if (marginStart >= 0) {
@@ -269,6 +301,7 @@ public class Toolbar extends ViewGroup {
         if (!TextUtils.isEmpty(subtitle)) {
             setSubtitle(subtitle);
         }
+
         // Set the default context, since setPopupTheme() may be a no-op.
         mPopupContext = getContext();
         setPopupTheme(a.getResourceId(R.styleable.Toolbar_popupTheme, 0));
@@ -329,6 +362,116 @@ public class Toolbar extends ViewGroup {
      */
     public int getPopupTheme() {
         return mPopupTheme;
+    }
+
+    /**
+     * Sets the title margin.
+     *
+     * @param start the starting title margin in pixels
+     * @param top the top title margin in pixels
+     * @param end the ending title margin in pixels
+     * @param bottom the bottom title margin in pixels
+     * @see #getTitleMarginStart()
+     * @see #getTitleMarginTop()
+     * @see #getTitleMarginEnd()
+     * @see #getTitleMarginBottom()
+     * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_titleMargin
+     */
+    public void setTitleMargin(int start, int top, int end, int bottom) {
+        mTitleMarginStart = start;
+        mTitleMarginTop = top;
+        mTitleMarginEnd = end;
+        mTitleMarginBottom = bottom;
+
+        requestLayout();
+    }
+
+    /**
+     * @return the starting title margin in pixels
+     * @see #setTitleMarginStart(int)
+     * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_titleMarginStart
+     */
+    public int getTitleMarginStart() {
+        return mTitleMarginStart;
+    }
+
+    /**
+     * Sets the starting title margin in pixels.
+     *
+     * @param margin the starting title margin in pixels
+     * @see #getTitleMarginStart()
+     * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_titleMarginStart
+     */
+    public void setTitleMarginStart(int margin) {
+        mTitleMarginStart = margin;
+
+        requestLayout();
+    }
+
+    /**
+     * @return the top title margin in pixels
+     * @see #setTitleMarginTop(int)
+     * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_titleMarginTop
+     */
+    public int getTitleMarginTop() {
+        return mTitleMarginTop;
+    }
+
+    /**
+     * Sets the top title margin in pixels.
+     *
+     * @param margin the top title margin in pixels
+     * @see #getTitleMarginTop()
+     * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_titleMarginTop
+     */
+    public void setTitleMarginTop(int margin) {
+        mTitleMarginTop = margin;
+
+        requestLayout();
+    }
+
+    /**
+     * @return the ending title margin in pixels
+     * @see #setTitleMarginEnd(int)
+     * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_titleMarginEnd
+     */
+    public int getTitleMarginEnd() {
+        return mTitleMarginEnd;
+    }
+
+    /**
+     * Sets the ending title margin in pixels.
+     *
+     * @param margin the ending title margin in pixels
+     * @see #getTitleMarginEnd()
+     * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_titleMarginEnd
+     */
+    public void setTitleMarginEnd(int margin) {
+        mTitleMarginEnd = margin;
+
+        requestLayout();
+    }
+
+    /**
+     * @return the bottom title margin in pixels
+     * @see #setTitleMarginBottom(int)
+     * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_titleMarginBottom
+     */
+    public int getTitleMarginBottom() {
+        return mTitleMarginBottom;
+    }
+
+    /**
+     * Sets the bottom title margin in pixels.
+     *
+     * @param margin the bottom title margin in pixels
+     * @see #getTitleMarginBottom()
+     * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_titleMarginBottom
+     */
+    public void setTitleMarginBottom(int margin) {
+        mTitleMarginBottom = margin;
+
+        requestLayout();
     }
 
     public void onRtlPropertiesChanged(int layoutDirection) {
@@ -727,6 +870,8 @@ public class Toolbar extends ViewGroup {
      * as screen readers or tooltips.
      *
      * @return The navigation button's content description
+     *
+     * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_navigationContentDescription
      */
     @Nullable
     public CharSequence getNavigationContentDescription() {
@@ -740,6 +885,8 @@ public class Toolbar extends ViewGroup {
      *
      * @param resId Resource ID of a content description string to set, or 0 to
      *              clear the description
+     *
+     * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_navigationContentDescription
      */
     public void setNavigationContentDescription(@StringRes int resId) {
         setNavigationContentDescription(resId != 0 ? getContext().getText(resId) : null);
@@ -752,6 +899,8 @@ public class Toolbar extends ViewGroup {
      *
      * @param description Content description to set, or <code>null</code> to
      *                    clear the content description
+     *
+     * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_navigationContentDescription
      */
     public void setNavigationContentDescription(@Nullable CharSequence description) {
         if (!TextUtils.isEmpty(description)) {
@@ -773,6 +922,8 @@ public class Toolbar extends ViewGroup {
      * tooltips.</p>
      *
      * @param resId Resource ID of a drawable to set
+     *
+     * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_navigationIcon
      */
     public void setNavigationIcon(@DrawableRes int resId) {
         setNavigationIcon(mDrawableManager.getDrawable(getContext(), resId));
@@ -789,6 +940,8 @@ public class Toolbar extends ViewGroup {
      * tooltips.</p>
      *
      * @param icon Drawable to set, may be null to clear the icon
+     *
+     * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_navigationIcon
      */
     public void setNavigationIcon(@Nullable Drawable icon) {
         if (icon != null) {
@@ -809,6 +962,8 @@ public class Toolbar extends ViewGroup {
      * Return the current drawable used as the navigation icon.
      *
      * @return The navigation icon drawable
+     *
+     * @attr ref android.support.v7.appcompat.R.styleable#Toolbar_navigationIcon
      */
     @Nullable
     public Drawable getNavigationIcon() {

@@ -389,6 +389,7 @@ package android.support.v7.appcompat {
     field public static int buttonBarNeutralButtonStyle;
     field public static int buttonBarPositiveButtonStyle;
     field public static int buttonBarStyle;
+    field public static int buttonGravity;
     field public static int buttonPanelSideLayout;
     field public static int buttonStyle;
     field public static int buttonStyleSmall;
@@ -519,11 +520,12 @@ package android.support.v7.appcompat {
     field public static int thickness;
     field public static int thumbTextPadding;
     field public static int title;
+    field public static int titleMargin;
     field public static int titleMarginBottom;
     field public static int titleMarginEnd;
     field public static int titleMarginStart;
     field public static int titleMarginTop;
-    field public static int titleMargins;
+    field public static deprecated int titleMargins;
     field public static int titleTextAppearance;
     field public static int titleTextColor;
     field public static int titleTextStyle;
@@ -803,6 +805,7 @@ package android.support.v7.appcompat {
     field public static int alertTitle;
     field public static int always;
     field public static int beginning;
+    field public static int bottom;
     field public static int buttonPanel;
     field public static int cancel_action;
     field public static int checkbox;
@@ -872,6 +875,7 @@ package android.support.v7.appcompat {
     field public static int time;
     field public static int title;
     field public static int title_template;
+    field public static int top;
     field public static int topPanel;
     field public static int up;
     field public static int useLogo;
@@ -1552,9 +1556,10 @@ package android.support.v7.appcompat {
     field public static int Theme_windowMinWidthMajor;
     field public static int Theme_windowMinWidthMinor;
     field public static int Theme_windowNoTitle;
-    field public static final int[] Toolbar;
+    field public static final deprecated int[] Toolbar;
     field public static int Toolbar_android_gravity;
     field public static int Toolbar_android_minHeight;
+    field public static int Toolbar_buttonGravity;
     field public static int Toolbar_collapseContentDescription;
     field public static int Toolbar_collapseIcon;
     field public static int Toolbar_contentInsetEnd;
@@ -1571,11 +1576,12 @@ package android.support.v7.appcompat {
     field public static int Toolbar_subtitleTextAppearance;
     field public static int Toolbar_subtitleTextColor;
     field public static int Toolbar_title;
+    field public static int Toolbar_titleMargin;
     field public static int Toolbar_titleMarginBottom;
     field public static int Toolbar_titleMarginEnd;
     field public static int Toolbar_titleMarginStart;
     field public static int Toolbar_titleMarginTop;
-    field public static int Toolbar_titleMargins;
+    field public static deprecated int Toolbar_titleMargins;
     field public static int Toolbar_titleTextAppearance;
     field public static int Toolbar_titleTextColor;
     field public static final int[] View;
@@ -2037,6 +2043,10 @@ package android.support.v7.widget {
     method public int getPopupTheme();
     method public java.lang.CharSequence getSubtitle();
     method public java.lang.CharSequence getTitle();
+    method public int getTitleMarginBottom();
+    method public int getTitleMarginEnd();
+    method public int getTitleMarginStart();
+    method public int getTitleMarginTop();
     method public boolean hasExpandedActionView();
     method public boolean hideOverflowMenu();
     method public void inflateMenu(int);
@@ -2062,6 +2072,11 @@ package android.support.v7.widget {
     method public void setSubtitleTextColor(int);
     method public void setTitle(int);
     method public void setTitle(java.lang.CharSequence);
+    method public void setTitleMargin(int, int, int, int);
+    method public void setTitleMarginBottom(int);
+    method public void setTitleMarginEnd(int);
+    method public void setTitleMarginStart(int);
+    method public void setTitleMarginTop(int);
     method public void setTitleTextAppearance(android.content.Context, int);
     method public void setTitleTextColor(int);
     method public boolean showOverflowMenu();
