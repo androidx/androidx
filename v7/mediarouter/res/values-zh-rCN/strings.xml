@@ -18,8 +18,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="5441529851481176817">"系统"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"设备"</string>
-    <!-- no translation found for mr_button_content_description (3698378085901466129) -->
-    <skip />
+    <string name="mr_button_content_description" msgid="3698378085901466129">"投射按钮"</string>
     <string name="mr_chooser_title" msgid="414301941546135990">"投射到"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"正在查找设备"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"断开连接"</string>
