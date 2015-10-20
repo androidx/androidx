@@ -506,7 +506,7 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
                 dispatchAnimationFinished(oldHolder);
                 assertSame(preLayoutInfoMap.get(oldHolder), preInfo);
             }
-            if (newHolder != null) {
+            if (newHolder != null && oldHolder != newHolder) {
                 dispatchAnimationFinished(newHolder);
                 assertSame(postLayoutInfoMap.get(newHolder), postInfo);
             }

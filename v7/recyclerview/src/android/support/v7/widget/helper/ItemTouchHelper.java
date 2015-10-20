@@ -873,7 +873,6 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
                     anim.cancel();
                 }
                 mRecoverAnimations.remove(i);
-                anim.mViewHolder.setIsRecyclable(true);
                 return anim.mAnimationType;
             }
         }
@@ -1902,7 +1901,6 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
                 final RecoverAnimation anim = recoverAnimationList.get(i);
                 if (anim.mEnded && !anim.mIsPendingCleanup) {
                     recoverAnimationList.remove(i);
-                    anim.mViewHolder.setIsRecyclable(true);
                 } else if (!anim.mEnded) {
                     hasRunningAnimation = true;
                 }
@@ -2314,6 +2312,9 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
 
         @Override
         public void onAnimationEnd(ValueAnimatorCompat animation) {
+            if (!mEnded) {
+                mViewHolder.setIsRecyclable(true);
+            }
             mEnded = true;
         }
 
