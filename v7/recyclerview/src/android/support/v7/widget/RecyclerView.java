@@ -4241,7 +4241,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             // if it is a removed holder, nothing to verify since we cannot ask adapter anymore
             // if it is not removed, verify the type and id.
             if (holder.isRemoved()) {
-                return true;
+                if (DEBUG && !mState.isPreLayout()) {
+                    throw new IllegalStateException("should not receive a removed view unelss it"
+                            + " is pre layout");
+                }
+                return mState.isPreLayout();
             }
             if (holder.mPosition < 0 || holder.mPosition >= mAdapter.getItemCount()) {
                 throw new IndexOutOfBoundsException("Inconsistency detected. Invalid view holder "
@@ -4704,7 +4708,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          */
         void scrapView(View view) {
             final ViewHolder holder = getChildViewHolderInt(view);
-            if (!holder.isUpdated() || holder.isInvalid() || canReuseUpdatedViewHolder(holder)) {
+            if (holder.hasAnyOfTheFlags(ViewHolder.FLAG_REMOVED | ViewHolder.FLAG_INVALID)
+                    || !holder.isUpdated() || canReuseUpdatedViewHolder(holder)) {
                 if (holder.isInvalid() && !holder.isRemoved() && !mAdapter.hasStableIds()) {
                     throw new IllegalArgumentException("Called scrap view with an invalid view."
                             + " Invalid views cannot be reused from scrap, they should rebound from"
