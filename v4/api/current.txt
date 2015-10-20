@@ -2082,6 +2082,15 @@ package android.support.v4.view {
     method public abstract void onActionProviderVisibilityChanged(boolean);
   }
 
+  public final class AsyncLayoutInflater {
+    ctor public AsyncLayoutInflater(android.view.LayoutInflater);
+    method public void inflate(int, android.view.ViewGroup, android.support.v4.view.AsyncLayoutInflater.OnInflateFinishedListener);
+  }
+
+  public static abstract interface AsyncLayoutInflater.OnInflateFinishedListener {
+    method public abstract void onInflateFinished(android.view.View, int, android.view.ViewGroup);
+  }
+
   public class GestureDetectorCompat {
     ctor public GestureDetectorCompat(android.content.Context, android.view.GestureDetector.OnGestureListener);
     ctor public GestureDetectorCompat(android.content.Context, android.view.GestureDetector.OnGestureListener, android.os.Handler);
