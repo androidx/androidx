@@ -25,7 +25,7 @@ import java.util.Locale;
 /**
  * Jellybean MR1 - specific TextUtils API access.
  */
-public class TextUtilsCompatJellybeanMr1 {
+class TextUtilsCompatJellybeanMr1 {
     @NonNull
     public static String htmlEncode(@NonNull String s) {
         return TextUtils.htmlEncode(s);

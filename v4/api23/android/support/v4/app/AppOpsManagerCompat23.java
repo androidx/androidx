@@ -22,7 +22,7 @@ import android.content.Context;
 /**
  * AppOpsManager implementations for API 23.
  */
-public class AppOpsManagerCompat23 {
+class AppOpsManagerCompat23 {
     public static String permissionToOp(String permission) {
         return AppOpsManager.permissionToOp(permission);
     }

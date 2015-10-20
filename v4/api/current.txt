@@ -26,36 +26,6 @@ package android.support.v4.accessibilityservice {
 
 }
 
-package android.support.v4.animation {
-
-  public abstract class AnimatorCompatHelper {
-    method public static void clearInterpolator(android.view.View);
-    method public static android.support.v4.animation.ValueAnimatorCompat emptyValueAnimator();
-  }
-
-  public abstract interface AnimatorListenerCompat {
-    method public abstract void onAnimationCancel(android.support.v4.animation.ValueAnimatorCompat);
-    method public abstract void onAnimationEnd(android.support.v4.animation.ValueAnimatorCompat);
-    method public abstract void onAnimationRepeat(android.support.v4.animation.ValueAnimatorCompat);
-    method public abstract void onAnimationStart(android.support.v4.animation.ValueAnimatorCompat);
-  }
-
-  public abstract interface AnimatorUpdateListenerCompat {
-    method public abstract void onAnimationUpdate(android.support.v4.animation.ValueAnimatorCompat);
-  }
-
-  public abstract interface ValueAnimatorCompat {
-    method public abstract void addListener(android.support.v4.animation.AnimatorListenerCompat);
-    method public abstract void addUpdateListener(android.support.v4.animation.AnimatorUpdateListenerCompat);
-    method public abstract void cancel();
-    method public abstract float getAnimatedFraction();
-    method public abstract void setDuration(long);
-    method public abstract void setTarget(android.view.View);
-    method public abstract void start();
-  }
-
-}
-
 package android.support.v4.app {
 
   public deprecated class ActionBarDrawerToggle implements android.support.v4.widget.DrawerLayout.DrawerListener {
@@ -562,7 +532,7 @@ package android.support.v4.app {
     field public static final int VISIBILITY_SECRET = -1; // 0xffffffff
   }
 
-  public static class NotificationCompat.Action extends android.support.v4.app.NotificationCompatBase.Action {
+  public static class NotificationCompat.Action {
     ctor public NotificationCompat.Action(int, java.lang.CharSequence, android.app.PendingIntent);
     method public android.app.PendingIntent getActionIntent();
     method public android.os.Bundle getExtras();
@@ -683,7 +653,7 @@ package android.support.v4.app {
     method public android.support.v4.app.NotificationCompat.CarExtender setUnreadConversation(android.support.v4.app.NotificationCompat.CarExtender.UnreadConversation);
   }
 
-  public static class NotificationCompat.CarExtender.UnreadConversation extends android.support.v4.app.NotificationCompatBase.UnreadConversation {
+  public static class NotificationCompat.CarExtender.UnreadConversation {
     method public long getLatestTimestamp();
     method public java.lang.String[] getMessages();
     method public java.lang.String getParticipant();
@@ -770,23 +740,6 @@ package android.support.v4.app {
     field public static final int SIZE_SMALL = 2; // 0x2
     field public static final int SIZE_XSMALL = 1; // 0x1
     field public static final int UNSET_ACTION_INDEX = -1; // 0xffffffff
-  }
-
-  public class NotificationCompatBase {
-    ctor public NotificationCompatBase();
-  }
-
-  public static abstract class NotificationCompatBase.Action {
-    ctor public NotificationCompatBase.Action();
-    method public abstract android.app.PendingIntent getActionIntent();
-    method public abstract android.os.Bundle getExtras();
-    method public abstract int getIcon();
-    method public abstract android.support.v4.app.RemoteInputCompatBase.RemoteInput[] getRemoteInputs();
-    method public abstract java.lang.CharSequence getTitle();
-  }
-
-  public static abstract class NotificationCompatBase.UnreadConversation {
-    ctor public NotificationCompatBase.UnreadConversation();
   }
 
   public final class NotificationCompatExtras {
@@ -2374,6 +2327,13 @@ package android.support.v4.view {
     method public abstract int computeVerticalScrollRange();
   }
 
+  public abstract interface TintableBackgroundView {
+    method public abstract android.content.res.ColorStateList getSupportBackgroundTintList();
+    method public abstract android.graphics.PorterDuff.Mode getSupportBackgroundTintMode();
+    method public abstract void setSupportBackgroundTintList(android.content.res.ColorStateList);
+    method public abstract void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode);
+  }
+
   public class VelocityTrackerCompat {
     ctor public VelocityTrackerCompat();
     method public static float getXVelocity(android.view.VelocityTracker, int);
@@ -3472,6 +3432,13 @@ package android.support.v4.widget {
     method public static void setCompoundDrawablesRelative(android.widget.TextView, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable);
     method public static void setCompoundDrawablesRelativeWithIntrinsicBounds(android.widget.TextView, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable);
     method public static void setCompoundDrawablesRelativeWithIntrinsicBounds(android.widget.TextView, int, int, int, int);
+  }
+
+  public abstract interface TintableCompoundButton {
+    method public abstract android.content.res.ColorStateList getSupportButtonTintList();
+    method public abstract android.graphics.PorterDuff.Mode getSupportButtonTintMode();
+    method public abstract void setSupportButtonTintList(android.content.res.ColorStateList);
+    method public abstract void setSupportButtonTintMode(android.graphics.PorterDuff.Mode);
   }
 
   public class ViewDragHelper {
