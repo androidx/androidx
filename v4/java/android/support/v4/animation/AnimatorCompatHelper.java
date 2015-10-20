@@ -19,9 +19,12 @@ package android.support.v4.animation;
 import android.os.Build;
 import android.view.View;
 
-abstract public class AnimatorCompatHelper {
+/**
+ * @hide
+ */
+public final class AnimatorCompatHelper {
 
-    static AnimatorProvider IMPL;
+    private final static AnimatorProvider IMPL;
 
     static {
         if (Build.VERSION.SDK_INT >= 12) {
@@ -35,9 +38,7 @@ abstract public class AnimatorCompatHelper {
         return IMPL.emptyValueAnimator();
     }
 
-    AnimatorCompatHelper() {
-
-    }
+    private AnimatorCompatHelper() {}
 
     public static void clearInterpolator(View view) {
         IMPL.clearInterpolator(view);
