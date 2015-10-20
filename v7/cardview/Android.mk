@@ -26,6 +26,8 @@ LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_JAR_EXCLUDE_FILES := none
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
+support_module_src_files := $(LOCAL_SRC_FILES)
+
 # A helper sub-library to resolve cyclic dependencies between CardView and platform dependent
 # implementations
 include $(CLEAR_VARS)
@@ -33,6 +35,8 @@ LOCAL_MODULE := android-support-v7-cardview-base
 LOCAL_SDK_VERSION := 7
 LOCAL_SRC_FILES := $(call all-java-files-under, base)
 include $(BUILD_STATIC_JAVA_LIBRARY)
+
+support_module_src_files += $(LOCAL_SRC_FILES)
 
 # A helper sub-library that makes direct use of Eclair MR1 APIs
 include $(CLEAR_VARS)
@@ -43,6 +47,8 @@ LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-cardview-base
 LOCAL_JAVA_LIBRARIES := android-support-v7-cardview-res
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
+support_module_src_files += $(LOCAL_SRC_FILES)
+
 # A helper sub-library that makes direct use of JB MR1 APIs
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v7-cardview-jellybean-mr1
@@ -51,6 +57,8 @@ LOCAL_SRC_FILES := $(call all-java-files-under, jellybean-mr1)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-cardview-eclair-mr1
 LOCAL_JAVA_LIBRARIES := android-support-v7-cardview-res
 include $(BUILD_STATIC_JAVA_LIBRARY)
+
+support_module_src_files += $(LOCAL_SRC_FILES)
 
 # A helper sub-library that makes direct use of L APIs
 include $(CLEAR_VARS)
@@ -61,6 +69,8 @@ LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-cardview-base \
     android-support-v7-cardview-jellybean-mr1
 LOCAL_JAVA_LIBRARIES := android-support-v7-cardview-res
 include $(BUILD_STATIC_JAVA_LIBRARY)
+
+support_module_src_files += $(LOCAL_SRC_FILES)
 
 # Here is the final static library that apps can link against.
 # The R class is automatically excluded from the generated library.
@@ -74,11 +84,12 @@ LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-cardview-api21
 LOCAL_JAVA_LIBRARIES := android-support-v7-cardview-res
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
+support_module_src_files += $(LOCAL_SRC_FILES)
+
 # API Check
 # ---------------------------------------------
 support_module := $(LOCAL_MODULE)
 support_module_api_dir := $(LOCAL_PATH)/api
-support_module_src_files := $(LOCAL_SRC_FILES)
-support_module_java_libraries := $(LOCAL_JAVA_LIBRARIES) android-support-v7-cardview
+support_module_java_libraries := $(LOCAL_JAVA_LIBRARIES)
 support_module_java_packages := android.support.v7.widget
 include $(SUPPORT_API_CHECK)
