@@ -26,4 +26,5 @@
     <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"मार्ग सेटिंग्ज"</string>
     <string name="mr_media_route_controller_play" msgid="5214423499524760404">"प्ले करा"</string>
     <string name="mr_media_route_controller_pause" msgid="8315773974194466049">"विराम द्या"</string>
+    <string name="mr_media_route_controller_no_info_available" msgid="3641544772007543920">"कोणतीही माहिती उपलब्ध नाही"</string>
 </resources>
