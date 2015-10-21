@@ -360,6 +360,7 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
                 }
             } else {
                 if (mSelectedView == v) {
+                    mStylist.onAnimateItemPressed(avh.mStylistViewHolder, false);
                     mSelectedView = null;
                 }
             }
