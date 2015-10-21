@@ -36,6 +36,24 @@
 
     </android.support.design.widget.TextInputLayout>
 
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal">
+
+        <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/show_error"
+                android:onClick="showError"/>
+
+        <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/clear_error"
+                android:onClick="clearError"/>
+
+    </LinearLayout>
+
     <android.support.design.widget.TextInputLayout
             android:id="@+id/input_email"
             android:layout_width="match_parent"
@@ -51,16 +69,20 @@
 
     </android.support.design.widget.TextInputLayout>
 
-    <Button
-            android:layout_width="wrap_content"
+    <android.support.design.widget.TextInputLayout
+            android:id="@+id/input_description"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/show_error"
-            android:onClick="showError"/>
+            android:layout_marginTop="8dp"
+            app:counterEnabled="true"
+            app:counterMaxLength="30">
 
-    <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/clear_error"
-            android:onClick="clearError"/>
+        <EditText
+                android:id="@+id/edit_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/form_description"/>
+
+    </android.support.design.widget.TextInputLayout>
 
 </LinearLayout>

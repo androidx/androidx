@@ -52,6 +52,7 @@
 
     <string name="form_username">Username</string>
     <string name="form_email">Email address</string>
+    <string name="form_description">Description</string>
     <string name="show_error">Show error</string>
     <string name="clear_error">Clear error</string>
 
