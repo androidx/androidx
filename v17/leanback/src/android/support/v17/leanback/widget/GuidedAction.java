@@ -34,24 +34,34 @@ public class GuidedAction extends Action {
 
     private static final String TAG = "GuidedAction";
 
-    public static final int NO_DRAWABLE = 0;
     public static final int NO_CHECK_SET = 0;
     public static final int DEFAULT_CHECK_SET_ID = 1;
+
+    /**
+     * When finishing editing, goes to next action.
+     */
+    public static final int ACTION_ID_NEXT = -2;
+    /**
+     * When finishing editing, stay on current action.
+     */
+    public static final int ACTION_ID_CURRENT = -3;
 
     /**
      * Builds a {@link GuidedAction} object.
      */
     public static class Builder {
         private long mId;
-        private String mTitle;
-        private String mEditTitle;
-        private String mDescription;
+        private CharSequence mTitle;
+        private CharSequence mEditTitle;
+        private CharSequence mDescription;
+        private CharSequence mEditDescription;
         private Drawable mIcon;
         private boolean mChecked;
         private boolean mMultilineDescription;
         private boolean mHasNext;
         private boolean mInfoOnly;
         private boolean mEditable = false;
+        private boolean mDescriptionEditable = false;
         private int mCheckSetId = NO_CHECK_SET;
         private boolean mEnabled = true;
         private Intent mIntent;
@@ -67,11 +77,13 @@ public class GuidedAction extends Action {
             action.setLabel1(mTitle);
             action.setEditTitle(mEditTitle);
             action.setLabel2(mDescription);
+            action.setEditDescription(mEditDescription);
             action.setIcon(mIcon);
 
             // Subclass values
             action.mIntent = mIntent;
             action.mEditable = mEditable;
+            action.mDescriptionEditable = mDescriptionEditable;
             action.mChecked = mChecked;
             action.mCheckSetId = mCheckSetId;
             action.mMultilineDescription = mMultilineDescription;
@@ -96,7 +108,7 @@ public class GuidedAction extends Action {
          * action to be taken on click, e.g. "Continue" or "Cancel".
          * @param title The title for this action.
          */
-        public Builder title(String title) {
+        public Builder title(CharSequence title) {
             mTitle = title;
             return this;
         }
@@ -105,7 +117,7 @@ public class GuidedAction extends Action {
          * Sets the optional title text to edit.  When TextView is activated, the edit title
          * replaces the string of title.
          */
-        public Builder editTitle(String editTitle) {
+        public Builder editTitle(CharSequence editTitle) {
             mEditTitle = editTitle;
             return this;
         }
@@ -115,8 +127,18 @@ public class GuidedAction extends Action {
          * providing extra information on what the action will do.
          * @param description The description for this action.
          */
-        public Builder description(String description) {
+        public Builder description(CharSequence description) {
             mDescription = description;
+            return this;
+        }
+
+        /**
+         * Sets the optional description text to edit.  When TextView is activated, the edit
+         * description replaces the string of description.
+         * @param description The description to edit for this action.
+         */
+        public Builder editDescription(CharSequence description) {
+            mEditDescription = description;
             return this;
         }
 
@@ -164,12 +186,24 @@ public class GuidedAction extends Action {
         }
 
         /**
+         * Indicates whether this action's description is editable
+         * @param editable Whether this action description is editable.
+         */
+        public Builder descriptionEditable(boolean editable) {
+            mDescriptionEditable = editable;
+            if (mChecked || mCheckSetId != NO_CHECK_SET) {
+                throw new IllegalArgumentException("Editable actions cannot also be checked");
+            }
+            return this;
+        }
+
+        /**
          * Indicates whether this action is initially checked.
          * @param checked Whether this action is checked.
          */
         public Builder checked(boolean checked) {
             mChecked = checked;
-            if (mEditable) {
+            if (mEditable || mDescriptionEditable) {
                 throw new IllegalArgumentException("Editable actions cannot also be checked");
             }
             return this;
@@ -183,7 +217,7 @@ public class GuidedAction extends Action {
          */
         public Builder checkSetId(int checkSetId) {
             mCheckSetId = checkSetId;
-            if (mEditable) {
+            if (mEditable || mDescriptionEditable) {
                 throw new IllegalArgumentException("Editable actions cannot also be in check sets");
             }
             return this;
@@ -228,7 +262,9 @@ public class GuidedAction extends Action {
     }
 
     private CharSequence mEditTitle;
+    private CharSequence mEditDescription;
     private boolean mEditable;
+    private boolean mDescriptionEditable;
     private boolean mMultilineDescription;
     private boolean mHasNext;
     private boolean mChecked;
@@ -276,6 +312,24 @@ public class GuidedAction extends Action {
     }
 
     /**
+     * Returns the optional description text to edit.  When not null, it is being edited instead of
+     * {@link #getDescription()}.
+     * @return Optional description text to edit instead of {@link #getDescription()}.
+     */
+    public CharSequence getEditDescription() {
+        return mEditDescription;
+    }
+
+    /**
+     * Sets the optional description text to edit instead of {@link #setDescription(CharSequence)}.
+     * @param editDescription Optional description text to edit instead of
+     * {@link #setDescription(CharSequence)}.
+     */
+    public void setEditDescription(CharSequence editDescription) {
+        mEditDescription = editDescription;
+    }
+
+    /**
      * Returns true if {@link #getEditTitle()} is not null.  When true, the {@link #getEditTitle()}
      * is being edited instead of {@link #getTitle()}.
      * @return true if {@link #getEditTitle()} is not null.
@@ -314,6 +368,14 @@ public class GuidedAction extends Action {
      */
     public boolean isEditable() {
         return mEditable;
+    }
+
+    /**
+     * Returns whether this action description is editable.
+     * @return true if the action description is editable, false otherwise.
+     */
+    public boolean isDescriptionEditable() {
+        return mDescriptionEditable;
     }
 
     /**
