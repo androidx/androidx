@@ -23,6 +23,9 @@
     <style name="Base.V23.Theme.AppCompat" parent="Base.V22.Theme.AppCompat">
         <!-- We can use the platform drawable on v23+ -->
         <item name="actionBarItemBackground">?android:attr/actionBarItemBackground</item>
+        <!-- We can use the platform styles on v23+ -->
+        <item name="actionMenuTextColor">?android:attr/actionMenuTextColor</item>
+        <item name="actionMenuTextAppearance">?android:attr/actionMenuTextAppearance</item>
 
         <item name="controlBackground">@drawable/abc_control_background_material</item>
     </style>
@@ -30,6 +33,9 @@
     <style name="Base.V23.Theme.AppCompat.Light" parent="Base.V22.Theme.AppCompat.Light">
         <!-- We can use the platform drawable on v23+ -->
         <item name="actionBarItemBackground">?android:attr/actionBarItemBackground</item>
+        <!-- We can use the platform styles on v23+ -->
+        <item name="actionMenuTextColor">?android:attr/actionMenuTextColor</item>
+        <item name="actionMenuTextAppearance">?android:attr/actionMenuTextAppearance</item>
 
         <item name="controlBackground">@drawable/abc_control_background_material</item>
     </style>
