@@ -281,9 +281,25 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
     }
 
     /**
-     * Callback invoked when an action's title has been edited.
+     * Callback invoked when an action's title or description has been edited.
+     * Override {@link #onGuidedActionEditedAndProceed(GuidedAction)} instead of app wants to
+     * control the next action to focus on.
      */
     public void onGuidedActionEdited(GuidedAction action) {
+    }
+
+    /**
+     * Callback invoked when an action's title or description has been edited.  Default
+     * implementation calls {@link #onGuidedActionEdited(GuidedAction)} and returns
+     * {@link GuidedAction#ACTION_ID_NEXT}.
+     *
+     * @param action The action that has been edited.
+     * @return ID of the action will be focused or {@link GuidedAction#ACTION_ID_NEXT},
+     * {@link GuidedAction#ACTION_ID_CURRENT}.
+     */
+    public long onGuidedActionEditedAndProceed(GuidedAction action) {
+        onGuidedActionEdited(action);
+        return GuidedAction.ACTION_ID_NEXT;
     }
 
     /**
@@ -420,6 +436,33 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
     }
 
     /**
+     * Find GuidedAction by Id.
+     * @param id  Id of the action to search.
+     * @return  GuidedAction object or null if not found.
+     */
+    public GuidedAction findActionById(long id) {
+        int index = findActionPositionById(id);
+        return index >= 0 ? mActions.get(index) : null;
+    }
+
+    /**
+     * Find GuidedAction position in array by Id.
+     * @param id  Id of the action to search.
+     * @return  position of GuidedAction object in array or -1 if not found.
+     */
+    public int findActionPositionById(long id) {
+        if (mActions != null) {
+            for (int i = 0; i < mActions.size(); i++) {
+                GuidedAction action = mActions.get(i);
+                if (mActions.get(i).getId() == id) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
+    /**
      * Sets the list of GuidedActions that the user may take in this fragment.
      * @param actions The list of GuidedActions for this fragment.
      */
@@ -427,6 +470,16 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
         mActions = actions;
         if (mAdapter != null) {
             mAdapter.setActions(mActions);
+        }
+    }
+
+    /**
+     * Notify an action has changed and update its UI.
+     * @param position Position of the GuidedAction in array.
+     */
+    public void notifyActionChanged(int position) {
+        if (mAdapter != null) {
+            mAdapter.notifyItemChanged(position);
         }
     }
 
@@ -649,12 +702,20 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
         actionContainer.addView(actionsView);
 
         GuidedActionAdapter.EditListener editListener = new GuidedActionAdapter.EditListener() {
+
                 @Override
-                public void onGuidedActionEdited(GuidedAction action, boolean entering) {
-                    runImeAnimations(entering);
-                    if (!entering) {
-                        GuidedStepSupportFragment.this.onGuidedActionEdited(action);
-                    }
+                public void onImeOpen() {
+                    runImeAnimations(true);
+                }
+
+                @Override
+                public void onImeClose() {
+                    runImeAnimations(false);
+                }
+
+                @Override
+                public long onGuidedActionEdited(GuidedAction action) {
+                    return GuidedStepSupportFragment.this.onGuidedActionEditedAndProceed(action);
                 }
         };
 

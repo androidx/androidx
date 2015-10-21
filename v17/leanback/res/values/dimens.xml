@@ -238,6 +238,8 @@
     <dimen name="lb_guidedactions_selector_min_height">8dp</dimen>
     <dimen name="lb_guidedactions_vertical_padding">12dp</dimen>
 
+    <item name="lb_guidedactions_item_disabled_text_alpha" format="float" type="string">0.25</item>
+    <item name="lb_guidedactions_item_disabled_description_text_alpha" format="float" type="string">0.25</item>
     <item name="lb_guidedactions_item_unselected_text_alpha" format="float" type="string">1.00</item>
     <item name="lb_guidedactions_item_unselected_description_text_alpha" format="float" type="string">0.50</item>
     <item name="lb_guidedactions_item_enabled_chevron_alpha" format="float" type="string">1.00</item>
