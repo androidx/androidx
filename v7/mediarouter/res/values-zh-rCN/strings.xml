@@ -26,4 +26,5 @@
     <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"路由设置"</string>
     <string name="mr_media_route_controller_play" msgid="5214423499524760404">"播放"</string>
     <string name="mr_media_route_controller_pause" msgid="8315773974194466049">"暂停"</string>
+    <string name="mr_media_route_controller_no_info_available" msgid="3641544772007543920">"没有任何相关信息"</string>
 </resources>
