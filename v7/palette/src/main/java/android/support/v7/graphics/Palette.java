@@ -694,9 +694,9 @@ public final class Palette {
                         regionWidth, regionHeight);
                 // pixels now contains all of the pixels, but not packed together. We need to
                 // iterate through each row and copy them into a new smaller array
-                final int[] subsetPixels = new int[regionWidth * mRegion.height()];
-                for (int row = mRegion.top; row < mRegion.bottom; row++) {
-                    System.arraycopy(pixels, (row * bitmapWidth) + mRegion.left,
+                final int[] subsetPixels = new int[regionWidth * regionHeight];
+                for (int row = 0; row < regionHeight; row++) {
+                    System.arraycopy(pixels, ((row + mRegion.top) * bitmapWidth) + mRegion.left,
                             subsetPixels, row * regionWidth, regionWidth);
                 }
                 return subsetPixels;
