@@ -1405,6 +1405,7 @@ package android.support.v7.appcompat {
     field public static int SearchView_voiceIcon;
     field public static final int[] Spinner;
     field public static int Spinner_android_dropDownWidth;
+    field public static int Spinner_android_entries;
     field public static int Spinner_android_popupBackground;
     field public static int Spinner_android_prompt;
     field public static int Spinner_popupTheme;
