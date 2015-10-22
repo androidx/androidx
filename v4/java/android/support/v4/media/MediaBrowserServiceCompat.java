@@ -20,14 +20,14 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Parcel;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.media.IMediaBrowserServiceCompat;
-import android.support.v4.media.IMediaBrowserServiceCompatCallbacks;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.os.ResultReceiver;
 import android.support.v4.util.ArrayMap;
@@ -36,6 +36,7 @@ import android.util.Log;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -55,7 +56,7 @@ import java.util.List;
  * &lt;service android:name=".MyMediaBrowserServiceCompat"
  *          android:label="&#64;string/service_name" >
  *     &lt;intent-filter>
- *         &lt;action android:name="android.media.browse.MediaBrowserServiceCompat" />
+ *         &lt;action android:name="android.media.browse.MediaBrowserService" />
  *     &lt;/intent-filter>
  * &lt;/service>
  * </pre>
@@ -65,10 +66,12 @@ public abstract class MediaBrowserServiceCompat extends Service {
     private static final String TAG = "MediaBrowserServiceCompat";
     private static final boolean DBG = false;
 
+    private MediaBrowserServiceImpl mImpl;
+
     /**
      * The {@link Intent} that must be declared as handled by the service.
      */
-    public static final String SERVICE_INTERFACE = "android.media.browse.MediaBrowserServiceCompat";
+    public static final String SERVICE_INTERFACE = "android.media.browse.MediaBrowserService";
 
     /**
      * A key for passing the MediaItem to the ResultReceiver in getItem.
@@ -79,8 +82,46 @@ public abstract class MediaBrowserServiceCompat extends Service {
 
     private final ArrayMap<IBinder, ConnectionRecord> mConnections = new ArrayMap();
     private final Handler mHandler = new Handler();
-    private ServiceBinder mBinder;
     MediaSessionCompat.Token mSession;
+
+    interface MediaBrowserServiceImpl {
+        public void onCreate();
+        IBinder onBind(Intent intent);
+    }
+
+    class MediaBrowserServiceImplBase implements MediaBrowserServiceImpl {
+        private ServiceBinderCompat mBinder;
+
+        @Override
+        public void onCreate() {
+            mBinder = new ServiceBinderCompat(new ServiceStub());
+        }
+
+        @Override
+        public IBinder onBind(Intent intent) {
+            // STOPSHIP: Use messenger or version management for further extension
+            if (SERVICE_INTERFACE.equals(intent.getAction())) {
+                return mBinder;
+            }
+            return null;
+        }
+    }
+
+    class MediaBrowserServiceImplApi21 implements MediaBrowserServiceImpl {
+        private Object mServiceObj;
+
+        @Override
+        public void onCreate() {
+            mServiceObj = MediaBrowserServiceCompatApi21.createService();
+            MediaBrowserServiceCompatApi21.onCreate(mServiceObj,
+                    new ServiceStubApi21(new ServiceStub()));
+        }
+
+        @Override
+        public IBinder onBind(Intent intent) {
+            return MediaBrowserServiceCompatApi21.onBind(mServiceObj, intent);
+        }
+    }
 
     /**
      * All the info about a connection.
@@ -88,7 +129,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
     private class ConnectionRecord {
         String pkg;
         Bundle rootHints;
-        IMediaBrowserServiceCompatCallbacks callbacks;
+        ServiceCallbacks callbacks;
         BrowserRoot root;
         HashSet<String> subscriptions = new HashSet();
     }
@@ -106,7 +147,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
      * @see MediaBrowserServiceCompat#onLoadChildren
      * @see MediaBrowserServiceCompat#onLoadItem
      */
-    public class Result<T> {
+    public static class Result<T> {
         private Object mDebug;
         private boolean mDetachCalled;
         private boolean mSendResultCalled;
@@ -154,10 +195,9 @@ public abstract class MediaBrowserServiceCompat extends Service {
         }
     }
 
-    private class ServiceBinder extends IMediaBrowserServiceCompat.Stub {
-        @Override
+    private class ServiceStub {
         public void connect(final String pkg, final Bundle rootHints,
-                final IMediaBrowserServiceCompatCallbacks callbacks) {
+                final ServiceCallbacks callbacks) {
 
             final int uid = Binder.getCallingUid();
             if (!isValidPackage(pkg, uid)) {
@@ -166,89 +206,84 @@ public abstract class MediaBrowserServiceCompat extends Service {
             }
 
             mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        final IBinder b = callbacks.asBinder();
+                @Override
+                public void run() {
+                    final IBinder b = callbacks.asBinder();
 
-                        // Clear out the old subscriptions.  We are getting new ones.
-                        mConnections.remove(b);
+                    // Clear out the old subscriptions.  We are getting new ones.
+                    mConnections.remove(b);
 
-                        final ConnectionRecord connection = new ConnectionRecord();
-                        connection.pkg = pkg;
-                        connection.rootHints = rootHints;
-                        connection.callbacks = callbacks;
+                    final ConnectionRecord connection = new ConnectionRecord();
+                    connection.pkg = pkg;
+                    connection.rootHints = rootHints;
+                    connection.callbacks = callbacks;
 
-                        connection.root =
-                                MediaBrowserServiceCompat.this.onGetRoot(pkg, uid, rootHints);
+                    connection.root =
+                            MediaBrowserServiceCompat.this.onGetRoot(pkg, uid, rootHints);
 
-                        // If they didn't return something, don't allow this client.
-                        if (connection.root == null) {
-                            Log.i(TAG, "No root for client " + pkg + " from service "
-                                    + getClass().getName());
-                            try {
-                                callbacks.onConnectFailed();
-                            } catch (RemoteException ex) {
-                                Log.w(TAG, "Calling onConnectFailed() failed. Ignoring. "
-                                        + "pkg=" + pkg);
+                    // If they didn't return something, don't allow this client.
+                    if (connection.root == null) {
+                        Log.i(TAG, "No root for client " + pkg + " from service "
+                                + getClass().getName());
+                        try {
+                            callbacks.onConnectFailed();
+                        } catch (RemoteException ex) {
+                            Log.w(TAG, "Calling onConnectFailed() failed. Ignoring. "
+                                    + "pkg=" + pkg);
+                        }
+                    } else {
+                        try {
+                            mConnections.put(b, connection);
+                            if (mSession != null) {
+                                callbacks.onConnect(connection.root.getRootId(),
+                                        mSession, connection.root.getExtras());
                             }
-                        } else {
-                            try {
-                                mConnections.put(b, connection);
-                                if (mSession != null) {
-                                    callbacks.onConnect(connection.root.getRootId(),
-                                            mSession, connection.root.getExtras());
-                                }
-                            } catch (RemoteException ex) {
-                                Log.w(TAG, "Calling onConnect() failed. Dropping client. "
-                                        + "pkg=" + pkg);
-                                mConnections.remove(b);
-                            }
+                        } catch (RemoteException ex) {
+                            Log.w(TAG, "Calling onConnect() failed. Dropping client. "
+                                    + "pkg=" + pkg);
+                            mConnections.remove(b);
                         }
                     }
-                });
+                }
+            });
         }
 
-        @Override
-        public void disconnect(final IMediaBrowserServiceCompatCallbacks callbacks) {
+        public void disconnect(final ServiceCallbacks callbacks) {
             mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        final IBinder b = callbacks.asBinder();
+                @Override
+                public void run() {
+                    final IBinder b = callbacks.asBinder();
 
-                        // Clear out the old subscriptions.  We are getting new ones.
-                        final ConnectionRecord old = mConnections.remove(b);
-                        if (old != null) {
-                            // TODO
-                        }
+                    // Clear out the old subscriptions.  We are getting new ones.
+                    final ConnectionRecord old = mConnections.remove(b);
+                    if (old != null) {
+                        // TODO
                     }
-                });
+                }
+            });
         }
 
 
-        @Override
-        public void addSubscription(
-                final String id, final IMediaBrowserServiceCompatCallbacks callbacks) {
+        public void addSubscription(final String id, final ServiceCallbacks callbacks) {
             mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        final IBinder b = callbacks.asBinder();
+                @Override
+                public void run() {
+                    final IBinder b = callbacks.asBinder();
 
-                        // Get the record for the connection
-                        final ConnectionRecord connection = mConnections.get(b);
-                        if (connection == null) {
-                            Log.w(TAG, "addSubscription for callback that isn't registered id="
+                    // Get the record for the connection
+                    final ConnectionRecord connection = mConnections.get(b);
+                    if (connection == null) {
+                        Log.w(TAG, "addSubscription for callback that isn't registered id="
                                 + id);
-                            return;
-                        }
-
-                        MediaBrowserServiceCompat.this.addSubscription(id, connection);
+                        return;
                     }
-                });
+
+                    MediaBrowserServiceCompat.this.addSubscription(id, connection);
+                }
+            });
         }
 
-        @Override
-        public void removeSubscription(final String id,
-                final IMediaBrowserServiceCompatCallbacks callbacks) {
+        public void removeSubscription(final String id, final ServiceCallbacks callbacks) {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -268,7 +303,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
             });
         }
 
-        @Override
         public void getMediaItem(final String mediaId, final ResultReceiver receiver) {
             if (TextUtils.isEmpty(mediaId) || receiver == null) {
                 return;
@@ -283,18 +317,171 @@ public abstract class MediaBrowserServiceCompat extends Service {
         }
     }
 
+    private class ServiceBinderCompat extends IMediaBrowserServiceCompat.Stub {
+        final ServiceStub mServiceStub;
+
+        ServiceBinderCompat(ServiceStub binder) {
+            mServiceStub = binder;
+        }
+
+        @Override
+        public void connect(final String pkg, final Bundle rootHints,
+                final IMediaBrowserServiceCompatCallbacks callbacks) {
+            mServiceStub.connect(pkg, rootHints, new ServiceCallbacksCompat(callbacks));
+        }
+
+        @Override
+        public void disconnect(final IMediaBrowserServiceCompatCallbacks callbacks) {
+            mConnections.get(callbacks.asBinder());
+            mServiceStub.disconnect(new ServiceCallbacksCompat(callbacks));
+        }
+
+
+        @Override
+        public void addSubscription(
+                final String id, final IMediaBrowserServiceCompatCallbacks callbacks) {
+            mServiceStub.addSubscription(id, new ServiceCallbacksCompat(callbacks));
+        }
+
+        @Override
+        public void removeSubscription(final String id,
+                final IMediaBrowserServiceCompatCallbacks callbacks) {
+            mServiceStub.removeSubscription(id, new ServiceCallbacksCompat(callbacks));
+        }
+
+        @Override
+        public void getMediaItem(final String mediaId, final ResultReceiver receiver) {
+            mServiceStub.getMediaItem(mediaId, receiver);
+        }
+    }
+
+    private class ServiceStubApi21 implements MediaBrowserServiceCompatApi21.ServiceStub {
+        final ServiceStub mBinder;
+
+        ServiceStubApi21(ServiceStub binder) {
+            mBinder = binder;
+        }
+
+        @Override
+        public void connect(final String pkg, final Bundle rootHints,
+                final MediaBrowserServiceCompatApi21.ServiceCallbacks callbacks) {
+            mBinder.connect(pkg, rootHints, new ServiceCallbacksApi21(callbacks));
+        }
+
+        @Override
+        public void disconnect(final MediaBrowserServiceCompatApi21.ServiceCallbacks callbacks) {
+            mBinder.disconnect(new ServiceCallbacksApi21(callbacks));
+        }
+
+
+        @Override
+        public void addSubscription(
+                final String id, final MediaBrowserServiceCompatApi21.ServiceCallbacks callbacks) {
+            mBinder.addSubscription(id, new ServiceCallbacksApi21(callbacks));
+        }
+
+        @Override
+        public void removeSubscription(final String id,
+                final MediaBrowserServiceCompatApi21.ServiceCallbacks callbacks) {
+            mBinder.removeSubscription(id, new ServiceCallbacksApi21(callbacks));
+        }
+
+        @Override
+        public void getMediaItem(final String mediaId, final android.os.ResultReceiver receiver) {
+            ResultReceiver receiverCompat = new ResultReceiver(mHandler) {
+                @Override
+                protected void onReceiveResult(int resultCode, Bundle resultData) {
+                    receiver.send(resultCode, resultData);
+                }
+            };
+            mBinder.getMediaItem(mediaId, receiverCompat);
+        }
+    }
+
+    private interface ServiceCallbacks {
+        IBinder asBinder();
+        void onConnect(String root, MediaSessionCompat.Token session, Bundle extras)
+                throws RemoteException;
+        void onConnectFailed() throws RemoteException;
+        void onLoadChildren(String mediaId, List<MediaBrowserCompat.MediaItem> list)
+                throws RemoteException;
+    }
+
+    private class ServiceCallbacksCompat implements ServiceCallbacks {
+        final IMediaBrowserServiceCompatCallbacks mCallbacks;
+
+        ServiceCallbacksCompat(IMediaBrowserServiceCompatCallbacks callbacks) {
+            mCallbacks = callbacks;
+        }
+
+        public IBinder asBinder() {
+            return mCallbacks.asBinder();
+        }
+
+        public void onConnect(String root, MediaSessionCompat.Token session, Bundle extras)
+                throws RemoteException {
+            mCallbacks.onConnect(root, session, extras);
+        }
+
+        public void onConnectFailed() throws RemoteException {
+            mCallbacks.onConnectFailed();
+        }
+
+        public void onLoadChildren(String mediaId, List<MediaBrowserCompat.MediaItem> list)
+                throws RemoteException {
+            mCallbacks.onLoadChildren(mediaId, list);
+        }
+    }
+
+    private class ServiceCallbacksApi21 implements ServiceCallbacks {
+        final MediaBrowserServiceCompatApi21.ServiceCallbacks mCallbacks;
+
+        ServiceCallbacksApi21(MediaBrowserServiceCompatApi21.ServiceCallbacks callbacks) {
+            mCallbacks = callbacks;
+        }
+
+        public IBinder asBinder() {
+            return mCallbacks.asBinder();
+        }
+
+        public void onConnect(String root, MediaSessionCompat.Token session, Bundle extras)
+                throws RemoteException {
+            mCallbacks.onConnect(root, session.getToken(), extras);
+        }
+
+        public void onConnectFailed() throws RemoteException {
+            mCallbacks.onConnectFailed();
+        }
+
+        public void onLoadChildren(String mediaId, List<MediaBrowserCompat.MediaItem> list)
+                throws RemoteException {
+            List<Parcel> parcelList = null;
+            if (list != null) {
+                parcelList = new ArrayList<>();
+                for (MediaBrowserCompat.MediaItem item : list) {
+                    Parcel parcel = Parcel.obtain();
+                    item.writeToParcel(parcel, 0);
+                    parcelList.add(parcel);
+                }
+            }
+            mCallbacks.onLoadChildren(mediaId, parcelList);
+        }
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
-        mBinder = new ServiceBinder();
+        if (Build.VERSION.SDK_INT >= 21) {
+            mImpl = new MediaBrowserServiceImplApi21();
+        } else {
+            mImpl = new MediaBrowserServiceImplBase();
+        }
+        mImpl.onCreate();
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        if (SERVICE_INTERFACE.equals(intent.getAction())) {
-            return mBinder;
-        }
-        return null;
+        return mImpl.onBind(intent);
     }
 
     @Override
