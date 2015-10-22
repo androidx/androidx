@@ -16,6 +16,7 @@
 
 package android.support.v4.view;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Looper;
@@ -25,6 +26,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.v4.util.Pools.SynchronizedPool;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -57,6 +59,10 @@ import java.util.concurrent.ArrayBlockingQueue;
  * with attachToRoot set to false. Callers will likely want to call
  * {@link ViewGroup#addView(View)} in the {@link OnInflateFinishedListener}
  * callback at a minimum.
+ *
+ * <p>This inflater does not support setting a {@link LayoutInflater.Factory}
+ * nor {@link LayoutInflater.Factory2}. Similarly it does not support inflating
+ * layouts that contain fragments.
  */
 public final class AsyncLayoutInflater {
     private static final String TAG = "AsyncLayoutInflater";
@@ -65,8 +71,8 @@ public final class AsyncLayoutInflater {
     private Handler mHandler;
     private InflateThread mInflateThread;
 
-    public AsyncLayoutInflater(@NonNull LayoutInflater inflater) {
-        mInflater = inflater;
+    public AsyncLayoutInflater(@NonNull Context context) {
+        mInflater = new BasicInflater(context);
         mHandler = new Handler(mHandlerCallback);
         mInflateThread = InflateThread.getInstance();
     }
@@ -110,6 +116,40 @@ public final class AsyncLayoutInflater {
         int resid;
         View view;
         OnInflateFinishedListener callback;
+    }
+
+    private static class BasicInflater extends LayoutInflater {
+        private static final String[] sClassPrefixList = {
+            "android.widget.",
+            "android.webkit.",
+            "android.app."
+        };
+
+        public BasicInflater(Context context) {
+            super(context);
+        }
+
+        @Override
+        public LayoutInflater cloneInContext(Context newContext) {
+            return new BasicInflater(newContext);
+        }
+
+        @Override
+        protected View onCreateView(String name, AttributeSet attrs) throws ClassNotFoundException {
+            for (String prefix : sClassPrefixList) {
+                try {
+                    View view = createView(name, prefix, attrs);
+                    if (view != null) {
+                        return view;
+                    }
+                } catch (ClassNotFoundException e) {
+                    // In this case we want to let the base class take a crack
+                    // at it.
+                }
+            }
+
+            return super.onCreateView(name, attrs);
+        }
     }
 
     private static class InflateThread extends Thread {
