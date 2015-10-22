@@ -17,6 +17,7 @@
 package android.support.v7.widget;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -62,28 +63,16 @@ class AppCompatTextHelper {
 
         // Now read the compound drawable and grab any tints
         if (a.hasValue(1)) {
-            mDrawableLeftTint = new TintInfo();
-            mDrawableLeftTint.mHasTintList = true;
-            mDrawableLeftTint.mTintList = drawableManager.getTintList(
-                    context, a.getResourceId(1, 0));
+            mDrawableLeftTint = createTintInfo(context, drawableManager, a.getResourceId(1, 0));
         }
         if (a.hasValue(2)) {
-            mDrawableTopTint = new TintInfo();
-            mDrawableTopTint.mHasTintList = true;
-            mDrawableTopTint.mTintList = drawableManager.getTintList(
-                    context, a.getResourceId(2, 0));
+            mDrawableTopTint = createTintInfo(context, drawableManager, a.getResourceId(2, 0));
         }
         if (a.hasValue(3)) {
-            mDrawableRightTint = new TintInfo();
-            mDrawableRightTint.mHasTintList = true;
-            mDrawableRightTint.mTintList = drawableManager.getTintList(
-                    context, a.getResourceId(3, 0));
+            mDrawableRightTint = createTintInfo(context, drawableManager, a.getResourceId(3, 0));
         }
         if (a.hasValue(4)) {
-            mDrawableBottomTint = new TintInfo();
-            mDrawableBottomTint.mHasTintList = true;
-            mDrawableBottomTint.mTintList = drawableManager.getTintList(
-                    context, a.getResourceId(4, 0));
+            mDrawableBottomTint = createTintInfo(context, drawableManager, a.getResourceId(4, 0));
         }
         a.recycle();
 
@@ -133,5 +122,16 @@ class AppCompatTextHelper {
         if (drawable != null && info != null) {
             AppCompatDrawableManager.tintDrawable(drawable, info, mView.getDrawableState());
         }
+    }
+
+    private static TintInfo createTintInfo(Context context,
+            AppCompatDrawableManager drawableManager, int drawableId) {
+        final ColorStateList tintList = drawableManager.getTintList(context, drawableId);
+        if (tintList != null) {
+            final TintInfo tintInfo = new TintInfo();
+            tintInfo.mHasTintList = true;
+            tintInfo.mTintList = tintList;
+        }
+        return null;
     }
 }
