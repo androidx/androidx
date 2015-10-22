@@ -41,7 +41,7 @@ import java.util.List;
  *   &lt;intent-filter&gt;
  *     &lt;action android:name="android.intent.action.MEDIA_BUTTON" /&gt;
  *   &lt;/intent-filter&gt;
- * &lt;/service&gt;
+ * &lt;/receiver&gt;
  * </pre>
  * This class assumes you have a {@link Service} in your app that controls
  * media playback via a {@link MediaSessionCompat}. That {@link Service} must
