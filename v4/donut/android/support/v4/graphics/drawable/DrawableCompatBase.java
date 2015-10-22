@@ -27,19 +27,19 @@ class DrawableCompatBase {
 
     public static void setTint(Drawable drawable, int tint) {
         if (drawable instanceof DrawableWrapper) {
-            ((DrawableWrapper) drawable).setTint(tint);
+            ((DrawableWrapper) drawable).setCompatTint(tint);
         }
     }
 
     public static void setTintList(Drawable drawable, ColorStateList tint) {
         if (drawable instanceof DrawableWrapper) {
-            ((DrawableWrapper) drawable).setTintList(tint);
+            ((DrawableWrapper) drawable).setCompatTintList(tint);
         }
     }
 
     public static void setTintMode(Drawable drawable, PorterDuff.Mode tintMode) {
         if (drawable instanceof DrawableWrapper) {
-            ((DrawableWrapper) drawable).setTintMode(tintMode);
+            ((DrawableWrapper) drawable).setCompatTintMode(tintMode);
         }
     }
 
