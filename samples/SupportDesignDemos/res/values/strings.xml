@@ -72,6 +72,7 @@
     <string name="design_appbar_collapsing_toolbar_pin">AppBar/Collapsing Toolbar (pinned)</string>
     <string name="design_appbar_collapsing_toolbar_pin_fab">AppBar/Collapsing Toolbar (pinned with FAB)</string>
     <string name="design_appbar_collapsing_toolbar_scroll">AppBar/Collapsing Toolbar (scroll off)</string>
+    <string name="design_appbar_collapsing_toolbar_scroll_with_swiperefresh">AppBar/Collapsing Toolbar (scroll off) + Swipe Refresh</string>
     <string name="design_appbar_collapsing_toolbar_with_image">AppBar/Collapsing Toolbar + Parallax Image</string>
     <string name="design_appbar_collapsing_toolbar_with_image_insets">AppBar/Collapsing Toolbar + Parallax Image + Insets</string>
     <string name="design_appbar_parallax_overlap">AppBar/Parallax Overlapping content</string>
