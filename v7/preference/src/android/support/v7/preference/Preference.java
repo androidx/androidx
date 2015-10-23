@@ -755,9 +755,11 @@ public class Preference implements Comparable<Preference> {
      * @param visible Set false if this preference should be hidden from the list.
      */
     public final void setVisible(boolean visible) {
-        mVisible = visible;
-        if (mListener != null) {
-            mListener.onPreferenceVisibilityChange(this);
+        if (mVisible != visible) {
+            mVisible = visible;
+            if (mListener != null) {
+                mListener.onPreferenceVisibilityChange(this);
+            }
         }
     }
 
