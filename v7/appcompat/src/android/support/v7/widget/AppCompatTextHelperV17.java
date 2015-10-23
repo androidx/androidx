@@ -42,19 +42,12 @@ class AppCompatTextHelperV17 extends AppCompatTextHelper {
         final Context context = mView.getContext();
         final AppCompatDrawableManager drawableManager = AppCompatDrawableManager.get();
 
-        // First read the TextAppearance style id
         TypedArray a = context.obtainStyledAttributes(attrs, VIEW_ATTRS_v17, defStyleAttr, 0);
         if (a.hasValue(0)) {
-            mDrawableStartTint = new TintInfo();
-            mDrawableStartTint.mHasTintList = true;
-            mDrawableStartTint.mTintList = drawableManager.getTintList(
-                    context, a.getResourceId(0, 0));
+            mDrawableStartTint = createTintInfo(context, drawableManager, a.getResourceId(0, 0));
         }
         if (a.hasValue(1)) {
-            mDrawableEndTint = new TintInfo();
-            mDrawableEndTint.mHasTintList = true;
-            mDrawableEndTint.mTintList = drawableManager.getTintList(
-                    context, a.getResourceId(1, 0));
+            mDrawableEndTint = createTintInfo(context, drawableManager, a.getResourceId(1, 0));
         }
         a.recycle();
     }
