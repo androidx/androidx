@@ -124,7 +124,7 @@ class AppCompatTextHelper {
         }
     }
 
-    private static TintInfo createTintInfo(Context context,
+    protected static TintInfo createTintInfo(Context context,
             AppCompatDrawableManager drawableManager, int drawableId) {
         final ColorStateList tintList = drawableManager.getTintList(context, drawableId);
         if (tintList != null) {
