@@ -912,7 +912,7 @@ nContextSendMessage(JNIEnv *_env, jobject _this, jlong con, jint id, jintArray d
     jint len = 0;
     if (data) {
         len = _env->GetArrayLength(data);
-        jint *ptr = _env->GetIntArrayElements(data, NULL);
+        ptr = _env->GetIntArrayElements(data, NULL);
     }
     LOG_API("nContextSendMessage, con(%p), id(%i), len(%i)", (RsContext)con, id, len);
     dispatchTab.ContextSendMessage((RsContext)con, id, (const uint8_t *)ptr, len * sizeof(int));
