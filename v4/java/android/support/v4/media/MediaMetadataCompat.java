@@ -78,7 +78,8 @@ public final class MediaMetadataCompat implements Parcelable {
     public static final String METADATA_KEY_COMPILATION = "android.media.metadata.COMPILATION";
 
     /**
-     * The date the media was created or published as TODO determine format.
+     * The date the media was created or published. The format is unspecified
+     * but RFC 3339 is recommended.
      */
     public static final String METADATA_KEY_DATE = "android.media.metadata.DATE";
 
