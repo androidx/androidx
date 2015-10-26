@@ -41,6 +41,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -267,6 +268,15 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
                 };
             }
         }
+
+        final CharSequence[] entries = a.getTextArray(R.styleable.Spinner_android_entries);
+        if (entries != null) {
+            final ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(context,
+                    R.layout.support_simple_spinner_dropdown_item, entries);
+            adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
+            setAdapter(adapter);
+        }
+
         a.recycle();
 
         mPopupSet = true;
