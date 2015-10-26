@@ -403,7 +403,7 @@ public class ContextCompat {
      *
      * @see android.content.Context.getFilesDir
      */
-    public final File getNoBackupFilesDir(Context context) {
+    public static File getNoBackupFilesDir(Context context) {
         final int version = Build.VERSION.SDK_INT;
         if (version >= 21) {
             return ContextCompatApi21.getNoBackupFilesDir(context);
@@ -428,7 +428,7 @@ public class ContextCompat {
      *
      * @return The path of the directory holding application code cache files.
      */
-    public final File getCodeCacheDir(Context context) {
+    public static File getCodeCacheDir(Context context) {
         final int version = Build.VERSION.SDK_INT;
         if (version >= 21) {
             return ContextCompatApi21.getCodeCacheDir(context);
