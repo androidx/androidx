@@ -968,8 +968,12 @@ package android.support.v17.leanback.widget {
   public class GuidedAction extends android.support.v17.leanback.widget.Action {
     method public int getCheckSetId();
     method public java.lang.CharSequence getDescription();
+    method public int getDescriptionEditInputType();
+    method public int getDescriptionInputType();
     method public java.lang.CharSequence getEditDescription();
+    method public int getEditInputType();
     method public java.lang.CharSequence getEditTitle();
+    method public int getInputType();
     method public android.content.Intent getIntent();
     method public java.lang.CharSequence getTitle();
     method public boolean hasMultilineDescription();
@@ -998,8 +1002,11 @@ package android.support.v17.leanback.widget {
     method public android.support.v17.leanback.widget.GuidedAction.Builder checkSetId(int);
     method public android.support.v17.leanback.widget.GuidedAction.Builder checked(boolean);
     method public android.support.v17.leanback.widget.GuidedAction.Builder description(java.lang.CharSequence);
+    method public android.support.v17.leanback.widget.GuidedAction.Builder descriptionEditInputType(int);
     method public android.support.v17.leanback.widget.GuidedAction.Builder descriptionEditable(boolean);
+    method public android.support.v17.leanback.widget.GuidedAction.Builder descriptionInputType(int);
     method public android.support.v17.leanback.widget.GuidedAction.Builder editDescription(java.lang.CharSequence);
+    method public android.support.v17.leanback.widget.GuidedAction.Builder editInputType(int);
     method public android.support.v17.leanback.widget.GuidedAction.Builder editTitle(java.lang.CharSequence);
     method public android.support.v17.leanback.widget.GuidedAction.Builder editable(boolean);
     method public android.support.v17.leanback.widget.GuidedAction.Builder enabled(boolean);
@@ -1008,6 +1015,7 @@ package android.support.v17.leanback.widget {
     method public android.support.v17.leanback.widget.GuidedAction.Builder iconResourceId(int, android.content.Context);
     method public android.support.v17.leanback.widget.GuidedAction.Builder id(long);
     method public android.support.v17.leanback.widget.GuidedAction.Builder infoOnly(boolean);
+    method public android.support.v17.leanback.widget.GuidedAction.Builder inputType(int);
     method public android.support.v17.leanback.widget.GuidedAction.Builder intent(android.content.Intent);
     method public android.support.v17.leanback.widget.GuidedAction.Builder multilineDescription(boolean);
     method public android.support.v17.leanback.widget.GuidedAction.Builder title(java.lang.CharSequence);

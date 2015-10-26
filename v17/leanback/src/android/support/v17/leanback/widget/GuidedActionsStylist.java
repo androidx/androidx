@@ -464,10 +464,14 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             if (action.isDescriptionEditable()) {
                 if (descriptionView != null) {
                     descriptionView.setVisibility(View.VISIBLE);
+                    descriptionView.setInputType(action.getDescriptionEditInputType());
                 }
                 vh.mInEditingDescription = true;
             } else {
                 vh.mInEditingDescription = false;
+                if (titleView != null) {
+                    titleView.setInputType(action.getEditInputType());
+                }
             }
         } else {
             if (titleView != null) {
@@ -480,8 +484,13 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
                 if (descriptionView != null) {
                     descriptionView.setVisibility(TextUtils.isEmpty(action.getDescription()) ?
                             View.GONE : View.VISIBLE);
+                    descriptionView.setInputType(action.getDescriptionInputType());
                 }
                 vh.mInEditingDescription = false;
+            } else {
+                if (titleView != null) {
+                    titleView.setInputType(action.getInputType());
+                }
             }
         }
     }
