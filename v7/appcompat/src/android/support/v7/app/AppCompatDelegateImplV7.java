@@ -1652,7 +1652,12 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
         if (mActionModePopup != null) {
             mWindowDecor.removeCallbacks(mShowActionModePopup);
             if (mActionModePopup.isShowing()) {
-                mActionModePopup.dismiss();
+                try {
+                    mActionModePopup.dismiss();
+                } catch (IllegalArgumentException e) {
+                    // Pre-v18, there are times when the Window will remove the popup before us.
+                    // In these cases we need to swallow the resulting exception.
+                }
             }
             mActionModePopup = null;
         }
