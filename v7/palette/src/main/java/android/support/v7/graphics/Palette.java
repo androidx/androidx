@@ -280,10 +280,10 @@ public final class Palette {
             return bitmap;
         }
 
-        final float scaleRatio = targetMaxDimension / (float) maxDimension;
+        final double scaleRatio = targetMaxDimension / (double) maxDimension;
         return Bitmap.createScaledBitmap(bitmap,
-                Math.round(bitmap.getWidth() * scaleRatio),
-                Math.round(bitmap.getHeight() * scaleRatio),
+                (int) Math.ceil(bitmap.getWidth() * scaleRatio),
+                (int) Math.ceil(bitmap.getHeight() * scaleRatio),
                 false);
     }
 

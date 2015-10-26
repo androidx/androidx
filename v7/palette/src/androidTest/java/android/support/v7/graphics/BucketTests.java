@@ -106,4 +106,32 @@ public class BucketTests extends InstrumentationTestCase {
         }
         assertNull(thrown);
     }
+
+    public void testOnePixelTallBitmap() {
+        Bitmap bitmap = Bitmap.createBitmap(1000, 1, Bitmap.Config.ARGB_8888);
+
+        Palette.Builder b = new Palette.Builder(bitmap);
+
+        Throwable thrown = null;
+        try {
+            b.generate();
+        } catch (Exception e) {
+            thrown = e;
+        }
+        assertNull(thrown);
+    }
+
+    public void testOnePixelWideBitmap() {
+        Bitmap bitmap = Bitmap.createBitmap(1, 1000, Bitmap.Config.ARGB_8888);
+
+        Palette.Builder b = new Palette.Builder(bitmap);
+
+        Throwable thrown = null;
+        try {
+            b.generate();
+        } catch (Exception e) {
+            thrown = e;
+        }
+        assertNull(thrown);
+    }
 }
