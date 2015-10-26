@@ -18,8 +18,6 @@ package android.support.v7.widget;
 
 import android.content.Context;
 import android.support.annotation.DrawableRes;
-import android.support.v7.internal.widget.AppCompatDrawableManager;
-import android.support.v7.internal.widget.TintTypedArray;
 import android.util.AttributeSet;
 import android.widget.CheckedTextView;
 

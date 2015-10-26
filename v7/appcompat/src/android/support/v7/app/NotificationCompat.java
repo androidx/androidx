@@ -22,8 +22,6 @@ import android.content.Context;
 import android.os.Build;
 import android.support.v4.app.NotificationBuilderWithBuilderAccessor;
 import android.support.v4.media.session.MediaSessionCompat;
-import android.support.v7.internal.app.NotificationCompatImpl21;
-import android.support.v7.internal.app.NotificationCompatImplBase;
 
 /**
  * An extension of {@link android.support.v4.app.NotificationCompat} which supports

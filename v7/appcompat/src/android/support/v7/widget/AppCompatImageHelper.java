@@ -17,8 +17,6 @@
 package android.support.v7.widget;
 
 import android.support.v4.content.ContextCompat;
-import android.support.v7.internal.widget.AppCompatDrawableManager;
-import android.support.v7.internal.widget.TintTypedArray;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
