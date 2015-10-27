@@ -16,6 +16,7 @@ package android.support.v17.leanback.widget;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.text.InputType;
 import android.util.Log;
 
 /**
@@ -62,6 +63,10 @@ public class GuidedAction extends Action {
         private boolean mInfoOnly;
         private boolean mEditable = false;
         private boolean mDescriptionEditable = false;
+        private int mInputType = InputType.TYPE_CLASS_TEXT;
+        private int mDescriptionInputType = InputType.TYPE_CLASS_TEXT;
+        private int mEditInputType = InputType.TYPE_CLASS_TEXT;
+        private int mDescriptionEditInputType = InputType.TYPE_CLASS_TEXT;
         private int mCheckSetId = NO_CHECK_SET;
         private boolean mEnabled = true;
         private Intent mIntent;
@@ -84,6 +89,10 @@ public class GuidedAction extends Action {
             action.mIntent = mIntent;
             action.mEditable = mEditable;
             action.mDescriptionEditable = mDescriptionEditable;
+            action.mInputType = mInputType;
+            action.mDescriptionInputType = mDescriptionInputType;
+            action.mEditInputType = mEditInputType;
+            action.mDescriptionEditInputType = mDescriptionEditInputType;
             action.mChecked = mChecked;
             action.mCheckSetId = mCheckSetId;
             action.mMultilineDescription = mMultilineDescription;
@@ -198,6 +207,48 @@ public class GuidedAction extends Action {
         }
 
         /**
+         * Sets {@link InputType} of this action title not in editing.
+         *
+         * @param inputType InputType for the action title not in editing.
+         */
+        public Builder inputType(int inputType) {
+            mInputType = inputType;
+            return this;
+        }
+
+        /**
+         * Sets {@link InputType} of this action description not in editing.
+         *
+         * @param inputType InputType for the action description not in editing.
+         */
+        public Builder descriptionInputType(int inputType) {
+            mDescriptionInputType = inputType;
+            return this;
+        }
+
+
+        /**
+         * Sets {@link InputType} of this action title in editing.
+         *
+         * @param inputType InputType for the action title in editing.
+         */
+        public Builder editInputType(int inputType) {
+            mEditInputType = inputType;
+            return this;
+        }
+
+        /**
+         * Sets {@link InputType} of this action description in editing.
+         *
+         * @param inputType InputType for the action description in editing.
+         */
+        public Builder descriptionEditInputType(int inputType) {
+            mDescriptionEditInputType = inputType;
+            return this;
+        }
+
+
+        /**
          * Indicates whether this action is initially checked.
          * @param checked Whether this action is checked.
          */
@@ -265,6 +316,10 @@ public class GuidedAction extends Action {
     private CharSequence mEditDescription;
     private boolean mEditable;
     private boolean mDescriptionEditable;
+    private int mInputType;
+    private int mDescriptionInputType;
+    private int mEditInputType;
+    private int mDescriptionEditInputType;
     private boolean mMultilineDescription;
     private boolean mHasNext;
     private boolean mChecked;
@@ -376,6 +431,39 @@ public class GuidedAction extends Action {
      */
     public boolean isDescriptionEditable() {
         return mDescriptionEditable;
+    }
+
+    /**
+     * Returns InputType of action title in editing; only valid when {@link #isEditable()} is true.
+     * @return InputType of action title in editing.
+     */
+    public int getEditInputType() {
+        return mEditInputType;
+    }
+
+    /**
+     * Returns InputType of action description in editing; only valid when
+     * {@link #isDescriptionEditable()} is true.
+     * @return InputType of action description in editing.
+     */
+    public int getDescriptionEditInputType() {
+        return mDescriptionEditInputType;
+    }
+
+    /**
+     * Returns InputType of action title not in editing.
+     * @return InputType of action title not in editing.
+     */
+    public int getInputType() {
+        return mInputType;
+    }
+
+    /**
+     * Returns InputType of action description not in editing.
+     * @return InputType of action description not in editing.
+     */
+    public int getDescriptionInputType() {
+        return mDescriptionInputType;
     }
 
     /**
