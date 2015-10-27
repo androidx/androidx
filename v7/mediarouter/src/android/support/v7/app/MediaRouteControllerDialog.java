@@ -36,7 +36,6 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v7.graphics.Palette;
-import android.support.v7.media.MediaControlIntent;
 import android.support.v7.media.MediaRouteSelector;
 import android.support.v7.media.MediaRouter;
 import android.support.v7.mediarouter.R;
@@ -144,7 +143,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private boolean mIsGroupExpanded;
     private boolean mIsGroupListAnimationNeeded;
     private int mGroupListAnimationDurationMs;
-    private boolean mIsPlaybackControlAvailable;
 
     private final AccessibilityManager mAccessibilityManager;
 
@@ -358,9 +356,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
             mCustomControlLayout.addView(mCustomControlView);
             mCustomControlLayout.setVisibility(View.VISIBLE);
         }
-        // Only media routes having CATEGORY_REMOTE_PLAYBACK provide playback information.
-        mIsPlaybackControlAvailable = (mCustomControlView == null
-                && mRoute.supportsControlCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK));
         mCreated = true;
         updateLayout();
     }
@@ -449,6 +444,10 @@ public class MediaRouteControllerDialog extends AlertDialog {
         updatePlaybackControl();
     }
 
+    private boolean isPlaybackControlAvailable() {
+        return mCustomControlView == null && (mDescription != null || mState != null);
+    }
+
     /**
      * Returns the height of main media controller which includes playback control and master
      * volume control.
@@ -501,7 +500,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         // Measure the size of widgets and get the height of main components.
         int oldHeight = getLayoutHeight(mMediaMainControlLayout);
         setLayoutHeight(mMediaMainControlLayout, ViewGroup.LayoutParams.FILL_PARENT);
-        updateMediaControlVisibility(mIsPlaybackControlAvailable);
+        updateMediaControlVisibility(isPlaybackControlAvailable());
         View decorView = getWindow().getDecorView();
         decorView.measure(
                 MeasureSpec.makeMeasureSpec(getWindow().getAttributes().width, MeasureSpec.EXACTLY),
@@ -516,7 +515,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                         ? ImageView.ScaleType.FIT_XY : ImageView.ScaleType.FIT_CENTER);
             }
         }
-        int mainControllerHeight = getMainControllerHeight(mIsPlaybackControlAvailable);
+        int mainControllerHeight = getMainControllerHeight(isPlaybackControlAvailable());
         int volumeGroupListCount = mVolumeGroupList.getAdapter() != null
                 ? mVolumeGroupList.getAdapter().getCount() : 0;
         // Scale down volume group list items in landscape mode.
@@ -556,7 +555,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
             desiredControlLayoutHeight = visibleGroupListHeight + mainControllerHeight;
         }
         // Show the playback control if it fits the screen.
-        if (mIsPlaybackControlAvailable && desiredControlLayoutHeight <= maximumControlViewHeight) {
+        if (mCustomControlView == null && isPlaybackControlAvailable()
+                && desiredControlLayoutHeight <= maximumControlViewHeight) {
             mPlaybackControl.setVisibility(View.VISIBLE);
         } else {
             mPlaybackControl.setVisibility(View.GONE);
@@ -669,7 +669,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
     }
 
     private void updatePlaybackControl() {
-        if (mIsPlaybackControlAvailable) {
+        if (isPlaybackControlAvailable()) {
             CharSequence title = mDescription == null ? null : mDescription.getTitle();
             boolean hasTitle = !TextUtils.isEmpty(title);
 
