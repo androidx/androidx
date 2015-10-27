@@ -1587,6 +1587,40 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
                 ((VerticalGridViewEx) mGridView).mSmoothScrollByCalled < 10);
     }
 
+    public void testSmoothscrollerCancelled() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_REQUEST_FOCUS_ONLAYOUT, true);
+        int[] items = new int[100];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 680;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+
+        mGridView.setSelectedPositionSmooth(0);
+        waitForScrollIdle(mVerifyLayout);
+        assertTrue(mGridView.getChildAt(0).hasFocus());
+
+        int targetPosition = items.length - 1;
+        mGridView.setSelectedPositionSmooth(targetPosition);
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.stopScroll();
+            }
+        });
+        Thread.sleep(100);
+        assertEquals(mGridView.getSelectedPosition(), targetPosition);
+        assertSame(mGridView.getLayoutManager().findViewByPosition(targetPosition),
+                mGridView.findFocus());
+    }
+
     public void testSetNumRowsAndAddItem() throws Throwable {
         mInstrumentation = getInstrumentation();
         Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
