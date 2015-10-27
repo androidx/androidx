@@ -17,8 +17,6 @@
 package android.support.v7.widget;
 
 import android.graphics.drawable.Drawable;
-import android.support.v7.internal.widget.AppCompatDrawableManager;
-import android.support.v7.internal.widget.TintTypedArray;
 import android.util.AttributeSet;
 import android.widget.SeekBar;
 

@@ -24,7 +24,6 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.v4.view.TintableBackgroundView;
 import android.support.v7.appcompat.R;
-import android.support.v7.internal.widget.AppCompatDrawableManager;
 import android.util.AttributeSet;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
