@@ -225,9 +225,18 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
         @Override
         protected void onStop() {
-            // onTargetFound() may not be called if we hit the "wall" first.
+            // onTargetFound() may not be called if we hit the "wall" first or get cancelled.
             View targetView = findViewByPosition(getTargetPosition());
-            if (hasFocus() && targetView != null) {
+            if (targetView == null) {
+                if (getTargetPosition() >= 0) {
+                    // if smooth scroller is stopped without target, immediately jumps
+                    // to the target position.
+                    scrollToSelection(mBaseGridView, getTargetPosition(), 0, false, 0);
+                }
+                super.onStop();
+                return;
+            }
+            if (hasFocus()) {
                 mInSelection = true;
                 targetView.requestFocus();
                 mInSelection = false;
