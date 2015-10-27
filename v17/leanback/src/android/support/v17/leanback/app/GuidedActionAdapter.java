@@ -511,23 +511,28 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
                         ActionViewHolder vh = (ActionViewHolder) mRecyclerView
                                 .findViewHolderForPosition(next);
                         if (vh != null) {
+                            handled = true;
                             if (vh.getAction().isEditable() ||
                                     vh.getAction().isDescriptionEditable()) {
                                 if (DEBUG_EDIT) Log.v(TAG_EDIT, "openIme next/done");
-                                handled = true;
                                 mStylist.setEditingMode(vh.mStylistViewHolder,
                                         vh.getAction(), true);
+                                // open Ime on next action.
                                 openIme(vh);
                             } else {
+                                // close IME and focus to next (not editable) action
+                                closeIme(v);
                                 vh.mStylistViewHolder.view.requestFocus();
                             }
                         }
                     }
                 }
                 if (!handled) {
-                    if (DEBUG_EDIT) Log.v(TAG_EDIT, "closeIme no next");
+                    if (DEBUG_EDIT) Log.v(TAG_EDIT, "closeIme no next action");
                     handled = true;
                     closeIme(v);
+                    // requestFocus() otherwise the focus might be stolen by other fragments.
+                    avh.mStylistViewHolder.view.requestFocus();
                 }
             } else if (actionId == EditorInfo.IME_ACTION_NONE) {
                 if (DEBUG_EDIT) Log.v(TAG_EDIT, "closeIme escape north");
@@ -535,6 +540,7 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
                 handled = true;
                 ActionViewHolder avh = findSubChildViewHolder(v);
                 finishEditing(avh);
+                avh.mStylistViewHolder.view.requestFocus();
                 closeIme(v);
             }
             return handled;
@@ -565,6 +571,7 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
                 updateTextIntoAction(avh, editText);
                 editText.clearFocus();
                 finishEditing(avh);
+                avh.mStylistViewHolder.view.requestFocus();
                 if (mImeOpened) {
                     mImeOpened = false;
                     mEditListener.onImeClose();
