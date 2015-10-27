@@ -124,6 +124,8 @@ android.libraryVariants.all { variant ->
     def sourcesJarTask = project.tasks.create(name: "sourceJar${suffix}", type: Jar) {
         classifier = 'sources'
         from android.sourceSets.main.java.srcDirs
+        exclude('android/content/pm/**')
+        exclude('android/service/media/**')
     }
 
     project.ext.allSS.each { ss ->
