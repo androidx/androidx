@@ -45,7 +45,7 @@
                     android:src="@null"
                     style="@style/RtlOverlay.Widget.AppCompat.DialogTitle.Icon"/>
 
-            <android.support.v7.internal.widget.DialogTitle
+            <android.support.v7.widget.DialogTitle
                     android:id="@+id/alertTitle"
                     style="?attr/android:windowTitleStyle"
                     android:singleLine="true"

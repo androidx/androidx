@@ -26,15 +26,15 @@ import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.ActionProvider;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.appcompat.R;
-import android.support.v7.internal.transition.ActionBarTransition;
-import android.support.v7.internal.view.ActionBarPolicy;
-import android.support.v7.internal.view.menu.ActionMenuItemView;
-import android.support.v7.internal.view.menu.BaseMenuPresenter;
-import android.support.v7.internal.view.menu.MenuBuilder;
-import android.support.v7.internal.view.menu.MenuItemImpl;
-import android.support.v7.internal.view.menu.MenuPopupHelper;
-import android.support.v7.internal.view.menu.MenuView;
-import android.support.v7.internal.view.menu.SubMenuBuilder;
+import android.support.v7.transition.ActionBarTransition;
+import android.support.v7.view.ActionBarPolicy;
+import android.support.v7.view.menu.ActionMenuItemView;
+import android.support.v7.view.menu.BaseMenuPresenter;
+import android.support.v7.view.menu.MenuBuilder;
+import android.support.v7.view.menu.MenuItemImpl;
+import android.support.v7.view.menu.MenuPopupHelper;
+import android.support.v7.view.menu.MenuView;
+import android.support.v7.view.menu.SubMenuBuilder;
 import android.util.SparseBooleanArray;
 import android.view.MenuItem;
 import android.view.SoundEffectConstants;
@@ -46,10 +46,8 @@ import java.util.ArrayList;
 
 /**
  * MenuPresenter for building action menus as seen in the action bar and action modes.
- *
- * @hide
  */
-public class ActionMenuPresenter extends BaseMenuPresenter
+class ActionMenuPresenter extends BaseMenuPresenter
         implements ActionProvider.SubUiVisibilityListener {
 
     private static final String TAG = "ActionMenuPresenter";

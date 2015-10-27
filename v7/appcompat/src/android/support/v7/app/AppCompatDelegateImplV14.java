@@ -17,7 +17,7 @@
 package android.support.v7.app;
 
 import android.content.Context;
-import android.support.v7.internal.view.SupportActionModeWrapper;
+import android.support.v7.view.SupportActionModeWrapper;
 import android.view.ActionMode;
 import android.view.Window;
 
