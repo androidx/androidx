@@ -59,17 +59,20 @@ import java.util.List;
 
 /**
  * DrawerLayout acts as a top-level container for window content that allows for
- * interactive "drawer" views to be pulled out from the edge of the window.
+ * interactive "drawer" views to be pulled out from one or both vertical edges of the window.
  *
  * <p>Drawer positioning and layout is controlled using the <code>android:layout_gravity</code>
  * attribute on child views corresponding to which side of the view you want the drawer
- * to emerge from: left or right. (Or start/end on platform versions that support layout direction.)
+ * to emerge from: left or right (or start/end on platform versions that support layout direction.)
+ * Note that you can only have one drawer view for each vertical edge of the window. If your
+ * layout configures more than one drawer view per vertical edge of the window, an exception will
+ * be thrown at runtime.
  * </p>
  *
  * <p>To use a DrawerLayout, position your primary content view as the first child with
- * a width and height of <code>match_parent</code>. Add drawers as child views after the main
- * content view and set the <code>layout_gravity</code> appropriately. Drawers commonly use
- * <code>match_parent</code> for height with a fixed width.</p>
+ * width and height of <code>match_parent</code> and no <code>layout_gravity></code>.
+ * Add drawers as child views after the main content view and set the <code>layout_gravity</code>
+ * appropriately. Drawers commonly use <code>match_parent</code> for height with a fixed width.</p>
  *
  * <p>{@link DrawerListener} can be used to monitor the state and motion of drawer views.
  * Avoid performing expensive operations such as layout during animation as it can cause
@@ -951,6 +954,7 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
                             gravityToString(childGravity) + " but this " + TAG + " already has a " +
                             "drawer view along that edge");
                 }
+                foundDrawers = foundDrawers | childGravity;
                 final int drawerWidthSpec = getChildMeasureSpec(widthMeasureSpec,
                         mMinDrawerMargin + lp.leftMargin + lp.rightMargin,
                         lp.width);
