@@ -22,7 +22,7 @@ import android.content.res.Resources;
 import android.content.res.Resources.Theme;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.internal.view.ContextThemeWrapper;
+import android.support.v7.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

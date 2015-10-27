@@ -20,7 +20,6 @@ import org.junit.Test;
 
 import android.app.Dialog;
 import android.os.Bundle;
-import android.support.v7.internal.app.WindowDecorActionBar;
 
 public class DialogTestCase extends BaseInstrumentationTestCase<WindowDecorActionBarActivity> {
 

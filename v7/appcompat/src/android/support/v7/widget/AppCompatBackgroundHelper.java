@@ -23,8 +23,6 @@ import android.graphics.drawable.Drawable;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.graphics.drawable.DrawableUtils;
-import android.support.v7.internal.widget.AppCompatDrawableManager;
-import android.support.v7.internal.widget.TintInfo;
 import android.util.AttributeSet;
 import android.view.View;
 
