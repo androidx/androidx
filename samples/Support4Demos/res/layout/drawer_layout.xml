@@ -24,7 +24,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <!-- As the main content view, the view below consumes the entire
-         space available using match_parent in both dimensions. -->
+         space available using match_parent in both dimensions. Note that
+         this child does not specify android:layout_gravity attribute. -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
