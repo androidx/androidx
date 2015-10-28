@@ -20,6 +20,7 @@ import android.animation.AnimatorSet;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentManager.BackStackEntry;
 import android.support.v4.app.FragmentTransaction;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -33,6 +34,7 @@ import android.support.v17.leanback.widget.GuidanceStylist.Guidance;
 import android.support.v17.leanback.widget.GuidedAction;
 import android.support.v17.leanback.widget.GuidedActionsStylist;
 import android.support.v17.leanback.widget.VerticalGridView;
+import android.support.v4.app.ActivityCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
@@ -131,6 +133,10 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
 
     private static final String TAG_LEAN_BACK_ACTIONS_FRAGMENT = "leanBackGuidedStepSupportFragment";
     private static final String EXTRA_ACTION_SELECTED_INDEX = "selectedIndex";
+
+    private static final String ENTRY_NAME_DEFAULT = "GuidedStepDefault";
+
+    private static final String ENTRY_NAME_ENTRANCE = "GuidedStepEntrance";
 
     private static final boolean IS_FRAMEWORK_FRAGMENT = false;
 
@@ -347,10 +353,80 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
         }
         FragmentTransaction ft = fragmentManager.beginTransaction();
 
-        ft.addToBackStack(null);
         fragment.setUiStyle(inGuidedStep ? UI_STYLE_DEFAULT : UI_STYLE_ENTRANCE);
+        ft.addToBackStack(fragment.generateStackEntryName());
         initialBackground(fragment, id, ft);
         return ft.replace(id, fragment, TAG_LEAN_BACK_ACTIONS_FRAGMENT).commit();
+    }
+
+    /**
+     * Returns BackStackEntry name for the GuidedStepSupportFragment or empty String if no entry is
+     * associated.  Note {@link #UI_STYLE_ACTIVITY_ROOT} will return empty String.  The method
+     * returns undefined value if the fragment is not in FragmentManager.
+     * @return BackStackEntry name for the GuidedStepSupportFragment or empty String if no entry is
+     * associated.
+     */
+    public String generateStackEntryName() {
+        return generateStackEntryName(getUiStyle(), getClass());
+    }
+
+    /**
+     * Generates BackStackEntry name for GuidedStepSupportFragment class or empty String if no entry is
+     * associated.  Note {@link #UI_STYLE_ACTIVITY_ROOT} is not allowed and returns empty String.
+     * @param uiStyle {@link #UI_STYLE_DEFAULT} or {@link #UI_STYLE_ENTRANCE}
+     * @return BackStackEntry name for the GuidedStepSupportFragment or empty String if no entry is
+     * associated.
+     */
+    public static String generateStackEntryName(int uiStyle, Class guidedStepFragmentClass) {
+        if (!GuidedStepSupportFragment.class.isAssignableFrom(guidedStepFragmentClass)) {
+            return "";
+        }
+        switch (uiStyle) {
+        case UI_STYLE_DEFAULT:
+            return ENTRY_NAME_DEFAULT + guidedStepFragmentClass.getName();
+        case UI_STYLE_ENTRANCE:
+            return ENTRY_NAME_ENTRANCE + guidedStepFragmentClass.getName();
+        case UI_STYLE_ACTIVITY_ROOT:
+        default:
+            return "";
+        }
+    }
+
+    /**
+     * Returns true if the backstack represents GuidedStepSupportFragment with {@link #UI_STYLE_ENTRANCE};
+     * false otherwise.
+     * @param backStackEntryName Name of BackStackEntry.
+     * @return True if the backstack represents GuidedStepSupportFragment with {@link #UI_STYLE_ENTRANCE};
+     * false otherwise.
+     */
+    public static boolean isUiStyleEntrance(String backStackEntryName) {
+        return backStackEntryName != null && backStackEntryName.startsWith(ENTRY_NAME_ENTRANCE);
+    }
+
+    /**
+     * Returns true if the backstack represents GuidedStepSupportFragment with {@link #UI_STYLE_DEFAULT};
+     * false otherwise.
+     * @param backStackEntryName Name of BackStackEntry.
+     * @return True if the backstack represents GuidedStepSupportFragment with {@link #UI_STYLE_DEFAULT};
+     * false otherwise.
+     */
+    public static boolean isUiStyleDefault(String backStackEntryName) {
+        return backStackEntryName != null && backStackEntryName.startsWith(ENTRY_NAME_DEFAULT);
+    }
+
+    /**
+     * Extract Class name from BackStackEntry name.
+     * @param backStackEntryName Name of BackStackEntry.
+     * @return Class name of GuidedStepSupportFragment.
+     */
+    public static String getGuidedStepSupportFragmentClassName(String backStackEntryName) {
+        if (backStackEntryName.startsWith(ENTRY_NAME_DEFAULT)) {
+            return backStackEntryName.substring(ENTRY_NAME_DEFAULT.length());
+        } else if (backStackEntryName.startsWith(ENTRY_NAME_ENTRANCE)) {
+            return backStackEntryName.substring(ENTRY_NAME_ENTRANCE.length());
+        } else {
+            return "";
+        }
     }
 
     /**
@@ -746,6 +822,51 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
         boolean found = context.getTheme().resolveAttribute(resId, typedValue, true);
         if (DEBUG) Log.v(TAG, "Found guided step theme flag? " + found);
         return found && typedValue.type == TypedValue.TYPE_INT_BOOLEAN && typedValue.data != 0;
+    }
+
+    /**
+     * Convenient method to close GuidedStepSupportFragments on top of other content or finish Activity if
+     * GuidedStepSupportFragments were started in a separate activity.  Pops all stack entries including
+     * {@link #UI_STYLE_ENTRANCE}; if {@link #UI_STYLE_ENTRANCE} is not found, finish the activity.
+     */
+    public void finishGuidedStepSupportFragments() {
+        final FragmentManager fragmentManager = getFragmentManager();
+        final int entryCount = fragmentManager.getBackStackEntryCount();
+        if (entryCount > 0) {
+            for (int i = entryCount - 1; i >= 0; i--) {
+                BackStackEntry entry = fragmentManager.getBackStackEntryAt(i);
+                if (isUiStyleEntrance(entry.getName())) {
+                    fragmentManager.popBackStack(entry.getId(),
+                            FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    return;
+                }
+            }
+        }
+        ActivityCompat.finishAfterTransition(getActivity());
+    }
+
+    /**
+     * Convenient method to pop to fragment with Given class.
+     * @param  guidedStepFragmentClass  Name of the Class of GuidedStepSupportFragment to pop to.
+     * @param flags Either 0 or {@link FragmentManager#POP_BACK_STACK_INCLUSIVE}.
+     */
+    public void popBackStackToGuidedStepSupportFragment(Class guidedStepFragmentClass, int flags) {
+        if (!GuidedStepSupportFragment.class.isAssignableFrom(guidedStepFragmentClass)) {
+            return;
+        }
+        final FragmentManager fragmentManager = getFragmentManager();
+        final int entryCount = fragmentManager.getBackStackEntryCount();
+        String className = guidedStepFragmentClass.getName();
+        if (entryCount > 0) {
+            for (int i = entryCount - 1; i >= 0; i--) {
+                BackStackEntry entry = fragmentManager.getBackStackEntryAt(i);
+                String entryClassName = getGuidedStepSupportFragmentClassName(entry.getName());
+                if (className.equals(entryClassName)) {
+                    fragmentManager.popBackStack(entry.getId(), flags);
+                    return;
+                }
+            }
+        }
     }
 
     private void resolveTheme() {
