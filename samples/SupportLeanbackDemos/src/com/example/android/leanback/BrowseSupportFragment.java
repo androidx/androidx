@@ -138,7 +138,7 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
             if (((PhotoItem) item).getImageResourceId() == R.drawable.gallery_photo_6) {
                 GuidedStepSupportFragment.add(getFragmentManager(),
                         new GuidedStepSupportActivity.FirstStepFragment(),
-                        android.R.id.content);
+                        R.id.lb_guidedstep_host);
                 return;
             } else if ( ((PhotoItem) item).getImageResourceId() == R.drawable.gallery_photo_8) {
                 intent = new Intent(getActivity(), BrowseSupportActivity.class);

@@ -15,26 +15,8 @@
      limitations under the License.
 -->
 
+<!-- container for hosting GuidedStepFragment -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/main_frame"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-	<fragment
-	    android:name="com.example.android.leanback.BrowseFragment"
-	    android:id="@+id/main_browse_fragment"
-	    android:layout_width="match_parent"
-	    android:layout_height="match_parent"
-	/>
-
-  <!-- container for hosting GuidedStepFragment background -->
-  <FrameLayout android:id="@+id/lb_guidedstep_background"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" />
-
-  <!-- container for hosting GuidedStepFragment -->
-  <FrameLayout android:id="@+id/lb_guidedstep_host"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" />
-
-</FrameLayout>
+  android:id="@+id/lb_guidedstep_host"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent" />
