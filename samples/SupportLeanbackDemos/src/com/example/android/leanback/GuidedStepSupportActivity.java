@@ -175,7 +175,7 @@ public class GuidedStepSupportActivity extends FragmentActivity {
             if (action.getId() == CONTINUE) {
                 GuidedStepSupportFragment.add(fm, new SecondStepFragment(), android.R.id.content);
             } else {
-                getActivity().finish();
+                finishGuidedStepSupportFragments();
             }
         }
 
@@ -350,15 +350,17 @@ public class GuidedStepSupportActivity extends FragmentActivity {
         @Override
         public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
             addAction(actions, CONTINUE, "Done", "All finished");
-            addAction(actions, BACK, "Back", "Forgot something...");
+            addAction(actions, BACK, "Start Over", "Let's try this again...");
         }
 
         @Override
         public void onGuidedActionClicked(GuidedAction action) {
             if (action.getId() == CONTINUE) {
-                getActivity().finish();
+                finishGuidedStepSupportFragments();
             } else {
-                getFragmentManager().popBackStack();
+                // pop 4, 3, 2
+                popBackStackToGuidedStepSupportFragment(SecondStepFragment.class,
+                        FragmentManager.POP_BACK_STACK_INCLUSIVE);
             }
         }
 
