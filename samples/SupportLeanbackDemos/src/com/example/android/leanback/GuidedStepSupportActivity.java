@@ -42,7 +42,6 @@ import java.util.List;
  */
 public class GuidedStepSupportActivity extends FragmentActivity {
 
-    private static final int CONTINUE = 1;
     private static final int BACK = 2;
 
     private static final int FIRST_NAME = 3;
@@ -165,16 +164,20 @@ public class GuidedStepSupportActivity extends FragmentActivity {
 
         @Override
         public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
-            addAction(actions, CONTINUE, "Continue", "Let's do it");
-            addAction(actions, BACK, "Cancel", "Nevermind");
+            actions.add(new GuidedAction.Builder().constructContinue(getActivity())
+                    .description("Let's do it")
+                    .build());
+            actions.add(new GuidedAction.Builder().constructCancel(getActivity())
+                    .description("Never mind")
+                    .build());
         }
 
         @Override
         public void onGuidedActionClicked(GuidedAction action) {
             FragmentManager fm = getFragmentManager();
-            if (action.getId() == CONTINUE) {
+            if (action.getId() == GuidedAction.ACTION_ID_CONTINUE) {
                 GuidedStepSupportFragment.add(fm, new SecondStepFragment(), android.R.id.content);
-            } else {
+            } else if (action.getId() == GuidedAction.ACTION_ID_CANCEL){
                 finishGuidedStepSupportFragments();
             }
         }
@@ -204,13 +207,15 @@ public class GuidedStepSupportActivity extends FragmentActivity {
                     "Input credit card number", "Input credit card number");
             addEditableDescriptionAction(actions, PASSWORD, "Password", "", "",
                     InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-            addAction(actions, CONTINUE, "Continue", "Continue");
+            actions.add(new GuidedAction.Builder().constructContinue(getActivity())
+                    .description("Continue")
+                    .build());
             actions.get(actions.size() - 1).setEnabled(false);
         }
 
         @Override
         public void onGuidedActionClicked(GuidedAction action) {
-            if (action.getId() == CONTINUE) {
+            if (action.getId() == GuidedAction.ACTION_ID_CONTINUE) {
                 FragmentManager fm = getFragmentManager();
                 GuidedStepSupportFragment.add(fm, new ThirdStepFragment());
             }
@@ -261,8 +266,8 @@ public class GuidedStepSupportActivity extends FragmentActivity {
         }
 
         void updateContinue(boolean enabled) {
-            findActionById(CONTINUE).setEnabled(enabled);
-            notifyActionChanged(findActionPositionById(CONTINUE));
+            findActionById(GuidedAction.ACTION_ID_CONTINUE).setEnabled(enabled);
+            notifyActionChanged(findActionPositionById(GuidedAction.ACTION_ID_CONTINUE));
         }
     }
 
@@ -307,12 +312,13 @@ public class GuidedStepSupportActivity extends FragmentActivity {
                     actions.get(actions.size() -1).setChecked(true);
                 }
             }
-            addAction(actions, CONTINUE, "Continue", "");
+            actions.add(new GuidedAction.Builder().constructContinue(getActivity())
+                    .build());
         }
 
         @Override
         public void onGuidedActionClicked(GuidedAction action) {
-            if (action.getId() == CONTINUE) {
+            if (action.getId() == GuidedAction.ACTION_ID_CONTINUE) {
                 FragmentManager fm = getFragmentManager();
                 FourthStepFragment f = new FourthStepFragment();
                 Bundle arguments = new Bundle();
@@ -349,15 +355,17 @@ public class GuidedStepSupportActivity extends FragmentActivity {
 
         @Override
         public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
-            addAction(actions, CONTINUE, "Done", "All finished");
+            actions.add(new GuidedAction.Builder().constructFinish(getActivity())
+                    .description("All Done...")
+                    .build());
             addAction(actions, BACK, "Start Over", "Let's try this again...");
         }
 
         @Override
         public void onGuidedActionClicked(GuidedAction action) {
-            if (action.getId() == CONTINUE) {
+            if (action.getId() == GuidedAction.ACTION_ID_FINISH) {
                 finishGuidedStepSupportFragments();
-            } else {
+            } else if (action.getId() == BACK) {
                 // pop 4, 3, 2
                 popBackStackToGuidedStepSupportFragment(SecondStepFragment.class,
                         FragmentManager.POP_BACK_STACK_INCLUSIVE);
