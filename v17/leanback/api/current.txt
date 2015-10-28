@@ -1004,8 +1004,14 @@ package android.support.v17.leanback.widget {
     method public void setEditTitle(java.lang.CharSequence);
     method public void setEnabled(boolean);
     method public void setTitle(java.lang.CharSequence);
-    field public static final int ACTION_ID_CURRENT = -3; // 0xfffffffd
-    field public static final int ACTION_ID_NEXT = -2; // 0xfffffffe
+    field public static final long ACTION_ID_CANCEL = -5L; // 0xfffffffffffffffbL
+    field public static final long ACTION_ID_CONTINUE = -7L; // 0xfffffffffffffff9L
+    field public static final long ACTION_ID_CURRENT = -3L; // 0xfffffffffffffffdL
+    field public static final long ACTION_ID_FINISH = -6L; // 0xfffffffffffffffaL
+    field public static final long ACTION_ID_NEXT = -2L; // 0xfffffffffffffffeL
+    field public static final long ACTION_ID_NO = -9L; // 0xfffffffffffffff7L
+    field public static final long ACTION_ID_OK = -4L; // 0xfffffffffffffffcL
+    field public static final long ACTION_ID_YES = -8L; // 0xfffffffffffffff8L
     field public static final int DEFAULT_CHECK_SET_ID = 1; // 0x1
     field public static final int NO_CHECK_SET = 0; // 0x0
   }
@@ -1015,6 +1021,12 @@ package android.support.v17.leanback.widget {
     method public android.support.v17.leanback.widget.GuidedAction build();
     method public android.support.v17.leanback.widget.GuidedAction.Builder checkSetId(int);
     method public android.support.v17.leanback.widget.GuidedAction.Builder checked(boolean);
+    method public android.support.v17.leanback.widget.GuidedAction.Builder constructCancel(android.content.Context);
+    method public android.support.v17.leanback.widget.GuidedAction.Builder constructContinue(android.content.Context);
+    method public android.support.v17.leanback.widget.GuidedAction.Builder constructFinish(android.content.Context);
+    method public android.support.v17.leanback.widget.GuidedAction.Builder constructNo(android.content.Context);
+    method public android.support.v17.leanback.widget.GuidedAction.Builder constructOK(android.content.Context);
+    method public android.support.v17.leanback.widget.GuidedAction.Builder constructYes(android.content.Context);
     method public android.support.v17.leanback.widget.GuidedAction.Builder description(java.lang.CharSequence);
     method public android.support.v17.leanback.widget.GuidedAction.Builder descriptionEditInputType(int);
     method public android.support.v17.leanback.widget.GuidedAction.Builder descriptionEditable(boolean);
