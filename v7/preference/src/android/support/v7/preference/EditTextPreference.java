@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.v4.content.res.TypedArrayUtils;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.widget.EditText;
@@ -46,7 +47,8 @@ public class EditTextPreference extends DialogPreference {
     }
 
     public EditTextPreference(Context context, AttributeSet attrs) {
-        this(context, attrs, R.attr.editTextPreferenceStyle);
+        this(context, attrs, TypedArrayUtils.getAttr(context, R.attr.editTextPreferenceStyle,
+                AndroidResources.ANDROID_R_EDITTEXT_PREFERENCE_STYLE));
     }
 
     public EditTextPreference(Context context) {

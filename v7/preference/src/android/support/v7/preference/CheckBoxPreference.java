@@ -61,7 +61,8 @@ public class CheckBoxPreference extends TwoStatePreference {
     }
 
     public CheckBoxPreference(Context context, AttributeSet attrs) {
-        this(context, attrs, R.attr.checkBoxPreferenceStyle);
+        this(context, attrs, TypedArrayUtils.getAttr(context, R.attr.checkBoxPreferenceStyle,
+                android.R.attr.checkBoxPreferenceStyle));
     }
 
     public CheckBoxPreference(Context context) {
@@ -72,7 +73,7 @@ public class CheckBoxPreference extends TwoStatePreference {
     public void onBindViewHolder(PreferenceViewHolder holder) {
         super.onBindViewHolder(holder);
 
-        View checkboxView = holder.findViewById(R.id.checkbox);
+        View checkboxView = holder.findViewById(android.R.id.checkbox);
         if (checkboxView != null && checkboxView instanceof Checkable) {
             ((Checkable) checkboxView).setChecked(mChecked);
         }

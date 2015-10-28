@@ -272,7 +272,7 @@ public class Preference implements Comparable<Preference> {
 
         mShouldDisableView =
                 TypedArrayUtils.getBoolean(a, R.styleable.Preference_shouldDisableView,
-                        R.styleable.Preference_shouldDisableView, true);
+                        R.styleable.Preference_android_shouldDisableView, true);
 
         a.recycle();
     }
@@ -316,7 +316,8 @@ public class Preference implements Comparable<Preference> {
      * @see #Preference(Context, AttributeSet, int)
      */
     public Preference(Context context, AttributeSet attrs) {
-        this(context, attrs, R.attr.preferenceStyle);
+        this(context, attrs, TypedArrayUtils.getAttr(context, R.attr.preferenceStyle,
+                android.R.attr.preferenceStyle));
     }
 
     /**
@@ -506,7 +507,10 @@ public class Preference implements Comparable<Preference> {
             imageView.setVisibility(mIcon != null ? View.VISIBLE : View.GONE);
         }
 
-        final View imageFrame = holder.findViewById(R.id.icon_frame);
+        View imageFrame = holder.findViewById(R.id.icon_frame);
+        if (imageFrame == null) {
+            imageFrame = holder.findViewById(AndroidResources.ANDROID_R_ICON_FRAME);
+        }
         if (imageFrame != null) {
             imageFrame.setVisibility(mIcon != null ? View.VISIBLE : View.GONE);
         }

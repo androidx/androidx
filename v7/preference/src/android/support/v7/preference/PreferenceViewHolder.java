@@ -39,6 +39,8 @@ public class PreferenceViewHolder extends RecyclerView.ViewHolder {
         mCachedViews.put(android.R.id.summary, itemView.findViewById(android.R.id.summary));
         mCachedViews.put(android.R.id.icon, itemView.findViewById(android.R.id.icon));
         mCachedViews.put(R.id.icon_frame, itemView.findViewById(R.id.icon_frame));
+        mCachedViews.put(AndroidResources.ANDROID_R_ICON_FRAME,
+                itemView.findViewById(AndroidResources.ANDROID_R_ICON_FRAME));
     }
 
     /**

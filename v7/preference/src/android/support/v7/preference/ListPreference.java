@@ -74,7 +74,8 @@ public class ListPreference extends DialogPreference {
     }
 
     public ListPreference(Context context, AttributeSet attrs) {
-        this(context, attrs, R.attr.dialogPreferenceStyle);
+        this(context, attrs, TypedArrayUtils.getAttr(context, R.attr.dialogPreferenceStyle,
+                android.R.attr.dialogPreferenceStyle));
     }
 
     public ListPreference(Context context) {

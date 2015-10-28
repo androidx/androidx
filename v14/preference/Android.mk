@@ -21,7 +21,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v14-preference-res
 LOCAL_SDK_VERSION := current
-LOCAL_SRC_FILES := $(call all-java-files-under, dummy)
+LOCAL_SRC_FILES := $(call all-java-files-under, ../../v7/preference/constants)
 LOCAL_RESOURCE_DIR := \
         frameworks/support/v7/appcompat/res \
         frameworks/support/v7/preference/res \

@@ -245,4 +245,11 @@
         <attr name="android:maxHeight" />
     </declare-styleable>
 
+    <!-- Used to access some android attrs -->
+    <declare-styleable name="BackgroundStyle">
+        <attr name="android:selectableItemBackground" />
+        <!-- Need a non-android: attr here so that gradle doesn't remove it -->
+        <attr name="selectableItemBackground" />
+    </declare-styleable>
+
 </resources>

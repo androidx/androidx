@@ -17,6 +17,7 @@
 package android.support.v7.preference;
 
 import android.content.Context;
+import android.support.v4.content.res.TypedArrayUtils;
 import android.util.AttributeSet;
 
 /**
@@ -43,7 +44,8 @@ public class PreferenceCategory extends PreferenceGroup {
     }
 
     public PreferenceCategory(Context context, AttributeSet attrs) {
-        this(context, attrs, R.attr.preferenceCategoryStyle);
+        this(context, attrs, TypedArrayUtils.getAttr(context, R.attr.preferenceCategoryStyle,
+                android.R.attr.preferenceCategoryStyle));
     }
 
     public PreferenceCategory(Context context) {

@@ -17,6 +17,7 @@
 package android.support.v7.preference;
 
 import android.content.Context;
+import android.support.v4.content.res.TypedArrayUtils;
 import android.util.AttributeSet;
 
 /**
@@ -79,7 +80,8 @@ public final class PreferenceScreen extends PreferenceGroup  {
      * @hide-
      */
     public PreferenceScreen(Context context, AttributeSet attrs) {
-        super(context, attrs, R.attr.preferenceScreenStyle);
+        super(context, attrs, TypedArrayUtils.getAttr(context, R.attr.preferenceScreenStyle,
+                android.R.attr.preferenceScreenStyle));
     }
 
     @Override

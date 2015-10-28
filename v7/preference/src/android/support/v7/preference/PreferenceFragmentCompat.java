@@ -257,10 +257,10 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
 
         final View view = themedInflater.inflate(mLayoutResId, container, false);
 
-        final View rawListContainer = view.findViewById(R.id.list_container);
+        final View rawListContainer = view.findViewById(AndroidResources.ANDROID_R_LIST_CONTAINER);
         if (!(rawListContainer instanceof ViewGroup)) {
-            throw new RuntimeException("Content has view with id attribute 'R.id.list_container' "
-                    + "that is not a ViewGroup class");
+            throw new RuntimeException("Content has view with id attribute "
+                    + "'android.R.id.list_container' that is not a ViewGroup class");
         }
 
         final ViewGroup listContainer = (ViewGroup) rawListContainer;

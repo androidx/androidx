@@ -16,6 +16,8 @@
 
 package android.support.v7.preference;
 
+import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -271,8 +273,18 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
     public PreferenceViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         final PreferenceLayout pl = mPreferenceLayouts.get(viewType);
         final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        TypedArray a
+                = parent.getContext().obtainStyledAttributes(null, R.styleable.BackgroundStyle);
+        Drawable background
+                = a.getDrawable(R.styleable.BackgroundStyle_android_selectableItemBackground);
+        if (background == null) {
+            background = parent.getContext().getResources()
+                    .getDrawable(android.R.drawable.list_selector_background);
+        }
+        a.recycle();
 
         final View view = inflater.inflate(pl.resId, parent, false);
+        view.setBackgroundDrawable(background);
 
         final ViewGroup widgetFrame = (ViewGroup) view.findViewById(android.R.id.widget_frame);
         if (widgetFrame != null) {

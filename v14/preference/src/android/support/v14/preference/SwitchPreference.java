@@ -19,6 +19,7 @@ package android.support.v14.preference;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.v4.content.res.TypedArrayUtils;
+import android.support.v7.preference.AndroidResources;
 import android.support.v7.preference.PreferenceViewHolder;
 import android.support.v7.preference.TwoStatePreference;
 import android.util.AttributeSet;
@@ -121,7 +122,8 @@ public class SwitchPreference extends TwoStatePreference {
      * @param attrs Style attributes that differ from the default
      */
     public SwitchPreference(Context context, AttributeSet attrs) {
-        this(context, attrs, R.attr.switchPreferenceStyle);
+        this(context, attrs, TypedArrayUtils.getAttr(context, R.attr.switchPreferenceStyle,
+                android.R.attr.switchPreferenceStyle));
     }
 
     /**
@@ -136,7 +138,7 @@ public class SwitchPreference extends TwoStatePreference {
     @Override
     public void onBindViewHolder(PreferenceViewHolder holder) {
         super.onBindViewHolder(holder);
-        View switchView = holder.findViewById(R.id.switchWidget);
+        View switchView = holder.findViewById(AndroidResources.ANDROID_R_SWITCH_WIDGET);
         syncSwitchView(switchView);
         syncSummaryView(holder);
     }

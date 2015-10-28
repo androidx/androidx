@@ -90,7 +90,8 @@ public abstract class DialogPreference extends Preference {
     }
 
     public DialogPreference(Context context, AttributeSet attrs) {
-        this(context, attrs, R.attr.dialogPreferenceStyle);
+        this(context, attrs, TypedArrayUtils.getAttr(context, R.attr.dialogPreferenceStyle,
+                android.R.attr.dialogPreferenceStyle));
     }
 
     public DialogPreference(Context context) {

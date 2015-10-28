@@ -28,7 +28,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.annotation.XmlRes;
+import android.support.v4.content.res.TypedArrayUtils;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.preference.AndroidResources;
 import android.support.v7.preference.DialogPreference;
 import android.support.v7.preference.EditTextPreference;
 import android.support.v7.preference.ListPreference;
@@ -242,7 +244,8 @@ public abstract class PreferenceFragment extends Fragment implements
 
         TypedArray a = mStyledContext.obtainStyledAttributes(null,
                 R.styleable.PreferenceFragment,
-                R.attr.preferenceFragmentStyle,
+                TypedArrayUtils.getAttr(mStyledContext, R.attr.preferenceFragmentStyle,
+                        AndroidResources.ANDROID_R_PREFERENCE_FRAGMENT_STYLE),
                 0);
 
         mLayoutResId = a.getResourceId(R.styleable.PreferenceFragment_android_layout, mLayoutResId);
@@ -263,10 +266,10 @@ public abstract class PreferenceFragment extends Fragment implements
 
         final View view = themedInflater.inflate(mLayoutResId, container, false);
 
-        final View rawListContainer = view.findViewById(R.id.list_container);
+        final View rawListContainer = view.findViewById(AndroidResources.ANDROID_R_LIST_CONTAINER);
         if (!(rawListContainer instanceof ViewGroup)) {
-            throw new RuntimeException("Content has view with id attribute 'R.id.list_container' "
-                    + "that is not a ViewGroup class");
+            throw new RuntimeException("Content has view with id attribute "
+                    + "'android.R.id.list_container' that is not a ViewGroup class");
         }
 
         final ViewGroup listContainer = (ViewGroup) rawListContainer;
