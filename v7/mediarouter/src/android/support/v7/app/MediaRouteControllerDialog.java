@@ -657,10 +657,15 @@ public class MediaRouteControllerDialog extends AlertDialog {
             mVolumeSlider.setProgress(mRoute.getVolume());
             if (mIsGroupExpanded) {
                 for (int i = 0; i < mVolumeGroupList.getChildCount(); ++i) {
-                    MediaRouter.RouteInfo route = getGroup().getRouteAt(i);
+                    SeekBar volumeSlider = (SeekBar) mVolumeGroupList.getChildAt(i)
+                            .findViewById(R.id.mr_volume_slider);
+                    int tag = (int) volumeSlider.getTag();
+                    int index = tag - VOLUME_SLIDER_TAG_GROUP_BASE;
+                    if (index < 0 || index >= getGroup().getRouteCount()) {
+                        continue;
+                    }
+                    MediaRouter.RouteInfo route = getGroup().getRouteAt(index);
                     if (isVolumeControlAvailable(route)) {
-                        SeekBar volumeSlider = (SeekBar) mVolumeGroupList.getChildAt(i)
-                                .findViewById(R.id.mr_volume_slider);
                         volumeSlider.setProgress(route.getVolume());
                     }
                 }
