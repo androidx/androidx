@@ -13,6 +13,8 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.support.v17.leanback.R;
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -41,11 +43,41 @@ public class GuidedAction extends Action {
     /**
      * When finishing editing, goes to next action.
      */
-    public static final int ACTION_ID_NEXT = -2;
+    public static final long ACTION_ID_NEXT = -2;
     /**
      * When finishing editing, stay on current action.
      */
-    public static final int ACTION_ID_CURRENT = -3;
+    public static final long ACTION_ID_CURRENT = -3;
+
+    /**
+     * Id of standard OK action.
+     */
+    public static final long ACTION_ID_OK = -4;
+
+    /**
+     * Id of standard Cancel action.
+     */
+    public static final long ACTION_ID_CANCEL = -5;
+
+    /**
+     * Id of standard Finish action.
+     */
+    public static final long ACTION_ID_FINISH = -6;
+
+    /**
+     * Id of standard Finish action.
+     */
+    public static final long ACTION_ID_CONTINUE = -7;
+
+    /**
+     * Id of standard Yes action.
+     */
+    public static final long ACTION_ID_YES = -8;
+
+    /**
+     * Id of standard No action.
+     */
+    public static final long ACTION_ID_NO = -9;
 
     /**
      * Builds a {@link GuidedAction} object.
@@ -100,6 +132,73 @@ public class GuidedAction extends Action {
             action.mInfoOnly = mInfoOnly;
             action.mEnabled = mEnabled;
             return action;
+        }
+
+        /**
+         * Construct a standard "OK" action with {@link GuidedAction#ACTION_ID_OK}.
+         * @param context Context for loading action title.
+         * @return The same Builder object.
+         */
+        public Builder constructOK(Context context) {
+            mId = ACTION_ID_OK;
+            mTitle = context.getString(android.R.string.ok);
+            return this;
+        }
+
+        /**
+         * Construct a standard "Cancel" action with {@link GuidedAction#ACTION_ID_CANCEL}.
+         * @param context Context for loading action title.
+         * @return The same Builder object.
+         */
+        public Builder constructCancel(Context context) {
+            mId = ACTION_ID_CANCEL;
+            mTitle = context.getString(android.R.string.cancel);
+            return this;
+        }
+
+        /**
+         * Construct a standard "Finish" action with {@link GuidedAction#ACTION_ID_FINISH}.
+         * @param context Context for loading action title.
+         * @return The same Builder object.
+         */
+        public Builder constructFinish(Context context) {
+            mId = ACTION_ID_FINISH;
+            mTitle = context.getString(R.string.lb_guidedaction_finish_title);
+            return this;
+        }
+
+        /**
+         * Construct a standard "Continue" action with {@link GuidedAction#ACTION_ID_CONTINUE}.
+         * @param context Context for loading action title.
+         * @return The same Builder object.
+         */
+        public Builder constructContinue(Context context) {
+            mId = ACTION_ID_CONTINUE;
+            mHasNext = true;
+            mTitle = context.getString(R.string.lb_guidedaction_continue_title);
+            return this;
+        }
+
+        /**
+         * Construct a standard "Yes" action with {@link GuidedAction#ACTION_ID_YES}.
+         * @param context Context for loading action title.
+         * @return The same Builder object.
+         */
+        public Builder constructYes(Context context) {
+            mId = ACTION_ID_YES;
+            mTitle = context.getString(android.R.string.yes);
+            return this;
+        }
+
+        /**
+         * Construct a standard "No" action with {@link GuidedAction#ACTION_ID_NO}.
+         * @param context Context for loading action title.
+         * @return The same Builder object.
+         */
+        public Builder constructNo(Context context) {
+            mId = ACTION_ID_NO;
+            mTitle = context.getString(android.R.string.no);
+            return this;
         }
 
         /**
