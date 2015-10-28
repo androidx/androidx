@@ -195,4 +195,9 @@
     <string name="drawable_compat_color_tint">Color tint</string>
     <string name="drawable_compat_color_list_tint">Color state list</string>
 
+    <!-- ViewPager -->
+    <string name="view_pager_support">View/View pager</string>
+    <string name="view_pager_smooth_scroll">Smooth scroll</string>
+    <string name="view_pager_switch_tabs">Switch tabs</string>
+    <string name="view_pager_double_switch_tabs">Double-switch tabs</string>
 </resources>
