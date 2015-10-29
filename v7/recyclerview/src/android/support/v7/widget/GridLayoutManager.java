@@ -303,9 +303,29 @@ public class GridLayoutManager extends LinearLayoutManager {
         if (state.getItemCount() > 0 && !state.isPreLayout()) {
             ensureAnchorIsInFirstSpan(recycler, state, anchorInfo);
         }
+        ensureViewSet();
+    }
+
+    private void ensureViewSet() {
         if (mSet == null || mSet.length != mSpanCount) {
             mSet = new View[mSpanCount];
         }
+    }
+
+    @Override
+    public int scrollHorizontallyBy(int dx, RecyclerView.Recycler recycler,
+            RecyclerView.State state) {
+        updateMeasurements();
+        ensureViewSet();
+        return super.scrollHorizontallyBy(dx, recycler, state);
+    }
+
+    @Override
+    public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler,
+            RecyclerView.State state) {
+        updateMeasurements();
+        ensureViewSet();
+        return super.scrollVerticallyBy(dy, recycler, state);
     }
 
     private void ensureAnchorIsInFirstSpan(RecyclerView.Recycler recycler, RecyclerView.State state,
