@@ -711,12 +711,16 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
     public void setUiStyle(int style) {
         int oldStyle = getUiStyle();
         Bundle arguments = getArguments();
+        boolean isNew = false;
         if (arguments == null) {
             arguments = new Bundle();
+            isNew = true;
         }
         arguments.putInt(EXTRA_UI_STYLE, style);
         // call setArgument() will validate if the fragment is already added.
-        setArguments(arguments);
+        if (isNew) {
+            setArguments(arguments);
+        }
         if (style != oldStyle) {
             onProvideFragmentTransitions();
         }
@@ -834,6 +838,10 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
             for (int i = entryCount - 1; i >= 0; i--) {
                 BackStackEntry entry = fragmentManager.getBackStackEntryAt(i);
                 if (isUiStyleEntrance(entry.getName())) {
+                    GuidedStepFragment top = getCurrentGuidedStepFragment(fragmentManager);
+                    if (top != null) {
+                        top.setUiStyle(UI_STYLE_ENTRANCE);
+                    }
                     fragmentManager.popBackStack(entry.getId(),
                             FragmentManager.POP_BACK_STACK_INCLUSIVE);
                     return;
