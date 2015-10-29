@@ -36,6 +36,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v7.graphics.Palette;
+import android.support.v7.media.MediaControlIntent;
 import android.support.v7.media.MediaRouteSelector;
 import android.support.v7.media.MediaRouter;
 import android.support.v7.mediarouter.R;
@@ -444,8 +445,15 @@ public class MediaRouteControllerDialog extends AlertDialog {
         updatePlaybackControl();
     }
 
-    private boolean isPlaybackControlAvailable() {
-        return mCustomControlView == null && (mDescription != null || mState != null);
+    private boolean isPlaybackControlLayoutNeeded() {
+        // If a route does not support remote playback, it means that the route is dedicated for
+        // audio or video mirroring such as A2DP speaker or headset. In this case, the route
+        // provider does not provide any playback information such as metadata or playback status.
+        // But, for live video, playback control layout shows a message that the screen is being
+        // mirrored, while it does not show anything for live audio.
+        return mCustomControlView == null && (mDescription != null || mState != null)
+                && (mRoute.supportsControlCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)
+                || mRoute.supportsControlCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO));
     }
 
     /**
@@ -500,7 +508,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         // Measure the size of widgets and get the height of main components.
         int oldHeight = getLayoutHeight(mMediaMainControlLayout);
         setLayoutHeight(mMediaMainControlLayout, ViewGroup.LayoutParams.FILL_PARENT);
-        updateMediaControlVisibility(isPlaybackControlAvailable());
+        updateMediaControlVisibility(isPlaybackControlLayoutNeeded());
         View decorView = getWindow().getDecorView();
         decorView.measure(
                 MeasureSpec.makeMeasureSpec(getWindow().getAttributes().width, MeasureSpec.EXACTLY),
@@ -515,7 +523,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                         ? ImageView.ScaleType.FIT_XY : ImageView.ScaleType.FIT_CENTER);
             }
         }
-        int mainControllerHeight = getMainControllerHeight(isPlaybackControlAvailable());
+        int mainControllerHeight = getMainControllerHeight(isPlaybackControlLayoutNeeded());
         int volumeGroupListCount = mVolumeGroupList.getAdapter() != null
                 ? mVolumeGroupList.getAdapter().getCount() : 0;
         // Scale down volume group list items in landscape mode.
@@ -555,7 +563,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
             desiredControlLayoutHeight = visibleGroupListHeight + mainControllerHeight;
         }
         // Show the playback control if it fits the screen.
-        if (mCustomControlView == null && isPlaybackControlAvailable()
+        if (isPlaybackControlLayoutNeeded()
                 && desiredControlLayoutHeight <= maximumControlViewHeight) {
             mPlaybackControl.setVisibility(View.VISIBLE);
         } else {
@@ -674,7 +682,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
     }
 
     private void updatePlaybackControl() {
-        if (isPlaybackControlAvailable()) {
+        if (isPlaybackControlLayoutNeeded()) {
             CharSequence title = mDescription == null ? null : mDescription.getTitle();
             boolean hasTitle = !TextUtils.isEmpty(title);
 
