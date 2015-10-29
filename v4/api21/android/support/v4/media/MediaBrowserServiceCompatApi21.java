@@ -35,18 +35,18 @@ import java.util.List;
 class MediaBrowserServiceCompatApi21 {
 
     public static Object createService() {
-        return new MediaBrowserServiceStub();
+        return new MediaBrowserServiceAdaptor();
     }
 
-    public static void onCreate(Object serviceObj, ServiceStub stub) {
-        ((MediaBrowserServiceStub) serviceObj).onCreate(stub);
+    public static void onCreate(Object serviceObj, ServiceImpl serviceImpl) {
+        ((MediaBrowserServiceAdaptor) serviceObj).onCreate(serviceImpl);
     }
 
     public static IBinder onBind(Object serviceObj, Intent intent) {
-        return ((MediaBrowserServiceStub) serviceObj).onBind(intent);
+        return ((MediaBrowserServiceAdaptor) serviceObj).onBind(intent);
     }
 
-    public interface ServiceStub {
+    public interface ServiceImpl {
         void connect(final String pkg, final Bundle rootHints, final ServiceCallbacks callbacks);
         void disconnect(final ServiceCallbacks callbacks);
         void addSubscription(final String id, final ServiceCallbacks callbacks);
@@ -95,11 +95,11 @@ class MediaBrowserServiceCompatApi21 {
         }
     }
 
-    private static class MediaBrowserServiceStub {
+    private static class MediaBrowserServiceAdaptor {
         ServiceBinderProxy mBinder;
 
-        public void onCreate(ServiceStub stub) {
-            mBinder = new ServiceBinderProxy(stub);
+        public void onCreate(ServiceImpl serviceImpl) {
+            mBinder = new ServiceBinderProxy(serviceImpl);
         }
 
         public IBinder onBind(Intent intent) {
@@ -110,39 +110,39 @@ class MediaBrowserServiceCompatApi21 {
         }
 
         private static class ServiceBinderProxy extends IMediaBrowserService.Stub {
-            private final ServiceStub mServiceStub;
+            private final ServiceImpl mServiceImpl;
 
-            ServiceBinderProxy(ServiceStub stub) {
-                mServiceStub = stub;
+            ServiceBinderProxy(ServiceImpl serviceImpl) {
+                mServiceImpl = serviceImpl;
             }
 
             @Override
             public void connect(final String pkg, final Bundle rootHints,
                     final IMediaBrowserServiceCallbacks callbacks) {
-                mServiceStub.connect(pkg, rootHints, new ServiceCallbacksApi21(callbacks));
+                mServiceImpl.connect(pkg, rootHints, new ServiceCallbacksApi21(callbacks));
             }
 
             @Override
             public void disconnect(final IMediaBrowserServiceCallbacks callbacks) {
-                mServiceStub.disconnect(new ServiceCallbacksApi21(callbacks));
+                mServiceImpl.disconnect(new ServiceCallbacksApi21(callbacks));
             }
 
 
             @Override
             public void addSubscription(final String id,
                     final IMediaBrowserServiceCallbacks callbacks) {
-                mServiceStub.addSubscription(id, new ServiceCallbacksApi21(callbacks));
+                mServiceImpl.addSubscription(id, new ServiceCallbacksApi21(callbacks));
             }
 
             @Override
             public void removeSubscription(final String id,
                     final IMediaBrowserServiceCallbacks callbacks) {
-                mServiceStub.removeSubscription(id, new ServiceCallbacksApi21(callbacks));
+                mServiceImpl.removeSubscription(id, new ServiceCallbacksApi21(callbacks));
             }
 
             @Override
             public void getMediaItem(final String mediaId, final ResultReceiver receiver) {
-                mServiceStub.getMediaItem(mediaId, receiver);
+                mServiceImpl.getMediaItem(mediaId, receiver);
             }
         }
     }
