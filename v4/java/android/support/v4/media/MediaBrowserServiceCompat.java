@@ -24,6 +24,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
 import android.os.Parcel;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
@@ -66,6 +68,16 @@ public abstract class MediaBrowserServiceCompat extends Service {
     private static final String TAG = "MediaBrowserServiceCompat";
     private static final boolean DBG = false;
 
+    public static final String DATA_MEDIA_SESSION_TOKEN = "data_media_session_token";
+    public static final String DATA_EXTRAS = "data_extras";
+    public static final String DATA_MEDIA_ITEM_LIST = "data_media_item_list";
+
+    public static final int MSG_CONNECT = 1;
+    public static final int MSG_DISCONNECT = 2;
+    public static final int MSG_ADD_SUBSCRIPTION = 3;
+    public static final int MSG_REMOVE_SUBSCRIPTION = 4;
+    public static final int MSG_GET_MEDIA_ITEM = 5;
+
     private MediaBrowserServiceImpl mImpl;
 
     /**
@@ -81,27 +93,26 @@ public abstract class MediaBrowserServiceCompat extends Service {
     public static final String KEY_MEDIA_ITEM = "media_item";
 
     private final ArrayMap<IBinder, ConnectionRecord> mConnections = new ArrayMap();
-    private final Handler mHandler = new Handler();
+    private final ServiceHandler mHandler = new ServiceHandler();
     MediaSessionCompat.Token mSession;
 
     interface MediaBrowserServiceImpl {
-        public void onCreate();
+        void onCreate();
         IBinder onBind(Intent intent);
     }
 
     class MediaBrowserServiceImplBase implements MediaBrowserServiceImpl {
-        private ServiceBinderCompat mBinder;
+        private Messenger mMessenger;
 
         @Override
         public void onCreate() {
-            mBinder = new ServiceBinderCompat(new ServiceStub());
+            mMessenger = new Messenger(mHandler);
         }
 
         @Override
         public IBinder onBind(Intent intent) {
-            // STOPSHIP: Use messenger or version management for further extension
             if (SERVICE_INTERFACE.equals(intent.getAction())) {
-                return mBinder;
+                return mMessenger.getBinder();
             }
             return null;
         }
@@ -114,12 +125,55 @@ public abstract class MediaBrowserServiceCompat extends Service {
         public void onCreate() {
             mServiceObj = MediaBrowserServiceCompatApi21.createService();
             MediaBrowserServiceCompatApi21.onCreate(mServiceObj,
-                    new ServiceStubApi21(new ServiceStub()));
+                    new ServiceImplApi21(mHandler.getServiceImpl()));
         }
 
         @Override
         public IBinder onBind(Intent intent) {
             return MediaBrowserServiceCompatApi21.onBind(mServiceObj, intent);
+        }
+    }
+
+    private final class ServiceHandler extends Handler {
+        private final ServiceImpl mServiceImpl = new ServiceImpl();
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_CONNECT:
+                    mServiceImpl.connect((String) msg.obj, msg.getData(),
+                            new ServiceCallbacksCompat(msg.replyTo));
+                    break;
+                case MSG_DISCONNECT:
+                    mServiceImpl.disconnect(new ServiceCallbacksCompat(msg.replyTo));
+                    break;
+                case MSG_ADD_SUBSCRIPTION:
+                    mServiceImpl.addSubscription((String) msg.obj,
+                            new ServiceCallbacksCompat(msg.replyTo));
+                    break;
+                case MSG_REMOVE_SUBSCRIPTION:
+                    mServiceImpl.removeSubscription((String) msg.obj,
+                            new ServiceCallbacksCompat(msg.replyTo));
+                    break;
+                case MSG_GET_MEDIA_ITEM:
+                    mServiceImpl.getMediaItem((String) msg.obj, (ResultReceiver) msg.getData()
+                            .getParcelable(MediaBrowserCompat.DATA_RESULT_RECEIVER));
+                    break;
+                default:
+                    super.handleMessage(msg);
+            }
+        }
+
+        public void postOrRun(Runnable r) {
+            if (Thread.currentThread() == getLooper().getThread()) {
+                r.run();
+            } else {
+                post(r);
+            }
+        }
+
+        public ServiceImpl getServiceImpl() {
+            return mServiceImpl;
         }
     }
 
@@ -195,7 +249,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
         }
     }
 
-    private class ServiceStub {
+    private class ServiceImpl {
         public void connect(final String pkg, final Bundle rootHints,
                 final ServiceCallbacks callbacks) {
 
@@ -205,7 +259,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
                         + " package=" + pkg);
             }
 
-            mHandler.post(new Runnable() {
+            mHandler.postOrRun(new Runnable() {
                 @Override
                 public void run() {
                     final IBinder b = callbacks.asBinder();
@@ -249,7 +303,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
         }
 
         public void disconnect(final ServiceCallbacks callbacks) {
-            mHandler.post(new Runnable() {
+            mHandler.postOrRun(new Runnable() {
                 @Override
                 public void run() {
                     final IBinder b = callbacks.asBinder();
@@ -265,7 +319,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
 
 
         public void addSubscription(final String id, final ServiceCallbacks callbacks) {
-            mHandler.post(new Runnable() {
+            mHandler.postOrRun(new Runnable() {
                 @Override
                 public void run() {
                     final IBinder b = callbacks.asBinder();
@@ -284,7 +338,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
         }
 
         public void removeSubscription(final String id, final ServiceCallbacks callbacks) {
-            mHandler.post(new Runnable() {
+            mHandler.postOrRun(new Runnable() {
                 @Override
                 public void run() {
                     final IBinder b = callbacks.asBinder();
@@ -308,7 +362,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
                 return;
             }
 
-            mHandler.post(new Runnable() {
+            mHandler.postOrRun(new Runnable() {
                 @Override
                 public void run() {
                     performLoadItem(mediaId, receiver);
@@ -317,73 +371,35 @@ public abstract class MediaBrowserServiceCompat extends Service {
         }
     }
 
-    private class ServiceBinderCompat extends IMediaBrowserServiceCompat.Stub {
-        final ServiceStub mServiceStub;
+    private class ServiceImplApi21 implements MediaBrowserServiceCompatApi21.ServiceImpl {
+        final ServiceImpl mServiceImpl;
 
-        ServiceBinderCompat(ServiceStub binder) {
-            mServiceStub = binder;
-        }
-
-        @Override
-        public void connect(final String pkg, final Bundle rootHints,
-                final IMediaBrowserServiceCompatCallbacks callbacks) {
-            mServiceStub.connect(pkg, rootHints, new ServiceCallbacksCompat(callbacks));
-        }
-
-        @Override
-        public void disconnect(final IMediaBrowserServiceCompatCallbacks callbacks) {
-            mConnections.get(callbacks.asBinder());
-            mServiceStub.disconnect(new ServiceCallbacksCompat(callbacks));
-        }
-
-
-        @Override
-        public void addSubscription(
-                final String id, final IMediaBrowserServiceCompatCallbacks callbacks) {
-            mServiceStub.addSubscription(id, new ServiceCallbacksCompat(callbacks));
-        }
-
-        @Override
-        public void removeSubscription(final String id,
-                final IMediaBrowserServiceCompatCallbacks callbacks) {
-            mServiceStub.removeSubscription(id, new ServiceCallbacksCompat(callbacks));
-        }
-
-        @Override
-        public void getMediaItem(final String mediaId, final ResultReceiver receiver) {
-            mServiceStub.getMediaItem(mediaId, receiver);
-        }
-    }
-
-    private class ServiceStubApi21 implements MediaBrowserServiceCompatApi21.ServiceStub {
-        final ServiceStub mBinder;
-
-        ServiceStubApi21(ServiceStub binder) {
-            mBinder = binder;
+        ServiceImplApi21(ServiceImpl serviceImpl) {
+            mServiceImpl = serviceImpl;
         }
 
         @Override
         public void connect(final String pkg, final Bundle rootHints,
                 final MediaBrowserServiceCompatApi21.ServiceCallbacks callbacks) {
-            mBinder.connect(pkg, rootHints, new ServiceCallbacksApi21(callbacks));
+            mServiceImpl.connect(pkg, rootHints, new ServiceCallbacksApi21(callbacks));
         }
 
         @Override
         public void disconnect(final MediaBrowserServiceCompatApi21.ServiceCallbacks callbacks) {
-            mBinder.disconnect(new ServiceCallbacksApi21(callbacks));
+            mServiceImpl.disconnect(new ServiceCallbacksApi21(callbacks));
         }
 
 
         @Override
         public void addSubscription(
                 final String id, final MediaBrowserServiceCompatApi21.ServiceCallbacks callbacks) {
-            mBinder.addSubscription(id, new ServiceCallbacksApi21(callbacks));
+            mServiceImpl.addSubscription(id, new ServiceCallbacksApi21(callbacks));
         }
 
         @Override
         public void removeSubscription(final String id,
                 final MediaBrowserServiceCompatApi21.ServiceCallbacks callbacks) {
-            mBinder.removeSubscription(id, new ServiceCallbacksApi21(callbacks));
+            mServiceImpl.removeSubscription(id, new ServiceCallbacksApi21(callbacks));
         }
 
         @Override
@@ -394,7 +410,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
                     receiver.send(resultCode, resultData);
                 }
             };
-            mBinder.getMediaItem(mediaId, receiverCompat);
+            mServiceImpl.getMediaItem(mediaId, receiverCompat);
         }
     }
 
@@ -408,28 +424,42 @@ public abstract class MediaBrowserServiceCompat extends Service {
     }
 
     private class ServiceCallbacksCompat implements ServiceCallbacks {
-        final IMediaBrowserServiceCompatCallbacks mCallbacks;
+        final Messenger mCallbacks;
 
-        ServiceCallbacksCompat(IMediaBrowserServiceCompatCallbacks callbacks) {
+        ServiceCallbacksCompat(Messenger callbacks) {
             mCallbacks = callbacks;
         }
 
         public IBinder asBinder() {
-            return mCallbacks.asBinder();
+            return mCallbacks.getBinder();
         }
 
         public void onConnect(String root, MediaSessionCompat.Token session, Bundle extras)
                 throws RemoteException {
-            mCallbacks.onConnect(root, session, extras);
+            Bundle data = new Bundle();
+            data.putParcelable(DATA_MEDIA_SESSION_TOKEN, session);
+            data.putBundle(DATA_EXTRAS, extras);
+            sendRequest(MediaBrowserCompat.MSG_ON_CONNECT, root, data);
         }
 
         public void onConnectFailed() throws RemoteException {
-            mCallbacks.onConnectFailed();
+            sendRequest(MediaBrowserCompat.MSG_ON_CONNECT_FAILED, null, null);
         }
 
         public void onLoadChildren(String mediaId, List<MediaBrowserCompat.MediaItem> list)
                 throws RemoteException {
-            mCallbacks.onLoadChildren(mediaId, list);
+            Bundle data = new Bundle();
+            data.putParcelableArrayList(DATA_MEDIA_ITEM_LIST,
+                    list instanceof ArrayList ? (ArrayList) list : new ArrayList<>(list));
+            sendRequest(MediaBrowserCompat.MSG_ON_LOAD_CHILDREN, mediaId, data);
+        }
+
+        private void sendRequest(int what, Object obj, Bundle data) throws RemoteException {
+            Message msg = Message.obtain();
+            msg.what = what;
+            msg.obj = obj;
+            msg.setData(data);
+            mCallbacks.send(msg);
         }
     }
 
