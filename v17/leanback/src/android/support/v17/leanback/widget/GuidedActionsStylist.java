@@ -440,6 +440,17 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             }
         }
         setEditingMode(vh, action, false);
+        if (action.isFocusable()) {
+            vh.view.setFocusable(true);
+            if (vh.view instanceof ViewGroup) {
+                ((ViewGroup) vh.view).setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
+            }
+        } else {
+            vh.view.setFocusable(false);
+            if (vh.view instanceof ViewGroup) {
+                ((ViewGroup) vh.view).setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+            }
+        }
     }
 
     public void setEditingMode(ViewHolder vh, GuidedAction action, boolean editing) {
