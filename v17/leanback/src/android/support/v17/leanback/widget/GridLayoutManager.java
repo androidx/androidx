@@ -1287,14 +1287,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         } else {
             switch (modeSecondary) {
             case MeasureSpec.UNSPECIFIED:
-                if (mRowSizeSecondaryRequested == 0) {
-                    if (mOrientation == HORIZONTAL) {
-                        throw new IllegalStateException("Must specify rowHeight or view height");
-                    } else {
-                        throw new IllegalStateException("Must specify columnWidth or view width");
-                    }
-                }
-                mFixedRowSizeSecondary = mRowSizeSecondaryRequested;
+                mFixedRowSizeSecondary = mRowSizeSecondaryRequested == 0 ?
+                        sizeSecondary - paddingSecondary: mRowSizeSecondaryRequested;
                 mNumRows = mNumRowsRequested == 0 ? 1 : mNumRowsRequested;
                 measuredSizeSecondary = mFixedRowSizeSecondary * mNumRows + mMarginSecondary
                     * (mNumRows - 1) + paddingSecondary;
