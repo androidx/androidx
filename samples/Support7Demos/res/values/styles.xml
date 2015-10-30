@@ -66,4 +66,12 @@
         <item name="android:minHeight">35dp</item>
     </style>
 
+    <style name="Theme.SampleDrawerLayout" parent="Theme.AppCompat.NoActionBar">
+        <!-- Tell SystemUI that our activity window will draw the background for the status bar. -->
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <!-- Set the status bar to be translucent black. -->
+        <item name="android:statusBarColor">#30000000</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
 </resources>

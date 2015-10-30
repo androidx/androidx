@@ -200,4 +200,10 @@
     <string name="swipe">swipe me</string>
     <string name="swiping">swiping</string>
     <string name="vertical">vertical</string>
+
+    <string name="drawer_layout_activity">Drawer layout</string>
+    <string name="drawer_layout_summary">This activity illustrates the use of sliding drawers. The drawer may be pulled out from the starting edge, which is left on left-to-right locales, with an edge swipe. You can tap the hamburger (three horizontal lines) icon at the starting side of the action bar to open the drawer as well.</string>
+    <string name="drawer_title">Navigation</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
 </resources>

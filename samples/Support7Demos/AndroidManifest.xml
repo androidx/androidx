@@ -433,6 +433,16 @@
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
             </intent-filter>
         </activity>
+
+        <!-- DrawerLayout demo activity -->
+        <activity android:name=".widget.DrawerLayoutActivity"
+                  android:label="@string/drawer_layout_activity"
+                  android:theme="@style/Theme.SampleDrawerLayout">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
     </application>
 
 
