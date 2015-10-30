@@ -150,6 +150,10 @@ public class FadeAndShortSlide extends Visibility {
         if (endValues == null) {
             return null;
         }
+        if (sceneRoot == view) {
+            // workaround b/25375640, avoid run animation on sceneRoot
+            return null;
+        }
         int[] position = (int[]) endValues.values.get(PROPNAME_SCREEN_POSITION);
         int left = position[0];
         float endX = view.getTranslationX();
@@ -166,6 +170,10 @@ public class FadeAndShortSlide extends Visibility {
     public Animator onDisappear(ViewGroup sceneRoot, View view, TransitionValues startValues,
             TransitionValues endValues) {
         if (startValues == null) {
+            return null;
+        }
+        if (sceneRoot == view) {
+            // workaround b/25375640, avoid run animation on sceneRoot
             return null;
         }
         int[] position = (int[]) startValues.values.get(PROPNAME_SCREEN_POSITION);
