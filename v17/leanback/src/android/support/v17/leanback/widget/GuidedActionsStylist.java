@@ -119,6 +119,14 @@ import java.util.List;
 public class GuidedActionsStylist implements FragmentAnimationProvider {
 
     /**
+     * Default viewType that associated with default layout Id for the action item.
+     * @see #getItemViewType(GuidedAction)
+     * @see #onProvideItemLayoutId(int)
+     * @see #onCreateViewHolder(ViewGroup, int)
+     */
+    public static final int VIEW_TYPE_DEFAULT = 0;
+
+    /**
      * ViewHolder caches information about the action item layouts' subviews. Subclasses of {@link
      * GuidedActionsStylist} may also wish to subclass this in order to add fields.
      * @see GuidedAction
@@ -353,6 +361,16 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     }
 
     /**
+     * Return view type of action, each different type can have differently associated layout Id.
+     * Default implementation returns {@link #VIEW_TYPE_DEFAULT}.
+     * @param action  The action object.
+     * @return View type that used in {@link #onProvideItemLayoutId(int)}.
+     */
+    public int getItemViewType(GuidedAction action) {
+        return VIEW_TYPE_DEFAULT;
+    }
+
+    /**
      * Provides the resource ID of the layout defining the view for an individual guided actions.
      * Subclasses may override to provide their own customized layouts. The base implementation
      * returns {@link android.support.v17.leanback.R.layout#lb_guidedactions_item}. If overridden,
@@ -360,7 +378,8 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      * the base class; this can be achieved by starting with a copy of the base layout file. Note
      * that in order for the item to support editing, the title view should both subclass {@link
      * android.widget.EditText} and implement {@link ImeKeyMonitor}; see {@link
-     * GuidedActionEditText}.
+     * GuidedActionEditText}.  To support different types of Layouts, override {@link
+     * #onProvideItemLayoutId(int)}.
      * @return The resource ID of the layout to be inflated to define the view to display an
      * individual GuidedAction.
      */
@@ -369,8 +388,31 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     }
 
     /**
+     * Provides the resource ID of the layout defining the view for an individual guided actions.
+     * Subclasses may override to provide their own customized layouts. The base implementation
+     * returns {@link android.support.v17.leanback.R.layout#lb_guidedactions_item}. If overridden,
+     * the substituted layout should contain matching IDs for any views that should be managed by
+     * the base class; this can be achieved by starting with a copy of the base layout file. Note
+     * that in order for the item to support editing, the title view should both subclass {@link
+     * android.widget.EditText} and implement {@link ImeKeyMonitor}; see {@link
+     * GuidedActionEditText}.
+     * @param viewType View type returned by {@link #getItemViewType(GuidedAction)}
+     * @return The resource ID of the layout to be inflated to define the view to display an
+     * individual GuidedAction.
+     */
+    public int onProvideItemLayoutId(int viewType) {
+        if (viewType == VIEW_TYPE_DEFAULT) {
+            return onProvideItemLayoutId();
+        } else {
+            throw new RuntimeException("ViewType " + viewType +
+                    " not supported in GuidedActionsStylist");
+        }
+    }
+
+    /**
      * Constructs a {@link ViewHolder} capable of representing {@link GuidedAction}s. Subclasses
-     * may choose to return a subclass of ViewHolder.
+     * may choose to return a subclass of ViewHolder.  To support different view types, override
+     * {@link #onCreateViewHolder(ViewGroup, int)}
      * <p>
      * <i>Note: Should not actually add the created view to the parent; the caller will do
      * this.</i>
@@ -380,6 +422,25 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     public ViewHolder onCreateViewHolder(ViewGroup parent) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View v = inflater.inflate(onProvideItemLayoutId(), parent, false);
+        return new ViewHolder(v);
+    }
+
+    /**
+     * Constructs a {@link ViewHolder} capable of representing {@link GuidedAction}s. Subclasses
+     * may choose to return a subclass of ViewHolder.
+     * <p>
+     * <i>Note: Should not actually add the created view to the parent; the caller will do
+     * this.</i>
+     * @param parent The view group to be used as the parent of the new view.
+     * @param viewType The viewType returned by {@link #getItemViewType(GuidedAction)}
+     * @return The view to be added to the caller's view hierarchy.
+     */
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        if (viewType == VIEW_TYPE_DEFAULT) {
+            return onCreateViewHolder(parent);
+        }
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        View v = inflater.inflate(onProvideItemLayoutId(viewType), parent, false);
         return new ViewHolder(v);
     }
 

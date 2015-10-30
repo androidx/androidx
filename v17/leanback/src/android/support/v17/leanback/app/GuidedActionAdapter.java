@@ -233,6 +233,14 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
      * {@inheritDoc}
      */
     @Override
+    public int getItemViewType(int position) {
+        return mStylist.getItemViewType(mActions.get(position));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
         mRecyclerView = null;
     }
@@ -242,7 +250,7 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
      */
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        GuidedActionsStylist.ViewHolder vh = mStylist.onCreateViewHolder(parent);
+        GuidedActionsStylist.ViewHolder vh = mStylist.onCreateViewHolder(parent, viewType);
         View v = vh.view;
         v.setOnKeyListener(mActionOnKeyListener);
         v.setOnClickListener(mOnClickListener);
