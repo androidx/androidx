@@ -144,14 +144,4 @@ class MediaBrowserCompatApi21 {
             mSubscriptionCallback.onError(parentId);
         }
     }
-
-    static class MediaItem {
-        public static Object getDescription(Object mediaItem) {
-            return ((MediaBrowser.MediaItem) mediaItem).getDescription();
-        }
-
-        public static int getFlags(Object mediaItem) {
-            return ((MediaBrowser.MediaItem) mediaItem).getFlags();
-        }
-    }
 }
