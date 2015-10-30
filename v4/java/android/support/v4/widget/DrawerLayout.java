@@ -715,8 +715,8 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
 
     void dispatchOnDrawerClosed(View drawerView) {
         final LayoutParams lp = (LayoutParams) drawerView.getLayoutParams();
-        if (lp.knownOpen) {
-            lp.knownOpen = false;
+        if ((lp.openState & LayoutParams.FLAG_IS_OPENED) == 1) {
+            lp.openState = 0;
             if (mListener != null) {
                 mListener.onDrawerClosed(drawerView);
             }
@@ -737,8 +737,8 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
 
     void dispatchOnDrawerOpened(View drawerView) {
         final LayoutParams lp = (LayoutParams) drawerView.getLayoutParams();
-        if (!lp.knownOpen) {
-            lp.knownOpen = true;
+        if ((lp.openState & LayoutParams.FLAG_IS_OPENED) == 0) {
+            lp.openState = LayoutParams.FLAG_IS_OPENED;
             if (mListener != null) {
                 mListener.onDrawerOpened(drawerView);
             }
@@ -809,7 +809,8 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
         final int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             final View child = getChildAt(i);
-            if (((LayoutParams) child.getLayoutParams()).knownOpen) {
+            final LayoutParams childLp = (LayoutParams) child.getLayoutParams();
+            if ((childLp.openState & LayoutParams.FLAG_IS_OPENED) == 1) {
                 return child;
             }
         }
@@ -1439,13 +1440,15 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
             throw new IllegalArgumentException("View " + drawerView + " is not a sliding drawer");
         }
 
+        final LayoutParams lp = (LayoutParams) drawerView.getLayoutParams();
         if (mFirstLayout) {
-            final LayoutParams lp = (LayoutParams) drawerView.getLayoutParams();
             lp.onScreen = 1.f;
-            lp.knownOpen = true;
+            lp.openState = LayoutParams.FLAG_IS_OPENED;
 
             updateChildrenImportantForAccessibility(drawerView, true);
         } else {
+            lp.openState |= LayoutParams.FLAG_IS_OPENING;
+
             if (checkDrawerViewAbsoluteGravity(drawerView, Gravity.LEFT)) {
                 mLeftDragger.smoothSlideViewTo(drawerView, 0, drawerView.getTop());
             } else {
@@ -1481,11 +1484,13 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
             throw new IllegalArgumentException("View " + drawerView + " is not a sliding drawer");
         }
 
+        final LayoutParams lp = (LayoutParams) drawerView.getLayoutParams();
         if (mFirstLayout) {
-            final LayoutParams lp = (LayoutParams) drawerView.getLayoutParams();
             lp.onScreen = 0.f;
-            lp.knownOpen = false;
+            lp.openState = 0;
         } else {
+            lp.openState |= LayoutParams.FLAG_IS_CLOSING;
+
             if (checkDrawerViewAbsoluteGravity(drawerView, Gravity.LEFT)) {
                 mLeftDragger.smoothSlideViewTo(drawerView, -drawerView.getWidth(),
                         drawerView.getTop());
@@ -1525,7 +1530,8 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
         if (!isDrawerView(drawer)) {
             throw new IllegalArgumentException("View " + drawer + " is not a drawer");
         }
-        return ((LayoutParams) drawer.getLayoutParams()).knownOpen;
+        LayoutParams drawerLp = (LayoutParams) drawer.getLayoutParams();
+        return (drawerLp.openState & LayoutParams.FLAG_IS_OPENED) == 1;
     }
 
     /**
@@ -1718,9 +1724,20 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
         final Parcelable superState = super.onSaveInstanceState();
         final SavedState ss = new SavedState(superState);
 
-        final View openDrawer = findOpenDrawer();
-        if (openDrawer != null) {
-            ss.openDrawerGravity = ((LayoutParams) openDrawer.getLayoutParams()).gravity;
+        final int childCount = getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            final View child = getChildAt(i);
+            LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            // Is the current child fully opened (that is, not closing)?
+            boolean isOpenedAndNotClosing = (lp.openState == LayoutParams.FLAG_IS_OPENED);
+            // Is the current child opening?
+            boolean isClosedAndOpening = (lp.openState == LayoutParams.FLAG_IS_OPENING);
+            if (isOpenedAndNotClosing || isClosedAndOpening) {
+                // If one of the conditions above holds, save the child's gravity
+                // so that we open that child during state restore.
+                ss.openDrawerGravity = lp.gravity;
+                break;
+            }
         }
 
         ss.lockModeLeft = mLockModeLeft;
@@ -1969,11 +1986,14 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
     }
 
     public static class LayoutParams extends ViewGroup.MarginLayoutParams {
+        private static final int FLAG_IS_OPENED = 0x1;
+        private static final int FLAG_IS_OPENING = 0x2;
+        private static final int FLAG_IS_CLOSING = 0x4;
 
         public int gravity = Gravity.NO_GRAVITY;
-        float onScreen;
-        boolean isPeeking;
-        boolean knownOpen;
+        private float onScreen;
+        private boolean isPeeking;
+        private int openState;
 
         public LayoutParams(Context c, AttributeSet attrs) {
             super(c, attrs);
