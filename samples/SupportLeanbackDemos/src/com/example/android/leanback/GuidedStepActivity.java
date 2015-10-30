@@ -61,7 +61,8 @@ public class GuidedStepActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         Log.v(TAG, "onCreate");
         super.onCreate(savedInstanceState);
-        GuidedStepFragment.addAsRoot(this, new FirstStepFragment(), android.R.id.content);
+        setContentView(R.layout.guided_step_activity);
+        GuidedStepFragment.addAsRoot(this, new FirstStepFragment(), R.id.lb_guidedstep_host);
     }
 
     @Override
@@ -174,7 +175,7 @@ public class GuidedStepActivity extends Activity {
         public void onGuidedActionClicked(GuidedAction action) {
             FragmentManager fm = getFragmentManager();
             if (action.getId() == GuidedAction.ACTION_ID_CONTINUE) {
-                GuidedStepFragment.add(fm, new SecondStepFragment(), android.R.id.content);
+                GuidedStepFragment.add(fm, new SecondStepFragment(), R.id.lb_guidedstep_host);
             } else if (action.getId() == GuidedAction.ACTION_ID_CANCEL){
                 finishGuidedStepFragments();
             }
@@ -215,7 +216,7 @@ public class GuidedStepActivity extends Activity {
         public void onGuidedActionClicked(GuidedAction action) {
             if (action.getId() == GuidedAction.ACTION_ID_CONTINUE) {
                 FragmentManager fm = getFragmentManager();
-                GuidedStepFragment.add(fm, new ThirdStepFragment());
+                GuidedStepFragment.add(fm, new ThirdStepFragment(), R.id.lb_guidedstep_host);
             }
         }
 
@@ -301,7 +302,8 @@ public class GuidedStepActivity extends Activity {
                     .description(desc)
                     .multilineDescription(true)
                     .infoOnly(true)
-                    .enabled(false)
+                    .enabled(true)
+                    .focusable(false)
                     .build());
             for (int i = 0; i < OPTION_NAMES.length; i++) {
                 addCheckedAction(actions, OPTION_DRAWABLES[i], getActivity(), OPTION_NAMES[i],
@@ -322,7 +324,7 @@ public class GuidedStepActivity extends Activity {
                 Bundle arguments = new Bundle();
                 arguments.putInt(FourthStepFragment.EXTRA_OPTION, mSelectedOption);
                 f.setArguments(arguments);
-                GuidedStepFragment.add(fm, f, android.R.id.content);
+                GuidedStepFragment.add(fm, f, R.id.lb_guidedstep_host);
             } else {
                 mSelectedOption = getSelectedActionPosition()-1;
             }
