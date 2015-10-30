@@ -447,9 +447,9 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
     private boolean isPlaybackControlLayoutNeeded() {
         // If a route does not support remote playback, it means that the route is dedicated for
-        // audio or video mirroring such as A2DP speaker or headset. In this case, the route
+        // audio or video streaming such as A2DP speaker or headset. In this case, the route
         // provider does not provide any playback information such as metadata or playback status.
-        // But, for live video, playback control layout shows a message that the screen is being
+        // But, for live video, playback control UI shows a message that the screen is being
         // mirrored, while it does not show anything for live audio.
         return mCustomControlView == null && (mDescription != null || mState != null)
                 && (mRoute.supportsControlCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)
