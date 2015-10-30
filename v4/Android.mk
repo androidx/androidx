@@ -201,7 +201,6 @@ LOCAL_MODULE := android-support-v4-api21
 LOCAL_SDK_VERSION := 21
 LOCAL_SRC_FILES := $(call all-java-files-under, api21)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-api20
-LOCAL_JARJAR_RULES := $(LOCAL_PATH)/jarjar-rules.txt
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
@@ -240,6 +239,7 @@ LOCAL_AIDL_INCLUDES := frameworks/support/v4/java
 LOCAL_SRC_FILES := $(call all-java-files-under, java) \
     $(call all-Iaidl-files-under, java)
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4-api23
+LOCAL_JARJAR_RULES := $(LOCAL_PATH)/jarjar-rules.txt
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
