@@ -292,7 +292,7 @@ public class GuidedAction extends Action {
         }
 
         /**
-         * Indicates whether this action is editable. Note: Editable actions cannot also be
+         * Indicates whether this action title is editable. Note: Editable actions cannot also be
          * checked, or belong to a check set.
          * @param editable Whether this action is editable.
          */
@@ -539,8 +539,8 @@ public class GuidedAction extends Action {
     }
 
     /**
-     * Returns whether this action is editable.
-     * @return true if the action is editable, false otherwise.
+     * Returns whether this action title is editable.
+     * @return true if the action title is editable, false otherwise.
      */
     public boolean isEditable() {
         return mEditable;
