@@ -32,7 +32,8 @@
       android:duration="350"
       android:slideEdge="right">
         <targets>
-            <target android:targetId="@id/guidedactions_background" />
+            <target android:targetId="@id/action_fragment_background" />
+            <target android:targetId="@id/guided_button_actions_background" />
             <target android:targetId="@id/guidedactions_selector" />
             <target android:targetId="@id/guidedactions_list" />
         </targets>

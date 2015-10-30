@@ -91,7 +91,6 @@ import java.util.List;
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepImeDisappearingAnimation
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsSelectorShowAnimation
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsSelectorHideAnimation
- * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsContainerStyle
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsSelectorStyle
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsListStyle
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionItemContainerStyle
@@ -107,8 +106,6 @@ import java.util.List;
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionUnpressedAnimation
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionEnabledChevronAlpha
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionDisabledChevronAlpha
- * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionContentWidth
- * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionContentWidthNoIcon
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionTitleMinLines
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionTitleMaxLines
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionDescriptionMinLines
@@ -253,8 +250,6 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     private float mDisabledDescriptionAlpha;
     private float mEnabledChevronAlpha;
     private float mDisabledChevronAlpha;
-    private int mContentWidth;
-    private int mContentWidthNoIcon;
     private int mTitleMinLines;
     private int mTitleMaxLines;
     private int mDescriptionMinLines;
@@ -291,27 +286,10 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             }
         }
 
-        mActionsGridView.requestFocusFromTouch();
-
         if (mSelectorView != null) {
             // ALlow focus to move to other views
             mActionsGridView.getViewTreeObserver().addOnGlobalFocusChangeListener(
-                    new ViewTreeObserver.OnGlobalFocusChangeListener() {
-                        private boolean mChildFocused;
-
-                        @Override
-                        public void onGlobalFocusChanged(View oldFocus, View newFocus) {
-                            View focusedChild = mActionsGridView.getFocusedChild();
-                            if (focusedChild == null) {
-                                mSelectorView.setVisibility(View.INVISIBLE);
-                                mChildFocused = false;
-                            } else if (!mChildFocused) {
-                                mChildFocused = true;
-                                mSelectorView.setVisibility(View.VISIBLE);
-                                updateSelectorView(focusedChild);
-                            }
-                        }
-                    });
+                    mGlobalFocusChangeListener);
         }
 
         // Cache widths, chevron alpha values, max and min text lines, etc
@@ -319,8 +297,6 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         TypedValue val = new TypedValue();
         mEnabledChevronAlpha = getFloat(ctx, val, R.attr.guidedActionEnabledChevronAlpha);
         mDisabledChevronAlpha = getFloat(ctx, val, R.attr.guidedActionDisabledChevronAlpha);
-        mContentWidth = getDimension(ctx, val, R.attr.guidedActionContentWidth);
-        mContentWidthNoIcon = getDimension(ctx, val, R.attr.guidedActionContentWidthNoIcon);
         mTitleMinLines = getInteger(ctx, val, R.attr.guidedActionTitleMinLines);
         mTitleMaxLines = getInteger(ctx, val, R.attr.guidedActionTitleMaxLines);
         mDescriptionMinLines = getInteger(ctx, val, R.attr.guidedActionDescriptionMinLines);
@@ -337,6 +313,43 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         mDisabledDescriptionAlpha = Float.valueOf(ctx.getResources().getString(R.string
                 .lb_guidedactions_item_disabled_description_text_alpha));
         return mMainView;
+    }
+
+    final ViewTreeObserver.OnGlobalFocusChangeListener mGlobalFocusChangeListener =
+            new ViewTreeObserver.OnGlobalFocusChangeListener() {
+        private boolean mChildFocused;
+
+        @Override
+        public void onGlobalFocusChanged(View oldFocus, View newFocus) {
+            final View focusedChild = mActionsGridView.getFocusedChild();
+            if (focusedChild == null) {
+                mSelectorView.setVisibility(View.INVISIBLE);
+                mChildFocused = false;
+            } else if (!mChildFocused) {
+                mChildFocused = true;
+                mSelectorView.setVisibility(View.VISIBLE);
+                // Change Selector size in a post Runnable, doing it directly in
+                // GlobalFocusChangeListener does not trigger the layout pass.
+                mSelectorView.post(new Runnable() {
+                    public void run() {
+                        int height = focusedChild.getHeight();
+                        LayoutParams lp = mSelectorView.getLayoutParams();
+                        lp.height = height;
+                        mSelectorView.setLayoutParams(lp);
+                    }
+                });
+            }
+        }
+    };
+
+    /**
+     * Called when destroy the View created by GuidedActionsStylist.
+     */
+    public void onDestroyView() {
+        if (mSelectorView != null) {
+            mActionsGridView.getViewTreeObserver().removeOnGlobalFocusChangeListener(
+                    mGlobalFocusChangeListener);
+        }
     }
 
     /**
@@ -468,18 +481,8 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             vh.mCheckmarkView.setVisibility(action.isChecked() ? View.VISIBLE : View.INVISIBLE);
         }
 
-        if (vh.mContentView != null) {
-            ViewGroup.LayoutParams contentLp = vh.mContentView.getLayoutParams();
-            if (setIcon(vh.mIconView, action)) {
-                contentLp.width = mContentWidth;
-            } else {
-                contentLp.width = mContentWidthNoIcon;
-            }
-            vh.mContentView.setLayoutParams(contentLp);
-        }
-
         if (vh.mChevronView != null) {
-            vh.mChevronView.setVisibility(action.hasNext() ? View.VISIBLE : View.INVISIBLE);
+            vh.mChevronView.setVisibility(action.hasNext() ? View.VISIBLE : View.GONE);
             vh.mChevronView.setAlpha(action.isEnabled() ? mEnabledChevronAlpha :
                     mDisabledChevronAlpha);
         }
@@ -645,15 +648,6 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      * Private methods
      * ==========================================
      */
-
-    private void updateSelectorView(View focusedChild) {
-        // Display the selector view.
-        int height = focusedChild.getHeight();
-        LayoutParams lp = mSelectorView.getLayoutParams();
-        lp.height = height;
-        mSelectorView.setLayoutParams(lp);
-        mSelectorView.setAlpha(1f);
-    }
 
     private float getFloat(Context ctx, TypedValue typedValue, int attrId) {
         ctx.getTheme().resolveAttribute(attrId, typedValue, true);
