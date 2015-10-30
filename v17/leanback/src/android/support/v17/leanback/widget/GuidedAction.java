@@ -80,7 +80,8 @@ public class GuidedAction extends Action {
     public static final long ACTION_ID_NO = -9;
 
     /**
-     * Builds a {@link GuidedAction} object.
+     * Builds a {@link GuidedAction} object.  When subclass GuidedAction, you may override this
+     * Builder class and call {@link #applyValues(GuidedAction)}.
      */
     public static class Builder {
         private long mId;
@@ -101,14 +102,24 @@ public class GuidedAction extends Action {
         private int mDescriptionEditInputType = InputType.TYPE_CLASS_TEXT;
         private int mCheckSetId = NO_CHECK_SET;
         private boolean mEnabled = true;
+        private boolean mFocusable = true;
         private Intent mIntent;
 
         /**
          * Builds the GuidedAction corresponding to this Builder.
          * @return the GuidedAction as configured through this Builder.
          */
-        public GuidedAction build() {
+        public final GuidedAction build() {
             GuidedAction action = new GuidedAction();
+            applyValues(action);
+            return action;
+        }
+
+        /**
+         * Subclass Builder may call this function to apply values.
+         * @param action GuidedAction to apply Builder values.
+         */
+        protected final void applyValues(GuidedAction action) {
             // Base Action values
             action.setId(mId);
             action.setLabel1(mTitle);
@@ -131,7 +142,7 @@ public class GuidedAction extends Action {
             action.mHasNext = mHasNext;
             action.mInfoOnly = mInfoOnly;
             action.mEnabled = mEnabled;
-            return action;
+            action.mFocusable = mFocusable;
         }
 
         /**
@@ -409,6 +420,16 @@ public class GuidedAction extends Action {
             mEnabled = enabled;
             return this;
         }
+
+        /**
+         * Indicates whether this action can take focus.
+         * @param focusable
+         * @return The same Builder object.
+         */
+        public Builder focusable(boolean focusable) {
+            mFocusable = focusable;
+            return this;
+        }
     }
 
     private CharSequence mEditTitle;
@@ -425,10 +446,11 @@ public class GuidedAction extends Action {
     private boolean mInfoOnly;
     private int mCheckSetId;
     private boolean mEnabled;
+    private boolean mFocusable;
 
     private Intent mIntent;
 
-    private GuidedAction() {
+    protected GuidedAction() {
         super(0);
     }
 
@@ -617,6 +639,22 @@ public class GuidedAction extends Action {
      */
     public void setEnabled(boolean enabled) {
         mEnabled = enabled;
+    }
+
+    /**
+     * Returns whether this action is focusable.
+     * @return true if the action is currently focusable, false otherwise.
+     */
+    public boolean isFocusable() {
+        return mFocusable;
+    }
+
+    /**
+     * Sets whether this action is focusable.
+     * @param focusable Whether this action should be focusable.
+     */
+    public void setFocusable(boolean focusable) {
+        mFocusable = focusable;
     }
 
     /**
