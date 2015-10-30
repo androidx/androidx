@@ -120,8 +120,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private boolean mVolumeControlEnabled = true;
     // Layout for media controllers including play/pause button and the main volume slider.
     private LinearLayout mMediaMainControlLayout;
-    private RelativeLayout mPlaybackControl;
-    private LinearLayout mVolumeControl;
+    private RelativeLayout mPlaybackControlLayout;
+    private LinearLayout mVolumeControlLayout;
     private View mDividerView;
 
     private ListView mVolumeGroupList;
@@ -211,7 +211,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         if (mVolumeControlEnabled != enable) {
             mVolumeControlEnabled = enable;
             if (mCreated) {
-                updateVolumeControl();
+                updateVolumeControlLayout();
             }
         }
     }
@@ -313,13 +313,13 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mMediaMainControlLayout = (LinearLayout) findViewById(R.id.mr_media_main_control);
         mDividerView = findViewById(R.id.mr_control_divider);
 
-        mPlaybackControl = (RelativeLayout) findViewById(R.id.mr_playback_control);
+        mPlaybackControlLayout = (RelativeLayout) findViewById(R.id.mr_playback_control);
         mTitleView = (TextView) findViewById(R.id.mr_control_title);
         mSubtitleView = (TextView) findViewById(R.id.mr_control_subtitle);
         mPlayPauseButton = (ImageButton) findViewById(R.id.mr_control_play_pause);
         mPlayPauseButton.setOnClickListener(listener);
 
-        mVolumeControl = (LinearLayout) findViewById(R.id.mr_volume_control);
+        mVolumeControlLayout = (LinearLayout) findViewById(R.id.mr_volume_control);
         mVolumeSlider = (SeekBar) findViewById(R.id.mr_volume_slider);
         mVolumeSlider.setTag(VOLUME_SLIDER_TAG_MASTER);
         mVolumeChangeListener = new VolumeChangeListener();
@@ -441,11 +441,11 @@ public class MediaRouteControllerDialog extends AlertDialog {
             mFetchArtTask = new FetchArtTask();
             mFetchArtTask.execute();
         }
-        updateVolumeControl();
-        updatePlaybackControl();
+        updateVolumeControlLayout();
+        updatePlaybackControlLayout();
     }
 
-    private boolean isPlaybackControlLayoutNeeded() {
+    private boolean canShowPlaybackControlLayout() {
         // If a route does not support remote playback, it means that the route is dedicated for
         // audio or video mirroring such as A2DP speaker or headset. In this case, the route
         // provider does not provide any playback information such as metadata or playback status.
@@ -462,29 +462,29 @@ public class MediaRouteControllerDialog extends AlertDialog {
      */
     private int getMainControllerHeight(boolean showPlaybackControl) {
         int height = 0;
-        if (showPlaybackControl || mVolumeControl.getVisibility() == View.VISIBLE) {
+        if (showPlaybackControl || mVolumeControlLayout.getVisibility() == View.VISIBLE) {
             height += mMediaMainControlLayout.getPaddingTop()
                     + mMediaMainControlLayout.getPaddingBottom();
             if (showPlaybackControl) {
-                height +=  mPlaybackControl.getMeasuredHeight();
+                height +=  mPlaybackControlLayout.getMeasuredHeight();
             }
-            if (mVolumeControl.getVisibility() == View.VISIBLE) {
-                height += mVolumeControl.getMeasuredHeight();
+            if (mVolumeControlLayout.getVisibility() == View.VISIBLE) {
+                height += mVolumeControlLayout.getMeasuredHeight();
             }
-            if (showPlaybackControl && mVolumeControl.getVisibility() == View.VISIBLE) {
+            if (showPlaybackControl && mVolumeControlLayout.getVisibility() == View.VISIBLE) {
                 height += mDividerView.getMeasuredHeight();
             }
         }
         return height;
     }
 
-    private void updateMediaControlVisibility(boolean showPlaybackControl) {
+    private void updateMediaControlVisibility(boolean canShowPlaybackControlLayout) {
         // TODO: Update the top and bottom padding of the control layout according to the display
         // height.
-        mDividerView.setVisibility((mVolumeControl.getVisibility() == View.VISIBLE
-                && showPlaybackControl) ? View.VISIBLE : View.GONE);
-        mMediaMainControlLayout.setVisibility((mVolumeControl.getVisibility() == View.GONE
-                && !showPlaybackControl) ? View.GONE : View.VISIBLE);
+        mDividerView.setVisibility((mVolumeControlLayout.getVisibility() == View.VISIBLE
+                && canShowPlaybackControlLayout) ? View.VISIBLE : View.GONE);
+        mMediaMainControlLayout.setVisibility((mVolumeControlLayout.getVisibility() == View.GONE
+                && !canShowPlaybackControlLayout) ? View.GONE : View.VISIBLE);
     }
 
     private void updateLayoutHeight() {
@@ -508,7 +508,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         // Measure the size of widgets and get the height of main components.
         int oldHeight = getLayoutHeight(mMediaMainControlLayout);
         setLayoutHeight(mMediaMainControlLayout, ViewGroup.LayoutParams.FILL_PARENT);
-        updateMediaControlVisibility(isPlaybackControlLayoutNeeded());
+        updateMediaControlVisibility(canShowPlaybackControlLayout());
         View decorView = getWindow().getDecorView();
         decorView.measure(
                 MeasureSpec.makeMeasureSpec(getWindow().getAttributes().width, MeasureSpec.EXACTLY),
@@ -523,7 +523,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                         ? ImageView.ScaleType.FIT_XY : ImageView.ScaleType.FIT_CENTER);
             }
         }
-        int mainControllerHeight = getMainControllerHeight(isPlaybackControlLayoutNeeded());
+        int mainControllerHeight = getMainControllerHeight(canShowPlaybackControlLayout());
         int volumeGroupListCount = mVolumeGroupList.getAdapter() != null
                 ? mVolumeGroupList.getAdapter().getCount() : 0;
         // Scale down volume group list items in landscape mode.
@@ -563,15 +563,15 @@ public class MediaRouteControllerDialog extends AlertDialog {
             desiredControlLayoutHeight = visibleGroupListHeight + mainControllerHeight;
         }
         // Show the playback control if it fits the screen.
-        if (isPlaybackControlLayoutNeeded()
+        if (canShowPlaybackControlLayout()
                 && desiredControlLayoutHeight <= maximumControlViewHeight) {
-            mPlaybackControl.setVisibility(View.VISIBLE);
+            mPlaybackControlLayout.setVisibility(View.VISIBLE);
         } else {
-            mPlaybackControl.setVisibility(View.GONE);
+            mPlaybackControlLayout.setVisibility(View.GONE);
         }
-        updateMediaControlVisibility(mPlaybackControl.getVisibility() == View.VISIBLE);
+        updateMediaControlVisibility(mPlaybackControlLayout.getVisibility() == View.VISIBLE);
         mainControllerHeight = getMainControllerHeight(
-                mPlaybackControl.getVisibility() == View.VISIBLE);
+                mPlaybackControlLayout.getVisibility() == View.VISIBLE);
         desiredControlLayoutHeight =
                 Math.max(artViewHeight, visibleGroupListHeight) + mainControllerHeight;
 
@@ -641,10 +641,10 @@ public class MediaRouteControllerDialog extends AlertDialog {
         view.startAnimation(anim);
     }
 
-    private void updateVolumeControl() {
+    private void updateVolumeControlLayout() {
         if (!mVolumeSliderTouched) {
             if (isVolumeControlAvailable(mRoute)) {
-                mVolumeControl.setVisibility(View.VISIBLE);
+                mVolumeControlLayout.setVisibility(View.VISIBLE);
                 mVolumeSlider.setMax(mRoute.getVolumeMax());
                 mVolumeSlider.setProgress(mRoute.getVolume());
                 if (getGroup() == null) {
@@ -658,10 +658,10 @@ public class MediaRouteControllerDialog extends AlertDialog {
                     }
                 }
             } else {
-                mVolumeControl.setVisibility(View.GONE);
+                mVolumeControlLayout.setVisibility(View.GONE);
             }
             updateLayoutHeight();
-        } else if (mVolumeControl.getVisibility() == View.VISIBLE) {
+        } else if (mVolumeControlLayout.getVisibility() == View.VISIBLE) {
             mVolumeSlider.setProgress(mRoute.getVolume());
             if (mIsGroupExpanded) {
                 for (int i = 0; i < mVolumeGroupList.getChildCount(); ++i) {
@@ -681,8 +681,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
         }
     }
 
-    private void updatePlaybackControl() {
-        if (isPlaybackControlLayoutNeeded()) {
+    private void updatePlaybackControlLayout() {
+        if (canShowPlaybackControlLayout()) {
             CharSequence title = mDescription == null ? null : mDescription.getTitle();
             boolean hasTitle = !TextUtils.isEmpty(title);
 
@@ -793,7 +793,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         @Override
         public void onRouteVolumeChanged(MediaRouter router, MediaRouter.RouteInfo route) {
             if (route == mRoute) {
-                updateVolumeControl();
+                updateVolumeControlLayout();
             }
         }
     }
@@ -863,7 +863,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
             public void run() {
                 if (mVolumeSliderTouched) {
                     mVolumeSliderTouched = false;
-                    updateVolumeControl();
+                    updateVolumeControlLayout();
                 }
             }
         };
