@@ -20,6 +20,7 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
+import android.test.UiThreadTest;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.View;
@@ -83,6 +84,27 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         mGlm.expectLayout(1);
         setRecyclerView(recyclerView);
         mGlm.waitForLayout(2);
+    }
+
+    @UiThreadTest
+    public void testScrollWithoutLayout() throws Throwable {
+        final RecyclerView recyclerView = setupBasic(new Config(3, 100));
+        mGlm.expectLayout(1);
+        setRecyclerView(recyclerView);
+        mGlm.setSpanCount(5);
+        recyclerView.scrollBy(0, 10);
+    }
+
+    public void testScrollWithoutLayoutAfterInvalidate() throws Throwable {
+        final RecyclerView recyclerView = setupBasic(new Config(3, 100));
+        waitForFirstLayout(recyclerView);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGlm.setSpanCount(5);
+                recyclerView.scrollBy(0, 10);
+            }
+        });
     }
 
     public void testPredictiveSpanLookup1() throws Throwable {
