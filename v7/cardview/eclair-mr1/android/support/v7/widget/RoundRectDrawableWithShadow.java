@@ -131,8 +131,13 @@ class RoundRectDrawableWithShadow extends Drawable {
     }
 
     void setShadowSize(float shadowSize, float maxShadowSize) {
-        if (shadowSize < 0 || maxShadowSize < 0) {
-            throw new IllegalArgumentException("invalid shadow size");
+        if (shadowSize < 0f) {
+            throw new IllegalArgumentException("Invalid shadow size " + shadowSize +
+                    ". Must be >= 0");
+        }
+        if (maxShadowSize < 0f) {
+            throw new IllegalArgumentException("Invalid max shadow size " + maxShadowSize +
+                    ". Must be >= 0");
         }
         shadowSize = toEven(shadowSize);
         maxShadowSize = toEven(maxShadowSize);
@@ -194,6 +199,10 @@ class RoundRectDrawableWithShadow extends Drawable {
     }
 
     void setCornerRadius(float radius) {
+        if (radius < 0f) {
+            throw new IllegalArgumentException("Invalid radius " + radius +
+                ". Must be >= 0");
+        }
         radius = (int) (radius + .5f);
         if (mCornerRadius == radius) {
             return;
