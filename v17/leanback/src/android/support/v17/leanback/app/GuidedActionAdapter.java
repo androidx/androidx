@@ -305,9 +305,9 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
                     break;
                 }
             }
-            if (nextActionId == GuidedAction.ACTION_ID_NEXT) {
+            do {
                 i++;
-            }
+            } while (i < size && !mActions.get(i).isFocusable());
             return (i == size) ? -1 : i;
         } else {
             int i, size = mActions.size();
