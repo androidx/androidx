@@ -3124,6 +3124,7 @@ package android.support.v4.widget {
     method public void setStatusBarBackgroundColor(int);
     field public static final int LOCK_MODE_LOCKED_CLOSED = 1; // 0x1
     field public static final int LOCK_MODE_LOCKED_OPEN = 2; // 0x2
+    field public static final int LOCK_MODE_UNDEFINED = 3; // 0x3
     field public static final int LOCK_MODE_UNLOCKED = 0; // 0x0
     field public static final int STATE_DRAGGING = 1; // 0x1
     field public static final int STATE_IDLE = 0; // 0x0
