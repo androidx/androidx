@@ -91,4 +91,8 @@ class TextViewCompatDonut {
         }
         return -1;
     }
+
+    static void setTextAppearance(TextView textView, int resId) {
+        textView.setTextAppearance(textView.getContext(), resId);
+    }
 }
