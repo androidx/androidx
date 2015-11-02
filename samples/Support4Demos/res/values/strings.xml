@@ -156,19 +156,6 @@
 
     <string name="sample_transport_controller_activity">Media/TransportController</string>
 
-    <string name="drawer_layout_support">Widget/Drawer layout</string>
-
-    <string name="drawer_layout_summary">This activity illustrates the use of sliding drawers. The drawer may be pulled out from the starting edge, which is left on left-to-right locales, with an edge swipe. If this demo is running on Ice Cream Sandwich or newer you may tap the icon at the starting side of the action bar to open the drawer as well.</string>
-
-    <!-- Title of the navigation drawer, used by accessibility to announce state changes. -->
-    <string name="drawer_title">Navigation</string>
-
-    <!-- Description of the icon that opens the navigation drawer, used by accessibility. -->
-    <string name="drawer_open">Open navigation drawer</string>
-
-    <!-- Description of the icon that closes the navigation drawer, used by accessibility. -->
-    <string name="drawer_close">Close navigation drawer</string>
-
     <string name="sliding_pane_layout_support">Widget/Sliding pane layout</string>
 
     <string name="sliding_pane_layout_summary">This activity illustrates the use of sliding panes. The content pane may be slid to one side on narrow devices to reveal the left pane used to select content. Sliding panes can be used to fit a UI intended for wider screens in a smaller space. Tapping the Action Bar\'s Up button at the left side of the bar will navigate up in the hierarchy, represented by the left pane. If you rotate the device to landscape mode, on most devices you will see that both panes fit together side by side with no sliding necessary.</string>
