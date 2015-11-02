@@ -104,24 +104,6 @@
     <string name="action_bar_fragment_has_options_menu">Set has options menu to true</string>
     <string name="action_bar_fragment_menu_visibility">Set menu visibility to true</string>
 
-    <!-- actionbar w/ drawer layout -->
-    <string name="drawer_layout_support">Widget/Drawer layout</string>
-
-    <string name="drawer_layout_summary">This activity illustrates the use of sliding drawers. The
-        drawer may be pulled out from the starting edge, which is left on left-to-right locales,
-        with an edge swipe. If this demo is running on Ice Cream Sandwich or newer you may tap the
-        icon at the starting side of the action bar to open the drawer as well.
-    </string>
-
-    <!-- Title of the navigation drawer, used by accessibility to announce state changes. -->
-    <string name="drawer_title">Navigation</string>
-
-    <!-- Description of the icon that opens the navigation drawer, used by accessibility. -->
-    <string name="drawer_open">Open navigation drawer</string>
-
-    <!-- Description of the icon that closes the navigation drawer, used by accessibility. -->
-    <string name="drawer_close">Close navigation drawer</string>
-
     <string name="sliding_pane_layout_support">Widget/Sliding pane layout</string>
 
     <string name="sliding_pane_layout_summary">This activity illustrates the use of sliding panes.
