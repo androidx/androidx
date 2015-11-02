@@ -24,8 +24,8 @@ import android.graphics.drawable.Drawable;
 class DrawableCompatApi22 {
 
     public static Drawable wrapForTinting(Drawable drawable) {
-        // We don't need to wrap anything in Lollipop-MR1
-        return drawable;
+        // We need to wrap to force an invalidation on any state change
+        return new DrawableWrapperLollipop(drawable);
     }
 
 }
