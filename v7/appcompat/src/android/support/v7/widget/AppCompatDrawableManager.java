@@ -621,9 +621,9 @@ public final class AppCompatDrawableManager {
             drawable.clearColorFilter();
         }
 
-        if (Build.VERSION.SDK_INT <= 10) {
-            // On Gingerbread, GradientDrawable does not invalidate itself when it's
-            // ColorFilter has changed, so we need to force an invalidation
+        if (Build.VERSION.SDK_INT <= 23) {
+            // Pre-v23 there is no guarantee that a state change will invoke an invalidation,
+            // so we force it ourselves
             drawable.invalidateSelf();
         }
     }
