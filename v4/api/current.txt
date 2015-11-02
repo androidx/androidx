@@ -3415,6 +3415,7 @@ package android.support.v4.widget {
     method public static void setCompoundDrawablesRelative(android.widget.TextView, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable);
     method public static void setCompoundDrawablesRelativeWithIntrinsicBounds(android.widget.TextView, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable);
     method public static void setCompoundDrawablesRelativeWithIntrinsicBounds(android.widget.TextView, int, int, int, int);
+    method public static void setTextAppearance(android.widget.TextView, int);
   }
 
   public abstract interface TintableCompoundButton {
