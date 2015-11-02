@@ -16,15 +16,24 @@
 
 package android.support.v4.graphics.drawable;
 
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Outline;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 
 class DrawableWrapperLollipop extends DrawableWrapperKitKat {
 
+    private final boolean mUseCompatTinting;
+
     DrawableWrapperLollipop(Drawable drawable) {
+        this(drawable, false);
+    }
+
+    DrawableWrapperLollipop(Drawable drawable, boolean useCompatTinting) {
         super(drawable);
+        mUseCompatTinting = useCompatTinting;
     }
 
     @Override
@@ -55,5 +64,48 @@ class DrawableWrapperLollipop extends DrawableWrapperKitKat {
     @Override
     public Rect getDirtyBounds() {
         return mDrawable.getDirtyBounds();
+    }
+
+    @Override
+    public void setTintList(ColorStateList tint) {
+        if (mUseCompatTinting) {
+            setCompatTintList(tint);
+        } else {
+            mDrawable.setTintList(tint);
+        }
+    }
+
+    @Override
+    public void setTint(int tintColor) {
+        if (mUseCompatTinting) {
+            setCompatTint(tintColor);
+        } else {
+            mDrawable.setTint(tintColor);
+        }
+    }
+
+    @Override
+    public void setTintMode(PorterDuff.Mode tintMode) {
+        if (mUseCompatTinting) {
+            setCompatTintMode(tintMode);
+        } else {
+            mDrawable.setTintMode(tintMode);
+        }
+    }
+
+    @Override
+    public boolean setState(int[] stateSet) {
+        if (super.setState(stateSet)) {
+            // Manually invalidate because the framework doesn't currently force an invalidation
+            // on a state change
+            invalidateSelf();
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    protected boolean isCompatTintEnabled() {
+        return mUseCompatTinting;
     }
 }
