@@ -288,8 +288,8 @@ public class MediaSessionCompat {
      * <p>
      * On platforms earlier than
      * {@link android.os.Build.VERSION_CODES#LOLLIPOP},
-     * {@link #setMediaButtonReceiver(PendingIntent)} must be called before
-     * setting this to true.
+     * a media button event receiver should be set via the constructor to
+     * receive media button events.
      *
      * @param active Whether this session is active or not.
      */
