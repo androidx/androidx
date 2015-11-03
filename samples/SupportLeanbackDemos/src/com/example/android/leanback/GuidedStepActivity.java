@@ -206,6 +206,10 @@ public class GuidedStepActivity extends Activity {
                     "Input credit card number", "Input credit card number");
             addEditableDescriptionAction(actions, PASSWORD, "Password", "", "",
                     InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        }
+
+        @Override
+        public void onCreateButtonActions(List<GuidedAction> actions, Bundle savedInstanceState) {
             actions.add(new GuidedAction.Builder().constructContinue(getActivity())
                     .description("Continue")
                     .build());
@@ -265,8 +269,9 @@ public class GuidedStepActivity extends Activity {
         }
 
         void updateContinue(boolean enabled) {
-            findActionById(GuidedAction.ACTION_ID_CONTINUE).setEnabled(enabled);
-            notifyActionChanged(findActionPositionById(GuidedAction.ACTION_ID_CONTINUE));
+            findButtonActionById(GuidedAction.ACTION_ID_CONTINUE).setEnabled(enabled);
+            notifyButtonActionChanged(findButtonActionPositionById(
+                    GuidedAction.ACTION_ID_CONTINUE));
         }
     }
 
@@ -312,6 +317,10 @@ public class GuidedStepActivity extends Activity {
                     actions.get(actions.size() -1).setChecked(true);
                 }
             }
+        }
+
+        @Override
+        public void onCreateButtonActions(List<GuidedAction> actions, Bundle savedInstanceState) {
             actions.add(new GuidedAction.Builder().constructContinue(getActivity())
                     .build());
         }
