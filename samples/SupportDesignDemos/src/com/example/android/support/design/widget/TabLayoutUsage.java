@@ -21,8 +21,6 @@ import com.example.android.support.design.R;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
-import android.support.design.widget.TabLayout.TabLayoutOnPageChangeListener;
-import android.support.design.widget.TabLayout.ViewPagerOnTabSelectedListener;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -46,6 +44,8 @@ public class TabLayoutUsage extends AppCompatActivity {
     private ViewPager mViewPager;
     private CheesePagerAdapter mPagerAdapter;
 
+    private final Random mRandom = new Random();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,50 +57,29 @@ public class TabLayoutUsage extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mTabLayout = (TabLayout) findViewById(R.id.tabs);
-
         mViewPager = (ViewPager) findViewById(R.id.tabs_viewpager);
+
         mPagerAdapter = new CheesePagerAdapter();
         mViewPager.setAdapter(mPagerAdapter);
-        mViewPager.setOnPageChangeListener(new TabLayoutOnPageChangeListener(mTabLayout));
-        mTabLayout.setOnTabSelectedListener(new ViewPagerOnTabSelectedListener(mViewPager));
 
-        setupButtons();
+        mTabLayout.setupWithViewPager(mViewPager);
+
         setupRadioGroup();
     }
 
-    private void setupButtons() {
-        findViewById(R.id.btn_add_tab).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                addRandomTab();
-            }
-        });
-
-        findViewById(R.id.btn_remove_tab).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mTabLayout.getTabCount() >= 1) {
-                    mTabLayout.removeTabAt(mTabLayout.getTabCount() - 1);
-                    mPagerAdapter.removeTab();
-                }
-            }
-        });
-
-        findViewById(R.id.btn_select_first_tab).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mTabLayout.getTabCount() > 0) {
-                    mViewPager.setCurrentItem(0);
-                }
-            }
-        });
+    public void addTab(View view) {
+        String cheese = Cheeses.sCheeseStrings[mRandom.nextInt(Cheeses.sCheeseStrings.length)];
+        mPagerAdapter.addTab(cheese);
     }
 
-    private void addRandomTab() {
-        Random r = new Random();
-        String cheese = Cheeses.sCheeseStrings[r.nextInt(Cheeses.sCheeseStrings.length)];
-        mTabLayout.addTab(mTabLayout.newTab().setText(cheese));
-        mPagerAdapter.addTab(cheese);
+    public void selectFirstTab(View view) {
+        if (mTabLayout.getTabCount() > 0) {
+            mViewPager.setCurrentItem(0);
+        }
+    }
+
+    public void removeTab(View view) {
+        mPagerAdapter.removeTab();
     }
 
     private void setupRadioGroup() {
@@ -156,7 +135,6 @@ public class TabLayoutUsage extends AppCompatActivity {
     }
 
     private static class CheesePagerAdapter extends PagerAdapter {
-
         private final ArrayList<CharSequence> mCheeses = new ArrayList<>();
 
         public void addTab(String title) {
@@ -177,21 +155,31 @@ public class TabLayoutUsage extends AppCompatActivity {
         }
 
         @Override
+        public int getItemPosition(Object object) {
+            final Item item = (Item) object;
+            final int index = mCheeses.indexOf(item.cheese);
+            return index >= 0 ? index : POSITION_NONE;
+        }
+
+        @Override
         public Object instantiateItem(ViewGroup container, int position) {
-            TextView tv = new TextView(container.getContext());
+            final TextView tv = new TextView(container.getContext());
             tv.setText(getPageTitle(position));
             tv.setGravity(Gravity.CENTER);
             tv.setTextAppearance(tv.getContext(), R.style.TextAppearance_AppCompat_Title);
-
             container.addView(tv, ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT);
 
-            return tv;
+            Item item = new Item();
+            item.cheese = mCheeses.get(position);
+            item.view = tv;
+            return item;
         }
 
         @Override
         public boolean isViewFromObject(View view, Object object) {
-            return view == object;
+            final Item item = (Item) object;
+            return item.view == view;
         }
 
         @Override
@@ -201,7 +189,13 @@ public class TabLayoutUsage extends AppCompatActivity {
 
         @Override
         public void destroyItem(ViewGroup container, int position, Object object) {
-            container.removeView((View) object);
+            final Item item = (Item) object;
+            container.removeView(item.view);
+        }
+
+        private static class Item {
+            TextView view;
+            CharSequence cheese;
         }
     }
 

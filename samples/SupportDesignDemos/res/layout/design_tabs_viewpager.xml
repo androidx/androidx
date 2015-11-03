@@ -54,19 +54,22 @@
                 android:id="@+id/btn_add_tab"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/add_tab"/>
+                android:text="@string/add_tab"
+                android:onClick="addTab"/>
 
         <Button
                 android:id="@+id/btn_remove_tab"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/remove_tab"/>
+                android:text="@string/remove_tab"
+                android:onClick="removeTab"/>
 
         <Button
                 android:id="@+id/btn_select_first_tab"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/select_first_tab"/>
+                android:text="@string/select_first_tab"
+                android:onClick="selectFirstTab"/>
 
     </LinearLayout>
 
