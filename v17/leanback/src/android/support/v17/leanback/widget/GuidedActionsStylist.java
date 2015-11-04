@@ -468,6 +468,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         if (vh.mTitleView != null) {
             vh.mTitleView.setText(action.getTitle());
             vh.mTitleView.setAlpha(action.isEnabled() ? mEnabledTextAlpha : mDisabledTextAlpha);
+            vh.mTitleView.setFocusable(action.isEditable());
         }
         if (vh.mDescriptionView != null) {
             vh.mDescriptionView.setText(action.getDescription());
@@ -475,6 +476,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
                     View.GONE : View.VISIBLE);
             vh.mDescriptionView.setAlpha(action.isEnabled() ? mEnabledDescriptionAlpha :
                 mDisabledDescriptionAlpha);
+            vh.mDescriptionView.setFocusable(action.isDescriptionEditable());
         }
         // Clients might want the check mark view to be gone entirely, in which case, ignore it.
         if (vh.mCheckmarkView != null && vh.mCheckmarkView.getVisibility() != View.GONE) {

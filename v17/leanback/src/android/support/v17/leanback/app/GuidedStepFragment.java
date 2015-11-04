@@ -127,6 +127,7 @@ import java.util.List;
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionContentWidthWeightTwoPanels
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsBackground
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedButtonActionsBackground
+ * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsElevation
  * @see GuidanceStylist
  * @see GuidanceStylist.Guidance
  * @see GuidedAction
