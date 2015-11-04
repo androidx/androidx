@@ -34,7 +34,7 @@
         android:orientation="horizontal"
         android:clipToPadding="false"
         android:clipChildren="false"
-        android:paddingLeft="@dimen/lb_guidedactions_section_shadow_width"
+        android:paddingStart="@dimen/lb_guidedactions_section_shadow_width"
         android:layout_width="0dp"
         android:layout_weight="?attr/guidedActionContentWidthWeight"
         android:layout_height="match_parent"
@@ -47,7 +47,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="?attr/guidedActionsBackground"
-            android:elevation="@dimen/lb_guidedactions_elevation" />
+            android:elevation="?attr/guidedActionsElevation" />
 
         <android.support.v17.leanback.widget.NonOverlappingLinearLayout
             android:id="@+id/action_fragment"
