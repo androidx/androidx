@@ -591,6 +591,14 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     }
 
     /**
+     * Resets the view holder's view to unpressed state.
+     * @param vh The view holder associated with the relevant action.
+     */
+    public void onAnimateItemPressedCancelled(ViewHolder vh) {
+        createAnimator(vh.view, R.attr.guidedActionUnpressedAnimation).end();
+    }
+
+    /**
      * Animates the view holder's view (or subviews thereof) when the action has had its check
      * state changed.
      * @param vh The view holder associated with the relevant action.
