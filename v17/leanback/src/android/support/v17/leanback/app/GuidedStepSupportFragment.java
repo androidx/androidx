@@ -35,6 +35,7 @@ import android.support.v17.leanback.widget.GuidedAction;
 import android.support.v17.leanback.widget.GuidedActionsStylist;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
@@ -46,6 +47,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -123,6 +125,10 @@ import java.util.List;
  *
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepTheme
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepBackground
+ * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionContentWidthWeight
+ * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionContentWidthWeightTwoPanels
+ * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsBackground
+ * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedButtonActionsBackground
  * @see GuidanceStylist
  * @see GuidanceStylist.Guidance
  * @see GuidedAction
@@ -207,10 +213,13 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
     private ContextThemeWrapper mThemeWrapper;
     private GuidanceStylist mGuidanceStylist;
     private GuidedActionsStylist mActionsStylist;
+    private GuidedActionsStylist mButtonActionsStylist;
     private GuidedActionAdapter mAdapter;
-    private VerticalGridView mListView;
+    private GuidedActionAdapter mButtonAdapter;
     private List<GuidedAction> mActions = new ArrayList<GuidedAction>();
+    private List<GuidedAction> mButtonActions = new ArrayList<GuidedAction>();
     private int mSelectedIndex = -1;
+    private int mButtonSelectedIndex = -1;
 
     public GuidedStepSupportFragment() {
         // We need to supply the theme before any potential call to onInflate in order
@@ -218,6 +227,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
         mTheme = onProvideTheme();
         mGuidanceStylist = onCreateGuidanceStylist();
         mActionsStylist = onCreateActionsStylist();
+        mButtonActionsStylist = onCreateButtonActionsStylist();
         onProvideFragmentTransitions();
     }
 
@@ -236,6 +246,15 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
      * @return The GuidedActionsStylist used in this fragment.
      */
     public GuidedActionsStylist onCreateActionsStylist() {
+        return new GuidedActionsStylist();
+    }
+
+    /**
+     * Creates the presenter used to style a sided actions panel for button only.
+     * The default implementation returns a basic GuidedActionsStylist.
+     * @return The GuidedActionsStylist used in this fragment.
+     */
+    public GuidedActionsStylist onCreateButtonActionsStylist() {
         return new GuidedActionsStylist();
     }
 
@@ -268,6 +287,16 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
      * @param savedInstanceState The saved instance state from onCreate.
      */
     public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
+    }
+
+    /**
+     * Fills out the set of actions shown at right available to the user. This hook is called during
+     * {@link #onCreate}. The default leaves the list of actions empty; subclasses may override.
+     * @param actions A non-null, empty list ready to be populated.
+     * @param savedInstanceState The saved instance state from onCreate.
+     */
+    public void onCreateButtonActions(@NonNull List<GuidedAction> actions,
+            Bundle savedInstanceState) {
     }
 
     /**
@@ -504,6 +533,99 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
     }
 
     /**
+     * Returns the list of button GuidedActions that the user may take in this fragment.
+     * @return The list of button GuidedActions for this fragment.
+     */
+    public List<GuidedAction> getButtonActions() {
+        return mButtonActions;
+    }
+
+    /**
+     * Find button GuidedAction by Id.
+     * @param id  Id of the button action to search.
+     * @return  GuidedAction object or null if not found.
+     */
+    public GuidedAction findButtonActionById(long id) {
+        int index = findButtonActionPositionById(id);
+        return index >= 0 ? mButtonActions.get(index) : null;
+    }
+
+    /**
+     * Find button GuidedAction position in array by Id.
+     * @param id  Id of the button action to search.
+     * @return  position of GuidedAction object in array or -1 if not found.
+     */
+    public int findButtonActionPositionById(long id) {
+        if (mButtonActions != null) {
+            for (int i = 0; i < mButtonActions.size(); i++) {
+                GuidedAction action = mButtonActions.get(i);
+                if (mButtonActions.get(i).getId() == id) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Returns the GuidedActionsStylist that displays the button actions the user may take.
+     * @return The GuidedActionsStylist for this fragment.
+     */
+    public GuidedActionsStylist getGuidedButtonActionsStylist() {
+        return mButtonActionsStylist;
+    }
+
+    /**
+     * Sets the list of button GuidedActions that the user may take in this fragment.
+     * @param actions The list of button GuidedActions for this fragment.
+     */
+    public void setButtonActions(List<GuidedAction> actions) {
+        mButtonActions = actions;
+        if (mButtonAdapter != null) {
+            mButtonAdapter.setActions(mButtonActions);
+        }
+    }
+
+    /**
+     * Notify an button action has changed and update its UI.
+     * @param position Position of the button GuidedAction in array.
+     */
+    public void notifyButtonActionChanged(int position) {
+        if (mButtonAdapter != null) {
+            mButtonAdapter.notifyItemChanged(position);
+        }
+    }
+
+    /**
+     * Returns the view corresponding to the button action at the indicated position in the list of
+     * actions for this fragment.
+     * @param position The integer position of the button action of interest.
+     * @return The View corresponding to the button action at the indicated position, or null if
+     * that action is not currently onscreen.
+     */
+    public View getButtonActionItemView(int position) {
+        final RecyclerView.ViewHolder holder = mButtonActionsStylist.getActionsGridView()
+                    .findViewHolderForPosition(position);
+        return holder == null ? null : holder.itemView;
+    }
+
+    /**
+     * Scrolls the action list to the position indicated, selecting that button action's view.
+     * @param position The integer position of the button action of interest.
+     */
+    public void setSelectedButtonActionPosition(int position) {
+        mButtonActionsStylist.getActionsGridView().setSelectedPosition(position);
+    }
+
+    /**
+     * Returns the position if the currently selected button GuidedAction.
+     * @return position The integer position of the currently selected button action.
+     */
+    public int getSelectedButtonActionPosition() {
+        return mButtonActionsStylist.getActionsGridView().getSelectedPosition();
+    }
+
+    /**
      * Returns the list of GuidedActions that the user may take in this fragment.
      * @return The list of GuidedActions for this fragment.
      */
@@ -567,7 +689,9 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
      * action is not currently onscreen.
      */
     public View getActionItemView(int position) {
-        return mListView.findViewHolderForPosition(position).itemView;
+        final RecyclerView.ViewHolder holder = mActionsStylist.getActionsGridView()
+                    .findViewHolderForPosition(position);
+        return holder == null ? null : holder.itemView;
     }
 
     /**
@@ -575,7 +699,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
      * @param position The integer position of the action of interest.
      */
     public void setSelectedActionPosition(int position) {
-        mListView.setSelectedPosition(position);
+        mActionsStylist.getActionsGridView().setSelectedPosition(position);
     }
 
     /**
@@ -583,7 +707,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
      * @return position The integer position of the currently selected action.
      */
     public int getSelectedActionPosition() {
-        return mListView.getSelectedPosition();
+        return mActionsStylist.getActionsGridView().getSelectedPosition();
     }
 
     /**
@@ -604,18 +728,25 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
         if (Build.VERSION.SDK_INT >= 21) {
             if (getUiStyle() == UI_STYLE_DEFAULT) {
                 Object enterTransition = TransitionHelper.createFadeAndShortSlide(Gravity.END);
-                TransitionHelper.exclude(enterTransition, R.id.guidedactions_background, true);
+                TransitionHelper.exclude(enterTransition, R.id.action_fragment_background, true);
+                TransitionHelper.exclude(enterTransition, R.id.guided_button_actions_background,
+                        true);
                 TransitionHelper.exclude(enterTransition, R.id.guidedactions_selector, true);
                 TransitionHelper.setEnterTransition(this, enterTransition);
                 Object exitTransition = TransitionHelper.createFadeAndShortSlide(Gravity.START);
-                TransitionHelper.exclude(exitTransition, R.id.guidedactions_background, true);
+                TransitionHelper.exclude(exitTransition, R.id.action_fragment_background, true);
+                TransitionHelper.exclude(exitTransition, R.id.guided_button_actions_background,
+                        true);
                 TransitionHelper.exclude(exitTransition, R.id.guidedactions_selector, true);
                 TransitionHelper.setExitTransition(this, exitTransition);
             } else if (getUiStyle() == UI_STYLE_ENTRANCE) {
                 Object enterTransition = TransitionHelper.createFadeAndShortSlide(Gravity.END |
                         Gravity.START);
                 TransitionHelper.include(enterTransition, R.id.content_fragment);
-                TransitionHelper.include(enterTransition, R.id.action_fragment);
+                TransitionHelper.include(enterTransition, R.id.action_fragment_background);
+                TransitionHelper.include(enterTransition, R.id.guided_button_actions_background);
+                TransitionHelper.include(enterTransition, R.id.guidedactions_selector);
+                TransitionHelper.include(enterTransition, R.id.guidedactions_list);
                 TransitionHelper.setEnterTransition(this, enterTransition);
                 // exit transition is unchanged, same as UI_STYLE_DEFAULT
             } else if (getUiStyle() == UI_STYLE_ACTIVITY_ROOT) {
@@ -755,8 +886,23 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
                 mSelectedIndex = state.getInt(EXTRA_ACTION_SELECTED_INDEX, -1);
             }
         }
-        mActions.clear();
-        onCreateActions(mActions, savedInstanceState);
+        ArrayList<GuidedAction> actions = new ArrayList<GuidedAction>();
+        onCreateActions(actions, savedInstanceState);
+        setActions(actions);
+        ArrayList<GuidedAction> buttonActions = new ArrayList<GuidedAction>();
+        onCreateButtonActions(buttonActions, savedInstanceState);
+        setButtonActions(buttonActions);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onDestroyView() {
+        mGuidanceStylist.onDestroyView();
+        mActionsStylist.onDestroyView();
+        mButtonActionsStylist.onDestroyView();
+        super.onDestroyView();
     }
 
     /**
@@ -781,6 +927,13 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
         View actionsView = mActionsStylist.onCreateView(inflater, actionContainer);
         actionContainer.addView(actionsView);
 
+        View buttonActionsView = mButtonActionsStylist.onCreateView(inflater, actionContainer);
+        actionContainer.addView(buttonActionsView);
+        View bg = buttonActionsView.findViewById(R.id.guided_button_actions_background);
+        if (bg != null) {
+            bg.setVisibility(View.VISIBLE);
+        }
+
         GuidedActionAdapter.EditListener editListener = new GuidedActionAdapter.EditListener() {
 
                 @Override
@@ -799,15 +952,42 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
                 }
         };
 
-        mAdapter = new GuidedActionAdapter(mActions, this, this, editListener, mActionsStylist);
+        mAdapter = new GuidedActionAdapter(mActions, this, this, editListener,
+                mActionsStylist);
+        mButtonAdapter = new GuidedActionAdapter(mButtonActions, this, this, editListener,
+                mButtonActionsStylist);
 
-        mListView = mActionsStylist.getActionsGridView();
-        mListView.setAdapter(mAdapter);
+        mActionsStylist.getActionsGridView().setAdapter(mAdapter);
+        mButtonActionsStylist.getActionsGridView().setAdapter(mButtonAdapter);
+        if (mButtonActions.size() == 0) {
+            buttonActionsView.setVisibility(View.GONE);
+        } else {
+            Context ctx = mThemeWrapper != null ? mThemeWrapper : getActivity();
+            TypedValue typedValue = new TypedValue();
+            if (ctx.getTheme().resolveAttribute(R.attr.guidedActionContentWidthWeightTwoPanels,
+                    typedValue, true)) {
+                View actionsRoot = v.findViewById(R.id.action_fragment_root);
+                float weight = typedValue.getFloat();
+                LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) actionsRoot
+                        .getLayoutParams();
+                lp.weight = weight;
+                actionsRoot.setLayoutParams(lp);
+            }
+        }
+
         int pos = (mSelectedIndex >= 0 && mSelectedIndex < mActions.size()) ?
                 mSelectedIndex : getFirstCheckedAction();
-        mListView.setSelectedPosition(pos);
+        setSelectedActionPosition(pos);
+
+        setSelectedButtonActionPosition(0);
 
         return v;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mActionsStylist.getActionsGridView().requestFocus();
     }
 
     /**
@@ -817,7 +997,8 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(EXTRA_ACTION_SELECTED_INDEX,
-                (mListView != null) ? getSelectedActionPosition() : mSelectedIndex);
+                (mActionsStylist.getActionsGridView() != null) ?
+                        getSelectedActionPosition() : mSelectedIndex);
     }
 
     private static boolean isGuidedStepTheme(Context context) {
@@ -929,9 +1110,11 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
         if (entering) {
             mGuidanceStylist.onImeAppearing(animators);
             mActionsStylist.onImeAppearing(animators);
+            mButtonActionsStylist.onImeAppearing(animators);
         } else {
             mGuidanceStylist.onImeDisappearing(animators);
             mActionsStylist.onImeDisappearing(animators);
+            mButtonActionsStylist.onImeDisappearing(animators);
         }
         AnimatorSet set = new AnimatorSet();
         set.playTogether(animators);
