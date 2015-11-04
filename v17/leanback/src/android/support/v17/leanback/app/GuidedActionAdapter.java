@@ -358,7 +358,6 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
         @Override
         public void onFocusChange(View v, boolean hasFocus) {
             ActionViewHolder avh = (ActionViewHolder)mRecyclerView.getChildViewHolder(v);
-            mStylist.onAnimateItemFocused(avh.mStylistViewHolder, hasFocus);
             if (hasFocus) {
                 mSelectedView = v;
                 if (mFocusListener != null) {
@@ -368,10 +367,11 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
                 }
             } else {
                 if (mSelectedView == v) {
-                    mStylist.onAnimateItemPressed(avh.mStylistViewHolder, false);
+                    mStylist.onAnimateItemPressedCancelled(avh.mStylistViewHolder);
                     mSelectedView = null;
                 }
             }
+            mStylist.onAnimateItemFocused(avh.mStylistViewHolder, hasFocus);
         }
     }
 
