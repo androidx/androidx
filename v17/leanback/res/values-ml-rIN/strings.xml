@@ -46,4 +46,6 @@ limitations under the License.
     <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"ഉയർന്ന നിലവാരം പ്രവർത്തനരഹിതമാക്കുക"</string>
     <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"അടച്ച അടിക്കുറിപ്പ് നൽകൽ പ്രവർത്തനക്ഷമമാക്കുക"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"അടച്ച അടിക്കുറിപ്പ് നൽകൽ പ്രവർത്തനരഹിതമാക്കുക"</string>
+    <string name="lb_guidedaction_finish_title" msgid="4015190340667946245">"പൂര്‍ത്തിയാക്കുക"</string>
+    <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"തുടരുക"</string>
 </resources>

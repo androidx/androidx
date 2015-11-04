@@ -46,4 +46,6 @@ limitations under the License.
     <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"ಹೆಚ್ಚು ಗುಣಮಟ್ಟವನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ"</string>
     <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"ಮುಚ್ಚಿದ ಶೀರ್ಷಿಕೆಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"ಮುಚ್ಚಿದ ಶೀರ್ಷಿಕೆಯನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ"</string>
+    <string name="lb_guidedaction_finish_title" msgid="4015190340667946245">"ಪೂರ್ಣಗೊಳಿಸು"</string>
+    <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"ಮುಂದುವರಿಸು"</string>
 </resources>
