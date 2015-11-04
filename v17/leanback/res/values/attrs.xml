@@ -352,6 +352,10 @@
              {@link android.support.v17.leanback.R.style#Widget_Leanback_GuidedActionsSelectorStyle}. -->
         <attr name="guidedActionsSelectorStyle" format="reference" />
 
+        <!-- Theme attribute for the shadow elevation of GuidedActions. Default is
+             {@link android.support.v17.leanback.R.dimen#lb_guidedactions_elevation}.-->
+        <attr name="guidedActionsElevation" format="dimension|reference" />
+
         <!-- Theme attribute for the background of GuidedActions. Default is
              {@link android.support.v17.leanback.R.color#lb_guidedactions_background}.-->
         <attr name="guidedActionsBackground" format="reference" />
