@@ -20,7 +20,7 @@ limitations under the License.
     <string name="orb_search_action" msgid="5651268540267663887">"செயலைத் தேடுக"</string>
     <string name="lb_search_bar_hint" msgid="8325490927970116252">"தேடு"</string>
     <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"தேட, பேசவும்"</string>
-    <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> ஐத் தேடுக"</string>
+    <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> இல் தேடுக"</string>
     <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> ஐத் தேட, பேசவும்"</string>
     <string name="lb_control_display_fast_forward_multiplier" msgid="4541442045214207774">"%1$dX"</string>
     <string name="lb_control_display_rewind_multiplier" msgid="3097220783222910245">"%1$dX"</string>
@@ -46,4 +46,6 @@ limitations under the License.
     <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"உயர் தரத்தை முடக்கு"</string>
     <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"விரிவான வசனங்களை இயக்கு"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"விரிவான வசனங்களை முடக்கு"</string>
+    <string name="lb_guidedaction_finish_title" msgid="4015190340667946245">"முடி"</string>
+    <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"தொடர்க"</string>
 </resources>
