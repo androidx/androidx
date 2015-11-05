@@ -305,14 +305,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".widget.DrawerLayoutActivity"
-                  android:label="@string/drawer_layout_support">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
         <activity android:name=".widget.SwipeRefreshLayoutActivity"
                   android:label="@string/swipe"
                   android:theme="@style/ThemeHoloLight">
