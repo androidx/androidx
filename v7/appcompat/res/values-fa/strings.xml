@@ -16,7 +16,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="abc_action_mode_done" msgid="4076576682505996667">"انجام شد"</string>
+    <string name="abc_action_mode_done" msgid="4076576682505996667">"تمام"</string>
     <string name="abc_action_bar_home_description" msgid="4600421777120114993">"پیمایش به صفحه اصلی"</string>
     <string name="abc_action_bar_up_description" msgid="1594238315039666878">"پیمایش به بالا"</string>
     <string name="abc_action_menu_overflow_description" msgid="3588849162933574182">"گزینه‌های بیشتر"</string>
@@ -34,4 +34,6 @@
     <string name="abc_shareactionprovider_share_with_application" msgid="7165123711973476752">"‏اشتراک‌گذاری با %s"</string>
     <string name="abc_shareactionprovider_share_with" msgid="3421042268587513524">"اشتراک‌گذاری با"</string>
     <string name="status_bar_notification_info_overflow" msgid="2869576371154716097">"۹۹۹+"</string>
+    <string name="abc_capital_on" msgid="3405795526292276155">"روشن"</string>
+    <string name="abc_capital_off" msgid="121134116657445385">"خاموش"</string>
 </resources>
