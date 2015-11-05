@@ -34,4 +34,6 @@
     <string name="abc_shareactionprovider_share_with_application" msgid="7165123711973476752">"%s аркылуу бөлүшүү"</string>
     <string name="abc_shareactionprovider_share_with" msgid="3421042268587513524">"Бөлүшүү"</string>
     <string name="status_bar_notification_info_overflow" msgid="2869576371154716097">"999+"</string>
+    <string name="abc_capital_on" msgid="3405795526292276155">"КҮЙҮК"</string>
+    <string name="abc_capital_off" msgid="121134116657445385">"ӨЧҮК"</string>
 </resources>
