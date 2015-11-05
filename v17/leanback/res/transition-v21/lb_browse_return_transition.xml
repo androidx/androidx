@@ -18,7 +18,7 @@
   <slide
       android:interpolator="@android:interpolator/fast_out_linear_in"
       android:duration="350"
-      android:slideEdge="left">
+      android:slideEdge="@integer/slideEdgeStart">
       <targets>
           <target android:targetId="@id/browse_headers_root" />
           <target android:targetId="@id/title_orb" />
@@ -27,7 +27,7 @@
   <slide
       android:interpolator="@android:interpolator/fast_out_linear_in"
       android:duration="350"
-      android:slideEdge="right">
+      android:slideEdge="@integer/slideEdgeEnd">
       <targets>
           <target android:excludeId="@+id/browse_headers_root" />
           <target android:excludeId="@+id/title_orb" />
