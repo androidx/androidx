@@ -270,6 +270,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
     @Override
     public void onStopNestedScroll(View target) {
+        mParentHelper.onStopNestedScroll(target);
         stopNestedScroll();
     }
 
