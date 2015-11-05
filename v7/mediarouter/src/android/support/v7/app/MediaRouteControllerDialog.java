@@ -18,6 +18,7 @@ package android.support.v7.app;
 
 import static android.widget.SeekBar.OnSeekBarChangeListener;
 
+import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Resources;
@@ -308,7 +309,27 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mCloseButton.setOnClickListener(listener);
         mCustomControlLayout = (FrameLayout) findViewById(R.id.mr_custom_control);
         mDefaultControlLayout = (FrameLayout) findViewById(R.id.mr_default_control);
+
+        // Start the session activity when a content item (album art, title or subtitle) is clicked.
+        View.OnClickListener onClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mMediaController != null) {
+                    PendingIntent pi = mMediaController.getSessionActivity();
+                    if (pi != null) {
+                        try {
+                            pi.send();
+                        } catch (PendingIntent.CanceledException e) {
+                            Log.e(TAG, pi + " was not sent, it had been canceled.");
+                        }
+                    }
+                }
+                dismiss();
+            }
+        };
         mArtView = (ImageView) findViewById(R.id.mr_art);
+        mArtView.setOnClickListener(onClickListener);
+        findViewById(R.id.mr_control_title_container).setOnClickListener(onClickListener);
 
         mMediaMainControlLayout = (LinearLayout) findViewById(R.id.mr_media_main_control);
         mDividerView = findViewById(R.id.mr_control_divider);
