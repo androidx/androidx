@@ -49,6 +49,7 @@
 
     <string name="add_tab">Add tab</string>
     <string name="remove_tab">Remove tab</string>
+    <string name="select_first_tab">Select tab #0</string>
 
     <string name="form_username">Username</string>
     <string name="form_email">Email address</string>

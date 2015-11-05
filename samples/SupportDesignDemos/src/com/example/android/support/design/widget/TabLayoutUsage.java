@@ -85,6 +85,15 @@ public class TabLayoutUsage extends AppCompatActivity {
                 }
             }
         });
+
+        findViewById(R.id.btn_select_first_tab).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mTabLayout.getTabCount() > 0) {
+                    mViewPager.setCurrentItem(0);
+                }
+            }
+        });
     }
 
     private void addRandomTab() {

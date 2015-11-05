@@ -62,6 +62,12 @@
                 android:layout_height="wrap_content"
                 android:text="@string/remove_tab"/>
 
+        <Button
+                android:id="@+id/btn_select_first_tab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/select_first_tab"/>
+
     </LinearLayout>
 
     <RadioGroup
