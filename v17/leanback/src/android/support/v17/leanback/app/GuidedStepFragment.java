@@ -359,7 +359,9 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
      * GuidedStepFragments in the stack, and configuring the fragment-to-fragment custom
      * transitions.  A backstack entry is added, so the fragment will be dismissed when BACK key
      * is pressed.
-     * <li>If current fragment on stack is GuidedStepFragment: assign {@link #UI_STYLE_DEFAULT}
+     * <li>If current fragment on stack is GuidedStepFragment: assign {@link #UI_STYLE_DEFAULT} and
+     * {@link #onAddSharedElementTransition(FragmentTransaction, GuidedStepFragment)} will be called
+     * to perform shared element transition between GuidedStepFragments.
      * <li>If current fragment on stack is not GuidedStepFragment: assign {@link #UI_STYLE_ENTRANCE}
      * <p>
      * Note: currently fragments added using this method must be created programmatically rather
@@ -370,7 +372,8 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
      * @return The ID returned by the call FragmentTransaction.replace.
      */
     public static int add(FragmentManager fragmentManager, GuidedStepFragment fragment, int id) {
-        boolean inGuidedStep = getCurrentGuidedStepFragment(fragmentManager) != null;
+        GuidedStepFragment current = getCurrentGuidedStepFragment(fragmentManager);
+        boolean inGuidedStep = current != null;
         if (IS_FRAMEWORK_FRAGMENT && Build.VERSION.SDK_INT >= 21 && Build.VERSION.SDK_INT < 23
                 && !inGuidedStep && fragment.getContainerIdForBackground() != View.NO_ID) {
             // workaround b/22631964 for framework fragment
@@ -383,8 +386,45 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
 
         fragment.setUiStyle(inGuidedStep ? UI_STYLE_DEFAULT : UI_STYLE_ENTRANCE);
         ft.addToBackStack(fragment.generateStackEntryName());
+        if (current != null) {
+            fragment.onAddSharedElementTransition(ft, current);
+        }
         initialBackground(fragment, id, ft);
         return ft.replace(id, fragment, TAG_LEAN_BACK_ACTIONS_FRAGMENT).commit();
+    }
+
+    /**
+     * Called when this fragment is added to FragmentTransaction with {@link #UI_STYLE_DEFAULT} (aka
+     * when the GuidedStepFragment replacing an existing GuidedStepFragment).
+     * Default implementation establishes connections between background views to morph background
+     * bounds change from disappearing GuidedStepFragment into this GuidedStepFragment.  The default
+     * implementation heavily relies on {@link GuidedActionsStylist}'s layout, app may override this
+     * method when modifying the default layout of {@link GuidedActionsStylist}.
+     * @see GuidedActionsStylist
+     * @see #onProvideFragmentTransitions()
+     * @param ft The FragmentTransaction to add shared element.
+     * @param disappearing The disappearing fragment.
+     */
+    protected void onAddSharedElementTransition(FragmentTransaction ft, GuidedStepFragment
+            disappearing) {
+        TransitionHelper.addSharedElement(ft, disappearing.getView().findViewById(
+                R.id.action_fragment_root), "action_fragment_root");
+        TransitionHelper.addSharedElement(ft, disappearing.getView().findViewById(
+                R.id.action_fragment_background), "action_fragment_background");
+        TransitionHelper.addSharedElement(ft, disappearing.getView().findViewById(
+                R.id.action_fragment), "action_fragment");
+        TransitionHelper.addSharedElement(ft, disappearing.getView().findViewById(
+                R.id.guidedactions_root), "guidedactions_root");
+        TransitionHelper.addSharedElement(ft, disappearing.getView().findViewById(
+                R.id.guidedactions_selector), "guidedactions_selector");
+        TransitionHelper.addSharedElement(ft, disappearing.getView().findViewById(
+                R.id.guided_button_actions_background), "guided_button_actions_background");
+        TransitionHelper.addSharedElement(ft, disappearing.getView().findViewById(
+                R.id.guidedactions_root2), "guidedactions_root2");
+        TransitionHelper.addSharedElement(ft, disappearing.getView().findViewById(
+                R.id.guidedactions_selector2), "guidedactions_selector2");
+        TransitionHelper.addSharedElement(ft, disappearing.getView().findViewById(
+                R.id.guided_button_actions_background2), "guided_button_actions_background2");
     }
 
     /**
@@ -710,18 +750,26 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
     }
 
     /**
-     * Called by Constructor to provide fragment transitions.  Default implementation creates
-     * a short slide and fade transition in code for {@link #UI_STYLE_DEFAULT} for both enter and
-     * exit transition.  When using style {@link #UI_STYLE_ENTRANCE}, enter transition is set
-     * to slide from both sides.  When using style {@link #UI_STYLE_ACTIVITY_ROOT}, enter
-     * transition is set to null and you should rely on activity transition.
+     * Called by Constructor to provide fragment transitions.  The default implementation assigns
+     * transitions based on {@link #getUiStyle()}:
+     * <ul>
+     * <li> {@link #UI_STYLE_DEFAULT} Slide from/to end(right) for enter transition, slide from/to
+     * start(left) for exit transition, shared element enter transition is set to ChangeBounds.
+     * <li> {@link #UI_STYLE_ENTRANCE} Enter transition is set to slide from both sides, exit
+     * transition is same as {@link #UI_STYLE_DEFAULT}, no shared element enter transition.
+     * <li> {@link #UI_STYLE_ACTIVITY_ROOT} Enter transition is set to null and app should rely on
+     * activity transition, exit transition is same as {@link #UI_STYLE_DEFAULT}, no shared element
+     * enter transition.
+     * </ul>
      * <p>
-     * Subclass may override and set its own fragment transition.  Note that because Context is not
-     * available when onProvideFragmentTransitions() is called, subclass will need use a cached
-     * static application context to load transition from xml.  Because the fragment view is
-     * removed during fragment transition, in general app cannot use two Visibility transition
-     * together.  Workaround is to create your own Visibility transition that controls multiple
-     * animators (e.g. slide and fade animation in one Transition class).
+     * The default implementation heavily relies on {@link GuidedActionsStylist} and
+     * {@link GuidanceStylist} layout, app may override this method when modifying the default
+     * layout of {@link GuidedActionsStylist} or {@link GuidanceStylist}.
+     * <p>
+     * TIP: because the fragment view is removed during fragment transition, in general app cannot
+     * use two Visibility transition together. Workaround is to create your own Visibility
+     * transition that controls multiple animators (e.g. slide and fade animation in one Transition
+     * class).
      */
     protected void onProvideFragmentTransitions() {
         if (Build.VERSION.SDK_INT >= 21) {
@@ -730,6 +778,8 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
                 TransitionHelper.exclude(enterTransition, R.id.action_fragment_background, true);
                 TransitionHelper.exclude(enterTransition, R.id.guided_button_actions_background,
                         true);
+                TransitionHelper.exclude(enterTransition, R.id.guided_button_actions_background2,
+                        true);
                 TransitionHelper.exclude(enterTransition, R.id.guidedactions_selector, true);
                 TransitionHelper.setEnterTransition(this, enterTransition);
                 Object exitTransition = TransitionHelper.createFadeAndShortSlide(Gravity.START);
@@ -737,7 +787,13 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
                 TransitionHelper.exclude(exitTransition, R.id.guided_button_actions_background,
                         true);
                 TransitionHelper.exclude(exitTransition, R.id.guidedactions_selector, true);
+                TransitionHelper.exclude(exitTransition, R.id.guided_button_actions_background2,
+                        true);
+                TransitionHelper.exclude(exitTransition, R.id.guidedactions_selector2, true);
                 TransitionHelper.setExitTransition(this, exitTransition);
+
+                Object changeBounds = TransitionHelper.createChangeBounds(false);
+                TransitionHelper.setSharedElementEnterTransition(this, changeBounds);
             } else if (getUiStyle() == UI_STYLE_ENTRANCE) {
                 Object enterTransition = TransitionHelper.createFadeAndShortSlide(Gravity.END |
                         Gravity.START);
@@ -746,12 +802,19 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
                 TransitionHelper.include(enterTransition, R.id.guided_button_actions_background);
                 TransitionHelper.include(enterTransition, R.id.guidedactions_selector);
                 TransitionHelper.include(enterTransition, R.id.guidedactions_list);
+                TransitionHelper.include(enterTransition, R.id.guided_button_actions_background2);
+                TransitionHelper.include(enterTransition, R.id.guidedactions_selector2);
+                TransitionHelper.include(enterTransition, R.id.guidedactions_list2);
                 TransitionHelper.setEnterTransition(this, enterTransition);
                 // exit transition is unchanged, same as UI_STYLE_DEFAULT
+                // No shared element transition
+                TransitionHelper.setSharedElementEnterTransition(this, null);
             } else if (getUiStyle() == UI_STYLE_ACTIVITY_ROOT) {
                 // for Activity root, we dont need enter transition, use activity transition
                 TransitionHelper.setEnterTransition(this, null);
                 // exit transition is unchanged, same as UI_STYLE_DEFAULT
+                // No shared element transition
+                TransitionHelper.setSharedElementEnterTransition(this, null);
             }
         }
     }
@@ -927,11 +990,8 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
         actionContainer.addView(actionsView);
 
         View buttonActionsView = mButtonActionsStylist.onCreateView(inflater, actionContainer);
+        mButtonActionsStylist.setAsButtonActions();
         actionContainer.addView(buttonActionsView);
-        View bg = buttonActionsView.findViewById(R.id.guided_button_actions_background);
-        if (bg != null) {
-            bg.setVisibility(View.VISIBLE);
-        }
 
         GuidedActionAdapter.EditListener editListener = new GuidedActionAdapter.EditListener() {
 
@@ -959,8 +1019,15 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
         mActionsStylist.getActionsGridView().setAdapter(mAdapter);
         mButtonActionsStylist.getActionsGridView().setAdapter(mButtonAdapter);
         if (mButtonActions.size() == 0) {
-            buttonActionsView.setVisibility(View.GONE);
+            // when there is no button actions, we dont need show the second panel, but keep
+            // the width zero to run ChangeBounds transition.
+            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams)
+                    buttonActionsView.getLayoutParams();
+            lp.weight = 0;
+            buttonActionsView.setLayoutParams(lp);
         } else {
+            // when there are two actions panel, we need adjust the weight of action to
+            // guidedActionContentWidthWeightTwoPanels.
             Context ctx = mThemeWrapper != null ? mThemeWrapper : getActivity();
             TypedValue typedValue = new TypedValue();
             if (ctx.getTheme().resolveAttribute(R.attr.guidedActionContentWidthWeightTwoPanels,
