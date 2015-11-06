@@ -18,7 +18,6 @@ package android.support.v7.widget;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
-import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.support.v4.graphics.ColorUtils;
 import android.util.TypedValue;
@@ -61,7 +60,7 @@ class ThemeUtils {
 
     public static int getThemeAttrColor(Context context, int attr) {
         TEMP_ARRAY[0] = attr;
-        TypedArray a = context.obtainStyledAttributes(null, TEMP_ARRAY);
+        TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, null, TEMP_ARRAY);
         try {
             return a.getColor(0, 0);
         } finally {
@@ -71,7 +70,7 @@ class ThemeUtils {
 
     public static ColorStateList getThemeAttrColorStateList(Context context, int attr) {
         TEMP_ARRAY[0] = attr;
-        TypedArray a = context.obtainStyledAttributes(null, TEMP_ARRAY);
+        TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, null, TEMP_ARRAY);
         try {
             return a.getColorStateList(0);
         } finally {

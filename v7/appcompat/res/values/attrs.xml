@@ -980,4 +980,13 @@
         <attr name="allowStacking" format="boolean" />
     </declare-styleable>
 
+    <!-- Attributes that can be assigned to a ColorStateList item. -->
+    <declare-styleable name="ColorStateListItem">
+        <!-- Base color for this state. -->
+        <attr name="android:color" />
+        <!-- Alpha multiplier applied to the base color. -->
+        <attr name="alpha" format="float" />
+        <attr name="android:alpha"/>
+    </declare-styleable>
+
 </resources>

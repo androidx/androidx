@@ -40,6 +40,7 @@ import android.util.SparseArray;
 import java.util.ArrayList;
 import java.util.WeakHashMap;
 
+import static android.support.v7.widget.ColorStateListUtils.getColorStateList;
 import static android.support.v7.widget.ThemeUtils.getDisabledThemeAttrColor;
 import static android.support.v7.widget.ThemeUtils.getThemeAttrColor;
 import static android.support.v7.widget.ThemeUtils.getThemeAttrColorStateList;
@@ -300,11 +301,11 @@ public final class AppCompatDrawableManager {
         if (tint == null) {
             // ...if the cache did not contain a color state list, try and create one
             if (resId == R.drawable.abc_edit_text_material) {
-                tint = createEditTextColorStateList(context);
+                tint = getColorStateList(context, R.color.abc_tint_edittext);
             } else if (resId == R.drawable.abc_switch_track_mtrl_alpha) {
-                tint = createSwitchTrackColorStateList(context);
+                tint = getColorStateList(context, R.color.abc_tint_switch_track);
             } else if (resId == R.drawable.abc_switch_thumb_material) {
-                tint = createSwitchThumbColorStateList(context);
+                tint = getColorStateList(context, R.color.abc_tint_switch_thumb);
             } else if (resId == R.drawable.abc_btn_default_mtrl_shape
                     || resId == R.drawable.abc_btn_borderless_material) {
                 tint = createDefaultButtonColorStateList(context);
@@ -312,15 +313,15 @@ public final class AppCompatDrawableManager {
                 tint = createColoredButtonColorStateList(context);
             } else if (resId == R.drawable.abc_spinner_mtrl_am_alpha
                     || resId == R.drawable.abc_spinner_textfield_background_material) {
-                tint = createSpinnerColorStateList(context);
+                tint = getColorStateList(context, R.color.abc_tint_spinner);
             } else if (arrayContains(TINT_COLOR_CONTROL_NORMAL, resId)) {
                 tint = getThemeAttrColorStateList(context, R.attr.colorControlNormal);
             } else if (arrayContains(TINT_COLOR_CONTROL_STATE_LIST, resId)) {
-                tint = createDefaultColorStateList(context);
+                tint = getColorStateList(context, R.color.abc_tint_default);
             } else if (arrayContains(TINT_CHECKABLE_BUTTON_LIST, resId)) {
-                tint = createCheckableButtonColorStateList(context);
+                tint = getColorStateList(context, R.color.abc_tint_btn_checkable);
             } else if (resId == R.drawable.abc_seekbar_thumb_material) {
-                tint = createSeekbarThumbColorStateList(context);
+                tint = getColorStateList(context, R.color.abc_tint_seek_thumb);
             }
 
             if (tint != null) {
@@ -349,164 +350,6 @@ public final class AppCompatDrawableManager {
             mTintLists.put(context, themeTints);
         }
         themeTints.append(resId, tintList);
-    }
-
-    private ColorStateList createDefaultColorStateList(Context context) {
-        /**
-         * Generate the default color state list which uses the colorControl attributes.
-         * Order is important here. The default enabled state needs to go at the bottom.
-         */
-
-        final int colorControlNormal = getThemeAttrColor(context, R.attr.colorControlNormal);
-        final int colorControlActivated = getThemeAttrColor(context, R.attr.colorControlActivated);
-
-        final int[][] states = new int[7][];
-        final int[] colors = new int[7];
-        int i = 0;
-
-        // Disabled state
-        states[i] = ThemeUtils.DISABLED_STATE_SET;
-        colors[i] = getDisabledThemeAttrColor(context, R.attr.colorControlNormal);
-        i++;
-
-        states[i] = ThemeUtils.FOCUSED_STATE_SET;
-        colors[i] = colorControlActivated;
-        i++;
-
-        states[i] = ThemeUtils.ACTIVATED_STATE_SET;
-        colors[i] = colorControlActivated;
-        i++;
-
-        states[i] = ThemeUtils.PRESSED_STATE_SET;
-        colors[i] = colorControlActivated;
-        i++;
-
-        states[i] = ThemeUtils.CHECKED_STATE_SET;
-        colors[i] = colorControlActivated;
-        i++;
-
-        states[i] = ThemeUtils.SELECTED_STATE_SET;
-        colors[i] = colorControlActivated;
-        i++;
-
-        // Default enabled state
-        states[i] = ThemeUtils.EMPTY_STATE_SET;
-        colors[i] = colorControlNormal;
-        i++;
-
-        return new ColorStateList(states, colors);
-    }
-
-    private ColorStateList createCheckableButtonColorStateList(Context context) {
-        final int[][] states = new int[3][];
-        final int[] colors = new int[3];
-        int i = 0;
-
-        // Disabled state
-        states[i] = ThemeUtils.DISABLED_STATE_SET;
-        colors[i] = getDisabledThemeAttrColor(context, R.attr.colorControlNormal);
-        i++;
-
-        states[i] = ThemeUtils.CHECKED_STATE_SET;
-        colors[i] = getThemeAttrColor(context, R.attr.colorControlActivated);
-        i++;
-
-        // Default enabled state
-        states[i] = ThemeUtils.EMPTY_STATE_SET;
-        colors[i] = getThemeAttrColor(context, R.attr.colorControlNormal);
-        i++;
-
-        return new ColorStateList(states, colors);
-    }
-
-    private ColorStateList createSwitchTrackColorStateList(Context context) {
-        final int[][] states = new int[3][];
-        final int[] colors = new int[3];
-        int i = 0;
-
-        // Disabled state
-        states[i] = ThemeUtils.DISABLED_STATE_SET;
-        colors[i] = getThemeAttrColor(context, android.R.attr.colorForeground, 0.1f);
-        i++;
-
-        states[i] = ThemeUtils.CHECKED_STATE_SET;
-        colors[i] = getThemeAttrColor(context, R.attr.colorControlActivated, 0.3f);
-        i++;
-
-        // Default enabled state
-        states[i] = ThemeUtils.EMPTY_STATE_SET;
-        colors[i] = getThemeAttrColor(context, android.R.attr.colorForeground, 0.3f);
-        i++;
-
-        return new ColorStateList(states, colors);
-    }
-
-    private ColorStateList createSwitchThumbColorStateList(Context context) {
-        final int[][] states = new int[3][];
-        final int[] colors = new int[3];
-        int i = 0;
-
-        final ColorStateList thumbColor = getThemeAttrColorStateList(context,
-                R.attr.colorSwitchThumbNormal);
-
-        if (thumbColor != null && thumbColor.isStateful()) {
-            // If colorSwitchThumbNormal is a valid ColorStateList, extract the default and
-            // disabled colors from it
-
-            // Disabled state
-            states[i] = ThemeUtils.DISABLED_STATE_SET;
-            colors[i] = thumbColor.getColorForState(states[i], 0);
-            i++;
-
-            states[i] = ThemeUtils.CHECKED_STATE_SET;
-            colors[i] = getThemeAttrColor(context, R.attr.colorControlActivated);
-            i++;
-
-            // Default enabled state
-            states[i] = ThemeUtils.EMPTY_STATE_SET;
-            colors[i] = thumbColor.getDefaultColor();
-            i++;
-        } else {
-            // Else we'll use an approximation using the default disabled alpha
-
-            // Disabled state
-            states[i] = ThemeUtils.DISABLED_STATE_SET;
-            colors[i] = getDisabledThemeAttrColor(context, R.attr.colorSwitchThumbNormal);
-            i++;
-
-            states[i] = ThemeUtils.CHECKED_STATE_SET;
-            colors[i] = getThemeAttrColor(context, R.attr.colorControlActivated);
-            i++;
-
-            // Default enabled state
-            states[i] = ThemeUtils.EMPTY_STATE_SET;
-            colors[i] = getThemeAttrColor(context, R.attr.colorSwitchThumbNormal);
-            i++;
-        }
-
-        return new ColorStateList(states, colors);
-    }
-
-    private ColorStateList createEditTextColorStateList(Context context) {
-        final int[][] states = new int[3][];
-        final int[] colors = new int[3];
-        int i = 0;
-
-        // Disabled state
-        states[i] = ThemeUtils.DISABLED_STATE_SET;
-        colors[i] = getDisabledThemeAttrColor(context, R.attr.colorControlNormal);
-        i++;
-
-        states[i] = ThemeUtils.NOT_PRESSED_OR_FOCUSED_STATE_SET;
-        colors[i] = getThemeAttrColor(context, R.attr.colorControlNormal);
-        i++;
-
-        // Default enabled state
-        states[i] = ThemeUtils.EMPTY_STATE_SET;
-        colors[i] = getThemeAttrColor(context, R.attr.colorControlActivated);
-        i++;
-
-        return new ColorStateList(states, colors);
     }
 
     private ColorStateList createDefaultButtonColorStateList(Context context) {
@@ -541,44 +384,6 @@ public final class AppCompatDrawableManager {
         // Default enabled state
         states[i] = ThemeUtils.EMPTY_STATE_SET;
         colors[i] = baseColor;
-        i++;
-
-        return new ColorStateList(states, colors);
-    }
-
-    private ColorStateList createSpinnerColorStateList(Context context) {
-        final int[][] states = new int[3][];
-        final int[] colors = new int[3];
-        int i = 0;
-
-        // Disabled state
-        states[i] = ThemeUtils.DISABLED_STATE_SET;
-        colors[i] = getDisabledThemeAttrColor(context, R.attr.colorControlNormal);
-        i++;
-
-        states[i] = ThemeUtils.NOT_PRESSED_OR_FOCUSED_STATE_SET;
-        colors[i] = getThemeAttrColor(context, R.attr.colorControlNormal);
-        i++;
-
-        states[i] = ThemeUtils.EMPTY_STATE_SET;
-        colors[i] = getThemeAttrColor(context, R.attr.colorControlActivated);
-        i++;
-
-        return new ColorStateList(states, colors);
-    }
-
-    private ColorStateList createSeekbarThumbColorStateList(Context context) {
-        final int[][] states = new int[2][];
-        final int[] colors = new int[2];
-        int i = 0;
-
-        // Disabled state
-        states[i] = ThemeUtils.DISABLED_STATE_SET;
-        colors[i] = getDisabledThemeAttrColor(context, R.attr.colorControlActivated);
-        i++;
-
-        states[i] = ThemeUtils.EMPTY_STATE_SET;
-        colors[i] = getThemeAttrColor(context, R.attr.colorControlActivated);
         i++;
 
         return new ColorStateList(states, colors);

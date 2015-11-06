@@ -118,6 +118,16 @@ public class TintTypedArray {
     }
 
     public ColorStateList getColorStateList(int index) {
+        if (mWrapped.hasValue(index)) {
+            final int resourceId = mWrapped.getResourceId(index, 0);
+            if (resourceId != 0) {
+                final ColorStateList value =
+                        ColorStateListUtils.getColorStateList(mContext, resourceId);
+                if (value != null) {
+                    return value;
+                }
+            }
+        }
         return mWrapped.getColorStateList(index);
     }
 
