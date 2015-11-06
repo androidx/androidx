@@ -29,7 +29,8 @@
                  android:contentDescription="@string/mr_controller_play"
                  android:background="?attr/selectableItemBackgroundBorderless"
                  android:visibility="gone" />
-    <LinearLayout android:orientation="vertical"
+    <LinearLayout android:id="@+id/mr_control_title_container"
+                  android:orientation="vertical"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:layout_toLeftOf="@id/mr_control_play_pause"
