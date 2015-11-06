@@ -65,7 +65,6 @@ import static android.support.v4.media.MediaBrowserProtocol.*;
  *     &lt;/intent-filter>
  * &lt;/service>
  * </pre>
- * @hide
  */
 public abstract class MediaBrowserServiceCompat extends Service {
     private static final String TAG = "MediaBrowserServiceCompat";
