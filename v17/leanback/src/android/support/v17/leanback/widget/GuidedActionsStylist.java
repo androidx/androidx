@@ -27,6 +27,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.VerticalGridView;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.text.TextUtils;
@@ -239,9 +240,11 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
 
     private static String TAG = "GuidedActionsStylist";
 
-    protected View mMainView;
-    protected VerticalGridView mActionsGridView;
-    protected View mSelectorView;
+    private View mMainView;
+    private VerticalGridView mActionsGridView;
+    private View mBgView;
+    private View mSelectorView;
+    private boolean mButtonActions;
 
     // Cached values from resources
     private float mEnabledTextAlpha;
@@ -270,6 +273,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     public View onCreateView(LayoutInflater inflater, ViewGroup container) {
         mMainView = inflater.inflate(onProvideLayoutId(), container, false);
         mSelectorView = mMainView.findViewById(R.id.guidedactions_selector);
+        mBgView = mMainView.findViewById(R.id.guided_button_actions_background);
         if (mMainView instanceof VerticalGridView) {
             mActionsGridView = (VerticalGridView) mMainView;
         } else {
@@ -313,6 +317,32 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         mDisabledDescriptionAlpha = Float.valueOf(ctx.getResources().getString(R.string
                 .lb_guidedactions_item_disabled_description_text_alpha));
         return mMainView;
+    }
+
+    /**
+     * Default implementation turns on background for actions and applies different Ids to views so
+     * that GuidedStepFragment could run transitions against two action lists.  The method is called
+     * by GuidedStepFragment, app may override this function when replacing default layout file
+     * provided by {@link #onProvideLayoutId()}
+     */
+    public void setAsButtonActions() {
+        mButtonActions = true;
+        mMainView.setId(R.id.guidedactions_root2);
+        ViewCompat.setTransitionName(mMainView, "guidedactions_root");
+        mActionsGridView.setId(R.id.guidedactions_list2);
+        mSelectorView.setId(R.id.guidedactions_selector2);
+        ViewCompat.setTransitionName(mSelectorView, "guidedactions_selector2");
+        mBgView.setId(R.id.guided_button_actions_background2);
+        ViewCompat.setTransitionName(mBgView, "guided_button_actions_background2");
+        mBgView.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Returns true if {@link #setAsButtonActions()} was called, false otherwise.
+     * @return True if {@link #setAsButtonActions()} was called, false otherwise.
+     */
+    public boolean isButtonActions() {
+        return mButtonActions;
     }
 
     final ViewTreeObserver.OnGlobalFocusChangeListener mGlobalFocusChangeListener =

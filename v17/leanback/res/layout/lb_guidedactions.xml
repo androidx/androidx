@@ -16,12 +16,16 @@
 -->
 <!-- Layout for the settings list fragment -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/guidedactions_root"
+    android:transitionName="guidedactions_root"
+    android:transitionGroup="false"
     android:layout_width="0dp"
     android:layout_weight="1"
     android:layout_height="match_parent">
 
     <android.support.v17.leanback.widget.NonOverlappingView
         android:id="@+id/guided_button_actions_background"
+        android:transitionName="guided_button_actions_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"
@@ -32,9 +36,9 @@
         android:id="@+id/guidedactions_list"
         style="?attr/guidedActionsListStyle" />
 
-    <android.support.v17.leanback.widget.NonOverlappingFrameLayout
+    <android.support.v17.leanback.widget.NonOverlappingView
         android:id="@+id/guidedactions_selector"
-        android:transitionGroup="true"
+        android:transitionName="guidedactions_selector"
         style="?attr/guidedActionsSelectorStyle" />
 
 </RelativeLayout>
