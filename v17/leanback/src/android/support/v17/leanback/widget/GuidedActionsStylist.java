@@ -273,6 +273,18 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     public View onCreateView(LayoutInflater inflater, ViewGroup container) {
         mMainView = inflater.inflate(onProvideLayoutId(), container, false);
         mSelectorView = mMainView.findViewById(R.id.guidedactions_selector);
+        mSelectorView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom,
+                    int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                final View focusedChild = mActionsGridView.getFocusedChild();
+                if (focusedChild != null && mSelectorView.getVisibility() == View.VISIBLE &&
+                        mSelectorView.getHeight() > 0) {
+                    mSelectorView.setScaleY((float) focusedChild.getHeight()
+                            / mSelectorView.getHeight());
+                }
+            }
+        });
         mBgView = mMainView.findViewById(R.id.guided_button_actions_background);
         if (mMainView instanceof VerticalGridView) {
             mActionsGridView = (VerticalGridView) mMainView;
@@ -358,16 +370,10 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             } else if (!mChildFocused) {
                 mChildFocused = true;
                 mSelectorView.setVisibility(View.VISIBLE);
-                // Change Selector size in a post Runnable, doing it directly in
-                // GlobalFocusChangeListener does not trigger the layout pass.
-                mSelectorView.post(new Runnable() {
-                    public void run() {
-                        int height = focusedChild.getHeight();
-                        LayoutParams lp = mSelectorView.getLayoutParams();
-                        lp.height = height;
-                        mSelectorView.setLayoutParams(lp);
-                    }
-                });
+                if (mSelectorView.getHeight() > 0) {
+                    mSelectorView.setScaleY((float) focusedChild.getHeight()
+                            / mSelectorView.getHeight());
+                }
             }
         }
     };
