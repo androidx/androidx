@@ -18,6 +18,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.transition.ChangeTransform;
 import android.transition.Transition;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.animation.AnimationUtils;
@@ -33,6 +34,16 @@ final class TransitionHelperApi21 {
 
     public static void setExitTransition(android.app.Fragment fragment, Object transition) {
        fragment.setExitTransition((Transition)transition);
+    }
+
+    public static void setSharedElementEnterTransition(android.app.Fragment fragment,
+            Object transition) {
+        fragment.setSharedElementEnterTransition((Transition)transition);
+     }
+
+    public static void addSharedElement(android.app.FragmentTransaction ft,
+            View view, String transitionName) {
+        ft.addSharedElement(view, transitionName);
     }
 
     public static Object getSharedElementEnterTransition(Window window) {

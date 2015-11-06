@@ -229,6 +229,7 @@ package android.support.v17.leanback.app {
     method public static boolean isUiStyleEntrance(java.lang.String);
     method public void notifyActionChanged(int);
     method public void notifyButtonActionChanged(int);
+    method protected void onAddSharedElementTransition(android.app.FragmentTransaction, android.support.v17.leanback.app.GuidedStepFragment);
     method public void onCreateActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>, android.os.Bundle);
     method public android.support.v17.leanback.widget.GuidedActionsStylist onCreateActionsStylist();
     method public void onCreateButtonActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>, android.os.Bundle);
@@ -288,6 +289,7 @@ package android.support.v17.leanback.app {
     method public static boolean isUiStyleEntrance(java.lang.String);
     method public void notifyActionChanged(int);
     method public void notifyButtonActionChanged(int);
+    method protected void onAddSharedElementTransition(android.support.v4.app.FragmentTransaction, android.support.v17.leanback.app.GuidedStepSupportFragment);
     method public void onCreateActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>, android.os.Bundle);
     method public android.support.v17.leanback.widget.GuidedActionsStylist onCreateActionsStylist();
     method public void onCreateButtonActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>, android.os.Bundle);
@@ -1086,6 +1088,7 @@ package android.support.v17.leanback.widget {
     ctor public GuidedActionsStylist();
     method public android.support.v17.leanback.widget.VerticalGridView getActionsGridView();
     method public int getItemViewType(android.support.v17.leanback.widget.GuidedAction);
+    method public boolean isButtonActions();
     method public void onAnimateItemChecked(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, boolean);
     method public void onAnimateItemFocused(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, boolean);
     method public void onAnimateItemPressed(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, boolean);
@@ -1101,11 +1104,9 @@ package android.support.v17.leanback.widget {
     method public int onProvideItemLayoutId();
     method public int onProvideItemLayoutId(int);
     method public int onProvideLayoutId();
+    method public void setAsButtonActions();
     method public void setEditingMode(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, android.support.v17.leanback.widget.GuidedAction, boolean);
     field public static final int VIEW_TYPE_DEFAULT = 0; // 0x0
-    field protected android.support.v17.leanback.widget.VerticalGridView mActionsGridView;
-    field protected android.view.View mMainView;
-    field protected android.view.View mSelectorView;
   }
 
   public static class GuidedActionsStylist.ViewHolder {

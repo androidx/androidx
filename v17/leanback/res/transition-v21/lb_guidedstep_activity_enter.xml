@@ -36,6 +36,9 @@
             <target android:targetId="@id/guided_button_actions_background" />
             <target android:targetId="@id/guidedactions_selector" />
             <target android:targetId="@id/guidedactions_list" />
+            <target android:targetId="@id/guided_button_actions_background2" />
+            <target android:targetId="@id/guidedactions_selector2" />
+            <target android:targetId="@id/guidedactions_list2" />
         </targets>
   </slide>
 </transitionSet>
