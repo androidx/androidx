@@ -32,6 +32,7 @@ import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.BundleCompat;
+import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.os.ResultReceiver;
 import android.support.v4.util.ArrayMap;
@@ -52,7 +53,6 @@ import static android.support.v4.media.MediaBrowserProtocol.*;
  * This object is not thread-safe. All calls should happen on the thread on which the browser
  * was constructed.
  * </p>
- * @hide
  */
 public final class MediaBrowserCompat {
     private static final String TAG = "MediaBrowserCompat";
@@ -219,7 +219,7 @@ public final class MediaBrowserCompat {
          * Flag: Indicates that the item is playable.
          * <p>
          * The id of this item may be passed to
-         * {@link MediaController.TransportControls#playFromMediaId(String, Bundle)}
+         * {@link MediaControllerCompat.TransportControls#playFromMediaId(String, Bundle)}
          * to start playing it.
          * </p>
          */
