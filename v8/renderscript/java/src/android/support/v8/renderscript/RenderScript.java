@@ -49,6 +49,7 @@ public class RenderScript {
     @SuppressWarnings({"UnusedDeclaration", "deprecation"})
     static final boolean LOG_ENABLED = false;
     static final int SUPPORT_LIB_API = 23;
+    static final int SUPPORT_LIB_VERSION = 2301;
 
     static private ArrayList<RenderScript> mProcessContextList = new ArrayList<RenderScript>();
     private boolean mIsProcessContext = false;
@@ -100,7 +101,7 @@ public class RenderScript {
     static Object lock = new Object();
 
     // Non-threadsafe functions.
-    native boolean nLoadSO(boolean useNative, int deviceApi);
+    native boolean nLoadSO(boolean useNative, int deviceApi, String libPath);
     native boolean nLoadIOSO();
     native long nDeviceCreate();
     native void nDeviceDestroy(long dev);
@@ -770,7 +771,7 @@ public class RenderScript {
                     Log.e(LOG_TAG, "Error loading RS Compat library for Incremental Intrinsic Support: " + e);
                     throw new RSRuntimeException("Error loading RS Compat library for Incremental Intrinsic Support: " + e);
                 }
-                if (!nIncLoadSO(SUPPORT_LIB_API)) {
+                if (!nIncLoadSO(SUPPORT_LIB_API, mNativeLibDir + "/libRSSupport.so")) {
                     throw new RSRuntimeException("Error loading libRSSupport library for Incremental Intrinsic Support");
                 }
                 mIncLoaded = true;
@@ -966,7 +967,7 @@ public class RenderScript {
 
 // Additional Entry points For inc libRSSupport
 
-    native boolean nIncLoadSO(int deviceApi);
+    native boolean nIncLoadSO(int deviceApi, String libPath);
     native long nIncDeviceCreate();
     native void nIncDeviceDestroy(long dev);
     // Methods below are wrapped to protect the non-threadsafe
@@ -1322,7 +1323,10 @@ public class RenderScript {
         mContextType = ContextType.NORMAL;
         if (ctx != null) {
             mApplicationContext = ctx.getApplicationContext();
-            mNativeLibDir = mApplicationContext.getApplicationInfo().nativeLibraryDir;
+            // Only set mNativeLibDir for API 9+.
+            if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.FROYO) {
+                mNativeLibDir = mApplicationContext.getApplicationInfo().nativeLibraryDir;
+            }
         }
         mIncDev = 0;
         mIncCon = 0;
@@ -1368,12 +1372,18 @@ public class RenderScript {
                     sUseGCHooks = false;
                 }
                 try {
-                    System.loadLibrary("rsjni");
+                    // For API 9+, always use the absolute path of librsjni.so
+                    // Bug: 25226912
+                    if (rs.mNativeLibDir != null) {
+                        System.load(rs.mNativeLibDir + "/librsjni.so");
+                    } else {
+                        System.loadLibrary("rsjni");
+                    }
                     sInitialized = true;
                     sPointerSize = rsnSystemGetPointerSize();
                 } catch (UnsatisfiedLinkError e) {
                     Log.e(LOG_TAG, "Error loading RS jni library: " + e);
-                    throw new RSRuntimeException("Error loading RS jni library: " + e);
+                    throw new RSRuntimeException("Error loading RS jni library: " + e + " Support lib API: " + SUPPORT_LIB_VERSION);
                 }
             }
         }
@@ -1395,19 +1405,30 @@ public class RenderScript {
             dispatchAPI = android.os.Build.VERSION.SDK_INT;
         }
 
-        if (!rs.nLoadSO(useNative, dispatchAPI)) {
+        String rssupportPath = null;
+        // For API 9+, always use the absolute path of libRSSupport.so
+        // Bug: 25226912
+        if (rs.mNativeLibDir != null) {
+            rssupportPath = rs.mNativeLibDir + "/libRSSupport.so";
+        }
+        if (!rs.nLoadSO(useNative, dispatchAPI, rssupportPath)) {
             if (useNative) {
                 android.util.Log.v(LOG_TAG, "Unable to load libRS.so, falling back to compat mode");
                 useNative = false;
             }
             try {
-                System.loadLibrary("RSSupport");
+                if (rs.mNativeLibDir != null) {
+                    System.load(rssupportPath);
+                } else {
+                    System.loadLibrary("RSSupport");
+                }
             } catch (UnsatisfiedLinkError e) {
-                Log.e(LOG_TAG, "Error loading RS Compat library: " + e);
-                throw new RSRuntimeException("Error loading RS Compat library: " + e);
+                Log.e(LOG_TAG, "Error loading RS Compat library: " + e + " Support lib version: " + SUPPORT_LIB_VERSION);
+                throw new RSRuntimeException("Error loading RS Compat library: " + e + " Support lib version: " + SUPPORT_LIB_VERSION);
             }
-            if (!rs.nLoadSO(false, dispatchAPI)) {
-                throw new RSRuntimeException("Error loading libRSSupport library");
+            if (!rs.nLoadSO(false, dispatchAPI, rssupportPath)) {
+                Log.e(LOG_TAG, "Error loading RS Compat library: nLoadSO() failed; Support lib version: " + SUPPORT_LIB_VERSION);
+                throw new RSRuntimeException("Error loading libRSSupport library, Support lib version: " + SUPPORT_LIB_VERSION);
             }
         }
 
