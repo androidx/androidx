@@ -189,8 +189,6 @@ class RoundRectDrawableWithShadow extends Drawable {
     @Override
     public void setColorFilter(ColorFilter cf) {
         mPaint.setColorFilter(cf);
-        mCornerShadowPaint.setColorFilter(cf);
-        mEdgeShadowPaint.setColorFilter(cf);
     }
 
     @Override
