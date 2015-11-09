@@ -176,6 +176,10 @@ public class GuidanceStylist implements FragmentAnimationProvider {
      * Called when destroy the View created by GuidanceStylist.
      */
     public void onDestroyView() {
+        mBreadcrumbView = null;
+        mDescriptionView = null;
+        mIconView = null;
+        mTitleView = null;
     }
 
     /**
