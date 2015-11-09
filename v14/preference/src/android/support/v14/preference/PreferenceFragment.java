@@ -63,7 +63,7 @@ import android.view.ViewGroup;
  * hierarchy. Furthermore, subsequent {@link PreferenceScreen} in the hierarchy
  * denote a screen break--that is the preferences contained within subsequent
  * {@link PreferenceScreen} should be shown on another screen. The preference
- * framework handles showing these other screens from the preference hierarchy.
+ * framework handles this by calling {@link #onNavigateToScreen(PreferenceScreen)}.
  * <p>
  * The preference hierarchy can be formed in multiple ways:
  * <li> From an XML file specifying the hierarchy
