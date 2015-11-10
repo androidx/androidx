@@ -14,22 +14,21 @@
      limitations under the License.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:auto="http://schemas.android.com/apk/res-auto"
-        auto:height="64dp"
-        auto:width="64dp"
-        auto:viewportHeight="400"
-        auto:viewportWidth="500" >
+        android:height="64dp"
+        android:width="64dp"
+        android:viewportHeight="400"
+        android:viewportWidth="500" >
 
     <group
-        auto:pivotX="250"
-        auto:pivotY="200"
-        auto:rotation="180">
+        android:pivotX="250"
+        android:pivotY="200"
+        android:rotation="180">
         <path
-            auto:name="house"
-            auto:fillColor="#ff440000"
-            auto:pathData="M100,200 C100,100 250,100 250,200 S400,300 400,200"
-            auto:strokeColor="#FFFF0000"
-            auto:strokeWidth="10" />
+            android:name="house"
+            android:fillColor="#ff440000"
+            android:pathData="M100,200 C100,100 250,100 250,200 S400,300 400,200"
+            android:strokeColor="#FFFF0000"
+            android:strokeWidth="10" />
     </group>
 
 </vector>

@@ -14,22 +14,21 @@
      limitations under the License.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:auto="http://schemas.android.com/apk/res-auto"
-        auto:height="64dp"
-        auto:width="64dp"
-        auto:viewportHeight="480"
-        auto:viewportWidth="480" >
+        android:height="64dp"
+        android:width="64dp"
+        android:viewportHeight="480"
+        android:viewportWidth="480" >
 
     <group>
         <path
-            auto:name="edit"
-            auto:fillColor="#FF00FFFF"
-            auto:pathData="M406.667,180c0,0 -100 -100 -113.334 -113.333
+            android:name="edit"
+            android:fillColor="#FF00FFFF"
+            android:pathData="M406.667,180c0,0 -100 -100 -113.334 -113.333
     c-13.333 -13.334 -33.333,0 -33.333,0l-160,160c0,0 -40,153.333 -40,173.333c0,13.333,13.333,13.333,13.333,13.333l173.334 -40
     c0,0,146.666 -146.666,160 -160C420,200,406.667,180,406.667,180z M226.399,356.823L131.95,378.62l-38.516 -38.522
     c7.848 -34.675,20.152 -82.52,23.538 -95.593l3.027,2.162l106.667,106.666L226.399,356.823z"
-            auto:strokeColor="#FF000000"
-            auto:strokeWidth="10" />
+            android:strokeColor="#FF000000"
+            android:strokeWidth="10" />
     </group>
 
 </vector>
