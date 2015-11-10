@@ -361,7 +361,13 @@ public final class MediaMetadataCompat implements Parcelable {
     public RatingCompat getRating(@RatingKey String key) {
         RatingCompat rating = null;
         try {
-            rating = mBundle.getParcelable(key);
+            if (Build.VERSION.SDK_INT >= 21) {
+                // On platform version 21 or higher, mBundle stores a Rating object. Convert it to
+                // RatingCompat.
+                rating = RatingCompat.fromRating(mBundle.getParcelable(key));
+            } else {
+                rating = mBundle.getParcelable(key);
+            }
         } catch (Exception e) {
             // ignore, value was not a bitmap
             Log.w(TAG, "Failed to retrieve a key as Rating.", e);
@@ -510,31 +516,11 @@ public final class MediaMetadataCompat implements Parcelable {
             return null;
         }
 
-        Builder builder = new Builder();
-        for (String key : MediaMetadataCompatApi21.keySet(metadataObj)) {
-            Integer type = METADATA_KEYS_TYPE.get(key);
-            if (type != null) {
-                switch (type) {
-                    case METADATA_TYPE_BITMAP:
-                        builder.putBitmap(key,
-                                MediaMetadataCompatApi21.getBitmap(metadataObj, key));
-                        break;
-                    case METADATA_TYPE_LONG:
-                        builder.putLong(key,
-                                MediaMetadataCompatApi21.getLong(metadataObj, key));
-                        break;
-                    case METADATA_TYPE_RATING:
-                        builder.putRating(key, RatingCompat.fromRating(
-                                MediaMetadataCompatApi21.getRating(metadataObj, key)));
-                        break;
-                    case METADATA_TYPE_TEXT:
-                        builder.putText(key,
-                                MediaMetadataCompatApi21.getText(metadataObj, key));
-                        break;
-                }
-            }
-        }
-        MediaMetadataCompat metadata = builder.build();
+        Parcel p = Parcel.obtain();
+        MediaMetadataCompatApi21.writeToParcel(metadataObj, p, 0);
+        p.setDataPosition(0);
+        MediaMetadataCompat metadata = MediaMetadataCompat.CREATOR.createFromParcel(p);
+        p.recycle();
         metadata.mMetadataObj = metadataObj;
         return metadata;
     }
@@ -554,31 +540,11 @@ public final class MediaMetadataCompat implements Parcelable {
             return mMetadataObj;
         }
 
-        Object builderObj = MediaMetadataCompatApi21.Builder.newInstance();
-        for (String key : keySet()) {
-            Integer type = METADATA_KEYS_TYPE.get(key);
-            if (type != null) {
-                switch (type) {
-                    case METADATA_TYPE_BITMAP:
-                        MediaMetadataCompatApi21.Builder.putBitmap(builderObj, key,
-                                getBitmap(key));
-                        break;
-                    case METADATA_TYPE_LONG:
-                        MediaMetadataCompatApi21.Builder.putLong(builderObj, key,
-                                getLong(key));
-                        break;
-                    case METADATA_TYPE_RATING:
-                        MediaMetadataCompatApi21.Builder.putRating(builderObj, key,
-                                getRating(key).getRating());
-                        break;
-                    case METADATA_TYPE_TEXT:
-                        MediaMetadataCompatApi21.Builder.putText(builderObj, key,
-                                getText(key));
-                        break;
-                }
-            }
-        }
-        mMetadataObj = MediaMetadataCompatApi21.Builder.build(builderObj);
+        Parcel p = Parcel.obtain();
+        writeToParcel(p, 0);
+        p.setDataPosition(0);
+        mMetadataObj = MediaMetadataCompatApi21.createFromParcel(p);
+        p.recycle();
         return mMetadataObj;
     }
 
@@ -742,7 +708,13 @@ public final class MediaMetadataCompat implements Parcelable {
                             + " key cannot be used to put a Rating");
                 }
             }
-            mBundle.putParcelable(key, value);
+            if (Build.VERSION.SDK_INT >= 21) {
+                // On platform version 21 or higher, use Rating instead of RatingCompat so mBundle
+                // can be unmarshalled.
+                mBundle.putParcelable(key, (Parcelable) value.getRating());
+            } else {
+                mBundle.putParcelable(key, value);
+            }
             return this;
         }
 
