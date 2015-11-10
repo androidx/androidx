@@ -19,6 +19,7 @@ package android.support.v4.media;
 import android.graphics.Bitmap;
 import android.media.MediaMetadata;
 import android.media.Rating;
+import android.os.Parcel;
 
 import java.util.Set;
 
@@ -41,6 +42,14 @@ class MediaMetadataCompatApi21 {
 
     public static CharSequence getText(Object metadataObj, String key) {
         return ((MediaMetadata) metadataObj).getText(key);
+    }
+
+    public static void writeToParcel(Object metadataObj, Parcel dest, int flags) {
+        ((MediaMetadata) metadataObj).writeToParcel(dest, flags);
+    }
+
+    public static Object createFromParcel(Parcel in) {
+        return MediaMetadata.CREATOR.createFromParcel(in);
     }
 
     public static class Builder {
