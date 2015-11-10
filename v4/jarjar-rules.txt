@@ -1,4 +1,0 @@
-# Exclude the duplicated classes that are already present
-# in the Android frameworks.
-zap android.content.pm.**
-zap android.service.media.**
