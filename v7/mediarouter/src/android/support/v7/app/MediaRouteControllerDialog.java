@@ -37,7 +37,6 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v7.graphics.Palette;
-import android.support.v7.media.MediaControlIntent;
 import android.support.v7.media.MediaRouteSelector;
 import android.support.v7.media.MediaRouter;
 import android.support.v7.mediarouter.R;
@@ -467,14 +466,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
     }
 
     private boolean canShowPlaybackControlLayout() {
-        // If a route does not support remote playback, it means that the route is dedicated for
-        // audio or video streaming such as A2DP speaker or headset. In this case, the route
-        // provider does not provide any playback information such as metadata or playback status.
-        // But, for live video, playback control UI shows a message that the screen is being
-        // mirrored, while it does not show anything for live audio.
-        return mCustomControlView == null && (mDescription != null || mState != null)
-                && (mRoute.supportsControlCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)
-                || mRoute.supportsControlCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO));
+        return mCustomControlView == null && (mDescription != null || mState != null);
     }
 
     /**
@@ -718,8 +710,12 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 mTitleView.setText(R.string.mr_controller_casting_screen);
                 showTitle = true;
             } else if (mState == null || mState.getState() == PlaybackStateCompat.STATE_NONE) {
-                mTitleView.setText(R.string.mr_controller_no_media_selected);
-                showTitle = true;
+                // Show "No media selected" as we don't yet know the playback state.
+                // (Only exception is bluetooth where we don't show anything.)
+                if (!mRoute.isDeviceTypeBluetooth()) {
+                    mTitleView.setText(R.string.mr_controller_no_media_selected);
+                    showTitle = true;
+                }
             } else if (!hasTitle && !hasSubtitle) {
                 mTitleView.setText(R.string.mr_controller_no_info_available);
                 showTitle = true;
