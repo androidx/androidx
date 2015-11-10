@@ -195,11 +195,24 @@ support_module_src_files += $(LOCAL_SRC_FILES)
 
 # -----------------------------------------------------------------------
 
+# A helper sub-library that allows to use Lollipop internal APIs.
+include $(CLEAR_VARS)
+LOCAL_MODULE := android-support-v4-api21-internal
+LOCAL_SDK_VERSION := 21
+LOCAL_SRC_FILES := \
+    $(call all-java-files-under, api21/android/content/pm) \
+    $(call all-java-files-under, api21/android/service/media)
+LOCAL_MODULE_TAGS := optional
+include $(BUILD_JAVA_LIBRARY)
+
+# -----------------------------------------------------------------------
+
 # A helper sub-library that makes direct use of Lollipop APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v4-api21
 LOCAL_SDK_VERSION := 21
-LOCAL_SRC_FILES := $(call all-java-files-under, api21)
+LOCAL_SRC_FILES := $(call all-java-files-under, api21/android/support)
+LOCAL_JAVA_LIBRARIES := android-support-v4-api21-internal
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-api20
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
@@ -224,6 +237,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v4-api23
 LOCAL_SDK_VERSION := current
 LOCAL_SRC_FILES := $(call all-java-files-under, api23)
+LOCAL_JAVA_LIBRARIES := android-support-v4-api21-internal
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-api22
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
@@ -239,7 +253,6 @@ LOCAL_AIDL_INCLUDES := frameworks/support/v4/java
 LOCAL_SRC_FILES := $(call all-java-files-under, java) \
     $(call all-Iaidl-files-under, java)
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4-api23
-LOCAL_JARJAR_RULES := $(LOCAL_PATH)/jarjar-rules.txt
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
