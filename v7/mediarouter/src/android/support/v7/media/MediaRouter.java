@@ -40,6 +40,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.media.MediaRouteProvider.ProviderMetadata;
 import android.support.v7.media.MediaRouteProvider.RouteController;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
 
@@ -913,6 +914,9 @@ public final class MediaRouter {
         static final int CHANGE_VOLUME = 1 << 1;
         static final int CHANGE_PRESENTATION_DISPLAY = 1 << 2;
 
+        // Should match to SystemMediaRouteProvider.PACKAGE_NAME.
+        static final String SYSTEM_MEDIA_ROUTE_PROVIDER_PACKAGE_NAME = "android";
+
         RouteInfo(ProviderInfo provider, String descriptorId, String uniqueId) {
             mProvider = provider;
             mDescriptorId = descriptorId;
@@ -1224,6 +1228,33 @@ public final class MediaRouter {
          */
         public int getDeviceType() {
             return mDeviceType;
+        }
+
+
+        /**
+         * Gets whether the type of the receiver device associated with this route is
+         * {@link #DEVICE_TYPE_BLUETOOTH}.
+         * <p>
+         * This is a workaround for platform version 23 or below where the system route provider
+         * doesn't specify device type for bluetooth media routes.
+         * </p>
+         *
+         * @return True if the receiver device type can be assumed to be
+         *         {@link #DEVICE_TYPE_BLUETOOTH}, false otherwise.
+         * @hide
+         */
+        public boolean isDeviceTypeBluetooth() {
+            if (mDeviceType == DEVICE_TYPE_BLUETOOTH) {
+                return true;
+            }
+            return isSystemMediaRouteProvider(this)
+                    && supportsControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
+                    && !supportsControlCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO);
+        }
+
+        private static boolean isSystemMediaRouteProvider(MediaRouter.RouteInfo route) {
+            return TextUtils.equals(route.getProviderInstance().getMetadata().getPackageName(),
+                    SYSTEM_MEDIA_ROUTE_PROVIDER_PACKAGE_NAME);
         }
 
         /**
