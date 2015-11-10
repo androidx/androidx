@@ -57,7 +57,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     }
 
     public AppCompatTextView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+        super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
 
         mDrawableManager = AppCompatDrawableManager.get();
         mBackgroundTintHelper = new AppCompatBackgroundHelper(this, mDrawableManager);

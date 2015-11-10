@@ -54,7 +54,7 @@ public class AppCompatImageButton extends ImageButton implements TintableBackgro
     }
 
     public AppCompatImageButton(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+        super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
 
         final AppCompatDrawableManager drawableManager = AppCompatDrawableManager.get();
 

@@ -14,6 +14,9 @@
 
 package android.support.graphics.drawable;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
 import android.annotation.TargetApi;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
@@ -43,9 +46,6 @@ import android.support.v4.util.ArrayMap;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Xml;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -533,16 +533,26 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
             if (type != XmlPullParser.START_TAG) {
                 throw new XmlPullParserException("No start tag found");
             }
-
-            final VectorDrawableCompat drawable = new VectorDrawableCompat();
-            drawable.inflate(res, parser, attrs, theme);
-            return drawable;
+            return createFromXmlInner(res, parser, attrs, theme);
         } catch (XmlPullParserException e) {
             Log.e(LOGTAG, "parser error", e);
         } catch (IOException e) {
             Log.e(LOGTAG, "parser error", e);
         }
         return null;
+    }
+
+    /**
+     * Create a VectorDrawableCompat from inside an XML document using an optional
+     * {@link Theme}. Called on a parser positioned at a tag in an XML
+     * document, tries to create a Drawable from that tag. Returns {@code null}
+     * if the tag is not a valid drawable.
+     */
+    public static VectorDrawableCompat createFromXmlInner(Resources r, XmlPullParser parser,
+            AttributeSet attrs, Theme theme) throws XmlPullParserException, IOException {
+        final VectorDrawableCompat drawable = new VectorDrawableCompat();
+        drawable.inflate(r, parser, attrs, theme);
+        return drawable;
     }
 
     private static int applyAlpha(int color, float alpha) {

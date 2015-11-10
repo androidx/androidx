@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 
 /**
  * A {@link android.content.ContextWrapper} which returns a tint-aware
@@ -35,40 +36,32 @@ class TintContextWrapper extends ContextWrapper {
     }
 
     private Resources mResources;
+    private final Resources.Theme mTheme;
 
-    private TintContextWrapper(Context base) {
+    private TintContextWrapper(@NonNull final Context base) {
         super(base);
+
+        // We need to create a copy of the Theme so that the Theme references our Resources
+        // instance
+        mTheme = getResources().newTheme();
+        mTheme.setTo(base.getTheme());
+    }
+
+    @Override
+    public Resources.Theme getTheme() {
+        return mTheme;
+    }
+
+    @Override
+    public void setTheme(int resid) {
+        mTheme.applyStyle(resid, true);
     }
 
     @Override
     public Resources getResources() {
         if (mResources == null) {
-            mResources = new TintResources(super.getResources());
+            mResources = new TintResources(this, super.getResources());
         }
         return mResources;
-    }
-
-    /**
-     * This class allows us to intercept calls so that we can tint resources (if applicable).
-     */
-    class TintResources extends ResourcesWrapper {
-        public TintResources(Resources resources) {
-            super(resources);
-        }
-
-        /**
-         * We intercept this call so that we tint the result (if applicable). This is needed for
-         * things like {@link android.graphics.drawable.DrawableContainer}s which can retrieve
-         * their children via this method.
-         */
-        @Override
-        public Drawable getDrawable(int id) throws NotFoundException {
-            Drawable d = super.getDrawable(id);
-            if (d != null) {
-                AppCompatDrawableManager.get().tintDrawableUsingColorFilter(
-                        TintContextWrapper.this, id, d);
-            }
-            return d;
-        }
     }
 }
