@@ -34,6 +34,7 @@ if (System.env.DIST_DIR != null && System.env.OUT_DIR != null) {
 }
 
 ext.supportRepoOut = new File(buildDir, 'support_repo')
+ext.testApkDistOut = new File(buildDir, 'test_apks')
 
 // Main task called by the build server.
 task(createArchive) << {
