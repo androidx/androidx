@@ -318,12 +318,12 @@ public class MediaRouteControllerDialog extends AlertDialog {
                     if (pi != null) {
                         try {
                             pi.send();
+                            dismiss();
                         } catch (PendingIntent.CanceledException e) {
                             Log.e(TAG, pi + " was not sent, it had been canceled.");
                         }
                     }
                 }
-                dismiss();
             }
         };
         mArtView = (ImageView) findViewById(R.id.mr_art);
