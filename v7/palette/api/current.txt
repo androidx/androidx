@@ -7,6 +7,7 @@ package android.support.v7.graphics {
     method public static deprecated android.support.v7.graphics.Palette generate(android.graphics.Bitmap, int);
     method public static deprecated android.os.AsyncTask<android.graphics.Bitmap, java.lang.Void, android.support.v7.graphics.Palette> generateAsync(android.graphics.Bitmap, android.support.v7.graphics.Palette.PaletteAsyncListener);
     method public static deprecated android.os.AsyncTask<android.graphics.Bitmap, java.lang.Void, android.support.v7.graphics.Palette> generateAsync(android.graphics.Bitmap, int, android.support.v7.graphics.Palette.PaletteAsyncListener);
+    method public int getColorForTarget(android.support.v7.graphics.Target, int);
     method public int getDarkMutedColor(int);
     method public android.support.v7.graphics.Palette.Swatch getDarkMutedSwatch();
     method public int getDarkVibrantColor(int);
@@ -17,7 +18,9 @@ package android.support.v7.graphics {
     method public android.support.v7.graphics.Palette.Swatch getLightVibrantSwatch();
     method public int getMutedColor(int);
     method public android.support.v7.graphics.Palette.Swatch getMutedSwatch();
+    method public android.support.v7.graphics.Palette.Swatch getSwatchForTarget(android.support.v7.graphics.Target);
     method public java.util.List<android.support.v7.graphics.Palette.Swatch> getSwatches();
+    method public java.util.List<android.support.v7.graphics.Target> getTargets();
     method public int getVibrantColor(int);
     method public android.support.v7.graphics.Palette.Swatch getVibrantSwatch();
   }
@@ -26,12 +29,15 @@ package android.support.v7.graphics {
     ctor public Palette.Builder(android.graphics.Bitmap);
     ctor public Palette.Builder(java.util.List<android.support.v7.graphics.Palette.Swatch>);
     method public android.support.v7.graphics.Palette.Builder addFilter(android.support.v7.graphics.Palette.Filter);
+    method public android.support.v7.graphics.Palette.Builder addTarget(android.support.v7.graphics.Target);
     method public android.support.v7.graphics.Palette.Builder clearFilters();
     method public android.support.v7.graphics.Palette.Builder clearRegion();
+    method public android.support.v7.graphics.Palette.Builder clearTargets();
     method public android.support.v7.graphics.Palette generate();
     method public android.os.AsyncTask<android.graphics.Bitmap, java.lang.Void, android.support.v7.graphics.Palette> generate(android.support.v7.graphics.Palette.PaletteAsyncListener);
     method public android.support.v7.graphics.Palette.Builder maximumColorCount(int);
-    method public android.support.v7.graphics.Palette.Builder resizeBitmapSize(int);
+    method public android.support.v7.graphics.Palette.Builder resizeBitmapArea(int);
+    method public deprecated android.support.v7.graphics.Palette.Builder resizeBitmapSize(int);
     method public android.support.v7.graphics.Palette.Builder setRegion(int, int, int, int);
   }
 
@@ -50,6 +56,41 @@ package android.support.v7.graphics {
     method public int getPopulation();
     method public int getRgb();
     method public int getTitleTextColor();
+  }
+
+  public final class Target {
+    method public float getLightnessWeight();
+    method public float getMaximumLightness();
+    method public float getMaximumSaturation();
+    method public float getMinimumLightness();
+    method public float getMinimumSaturation();
+    method public float getPopulationWeight();
+    method public float getSaturationWeight();
+    method public float getTargetLightness();
+    method public float getTargetSaturation();
+    method public boolean isExclusive();
+    field public static final android.support.v7.graphics.Target DARK_MUTED;
+    field public static final android.support.v7.graphics.Target DARK_VIBRANT;
+    field public static final android.support.v7.graphics.Target LIGHT_MUTED;
+    field public static final android.support.v7.graphics.Target LIGHT_VIBRANT;
+    field public static final android.support.v7.graphics.Target MUTED;
+    field public static final android.support.v7.graphics.Target VIBRANT;
+  }
+
+  public static final class Target.Builder {
+    ctor public Target.Builder();
+    ctor public Target.Builder(android.support.v7.graphics.Target);
+    method public android.support.v7.graphics.Target build();
+    method public android.support.v7.graphics.Target.Builder setExclusive(boolean);
+    method public android.support.v7.graphics.Target.Builder setLightnessWeight(float);
+    method public android.support.v7.graphics.Target.Builder setMaximumLightness(float);
+    method public android.support.v7.graphics.Target.Builder setMaximumSaturation(float);
+    method public android.support.v7.graphics.Target.Builder setMinimumLightness(float);
+    method public android.support.v7.graphics.Target.Builder setMinimumSaturation(float);
+    method public android.support.v7.graphics.Target.Builder setPopulationWeight(float);
+    method public android.support.v7.graphics.Target.Builder setSaturationWeight(float);
+    method public android.support.v7.graphics.Target.Builder setTargetLightness(float);
+    method public android.support.v7.graphics.Target.Builder setTargetSaturation(float);
   }
 
 }
