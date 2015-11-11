@@ -98,9 +98,9 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
     /**
      * View holder containing a {@link GuidedAction}.
      */
-    private static class ActionViewHolder extends ViewHolder {
+    static class ActionViewHolder extends ViewHolder {
 
-        private final GuidedActionsStylist.ViewHolder mStylistViewHolder;
+        final GuidedActionsStylist.ViewHolder mStylistViewHolder;
         private GuidedAction mAction;
 
         /**
@@ -128,45 +128,48 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
         }
     }
 
-    private RecyclerView mRecyclerView;
     private final ActionOnKeyListener mActionOnKeyListener;
     private final ActionOnFocusListener mActionOnFocusListener;
     private final ActionEditListener mActionEditListener;
     private final List<GuidedAction> mActions;
     private ClickListener mClickListener;
-    private GuidedActionsStylist mStylist;
+    private final GuidedActionsStylist mStylist;
     private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (v != null && v.getWindowToken() != null && mClickListener != null) {
-                ActionViewHolder avh = (ActionViewHolder)mRecyclerView.getChildViewHolder(v);
+            if (v != null && v.getWindowToken() != null && getRecyclerView() != null) {
+                ActionViewHolder avh = (ActionViewHolder)getRecyclerView().getChildViewHolder(v);
                 GuidedAction action = avh.getAction();
-                if (action.isEnabled() && !action.infoOnly()) {
-                    mClickListener.onGuidedActionClicked(action);
+                if (action.isEditable() || action.isDescriptionEditable()) {
+                    if (DEBUG_EDIT) Log.v(TAG_EDIT, "openIme by click");
+                    mGroup.openIme(GuidedActionAdapter.this, avh);
+                } else {
+                    handleCheckedActions(avh);
+                    if (action.isEnabled() && !action.infoOnly()) {
+                        performOnActionClick(avh);
+                    }
                 }
             }
         }
     };
-    private boolean mImeOpened;
+    GuidedActionAdapterGroup mGroup;
 
     /**
      * Constructs a GuidedActionAdapter with the given list of guided actions, the given click and
      * focus listeners, and the given presenter.
      * @param actions The list of guided actions this adapter will manage.
-     * @param clickListener The click listener for items in this adapter.
      * @param focusListener The focus listener for items in this adapter.
      * @param presenter The presenter that will manage the display of items in this adapter.
      */
     public GuidedActionAdapter(List<GuidedAction> actions, ClickListener clickListener,
-            FocusListener focusListener, EditListener editListener,
-            GuidedActionsStylist presenter) {
+            FocusListener focusListener, GuidedActionsStylist presenter) {
         super();
         mActions = new ArrayList<GuidedAction>(actions);
         mClickListener = clickListener;
         mStylist = presenter;
         mActionOnKeyListener = new ActionOnKeyListener();
         mActionOnFocusListener = new ActionOnFocusListener(focusListener);
-        mActionEditListener = new ActionEditListener(editListener);
+        mActionEditListener = new ActionEditListener();
     }
 
     /**
@@ -198,6 +201,22 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
     }
 
     /**
+     * Return index of action in array
+     * @param action Action to search index.
+     * @return Index of Action in array.
+     */
+    public int indexOf(GuidedAction action) {
+        return mActions.indexOf(action);
+    }
+
+    /**
+     * @return GuidedActionsStylist used to build the actions list UI.
+     */
+    public GuidedActionsStylist getGuidedActionsStylist() {
+        return mStylist;
+    }
+
+    /**
      * Sets the click listener for items managed by this adapter.
      * @param clickListener The click listener for this adapter.
      */
@@ -225,24 +244,12 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
      * {@inheritDoc}
      */
     @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-        mRecyclerView = recyclerView;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public int getItemViewType(int position) {
         return mStylist.getItemViewType(mActions.get(position));
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
-        mRecyclerView = null;
+    private RecyclerView getRecyclerView() {
+        return mStylist.getActionsGridView();
     }
 
     /**
@@ -304,31 +311,6 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
         return mActions.size();
     }
 
-    private int getNextActionIndex(GuidedAction action, long nextActionId) {
-        if (nextActionId == GuidedAction.ACTION_ID_NEXT) {
-            int i, size = mActions.size();
-            for (i = 0; i < size; i++) {
-                GuidedAction a = mActions.get(i);
-                if (mActions.get(i) == action) {
-                    break;
-                }
-            }
-            do {
-                i++;
-            } while (i < size && !mActions.get(i).isFocusable());
-            return (i == size) ? -1 : i;
-        } else {
-            int i, size = mActions.size();
-            for (i = 0; i < size; i++) {
-                GuidedAction a = mActions.get(i);
-                if (mActions.get(i).getId() == nextActionId) {
-                    break;
-                }
-            }
-            return (i == size) ? -1 : i;
-        }
-    }
-
     private class ActionOnFocusListener implements View.OnFocusChangeListener {
 
         private FocusListener mFocusListener;
@@ -343,8 +325,8 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
         }
 
         public void unFocus() {
-            if (mSelectedView != null) {
-                ViewHolder vh = mRecyclerView.getChildViewHolder(mSelectedView);
+            if (mSelectedView != null && getRecyclerView() != null) {
+                ViewHolder vh = getRecyclerView().getChildViewHolder(mSelectedView);
                 if (vh != null) {
                     ActionViewHolder avh = (ActionViewHolder)vh;
                     mStylist.onAnimateItemFocused(avh.mStylistViewHolder, false);
@@ -357,7 +339,10 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
 
         @Override
         public void onFocusChange(View v, boolean hasFocus) {
-            ActionViewHolder avh = (ActionViewHolder)mRecyclerView.getChildViewHolder(v);
+            if (getRecyclerView() == null) {
+                return;
+            }
+            ActionViewHolder avh = (ActionViewHolder) getRecyclerView().getChildViewHolder(v);
             if (hasFocus) {
                 mSelectedView = v;
                 if (mFocusListener != null) {
@@ -375,10 +360,54 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
         }
     }
 
-    public void openIme(ActionViewHolder avh) {
-        mStylist.setEditingMode(avh.mStylistViewHolder,
-                avh.getAction(), true);
-        mActionEditListener.openIme(avh);
+    public ActionViewHolder findSubChildViewHolder(View v) {
+        // Needed because RecyclerView.getChildViewHolder does not traverse the hierarchy
+        if (getRecyclerView() == null) {
+            return null;
+        }
+        ActionViewHolder result = null;
+        ViewParent parent = v.getParent();
+        while (parent != getRecyclerView() && parent != null && v != null) {
+            v = (View)parent;
+            parent = parent.getParent();
+        }
+        if (parent != null && v != null) {
+            result = (ActionViewHolder)getRecyclerView().getChildViewHolder(v);
+        }
+        return result;
+    }
+
+    public void handleCheckedActions(ActionViewHolder avh) {
+        GuidedAction action = avh.getAction();
+        int actionCheckSetId = action.getCheckSetId();
+        if (getRecyclerView() != null && actionCheckSetId != GuidedAction.NO_CHECK_SET) {
+            // Find any actions that are checked and are in the same group
+            // as the selected action. Fade their checkmarks out.
+            for (int i = 0, size = mActions.size(); i < size; i++) {
+                GuidedAction a = mActions.get(i);
+                if (a != action && a.getCheckSetId() == actionCheckSetId && a.isChecked()) {
+                    a.setChecked(false);
+                    ViewHolder vh = getRecyclerView().findViewHolderForPosition(i);
+                    if (vh != null) {
+                        GuidedActionsStylist.ViewHolder subViewHolder =
+                                ((ActionViewHolder)vh).mStylistViewHolder;
+                        mStylist.onAnimateItemChecked(subViewHolder, false);
+                    }
+                }
+            }
+
+            // If we we'ren't already checked, fade our checkmark in.
+            if (!action.isChecked()) {
+                action.setChecked(true);
+                mStylist.onAnimateItemChecked(avh.mStylistViewHolder, true);
+            }
+        }
+    }
+
+    public void performOnActionClick(ActionViewHolder avh) {
+        if (mClickListener != null) {
+            mClickListener.onGuidedActionClicked(avh.getAction());
+        }
     }
 
     private class ActionOnKeyListener implements View.OnKeyListener {
@@ -398,7 +427,7 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
          */
         @Override
         public boolean onKey(View v, int keyCode, KeyEvent event) {
-            if (v == null || event == null) {
+            if (v == null || event == null || getRecyclerView() == null) {
                 return false;
             }
             boolean handled = false;
@@ -409,7 +438,8 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
                 case KeyEvent.KEYCODE_BUTTON_Y:
                 case KeyEvent.KEYCODE_ENTER:
 
-                    ActionViewHolder avh = (ActionViewHolder)mRecyclerView.getChildViewHolder(v);
+                    ActionViewHolder avh = (ActionViewHolder) getRecyclerView()
+                            .getChildViewHolder(v);
                     GuidedAction action = avh.getAction();
 
                     if (!action.isEnabled() || action.infoOnly()) {
@@ -431,7 +461,6 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
                                 mStylist.onAnimateItemPressed(avh.mStylistViewHolder,
                                         mKeyPressed);
                             }
-                            handled = true;
                             break;
                         case KeyEvent.ACTION_UP:
                             if (DEBUG) {
@@ -443,14 +472,6 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
                                 mKeyPressed = false;
                                 mStylist.onAnimateItemPressed(avh.mStylistViewHolder, mKeyPressed);
                             }
-                            if (action.isEditable() || action.isDescriptionEditable()) {
-                                if (DEBUG_EDIT) Log.v(TAG_EDIT, "openIme click");
-                                openIme(avh);
-                            } else {
-                                handleCheckedActions(avh, action);
-                                mClickListener.onGuidedActionClicked(action);
-                            }
-                            handled = true;
                             break;
                         default:
                             break;
@@ -462,41 +483,10 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
             return handled;
         }
 
-        private void handleCheckedActions(ActionViewHolder avh, GuidedAction action) {
-            int actionCheckSetId = action.getCheckSetId();
-            if (actionCheckSetId != GuidedAction.NO_CHECK_SET) {
-                // Find any actions that are checked and are in the same group
-                // as the selected action. Fade their checkmarks out.
-                for (int i = 0, size = mActions.size(); i < size; i++) {
-                    GuidedAction a = mActions.get(i);
-                    if (a != action && a.getCheckSetId() == actionCheckSetId && a.isChecked()) {
-                        a.setChecked(false);
-                        ViewHolder vh = mRecyclerView.findViewHolderForPosition(i);
-                        if (vh != null) {
-                            GuidedActionsStylist.ViewHolder subViewHolder =
-                                    ((ActionViewHolder)vh).mStylistViewHolder;
-                            mStylist.onAnimateItemChecked(subViewHolder, false);
-                        }
-                    }
-                }
-
-                // If we we'ren't already checked, fade our checkmark in.
-                if (!action.isChecked()) {
-                    action.setChecked(true);
-                    mStylist.onAnimateItemChecked(avh.mStylistViewHolder, true);
-                }
-            }
-        }
     }
 
     private class ActionEditListener implements OnEditorActionListener,
             ImeKeyMonitor.ImeKeyListener {
-
-        private EditListener mEditListener;
-
-        public ActionEditListener(EditListener listener) {
-            mEditListener = listener;
-        }
 
         @Override
         public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -504,133 +494,29 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
             boolean handled = false;
             if (actionId == EditorInfo.IME_ACTION_NEXT ||
                 actionId == EditorInfo.IME_ACTION_DONE) {
-                fillAndGoNext(v);
+                mGroup.fillAndGoNext(GuidedActionAdapter.this, v);
                 handled = true;
             } else if (actionId == EditorInfo.IME_ACTION_NONE) {
                 if (DEBUG_EDIT) Log.v(TAG_EDIT, "closeIme escape north");
                 // Escape north handling: stay on current item, but close editor
                 handled = true;
-                fillAndStay(v);
+                mGroup.fillAndStay(GuidedActionAdapter.this, v);
             }
             return handled;
-        }
-
-        private void fillAndStay(TextView v) {
-            ActionViewHolder avh = findSubChildViewHolder(v);
-            updateTextIntoAction(avh, v);
-            finishEditing(avh);
-            closeIme(v);
-            avh.mStylistViewHolder.view.requestFocus();
-        }
-
-        private void fillAndGoNext(TextView v) {
-            boolean handled = false;
-            ActionViewHolder avh = findSubChildViewHolder(v);
-            updateTextIntoAction(avh, v);
-            mClickListener.onGuidedActionClicked(avh.getAction());
-            long nextActionId = finishEditing(avh);
-            if (nextActionId != GuidedAction.ACTION_ID_CURRENT
-                    && nextActionId != avh.getAction().getId()) {
-                int next = getNextActionIndex(avh.getAction(), nextActionId);
-                if (next != -1) {
-                    ActionViewHolder vh = (ActionViewHolder) mRecyclerView
-                            .findViewHolderForPosition(next);
-                    if (vh != null) {
-                        handled = true;
-                        if (vh.getAction().isEditable() ||
-                                vh.getAction().isDescriptionEditable()) {
-                            if (DEBUG_EDIT) Log.v(TAG_EDIT, "openIme of next Action");
-                            mStylist.setEditingMode(vh.mStylistViewHolder,
-                                    vh.getAction(), true);
-                            // open Ime on next action.
-                            openIme(vh);
-                        } else {
-                            if (DEBUG_EDIT) Log.v(TAG_EDIT, "closeIme and focus to next Action");
-                            // close IME and focus to next (not editable) action
-                            closeIme(v);
-                            vh.mStylistViewHolder.view.requestFocus();
-                        }
-                    }
-                }
-            }
-            if (!handled) {
-                if (DEBUG_EDIT) Log.v(TAG_EDIT, "closeIme no next action");
-                handled = true;
-                closeIme(v);
-                avh.mStylistViewHolder.view.requestFocus();
-            }
-        }
-
-        private void updateTextIntoAction(ActionViewHolder avh, TextView v) {
-            GuidedAction action = avh.getAction();
-            if (v == avh.mStylistViewHolder.getDescriptionView()) {
-                if (action.getEditDescription() != null) {
-                    action.setEditDescription(v.getText());
-                } else {
-                    action.setDescription(v.getText());
-                }
-            } else if (v == avh.mStylistViewHolder.getTitleView()) {
-                if (action.getEditTitle() != null) {
-                    action.setEditTitle(v.getText());
-                } else {
-                    action.setTitle(v.getText());
-                }
-            }
         }
 
         @Override
         public boolean onKeyPreIme(EditText editText, int keyCode, KeyEvent event) {
             if (DEBUG_EDIT) Log.v(TAG_EDIT, "IME key: " + keyCode);
             if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
-                fillAndStay(editText);
+                mGroup.fillAndStay(GuidedActionAdapter.this, editText);
             } else if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() ==
                     KeyEvent.ACTION_UP) {
-                fillAndGoNext(editText);
+                mGroup.fillAndGoNext(GuidedActionAdapter.this, editText);
             }
             return false;
         }
 
-        public void openIme(ActionViewHolder avh) {
-            View v = avh.mStylistViewHolder.getEditingView();
-            InputMethodManager mgr = (InputMethodManager)
-                    v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-            v.requestFocus();
-            mgr.showSoftInput(v, 0);
-            if (!mImeOpened) {
-                mImeOpened = true;
-                mEditListener.onImeOpen();
-            }
-        }
-
-        public long finishEditing(ActionViewHolder avh) {
-            long nextActionId = mEditListener.onGuidedActionEdited(avh.getAction());
-            mStylist.setEditingMode(avh.mStylistViewHolder, avh.getAction(), false);
-            return nextActionId;
-        }
-
-        public void closeIme(View v) {
-            if (mImeOpened) {
-                mImeOpened = false;
-                InputMethodManager mgr = (InputMethodManager)
-                        v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                mgr.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                mEditListener.onImeClose();
-            }
-        }
-
-        private ActionViewHolder findSubChildViewHolder(View v) {
-            // Needed because RecyclerView.getChildViewHolder does not traverse the hierarchy
-            ActionViewHolder result = null;
-            ViewParent parent = v.getParent();
-            while (parent != mRecyclerView && parent != null && v != null) {
-                v = (View)parent;
-                parent = parent.getParent();
-            }
-            if (parent != null && v != null) {
-                result = (ActionViewHolder)mRecyclerView.getChildViewHolder(v);
-            }
-            return result;
-        }
     }
 
 }

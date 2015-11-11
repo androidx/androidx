@@ -386,6 +386,10 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             mActionsGridView.getViewTreeObserver().removeOnGlobalFocusChangeListener(
                     mGlobalFocusChangeListener);
         }
+        mActionsGridView = null;
+        mSelectorView = null;
+        mBgView = null;
+        mMainView = null;
     }
 
     /**
