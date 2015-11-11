@@ -21,6 +21,7 @@ import android.text.Selection;
 import android.text.Spannable;
 import android.util.Log;
 import android.util.SparseArray;
+import android.util.SparseIntArray;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -1886,6 +1887,20 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         }
     }
 
+    static class ChangeableViewTypesProvider implements ViewTypeProvider {
+        static SparseIntArray sViewTypes = new SparseIntArray();
+        @Override
+        public int getViewType(int position) {
+            return sViewTypes.get(position);
+        }
+        public static void clear() {
+            sViewTypes.clear();
+        }
+        public static void setViewType(int position, int type) {
+            sViewTypes.put(position, type);
+        }
+    }
+
     static class PositionItemAlignmentFacetProviderForRelativeLayout1
             implements ItemAlignmentFacetProvider {
         ItemAlignmentFacet mMultipleFacet;
@@ -2099,6 +2114,38 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         });
         waitForTransientStateGone(null);
         assertEquals(0, mGridView.getSelectedPosition());
+    }
+
+    public void testNotifyItemTypeChangedSelectionEvent() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 10);
+        intent.putExtra(GridActivity.EXTRA_VIEWTYPEPROVIDER_CLASS,
+                ChangeableViewTypesProvider.class.getName());
+        ChangeableViewTypesProvider.clear();
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        final ArrayList<Integer> selectedLog = new ArrayList<Integer>();
+        mGridView.setOnChildSelectedListener(new OnChildSelectedListener() {
+            public void onChildSelected(ViewGroup parent, View view, int position, long id) {
+                selectedLog.add(position);
+            }
+        });
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                ChangeableViewTypesProvider.setViewType(0, 1);
+                mGridView.getAdapter().notifyItemChanged(0, 1);
+            }
+        });
+        waitForTransientStateGone(null);
+        assertEquals(0, mGridView.getSelectedPosition());
+        assertEquals(selectedLog.size(), 1);
+        assertEquals((int) selectedLog.get(0), 0);
     }
 
     public void testSelectionSmoothAndAddItemInOneCycle() throws Throwable {

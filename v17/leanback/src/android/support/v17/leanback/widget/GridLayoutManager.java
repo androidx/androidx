@@ -1773,6 +1773,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         mFocusPositionOffset = 0;
         saveContext(recycler, state);
 
+        View savedFocusView = findViewByPosition(mFocusPosition);
+        int savedFocusPos = mFocusPosition;
+        int savedSubFocusPos = mSubFocusPosition;
+        boolean hadFocus = mBaseGridView.hasFocus();
+
         // Track the old focus view so we can adjust our system scroll position
         // so that any scroll animations happening now will remain valid.
         // We must use same delta in Pre Layout (if prelayout exists) and second layout.
@@ -1781,17 +1786,14 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         if (mFocusPosition != NO_POSITION && scrollToFocus
                 && mBaseGridView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE) {
             // FIXME: we should get the remaining scroll animation offset from RecyclerView
-            View focusView = findViewByPosition(mFocusPosition);
-            if (focusView != null) {
-                if (getScrollPosition(focusView, focusView.findFocus(), sTwoInts)) {
+            if (savedFocusView != null) {
+                if (getScrollPosition(savedFocusView, savedFocusView.findFocus(), sTwoInts)) {
                     delta = sTwoInts[0];
                     deltaSecondary = sTwoInts[1];
                 }
             }
         }
 
-        boolean hadFocus = mBaseGridView.hasFocus();
-        int savedFocusPos = mFocusPosition;
         if (mInFastRelayout = layoutInit()) {
             fastRelayout();
             // appends items till focus position.
@@ -1859,7 +1861,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
 
         // For fastRelayout, only dispatch event when focus position changes.
-        if (mInFastRelayout && mFocusPosition != savedFocusPos) {
+        if (mInFastRelayout && (mFocusPosition != savedFocusPos || mSubFocusPosition !=
+                savedFocusPos || findViewByPosition(mFocusPosition) != savedFocusView)) {
             dispatchChildSelected();
         } else if (!mInFastRelayout && mInLayoutSearchFocus) {
             // For full layout we dispatchChildSelected() in createItem() unless searched all
