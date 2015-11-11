@@ -663,7 +663,7 @@ public final class AppCompatDrawableManager {
         return getPorterDuffColorFilter(color, tintMode);
     }
 
-    private static PorterDuffColorFilter getPorterDuffColorFilter(int color, PorterDuff.Mode mode) {
+    public static PorterDuffColorFilter getPorterDuffColorFilter(int color, PorterDuff.Mode mode) {
         // First, lets see if the cache already contains the color filter
         PorterDuffColorFilter filter = COLOR_FILTER_CACHE.get(color, mode);
 
