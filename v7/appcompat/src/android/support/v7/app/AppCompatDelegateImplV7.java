@@ -115,6 +115,8 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
     private PanelFeatureState[] mPanels;
     private PanelFeatureState mPreparedPanel;
 
+    private boolean mLongPressBackDown;
+
     private boolean mInvalidatePanelMenuPosted;
     private int mInvalidatePanelMenuFeatures;
     private final Runnable mInvalidatePanelMenuRunnable = new Runnable() {
@@ -874,9 +876,17 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
                 onKeyUpPanel(Window.FEATURE_OPTIONS_PANEL, event);
                 return true;
             case KeyEvent.KEYCODE_BACK:
+                final boolean wasLongPressBackDown = mLongPressBackDown;
+                mLongPressBackDown = false;
+
                 PanelFeatureState st = getPanelState(Window.FEATURE_OPTIONS_PANEL, false);
                 if (st != null && st.isOpen) {
-                    closePanel(st, true);
+                    if (!wasLongPressBackDown) {
+                        // Certain devices allow opening the options menu via a long press of the
+                        // back button. We should only close the open options menu if it wasn't
+                        // opened via a long press gesture.
+                        closePanel(st, true);
+                    }
                     return true;
                 }
                 if (onBackPressed()) {
@@ -895,6 +905,11 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
                 // For empty menus, PhoneWindow's KEYCODE_BACK handling will steals all events,
                 // not allowing the Activity to call onBackPressed().
                 return true;
+            case KeyEvent.KEYCODE_BACK:
+                // Certain devices allow opening the options menu via a long press of the back
+                // button. We keep a record of whether the last event is from a long press.
+                mLongPressBackDown = (event.getFlags() & KeyEvent.FLAG_LONG_PRESS) != 0;
+                break;
         }
 
         // On API v7-10 we need to manually call onKeyShortcut() as this is not called
