@@ -248,10 +248,10 @@
     <dimen name="lb_guidedactions_item_text_width">248dp</dimen>
     <dimen name="lb_guidedactions_item_text_width_no_icon">284dp</dimen>
     <dimen name="lb_guidedactions_item_min_height">64dp</dimen>
-    <dimen name="lb_guidedactions_item_start_padding">20dp</dimen>
+    <dimen name="lb_guidedactions_item_start_padding">28dp</dimen>
     <dimen name="lb_guidedactions_item_end_padding">28dp</dimen>
     <dimen name="lb_guidedactions_item_delimiter_padding">4dp</dimen>
-    <dimen name="lb_guidedactions_item_checkmark_diameter">8dp</dimen>
+    <dimen name="lb_guidedactions_item_checkmark_diameter">16dp</dimen>
     <dimen name="lb_guidedactions_item_icon_width">32dp</dimen>
     <dimen name="lb_guidedactions_item_icon_height">32dp</dimen>
     <dimen name="lb_guidedactions_item_title_font_size">18sp</dimen>

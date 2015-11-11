@@ -145,8 +145,6 @@
         <item name="guidedActionItemDescriptionStyle">@style/Widget.Leanback.GuidedActionItemDescriptionStyle</item>
         <item name="guidedActionItemChevronStyle">@style/Widget.Leanback.GuidedActionItemChevronStyle</item>
 
-        <item name="guidedActionCheckedAnimation">@animator/lb_guidedactions_item_checked</item>
-        <item name="guidedActionUncheckedAnimation">@animator/lb_guidedactions_item_unchecked</item>
         <item name="guidedActionPressedAnimation">@animator/lb_guidedactions_item_pressed</item>
         <item name="guidedActionUnpressedAnimation">@animator/lb_guidedactions_item_unpressed</item>
         <item name="guidedActionEnabledChevronAlpha">@string/lb_guidedactions_item_enabled_chevron_alpha</item>

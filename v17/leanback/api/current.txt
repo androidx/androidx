@@ -1040,6 +1040,7 @@ package android.support.v17.leanback.widget {
     field public static final long ACTION_ID_NO = -9L; // 0xfffffffffffffff7L
     field public static final long ACTION_ID_OK = -4L; // 0xfffffffffffffffcL
     field public static final long ACTION_ID_YES = -8L; // 0xfffffffffffffff8L
+    field public static final int CHECKBOX_CHECK_SET_ID = -1; // 0xffffffff
     field public static final int DEFAULT_CHECK_SET_ID = 1; // 0x1
     field public static final int NO_CHECK_SET = 0; // 0x0
   }
@@ -1093,6 +1094,8 @@ package android.support.v17.leanback.widget {
     method public void onAnimateItemFocused(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, boolean);
     method public void onAnimateItemPressed(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, boolean);
     method public void onAnimateItemPressedCancelled(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder);
+    method public void onBindCheckMarkView(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, android.support.v17.leanback.widget.GuidedAction);
+    method public void onBindChevronView(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, android.support.v17.leanback.widget.GuidedAction);
     method public void onBindViewHolder(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, android.support.v17.leanback.widget.GuidedAction);
     method public android.view.View onCreateView(android.view.LayoutInflater, android.view.ViewGroup);
     method public android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder onCreateViewHolder(android.view.ViewGroup);
