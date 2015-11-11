@@ -215,6 +215,7 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
     private GuidedActionsStylist mButtonActionsStylist;
     private GuidedActionAdapter mAdapter;
     private GuidedActionAdapter mButtonAdapter;
+    private GuidedActionAdapterGroup mAdapterGroup;
     private List<GuidedAction> mActions = new ArrayList<GuidedAction>();
     private List<GuidedAction> mButtonActions = new ArrayList<GuidedAction>();
     private int mSelectedIndex = -1;
@@ -964,6 +965,9 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
         mGuidanceStylist.onDestroyView();
         mActionsStylist.onDestroyView();
         mButtonActionsStylist.onDestroyView();
+        mAdapter = null;
+        mButtonAdapter = null;
+        mAdapterGroup = null;
         super.onDestroyView();
     }
 
@@ -1011,10 +1015,12 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
                 }
         };
 
-        mAdapter = new GuidedActionAdapter(mActions, this, this, editListener,
-                mActionsStylist);
-        mButtonAdapter = new GuidedActionAdapter(mButtonActions, this, this, editListener,
-                mButtonActionsStylist);
+        mAdapter = new GuidedActionAdapter(mActions, this, this, mActionsStylist);
+        mButtonAdapter = new GuidedActionAdapter(mButtonActions, this, this, mButtonActionsStylist);
+        mAdapterGroup = new GuidedActionAdapterGroup();
+        mAdapterGroup.addAdpter(mAdapter);
+        mAdapterGroup.addAdpter(mButtonAdapter);
+        mAdapterGroup.setEditListener(editListener);
 
         mActionsStylist.getActionsGridView().setAdapter(mAdapter);
         mButtonActionsStylist.getActionsGridView().setAdapter(mButtonAdapter);
