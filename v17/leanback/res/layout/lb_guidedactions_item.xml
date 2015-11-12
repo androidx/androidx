@@ -20,7 +20,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     style="?attr/guidedActionItemContainerStyle" >
 
-    <ImageView
+    <android.support.v17.leanback.widget.CheckableImageView
         android:id="@+id/guidedactions_item_checkmark"
         style="?attr/guidedActionItemCheckmarkStyle"
         tools:ignore="ContentDescription" />

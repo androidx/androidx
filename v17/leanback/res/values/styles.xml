@@ -456,9 +456,8 @@
         <item name="android:layout_height">@dimen/lb_guidedactions_item_checkmark_diameter</item>
         <item name="android:layout_gravity">center</item>
         <item name="android:layout_marginEnd">@dimen/lb_guidedactions_item_delimiter_padding</item>
-        <item name="android:scaleType">center</item>
-        <item name="android:src">@drawable/lb_guidedactions_item_checkmark</item>
-        <item name="android:visibility">invisible</item>
+        <item name="android:scaleType">centerInside</item>
+        <item name="android:visibility">gone</item>
     </style>
 
     <!-- Style for an action's icon in a GuidedActionsStylist's default item layout. -->

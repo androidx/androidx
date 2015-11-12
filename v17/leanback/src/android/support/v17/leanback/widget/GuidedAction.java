@@ -37,8 +37,18 @@ public class GuidedAction extends Action {
 
     private static final String TAG = "GuidedAction";
 
+    /**
+     * Special check set Id that is neither checkbox nor radio.
+     */
     public static final int NO_CHECK_SET = 0;
+    /**
+     * Default checkset Id for radio.
+     */
     public static final int DEFAULT_CHECK_SET_ID = 1;
+    /**
+     * Checkset Id for checkbox.
+     */
+    public static final int CHECKBOX_CHECK_SET_ID = -1;
 
     /**
      * When finishing editing, goes to next action.
@@ -371,10 +381,11 @@ public class GuidedAction extends Action {
         }
 
         /**
-         * Indicates whether this action is part of a single-select group similar to radio buttons.
-         * When one item in a check set is checked, all others with the same check set ID will be
-         * unchecked automatically.
-         * @param checkSetId The check set ID, or {@link #NO_CHECK_SET) to indicate no check set.
+         * Indicates whether this action is part of a single-select group similar to radio buttons
+         * or this action is a checkbox. When one item in a check set is checked, all others with
+         * the same check set ID will be nchecked automatically.
+         * @param checkSetId The check set ID, or {@link GuidedAction#NO_CHECK_SET} to indicate not
+         * radio or checkbox, or {@link GuidedAction#CHECKBOX_CHECK_SET_ID} to indicate a checkbox.
          */
         public Builder checkSetId(int checkSetId) {
             mCheckSetId = checkSetId;
@@ -604,13 +615,13 @@ public class GuidedAction extends Action {
     }
 
     /**
-     * Returns the check set id this action is a part of. All actions in the
-     * same list with the same check set id are considered linked. When one
-     * of the actions within that set is selected, that action becomes
-     * checked, while all the other actions become unchecked.
+     * Returns the check set id this action is a part of. All actions in the same list with the same
+     * check set id are considered linked. When one of the actions within that set is selected, that
+     * action becomes checked, while all the other actions become unchecked.
      *
      * @return an integer representing the check set this action is a part of, or
-     *         {@link #NO_CHECK_SET} if this action isn't a part of a check set.
+     *         {@link #CHECKBOX_CHECK_SET_ID} if this is a checkbox, or {@link #NO_CHECK_SET} if
+     *         this action is not a checkbox or radiobutton.
      */
     public int getCheckSetId() {
         return mCheckSetId;
