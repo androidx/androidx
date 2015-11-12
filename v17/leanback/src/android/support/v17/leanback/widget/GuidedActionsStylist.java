@@ -27,6 +27,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.VerticalGridView;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.ViewHolder;
@@ -41,6 +42,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.ViewPropertyAnimator;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
+import android.widget.Checkable;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -101,8 +103,6 @@ import java.util.List;
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionItemTitleStyle
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionItemDescriptionStyle
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionItemChevronStyle
- * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionCheckedAnimation
- * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionUncheckedAnimation
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionPressedAnimation
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionUnpressedAnimation
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionEnabledChevronAlpha
@@ -111,6 +111,8 @@ import java.util.List;
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionTitleMaxLines
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionDescriptionMinLines
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionVerticalPadding
+ * @see android.R.styleable#Theme_listChoiceIndicatorSingle
+ * @see android.R.styleable#Theme_listChoiceIndicatorMultiple
  * @see android.support.v17.leanback.app.GuidedStepFragment
  * @see GuidedAction
  */
@@ -519,14 +521,12 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             vh.mDescriptionView.setFocusable(action.isDescriptionEditable());
         }
         // Clients might want the check mark view to be gone entirely, in which case, ignore it.
-        if (vh.mCheckmarkView != null && vh.mCheckmarkView.getVisibility() != View.GONE) {
-            vh.mCheckmarkView.setVisibility(action.isChecked() ? View.VISIBLE : View.INVISIBLE);
+        if (vh.mCheckmarkView != null) {
+            onBindCheckMarkView(vh, action);
         }
 
         if (vh.mChevronView != null) {
-            vh.mChevronView.setVisibility(action.hasNext() ? View.VISIBLE : View.GONE);
-            vh.mChevronView.setAlpha(action.isEnabled() ? mEnabledChevronAlpha :
-                    mDisabledChevronAlpha);
+            onBindChevronView(vh, action);
         }
 
         if (action.hasMultilineDescription()) {
@@ -644,29 +644,67 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     }
 
     /**
-     * Animates the view holder's view (or subviews thereof) when the action has had its check
-     * state changed.
+     * Animates the view holder's view (or subviews thereof) when the action has had its check state
+     * changed. Default implementation calls setChecked() if {@link ViewHolder#getCheckmarkView()}
+     * is instance of {@link Checkable}.
+     *
      * @param vh The view holder associated with the relevant action.
      * @param checked True if the action has become checked, false if it has become unchecked.
+     * @see #onBindCheckMarkView(ViewHolder, GuidedAction)
      */
     public void onAnimateItemChecked(ViewHolder vh, boolean checked) {
-        final View checkView = vh.mCheckmarkView;
-        if (checkView != null) {
-            if (checked) {
-                checkView.setVisibility(View.VISIBLE);
-                createAnimator(checkView, R.attr.guidedActionCheckedAnimation).start();
-            } else {
-                Animator animator = createAnimator(checkView,
-                        R.attr.guidedActionUncheckedAnimation);
-                animator.addListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        checkView.setVisibility(View.INVISIBLE);
-                    }
-                });
-                animator.start();
-            }
+        if (vh.mCheckmarkView instanceof Checkable) {
+            ((Checkable) vh.mCheckmarkView).setChecked(checked);
         }
+    }
+
+    /**
+     * Sets states of check mark view, called by {@link #onBindViewHolder(ViewHolder, GuidedAction)}
+     * when action's checkset Id is other than {@link GuidedAction#NO_CHECK_SET}. Default
+     * implementation assigns drawable loaded from theme attribute
+     * {@link android.R.attr#listChoiceIndicatorMultiple} for checkbox or
+     * {@link android.R.attr#listChoiceIndicatorSingle} for radio button. Subclass rarely needs
+     * override the method, instead app can provide its own drawable that supports transition
+     * animations, change theme attributes {@link android.R.attr#listChoiceIndicatorMultiple} and
+     * {@link android.R.attr#listChoiceIndicatorSingle} in {android.support.v17.leanback.R.
+     * styleable#LeanbackGuidedStepTheme}.
+     *
+     * @param vh The view holder associated with the relevant action.
+     * @param action The GuidedAction object to bind to.
+     * @see #onAnimateItemChecked(ViewHolder, boolean)
+     */
+    public void onBindCheckMarkView(ViewHolder vh, GuidedAction action) {
+        if (action.getCheckSetId() != GuidedAction.NO_CHECK_SET) {
+            vh.mCheckmarkView.setVisibility(View.VISIBLE);
+            int attrId = action.getCheckSetId() == GuidedAction.CHECKBOX_CHECK_SET_ID ?
+                    android.R.attr.listChoiceIndicatorMultiple :
+                    android.R.attr.listChoiceIndicatorSingle;
+            final Context context = vh.mCheckmarkView.getContext();
+            Drawable drawable = null;
+            TypedValue typedValue = new TypedValue();
+            if (context.getTheme().resolveAttribute(attrId, typedValue, true)) {
+                drawable = ContextCompat.getDrawable(context, typedValue.resourceId);
+            }
+            vh.mCheckmarkView.setImageDrawable(drawable);
+            if (vh.mCheckmarkView instanceof Checkable) {
+                ((Checkable) vh.mCheckmarkView).setChecked(action.isChecked());
+            }
+        } else {
+            vh.mCheckmarkView.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * Sets states of chevron view, called by {@link #onBindViewHolder(ViewHolder, GuidedAction)}.
+     * Subclass may override.
+     *
+     * @param vh The view holder associated with the relevant action.
+     * @param action The GuidedAction object to bind to.
+     */
+    public void onBindChevronView(ViewHolder vh, GuidedAction action) {
+        vh.mChevronView.setVisibility(action.hasNext() ? View.VISIBLE : View.GONE);
+        vh.mChevronView.setAlpha(action.isEnabled() ? mEnabledChevronAlpha :
+                mDisabledChevronAlpha);
     }
 
     /*

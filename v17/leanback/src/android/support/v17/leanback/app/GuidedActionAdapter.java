@@ -383,15 +383,17 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
         if (getRecyclerView() != null && actionCheckSetId != GuidedAction.NO_CHECK_SET) {
             // Find any actions that are checked and are in the same group
             // as the selected action. Fade their checkmarks out.
-            for (int i = 0, size = mActions.size(); i < size; i++) {
-                GuidedAction a = mActions.get(i);
-                if (a != action && a.getCheckSetId() == actionCheckSetId && a.isChecked()) {
-                    a.setChecked(false);
-                    ViewHolder vh = getRecyclerView().findViewHolderForPosition(i);
-                    if (vh != null) {
-                        GuidedActionsStylist.ViewHolder subViewHolder =
-                                ((ActionViewHolder)vh).mStylistViewHolder;
-                        mStylist.onAnimateItemChecked(subViewHolder, false);
+            if (actionCheckSetId != GuidedAction.CHECKBOX_CHECK_SET_ID) {
+                for (int i = 0, size = mActions.size(); i < size; i++) {
+                    GuidedAction a = mActions.get(i);
+                    if (a != action && a.getCheckSetId() == actionCheckSetId && a.isChecked()) {
+                        a.setChecked(false);
+                        ViewHolder vh = getRecyclerView().findViewHolderForPosition(i);
+                        if (vh != null) {
+                            GuidedActionsStylist.ViewHolder subViewHolder =
+                                    ((ActionViewHolder)vh).mStylistViewHolder;
+                            mStylist.onAnimateItemChecked(subViewHolder, false);
+                        }
                     }
                 }
             }
@@ -400,6 +402,11 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
             if (!action.isChecked()) {
                 action.setChecked(true);
                 mStylist.onAnimateItemChecked(avh.mStylistViewHolder, true);
+            } else {
+                if (actionCheckSetId == GuidedAction.CHECKBOX_CHECK_SET_ID) {
+                    action.setChecked(false);
+                    mStylist.onAnimateItemChecked(avh.mStylistViewHolder, false);
+                }
             }
         }
     }
