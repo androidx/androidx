@@ -398,14 +398,6 @@
         <attr name="guidedActionItemChevronStyle" format="reference" />
 
         <!-- Theme attribute for the animation used in a GuidedActionsPresenter when an action
-             is checked. Default is {@link
-             android.support.v17.leanback.R.animator#lb_guidedactions_item_checked}. -->
-        <attr name="guidedActionCheckedAnimation" format="reference" />
-        <!-- Theme attribute for the animation used in a GuidedActionsPresenter when an action
-             is unchecked. Default is {@link
-             android.support.v17.leanback.R.animator#lb_guidedactions_item_unchecked}. -->
-        <attr name="guidedActionUncheckedAnimation" format="reference" />
-        <!-- Theme attribute for the animation used in a GuidedActionsPresenter when an action
              is pressed. Default is {@link
              android.support.v17.leanback.R.animator#lb_guidedactions_item_pressed}. -->
         <attr name="guidedActionPressedAnimation" format="reference" />
