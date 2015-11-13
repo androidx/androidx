@@ -15,7 +15,7 @@
      limitations under the License.
 -->
 
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- LeanbackBase may be overridden for specific api levels -->
     <style name="Theme.LeanbackBase" parent="android:Theme.Holo.NoActionBar">
@@ -118,7 +118,8 @@
 
         <item name="android:windowEnterTransition">@transition/lb_guidedstep_activity_enter</item>
 
-        <item name="guidedStepBackground">?android:attr/windowBackground</item>
+        <item name="guidedStepBackground">?android:attr/colorBackground</item>
+        <item name="android:windowBackground">@null</item>
 
         <item name="guidedStepImeAppearingAnimation">@animator/lb_guidedstep_slide_up</item>
         <item name="guidedStepImeDisappearingAnimation">@animator/lb_guidedstep_slide_down</item>

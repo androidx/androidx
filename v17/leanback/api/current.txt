@@ -216,7 +216,6 @@ package android.support.v17.leanback.app {
     method public java.util.List<android.support.v17.leanback.widget.GuidedAction> getActions();
     method public android.view.View getButtonActionItemView(int);
     method public java.util.List<android.support.v17.leanback.widget.GuidedAction> getButtonActions();
-    method protected int getContainerIdForBackground();
     method public static android.support.v17.leanback.app.GuidedStepFragment getCurrentGuidedStepFragment(android.app.FragmentManager);
     method public android.support.v17.leanback.widget.GuidanceStylist getGuidanceStylist();
     method public android.support.v17.leanback.widget.GuidedActionsStylist getGuidedActionsStylist();
@@ -232,6 +231,7 @@ package android.support.v17.leanback.app {
     method protected void onAddSharedElementTransition(android.app.FragmentTransaction, android.support.v17.leanback.app.GuidedStepFragment);
     method public void onCreateActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>, android.os.Bundle);
     method public android.support.v17.leanback.widget.GuidedActionsStylist onCreateActionsStylist();
+    method public android.view.View onCreateBackgroundView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
     method public void onCreateButtonActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>, android.os.Bundle);
     method public android.support.v17.leanback.widget.GuidedActionsStylist onCreateButtonActionsStylist();
     method public android.support.v17.leanback.widget.GuidanceStylist.Guidance onCreateGuidance(android.os.Bundle);
@@ -240,7 +240,6 @@ package android.support.v17.leanback.app {
     method public void onGuidedActionEdited(android.support.v17.leanback.widget.GuidedAction);
     method public long onGuidedActionEditedAndProceed(android.support.v17.leanback.widget.GuidedAction);
     method public void onGuidedActionFocused(android.support.v17.leanback.widget.GuidedAction);
-    method protected android.app.Fragment onProvideBackgroundFragment();
     method protected void onProvideFragmentTransitions();
     method public int onProvideTheme();
     method public void popBackStackToGuidedStepFragment(java.lang.Class, int);
@@ -251,13 +250,8 @@ package android.support.v17.leanback.app {
     method public void setUiStyle(int);
     field public static final java.lang.String EXTRA_UI_STYLE = "uiStyle";
     field public static final int UI_STYLE_ACTIVITY_ROOT = 2; // 0x2
-    field public static final int UI_STYLE_DEFAULT = 0; // 0x0
     field public static final int UI_STYLE_ENTRANCE = 1; // 0x1
-  }
-
-  public static class GuidedStepFragment.GuidedStepBackgroundFragment extends android.app.Fragment {
-    ctor public GuidedStepFragment.GuidedStepBackgroundFragment();
-    method protected void onProvideFragmentTransitions();
+    field public static final int UI_STYLE_REPLACE = 0; // 0x0
   }
 
   public class GuidedStepSupportFragment extends android.support.v4.app.Fragment {
@@ -276,7 +270,6 @@ package android.support.v17.leanback.app {
     method public java.util.List<android.support.v17.leanback.widget.GuidedAction> getActions();
     method public android.view.View getButtonActionItemView(int);
     method public java.util.List<android.support.v17.leanback.widget.GuidedAction> getButtonActions();
-    method protected int getContainerIdForBackground();
     method public static android.support.v17.leanback.app.GuidedStepSupportFragment getCurrentGuidedStepSupportFragment(android.support.v4.app.FragmentManager);
     method public android.support.v17.leanback.widget.GuidanceStylist getGuidanceStylist();
     method public android.support.v17.leanback.widget.GuidedActionsStylist getGuidedActionsStylist();
@@ -292,6 +285,7 @@ package android.support.v17.leanback.app {
     method protected void onAddSharedElementTransition(android.support.v4.app.FragmentTransaction, android.support.v17.leanback.app.GuidedStepSupportFragment);
     method public void onCreateActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>, android.os.Bundle);
     method public android.support.v17.leanback.widget.GuidedActionsStylist onCreateActionsStylist();
+    method public android.view.View onCreateBackgroundView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
     method public void onCreateButtonActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>, android.os.Bundle);
     method public android.support.v17.leanback.widget.GuidedActionsStylist onCreateButtonActionsStylist();
     method public android.support.v17.leanback.widget.GuidanceStylist.Guidance onCreateGuidance(android.os.Bundle);
@@ -300,7 +294,6 @@ package android.support.v17.leanback.app {
     method public void onGuidedActionEdited(android.support.v17.leanback.widget.GuidedAction);
     method public long onGuidedActionEditedAndProceed(android.support.v17.leanback.widget.GuidedAction);
     method public void onGuidedActionFocused(android.support.v17.leanback.widget.GuidedAction);
-    method protected android.support.v4.app.Fragment onProvideBackgroundSupportFragment();
     method protected void onProvideFragmentTransitions();
     method public int onProvideTheme();
     method public void popBackStackToGuidedStepSupportFragment(java.lang.Class, int);
@@ -311,13 +304,8 @@ package android.support.v17.leanback.app {
     method public void setUiStyle(int);
     field public static final java.lang.String EXTRA_UI_STYLE = "uiStyle";
     field public static final int UI_STYLE_ACTIVITY_ROOT = 2; // 0x2
-    field public static final int UI_STYLE_DEFAULT = 0; // 0x0
     field public static final int UI_STYLE_ENTRANCE = 1; // 0x1
-  }
-
-  public static class GuidedStepSupportFragment.GuidedStepBackgroundSupportFragment extends android.support.v4.app.Fragment {
-    ctor public GuidedStepSupportFragment.GuidedStepBackgroundSupportFragment();
-    method protected void onProvideFragmentTransitions();
+    field public static final int UI_STYLE_REPLACE = 0; // 0x0
   }
 
   public class HeadersFragment extends android.support.v17.leanback.app.BaseRowFragment {
