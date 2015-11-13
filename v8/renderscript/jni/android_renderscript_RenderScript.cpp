@@ -372,7 +372,6 @@ nClosureCreate(JNIEnv *_env, jobject _this, jlong con, jlong kernelID,
 
   size_t numValues, numDependencies;
   RsScriptFieldID* fieldIDs;
-  uintptr_t* values;
   RsClosure* depClosures;
   RsScriptFieldID* depFieldIDs;
 
@@ -409,15 +408,6 @@ nClosureCreate(JNIEnv *_env, jobject _this, jlong con, jlong kernelID,
     fieldIDs[i] = (RsScriptFieldID)jFieldIDs[i];
   }
 
-  values = (uintptr_t*)alloca(sizeof(uintptr_t) * numValues);
-  if (values == nullptr) {
-      goto exit;
-  }
-
-  for (size_t i = 0; i < numValues; i++) {
-    values[i] = (uintptr_t)jValues[i];
-  }
-
   depClosures = (RsClosure*)alloca(sizeof(RsClosure) * numDependencies);
   if (depClosures == nullptr) {
       goto exit;
@@ -438,7 +428,7 @@ nClosureCreate(JNIEnv *_env, jobject _this, jlong con, jlong kernelID,
 
   ret = (jlong)(uintptr_t)dispatchTab.ClosureCreate(
       (RsContext)con, (RsScriptKernelID)kernelID, (RsAllocation)returnValue,
-      fieldIDs, numValues, values, numValues,
+      fieldIDs, numValues, jValues, numValues,
       (int*)jSizes, numValues,
       depClosures, numDependencies,
       depFieldIDs, numDependencies);
@@ -471,7 +461,6 @@ nInvokeClosureCreate(JNIEnv *_env, jobject _this, jlong con, jlong invokeID,
 
   size_t numValues;
   RsScriptFieldID* fieldIDs;
-  uintptr_t* values;
 
   if (fieldIDs_length != values_length || values_length != sizes_length) {
       LOG_ERR("Unmatched field IDs, values, and sizes in closure creation.");
@@ -494,18 +483,9 @@ nInvokeClosureCreate(JNIEnv *_env, jobject _this, jlong con, jlong invokeID,
     fieldIDs[i] = (RsScriptFieldID)jFieldIDs[i];
   }
 
-  values = (uintptr_t*)alloca(sizeof(uintptr_t) * numValues);
-  if (values == nullptr) {
-      goto exit;
-  }
-
-  for (size_t i = 0; i < numValues; i++) {
-    values[i] = (uintptr_t)jValues[i];
-  }
-
   ret = (jlong)(uintptr_t)dispatchTab.InvokeClosureCreate(
       (RsContext)con, (RsScriptInvokeID)invokeID, jParams, jParamLength,
-      fieldIDs, numValues, values, numValues,
+      fieldIDs, numValues, jValues, numValues,
       (int*)jSizes, numValues);
 
 exit:
@@ -521,15 +501,17 @@ exit:
 static void
 nClosureSetArg(JNIEnv *_env, jobject _this, jlong con, jlong closureID,
                jint index, jlong value, jint size) {
+  // Size is signed with -1 indicating the values is an Allocation
   dispatchTab.ClosureSetArg((RsContext)con, (RsClosure)closureID, (uint32_t)index,
-                  (uintptr_t)value, (size_t)size);
+                  (uintptr_t)value, size);
 }
 
 static void
 nClosureSetGlobal(JNIEnv *_env, jobject _this, jlong con, jlong closureID,
                   jlong fieldID, jlong value, jint size) {
+  // Size is signed with -1 indicating the values is an Allocation
   dispatchTab.ClosureSetGlobal((RsContext)con, (RsClosure)closureID,
-                     (RsScriptFieldID)fieldID, (uintptr_t)value, (size_t)size);
+                     (RsScriptFieldID)fieldID, (int64_t)value, size);
 }
 
 static long
