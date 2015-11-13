@@ -29,11 +29,6 @@
 	    android:layout_height="match_parent"
 	/>
 
-  <!-- container for hosting GuidedStepFragment background -->
-  <FrameLayout android:id="@+id/lb_guidedstep_background"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" />
-
   <!-- container for hosting GuidedStepFragment -->
   <FrameLayout android:id="@+id/lb_guidedstep_host"
     android:layout_width="match_parent"
