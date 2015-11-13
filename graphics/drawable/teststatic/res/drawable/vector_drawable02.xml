@@ -1,5 +1,4 @@
-<!--
- Copyright (C) 2015 The Android Open Source Project
+<!-- Copyright (C) 2015 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,24 +13,20 @@
      limitations under the License.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:auto="http://schemas.android.com/apk/res-auto"
-    auto:height="64dp"
-    auto:viewportHeight="320"
-    auto:viewportWidth="320"
-    auto:width="64dp" >
-
+        android:width="64dp"
+        android:height="64dp" android:viewportWidth="320"
+          android:viewportHeight="320">
     <group
-        auto:pivotX="70"
-        auto:pivotY="120"
-        auto:rotation="180" >
+        android:rotation="180"
+        android:pivotX="70"
+        android:pivotY="120">
         <path
-            auto:name="house"
-            auto:fillColor="#ff440000"
-            auto:pathData="M 130,225 L 130,115 L 130,115 L 70,15 L 10,115 L 10,115 L 10,225 z"
-            auto:strokeColor="#FF00FF00"
-            auto:strokeWidth="10"
-            auto:trimPathEnd=".9"
-            auto:trimPathStart=".1" />
+            android:name="house"
+            android:pathData="M 130,225 L 130,115 L 130,115 L 70,15 L 10,115 L 10,115 L 10,225 z"
+            android:fillColor="#ff440000"
+            android:strokeColor="#FF00FF00"
+            android:strokeWidth="10"
+            android:trimPathStart=".1"
+            android:trimPathEnd=".9"/>
     </group>
-
 </vector>

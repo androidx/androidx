@@ -17,8 +17,7 @@
     android:height="64dp"
     android:viewportHeight="200"
     android:viewportWidth="200"
-    android:width="64dp"
-    android:autoMirrored="true" >
+    android:width="64dp" >
 
     <group>
         <path
@@ -31,16 +30,33 @@
             android:pathData="M 100,100 l 100,0 l 0, 100 l -100, 0 z" />
     </group>
     <group
-        android:translateX="50"
-        android:translateY="50" >
-        <path
-            android:name="twoLines"
-            android:pathData="M 100,20 l 0 80 l -30 -80"
-            android:strokeColor="#FF00FF00"
-            android:strokeLineCap="square"
-            android:strokeLineJoin="bevel"
-            android:strokeMiterLimit="10"
-            android:strokeWidth="20" />
+        android:pivotX="0"
+        android:pivotY="0"
+        android:rotation="45" >
+        <group
+            android:pivotX="0"
+            android:pivotY="0"
+            android:rotation="90" >
+            <group
+                android:scaleX="1.5"
+                android:scaleY="1" >
+                <group
+                    android:pivotX="0"
+                    android:pivotY="0"
+                    android:rotation="-90" >
+                    <group
+                        android:scaleX="1.5"
+                        android:scaleY="1" >
+                        <path
+                            android:name="twoLines"
+                            android:fillColor="#FFFF0000"
+                            android:pathData="M 100, 0 l 0, 100, -100, 0 z"
+                            android:strokeColor="#FF00FF00"
+                            android:strokeWidth="10" />
+                    </group>
+                </group>
+            </group>
+        </group>
     </group>
 
 </vector>

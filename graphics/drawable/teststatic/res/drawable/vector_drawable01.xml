@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
  Copyright (C) 2015 The Android Open Source Project
 
@@ -15,20 +14,16 @@
      limitations under the License.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:auto="http://schemas.android.com/apk/res-auto"
-    auto:height="48dp"
-    auto:viewportHeight="480"
-    auto:viewportWidth="480"
-    auto:width="48dp" >
+        android:height="48dp"
+        android:width="48dp"
+        android:viewportHeight="480"
+        android:viewportWidth="480" >
 
     <group>
         <path
-            auto:name="box1"
-            auto:fillColor="?android:attr/textColorPrimary"
-            auto:pathData="m20,200l100,90l180-180l-35-35l-145,145l-60-60l-40,40z"
-            auto:strokeColor="?android:attr/colorBackground"
-            auto:strokeLineCap="round"
-            auto:strokeLineJoin="round" />
+            android:name="box1"
+            android:pathData="m20,200l100,90l180-180l-35-35l-145,145l-60-60l-40,40z"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
     </group>
-
 </vector>

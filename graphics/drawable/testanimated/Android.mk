@@ -18,7 +18,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE_TAGS := tests
 
-LOCAL_SDK_VERSION := 11
+LOCAL_SDK_VERSION := current
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
@@ -30,6 +30,8 @@ LOCAL_PACKAGE_NAME := AndroidAnimatedVectorDrawableTests
 
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v11-animatedvectordrawable android-support-v4
 
-LOCAL_AAPT_FLAGS += --auto-add-overlay --extra-packages android.support.graphics.drawable
+LOCAL_AAPT_FLAGS += --auto-add-overlay \
+        --extra-packages android.support.graphics.drawable \
+        --no-version-vectors
 
 include $(BUILD_PACKAGE)

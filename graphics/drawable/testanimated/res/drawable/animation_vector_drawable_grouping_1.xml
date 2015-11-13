@@ -14,14 +14,13 @@
      limitations under the License.
 -->
 <animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:auto="http://schemas.android.com/apk/res-auto"
-    auto:drawable="@drawable/vector_drawable_grouping_1" >
+    android:drawable="@drawable/vector_drawable_grouping_1" >
 
     <target
-        auto:name="sun"
-        auto:animation="@anim/animation_grouping_1_01" />
+        android:name="sun"
+        android:animation="@anim/animation_grouping_1_01" />
     <target
-        auto:name="earth"
-        auto:animation="@anim/animation_grouping_1_01" />
+        android:name="earth"
+        android:animation="@anim/animation_grouping_1_01" />
 
 </animated-vector>

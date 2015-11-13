@@ -14,26 +14,25 @@
      limitations under the License.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:auto="http://schemas.android.com/apk/res-auto"
-        auto:height="64dp"
-        auto:width="64dp"
-        auto:viewportHeight="500"
-        auto:viewportWidth="800" >
+        android:height="64dp"
+        android:width="64dp"
+        android:viewportHeight="500"
+        android:viewportWidth="800" >
 
     <group
-        auto:pivotX="90"
-        auto:pivotY="100"
-        auto:rotation="20">
+        android:pivotX="90"
+        android:pivotY="100"
+        android:rotation="20">
         <path
-            auto:name="pie2"
-            auto:pathData="M200,350 l 50,-25
+            android:name="pie2"
+            android:pathData="M200,350 l 50,-25
            a25,12 -30 0,1 100,-50 l 50,-25
            a25,25 -30 0,1 100,-50 l 50,-25
            a25,37 -30 0,1 100,-50 l 50,-25
            a25,50 -30 0,1 100,-50 l 50,-25"
-            auto:fillColor="#00000000"
-            auto:strokeColor="#FF00FF00"
-            auto:strokeWidth="10" />
+            android:fillColor="#00000000"
+            android:strokeColor="#FF00FF00"
+            android:strokeWidth="10" />
     </group>
 
 </vector>
