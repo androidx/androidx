@@ -25,13 +25,16 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v17.leanback.app.GuidedStepFragment;
 import android.support.v17.leanback.widget.GuidedAction;
+import android.support.v17.leanback.widget.GuidedActionsStylist;
 import android.support.v17.leanback.widget.GuidanceStylist;
 import android.support.v17.leanback.widget.GuidanceStylist.Guidance;
+import android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.view.inputmethod.EditorInfo;
 
 import java.util.List;
 
@@ -52,8 +55,6 @@ public class GuidedStepActivity extends Activity {
     private static final String[] OPTION_NAMES = { "Option A", "Option B", "Option C" };
     private static final String[] OPTION_DESCRIPTIONS = { "Here's one thing you can do",
             "Here's another thing you can do", "Here's one more thing you can do" };
-    private static final int[] OPTION_DRAWABLES = { R.drawable.ic_guidedstep_option_a,
-            R.drawable.ic_guidedstep_option_b, R.drawable.ic_guidedstep_option_c };
 
     private static final String TAG = GuidedStepActivity.class.getSimpleName();
 
@@ -136,13 +137,12 @@ public class GuidedStepActivity extends Activity {
                 .build());
     }
 
-    private static void addCheckedAction(List<GuidedAction> actions, int iconResId, Context context,
-            String title, String desc) {
+    private static void addCheckedAction(List<GuidedAction> actions, Context context,
+            String title, String desc, int checkSetId) {
         actions.add(new GuidedAction.Builder()
                 .title(title)
                 .description(desc)
-                .checkSetId(OPTION_CHECK_SET_ID)
-                .iconResourceId(iconResId, context)
+                .checkSetId(checkSetId)
                 .build());
     }
 
@@ -181,13 +181,23 @@ public class GuidedStepActivity extends Activity {
             }
         }
 
-        @Override
-        protected int getContainerIdForBackground() {
-            return R.id.lb_guidedstep_background;
-        }
     }
 
     public static class SecondStepFragment extends GuidedStepFragment {
+
+        public GuidedActionsStylist onCreateActionsStylist() {
+            return new GuidedActionsStylist() {
+                protected void setupImeOptions(GuidedActionsStylist.ViewHolder vh,
+                        GuidedAction action) {
+                    if (action.getId() == PASSWORD) {
+                        vh.getEditableDescriptionView().setImeActionLabel("Confirm!",
+                                EditorInfo.IME_ACTION_DONE);
+                    } else {
+                        super.setupImeOptions(vh, action);
+                    }
+                }
+            };
+        }
 
         @Override
         public Guidance onCreateGuidance(Bundle savedInstanceState) {
@@ -311,11 +321,15 @@ public class GuidedStepActivity extends Activity {
                     .focusable(false)
                     .build());
             for (int i = 0; i < OPTION_NAMES.length; i++) {
-                addCheckedAction(actions, OPTION_DRAWABLES[i], getActivity(), OPTION_NAMES[i],
-                        OPTION_DESCRIPTIONS[i]);
+                addCheckedAction(actions, getActivity(), OPTION_NAMES[i],
+                        OPTION_DESCRIPTIONS[i], GuidedAction.DEFAULT_CHECK_SET_ID);
                 if (i == DEFAULT_OPTION) {
                     actions.get(actions.size() -1).setChecked(true);
                 }
+            }
+            for (int i = 0; i < OPTION_NAMES.length; i++) {
+                addCheckedAction(actions, getActivity(), OPTION_NAMES[i],
+                        OPTION_DESCRIPTIONS[i], GuidedAction.CHECKBOX_CHECK_SET_ID);
             }
         }
 
@@ -334,7 +348,7 @@ public class GuidedStepActivity extends Activity {
                 arguments.putInt(FourthStepFragment.EXTRA_OPTION, mSelectedOption);
                 f.setArguments(arguments);
                 GuidedStepFragment.add(fm, f, R.id.lb_guidedstep_host);
-            } else {
+            } else if (action.getCheckSetId() == GuidedAction.DEFAULT_CHECK_SET_ID) {
                 mSelectedOption = getSelectedActionPosition()-1;
             }
         }
