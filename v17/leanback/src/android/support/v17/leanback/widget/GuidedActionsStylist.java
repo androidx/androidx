@@ -35,6 +35,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.animation.DecelerateInterpolator;
+import android.view.inputmethod.EditorInfo;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -556,6 +557,24 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             if (vh.view instanceof ViewGroup) {
                 ((ViewGroup) vh.view).setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
             }
+        }
+        setupImeOptions(vh, action);
+    }
+
+    /**
+     * Called by {@link #onBindViewHolder(ViewHolder, GuidedAction)} to setup IME options.  Default
+     * implementation assigns {@link EditorInfo#IME_ACTION_DONE}.  Subclass may override.
+     * @param vh The view holder to be associated with the given action.
+     * @param action The guided action to be displayed by the view holder's view.
+     */
+    protected void setupImeOptions(ViewHolder vh, GuidedAction action) {
+        setupNextImeOptions(vh.getEditableTitleView());
+        setupNextImeOptions(vh.getEditableDescriptionView());
+    }
+
+    private void setupNextImeOptions(EditText edit) {
+        if (edit != null) {
+            edit.setImeOptions(EditorInfo.IME_ACTION_NEXT);
         }
     }
 

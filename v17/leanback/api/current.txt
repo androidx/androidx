@@ -1109,6 +1109,7 @@ package android.support.v17.leanback.widget {
     method public int onProvideLayoutId();
     method public void setAsButtonActions();
     method public void setEditingMode(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, android.support.v17.leanback.widget.GuidedAction, boolean);
+    method protected void setupImeOptions(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, android.support.v17.leanback.widget.GuidedAction);
     field public static final int VIEW_TYPE_DEFAULT = 0; // 0x0
   }
 
