@@ -18,7 +18,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE_TAGS := tests
 
-LOCAL_SDK_VERSION := 7
+LOCAL_SDK_VERSION := current
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
@@ -32,7 +32,8 @@ LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-vectordrawable android-support
 
 LOCAL_AAPT_FLAGS := \
         --auto-add-overlay \
-        --extra-packages android.support.graphics.drawable
+        --extra-packages android.support.graphics.drawable \
+        --no-version-vectors
 
 include $(BUILD_PACKAGE)
 

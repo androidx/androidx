@@ -16,7 +16,6 @@ package android.support.graphics.drawable;
 
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
@@ -45,12 +44,12 @@ import java.util.ArrayList;
 /**
  * This class uses {@link android.animation.ObjectAnimator} and
  * {@link android.animation.AnimatorSet} to animate the properties of a
- * {@link android.graphics.drawable.VectorDrawableCompat} to create an animated drawable.
+ * {@link android.support.graphics.drawable.VectorDrawableCompat} to create an animated drawable.
  * <p>
  * AnimatedVectorDrawableCompat are normally defined as 3 separate XML files.
  * </p>
  * <p>
- * First is the XML file for {@link android.graphics.drawable.VectorDrawableCompat}. Note that we
+ * First is the XML file for {@link android.support.graphics.drawable.VectorDrawableCompat}. Note that we
  * allow the animation to happen on the group's attributes and path's attributes, which requires they
  * are uniquely named in this XML file. Groups and paths without animations do not need names.
  * </p>
@@ -306,9 +305,9 @@ public class AnimatedVectorDrawableCompat extends Drawable implements Animatable
                 }
                 if (ANIMATED_VECTOR.equals(tagName)) {
                     final TypedArray a =
-                            obtainAttributes(res, theme, attrs, R.styleable.AnimatedVectorDrawable);
+                            obtainAttributes(res, theme, attrs, AndroidResources.styleable_AnimatedVectorDrawable);
 
-                    int drawableRes = a.getResourceId(R.styleable.AnimatedVectorDrawable_drawable,
+                    int drawableRes = a.getResourceId(AndroidResources.styleable_AnimatedVectorDrawable_drawable,
                             0);
                     if (DBG_ANIMATION_VECTOR_DRAWABLE) {
                         Log.v(LOGTAG, "drawableRes is " + drawableRes);
@@ -327,11 +326,11 @@ public class AnimatedVectorDrawableCompat extends Drawable implements Animatable
                     a.recycle();
                 } else if (TARGET.equals(tagName)) {
                     final TypedArray a =
-                            res.obtainAttributes(attrs, R.styleable.AnimatedVectorDrawableTarget);
+                            res.obtainAttributes(attrs, AndroidResources.styleable_AnimatedVectorDrawableTarget);
                     final String target = a.getString(
-                            R.styleable.AnimatedVectorDrawableTarget_name);
+                            AndroidResources.styleable_AnimatedVectorDrawableTarget_name);
 
-                    int id = a.getResourceId(R.styleable.AnimatedVectorDrawableTarget_animation, 0);
+                    int id = a.getResourceId(AndroidResources.styleable_AnimatedVectorDrawableTarget_animation, 0);
                     if (id != 0) {
                         Animator objectAnimator = AnimatorInflater.loadAnimator(mContext, id);
                         setupAnimatorsForTarget(target, objectAnimator);

@@ -14,37 +14,36 @@
      limitations under the License.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:auto="http://schemas.android.com/apk/res-auto"
-        auto:height="64dp"
-        auto:width="64dp"
-        auto:viewportHeight="256"
-        auto:viewportWidth="256" >
+        android:height="64dp"
+        android:width="64dp"
+        android:viewportHeight="256"
+        android:viewportWidth="256" >
 
     <group
-        auto:name="shape_layer_1"
-        auto:translateX="128"
-        auto:translateY="128" >
-        <group auto:name="sun" >
+        android:name="shape_layer_1"
+        android:translateX="128"
+        android:translateY="128" >
+        <group android:name="sun" >
             <path
-                auto:name="ellipse_path_1"
-                auto:fillColor="#ffff8000"
-                auto:pathData="m -25 0 a 25,25 0 1,0 50,0 a 25,25 0 1,0 -50,0" />
+                android:name="ellipse_path_1"
+                android:fillColor="#ffff8000"
+                android:pathData="m -25 0 a 25,25 0 1,0 50,0 a 25,25 0 1,0 -50,0" />
 
             <group
-                auto:name="earth"
-                auto:translateX="75" >
+                android:name="earth"
+                android:translateX="75" >
                 <path
-                    auto:name="ellipse_path_1_1"
-                    auto:fillColor="#ff5656ea"
-                    auto:pathData="m -10 0 a 10,10 0 1,0 20,0 a 10,10 0 1,0 -20,0" />
+                    android:name="ellipse_path_1_1"
+                    android:fillColor="#ff5656ea"
+                    android:pathData="m -10 0 a 10,10 0 1,0 20,0 a 10,10 0 1,0 -20,0" />
 
                 <group
-                    auto:name="moon"
-                    auto:translateX="25" >
+                    android:name="moon"
+                    android:translateX="25" >
                     <path
-                        auto:name="ellipse_path_1_2"
-                        auto:fillColor="#ffadadad"
-                        auto:pathData="m -5 0 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0" />
+                        android:name="ellipse_path_1_2"
+                        android:fillColor="#ffadadad"
+                        android:pathData="m -5 0 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0" />
                 </group>
             </group>
         </group>
