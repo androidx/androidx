@@ -292,15 +292,6 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
         GuidedAction action = mActions.get(position);
         avh.setAction(action);
         mStylist.onBindViewHolder(avh.mStylistViewHolder, action);
-
-        setupNextImeOptions(avh.mStylistViewHolder.getEditableTitleView());
-        setupNextImeOptions(avh.mStylistViewHolder.getEditableDescriptionView());
-    }
-
-    private void setupNextImeOptions(EditText edit) {
-        if (edit != null) {
-            edit.setImeOptions(EditorInfo.IME_ACTION_NEXT);
-        }
     }
 
     /**
