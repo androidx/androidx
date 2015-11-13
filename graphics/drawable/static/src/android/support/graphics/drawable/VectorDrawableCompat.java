@@ -196,7 +196,7 @@ public class VectorDrawableCompat extends Drawable {
     private static final int LINEJOIN_ROUND = 1;
     private static final int LINEJOIN_BEVEL = 2;
 
-    private static final boolean DBG_VECTOR_DRAWABLE = true;
+    private static final boolean DBG_VECTOR_DRAWABLE = false;
 
     private VectorDrawableState mVectorState;
 
@@ -420,7 +420,6 @@ public class VectorDrawableCompat extends Drawable {
 
             final VectorDrawableCompat drawable = new VectorDrawableCompat();
             drawable.inflate(res, parser, attrs, theme);
-
             return drawable;
         } catch (XmlPullParserException e) {
             Log.e(LOGTAG, "parser error", e);
@@ -462,8 +461,9 @@ public class VectorDrawableCompat extends Drawable {
         final VPathRenderer pathRenderer = new VPathRenderer();
         state.mVPathRenderer = pathRenderer;
 
-        final TypedArray a = obtainAttributes(res, theme, attrs, R.styleable.VectorDrawable);
-        updateStateFromTypedArray(a);
+        final TypedArray a = obtainAttributes(res, theme, attrs, AndroidResources.styleable_VectorDrawableTypeArray);
+
+        updateStateFromTypedArray(a, parser);
         a.recycle();
         state.mChangingConfigurations = getChangingConfigurations();
         state.mCacheDirty = true;
@@ -472,30 +472,47 @@ public class VectorDrawableCompat extends Drawable {
         mTintFilter = updateTintFilter(mTintFilter, state.mTint, state.mTintMode);
     }
 
-    private void updateStateFromTypedArray(TypedArray a) throws XmlPullParserException {
+
+    /**
+     * Parses a {@link android.graphics.PorterDuff.Mode} from a tintMode
+     * attribute's enum value.
+     */
+    private static PorterDuff.Mode parseTintMode(int value, Mode defaultMode) {
+        switch (value) {
+            case 3: return Mode.SRC_OVER;
+            case 5: return Mode.SRC_IN;
+            case 9: return Mode.SRC_ATOP;
+            case 14: return Mode.MULTIPLY;
+            case 15: return Mode.SCREEN;
+            case 16: return Mode.ADD;
+            default: return defaultMode;
+        }
+    }
+
+    private void updateStateFromTypedArray(TypedArray a, XmlPullParser parser) throws XmlPullParserException {
         final VectorDrawableState state = mVectorState;
         final VPathRenderer pathRenderer = state.mVPathRenderer;
 
         // Account for any configuration changes.
         // state.mChangingConfigurations |= Utils.getChangingConfigurations(a);
 
-        final int tintMode = a.getInt(R.styleable.VectorDrawable_tintMode, -1);
-        // if (tintMode != -1) {
-        // state.mTintMode = Utils.parseTintMode(tintMode, DEFAULT_TINT_MODE);
-        // }
+        final int mode = TypedArrayUtils.getNamedInt(a, parser, "tintMode",
+                AndroidResources.styleable_VectorDrawable_Mode, -1);
+        state.mTintMode = parseTintMode(mode, Mode.SRC_IN);
 
-        final ColorStateList tint = a.getColorStateList(R.styleable.VectorDrawable_tint);
+        final ColorStateList tint = a.getColorStateList(AndroidResources.styleable_VectorDrawable_tint);
         if (tint != null) {
             state.mTint = tint;
         }
 
-        state.mAutoMirrored = a.getBoolean(
-                R.styleable.VectorDrawable_autoMirrored, state.mAutoMirrored);
+        state.mAutoMirrored = TypedArrayUtils.getNamedBoolean(a, parser, "autoMirrored",
+                    AndroidResources.styleable_VectorDrawable_autoMirrored, state.mAutoMirrored);
 
-        pathRenderer.mViewportWidth = a.getFloat(
-                R.styleable.VectorDrawable_viewportWidth, pathRenderer.mViewportWidth);
-        pathRenderer.mViewportHeight = a.getFloat(
-                R.styleable.VectorDrawable_viewportHeight, pathRenderer.mViewportHeight);
+        pathRenderer.mViewportWidth = TypedArrayUtils.getNamedFloat(a, parser, "viewportWidth",
+                AndroidResources.styleable_VectorDrawable_viewportWidth, pathRenderer.mViewportWidth);
+
+        pathRenderer.mViewportHeight = TypedArrayUtils.getNamedFloat(a, parser, "viewportHeight",
+                AndroidResources.styleable_VectorDrawable_viewportHeight, pathRenderer.mViewportHeight);
 
         if (pathRenderer.mViewportWidth <= 0) {
             throw new XmlPullParserException(a.getPositionDescription() +
@@ -506,10 +523,9 @@ public class VectorDrawableCompat extends Drawable {
         }
 
         pathRenderer.mBaseWidth = a.getDimension(
-                R.styleable.VectorDrawable_width, pathRenderer.mBaseWidth);
+                AndroidResources.styleable_VectorDrawable_width, pathRenderer.mBaseWidth);
         pathRenderer.mBaseHeight = a.getDimension(
-                R.styleable.VectorDrawable_height, pathRenderer.mBaseHeight);
-
+                AndroidResources.styleable_VectorDrawable_height, pathRenderer.mBaseHeight);
         if (pathRenderer.mBaseWidth <= 0) {
             throw new XmlPullParserException(a.getPositionDescription() +
                     "<vector> tag requires width > 0");
@@ -518,11 +534,12 @@ public class VectorDrawableCompat extends Drawable {
                     "<vector> tag requires height > 0");
         }
 
-        final float alphaInFloat = a.getFloat(R.styleable.VectorDrawable_alpha,
-                pathRenderer.getAlpha());
+        // shown up from API 11.
+        final float alphaInFloat = TypedArrayUtils.getNamedFloat(a, parser, "alpha",
+                    AndroidResources.styleable_VectorDrawable_alpha, pathRenderer.getAlpha());
         pathRenderer.setAlpha(alphaInFloat);
 
-        final String name = a.getString(R.styleable.VectorDrawable_name);
+        final String name = a.getString(AndroidResources.styleable_VectorDrawable_name);
         if (name != null) {
             pathRenderer.mRootName = name;
             pathRenderer.mVGTargetsMap.put(name, pathRenderer);
@@ -545,10 +562,9 @@ public class VectorDrawableCompat extends Drawable {
             if (eventType == XmlPullParser.START_TAG) {
                 final String tagName = parser.getName();
                 final VGroup currentGroup = groupStack.peek();
-                Log.v(LOGTAG, tagName);
                 if (SHAPE_PATH.equals(tagName)) {
                     final VFullPath path = new VFullPath();
-                    path.inflate(res, attrs, theme);
+                    path.inflate(res, attrs, theme, parser);
                     currentGroup.mChildren.add(path);
                     if (path.getPathName() != null) {
                         pathRenderer.mVGTargetsMap.put(path.getPathName(), path);
@@ -557,7 +573,7 @@ public class VectorDrawableCompat extends Drawable {
                     state.mChangingConfigurations |= path.mChangingConfigurations;
                 } else if (SHAPE_CLIP_PATH.equals(tagName)) {
                     final VClipPath path = new VClipPath();
-                    path.inflate(res, attrs, theme);
+                    path.inflate(res, attrs, theme, parser);
                     currentGroup.mChildren.add(path);
                     if (path.getPathName() != null) {
                         pathRenderer.mVGTargetsMap.put(path.getPathName(), path);
@@ -565,7 +581,7 @@ public class VectorDrawableCompat extends Drawable {
                     state.mChangingConfigurations |= path.mChangingConfigurations;
                 } else if (SHAPE_GROUP.equals(tagName)) {
                     VGroup newChildGroup = new VGroup();
-                    newChildGroup.inflate(res, attrs, theme);
+                    newChildGroup.inflate(res, attrs, theme, parser);
                     currentGroup.mChildren.add(newChildGroup);
                     groupStack.push(newChildGroup);
                     if (newChildGroup.getGroupName() != null) {
@@ -614,6 +630,8 @@ public class VectorDrawableCompat extends Drawable {
             Object child = currentGroup.mChildren.get(i);
             if (child instanceof VGroup) {
                 printGroupTree((VGroup) child, level + 1);
+            } else {
+                ((VPath) child).printVPath(level + 1);
             }
         }
     }
@@ -1017,29 +1035,41 @@ public class VectorDrawableCompat extends Drawable {
             return mLocalMatrix;
         }
 
-        public void inflate(Resources res, AttributeSet attrs, Theme theme) {
+        public void inflate(Resources res, AttributeSet attrs, Theme theme, XmlPullParser parser) {
             final TypedArray a = obtainAttributes(res, theme, attrs,
-                    R.styleable.VectorDrawableGroup);
-            updateStateFromTypedArray(a);
+                    AndroidResources.styleable_VectorDrawableGroup);
+            updateStateFromTypedArray(a, parser);
             a.recycle();
         }
 
-        private void updateStateFromTypedArray(TypedArray a) {
+        private void updateStateFromTypedArray(TypedArray a, XmlPullParser parser) {
             // Account for any configuration changes.
             // mChangingConfigurations |= Utils.getChangingConfigurations(a);
 
             // Extract the theme attributes, if any.
             mThemeAttrs = null; // TODO TINT THEME Not supported yet a.extractThemeAttrs();
 
-            mRotate = a.getFloat(R.styleable.VectorDrawableGroup_rotation, mRotate);
-            mPivotX = a.getFloat(R.styleable.VectorDrawableGroup_pivotX, mPivotX);
-            mPivotY = a.getFloat(R.styleable.VectorDrawableGroup_pivotY, mPivotY);
-            mScaleX = a.getFloat(R.styleable.VectorDrawableGroup_scaleX, mScaleX);
-            mScaleY = a.getFloat(R.styleable.VectorDrawableGroup_scaleY, mScaleY);
-            mTranslateX = a.getFloat(R.styleable.VectorDrawableGroup_translateX, mTranslateX);
-            mTranslateY = a.getFloat(R.styleable.VectorDrawableGroup_translateY, mTranslateY);
+            // This is added in API 11
+            mRotate = TypedArrayUtils.getNamedFloat(a, parser, "rotation",
+                    AndroidResources.styleable_VectorDrawableGroup_rotation, mRotate);
 
-            final String groupName = a.getString(R.styleable.VectorDrawableGroup_name);
+            mPivotX = a.getFloat(AndroidResources.styleable_VectorDrawableGroup_pivotX, mPivotX);
+            mPivotY = a.getFloat(AndroidResources.styleable_VectorDrawableGroup_pivotY, mPivotY);
+
+            // This is added in API 11
+            mScaleX = TypedArrayUtils.getNamedFloat(a, parser, "scaleX",
+                    AndroidResources.styleable_VectorDrawableGroup_scaleX, mScaleX);
+
+            // This is added in API 11
+            mScaleY = TypedArrayUtils.getNamedFloat(a, parser, "scaleY",
+                    AndroidResources.styleable_VectorDrawableGroup_scaleY, mScaleY);
+
+            mTranslateX = TypedArrayUtils.getNamedFloat(a, parser, "translateX",
+                    AndroidResources.styleable_VectorDrawableGroup_translateX, mTranslateX);
+            mTranslateY = TypedArrayUtils.getNamedFloat(a, parser, "translateY",
+                    AndroidResources.styleable_VectorDrawableGroup_translateY, mTranslateY);
+
+            final String groupName = a.getString(AndroidResources.styleable_VectorDrawableGroup_name);
             if (groupName != null) {
                 mGroupName = groupName;
             }
@@ -1162,6 +1192,28 @@ public class VectorDrawableCompat extends Drawable {
             // Empty constructor.
         }
 
+        public void printVPath(int level) {
+            String indent = "";
+            for (int i = 0; i < level; i++) {
+                indent += "    ";
+            }
+            Log.v(LOGTAG, indent + "current path is :" + mPathName +
+                    " pathData is " + NodesToString(mNodes));
+
+        }
+
+        public String NodesToString(PathParser.PathDataNode[] nodes) {
+            String result = " ";
+            for (int i = 0; i < nodes.length; i++) {
+                result += nodes[i].type + ":";
+                float[] params = nodes[i].params;
+                for (int j = 0; j < params.length; j++) {
+                    result += params[j] + ",";
+                }
+            }
+            return result;
+        }
+
         public VPath(VPath copy) {
             mPathName = copy.mPathName;
             mChangingConfigurations = copy.mChangingConfigurations;
@@ -1219,10 +1271,14 @@ public class VectorDrawableCompat extends Drawable {
             super(copy);
         }
 
-        public void inflate(Resources r, AttributeSet attrs, Theme theme) {
+        public void inflate(Resources r, AttributeSet attrs, Theme theme, XmlPullParser parser) {
             // TODO TINT THEME Not supported yet
+            final boolean hasPathData = TypedArrayUtils.hasAttribute(parser, "pathData");
+            if (!hasPathData) {
+                return;
+            }
             final TypedArray a = obtainAttributes(r, theme, attrs,
-                    R.styleable.VectorDrawableClipPath);
+                    AndroidResources.styleable_VectorDrawableClipPath);
             updateStateFromTypedArray(a);
             a.recycle();
         }
@@ -1231,12 +1287,12 @@ public class VectorDrawableCompat extends Drawable {
             // Account for any configuration changes.
             // mChangingConfigurations |= Utils.getChangingConfigurations(a);;
 
-            final String pathName = a.getString(R.styleable.VectorDrawableClipPath_name);
+            final String pathName = a.getString(AndroidResources.styleable_VectorDrawableClipPath_name);
             if (pathName != null) {
                 mPathName = pathName;
             }
 
-            final String pathData = a.getString(R.styleable.VectorDrawableClipPath_pathData);
+            final String pathData = a.getString(AndroidResources.styleable_VectorDrawableClipPath_pathData);
             if (pathData != null) {
                 mNodes = PathParser.createNodesFromPathData(pathData);
             }
@@ -1325,52 +1381,64 @@ public class VectorDrawableCompat extends Drawable {
             return mThemeAttrs != null;
         }
 
-        public void inflate(Resources r, AttributeSet attrs, Theme theme) {
+        public void inflate(Resources r, AttributeSet attrs, Theme theme, XmlPullParser parser) {
             final TypedArray a = obtainAttributes(r, theme, attrs,
-                    R.styleable.VectorDrawablePath);
-            updateStateFromTypedArray(a);
+                    AndroidResources.styleable_VectorDrawablePath);
+            updateStateFromTypedArray(a, parser);
             a.recycle();
         }
 
-        private void updateStateFromTypedArray(TypedArray a) {
+        private void updateStateFromTypedArray(TypedArray a, XmlPullParser parser) {
             // Account for any configuration changes.
             // mChangingConfigurations |= Utils.getChangingConfigurations(a);
 
             // Extract the theme attributes, if any.
             mThemeAttrs = null; // TODO TINT THEME Not supported yet a.extractThemeAttrs();
 
-            final String pathName = a.getString(R.styleable.VectorDrawablePath_name);
+            // In order to work around the conflicting id issue, we need to double check the existence
+            // of the attribute.
+            // B/c if the attribute existed in the compiled XML, then calling TypedArray will be safe
+            // since the framework will look up in the XML first.
+            // Note that each getAttributeValue take roughly 0.03ms, it is a price we have to pay here.
+            final boolean hasPathData = TypedArrayUtils.hasAttribute(parser, "pathData");
+            if (!hasPathData) {
+                //If there is no pathData in the <path> tag, then this is an empty path, nothing need to be drawn.
+                return;
+            }
+
+            final String pathName = a.getString(AndroidResources.styleable_VectorDrawablePath_name);
             if (pathName != null) {
                 mPathName = pathName;
             }
-
-            final String pathData = a.getString(R.styleable.VectorDrawablePath_pathData);
+            final String pathData = a.getString(AndroidResources.styleable_VectorDrawablePath_pathData);
             if (pathData != null) {
                 mNodes = PathParser.createNodesFromPathData(pathData);
             }
 
-            mFillColor = a.getColor(R.styleable.VectorDrawablePath_fillColor,
-                    mFillColor);
-            mFillAlpha = a.getFloat(R.styleable.VectorDrawablePath_fillAlpha,
-                    mFillAlpha);
-            mStrokeLineCap = getStrokeLineCap(a.getInt(
-                    R.styleable.VectorDrawablePath_strokeLineCap, -1), mStrokeLineCap);
-            mStrokeLineJoin = getStrokeLineJoin(a.getInt(
-                    R.styleable.VectorDrawablePath_strokeLineJoin, -1), mStrokeLineJoin);
-            mStrokeMiterlimit = a.getFloat(
-                    R.styleable.VectorDrawablePath_strokeMiterLimit, mStrokeMiterlimit);
-            mStrokeColor = a.getColor(R.styleable.VectorDrawablePath_strokeColor,
-                    mStrokeColor);
-            mStrokeAlpha = a.getFloat(R.styleable.VectorDrawablePath_strokeAlpha,
-                    mStrokeAlpha);
-            mStrokeWidth = a.getFloat(R.styleable.VectorDrawablePath_strokeWidth,
-                    mStrokeWidth);
-            mTrimPathEnd = a.getFloat(R.styleable.VectorDrawablePath_trimPathEnd,
-                    mTrimPathEnd);
-            mTrimPathOffset = a.getFloat(
-                    R.styleable.VectorDrawablePath_trimPathOffset, mTrimPathOffset);
-            mTrimPathStart = a.getFloat(
-                    R.styleable.VectorDrawablePath_trimPathStart, mTrimPathStart);
+            mFillColor = TypedArrayUtils.getNamedColor(a, parser, "fillColor",
+                    AndroidResources.styleable_VectorDrawablePath_fillColor, mFillColor);
+            mFillAlpha = TypedArrayUtils.getNamedFloat(a, parser, "alpha",
+                    AndroidResources.styleable_VectorDrawablePath_fillAlpha, mFillAlpha);
+            final int lineCap = TypedArrayUtils.getNamedInt(a, parser, "strokeLineCap",
+                    AndroidResources.styleable_VectorDrawablePath_strokeLineCap, -1);
+            mStrokeLineCap = getStrokeLineCap(lineCap, mStrokeLineCap);
+            final int lineJoin = TypedArrayUtils.getNamedInt(a, parser, "strokeLineJoin",
+                    AndroidResources.styleable_VectorDrawablePath_strokeLineJoin, -1);
+            mStrokeLineJoin = getStrokeLineJoin(lineJoin, mStrokeLineJoin);
+            mStrokeMiterlimit = TypedArrayUtils.getNamedFloat(a, parser, "strokeMiterLimit",
+                    AndroidResources.styleable_VectorDrawablePath_strokeMiterLimit, mStrokeMiterlimit);
+            mStrokeColor = TypedArrayUtils.getNamedColor(a, parser, "strokeColor",
+                    AndroidResources.styleable_VectorDrawablePath_strokeColor, mStrokeColor);
+            mStrokeAlpha = TypedArrayUtils.getNamedFloat(a, parser, "strokeAlpha",
+                    AndroidResources.styleable_VectorDrawablePath_strokeAlpha, mStrokeAlpha);
+            mStrokeWidth = TypedArrayUtils.getNamedFloat(a, parser, "strokeWidth",
+                    AndroidResources.styleable_VectorDrawablePath_strokeWidth, mStrokeWidth);
+            mTrimPathEnd = TypedArrayUtils.getNamedFloat(a, parser, "trimPathEnd",
+                    AndroidResources.styleable_VectorDrawablePath_trimPathEnd, mTrimPathEnd);
+            mTrimPathOffset = TypedArrayUtils.getNamedFloat(a, parser, "trimPathOffset",
+                    AndroidResources.styleable_VectorDrawablePath_trimPathOffset, mTrimPathOffset);
+            mTrimPathStart = TypedArrayUtils.getNamedFloat(a, parser, "trimPathStart",
+                    AndroidResources.styleable_VectorDrawablePath_trimPathStart, mTrimPathStart);
         }
 
         @Override
@@ -1381,7 +1449,7 @@ public class VectorDrawableCompat extends Drawable {
 
             /*
              * TODO TINT THEME Not supported yet final TypedArray a =
-             * t.resolveAttributes(mThemeAttrs, R.styleable.VectorDrawablePath);
+             * t.resolveAttributes(mThemeAttrs, styleable_VectorDrawablePath);
              * updateStateFromTypedArray(a); a.recycle();
              */
         }

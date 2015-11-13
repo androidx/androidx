@@ -17,7 +17,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="android.support.test.vectordrawable" >
 
-    <uses-sdk android:minSdkVersion="7" />
+    <uses-sdk android:minSdkVersion="7"/>
 
     <application android:icon="@drawable/app_sample_code" android:label="VectorDrawableCompatTest" >
         <activity android:name="android.support.test.vectordrawable.TestActivity" />

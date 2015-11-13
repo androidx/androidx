@@ -13,18 +13,17 @@
      limitations under the License.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:auto="http://schemas.android.com/apk/res-auto"
-            auto:width="64dp"
-            auto:height="64dp" auto:viewportWidth="600"
-          auto:viewportHeight="600">
+            android:width="64dp"
+            android:height="64dp" android:viewportWidth="600"
+          android:viewportHeight="600">
 
     <group>
         <path
-                auto:name="pie1"
-                auto:pathData="M535.441,412.339A280.868,280.868 0 1,1 536.186,161.733L284.493,286.29Z"
-                auto:fillColor="#ffffcc00"
-                auto:strokeColor="#FF00FF00"
-                auto:strokeWidth="1"/>
+                android:name="pie1"
+                android:pathData="M535.441,412.339A280.868,280.868 0 1,1 536.186,161.733L284.493,286.29Z"
+                android:fillColor="#ffffcc00"
+                android:strokeColor="#FF00FF00"
+                android:strokeWidth="1"/>
     </group>
 
 </vector>
