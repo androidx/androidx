@@ -307,10 +307,10 @@ public final class ScriptGroup extends BaseObj {
                     value = ((Long)obj).longValue();
                     size = 8;
                 } else if (obj instanceof Float) {
-                    value = ((Float)obj).longValue();
+                    value = Float.floatToRawIntBits(((Float)obj).floatValue());
                     size = 4;
                 } else if (obj instanceof Double) {
-                    value = ((Double)obj).longValue();
+                    value = Double.doubleToRawLongBits(((Double)obj).doubleValue());
                     size = 8;
                 }
             }
