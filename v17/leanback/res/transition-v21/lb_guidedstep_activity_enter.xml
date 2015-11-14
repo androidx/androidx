@@ -18,7 +18,7 @@
 <transitionSet xmlns:android="http://schemas.android.com/apk/res/android" >
   <fade
       android:interpolator="@android:interpolator/fast_out_linear_in"
-      android:duration="350">
+      android:duration="@integer/lb_guidedstep_activity_background_fade_duration_ms">
         <targets>
             <target android:targetId="@id/guidedstep_background" />
         </targets>
