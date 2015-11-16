@@ -42,7 +42,6 @@ import android.util.Log;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static android.support.v4.media.MediaBrowserProtocol.*;
@@ -394,10 +393,9 @@ public final class MediaBrowserCompat {
          * Called when the list of children is loaded or updated.
          *
          * @param parentId The media id of the parent media item.
-         * @param children The children which were loaded.
+         * @param children The children which were loaded, or null if the id is invalid.
          */
-        public void onChildrenLoaded(@NonNull String parentId,
-                                     @NonNull List<MediaItem> children) {
+        public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> children) {
         }
 
         /**
@@ -861,9 +859,6 @@ public final class MediaBrowserCompat {
             List<MediaItem> data = list;
             if (DBG) {
                 Log.d(TAG, "onLoadChildren for " + mServiceComponent + " id=" + parentId);
-            }
-            if (data == null) {
-                data = Collections.emptyList();
             }
 
             // Check that the subscription is still subscribed.
