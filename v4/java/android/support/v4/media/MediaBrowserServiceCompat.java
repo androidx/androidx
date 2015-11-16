@@ -470,9 +470,12 @@ public abstract class MediaBrowserServiceCompat extends Service {
 
         public void onLoadChildren(String mediaId, List<MediaBrowserCompat.MediaItem> list)
                 throws RemoteException {
-            Bundle data = new Bundle();
-            data.putParcelableArrayList(SERVICE_DATA_MEDIA_ITEM_LIST,
-                    list instanceof ArrayList ? (ArrayList) list : new ArrayList<>(list));
+            Bundle data = null;
+            if (list != null) {
+                data = new Bundle();
+                data.putParcelableArrayList(SERVICE_DATA_MEDIA_ITEM_LIST,
+                        list instanceof ArrayList ? (ArrayList) list : new ArrayList<>(list));
+            }
             sendRequest(SERVICE_MSG_ON_LOAD_CHILDREN, mediaId, data);
         }
 
@@ -716,10 +719,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
                 = new Result<List<MediaBrowserCompat.MediaItem>>(parentId) {
             @Override
             void onResultSent(List<MediaBrowserCompat.MediaItem> list) {
-                if (list == null) {
-                    throw new IllegalStateException("onLoadChildren sent null list for id "
-                            + parentId);
-                }
                 if (mConnections.get(connection.callbacks.asBinder()) != connection) {
                     if (DBG) {
                         Log.d(TAG, "Not sending onLoadChildren result for connection that has"

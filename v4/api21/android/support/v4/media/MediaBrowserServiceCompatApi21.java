@@ -18,8 +18,10 @@ package android.support.v4.media;
 
 import android.content.Intent;
 import android.content.pm.ParceledListSlice;
+import android.media.MediaDescription;
 import android.media.browse.MediaBrowser;
 import android.media.session.MediaSession;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
@@ -61,6 +63,16 @@ class MediaBrowserServiceCompatApi21 {
     }
 
     public static class ServiceCallbacksApi21 implements ServiceCallbacks {
+        private static final ParceledListSlice sNullParceledListSlice;
+        static {
+            MediaDescription nullDescription = new MediaDescription.Builder().setMediaId(
+                    MediaBrowserCompatApi21.NULL_MEDIA_ITEM_ID).build();
+            MediaBrowser.MediaItem nullMediaItem = new MediaBrowser.MediaItem(nullDescription, 0);
+            List<MediaBrowser.MediaItem> nullMediaItemList = new ArrayList<>();
+            nullMediaItemList.add(nullMediaItem);
+            sNullParceledListSlice = new ParceledListSlice(nullMediaItemList);
+        }
+
         private final IMediaBrowserServiceCallbacks mCallbacks;
 
         ServiceCallbacksApi21(IMediaBrowserServiceCallbacks callbacks) {
@@ -89,7 +101,12 @@ class MediaBrowserServiceCompatApi21 {
                     parcel.recycle();
                 }
             }
-            final ParceledListSlice<MediaBrowser.MediaItem> pls = new ParceledListSlice(itemList);
+            ParceledListSlice<MediaBrowser.MediaItem> pls;
+            if (Build.VERSION.SDK_INT > 23) {
+                pls = itemList == null ? null : new ParceledListSlice(itemList);
+            } else {
+                pls = itemList == null ? sNullParceledListSlice : new ParceledListSlice(itemList);
+            }
             mCallbacks.onLoadChildren(mediaId, pls);
         }
     }
