@@ -17,6 +17,7 @@
 package android.support.v7.view;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.os.Build;
@@ -42,8 +43,34 @@ public class ActionBarPolicy {
         mContext = context;
     }
 
+    /**
+     * Returns the maximum number of action buttons that should be permitted within an action
+     * bar/action mode. This will be used to determine how many showAsAction="ifRoom" items can fit.
+     * "always" items can override this.
+     */
     public int getMaxActionButtons() {
-        return mContext.getResources().getInteger(R.integer.abc_max_action_buttons);
+        final Configuration config = mContext.getResources().getConfiguration();
+        final int width = config.screenWidthDp;
+        final int height = config.screenHeightDp;
+        final int smallest;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            smallest = config.smallestScreenWidthDp;
+        } else {
+            smallest = 0;
+        }
+        if (smallest > 600 || width > 600 || (width > 960 && height > 720)
+                || (width > 720 && height > 960)) {
+            // For values-w600dp, values-sw600dp and values-xlarge.
+            return 5;
+        } else if (width >= 500 || (width > 640 && height > 480) || (width > 480 && height > 640)) {
+            // For values-w500dp and values-large.
+            return 4;
+        } else if (width >= 360) {
+            // For values-w360dp.
+            return 3;
+        } else {
+            return 2;
+        }
     }
 
     public boolean showsOverflowMenuButton() {

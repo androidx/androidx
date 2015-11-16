@@ -132,8 +132,7 @@ class ActionMenuPresenter extends BaseMenuPresenter
 
     public void onConfigurationChanged(Configuration newConfig) {
         if (!mMaxItemsSet) {
-            mMaxItems = mContext.getResources().getInteger(
-                    R.integer.abc_max_action_buttons);
+            mMaxItems = ActionBarPolicy.get(mContext).getMaxActionButtons();
         }
         if (mMenu != null) {
             mMenu.onItemsChanged(true);

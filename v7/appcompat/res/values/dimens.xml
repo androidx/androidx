@@ -15,12 +15,6 @@
 -->
 
 <resources>
-
-    <!-- The maximum number of action buttons that should be permitted within
-         an action bar/action mode. This will be used to determine how many
-         showAsAction="ifRoom" items can fit. "always" items can override this. -->
-    <integer name="abc_max_action_buttons">2</integer>
-
     <!-- Maximum width for a stacked action bar tab. This prevents
          action bar tabs from becoming too wide on a wide screen when only
          a few are present. -->
