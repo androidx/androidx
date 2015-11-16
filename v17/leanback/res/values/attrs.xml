@@ -278,6 +278,12 @@
              b) SDK < 21: set the brand color explicitly via defaultBrandColor, or programatically.
          -->
         <attr name="defaultBrandColor" format="reference|color" />
+        <!-- Default dark brand color used for the background of certain leanback visual elements
+             such as the actions background. If your app runs on:
+             a) SDK 21+: set colorPrimaryDark, used by the leanback launcher and elsewhere, and defaultBrandColorDark will inherit it.
+             b) SDK < 21: set the brand color explicitly via defaultBrandColorDark, or programatically.
+         -->
+        <attr name="defaultBrandColorDark" format="reference|color" />
 
         <!-- Default colors -->
         <attr name="defaultSearchColor" format="reference|color" />
@@ -360,9 +366,9 @@
              {@link android.support.v17.leanback.R.color#lb_guidedactions_background}.-->
         <attr name="guidedActionsBackground" format="reference" />
 
-        <!-- Theme attribute for the background of Button GuidedActions. Default is
-             {@link android.support.v17.leanback.R.color#lb_guidedbuttonactions_background}.-->
-        <attr name="guidedButtonActionsBackground" format="reference" />
+        <!-- Theme attribute for the dark version background of GuidedActions. Default is
+             {@link android.support.v17.leanback.R.color#lb_guidedactions_background_dark}.-->
+        <attr name="guidedActionsBackgroundDark" format="reference" />
 
         <!-- Theme attribute for the style of the list in a GuidedActionsPresenter. Default is
              {@link android.support.v17.leanback.R.style#Widget_Leanback_GuidedActionsListStyle}.-->
