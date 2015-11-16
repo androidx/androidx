@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -1303,8 +1304,42 @@ public class MediaSessionCompat {
             }
         }
 
+        /**
+         * Clones the given {@link MediaMetadataCompat}, deep-copying bitmaps in the metadata if
+         * they exist. If there is no bitmap in the metadata, this method just returns the given
+         * metadata.
+         *
+         * @param metadata A {@link MediaMetadataCompat} to be cloned.
+         * @return A newly cloned metadata if it contains bitmaps. Otherwise, the given metadata
+         *         will be returned.
+         */
+        private MediaMetadataCompat cloneMetadataIfNeeded(MediaMetadataCompat metadata) {
+            if (metadata == null) {
+                return null;
+            } else if (!metadata.containsKey(MediaMetadataCompat.METADATA_KEY_ART)
+                    && !metadata.containsKey(MediaMetadataCompat.METADATA_KEY_ALBUM_ART)) {
+                return metadata;
+            }
+            MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder(metadata);
+            Bitmap artBitmap = metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ART);
+            if (artBitmap != null) {
+                builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ART,
+                        artBitmap.copy(artBitmap.getConfig(), false));
+            }
+            Bitmap albumArtBitmap = metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART);
+            if (albumArtBitmap != null) {
+                builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART,
+                        albumArtBitmap.copy(albumArtBitmap.getConfig(), false));
+            }
+            return builder.build();
+        }
+
         @Override
         public void setMetadata(MediaMetadataCompat metadata) {
+            if (android.os.Build.VERSION.SDK_INT >= 14 && metadata != null) {
+                // Clone bitmaps in metadata for protecting them to be recycled by RCC.
+                metadata = cloneMetadataIfNeeded(metadata);
+            }
             synchronized (mLock) {
                 mMetadata = metadata;
             }
