@@ -151,18 +151,18 @@ public class MediaRouteControllerDialog extends AlertDialog {
     }
 
     public MediaRouteControllerDialog(Context context, int theme) {
-        super(MediaRouterThemeHelper.createThemedContext(context), theme);
+        super(MediaRouterThemeHelper.createThemedContext(context, theme), theme);
         mContext = getContext();
 
         mControllerCallback = new MediaControllerCallback();
-        mRouter = MediaRouter.getInstance(context);
+        mRouter = MediaRouter.getInstance(mContext);
         mCallback = new MediaRouterCallback();
         mRoute = mRouter.getSelectedRoute();
         setMediaSession(mRouter.getMediaSessionToken());
-        mVolumeGroupListPaddingTop = context.getResources().getDimensionPixelSize(
+        mVolumeGroupListPaddingTop = mContext.getResources().getDimensionPixelSize(
                 R.dimen.mr_controller_volume_group_list_padding_top);
         mAccessibilityManager =
-                (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
+                (AccessibilityManager) mContext.getSystemService(Context.ACCESSIBILITY_SERVICE);
     }
 
     /**
