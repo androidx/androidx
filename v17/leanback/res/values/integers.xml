@@ -34,4 +34,6 @@
     <integer name="slideEdgeStart">3</integer>
     <!-- Gravity.RIGHT -->
     <integer name="slideEdgeEnd">5</integer>
+
+    <integer name="lb_guidedstep_activity_background_fade_duration_ms">350</integer>
 </resources>

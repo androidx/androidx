@@ -34,7 +34,7 @@
         android:layout_height="@dimen/lb_details_v2_card_height"
         android:layout_marginTop="@dimen/lb_details_v2_blank_height"
         android:clipToPadding="false"
-        android:foreground="#ffffff"
+        android:background="?attr/defaultBrandColor"
         android:elevation="@dimen/lb_details_overview_z"
         >
 
@@ -48,6 +48,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/details_overview_actions_background"
+            android:background="?attr/defaultBrandColorDark"
             android:orientation="vertical" >
 
             <android.support.v17.leanback.widget.HorizontalGridView
