@@ -29,7 +29,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"
-        android:background="?attr/guidedButtonActionsBackground" />
+        android:background="?attr/guidedActionsBackgroundDark" />
 
     <android.support.v17.leanback.widget.VerticalGridView
         android:transitionGroup="true"
