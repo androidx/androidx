@@ -20,6 +20,6 @@
     <gradient
         android:angle="0"
         android:startColor="#00000000"
-        android:endColor="@color/lb_default_brand_color"
+        android:endColor="?attr/defaultBrandColor"
         />
 </shape>
