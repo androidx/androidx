@@ -16,8 +16,6 @@
 
 package android.support.v7.app;
 
-import static android.widget.SeekBar.OnSeekBarChangeListener;
-
 import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -65,7 +63,9 @@ import android.widget.TextView;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class implements the route controller dialog for {@link MediaRouter}.
@@ -82,9 +82,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
     // Time to wait before updating the volume when the user lets go of the seek bar
     // to allow the route provider time to propagate the change and publish a new
     // route descriptor.
-    private static final int VOLUME_UPDATE_DELAY_MILLIS = 250;
-    private static final int VOLUME_SLIDER_TAG_MASTER = 0;
-    private static final int VOLUME_SLIDER_TAG_GROUP_BASE = 100;
+    private static final int VOLUME_UPDATE_DELAY_MILLIS = 500;
 
     private static final int BUTTON_NEUTRAL_RES_ID = android.R.id.button3;
     private static final int BUTTON_DISCONNECT_RES_ID = android.R.id.button2;
@@ -127,11 +125,12 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private ListView mVolumeGroupList;
     private SeekBar mVolumeSlider;
     private VolumeChangeListener mVolumeChangeListener;
-    private boolean mVolumeSliderTouched;
+    private MediaRouter.RouteInfo mRouteInVolumeSliderTouched;
     private int mVolumeGroupListItemIconSize;
     private int mVolumeGroupListItemHeight;
     private int mVolumeGroupListMaxHeight;
     private final int mVolumeGroupListPaddingTop;
+    private Map<MediaRouter.RouteInfo, SeekBar> mVolumeSliderMap;
 
     private MediaControllerCompat mMediaController;
     private MediaControllerCallback mControllerCallback;
@@ -340,8 +339,9 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mPlayPauseButton.setOnClickListener(listener);
 
         mVolumeControlLayout = (LinearLayout) findViewById(R.id.mr_volume_control);
+        mVolumeControlLayout.setVisibility(View.GONE);
         mVolumeSlider = (SeekBar) findViewById(R.id.mr_volume_slider);
-        mVolumeSlider.setTag(VOLUME_SLIDER_TAG_MASTER);
+        mVolumeSlider.setTag(mRoute);
         mVolumeChangeListener = new VolumeChangeListener();
         mVolumeSlider.setOnSeekBarChangeListener(mVolumeChangeListener);
 
@@ -350,6 +350,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 mMediaMainControlLayout, mVolumeGroupList, getGroup() != null);
         MediaRouterThemeHelper.setVolumeSliderColor(mContext,
                 (MediaRouteVolumeSlider) mVolumeSlider, mMediaMainControlLayout);
+        mVolumeSliderMap = new HashMap<>();
+        mVolumeSliderMap.put(mRoute, mVolumeSlider);
 
         mGroupExpandCollapseButton =
                 (MediaRouteExpandCollapseButton) findViewById(R.id.mr_group_expand_collapse);
@@ -655,8 +657,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
     }
 
     private void updateVolumeControlLayout() {
-        if (!mVolumeSliderTouched) {
-            if (isVolumeControlAvailable(mRoute)) {
+        if (isVolumeControlAvailable(mRoute)) {
+            if (mVolumeControlLayout.getVisibility() == View.GONE) {
                 mVolumeControlLayout.setVisibility(View.VISIBLE);
                 mVolumeSlider.setMax(mRoute.getVolumeMax());
                 mVolumeSlider.setProgress(mRoute.getVolume());
@@ -667,31 +669,14 @@ public class MediaRouteControllerDialog extends AlertDialog {
                     VolumeGroupAdapter adapter =
                             (VolumeGroupAdapter) mVolumeGroupList.getAdapter();
                     if (adapter != null) {
-                       adapter.notifyDataSetChanged();
-                    }
-                }
-            } else {
-                mVolumeControlLayout.setVisibility(View.GONE);
-            }
-            updateLayoutHeight();
-        } else if (mVolumeControlLayout.getVisibility() == View.VISIBLE) {
-            mVolumeSlider.setProgress(mRoute.getVolume());
-            if (mIsGroupExpanded) {
-                for (int i = 0; i < mVolumeGroupList.getChildCount(); ++i) {
-                    SeekBar volumeSlider = (SeekBar) mVolumeGroupList.getChildAt(i)
-                            .findViewById(R.id.mr_volume_slider);
-                    int tag = (int) volumeSlider.getTag();
-                    int index = tag - VOLUME_SLIDER_TAG_GROUP_BASE;
-                    if (index < 0 || index >= getGroup().getRouteCount()) {
-                        continue;
-                    }
-                    MediaRouter.RouteInfo route = getGroup().getRouteAt(index);
-                    if (isVolumeControlAvailable(route)) {
-                        volumeSlider.setProgress(route.getVolume());
+                        adapter.notifyDataSetChanged();
                     }
                 }
             }
+        } else {
+            mVolumeControlLayout.setVisibility(View.GONE);
         }
+        updateLayoutHeight();
     }
 
     private void updatePlaybackControlLayout() {
@@ -774,16 +759,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
         view.setLayoutParams(lp);
     }
 
-    private static int getLayoutBottomMargin(View view) {
-        return ((ViewGroup.MarginLayoutParams) view.getLayoutParams()).bottomMargin;
-    }
-
-    private static void setLayoutBottomMargin(View view, int bottomMargin) {
-        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
-        params.bottomMargin = bottomMargin;
-        view.setLayoutParams(params);
-    }
-
     /**
      * Returns desired art height to fit into controller dialog.
      */
@@ -809,8 +784,9 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
         @Override
         public void onRouteVolumeChanged(MediaRouter router, MediaRouter.RouteInfo route) {
-            if (route == mRoute) {
-                updateVolumeControlLayout();
+            SeekBar volumeSlider = mVolumeSliderMap.get(route);
+            if (volumeSlider != null && mRouteInVolumeSliderTouched != route) {
+                volumeSlider.setProgress(route.getVolume());
             }
         }
     }
@@ -874,24 +850,24 @@ public class MediaRouteControllerDialog extends AlertDialog {
         }
     }
 
-    private class VolumeChangeListener implements OnSeekBarChangeListener {
+    private class VolumeChangeListener implements SeekBar.OnSeekBarChangeListener {
         private final Runnable mStopTrackingTouch = new Runnable() {
             @Override
             public void run() {
-                if (mVolumeSliderTouched) {
-                    mVolumeSliderTouched = false;
-                    updateVolumeControlLayout();
+                if (mRouteInVolumeSliderTouched != null) {
+                    SeekBar volumeSlider = mVolumeSliderMap.get(mRouteInVolumeSliderTouched);
+                    volumeSlider.setProgress(mRouteInVolumeSliderTouched.getVolume());
+                    mRouteInVolumeSliderTouched = null;
                 }
             }
         };
 
         @Override
         public void onStartTrackingTouch(SeekBar seekBar) {
-            if (mVolumeSliderTouched) {
+            if (mRouteInVolumeSliderTouched != null) {
                 mVolumeSlider.removeCallbacks(mStopTrackingTouch);
-            } else {
-                mVolumeSliderTouched = true;
             }
+            mRouteInVolumeSliderTouched = (MediaRouter.RouteInfo) seekBar.getTag();
         }
 
         @Override
@@ -905,14 +881,9 @@ public class MediaRouteControllerDialog extends AlertDialog {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             if (fromUser) {
-                int tag = (int) seekBar.getTag();
-                if (tag == VOLUME_SLIDER_TAG_MASTER) {
-                    mRoute.requestSetVolume(progress);
-                } else {
-                    int index = tag - VOLUME_SLIDER_TAG_GROUP_BASE;
-                    if (index >= 0 && index < getGroup().getRouteCount()) {
-                        getGroup().getRouteAt(index).requestSetVolume(progress);
-                    }
+                MediaRouter.RouteInfo route = (MediaRouter.RouteInfo) seekBar.getTag();
+                if (route.getVolume() != progress) {
+                    route.requestSetVolume(progress);
                 }
             }
         }
@@ -948,7 +919,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
                         (MediaRouteVolumeSlider) v.findViewById(R.id.mr_volume_slider);
                 MediaRouterThemeHelper.setVolumeSliderColor(
                         mContext, volumeSlider, mVolumeGroupList);
-                volumeSlider.setTag(VOLUME_SLIDER_TAG_GROUP_BASE + position);
+                volumeSlider.setTag(route);
+                mVolumeSliderMap.put(route, volumeSlider);
                 volumeSlider.setHideThumb(!isEnabled);
                 volumeSlider.setEnabled(isEnabled);
                 if (isEnabled) {
