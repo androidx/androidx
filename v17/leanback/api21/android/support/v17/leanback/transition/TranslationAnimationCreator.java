@@ -48,9 +48,10 @@ class TranslationAnimationCreator {
         if (startX == endX) {
             return null;
         }
+        float y = view.getTranslationY();
         Path path = new Path();
-        path.moveTo(startX, 0);
-        path.lineTo(endX, 0);
+        path.moveTo(startX, y);
+        path.lineTo(endX, y);
         ObjectAnimator anim =
                 ObjectAnimator.ofFloat(view, View.TRANSLATION_X, View.TRANSLATION_Y, path);
 
