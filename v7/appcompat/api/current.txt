@@ -895,7 +895,6 @@ package android.support.v7.appcompat {
     ctor public R.integer();
     field public static int abc_config_activityDefaultDur;
     field public static int abc_config_activityShortDur;
-    field public static int abc_max_action_buttons;
     field public static int cancel_button_image_alpha;
     field public static int status_bar_notification_info_maxnum;
   }
