@@ -185,21 +185,33 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
                         mListener.onRefresh();
                     }
                 }
+                mCurrentTargetOffsetTop = mCircleView.getTop();
             } else {
-                mProgress.stop();
-                mCircleView.setVisibility(View.GONE);
-                setColorViewAlpha(MAX_ALPHA);
-                // Return the circle to its start position
-                if (mScale) {
-                    setAnimationProgress(0 /* animation complete and view is hidden */);
-                } else {
-                    setTargetOffsetTopAndBottom(mOriginalOffsetTop - mCurrentTargetOffsetTop,
-                            true /* requires update */);
-                }
+                reset();
             }
-            mCurrentTargetOffsetTop = mCircleView.getTop();
         }
     };
+
+    private void reset() {
+        mCircleView.clearAnimation();
+        mProgress.stop();
+        mCircleView.setVisibility(View.GONE);
+        setColorViewAlpha(MAX_ALPHA);
+        // Return the circle to its start position
+        if (mScale) {
+            setAnimationProgress(0 /* animation complete and view is hidden */);
+        } else {
+            setTargetOffsetTopAndBottom(mOriginalOffsetTop - mCurrentTargetOffsetTop,
+                    true /* requires update */);
+        }
+        mCurrentTargetOffsetTop = mCircleView.getTop();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        reset();
+    }
 
     private void setColorViewAlpha(int targetAlpha) {
         mCircleView.getBackground().setAlpha(targetAlpha);
