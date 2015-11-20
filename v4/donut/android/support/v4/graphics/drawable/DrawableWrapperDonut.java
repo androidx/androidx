@@ -54,7 +54,9 @@ class DrawableWrapperDonut extends Drawable implements Drawable.Callback, Drawab
 
     @Override
     protected void onBoundsChange(Rect bounds) {
-        mDrawable.setBounds(bounds);
+        if (mDrawable != null) {
+            mDrawable.setBounds(bounds);
+        }
     }
 
     @Override
