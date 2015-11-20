@@ -5,7 +5,7 @@ LOCAL_MODULE_TAGS := tests
 
 LOCAL_SRC_FILES := $(call all-java-files-under, java)
 
-LOCAL_STATIC_JAVA_LIBRARIES := mockito-target android-support-v4
+LOCAL_STATIC_JAVA_LIBRARIES := mockito-target android-support-v4 junit-runner
 LOCAL_JAVA_LIBRARIES := android.test.runner
 LOCAL_PACKAGE_NAME := AndroidSupportTests
 
