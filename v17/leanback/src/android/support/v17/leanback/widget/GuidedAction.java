@@ -21,6 +21,8 @@ import android.graphics.drawable.Drawable;
 import android.text.InputType;
 import android.util.Log;
 
+import java.util.List;
+
 /**
  * A data class which represents an action within a {@link
  * android.support.v17.leanback.app.GuidedStepFragment}. GuidedActions contain at minimum a title
@@ -113,6 +115,7 @@ public class GuidedAction extends Action {
         private int mCheckSetId = NO_CHECK_SET;
         private boolean mEnabled = true;
         private boolean mFocusable = true;
+        private List<GuidedAction> mSubActions;
         private Intent mIntent;
 
         /**
@@ -153,6 +156,7 @@ public class GuidedAction extends Action {
             action.mInfoOnly = mInfoOnly;
             action.mEnabled = mEnabled;
             action.mFocusable = mFocusable;
+            action.mSubActions = mSubActions;
         }
 
         /**
@@ -441,6 +445,16 @@ public class GuidedAction extends Action {
             mFocusable = focusable;
             return this;
         }
+
+        /**
+         * Sets sub actions list.
+         * @param subActions
+         * @return The same Builder object.
+         */
+        public Builder subActions(List<GuidedAction> subActions) {
+            mSubActions = subActions;
+            return this;
+        }
     }
 
     private CharSequence mEditTitle;
@@ -458,6 +472,7 @@ public class GuidedAction extends Action {
     private int mCheckSetId;
     private boolean mEnabled;
     private boolean mFocusable;
+    private List<GuidedAction> mSubActions;
 
     private Intent mIntent;
 
@@ -686,6 +701,28 @@ public class GuidedAction extends Action {
      */
     public boolean infoOnly() {
         return mInfoOnly;
+    }
+
+    /**
+     * Change sub actions list.
+     * @param actions Sub actions list to set on this action.  Sets null to disable sub actions.
+     */
+    public void setSubActions(List<GuidedAction> actions) {
+        mSubActions = actions;
+    }
+
+    /**
+     * @return List of sub actions or null if sub actions list is not enabled.
+     */
+    public List<GuidedAction> getSubActions() {
+        return mSubActions;
+    }
+
+    /**
+     * @return True if has sub actions list, even it's currently empty.
+     */
+    public boolean hasSubActions() {
+        return mSubActions != null;
     }
 
 }

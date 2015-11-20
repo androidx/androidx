@@ -219,6 +219,9 @@ abstract class BaseGridView extends RecyclerView {
         boolean throughFront = a.getBoolean(R.styleable.lbBaseGridView_focusOutFront, false);
         boolean throughEnd = a.getBoolean(R.styleable.lbBaseGridView_focusOutEnd, false);
         mLayoutManager.setFocusOutAllowed(throughFront, throughEnd);
+        boolean throughSideStart = a.getBoolean(R.styleable.lbBaseGridView_focusOutSideStart, true);
+        boolean throughSideEnd = a.getBoolean(R.styleable.lbBaseGridView_focusOutSideEnd, true);
+        mLayoutManager.setFocusOutSideAllowed(throughSideStart, throughSideEnd);
         mLayoutManager.setVerticalMargin(
                 a.getDimensionPixelSize(R.styleable.lbBaseGridView_verticalMargin, 0));
         mLayoutManager.setHorizontalMargin(
@@ -487,11 +490,35 @@ abstract class BaseGridView extends RecyclerView {
      * been selected.  Note that the listener may be invoked when there is a
      * layout pending on the view, affording the listener an opportunity to
      * adjust the upcoming layout based on the selection state.
+     * This method will clear all existing listeners added by
+     * {@link #addOnChildViewHolderSelectedListener}.
      *
      * @param listener The listener to be invoked.
      */
     public void setOnChildViewHolderSelectedListener(OnChildViewHolderSelectedListener listener) {
         mLayoutManager.setOnChildViewHolderSelectedListener(listener);
+    }
+
+    /**
+     * Registers a callback to be invoked when an item in BaseGridView has
+     * been selected.  Note that the listener may be invoked when there is a
+     * layout pending on the view, affording the listener an opportunity to
+     * adjust the upcoming layout based on the selection state.
+     *
+     * @param listener The listener to be invoked.
+     */
+    public void addOnChildViewHolderSelectedListener(OnChildViewHolderSelectedListener listener) {
+        mLayoutManager.addOnChildViewHolderSelectedListener(listener);
+    }
+
+    /**
+     * Remove the callback invoked when an item in BaseGridView has been selected.
+     *
+     * @param listener The listener to be removed.
+     */
+    public void removeOnChildViewHolderSelectedListener(OnChildViewHolderSelectedListener listener)
+            {
+        mLayoutManager.removeOnChildViewHolderSelectedListener(listener);
     }
 
     /**
@@ -540,6 +567,52 @@ abstract class BaseGridView extends RecyclerView {
      */
     public void setSelectedPositionSmoothWithSub(int position, int subposition) {
         mLayoutManager.setSelectionSmoothWithSub(this, position, subposition);
+    }
+
+    /**
+     * Perform a task on ViewHolder at given position after smooth scrolling to it.
+     * @param position Position of item in adapter.
+     * @param task Task to executed on the ViewHolder at a given position.
+     */
+    public void setSelectedPositionSmooth(final int position, final ViewHolderTask task) {
+        RecyclerView.ViewHolder vh = findViewHolderForPosition(position);
+        if (vh == null) {
+            addOnChildViewHolderSelectedListener(new OnChildViewHolderSelectedListener() {
+                public void onChildViewHolderSelected(RecyclerView parent,
+                        RecyclerView.ViewHolder child, int selectedPosition, int subposition) {
+                    if (selectedPosition == position) {
+                        removeOnChildViewHolderSelectedListener(this);
+                        task.run(child);
+                    }
+                }
+            });
+        } else {
+            task.run(vh);
+        }
+        setSelectedPositionSmooth(position);
+    }
+
+    /**
+     * Perform a task on ViewHolder at given position after scroll to it.
+     * @param position Position of item in adapter.
+     * @param task Task to executed on the ViewHolder at a given position.
+     */
+    public void setSelectedPosition(final int position, final ViewHolderTask task) {
+        RecyclerView.ViewHolder vh = findViewHolderForPosition(position);
+        if (vh == null) {
+            addOnChildViewHolderSelectedListener(new OnChildViewHolderSelectedListener() {
+                public void onChildViewHolderSelected(RecyclerView parent,
+                        RecyclerView.ViewHolder child, int selectedPosition, int subposition) {
+                    if (selectedPosition == position) {
+                        removeOnChildViewHolderSelectedListener(this);
+                        task.run(child);
+                    }
+                }
+            });
+        } else {
+            task.run(vh);
+        }
+        setSelectedPosition(position);
     }
 
     /**
@@ -865,4 +938,5 @@ abstract class BaseGridView extends RecyclerView {
     public int getExtraLayoutSpace() {
         return mLayoutManager.getExtraLayoutSpace();
     }
+
 }

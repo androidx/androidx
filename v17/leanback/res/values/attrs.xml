@@ -22,6 +22,12 @@
         <attr name="focusOutFront" format="boolean" />
         <!-- Allow DPAD key to navigate out at the end of the view, default is false -->
         <attr name="focusOutEnd" format="boolean" />
+        <!-- Allow DPAD key to navigate out of first row, for HorizontalGridView, it's the
+             top edge, for VerticalGridView it's the "start" edge.  Default value is true.  -->
+        <attr name="focusOutSideStart" format="boolean" />
+        <!-- Allow DPAD key to navigate out of last row, for HorizontalGridView, it's the
+             bottom edge, for VerticalGridView it's the "end" edge.  Default value is true.  -->
+        <attr name="focusOutSideEnd" format="boolean" />
         <!-- Defining margin between two items horizontally -->
         <attr name="horizontalMargin" format="dimension" />
         <!-- Defining margin between two items vertically -->
@@ -373,6 +379,14 @@
         <!-- Theme attribute for the style of the list in a GuidedActionsPresenter. Default is
              {@link android.support.v17.leanback.R.style#Widget_Leanback_GuidedActionsListStyle}.-->
         <attr name="guidedActionsListStyle" format="reference" />
+
+        <!-- Theme attribute for the style of the sub actions list in a GuidedActionsPresenter. Default is
+             {@link android.support.v17.leanback.R.style#Widget_Leanback_GuidedSubActionsListStyle}.-->
+        <attr name="guidedSubActionsListStyle" format="reference" />
+
+        <!-- Theme attribute for the style of the list in a GuidedActionsPresenter. Default is
+             {@link android.support.v17.leanback.R.style#Widget_Leanback_GuidedButtonActionsListStyle}.-->
+        <attr name="guidedButtonActionsListStyle" format="reference" />
 
         <!-- Theme attribute for the style of the container of a single action in a
              GuidedActionsPresenter. Default is {@link

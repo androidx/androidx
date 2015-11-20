@@ -16,41 +16,34 @@
 -->
 <!-- Layout for the settings list fragment -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/guidedactions_root"
-    android:transitionName="guidedactions_root"
+    android:id="@+id/guidedactions_root2"
+    android:transitionName="guidedactions_root2"
     android:transitionGroup="false"
     android:layout_width="0dp"
     android:layout_weight="1"
     android:layout_height="match_parent">
 
     <android.support.v17.leanback.widget.NonOverlappingView
-        android:id="@+id/guidedactions_list_background"
-        android:transitionName="guidedactions_list_background"
+        android:id="@+id/guidedactions_list_background2"
+        android:transitionName="guidedactions_list_background2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
         android:background="?attr/guidedActionsBackgroundDark" />
 
     <android.support.v17.leanback.widget.NonOverlappingFrameLayout
-        android:id="@+id/guidedactions_content"
-        android:transitionName="guidedactions_content"
+        android:id="@+id/guidedactions_content2"
+        android:transitionName="guidedactions_content2"
         android:transitionGroup="false"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <android.support.v17.leanback.widget.VerticalGridView
             android:transitionGroup="true"
-            android:id="@+id/guidedactions_list"
-            style="?attr/guidedActionsListStyle" />
-        <android.support.v17.leanback.widget.VerticalGridView
-            android:transitionGroup="true"
-            android:id="@+id/guidedactions_sub_list"
-            style="?attr/guidedSubActionsListStyle"
-            android:visibility="invisible"
-            android:background="?attr/guidedActionsBackgroundDark" />
+            android:id="@+id/guidedactions_list2"
+            style="?attr/guidedButtonActionsListStyle" />
 
         <android.support.v17.leanback.widget.NonOverlappingView
-            android:id="@+id/guidedactions_selector"
-            android:transitionName="guidedactions_selector"
+            android:id="@+id/guidedactions_selector2"
+            android:transitionName="guidedactions_selector2"
             style="?attr/guidedActionsSelectorStyle" />
     </android.support.v17.leanback.widget.NonOverlappingFrameLayout>
 
