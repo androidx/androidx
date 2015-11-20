@@ -223,7 +223,7 @@ support_module_src_files += $(LOCAL_SRC_FILES)
 # A helper sub-library that makes direct use of V22 APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v4-api22
-LOCAL_SDK_VERSION := current
+LOCAL_SDK_VERSION := 22
 LOCAL_SRC_FILES := $(call all-java-files-under, api22)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-api21
 include $(BUILD_STATIC_JAVA_LIBRARY)
@@ -235,10 +235,22 @@ support_module_src_files += $(LOCAL_SRC_FILES)
 # A helper sub-library that makes direct use of V23 APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v4-api23
-LOCAL_SDK_VERSION := current
+LOCAL_SDK_VERSION := 23
 LOCAL_SRC_FILES := $(call all-java-files-under, api23)
 LOCAL_JAVA_LIBRARIES := android-support-v4-api21-internal
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-api22
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
+support_module_src_files += $(LOCAL_SRC_FILES)
+
+# -----------------------------------------------------------------------
+
+# A helper sub-library that makes direct use of V24 APIs.
+include $(CLEAR_VARS)
+LOCAL_MODULE := android-support-v4-api24
+LOCAL_SDK_VERSION := current
+LOCAL_SRC_FILES := $(call all-java-files-under, api24)
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-api23
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
@@ -252,7 +264,7 @@ LOCAL_SDK_VERSION := 4
 LOCAL_AIDL_INCLUDES := frameworks/support/v4/java
 LOCAL_SRC_FILES := $(call all-java-files-under, java) \
     $(call all-Iaidl-files-under, java)
-LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4-api23
+LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4-api24
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
