@@ -48,8 +48,11 @@ class DrawableCompatLollipop {
         drawable.setTintMode(tintMode);
     }
 
-    public static Drawable wrapForTinting(Drawable drawable) {
-        return new DrawableWrapperLollipop(drawable, shouldForceCompatTinting(drawable));
+    public static Drawable wrapForTinting(final Drawable drawable) {
+        if (!(drawable instanceof DrawableWrapperLollipop)) {
+            return new DrawableWrapperLollipop(drawable, shouldForceCompatTinting(drawable));
+        }
+        return drawable;
     }
 
     private static boolean shouldForceCompatTinting(Drawable drawable) {
