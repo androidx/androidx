@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -243,11 +244,14 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
 
     private static String TAG = "GuidedActionsStylist";
 
-    private View mMainView;
+    private ViewGroup mMainView;
     private VerticalGridView mActionsGridView;
     private View mBgView;
     private View mSelectorView;
+    private View mContentView;
     private boolean mButtonActions;
+
+    private Animator mSelectorAnimator;
 
     // Cached values from resources
     private float mEnabledTextAlpha;
@@ -274,21 +278,17 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      * @return The view to be added to the caller's view hierarchy.
      */
     public View onCreateView(LayoutInflater inflater, ViewGroup container) {
-        mMainView = inflater.inflate(onProvideLayoutId(), container, false);
+        mMainView = (ViewGroup) inflater.inflate(onProvideLayoutId(), container, false);
+        mContentView = mMainView.findViewById(R.id.guidedactions_content);
         mSelectorView = mMainView.findViewById(R.id.guidedactions_selector);
         mSelectorView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom,
                     int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                final View focusedChild = mActionsGridView.getFocusedChild();
-                if (focusedChild != null && mSelectorView.getVisibility() == View.VISIBLE &&
-                        mSelectorView.getHeight() > 0) {
-                    mSelectorView.setScaleY((float) focusedChild.getHeight()
-                            / mSelectorView.getHeight());
-                }
+                updateSelectorView(false);
             }
         });
-        mBgView = mMainView.findViewById(R.id.guided_button_actions_background);
+        mBgView = mMainView.findViewById(R.id.guidedactions_list_background);
         if (mMainView instanceof VerticalGridView) {
             mActionsGridView = (VerticalGridView) mMainView;
         } else {
@@ -300,8 +300,16 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             mActionsGridView.setWindowAlignmentOffsetPercent(50f);
             mActionsGridView.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_NO_EDGE);
             if (mSelectorView != null) {
-                mActionsGridView.setOnScrollListener(new
-                        SelectorAnimator(mSelectorView, mActionsGridView));
+                mActionsGridView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+                    @Override
+                    public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                        if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                            if (mSelectorView.getAlpha() != 1f) {
+                                updateSelectorView(true);
+                            }
+                        }
+                    }
+                });
             }
         }
 
@@ -343,13 +351,23 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     public void setAsButtonActions() {
         mButtonActions = true;
         mMainView.setId(R.id.guidedactions_root2);
-        ViewCompat.setTransitionName(mMainView, "guidedactions_root");
-        mActionsGridView.setId(R.id.guidedactions_list2);
-        mSelectorView.setId(R.id.guidedactions_selector2);
-        ViewCompat.setTransitionName(mSelectorView, "guidedactions_selector2");
-        mBgView.setId(R.id.guided_button_actions_background2);
-        ViewCompat.setTransitionName(mBgView, "guided_button_actions_background2");
-        mBgView.setVisibility(View.VISIBLE);
+        ViewCompat.setTransitionName(mMainView, "guidedactions_root2");
+        if (mActionsGridView != null) {
+            mActionsGridView.setId(R.id.guidedactions_list2);
+        }
+        if (mSelectorView != null) {
+            mSelectorView.setId(R.id.guidedactions_selector2);
+            ViewCompat.setTransitionName(mSelectorView, "guidedactions_selector2");
+        }
+        if (mContentView != null) {
+            mContentView.setId(R.id.guidedactions_content2);
+            ViewCompat.setTransitionName(mContentView, "guidedactions_content2");
+        }
+        if (mBgView != null) {
+            mBgView.setId(R.id.guidedactions_list_background2);
+            ViewCompat.setTransitionName(mBgView, "guidedactions_list_background2");
+            mBgView.setVisibility(View.VISIBLE);
+        }
     }
 
     /**
@@ -362,22 +380,10 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
 
     final ViewTreeObserver.OnGlobalFocusChangeListener mGlobalFocusChangeListener =
             new ViewTreeObserver.OnGlobalFocusChangeListener() {
-        private boolean mChildFocused;
 
         @Override
         public void onGlobalFocusChanged(View oldFocus, View newFocus) {
-            final View focusedChild = mActionsGridView.getFocusedChild();
-            if (focusedChild == null) {
-                mSelectorView.setVisibility(View.INVISIBLE);
-                mChildFocused = false;
-            } else if (!mChildFocused) {
-                mChildFocused = true;
-                mSelectorView.setVisibility(View.VISIBLE);
-                if (mSelectorView.getHeight() > 0) {
-                    mSelectorView.setScaleY((float) focusedChild.getHeight()
-                            / mSelectorView.getHeight());
-                }
-            }
+            updateSelectorView(false);
         }
     };
 
@@ -389,8 +395,10 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             mActionsGridView.getViewTreeObserver().removeOnGlobalFocusChangeListener(
                     mGlobalFocusChangeListener);
         }
+        endSelectorAnimator();
         mActionsGridView = null;
         mSelectorView = null;
+        mContentView = null;
         mBgView = null;
         mMainView = null;
     }
@@ -737,8 +745,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      */
     @Override
     public void onImeAppearing(@NonNull List<Animator> animators) {
-        animators.add(createAnimator(mActionsGridView, R.attr.guidedStepImeAppearingAnimation));
-        animators.add(createAnimator(mSelectorView, R.attr.guidedStepImeAppearingAnimation));
+        animators.add(createAnimator(mContentView, R.attr.guidedStepImeAppearingAnimation));
     }
 
     /**
@@ -746,8 +753,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      */
     @Override
     public void onImeDisappearing(@NonNull List<Animator> animators) {
-        animators.add(createAnimator(mActionsGridView, R.attr.guidedStepImeDisappearingAnimation));
-        animators.add(createAnimator(mSelectorView, R.attr.guidedStepImeDisappearingAnimation));
+        animators.add(createAnimator(mContentView, R.attr.guidedStepImeDisappearingAnimation));
     }
 
     /*
@@ -809,96 +815,43 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         return (int)(mDisplayHeight - 2*mVerticalPadding - 2*mTitleMaxLines*title.getLineHeight());
     }
 
-    /**
-     * SelectorAnimator
-     * Controls animation for selected item backgrounds
-     * TODO: Move into focus animation override?
-     */
-    private static class SelectorAnimator extends RecyclerView.OnScrollListener {
-
-        private final View mSelectorView;
-        private final ViewGroup mParentView;
-        private volatile boolean mFadedOut = true;
-
-        SelectorAnimator(View selectorView, ViewGroup parentView) {
-            mSelectorView = selectorView;
-            mParentView = parentView;
+    private void endSelectorAnimator() {
+        if (mSelectorAnimator != null) {
+            mSelectorAnimator.end();
+            mSelectorAnimator = null;
         }
+    }
 
-        // We want to fade in the selector if we've stopped scrolling on it. If
-        // we're scrolling, we want to ensure to dim the selector if we haven't
-        // already. We dim the last highlighted view so that while a user is
-        // scrolling, nothing is highlighted.
-        @Override
-        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-            Animator animator = null;
-            boolean fadingOut = false;
-            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                // The selector starts with a height of 0. In order to scale up from
-                // 0, we first need the set the height to 1 and scale from there.
-                View focusedChild = mParentView.getFocusedChild();
-                if (focusedChild != null) {
-                    int selectorHeight = mSelectorView.getHeight();
-                    float scaleY = (float) focusedChild.getHeight() / selectorHeight;
-                    AnimatorSet animators = (AnimatorSet)createAnimator(mSelectorView,
-                            R.attr.guidedActionsSelectorShowAnimation);
-                    if (mFadedOut) {
-                        // selector is completely faded out, so we can just scale before fading in.
-                        mSelectorView.setScaleY(scaleY);
-                        animator = animators.getChildAnimations().get(0);
-                    } else {
-                        // selector is not faded out, so we must animate the scale as we fade in.
-                        ((ObjectAnimator)animators.getChildAnimations().get(1))
-                                .setFloatValues(scaleY);
-                        animator = animators;
-                    }
-                }
+    private void updateSelectorView(boolean animate) {
+        if (mActionsGridView == null || mSelectorView == null || mSelectorView.getHeight() <= 0) {
+            return;
+        }
+        final View focusedChild = mActionsGridView.getFocusedChild();
+        endSelectorAnimator();
+        if (focusedChild == null || !mActionsGridView.hasFocus()
+                || mActionsGridView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE) {
+            if (animate) {
+                mSelectorAnimator = createAnimator(mSelectorView,
+                        R.attr.guidedActionsSelectorHideAnimation);
+                mSelectorAnimator.start();
             } else {
-                animator = createAnimator(mSelectorView, R.attr.guidedActionsSelectorHideAnimation);
-                fadingOut = true;
+                mSelectorView.setAlpha(0f);
             }
-            if (animator != null) {
-                animator.addListener(new Listener(fadingOut));
-                animator.start();
-            }
-        }
-
-        /**
-         * Sets {@link BaseScrollAdapterFragment#mFadedOut}
-         * {@link BaseScrollAdapterFragment#mFadedOut} is true, iff
-         * {@link BaseScrollAdapterFragment#mSelectorView} has an alpha of 0
-         * (faded out). If false the view either has an alpha of 1 (visible) or
-         * is in the process of animating.
-         */
-        private class Listener implements Animator.AnimatorListener {
-            private boolean mFadingOut;
-            private boolean mCanceled;
-
-            public Listener(boolean fadingOut) {
-                mFadingOut = fadingOut;
-            }
-
-            @Override
-            public void onAnimationStart(Animator animation) {
-                if (!mFadingOut) {
-                    mFadedOut = false;
-                }
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                if (!mCanceled && mFadingOut) {
-                    mFadedOut = true;
-                }
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-                mCanceled = true;
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
+        } else {
+            final float scaleY = (float) focusedChild.getHeight() / mSelectorView.getHeight();
+            Rect r = new Rect(0, 0, focusedChild.getWidth(), focusedChild.getHeight());
+            mMainView.offsetDescendantRectToMyCoords(focusedChild, r);
+            mMainView.offsetRectIntoDescendantCoords(mSelectorView, r);
+            mSelectorView.setTranslationY(r.exactCenterY() - mSelectorView.getHeight() * 0.5f);
+            if (animate) {
+                mSelectorAnimator = createAnimator(mSelectorView,
+                        R.attr.guidedActionsSelectorShowAnimation);
+                ((ObjectAnimator) ((AnimatorSet) mSelectorAnimator).getChildAnimations().get(1))
+                        .setFloatValues(scaleY);
+                mSelectorAnimator.start();
+            } else {
+                mSelectorView.setAlpha(1f);
+                mSelectorView.setScaleY(scaleY);
             }
         }
     }
