@@ -476,8 +476,8 @@ public class NotificationCompat {
         @Override
         public Notification build(Builder b, BuilderExtender extender) {
             Notification result = b.mNotification;
-            result.setLatestEventInfo(b.mContext, b.mContentTitle,
-                    b.mContentText, b.mContentIntent);
+            result = NotificationCompatBase.add(result, b.mContext,
+                    b.mContentTitle, b.mContentText, b.mContentIntent);
             // translate high priority requests into legacy flag
             if (b.mPriority > PRIORITY_DEFAULT) {
                 result.flags |= FLAG_HIGH_PRIORITY;
@@ -553,8 +553,6 @@ public class NotificationCompat {
         @Override
         public Notification build(Builder b, BuilderExtender extender) {
             Notification result = b.mNotification;
-            result.setLatestEventInfo(b.mContext, b.mContentTitle,
-                    b.mContentText, b.mContentIntent);
             result = NotificationCompatGingerbread.add(result, b.mContext,
                     b.mContentTitle, b.mContentText, b.mContentIntent, b.mFullScreenIntent);
             // translate high priority requests into legacy flag
