@@ -551,7 +551,6 @@ package android.support.v7.appcompat {
     field public static int abc_action_bar_embed_tabs;
     field public static int abc_action_bar_embed_tabs_pre_jb;
     field public static int abc_action_bar_expanded_action_views_exclusive;
-    field public static int abc_allow_stacked_button_bar;
     field public static int abc_config_actionMenuItemAllCaps;
     field public static int abc_config_allowActionMenuItemTextWithIcon;
     field public static int abc_config_closeDialogWhenTouchOutside;
