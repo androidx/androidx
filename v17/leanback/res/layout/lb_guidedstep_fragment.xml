@@ -64,7 +64,7 @@
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:elevation="@dimen/lb_guidedactions_elevation" />
+                android:elevation="?attr/guidedActionsElevation" />
         </android.support.v17.leanback.widget.NonOverlappingFrameLayout>
 
     </LinearLayout>
