@@ -64,6 +64,10 @@ dependencies {
     // depend on the generation of this jar. This is done below
     // when manipulating the libraryVariants.
     compile files(internalJar.archivePath)
+
+    androidTestCompile 'com.android.support.test:testing-support-lib:0.1'
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.0'
+    testCompile 'junit:junit:4.12'
 }
 
 android {
@@ -73,6 +77,8 @@ android {
         minSdkVersion 4
         // TODO: get target from branch
         //targetSdkVersion 19
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     sourceSets {
@@ -82,6 +88,8 @@ android {
 
         androidTest.setRoot('tests')
         androidTest.java.srcDir 'tests/java'
+        androidTest.res.srcDir 'tests/res'
+        androidTest.manifest.srcFile 'tests/AndroidManifest.xml'
     }
 
     lintOptions {
@@ -92,6 +100,10 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
     }
 }
 
@@ -135,6 +147,17 @@ android.libraryVariants.all { variant ->
 
     artifacts.add('archives', javadocJarTask);
     artifacts.add('archives', sourcesJarTask);
+}
+
+// TODO make this generic for all projects
+afterEvaluate {
+    def originalTask = tasks['packageDebugAndroidTest']
+    tasks['assembleDebugAndroidTest'].doLast {
+        copy {
+            from(originalTask.outputFile)
+            into(rootProject.ext.testApkDistOut)
+        }
+    }
 }
 
 uploadArchives {
