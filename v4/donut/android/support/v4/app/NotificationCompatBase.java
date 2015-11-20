@@ -16,7 +16,9 @@
 
 package android.support.v4.app;
 
+import android.app.Notification;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.os.Bundle;
 
 /**
@@ -53,5 +55,11 @@ public class NotificationCompatBase {
                     PendingIntent replyPendingIntent, PendingIntent readPendingIntent,
                     String[] participants, long latestTimestamp);
         }
+    }
+
+    public static Notification add(Notification notification, Context context,
+            CharSequence contentTitle, CharSequence contentText, PendingIntent contentIntent) {
+        notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
+        return notification;
     }
 }
