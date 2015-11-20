@@ -185,6 +185,7 @@ public final class MediaDescriptionCompat implements Parcelable {
             dest.writeParcelable(mIcon, flags);
             dest.writeParcelable(mIconUri, flags);
             dest.writeBundle(mExtras);
+            dest.writeParcelable(mMediaUri, flags);
         } else {
             MediaDescriptionCompatApi21.writeToParcel(getMediaDescription(), dest, flags);
         }
