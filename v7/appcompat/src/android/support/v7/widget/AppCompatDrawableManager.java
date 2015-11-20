@@ -25,6 +25,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.DrawableContainer;
 import android.graphics.drawable.InsetDrawable;
 import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
@@ -434,15 +435,13 @@ public final class AppCompatDrawableManager {
     }
 
     private static boolean shouldMutateBackground(Drawable drawable) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            // For SDK 16+, we should be fine mutating the drawable
-            return true;
-        }
-
         if (drawable instanceof LayerDrawable) {
             return Build.VERSION.SDK_INT >= 16;
         } else if (drawable instanceof InsetDrawable) {
             return Build.VERSION.SDK_INT >= 14;
+        } else if (drawable instanceof StateListDrawable) {
+            // StateListDrawable has a bug in mutate() on API 7
+            return Build.VERSION.SDK_INT >= 8;
         } else if (drawable instanceof DrawableContainer) {
             // If we have a DrawableContainer, let's traverse it's child array
             final Drawable.ConstantState state = drawable.getConstantState();
