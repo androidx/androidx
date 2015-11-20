@@ -32,6 +32,23 @@ import android.view.accessibility.AccessibilityManager;
  */
 public class ViewParentCompat {
 
+    /**
+     * Flag indicating that a ViewParent's layout is affected along the horizontal axis
+     */
+    public static final int FLAG_LAYOUT_AXIS_HORIZONTAL = 1;
+
+    /**
+     * Flag indicating that a ViewParent's layout is affected along the vertical axis
+     */
+    public static final int FLAG_LAYOUT_AXIS_VERTICAL = 2;
+
+    /**
+     * Flag indicating that a ViewParent's layout is affected along both the horizontal
+     * and vertical axes
+     */
+    public static final int FLAG_LAYOUT_AXIS_ANY
+            = FLAG_LAYOUT_AXIS_HORIZONTAL | FLAG_LAYOUT_AXIS_VERTICAL;
+
     interface ViewParentCompatImpl {
         public boolean requestSendAccessibilityEvent(
                 ViewParent parent, View child, AccessibilityEvent event);
@@ -48,6 +65,8 @@ public class ViewParentCompat {
         boolean onNestedPreFling(ViewParent parent, View target, float velocityX, float velocityY);
         void notifySubtreeAccessibilityStateChanged(ViewParent parent, View child,
                 View source, int changeType);
+
+        int findDependentLayoutAxes(ViewParent parent, View child, int axisFilter);
     }
 
     static class ViewParentCompatStubImpl implements ViewParentCompatImpl {
@@ -130,6 +149,13 @@ public class ViewParentCompat {
         @Override
         public void notifySubtreeAccessibilityStateChanged(ViewParent parent, View child,
                 View source, int changeType) {
+        }
+
+        @Override
+        public int findDependentLayoutAxes(ViewParent parent, View child, int axisFilter) {
+            // Default implementation; we don't know since the real ViewParent method
+            // didn't exist yet. Anything can happen.
+            return FLAG_LAYOUT_AXIS_ANY;
         }
     }
 
@@ -424,4 +450,32 @@ public class ViewParentCompat {
         IMPL.notifySubtreeAccessibilityStateChanged(parent, child, source, changeType);
     }
 
+    /**
+     * Determine which axes of this ViewParent's layout are dependent on the given
+     * direct child view. The returned value is a flag set that may contain
+     * {@link #FLAG_LAYOUT_AXIS_HORIZONTAL} and/or {@link #FLAG_LAYOUT_AXIS_VERTICAL}.
+     * {@link #FLAG_LAYOUT_AXIS_ANY} is provided as a shortcut for
+     * <code>FLAG_LAYOUT_AXIS_HORIZONTAL | FLAG_LAYOUT_AXIS_VERTICAL</code>.
+     *
+     * <p>The given child must be a direct child view. Implementations should throw
+     * {@link IllegalArgumentException} otherwise.</p>
+     *
+     * <p>The caller may specify which axes it cares about. This should be treated as a filter.
+     * Implementations should never return a result that would be different from
+     * <code>result & axisFilter</code>.</p>
+     *
+     * @param parent The ViewParent to check
+     * @param child Direct child of this ViewParent to check
+     * @param axisFilter Which axes to check for dependencies. Can be
+     *                   {@link #FLAG_LAYOUT_AXIS_HORIZONTAL}, {@link #FLAG_LAYOUT_AXIS_VERTICAL}
+     *                   or {@link #FLAG_LAYOUT_AXIS_ANY}.
+     * @return Axes of this ViewParent that depend on the given child's layout changes
+     *
+     * @see #FLAG_LAYOUT_AXIS_HORIZONTAL
+     * @see #FLAG_LAYOUT_AXIS_VERTICAL
+     * @see #FLAG_LAYOUT_AXIS_ANY
+     */
+    public static int findDependentLayoutAxes(ViewParent parent, View child, int axisFilter) {
+        return IMPL.findDependentLayoutAxes(parent, child, axisFilter);
+    }
 }
