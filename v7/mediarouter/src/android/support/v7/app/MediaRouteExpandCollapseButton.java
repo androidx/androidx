@@ -54,7 +54,8 @@ class MediaRouteExpandCollapseButton extends ImageButton {
                 context, R.drawable.ic_collapse);
 
         ColorFilter filter = new PorterDuffColorFilter(
-                MediaRouterThemeHelper.getControllerColor(context), PorterDuff.Mode.SRC_IN);
+                MediaRouterThemeHelper.getControllerColor(context, defStyleAttr),
+                PorterDuff.Mode.SRC_IN);
         mExpandAnimationDrawable.setColorFilter(filter);
         mCollapseAnimationDrawable.setColorFilter(filter);
 

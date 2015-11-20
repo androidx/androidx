@@ -78,7 +78,7 @@ public class MediaRouteChooserDialog extends Dialog {
     }
 
     public MediaRouteChooserDialog(Context context, int theme) {
-        super(MediaRouterThemeHelper.createThemedContext(context), theme);
+        super(MediaRouterThemeHelper.createThemedContext(context, theme), theme);
         context = getContext();
 
         mRouter = MediaRouter.getInstance(context);
