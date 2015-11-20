@@ -906,24 +906,26 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
             ViewCompat.setScaleX(mCircleView, 1f);
             ViewCompat.setScaleY(mCircleView, 1f);
         }
+
+        if (mScale) {
+            setAnimationProgress(Math.min(1f, overscrollTop / mTotalDragDistance));
+        }
         if (overscrollTop < mTotalDragDistance) {
-            if (mScale) {
-                setAnimationProgress(overscrollTop / mTotalDragDistance);
-            }
             if (mProgress.getAlpha() > STARTING_PROGRESS_ALPHA
                     && !isAnimationRunning(mAlphaStartAnimation)) {
                 // Animate the alpha
                 startProgressAlphaStartAnimation();
             }
-            float strokeStart = adjustedPercent * .8f;
-            mProgress.setStartEndTrim(0f, Math.min(MAX_PROGRESS_ANGLE, strokeStart));
-            mProgress.setArrowScale(Math.min(1f, adjustedPercent));
         } else {
             if (mProgress.getAlpha() < MAX_ALPHA && !isAnimationRunning(mAlphaMaxAnimation)) {
                 // Animate the alpha
                 startProgressAlphaMaxAnimation();
             }
         }
+        float strokeStart = adjustedPercent * .8f;
+        mProgress.setStartEndTrim(0f, Math.min(MAX_PROGRESS_ANGLE, strokeStart));
+        mProgress.setArrowScale(Math.min(1f, adjustedPercent));
+
         float rotation = (-0.25f + .4f * adjustedPercent + tensionPercent * 2) * .5f;
         mProgress.setProgressRotation(rotation);
         setTargetOffsetTopAndBottom(targetY - mCurrentTargetOffsetTop, true /* requires update */);
