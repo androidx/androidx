@@ -148,6 +148,8 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
 
     private static final String ENTRY_NAME_ENTRANCE = "GuidedStepEntrance";
 
+    private static final boolean IS_FRAMEWORK_FRAGMENT = true;
+
     /**
      * Fragment argument name for UI style.  The argument value is persisted in fragment state.
      * The value is initially {@link #UI_STYLE_ENTRANCE} and might be changed in one of the three
@@ -205,6 +207,19 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
 
     private static final String TAG = "GuidedStepFragment";
     private static final boolean DEBUG = false;
+
+    /**
+     * @hide
+     */
+    public static class DummyFragment extends Fragment {
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                Bundle savedInstanceState) {
+            final View v = new View(inflater.getContext());
+            v.setVisibility(View.GONE);
+            return v;
+        }
+    }
 
     private int mTheme;
     private ContextThemeWrapper mThemeWrapper;
@@ -373,6 +388,13 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
     public static int add(FragmentManager fragmentManager, GuidedStepFragment fragment, int id) {
         GuidedStepFragment current = getCurrentGuidedStepFragment(fragmentManager);
         boolean inGuidedStep = current != null;
+        if (IS_FRAMEWORK_FRAGMENT && Build.VERSION.SDK_INT >= 21 && Build.VERSION.SDK_INT < 23
+                && !inGuidedStep) {
+            // workaround b/22631964 for framework fragment
+            fragmentManager.beginTransaction()
+                .replace(id, new DummyFragment(), TAG_LEAN_BACK_ACTIONS_FRAGMENT)
+                .commit();
+        }
         FragmentTransaction ft = fragmentManager.beginTransaction();
 
         fragment.setUiStyle(inGuidedStep ? UI_STYLE_REPLACE : UI_STYLE_ENTRANCE);
