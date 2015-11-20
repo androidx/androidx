@@ -2629,6 +2629,7 @@ package android.support.v4.view {
   }
 
   public class ViewParentCompat {
+    method public static int findDependentLayoutAxes(android.view.ViewParent, android.view.View, int);
     method public static void notifySubtreeAccessibilityStateChanged(android.view.ViewParent, android.view.View, android.view.View, int);
     method public static boolean onNestedFling(android.view.ViewParent, android.view.View, float, float, boolean);
     method public static boolean onNestedPreFling(android.view.ViewParent, android.view.View, float, float);
@@ -2638,6 +2639,9 @@ package android.support.v4.view {
     method public static boolean onStartNestedScroll(android.view.ViewParent, android.view.View, android.view.View, int);
     method public static void onStopNestedScroll(android.view.ViewParent, android.view.View);
     method public static boolean requestSendAccessibilityEvent(android.view.ViewParent, android.view.View, android.view.accessibility.AccessibilityEvent);
+    field public static final int FLAG_LAYOUT_AXIS_ANY = 3; // 0x3
+    field public static final int FLAG_LAYOUT_AXIS_HORIZONTAL = 1; // 0x1
+    field public static final int FLAG_LAYOUT_AXIS_VERTICAL = 2; // 0x2
   }
 
   public class ViewPropertyAnimatorCompat {
