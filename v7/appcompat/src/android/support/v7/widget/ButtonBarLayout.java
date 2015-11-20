@@ -30,6 +30,9 @@ import android.widget.LinearLayout;
  * @hide
  */
 public class ButtonBarLayout extends LinearLayout {
+    // Whether to allow vertically stacked button bars. This is disabled for
+    // configurations with a small (e.g. less than 320dp) screen height. -->
+    private static final int ALLOW_STACKING_MIN_HEIGHT_DP = 320;
 
     /** Whether the current configuration allows stacking. */
     private boolean mAllowStacking;
@@ -37,8 +40,12 @@ public class ButtonBarLayout extends LinearLayout {
 
     public ButtonBarLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
+        final boolean allowStackingDefault =
+                context.getResources().getConfiguration().screenHeightDp
+                        >= ALLOW_STACKING_MIN_HEIGHT_DP;
         final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.ButtonBarLayout);
-        mAllowStacking = ta.getBoolean(R.styleable.ButtonBarLayout_allowStacking, false);
+        mAllowStacking = ta.getBoolean(R.styleable.ButtonBarLayout_allowStacking,
+                allowStackingDefault);
         ta.recycle();
     }
 
