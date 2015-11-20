@@ -25,7 +25,10 @@ class DrawableCompatApi22 {
 
     public static Drawable wrapForTinting(Drawable drawable) {
         // We need to wrap to force an invalidation on any state change
-        return new DrawableWrapperLollipop(drawable);
+        if (!(drawable instanceof DrawableWrapperLollipop)) {
+            return new DrawableWrapperLollipop(drawable);
+        }
+        return drawable;
     }
 
 }
