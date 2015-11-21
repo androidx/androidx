@@ -107,9 +107,8 @@ final class MediaRouterThemeHelper {
             Context context, View mainControls, View groupControls, boolean hasGroup) {
         int primaryColor = getThemeColor(context, 0, R.attr.colorPrimary);
         int primaryDarkColor = getThemeColor(context, 0, R.attr.colorPrimaryDark);
-        int controllerColor = getControllerColor(context, 0);
-        if (hasGroup && controllerColor == COLOR_DARK_ON_LIGHT_BACKGROUND
-                && ColorUtils.calculateContrast(controllerColor, primaryDarkColor) < MIN_CONTRAST) {
+        if (hasGroup && ColorUtils.calculateContrast(COLOR_WHITE_ON_DARK_BACKGROUND, primaryColor)
+                < MIN_CONTRAST) {
             // Instead of showing dark controls in a possibly dark (i.e. the primary dark), model
             // the white dialog and use the primary color for the group controls.
             primaryDarkColor = primaryColor;
