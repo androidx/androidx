@@ -31,14 +31,16 @@ import android.os.Looper;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.UiThreadTest;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.test.suitebuilder.annotation.MediumTest;
+import android.support.annotation.ColorInt;
 import android.support.annotation.LayoutRes;
 import android.support.test.InstrumentationRegistry;
 import android.support.v4.test.R;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.TextViewCompat;
+import android.support.v4.testutils.TestUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -47,6 +49,27 @@ public class TextViewCompatTest extends ActivityInstrumentationTestCase2<TestAct
     private static final String TAG = "TextViewCompatTest";
 
     private TextView mTextView;
+
+    private class TestDrawable extends ColorDrawable {
+        private int mWidth;
+        private int mHeight;
+
+        public TestDrawable(@ColorInt int color, int width, int height) {
+            super(color);
+            mWidth = width;
+            mHeight = height;
+        }
+
+        @Override
+        public int getIntrinsicWidth() {
+            return mWidth;
+        }
+
+        @Override
+        public int getIntrinsicHeight() {
+            return mHeight;
+        }
+    }
 
     public TextViewCompatTest() {
         super("android.support.v4.widget", TestActivity.class);
@@ -90,6 +113,17 @@ public class TextViewCompatTest extends ActivityInstrumentationTestCase2<TestAct
         final TestActivity activity = getActivity();
         mTextView = new TextView(activity);
         activity.mContainer.addView(mTextView);
+
+        // Explicitly measure and layout the text view. This way the core TextView updates its
+        // internal tracking of various visual facets so those can be tested in the relevant
+        // tests - such as, for example, where each drawable is positioned relative to the text.
+        final DisplayMetrics metrics = getActivity().getResources().getDisplayMetrics();
+        int textViewWidthPx = TestUtils.convertSizeDipsToPixels(metrics, 200);
+        int textViewHeightPx = TestUtils.convertSizeDipsToPixels(metrics, 60);
+        mTextView.measure(
+                View.MeasureSpec.makeMeasureSpec(textViewWidthPx, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(textViewHeightPx, View.MeasureSpec.EXACTLY));
+        mTextView.layout(0, 0, textViewWidthPx, textViewHeightPx);
     }
 
     @UiThreadTest
@@ -162,30 +196,34 @@ public class TextViewCompatTest extends ActivityInstrumentationTestCase2<TestAct
         final Drawable drawableStart = new ColorDrawable(0xFFFF0000);
         drawableStart.setBounds(0, 0, 20, 20);
         final Drawable drawableTop = new ColorDrawable(0xFF00FF00);
-        drawableTop.setBounds(0, 0, 20, 20);
+        drawableTop.setBounds(0, 0, 30, 25);
         final Drawable drawableEnd = new ColorDrawable(0xFF0000FF);
-        drawableEnd.setBounds(0, 0, 20, 20);
+        drawableEnd.setBounds(0, 0, 25, 20);
 
         mTextView.setText(R.string.test_text_medium);
         TextViewCompat.setCompoundDrawablesRelative(mTextView, drawableStart, drawableTop,
                 drawableEnd, null);
 
-        // Explicitly measure and layout the text view so that the core TextView updates its
-        // internal tracking of where each drawable is positioned relative to the text.
-        final DisplayMetrics metrics = getActivity().getResources().getDisplayMetrics();
-        int textViewWidthPx = (int) TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP, 200, metrics);
-        int textViewHeightPx = (int) TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP, 60, metrics);
-        mTextView.measure(
-                View.MeasureSpec.makeMeasureSpec(textViewWidthPx, View.MeasureSpec.EXACTLY),
-                View.MeasureSpec.makeMeasureSpec(textViewHeightPx, View.MeasureSpec.EXACTLY));
-        mTextView.layout(0, 0, textViewWidthPx, textViewHeightPx);
-
         final Drawable[] drawablesAbsolute = mTextView.getCompoundDrawables();
+
         assertEquals("Compound drawable: left", drawablesAbsolute[0], drawableStart);
+        assertEquals("Compound drawable: left width",
+                drawablesAbsolute[0].getBounds().width(), 20);
+        assertEquals("Compound drawable: left height",
+                drawablesAbsolute[0].getBounds().height(), 20);
+
         assertEquals("Compound drawable: top", drawablesAbsolute[1], drawableTop);
+        assertEquals("Compound drawable: top width",
+                drawablesAbsolute[1].getBounds().width(), 30);
+        assertEquals("Compound drawable: top height",
+                drawablesAbsolute[1].getBounds().height(), 25);
+
         assertEquals("Compound drawable: right", drawablesAbsolute[2], drawableEnd);
+        assertEquals("Compound drawable: right width",
+                drawablesAbsolute[2].getBounds().width(), 25);
+        assertEquals("Compound drawable: right height",
+                drawablesAbsolute[2].getBounds().height(), 20);
+
         assertNull("Compound drawable: bottom", drawablesAbsolute[3]);
     }
 
@@ -199,25 +237,13 @@ public class TextViewCompatTest extends ActivityInstrumentationTestCase2<TestAct
         final Drawable drawableStart = new ColorDrawable(0xFFFF0000);
         drawableStart.setBounds(0, 0, 20, 20);
         final Drawable drawableTop = new ColorDrawable(0xFF00FF00);
-        drawableTop.setBounds(0, 0, 20, 20);
+        drawableTop.setBounds(0, 0, 30, 25);
         final Drawable drawableEnd = new ColorDrawable(0xFF0000FF);
-        drawableEnd.setBounds(0, 0, 20, 20);
+        drawableEnd.setBounds(0, 0, 25, 20);
 
         mTextView.setText(R.string.test_text_medium);
         TextViewCompat.setCompoundDrawablesRelative(mTextView, drawableStart, drawableTop,
                 drawableEnd, null);
-
-        // Explicitly measure and layout the text view so that the core TextView updates its
-        // internal tracking of where each drawable is positioned relative to the text.
-        final DisplayMetrics metrics = getActivity().getResources().getDisplayMetrics();
-        int textViewWidthPx = (int) TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP, 200, metrics);
-        int textViewHeightPx = (int) TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP, 60, metrics);
-        mTextView.measure(
-                View.MeasureSpec.makeMeasureSpec(textViewWidthPx, View.MeasureSpec.EXACTLY),
-                View.MeasureSpec.makeMeasureSpec(textViewHeightPx, View.MeasureSpec.EXACTLY));
-        mTextView.layout(0, 0, textViewWidthPx, textViewHeightPx);
 
         // Check to see whether our text view is under RTL mode
         if (ViewCompat.getLayoutDirection(mTextView) != ViewCompat.LAYOUT_DIRECTION_RTL) {
@@ -226,11 +252,215 @@ public class TextViewCompatTest extends ActivityInstrumentationTestCase2<TestAct
         }
 
         final Drawable[] drawablesAbsolute = mTextView.getCompoundDrawables();
+
         // End drawable should be returned as left
         assertEquals("Compound drawable: left", drawablesAbsolute[0], drawableEnd);
+        assertEquals("Compound drawable: left width",
+                drawablesAbsolute[0].getBounds().width(), 25);
+        assertEquals("Compound drawable: left height",
+                drawablesAbsolute[0].getBounds().height(), 20);
+
         assertEquals("Compound drawable: top", drawablesAbsolute[1], drawableTop);
+        assertEquals("Compound drawable: left width",
+                drawablesAbsolute[1].getBounds().width(), 30);
+        assertEquals("Compound drawable: left height",
+                drawablesAbsolute[1].getBounds().height(), 25);
+
         // Start drawable should be returned as right
         assertEquals("Compound drawable: right", drawablesAbsolute[2], drawableStart);
+        assertEquals("Compound drawable: left width",
+                drawablesAbsolute[2].getBounds().width(), 20);
+        assertEquals("Compound drawable: left height",
+                drawablesAbsolute[2].getBounds().height(), 20);
+
         assertNull("Compound drawable: bottom", drawablesAbsolute[3]);
+    }
+
+    @UiThreadTest
+    @SmallTest
+    public void testCompoundDrawablesRelativeWithIntrinsicBounds() throws Throwable {
+        createAndAddTextView();
+
+        final Drawable drawableStart = new TestDrawable(0xFFFF0000, 30, 20);
+        final Drawable drawableEnd = new TestDrawable(0xFF0000FF, 25, 45);
+        final Drawable drawableBottom = new TestDrawable(0xFF00FF00, 15, 35);
+
+        mTextView.setText(R.string.test_text_long);
+        TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(mTextView, drawableStart,
+                null, drawableEnd, drawableBottom);
+
+        final Drawable[] drawablesAbsolute = mTextView.getCompoundDrawables();
+
+        assertEquals("Compound drawable: left", drawablesAbsolute[0], drawableStart);
+        assertEquals("Compound drawable: left width",
+                drawablesAbsolute[0].getBounds().width(), 30);
+        assertEquals("Compound drawable: left height",
+                drawablesAbsolute[0].getBounds().height(), 20);
+
+        assertNull("Compound drawable: top", drawablesAbsolute[1]);
+
+        assertEquals("Compound drawable: right", drawablesAbsolute[2], drawableEnd);
+        assertEquals("Compound drawable: right width",
+                drawablesAbsolute[2].getBounds().width(), 25);
+        assertEquals("Compound drawable: right height",
+                drawablesAbsolute[2].getBounds().height(), 45);
+
+        assertEquals("Compound drawable: bottom", drawablesAbsolute[3], drawableBottom);
+        assertEquals("Compound drawable: bottom width",
+                drawablesAbsolute[3].getBounds().width(), 15);
+        assertEquals("Compound drawable: bottom height",
+                drawablesAbsolute[3].getBounds().height(), 35);
+    }
+
+    @UiThreadTest
+    @SmallTest
+    public void testCompoundDrawablesRelativeWithIntrinsicBoundsRtl() throws Throwable {
+        createAndAddTextView();
+
+        ViewCompat.setLayoutDirection(mTextView, ViewCompat.LAYOUT_DIRECTION_RTL);
+
+        final Drawable drawableStart = new TestDrawable(0xFFFF0000, 30, 20);
+        final Drawable drawableEnd = new TestDrawable(0xFF0000FF, 25, 45);
+        final Drawable drawableBottom = new TestDrawable(0xFF00FF00, 15, 35);
+
+        mTextView.setText(R.string.test_text_long);
+        TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(mTextView, drawableStart,
+                null, drawableEnd, drawableBottom);
+
+        // Check to see whether our text view is under RTL mode
+        if (ViewCompat.getLayoutDirection(mTextView) != ViewCompat.LAYOUT_DIRECTION_RTL) {
+            // This will happen on v17- devices
+            return;
+        }
+
+        final Drawable[] drawablesAbsolute = mTextView.getCompoundDrawables();
+
+        // End drawable should be returned as left
+        assertEquals("Compound drawable: left", drawablesAbsolute[0], drawableEnd);
+        assertEquals("Compound drawable: left width",
+                drawablesAbsolute[0].getBounds().width(), 25);
+        assertEquals("Compound drawable: left height",
+                drawablesAbsolute[0].getBounds().height(), 45);
+
+        assertNull("Compound drawable: top", drawablesAbsolute[1]);
+
+        // Start drawable should be returned as right
+        assertEquals("Compound drawable: right", drawablesAbsolute[2], drawableStart);
+        assertEquals("Compound drawable: right width",
+                drawablesAbsolute[2].getBounds().width(), 30);
+        assertEquals("Compound drawable: right height",
+                drawablesAbsolute[2].getBounds().height(), 20);
+
+        assertEquals("Compound drawable: bottom", drawablesAbsolute[3], drawableBottom);
+        assertEquals("Compound drawable: bottom width",
+                drawablesAbsolute[3].getBounds().width(), 15);
+        assertEquals("Compound drawable: bottom height",
+                drawablesAbsolute[3].getBounds().height(), 35);
+    }
+
+    @UiThreadTest
+    @MediumTest
+    public void testCompoundDrawablesRelativeWithIntrinsicBoundsById() throws Throwable {
+        createAndAddTextView();
+
+        mTextView.setText(R.string.test_text_long);
+        TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(mTextView,
+                R.drawable.test_drawable_red, 0,
+                R.drawable.test_drawable_green, R.drawable.test_drawable_blue);
+
+        final Drawable[] drawablesAbsolute = mTextView.getCompoundDrawables();
+        final Resources res = getActivity().getResources();
+
+        // The entire left drawable should be the specific red color
+        assertTrue("Compound drawable: left color",
+                TestUtils.areAllPixelsOfColor(drawablesAbsolute[0],
+                        res.getColor(R.color.test_red)));
+        assertEquals("Compound drawable: left width",
+                drawablesAbsolute[0].getBounds().width(),
+                res.getDimensionPixelSize(R.dimen.drawable_small_size));
+        assertEquals("Compound drawable: left height",
+                drawablesAbsolute[0].getBounds().height(),
+                res.getDimensionPixelSize(R.dimen.drawable_medium_size));
+
+        assertNull("Compound drawable: top", drawablesAbsolute[1]);
+
+        // The entire right drawable should be the specific green color
+        assertTrue("Compound drawable: right color",
+                TestUtils.areAllPixelsOfColor(drawablesAbsolute[2],
+                        res.getColor(R.color.test_green)));
+        assertEquals("Compound drawable: right width",
+                drawablesAbsolute[2].getBounds().width(),
+                res.getDimensionPixelSize(R.dimen.drawable_medium_size));
+        assertEquals("Compound drawable: right height",
+                drawablesAbsolute[2].getBounds().height(),
+                res.getDimensionPixelSize(R.dimen.drawable_large_size));
+
+        // The entire bottom drawable should be the specific blue color
+        assertTrue("Compound drawable: bottom color",
+                TestUtils.areAllPixelsOfColor(drawablesAbsolute[3],
+                        res.getColor(R.color.test_blue)));
+        assertEquals("Compound drawable: bottom width",
+                drawablesAbsolute[3].getBounds().width(),
+                res.getDimensionPixelSize(R.dimen.drawable_large_size));
+        assertEquals("Compound drawable: bottom height",
+                drawablesAbsolute[3].getBounds().height(),
+                res.getDimensionPixelSize(R.dimen.drawable_small_size));
+    }
+
+    @UiThreadTest
+    @MediumTest
+    public void testCompoundDrawablesRelativeWithIntrinsicBoundsByIdRtl() throws Throwable {
+        createAndAddTextView();
+
+        ViewCompat.setLayoutDirection(mTextView, ViewCompat.LAYOUT_DIRECTION_RTL);
+
+        mTextView.setText(R.string.test_text_long);
+        TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(mTextView,
+                R.drawable.test_drawable_red, 0,
+                R.drawable.test_drawable_green, R.drawable.test_drawable_blue);
+
+        // Check to see whether our text view is under RTL mode
+        if (ViewCompat.getLayoutDirection(mTextView) != ViewCompat.LAYOUT_DIRECTION_RTL) {
+            // This will happen on v17- devices
+            return;
+        }
+
+        final Drawable[] drawablesAbsolute = mTextView.getCompoundDrawables();
+        final Resources res = getActivity().getResources();
+
+        // The entire left / end drawable should be the specific green color
+        assertTrue("Compound drawable: left color",
+                TestUtils.areAllPixelsOfColor(drawablesAbsolute[0],
+                        res.getColor(R.color.test_green)));
+        assertEquals("Compound drawable: left width",
+                drawablesAbsolute[0].getBounds().width(),
+                res.getDimensionPixelSize(R.dimen.drawable_medium_size));
+        assertEquals("Compound drawable: left height",
+                drawablesAbsolute[0].getBounds().height(),
+                res.getDimensionPixelSize(R.dimen.drawable_large_size));
+
+        assertNull("Compound drawable: top", drawablesAbsolute[1]);
+
+        // The entire right drawable should be the specific red color
+        assertTrue("Compound drawable: right color",
+                TestUtils.areAllPixelsOfColor(drawablesAbsolute[2],
+                        res.getColor(R.color.test_red)));
+        assertEquals("Compound drawable: right width",
+                drawablesAbsolute[2].getBounds().width(),
+                res.getDimensionPixelSize(R.dimen.drawable_small_size));
+        assertEquals("Compound drawable: right height",
+                drawablesAbsolute[2].getBounds().height(),
+                res.getDimensionPixelSize(R.dimen.drawable_medium_size));
+
+        // The entire bottom drawable should be the specific blue color
+        assertTrue("Compound drawable: bottom color",
+                TestUtils.areAllPixelsOfColor(drawablesAbsolute[3],
+                        res.getColor(R.color.test_blue)));
+        assertEquals("Compound drawable: bottom width",
+                drawablesAbsolute[3].getBounds().width(),
+                res.getDimensionPixelSize(R.dimen.drawable_large_size));
+        assertEquals("Compound drawable: bottom height",
+                drawablesAbsolute[3].getBounds().height(),
+                res.getDimensionPixelSize(R.dimen.drawable_small_size));
     }
 }
