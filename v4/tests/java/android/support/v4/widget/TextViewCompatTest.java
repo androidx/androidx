@@ -188,4 +188,49 @@ public class TextViewCompatTest extends ActivityInstrumentationTestCase2<TestAct
         assertEquals("Compound drawable: right", drawablesAbsolute[2], drawableEnd);
         assertNull("Compound drawable: bottom", drawablesAbsolute[3]);
     }
+
+    @UiThreadTest
+    @SmallTest
+    public void testCompoundDrawablesRelativeRtl() throws Throwable {
+        createAndAddTextView();
+
+        ViewCompat.setLayoutDirection(mTextView, ViewCompat.LAYOUT_DIRECTION_RTL);
+
+        final Drawable drawableStart = new ColorDrawable(0xFFFF0000);
+        drawableStart.setBounds(0, 0, 20, 20);
+        final Drawable drawableTop = new ColorDrawable(0xFF00FF00);
+        drawableTop.setBounds(0, 0, 20, 20);
+        final Drawable drawableEnd = new ColorDrawable(0xFF0000FF);
+        drawableEnd.setBounds(0, 0, 20, 20);
+
+        mTextView.setText(R.string.test_text_medium);
+        TextViewCompat.setCompoundDrawablesRelative(mTextView, drawableStart, drawableTop,
+                drawableEnd, null);
+
+        // Explicitly measure and layout the text view so that the core TextView updates its
+        // internal tracking of where each drawable is positioned relative to the text.
+        final DisplayMetrics metrics = getActivity().getResources().getDisplayMetrics();
+        int textViewWidthPx = (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 200, metrics);
+        int textViewHeightPx = (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 60, metrics);
+        mTextView.measure(
+                View.MeasureSpec.makeMeasureSpec(textViewWidthPx, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(textViewHeightPx, View.MeasureSpec.EXACTLY));
+        mTextView.layout(0, 0, textViewWidthPx, textViewHeightPx);
+
+        // Check to see whether our text view is under RTL mode
+        if (ViewCompat.getLayoutDirection(mTextView) != ViewCompat.LAYOUT_DIRECTION_RTL) {
+            // This will happen on v17- devices
+            return;
+        }
+
+        final Drawable[] drawablesAbsolute = mTextView.getCompoundDrawables();
+        // End drawable should be returned as left
+        assertEquals("Compound drawable: left", drawablesAbsolute[0], drawableEnd);
+        assertEquals("Compound drawable: top", drawablesAbsolute[1], drawableTop);
+        // Start drawable should be returned as right
+        assertEquals("Compound drawable: right", drawablesAbsolute[2], drawableStart);
+        assertNull("Compound drawable: bottom", drawablesAbsolute[3]);
+    }
 }
