@@ -23,57 +23,130 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.app.Instrumentation;
+import android.content.res.Resources;
+import android.graphics.Typeface;
+import android.os.Looper;
 import android.test.ActivityInstrumentationTestCase2;
+import android.test.UiThreadTest;
+import android.test.suitebuilder.annotation.SmallTest;
+import android.support.annotation.LayoutRes;
 import android.support.test.InstrumentationRegistry;
+import android.support.v4.test.R;
 import android.support.v4.widget.TextViewCompat;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.widget.TextView;
 
 import android.support.test.runner.AndroidJUnit4;
 
-@RunWith(AndroidJUnit4.class)
 public class TextViewCompatTest extends ActivityInstrumentationTestCase2<TestActivity> {
-    private boolean mDebug;
+    private static final String TAG = "TextViewCompatTest";
 
-    Throwable mainThreadException;
-
-    Thread mInstrumentationThread;
+    private TextView mTextView;
 
     public TextViewCompatTest() {
         super("android.support.v4.widget", TestActivity.class);
-        mDebug = false;
     }
 
-    @Before
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        mInstrumentationThread = Thread.currentThread();
-
-        // Note that injectInstrumentation was added in v5. Since this is v4 we have to use
-        // the misspelled (and deprecated) inject API.
-        injectInsrumentation(InstrumentationRegistry.getInstrumentation());
-    }
-
-    @After
     @Override
     public void tearDown() throws Exception {
+        if (mTextView != null) {
+            removeTextView();
+        }
+
         getInstrumentation().waitForIdleSync();
         super.tearDown();
     }
 
-    @Test
+    private boolean isMainThread() {
+        return Looper.myLooper() == Looper.getMainLooper();
+    }
+
+    private void removeTextView() {
+        if (mTextView == null) {
+            return;
+        }
+        if (!isMainThread()) {
+            getInstrumentation().waitForIdleSync();
+        }
+        try {
+            runTestOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    getActivity().mContainer.removeAllViews();
+                }
+            });
+        } catch (Throwable throwable) {
+            Log.e(TAG, "", throwable);
+        }
+        mTextView = null;
+    }
+
+    private void createAndAddTextView() {
+        final TestActivity activity = getActivity();
+        mTextView = new TextView(activity);
+        activity.mContainer.addView(mTextView);
+    }
+
+    @UiThreadTest
+    @SmallTest
     public void testMaxLines() throws Throwable {
-        final TextView textView = new TextView(getActivity());
-        textView.setMaxLines(4);
+        createAndAddTextView();
+        final int maxLinesCount = 4;
+        mTextView.setMaxLines(maxLinesCount);
 
-        runTestOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                getActivity().mContainer.addView(textView);
-            }
-        });
+        assertEquals("Empty view: Max lines must match", TextViewCompat.getMaxLines(mTextView),
+                maxLinesCount);
 
-        assertEquals("Max lines must match", TextViewCompat.getMaxLines(textView), 4);
+        mTextView.setText(R.string.test_text_short);
+        assertEquals("Short text: Max lines must match", TextViewCompat.getMaxLines(mTextView),
+                maxLinesCount);
+
+        mTextView.setText(R.string.test_text_medium);
+        assertEquals("Medium text: Max lines must match", TextViewCompat.getMaxLines(mTextView),
+                maxLinesCount);
+
+        mTextView.setText(R.string.test_text_long);
+        assertEquals("Long text: Max lines must match", TextViewCompat.getMaxLines(mTextView),
+                maxLinesCount);
+    }
+
+    @UiThreadTest
+    @SmallTest
+    public void testMinLines() throws Throwable {
+        createAndAddTextView();
+        final int minLinesCount = 3;
+        mTextView.setMinLines(minLinesCount);
+
+        assertEquals("Empty view: Min lines must match", TextViewCompat.getMinLines(mTextView),
+                minLinesCount);
+
+        mTextView.setText(R.string.test_text_short);
+        assertEquals("Short text: Min lines must match", TextViewCompat.getMinLines(mTextView),
+                minLinesCount);
+
+        mTextView.setText(R.string.test_text_medium);
+        assertEquals("Medium text: Min lines must match", TextViewCompat.getMinLines(mTextView),
+                minLinesCount);
+
+        mTextView.setText(R.string.test_text_long);
+        assertEquals("Long text: Min lines must match", TextViewCompat.getMinLines(mTextView),
+                minLinesCount);
+    }
+
+    @UiThreadTest
+    @SmallTest
+    public void testStyle() throws Throwable {
+        createAndAddTextView();
+
+        TextViewCompat.setTextAppearance(mTextView, R.style.TextMediumStyle);
+
+        final Resources res = getActivity().getResources();
+        assertEquals("Styled text view: style", mTextView.getTypeface().getStyle(),
+                Typeface.ITALIC);
+        assertEquals("Styled text view: color", mTextView.getTextColors().getDefaultColor(),
+                res.getColor(R.color.text_color));
+        assertEquals("Styled text view: size", mTextView.getTextSize(),
+                res.getDimension(R.dimen.text_medium_size));
     }
 }
