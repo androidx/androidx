@@ -25,6 +25,8 @@ import org.junit.runner.RunWith;
 import android.app.Instrumentation;
 import android.content.res.Resources;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Looper;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.UiThreadTest;
@@ -32,12 +34,14 @@ import android.test.suitebuilder.annotation.SmallTest;
 import android.support.annotation.LayoutRes;
 import android.support.test.InstrumentationRegistry;
 import android.support.v4.test.R;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.TextViewCompat;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.TextView;
-
-import android.support.test.runner.AndroidJUnit4;
 
 public class TextViewCompatTest extends ActivityInstrumentationTestCase2<TestActivity> {
     private static final String TAG = "TextViewCompatTest";
@@ -148,5 +152,40 @@ public class TextViewCompatTest extends ActivityInstrumentationTestCase2<TestAct
                 res.getColor(R.color.text_color));
         assertEquals("Styled text view: size", mTextView.getTextSize(),
                 res.getDimension(R.dimen.text_medium_size));
+    }
+
+    @UiThreadTest
+    @SmallTest
+    public void testCompoundDrawablesRelative() throws Throwable {
+        createAndAddTextView();
+
+        final Drawable drawableStart = new ColorDrawable(0xFFFF0000);
+        drawableStart.setBounds(0, 0, 20, 20);
+        final Drawable drawableTop = new ColorDrawable(0xFF00FF00);
+        drawableTop.setBounds(0, 0, 20, 20);
+        final Drawable drawableEnd = new ColorDrawable(0xFF0000FF);
+        drawableEnd.setBounds(0, 0, 20, 20);
+
+        mTextView.setText(R.string.test_text_medium);
+        TextViewCompat.setCompoundDrawablesRelative(mTextView, drawableStart, drawableTop,
+                drawableEnd, null);
+
+        // Explicitly measure and layout the text view so that the core TextView updates its
+        // internal tracking of where each drawable is positioned relative to the text.
+        final DisplayMetrics metrics = getActivity().getResources().getDisplayMetrics();
+        int textViewWidthPx = (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 200, metrics);
+        int textViewHeightPx = (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 60, metrics);
+        mTextView.measure(
+                View.MeasureSpec.makeMeasureSpec(textViewWidthPx, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(textViewHeightPx, View.MeasureSpec.EXACTLY));
+        mTextView.layout(0, 0, textViewWidthPx, textViewHeightPx);
+
+        final Drawable[] drawablesAbsolute = mTextView.getCompoundDrawables();
+        assertEquals("Compound drawable: left", drawablesAbsolute[0], drawableStart);
+        assertEquals("Compound drawable: top", drawablesAbsolute[1], drawableTop);
+        assertEquals("Compound drawable: right", drawablesAbsolute[2], drawableEnd);
+        assertNull("Compound drawable: bottom", drawablesAbsolute[3]);
     }
 }
