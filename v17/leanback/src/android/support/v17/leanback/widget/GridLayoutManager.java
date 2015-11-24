@@ -440,7 +440,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     private OnChildSelectedListener mChildSelectedListener = null;
 
-    private OnChildViewHolderSelectedListener mChildViewHolderSelectedListener = null;
+    private ArrayList<OnChildViewHolderSelectedListener> mChildViewHolderSelectedListeners = null;
 
     private OnChildLaidOutListener mChildLaidOutListener = null;
 
@@ -596,6 +596,17 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     private boolean mFocusOutEnd;
 
     /**
+     *  Allow DPAD key to navigate out of second axis.
+     *  default is true.
+     */
+    private boolean mFocusOutSideStart = true;
+
+    /**
+     * Allow DPAD key to navigate out of second axis.
+     */
+    private boolean mFocusOutSideEnd = true;
+
+    /**
      * True if focus search is disabled.
      */
     private boolean mFocusSearchDisabled;
@@ -737,6 +748,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         mFocusOutEnd = throughEnd;
     }
 
+    public void setFocusOutSideAllowed(boolean throughStart, boolean throughEnd) {
+        mFocusOutSideStart = throughStart;
+        mFocusOutSideEnd = throughEnd;
+    }
+
     public void setNumRows(int numRows) {
         if (numRows < 0) throw new IllegalArgumentException();
         mNumRowsRequested = numRows;
@@ -795,7 +811,46 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     public void setOnChildViewHolderSelectedListener(OnChildViewHolderSelectedListener listener) {
-        mChildViewHolderSelectedListener = listener;
+        if (listener == null) {
+            mChildViewHolderSelectedListeners = null;
+            return;
+        }
+        if (mChildViewHolderSelectedListeners == null) {
+            mChildViewHolderSelectedListeners = new ArrayList<OnChildViewHolderSelectedListener>();
+        } else {
+            mChildViewHolderSelectedListeners.clear();
+        }
+        mChildViewHolderSelectedListeners.add(listener);
+    }
+
+    public void addOnChildViewHolderSelectedListener(OnChildViewHolderSelectedListener listener) {
+        if (mChildViewHolderSelectedListeners == null) {
+            mChildViewHolderSelectedListeners = new ArrayList<OnChildViewHolderSelectedListener>();
+        }
+        mChildViewHolderSelectedListeners.add(listener);
+    }
+
+    public void removeOnChildViewHolderSelectedListener(OnChildViewHolderSelectedListener
+            listener) {
+        if (mChildViewHolderSelectedListeners != null) {
+            mChildViewHolderSelectedListeners.remove(listener);
+        }
+    }
+
+    boolean hasOnChildViewHolderSelectedListener() {
+        return mChildViewHolderSelectedListeners != null &&
+                mChildViewHolderSelectedListeners.size() > 0;
+    }
+
+    void fireOnChildViewHolderSelected(RecyclerView parent, RecyclerView.ViewHolder child,
+            int position, int subposition) {
+        if (mChildViewHolderSelectedListeners == null) {
+            return;
+        }
+        for (int i = mChildViewHolderSelectedListeners.size() - 1; i >= 0 ; i--) {
+            mChildViewHolderSelectedListeners.get(i).onChildViewHolderSelected(parent, child,
+                    position, subposition);
+        }
     }
 
     void setOnChildLaidOutListener(OnChildLaidOutListener listener) {
@@ -844,7 +899,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private void dispatchChildSelected() {
-        if (mChildSelectedListener == null && mChildViewHolderSelectedListener == null) {
+        if (mChildSelectedListener == null && !hasOnChildViewHolderSelectedListener()) {
             return;
         }
 
@@ -856,18 +911,12 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 mChildSelectedListener.onChildSelected(mBaseGridView, view, mFocusPosition,
                         vh == null? NO_ID: vh.getItemId());
             }
-            if (mChildViewHolderSelectedListener != null) {
-                mChildViewHolderSelectedListener.onChildViewHolderSelected(mBaseGridView, vh,
-                        mFocusPosition, mSubFocusPosition);
-            }
+            fireOnChildViewHolderSelected(mBaseGridView, vh, mFocusPosition, mSubFocusPosition);
         } else {
             if (mChildSelectedListener != null) {
                 mChildSelectedListener.onChildSelected(mBaseGridView, null, NO_POSITION, NO_ID);
             }
-            if (mChildViewHolderSelectedListener != null) {
-                mChildViewHolderSelectedListener.onChildViewHolderSelected(mBaseGridView, null,
-                        NO_POSITION, 0);
-            }
+            fireOnChildViewHolderSelected(mBaseGridView, null, NO_POSITION, 0);
         }
         if (TRACE) TraceHelper.endSection();
 
@@ -2808,6 +2857,14 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             }
             if (mScrollEnabled && !hasCreatedFirstItem()) {
                 processPendingMovement(false);
+                view = focused;
+            }
+        } else if (movement == NEXT_ROW) {
+            if (isScroll || !mFocusOutSideEnd) {
+                view = focused;
+            }
+        } else if (movement == PREV_ROW) {
+            if (isScroll || !mFocusOutSideStart) {
                 view = focused;
             }
         }

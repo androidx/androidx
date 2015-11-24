@@ -256,6 +256,7 @@
     <dimen name="lb_guidedactions_item_icon_height">32dp</dimen>
     <dimen name="lb_guidedactions_item_title_font_size">18sp</dimen>
     <dimen name="lb_guidedactions_item_description_font_size">12sp</dimen>
+    <dimen name="lb_guidedactions_sublist_bottom_margin">28dp</dimen>
 
     <integer name="lb_guidedstep_entry_animation_delay">550</integer>
     <integer name="lb_guidedstep_entry_animation_duration">250</integer>

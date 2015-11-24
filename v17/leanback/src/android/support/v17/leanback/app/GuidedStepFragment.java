@@ -30,8 +30,11 @@ import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.GuidanceStylist;
 import android.support.v17.leanback.widget.GuidanceStylist.Guidance;
 import android.support.v17.leanback.widget.GuidedAction;
+import android.support.v17.leanback.widget.GuidedActionAdapter;
+import android.support.v17.leanback.widget.GuidedActionAdapterGroup;
 import android.support.v17.leanback.widget.GuidedActionsStylist;
 import android.support.v17.leanback.widget.VerticalGridView;
+import android.support.v17.leanback.widget.ViewHolderTask;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
@@ -49,6 +52,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -138,8 +142,7 @@ import java.util.List;
  * @see GuidedAction
  * @see GuidedActionsStylist
  */
-public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.ClickListener,
-        GuidedActionAdapter.FocusListener {
+public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.FocusListener {
 
     private static final String TAG_LEAN_BACK_ACTIONS_FRAGMENT = "leanBackGuidedStepFragment";
     private static final String EXTRA_ACTION_SELECTED_INDEX = "selectedIndex";
@@ -227,6 +230,7 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
     private GuidedActionsStylist mActionsStylist;
     private GuidedActionsStylist mButtonActionsStylist;
     private GuidedActionAdapter mAdapter;
+    private GuidedActionAdapter mSubAdapter;
     private GuidedActionAdapter mButtonAdapter;
     private GuidedActionAdapterGroup mAdapterGroup;
     private List<GuidedAction> mActions = new ArrayList<GuidedAction>();
@@ -268,7 +272,9 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
      * @return The GuidedActionsStylist used in this fragment.
      */
     public GuidedActionsStylist onCreateButtonActionsStylist() {
-        return new GuidedActionsStylist();
+        GuidedActionsStylist stylist = new GuidedActionsStylist();
+        stylist.setAsButtonActions();
+        return stylist;
     }
 
     /**
@@ -317,8 +323,53 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
      * order to act on the user's decisions.
      * @param action The chosen action.
      */
-    @Override
     public void onGuidedActionClicked(GuidedAction action) {
+    }
+
+    /**
+     * Callback invoked when an action in sub actions is taken by the user. Subclasses should
+     * override in order to act on the user's decisions.  Default return value is true to close
+     * the sub actions list.
+     * @param action The chosen action.
+     * @return true to collapse the sub actions list, false to keep it expanded.
+     */
+    public boolean onSubGuidedActionClicked(GuidedAction action) {
+        return true;
+    }
+
+    /**
+     * @return True if the sub actions list is expanded, false otherwise.
+     */
+    public boolean isSubActionsExpanded() {
+        return mActionsStylist.isSubActionsExpanded();
+    }
+
+    /**
+     * Expand a given action's sub actions list.
+     * @param action GuidedAction to expand.
+     * @see GuidedAction#getSubActions()
+     */
+    public void expandSubActions(GuidedAction action) {
+        final int actionPosition = mActions.indexOf(action);
+        if (actionPosition < 0) {
+            return;
+        }
+        mActionsStylist.getActionsGridView().setSelectedPositionSmooth(actionPosition,
+                new ViewHolderTask() {
+            @Override
+            public void run(RecyclerView.ViewHolder vh) {
+                GuidedActionsStylist.ViewHolder avh = (GuidedActionsStylist.ViewHolder) vh;
+                mActionsStylist.setExpandedViewHolder(avh);
+            }
+        });
+    }
+
+    /**
+     * Collapse sub actions list.
+     * @see GuidedAction#getSubActions()
+     */
+    public void collapseSubActions() {
+        mActionsStylist.setExpandedViewHolder(null);
     }
 
     /**
@@ -893,6 +944,7 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
         mActionsStylist.onDestroyView();
         mButtonActionsStylist.onDestroyView();
         mAdapter = null;
+        mSubAdapter =  null;
         mButtonAdapter = null;
         mAdapterGroup = null;
         super.onDestroyView();
@@ -922,7 +974,6 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
         actionContainer.addView(actionsView);
 
         View buttonActionsView = mButtonActionsStylist.onCreateView(inflater, actionContainer);
-        mButtonActionsStylist.setAsButtonActions();
         actionContainer.addView(buttonActionsView);
 
         GuidedActionAdapter.EditListener editListener = new GuidedActionAdapter.EditListener() {
@@ -943,14 +994,41 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
                 }
         };
 
-        mAdapter = new GuidedActionAdapter(mActions, this, this, mActionsStylist);
-        mButtonAdapter = new GuidedActionAdapter(mButtonActions, this, this, mButtonActionsStylist);
+        mAdapter = new GuidedActionAdapter(mActions, new GuidedActionAdapter.ClickListener() {
+            @Override
+            public void onGuidedActionClicked(GuidedAction action) {
+                GuidedStepFragment.this.onGuidedActionClicked(action);
+                if (isSubActionsExpanded()) {
+                    collapseSubActions();
+                } else if (action.hasSubActions()) {
+                    expandSubActions(action);
+                }
+            }
+        }, this, mActionsStylist, false);
+        mButtonAdapter =
+                new GuidedActionAdapter(mButtonActions, new GuidedActionAdapter.ClickListener() {
+                    @Override
+                    public void onGuidedActionClicked(GuidedAction action) {
+                        GuidedStepFragment.this.onGuidedActionClicked(action);
+                    }
+                }, this, mButtonActionsStylist, false);
+        mSubAdapter = new GuidedActionAdapter(null, new GuidedActionAdapter.ClickListener() {
+            @Override
+            public void onGuidedActionClicked(GuidedAction action) {
+                if (GuidedStepFragment.this.onSubGuidedActionClicked(action)) {
+                    collapseSubActions();
+                }
+            }
+        }, this, mActionsStylist, true);
         mAdapterGroup = new GuidedActionAdapterGroup();
-        mAdapterGroup.addAdpter(mAdapter);
-        mAdapterGroup.addAdpter(mButtonAdapter);
+        mAdapterGroup.addAdpter(mAdapter, mButtonAdapter);
+        mAdapterGroup.addAdpter(mSubAdapter, null);
         mAdapterGroup.setEditListener(editListener);
 
         mActionsStylist.getActionsGridView().setAdapter(mAdapter);
+        if (mActionsStylist.getSubActionsGridView() != null) {
+            mActionsStylist.getSubActionsGridView().setAdapter(mSubAdapter);
+        }
         mButtonActionsStylist.getActionsGridView().setAdapter(mButtonAdapter);
         if (mButtonActions.size() == 0) {
             // when there is no button actions, we dont need show the second panel, but keep
