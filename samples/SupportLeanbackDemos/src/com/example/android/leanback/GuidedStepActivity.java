@@ -36,6 +36,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.inputmethod.EditorInfo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -49,6 +50,8 @@ public class GuidedStepActivity extends Activity {
     private static final int LAST_NAME = 4;
     private static final int PASSWORD = 5;
     private static final int PAYMENT = 6;
+    private static final int NEW_PAYMENT = 7;
+    private static final int CREDIT_CARD = 8;
 
     private static final int OPTION_CHECK_SET_ID = 10;
     private static final int DEFAULT_OPTION = 0;
@@ -89,6 +92,16 @@ public class GuidedStepActivity extends Activity {
                 .id(id)
                 .title(title)
                 .description(desc)
+                .build());
+    }
+
+    private static void addAction(List<GuidedAction> actions, long id, String title, String desc,
+            List<GuidedAction> subActions) {
+        actions.add(new GuidedAction.Builder()
+                .id(id)
+                .title(title)
+                .description(desc)
+                .subActions(subActions)
                 .build());
     }
 
@@ -183,6 +196,84 @@ public class GuidedStepActivity extends Activity {
 
     }
 
+    static ArrayList<String> sCards = new ArrayList<String>();
+    static int sSelectedCard = -1;
+    static {
+        sCards.add("Visa-1234");
+        sCards.add("Master-4321");
+    }
+
+    public static class NewPaymentStepFragment extends GuidedStepFragment {
+
+        @Override
+        public Guidance onCreateGuidance(Bundle savedInstanceState) {
+            String title = getString(R.string.guidedstep_newpayment_title);
+            String breadcrumb = getString(R.string.guidedstep_newpayment_breadcrumb);
+            String description = getString(R.string.guidedstep_newpayment_description);
+            Drawable icon = getActivity().getDrawable(R.drawable.ic_main_icon);
+            return new Guidance(title, description, breadcrumb, icon);
+        }
+
+        @Override
+        public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
+            addEditableAction(actions, NEW_PAYMENT, "Input credit card number", "",
+                    InputType.TYPE_CLASS_NUMBER,
+                    "Input credit card number", "Input credit card number");
+        }
+
+        @Override
+        public void onCreateButtonActions(List<GuidedAction> actions, Bundle savedInstanceState) {
+            actions.add(new GuidedAction.Builder().constructOK(getActivity())
+                    .build());
+            actions.get(actions.size() - 1).setEnabled(false);
+        }
+
+        @Override
+        public void onGuidedActionClicked(GuidedAction action) {
+            if (action.getId() == GuidedAction.ACTION_ID_OK) {
+                CharSequence desc = findActionById(NEW_PAYMENT).getDescription();
+                String cardNumber = desc.subSequence(desc.length() - 4, desc.length()).toString();
+                String card;
+                if ((Integer.parseInt(cardNumber) & 1) == 0) {
+                    card = "Visa "+cardNumber;
+                } else {
+                    card = "Master "+cardNumber;
+                }
+                sSelectedCard = sCards.size();
+                sCards.add(card);
+                popBackStackToGuidedStepFragment(NewPaymentStepFragment.class,
+                        FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            }
+        }
+
+        @Override
+        public long onGuidedActionEditedAndProceed(GuidedAction action) {
+            if (action.getId() == NEW_PAYMENT) {
+                CharSequence editTitle = action.getEditTitle();
+                if (TextUtils.isDigitsOnly(editTitle) && editTitle.length() == 16) {
+                    editTitle = editTitle.subSequence(editTitle.length() - 4, editTitle.length());
+                    action.setDescription("Visa XXXX-XXXX-XXXX-" + editTitle);
+                    updateOkButton(true);
+                    return GuidedAction.ACTION_ID_NEXT;
+                } else if (editTitle.length() == 0) {
+                    action.setDescription("Input credit card number");
+                    updateOkButton(false);
+                    return GuidedAction.ACTION_ID_CURRENT;
+                } else {
+                    action.setDescription("Error credit card number");
+                    updateOkButton(false);
+                    return GuidedAction.ACTION_ID_CURRENT;
+                }
+            }
+            return GuidedAction.ACTION_ID_NEXT;
+        }
+
+        void updateOkButton(boolean enabled) {
+            findButtonActionById(GuidedAction.ACTION_ID_OK).setEnabled(enabled);
+            notifyButtonActionChanged(findButtonActionPositionById(GuidedAction.ACTION_ID_OK));
+        }
+    }
+
     public static class SecondStepFragment extends GuidedStepFragment {
 
         public GuidedActionsStylist onCreateActionsStylist() {
@@ -212,8 +303,8 @@ public class GuidedStepActivity extends Activity {
         public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
             addEditableAction(actions, FIRST_NAME, "Pat", "Your first name");
             addEditableAction(actions, LAST_NAME, "Smith", "Your last name");
-            addEditableAction(actions, PAYMENT, "Payment", "", InputType.TYPE_CLASS_NUMBER,
-                    "Input credit card number", "Input credit card number");
+            List<GuidedAction> subActions = new ArrayList<GuidedAction>();
+            addAction(actions, PAYMENT, "Select Payment", "", subActions);
             addEditableDescriptionAction(actions, PASSWORD, "Password", "", "",
                     InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         }
@@ -223,7 +314,6 @@ public class GuidedStepActivity extends Activity {
             actions.add(new GuidedAction.Builder().constructContinue(getActivity())
                     .description("Continue")
                     .build());
-            actions.get(actions.size() - 1).setEnabled(false);
         }
 
         @Override
@@ -236,23 +326,7 @@ public class GuidedStepActivity extends Activity {
 
         @Override
         public long onGuidedActionEditedAndProceed(GuidedAction action) {
-            if (action.getId() == PAYMENT) {
-                CharSequence editTitle = action.getEditTitle();
-                if (TextUtils.isDigitsOnly(editTitle) && editTitle.length() == 16) {
-                    editTitle = editTitle.subSequence(editTitle.length() - 4, editTitle.length());
-                    action.setDescription("Visa XXXX-XXXX-XXXX-"+editTitle);
-                    updateContinue(isPasswordValid());
-                    return GuidedAction.ACTION_ID_NEXT;
-                } else if (editTitle.length() == 0){
-                    action.setDescription("Input credit card number");
-                    updateContinue(false);
-                    return GuidedAction.ACTION_ID_CURRENT;
-                } else {
-                    action.setDescription("Error credit card number");
-                    updateContinue(false);
-                    return GuidedAction.ACTION_ID_CURRENT;
-                }
-            } else if (action.getId() == PASSWORD) {
+            if (action.getId() == PASSWORD) {
                 CharSequence password = action.getEditDescription();
                 if (password.length() > 0) {
                     if (isPaymentValid()) {
@@ -270,8 +344,51 @@ public class GuidedStepActivity extends Activity {
             return GuidedAction.ACTION_ID_NEXT;
         }
 
+        @Override
+        public boolean onSubGuidedActionClicked(GuidedAction action) {
+            if (action.isChecked()) {
+                String payment = action.getTitle().toString();
+                for (int i = 0; i < sCards.size(); i++) {
+                    if (payment.equals(sCards.get(i))) {
+                        sSelectedCard = i;
+                        findActionById(PAYMENT).setDescription(payment);
+                        notifyActionChanged(findActionPositionById(PAYMENT));
+                        updateContinue(isPasswordValid());
+                        break;
+                    }
+                }
+                return true;
+            } else {
+                FragmentManager fm = getFragmentManager();
+                GuidedStepFragment.add(fm, new NewPaymentStepFragment(), R.id.lb_guidedstep_host);
+                return false;
+            }
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            GuidedAction payments = findActionById(PAYMENT);
+            payments.getSubActions().clear();
+            for (int i = 0; i < sCards.size(); i++) {
+                addCheckedAction(payments.getSubActions(), getActivity(), sCards.get(i), "",
+                        GuidedAction.DEFAULT_CHECK_SET_ID);
+                if (i == sSelectedCard) {
+                    payments.getSubActions().get(i).setChecked(true);
+                }
+            }
+            addAction(payments.getSubActions(), NEW_PAYMENT, "Add New Card", "");
+            if (sSelectedCard != -1) {
+                payments.setDescription(sCards.get(sSelectedCard));
+            }
+            notifyActionChanged(findActionPositionById(PAYMENT));
+            updateContinue(isPasswordValid() && isPaymentValid());
+        }
+
         boolean isPaymentValid() {
-            return findActionById(PAYMENT).getDescription().subSequence(0, 4).toString().equals("Visa");
+            CharSequence paymentType = findActionById(PAYMENT).getDescription();
+            return paymentType.subSequence(0, 4).toString().equals("Visa") ||
+                    paymentType.subSequence(0, 6).toString().equals("Master");
         }
 
         boolean isPasswordValid() {

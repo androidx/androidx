@@ -63,8 +63,11 @@
     <string name="guidedstep_first_description">First step of guided sequence</string>
     <string name="guidedstep_first_breadcrumb">Guided Steps</string>
     <string name="guidedstep_second_title">Second</string>
-    <string name="guidedstep_second_description">Showcasing editable actions</string>
+    <string name="guidedstep_second_description">Showcasing editable actions and dropdown</string>
     <string name="guidedstep_second_breadcrumb">Guided Steps</string>
+    <string name="guidedstep_newpayment_title">New payment</string>
+    <string name="guidedstep_newpayment_description">Showcasing editable actions</string>
+    <string name="guidedstep_newpayment_breadcrumb">Guided Steps</string>
     <string name="guidedstep_third_title">Third</string>
     <string name="guidedstep_third_description">Showcasing different action configurations</string>
     <string name="guidedstep_third_breadcrumb">Guided Steps</string>
