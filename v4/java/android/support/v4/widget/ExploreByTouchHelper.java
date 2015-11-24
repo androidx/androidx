@@ -548,11 +548,21 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      *         </ul>
      */
     public final void invalidateVirtualView(int virtualViewId, int changeTypes) {
+        final SparseArray<AccessibilityNodeInfoCompat> cachedNodes = mCachedNodes;
         if (virtualViewId == HOST_ID
                 && (changeTypes & AccessibilityEventCompat.CONTENT_CHANGE_TYPE_SUBTREE) != 0) {
-            mCachedNodes.clear();
+            for (int i = 0, count = cachedNodes.size(); i < count; i++) {
+                final AccessibilityNodeInfoCompat node = cachedNodes.valueAt(i);
+                if (node != null) {
+                    node.recycle();
+                }
+            }
+            cachedNodes.clear();
         } else {
-            mCachedNodes.remove(virtualViewId);
+            final AccessibilityNodeInfoCompat node = cachedNodes.removeReturnOld(virtualViewId);
+            if (node != null) {
+                node.recycle();
+            }
         }
 
         if (virtualViewId != INVALID_ID && mManager.isEnabled()) {
@@ -1205,7 +1215,11 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
     private class MyNodeProvider extends AccessibilityNodeProviderCompat {
         @Override
         public AccessibilityNodeInfoCompat createAccessibilityNodeInfo(int virtualViewId) {
-            return ExploreByTouchHelper.this.obtainAccessibilityNodeInfo(virtualViewId);
+            // The caller takes ownership of the node and is expected to
+            // recycle it when done, so always return a copy.
+            final AccessibilityNodeInfoCompat node =
+                    ExploreByTouchHelper.this.obtainAccessibilityNodeInfo(virtualViewId);
+            return AccessibilityNodeInfoCompat.obtain(node);
         }
 
         @Override
