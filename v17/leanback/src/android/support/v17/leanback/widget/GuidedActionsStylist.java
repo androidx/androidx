@@ -49,12 +49,16 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
  * GuidedActionsStylist is used within a {@link android.support.v17.leanback.app.GuidedStepFragment}
  * to supply the right-side panel where users can take actions. It consists of a container for the
  * list of actions, and a stationary selector view that indicates visually the location of focus.
+ * GuidedActionsStylist has two different layouts: default is for normal actions including text,
+ * radio, checkbox etc, the other when {@link #setAsButtonActions()} is called is recommended for
+ * button actions such as "yes", "no".
  * <p>
  * Many aspects of the base GuidedActionsStylist can be customized through theming; see the
  * theme attributes below. Note that these attributes are not set on individual elements in layout
@@ -98,6 +102,8 @@ import java.util.List;
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsSelectorHideAnimation
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsSelectorStyle
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsListStyle
+ * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedSubActionsListStyle
+ * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedButtonActionsListStyle
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionItemContainerStyle
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionItemCheckmarkStyle
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionItemIconStyle
@@ -133,10 +139,9 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      * GuidedActionsStylist} may also wish to subclass this in order to add fields.
      * @see GuidedAction
      */
-    public static class ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        public final View view;
-
+        private GuidedAction mAction;
         private View mContentView;
         private TextView mTitleView;
         private TextView mDescriptionView;
@@ -145,12 +150,20 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         private ImageView mChevronView;
         private boolean mInEditing;
         private boolean mInEditingDescription;
+        private final boolean mIsSubAction;
 
         /**
          * Constructs an ViewHolder and caches the relevant subviews.
          */
         public ViewHolder(View v) {
-            view = v;
+            this(v, false);
+        }
+
+        /**
+         * Constructs an ViewHolder for sub action and caches the relevant subviews.
+         */
+        public ViewHolder(View v, boolean isSubAction) {
+            super(v);
 
             mContentView = v.findViewById(R.id.guidedactions_item_content);
             mTitleView = (TextView) v.findViewById(R.id.guidedactions_item_title);
@@ -158,6 +171,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             mIconView = (ImageView) v.findViewById(R.id.guidedactions_item_icon);
             mCheckmarkView = (ImageView) v.findViewById(R.id.guidedactions_item_checkmark);
             mChevronView = (ImageView) v.findViewById(R.id.guidedactions_item_chevron);
+            mIsSubAction = isSubAction;
         }
 
         /**
@@ -233,6 +247,9 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             return mInEditingDescription;
         }
 
+        /**
+         * @return Current editing title view or description view or null if not in editing.
+         */
         public View getEditingView() {
             if (mInEditing) {
                 return mInEditingDescription ?  mDescriptionView : mTitleView;
@@ -240,12 +257,28 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
                 return null;
             }
         }
+
+        /**
+         * @return True if bound action is inside {@link GuidedAction#getSubActions()}, false
+         * otherwise.
+         */
+        public boolean isSubAction() {
+            return mIsSubAction;
+        }
+
+        /**
+         * @return Currently bound action.
+         */
+        public GuidedAction getAction() {
+            return mAction;
+        }
     }
 
     private static String TAG = "GuidedActionsStylist";
 
     private ViewGroup mMainView;
     private VerticalGridView mActionsGridView;
+    private VerticalGridView mSubActionsGridView;
     private View mBgView;
     private View mSelectorView;
     private View mContentView;
@@ -266,6 +299,20 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     private int mVerticalPadding;
     private int mDisplayHeight;
 
+    private GuidedAction mExpandedAction = null;
+
+    private final RecyclerView.OnScrollListener mOnGridScrollListener =
+            new RecyclerView.OnScrollListener() {
+        @Override
+        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                if (mSelectorView.getAlpha() != 1f) {
+                    updateSelectorView(true);
+                }
+            }
+        }
+    };
+
     /**
      * Creates a view appropriate for displaying a list of GuidedActions, using the provided
      * inflater and container.
@@ -279,8 +326,10 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      */
     public View onCreateView(LayoutInflater inflater, ViewGroup container) {
         mMainView = (ViewGroup) inflater.inflate(onProvideLayoutId(), container, false);
-        mContentView = mMainView.findViewById(R.id.guidedactions_content);
-        mSelectorView = mMainView.findViewById(R.id.guidedactions_selector);
+        mContentView = mMainView.findViewById(mButtonActions ? R.id.guidedactions_content2 :
+                R.id.guidedactions_content);
+        mSelectorView = mMainView.findViewById(mButtonActions ? R.id.guidedactions_selector2 :
+                R.id.guidedactions_selector);
         mSelectorView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom,
@@ -288,11 +337,13 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
                 updateSelectorView(false);
             }
         });
-        mBgView = mMainView.findViewById(R.id.guidedactions_list_background);
+        mBgView = mMainView.findViewById(mButtonActions ? R.id.guidedactions_list_background2 :
+                R.id.guidedactions_list_background);
         if (mMainView instanceof VerticalGridView) {
             mActionsGridView = (VerticalGridView) mMainView;
         } else {
-            mActionsGridView = (VerticalGridView) mMainView.findViewById(R.id.guidedactions_list);
+            mActionsGridView = (VerticalGridView) mMainView.findViewById(mButtonActions ?
+                    R.id.guidedactions_list2 : R.id.guidedactions_list);
             if (mActionsGridView == null) {
                 throw new IllegalStateException("No ListView exists.");
             }
@@ -300,22 +351,20 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             mActionsGridView.setWindowAlignmentOffsetPercent(50f);
             mActionsGridView.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_NO_EDGE);
             if (mSelectorView != null) {
-                mActionsGridView.setOnScrollListener(new RecyclerView.OnScrollListener() {
-                    @Override
-                    public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                        if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                            if (mSelectorView.getAlpha() != 1f) {
-                                updateSelectorView(true);
-                            }
-                        }
-                    }
-                });
+                mActionsGridView.setOnScrollListener(mOnGridScrollListener);
+            }
+            if (!mButtonActions) {
+                mSubActionsGridView = (VerticalGridView) mMainView.findViewById(
+                        R.id.guidedactions_sub_list);
+                if (mSelectorView != null && mSubActionsGridView != null) {
+                    mSubActionsGridView.setOnScrollListener(mOnGridScrollListener);
+                }
             }
         }
 
         if (mSelectorView != null) {
             // ALlow focus to move to other views
-            mActionsGridView.getViewTreeObserver().addOnGlobalFocusChangeListener(
+            mMainView.getViewTreeObserver().addOnGlobalFocusChangeListener(
                     mGlobalFocusChangeListener);
         }
 
@@ -343,36 +392,19 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     }
 
     /**
-     * Default implementation turns on background for actions and applies different Ids to views so
-     * that GuidedStepFragment could run transitions against two action lists.  The method is called
-     * by GuidedStepFragment, app may override this function when replacing default layout file
-     * provided by {@link #onProvideLayoutId()}
+     * Choose the layout resource for button actions in {@link #onProvideLayoutId()}.
      */
     public void setAsButtonActions() {
+        if (mMainView != null) {
+            throw new IllegalStateException("setAsButtonActions() must be called before creating "
+                    + "views");
+        }
         mButtonActions = true;
-        mMainView.setId(R.id.guidedactions_root2);
-        ViewCompat.setTransitionName(mMainView, "guidedactions_root2");
-        if (mActionsGridView != null) {
-            mActionsGridView.setId(R.id.guidedactions_list2);
-        }
-        if (mSelectorView != null) {
-            mSelectorView.setId(R.id.guidedactions_selector2);
-            ViewCompat.setTransitionName(mSelectorView, "guidedactions_selector2");
-        }
-        if (mContentView != null) {
-            mContentView.setId(R.id.guidedactions_content2);
-            ViewCompat.setTransitionName(mContentView, "guidedactions_content2");
-        }
-        if (mBgView != null) {
-            mBgView.setId(R.id.guidedactions_list_background2);
-            ViewCompat.setTransitionName(mBgView, "guidedactions_list_background2");
-            mBgView.setVisibility(View.VISIBLE);
-        }
     }
 
     /**
-     * Returns true if {@link #setAsButtonActions()} was called, false otherwise.
-     * @return True if {@link #setAsButtonActions()} was called, false otherwise.
+     * Returns true if it is button actions list, false for normal actions list.
+     * @return True if it is button actions list, false for normal actions list.
      */
     public boolean isButtonActions() {
         return mButtonActions;
@@ -392,11 +424,13 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      */
     public void onDestroyView() {
         if (mSelectorView != null) {
-            mActionsGridView.getViewTreeObserver().removeOnGlobalFocusChangeListener(
+            mMainView.getViewTreeObserver().removeOnGlobalFocusChangeListener(
                     mGlobalFocusChangeListener);
         }
         endSelectorAnimator();
+        mExpandedAction = null;
         mActionsGridView = null;
+        mSubActionsGridView = null;
         mSelectorView = null;
         mContentView = null;
         mBgView = null;
@@ -412,16 +446,27 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     }
 
     /**
+     * Returns the VerticalGridView that displays the sub actions list of an expanded action.
+     * @return The VerticalGridView that displays the sub actions list of an expanded action.
+     */
+    public VerticalGridView getSubActionsGridView() {
+        return mSubActionsGridView;
+    }
+
+    /**
      * Provides the resource ID of the layout defining the host view for the list of guided actions.
      * Subclasses may override to provide their own customized layouts. The base implementation
-     * returns {@link android.support.v17.leanback.R.layout#lb_guidedactions}. If overridden, the
-     * substituted layout should contain matching IDs for any views that should be managed by the
-     * base class; this can be achieved by starting with a copy of the base layout file.
-     * @return The resource ID of the layout to be inflated to define the host view for the list
-     * of GuidedActions.
+     * returns {@link android.support.v17.leanback.R.layout#lb_guidedactions} or
+     * {@link android.support.v17.leanback.R.layout#lb_guidedbuttonactions} if
+     * {@link #isButtonActions()} is true. If overridden, the substituted layout should contain
+     * matching IDs for any views that should be managed by the base class; this can be achieved by
+     * starting with a copy of the base layout file.
+     *
+     * @return The resource ID of the layout to be inflated to define the host view for the list of
+     *         GuidedActions.
      */
     public int onProvideLayoutId() {
-        return R.layout.lb_guidedactions;
+        return mButtonActions ? R.layout.lb_guidedbuttonactions : R.layout.lb_guidedactions;
     }
 
     /**
@@ -486,7 +531,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     public ViewHolder onCreateViewHolder(ViewGroup parent) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View v = inflater.inflate(onProvideItemLayoutId(), parent, false);
-        return new ViewHolder(v);
+        return new ViewHolder(v, parent == mSubActionsGridView);
     }
 
     /**
@@ -505,7 +550,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         }
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View v = inflater.inflate(onProvideItemLayoutId(viewType), parent, false);
-        return new ViewHolder(v);
+        return new ViewHolder(v, parent == mSubActionsGridView);
     }
 
     /**
@@ -516,6 +561,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      */
     public void onBindViewHolder(ViewHolder vh, GuidedAction action) {
 
+        vh.mAction = action;
         if (vh.mTitleView != null) {
             vh.mTitleView.setText(action.getTitle());
             vh.mTitleView.setAlpha(action.isEnabled() ? mEnabledTextAlpha : mDisabledTextAlpha);
@@ -534,16 +580,12 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             onBindCheckMarkView(vh, action);
         }
 
-        if (vh.mChevronView != null) {
-            onBindChevronView(vh, action);
-        }
-
         if (action.hasMultilineDescription()) {
             if (vh.mTitleView != null) {
                 vh.mTitleView.setMaxLines(mTitleMaxLines);
                 if (vh.mDescriptionView != null) {
-                    vh.mDescriptionView.setMaxHeight(getDescriptionMaxHeight(vh.view.getContext(),
-                            vh.mTitleView));
+                    vh.mDescriptionView.setMaxHeight(getDescriptionMaxHeight(
+                            vh.itemView.getContext(), vh.mTitleView));
                 }
             }
         } else {
@@ -556,17 +598,15 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         }
         setEditingMode(vh, action, false);
         if (action.isFocusable()) {
-            vh.view.setFocusable(true);
-            if (vh.view instanceof ViewGroup) {
-                ((ViewGroup) vh.view).setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
-            }
+            vh.itemView.setFocusable(true);
+            ((ViewGroup) vh.itemView).setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
         } else {
-            vh.view.setFocusable(false);
-            if (vh.view instanceof ViewGroup) {
-                ((ViewGroup) vh.view).setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
-            }
+            vh.itemView.setFocusable(false);
+            ((ViewGroup) vh.itemView).setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
         }
         setupImeOptions(vh, action);
+
+        updateChevronAndVisibility(vh);
     }
 
     /**
@@ -594,6 +634,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     }
 
     protected void onEditingModeChange(ViewHolder vh, GuidedAction action, boolean editing) {
+        action = vh.getAction();
         TextView titleView = vh.getTitleView();
         TextView descriptionView = vh.getDescriptionView();
         if (editing) {
@@ -659,7 +700,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     public void onAnimateItemPressed(ViewHolder vh, boolean pressed) {
         int attr = pressed ? R.attr.guidedActionPressedAnimation :
                 R.attr.guidedActionUnpressedAnimation;
-        createAnimator(vh.view, attr).start();
+        createAnimator(vh.itemView, attr).start();
     }
 
     /**
@@ -667,7 +708,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      * @param vh The view holder associated with the relevant action.
      */
     public void onAnimateItemPressedCancelled(ViewHolder vh) {
-        createAnimator(vh.view, R.attr.guidedActionUnpressedAnimation).end();
+        createAnimator(vh.itemView, R.attr.guidedActionUnpressedAnimation).end();
     }
 
     /**
@@ -729,9 +770,106 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      * @param action The GuidedAction object to bind to.
      */
     public void onBindChevronView(ViewHolder vh, GuidedAction action) {
-        vh.mChevronView.setVisibility(action.hasNext() ? View.VISIBLE : View.GONE);
-        vh.mChevronView.setAlpha(action.isEnabled() ? mEnabledChevronAlpha :
-                mDisabledChevronAlpha);
+        final boolean hasNext = action.hasNext();
+        final boolean hasSubActions = action.hasSubActions();
+        if (hasNext || hasSubActions) {
+            vh.mChevronView.setVisibility(View.VISIBLE);
+            vh.mChevronView.setAlpha(action.isEnabled() ? mEnabledChevronAlpha :
+                    mDisabledChevronAlpha);
+            if (hasNext) {
+                vh.mChevronView.setRotation(0f);
+            } else if (action == mExpandedAction) {
+                vh.mChevronView.setRotation(270);
+            } else {
+                vh.mChevronView.setRotation(90);
+            }
+        } else {
+            vh.mChevronView.setVisibility(View.GONE);
+
+        }
+    }
+
+    /**
+     * Expands or collapse the sub actions list view.
+     * @param avh When not null, fill sub actions list of this ViewHolder into sub actions list and
+     * hide the other items in main list.  When null, collapse the sub actions list.
+     */
+    public void setExpandedViewHolder(ViewHolder avh) {
+        if (mSubActionsGridView == null) {
+            return;
+        }
+        if (avh == null) {
+            mExpandedAction = null;
+        } else if (avh.getAction() != mExpandedAction) {
+            mExpandedAction = avh.getAction();
+        }
+        updateAllChevronAndVisibility(avh);
+    }
+
+    /**
+     * @return True if sub actions list is expanded.
+     */
+    public boolean isSubActionsExpanded() {
+        return mExpandedAction != null;
+    }
+
+    /**
+     * @return Current expanded GuidedAction or null if not expanded.
+     */
+    public GuidedAction getExpandedAction() {
+        return mExpandedAction;
+    }
+
+    private void updateAllChevronAndVisibility(final ViewHolder avh) {
+        final int count = mActionsGridView.getChildCount();
+        for (int i = 0; i < count; i++) {
+            ViewHolder vh = (ViewHolder) mActionsGridView
+                    .getChildViewHolder(mActionsGridView.getChildAt(i));
+            updateChevronAndVisibility(vh);
+        }
+        if (mSubActionsGridView != null) {
+            updateExpandStatus(avh);
+        }
+    }
+
+    private void updateExpandStatus(ViewHolder avh) {
+        if (avh != null) {
+            mSubActionsGridView.setVisibility(View.VISIBLE);
+            mSubActionsGridView.requestFocus();
+            mSubActionsGridView.setSelectedPosition(0);
+            ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)
+                    mActionsGridView.getLayoutParams();
+            lp.topMargin = - avh.itemView.getHeight();
+            lp.bottomMargin = avh.itemView.getHeight();
+            mActionsGridView.setLayoutParams(lp);
+            lp = (ViewGroup.MarginLayoutParams) mSubActionsGridView.getLayoutParams();
+            lp.topMargin = avh.itemView.getTop();
+            mSubActionsGridView.setLayoutParams(lp);
+            ((GuidedActionAdapter) mSubActionsGridView.getAdapter())
+                    .setActions(avh.getAction().getSubActions());
+        } else {
+            mSubActionsGridView.setVisibility(View.INVISIBLE);
+            ((GuidedActionAdapter) mSubActionsGridView.getAdapter())
+                    .setActions(Collections.EMPTY_LIST);
+            ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)
+                    mActionsGridView.getLayoutParams();
+            lp.bottomMargin = lp.topMargin = 0;
+            mActionsGridView.setLayoutParams(lp);
+            mActionsGridView.requestFocus();
+        }
+    }
+
+    private void updateChevronAndVisibility(ViewHolder vh) {
+        if (!vh.isSubAction()) {
+            if (mExpandedAction == null || vh.getAction() == mExpandedAction) {
+                vh.itemView.setVisibility(View.VISIBLE);
+            } else {
+                vh.itemView.setVisibility(View.INVISIBLE);
+            }
+        }
+        if (vh.mChevronView != null) {
+            onBindChevronView(vh, vh.getAction());
+        }
     }
 
     /*
@@ -823,13 +961,23 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     }
 
     private void updateSelectorView(boolean animate) {
-        if (mActionsGridView == null || mSelectorView == null || mSelectorView.getHeight() <= 0) {
+        if ((mActionsGridView == null && mSubActionsGridView == null)
+                || mSelectorView == null || mSelectorView.getHeight() <= 0) {
             return;
         }
-        final View focusedChild = mActionsGridView.getFocusedChild();
+        RecyclerView actionsGridView = null;
+        View focusedChild = mActionsGridView.getFocusedChild();
+        if (focusedChild == null && mSubActionsGridView != null) {
+            focusedChild = mSubActionsGridView.getFocusedChild();
+            if (focusedChild != null) {
+                actionsGridView = mSubActionsGridView;
+            }
+        } else {
+            actionsGridView = mActionsGridView;
+        }
         endSelectorAnimator();
-        if (focusedChild == null || !mActionsGridView.hasFocus()
-                || mActionsGridView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE) {
+        if (focusedChild == null || !actionsGridView.hasFocus()
+                || actionsGridView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE) {
             if (animate) {
                 mSelectorAnimator = createAnimator(mSelectorView,
                         R.attr.guidedActionsSelectorHideAnimation);

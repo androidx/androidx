@@ -11,15 +11,13 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package android.support.v17.leanback.app;
+package android.support.v17.leanback.widget;
 
 import android.content.Context;
-import android.support.v17.leanback.app.GuidedActionAdapter.ActionViewHolder;
-import android.support.v17.leanback.app.GuidedActionAdapter.ClickListener;
-import android.support.v17.leanback.app.GuidedActionAdapter.EditListener;
-import android.support.v17.leanback.widget.GuidedAction;
-import android.support.v17.leanback.widget.ImeKeyMonitor;
+import android.support.v17.leanback.widget.GuidedActionAdapter.ClickListener;
+import android.support.v17.leanback.widget.GuidedActionAdapter.EditListener;
 import android.util.Log;
+import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewParent;
@@ -33,22 +31,36 @@ import java.util.ArrayList;
 /**
  * Internal implementation manages a group of GuidedActionAdapters, control the next action after
  * editing finished, maintain the Ime open/close status.
+ * @hide
  */
-class GuidedActionAdapterGroup {
+public class GuidedActionAdapterGroup {
 
     private static final String TAG_EDIT = "EditableAction";
     private static final boolean DEBUG_EDIT = false;
 
-    ArrayList<GuidedActionAdapter> mAdapters = new ArrayList<GuidedActionAdapter>();
+    ArrayList<Pair<GuidedActionAdapter, GuidedActionAdapter>> mAdapters =
+            new ArrayList<Pair<GuidedActionAdapter, GuidedActionAdapter>>();
     private boolean mImeOpened;
     private EditListener mEditListener;
 
-    GuidedActionAdapterGroup() {
+    public void addAdpter(GuidedActionAdapter adapter1, GuidedActionAdapter adapter2) {
+        mAdapters.add(new Pair<GuidedActionAdapter, GuidedActionAdapter>(adapter1, adapter2));
+        if (adapter1 != null) {
+            adapter1.mGroup = this;
+        }
+        if (adapter2 != null) {
+            adapter2.mGroup = this;
+        }
     }
 
-    public void addAdpter(GuidedActionAdapter adapter) {
-        mAdapters.add(adapter);
-        adapter.mGroup = this;
+    public GuidedActionAdapter getNextAdapter(GuidedActionAdapter adapter) {
+        for (int i = 0; i < mAdapters.size(); i++) {
+            Pair<GuidedActionAdapter, GuidedActionAdapter> pair = mAdapters.get(i);
+            if (pair.first == adapter) {
+                return pair.second;
+            }
+        }
+        return null;
     }
 
     public void setEditListener(EditListener listener) {
@@ -67,7 +79,6 @@ class GuidedActionAdapterGroup {
             index++;
         }
 
-        int adapterIndex = mAdapters.indexOf(adapter);
         do {
             int size = adapter.getCount();
             if (nextActionId == GuidedAction.ACTION_ID_NEXT) {
@@ -80,8 +91,9 @@ class GuidedActionAdapterGroup {
                 }
             }
             if (index < size) {
-                ActionViewHolder vh = (ActionViewHolder) adapter.getGuidedActionsStylist()
-                        .getActionsGridView().findViewHolderForPosition(index);
+                GuidedActionsStylist.ViewHolder vh =
+                        (GuidedActionsStylist.ViewHolder) adapter.getGuidedActionsStylist()
+                                .getActionsGridView().findViewHolderForPosition(index);
                 if (vh != null) {
                     if (vh.getAction().isEditable() || vh.getAction().isDescriptionEditable()) {
                         if (DEBUG_EDIT) Log.v(TAG_EDIT, "openIme of next Action");
@@ -90,28 +102,26 @@ class GuidedActionAdapterGroup {
                     } else {
                         if (DEBUG_EDIT) Log.v(TAG_EDIT, "closeIme and focus to next Action");
                         // close IME and focus to next (not editable) action
-                        closeIme(vh.mStylistViewHolder.view);
-                        vh.mStylistViewHolder.view.requestFocus();
+                        closeIme(vh.itemView);
+                        vh.itemView.requestFocus();
                     }
                     return true;
                 }
                 return false;
             }
             // search from index 0 of next Adapter
-            adapterIndex++;
-            if (adapterIndex >= mAdapters.size()) {
+            adapter = getNextAdapter(adapter);
+            if (adapter == null) {
                 break;
             }
-            adapter = mAdapters.get(adapterIndex);
             index = 0;
         } while (true);
         return false;
     }
 
-    public void openIme(GuidedActionAdapter adapter, ActionViewHolder avh) {
-        adapter.getGuidedActionsStylist().setEditingMode(avh.mStylistViewHolder, avh.getAction(),
-                true);
-        View v = avh.mStylistViewHolder.getEditingView();
+    public void openIme(GuidedActionAdapter adapter, GuidedActionsStylist.ViewHolder avh) {
+        adapter.getGuidedActionsStylist().setEditingMode(avh, avh.getAction(), true);
+        View v = avh.getEditingView();
         if (v == null) {
             return;
         }
@@ -135,24 +145,23 @@ class GuidedActionAdapterGroup {
         }
     }
 
-    private long finishEditing(GuidedActionAdapter adapter, ActionViewHolder avh) {
+    private long finishEditing(GuidedActionAdapter adapter, GuidedActionsStylist.ViewHolder avh) {
         long nextActionId = mEditListener.onGuidedActionEdited(avh.getAction());
-        adapter.getGuidedActionsStylist().setEditingMode(avh.mStylistViewHolder, avh.getAction(),
-                false);
+        adapter.getGuidedActionsStylist().setEditingMode(avh, avh.getAction(), false);
         return nextActionId;
     }
 
     public void fillAndStay(GuidedActionAdapter adapter, TextView v) {
-        ActionViewHolder avh = adapter.findSubChildViewHolder(v);
+        GuidedActionsStylist.ViewHolder avh = adapter.findSubChildViewHolder(v);
         updateTextIntoAction(avh, v);
         finishEditing(adapter, avh);
         closeIme(v);
-        avh.mStylistViewHolder.view.requestFocus();
+        avh.itemView.requestFocus();
     }
 
     public void fillAndGoNext(GuidedActionAdapter adapter, TextView v) {
         boolean handled = false;
-        ActionViewHolder avh = adapter.findSubChildViewHolder(v);
+        GuidedActionsStylist.ViewHolder avh = adapter.findSubChildViewHolder(v);
         updateTextIntoAction(avh, v);
         adapter.performOnActionClick(avh);
         long nextActionId = finishEditing(adapter, avh);
@@ -164,19 +173,19 @@ class GuidedActionAdapterGroup {
             if (DEBUG_EDIT) Log.v(TAG_EDIT, "closeIme no next action");
             handled = true;
             closeIme(v);
-            avh.mStylistViewHolder.view.requestFocus();
+            avh.itemView.requestFocus();
         }
     }
 
-    private void updateTextIntoAction(ActionViewHolder avh, TextView v) {
+    private void updateTextIntoAction(GuidedActionsStylist.ViewHolder avh, TextView v) {
         GuidedAction action = avh.getAction();
-        if (v == avh.mStylistViewHolder.getDescriptionView()) {
+        if (v == avh.getDescriptionView()) {
             if (action.getEditDescription() != null) {
                 action.setEditDescription(v.getText());
             } else {
                 action.setDescription(v.getText());
             }
-        } else if (v == avh.mStylistViewHolder.getTitleView()) {
+        } else if (v == avh.getTitleView()) {
             if (action.getEditTitle() != null) {
                 action.setEditTitle(v.getText());
             } else {

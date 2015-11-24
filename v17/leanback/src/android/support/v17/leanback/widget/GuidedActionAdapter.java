@@ -11,15 +11,12 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package android.support.v17.leanback.app;
+package android.support.v17.leanback.widget;
 
 import android.content.Context;
 import android.database.DataSetObserver;
 import android.media.AudioManager;
 import android.support.v17.leanback.R;
-import android.support.v17.leanback.widget.GuidedAction;
-import android.support.v17.leanback.widget.GuidedActionsStylist;
-import android.support.v17.leanback.widget.ImeKeyMonitor;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.util.Log;
@@ -44,8 +41,9 @@ import java.util.List;
  * Presentation (view creation and state animation) is delegated to a {@link
  * GuidedActionsStylist}, while clients are notified of interactions via
  * {@link GuidedActionAdapter.ClickListener} and {@link GuidedActionAdapter.FocusListener}.
+ * @hide
  */
-class GuidedActionAdapter extends RecyclerView.Adapter {
+public class GuidedActionAdapter extends RecyclerView.Adapter {
     private static final String TAG = "GuidedActionAdapter";
     private static final boolean DEBUG = false;
 
@@ -61,6 +59,7 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
          * Called when the user clicks on an action.
          */
         public void onGuidedActionClicked(GuidedAction action);
+
     }
 
     /**
@@ -95,39 +94,7 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
         public void onImeClose();
     }
 
-    /**
-     * View holder containing a {@link GuidedAction}.
-     */
-    static class ActionViewHolder extends ViewHolder {
-
-        final GuidedActionsStylist.ViewHolder mStylistViewHolder;
-        private GuidedAction mAction;
-
-        /**
-         * Constructs a view holder that can be associated with a GuidedAction.
-         */
-        public ActionViewHolder(View v, GuidedActionsStylist.ViewHolder subViewHolder) {
-            super(v);
-            mStylistViewHolder = subViewHolder;
-        }
-
-        /**
-         * Retrieves the action associated with this view holder.
-         * @return The GuidedAction associated with this view holder.
-         */
-        public GuidedAction getAction() {
-            return mAction;
-        }
-
-        /**
-         * Sets the action associated with this view holder.
-         * @param action The GuidedAction associated with this view holder.
-         */
-        public void setAction(GuidedAction action) {
-            mAction = action;
-        }
-    }
-
+    private final boolean mIsSubAdapter;
     private final ActionOnKeyListener mActionOnKeyListener;
     private final ActionOnFocusListener mActionOnFocusListener;
     private final ActionEditListener mActionEditListener;
@@ -138,7 +105,8 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
         @Override
         public void onClick(View v) {
             if (v != null && v.getWindowToken() != null && getRecyclerView() != null) {
-                ActionViewHolder avh = (ActionViewHolder)getRecyclerView().getChildViewHolder(v);
+                GuidedActionsStylist.ViewHolder avh = (GuidedActionsStylist.ViewHolder)
+                        getRecyclerView().getChildViewHolder(v);
                 GuidedAction action = avh.getAction();
                 if (action.isEditable() || action.isDescriptionEditable()) {
                     if (DEBUG_EDIT) Log.v(TAG_EDIT, "openIme by click");
@@ -162,14 +130,16 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
      * @param presenter The presenter that will manage the display of items in this adapter.
      */
     public GuidedActionAdapter(List<GuidedAction> actions, ClickListener clickListener,
-            FocusListener focusListener, GuidedActionsStylist presenter) {
+            FocusListener focusListener, GuidedActionsStylist presenter, boolean isSubAdapter) {
         super();
-        mActions = new ArrayList<GuidedAction>(actions);
+        mActions = actions == null ? new ArrayList<GuidedAction>() :
+                new ArrayList<GuidedAction>(actions);
         mClickListener = clickListener;
         mStylist = presenter;
         mActionOnKeyListener = new ActionOnKeyListener();
         mActionOnFocusListener = new ActionOnFocusListener(focusListener);
         mActionEditListener = new ActionEditListener();
+        mIsSubAdapter = isSubAdapter;
     }
 
     /**
@@ -249,7 +219,7 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
     }
 
     private RecyclerView getRecyclerView() {
-        return mStylist.getActionsGridView();
+        return mIsSubAdapter ? mStylist.getSubActionsGridView() : mStylist.getActionsGridView();
     }
 
     /**
@@ -258,7 +228,7 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         GuidedActionsStylist.ViewHolder vh = mStylist.onCreateViewHolder(parent, viewType);
-        View v = vh.view;
+        View v = vh.itemView;
         v.setOnKeyListener(mActionOnKeyListener);
         v.setOnClickListener(mOnClickListener);
         v.setOnFocusChangeListener(mActionOnFocusListener);
@@ -266,7 +236,7 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
         setupListeners(vh.getEditableTitleView());
         setupListeners(vh.getEditableDescriptionView());
 
-        return new ActionViewHolder(v, vh);
+        return vh;
     }
 
     private void setupListeners(EditText edit) {
@@ -288,10 +258,9 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
         if (position >= mActions.size()) {
             return;
         }
-        final ActionViewHolder avh = (ActionViewHolder)holder;
+        final GuidedActionsStylist.ViewHolder avh = (GuidedActionsStylist.ViewHolder)holder;
         GuidedAction action = mActions.get(position);
-        avh.setAction(action);
-        mStylist.onBindViewHolder(avh.mStylistViewHolder, action);
+        mStylist.onBindViewHolder(avh, action);
     }
 
     /**
@@ -319,8 +288,8 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
             if (mSelectedView != null && getRecyclerView() != null) {
                 ViewHolder vh = getRecyclerView().getChildViewHolder(mSelectedView);
                 if (vh != null) {
-                    ActionViewHolder avh = (ActionViewHolder)vh;
-                    mStylist.onAnimateItemFocused(avh.mStylistViewHolder, false);
+                    GuidedActionsStylist.ViewHolder avh = (GuidedActionsStylist.ViewHolder)vh;
+                    mStylist.onAnimateItemFocused(avh, false);
                 } else {
                     Log.w(TAG, "RecyclerView returned null view holder",
                             new Throwable());
@@ -333,7 +302,8 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
             if (getRecyclerView() == null) {
                 return;
             }
-            ActionViewHolder avh = (ActionViewHolder) getRecyclerView().getChildViewHolder(v);
+            GuidedActionsStylist.ViewHolder avh = (GuidedActionsStylist.ViewHolder)
+                    getRecyclerView().getChildViewHolder(v);
             if (hasFocus) {
                 mSelectedView = v;
                 if (mFocusListener != null) {
@@ -343,32 +313,32 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
                 }
             } else {
                 if (mSelectedView == v) {
-                    mStylist.onAnimateItemPressedCancelled(avh.mStylistViewHolder);
+                    mStylist.onAnimateItemPressedCancelled(avh);
                     mSelectedView = null;
                 }
             }
-            mStylist.onAnimateItemFocused(avh.mStylistViewHolder, hasFocus);
+            mStylist.onAnimateItemFocused(avh, hasFocus);
         }
     }
 
-    public ActionViewHolder findSubChildViewHolder(View v) {
+    public GuidedActionsStylist.ViewHolder findSubChildViewHolder(View v) {
         // Needed because RecyclerView.getChildViewHolder does not traverse the hierarchy
         if (getRecyclerView() == null) {
             return null;
         }
-        ActionViewHolder result = null;
+        GuidedActionsStylist.ViewHolder result = null;
         ViewParent parent = v.getParent();
         while (parent != getRecyclerView() && parent != null && v != null) {
             v = (View)parent;
             parent = parent.getParent();
         }
         if (parent != null && v != null) {
-            result = (ActionViewHolder)getRecyclerView().getChildViewHolder(v);
+            result = (GuidedActionsStylist.ViewHolder)getRecyclerView().getChildViewHolder(v);
         }
         return result;
     }
 
-    public void handleCheckedActions(ActionViewHolder avh) {
+    public void handleCheckedActions(GuidedActionsStylist.ViewHolder avh) {
         GuidedAction action = avh.getAction();
         int actionCheckSetId = action.getCheckSetId();
         if (getRecyclerView() != null && actionCheckSetId != GuidedAction.NO_CHECK_SET) {
@@ -379,11 +349,10 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
                     GuidedAction a = mActions.get(i);
                     if (a != action && a.getCheckSetId() == actionCheckSetId && a.isChecked()) {
                         a.setChecked(false);
-                        ViewHolder vh = getRecyclerView().findViewHolderForPosition(i);
+                        GuidedActionsStylist.ViewHolder vh = (GuidedActionsStylist.ViewHolder)
+                                getRecyclerView().findViewHolderForPosition(i);
                         if (vh != null) {
-                            GuidedActionsStylist.ViewHolder subViewHolder =
-                                    ((ActionViewHolder)vh).mStylistViewHolder;
-                            mStylist.onAnimateItemChecked(subViewHolder, false);
+                            mStylist.onAnimateItemChecked(vh, false);
                         }
                     }
                 }
@@ -392,17 +361,17 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
             // If we we'ren't already checked, fade our checkmark in.
             if (!action.isChecked()) {
                 action.setChecked(true);
-                mStylist.onAnimateItemChecked(avh.mStylistViewHolder, true);
+                mStylist.onAnimateItemChecked(avh, true);
             } else {
                 if (actionCheckSetId == GuidedAction.CHECKBOX_CHECK_SET_ID) {
                     action.setChecked(false);
-                    mStylist.onAnimateItemChecked(avh.mStylistViewHolder, false);
+                    mStylist.onAnimateItemChecked(avh, false);
                 }
             }
         }
     }
 
-    public void performOnActionClick(ActionViewHolder avh) {
+    public void performOnActionClick(GuidedActionsStylist.ViewHolder avh) {
         if (mClickListener != null) {
             mClickListener.onGuidedActionClicked(avh.getAction());
         }
@@ -436,8 +405,8 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
                 case KeyEvent.KEYCODE_BUTTON_Y:
                 case KeyEvent.KEYCODE_ENTER:
 
-                    ActionViewHolder avh = (ActionViewHolder) getRecyclerView()
-                            .getChildViewHolder(v);
+                    GuidedActionsStylist.ViewHolder avh = (GuidedActionsStylist.ViewHolder)
+                            getRecyclerView().getChildViewHolder(v);
                     GuidedAction action = avh.getAction();
 
                     if (!action.isEnabled() || action.infoOnly()) {
@@ -456,8 +425,7 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
                             if (!mKeyPressed) {
                                 mKeyPressed = true;
                                 playSound(v, AudioManager.FX_KEY_CLICK);
-                                mStylist.onAnimateItemPressed(avh.mStylistViewHolder,
-                                        mKeyPressed);
+                                mStylist.onAnimateItemPressed(avh, mKeyPressed);
                             }
                             break;
                         case KeyEvent.ACTION_UP:
@@ -468,7 +436,7 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
                             // Escape in IME.
                             if (mKeyPressed) {
                                 mKeyPressed = false;
-                                mStylist.onAnimateItemPressed(avh.mStylistViewHolder, mKeyPressed);
+                                mStylist.onAnimateItemPressed(avh, mKeyPressed);
                             }
                             break;
                         default:
