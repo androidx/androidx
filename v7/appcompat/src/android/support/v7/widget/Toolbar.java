@@ -1820,6 +1820,9 @@ public class Toolbar extends ViewGroup {
     public void setMenuCallbacks(MenuPresenter.Callback pcb, MenuBuilder.Callback mcb) {
         mActionMenuPresenterCallback = pcb;
         mMenuBuilderCallback = mcb;
+        if (mMenuView != null) {
+            mMenuView.setMenuCallbacks(pcb, mcb);
+        }
     }
 
     /**
