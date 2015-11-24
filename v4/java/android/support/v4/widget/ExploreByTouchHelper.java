@@ -21,6 +21,7 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.util.SparseArrayCompat;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.KeyEventCompat;
 import android.support.v4.view.MotionEventCompat;
@@ -31,7 +32,6 @@ import android.support.v4.view.accessibility.AccessibilityManagerCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeProviderCompat;
 import android.support.v4.view.accessibility.AccessibilityRecordCompat;
-import android.util.SparseArray;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -109,7 +109,8 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
     private final int[] mTempGlobalRect = new int[2];
 
     /** Cache of accessibility nodes. This is populated on-demand. */
-    private final SparseArray<AccessibilityNodeInfoCompat> mCachedNodes = new SparseArray<>();
+    private final SparseArrayCompat<AccessibilityNodeInfoCompat> mCachedNodes =
+            new SparseArrayCompat<>();
 
     /** System accessibility manager, used to check state and send events. */
     private final AccessibilityManager mManager;
@@ -343,18 +344,20 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
             };
 
     /**
-     * Adapts SparseArray for iterating through values.
+     * Adapts SparseArrayCompat for iterating through values.
      */
-    private static final FocusStrategy.CollectionAdapter<SparseArray<AccessibilityNodeInfoCompat>, AccessibilityNodeInfoCompat> SPARSE_VALUES_ADAPTER =
-            new FocusStrategy.CollectionAdapter<SparseArray<AccessibilityNodeInfoCompat>, AccessibilityNodeInfoCompat>() {
+    private static final FocusStrategy.CollectionAdapter<SparseArrayCompat<
+            AccessibilityNodeInfoCompat>, AccessibilityNodeInfoCompat> SPARSE_VALUES_ADAPTER =
+            new FocusStrategy.CollectionAdapter<SparseArrayCompat<
+                    AccessibilityNodeInfoCompat>, AccessibilityNodeInfoCompat>() {
                 @Override
                 public AccessibilityNodeInfoCompat get(
-                        SparseArray<AccessibilityNodeInfoCompat> collection, int index) {
+                        SparseArrayCompat<AccessibilityNodeInfoCompat> collection, int index) {
                     return collection.valueAt(index);
                 }
 
                 @Override
-                public int size(SparseArray<AccessibilityNodeInfoCompat> collection) {
+                public int size(SparseArrayCompat<AccessibilityNodeInfoCompat> collection) {
                     return collection.size();
                 }
             };
@@ -548,7 +551,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      *         </ul>
      */
     public final void invalidateVirtualView(int virtualViewId, int changeTypes) {
-        final SparseArray<AccessibilityNodeInfoCompat> cachedNodes = mCachedNodes;
+        final SparseArrayCompat<AccessibilityNodeInfoCompat> cachedNodes = mCachedNodes;
         if (virtualViewId == HOST_ID
                 && (changeTypes & AccessibilityEventCompat.CONTENT_CHANGE_TYPE_SUBTREE) != 0) {
             for (int i = 0, count = cachedNodes.size(); i < count; i++) {
