@@ -835,6 +835,7 @@ package android.support.v17.leanback.widget {
     ctor public DetailsOverviewLogoPresenter();
     method public boolean isBoundToImage(android.support.v17.leanback.widget.DetailsOverviewLogoPresenter.ViewHolder, android.support.v17.leanback.widget.DetailsOverviewRow);
     method public void onBindViewHolder(android.support.v17.leanback.widget.Presenter.ViewHolder, java.lang.Object);
+    method public android.view.View onCreateView(android.view.ViewGroup);
     method public android.support.v17.leanback.widget.Presenter.ViewHolder onCreateViewHolder(android.view.ViewGroup);
     method public void onUnbindViewHolder(android.support.v17.leanback.widget.Presenter.ViewHolder);
     method public void setContext(android.support.v17.leanback.widget.DetailsOverviewLogoPresenter.ViewHolder, android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder, android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter);
@@ -842,6 +843,10 @@ package android.support.v17.leanback.widget {
 
   public static class DetailsOverviewLogoPresenter.ViewHolder extends android.support.v17.leanback.widget.Presenter.ViewHolder {
     ctor public DetailsOverviewLogoPresenter.ViewHolder(android.view.View);
+    method public android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter getParentPresenter();
+    method public android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder getParentViewHolder();
+    method public boolean isSizeFromDrawableIntrinsic();
+    method public void setSizeFromDrawableIntrinsic(boolean);
     field protected android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter mParentPresenter;
     field protected android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder mParentViewHolder;
   }
