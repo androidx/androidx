@@ -552,16 +552,14 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
         if (virtualViewId == HOST_ID
                 && (changeTypes & AccessibilityEventCompat.CONTENT_CHANGE_TYPE_SUBTREE) != 0) {
             for (int i = 0, count = cachedNodes.size(); i < count; i++) {
-                final AccessibilityNodeInfoCompat node = cachedNodes.valueAt(i);
-                if (node != null) {
-                    node.recycle();
-                }
+                cachedNodes.valueAt(i).recycle();
             }
             cachedNodes.clear();
         } else {
-            final AccessibilityNodeInfoCompat node = cachedNodes.removeReturnOld(virtualViewId);
-            if (node != null) {
-                node.recycle();
+            final int index = cachedNodes.indexOfKey(virtualViewId);
+            if (index >= 0) {
+                cachedNodes.valueAt(index).recycle();
+                cachedNodes.removeAt(index);
             }
         }
 
@@ -736,6 +734,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      *
      * @return an {@link AccessibilityNodeInfoCompat} for the parent node
      */
+    @NonNull
     private AccessibilityNodeInfoCompat createNodeForHost() {
         final AccessibilityNodeInfoCompat node = AccessibilityNodeInfoCompat.obtain(mHost);
         ViewCompat.onInitializeAccessibilityNodeInfo(mHost, node);
@@ -786,6 +785,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      *                      a node
      * @return an {@link AccessibilityNodeInfoCompat} for the specified item
      */
+    @NonNull
     private AccessibilityNodeInfoCompat createNodeForChild(int virtualViewId) {
         final AccessibilityNodeInfoCompat node = AccessibilityNodeInfoCompat.obtain();
 
