@@ -931,9 +931,8 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
             mAppCompatViewInflater = new AppCompatViewInflater();
         }
 
-        // We only want the View to inherit it's context if we're running pre-v21
-        final boolean inheritContext = isPre21 && mSubDecorInstalled
-                && shouldInheritContext((ViewParent) parent);
+        // We only want the View to inherit its context if we're running pre-v21
+        final boolean inheritContext = isPre21 && shouldInheritContext((ViewParent) parent);
 
         return mAppCompatViewInflater.createView(parent, name, context, attrs, inheritContext,
                 isPre21, /* Only read android:theme pre-L (L+ handles this anyway) */
