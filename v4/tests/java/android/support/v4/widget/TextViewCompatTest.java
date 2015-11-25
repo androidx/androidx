@@ -372,9 +372,8 @@ public class TextViewCompatTest extends ActivityInstrumentationTestCase2<TestAct
         final Resources res = getActivity().getResources();
 
         // The entire left drawable should be the specific red color
-        assertTrue("Compound drawable: left color",
-                TestUtils.areAllPixelsOfColor(drawablesAbsolute[0],
-                        res.getColor(R.color.test_red)));
+        TestUtils.assertAllPixelsOfColor("Compound drawable: left color",
+                drawablesAbsolute[0], res.getColor(R.color.test_red));
         assertEquals("Compound drawable: left width",
                 drawablesAbsolute[0].getBounds().width(),
                 res.getDimensionPixelSize(R.dimen.drawable_small_size));
@@ -385,9 +384,8 @@ public class TextViewCompatTest extends ActivityInstrumentationTestCase2<TestAct
         assertNull("Compound drawable: top", drawablesAbsolute[1]);
 
         // The entire right drawable should be the specific green color
-        assertTrue("Compound drawable: right color",
-                TestUtils.areAllPixelsOfColor(drawablesAbsolute[2],
-                        res.getColor(R.color.test_green)));
+        TestUtils.assertAllPixelsOfColor("Compound drawable: right color",
+                drawablesAbsolute[2], res.getColor(R.color.test_green));
         assertEquals("Compound drawable: right width",
                 drawablesAbsolute[2].getBounds().width(),
                 res.getDimensionPixelSize(R.dimen.drawable_medium_size));
@@ -396,9 +394,8 @@ public class TextViewCompatTest extends ActivityInstrumentationTestCase2<TestAct
                 res.getDimensionPixelSize(R.dimen.drawable_large_size));
 
         // The entire bottom drawable should be the specific blue color
-        assertTrue("Compound drawable: bottom color",
-                TestUtils.areAllPixelsOfColor(drawablesAbsolute[3],
-                        res.getColor(R.color.test_blue)));
+        TestUtils.assertAllPixelsOfColor("Compound drawable: bottom color",
+                drawablesAbsolute[3], res.getColor(R.color.test_blue));
         assertEquals("Compound drawable: bottom width",
                 drawablesAbsolute[3].getBounds().width(),
                 res.getDimensionPixelSize(R.dimen.drawable_large_size));
@@ -429,9 +426,8 @@ public class TextViewCompatTest extends ActivityInstrumentationTestCase2<TestAct
         final Resources res = getActivity().getResources();
 
         // The entire left / end drawable should be the specific green color
-        assertTrue("Compound drawable: left color",
-                TestUtils.areAllPixelsOfColor(drawablesAbsolute[0],
-                        res.getColor(R.color.test_green)));
+        TestUtils.assertAllPixelsOfColor("Compound drawable: left color",
+                drawablesAbsolute[0], res.getColor(R.color.test_green));
         assertEquals("Compound drawable: left width",
                 drawablesAbsolute[0].getBounds().width(),
                 res.getDimensionPixelSize(R.dimen.drawable_medium_size));
@@ -442,9 +438,8 @@ public class TextViewCompatTest extends ActivityInstrumentationTestCase2<TestAct
         assertNull("Compound drawable: top", drawablesAbsolute[1]);
 
         // The entire right drawable should be the specific red color
-        assertTrue("Compound drawable: right color",
-                TestUtils.areAllPixelsOfColor(drawablesAbsolute[2],
-                        res.getColor(R.color.test_red)));
+        TestUtils.assertAllPixelsOfColor("Compound drawable: right color",
+                drawablesAbsolute[2], res.getColor(R.color.test_red));
         assertEquals("Compound drawable: right width",
                 drawablesAbsolute[2].getBounds().width(),
                 res.getDimensionPixelSize(R.dimen.drawable_small_size));
@@ -453,9 +448,8 @@ public class TextViewCompatTest extends ActivityInstrumentationTestCase2<TestAct
                 res.getDimensionPixelSize(R.dimen.drawable_medium_size));
 
         // The entire bottom drawable should be the specific blue color
-        assertTrue("Compound drawable: bottom color",
-                TestUtils.areAllPixelsOfColor(drawablesAbsolute[3],
-                        res.getColor(R.color.test_blue)));
+        TestUtils.assertAllPixelsOfColor("Compound drawable: bottom color",
+                drawablesAbsolute[3], res.getColor(R.color.test_blue));
         assertEquals("Compound drawable: bottom width",
                 drawablesAbsolute[3].getBounds().width(),
                 res.getDimensionPixelSize(R.dimen.drawable_large_size));

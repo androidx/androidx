@@ -21,11 +21,14 @@ import java.lang.IllegalArgumentException;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+
+import junit.framework.Assert;
 
 public class TestUtils {
     /**
@@ -59,7 +62,8 @@ public class TestUtils {
      * Returns <code>true</code> iff all the pixels in the specified drawable are of the same
      * specified color.
      */
-    public static boolean areAllPixelsOfColor(@NonNull Drawable drawable, @ColorInt int color) {
+    public static void assertAllPixelsOfColor(String failMessagePrefix, @NonNull Drawable drawable,
+            @ColorInt int color) {
         int drawableWidth = drawable.getIntrinsicWidth();
         int drawableHeight = drawable.getIntrinsicHeight();
 
@@ -82,12 +86,15 @@ public class TestUtils {
                 bitmap.getPixels(rowPixels, 0, drawableWidth, 0, row, drawableWidth, 1);
                 for (int column = 0; column < drawableWidth; column++) {
                     if (rowPixels[column] != color) {
-                        return false;
+                        Assert.fail("Expected all drawable colors to be [" + Color.red(color)
+                                + "," + Color.green(color) + "," + Color.blue(color)
+                                + "] but at position (" + row + "," + column + ") found ["
+                                + Color.red(rowPixels[column]) + ","
+                                + Color.green(rowPixels[column]) + ","
+                                + Color.blue(rowPixels[column]) + "]");
                     }
                 }
             }
-
-            return true;
         } finally {
             bitmap.recycle();
         }
