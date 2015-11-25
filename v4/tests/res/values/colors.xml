@@ -27,4 +27,8 @@
     <color name="theme_color_lilac_default">#F080F0</color>
     <color name="theme_color_lilac_focused">#F070D0</color>
     <color name="theme_color_lilac_pressed">#E070A0</color>
+
+    <color name="test_red">#FF6030</color>
+    <color name="test_green">#50E080</color>
+    <color name="test_blue">#3050CF</color>
 </resources>
