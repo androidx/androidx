@@ -180,8 +180,8 @@ public class TextViewCompatTest extends ActivityInstrumentationTestCase2<TestAct
         TextViewCompat.setTextAppearance(mTextView, R.style.TextMediumStyle);
 
         final Resources res = getActivity().getResources();
-        assertEquals("Styled text view: style", mTextView.getTypeface().getStyle(),
-                Typeface.ITALIC);
+        assertTrue("Styled text view: style",
+                mTextView.getTypeface().isItalic() || (mTextView.getPaint().getTextSkewX() < 0));
         assertEquals("Styled text view: color", mTextView.getTextColors().getDefaultColor(),
                 res.getColor(R.color.text_color));
         assertEquals("Styled text view: size", mTextView.getTextSize(),
