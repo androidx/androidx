@@ -17,7 +17,6 @@
 package android.support.customtabs;
 
 import android.app.Activity;
-import android.app.ActivityOptions;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -29,6 +28,8 @@ import android.support.annotation.AnimRes;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.BundleCompat;
 
 import java.util.ArrayList;
@@ -134,7 +135,7 @@ public final class CustomTabsIntent {
             "android.support.customtabs.customaction.MENU_ITEM_TITLE";
 
     /**
-     * Bundle constructed out of {@link ActivityOptions} that will be running when the
+     * Bundle constructed out of {@link ActivityOptionsCompat} that will be running when the
      * {@link Activity} that holds the custom tab gets finished. A similar ActivityOptions
      * for creation should be constructed and given to the startActivity() call that
      * launches the custom tab.
@@ -159,11 +160,7 @@ public final class CustomTabsIntent {
      */
     public void launchUrl(Activity context, Uri url) {
         intent.setData(url);
-        if (startAnimationBundle != null){
-            context.startActivity(intent, startAnimationBundle);
-        } else {
-            context.startActivity(intent);
-        }
+        ActivityCompat.startActivity(context, intent, startAnimationBundle);
     }
 
     private CustomTabsIntent(Intent intent, Bundle startAnimationBundle) {
@@ -295,8 +292,8 @@ public final class CustomTabsIntent {
          */
         public Builder setStartAnimations(
                 @NonNull Context context, @AnimRes int enterResId, @AnimRes int exitResId) {
-            mStartAnimationBundle =
-                    ActivityOptions.makeCustomAnimation(context, enterResId, exitResId).toBundle();
+            mStartAnimationBundle = ActivityOptionsCompat.makeCustomAnimation(
+                    context, enterResId, exitResId).toBundle();
             return this;
         }
 
@@ -309,8 +306,8 @@ public final class CustomTabsIntent {
          */
         public Builder setExitAnimations(
                 @NonNull Context context, @AnimRes int enterResId, @AnimRes int exitResId) {
-            Bundle bundle =
-                    ActivityOptions.makeCustomAnimation(context, enterResId, exitResId).toBundle();
+            Bundle bundle = ActivityOptionsCompat.makeCustomAnimation(
+                    context, enterResId, exitResId).toBundle();
             mIntent.putExtra(EXTRA_EXIT_ANIMATION_BUNDLE, bundle);
             return this;
         }
