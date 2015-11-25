@@ -185,7 +185,7 @@ public class TextViewCompatTest extends ActivityInstrumentationTestCase2<TestAct
         assertEquals("Styled text view: color", mTextView.getTextColors().getDefaultColor(),
                 res.getColor(R.color.text_color));
         assertEquals("Styled text view: size", mTextView.getTextSize(),
-                res.getDimension(R.dimen.text_medium_size));
+                (float) res.getDimensionPixelSize(R.dimen.text_medium_size));
     }
 
     @UiThreadTest
