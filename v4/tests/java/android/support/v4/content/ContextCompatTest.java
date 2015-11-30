@@ -17,10 +17,12 @@ package android.support.v4.content;
 
 import android.content.res.ColorStateList;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v4.ThemedYellowActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.test.R;
+import android.support.v4.testutils.TestUtils;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.UiThreadTest;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -79,6 +81,26 @@ public class ContextCompatTest extends ActivityInstrumentationTestCase2<ThemedYe
             assertEquals("Themed yellow color state list load: pressed",
                     themedYellowColorStateList.getColorForState(
                             new int[]{android.R.attr.state_pressed}, 0), 0xFFE0A040);
+        }
+    }
+
+    @UiThreadTest
+    @SmallTest
+    public void testGetDrawable() throws Throwable {
+        Context context = getActivity();
+
+        Drawable unthemedDrawable =
+                ContextCompat.getDrawable(context, R.drawable.test_drawable_red);
+        TestUtils.assertAllPixelsOfColor("Unthemed drawable load",
+                unthemedDrawable, context.getResources().getColor(R.color.test_red));
+
+        if (Build.VERSION.SDK_INT >= 23) {
+            // The following test is only expected to pass on v23+ devices. The result of
+            // calling theme-aware getDrawable() in pre-v23 is undefined.
+            Drawable themedYellowDrawable =
+                    ContextCompat.getDrawable(context, R.drawable.themed_drawable);
+            TestUtils.assertAllPixelsOfColor("Themed yellow drawable load",
+                    themedYellowDrawable, 0xFFF0B000);
         }
     }
 }
