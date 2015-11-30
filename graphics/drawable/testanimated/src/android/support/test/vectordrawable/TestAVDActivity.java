@@ -21,7 +21,6 @@ import android.app.Activity;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.graphics.drawable.AnimatedVectorDrawableCompat;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -64,17 +63,19 @@ public class TestAVDActivity extends Activity implements View.OnClickListener{
         addDrawableButtons(container, d);
 
         // Now test constant state and mutate a bit.
-        AnimatedVectorDrawableCompat []copies = new AnimatedVectorDrawableCompat[3];
-        copies[0] = (AnimatedVectorDrawableCompat) d[0].getConstantState().newDrawable();
-        copies[1] = (AnimatedVectorDrawableCompat) d[0].getConstantState().newDrawable();
-        copies[2] = (AnimatedVectorDrawableCompat) d[0].getConstantState().newDrawable();
-        copies[0].setAlpha(128);
+        if (d[0].getConstantState() != null) {
+            AnimatedVectorDrawableCompat[] copies = new AnimatedVectorDrawableCompat[3];
+            copies[0] = (AnimatedVectorDrawableCompat) d[0].getConstantState().newDrawable();
+            copies[1] = (AnimatedVectorDrawableCompat) d[0].getConstantState().newDrawable();
+            copies[2] = (AnimatedVectorDrawableCompat) d[0].getConstantState().newDrawable();
+            copies[0].setAlpha(128);
 
-        // Expect to see the copies[0, 1] are showing alpha 128, and [2] are showing 255.
-        copies[2].mutate();
-        copies[2].setAlpha(255);
+            // Expect to see the copies[0, 1] are showing alpha 128, and [2] are showing 255.
+            copies[2].mutate();
+            copies[2].setAlpha(255);
 
-        addDrawableButtons(container, copies);
+            addDrawableButtons(container, copies);
+        }
 
         setContentView(scrollView);
     }
