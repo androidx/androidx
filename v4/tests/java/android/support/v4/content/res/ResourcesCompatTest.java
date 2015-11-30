@@ -17,9 +17,11 @@ package android.support.v4.content.res;
 
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.test.R;
+import android.support.v4.testutils.TestUtils;
 import android.support.v4.widget.TestActivity;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.UiThreadTest;
@@ -37,7 +39,7 @@ public class ResourcesCompatTest extends ActivityInstrumentationTestCase2<TestAc
     @SmallTest
     public void testGetColor() throws Throwable {
         Resources res = getActivity().getResources();
-        assertEquals("Null theme color load",
+        assertEquals("Unthemed color load",
                 ResourcesCompat.getColor(res, R.color.text_color, null),
                 0xFFFF8090);
 
@@ -65,12 +67,12 @@ public class ResourcesCompatTest extends ActivityInstrumentationTestCase2<TestAc
 
         ColorStateList unthemedColorStateList =
                 ResourcesCompat.getColorStateList(res, R.color.complex_unthemed_selector, null);
-        assertEquals("Null theme color state list load: default",
+        assertEquals("Unthemed color state list load: default",
                 unthemedColorStateList.getDefaultColor(), 0xFF70A0C0);
-        assertEquals("Null theme color state list load: focused",
+        assertEquals("Unthemed color state list load: focused",
                 unthemedColorStateList.getColorForState(
                         new int[] {android.R.attr.state_focused}, 0), 0xFF70B0F0);
-        assertEquals("Null theme color state list load: pressed",
+        assertEquals("Unthemed color state list load: pressed",
                 unthemedColorStateList.getColorForState(
                         new int[] {android.R.attr.state_pressed}, 0), 0xFF6080B0);
 
@@ -104,6 +106,35 @@ public class ResourcesCompatTest extends ActivityInstrumentationTestCase2<TestAc
             assertEquals("Themed lilac color state list load: pressed",
                     themedLilacColorStateList.getColorForState(
                             new int[] {android.R.attr.state_pressed}, 0), 0xFFE070A0);
+        }
+    }
+
+    @UiThreadTest
+    @SmallTest
+    public void testGetDrawable() throws Throwable {
+        Resources res = getActivity().getResources();
+
+        Drawable unthemedDrawable =
+                ResourcesCompat.getDrawable(res, R.drawable.test_drawable_red, null);
+        TestUtils.assertAllPixelsOfColor("Unthemed drawable load",
+                unthemedDrawable, res.getColor(R.color.test_red));
+
+        if (Build.VERSION.SDK_INT >= 23) {
+            // The following tests are only expected to pass on v23+ devices. The result of
+            // calling theme-aware getDrawable() in pre-v23 is undefined.
+            Resources.Theme yellowTheme = res.newTheme();
+            yellowTheme.applyStyle(R.style.YellowTheme, true);
+            Drawable themedYellowDrawable =
+                    ResourcesCompat.getDrawable(res, R.drawable.themed_drawable, yellowTheme);
+            TestUtils.assertAllPixelsOfColor("Themed yellow drawable load",
+                    themedYellowDrawable, 0xFFF0B000);
+
+            Resources.Theme lilacTheme = res.newTheme();
+            lilacTheme.applyStyle(R.style.LilacTheme, true);
+            Drawable themedLilacDrawable =
+                    ResourcesCompat.getDrawable(res, R.drawable.themed_drawable, lilacTheme);
+            TestUtils.assertAllPixelsOfColor("Themed lilac drawable load",
+                    themedLilacDrawable, 0xFFF080F0);
         }
     }
 }
