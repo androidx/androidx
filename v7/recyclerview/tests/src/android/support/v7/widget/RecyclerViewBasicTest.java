@@ -28,6 +28,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class RecyclerViewBasicTest extends AndroidTestCase {
@@ -168,6 +170,49 @@ public class RecyclerViewBasicTest extends AndroidTestCase {
         layoutManager.assertPrevNextAdapters(
                 "Setting adapter null should trigger correct callbacks",
                 adapterNew, null);
+    }
+
+    public void testRecyclerOffsetsOnMove() {
+        MockLayoutManager  layoutManager = new MockLayoutManager();
+        final List<RecyclerView.ViewHolder> recycledVhs = new ArrayList<>();
+        mRecyclerView.setLayoutManager(layoutManager);
+        MockAdapter adapter = new MockAdapter(100) {
+            @Override
+            public void onViewRecycled(RecyclerView.ViewHolder holder) {
+                super.onViewRecycled(holder);
+                recycledVhs.add(holder);
+            }
+        };
+        MockViewHolder mvh = new MockViewHolder(new TextView(getContext()));
+        mRecyclerView.setAdapter(adapter);
+        adapter.bindViewHolder(mvh, 20);
+        mRecyclerView.mRecycler.mCachedViews.add(mvh);
+        mRecyclerView.offsetPositionRecordsForRemove(10, 9, false);
+
+        mRecyclerView.offsetPositionRecordsForRemove(11, 1, false);
+        assertEquals(1, recycledVhs.size());
+        assertSame(mvh, recycledVhs.get(0));
+    }
+
+    public void testRecyclerOffsetsOnAdd() {
+        MockLayoutManager  layoutManager = new MockLayoutManager();
+        final List<RecyclerView.ViewHolder> recycledVhs = new ArrayList<>();
+        mRecyclerView.setLayoutManager(layoutManager);
+        MockAdapter adapter = new MockAdapter(100) {
+            @Override
+            public void onViewRecycled(RecyclerView.ViewHolder holder) {
+                super.onViewRecycled(holder);
+                recycledVhs.add(holder);
+            }
+        };
+        MockViewHolder mvh = new MockViewHolder(new TextView(getContext()));
+        mRecyclerView.setAdapter(adapter);
+        adapter.bindViewHolder(mvh, 20);
+        mRecyclerView.mRecycler.mCachedViews.add(mvh);
+        mRecyclerView.offsetPositionRecordsForRemove(10, 9, false);
+
+        mRecyclerView.offsetPositionRecordsForInsert(15, 10);
+        assertEquals(11, mvh.mPosition);
     }
 
     public void testSavedStateWithStatelessLayoutManager() throws InterruptedException {
