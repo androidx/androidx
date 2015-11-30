@@ -17,6 +17,7 @@ package android.support.v4.content;
 
 import android.content.res.ColorStateList;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v4.ThemedYellowActivity;
@@ -40,8 +41,8 @@ public class ContextCompatTest extends ActivityInstrumentationTestCase2<ThemedYe
     public void testGetColor() throws Throwable {
         Context context = getActivity();
 
-        assertEquals("Unthemed color load",
-                ContextCompat.getColor(context, R.color.text_color), 0xFFFF8090);
+        assertEquals("Unthemed color load", 0xFFFF8090,
+                ContextCompat.getColor(context, R.color.text_color));
 
         if (Build.VERSION.SDK_INT >= 23) {
             // The following test is only expected to pass on v23+ devices. The result of
@@ -59,28 +60,28 @@ public class ContextCompatTest extends ActivityInstrumentationTestCase2<ThemedYe
 
         ColorStateList unthemedColorStateList =
                 ContextCompat.getColorStateList(context, R.color.complex_unthemed_selector);
-        assertEquals("Unthemed color state list load: default",
-                unthemedColorStateList.getDefaultColor(), 0xFF70A0C0);
-        assertEquals("Unthemed color state list load: focused",
+        assertEquals("Unthemed color state list load: default", 0xFF70A0C0,
+                unthemedColorStateList.getDefaultColor());
+        assertEquals("Unthemed color state list load: focused", 0xFF70B0F0,
                 unthemedColorStateList.getColorForState(
-                        new int[] {android.R.attr.state_focused}, 0), 0xFF70B0F0);
-        assertEquals("Unthemed color state list load: pressed",
+                        new int[]{android.R.attr.state_focused}, 0));
+        assertEquals("Unthemed color state list load: pressed", 0xFF6080B0,
                 unthemedColorStateList.getColorForState(
-                        new int[] {android.R.attr.state_pressed}, 0), 0xFF6080B0);
+                        new int[]{android.R.attr.state_pressed}, 0));
 
         if (Build.VERSION.SDK_INT >= 23) {
             // The following tests are only expected to pass on v23+ devices. The result of
             // calling theme-aware getColorStateList() in pre-v23 is undefined.
             ColorStateList themedYellowColorStateList =
                     ContextCompat.getColorStateList(context, R.color.complex_themed_selector);
-            assertEquals("Themed yellow color state list load: default",
-                    themedYellowColorStateList.getDefaultColor(), 0xFFF0B000);
-            assertEquals("Themed yellow color state list load: focused",
+            assertEquals("Themed yellow color state list load: default", 0xFFF0B000,
+                    themedYellowColorStateList.getDefaultColor());
+            assertEquals("Themed yellow color state list load: focused", 0xFFF0A020,
                     themedYellowColorStateList.getColorForState(
-                            new int[]{android.R.attr.state_focused}, 0), 0xFFF0A020);
-            assertEquals("Themed yellow color state list load: pressed",
+                            new int[]{android.R.attr.state_focused}, 0));
+            assertEquals("Themed yellow color state list load: pressed", 0xFFE0A040,
                     themedYellowColorStateList.getColorForState(
-                            new int[]{android.R.attr.state_pressed}, 0), 0xFFE0A040);
+                            new int[]{android.R.attr.state_pressed}, 0));
         }
     }
 
@@ -102,5 +103,63 @@ public class ContextCompatTest extends ActivityInstrumentationTestCase2<ThemedYe
             TestUtils.assertAllPixelsOfColor("Themed yellow drawable load",
                     themedYellowDrawable, 0xFFF0B000);
         }
+    }
+
+
+    @UiThreadTest
+    @SmallTest
+    public void testCheckSelfPermission() throws Throwable {
+        Context context = getActivity();
+
+        try {
+            ContextCompat.checkSelfPermission(context, null);
+            fail("Should have thrown an exception on null parameter");
+        } catch (IllegalArgumentException iae) {
+            // This is the expected condition - just ignore and continue with the rest of the
+            // tests in this method.
+        }
+
+        assertEquals("Vibrate permission granted", PackageManager.PERMISSION_GRANTED,
+                ContextCompat.checkSelfPermission(context,
+                        android.Manifest.permission.VIBRATE));
+        assertEquals("Wake lock permission granted", PackageManager.PERMISSION_GRANTED,
+                ContextCompat.checkSelfPermission(context,
+                        android.Manifest.permission.WAKE_LOCK));
+
+        if (Build.VERSION.SDK_INT >= 23) {
+            // As documented in http://developer.android.com/training/permissions/requesting.html
+            // starting in Android M (v23) dangerous permissions are not granted automactically
+            // to apps targeting SDK 23 even if those are defined in the manifest.
+            // This is why the following permissions are expected to be denied.
+            assertEquals("Read contacts permission granted", PackageManager.PERMISSION_DENIED,
+                    ContextCompat.checkSelfPermission(context,
+                            android.Manifest.permission.READ_CONTACTS));
+            assertEquals("Write contacts permission granted", PackageManager.PERMISSION_DENIED,
+                    ContextCompat.checkSelfPermission(context,
+                            android.Manifest.permission.WRITE_CONTACTS));
+        } else {
+            // And on older devices declared dangerous permissions are expected to be granted.
+            assertEquals("Read contacts permission denied", PackageManager.PERMISSION_GRANTED,
+                    ContextCompat.checkSelfPermission(context,
+                            android.Manifest.permission.READ_CONTACTS));
+            assertEquals("Write contacts permission denied", PackageManager.PERMISSION_GRANTED,
+                    ContextCompat.checkSelfPermission(context,
+                            android.Manifest.permission.WRITE_CONTACTS));
+        }
+
+        // The following permissions (normal and dangerous) are expected to be denied as they are
+        // not declared in our manifest.
+        assertEquals("Access network state permission denied", PackageManager.PERMISSION_DENIED,
+                ContextCompat.checkSelfPermission(context,
+                        android.Manifest.permission.ACCESS_NETWORK_STATE));
+        assertEquals("Bluetooth permission denied", PackageManager.PERMISSION_DENIED,
+                ContextCompat.checkSelfPermission(context,
+                        android.Manifest.permission.BLUETOOTH));
+        assertEquals("Call phone permission denied", PackageManager.PERMISSION_DENIED,
+                ContextCompat.checkSelfPermission(context,
+                        android.Manifest.permission.CALL_PHONE));
+        assertEquals("Delete packages permission denied", PackageManager.PERMISSION_DENIED,
+                ContextCompat.checkSelfPermission(context,
+                        android.Manifest.permission.DELETE_PACKAGES));
     }
 }

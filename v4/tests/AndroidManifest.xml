@@ -22,6 +22,11 @@
             android:targetSdkVersion="23"
             tools:overrideLibrary="android.support.test,android.support.test.espresso, android.support.test.espresso.idling"/>
 
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
+
     <application android:supportsRtl="true">
         <uses-library android:name="android.test.runner" />
         <activity android:name="android.support.v4.widget.test.TextViewTestActivity"/>
