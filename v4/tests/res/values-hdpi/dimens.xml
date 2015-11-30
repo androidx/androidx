@@ -14,8 +14,5 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <attr name="theme_color_default" format="reference" />
-    <attr name="theme_color_focused" format="reference" />
-    <attr name="theme_color_pressed" format="reference" />
-    <attr name="theme_color_selected" format="reference" />
+    <dimen name="density_aware_size">14dip</dimen>
 </resources>
