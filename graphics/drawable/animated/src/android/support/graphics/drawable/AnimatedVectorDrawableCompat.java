@@ -25,7 +25,6 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Rect;
-import android.graphics.Region;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
@@ -126,7 +125,7 @@ import java.util.ArrayList;
  * @attr ref android.R.styleable#AnimatedVectorDrawableCompatTarget_animation
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-public class AnimatedVectorDrawableCompat extends Drawable implements Animatable {
+public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implements Animatable {
     private static final String LOGTAG = "AnimatedVDCompat";
 
     private static final String ANIMATED_VECTOR = "animated-vector";
@@ -137,9 +136,6 @@ public class AnimatedVectorDrawableCompat extends Drawable implements Animatable
     private AnimatedVectorDrawableCompatState mAnimatedVectorState;
 
     private Context mContext;
-
-    // Drawable delegation for Lollipop and above.
-    AnimatedVectorDrawable mDelegateDrawable;
 
     AnimatedVectorDrawableDelegateState mCachedConstantStateDelegate;
 
@@ -461,82 +457,6 @@ public class AnimatedVectorDrawableCompat extends Drawable implements Animatable
         return false;
     }
 
-    // Extra override functions for delegation for SDK >= 7.
-    @Override
-    public void clearColorFilter() {
-        if (mDelegateDrawable != null) {
-            mDelegateDrawable.clearColorFilter();
-            return;
-        }
-        super.clearColorFilter();
-    }
-
-    @Override
-    public Drawable getCurrent() {
-        if (mDelegateDrawable != null) {
-            return mDelegateDrawable.getCurrent();
-        }
-        return super.getCurrent();
-    }
-
-    @Override
-    public int getMinimumWidth() {
-        if (mDelegateDrawable != null) {
-            return mDelegateDrawable.getMinimumWidth();
-        }
-        return super.getMinimumWidth();
-    }
-
-    @Override
-    public int getMinimumHeight() {
-        if (mDelegateDrawable != null) {
-            return mDelegateDrawable.getMinimumHeight();
-        }
-        return super.getMinimumHeight();
-    }
-
-    @Override
-    public boolean getPadding(Rect padding) {
-        if (mDelegateDrawable != null) {
-            return mDelegateDrawable.getPadding(padding);
-        }
-        return super.getPadding(padding);
-    }
-
-    @Override
-    public int[] getState() {
-        if (mDelegateDrawable != null) {
-            return mDelegateDrawable.getState();
-        }
-        return super.getState();
-    }
-
-
-    @Override
-    public Region getTransparentRegion() {
-        if (mDelegateDrawable != null) {
-            return mDelegateDrawable.getTransparentRegion();
-        }
-        return super.getTransparentRegion();
-    }
-
-    @Override
-    public void setChangingConfigurations(int configs) {
-        if (mDelegateDrawable != null) {
-            mDelegateDrawable.setChangingConfigurations(configs);
-            return;
-        }
-        super.setChangingConfigurations(configs);
-    }
-
-    @Override
-    public boolean setState(int[] stateSet) {
-        if (mDelegateDrawable != null) {
-            return mDelegateDrawable.setState(stateSet);
-        }
-        return super.setState(stateSet);
-    }
-
     /**
      * Constant state for delegating the creating drawable job.
      * Instead of creating a VectorDrawable, create a VectorDrawableCompat instance which contains
@@ -662,7 +582,7 @@ public class AnimatedVectorDrawableCompat extends Drawable implements Animatable
     @Override
     public boolean isRunning() {
         if (mDelegateDrawable != null) {
-            return mDelegateDrawable.isRunning();
+            return ((AnimatedVectorDrawable) mDelegateDrawable).isRunning();
         }
         final ArrayList<Animator> animators = mAnimatedVectorState.mAnimators;
         final int size = animators.size();
@@ -693,7 +613,7 @@ public class AnimatedVectorDrawableCompat extends Drawable implements Animatable
     @Override
     public void start() {
         if (mDelegateDrawable != null) {
-            mDelegateDrawable.start();
+            ((AnimatedVectorDrawable) mDelegateDrawable).start();
             return;
         }
         // If any one of the animator has not ended, do nothing.
@@ -713,7 +633,7 @@ public class AnimatedVectorDrawableCompat extends Drawable implements Animatable
     @Override
     public void stop() {
         if (mDelegateDrawable != null) {
-            mDelegateDrawable.stop();
+            ((AnimatedVectorDrawable) mDelegateDrawable).stop();
             return;
         }
         final ArrayList<Animator> animators = mAnimatedVectorState.mAnimators;
