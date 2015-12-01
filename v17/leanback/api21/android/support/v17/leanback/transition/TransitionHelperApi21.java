@@ -87,6 +87,10 @@ final class TransitionHelperApi21 {
         return AnimationUtils.loadInterpolator(context, R.interpolator.fast_out_linear_in);
     }
 
+    public static Object createChangeTransform() {
+        return new ChangeTransform();
+    }
+
     public static Object createFadeAndShortSlide(int edge) {
         return new FadeAndShortSlide(edge);
     }

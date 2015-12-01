@@ -1097,6 +1097,8 @@ package android.support.v17.leanback.widget {
     method public int getItemViewType(android.support.v17.leanback.widget.GuidedAction);
     method public android.support.v17.leanback.widget.VerticalGridView getSubActionsGridView();
     method public boolean isButtonActions();
+    method public boolean isExpandTransitionSupported();
+    method public boolean isInExpandTransition();
     method public boolean isSubActionsExpanded();
     method public void onAnimateItemChecked(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, boolean);
     method public void onAnimateItemFocused(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, boolean);
@@ -1115,10 +1117,12 @@ package android.support.v17.leanback.widget {
     method public int onProvideItemLayoutId();
     method public int onProvideItemLayoutId(int);
     method public int onProvideLayoutId();
+    method public void onUpdateExpandedViewHolder(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder);
     method public void setAsButtonActions();
     method public void setEditingMode(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, android.support.v17.leanback.widget.GuidedAction, boolean);
     method public void setExpandedViewHolder(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder);
     method protected void setupImeOptions(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, android.support.v17.leanback.widget.GuidedAction);
+    method public void startExpandedTransition(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder);
     field public static final int VIEW_TYPE_DEFAULT = 0; // 0x0
   }
 

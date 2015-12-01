@@ -99,6 +99,8 @@ public final class TransitionHelper {
 
         public Object createFadeTransition(int fadingMode);
 
+        public Object createChangeTransform();
+
         public Object createChangeBounds(boolean reparent);
 
         public Object createFadeAndShortSlide(int edge);
@@ -233,6 +235,11 @@ public final class TransitionHelper {
 
         @Override
         public Object createChangeBounds(boolean reparent) {
+            return new TransitionStub();
+        }
+
+        @Override
+        public Object createChangeTransform() {
             return new TransitionStub();
         }
 
@@ -608,6 +615,12 @@ public final class TransitionHelper {
         public void setTransitionGroup(ViewGroup viewGroup, boolean transitionGroup) {
             TransitionHelperApi21.setTransitionGroup(viewGroup, transitionGroup);
         }
+
+        @Override
+        public Object createChangeTransform() {
+            return TransitionHelperApi21.createChangeTransform();
+        }
+
     }
 
     static {
@@ -658,6 +671,10 @@ public final class TransitionHelper {
 
     public static Object createChangeBounds(boolean reparent) {
         return sImpl.createChangeBounds(reparent);
+    }
+
+    public static Object createChangeTransform() {
+        return sImpl.createChangeTransform();
     }
 
     public static void setChangeBoundsStartDelay(Object changeBounds, View view, int startDelay) {

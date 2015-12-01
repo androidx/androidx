@@ -1017,6 +1017,9 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
         mSubAdapter = new GuidedActionAdapter(null, new GuidedActionAdapter.ClickListener() {
             @Override
             public void onGuidedActionClicked(GuidedAction action) {
+                if (mActionsStylist.isInExpandTransition()) {
+                    return;
+                }
                 if (GuidedStepSupportFragment.this.onSubGuidedActionClicked(action)) {
                     collapseSubActions();
                 }
