@@ -18,6 +18,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.transition.ChangeTransform;
 import android.transition.Transition;
+import android.transition.TransitionManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -88,6 +89,17 @@ final class TransitionHelperApi21 {
 
     public static Object createFadeAndShortSlide(int edge) {
         return new FadeAndShortSlide(edge);
+    }
+
+    public static Object createFadeAndShortSlide(int edge, float distance) {
+        FadeAndShortSlide slide = new FadeAndShortSlide(edge);
+        slide.setDistance(distance);
+        return slide;
+    }
+
+    public static void beginDelayedTransition(ViewGroup sceneRoot, Object transitionObject) {
+        Transition transition = (Transition) transitionObject;
+        TransitionManager.beginDelayedTransition(sceneRoot, transition);
     }
 
     public static void setTransitionGroup(ViewGroup viewGroup, boolean transitionGroup) {
