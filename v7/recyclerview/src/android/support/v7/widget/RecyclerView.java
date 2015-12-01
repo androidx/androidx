@@ -4961,7 +4961,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             final int cachedCount = mCachedViews.size();
             for (int i = 0; i < cachedCount; i++) {
                 final ViewHolder holder = mCachedViews.get(i);
-                if (holder != null && holder.getLayoutPosition() >= insertedAt) {
+                if (holder != null && holder.mPosition >= insertedAt) {
                     if (DEBUG) {
                         Log.d(TAG, "offsetPositionRecordsForInsert cached " + i + " holder " +
                                 holder + " now at position " + (holder.mPosition + count));
@@ -4983,14 +4983,14 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             for (int i = cachedCount - 1; i >= 0; i--) {
                 final ViewHolder holder = mCachedViews.get(i);
                 if (holder != null) {
-                    if (holder.getLayoutPosition() >= removedEnd) {
+                    if (holder.mPosition >= removedEnd) {
                         if (DEBUG) {
                             Log.d(TAG, "offsetPositionRecordsForRemove cached " + i +
                                     " holder " + holder + " now at position " +
                                     (holder.mPosition - count));
                         }
                         holder.offsetPosition(-count, applyToPreLayout);
-                    } else if (holder.getLayoutPosition() >= removedFrom) {
+                    } else if (holder.mPosition >= removedFrom) {
                         // Item for this view was removed. Dump it from the cache.
                         holder.addFlags(ViewHolder.FLAG_REMOVED);
                         recycleCachedViewAt(i);
