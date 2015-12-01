@@ -22,30 +22,23 @@ import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
 
 /**
  * This demonstrates basic usage of NavigationView
  */
-public class NavigationViewUsage extends AppCompatActivity {
+public class NavigationViewUsage extends NavigationViewUsageBase {
 
     private DrawerLayout mDrawerLayout;
-
-    private TextView mTextMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.design_navigation);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mTextMessage = (TextView) findViewById(R.id.message);
 
         // Set the color of status bar
         TypedValue value = new TypedValue();
@@ -64,56 +57,25 @@ public class NavigationViewUsage extends AppCompatActivity {
                 mDrawerLayout.openDrawer(GravityCompat.START);
             }
         });
-
-        // Menu
-        NavigationView navigation = (NavigationView) findViewById(R.id.navigation);
-        navigation.setNavigationItemSelectedListener(mNavigationItemSelectedListener);
-        navigation.inflateHeaderView(R.layout.design_navigation_header);
     }
 
-    private NavigationView.OnNavigationItemSelectedListener mNavigationItemSelectedListener
-            = new NavigationView.OnNavigationItemSelectedListener() {
-        @Override
-        public boolean onNavigationItemSelected(MenuItem item) {
-            if (handleNavigationItemSelected(item)) {
-                mDrawerLayout.closeDrawers();
-                return true;
-            }
-            return false;
-        }
-    };
+    @Override
+    protected int getLayout() {
+        return R.layout.design_navigation;
+    }
 
-    private boolean handleNavigationItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.navigation_item_1:
-                mTextMessage.setText("1");
-                return true;
-            case R.id.navigation_item_2:
-                mTextMessage.setText("2");
-                return true;
-            case R.id.navigation_item_3:
-                mTextMessage.setText("3");
-                return true;
-            case R.id.navigation_sub_item_1:
-                showToast(R.string.navigation_sub_item_1);
-                return true;
-            case R.id.navigation_sub_item_2:
-                showToast(R.string.navigation_sub_item_2);
-                return true;
-            case R.id.navigation_with_icon:
-                showToast(R.string.navigation_item_with_icon);
-                return true;
-            case R.id.navigation_without_icon:
-                showToast(R.string.navigation_item_without_icon);
-                return true;
-            default:
+    @Override
+    public NavigationView.OnNavigationItemSelectedListener getNavigationItemSelectedListener() {
+        return new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem item) {
+                if (handleNavigationItemSelected(item)) {
+                    mDrawerLayout.closeDrawers();
+                    return true;
+                }
                 return false;
-        }
-    }
-
-    private void showToast(int res) {
-        Toast.makeText(this, getString(R.string.navigation_message, getString(res)),
-                Toast.LENGTH_SHORT).show();
+            }
+        };
     }
 
     @Override

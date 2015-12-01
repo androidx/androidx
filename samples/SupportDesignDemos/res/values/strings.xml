@@ -19,6 +19,7 @@
 
     <string name="design_fab">Floating Action Button/Basic</string>
     <string name="design_navigation">NavigationView/Usage</string>
+    <string name="design_navigation_without_drawer">NavigationView/Without drawer</string>
     <string name="design_tabs_basic">TabLayout/Usage</string>
     <string name="design_text_input">Text Input</string>
     <string name="design_bottomsheet">BottomSheet/Usage</string>
