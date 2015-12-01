@@ -18,7 +18,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v7-vectordrawable
 LOCAL_SDK_VERSION := current
-LOCAL_SRC_FILES := $(call all-java-files-under, static util)
+LOCAL_SRC_FILES := $(call all-java-files-under, static common)
 
 LOCAL_JAVA_LIBRARIES := android-support-v4
 
@@ -30,7 +30,7 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v11-animatedvectordrawable
 LOCAL_SDK_VERSION := current
-LOCAL_SRC_FILES := $(call all-java-files-under, animated util)
+LOCAL_SRC_FILES := $(call all-java-files-under, animated common)
 
 LOCAL_JAVA_LIBRARIES := android-support-v4
 
