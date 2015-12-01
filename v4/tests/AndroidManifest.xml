@@ -26,6 +26,8 @@
         <uses-library android:name="android.test.runner" />
         <activity android:name="android.support.v4.widget.test.TextViewTestActivity"/>
 
+        <activity android:name="android.support.v4.view.ViewPagerActivity"/>
+
         <activity android:name="android.support.v4.widget.TestActivity"/>
 
         <activity
