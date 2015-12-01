@@ -991,6 +991,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         if (layout == mLayout) {
             return;
         }
+        stopScroll();
         // TODO We should do this switch a dispachLayout pass and animate children. There is a good
         // chance that LayoutManagers will re-use views.
         if (mLayout != null) {
@@ -3779,6 +3780,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
         @Override
         public void run() {
+            if (mLayout == null) {
+                stop();
+                return; // no layout, cannot scroll.
+            }
             disableRunOnAnimationRequests();
             consumePendingUpdateOperations();
             // keep a local reference so that if it is changed during onAnimation method, it won't
