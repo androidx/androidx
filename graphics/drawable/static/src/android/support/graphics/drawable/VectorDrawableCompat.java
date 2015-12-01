@@ -36,9 +36,9 @@ import android.graphics.Region;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
 import android.os.Build;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.DrawableRes;
 import android.support.v4.util.ArrayMap;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -182,7 +182,7 @@ import java.util.Stack;
  * </pre></li>
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-public class VectorDrawableCompat extends Drawable {
+public class VectorDrawableCompat extends VectorDrawableCommon {
     static final String LOGTAG = "VectorDrawableCompat";
 
     static final PorterDuff.Mode DEFAULT_TINT_MODE = PorterDuff.Mode.SRC_IN;
@@ -212,9 +212,6 @@ public class VectorDrawableCompat extends Drawable {
     // AnimatedVectorDrawable needs to turn off the cache all the time, otherwise,
     // caching the bitmap by default is allowed.
     private boolean mAllowCaching = true;
-
-    // Drawable delegation for Lollipop and above.
-    VectorDrawable mDelegateDrawable;
 
     // The Constant state associated with the <code>mDelegateDrawable</code>.
     private ConstantState mCachedConstantStateDelegate;
@@ -522,19 +519,6 @@ public class VectorDrawableCompat extends Drawable {
         return color;
     }
 
-    /**
-     * Obtains styled attributes from the theme, if available, or unstyled
-     * resources if the theme is null.
-     */
-    static TypedArray obtainAttributes(
-            Resources res, Theme theme, AttributeSet set, int[] attrs) {
-        if (theme == null) {
-            return res.obtainAttributes(set, attrs);
-        }
-        return theme.obtainStyledAttributes(set, attrs, 0, 0);
-    }
-
-
     @Override
     public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs)
             throws XmlPullParserException, IOException {
@@ -638,7 +622,7 @@ public class VectorDrawableCompat extends Drawable {
 
         // shown up from API 11.
         final float alphaInFloat = TypedArrayUtils.getNamedFloat(a, parser, "alpha",
-                    AndroidResources.styleable_VectorDrawable_alpha, pathRenderer.getAlpha());
+                AndroidResources.styleable_VectorDrawable_alpha, pathRenderer.getAlpha());
         pathRenderer.setAlpha(alphaInFloat);
 
         final String name = a.getString(AndroidResources.styleable_VectorDrawable_name);
@@ -749,15 +733,6 @@ public class VectorDrawableCompat extends Drawable {
 
     // Extra override functions for delegation for SDK >= 7.
     @Override
-    public void clearColorFilter() {
-        if (mDelegateDrawable != null) {
-            mDelegateDrawable.clearColorFilter();
-            return;
-        }
-        super.clearColorFilter();
-    }
-
-    @Override
     public void setBounds(int left, int top, int right, int bottom) {
         if (mDelegateDrawable != null) {
             mDelegateDrawable.setBounds(left, top, right, bottom);
@@ -784,55 +759,6 @@ public class VectorDrawableCompat extends Drawable {
     }
 
     @Override
-    public Drawable getCurrent() {
-        if (mDelegateDrawable != null) {
-            return mDelegateDrawable.getCurrent();
-        }
-        return super.getCurrent();
-    }
-
-    @Override
-    public int getMinimumWidth() {
-        if (mDelegateDrawable != null) {
-            return mDelegateDrawable.getMinimumWidth();
-        }
-        return super.getMinimumWidth();
-    }
-
-    @Override
-    public int getMinimumHeight() {
-        if (mDelegateDrawable != null) {
-            return mDelegateDrawable.getMinimumHeight();
-        }
-        return super.getMinimumHeight();
-    }
-
-    @Override
-    public boolean getPadding(Rect padding) {
-        if (mDelegateDrawable != null) {
-            return mDelegateDrawable.getPadding(padding);
-        }
-        return super.getPadding(padding);
-    }
-
-    @Override
-    public int[] getState() {
-        if (mDelegateDrawable != null) {
-            return mDelegateDrawable.getState();
-        }
-        return super.getState();
-    }
-
-
-    @Override
-    public Region getTransparentRegion() {
-        if (mDelegateDrawable != null) {
-            return mDelegateDrawable.getTransparentRegion();
-        }
-        return super.getTransparentRegion();
-    }
-
-    @Override
     public void invalidateSelf() {
         if (mDelegateDrawable != null) {
             mDelegateDrawable.invalidateSelf();
@@ -848,23 +774,6 @@ public class VectorDrawableCompat extends Drawable {
             return;
         }
         super.scheduleSelf(what, when);
-    }
-
-    @Override
-    public void setChangingConfigurations(int configs) {
-        if (mDelegateDrawable != null) {
-            mDelegateDrawable.setChangingConfigurations(configs);
-            return;
-        }
-        super.setChangingConfigurations(configs);
-    }
-
-    @Override
-    public boolean setState(int[] stateSet) {
-        if (mDelegateDrawable != null) {
-            return mDelegateDrawable.setState(stateSet);
-        }
-        return super.setState(stateSet);
     }
 
     @Override
