@@ -22,10 +22,6 @@ LOCAL_SDK_VERSION := current
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
-LOCAL_RESOURCE_DIR = \
-        $(LOCAL_PATH)/res \
-        frameworks/support/graphics/drawable/res \
-
 LOCAL_PACKAGE_NAME := AndroidVectorDrawableTests
 
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-vectordrawable android-support-v4
