@@ -51,7 +51,6 @@ public class GuidedStepActivity extends Activity {
     private static final int PASSWORD = 5;
     private static final int PAYMENT = 6;
     private static final int NEW_PAYMENT = 7;
-    private static final int CREDIT_CARD = 8;
 
     private static final int OPTION_CHECK_SET_ID = 10;
     private static final int DEFAULT_OPTION = 0;
@@ -170,7 +169,7 @@ public class GuidedStepActivity extends Activity {
             String title = getString(R.string.guidedstep_first_title);
             String breadcrumb = getString(R.string.guidedstep_first_breadcrumb);
             String description = getString(R.string.guidedstep_first_description);
-            Drawable icon = getActivity().getDrawable(R.drawable.ic_main_icon);
+            Drawable icon = getActivity().getResources().getDrawable(R.drawable.ic_main_icon);
             return new Guidance(title, description, breadcrumb, icon);
         }
 
@@ -210,7 +209,7 @@ public class GuidedStepActivity extends Activity {
             String title = getString(R.string.guidedstep_newpayment_title);
             String breadcrumb = getString(R.string.guidedstep_newpayment_breadcrumb);
             String description = getString(R.string.guidedstep_newpayment_description);
-            Drawable icon = getActivity().getDrawable(R.drawable.ic_main_icon);
+            Drawable icon = getActivity().getResources().getDrawable(R.drawable.ic_main_icon);
             return new Guidance(title, description, breadcrumb, icon);
         }
 
@@ -295,7 +294,7 @@ public class GuidedStepActivity extends Activity {
             String title = getString(R.string.guidedstep_second_title);
             String breadcrumb = getString(R.string.guidedstep_second_breadcrumb);
             String description = getString(R.string.guidedstep_second_description);
-            Drawable icon = getActivity().getDrawable(R.drawable.ic_main_icon);
+            Drawable icon = getActivity().getResources().getDrawable(R.drawable.ic_main_icon);
             return new Guidance(title, description, breadcrumb, icon);
         }
 
@@ -368,6 +367,7 @@ public class GuidedStepActivity extends Activity {
         @Override
         public void onResume() {
             super.onResume();
+            // when resumed, update sub actions list and selected index from data model.
             GuidedAction payments = findActionById(PAYMENT);
             payments.getSubActions().clear();
             for (int i = 0; i < sCards.size(); i++) {
@@ -411,7 +411,7 @@ public class GuidedStepActivity extends Activity {
             String title = getString(R.string.guidedstep_third_title);
             String breadcrumb = getString(R.string.guidedstep_third_breadcrumb);
             String description = getString(R.string.guidedstep_third_description);
-            Drawable icon = getActivity().getDrawable(R.drawable.ic_main_icon);
+            Drawable icon = getActivity().getResources().getDrawable(R.drawable.ic_main_icon);
             return new Guidance(title, description, breadcrumb, icon);
         }
 
@@ -489,7 +489,7 @@ public class GuidedStepActivity extends Activity {
             String title = getString(R.string.guidedstep_fourth_title);
             String breadcrumb = getString(R.string.guidedstep_fourth_breadcrumb);
             String description = "You chose: " + OPTION_NAMES[getOption()];
-            Drawable icon = getActivity().getDrawable(R.drawable.ic_main_icon);
+            Drawable icon = getActivity().getResources().getDrawable(R.drawable.ic_main_icon);
             return new Guidance(title, description, breadcrumb, icon);
         }
 
