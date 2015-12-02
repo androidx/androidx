@@ -16,6 +16,7 @@ package android.support.v17.leanback.app;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
@@ -139,8 +140,13 @@ public class HeadersFragment extends BaseRowFragment {
             FocusHighlightHelper.setupHeaderItemFocusHighlight(listView);
         }
         if (mBackgroundColorSet) {
-            view.setBackgroundColor(mBackgroundColor);
+            listView.setBackgroundColor(mBackgroundColor);
             updateFadingEdgeToBrandColor(mBackgroundColor);
+        } else {
+            Drawable d = listView.getBackground();
+            if (d instanceof ColorDrawable) {
+                updateFadingEdgeToBrandColor(((ColorDrawable) d).getColor());
+            }
         }
         updateListViewVisibility();
     }
@@ -214,8 +220,8 @@ public class HeadersFragment extends BaseRowFragment {
         mBackgroundColor = color;
         mBackgroundColorSet = true;
 
-        if (getView() != null) {
-            getView().setBackgroundColor(mBackgroundColor);
+        if (getVerticalGridView() != null) {
+            getVerticalGridView().setBackgroundColor(mBackgroundColor);
             updateFadingEdgeToBrandColor(mBackgroundColor);
         }
     }
