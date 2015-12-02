@@ -16,17 +16,18 @@
 
 package android.support.v4.view;
 
+import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayingAtLeast;
 
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 
 import org.hamcrest.Matcher;
 
 public class ViewPagerActions {
-
     /**
      * Moves <code>ViewPager</code> to the right by one page.
      */
@@ -164,6 +165,33 @@ public class ViewPagerActions {
 
                 ViewPager viewPager = (ViewPager) view;
                 viewPager.setCurrentItem(page, false);
+
+                uiController.loopMainThreadUntilIdle();
+            }
+        };
+    }
+
+    /**
+     * Moves <code>ViewPager</code> to specific page.
+     */
+    public static ViewAction setAdapter(final PagerAdapter adapter) {
+        return new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return isAssignableFrom(ViewPager.class);
+            }
+
+            @Override
+            public String getDescription() {
+                return "ViewPager set adapter";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                uiController.loopMainThreadUntilIdle();
+
+                ViewPager viewPager = (ViewPager) view;
+                viewPager.setAdapter(adapter);
 
                 uiController.loopMainThreadUntilIdle();
             }
