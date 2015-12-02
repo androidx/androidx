@@ -62,10 +62,14 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.io.BufferedInputStream;
+import java.io.InputStream;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class implements the route controller dialog for {@link MediaRouter}.
@@ -83,6 +87,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
     // to allow the route provider time to propagate the change and publish a new
     // route descriptor.
     private static final int VOLUME_UPDATE_DELAY_MILLIS = 500;
+    private static final int CONNECTION_TIMEOUT_MILLIS = (int) TimeUnit.SECONDS.toMillis(30L);
 
     private static final int BUTTON_NEUTRAL_RES_ID = android.R.id.button3;
     private static final int BUTTON_DISCONNECT_RES_ID = android.R.id.button2;
@@ -759,6 +764,15 @@ public class MediaRouteControllerDialog extends AlertDialog {
         view.setLayoutParams(lp);
     }
 
+    private static boolean uriEquals(Uri uri1, Uri uri2) {
+        if (uri1 != null && uri1.equals(uri2)) {
+            return true;
+        } else if (uri1 == null && uri2 == null) {
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Returns desired art height to fit into controller dialog.
      */
@@ -955,7 +969,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
         @Override
         protected void onPreExecute() {
-            if (mArtIconBitmap == mIconBitmap && mArtIconUri == mIconUri) {
+            if (!isIconChanged()) {
                 // Already handled the current art.
                 cancel(true);
             }
@@ -967,18 +981,12 @@ public class MediaRouteControllerDialog extends AlertDialog {
             if (mIconBitmap != null) {
                 art = mIconBitmap;
             } else if (mIconUri != null) {
-                String scheme = mIconUri.getScheme();
-                if (!(ContentResolver.SCHEME_ANDROID_RESOURCE.equals(scheme)
-                        || ContentResolver.SCHEME_CONTENT.equals(scheme)
-                        || ContentResolver.SCHEME_FILE.equals(scheme))) {
-                    Log.w(TAG, "Icon Uri should point to local resources.");
-                    return null;
-                }
-                BufferedInputStream stream = null;
+                InputStream stream = null;
                 try {
-                    stream = new BufferedInputStream(
-                            mContext.getContentResolver().openInputStream(mIconUri));
-
+                    if ((stream = openInputStreamByScheme(mIconUri)) == null) {
+                        Log.w(TAG, "Unable to open: " + mIconUri);
+                        return null;
+                    }
                     // Query art size.
                     BitmapFactory.Options options = new BitmapFactory.Options();
                     options.inJustDecodeBounds = true;
@@ -992,8 +1000,10 @@ public class MediaRouteControllerDialog extends AlertDialog {
                     } catch (IOException e) {
                         // Failed to rewind the stream, try to reopen it.
                         stream.close();
-                        stream = new BufferedInputStream(mContext.getContentResolver()
-                                .openInputStream(mIconUri));
+                        if ((stream = openInputStreamByScheme(mIconUri)) == null) {
+                            Log.w(TAG, "Unable to open: " + mIconUri);
+                            return null;
+                        }
                     }
                     // Calculate required size to decode the art and possibly resize it.
                     options.inJustDecodeBounds = false;
@@ -1040,6 +1050,37 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 mArtView.setBackgroundColor(mBackgroundColor);
                 updateLayoutHeight();
             }
+        }
+
+        /**
+         * Returns whether a new art image is different from an original art image. Compares
+         * Bitmap objects first, and then compares URIs only if bitmap is unchanged with
+         * a null value.
+         */
+        private boolean isIconChanged() {
+            if (mIconBitmap != mArtIconBitmap) {
+                return true;
+            } else if (mIconBitmap == null && !uriEquals(mIconUri, mArtIconUri)) {
+                return true;
+            }
+            return false;
+        }
+
+        private InputStream openInputStreamByScheme(Uri uri) throws IOException {
+            String scheme = uri.getScheme().toLowerCase();
+            InputStream stream = null;
+            if (ContentResolver.SCHEME_ANDROID_RESOURCE.equals(scheme)
+                    || ContentResolver.SCHEME_CONTENT.equals(scheme)
+                    || ContentResolver.SCHEME_FILE.equals(scheme)) {
+                stream = mContext.getContentResolver().openInputStream(uri);
+            } else {
+                URL url = new URL(uri.toString());
+                URLConnection conn = url.openConnection();
+                conn.setConnectTimeout(CONNECTION_TIMEOUT_MILLIS);
+                conn.setReadTimeout(CONNECTION_TIMEOUT_MILLIS);
+                stream = conn.getInputStream();
+            }
+            return (stream == null) ? null : new BufferedInputStream(stream);
         }
     }
 }
