@@ -22,8 +22,6 @@ LOCAL_SRC_FILES := $(call all-java-files-under, static common)
 
 LOCAL_JAVA_LIBRARIES := android-support-v4
 
-LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res \
-
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 #Animated vector drawable library
@@ -33,8 +31,6 @@ LOCAL_SDK_VERSION := current
 LOCAL_SRC_FILES := $(call all-java-files-under, animated common)
 
 LOCAL_JAVA_LIBRARIES := android-support-v4
-
-LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res \
 
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-vectordrawable
 
