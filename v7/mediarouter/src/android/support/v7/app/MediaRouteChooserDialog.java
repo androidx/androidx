@@ -25,6 +25,7 @@ import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -72,6 +73,8 @@ public class MediaRouteChooserDialog extends Dialog {
     private RouteAdapter mAdapter;
     private ListView mListView;
     private boolean mAttachedToWindow;
+    private AsyncTask<Void, Void, Void> mRefreshRoutesTask;
+    private AsyncTask<Void, Void, Void> mOnItemClickTask;
 
     public MediaRouteChooserDialog(Context context) {
         this(context, 0);
@@ -197,12 +200,39 @@ public class MediaRouteChooserDialog extends Dialog {
      */
     public void refreshRoutes() {
         if (mAttachedToWindow) {
-            mRoutes.clear();
-            mRoutes.addAll(mRouter.getRoutes());
-            onFilterRoutes(mRoutes);
-            RouteComparator.loadRouteUsageScores(getContext(), mRoutes);
-            Collections.sort(mRoutes, RouteComparator.sInstance);
-            mAdapter.notifyDataSetChanged();
+            if (mRefreshRoutesTask != null) {
+                mRefreshRoutesTask.cancel(true);
+                mRefreshRoutesTask = null;
+            }
+            mRefreshRoutesTask = new AsyncTask<Void, Void, Void>() {
+                private ArrayList<MediaRouter.RouteInfo> mNewRoutes;
+
+                @Override
+                protected void onPreExecute() {
+                    mNewRoutes = new ArrayList<>(mRouter.getRoutes());
+                    onFilterRoutes(mNewRoutes);
+                }
+
+                @Override
+                protected Void doInBackground(Void... params) {
+                    // In API 4 ~ 10, AsyncTasks are running in parallel. Needs synchronization.
+                    synchronized (MediaRouteChooserDialog.this) {
+                        if (!isCancelled()) {
+                            RouteComparator.loadRouteUsageScores(getContext(), mNewRoutes);
+                        }
+                    }
+                    return null;
+                }
+
+                @Override
+                protected void onPostExecute(Void params) {
+                    mRoutes.clear();
+                    mRoutes.addAll(mNewRoutes);
+                    Collections.sort(mRoutes, RouteComparator.sInstance);
+                    mAdapter.notifyDataSetChanged();
+                    mRefreshRoutesTask = null;
+                }
+            }.execute();
         }
     }
 
@@ -277,11 +307,26 @@ public class MediaRouteChooserDialog extends Dialog {
 
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            MediaRouter.RouteInfo route = getItem(position);
-            if (route.isEnabled()) {
-                route.select();
-                RouteComparator.storeRouteUsageScores(getContext(), route.getId());
-                dismiss();
+            final MediaRouter.RouteInfo route = getItem(position);
+            if (route.isEnabled() && mOnItemClickTask == null) {
+                mOnItemClickTask = new AsyncTask<Void, Void, Void>() {
+                    @Override
+                    protected void onPreExecute() {
+                        route.select();
+                    }
+
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        RouteComparator.storeRouteUsageScores(getContext(), route.getId());
+                        return null;
+                    }
+
+                    @Override
+                    protected void onPostExecute(Void params) {
+                        dismiss();
+                        mOnItemClickTask = null;
+                    }
+                }.execute();
             }
         }
 
