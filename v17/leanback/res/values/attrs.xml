@@ -352,17 +352,9 @@
              {@link android.support.v17.leanback.R.style#Widget_Leanback_GuidanceIconStyle}. -->
         <attr name="guidanceIconStyle" format="reference" />
 
-        <!-- Theme attribute for the animation used in a GuidedActionsPresenter when the action
-             selector is animated in at activity start. Default is {@link
-             android.support.v17.leanback.R.animator#lb_guidedactions_selector_show}. -->
-        <attr name="guidedActionsSelectorShowAnimation" format="reference" />
-        <!-- Theme attribute for the animation used in a GuidedActionsPresenter when the action
-             selector is animated in at activity start. Default is {@link
-             android.support.v17.leanback.R.animator#lb_guidedactions_selector_hide}. -->
-        <attr name="guidedActionsSelectorHideAnimation" format="reference" />
         <!-- Theme attribute for the style of the item selector in a GuidedActionsPresenter. Default is
-             {@link android.support.v17.leanback.R.style#Widget_Leanback_GuidedActionsSelectorStyle}. -->
-        <attr name="guidedActionsSelectorStyle" format="reference" />
+             ?android:attr/selectableItemBackground. -->
+        <attr name="guidedActionsSelectorDrawable" format="reference" />
 
         <!-- Theme attribute for the shadow elevation of GuidedActions. Default is
              {@link android.support.v17.leanback.R.dimen#lb_guidedactions_elevation}.-->

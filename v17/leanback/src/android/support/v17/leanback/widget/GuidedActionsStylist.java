@@ -77,7 +77,6 @@ import java.util.List;
  * <p>
  * Note: If an alternate list layout is provided, the following view IDs must be supplied:
  * <ul>
- * <li>{@link android.support.v17.leanback.R.id#guidedactions_selector}</li>
  * <li>{@link android.support.v17.leanback.R.id#guidedactions_list}</li>
  * </ul><p>
  * These view IDs must be present in order for the stylist to function. The list ID must correspond
@@ -102,9 +101,7 @@ import java.util.List;
  *
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepImeAppearingAnimation
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepImeDisappearingAnimation
- * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsSelectorShowAnimation
- * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsSelectorHideAnimation
- * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsSelectorStyle
+ * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsSelectorDrawable
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsListStyle
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedSubActionsListStyle
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedButtonActionsListStyle
@@ -284,11 +281,8 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     private VerticalGridView mActionsGridView;
     private VerticalGridView mSubActionsGridView;
     private View mBgView;
-    private View mSelectorView;
     private View mContentView;
     private boolean mButtonActions;
-
-    private Animator mSelectorAnimator;
 
     // Cached values from resources
     private float mEnabledTextAlpha;
@@ -306,18 +300,6 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     private GuidedAction mExpandedAction = null;
     private Object mExpandTransition;
 
-    private final RecyclerView.OnScrollListener mOnGridScrollListener =
-            new RecyclerView.OnScrollListener() {
-        @Override
-        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                if (mSelectorView.getAlpha() != 1f) {
-                    updateSelectorView(true);
-                }
-            }
-        }
-    };
-
     /**
      * Creates a view appropriate for displaying a list of GuidedActions, using the provided
      * inflater and container.
@@ -333,15 +315,6 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         mMainView = (ViewGroup) inflater.inflate(onProvideLayoutId(), container, false);
         mContentView = mMainView.findViewById(mButtonActions ? R.id.guidedactions_content2 :
                 R.id.guidedactions_content);
-        mSelectorView = mMainView.findViewById(mButtonActions ? R.id.guidedactions_selector2 :
-                R.id.guidedactions_selector);
-        mSelectorView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(View v, int left, int top, int right, int bottom,
-                    int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                updateSelectorView(false);
-            }
-        });
         mBgView = mMainView.findViewById(mButtonActions ? R.id.guidedactions_list_background2 :
                 R.id.guidedactions_list_background);
         if (mMainView instanceof VerticalGridView) {
@@ -355,22 +328,10 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             mActionsGridView.setWindowAlignmentOffset(0);
             mActionsGridView.setWindowAlignmentOffsetPercent(50f);
             mActionsGridView.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_NO_EDGE);
-            if (mSelectorView != null) {
-                mActionsGridView.setOnScrollListener(mOnGridScrollListener);
-            }
             if (!mButtonActions) {
                 mSubActionsGridView = (VerticalGridView) mMainView.findViewById(
                         R.id.guidedactions_sub_list);
-                if (mSelectorView != null && mSubActionsGridView != null) {
-                    mSubActionsGridView.setOnScrollListener(mOnGridScrollListener);
-                }
             }
-        }
-
-        if (mSelectorView != null) {
-            // ALlow focus to move to other views
-            mMainView.getViewTreeObserver().addOnGlobalFocusChangeListener(
-                    mGlobalFocusChangeListener);
         }
 
         // Cache widths, chevron alpha values, max and min text lines, etc
@@ -415,29 +376,14 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         return mButtonActions;
     }
 
-    final ViewTreeObserver.OnGlobalFocusChangeListener mGlobalFocusChangeListener =
-            new ViewTreeObserver.OnGlobalFocusChangeListener() {
-
-        @Override
-        public void onGlobalFocusChanged(View oldFocus, View newFocus) {
-            updateSelectorView(false);
-        }
-    };
-
     /**
      * Called when destroy the View created by GuidedActionsStylist.
      */
     public void onDestroyView() {
-        if (mSelectorView != null) {
-            mMainView.getViewTreeObserver().removeOnGlobalFocusChangeListener(
-                    mGlobalFocusChangeListener);
-        }
-        endSelectorAnimator();
         mExpandedAction = null;
         mExpandTransition = null;
         mActionsGridView = null;
         mSubActionsGridView = null;
-        mSelectorView = null;
         mContentView = null;
         mBgView = null;
         mMainView = null;
@@ -885,10 +831,6 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
                 TransitionHelper.include(slideAndFade, vh.itemView);
             }
         }
-        if (mSelectorView != null) {
-            TransitionHelper.include(changeFocusItemTransform, mSelectorView);
-            TransitionHelper.include(changeFocusItemBounds, mSelectorView);
-        }
         TransitionHelper.include(fadeGrid, mSubActionsGridView);
         TransitionHelper.include(changeGridBounds, mSubActionsGridView);
         TransitionHelper.addTransition(set, slideAndFade);
@@ -1090,57 +1032,6 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         // conservative estimate for font padding which can not be
         // calculated at this stage since the view hasn't been rendered yet.
         return (int)(mDisplayHeight - 2*mVerticalPadding - 2*mTitleMaxLines*title.getLineHeight());
-    }
-
-    private void endSelectorAnimator() {
-        if (mSelectorAnimator != null) {
-            mSelectorAnimator.end();
-            mSelectorAnimator = null;
-        }
-    }
-
-    private void updateSelectorView(boolean animate) {
-        if ((mActionsGridView == null && mSubActionsGridView == null)
-                || mSelectorView == null || mSelectorView.getHeight() <= 0) {
-            return;
-        }
-        RecyclerView actionsGridView = null;
-        View focusedChild = mActionsGridView.getFocusedChild();
-        if (focusedChild == null && mSubActionsGridView != null) {
-            focusedChild = mSubActionsGridView.getFocusedChild();
-            if (focusedChild != null) {
-                actionsGridView = mSubActionsGridView;
-            }
-        } else {
-            actionsGridView = mActionsGridView;
-        }
-        endSelectorAnimator();
-        if (focusedChild == null || !actionsGridView.hasFocus()
-                || actionsGridView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE) {
-            if (animate) {
-                mSelectorAnimator = createAnimator(mSelectorView,
-                        R.attr.guidedActionsSelectorHideAnimation);
-                mSelectorAnimator.start();
-            } else {
-                mSelectorView.setAlpha(0f);
-            }
-        } else {
-            final float scaleY = (float) focusedChild.getHeight() / mSelectorView.getHeight();
-            Rect r = new Rect(0, 0, focusedChild.getWidth(), focusedChild.getHeight());
-            mMainView.offsetDescendantRectToMyCoords(focusedChild, r);
-            mMainView.offsetRectIntoDescendantCoords(mSelectorView, r);
-            mSelectorView.setTranslationY(r.exactCenterY() - mSelectorView.getHeight() * 0.5f);
-            if (animate) {
-                mSelectorAnimator = createAnimator(mSelectorView,
-                        R.attr.guidedActionsSelectorShowAnimation);
-                ((ObjectAnimator) ((AnimatorSet) mSelectorAnimator).getChildAnimations().get(1))
-                        .setFloatValues(scaleY);
-                mSelectorAnimator.start();
-            } else {
-                mSelectorView.setAlpha(1f);
-                mSelectorView.setScaleY(scaleY);
-            }
-        }
     }
 
 }
