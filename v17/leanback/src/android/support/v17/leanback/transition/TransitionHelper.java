@@ -103,6 +103,8 @@ public final class TransitionHelper {
 
         public Object createFadeAndShortSlide(int edge);
 
+        public Object createFadeAndShortSlide(int edge, float distance);
+
         public void setChangeBoundsStartDelay(Object changeBounds, View view, int startDelay);
 
         public void setChangeBoundsStartDelay(Object changeBounds, int viewId, int startDelay);
@@ -145,6 +147,8 @@ public final class TransitionHelper {
         public Object createDefaultInterpolator(Context context);
 
         public Object loadTransition(Context context, int resId);
+
+        public void beginDelayedTransition(ViewGroup sceneRoot, Object transitionObject);
 
         public void setTransitionGroup(ViewGroup viewGroup, boolean transitionGroup);
     }
@@ -234,6 +238,11 @@ public final class TransitionHelper {
 
         @Override
         public Object createFadeAndShortSlide(int edge) {
+            return new TransitionStub();
+        }
+
+        @Override
+        public Object createFadeAndShortSlide(int edge, float distance) {
             return new TransitionStub();
         }
 
@@ -357,6 +366,10 @@ public final class TransitionHelper {
         @Override
         public Object loadTransition(Context context, int resId) {
             return new TransitionStub();
+        }
+
+        @Override
+        public void beginDelayedTransition(ViewGroup sceneRoot, Object transitionObject) {
         }
 
         @Override
@@ -549,6 +562,16 @@ public final class TransitionHelper {
         @Override
         public Object createFadeAndShortSlide(int edge) {
             return TransitionHelperApi21.createFadeAndShortSlide(edge);
+        }
+
+        @Override
+        public Object createFadeAndShortSlide(int edge, float distance) {
+            return TransitionHelperApi21.createFadeAndShortSlide(edge, distance);
+        }
+
+        @Override
+        public void beginDelayedTransition(ViewGroup sceneRoot, Object transition) {
+            TransitionHelperApi21.beginDelayedTransition(sceneRoot, transition);
         }
 
         @Override
@@ -778,6 +801,14 @@ public final class TransitionHelper {
 
     public static Object createFadeAndShortSlide(int edge) {
         return sImpl.createFadeAndShortSlide(edge);
+    }
+
+    public static Object createFadeAndShortSlide(int edge, float distance) {
+        return sImpl.createFadeAndShortSlide(edge, distance);
+    }
+
+    public static void beginDelayedTransition(ViewGroup sceneRoot, Object transitionObject) {
+        sImpl.beginDelayedTransition(sceneRoot, transitionObject);
     }
 
     public static void setTransitionGroup(ViewGroup viewGroup, boolean transitionGroup) {

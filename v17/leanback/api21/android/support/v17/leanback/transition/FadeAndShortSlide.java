@@ -18,6 +18,7 @@ package android.support.v17.leanback.transition;
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.TimeInterpolator;
+import android.graphics.Rect;
 import android.transition.Fade;
 import android.transition.Transition;
 import android.transition.TransitionValues;
@@ -38,54 +39,101 @@ public class FadeAndShortSlide extends Visibility {
     private static final String PROPNAME_SCREEN_POSITION =
             "android:fadeAndShortSlideTransition:screenPosition";
 
-    private CalculateSlide mSlideCalculator = sCalculateEnd;
+    private CalculateSlide mSlideCalculator;
     private Visibility mFade = new Fade();
+    private float mDistance = -1;
 
-    private interface CalculateSlide {
+    private static abstract class CalculateSlide {
 
-        /** Returns the translation value for view when it goes out of the scene */
-        float getGoneX(ViewGroup sceneRoot, View view, int[] position);
+        /** Returns the translation X value for view when it goes out of the scene */
+        float getGoneX(FadeAndShortSlide t, ViewGroup sceneRoot, View view, int[] position) {
+            return view.getTranslationX();
+        }
+
+        /** Returns the translation Y value for view when it goes out of the scene */
+        float getGoneY(FadeAndShortSlide t, ViewGroup sceneRoot, View view, int[] position) {
+            return view.getTranslationY();
+        }
     }
 
-    private static final CalculateSlide sCalculateStart = new CalculateSlide() {
+    float getHorizontalDistance(ViewGroup sceneRoot) {
+        return mDistance >= 0 ? mDistance : (sceneRoot.getWidth() / 4);
+    }
+
+    float getVerticalDistance(ViewGroup sceneRoot) {
+        return mDistance >= 0 ? mDistance : (sceneRoot.getHeight() / 4);
+    }
+
+    final static CalculateSlide sCalculateStart = new CalculateSlide() {
         @Override
-        public float getGoneX(ViewGroup sceneRoot, View view, int[] position) {
+        public float getGoneX(FadeAndShortSlide t, ViewGroup sceneRoot, View view, int[] position) {
             final boolean isRtl = sceneRoot.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
             final float x;
             if (isRtl) {
-                x = view.getTranslationX() + sceneRoot.getWidth() / 4;
+                x = view.getTranslationX() + t.getHorizontalDistance(sceneRoot);
             } else {
-                x = view.getTranslationX() - sceneRoot.getWidth() / 4;
+                x = view.getTranslationX() - t.getHorizontalDistance(sceneRoot);
             }
             return x;
         }
     };
 
-    private static final CalculateSlide sCalculateEnd = new CalculateSlide() {
+    final static CalculateSlide sCalculateEnd = new CalculateSlide() {
         @Override
-        public float getGoneX(ViewGroup sceneRoot, View view, int[] position) {
+        public float getGoneX(FadeAndShortSlide t, ViewGroup sceneRoot, View view, int[] position) {
             final boolean isRtl = sceneRoot.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
             final float x;
             if (isRtl) {
-                x = view.getTranslationX() - sceneRoot.getWidth() / 4;
+                x = view.getTranslationX() - t.getHorizontalDistance(sceneRoot);
             } else {
-                x = view.getTranslationX() + sceneRoot.getWidth() / 4;
+                x = view.getTranslationX() + t.getHorizontalDistance(sceneRoot);
             }
             return x;
         }
     };
 
-    private static final CalculateSlide sCalculateBoth = new CalculateSlide() {
-
+    final static CalculateSlide sCalculateStartEnd = new CalculateSlide() {
         @Override
-        public float getGoneX(ViewGroup sceneRoot, View view, int[] position) {
+        public float getGoneX(FadeAndShortSlide t, ViewGroup sceneRoot, View view, int[] position) {
             final int viewCenter = position[0] + view.getWidth() / 2;
             sceneRoot.getLocationOnScreen(position);
-            final int sceneRootCenter = position[0] + sceneRoot.getWidth() / 2;
+            Rect center = t.getEpicenter();
+            final int sceneRootCenter = center == null ? (position[0] + sceneRoot.getWidth() / 2)
+                    : center.centerX();
             if (viewCenter < sceneRootCenter) {
-                return view.getTranslationX() - sceneRoot.getWidth() / 2;
+                return view.getTranslationX() - t.getHorizontalDistance(sceneRoot);
             } else {
-                return view.getTranslationX() + sceneRoot.getWidth() / 2;
+                return view.getTranslationX() + t.getHorizontalDistance(sceneRoot);
+            }
+        }
+    };
+
+    final static CalculateSlide sCalculateBottom = new CalculateSlide() {
+        @Override
+        public float getGoneY(FadeAndShortSlide t, ViewGroup sceneRoot, View view, int[] position) {
+            return view.getTranslationY() + t.getVerticalDistance(sceneRoot);
+        }
+    };
+
+    final static CalculateSlide sCalculateTop = new CalculateSlide() {
+        @Override
+        public float getGoneY(FadeAndShortSlide t, ViewGroup sceneRoot, View view, int[] position) {
+            return view.getTranslationY() - t.getVerticalDistance(sceneRoot);
+        }
+    };
+
+    final CalculateSlide sCalculateTopBottom = new CalculateSlide() {
+        @Override
+        public float getGoneY(FadeAndShortSlide t, ViewGroup sceneRoot, View view, int[] position) {
+            final int viewCenter = position[1] + view.getHeight() / 2;
+            sceneRoot.getLocationOnScreen(position);
+            Rect center = getEpicenter();
+            final int sceneRootCenter = center == null ? (position[1] + sceneRoot.getHeight() / 2)
+                    : center.centerY();
+            if (viewCenter < sceneRootCenter) {
+                return view.getTranslationY() - t.getVerticalDistance(sceneRoot);
+            } else {
+                return view.getTranslationY() + t.getVerticalDistance(sceneRoot);
             }
         }
     };
@@ -134,7 +182,16 @@ public class FadeAndShortSlide extends Visibility {
                 mSlideCalculator = sCalculateEnd;
                 break;
             case Gravity.START | Gravity.END:
-                mSlideCalculator = sCalculateBoth;
+                mSlideCalculator = sCalculateStartEnd;
+                break;
+            case Gravity.TOP:
+                mSlideCalculator = sCalculateTop;
+                break;
+            case Gravity.BOTTOM:
+                mSlideCalculator = sCalculateBottom;
+                break;
+            case Gravity.TOP | Gravity.BOTTOM:
+                mSlideCalculator = sCalculateTopBottom;
                 break;
             default:
                 throw new IllegalArgumentException("Invalid slide direction");
@@ -156,12 +213,21 @@ public class FadeAndShortSlide extends Visibility {
         }
         int[] position = (int[]) endValues.values.get(PROPNAME_SCREEN_POSITION);
         int left = position[0];
+        int top = position[1];
         float endX = view.getTranslationX();
-        float startX = mSlideCalculator.getGoneX(sceneRoot, view, position);
+        float startX = mSlideCalculator.getGoneX(this, sceneRoot, view, position);
+        float endY = view.getTranslationY();
+        float startY = mSlideCalculator.getGoneY(this, sceneRoot, view, position);
         final Animator slideAnimator = TranslationAnimationCreator.createAnimation(view, endValues,
-                left, startX, endX, sDecelerate, this);
+                left, top, startX, startY, endX, endY, sDecelerate, this);
+        final Animator fadeAnimator = mFade.onAppear(sceneRoot, view, startValues, endValues);
+        if (slideAnimator == null) {
+            return fadeAnimator;
+        } else if (fadeAnimator == null) {
+            return slideAnimator;
+        }
         final AnimatorSet set = new AnimatorSet();
-        set.play(slideAnimator).with(mFade.onAppear(sceneRoot, view, startValues, endValues));
+        set.play(slideAnimator).with(fadeAnimator);
 
         return set;
     }
@@ -178,12 +244,22 @@ public class FadeAndShortSlide extends Visibility {
         }
         int[] position = (int[]) startValues.values.get(PROPNAME_SCREEN_POSITION);
         int left = position[0];
+        int top = position[1];
         float startX = view.getTranslationX();
-        float endX = mSlideCalculator.getGoneX(sceneRoot, view, position);
+        float endX = mSlideCalculator.getGoneX(this, sceneRoot, view, position);
+        float startY = view.getTranslationY();
+        float endY = mSlideCalculator.getGoneY(this, sceneRoot, view, position);
         final Animator slideAnimator = TranslationAnimationCreator.createAnimation(view,
-                startValues, left, startX, endX, sDecelerate /* sAccelerate */, this);
+                startValues, left, top, startX, startY, endX, endY, sDecelerate /* sAccelerate */,
+                this);
+        final Animator fadeAnimator = mFade.onDisappear(sceneRoot, view, startValues, endValues);
+        if (slideAnimator == null) {
+            return fadeAnimator;
+        } else if (fadeAnimator == null) {
+            return slideAnimator;
+        }
         final AnimatorSet set = new AnimatorSet();
-        set.play(slideAnimator).with(mFade.onDisappear(sceneRoot, view, startValues, endValues));
+        set.play(slideAnimator).with(fadeAnimator);
 
         return set;
     }
@@ -198,6 +274,23 @@ public class FadeAndShortSlide extends Visibility {
     public Transition removeListener(TransitionListener listener) {
         mFade.removeListener(listener);
         return super.removeListener(listener);
+    }
+
+    /**
+     * Returns distance to slide.  When negative value is returned, it will use 1/4 of
+     * sceneRoot dimension.
+     */
+    public float getDistance() {
+        return mDistance;
+    }
+
+    /**
+     * Set distance to slide, default value is -1.  when negative value is set, it will use 1/4 of
+     * sceneRoot dimension.
+     * @param distance Pixels to slide.
+     */
+    public void setDistance(float distance) {
+        mDistance = distance;
     }
 
     @Override
