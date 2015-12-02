@@ -25,8 +25,11 @@ import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build.VERSION;
 import android.support.annotation.NonNull;
 import android.support.v17.leanback.R;
+import android.support.v17.leanback.transition.TransitionHelper;
+import android.support.v17.leanback.transition.TransitionListener;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
@@ -37,6 +40,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -300,6 +304,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     private int mDisplayHeight;
 
     private GuidedAction mExpandedAction = null;
+    private Object mExpandTransition;
 
     private final RecyclerView.OnScrollListener mOnGridScrollListener =
             new RecyclerView.OnScrollListener() {
@@ -429,6 +434,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         }
         endSelectorAnimator();
         mExpandedAction = null;
+        mExpandTransition = null;
         mActionsGridView = null;
         mSubActionsGridView = null;
         mSelectorView = null;
@@ -795,15 +801,140 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      * hide the other items in main list.  When null, collapse the sub actions list.
      */
     public void setExpandedViewHolder(ViewHolder avh) {
-        if (mSubActionsGridView == null) {
+        if (mSubActionsGridView == null || isInExpandTransition()) {
             return;
         }
-        if (avh == null) {
-            mExpandedAction = null;
-        } else if (avh.getAction() != mExpandedAction) {
-            mExpandedAction = avh.getAction();
+        if (isExpandTransitionSupported()) {
+            startExpandedTransition(avh);
+        } else {
+            onUpdateExpandedViewHolder(avh);
         }
-        updateAllChevronAndVisibility(avh);
+    }
+
+    /**
+     * Returns true if it is running an expanding or collapsing transition, false otherwise.
+     * @return True if it is running an expanding or collapsing transition, false otherwise.
+     */
+    public boolean isInExpandTransition() {
+        return mExpandTransition != null;
+    }
+
+    /**
+     * Returns if expand/collapse animation is supported.  When this method returns true,
+     * {@link #startExpandedTransition(ViewHolder)} will be used.  When this method returns false,
+     * {@link #onUpdateExpandedViewHolder(ViewHolder)} will be called.
+     * @return True if it is running an expanding or collapsing transition, false otherwise.
+     */
+    public boolean isExpandTransitionSupported() {
+        return VERSION.SDK_INT >= 21;
+    }
+
+    /**
+     * Start transition to expand or collapse GuidedActionStylist.
+     * @param avh When not null, the GuidedActionStylist expands the sub actions of avh.  When null
+     * the GuidedActionStylist will collapse sub actions.
+     */
+    public void startExpandedTransition(ViewHolder avh) {
+        ViewHolder focusAvh = null; // expand / collapse view holder
+        final int count = mActionsGridView.getChildCount();
+        for (int i = 0; i < count; i++) {
+            ViewHolder vh = (ViewHolder) mActionsGridView
+                    .getChildViewHolder(mActionsGridView.getChildAt(i));
+            if (avh == null && vh.itemView.getVisibility() == View.VISIBLE) {
+                // going to collapse this one.
+                focusAvh = vh;
+                break;
+            } else if (avh != null && vh.getAction() == avh.getAction()) {
+                // going to expand this one.
+                focusAvh = vh;
+                break;
+            }
+        }
+        if (focusAvh == null) {
+            // huh?
+            onUpdateExpandedViewHolder(avh);
+            return;
+        }
+        Object set = TransitionHelper.createTransitionSet(false);
+        Object slideAndFade = TransitionHelper.createFadeAndShortSlide(Gravity.TOP | Gravity.BOTTOM,
+                (float) focusAvh.itemView.getHeight());
+        Object changeFocusItemTransform = TransitionHelper.createChangeTransform();
+        Object changeFocusItemBounds = TransitionHelper.createChangeBounds(false);
+        Object fadeGrid = TransitionHelper.createFadeTransition(TransitionHelper.FADE_IN |
+                TransitionHelper.FADE_OUT);
+        Object changeGridBounds = TransitionHelper.createChangeBounds(false);
+        if (avh == null) {
+            TransitionHelper.setStartDelay(slideAndFade, 150);
+            TransitionHelper.setStartDelay(changeFocusItemTransform, 100);
+            TransitionHelper.setStartDelay(changeFocusItemBounds, 100);
+        } else {
+            TransitionHelper.setStartDelay(fadeGrid, 100);
+            TransitionHelper.setStartDelay(changeGridBounds, 100);
+            TransitionHelper.setStartDelay(changeFocusItemTransform, 50);
+            TransitionHelper.setStartDelay(changeFocusItemBounds, 50);
+        }
+        for (int i = 0; i < count; i++) {
+            ViewHolder vh = (ViewHolder) mActionsGridView
+                    .getChildViewHolder(mActionsGridView.getChildAt(i));
+            if (vh == focusAvh) {
+                // going to expand/collapse this one.
+                TransitionHelper.include(changeFocusItemTransform, vh.itemView);
+                TransitionHelper.include(changeFocusItemBounds, vh.itemView);
+            } else {
+                // going to slide this item to top / bottom.
+                TransitionHelper.include(slideAndFade, vh.itemView);
+            }
+        }
+        if (mSelectorView != null) {
+            TransitionHelper.include(changeFocusItemTransform, mSelectorView);
+            TransitionHelper.include(changeFocusItemBounds, mSelectorView);
+        }
+        TransitionHelper.include(fadeGrid, mSubActionsGridView);
+        TransitionHelper.include(changeGridBounds, mSubActionsGridView);
+        TransitionHelper.addTransition(set, slideAndFade);
+        TransitionHelper.addTransition(set, changeFocusItemTransform);
+        TransitionHelper.addTransition(set, changeFocusItemBounds);
+        TransitionHelper.addTransition(set, fadeGrid);
+        TransitionHelper.addTransition(set, changeGridBounds);
+        mExpandTransition = set;
+        TransitionHelper.addTransitionListener(mExpandTransition, new TransitionListener() {
+            @Override
+            public void onTransitionEnd(Object transition) {
+                mExpandTransition = null;
+            }
+        });
+        if (avh != null && mSubActionsGridView.getTop() != avh.itemView.getTop()) {
+            // For expanding, set the initial position of subActionsGridView before running
+            // a ChangeBounds on it.
+            final ViewHolder toUpdate = avh;
+            mSubActionsGridView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+                @Override
+                public void onLayoutChange(View v, int left, int top, int right, int bottom,
+                        int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                    if (mSubActionsGridView == null) {
+                        return;
+                    }
+                    mSubActionsGridView.removeOnLayoutChangeListener(this);
+                    mMainView.post(new Runnable() {
+                        public void run() {
+                            if (mMainView == null) {
+                                return;
+                            }
+                            TransitionHelper.beginDelayedTransition(mMainView, mExpandTransition);
+                            onUpdateExpandedViewHolder(toUpdate);
+                        }
+                    });
+                }
+            });
+            ViewGroup.MarginLayoutParams lp =
+                    (ViewGroup.MarginLayoutParams) mSubActionsGridView.getLayoutParams();
+            lp.topMargin = avh.itemView.getTop();
+            lp.height = 0;
+            mSubActionsGridView.setLayoutParams(lp);
+            return;
+        }
+        TransitionHelper.beginDelayedTransition(mMainView, mExpandTransition);
+        onUpdateExpandedViewHolder(avh);
     }
 
     /**
@@ -820,7 +951,17 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         return mExpandedAction;
     }
 
-    private void updateAllChevronAndVisibility(final ViewHolder avh) {
+    /**
+     * Expand or collapse GuidedActionStylist.
+     * @param avh When not null, the GuidedActionStylist expands the sub actions of avh.  When null
+     * the GuidedActionStylist will collapse sub actions.
+     */
+    public void onUpdateExpandedViewHolder(ViewHolder avh) {
+        if (avh == null) {
+            mExpandedAction = null;
+        } else if (avh.getAction() != mExpandedAction) {
+            mExpandedAction = avh.getAction();
+        }
         final int count = mActionsGridView.getChildCount();
         for (int i = 0; i < count; i++) {
             ViewHolder vh = (ViewHolder) mActionsGridView
@@ -828,43 +969,41 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             updateChevronAndVisibility(vh);
         }
         if (mSubActionsGridView != null) {
-            updateExpandStatus(avh);
-        }
-    }
-
-    private void updateExpandStatus(ViewHolder avh) {
-        if (avh != null) {
-            mSubActionsGridView.setVisibility(View.VISIBLE);
-            mSubActionsGridView.requestFocus();
-            mSubActionsGridView.setSelectedPosition(0);
-            ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)
-                    mActionsGridView.getLayoutParams();
-            lp.topMargin = - avh.itemView.getHeight();
-            lp.bottomMargin = avh.itemView.getHeight();
-            mActionsGridView.setLayoutParams(lp);
-            lp = (ViewGroup.MarginLayoutParams) mSubActionsGridView.getLayoutParams();
-            lp.topMargin = avh.itemView.getTop();
-            mSubActionsGridView.setLayoutParams(lp);
-            ((GuidedActionAdapter) mSubActionsGridView.getAdapter())
-                    .setActions(avh.getAction().getSubActions());
-        } else {
-            mSubActionsGridView.setVisibility(View.INVISIBLE);
-            ((GuidedActionAdapter) mSubActionsGridView.getAdapter())
-                    .setActions(Collections.EMPTY_LIST);
-            ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)
-                    mActionsGridView.getLayoutParams();
-            lp.bottomMargin = lp.topMargin = 0;
-            mActionsGridView.setLayoutParams(lp);
-            mActionsGridView.requestFocus();
+            if (avh != null) {
+                ViewGroup.MarginLayoutParams lp =
+                        (ViewGroup.MarginLayoutParams) mSubActionsGridView.getLayoutParams();
+                lp.topMargin = avh.itemView.getTop();
+                lp.height = ViewGroup.MarginLayoutParams.MATCH_PARENT;
+                mSubActionsGridView.setLayoutParams(lp);
+                mSubActionsGridView.setVisibility(View.VISIBLE);
+                mSubActionsGridView.requestFocus();
+                mSubActionsGridView.setSelectedPosition(0);
+                ((GuidedActionAdapter) mSubActionsGridView.getAdapter())
+                        .setActions(avh.getAction().getSubActions());
+            } else {
+                mSubActionsGridView.setVisibility(View.INVISIBLE);
+                ViewGroup.MarginLayoutParams lp =
+                        (ViewGroup.MarginLayoutParams) mSubActionsGridView.getLayoutParams();
+                lp.height = 0;
+                mSubActionsGridView.setLayoutParams(lp);
+                ((GuidedActionAdapter) mSubActionsGridView.getAdapter())
+                        .setActions(Collections.EMPTY_LIST);
+                mActionsGridView.requestFocus();
+            }
         }
     }
 
     private void updateChevronAndVisibility(ViewHolder vh) {
         if (!vh.isSubAction()) {
-            if (mExpandedAction == null || vh.getAction() == mExpandedAction) {
+            if (mExpandedAction == null) {
                 vh.itemView.setVisibility(View.VISIBLE);
+                vh.itemView.setTranslationY(0);
+            } else if (vh.getAction() == mExpandedAction) {
+                vh.itemView.setVisibility(View.VISIBLE);
+                vh.itemView.setTranslationY(- vh.itemView.getHeight());
             } else {
                 vh.itemView.setVisibility(View.INVISIBLE);
+                vh.itemView.setTranslationY(0);
             }
         }
         if (vh.mChevronView != null) {
