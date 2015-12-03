@@ -1119,6 +1119,7 @@ public class SwitchCompat extends CompoundButton {
             }
 
             cancelPositionAnimator();
+            setThumbPosition(isChecked() ? 1 : 0);
         }
     }
 
