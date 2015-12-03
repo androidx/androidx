@@ -144,6 +144,7 @@
         <item name="android:fontFamily">sans-serif-condensed</item>
         <item name="android:textColor">@color/lb_basic_card_title_text_color</item>
         <item name="android:textSize">@dimen/lb_basic_card_title_text_size</item>
+        <item name="android:textAlignment">viewStart</item>
         <item name="android:ellipsize">end</item>
     </style>
 
@@ -158,6 +159,7 @@
         <item name="android:fontFamily">sans-serif-condensed</item>
         <item name="android:textColor">@color/lb_basic_card_content_text_color</item>
         <item name="android:textSize">@dimen/lb_basic_card_content_text_size</item>
+        <item name="android:textAlignment">viewStart</item>
         <item name="android:ellipsize">none</item>
     </style>
 
@@ -175,6 +177,7 @@
         <item name="android:singleLine">true</item>
         <item name="android:gravity">end</item>
         <item name="android:ellipsize">end</item>
+        <item name="android:textAlignment">viewStart</item>
         <item name="android:textAppearance">@style/TextAppearance.Leanback.Title</item>
     </style>
 
@@ -208,6 +211,7 @@
         <item name="android:minHeight">@dimen/lb_browse_header_height</item>
         <item name="android:minWidth">1dp</item>
         <item name="android:textAppearance">@style/TextAppearance.Leanback.Header</item>
+        <item name="android:textAlignment">viewStart</item>
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">none</item>
     </style>
@@ -262,6 +266,7 @@
     </style>
 
     <style name="Widget.Leanback.Row.HoverCardTitle" >
+        <item name="android:textAlignment">viewStart</item>
         <item name="android:textAppearance">@style/TextAppearance.Leanback.Row.HoverCardTitle</item>
         <item name="android:maxWidth">@dimen/lb_browse_row_hovercard_max_width</item>
         <item name="android:singleLine">true</item>
@@ -269,6 +274,7 @@
     </style>
 
     <style name="Widget.Leanback.Row.HoverCardDescription" >
+        <item name="android:textAlignment">viewStart</item>
         <item name="android:textAppearance">@style/TextAppearance.Leanback.Row.HoverCardDescription</item>
         <item name="android:maxWidth">@dimen/lb_browse_row_hovercard_max_width</item>
         <item name="android:ellipsize">end</item>
@@ -276,6 +282,7 @@
     </style>
 
     <style name="Widget.Leanback.DetailsDescriptionTitleStyle">
+        <item name="android:textAlignment">viewStart</item>
         <item name="android:textAppearance">@style/TextAppearance.Leanback.DetailsDescriptionTitle</item>
         <item name="android:maxLines">@integer/lb_details_description_title_max_lines</item>
         <item name="android:includeFontPadding">false</item>
@@ -287,6 +294,7 @@
     </style>
 
     <style name="Widget.Leanback.DetailsDescriptionSubtitleStyle">
+        <item name="android:textAlignment">viewStart</item>
         <item name="android:textAppearance">@style/TextAppearance.Leanback.DetailsDescriptionSubtitle</item>
         <item name="android:maxLines">@integer/lb_details_description_subtitle_max_lines</item>
         <item name="android:includeFontPadding">false</item>
@@ -294,6 +302,7 @@
     </style>
 
     <style name="Widget.Leanback.DetailsDescriptionBodyStyle">
+        <item name="android:textAlignment">viewStart</item>
         <item name="android:textAppearance">@style/TextAppearance.Leanback.DetailsDescriptionBody</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:ellipsize">end</item>
@@ -303,6 +312,7 @@
     </style>
 
     <style name="Widget.Leanback.DetailsActionButtonStyle" parent="Widget.Leanback.DetailsActionButtonStyleBase">
+        <item name="android:textAlignment">viewStart</item>
         <item name="android:textAppearance">@style/TextAppearance.Leanback.DetailsActionButton</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:drawablePadding">@dimen/lb_action_icon_margin</item>
@@ -318,14 +328,17 @@
     </style>
 
     <style name="Widget.Leanback.PlaybackControlLabelStyle">
+        <item name="android:textAlignment">viewStart</item>
         <item name="android:textAppearance">@style/TextAppearance.Leanback.PlaybackControlLabel</item>
     </style>
 
     <style name="Widget.Leanback.PlaybackControlsTimeStyle">
+        <item name="android:textAlignment">viewStart</item>
         <item name="android:textAppearance">@style/TextAppearance.Leanback.PlaybackControlsTime</item>
     </style>
 
     <style name="Widget.Leanback.ErrorMessageStyle">
+        <item name="android:textAlignment">viewStart</item>
         <item name="android:textAppearance">@style/TextAppearance.Leanback.ErrorMessage</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:maxLines">@integer/lb_error_message_max_lines</item>
@@ -380,6 +393,7 @@
         <item name="android:paddingTop">2dp</item>
         <item name="android:textColor">#FFF1F1F1</item>
         <item name="android:textSize">36sp</item>
+        <item name="android:textAlignment">viewEnd</item>
     </style>
 
     <!-- Style for the description view in a GuidanceStylist's default layout. -->
@@ -396,6 +410,7 @@
         <item name="android:textColor">#88F1F1F1</item>
         <item name="android:textSize">14sp</item>
         <item name="android:lineSpacingExtra">3dp</item>
+        <item name="android:textAlignment">viewEnd</item>
     </style>
 
     <!-- Style for the breadcrumb view in a GuidanceStylist's default layout. -->
@@ -410,6 +425,8 @@
         <item name="android:singleLine">true</item>
         <item name="android:textColor">#88F1F1F1</item>
         <item name="android:textSize">18sp</item>
+        <item name="android:gravity">end</item>
+        <item name="android:textAlignment">viewEnd</item>
     </style>
 
     <!-- Style for the icon view in a GuidanceStylist's default layout. -->
@@ -503,6 +520,7 @@
         <item name="android:maxLines">@integer/lb_guidedactions_item_title_min_lines</item>
         <item name="android:textColor">@color/lb_guidedactions_item_unselected_text_color</item>
         <item name="android:textSize">@dimen/lb_guidedactions_item_title_font_size</item>
+        <item name="android:textAlignment">viewStart</item>
         <item name="android:background">@null</item>
     </style>
 
@@ -516,6 +534,7 @@
         <item name="android:maxLines">@integer/lb_guidedactions_item_description_min_lines</item>
         <item name="android:textColor">@color/lb_guidedactions_item_unselected_text_color</item>
         <item name="android:textSize">@dimen/lb_guidedactions_item_description_font_size</item>
+        <item name="android:textAlignment">viewStart</item>
         <item name="android:visibility">gone</item>
         <item name="android:background">@null</item>
     </style>
