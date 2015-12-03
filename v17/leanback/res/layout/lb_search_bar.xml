@@ -67,6 +67,7 @@
                     android:imeOptions="normal|flagNoExtractUi|actionSearch"
                     android:inputType="text|textAutoComplete"
                     android:singleLine="true"
+                    android:textAlignment="viewStart"
                     android:textColor="@color/lb_search_bar_text"
                     android:textColorHint="@color/lb_search_bar_hint"
                     android:textCursorDrawable="@null"
