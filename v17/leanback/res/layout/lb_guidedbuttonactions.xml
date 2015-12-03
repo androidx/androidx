@@ -41,10 +41,6 @@
             android:id="@+id/guidedactions_list2"
             style="?attr/guidedButtonActionsListStyle" />
 
-        <android.support.v17.leanback.widget.NonOverlappingView
-            android:id="@+id/guidedactions_selector2"
-            android:transitionName="guidedactions_selector2"
-            style="?attr/guidedActionsSelectorStyle" />
     </android.support.v17.leanback.widget.NonOverlappingFrameLayout>
 
 </RelativeLayout>

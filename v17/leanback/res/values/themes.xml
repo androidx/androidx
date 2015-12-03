@@ -139,12 +139,10 @@
         <item name="guidedActionsElevation">@dimen/lb_guidedactions_elevation</item>
         <item name="guidedActionsBackground">@color/lb_guidedactions_background</item>
         <item name="guidedActionsBackgroundDark">@color/lb_guidedactions_background_dark</item>
-        <item name="guidedActionsSelectorStyle">@style/Widget.Leanback.GuidedActionsSelectorStyle</item>
+        <item name="guidedActionsSelectorDrawable">?android:attr/selectableItemBackground</item>
         <item name="guidedActionsListStyle">@style/Widget.Leanback.GuidedActionsListStyle</item>
         <item name="guidedSubActionsListStyle">@style/Widget.Leanback.GuidedSubActionsListStyle</item>
         <item name="guidedButtonActionsListStyle">@style/Widget.Leanback.GuidedButtonActionsListStyle</item>
-        <item name="guidedActionsSelectorShowAnimation">@animator/lb_guidedactions_selector_show</item>
-        <item name="guidedActionsSelectorHideAnimation">@animator/lb_guidedactions_selector_hide</item>
 
         <item name="guidedActionItemContainerStyle">@style/Widget.Leanback.GuidedActionItemContainerStyle</item>
         <item name="guidedActionItemCheckmarkStyle">@style/Widget.Leanback.GuidedActionItemCheckmarkStyle</item>
