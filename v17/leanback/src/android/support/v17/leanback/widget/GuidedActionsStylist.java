@@ -729,7 +729,9 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             vh.mChevronView.setAlpha(action.isEnabled() ? mEnabledChevronAlpha :
                     mDisabledChevronAlpha);
             if (hasNext) {
-                vh.mChevronView.setRotation(0f);
+                float r = mMainView != null
+                        && mMainView.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL ? 180f : 0f;
+                vh.mChevronView.setRotation(r);
             } else if (action == mExpandedAction) {
                 vh.mChevronView.setRotation(270);
             } else {
