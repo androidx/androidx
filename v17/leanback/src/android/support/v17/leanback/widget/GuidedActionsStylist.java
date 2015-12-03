@@ -904,6 +904,9 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         } else if (avh.getAction() != mExpandedAction) {
             mExpandedAction = avh.getAction();
         }
+        // In expanding mode, notifyItemChange on expanded item will reset the translationY by
+        // the default ItemAnimator.  So disable ItemAnimation in expanding mode.
+        mActionsGridView.setAnimateChildLayout(false);
         final int count = mActionsGridView.getChildCount();
         for (int i = 0; i < count; i++) {
             ViewHolder vh = (ViewHolder) mActionsGridView
