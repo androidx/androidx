@@ -1545,8 +1545,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      */
     @Override
     public int computeHorizontalScrollOffset() {
-        return mLayout.canScrollHorizontally() ? mLayout.computeHorizontalScrollOffset(mState)
-                : 0;
+        if (mLayout == null) {
+            return 0;
+        }
+        return mLayout.canScrollHorizontally() ? mLayout.computeHorizontalScrollOffset(mState) : 0;
     }
 
     /**
@@ -1568,6 +1570,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      */
     @Override
     public int computeHorizontalScrollExtent() {
+        if (mLayout == null) {
+            return 0;
+        }
         return mLayout.canScrollHorizontally() ? mLayout.computeHorizontalScrollExtent(mState) : 0;
     }
 
@@ -1588,6 +1593,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      */
     @Override
     public int computeHorizontalScrollRange() {
+        if (mLayout == null) {
+            return 0;
+        }
         return mLayout.canScrollHorizontally() ? mLayout.computeHorizontalScrollRange(mState) : 0;
     }
 
@@ -1610,6 +1618,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      */
     @Override
     public int computeVerticalScrollOffset() {
+        if (mLayout == null) {
+            return 0;
+        }
         return mLayout.canScrollVertically() ? mLayout.computeVerticalScrollOffset(mState) : 0;
     }
 
@@ -1631,6 +1642,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      */
     @Override
     public int computeVerticalScrollExtent() {
+        if (mLayout == null) {
+            return 0;
+        }
         return mLayout.canScrollVertically() ? mLayout.computeVerticalScrollExtent(mState) : 0;
     }
 
@@ -1651,6 +1665,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      */
     @Override
     public int computeVerticalScrollRange() {
+        if (mLayout == null) {
+            return 0;
+        }
         return mLayout.canScrollVertically() ? mLayout.computeVerticalScrollRange(mState) : 0;
     }
 
