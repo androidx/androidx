@@ -554,7 +554,7 @@ public class PlaybackControlsRow extends Row {
          * @param highlightColor Color for the highlighted icon state.
          */
         public ClosedCaptioningAction(Context context, int highlightColor) {
-            super(R.id.lb_control_high_quality);
+            super(R.id.lb_control_closed_captioning);
             BitmapDrawable uncoloredDrawable = (BitmapDrawable) getStyledDrawable(context,
                     R.styleable.lbPlaybackControlsActionIcons_closed_captioning);
             Drawable[] drawables = new Drawable[2];
