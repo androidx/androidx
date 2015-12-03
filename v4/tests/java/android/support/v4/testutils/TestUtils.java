@@ -18,6 +18,7 @@
 package android.support.v4.testutils;
 
 import java.lang.IllegalArgumentException;
+import java.lang.RuntimeException;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -58,9 +59,12 @@ public class TestUtils {
         return (int) (dipValue * displayMetrics.density);
     }
 
+
     /**
-     * Returns <code>true</code> iff all the pixels in the specified drawable are of the same
-     * specified color.
+     * Checks whether all the pixels in the specified drawable are of the same specified color.
+     * If the passed <code>Drawable</code> does not have positive intrinsic dimensions set, this
+     * method will throw an <code>IllegalArgumentException</code>. If there is a color mismatch,
+     * this method will call <code>Assert.fail</code> with detailed description of the mismatch.
      */
     public static void assertAllPixelsOfColor(String failMessagePrefix, @NonNull Drawable drawable,
             @ColorInt int color) {
@@ -71,6 +75,21 @@ public class TestUtils {
             throw new IllegalArgumentException("Drawable must be configured to have non-zero size");
         }
 
+        assertAllPixelsOfColor(failMessagePrefix, drawable, drawableWidth, drawableHeight, color,
+                false);
+    }
+
+    /**
+     * Checks whether all the pixels in the specified drawable are of the same specified color.
+     *
+     * In case there is a color mismatch, the behavior of this method depends on the
+     * I<code>throwExceptionIfFails</code> parameter. If it is <code>true</code>, this method will
+     * throw an <code>Exception</code> describing the mismatch. Otherwise this method will call
+     * <code>Assert.fail</code> with detailed description of the mismatch.
+     */
+    public static void assertAllPixelsOfColor(String failMessagePrefix, @NonNull Drawable drawable,
+            int drawableWidth, int drawableHeight, @ColorInt int color,
+            boolean throwExceptionIfFails) {
         // Create a bitmap
         Bitmap bitmap = Bitmap.createBitmap(drawableWidth, drawableHeight, Bitmap.Config.ARGB_8888);
         // Create a canvas that wraps the bitmap
@@ -86,12 +105,18 @@ public class TestUtils {
                 bitmap.getPixels(rowPixels, 0, drawableWidth, 0, row, drawableWidth, 1);
                 for (int column = 0; column < drawableWidth; column++) {
                     if (rowPixels[column] != color) {
-                        Assert.fail("Expected all drawable colors to be [" + Color.red(color)
-                                + "," + Color.green(color) + "," + Color.blue(color)
+                        String mismatchDescription = "Expected all drawable colors to be ["
+                                + Color.red(color) + "," + Color.green(color) + ","
+                                + Color.blue(color)
                                 + "] but at position (" + row + "," + column + ") found ["
                                 + Color.red(rowPixels[column]) + ","
                                 + Color.green(rowPixels[column]) + ","
-                                + Color.blue(rowPixels[column]) + "]");
+                                + Color.blue(rowPixels[column]) + "]";
+                        if (throwExceptionIfFails) {
+                            throw new RuntimeException(mismatchDescription);
+                        } else {
+                            Assert.fail(mismatchDescription);
+                        }
                     }
                 }
             }
