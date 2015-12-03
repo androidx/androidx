@@ -1100,6 +1100,58 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
 
     }
 
+    public void testLtrFocusOutStartDisabled() throws Throwable {
+        final int numItems = 200;
+
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_grid_ltr);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, numItems);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+        initActivity(intent);
+
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.requestFocus();
+                mGridView.setSelectedPositionSmooth(0);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+
+        sendKeys(KeyEvent.KEYCODE_DPAD_LEFT);
+        waitForScrollIdle(mVerifyLayout);
+        assertTrue(mGridView.hasFocus());
+    }
+
+    public void testRtlFocusOutStartDisabled() throws Throwable {
+        final int numItems = 200;
+
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_grid_rtl);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, numItems);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+        initActivity(intent);
+
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.requestFocus();
+                mGridView.setSelectedPositionSmooth(0);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+
+        sendKeys(KeyEvent.KEYCODE_DPAD_RIGHT);
+        waitForScrollIdle(mVerifyLayout);
+        assertTrue(mGridView.hasFocus());
+    }
+
     public void testTransferFocusable() throws Throwable {
         final int numItems = 200;
         final int numColumns = 3;
