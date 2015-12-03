@@ -2957,10 +2957,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
          } else if (mOrientation == VERTICAL) {
              switch(direction) {
                  case View.FOCUS_LEFT:
-                     movement = (!mReverseFlowPrimary) ? PREV_ROW : NEXT_ROW;
+                     movement = (!mReverseFlowSecondary) ? PREV_ROW : NEXT_ROW;
                      break;
                  case View.FOCUS_RIGHT:
-                     movement = (!mReverseFlowPrimary) ? NEXT_ROW : PREV_ROW;
+                     movement = (!mReverseFlowSecondary) ? NEXT_ROW : PREV_ROW;
                      break;
                  case View.FOCUS_UP:
                      movement = PREV_ITEM;
