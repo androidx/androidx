@@ -33,12 +33,12 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
  * so a compiler may think that the code is unused.
  * <p>
  * Example:
- * <pre>{@code
+ * <pre><code>
  *  &#64;Keep
  *  public void foo() {
  *      ...
  *  }
- * }</pre>
+ * </code></pre>
  */
 @Retention(CLASS)
 @Target({PACKAGE,TYPE,ANNOTATION_TYPE,CONSTRUCTOR,METHOD,FIELD})
