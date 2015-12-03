@@ -15,6 +15,10 @@
  */
 package android.support.v7.app;
 
+import android.support.test.espresso.action.Press;
+import android.support.test.espresso.action.GeneralLocation;
+import android.support.test.espresso.action.GeneralSwipeAction;
+import android.support.test.espresso.action.Swipe;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.appcompat.test.R;
@@ -43,27 +47,92 @@ public class DrawerLayoutTest extends BaseInstrumentationTestCase<DrawerLayoutAc
     }
 
     @Test
-    public void testDrawerOpenClose() {
+    public void testDrawerOpenCloseViaAPI() {
         assertFalse("Initial state", mDrawerLayout.isDrawerOpen(GravityCompat.START));
 
-        onView(withId(R.id.drawer_layout)).perform(
-                DrawerLayoutActions.openDrawer(GravityCompat.START));
-        assertTrue("Opened drawer", mDrawerLayout.isDrawerOpen(GravityCompat.START));
+        for (int i = 0; i < 5; i++) {
+            onView(withId(R.id.drawer_layout)).perform(
+                    DrawerLayoutActions.openDrawer(GravityCompat.START));
+            assertTrue("Opened drawer #" + i, mDrawerLayout.isDrawerOpen(GravityCompat.START));
 
-        // Try opening the drawer when it's already opened
-        onView(withId(R.id.drawer_layout)).perform(
-                DrawerLayoutActions.openDrawer(GravityCompat.START));
-        assertTrue("Opened drawer is still opened",
-                mDrawerLayout.isDrawerOpen(GravityCompat.START));
+            onView(withId(R.id.drawer_layout)).perform(
+                    DrawerLayoutActions.closeDrawer(GravityCompat.START));
+            assertFalse("Closed drawer #" + i, mDrawerLayout.isDrawerOpen(GravityCompat.START));
+        }
+    }
 
-        onView(withId(R.id.drawer_layout)).perform(
-                DrawerLayoutActions.closeDrawer(GravityCompat.START));
-        assertFalse("Closed drawer", mDrawerLayout.isDrawerOpen(GravityCompat.START));
+    @Test
+    public void testDrawerOpenCloseWithRedundancyViaAPI() {
+        assertFalse("Initial state", mDrawerLayout.isDrawerOpen(GravityCompat.START));
 
-        // Try closing the drawer when it's already closed
-        onView(withId(R.id.drawer_layout)).perform(
-                DrawerLayoutActions.closeDrawer(GravityCompat.START));
-        assertFalse("Closed drawer is still closed",
-                mDrawerLayout.isDrawerOpen(GravityCompat.START));
+        for (int i = 0; i < 5; i++) {
+            onView(withId(R.id.drawer_layout)).perform(
+                    DrawerLayoutActions.openDrawer(GravityCompat.START));
+            assertTrue("Opened drawer #" + i, mDrawerLayout.isDrawerOpen(GravityCompat.START));
+
+            // Try opening the drawer when it's already opened
+            onView(withId(R.id.drawer_layout)).perform(
+                    DrawerLayoutActions.openDrawer(GravityCompat.START));
+            assertTrue("Opened drawer is still opened #" + i,
+                    mDrawerLayout.isDrawerOpen(GravityCompat.START));
+
+            onView(withId(R.id.drawer_layout)).perform(
+                    DrawerLayoutActions.closeDrawer(GravityCompat.START));
+            assertFalse("Closed drawer #" + i, mDrawerLayout.isDrawerOpen(GravityCompat.START));
+
+            // Try closing the drawer when it's already closed
+            onView(withId(R.id.drawer_layout)).perform(
+                    DrawerLayoutActions.closeDrawer(GravityCompat.START));
+            assertFalse("Closed drawer is still closed #" + i,
+                    mDrawerLayout.isDrawerOpen(GravityCompat.START));
+        }
+    }
+
+    @Test
+    public void testDrawerOpenCloseViaSwipes() {
+        assertFalse("Initial state", mDrawerLayout.isDrawerOpen(GravityCompat.START));
+
+        for (int i = 0; i < 5; i++) {
+            onView(withId(R.id.drawer_layout)).perform(
+                    new GeneralSwipeAction(Swipe.FAST, GeneralLocation.CENTER_LEFT,
+                            GeneralLocation.CENTER_RIGHT, Press.FINGER));
+            assertTrue("Opened drawer #" + i, mDrawerLayout.isDrawerOpen(GravityCompat.START));
+
+            onView(withId(R.id.drawer_layout)).perform(
+                    new GeneralSwipeAction(Swipe.FAST, GeneralLocation.CENTER_RIGHT,
+                            GeneralLocation.CENTER_LEFT, Press.FINGER));
+            assertFalse("Closed drawer #" + i, mDrawerLayout.isDrawerOpen(GravityCompat.START));
+        }
+    }
+
+    @Test
+    public void testDrawerOpenCloseWithRedundancyViaSwipes() {
+        assertFalse("Initial state", mDrawerLayout.isDrawerOpen(GravityCompat.START));
+
+        for (int i = 0; i < 5; i++) {
+            onView(withId(R.id.drawer_layout)).perform(
+                    new GeneralSwipeAction(Swipe.FAST, GeneralLocation.CENTER_LEFT,
+                            GeneralLocation.CENTER_RIGHT, Press.FINGER));
+            assertTrue("Opened drawer #" + i, mDrawerLayout.isDrawerOpen(GravityCompat.START));
+
+            // Try opening the drawer when it's already opened
+            onView(withId(R.id.drawer_layout)).perform(
+                    new GeneralSwipeAction(Swipe.FAST, GeneralLocation.CENTER_LEFT,
+                            GeneralLocation.CENTER_RIGHT, Press.FINGER));
+            assertTrue("Opened drawer is still opened #" + i,
+                    mDrawerLayout.isDrawerOpen(GravityCompat.START));
+
+            onView(withId(R.id.drawer_layout)).perform(
+                    new GeneralSwipeAction(Swipe.FAST, GeneralLocation.CENTER_RIGHT,
+                            GeneralLocation.CENTER_LEFT, Press.FINGER));
+            assertFalse("Closed drawer #" + i, mDrawerLayout.isDrawerOpen(GravityCompat.START));
+
+            // Try closing the drawer when it's already closed
+            onView(withId(R.id.drawer_layout)).perform(
+                    new GeneralSwipeAction(Swipe.FAST, GeneralLocation.CENTER_RIGHT,
+                            GeneralLocation.CENTER_LEFT, Press.FINGER));
+            assertFalse("Closed drawer is still closed #" + i,
+                    mDrawerLayout.isDrawerOpen(GravityCompat.START));
+        }
     }
 }
