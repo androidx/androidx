@@ -235,7 +235,6 @@
     <item name="lb_guidedactions_width_weight_two_panels" format="float" type="string">1</item>
     <dimen name="lb_guidedactions_section_shadow_width">16dp</dimen>
     <dimen name="lb_guidedactions_elevation">12dp</dimen>
-    <dimen name="lb_guidedactions_selector_min_height">8dp</dimen>
     <dimen name="lb_guidedactions_vertical_padding">12dp</dimen>
 
     <item name="lb_guidedactions_item_disabled_text_alpha" format="float" type="string">0.25</item>

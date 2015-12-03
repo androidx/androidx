@@ -423,19 +423,12 @@
         <item name="android:scaleType">fitCenter</item>
     </style>
 
-    <!-- Style for the selector view in a GuidedActionsStylist's default layout. -->
-    <style name="Widget.Leanback.GuidedActionsSelectorStyle">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">@dimen/lb_guidedactions_selector_min_height</item>
-        <item name="android:layout_centerVertical">true</item>
-        <item name="android:background">@color/lb_guidedactions_selector_color</item>
-    </style>
-
     <!-- Style for the vertical grid of actions in a GuidedActionsStylist's default layout. -->
     <style name="Widget.Leanback.GuidedActionsListStyle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:focusable">true</item>
+        <item name="android:focusableInTouchMode">true</item>
         <item name="focusOutEnd">true</item>
         <item name="focusOutFront">false</item>
         <item name="focusOutSideStart">false</item>
@@ -461,7 +454,9 @@
     <style name="Widget.Leanback.GuidedActionItemContainerStyle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:foreground">?attr/guidedActionsSelectorDrawable</item>
         <item name="android:focusable">true</item>
+        <item name="android:focusableInTouchMode">true</item>
         <item name="android:minHeight">@dimen/lb_guidedactions_item_min_height</item>
         <item name="android:paddingBottom">@dimen/lb_guidedactions_vertical_padding</item>
         <item name="android:paddingStart">@dimen/lb_guidedactions_item_start_padding</item>

@@ -482,15 +482,11 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
         TransitionHelper.addSharedElement(ft, disappearing.getView().findViewById(
                 R.id.guidedactions_root), "guidedactions_root");
         TransitionHelper.addSharedElement(ft, disappearing.getView().findViewById(
-                R.id.guidedactions_selector), "guidedactions_selector");
-        TransitionHelper.addSharedElement(ft, disappearing.getView().findViewById(
                 R.id.guidedactions_content), "guidedactions_content");
         TransitionHelper.addSharedElement(ft, disappearing.getView().findViewById(
                 R.id.guidedactions_list_background), "guidedactions_list_background");
         TransitionHelper.addSharedElement(ft, disappearing.getView().findViewById(
                 R.id.guidedactions_root2), "guidedactions_root2");
-        TransitionHelper.addSharedElement(ft, disappearing.getView().findViewById(
-                R.id.guidedactions_selector2), "guidedactions_selector2");
         TransitionHelper.addSharedElement(ft, disappearing.getView().findViewById(
                 R.id.guidedactions_content2), "guidedactions_content2");
         TransitionHelper.addSharedElement(ft, disappearing.getView().findViewById(
