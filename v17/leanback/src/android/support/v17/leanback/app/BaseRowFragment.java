@@ -131,6 +131,14 @@ abstract class BaseRowFragment extends Fragment {
     }
 
     /**
+     * Gets position of currently selected row.
+     * @return Position of currently selected row.
+     */
+    public int getSeletedPosition() {
+        return mSelectedPosition;
+    }
+
+    /**
      * Sets the selected row position.
      */
     public void setSelectedPosition(int position, boolean smooth) {

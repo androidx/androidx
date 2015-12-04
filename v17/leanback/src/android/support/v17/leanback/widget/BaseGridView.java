@@ -575,19 +575,21 @@ abstract class BaseGridView extends RecyclerView {
      * @param task Task to executed on the ViewHolder at a given position.
      */
     public void setSelectedPositionSmooth(final int position, final ViewHolderTask task) {
-        RecyclerView.ViewHolder vh = findViewHolderForPosition(position);
-        if (vh == null) {
-            addOnChildViewHolderSelectedListener(new OnChildViewHolderSelectedListener() {
-                public void onChildViewHolderSelected(RecyclerView parent,
-                        RecyclerView.ViewHolder child, int selectedPosition, int subposition) {
-                    if (selectedPosition == position) {
-                        removeOnChildViewHolderSelectedListener(this);
-                        task.run(child);
+        if (task != null) {
+            RecyclerView.ViewHolder vh = findViewHolderForPosition(position);
+            if (vh == null) {
+                addOnChildViewHolderSelectedListener(new OnChildViewHolderSelectedListener() {
+                    public void onChildViewHolderSelected(RecyclerView parent,
+                            RecyclerView.ViewHolder child, int selectedPosition, int subposition) {
+                        if (selectedPosition == position) {
+                            removeOnChildViewHolderSelectedListener(this);
+                            task.run(child);
+                        }
                     }
-                }
-            });
-        } else {
-            task.run(vh);
+                });
+            } else {
+                task.run(vh);
+            }
         }
         setSelectedPositionSmooth(position);
     }
@@ -598,19 +600,21 @@ abstract class BaseGridView extends RecyclerView {
      * @param task Task to executed on the ViewHolder at a given position.
      */
     public void setSelectedPosition(final int position, final ViewHolderTask task) {
-        RecyclerView.ViewHolder vh = findViewHolderForPosition(position);
-        if (vh == null) {
-            addOnChildViewHolderSelectedListener(new OnChildViewHolderSelectedListener() {
-                public void onChildViewHolderSelected(RecyclerView parent,
-                        RecyclerView.ViewHolder child, int selectedPosition, int subposition) {
-                    if (selectedPosition == position) {
-                        removeOnChildViewHolderSelectedListener(this);
-                        task.run(child);
+        if (task != null) {
+            RecyclerView.ViewHolder vh = findViewHolderForPosition(position);
+            if (vh == null) {
+                addOnChildViewHolderSelectedListener(new OnChildViewHolderSelectedListener() {
+                    public void onChildViewHolderSelected(RecyclerView parent,
+                            RecyclerView.ViewHolder child, int selectedPosition, int subposition) {
+                        if (selectedPosition == position) {
+                            removeOnChildViewHolderSelectedListener(this);
+                            task.run(child);
+                        }
                     }
-                }
-            });
-        } else {
-            task.run(vh);
+                });
+            } else {
+                task.run(vh);
+            }
         }
         setSelectedPosition(position);
     }
