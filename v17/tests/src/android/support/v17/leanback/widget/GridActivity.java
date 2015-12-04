@@ -172,7 +172,7 @@ public class GridActivity extends Activity {
             mNumItems = mItemLengths.length;
         }
 
-        mGridView.setAdapter(new MyAdapter());
+        mGridView.setAdapter(adapter);
         setContentView(view);
     }
 
