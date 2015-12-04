@@ -549,10 +549,7 @@ package android.support.v7.appcompat {
   public static final class R.bool {
     ctor public R.bool();
     field public static int abc_action_bar_embed_tabs;
-    field public static int abc_action_bar_embed_tabs_pre_jb;
-    field public static int abc_action_bar_expanded_action_views_exclusive;
     field public static int abc_config_actionMenuItemAllCaps;
-    field public static int abc_config_allowActionMenuItemTextWithIcon;
     field public static int abc_config_closeDialogWhenTouchOutside;
     field public static int abc_config_showMenuShortcutsWhenKeyboardPresent;
   }
@@ -685,7 +682,6 @@ package android.support.v7.appcompat {
     field public static int abc_list_item_padding_horizontal_material;
     field public static int abc_panel_menu_list_width;
     field public static int abc_search_view_preferred_width;
-    field public static int abc_search_view_text_min_width;
     field public static int abc_seekbar_track_background_height_material;
     field public static int abc_seekbar_track_progress_height_material;
     field public static int abc_select_dialog_padding_start_material;

@@ -27,8 +27,6 @@
 
     <dimen name="abc_panel_menu_list_width">296dp</dimen>
 
-    <!-- Minimum width of the search view text entry area. -->
-    <dimen name="abc_search_view_text_min_width">160dip</dimen>
     <!-- Preferred width of the search view. -->
     <dimen name="abc_search_view_preferred_width">320dip</dimen>
 
