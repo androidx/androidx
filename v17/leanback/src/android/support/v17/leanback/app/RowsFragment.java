@@ -25,10 +25,12 @@ import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.RowPresenter.ViewHolder;
 import android.support.v17.leanback.widget.ScaleFrameLayout;
 import android.support.v17.leanback.widget.VerticalGridView;
+import android.support.v17.leanback.widget.ViewHolderTask;
 import android.support.v17.leanback.widget.HorizontalGridView;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.Presenter;
+import android.support.v17.leanback.widget.PresenterViewHolderTask;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -229,6 +231,18 @@ public class RowsFragment extends BaseRowFragment {
                 setRowViewSelected(mSelectedViewHolder, true, false);
             }
         }
+    }
+
+    /**
+     * Get currently selected row ViewHolder.
+     * @return Currently selected row ViewHolder.
+     */
+    public RowPresenter.ViewHolder getSelectedRowViewHolder() {
+        if (mSelectedViewHolder == null) {
+            return null;
+        }
+        return ((RowPresenter)mSelectedViewHolder.getPresenter()).getRowViewHolder(
+                mSelectedViewHolder.getViewHolder());
     }
 
     @Override
@@ -545,6 +559,42 @@ public class RowsFragment extends BaseRowFragment {
                 RowPresenter.ViewHolder vh = rowPresenter.getRowViewHolder(ibvh.getViewHolder());
                 rowPresenter.setEntranceTransitionState(vh, mAfterEntranceTransition);
             }
+        }
+    }
+
+    /**
+     * Selects a Row and perform an optional task on the Row. For example
+     * <code>setSelectedPosition(10, true, new ListRowPresenterSelectItemViewHolderTask(5))</code>
+     * Scroll to 11th row and selects 6th item on that row.  The method will be ignored if
+     * RowsFragment has not been created (i.e. before {@link #onCreateView(LayoutInflater,
+     * ViewGroup, Bundle)}).
+     *
+     * @param rowPosition Which row to select.
+     * @param smooth True to scroll to the row, false for no animation.
+     * @param rowHolderTask Task to perform on the Row.
+     */
+    public void setSelectedPosition(int rowPosition, boolean smooth,
+            final PresenterViewHolderTask rowHolderTask) {
+        VerticalGridView verticalView = getVerticalGridView();
+        if (verticalView == null) {
+            return;
+        }
+        ViewHolderTask task = null;
+        if (rowHolderTask != null) {
+            task = new ViewHolderTask() {
+                @Override
+                public void run(RecyclerView.ViewHolder rvh) {
+                    ItemBridgeAdapter.ViewHolder ibvh = (ItemBridgeAdapter.ViewHolder) rvh;
+                    RowPresenter rowPresenter = (RowPresenter) ibvh.getPresenter();
+                    RowPresenter.ViewHolder vh = rowPresenter.getRowViewHolder(ibvh.getViewHolder());
+                    rowHolderTask.run(vh);
+                }
+            };
+        }
+        if (smooth) {
+            verticalView.setSelectedPositionSmooth(rowPosition, task);
+        } else {
+            verticalView.setSelectedPosition(rowPosition, task);
         }
     }
 }
