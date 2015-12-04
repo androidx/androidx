@@ -40,11 +40,14 @@
                 android:layout_height="wrap_content" />
         <!-- Note layout_marginTop attribute with action bar height as the value.
              This "pushes" down the main content so that it doesn't overlap with
-             the toolbar. -->
+             the toolbar. Note the usage of layout_gravity that addresses a bug in
+             FrameLayout on v9 and older devices that didn't correctly treat the
+             margin attributes. -->
         <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="?attr/actionBarSize"
+                android:layout_gravity="top"
                 android:scrollbarStyle="outsideOverlay">
             <TextView
                     android:id="@+id/content_text"
