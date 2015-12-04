@@ -57,4 +57,8 @@ public class BrowseSupportFragmentTestActivity extends FragmentActivity {
         }
         ft.commit();
     }
+
+    public BrowseTestSupportFragment getBrowseTestSupportFragment() {
+        return (BrowseTestSupportFragment) getSupportFragmentManager().findFragmentById(R.id.main_frame);
+    }
 }
