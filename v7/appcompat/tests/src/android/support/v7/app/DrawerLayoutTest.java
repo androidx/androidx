@@ -15,12 +15,17 @@
  */
 package android.support.v7.app;
 
+import android.content.res.Resources;
+import android.os.Build;
+import android.view.View;
+
 import android.support.test.espresso.action.Press;
 import android.support.test.espresso.action.GeneralLocation;
 import android.support.test.espresso.action.GeneralSwipeAction;
 import android.support.test.espresso.action.Swipe;
+
 import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.custom.CustomDrawerLayout;
 import android.support.v7.appcompat.test.R;
 
 import org.junit.Test;
@@ -29,7 +34,11 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
 public class DrawerLayoutTest extends BaseInstrumentationTestCase<DrawerLayoutActivity> {
-    private DrawerLayout mDrawerLayout;
+    private CustomDrawerLayout mDrawerLayout;
+
+    private View mStartDrawer;
+
+    private View mContentView;
 
     public DrawerLayoutTest() {
         super(DrawerLayoutActivity.class);
@@ -39,7 +48,9 @@ public class DrawerLayoutTest extends BaseInstrumentationTestCase<DrawerLayoutAc
         super.setUp();
 
         final DrawerLayoutActivity activity = getActivity();
-        mDrawerLayout = (DrawerLayout) activity.findViewById(R.id.drawer_layout);
+        mDrawerLayout = (CustomDrawerLayout) activity.findViewById(R.id.drawer_layout);
+        mStartDrawer = mDrawerLayout.findViewById(R.id.start_drawer);
+        mContentView = mDrawerLayout.findViewById(R.id.content);
 
         // Close the drawer to reset the state for the next test
         onView(withId(R.id.drawer_layout)).perform(
@@ -133,6 +144,40 @@ public class DrawerLayoutTest extends BaseInstrumentationTestCase<DrawerLayoutAc
                             GeneralLocation.CENTER_LEFT, Press.FINGER));
             assertFalse("Closed drawer is still closed #" + i,
                     mDrawerLayout.isDrawerOpen(GravityCompat.START));
+        }
+    }
+
+    @Test
+    public void testDrawerHeight() {
+        // Open the drawer so it becomes visible
+        onView(withId(R.id.drawer_layout)).perform(
+                DrawerLayoutActions.closeDrawer(GravityCompat.START));
+
+        final int drawerLayoutHeight = mDrawerLayout.getHeight();
+        final int startDrawerHeight = mStartDrawer.getHeight();
+        final int contentHeight = mContentView.getHeight();
+
+        // On all devices the height of the drawer layout and the drawer should be identical.
+        assertEquals("Drawer layout and drawer heights", drawerLayoutHeight, startDrawerHeight);
+
+        if (Build.VERSION.SDK_INT < 21) {
+            // On pre-L devices the content height should be the same as the drawer layout height.
+            assertEquals("Drawer layout and content heights on pre-L",
+                    drawerLayoutHeight, contentHeight);
+        } else {
+            // Our drawer layout is configured with android:fitsSystemWindows="true" which should be
+            // respected on L+ devices to extend the drawer layout into the system status bar.
+            // The start drawer is also configured with the same attribute so it should have the
+            // same height as the drawer layout. The main content does not have that attribute
+            // specified, so it should have its height reduced by the height of the system status
+            // bar.
+
+            // Get the system window top inset that was propagated to the top-level DrawerLayout
+            // during its layout.
+            int drawerTopInset = mDrawerLayout.getSystemWindowInsetTop();
+            assertTrue("Drawer top inset is positive on L+", drawerTopInset > 0);
+            assertEquals("Drawer layout and drawer heights on L+",
+                    drawerLayoutHeight - drawerTopInset, contentHeight);
         }
     }
 }
