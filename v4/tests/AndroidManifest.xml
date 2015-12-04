@@ -38,6 +38,7 @@
         <activity
             android:name="android.support.v4.ThemedYellowActivity"
             android:theme="@style/YellowTheme" />
+        <activity android:name="android.support.v4.app.test.FragmentTestActivity"/>
     </application>
 
     <instrumentation android:name="android.test.InstrumentationTestRunner"
