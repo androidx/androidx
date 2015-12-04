@@ -15,9 +15,6 @@
 -->
 
 <resources>
-    <!-- Minimum width of the search view text entry area. -->
-    <dimen name="abc_search_view_text_min_width">192dip</dimen>
-
     <item type="dimen" name="abc_dialog_fixed_width_major">50%</item>
     <item type="dimen" name="abc_dialog_fixed_width_minor">70%</item>
     <item type="dimen" name="abc_dialog_fixed_height_major">60%</item>

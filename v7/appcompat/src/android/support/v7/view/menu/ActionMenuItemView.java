@@ -71,8 +71,7 @@ public class ActionMenuItemView extends AppCompatTextView
     public ActionMenuItemView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         final Resources res = context.getResources();
-        mAllowTextWithIcon = res.getBoolean(
-                R.bool.abc_config_allowActionMenuItemTextWithIcon);
+        mAllowTextWithIcon = shouldAllowTextWithIcon();
         TypedArray a = context.obtainStyledAttributes(attrs,
                 R.styleable.ActionMenuItemView, defStyle, 0);
         mMinWidth = a.getDimensionPixelSize(
@@ -93,9 +92,20 @@ public class ActionMenuItemView extends AppCompatTextView
             super.onConfigurationChanged(newConfig);
         }
 
-        mAllowTextWithIcon = getContext().getResources().getBoolean(
-                R.bool.abc_config_allowActionMenuItemTextWithIcon);
+        mAllowTextWithIcon = shouldAllowTextWithIcon();
         updateTextButtonVisibility();
+    }
+
+    /**
+     * Whether action menu items should obey the "withText" showAsAction flag. This may be set to
+     * false for situations where space is extremely limited. -->
+     */
+    private boolean shouldAllowTextWithIcon() {
+        final Configuration configuration = getContext().getResources().getConfiguration();
+        final int width = configuration.screenWidthDp;
+        final int height = configuration.screenHeightDp;
+        return  width >= 480 || (width >= 640 && height >= 480)
+                || configuration.orientation == Configuration.ORIENTATION_LANDSCAPE;
     }
 
     @Override
