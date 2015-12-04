@@ -27,6 +27,7 @@ import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
+import android.support.v17.leanback.widget.PresenterViewHolderTask;
 import android.support.v17.leanback.widget.RowHeaderPresenter;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.TitleView;
@@ -337,6 +338,22 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     }
 
     /**
+     * Get currently bound RowsSupportFragment or null if BrowseSupportFragment has not been created yet.
+     * @return Currently bound RowsSupportFragment or null if BrowseSupportFragment has not been created yet.
+     */
+    public RowsSupportFragment getRowsSupportFragment() {
+        return mRowsSupportFragment;
+    }
+
+    /**
+     * Get currently bound HeadersSupportFragment or null if HeadersSupportFragment has not been created yet.
+     * @return Currently bound HeadersSupportFragment or null if HeadersSupportFragment has not been created yet.
+     */
+    public HeadersSupportFragment getHeadersSupportFragment() {
+        return mHeadersSupportFragment;
+    }
+
+    /**
      * Sets an item clicked listener on the fragment.
      * OnItemViewClickedListener will override {@link View.OnClickListener} that
      * item presenter sets during {@link Presenter#onCreateViewHolder(ViewGroup)}.
@@ -446,7 +463,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         });
     }
 
-    private boolean isVerticalScrolling() {
+    boolean isVerticalScrolling() {
         // don't run transition
         return mHeadersSupportFragment.getVerticalGridView().getScrollState()
                 != HorizontalGridView.SCROLL_STATE_IDLE
@@ -781,11 +798,53 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     }
 
     /**
+     * Gets position of currently selected row.
+     * @return Position of currently selected row.
+     */
+    public int getSelectedPosition() {
+        return mSelectedPosition;
+    }
+
+    /**
+     * Gets currently selected row ViewHolder.
+     * @return Currently selected row ViewHolder.
+     */
+    public RowPresenter.ViewHolder getSelectedRowViewHolder() {
+        if (mRowsSupportFragment == null) {
+            return null;
+        }
+        return mRowsSupportFragment.getSelectedRowViewHolder();
+    }
+
+    /**
      * Sets the selected row position.
      */
     public void setSelectedPosition(int position, boolean smooth) {
         mSetSelectionRunnable.post(
                 position, SetSelectionRunnable.TYPE_USER_REQUEST, smooth);
+    }
+
+    /**
+     * Selects a Row and perform an optional task on the Row. For example
+     * <code>setSelectedPosition(10, true, new ListRowPresenterSelectItemViewHolderTask(5))</code>
+     * scrolls to 11th row and selects 6th item on that row.  The method will be ignored if
+     * RowsSupportFragment has not been created (i.e. before {@link #onCreateView(LayoutInflater,
+     * ViewGroup, Bundle)}).
+     *
+     * @param rowPosition Which row to select.
+     * @param smooth True to scroll to the row, false for no animation.
+     * @param rowHolderTask Optional task to perform on the Row.  When the task is not null, headers
+     * fragment will be collapsed.
+     */
+    public void setSelectedPosition(int rowPosition, boolean smooth,
+            final PresenterViewHolderTask rowHolderTask) {
+        if (mRowsSupportFragment == null) {
+            return;
+        }
+        if (rowHolderTask != null) {
+            startHeadersTransition(false);
+        }
+        mRowsSupportFragment.setSelectedPosition(rowPosition, smooth, rowHolderTask);
     }
 
     @Override
