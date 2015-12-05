@@ -2952,6 +2952,34 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     }
 
     @Test
+    public void computeScrollOfsetWithoutLayoutManager() throws Throwable {
+        RecyclerView rv = new RecyclerView(getActivity());
+        rv.setAdapter(new TestAdapter(10));
+        setRecyclerView(rv);
+        assertEquals(0, rv.computeHorizontalScrollExtent());
+        assertEquals(0, rv.computeHorizontalScrollOffset());
+        assertEquals(0, rv.computeHorizontalScrollRange());
+
+        assertEquals(0, rv.computeVerticalScrollExtent());
+        assertEquals(0, rv.computeVerticalScrollOffset());
+        assertEquals(0, rv.computeVerticalScrollRange());
+    }
+
+    @Test
+    public void computeScrollOfsetWithoutAdapter() throws Throwable {
+        RecyclerView rv = new RecyclerView(getActivity());
+        rv.setLayoutManager(new TestLayoutManager());
+        setRecyclerView(rv);
+        assertEquals(0, rv.computeHorizontalScrollExtent());
+        assertEquals(0, rv.computeHorizontalScrollOffset());
+        assertEquals(0, rv.computeHorizontalScrollRange());
+
+        assertEquals(0, rv.computeVerticalScrollExtent());
+        assertEquals(0, rv.computeVerticalScrollOffset());
+        assertEquals(0, rv.computeVerticalScrollRange());
+    }
+
+    @Test
     public void testFocusRectOnScreenWithDecorOffsets() throws Throwable {
         focusRectOnScreenTest(true);
     }
@@ -2960,7 +2988,6 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     public void testFocusRectOnScreenWithout() throws Throwable {
         focusRectOnScreenTest(false);
     }
-
 
     public void focusRectOnScreenTest(boolean addItemDecors) throws Throwable {
         RecyclerView rv = new RecyclerView(getActivity());
