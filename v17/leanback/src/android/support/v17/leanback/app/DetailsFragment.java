@@ -81,6 +81,9 @@ public class DetailsFragment extends BaseFragment {
 
         @Override
         public void run() {
+            if (mRowsFragment == null) {
+                return;
+            }
             mRowsFragment.setSelectedPosition(mPosition, mSmooth);
         }
     }
@@ -273,7 +276,12 @@ public class DetailsFragment extends BaseFragment {
         return mRowsFragment == null ? null : mRowsFragment.getVerticalGridView();
     }
 
-    RowsFragment getRowsFragment() {
+    /**
+     * Gets embedded RowsFragment showing multiple rows for DetailsFragment.  If view of
+     * DetailsFragment is not created, the method returns null.
+     * @return Embedded RowsFragment showing multiple rows for DetailsFragment.
+     */
+    public RowsFragment getRowsFragment() {
         return mRowsFragment;
     }
 

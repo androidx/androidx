@@ -83,6 +83,9 @@ public class DetailsSupportFragment extends BaseSupportFragment {
 
         @Override
         public void run() {
+            if (mRowsSupportFragment == null) {
+                return;
+            }
             mRowsSupportFragment.setSelectedPosition(mPosition, mSmooth);
         }
     }
@@ -275,7 +278,12 @@ public class DetailsSupportFragment extends BaseSupportFragment {
         return mRowsSupportFragment == null ? null : mRowsSupportFragment.getVerticalGridView();
     }
 
-    RowsSupportFragment getRowsSupportFragment() {
+    /**
+     * Gets embedded RowsSupportFragment showing multiple rows for DetailsSupportFragment.  If view of
+     * DetailsSupportFragment is not created, the method returns null.
+     * @return Embedded RowsSupportFragment showing multiple rows for DetailsSupportFragment.
+     */
+    public RowsSupportFragment getRowsSupportFragment() {
         return mRowsSupportFragment;
     }
 

@@ -77,16 +77,51 @@ public class ListRowPresenter extends RowPresenter {
             mPaddingRight = mGridView.getPaddingRight();
         }
 
+        /**
+         * Gets ListRowPresenter that creates this ViewHolder.
+         * @return ListRowPresenter that creates this ViewHolder.
+         */
         public final ListRowPresenter getListRowPresenter() {
             return mListRowPresenter;
         }
 
+        /**
+         * Gets HorizontalGridView that shows a list of items.
+         * @return HorizontalGridView that shows a list of items.
+         */
         public final HorizontalGridView getGridView() {
             return mGridView;
         }
 
+        /**
+         * Gets ItemBridgeAdapter that creates the list of items.
+         * @return ItemBridgeAdapter that creates the list of items.
+         */
         public final ItemBridgeAdapter getBridgeAdapter() {
             return mItemBridgeAdapter;
+        }
+
+        /**
+         * Gets selected item position in adapter.
+         * @return Selected item position in adapter.
+         */
+        public int getSelectedPosition() {
+            return mGridView.getSelectedPosition();
+        }
+
+        /**
+         * Gets ViewHolder at a position in adapter.  Returns null if the item does not exist
+         * or the item is not bound to a view.
+         * @param position Position of the item in adapter.
+         * @return ViewHolder bounds to the item.
+         */
+        public Presenter.ViewHolder getItemViewHolder(int position) {
+            ItemBridgeAdapter.ViewHolder ibvh = (ItemBridgeAdapter.ViewHolder) mGridView
+                    .findViewHolderForAdapterPosition(position);
+            if (ibvh == null) {
+                return null;
+            }
+            return ibvh.getViewHolder();
         }
     }
 
