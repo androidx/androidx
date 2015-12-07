@@ -831,4 +831,18 @@ public final class TransitionHelper {
     public static void setTransitionGroup(ViewGroup viewGroup, boolean transitionGroup) {
         sImpl.setTransitionGroup(viewGroup, transitionGroup);
     }
+
+    /**
+     * @deprecated
+     */
+    public static TransitionHelper getInstance() {
+        return new TransitionHelper();
+    }
+
+    /**
+     * @deprecated
+     */
+    public static void setTransitionListener(Object transition, TransitionListener listener) {
+        sImpl.addTransitionListener(transition, listener);
+    }
 }
