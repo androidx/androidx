@@ -62,6 +62,12 @@ class AppCompatViewInflater {
             Context.class, AttributeSet.class};
     private static final int[] sOnClickAttrs = new int[]{android.R.attr.onClick};
 
+    private static final String[] sClassPrefixList = {
+            "android.widget.",
+            "android.view.",
+            "android.webkit."
+    };
+
     private static final String LOG_TAG = "AppCompatViewInflater";
 
     private static final Map<String, Constructor<? extends View>> sConstructorMap
@@ -153,8 +159,13 @@ class AppCompatViewInflater {
             mConstructorArgs[1] = attrs;
 
             if (-1 == name.indexOf('.')) {
-                // try the android.widget prefix first...
-                return createView(context, name, "android.widget.");
+                for (int i = 0; i < sClassPrefixList.length; i++) {
+                    final View view = createView(context, name, sClassPrefixList[i]);
+                    if (view != null) {
+                        return view;
+                    }
+                }
+                return null;
             } else {
                 return createView(context, name, null);
             }
