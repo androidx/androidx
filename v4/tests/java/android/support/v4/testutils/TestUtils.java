@@ -23,6 +23,7 @@ import java.lang.RuntimeException;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
@@ -83,7 +84,7 @@ public class TestUtils {
      * Checks whether all the pixels in the specified drawable are of the same specified color.
      *
      * In case there is a color mismatch, the behavior of this method depends on the
-     * I<code>throwExceptionIfFails</code> parameter. If it is <code>true</code>, this method will
+     * <code>throwExceptionIfFails</code> parameter. If it is <code>true</code>, this method will
      * throw an <code>Exception</code> describing the mismatch. Otherwise this method will call
      * <code>Assert.fail</code> with detailed description of the mismatch.
      */
@@ -123,5 +124,17 @@ public class TestUtils {
         } finally {
             bitmap.recycle();
         }
+    }
+
+    /**
+     * Checks whether the specified rectangle matches the specified left / top / right /
+     * bottom bounds.
+     */
+    public static void assertRectangleBounds(String failMessagePrefix, @NonNull Rect rectangle,
+            int left, int top, int right, int bottom) {
+        Assert.assertEquals(failMessagePrefix + " left", rectangle.left, left);
+        Assert.assertEquals(failMessagePrefix + " top", rectangle.top, top);
+        Assert.assertEquals(failMessagePrefix + " right", rectangle.right, right);
+        Assert.assertEquals(failMessagePrefix + " bottom", rectangle.bottom, bottom);
     }
 }

@@ -15,13 +15,17 @@
  */
 package android.support.v4.view;
 
+import android.graphics.Rect;
 import android.os.Build;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.view.ViewCompat;
-import android.test.AndroidTestCase;
-import android.test.suitebuilder.annotation.SmallTest;
 import android.view.Gravity;
 import android.view.View;
+
+import android.support.v4.testutils.TestUtils;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewCompat;
+
+import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.SmallTest;
 
 public class GravityCompatTest extends AndroidTestCase {
     @SmallTest
@@ -76,6 +80,246 @@ public class GravityCompatTest extends AndroidTestCase {
                     GravityCompat.getAbsoluteGravity(GravityCompat.END,
                             ViewCompat.LAYOUT_DIRECTION_RTL),
                     Gravity.RIGHT);
+        }
+    }
+
+    @SmallTest
+    public void testApplyNoOffsetsLtr() {
+        Rect outRect = new Rect();
+
+        // Left / top aligned under LTR direction
+        GravityCompat.apply(Gravity.LEFT | Gravity.TOP, 100, 50,
+                new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_LTR);
+        TestUtils.assertRectangleBounds("Left / top aligned under LTR: ",
+                outRect, 0, 0, 100, 50);
+
+        // Center / top aligned under LTR direction
+        GravityCompat.apply(Gravity.CENTER_HORIZONTAL | Gravity.TOP, 100, 50,
+                new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_LTR);
+        TestUtils.assertRectangleBounds("Center / top aligned under LTR: ",
+                outRect, 50, 0, 150, 50);
+
+        // Right / top aligned under LTR direction
+        GravityCompat.apply(Gravity.RIGHT | Gravity.TOP, 100, 50,
+                new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_LTR);
+        TestUtils.assertRectangleBounds("Right / top aligned under LTR: ",
+                outRect, 100, 0, 200, 50);
+
+        // Left / center aligned under LTR direction
+        GravityCompat.apply(Gravity.LEFT | Gravity.CENTER_VERTICAL, 100, 50,
+                new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_LTR);
+        TestUtils.assertRectangleBounds("Left / center aligned under LTR: ",
+                outRect, 0, 25, 100, 75);
+
+        // Center / center aligned under LTR direction
+        GravityCompat.apply(Gravity.CENTER, 100, 50,
+                new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_LTR);
+        TestUtils.assertRectangleBounds("Center / center aligned under LTR: ",
+                outRect, 50, 25, 150, 75);
+
+        // Right / center aligned under LTR direction
+        GravityCompat.apply(Gravity.RIGHT | Gravity.CENTER_VERTICAL, 100, 50,
+                new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_LTR);
+        TestUtils.assertRectangleBounds("Right / center aligned under LTR: ",
+                outRect, 100, 25, 200, 75);
+
+        // Left / bottom aligned under LTR direction
+        GravityCompat.apply(Gravity.LEFT | Gravity.BOTTOM, 100, 50,
+                new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_LTR);
+        TestUtils.assertRectangleBounds("Left / bottom aligned under LTR: ",
+                outRect, 0, 50, 100, 100);
+
+        // Center / bottom aligned under LTR direction
+        GravityCompat.apply(Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM, 100, 50,
+                new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_LTR);
+        TestUtils.assertRectangleBounds("Center / bottom aligned under LTR: ",
+                outRect, 50, 50, 150, 100);
+
+        // Right / bottom aligned under LTR direction
+        GravityCompat.apply(Gravity.RIGHT | Gravity.BOTTOM, 100, 50,
+                new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_LTR);
+        TestUtils.assertRectangleBounds("Right / bottom aligned under LTR: ",
+                outRect, 100, 50, 200, 100);
+
+        // The following tests are expected to pass on all devices since START under LTR is LEFT
+        // and END under LTR is RIGHT on pre-v17 and v17+ versions of the platform.
+
+        // Start / top aligned under LTR direction
+        GravityCompat.apply(GravityCompat.START | Gravity.TOP, 100, 50,
+                new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_LTR);
+        TestUtils.assertRectangleBounds("Start / top aligned under LTR: ",
+                outRect, 0, 0, 100, 50);
+
+        // End / top aligned under LTR direction
+        GravityCompat.apply(GravityCompat.END | Gravity.TOP, 100, 50,
+                new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_LTR);
+        TestUtils.assertRectangleBounds("End / top aligned under LTR: ",
+                outRect, 100, 0, 200, 50);
+
+        // Start / center aligned under LTR direction
+        GravityCompat.apply(GravityCompat.START | Gravity.CENTER_VERTICAL, 100, 50,
+                new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_LTR);
+        TestUtils.assertRectangleBounds("Start / center aligned under LTR: ",
+                outRect, 0, 25, 100, 75);
+
+        // End / center aligned under LTR direction
+        GravityCompat.apply(GravityCompat.END | Gravity.CENTER_VERTICAL, 100, 50,
+                new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_LTR);
+        TestUtils.assertRectangleBounds("End / center aligned under LTR: ",
+                outRect, 100, 25, 200, 75);
+
+        // Start / bottom aligned under LTR direction
+        GravityCompat.apply(GravityCompat.START | Gravity.BOTTOM, 100, 50,
+                new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_LTR);
+        TestUtils.assertRectangleBounds("Start / bottom aligned under LTR: ",
+                outRect, 0, 50, 100, 100);
+
+        // End / bottom aligned under LTR direction
+        GravityCompat.apply(GravityCompat.END | Gravity.BOTTOM, 100, 50,
+                new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_LTR);
+        TestUtils.assertRectangleBounds("End / bottom aligned under LTR: ",
+                outRect, 100, 50, 200, 100);
+    }
+
+    @SmallTest
+    public void testApplyNoOffsetsRtl() {
+        Rect outRect = new Rect();
+
+        // The following tests are expected to pass on all devices since they are using
+        // Gravity constants that are not RTL-aware
+
+        // Left / top aligned under RTL direction
+        GravityCompat.apply(Gravity.LEFT | Gravity.TOP, 100, 50,
+                new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_RTL);
+        TestUtils.assertRectangleBounds("Left / top aligned under RTL: ",
+                outRect, 0, 0, 100, 50);
+
+        // Center / top aligned under RTL direction
+        GravityCompat.apply(Gravity.CENTER_HORIZONTAL | Gravity.TOP, 100, 50,
+                new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_RTL);
+        TestUtils.assertRectangleBounds("Center / top aligned under RTL: ",
+                outRect, 50, 0, 150, 50);
+
+        // Right / top aligned under RTL direction
+        GravityCompat.apply(Gravity.RIGHT | Gravity.TOP, 100, 50,
+                new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_RTL);
+        TestUtils.assertRectangleBounds("Right / top aligned under RTL: ",
+                outRect, 100, 0, 200, 50);
+
+        // Left / center aligned under RTL direction
+        GravityCompat.apply(Gravity.LEFT | Gravity.CENTER_VERTICAL, 100, 50,
+                new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_RTL);
+        TestUtils.assertRectangleBounds("Left / center aligned under RTL: ",
+                outRect, 0, 25, 100, 75);
+
+        // Center / center aligned under RTL direction
+        GravityCompat.apply(Gravity.CENTER, 100, 50,
+                new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_RTL);
+        TestUtils.assertRectangleBounds("Center / center aligned under RTL: ",
+                outRect, 50, 25, 150, 75);
+
+        // Right / center aligned under RTL direction
+        GravityCompat.apply(Gravity.RIGHT | Gravity.CENTER_VERTICAL, 100, 50,
+                new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_RTL);
+        TestUtils.assertRectangleBounds("Right / center aligned under RTL: ",
+                outRect, 100, 25, 200, 75);
+
+        // Left / bottom aligned under RTL direction
+        GravityCompat.apply(Gravity.LEFT | Gravity.BOTTOM, 100, 50,
+                new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_RTL);
+        TestUtils.assertRectangleBounds("Left / bottom aligned under RTL: ",
+                outRect, 0, 50, 100, 100);
+
+        // Center / bottom aligned under RTL direction
+        GravityCompat.apply(Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM, 100, 50,
+                new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_RTL);
+        TestUtils.assertRectangleBounds("Center / bottom aligned under RTL: ",
+                outRect, 50, 50, 150, 100);
+
+        // Right / bottom aligned under RTL direction
+        GravityCompat.apply(Gravity.RIGHT | Gravity.BOTTOM, 100, 50,
+                new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_RTL);
+        TestUtils.assertRectangleBounds("Right / bottom aligned under RTL: ",
+                outRect, 100, 50, 200, 100);
+
+
+        if (Build.VERSION.SDK_INT >= 17) {
+            // The following tests are only expected to pass on v17+ devices since START under
+            // RTL is RIGHT and END under RTL is LEFT only on those devices.
+
+            // Start / top aligned under RTL direction
+            GravityCompat.apply(GravityCompat.START | Gravity.TOP, 100, 50,
+                    new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_RTL);
+            TestUtils.assertRectangleBounds("Start / top aligned under RTL: ",
+                    outRect, 100, 0, 200, 50);
+
+            // End / top aligned under RTL direction
+            GravityCompat.apply(GravityCompat.END | Gravity.TOP, 100, 50,
+                    new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_RTL);
+            TestUtils.assertRectangleBounds("End / top aligned under RTL: ",
+                    outRect, 0, 0, 100, 50);
+
+            // Start / center aligned under RTL direction
+            GravityCompat.apply(GravityCompat.START | Gravity.CENTER_VERTICAL, 100, 50,
+                    new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_RTL);
+            TestUtils.assertRectangleBounds("Start / center aligned under RTL: ",
+                    outRect, 100, 25, 200, 75);
+
+            // End / center aligned under RTL direction
+            GravityCompat.apply(GravityCompat.END | Gravity.CENTER_VERTICAL, 100, 50,
+                    new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_RTL);
+            TestUtils.assertRectangleBounds("End / center aligned under RTL: ",
+                    outRect, 0, 25, 100, 75);
+
+            // Start / bottom aligned under RTL direction
+            GravityCompat.apply(GravityCompat.START | Gravity.BOTTOM, 100, 50,
+                    new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_RTL);
+            TestUtils.assertRectangleBounds("Start / bottom aligned under RTL: ",
+                    outRect, 100, 50, 200, 100);
+
+            // End / bottom aligned under RTL direction
+            GravityCompat.apply(GravityCompat.END | Gravity.BOTTOM, 100, 50,
+                    new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_RTL);
+            TestUtils.assertRectangleBounds("End / bottom aligned under RTL: ",
+                    outRect, 0, 50, 100, 100);
+        } else {
+            // And on older devices START is always LEFT, END is always RIGHT
+
+            // Start / top aligned under RTL direction
+            GravityCompat.apply(GravityCompat.START | Gravity.TOP, 100, 50,
+                    new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_RTL);
+            TestUtils.assertRectangleBounds("Start / top aligned under RTL: ",
+                    outRect, 0, 0, 100, 50);
+
+            // End / top aligned under RTL direction
+            GravityCompat.apply(GravityCompat.END | Gravity.TOP, 100, 50,
+                    new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_RTL);
+            TestUtils.assertRectangleBounds("End / top aligned under RTL: ",
+                    outRect, 100, 0, 200, 50);
+
+            // Start / center aligned under RTL direction
+            GravityCompat.apply(GravityCompat.START | Gravity.CENTER_VERTICAL, 100, 50,
+                    new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_RTL);
+            TestUtils.assertRectangleBounds("Start / center aligned under RTL: ",
+                    outRect, 0, 25, 100, 75);
+
+            // End / center aligned under RTL direction
+            GravityCompat.apply(GravityCompat.END | Gravity.CENTER_VERTICAL, 100, 50,
+                    new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_RTL);
+            TestUtils.assertRectangleBounds("End / center aligned under RTL: ",
+                    outRect, 100, 25, 200, 75);
+
+            // Start / bottom aligned under RTL direction
+            GravityCompat.apply(GravityCompat.START | Gravity.BOTTOM, 100, 50,
+                    new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_RTL);
+            TestUtils.assertRectangleBounds("Start / bottom aligned under RTL: ",
+                    outRect, 0, 50, 100, 100);
+
+            // End / bottom aligned under RTL direction
+            GravityCompat.apply(GravityCompat.END | Gravity.BOTTOM, 100, 50,
+                    new Rect(0, 0, 200, 100), outRect, ViewCompat.LAYOUT_DIRECTION_RTL);
+            TestUtils.assertRectangleBounds("End / bottom aligned under RTL: ",
+                    outRect, 100, 50, 200, 100);
         }
     }
 }
