@@ -133,6 +133,7 @@ package android.support.v17.leanback.app {
     method protected java.lang.Object createEntranceTransition();
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public android.support.v17.leanback.widget.OnItemViewClickedListener getOnItemViewClickedListener();
+    method public android.support.v17.leanback.app.RowsFragment getRowsFragment();
     method protected android.view.View inflateTitle(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
     method protected void onEntranceTransitionEnd();
     method protected void onEntranceTransitionPrepare();
@@ -155,6 +156,7 @@ package android.support.v17.leanback.app {
     method protected java.lang.Object createEntranceTransition();
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public android.support.v17.leanback.widget.OnItemViewClickedListener getOnItemViewClickedListener();
+    method public android.support.v17.leanback.app.RowsSupportFragment getRowsSupportFragment();
     method protected android.view.View inflateTitle(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
     method protected void onEntranceTransitionEnd();
     method protected void onEntranceTransitionPrepare();
@@ -549,6 +551,7 @@ package android.support.v17.leanback.app {
     method protected android.support.v17.leanback.widget.VerticalGridView findGridViewFromRoot(android.view.View);
     method public android.support.v17.leanback.widget.OnItemViewClickedListener getOnItemViewClickedListener();
     method public android.support.v17.leanback.widget.OnItemViewSelectedListener getOnItemViewSelectedListener();
+    method public android.support.v17.leanback.widget.RowPresenter.ViewHolder getRowViewHolder(int);
     method public android.support.v17.leanback.widget.RowPresenter.ViewHolder getSelectedRowViewHolder();
     method public void setExpand(boolean);
     method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.OnItemViewClickedListener);
@@ -562,6 +565,7 @@ package android.support.v17.leanback.app {
     method protected android.support.v17.leanback.widget.VerticalGridView findGridViewFromRoot(android.view.View);
     method public android.support.v17.leanback.widget.OnItemViewClickedListener getOnItemViewClickedListener();
     method public android.support.v17.leanback.widget.OnItemViewSelectedListener getOnItemViewSelectedListener();
+    method public android.support.v17.leanback.widget.RowPresenter.ViewHolder getRowViewHolder(int);
     method public android.support.v17.leanback.widget.RowPresenter.ViewHolder getSelectedRowViewHolder();
     method public void setExpand(boolean);
     method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.OnItemViewClickedListener);
@@ -1359,7 +1363,9 @@ package android.support.v17.leanback.widget {
     ctor public ListRowPresenter.ViewHolder(android.view.View, android.support.v17.leanback.widget.HorizontalGridView, android.support.v17.leanback.widget.ListRowPresenter);
     method public final android.support.v17.leanback.widget.ItemBridgeAdapter getBridgeAdapter();
     method public final android.support.v17.leanback.widget.HorizontalGridView getGridView();
+    method public android.support.v17.leanback.widget.Presenter.ViewHolder getItemViewHolder(int);
     method public final android.support.v17.leanback.widget.ListRowPresenter getListRowPresenter();
+    method public int getSelectedPosition();
   }
 
   public class ListRowPresenterSelectItemViewHolderTask extends android.support.v17.leanback.widget.PresenterViewHolderTask {

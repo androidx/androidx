@@ -193,9 +193,7 @@ public class RowsFragment extends BaseRowFragment {
                 View view = listView.getChildAt(i);
                 ItemBridgeAdapter.ViewHolder ibvh = (ItemBridgeAdapter.ViewHolder)
                         listView.getChildViewHolder(view);
-                RowPresenter rowPresenter = (RowPresenter) ibvh.getPresenter();
-                RowPresenter.ViewHolder vh = rowPresenter.getRowViewHolder(ibvh.getViewHolder());
-                vh.setOnItemViewSelectedListener(mOnItemViewSelectedListener);
+                getRowViewHolder(ibvh).setOnItemViewSelectedListener(mOnItemViewSelectedListener);
             }
         }
     }
@@ -238,11 +236,22 @@ public class RowsFragment extends BaseRowFragment {
      * @return Currently selected row ViewHolder.
      */
     public RowPresenter.ViewHolder getSelectedRowViewHolder() {
-        if (mSelectedViewHolder == null) {
+        return getRowViewHolder(mSelectedViewHolder);
+    }
+
+    /**
+     * Get row ViewHolder at adapter position.  Returns null if the row object is not in adapter or
+     * the row object has not been bound to a row view.
+     * @param position Position of row in adapter.
+     * @return Row ViewHolder at a given adapter position.
+     */
+    public RowPresenter.ViewHolder getRowViewHolder(int position) {
+        VerticalGridView verticalView = getVerticalGridView();
+        if (verticalView == null) {
             return null;
         }
-        return ((RowPresenter)mSelectedViewHolder.getPresenter()).getRowViewHolder(
-                mSelectedViewHolder.getViewHolder());
+        return getRowViewHolder((ItemBridgeAdapter.ViewHolder)
+                verticalView.findViewHolderForAdapterPosition(position));
     }
 
     @Override
@@ -584,10 +593,7 @@ public class RowsFragment extends BaseRowFragment {
             task = new ViewHolderTask() {
                 @Override
                 public void run(RecyclerView.ViewHolder rvh) {
-                    ItemBridgeAdapter.ViewHolder ibvh = (ItemBridgeAdapter.ViewHolder) rvh;
-                    RowPresenter rowPresenter = (RowPresenter) ibvh.getPresenter();
-                    RowPresenter.ViewHolder vh = rowPresenter.getRowViewHolder(ibvh.getViewHolder());
-                    rowHolderTask.run(vh);
+                    rowHolderTask.run(getRowViewHolder((ItemBridgeAdapter.ViewHolder) rvh));
                 }
             };
         }
@@ -596,5 +602,13 @@ public class RowsFragment extends BaseRowFragment {
         } else {
             verticalView.setSelectedPosition(rowPosition, task);
         }
+    }
+
+    static RowPresenter.ViewHolder getRowViewHolder(ItemBridgeAdapter.ViewHolder ibvh) {
+        if (ibvh == null) {
+            return null;
+        }
+        RowPresenter rowPresenter = (RowPresenter) ibvh.getPresenter();
+        return rowPresenter.getRowViewHolder(ibvh.getViewHolder());
     }
 }
