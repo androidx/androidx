@@ -163,6 +163,15 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".widget.AppBarLayoutToolbarCollapseThenPinNested"
+                  android:label="@string/design_appbar_collapsing_toolbar_pin_nested"
+                  android:theme="@style/Theme.Design">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.support.design.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".widget.AppBarLayoutToolbarCollapseThenScroll"
                   android:label="@string/design_appbar_collapsing_toolbar_scroll"
                   android:theme="@style/Theme.Design">

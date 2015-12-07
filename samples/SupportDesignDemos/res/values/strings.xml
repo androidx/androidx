@@ -74,6 +74,7 @@
     <string name="design_appbar_toolbar_scroll_tabs_pin_with_swiperefresh">AppBar/Toolbar Scroll + Tabs Pin + Swipe Refresh</string>
     <string name="design_appbar_collapsing_toolbar_pin">AppBar/Collapsing Toolbar (pinned)</string>
     <string name="design_appbar_collapsing_toolbar_pin_fab">AppBar/Collapsing Toolbar (pinned with FAB)</string>
+    <string name="design_appbar_collapsing_toolbar_pin_nested">AppBar/Collapsing Toolbar (pinned + nested)</string>
     <string name="design_appbar_collapsing_toolbar_scroll">AppBar/Collapsing Toolbar (scroll off)</string>
     <string name="design_appbar_collapsing_toolbar_scroll_with_swiperefresh">AppBar/Collapsing Toolbar (scroll off) + Swipe Refresh</string>
     <string name="design_appbar_collapsing_toolbar_with_image">AppBar/Collapsing Toolbar + Parallax Image</string>
