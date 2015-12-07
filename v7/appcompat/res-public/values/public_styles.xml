@@ -61,6 +61,13 @@
     <public type="style" name="TextAppearance.AppCompat.Widget.Switch"/>
     <public type="style" name="TextAppearance.AppCompat.Widget.TextView.SpinnerItem"/>
     <public type="style" name="Theme.AppCompat"/>
+    <public type="style" name="Theme.AppCompat.DayNight"/>
+    <public type="style" name="Theme.AppCompat.DayNight.DarkActionBar"/>
+    <public type="style" name="Theme.AppCompat.DayNight.Dialog"/>
+    <public type="style" name="Theme.AppCompat.DayNight.Dialog.Alert"/>
+    <public type="style" name="Theme.AppCompat.DayNight.Dialog.MinWidth"/>
+    <public type="style" name="Theme.AppCompat.DayNight.DialogWhenLarge"/>
+    <public type="style" name="Theme.AppCompat.DayNight.NoActionBar"/>
     <public type="style" name="Theme.AppCompat.Dialog"/>
     <public type="style" name="Theme.AppCompat.Dialog.Alert"/>
     <public type="style" name="Theme.AppCompat.Dialog.MinWidth"/>
