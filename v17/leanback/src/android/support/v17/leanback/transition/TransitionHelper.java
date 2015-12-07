@@ -833,15 +833,17 @@ public final class TransitionHelper {
     }
 
     /**
-     * @deprecated
+     * @deprecated Use static calls.
      */
+    @Deprecated
     public static TransitionHelper getInstance() {
         return new TransitionHelper();
     }
 
     /**
-     * @deprecated
+     * @deprecated Use {@link #addTransitionListener(Object, TransitionListener)}
      */
+    @Deprecated
     public static void setTransitionListener(Object transition, TransitionListener listener) {
         sImpl.addTransitionListener(transition, listener);
     }
