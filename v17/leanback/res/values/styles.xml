@@ -550,4 +550,9 @@
         <item name="android:visibility">gone</item>
     </style>
 
+    <!-- deprecated style, do not use -->
+    <style name="Widget.Leanback.GuidedActionsContainerStyle"></style>
+    <!-- deprecated style, do not use -->
+    <style name="Widget.Leanback.GuidedActionsSelectorStyle"></style>
+
 </resources>

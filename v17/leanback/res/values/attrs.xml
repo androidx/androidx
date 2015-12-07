@@ -448,6 +448,35 @@
              android.support.v17.leanback.R.dimen#lb_guidedactions_vertical_padding}. -->
         <attr name="guidedActionVerticalPadding" format="reference" />
 
+        <!-- Deprecated theme attribute, do not use -->
+        <attr name="guidedActionsContainerStyle" format="reference" />
+        <!-- Deprecated theme attribute, do not use -->
+        <attr name="guidedActionsSelectorStyle" format="reference" />
+        <!-- Deprecated theme attribute, do not use -->
+        <attr name="guidedStepEntryAnimation" format="reference" />
+        <!-- Deprecated theme attribute, do not use -->
+        <attr name="guidedStepExitAnimation" format="reference" />
+        <!-- Deprecated theme attribute, do not use -->
+        <attr name="guidedStepReentryAnimation" format="reference" />
+        <!-- Deprecated theme attribute, do not use -->
+        <attr name="guidedStepReturnAnimation" format="reference" />
+        <!-- Deprecated theme attribute, do not use -->
+        <attr name="guidanceEntryAnimation" format="reference" />
+        <!-- Deprecated theme attribute, do not use -->
+        <attr name="guidedActionsEntryAnimation" format="reference" />
+        <!-- Deprecated theme attribute, do not use -->
+        <attr name="guidedActionsSelectorShowAnimation" format="reference" />
+        <!-- Deprecated theme attribute, do not use -->
+        <attr name="guidedActionsSelectorHideAnimation" format="reference" />
+        <!-- Deprecated theme attribute, do not use -->
+        <attr name="guidedActionCheckedAnimation" format="reference" />
+        <!-- Deprecated theme attribute, do not use -->
+        <attr name="guidedActionUncheckedAnimation" format="reference" />
+        <!-- Deprecated theme attribute, do not use -->
+        <attr name="guidedActionContentWidth" format="reference" />
+        <!-- Deprecated theme attribute, do not use -->
+        <attr name="guidedActionContentWidthNoIcon" format="reference" />
+
     </declare-styleable>
 
 </resources>
