@@ -368,6 +368,15 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         });
     }
 
+    public void setVisibility(final View view, final int visibility) throws Throwable {
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                view.setVisibility(visibility);
+            }
+        });
+    }
+
     class TestViewHolder extends RecyclerView.ViewHolder {
 
         Item mBoundItem;
