@@ -19,6 +19,7 @@ package android.support.v7.app;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.support.v7.appcompat.R;
 import android.support.v7.view.ActionMode;
 import android.support.v7.view.SupportMenuInflater;
@@ -113,6 +114,11 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
     abstract boolean onKeyShortcut(int keyCode, KeyEvent event);
 
     @Override
+    public void setLocalNightMode(@NightMode int mode) {
+        // no-op
+    }
+
+    @Override
     public final ActionBarDrawerToggle.Delegate getDrawerToggleDelegate() {
         return new ActionBarDrawableToggleImpl();
     }
@@ -189,6 +195,12 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
         return false;
     }
 
+    @Override
+    public boolean applyDayNight() {
+        // no-op on v7
+        return false;
+    }
+
     final boolean isDestroyed() {
         return mIsDestroyed;
     }
@@ -201,6 +213,11 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
     public final void setTitle(CharSequence title) {
         mTitle = title;
         onTitleChanged(title);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        // no-op
     }
 
     abstract void onTitleChanged(CharSequence title);

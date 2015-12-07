@@ -18,6 +18,7 @@ package android.support.v7.app;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.UiModeManager;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Build;
@@ -31,6 +32,7 @@ import android.support.v7.appcompat.R;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -74,6 +76,41 @@ import java.lang.annotation.RetentionPolicy;
 public abstract class AppCompatDelegate {
 
     static final String TAG = "AppCompatDelegate";
+
+    /**
+     * Mode which means to not use night mode, and therefore not use {@code night} qualified
+     * resources, regardless of the time.
+     *
+     * @see #setLocalNightMode(int)
+     */
+    public static final int MODE_NIGHT_NO = UiModeManager.MODE_NIGHT_NO;
+
+    /**
+     * Mode which means to always use night mode, and therefore use {@code night} qualified
+     * resources, regardless of the time.
+     *
+     * @see #setLocalNightMode(int)
+     */
+    public static final int MODE_NIGHT_YES = UiModeManager.MODE_NIGHT_YES;
+
+    /**
+     * Mode which means to use night mode when it is determined that it is night or not.
+     *
+     * <p>The calculation used to determine whether it is night or not makes use of the location
+     * APIs (if this app has the necessary permissions). This allows us to generate accurate
+     * sunrise and sunset times. If this app does not have permission to access the location APIs
+     * then we use hardcoded times which will be less accurate.</p>
+     *
+     * @see #setLocalNightMode(int)
+     */
+    public static final int MODE_NIGHT_AUTO = UiModeManager.MODE_NIGHT_AUTO;
+
+    @NightMode
+    private static int sDefaultNightMode = MODE_NIGHT_NO;
+
+    @IntDef({MODE_NIGHT_NO, MODE_NIGHT_YES, MODE_NIGHT_AUTO})
+    @Retention(RetentionPolicy.SOURCE)
+    @interface NightMode {}
 
     /**
      * Flag for enabling the support Action Bar.
@@ -330,4 +367,73 @@ public abstract class AppCompatDelegate {
      */
     public abstract boolean isHandleNativeActionModesEnabled();
 
+    /**
+     * Allows AppCompat to save instance state.
+     */
+    public abstract void onSaveInstanceState(Bundle outState);
+
+    /**
+     * Allow AppCompat to apply the {@code night} and {@code notnight} resource qualifiers.
+     *
+     * <p>Doing this enables the
+     * {@link R.style#Theme_AppCompat_DayNight Theme.AppCompat.DayNight}
+     * family of themes to work, using the computed twilight to automatically select a dark or
+     * light theme.</p>
+     *
+     * <p>You can override the night mode using {@link #setLocalNightMode(int)}.</p>
+     *
+     * <p>This only works on devices running
+     * {@link Build.VERSION_CODES#ICE_CREAM_SANDWICH ICE_CREAM_SANDWICH} and above.</p>
+     *
+     * @see #setDefaultNightMode(int)
+     * @see #setLocalNightMode(int)
+     *
+     * @return true if the night mode was applied, false if not
+     */
+    public abstract boolean applyDayNight();
+
+    /**
+     * Override the night mode used for this delegate's host component. This method only takes
+     * effect for those situtations where {@link #applyDayNight()} works.
+     *
+     * <p>Depending on when this is called, this may not take effect until the next time that
+     * the host component is created. You may use {@link Activity#recreate()} to force a
+     * recreation.</p>
+     *
+     * @see #applyDayNight()
+     */
+    public abstract void setLocalNightMode(@NightMode int mode);
+
+    /**
+     * Sets the default night mode. This is used across all activities/dialogs but can be overriden
+     * locally via {@link #setLocalNightMode(int)}.
+     *
+     * <p>This method only takes effect for those situtations where {@link #applyDayNight()} works.
+     * Defaults to {@link #MODE_NIGHT_NO}.</p>
+     *
+     * @see #setLocalNightMode(int)
+     * @see #getDefaultNightMode()
+     */
+    public static void setDefaultNightMode(@NightMode int mode) {
+        switch (mode) {
+            case MODE_NIGHT_AUTO:
+            case MODE_NIGHT_NO:
+            case MODE_NIGHT_YES:
+                sDefaultNightMode = mode;
+                break;
+            default:
+                Log.d(TAG, "setDefaultNightMode() called with an unknown mode");
+                break;
+        }
+    }
+
+    /**
+     * Returns the default night mode.
+     *
+     * @see #setDefaultNightMode(int)
+     */
+    @NightMode
+    public static int getDefaultNightMode() {
+        return sDefaultNightMode;
+    }
 }
