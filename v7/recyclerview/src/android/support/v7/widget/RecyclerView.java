@@ -2781,7 +2781,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         // simple animations are a subset of advanced animations (which will cause a
         // pre-layout step)
         // If layout supports predictive animations, pre-process to decide if we want to run them
-        if (mItemAnimator != null && mLayout.supportsPredictiveItemAnimations()) {
+        if (predictiveItemAnimationsEnabled()) {
             mAdapterHelper.preProcess();
         } else {
             mAdapterHelper.consumeUpdatesInOnePass();
@@ -2906,10 +2906,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             }
             // we don't process disappearing list because they may re-appear in post layout pass.
             clearOldPositions();
-            mAdapterHelper.consumePostponedUpdates();
         } else {
             clearOldPositions();
         }
+        mAdapterHelper.consumePostponedUpdates();
         mState.mItemCount = mAdapter.getItemCount();
         mState.mDeletedInvisibleItemCountSincePreviousLayout = 0;
 
