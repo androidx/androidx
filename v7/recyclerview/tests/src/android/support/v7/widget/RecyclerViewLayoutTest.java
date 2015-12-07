@@ -2952,6 +2952,53 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     }
 
     @Test
+    public void testFirstLayoutWithAdapterChanges() throws Throwable {
+        final TestAdapter adapter = new TestAdapter(0);
+        final RecyclerView rv = new RecyclerView(getActivity());
+        setVisibility(rv, View.GONE);
+        TestLayoutManager tlm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                try {
+                    super.onLayoutChildren(recycler, state);
+                    layoutRange(recycler, 0, state.getItemCount());
+                } catch (Throwable t) {
+                    postExceptionToInstrumentation(t);
+                } finally {
+                    layoutLatch.countDown();
+                }
+            }
+
+            @Override
+            public boolean supportsPredictiveItemAnimations() {
+                return true;
+            }
+        };
+        rv.setLayoutManager(tlm);
+        rv.setAdapter(adapter);
+        rv.setHasFixedSize(true);
+        setRecyclerView(rv);
+        tlm.expectLayouts(1);
+        tlm.assertNoLayout("test sanity, layout should not run", 1);
+        getInstrumentation().waitForIdleSync();
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    adapter.addAndNotify(2);
+                } catch (Throwable throwable) {
+                    throwable.printStackTrace();
+                }
+                rv.setVisibility(View.VISIBLE);
+            }
+        });
+        checkForMainThreadException();
+        tlm.waitForLayout(2);
+        assertEquals(2, rv.getChildCount());
+        checkForMainThreadException();
+    }
+
+    @Test
     public void computeScrollOfsetWithoutLayoutManager() throws Throwable {
         RecyclerView rv = new RecyclerView(getActivity());
         rv.setAdapter(new TestAdapter(10));
