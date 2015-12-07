@@ -773,11 +773,13 @@ public final class Palette {
                 if (bitmap != mBitmap && region != null) {
                     // If we have a scaled bitmap and a selected region, we need to scale down the
                     // region to match the new scale
-                    final float scale = bitmap.getWidth() / (float) mBitmap.getWidth();
+                    final double scale = bitmap.getWidth() / (double) mBitmap.getWidth();
                     region.left = (int) Math.floor(region.left * scale);
                     region.top = (int) Math.floor(region.top * scale);
-                    region.right = (int) Math.ceil(region.right * scale);
-                    region.bottom = (int) Math.ceil(region.bottom * scale);
+                    region.right = Math.min((int) Math.ceil(region.right * scale),
+                            bitmap.getWidth());
+                    region.bottom = Math.min((int) Math.ceil(region.bottom * scale),
+                            bitmap.getHeight());
                 }
 
                 // Now generate a quantizer from the Bitmap
