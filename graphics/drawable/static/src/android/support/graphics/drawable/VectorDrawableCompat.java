@@ -246,11 +246,8 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
     @Override
     public ConstantState getConstantState() {
         if (mDelegateDrawable != null) {
-            if (mCachedConstantStateDelegate == null) {
-                mCachedConstantStateDelegate =
-                        new VectorDrawableDelegateState(mDelegateDrawable.getConstantState());
-            }
-            return mCachedConstantStateDelegate;
+            // Such that the configuration can be refreshed.
+            return new VectorDrawableDelegateState(mDelegateDrawable.getConstantState());
         }
         mVectorState.mChangingConfigurations = getChangingConfigurations();
         return mVectorState;
@@ -341,7 +338,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
      * mode.
      */
     PorterDuffColorFilter updateTintFilter(PorterDuffColorFilter tintFilter, ColorStateList tint,
-            PorterDuff.Mode tintMode) {
+                                           PorterDuff.Mode tintMode) {
         if (tint == null || tintMode == null) {
             return null;
         }
@@ -475,17 +472,19 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
     /**
      * Create a VectorDrawableCompat object.
      *
-     * @param res the resources.
+     * @param res   the resources.
      * @param resId the resource ID for VectorDrawableCompat object.
      * @param theme the theme of this vector drawable, it can be null.
      * @return a new VectorDrawableCompat or null if parsing error is found.
      */
     @Nullable
     public static VectorDrawableCompat create(@NonNull Resources res, @DrawableRes int resId,
-            @Nullable Theme theme) {
+                                              @Nullable Theme theme) {
         if (Build.VERSION.SDK_INT >= 21) {
             final VectorDrawableCompat drawable = new VectorDrawableCompat();
             drawable.mDelegateDrawable = (VectorDrawable) res.getDrawable(resId, theme);
+            drawable.mCachedConstantStateDelegate = new VectorDrawableDelegateState(
+                    drawable.mDelegateDrawable.getConstantState());
             return drawable;
         }
 
@@ -561,13 +560,20 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private static PorterDuff.Mode parseTintMode(int value, Mode defaultMode) {
         switch (value) {
-            case 3: return Mode.SRC_OVER;
-            case 5: return Mode.SRC_IN;
-            case 9: return Mode.SRC_ATOP;
-            case 14: return Mode.MULTIPLY;
-            case 15: return Mode.SCREEN;
-            case 16: return Mode.ADD;
-            default: return defaultMode;
+            case 3:
+                return Mode.SRC_OVER;
+            case 5:
+                return Mode.SRC_IN;
+            case 9:
+                return Mode.SRC_ATOP;
+            case 14:
+                return Mode.MULTIPLY;
+            case 15:
+                return Mode.SCREEN;
+            case 16:
+                return Mode.ADD;
+            default:
+                return defaultMode;
         }
     }
 
@@ -590,7 +596,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         }
 
         state.mAutoMirrored = TypedArrayUtils.getNamedBoolean(a, parser, "autoMirrored",
-                    AndroidResources.styleable_VectorDrawable_autoMirrored, state.mAutoMirrored);
+                AndroidResources.styleable_VectorDrawable_autoMirrored, state.mAutoMirrored);
 
         pathRenderer.mViewportWidth = TypedArrayUtils.getNamedFloat(a, parser, "viewportWidth",
                 AndroidResources.styleable_VectorDrawable_viewportWidth,
@@ -633,7 +639,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
     }
 
     private void inflateInternal(Resources res, XmlPullParser parser, AttributeSet attrs,
-            Theme theme) throws XmlPullParserException, IOException {
+                                 Theme theme) throws XmlPullParserException, IOException {
         final VectorDrawableCompatState state = mVectorState;
         final VPathRenderer pathRenderer = state.mVPathRenderer;
         boolean noPathTag = true;
@@ -755,7 +761,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         if (mDelegateDrawable != null) {
             return mDelegateDrawable.getChangingConfigurations();
         }
-        return super.getChangingConfigurations();
+        return super.getChangingConfigurations() | mVectorState.getChangingConfigurations();
     }
 
     @Override
@@ -794,12 +800,13 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
     }
 
     /**
-     * Constant state for delegating the creating drawable job.
+     * Constant state for delegating the creating drawable job for SDK >= 21.
      * Instead of creating a VectorDrawable, create a VectorDrawableCompat instance which contains
      * a delegated VectorDrawable instance.
      */
     private static class VectorDrawableDelegateState extends ConstantState {
         private final ConstantState mDelegateState;
+
         public VectorDrawableDelegateState(ConstantState state) {
             mDelegateState = state;
         }
@@ -852,7 +859,9 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         boolean mCachedAutoMirrored;
         boolean mCacheDirty;
 
-        /** Temporary paint object used to draw cached bitmaps. */
+        /**
+         * Temporary paint object used to draw cached bitmaps.
+         */
         Paint mTempPaint;
 
         // Deep copy for mutate() or implicitly mutate.
@@ -1043,7 +1052,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         }
 
         private void drawGroupTree(VGroup currentGroup, Matrix currentMatrix,
-                Canvas canvas, int w, int h, ColorFilter filter) {
+                                   Canvas canvas, int w, int h, ColorFilter filter) {
             // Calculate current group's matrix by preConcat the parent's and
             // and the current one on the top of the stack.
             // Basically the Mfinal = Mviewport * M0 * M1 * M2;
@@ -1072,14 +1081,21 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         }
 
         private void drawPath(VGroup vGroup, VPath vPath, Canvas canvas, int w, int h,
-                ColorFilter filter) {
+                              ColorFilter filter) {
             final float scaleX = w / mViewportWidth;
             final float scaleY = h / mViewportHeight;
             final float minScale = Math.min(scaleX, scaleY);
+            final Matrix groupStackedMatrix = vGroup.mStackedMatrix;
 
-            mFinalPathMatrix.set(vGroup.mStackedMatrix);
+            mFinalPathMatrix.set(groupStackedMatrix);
             mFinalPathMatrix.postScale(scaleX, scaleY);
 
+
+            final float matrixScale = getMatrixScale(groupStackedMatrix);
+            if (matrixScale == 0) {
+                // When either x or y is scaled to 0, we don't need to draw anything.
+                return;
+            }
             vPath.toPath(mPath);
             final Path path = mPath;
 
@@ -1145,10 +1161,44 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
                     strokePaint.setStrokeMiter(fullPath.mStrokeMiterlimit);
                     strokePaint.setColor(applyAlpha(fullPath.mStrokeColor, fullPath.mStrokeAlpha));
                     strokePaint.setColorFilter(filter);
-                    strokePaint.setStrokeWidth(fullPath.mStrokeWidth * minScale);
+                    final float finalStrokeScale = minScale * matrixScale;
+                    strokePaint.setStrokeWidth(fullPath.mStrokeWidth * finalStrokeScale);
                     canvas.drawPath(mRenderPath, strokePaint);
                 }
             }
+        }
+
+        private static float cross(float v1x, float v1y, float v2x, float v2y) {
+            return v1x * v2y - v1y * v2x;
+        }
+
+        private float getMatrixScale(Matrix groupStackedMatrix) {
+            // Given unit vectors A = (0, 1) and B = (1, 0).
+            // After matrix mapping, we got A' and B'. Let theta = the angel b/t A' and B'.
+            // Therefore, the final scale we want is min(|A'| * sin(theta), |B'| * sin(theta)),
+            // which is (|A'| * |B'| * sin(theta)) / max (|A'|, |B'|);
+            // If  max (|A'|, |B'|) = 0, that means either x or y has a scale of 0.
+            //
+            // For non-skew case, which is most of the cases, matrix scale is computing exactly the
+            // scale on x and y axis, and take the minimal of these two.
+            // For skew case, an unit square will mapped to a parallelogram. And this function will
+            // return the minimal height of the 2 bases.
+            float[] unitVectors = new float[]{0, 1, 1, 0};
+            groupStackedMatrix.mapVectors(unitVectors);
+            float scaleX = (float) Math.hypot(unitVectors[0], unitVectors[1]);
+            float scaleY = (float) Math.hypot(unitVectors[2], unitVectors[3]);
+            float crossProduct = cross(unitVectors[0], unitVectors[1], unitVectors[2],
+                    unitVectors[3]);
+            float maxScale = Math.max(scaleX, scaleY);
+
+            float matrixScale = 0;
+            if (maxScale > 0) {
+                matrixScale = Math.abs(crossProduct) / maxScale;
+            }
+            if (DBG_VECTOR_DRAWABLE) {
+                Log.d(LOGTAG, "Scale x " + scaleX + " y " + scaleY + " final " + matrixScale);
+            }
+            return matrixScale;
         }
     }
 
@@ -1614,7 +1664,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
 
             mFillColor = TypedArrayUtils.getNamedColor(a, parser, "fillColor",
                     AndroidResources.styleable_VectorDrawablePath_fillColor, mFillColor);
-            mFillAlpha = TypedArrayUtils.getNamedFloat(a, parser, "alpha",
+            mFillAlpha = TypedArrayUtils.getNamedFloat(a, parser, "fillAlpha",
                     AndroidResources.styleable_VectorDrawablePath_fillAlpha, mFillAlpha);
             final int lineCap = TypedArrayUtils.getNamedInt(a, parser, "strokeLineCap",
                     AndroidResources.styleable_VectorDrawablePath_strokeLineCap, -1);

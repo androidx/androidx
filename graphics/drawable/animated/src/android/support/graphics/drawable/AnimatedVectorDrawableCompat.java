@@ -45,12 +45,12 @@ import java.util.ArrayList;
 /**
  * This class uses {@link android.animation.ObjectAnimator} and
  * {@link android.animation.AnimatorSet} to animate the properties of a
- * {@link android.support.graphics.drawable.VectorDrawableCompat} to create an animated drawable.
+ * {@link VectorDrawableCompat} to create an animated drawable.
  * <p>
  * AnimatedVectorDrawableCompat are normally defined as 3 separate XML files.
  * </p>
  * <p>
- * First is the XML file for {@link android.support.graphics.drawable.VectorDrawableCompat}. Note that we
+ * First is the XML file for {@link VectorDrawableCompat}. Note that we
  * allow the animation to happen on the group's attributes and path's attributes, which requires they
  * are uniquely named in this XML file. Groups and paths without animations do not need names.
  * </p>
@@ -155,7 +155,7 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
             mAnimatedVectorState = state;
         } else {
             mAnimatedVectorState = new AnimatedVectorDrawableCompatState(context, state, mCallback,
-                res);
+                    res);
         }
     }
 
@@ -173,18 +173,20 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
      * Create a AnimatedVectorDrawableCompat object.
      *
      * @param context the context for creating the animators.
-     * @param resId the resource ID for AnimatedVectorDrawableCompat object.
+     * @param resId   the resource ID for AnimatedVectorDrawableCompat object.
      * @return a new AnimatedVectorDrawableCompat or null if parsing error is found.
      */
     @Nullable
     public static AnimatedVectorDrawableCompat create(@NonNull Context context,
-            @DrawableRes int resId) {
+                                                      @DrawableRes int resId) {
         if (Build.VERSION.SDK_INT >= 21) {
             final AnimatedVectorDrawableCompat drawable = new AnimatedVectorDrawableCompat(context);
             drawable.mDelegateDrawable =
                     (AnimatedVectorDrawable) context.getResources().getDrawable(resId,
                             context.getTheme());
             drawable.mDelegateDrawable.setCallback(drawable.mCallback);
+            drawable.mCachedConstantStateDelegate = new AnimatedVectorDrawableDelegateState(
+                    drawable.mDelegateDrawable.getConstantState());
             return drawable;
         }
         Resources resources = context.getResources();
@@ -220,12 +222,7 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
     @Override
     public ConstantState getConstantState() {
         if (mDelegateDrawable != null) {
-            if (mCachedConstantStateDelegate == null) {
-                mCachedConstantStateDelegate =
-                        new AnimatedVectorDrawableDelegateState(
-                                mDelegateDrawable.getConstantState());
-            }
-            return mCachedConstantStateDelegate;
+            return new AnimatedVectorDrawableDelegateState(mDelegateDrawable.getConstantState());
         }
         // We can't support constant state in older platform.
         // We need Context to create the animator, and we can't save the context in the constant
