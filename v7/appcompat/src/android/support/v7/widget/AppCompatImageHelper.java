@@ -16,6 +16,7 @@
 
 package android.support.v7.widget;
 
+import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.widget.ImageView;
@@ -36,8 +37,9 @@ class AppCompatImageHelper {
         TintTypedArray a = TintTypedArray.obtainStyledAttributes(mView.getContext(), attrs,
                 VIEW_ATTRS, defStyleAttr, 0);
         try {
-            if (a.hasValue(0)) {
-                mView.setImageDrawable(a.getDrawable(0));
+            final Drawable d = a.getDrawableIfKnown(0);
+            if (d != null) {
+                mView.setImageDrawable(d);
             }
         } finally {
             a.recycle();
