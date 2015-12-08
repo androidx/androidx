@@ -916,6 +916,7 @@ package android.support.v4.content {
   public class ContextCompat {
     ctor public ContextCompat();
     method public static int checkSelfPermission(android.content.Context, java.lang.String);
+    method public static android.content.Context createDeviceEncryptedStorageContext(android.content.Context);
     method public static java.io.File getCodeCacheDir(android.content.Context);
     method public static final int getColor(android.content.Context, int);
     method public static final android.content.res.ColorStateList getColorStateList(android.content.Context, int);
@@ -924,6 +925,7 @@ package android.support.v4.content {
     method public static java.io.File[] getExternalFilesDirs(android.content.Context, java.lang.String);
     method public static java.io.File getNoBackupFilesDir(android.content.Context);
     method public static java.io.File[] getObbDirs(android.content.Context);
+    method public static boolean isDeviceEncryptedStorage(android.content.Context);
     method public static boolean startActivities(android.content.Context, android.content.Intent[]);
     method public static boolean startActivities(android.content.Context, android.content.Intent[], android.os.Bundle);
   }
@@ -1775,6 +1777,12 @@ package android.support.v4.os {
   public final class TraceCompat {
     method public static void beginSection(java.lang.String);
     method public static void endSection();
+  }
+
+  public class UserManagerCompat {
+    ctor public UserManagerCompat();
+    method public static boolean isUserRunningAndLocked(android.content.Context);
+    method public static boolean isUserRunningAndUnlocked(android.content.Context);
   }
 
 }
