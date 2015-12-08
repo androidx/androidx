@@ -38,6 +38,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.SpinnerAdapter;
 
@@ -230,6 +231,16 @@ class ToolbarActionBar extends ActionBar {
     @Override
     public void setWindowTitle(CharSequence title) {
         mDecorToolbar.setWindowTitle(title);
+    }
+
+    @Override
+    public boolean requestFocus() {
+        final ViewGroup viewGroup = mDecorToolbar.getViewGroup();
+        if (viewGroup != null && !viewGroup.hasFocus()) {
+            viewGroup.requestFocus();
+            return true;
+        }
+        return false;
     }
 
     @Override

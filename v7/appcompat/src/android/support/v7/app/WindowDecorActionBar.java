@@ -53,6 +53,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.Window;
 import android.view.accessibility.AccessibilityEvent;
@@ -432,6 +433,16 @@ public class WindowDecorActionBar extends ActionBar implements
     @Override
     public void setWindowTitle(CharSequence title) {
         mDecorToolbar.setWindowTitle(title);
+    }
+
+    @Override
+    public boolean requestFocus() {
+        final ViewGroup viewGroup = mDecorToolbar.getViewGroup();
+        if (viewGroup != null && !viewGroup.hasFocus()) {
+            viewGroup.requestFocus();
+            return true;
+        }
+        return false;
     }
 
     public void setSubtitle(CharSequence subtitle) {
