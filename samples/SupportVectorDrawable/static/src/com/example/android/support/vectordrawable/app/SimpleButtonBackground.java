@@ -22,11 +22,11 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.Drawable.ConstantState;
 import android.os.Bundle;
 import android.support.graphics.drawable.VectorDrawableCompat;
-import android.support.test.vectordrawable.R;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import com.example.android.support.vectordrawable.R;
 
 import java.text.DecimalFormat;
 
