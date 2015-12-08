@@ -224,13 +224,6 @@ public class ViewParentCompat {
         }
     }
 
-    static class ViewParentCompatApi24Impl extends ViewParentCompatLollipopImpl {
-        @Override
-        public int findDependentLayoutAxes(ViewParent parent, View child, int axisFilter) {
-            return ViewParentCompatApi24.findDependentLayoutAxes(parent, child, axisFilter);
-        }
-    }
-
     static final ViewParentCompatImpl IMPL;
     static {
         final int version = Build.VERSION.SDK_INT;
