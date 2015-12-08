@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -37,6 +38,39 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
 
     final List<TestViewHolder> recycledVHs = new ArrayList<>();
+
+    public void testDetectStableIdError() throws Throwable {
+        final AtomicBoolean useBadIds = new AtomicBoolean(false);
+        TestAdapter adapter = new TestAdapter(10) {
+            @Override
+            public long getItemId(int position) {
+                if (useBadIds.get() && position == 5) {
+                    return super.getItemId(position) - 1;
+                }
+                return super.getItemId(position);
+            }
+
+            @Override
+            public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+                // ignore validation
+            }
+        };
+        adapter.setHasStableIds(true);
+        setupBasic(10, 0, 10, adapter);
+        mLayoutManager.expectLayouts(2);
+        useBadIds.set(true);
+        adapter.changeAndNotify(4, 2);
+        mLayoutManager.waitForLayout(2);
+        assertTrue(mainThreadException instanceof IllegalStateException);
+        assertTrue(mainThreadException.getMessage()
+                .contains("Two different ViewHolders have the same stable ID."));
+        // TODO don't use this after moving this class to Junit 4
+        try {
+            removeRecyclerView();
+        } catch (Throwable t){}
+        mainThreadException = null;
+    }
+
 
     public void testDontLayoutReusedViewWithoutPredictive() throws Throwable {
         reuseHiddenViewTest(new ReuseTestCallback() {
