@@ -25,6 +25,7 @@ class PathParser {
     private static final String LOGTAG = "PathParser";
 
     // Copy from Arrays.copyOfRange() which is only available from API level 9.
+
     /**
      * Copies elements from {@code original} into a new array, from indexes start (inclusive) to
      * end (exclusive). The original order of elements is preserved.
@@ -32,12 +33,12 @@ class PathParser {
      * with the value {@code 0.0f}.
      *
      * @param original the original array
-     * @param start the start index, inclusive
-     * @param end the end index, exclusive
+     * @param start    the start index, inclusive
+     * @param end      the end index, exclusive
      * @return the new array
      * @throws ArrayIndexOutOfBoundsException if {@code start < 0 || start > original.length}
-     * @throws IllegalArgumentException if {@code start > end}
-     * @throws NullPointerException if {@code original == null}
+     * @throws IllegalArgumentException       if {@code start > end}
+     * @throws NullPointerException           if {@code original == null}
      */
     private static float[] copyOfRange(float[] original, int start, int end) {
         if (start > end) {
@@ -110,7 +111,7 @@ class PathParser {
             return null;
         }
         PathDataNode[] copy = new PathParser.PathDataNode[source.length];
-        for (int i = 0; i < source.length; i ++) {
+        for (int i = 0; i < source.length; i++) {
             copy[i] = new PathDataNode(source[i]);
         }
         return copy;
@@ -118,7 +119,7 @@ class PathParser {
 
     /**
      * @param nodesFrom The source path represented in an array of PathDataNode
-     * @param nodesTo The target path represented in an array of PathDataNode
+     * @param nodesTo   The target path represented in an array of PathDataNode
      * @return whether the <code>nodesFrom</code> can morph into <code>nodesTo</code>
      */
     public static boolean canMorph(PathDataNode[] nodesFrom, PathDataNode[] nodesTo) {
@@ -130,7 +131,7 @@ class PathParser {
             return false;
         }
 
-        for (int i = 0; i < nodesFrom.length; i ++) {
+        for (int i = 0; i < nodesFrom.length; i++) {
             if (nodesFrom[i].type != nodesTo[i].type
                     || nodesFrom[i].params.length != nodesTo[i].params.length) {
                 return false;
@@ -147,9 +148,9 @@ class PathParser {
      * @param source The source path represented in an array of PathDataNode
      */
     public static void updateNodes(PathDataNode[] target, PathDataNode[] source) {
-        for (int i = 0; i < source.length; i ++) {
+        for (int i = 0; i < source.length; i++) {
             target[i].type = source[i].type;
-            for (int j = 0; j < source[i].params.length; j ++) {
+            for (int j = 0; j < source[i].params.length; j++) {
                 target[i].params[j] = source[i].params[j];
             }
         }
@@ -231,10 +232,11 @@ class PathParser {
 
     /**
      * Calculate the position of the next comma or space or negative sign
-     * @param s the string to search
-     * @param start the position to start searching
+     *
+     * @param s      the string to search
+     * @param start  the position to start searching
      * @param result the result of the extraction, including the position of the
-     * the starting position of next number, whether it is ending with a '-'.
+     *               the starting position of next number, whether it is ending with a '-'.
      */
     private static void extract(String s, int start, ExtractFloatResult result) {
         // Now looking for ' ', ',', '.' or '-' from the start.
@@ -323,11 +325,11 @@ class PathParser {
          * <code>fraction</code>.
          *
          * @param nodeFrom The start value as a PathDataNode.
-         * @param nodeTo The end value as a PathDataNode
+         * @param nodeTo   The end value as a PathDataNode
          * @param fraction The fraction to interpolate.
          */
         public void interpolatePathDataNode(PathDataNode nodeFrom,
-                PathDataNode nodeTo, float fraction) {
+                                            PathDataNode nodeTo, float fraction) {
             for (int i = 0; i < nodeFrom.params.length; i++) {
                 params[i] = nodeFrom.params[i] * (1 - fraction)
                         + nodeTo.params[i] * fraction;
@@ -335,7 +337,7 @@ class PathParser {
         }
 
         private static void addCommand(Path path, float[] current,
-                char previousCmd, char cmd, float[] val) {
+                                       char previousCmd, char cmd, float[] val) {
 
             int incr = 2;
             float currentX = current[0];
@@ -393,18 +395,32 @@ class PathParser {
             for (int k = 0; k < val.length; k += incr) {
                 switch (cmd) {
                     case 'm': // moveto - Start a new sub-path (relative)
-                        path.rMoveTo(val[k + 0], val[k + 1]);
                         currentX += val[k + 0];
                         currentY += val[k + 1];
-                        currentSegmentStartX = currentX;
-                        currentSegmentStartY = currentY;
+                        if (k > 0) {
+                            // According to the spec, if a moveto is followed by multiple
+                            // pairs of coordinates, the subsequent pairs are treated as
+                            // implicit lineto commands.
+                            path.rLineTo(val[k + 0], val[k + 1]);
+                        } else {
+                            path.rMoveTo(val[k + 0], val[k + 1]);
+                            currentSegmentStartX = currentX;
+                            currentSegmentStartY = currentY;
+                        }
                         break;
                     case 'M': // moveto - Start a new sub-path
-                        path.moveTo(val[k + 0], val[k + 1]);
                         currentX = val[k + 0];
                         currentY = val[k + 1];
-                        currentSegmentStartX = currentX;
-                        currentSegmentStartY = currentY;
+                        if (k > 0) {
+                            // According to the spec, if a moveto is followed by multiple
+                            // pairs of coordinates, the subsequent pairs are treated as
+                            // implicit lineto commands.
+                            path.lineTo(val[k + 0], val[k + 1]);
+                        } else {
+                            path.moveTo(val[k + 0], val[k + 1]);
+                            currentSegmentStartX = currentX;
+                            currentSegmentStartY = currentY;
+                        }
                         break;
                     case 'l': // lineto - Draw a line from the current point (relative)
                         path.rLineTo(val[k + 0], val[k + 1]);
@@ -571,15 +587,15 @@ class PathParser {
         }
 
         private static void drawArc(Path p,
-                float x0,
-                float y0,
-                float x1,
-                float y1,
-                float a,
-                float b,
-                float theta,
-                boolean isMoreThanHalf,
-                boolean isPositiveArc) {
+                                    float x0,
+                                    float y0,
+                                    float x1,
+                                    float y1,
+                                    float a,
+                                    float b,
+                                    float theta,
+                                    boolean isMoreThanHalf,
+                                    boolean isPositiveArc) {
 
             /* Convert rotation angle from degrees to radians */
             double thetaD = Math.toRadians(theta);
@@ -650,32 +666,32 @@ class PathParser {
         /**
          * Converts an arc to cubic Bezier segments and records them in p.
          *
-         * @param p The target for the cubic Bezier segments
-         * @param cx The x coordinate center of the ellipse
-         * @param cy The y coordinate center of the ellipse
-         * @param a The radius of the ellipse in the horizontal direction
-         * @param b The radius of the ellipse in the vertical direction
-         * @param e1x E(eta1) x coordinate of the starting point of the arc
-         * @param e1y E(eta2) y coordinate of the starting point of the arc
+         * @param p     The target for the cubic Bezier segments
+         * @param cx    The x coordinate center of the ellipse
+         * @param cy    The y coordinate center of the ellipse
+         * @param a     The radius of the ellipse in the horizontal direction
+         * @param b     The radius of the ellipse in the vertical direction
+         * @param e1x   E(eta1) x coordinate of the starting point of the arc
+         * @param e1y   E(eta2) y coordinate of the starting point of the arc
          * @param theta The angle that the ellipse bounding rectangle makes with horizontal plane
          * @param start The start angle of the arc on the ellipse
          * @param sweep The angle (positive or negative) of the sweep of the arc on the ellipse
          */
         private static void arcToBezier(Path p,
-                double cx,
-                double cy,
-                double a,
-                double b,
-                double e1x,
-                double e1y,
-                double theta,
-                double start,
-                double sweep) {
+                                        double cx,
+                                        double cy,
+                                        double a,
+                                        double b,
+                                        double e1x,
+                                        double e1y,
+                                        double theta,
+                                        double start,
+                                        double sweep) {
             // Taken from equations at: http://spaceroots.org/documents/ellipse/node8.html
             // and http://www.spaceroots.org/documents/ellipse/node22.html
 
             // Maximum of 45 degrees per cubic Bezier segment
-            int numSegments = Math.abs((int) Math.ceil(sweep * 4 / Math.PI));
+            int numSegments = (int) Math.ceil(Math.abs(sweep * 4 / Math.PI));
 
             double eta1 = start;
             double cosTheta = Math.cos(theta);

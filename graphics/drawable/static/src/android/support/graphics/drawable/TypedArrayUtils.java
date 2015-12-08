@@ -36,7 +36,7 @@ public class TypedArrayUtils {
     }
 
     public static boolean getNamedBoolean(TypedArray a, XmlPullParser parser, String attrName,
-                                      int resId, boolean defaultValue) {
+                                          int resId, boolean defaultValue) {
         final boolean hasAttr = hasAttribute(parser, attrName);
         if (!hasAttr) {
             return defaultValue;
@@ -46,7 +46,7 @@ public class TypedArrayUtils {
     }
 
     public static int getNamedInt(TypedArray a, XmlPullParser parser, String attrName,
-                                          int resId, int defaultValue) {
+                                  int resId, int defaultValue) {
         final boolean hasAttr = hasAttribute(parser, attrName);
         if (!hasAttr) {
             return defaultValue;
@@ -56,7 +56,7 @@ public class TypedArrayUtils {
     }
 
     public static int getNamedColor(TypedArray a, XmlPullParser parser, String attrName,
-                                        int resId, int defaultValue) {
+                                    int resId, int defaultValue) {
         final boolean hasAttr = hasAttribute(parser, attrName);
         if (!hasAttr) {
             return defaultValue;
