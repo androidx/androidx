@@ -21,12 +21,15 @@
     android:layout_width="200px"
     android:layout_height="match_parent">
 
+    <!-- Note the usage of layout_gravity that addresses a bug in FrameLayout on v9 and older
+         devices that didn't correctly treat the margin attributes. -->
     <View
         android:id="@+id/percent_child"
         app:layout_widthPercent="50%"
         app:layout_heightPercent="50%"
         app:layout_marginTopPercent="20%"
-        app:layout_marginLeftPercent="20%" />
+        app:layout_marginLeftPercent="20%"
+        android:layout_gravity="top" />
 
 </android.support.percent.PercentFrameLayout>
 
