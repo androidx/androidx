@@ -129,6 +129,7 @@ class AppCompatTextHelper {
             final TintInfo tintInfo = new TintInfo();
             tintInfo.mHasTintList = true;
             tintInfo.mTintList = tintList;
+            return tintInfo;
         }
         return null;
     }
