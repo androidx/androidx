@@ -15,6 +15,8 @@ package android.support.v7.recyclerview {
   public static final class R.dimen {
     ctor public R.dimen();
     field public static int item_touch_helper_max_drag_scroll_per_frame;
+    field public static int item_touch_helper_swipe_escape_max_velocity;
+    field public static int item_touch_helper_swipe_escape_velocity;
   }
 
   public static final class R.id {
@@ -812,7 +814,9 @@ package android.support.v7.widget.helper {
     method public static android.support.v7.widget.helper.ItemTouchUIUtil getDefaultUIUtil();
     method public float getMoveThreshold(android.support.v7.widget.RecyclerView.ViewHolder);
     method public abstract int getMovementFlags(android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.ViewHolder);
+    method public float getSwipeEscapeVelocity(float);
     method public float getSwipeThreshold(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public float getSwipeVelocityThreshold(float);
     method public int interpolateOutOfBoundsScroll(android.support.v7.widget.RecyclerView, int, int, int, long);
     method public boolean isItemViewSwipeEnabled();
     method public boolean isLongPressDragEnabled();
