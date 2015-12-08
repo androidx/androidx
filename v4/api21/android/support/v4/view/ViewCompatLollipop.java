@@ -53,17 +53,21 @@ class ViewCompatLollipop {
 
     public static void setOnApplyWindowInsetsListener(View view,
             final OnApplyWindowInsetsListener listener) {
-        view.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
-            @Override
-            public WindowInsets onApplyWindowInsets(View view, WindowInsets windowInsets) {
-                // Wrap the framework insets in our wrapper
-                WindowInsetsCompatApi21 insets = new WindowInsetsCompatApi21(windowInsets);
-                // Give the listener a chance to use the wrapped insets
-                insets = (WindowInsetsCompatApi21) listener.onApplyWindowInsets(view, insets);
-                // Return the unwrapped insets
-                return insets.unwrap();
-            }
-        });
+        if (listener == null) {
+            view.setOnApplyWindowInsetsListener(null);
+        } else {
+            view.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+                @Override
+                public WindowInsets onApplyWindowInsets(View view, WindowInsets windowInsets) {
+                    // Wrap the framework insets in our wrapper
+                    WindowInsetsCompatApi21 insets = new WindowInsetsCompatApi21(windowInsets);
+                    // Give the listener a chance to use the wrapped insets
+                    insets = (WindowInsetsCompatApi21) listener.onApplyWindowInsets(view, insets);
+                    // Return the unwrapped insets
+                    return insets.unwrap();
+                }
+            });
+        }
     }
 
     public static boolean isImportantForAccessibility(View view) {
