@@ -136,7 +136,7 @@ abstract class BaseRowSupportFragment extends Fragment {
      * Gets position of currently selected row.
      * @return Position of currently selected row.
      */
-    public int getSeletedPosition() {
+    public int getSelectedPosition() {
         return mSelectedPosition;
     }
 
