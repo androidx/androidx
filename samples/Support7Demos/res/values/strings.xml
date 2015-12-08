@@ -188,4 +188,12 @@
     <string name="drawer_title">Navigation</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
+
+    <string name="mode_night_yes">MODE_NIGHT_YES</string>
+    <string name="mode_night_no">MODE_NIGHT_NO</string>
+    <string name="mode_night_auto">MODE_NIGHT_AUTO</string>
+    <string name="mode_night_activity_title">AppCompat/DayNight/Activity Usage</string>
+    <string name="mode_night_dialog_title">AppCompat/DayNight/Dialog Usage</string>
+    <string name="mode_night_alertdialog_title">AppCompat/DayNight/AlertDialog Usage</string>
 </resources>
+
