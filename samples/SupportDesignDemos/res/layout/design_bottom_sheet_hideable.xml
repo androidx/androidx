@@ -57,7 +57,7 @@
             android:elevation="@dimen/bottom_sheet_elevation"
             android:minHeight="@dimen/bottom_sheet_peek_height"
             android:orientation="vertical"
-            app:layout_behavior="android.support.design.widget.BottomSheetBehavior"
+            app:layout_behavior="@string/bottom_sheet_behavior"
             app:behavior_peekHeight="@dimen/bottom_sheet_peek_height"
             app:behavior_hideable="true">
 

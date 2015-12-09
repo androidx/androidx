@@ -45,4 +45,18 @@
 
     <style name="Theme.Navigation" parent="Theme.Navigation.Base"/>
 
+    <style name="Theme.BottomSheetModal" parent="Theme.Design">
+        <item name="bottomSheetDialogTheme">@style/Theme.BottomSheetModal.BottomSheetDialog</item>
+    </style>
+
+    <style name="Theme.BottomSheetModal.BottomSheetDialog" parent="Theme.Design.BottomSheetDialog">
+        <item name="android:colorBackground">#37474F</item>
+        <item name="bottomSheetStyle">@style/BottomSheetStyle</item>
+    </style>
+
+    <style name="BottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:layout_marginLeft">@dimen/bottom_sheet_horizontal_margin</item>
+        <item name="android:layout_marginRight">@dimen/bottom_sheet_horizontal_margin</item>
+    </style>
+
 </resources>
