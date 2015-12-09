@@ -1,0 +1,38 @@
+package android.support.v13.app {
+
+  public class FragmentCompat {
+    ctor public FragmentCompat();
+    method public static void requestPermissions(android.app.Fragment, java.lang.String[], int);
+    method public static void setMenuVisibility(android.app.Fragment, boolean);
+    method public static void setUserVisibleHint(android.app.Fragment, boolean);
+    method public static boolean shouldShowRequestPermissionRationale(android.app.Fragment, java.lang.String);
+  }
+
+  public static abstract interface FragmentCompat.OnRequestPermissionsResultCallback {
+    method public abstract void onRequestPermissionsResult(int, java.lang.String[], int[]);
+  }
+
+  public abstract class FragmentPagerAdapter extends android.support.v4.view.PagerAdapter {
+    ctor public FragmentPagerAdapter(android.app.FragmentManager);
+    method public abstract android.app.Fragment getItem(int);
+    method public long getItemId(int);
+    method public boolean isViewFromObject(android.view.View, java.lang.Object);
+  }
+
+  public abstract class FragmentStatePagerAdapter extends android.support.v4.view.PagerAdapter {
+    ctor public FragmentStatePagerAdapter(android.app.FragmentManager);
+    method public abstract android.app.Fragment getItem(int);
+    method public boolean isViewFromObject(android.view.View, java.lang.Object);
+  }
+
+  public class FragmentTabHost extends android.widget.TabHost implements android.widget.TabHost.OnTabChangeListener {
+    ctor public FragmentTabHost(android.content.Context);
+    ctor public FragmentTabHost(android.content.Context, android.util.AttributeSet);
+    method public void addTab(android.widget.TabHost.TabSpec, java.lang.Class<?>, android.os.Bundle);
+    method public void onTabChanged(java.lang.String);
+    method public void setup(android.content.Context, android.app.FragmentManager);
+    method public void setup(android.content.Context, android.app.FragmentManager, int);
+  }
+
+}
+
