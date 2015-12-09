@@ -32,8 +32,8 @@ public class GravityCompatTest extends AndroidTestCase {
     public void testConstants() {
         // Compat constants must match core constants since they can be OR'd with
         // other core constants.
-        assertEquals("Start constants", GravityCompat.START, Gravity.START);
-        assertEquals("End constants", GravityCompat.END, Gravity.END);
+        assertEquals("Start constants", Gravity.START, GravityCompat.START);
+        assertEquals("End constants", Gravity.END, GravityCompat.END);
     }
 
     @SmallTest
