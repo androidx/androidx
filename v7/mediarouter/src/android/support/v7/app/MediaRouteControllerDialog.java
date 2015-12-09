@@ -68,6 +68,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -128,6 +129,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private View mDividerView;
 
     private ListView mVolumeGroupList;
+    private VolumeGroupAdapter mVolumeGroupAdapter;
+    private List<MediaRouter.RouteInfo> mGroupMemberRoutes;
     private SeekBar mVolumeSlider;
     private VolumeChangeListener mVolumeChangeListener;
     private MediaRouter.RouteInfo mRouteInVolumeSliderTouched;
@@ -351,6 +354,11 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mVolumeSlider.setOnSeekBarChangeListener(mVolumeChangeListener);
 
         mVolumeGroupList = (ListView) findViewById(R.id.mr_volume_group_list);
+        mGroupMemberRoutes = new ArrayList<MediaRouter.RouteInfo>();
+        mVolumeGroupAdapter = new VolumeGroupAdapter(mContext, mGroupMemberRoutes);
+        mVolumeGroupList.setAdapter(mVolumeGroupAdapter);
+        updateVolumeGroupList();
+
         MediaRouterThemeHelper.setMediaControlsBackgroundColor(mContext,
                 mMediaMainControlLayout, mVolumeGroupList, getGroup() != null);
         MediaRouterThemeHelper.setVolumeSliderColor(mContext,
@@ -366,12 +374,9 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 mIsGroupExpanded = !mIsGroupExpanded;
                 if (mIsGroupExpanded) {
                     mVolumeGroupList.setVisibility(View.VISIBLE);
-                    mVolumeGroupList.setAdapter(
-                            new VolumeGroupAdapter(mContext, getGroup().getRoutes()));
-                } else {
-                    // Request layout to update UI based on {@code mIsGroupExpanded}.
-                    mDefaultControlLayout.requestLayout();
                 }
+                // Request layout to update UI
+                mDefaultControlLayout.requestLayout();
                 mIsGroupListAnimationNeeded = true;
                 updateLayoutHeight();
             }
@@ -544,8 +549,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
             }
         }
         int mainControllerHeight = getMainControllerHeight(canShowPlaybackControlLayout());
-        int volumeGroupListCount = mVolumeGroupList.getAdapter() != null
-                ? mVolumeGroupList.getAdapter().getCount() : 0;
+        int volumeGroupListCount = mGroupMemberRoutes.size();
         // Scale down volume group list items in landscape mode.
         for (int i = 0; i < mVolumeGroupList.getChildCount(); i++) {
             updateVolumeGroupItemHeight(mVolumeGroupList.getChildAt(i));
@@ -671,17 +675,21 @@ public class MediaRouteControllerDialog extends AlertDialog {
                     mGroupExpandCollapseButton.setVisibility(View.GONE);
                 } else {
                     mGroupExpandCollapseButton.setVisibility(View.VISIBLE);
-                    VolumeGroupAdapter adapter =
-                            (VolumeGroupAdapter) mVolumeGroupList.getAdapter();
-                    if (adapter != null) {
-                        adapter.notifyDataSetChanged();
-                    }
                 }
             }
+            updateVolumeGroupList();
         } else {
             mVolumeControlLayout.setVisibility(View.GONE);
         }
         updateLayoutHeight();
+    }
+
+    private void updateVolumeGroupList() {
+        mGroupMemberRoutes.clear();
+        if (getGroup() != null) {
+            mGroupMemberRoutes.addAll(getGroup().getRoutes());
+        }
+        mVolumeGroupAdapter.notifyDataSetChanged();
     }
 
     private void updatePlaybackControlLayout() {
