@@ -106,7 +106,8 @@ public class TestUtils {
                 bitmap.getPixels(rowPixels, 0, drawableWidth, 0, row, drawableWidth, 1);
                 for (int column = 0; column < drawableWidth; column++) {
                     if (rowPixels[column] != color) {
-                        String mismatchDescription = "Expected all drawable colors to be ["
+                        String mismatchDescription = failMessagePrefix
+                                + ": expected all drawable colors to be ["
                                 + Color.red(color) + "," + Color.green(color) + ","
                                 + Color.blue(color)
                                 + "] but at position (" + row + "," + column + ") found ["

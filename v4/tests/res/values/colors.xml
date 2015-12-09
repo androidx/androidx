@@ -23,12 +23,15 @@
     <color name="theme_color_yellow_default">#F0B000</color>
     <color name="theme_color_yellow_focused">#F0A020</color>
     <color name="theme_color_yellow_pressed">#E0A040</color>
+    <color name="theme_color_yellow_selected">#E8A848</color>
 
     <color name="theme_color_lilac_default">#F080F0</color>
     <color name="theme_color_lilac_focused">#F070D0</color>
     <color name="theme_color_lilac_pressed">#E070A0</color>
+    <color name="theme_color_lilac_selected">#E878A8</color>
 
     <color name="test_red">#FF6030</color>
     <color name="test_green">#50E080</color>
     <color name="test_blue">#3050CF</color>
+    <color name="test_yellow">#F0F000</color>
 </resources>
