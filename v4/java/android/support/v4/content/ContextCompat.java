@@ -473,7 +473,11 @@ public class ContextCompat {
      * @see ContextCompat#isDeviceEncryptedStorage(Context)
      */
     public static Context createDeviceEncryptedStorageContext(Context context) {
-        return null;
+        if ("N".equals(Build.VERSION.CODENAME)) {
+            return ContextCompatApi24.createDeviceEncryptedStorageContext(context);
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -483,6 +487,10 @@ public class ContextCompat {
      * @see ContextCompat#createDeviceEncryptedStorageContext(Context)
      */
     public static boolean isDeviceEncryptedStorage(Context context) {
-        return false;
+        if ("N".equals(Build.VERSION.CODENAME)) {
+            return ContextCompatApi24.isDeviceEncryptedStorage(context);
+        } else {
+            return false;
+        }
     }
 }
