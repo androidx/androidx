@@ -127,6 +127,12 @@ public class DefaultItemAnimatorTest extends ActivityInstrumentationTestCase2<Te
         }
     }
 
+    public void testReUseWithPayload() {
+        RecyclerView.ViewHolder vh = new ViewHolder(new TextView(getActivity()));
+        assertFalse(mAnimator.canReuseUpdatedViewHolder(vh, new ArrayList<>()));
+        assertTrue(mAnimator.canReuseUpdatedViewHolder(vh, Arrays.asList((Object) "a")));
+    }
+
     void expectItems(RecyclerView.ViewHolder... viewHolders) {
         mExpectedItems.addAll(Arrays.asList(viewHolders));
     }
