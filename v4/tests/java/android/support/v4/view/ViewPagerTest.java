@@ -16,27 +16,41 @@
 package android.support.v4.view;
 
 import android.graphics.Color;
-import android.support.test.espresso.Espresso;
-import android.support.test.espresso.UiController;
-import android.support.v4.test.R;
-import android.support.v4.view.ViewPager;
-import android.support.v4.widget.TestActivity;
-import android.test.ActivityInstrumentationTestCase2;
-import android.test.suitebuilder.annotation.SmallTest;
+import android.text.TextUtils;
 import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import android.support.test.espresso.Espresso;
+import android.support.test.espresso.UiController;
+import android.support.v4.test.R;
+import android.support.v4.testutils.TestUtilsAssertions;
+import android.support.v4.testutils.TestUtilsMatchers;
+import android.support.v4.view.ViewPager;
+import android.support.v4.view.PagerTitleStrip;
+import android.support.v4.widget.TestActivity;
+
+import android.test.ActivityInstrumentationTestCase2;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import java.util.ArrayList;
 
 import org.hamcrest.Matcher;
 
 import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.swipeLeft;
 import static android.support.test.espresso.action.ViewActions.swipeRight;
 import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.assertion.PositionAssertions.isBelow;
+import static android.support.test.espresso.assertion.PositionAssertions.isBottomAlignedWith;
+import static android.support.test.espresso.assertion.PositionAssertions.isLeftAlignedWith;
+import static android.support.test.espresso.assertion.PositionAssertions.isRightAlignedWith;
+import static android.support.test.espresso.assertion.PositionAssertions.isTopAlignedWith;
+import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
+import static android.support.test.espresso.matcher.ViewMatchers.isDescendantOfA;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
@@ -260,9 +274,9 @@ public class ViewPagerTest extends ActivityInstrumentationTestCase2<ViewPagerAct
         // Page #0 should be displayed, page #1 should not be displayed and page #2 should not exist
         // yet as it's outside of the offscreen window limit.
         onView(withId(R.id.page_0)).check(matches(allOf(
-                ViewPagerMatchers.isOfClass(View.class),
+                TestUtilsMatchers.isOfClass(View.class),
                 isDisplayed(),
-                ViewPagerMatchers.backgroundColor(Color.RED))));
+                TestUtilsMatchers.backgroundColor(Color.RED))));
         onView(withId(R.id.page_1)).check(matches(not(isDisplayed())));
         onView(withId(R.id.page_2)).check(doesNotExist());
 
@@ -272,9 +286,9 @@ public class ViewPagerTest extends ActivityInstrumentationTestCase2<ViewPagerAct
         // Pages #0 / #2 should not be displayed, page #1 should be displayed.
         onView(withId(R.id.page_0)).check(matches(not(isDisplayed())));
         onView(withId(R.id.page_1)).check(matches(allOf(
-                ViewPagerMatchers.isOfClass(View.class),
+                TestUtilsMatchers.isOfClass(View.class),
                 isDisplayed(),
-                ViewPagerMatchers.backgroundColor(Color.GREEN))));
+                TestUtilsMatchers.backgroundColor(Color.GREEN))));
         onView(withId(R.id.page_2)).check(matches(not(isDisplayed())));
 
         // Scroll one more page to select page #2
@@ -285,9 +299,9 @@ public class ViewPagerTest extends ActivityInstrumentationTestCase2<ViewPagerAct
         onView(withId(R.id.page_0)).check(doesNotExist());
         onView(withId(R.id.page_1)).check(matches(not(isDisplayed())));
         onView(withId(R.id.page_2)).check(matches(allOf(
-                ViewPagerMatchers.isOfClass(View.class),
+                TestUtilsMatchers.isOfClass(View.class),
                 isDisplayed(),
-                ViewPagerMatchers.backgroundColor(Color.BLUE))));
+                TestUtilsMatchers.backgroundColor(Color.BLUE))));
     }
 
     @SmallTest
@@ -312,7 +326,7 @@ public class ViewPagerTest extends ActivityInstrumentationTestCase2<ViewPagerAct
         // Page #0 should be displayed, page #1 should not be displayed and pages #2 / #3 should not
         // exist yet as they're outside of the offscreen window limit.
         onView(withId(R.id.page_0)).check(matches(allOf(
-                ViewPagerMatchers.isOfClass(TextView.class),
+                TestUtilsMatchers.isOfClass(TextView.class),
                 isDisplayed(),
                 withText("Body 0"))));
         onView(withId(R.id.page_1)).check(matches(not(isDisplayed())));
@@ -326,7 +340,7 @@ public class ViewPagerTest extends ActivityInstrumentationTestCase2<ViewPagerAct
         // outside the offscreen limit.
         onView(withId(R.id.page_0)).check(matches(not(isDisplayed())));
         onView(withId(R.id.page_1)).check(matches(allOf(
-                ViewPagerMatchers.isOfClass(TextView.class),
+                TestUtilsMatchers.isOfClass(TextView.class),
                 isDisplayed(),
                 withText("Body 1"))));
         onView(withId(R.id.page_2)).check(matches(not(isDisplayed())));
@@ -340,7 +354,7 @@ public class ViewPagerTest extends ActivityInstrumentationTestCase2<ViewPagerAct
         onView(withId(R.id.page_0)).check(doesNotExist());
         onView(withId(R.id.page_1)).check(matches(not(isDisplayed())));
         onView(withId(R.id.page_2)).check(matches(allOf(
-                ViewPagerMatchers.isOfClass(TextView.class),
+                TestUtilsMatchers.isOfClass(TextView.class),
                 isDisplayed(),
                 withText("Body 2"))));
         onView(withId(R.id.page_3)).check(matches(not(isDisplayed())));
@@ -354,8 +368,122 @@ public class ViewPagerTest extends ActivityInstrumentationTestCase2<ViewPagerAct
         onView(withId(R.id.page_1)).check(doesNotExist());
         onView(withId(R.id.page_2)).check(matches(not(isDisplayed())));
         onView(withId(R.id.page_3)).check(matches(allOf(
-                ViewPagerMatchers.isOfClass(TextView.class),
+                TestUtilsMatchers.isOfClass(TextView.class),
                 isDisplayed(),
                 withText("Body 3"))));
+    }
+
+    private void testTitleStripLayout(String expectedStartTitle, String expectedSelectedTitle,
+            String expectedEndTitle, int selectedPageId) {
+        // Check that the title strip spans the whole width of the pager and is aligned to
+        // its top
+        onView(withId(R.id.titles)).check(isLeftAlignedWith(withId(R.id.pager)));
+        onView(withId(R.id.titles)).check(isRightAlignedWith(withId(R.id.pager)));
+        onView(withId(R.id.titles)).check(isTopAlignedWith(withId(R.id.pager)));
+
+        // Check that the currently selected page spans the whole width of the pager and is below
+        // the title strip
+        onView(withId(selectedPageId)).check(isLeftAlignedWith(withId(R.id.pager)));
+        onView(withId(selectedPageId)).check(isRightAlignedWith(withId(R.id.pager)));
+        onView(withId(selectedPageId)).check(isBelow(withId(R.id.titles)));
+        onView(withId(selectedPageId)).check(isBottomAlignedWith(withId(R.id.pager)));
+
+        boolean hasStartTitle = !TextUtils.isEmpty(expectedStartTitle);
+        boolean hasEndTitle = !TextUtils.isEmpty(expectedEndTitle);
+
+        // Check that the title strip shows the expected number of children (tab titles)
+        int nonNullTitles = (hasStartTitle ? 1 : 0) + 1 + (hasEndTitle ? 1 : 0);
+        onView(withId(R.id.titles)).check(TestUtilsAssertions.hasDisplayedChildren(nonNullTitles));
+
+        if (hasStartTitle) {
+            // Check that the title for the start page is displayed at the start edge of its parent
+            // (title strip)
+            onView(withId(R.id.titles)).check(matches(hasDescendant(
+                    allOf(withText(expectedStartTitle), isDisplayed(),
+                            TestUtilsMatchers.startAlignedToParent()))));
+        }
+        // Check that the title for the selected page is displayed centered in its parent
+        // (title strip)
+        onView(withId(R.id.titles)).check(matches(hasDescendant(
+                allOf(withText(expectedSelectedTitle), isDisplayed(),
+                        TestUtilsMatchers.centerAlignedInParent()))));
+        if (hasEndTitle) {
+            // Check that the title for the end page is displayed at the end edge of its parent
+            // (title strip)
+            onView(withId(R.id.titles)).check(matches(hasDescendant(
+                    allOf(withText(expectedEndTitle), isDisplayed(),
+                            TestUtilsMatchers.endAlignedToParent()))));
+        }
+    }
+
+    @SmallTest
+    public void testPagerTitleStrip() {
+        // Set an adapter with 5 pages
+        final ColorPagerAdapter adapter = new ColorPagerAdapter();
+        adapter.add("Red", Color.RED);
+        adapter.add("Green", Color.GREEN);
+        adapter.add("Blue", Color.BLUE);
+        adapter.add("Yellow", Color.YELLOW);
+        adapter.add("Magenta", Color.MAGENTA);
+        onView(withId(R.id.pager)).perform(ViewPagerActions.setAdapter(adapter),
+                ViewPagerActions.scrollToPage(0));
+
+        // Check that the pager has a title strip
+        onView(withId(R.id.pager)).check(matches(hasDescendant(withId(R.id.titles))));
+        // Check that the title strip is displayed and is of the expected class
+        onView(withId(R.id.titles)).check(matches(allOf(
+                isDisplayed(), TestUtilsMatchers.isOfClass(PagerTitleStrip.class))));
+
+        // The following block tests the overall layout of tab strip and main pager content
+        // (vertical stacking), the content of the tab strip (showing texts for the selected
+        // tab and the ones on its left / right) as well as the alignment of the content in the
+        // tab strip (selected in center, others on left and right).
+
+        // Check the content and alignment of title strip for selected page #0
+        testTitleStripLayout(null, "Red", "Green", R.id.page_0);
+
+        // Scroll one page to select page #1 and check layout / content of title strip
+        onView(withId(R.id.pager)).perform(ViewPagerActions.scrollRight());
+        testTitleStripLayout("Red", "Green", "Blue", R.id.page_1);
+
+        // Scroll one page to select page #2 and check layout / content of title strip
+        onView(withId(R.id.pager)).perform(ViewPagerActions.scrollRight());
+        testTitleStripLayout("Green", "Blue", "Yellow", R.id.page_2);
+
+        // Scroll one page to select page #3 and check layout / content of title strip
+        onView(withId(R.id.pager)).perform(ViewPagerActions.scrollRight());
+        testTitleStripLayout("Blue", "Yellow", "Magenta", R.id.page_3);
+
+        // Scroll one page to select page #4 and check layout / content of title strip
+        onView(withId(R.id.pager)).perform(ViewPagerActions.scrollRight());
+        testTitleStripLayout("Yellow", "Magenta", null, R.id.page_4);
+
+        // The following block tests that nothing happens on clicking titles of various tabs
+        // as PagerTitleStrip is not interactive
+
+        // Scroll back to page #0
+        onView(withId(R.id.pager)).perform(ViewPagerActions.scrollToPage(0));
+
+        // Click the tab title for page #0 and verify that we're still on page #0
+        onView(allOf(isDescendantOfA(withId(R.id.titles)), withText("Red"))).perform(click());
+        assertEquals("Click tab #0 on tab #0", 0, mViewPager.getCurrentItem());
+
+        // Click the tab title for page #1 and verify that we're still on page #0
+        onView(allOf(isDescendantOfA(withId(R.id.titles)), withText("Green"))).perform(click());
+        assertEquals("Click tab #1 on tab #0", 0, mViewPager.getCurrentItem());
+
+        onView(withId(R.id.pager)).perform(ViewPagerActions.scrollRight());
+
+        // Click the tab title for page #0 and verify that we're still on page #1
+        onView(allOf(isDescendantOfA(withId(R.id.titles)), withText("Red"))).perform(click());
+        assertEquals("Click tab #0 on tab #1", 1, mViewPager.getCurrentItem());
+
+        // Click the tab title for page #1 and verify that we're still on page #1
+        onView(allOf(isDescendantOfA(withId(R.id.titles)), withText("Green"))).perform(click());
+        assertEquals("Click tab #1 on tab #1", 1, mViewPager.getCurrentItem());
+
+        // Click the tab title for page #2 and verify that we're still on page #1
+        onView(allOf(isDescendantOfA(withId(R.id.titles)), withText("Blue"))).perform(click());
+        assertEquals("Click tab #2 on tab #1", 1, mViewPager.getCurrentItem());
     }
 }
