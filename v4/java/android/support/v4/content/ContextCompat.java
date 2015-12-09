@@ -451,4 +451,48 @@ public class ContextCompat {
         }
         return file;
     }
+
+    /**
+     * Return a new Context object for the current Context but whose storage
+     * APIs are backed by device-encrypted storage.
+     * <p>
+     * Data stored in device-encrypted storage is typically encrypted with a key
+     * tied to the physical device, and it can be accessed when the device has
+     * booted successfully, both <em>before and after</em> the user has
+     * authenticated with their credentials (such as a lock pattern or PIN).
+     * Because device-encrypted data is available before user authentication,
+     * you should carefully consider what data you store using this Context.
+     * <p>
+     * Each call to this method returns a new instance of a Context object;
+     * Context objects are not shared, however common state (ClassLoader, other
+     * Resources for the same configuration) may be so the Context itself can be
+     * fairly lightweight.
+     *
+     * @return new Context or {@code null} if device-encrypted storage is not
+     *         supported or available on this device.
+     * @see ContextCompat#isDeviceEncryptedStorage(Context)
+     */
+    public static Context createDeviceEncryptedStorageContext(Context context) {
+        final int version = Build.VERSION.SDK_INT;
+        if (version >= 24 || "N".equals(Build.VERSION.CODENAME)) {
+            return ContextCompatApi24.createDeviceEncryptedStorageContext(context);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Indicates if the storage APIs of this Context are backed by
+     * device-encrypted storage.
+     *
+     * @see ContextCompat#createDeviceEncryptedStorageContext(Context)
+     */
+    public static boolean isDeviceEncryptedStorage(Context context) {
+        final int version = Build.VERSION.SDK_INT;
+        if (version >= 24 || "N".equals(Build.VERSION.CODENAME)) {
+            return ContextCompatApi24.isDeviceEncryptedStorage(context);
+        } else {
+            return false;
+        }
+    }
 }
