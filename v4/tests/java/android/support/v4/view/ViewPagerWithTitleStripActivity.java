@@ -23,11 +23,11 @@ import android.view.WindowManager;
 
 import java.util.ArrayList;
 
-public class ViewPagerActivity extends Activity {
+public class ViewPagerWithTitleStripActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setContentView(R.layout.view_pager_layout);
+        setContentView(R.layout.view_pager_with_title_strip);
     }
 }
