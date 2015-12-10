@@ -27,7 +27,7 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 
 /**
  * Denotes that an integer parameter, field or method return value is expected
- * to be a color resource reference (e.g. {@link android.R.color#black}).
+ * to be a color resource reference (e.g. {@code android.R.color.black}).
  */
 @Documented
 @Retention(CLASS)

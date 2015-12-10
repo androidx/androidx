@@ -27,7 +27,7 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 
 /**
  * Denotes that an integer parameter, field or method return value is expected
- * to be a drawable resource reference (e.g. {@link android.R.attr#alertDialogIcon}).
+ * to be a drawable resource reference (e.g. {@code android.R.attr.alertDialogIcon}).
  */
 @Documented
 @Retention(CLASS)

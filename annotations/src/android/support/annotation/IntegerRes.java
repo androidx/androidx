@@ -27,7 +27,7 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 
 /**
  * Denotes that an integer parameter, field or method return value is expected
- * to be an integer resource reference (e.g. {@link android.R.integer#config_shortAnimTime}).
+ * to be an integer resource reference (e.g. {@code android.R.integer.config_shortAnimTime}).
  */
 @Documented
 @Retention(CLASS)

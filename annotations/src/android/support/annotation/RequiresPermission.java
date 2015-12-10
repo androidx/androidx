@@ -27,7 +27,7 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 
 /**
  * Denotes that the annotated element requires (or may require) one or more permissions.
- * <p/>
+ * <p>
  * Example of requiring a single permission:
  * <pre><code>
  *   &#64;RequiresPermission(Manifest.permission.SET_WALLPAPER)
@@ -55,7 +55,7 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
  * <p>
  * When specified on a parameter, the annotation indicates that the method requires
  * a permission which depends on the value of the parameter. For example, consider
- * {@link android.app.Activity#startActivity(android.content.Intent)}:
+ * {@code android.app.Activity.startActivity(android.content.Intent)}:
  * <pre>{@code
  *   public void startActivity(@RequiresPermission Intent intent) { ... }
  * }</pre>

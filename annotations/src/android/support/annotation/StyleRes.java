@@ -27,7 +27,7 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 
 /**
  * Denotes that an integer parameter, field or method return value is expected
- * to be a style resource reference (e.g. {@link android.R.style#TextAppearance}).
+ * to be a style resource reference (e.g. {@code android.R.style.TextAppearance}).
  */
 @Documented
 @Retention(CLASS)

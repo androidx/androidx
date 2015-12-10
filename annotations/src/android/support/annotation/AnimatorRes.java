@@ -27,7 +27,7 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 
 /**
  * Denotes that an integer parameter, field or method return value is expected
- * to be an animator resource reference (e.g. {@link android.R.animator#fade_in}).
+ * to be an animator resource reference (e.g. {@code android.R.animator.fade_in}).
  */
 @Documented
 @Retention(CLASS)

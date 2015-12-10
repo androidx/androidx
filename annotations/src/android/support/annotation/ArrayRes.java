@@ -27,7 +27,7 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 
 /**
  * Denotes that an integer parameter, field or method return value is expected
- * to be an array resource reference (e.g. {@link android.R.array#phoneTypes}).
+ * to be an array resource reference (e.g. {@code android.R.array.phoneTypes}).
  */
 @Documented
 @Retention(CLASS)

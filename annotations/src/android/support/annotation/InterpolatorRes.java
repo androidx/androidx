@@ -27,7 +27,7 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 
 /**
  * Denotes that an integer parameter, field or method return value is expected
- * to be an interpolator resource reference (e.g. {@link android.R.interpolator#cycle}).
+ * to be an interpolator resource reference (e.g. {@code android.R.interpolator.cycle}).
  */
 @Documented
 @Retention(CLASS)

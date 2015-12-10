@@ -27,7 +27,7 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 
 /**
  * Denotes that an integer parameter, field or method return value is expected
- * to be an id resource reference (e.g. {@link android.R.id#copy}).
+ * to be an id resource reference (e.g. {@code android.R.id.copy}).
  */
 @Documented
 @Retention(CLASS)
