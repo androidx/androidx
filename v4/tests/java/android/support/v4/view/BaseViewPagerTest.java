@@ -15,6 +15,7 @@
  */
 package android.support.v4.view;
 
+import android.app.Activity;
 import android.graphics.Color;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -54,16 +55,26 @@ import static android.support.test.espresso.matcher.ViewMatchers.isDescendantOfA
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.core.IsNot.not;
 
-public class ViewPagerTest extends ActivityInstrumentationTestCase2<ViewPagerActivity> {
-    private ViewPager mViewPager;
+/**
+ * Base class for testing <code>ViewPager</code>. Most of the testing logic should be in this
+ * class as it is independent on the specific pager title implementation (interactive or non
+ * interactive).
+ *
+ * Testing logic that does depend on the specific pager title implementation is pushed into the
+ * extending classes in <code>assertStripInteraction()</code> method.
+ */
+public abstract class BaseViewPagerTest<T extends Activity>
+        extends ActivityInstrumentationTestCase2<T> {
+    protected ViewPager mViewPager;
 
-    private static class BasePagerAdapter<T> extends PagerAdapter {
-        protected ArrayList<Pair<String, T>> mEntries = new ArrayList<>();
+    protected static class BasePagerAdapter<Q> extends PagerAdapter {
+        protected ArrayList<Pair<String, Q>> mEntries = new ArrayList<>();
 
-        public void add(String title, T content) {
+        public void add(String title, Q content) {
             mEntries.add(new Pair(title, content));
         }
 
@@ -139,7 +150,7 @@ public class ViewPagerTest extends ActivityInstrumentationTestCase2<ViewPagerAct
         }
     }
 
-    private static class ColorPagerAdapter extends BasePagerAdapter<Integer> {
+    protected static class ColorPagerAdapter extends BasePagerAdapter<Integer> {
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             final View view = new View(container.getContext());
@@ -154,7 +165,7 @@ public class ViewPagerTest extends ActivityInstrumentationTestCase2<ViewPagerAct
         }
     }
 
-    private static class TextPagerAdapter extends BasePagerAdapter<String> {
+    protected static class TextPagerAdapter extends BasePagerAdapter<String> {
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             final TextView view = new TextView(container.getContext());
@@ -169,15 +180,15 @@ public class ViewPagerTest extends ActivityInstrumentationTestCase2<ViewPagerAct
         }
     }
 
-    public ViewPagerTest() {
-        super("android.support.v4.view", ViewPagerActivity.class);
+    public BaseViewPagerTest(Class<T> activityClass) {
+        super("android.support.v4.view", activityClass);
     }
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
 
-        final ViewPagerActivity activity = getActivity();
+        final T activity = getActivity();
         mViewPager = (ViewPager) activity.findViewById(R.id.pager);
 
         ColorPagerAdapter adapter = new ColorPagerAdapter();
@@ -417,7 +428,7 @@ public class ViewPagerTest extends ActivityInstrumentationTestCase2<ViewPagerAct
     }
 
     @SmallTest
-    public void testPagerTitleStrip() {
+    public void testPagerStrip() {
         // Set an adapter with 5 pages
         final ColorPagerAdapter adapter = new ColorPagerAdapter();
         adapter.add("Red", Color.RED);
@@ -432,7 +443,7 @@ public class ViewPagerTest extends ActivityInstrumentationTestCase2<ViewPagerAct
         onView(withId(R.id.pager)).check(matches(hasDescendant(withId(R.id.titles))));
         // Check that the title strip is displayed and is of the expected class
         onView(withId(R.id.titles)).check(matches(allOf(
-                isDisplayed(), TestUtilsMatchers.isOfClass(PagerTitleStrip.class))));
+                isDisplayed(), TestUtilsMatchers.isOfClass(getStripClass()))));
 
         // The following block tests the overall layout of tab strip and main pager content
         // (vertical stacking), the content of the tab strip (showing texts for the selected
@@ -458,32 +469,20 @@ public class ViewPagerTest extends ActivityInstrumentationTestCase2<ViewPagerAct
         onView(withId(R.id.pager)).perform(ViewPagerActions.scrollRight());
         testTitleStripLayout("Yellow", "Magenta", null, R.id.page_4);
 
-        // The following block tests that nothing happens on clicking titles of various tabs
-        // as PagerTitleStrip is not interactive
-
         // Scroll back to page #0
         onView(withId(R.id.pager)).perform(ViewPagerActions.scrollToPage(0));
 
-        // Click the tab title for page #0 and verify that we're still on page #0
-        onView(allOf(isDescendantOfA(withId(R.id.titles)), withText("Red"))).perform(click());
-        assertEquals("Click tab #0 on tab #0", 0, mViewPager.getCurrentItem());
-
-        // Click the tab title for page #1 and verify that we're still on page #0
-        onView(allOf(isDescendantOfA(withId(R.id.titles)), withText("Green"))).perform(click());
-        assertEquals("Click tab #1 on tab #0", 0, mViewPager.getCurrentItem());
-
-        onView(withId(R.id.pager)).perform(ViewPagerActions.scrollRight());
-
-        // Click the tab title for page #0 and verify that we're still on page #1
-        onView(allOf(isDescendantOfA(withId(R.id.titles)), withText("Red"))).perform(click());
-        assertEquals("Click tab #0 on tab #1", 1, mViewPager.getCurrentItem());
-
-        // Click the tab title for page #1 and verify that we're still on page #1
-        onView(allOf(isDescendantOfA(withId(R.id.titles)), withText("Green"))).perform(click());
-        assertEquals("Click tab #1 on tab #1", 1, mViewPager.getCurrentItem());
-
-        // Click the tab title for page #2 and verify that we're still on page #1
-        onView(allOf(isDescendantOfA(withId(R.id.titles)), withText("Blue"))).perform(click());
-        assertEquals("Click tab #2 on tab #1", 1, mViewPager.getCurrentItem());
+        assertStripInteraction();
     }
+
+    /**
+     * Returns the class of the pager strip.
+     */
+    protected abstract Class getStripClass();
+
+    /**
+     * Checks assertions that are specific to the pager strip implementation (interactive or
+     * non interactive).
+     */
+    protected abstract void assertStripInteraction();
 }

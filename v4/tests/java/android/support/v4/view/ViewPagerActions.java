@@ -16,16 +16,26 @@
 
 package android.support.v4.view;
 
-import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayingAtLeast;
-
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
+import android.support.test.espresso.action.CoordinatesProvider;
+import android.support.test.espresso.action.GeneralClickAction;
+import android.support.test.espresso.action.Press;
+import android.support.test.espresso.action.Tap;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
+import android.widget.TextView;
 
 import org.hamcrest.Matcher;
+
+import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
+import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayingAtLeast;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
+
+import static org.hamcrest.Matchers.allOf;
 
 public class ViewPagerActions {
     /**
@@ -196,5 +206,56 @@ public class ViewPagerActions {
                 uiController.loopMainThreadUntilIdle();
             }
         };
+    }
+
+    /**
+     * Clicks between two titles in a <code>ViewPager</code> title strip
+     */
+    public static ViewAction clickBetweenTwoTitles(final String title1, final String title2) {
+        return new GeneralClickAction(
+                Tap.SINGLE,
+                new CoordinatesProvider() {
+                    @Override
+                    public float[] calculateCoordinates(View view) {
+                        PagerTitleStrip pagerStrip = (PagerTitleStrip) view;
+
+                        // Get the screen position of the pager strip
+                        final int[] viewScreenPosition = new int[2];
+                        pagerStrip.getLocationOnScreen(viewScreenPosition);
+
+                        // Get the left / right of the first title
+                        int title1Left = 0, title1Right = 0, title2Left = 0, title2Right = 0;
+                        final int childCount = pagerStrip.getChildCount();
+                        for (int i = 0; i < childCount; i++) {
+                            final View child = pagerStrip.getChildAt(i);
+                            if (child instanceof TextView) {
+                                final TextView textViewChild = (TextView) child;
+                                final CharSequence childText = textViewChild.getText();
+                                if (title1.equals(childText)) {
+                                    title1Left = textViewChild.getLeft();
+                                    title1Right = textViewChild.getRight();
+                                } else if (title2.equals(childText)) {
+                                    title2Left = textViewChild.getLeft();
+                                    title2Right = textViewChild.getRight();
+                                }
+                            }
+                        }
+
+                        if (title1Right < title2Left) {
+                            // Title 1 is to the left of title 2
+                            return new float[] {
+                                    viewScreenPosition[0] + (title1Right + title2Left) / 2,
+                                    viewScreenPosition[1] + pagerStrip.getHeight() / 2 };
+                        } else {
+                            // The assumption here is that PagerTitleStrip prevents titles
+                            // from overlapping, so if we get here it means that title 1
+                            // is to the right of title 2
+                            return new float[] {
+                                    viewScreenPosition[0] + (title2Right + title1Left) / 2,
+                                    viewScreenPosition[1] + pagerStrip.getHeight() / 2 };
+                        }
+                    }
+                },
+                Press.FINGER);
     }
 }
