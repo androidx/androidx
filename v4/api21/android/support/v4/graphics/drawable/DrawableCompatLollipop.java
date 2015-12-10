@@ -21,6 +21,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.DrawableContainer;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.InsetDrawable;
 
 /**
  * Implementation of drawable compatibility that can call L APIs.
@@ -60,6 +61,6 @@ class DrawableCompatLollipop {
         // functionality instead. We also do the same for DrawableContainers and DrawableWrappers
         // since they may contain GradientDrawable instances.
         return drawable instanceof GradientDrawable || drawable instanceof DrawableContainer
-                || drawable instanceof android.graphics.drawable.DrawableWrapper;
+                || drawable instanceof InsetDrawable;
     }
 }
