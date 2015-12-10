@@ -25,7 +25,7 @@ import android.support.test.espresso.action.GeneralSwipeAction;
 import android.support.test.espresso.action.Swipe;
 
 import android.support.v4.view.GravityCompat;
-import android.support.v7.app.custom.CustomDrawerLayout;
+import android.support.v7.custom.CustomDrawerLayout;
 import android.support.v7.appcompat.test.R;
 
 import org.junit.Test;
