@@ -17,7 +17,6 @@
 package android.support.v4.os;
 
 import android.content.Context;
-import android.os.Build;
 
 /**
  * Helper for accessing features in {@link android.os.UserManager}
@@ -31,12 +30,7 @@ public class UserManagerCompat {
      * available.
      */
     public static boolean isUserRunningAndLocked(Context context) {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 24 || "N".equals(Build.VERSION.CODENAME)) {
-            return UserManagerCompatApi24.isUserRunningAndLocked(context);
-        } else {
-            return false;
-        }
+        return false;
     }
 
     /**
@@ -46,11 +40,6 @@ public class UserManagerCompat {
      * available.
      */
     public static boolean isUserRunningAndUnlocked(Context context) {
-        final int version = Build.VERSION.SDK_INT;
-        if (version >= 24 || "N".equals(Build.VERSION.CODENAME)) {
-            return UserManagerCompatApi24.isUserRunningAndUnlocked(context);
-        } else {
-            return true;
-        }
+        return true;
     }
 }
