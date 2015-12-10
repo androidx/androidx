@@ -530,7 +530,7 @@ class AdapterHelper implements OpReorderer.Callback {
      */
     boolean onItemRangeMoved(int from, int to, int itemCount) {
         if (from == to) {
-            return false;//no-op
+            return false; // no-op
         }
         if (itemCount != 1) {
             throw new IllegalArgumentException("Moving more than 1 item is not supported yet");
@@ -610,6 +610,10 @@ class AdapterHelper implements OpReorderer.Callback {
             }
         }
         return position;
+    }
+
+    boolean hasUpdates() {
+        return !mPostponedList.isEmpty() && !mPendingUpdates.isEmpty();
     }
 
     /**

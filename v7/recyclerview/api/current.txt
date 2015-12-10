@@ -235,6 +235,8 @@ package android.support.v7.widget {
     method public abstract int getEnd();
     method public abstract int getEndAfterPadding();
     method public abstract int getEndPadding();
+    method public abstract int getMode();
+    method public abstract int getModeInOther();
     method public abstract int getStartAfterPadding();
     method public abstract int getTotalSpace();
     method public int getTotalSpaceChange();
@@ -459,6 +461,7 @@ package android.support.v7.widget {
     method public boolean canScrollHorizontally();
     method public boolean canScrollVertically();
     method public boolean checkLayoutParams(android.support.v7.widget.RecyclerView.LayoutParams);
+    method public static int chooseSize(int, int, int);
     method public int computeHorizontalScrollExtent(android.support.v7.widget.RecyclerView.State);
     method public int computeHorizontalScrollOffset(android.support.v7.widget.RecyclerView.State);
     method public int computeHorizontalScrollRange(android.support.v7.widget.RecyclerView.State);
@@ -480,7 +483,8 @@ package android.support.v7.widget {
     method public int getBottomDecorationHeight(android.view.View);
     method public android.view.View getChildAt(int);
     method public int getChildCount();
-    method public static int getChildMeasureSpec(int, int, int, boolean);
+    method public static deprecated int getChildMeasureSpec(int, int, int, boolean);
+    method public static int getChildMeasureSpec(int, int, int, int, boolean);
     method public boolean getClipToPadding();
     method public int getColumnCountForAccessibility(android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State);
     method public int getDecoratedBottom(android.view.View);
@@ -491,6 +495,7 @@ package android.support.v7.widget {
     method public int getDecoratedTop(android.view.View);
     method public android.view.View getFocusedChild();
     method public int getHeight();
+    method public int getHeightMode();
     method public int getItemCount();
     method public int getItemViewType(android.view.View);
     method public int getLayoutDirection();
@@ -510,11 +515,14 @@ package android.support.v7.widget {
     method public int getSelectionModeForAccessibility(android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State);
     method public int getTopDecorationHeight(android.view.View);
     method public int getWidth();
+    method public int getWidthMode();
     method public boolean hasFocus();
     method public void ignoreView(android.view.View);
     method public boolean isAttachedToWindow();
+    method public boolean isAutoMeasureEnabled();
     method public boolean isFocused();
     method public boolean isLayoutHierarchical(android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State);
+    method public boolean isMeasurementCacheEnabled();
     method public boolean isSmoothScrolling();
     method public void layoutDecorated(android.view.View, int, int, int, int);
     method public void measureChild(android.view.View, int, int);
@@ -563,7 +571,10 @@ package android.support.v7.widget {
     method public int scrollHorizontallyBy(int, android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State);
     method public void scrollToPosition(int);
     method public int scrollVerticallyBy(int, android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State);
+    method public void setAutoMeasureEnabled(boolean);
+    method public void setMeasuredDimension(android.graphics.Rect, int, int);
     method public void setMeasuredDimension(int, int);
+    method public void setMeasurementCacheEnabled(boolean);
     method public void smoothScrollToPosition(android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.State, int);
     method public void startSmoothScroll(android.support.v7.widget.RecyclerView.SmoothScroller);
     method public void stopIgnoringView(android.view.View);
@@ -684,6 +695,7 @@ package android.support.v7.widget {
     method public int getItemCount();
     method public int getTargetScrollPosition();
     method public boolean hasTargetScrollPosition();
+    method public boolean isMeasuring();
     method public boolean isPreLayout();
     method public void put(int, java.lang.Object);
     method public void remove(int);

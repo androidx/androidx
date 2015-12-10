@@ -105,11 +105,11 @@ public class LinearLayoutManagerPrepareForDropTest extends BaseLinearLayoutManag
                     int position) {
                 super.onBindViewHolder(holder, position);
                 if (config.mOrientation == HORIZONTAL) {
-                    final int base = mRecyclerView.getWidth() / 5;
+                    final int base = mLayoutManager.getWidth() / 5;
                     final int itemRand = holder.mBoundItem.mText.hashCode() % base;
                     holder.itemView.setMinimumWidth(base + itemRand);
                 } else {
-                    final int base = mRecyclerView.getHeight() / 5;
+                    final int base = mLayoutManager.getHeight() / 5;
                     final int itemRand = holder.mBoundItem.mText.hashCode() % base;
                     holder.itemView.setMinimumHeight(base + itemRand);
                 }

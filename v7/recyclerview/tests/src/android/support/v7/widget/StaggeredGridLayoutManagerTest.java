@@ -61,6 +61,7 @@ import static android.support.v7.widget.StaggeredGridLayoutManager.HORIZONTAL;
 import static android.support.v7.widget.StaggeredGridLayoutManager.LayoutParams;
 import static org.junit.Assert.*;
 
+
 @MediumTest
 public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManagerTest {
 

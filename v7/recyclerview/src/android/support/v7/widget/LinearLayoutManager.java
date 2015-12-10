@@ -23,13 +23,13 @@ import android.os.Parcelable;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityRecordCompat;
-import android.util.AttributeSet;
+import android.support.v7.widget.RecyclerView.LayoutParams;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
-import android.support.v7.widget.RecyclerView.LayoutParams;
 
 import java.util.List;
 
@@ -154,6 +154,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     public LinearLayoutManager(Context context, int orientation, boolean reverseLayout) {
         setOrientation(orientation);
         setReverseLayout(reverseLayout);
+        setAutoMeasureEnabled(true);
     }
 
     /**
@@ -170,6 +171,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         setOrientation(properties.orientation);
         setReverseLayout(properties.reverseLayout);
         setStackFromEnd(properties.stackFromEnd);
+        setAutoMeasureEnabled(true);
     }
 
     /**
@@ -529,6 +531,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         int endOffset;
         onAnchorReady(recycler, state, mAnchorInfo);
         detachAndScrapAttachedViews(recycler);
+        mLayoutState.mInfinite = mOrientationHelper.getMode() == View.MeasureSpec.UNSPECIFIED;
         mLayoutState.mIsPreLayout = state.isPreLayout();
         if (mAnchorInfo.mLayoutFromEnd) {
             // fill towards start
@@ -1115,6 +1118,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
 
     private void updateLayoutState(int layoutDirection, int requiredSpace,
             boolean canUseExistingSpace, RecyclerView.State state) {
+        mLayoutState.mInfinite = mOrientationHelper.getMode() == View.MeasureSpec.UNSPECIFIED;
         mLayoutState.mExtra = getExtraLayoutSpace(state);
         mLayoutState.mLayoutDirection = layoutDirection;
         int fastScrollSpace;
@@ -1294,7 +1298,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
      * @see android.support.v7.widget.LinearLayoutManager.LayoutState#mLayoutDirection
      */
     private void recycleByLayoutState(RecyclerView.Recycler recycler, LayoutState layoutState) {
-        if (!layoutState.mRecycle) {
+        if (!layoutState.mRecycle || layoutState.mInfinite) {
             return;
         }
         if (layoutState.mLayoutDirection == LayoutState.LAYOUT_START) {
@@ -1328,7 +1332,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         }
         int remainingSpace = layoutState.mAvailable + layoutState.mExtra;
         LayoutChunkResult layoutChunkResult = new LayoutChunkResult();
-        while (remainingSpace > 0 && layoutState.hasMore(state)) {
+        while ((layoutState.mInfinite || remainingSpace > 0) && layoutState.hasMore(state)) {
             layoutChunkResult.resetInternal();
             layoutChunk(recycler, state, layoutState, layoutChunkResult);
             if (layoutChunkResult.mFinished) {
@@ -1437,6 +1441,13 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
             result.mIgnoreConsumed = true;
         }
         result.mFocusable = view.isFocusable();
+    }
+
+    @Override
+    boolean shouldMeasureTwice() {
+        return getHeightMode() != View.MeasureSpec.EXACTLY
+                && getWidthMode() != View.MeasureSpec.EXACTLY
+                && hasFlexibleChildInBothOrientations();
     }
 
     /**
@@ -1931,7 +1942,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         boolean mIsPreLayout = false;
 
         /**
-         * The most recent {@link #scrollBy(int, RecyclerView.Recycler, RecyclerView.State)} amount.
+         * The most recent {@link #scrollBy(int, RecyclerView.Recycler, RecyclerView.State)}
+         * amount.
          */
         int mLastScrollDelta;
 
@@ -1940,6 +1952,11 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
          * will only return views from this list and return null if it cannot find an item.
          */
         List<RecyclerView.ViewHolder> mScrapList = null;
+
+        /**
+         * Used when there is no limit in how many views can be laid out.
+         */
+        boolean mInfinite;
 
         /**
          * @return true if there are more items in the data adapter
