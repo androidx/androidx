@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-     Copyright (C) 2014 The Android Open Source Project
+<!-- Copyright (C) 2015 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -15,12 +14,14 @@
      limitations under the License.
 -->
 
-<resources>
-
-    <style name="Base.Widget.AppCompat.Button.Colored" parent="android:Widget.Material.Button.Colored" />
-
-    <style name="Base.Widget.AppCompat.RatingBar.Indicator" parent="android:Widget.Material.RatingBar.Indicator" />
-
-    <style name="Base.Widget.AppCompat.RatingBar.Small" parent="android:Widget.Material.RatingBar.Small" />
-
-</resources>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@android:id/background"
+          android:drawable="@drawable/abc_ic_star_black_16dp" />
+    <item android:id="@android:id/secondaryProgress"
+          android:drawable="@drawable/abc_ic_star_half_black_16dp" />
+    <item android:id="@android:id/progress">
+        <bitmap
+                android:src="@drawable/abc_ic_star_black_16dp"
+                android:tileModeX="repeat"/>
+    </item>
+</layer-list>

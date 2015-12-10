@@ -201,6 +201,10 @@
 
     <style name="Widget.AppCompat.RatingBar" parent="Base.Widget.AppCompat.RatingBar" />
 
+    <style name="Widget.AppCompat.RatingBar.Indicator" parent="Base.Widget.AppCompat.RatingBar.Indicator" />
+
+    <style name="Widget.AppCompat.RatingBar.Small" parent="Base.Widget.AppCompat.RatingBar.Small" />
+
     <style name="Widget.AppCompat.Button" parent="Base.Widget.AppCompat.Button" />
 
     <style name="Widget.AppCompat.Button.Small" parent="Base.Widget.AppCompat.Button.Small" />
