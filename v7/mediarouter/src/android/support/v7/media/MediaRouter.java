@@ -854,16 +854,6 @@ public final class MediaRouter {
          */
         public static final int DEVICE_TYPE_UNKNOWN = 0;
 
-
-        /**
-         * A receiver device type of the route indicating the presentation of the media is happening
-         * on a bluetooth device such as a bluetooth speaker.
-         *
-         * @see #getDeviceType
-         * @hide
-         */
-        public static final int DEVICE_TYPE_BLUETOOTH = -1;
-
         /**
          * A receiver device type of the route indicating the presentation of the media is happening
          * on a TV.
@@ -879,6 +869,15 @@ public final class MediaRouter {
          * @see #getDeviceType
          */
         public static final int DEVICE_TYPE_SPEAKER = 2;
+
+        /**
+         * A receiver device type of the route indicating the presentation of the media is happening
+         * on a bluetooth device such as a bluetooth speaker.
+         *
+         * @see #getDeviceType
+         * @hide
+         */
+        public static final int DEVICE_TYPE_BLUETOOTH = 3;
 
         /** @hide */
         @IntDef({PLAYBACK_VOLUME_FIXED,PLAYBACK_VOLUME_VARIABLE})
