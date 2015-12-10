@@ -57,8 +57,9 @@ class DrawableCompatLollipop {
 
     private static boolean shouldForceCompatTinting(Drawable drawable) {
         // GradientDrawable on Lollipop does not support tinting, so we'll use our compatible
-        // functionality instead. We also do the same for DrawableContainers since they may
-        // contain GradientDrawable instances.
-        return drawable instanceof GradientDrawable || drawable instanceof DrawableContainer;
+        // functionality instead. We also do the same for DrawableContainers and DrawableWrappers
+        // since they may contain GradientDrawable instances.
+        return drawable instanceof GradientDrawable || drawable instanceof DrawableContainer
+                || drawable instanceof android.graphics.drawable.DrawableWrapper;
     }
 }
