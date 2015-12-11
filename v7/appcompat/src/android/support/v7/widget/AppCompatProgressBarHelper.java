@@ -96,7 +96,8 @@ class AppCompatProgressBarHelper {
             return newBg;
 
         } else if (drawable instanceof BitmapDrawable) {
-            final Bitmap tileBitmap = ((BitmapDrawable) drawable).getBitmap();
+            final BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
+            final Bitmap tileBitmap = bitmapDrawable.getBitmap();
             if (mSampleTile == null) {
                 mSampleTile = tileBitmap;
             }
@@ -105,6 +106,7 @@ class AppCompatProgressBarHelper {
             final BitmapShader bitmapShader = new BitmapShader(tileBitmap,
                     Shader.TileMode.REPEAT, Shader.TileMode.CLAMP);
             shapeDrawable.getPaint().setShader(bitmapShader);
+            shapeDrawable.getPaint().setColorFilter(bitmapDrawable.getPaint().getColorFilter());
             return (clip) ? new ClipDrawable(shapeDrawable, Gravity.LEFT,
                     ClipDrawable.HORIZONTAL) : shapeDrawable;
         }

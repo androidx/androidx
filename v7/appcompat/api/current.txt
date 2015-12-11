@@ -483,6 +483,8 @@ package android.support.v7.appcompat {
     field public static int queryHint;
     field public static int radioButtonStyle;
     field public static int ratingBarStyle;
+    field public static int ratingBarStyleIndicator;
+    field public static int ratingBarStyleSmall;
     field public static int searchHintIcon;
     field public static int searchIcon;
     field public static int searchViewStyle;
@@ -748,6 +750,10 @@ package android.support.v7.appcompat {
     field public static int abc_ic_menu_selectall_mtrl_alpha;
     field public static int abc_ic_menu_share_mtrl_alpha;
     field public static int abc_ic_search_api_mtrl_alpha;
+    field public static int abc_ic_star_black_16dp;
+    field public static int abc_ic_star_black_36dp;
+    field public static int abc_ic_star_half_black_16dp;
+    field public static int abc_ic_star_half_black_36dp;
     field public static int abc_ic_voice_search_api_mtrl_alpha;
     field public static int abc_item_background_holo_dark;
     field public static int abc_item_background_holo_light;
@@ -765,6 +771,8 @@ package android.support.v7.appcompat {
     field public static int abc_menu_hardkey_panel_mtrl_mult;
     field public static int abc_popup_background_mtrl_mult;
     field public static int abc_ratingbar_full_material;
+    field public static int abc_ratingbar_indicator_material;
+    field public static int abc_ratingbar_small_material;
     field public static int abc_scrubber_control_off_mtrl_alpha;
     field public static int abc_scrubber_control_to_pressed_mtrl_000;
     field public static int abc_scrubber_control_to_pressed_mtrl_005;
@@ -1097,6 +1105,8 @@ package android.support.v7.appcompat {
     field public static int Base_Widget_AppCompat_ProgressBar;
     field public static int Base_Widget_AppCompat_ProgressBar_Horizontal;
     field public static int Base_Widget_AppCompat_RatingBar;
+    field public static int Base_Widget_AppCompat_RatingBar_Indicator;
+    field public static int Base_Widget_AppCompat_RatingBar_Small;
     field public static int Base_Widget_AppCompat_SearchView;
     field public static int Base_Widget_AppCompat_SearchView_ActionBar;
     field public static int Base_Widget_AppCompat_SeekBar;
@@ -1265,6 +1275,8 @@ package android.support.v7.appcompat {
     field public static int Widget_AppCompat_ProgressBar;
     field public static int Widget_AppCompat_ProgressBar_Horizontal;
     field public static int Widget_AppCompat_RatingBar;
+    field public static int Widget_AppCompat_RatingBar_Indicator;
+    field public static int Widget_AppCompat_RatingBar_Small;
     field public static int Widget_AppCompat_SearchView;
     field public static int Widget_AppCompat_SearchView_ActionBar;
     field public static int Widget_AppCompat_SeekBar;
@@ -1536,6 +1548,8 @@ package android.support.v7.appcompat {
     field public static int Theme_popupWindowStyle;
     field public static int Theme_radioButtonStyle;
     field public static int Theme_ratingBarStyle;
+    field public static int Theme_ratingBarStyleIndicator;
+    field public static int Theme_ratingBarStyleSmall;
     field public static int Theme_searchViewStyle;
     field public static int Theme_seekBarStyle;
     field public static int Theme_selectableItemBackground;

@@ -141,6 +141,8 @@
     <public type="style" name="Widget.AppCompat.ProgressBar"/>
     <public type="style" name="Widget.AppCompat.ProgressBar.Horizontal"/>
     <public type="style" name="Widget.AppCompat.RatingBar"/>
+    <public type="style" name="Widget.AppCompat.RatingBar.Indicator"/>
+    <public type="style" name="Widget.AppCompat.RatingBar.Small"/>
     <public type="style" name="Widget.AppCompat.SearchView"/>
     <public type="style" name="Widget.AppCompat.SearchView.ActionBar"/>
     <public type="style" name="Widget.AppCompat.SeekBar"/>

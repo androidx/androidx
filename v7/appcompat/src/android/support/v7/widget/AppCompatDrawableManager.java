@@ -209,6 +209,16 @@ public final class AppCompatDrawableManager {
                         getThemeAttrColor(context, R.attr.colorControlNormal), DEFAULT_MODE);
                 setPorterDuffColorFilter(ld.findDrawableByLayerId(android.R.id.progress),
                         getThemeAttrColor(context, R.attr.colorControlActivated), DEFAULT_MODE);
+            } else if (resId == R.drawable.abc_ratingbar_indicator_material
+                    || resId == R.drawable.abc_ratingbar_small_material) {
+                LayerDrawable ld = (LayerDrawable) drawable;
+                setPorterDuffColorFilter(ld.findDrawableByLayerId(android.R.id.background),
+                        getDisabledThemeAttrColor(context, R.attr.colorControlNormal),
+                        DEFAULT_MODE);
+                setPorterDuffColorFilter(ld.findDrawableByLayerId(android.R.id.secondaryProgress),
+                        getThemeAttrColor(context, R.attr.colorControlActivated), DEFAULT_MODE);
+                setPorterDuffColorFilter(ld.findDrawableByLayerId(android.R.id.progress),
+                        getThemeAttrColor(context, R.attr.colorControlActivated), DEFAULT_MODE);
             } else {
                 final boolean tinted = tintDrawableUsingColorFilter(context, resId, drawable);
                 if (!tinted && failIfNotKnown) {
