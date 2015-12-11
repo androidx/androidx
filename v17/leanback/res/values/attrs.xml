@@ -479,4 +479,11 @@
 
     </declare-styleable>
 
+    <declare-styleable name="lbDatePicker">
+        <attr name="android:minDate" />
+        <attr name="android:maxDate" />
+        <!-- e.g. "MDY", "MY" -->
+        <attr name="datePickerFormat" format="string"/>
+    </declare-styleable>
+
 </resources>

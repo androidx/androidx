@@ -79,4 +79,10 @@ limitations under the License.
     <string name="lb_guidedaction_finish_title">Finish</string>
     <!-- Title of standard Continue action for GuidedStepFragment -->
     <string name="lb_guidedaction_continue_title">Continue</string>
+
+    <!-- Separator for date picker [CHAR LIMIT=2] -->
+    <string name="lb_date_separator">/</string>
+    <!-- Separator for time picker [CHAR LIMIT=2] -->
+    <string name="lb_time_separator">:</string>
+
 </resources>
