@@ -22,7 +22,7 @@ import android.support.annotation.NonNull;
 
 public final class SharedPreferencesCompat {
 
-    public static class EditorCompat {
+    public final static class EditorCompat {
 
         private static EditorCompat sInstance;
 

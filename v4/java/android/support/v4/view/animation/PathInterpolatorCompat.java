@@ -25,7 +25,7 @@ import android.view.animation.Interpolator;
  * platform implementation will be used and on older platforms a compatible alternative
  * implementation will be used.
  */
-public class PathInterpolatorCompat {
+public final class PathInterpolatorCompat {
 
     private PathInterpolatorCompat() {
         // prevent instantiation

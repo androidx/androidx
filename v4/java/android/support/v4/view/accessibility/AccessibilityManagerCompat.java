@@ -28,7 +28,7 @@ import java.util.List;
  * Helper for accessing features in {@link AccessibilityManager}
  * introduced after API level 4 in a backwards compatible fashion.
  */
-public class AccessibilityManagerCompat {
+public final class AccessibilityManagerCompat {
 
     interface AccessibilityManagerVersionImpl {
         public Object newAccessiblityStateChangeListener(
@@ -213,4 +213,6 @@ public class AccessibilityManagerCompat {
          */
         public abstract void onAccessibilityStateChanged(boolean enabled);
     }
+
+    private AccessibilityManagerCompat() {}
 }

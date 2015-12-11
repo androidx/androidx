@@ -20,7 +20,7 @@ package android.support.v4.content.pm;
  * Helper for accessing features in {@link android.content.pm.ActivityInfo}
  * introduced after API level 4 in a backwards compatible fashion.
  */
-public class ActivityInfoCompat {
+public final class ActivityInfoCompat {
 
     private ActivityInfoCompat() {
         /* Hide constructor */
