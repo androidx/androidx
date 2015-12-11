@@ -18,9 +18,11 @@ package android.support.graphics.drawable.tests;
 
 import android.content.res.Resources;
 import android.content.res.Resources.Theme;
-import android.graphics.*;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.VectorDrawable;
 import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.graphics.drawable.test.R;
 import android.test.AndroidTestCase;
