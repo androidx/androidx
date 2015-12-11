@@ -354,7 +354,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     }
 
     private void initScrollView() {
-        mScroller = new ScrollerCompat(getContext(), null);
+        mScroller = ScrollerCompat.create(getContext(), null);
         setFocusable(true);
         setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
         setWillNotDraw(false);

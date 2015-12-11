@@ -24,7 +24,7 @@ import android.widget.PopupWindow;
  * Helper for accessing features in PopupWindow introduced after API level 4
  * in a backwards compatible fashion.
  */
-public class PopupWindowCompat {
+public final class PopupWindowCompat {
     /**
      * Interface for the full API.
      */

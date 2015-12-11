@@ -30,7 +30,7 @@ import android.util.Log;
  * Constructs {@link RoundedBitmapDrawable RoundedBitmapDrawable} objects,
  * either from Bitmaps directly, or from streams and files.
  */
-public class RoundedBitmapDrawableFactory {
+public final class RoundedBitmapDrawableFactory {
     private static final String TAG = "RoundedBitmapDrawableFactory";
 
     private static class DefaultRoundedBitmapDrawable extends RoundedBitmapDrawable {
@@ -94,5 +94,7 @@ public class RoundedBitmapDrawableFactory {
         }
         return drawable;
     }
+
+    private RoundedBitmapDrawableFactory() {}
 
 }

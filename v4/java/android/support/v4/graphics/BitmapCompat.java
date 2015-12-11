@@ -21,7 +21,7 @@ import android.graphics.Bitmap;
  * Helper for accessing features in {@link android.graphics.Bitmap}
  * introduced after API level 4 in a backwards compatible fashion.
  */
-public class BitmapCompat {
+public final class BitmapCompat {
     /**
      * Interface for the full API.
      */
@@ -108,4 +108,6 @@ public class BitmapCompat {
     public static int getAllocationByteCount(Bitmap bitmap) {
         return IMPL.getAllocationByteCount(bitmap);
     }
+
+    private BitmapCompat() {}
 }

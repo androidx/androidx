@@ -23,7 +23,7 @@ import android.os.Parcelable;
  * Helper for accessing features in {@link android.os.Parcelable}
  * introduced after API level 4 in a backwards compatible fashion.
  */
-public class ParcelableCompat {
+public final class ParcelableCompat {
 
     /**
      * Factory method for {@link Parcelable.Creator}.
@@ -56,4 +56,6 @@ public class ParcelableCompat {
             return mCallbacks.newArray(size);
         }
     }
+
+    private ParcelableCompat() {}
 }

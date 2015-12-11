@@ -26,7 +26,7 @@ import android.view.View;
  * Helper for accessing features in {@link android.accessibilityservice.AccessibilityService}
  * introduced after API level 4 in a backwards compatible fashion.
  */
-public class AccessibilityServiceInfoCompat {
+public final class AccessibilityServiceInfoCompat {
 
     static interface AccessibilityServiceInfoVersionImpl {
         public String getId(AccessibilityServiceInfo info);
@@ -277,9 +277,7 @@ public class AccessibilityServiceInfoCompat {
     /*
      * Hide constructor
      */
-    private AccessibilityServiceInfoCompat() {
-
-    }
+    private AccessibilityServiceInfoCompat() {}
 
     /**
      * The accessibility service id.

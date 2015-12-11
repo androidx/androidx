@@ -28,7 +28,7 @@ import android.os.Build;
  * Helper for accessing features in {@link ConnectivityManager} introduced after
  * API level 16 in a backwards compatible fashion.
  */
-public class ConnectivityManagerCompat {
+public final class ConnectivityManagerCompat {
 
     interface ConnectivityManagerCompatImpl {
         boolean isActiveNetworkMetered(ConnectivityManager cm);
@@ -118,4 +118,6 @@ public class ConnectivityManagerCompat {
             return null;
         }
     }
+
+    private ConnectivityManagerCompat() {}
 }

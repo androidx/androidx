@@ -34,7 +34,7 @@ import javax.crypto.Mac;
  * On platforms before {@link android.os.Build.VERSION_CODES#M}, this class behaves as there would
  * be no fingerprint hardware available.
  */
-public class FingerprintManagerCompat {
+public final class FingerprintManagerCompat {
 
     private Context mContext;
 

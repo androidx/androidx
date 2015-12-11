@@ -22,7 +22,7 @@ import android.text.TextUtils;
  * Helper for accessing features in {@link android.database.DatabaseUtils}
  * introduced after API level 4 in a backwards compatible fashion.
  */
-public class DatabaseUtilsCompat {
+public final class DatabaseUtilsCompat {
 
     private DatabaseUtilsCompat() {
         /* Hide constructor */

@@ -22,7 +22,7 @@ import android.view.ViewConfiguration;
  * Helper for accessing features in {@link ViewConfiguration}
  * introduced after API level 4 in a backwards compatible fashion.
  */
-public class ViewConfigurationCompat {
+public final class ViewConfigurationCompat {
     /**
      * Interface for the full API.
      */
@@ -112,4 +112,6 @@ public class ViewConfigurationCompat {
     public static boolean hasPermanentMenuKey(ViewConfiguration config) {
         return IMPL.hasPermanentMenuKey(config);
     }
+
+    private ViewConfigurationCompat() {}
 }
