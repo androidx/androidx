@@ -66,7 +66,7 @@ import java.util.Iterator;
  * from the design guide.
  * </div>
  */
-public class TaskStackBuilder implements Iterable<Intent> {
+public final class TaskStackBuilder implements Iterable<Intent> {
     private static final String TAG = "TaskStackBuilder";
 
     public interface SupportParentable {

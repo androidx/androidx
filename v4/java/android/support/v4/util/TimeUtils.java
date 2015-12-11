@@ -24,7 +24,7 @@ import java.io.PrintWriter;
  *
  * @hide
  */
-public class TimeUtils {
+public final class TimeUtils {
     /** @hide Field length that can hold 999 days of time */
     public static final int HUNDRED_DAY_FIELD_LEN = 19;
     
@@ -172,4 +172,6 @@ public class TimeUtils {
         }
         formatDuration(time-now, pw, 0);
     }
+
+    private TimeUtils() {}
 }

@@ -22,7 +22,7 @@ import android.view.View.OnTouchListener;
  * Helper for accessing features in PopupMenu introduced after API level 4 in a
  * backwards compatible fashion.
  */
-public class PopupMenuCompat {
+public final class PopupMenuCompat {
     /**
      * Interface for the full API.
      */

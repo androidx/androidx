@@ -51,7 +51,7 @@ import java.util.Set;
  * {@link NotificationManagerCompat} object, and then call one of its
  * methods to post or cancel notifications.
  */
-public class NotificationManagerCompat {
+public final class NotificationManagerCompat {
     private static final String TAG = "NotifManCompat";
 
     /**

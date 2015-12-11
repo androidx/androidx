@@ -27,7 +27,7 @@ import android.widget.TextView;
  * Helper for accessing features in {@link TextView} introduced after API level
  * 4 in a backwards compatible fashion.
  */
-public class TextViewCompat {
+public final class TextViewCompat {
 
     // Hide constructor
     private TextViewCompat() {}

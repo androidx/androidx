@@ -24,7 +24,10 @@ import android.os.IBinder;
  * Helper for accessing features in {@link Bundle}
  * introduced after API level 4 in a backwards compatible fashion.
  */
-public class BundleCompat {
+public final class BundleCompat {
+
+    private BundleCompat() {}
+
     /**
      * A convenience method to handle getting an {@link IBinder} inside a {@link Bundle} for all
      * Android versions.

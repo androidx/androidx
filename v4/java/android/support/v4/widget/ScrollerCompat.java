@@ -29,7 +29,7 @@ import android.widget.Scroller;
  * current device's preferred scroll physics and fling behavior. It offers a subset of
  * the APIs from Scroller or OverScroller.</p>
  */
-public class ScrollerCompat {
+public final class ScrollerCompat {
     private static final String TAG = "ScrollerCompat";
 
     Object mScroller;
@@ -262,12 +262,7 @@ public class ScrollerCompat {
     }
 
     public static ScrollerCompat create(Context context, Interpolator interpolator) {
-        return new ScrollerCompat(context, interpolator);
-    }
-
-    ScrollerCompat(Context context, Interpolator interpolator) {
-        this(Build.VERSION.SDK_INT, context, interpolator);
-
+        return new ScrollerCompat(Build.VERSION.SDK_INT, context, interpolator);
     }
 
     /**

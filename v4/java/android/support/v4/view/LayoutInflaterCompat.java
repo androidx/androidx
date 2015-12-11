@@ -23,7 +23,7 @@ import android.view.LayoutInflater;
  * Helper for accessing features in {@link android.view.LayoutInflater}
  * introduced after API level 4 in a backwards compatible fashion.
  */
-public class LayoutInflaterCompat {
+public final class LayoutInflaterCompat {
 
     interface LayoutInflaterCompatImpl {
         public void setFactory(LayoutInflater layoutInflater, LayoutInflaterFactory factory);

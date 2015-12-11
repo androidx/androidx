@@ -25,8 +25,8 @@ import android.support.annotation.NonNull;
  * introduced after API level 4 in a backwards compatible fashion.
  */
 public final class ActivityManagerCompat {
-    private ActivityManagerCompat() {
-    }
+
+    private ActivityManagerCompat() {}
 
     /**
      * Returns true if this is a low-RAM device.  Exactly whether a device is low-RAM

@@ -22,7 +22,7 @@ import android.view.VelocityTracker;
  * Helper for accessing features in {@link VelocityTracker}
  * introduced after API level 4 in a backwards compatible fashion.
  */
-public class VelocityTrackerCompat {
+public final class VelocityTrackerCompat {
     /**
      * Interface for the full API.
      */
@@ -90,4 +90,6 @@ public class VelocityTrackerCompat {
     public static float getYVelocity(VelocityTracker tracker, int pointerId) {
         return IMPL.getYVelocity(tracker, pointerId);
     }
+
+    private VelocityTrackerCompat() {}
 }
