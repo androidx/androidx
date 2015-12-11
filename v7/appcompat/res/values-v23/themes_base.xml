@@ -21,6 +21,10 @@
     <style name="Base.Theme.AppCompat.Light" parent="Base.V23.Theme.AppCompat.Light" />
 
     <style name="Base.V23.Theme.AppCompat" parent="Base.V22.Theme.AppCompat">
+        <!-- We can use the platform styles on API 23+ -->
+        <item name="ratingBarStyleIndicator">?android:attr/ratingBarStyleIndicator</item>
+        <item name="ratingBarStyleSmall">?android:attr/ratingBarStyleSmall</item>
+
         <!-- We can use the platform drawable on v23+ -->
         <item name="actionBarItemBackground">?android:attr/actionBarItemBackground</item>
         <!-- We can use the platform styles on v23+ -->
@@ -31,6 +35,10 @@
     </style>
 
     <style name="Base.V23.Theme.AppCompat.Light" parent="Base.V22.Theme.AppCompat.Light">
+        <!-- We can use the platform styles on API 23+ -->
+        <item name="ratingBarStyleIndicator">?android:attr/ratingBarStyleIndicator</item>
+        <item name="ratingBarStyleSmall">?android:attr/ratingBarStyleSmall</item>
+
         <!-- We can use the platform drawable on v23+ -->
         <item name="actionBarItemBackground">?android:attr/actionBarItemBackground</item>
         <!-- We can use the platform styles on v23+ -->
