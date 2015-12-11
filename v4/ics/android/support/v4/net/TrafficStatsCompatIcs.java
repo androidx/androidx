@@ -18,6 +18,7 @@ package android.support.v4.net;
 
 import android.net.TrafficStats;
 
+import java.net.DatagramSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
@@ -51,5 +52,13 @@ class TrafficStatsCompatIcs {
 
     public static void untagSocket(Socket socket) throws SocketException {
         TrafficStats.untagSocket(socket);
+    }
+
+    public static void tagDatagramSocket(DatagramSocket socket) throws SocketException {
+        TrafficStats.tagSocket(new DatagramSocketWrapper(socket));
+    }
+
+    public static void untagDatagramSocket(DatagramSocket socket) throws SocketException {
+        TrafficStats.untagSocket(new DatagramSocketWrapper(socket));
     }
 }
