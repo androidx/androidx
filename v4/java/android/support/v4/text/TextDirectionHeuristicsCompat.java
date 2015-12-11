@@ -25,7 +25,7 @@ import java.nio.CharBuffer;
  * Some objects that implement TextDirectionHeuristic.
  *
  */
-public class TextDirectionHeuristicsCompat {
+public final class TextDirectionHeuristicsCompat {
 
     /**
      * Always decides that the direction is left to right.
@@ -254,4 +254,6 @@ public class TextDirectionHeuristicsCompat {
         public static final TextDirectionHeuristicLocale INSTANCE =
                 new TextDirectionHeuristicLocale();
     }
+
+    private TextDirectionHeuristicsCompat() {}
 }

@@ -20,7 +20,7 @@ package android.support.v4.view;
  * Helper for accessing features in <code>ScaleGestureDetector</code> introduced
  * after API level 19 (KitKat) in a backwards compatible fashion.
  */
-public class ScaleGestureDetectorCompat {
+public final class ScaleGestureDetectorCompat {
     static final ScaleGestureDetectorImpl IMPL;
 
     interface ScaleGestureDetectorImpl {

@@ -22,7 +22,7 @@ import android.view.MenuItem;
  * Helper for accessing features in {@link android.view.Menu}
  * introduced after API level 4 in a backwards compatible fashion.
  */
-public class MenuCompat {
+public final class MenuCompat {
     /**
      * Call {@link MenuItem#setShowAsAction(int) MenuItem.setShowAsAction()}.
      *
@@ -33,4 +33,6 @@ public class MenuCompat {
     public static void setShowAsAction(MenuItem item, int actionEnum) {
         MenuItemCompat.setShowAsAction(item, actionEnum);
     }
+
+    private MenuCompat() {}
 }

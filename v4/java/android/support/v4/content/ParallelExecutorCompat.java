@@ -24,7 +24,7 @@ import java.util.concurrent.Executor;
  * Helper for accessing a shared parallel Executor instance
  * introduced after API level 4 in a backwards compatible fashion.
  */
-public class ParallelExecutorCompat {
+public final class ParallelExecutorCompat {
     public static Executor getParallelExecutor() {
         if (Build.VERSION.SDK_INT >= 11) {
             // From API 11 onwards, return AsyncTask.THREAD_POOL_EXECUTOR
@@ -33,4 +33,6 @@ public class ParallelExecutorCompat {
             return ModernAsyncTask.THREAD_POOL_EXECUTOR;
         }
     }
+
+    private ParallelExecutorCompat() {}
 }

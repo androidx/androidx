@@ -19,7 +19,7 @@ package android.support.v4.view;
 /**
  * Helper class for accessing values in {@link android.view.InputDevice}.
  */
-public class InputDeviceCompat {
+public final class InputDeviceCompat {
 
     /**
      * A mask for input source classes.
@@ -208,4 +208,6 @@ public class InputDeviceCompat {
      * to match devices that provide any type of input source.
      */
     public static final int SOURCE_ANY = 0xffffff00;
+
+    private InputDeviceCompat() {}
 }

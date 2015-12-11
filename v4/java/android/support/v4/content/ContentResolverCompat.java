@@ -27,7 +27,7 @@ import android.support.v4.os.OperationCanceledException;
  * Helper for accessing features in {@link android.content.ContentResolver}
  * introduced after API level 4 in a backwards compatible fashion.
  */
-public class ContentResolverCompat {
+public final class ContentResolverCompat {
     interface ContentResolverCompatImpl {
         Cursor query(ContentResolver resolver,
                 Uri uri, String[] projection, String selection, String[] selectionArgs,

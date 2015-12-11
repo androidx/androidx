@@ -25,7 +25,7 @@ import android.view.accessibility.AccessibilityEvent;
  * Helper for accessing features in {@link ViewGroup}
  * introduced after API level 4 in a backwards compatible fashion.
  */
-public class ViewGroupCompat {
+public final class ViewGroupCompat {
 
     /**
      * This constant is a {@link #setLayoutMode(ViewGroup, int) layoutMode}.
@@ -155,9 +155,7 @@ public class ViewGroupCompat {
     /*
      * Hide the constructor.
      */
-    private ViewGroupCompat() {
-
-    }
+    private ViewGroupCompat() {}
 
     /**
      * Called when a child has requested sending an {@link AccessibilityEvent} and

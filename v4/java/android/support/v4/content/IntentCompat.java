@@ -25,7 +25,7 @@ import android.os.Build;
  * Helper for accessing features in {@link android.content.Intent}
  * introduced after API level 4 in a backwards compatible fashion.
  */
-public class IntentCompat {
+public final class IntentCompat {
 
     interface IntentCompatImpl {
         Intent makeMainActivity(ComponentName componentName);

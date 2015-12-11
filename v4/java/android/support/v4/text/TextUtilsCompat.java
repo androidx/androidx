@@ -23,7 +23,7 @@ import android.support.v4.view.ViewCompat;
 
 import java.util.Locale;
 
-public class TextUtilsCompat {
+public final class TextUtilsCompat {
     private static class TextUtilsCompatImpl {
         @NonNull
         public String htmlEncode(@NonNull String s) {
@@ -147,4 +147,6 @@ public class TextUtilsCompat {
 
     private static String ARAB_SCRIPT_SUBTAG = "Arab";
     private static String HEBR_SCRIPT_SUBTAG = "Hebr";
+
+    private TextUtilsCompat() {}
 }

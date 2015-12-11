@@ -26,7 +26,7 @@ import android.os.Build;
  * href="{@docRoot}tools/debugging/systrace.html">Analyzing Display and Performance
  * with Systrace</a>.
  */
-public class TraceCompat {
+public final class TraceCompat {
     /**
      * Writes a trace message to indicate that a given section of code has begun. This call must
      * be followed by a corresponding call to {@link #endSection()} on the same thread.
@@ -57,4 +57,6 @@ public class TraceCompat {
             TraceJellybeanMR2.endSection();
         }
     }
+
+    private TraceCompat() {}
 }

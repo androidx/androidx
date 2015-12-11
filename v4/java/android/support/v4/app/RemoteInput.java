@@ -25,7 +25,7 @@ import android.util.Log;
  * Helper for using the {@link android.app.RemoteInput} API
  * introduced after API level 4 in a backwards compatible fashion.
  */
-public class RemoteInput extends RemoteInputCompatBase.RemoteInput {
+public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
     private static final String TAG = "RemoteInput";
 
     /** Label used to denote the clip data type used for remote input transport */
@@ -40,7 +40,7 @@ public class RemoteInput extends RemoteInputCompatBase.RemoteInput {
     private final boolean mAllowFreeFormInput;
     private final Bundle mExtras;
 
-    RemoteInput(String resultKey, CharSequence label, CharSequence[] choices,
+    private RemoteInput(String resultKey, CharSequence label, CharSequence[] choices,
             boolean allowFreeFormInput, Bundle extras) {
         this.mResultKey = resultKey;
         this.mLabel = label;

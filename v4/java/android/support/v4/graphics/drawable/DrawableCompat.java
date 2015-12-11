@@ -28,7 +28,7 @@ import android.support.v4.view.ViewCompat;
  * Helper for accessing features in {@link android.graphics.drawable.Drawable}
  * introduced after API level 4 in a backwards compatible fashion.
  */
-public class DrawableCompat {
+public final class DrawableCompat {
     /**
      * Interface for the full API.
      */
@@ -388,4 +388,6 @@ public class DrawableCompat {
     public static int getLayoutDirection(@NonNull Drawable drawable) {
         return IMPL.getLayoutDirection(drawable);
     }
+
+    private DrawableCompat() {}
 }

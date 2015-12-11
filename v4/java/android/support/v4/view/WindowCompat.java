@@ -23,7 +23,7 @@ import android.view.Window;
  * Helper for accessing features in {@link Window} introduced after API
  * level 4 in a backwards compatible fashion.
  */
-public class WindowCompat {
+public final class WindowCompat {
     /**
      * Flag for enabling the Action Bar.
      * This is enabled by default for some devices. The Action Bar
@@ -58,4 +58,6 @@ public class WindowCompat {
      * If overlay is enabled, the action mode UI will be allowed to cover existing window content.
      */
     public static final int FEATURE_ACTION_MODE_OVERLAY = 10;
+
+    private WindowCompat() {}
 }

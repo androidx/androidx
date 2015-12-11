@@ -30,7 +30,7 @@ import android.view.accessibility.AccessibilityManager;
  * Helper for accessing features in {@link ViewParent}
  * introduced after API level 4 in a backwards compatible fashion.
  */
-public class ViewParentCompat {
+public final class ViewParentCompat {
 
     interface ViewParentCompatImpl {
         public boolean requestSendAccessibilityEvent(
@@ -215,9 +215,7 @@ public class ViewParentCompat {
     /*
      * Hide the constructor.
      */
-    private ViewParentCompat() {
-
-    }
+    private ViewParentCompat() {}
 
     /**
      * Called by a child to request from its parent to send an {@link AccessibilityEvent}.

@@ -21,7 +21,7 @@ import android.view.animation.Interpolator;
 import java.lang.ref.WeakReference;
 import java.util.WeakHashMap;
 
-public class ViewPropertyAnimatorCompat {
+public final class ViewPropertyAnimatorCompat {
     private static final String TAG = "ViewAnimatorCompat";
     private WeakReference<View> mView;
     private Runnable mStartAction = null;
@@ -30,7 +30,6 @@ public class ViewPropertyAnimatorCompat {
     // HACK ALERT! Choosing this id knowing that the framework does not use it anywhere
     // internally and apps should use ids higher than it
     static final int LISTENER_TAG_ID = 0x7e000000;
-
 
     ViewPropertyAnimatorCompat(View view) {
         mView = new WeakReference<View>(view);
