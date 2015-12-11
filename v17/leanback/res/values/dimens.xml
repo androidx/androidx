@@ -267,4 +267,13 @@
     <integer name="lb_guidedactions_item_description_min_lines">2</integer>
     <!-- end GuidedStepFragment -->
 
+    <!-- height for picker item. -->
+    <dimen name="picker_item_height">64dp</dimen>
+    <!-- height for picker column. Should be a multiple of @dimen/picker_item_height -->
+    <dimen name="picker_column_height">192dp</dimen>
+    <!-- picker column horizontal padding-->
+    <dimen name="picker_column_horizontal_padding">8dp</dimen>
+    <!-- picker separator horizontal padding -->
+    <dimen name="picker_separator_horizontal_padding">4dp</dimen>
+
 </resources>
