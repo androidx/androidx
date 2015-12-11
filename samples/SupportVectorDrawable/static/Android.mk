@@ -7,7 +7,7 @@ LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
 LOCAL_PACKAGE_NAME := SupportVectorDrawable
 
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-vectordrawable android-support-v4
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-vectordrawable android-support-v4
 
 LOCAL_SDK_VERSION := current
 
