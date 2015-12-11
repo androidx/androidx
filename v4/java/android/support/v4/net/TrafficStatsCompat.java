@@ -139,10 +139,24 @@ public final class TrafficStatsCompat {
         }
     }
 
+    static class Api24TrafficStatsCompatImpl extends IcsTrafficStatsCompatImpl {
+        @Override
+        public void tagDatagramSocket(DatagramSocket socket) throws SocketException {
+            TrafficStatsCompatApi24.tagDatagramSocket(socket);
+        }
+
+        @Override
+        public void untagDatagramSocket(DatagramSocket socket) throws SocketException {
+            TrafficStatsCompatApi24.untagDatagramSocket(socket);
+        }
+    }
+
     private static final TrafficStatsCompatImpl IMPL;
 
     static {
-        if (Build.VERSION.SDK_INT >= 14) {
+        if ("N".equals(Build.VERSION.CODENAME)) {
+            IMPL = new Api24TrafficStatsCompatImpl();
+        } else if (Build.VERSION.SDK_INT >= 14) {
             IMPL = new IcsTrafficStatsCompatImpl();
         } else {
             IMPL = new BaseTrafficStatsCompatImpl();
