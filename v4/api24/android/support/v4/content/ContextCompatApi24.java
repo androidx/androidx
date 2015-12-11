@@ -18,6 +18,7 @@ package android.support.v4.content;
 
 import android.content.Context;
 
+/** {@hide} */
 public class ContextCompatApi24 {
     public static Context createDeviceEncryptedStorageContext(Context context) {
         return context.createDeviceEncryptedStorageContext();

@@ -19,6 +19,7 @@ package android.support.v4.os;
 import android.content.Context;
 import android.os.UserManager;
 
+/** {@hide} */
 public class UserManagerCompatApi24 {
     public static boolean isUserRunningAndLocked(Context context) {
         return context.getSystemService(UserManager.class).isUserRunningAndLocked();
