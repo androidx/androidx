@@ -18,12 +18,8 @@
     xmlns:lb="http://schemas.android.com/apk/res-auto"
     android:id="@+id/column"
     android:layout_width="wrap_content"
-    android:layout_height="@dimen/picker_column_height"
+    android:layout_height="@dimen/picker_item_height"
     lb:columnWidth="wrap_content"
     android:clipToPadding="false"
-    android:enabled="true"
-    android:focusable="true"
     android:paddingStart="@dimen/picker_column_horizontal_padding"
-    android:paddingEnd="@dimen/picker_column_horizontal_padding"
-    lb:focusOutFront="false"
-    lb:focusOutEnd="false" />
+    android:paddingEnd="@dimen/picker_column_horizontal_padding" />
