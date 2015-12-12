@@ -65,4 +65,8 @@
         <item name="android:paddingLeft">16dp</item>
         <item name="android:paddingRight">16dp</item>
     </style>
+
+    <style name="Preference.DropDown">
+        <item name="android:layout">@layout/preference_dropdown</item>
+    </style>
 </resources>

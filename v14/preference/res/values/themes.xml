@@ -33,6 +33,7 @@
         <item name="switchPreferenceStyle">@style/Preference.SwitchPreference.Material</item>
         <item name="dialogPreferenceStyle">@style/Preference.DialogPreference.Material</item>
         <item name="editTextPreferenceStyle">@style/Preference.DialogPreference.EditTextPreference.Material</item>
+        <item name="dropdownPreferenceStyle">@style/Preference.DropDown.Material</item>
         <item name="preferenceFragmentListStyle">@style/PreferenceFragmentList.Material</item>
     </style>
 </resources>

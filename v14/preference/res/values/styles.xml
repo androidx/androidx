@@ -60,6 +60,10 @@
         <item name="android:layout">@layout/preference_material</item>
     </style>
 
+    <style name="Preference.DropDown.Material">
+        <item name="android:layout">@layout/preference_dropdown_material</item>
+    </style>
+
     <style name="Preference_TextAppearanceMaterialBody2">
         <item name="android:textSize">14sp</item>
         <item name="android:fontFamily">sans-serif</item>
