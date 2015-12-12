@@ -192,7 +192,11 @@ public abstract class PreferenceGroup extends Preference {
     private boolean removePreferenceInt(Preference preference) {
         synchronized(this) {
             preference.onPrepareForRemoval();
-            return mPreferenceList.remove(preference);
+            boolean success = mPreferenceList.remove(preference);
+            if (success) {
+                preference.onDetached();
+            }
+            return success;
         }
     }
 
@@ -285,11 +289,17 @@ public abstract class PreferenceGroup extends Preference {
     }
 
     @Override
-    protected void onPrepareForRemoval() {
-        super.onPrepareForRemoval();
+    public void onDetached() {
+        super.onDetached();
 
         // We won't be attached to the activity anymore
         mAttachedToHierarchy = false;
+
+        // Dispatch to all contained preferences
+        final int preferenceCount = getPreferenceCount();
+        for (int i = 0; i < preferenceCount; i++) {
+            getPreference(i).onDetached();
+        }
     }
 
     @Override
