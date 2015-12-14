@@ -156,13 +156,19 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
     private static final boolean IS_FRAMEWORK_FRAGMENT = false;
 
     /**
-     * Fragment argument name for UI style.  The argument value is persisted in fragment state.
-     * The value is initially {@link #UI_STYLE_ENTRANCE} and might be changed in one of the three
-     * helper functions:
+     * Fragment argument name for UI style.  The argument value is persisted in fragment state and
+     * used to select fragment transition. The value is initially {@link #UI_STYLE_ENTRANCE} and
+     * might be changed in one of the three helper functions:
      * <ul>
-     * <li>{@link #addAsRoot(FragmentActivity, GuidedStepSupportFragment, int)}</li>
+     * <li>{@link #addAsRoot(FragmentActivity, GuidedStepSupportFragment, int)} sets to
+     * {@link #UI_STYLE_ACTIVITY_ROOT}</li>
      * <li>{@link #add(FragmentManager, GuidedStepSupportFragment)} or {@link #add(FragmentManager,
-     * GuidedStepSupportFragment, int)}</li>
+     * GuidedStepSupportFragment, int)} sets it to {@link #UI_STYLE_REPLACE} if there is already a
+     * GuidedStepSupportFragment on stack.</li>
+     * <li>{@link #finishGuidedStepSupportFragments()} changes current GuidedStepSupportFragment to
+     * {@link #UI_STYLE_ENTRANCE} for the non activity case.  This is a special case that changes
+     * the transition settings after fragment has been created,  in order to force current
+     * GuidedStepSupportFragment run a return transition of {@link #UI_STYLE_ENTRANCE}</li>
      * </ul>
      * <p>
      * Argument value can be either:
@@ -195,6 +201,9 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
      * because fragment transition asks for exit transition before UI style is restored in Fragment
      * .onCreate().</li>
      * </ul>
+     * When popping multiple GuidedStepSupportFragment, {@link #finishGuidedStepSupportFragments()} also changes
+     * the top GuidedStepSupportFragment to UI_STYLE_ENTRANCE in order to run the return transition
+     * (reverse of enter transition) of UI_STYLE_ENTRANCE.
      */
     public static final int UI_STYLE_ENTRANCE = 1;
 
@@ -500,7 +509,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
      * @return BackStackEntry name for the GuidedStepSupportFragment or empty String if no entry is
      * associated.
      */
-    public String generateStackEntryName() {
+    String generateStackEntryName() {
         return generateStackEntryName(getUiStyle(), getClass());
     }
 
@@ -511,7 +520,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
      * @return BackStackEntry name for the GuidedStepSupportFragment or empty String if no entry is
      * associated.
      */
-    public static String generateStackEntryName(int uiStyle, Class guidedStepFragmentClass) {
+    static String generateStackEntryName(int uiStyle, Class guidedStepFragmentClass) {
         if (!GuidedStepSupportFragment.class.isAssignableFrom(guidedStepFragmentClass)) {
             return "";
         }
@@ -527,25 +536,16 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
     }
 
     /**
-     * Returns true if the backstack represents GuidedStepSupportFragment with {@link #UI_STYLE_ENTRANCE};
-     * false otherwise.
+     * Returns true if the backstack entry represents GuidedStepSupportFragment with
+     * {@link #UI_STYLE_ENTRANCE}, i.e. this is the first GuidedStepSupportFragment pushed to stack; false
+     * otherwise.
+     * @see #generateStackEntryName(int, Class)
      * @param backStackEntryName Name of BackStackEntry.
      * @return True if the backstack represents GuidedStepSupportFragment with {@link #UI_STYLE_ENTRANCE};
      * false otherwise.
      */
-    public static boolean isUiStyleEntrance(String backStackEntryName) {
+    static boolean isStackEntryUiStyleEntrance(String backStackEntryName) {
         return backStackEntryName != null && backStackEntryName.startsWith(ENTRY_NAME_ENTRANCE);
-    }
-
-    /**
-     * Returns true if the backstack represents GuidedStepSupportFragment with {@link #UI_STYLE_REPLACE};
-     * false otherwise.
-     * @param backStackEntryName Name of BackStackEntry.
-     * @return True if the backstack represents GuidedStepSupportFragment with {@link #UI_STYLE_REPLACE};
-     * false otherwise.
-     */
-    public static boolean isUiStyleDefault(String backStackEntryName) {
-        return backStackEntryName != null && backStackEntryName.startsWith(ENTRY_NAME_REPLACE);
     }
 
     /**
@@ -553,7 +553,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
      * @param backStackEntryName Name of BackStackEntry.
      * @return Class name of GuidedStepSupportFragment.
      */
-    public static String getGuidedStepSupportFragmentClassName(String backStackEntryName) {
+    static String getGuidedStepSupportFragmentClassName(String backStackEntryName) {
         if (backStackEntryName.startsWith(ENTRY_NAME_REPLACE)) {
             return backStackEntryName.substring(ENTRY_NAME_REPLACE.length());
         } else if (backStackEntryName.startsWith(ENTRY_NAME_ENTRANCE)) {
@@ -1109,7 +1109,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
         if (entryCount > 0) {
             for (int i = entryCount - 1; i >= 0; i--) {
                 BackStackEntry entry = fragmentManager.getBackStackEntryAt(i);
-                if (isUiStyleEntrance(entry.getName())) {
+                if (isStackEntryUiStyleEntrance(entry.getName())) {
                     GuidedStepSupportFragment top = getCurrentGuidedStepSupportFragment(fragmentManager);
                     if (top != null) {
                         top.setUiStyle(UI_STYLE_ENTRANCE);
