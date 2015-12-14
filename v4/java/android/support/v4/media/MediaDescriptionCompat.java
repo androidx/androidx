@@ -31,6 +31,21 @@ import android.text.TextUtils;
  */
 public final class MediaDescriptionCompat implements Parcelable {
     /**
+     * Custom key to store a media URI on API 21-22 devices (before it became part of the
+     * framework class) when parceling/converting to and from framework objects.
+     *
+     * @hide
+     */
+    public static final String DESCRIPTION_KEY_MEDIA_URI =
+            "android.support.v4.media.description.MEDIA_URI";
+    /**
+     * Custom key to store whether the original Bundle provided by the developer was null
+     *
+     * @hide
+     */
+    public static final String DESCRIPTION_KEY_NULL_BUNDLE_FLAG =
+            "android.support.v4.media.description.NULL_BUNDLE_FLAG";
+    /**
      * A unique persistent id for the content or null.
      */
     private final String mMediaId;
@@ -218,7 +233,19 @@ public final class MediaDescriptionCompat implements Parcelable {
         MediaDescriptionCompatApi21.Builder.setDescription(bob, mDescription);
         MediaDescriptionCompatApi21.Builder.setIconBitmap(bob, mIcon);
         MediaDescriptionCompatApi21.Builder.setIconUri(bob, mIconUri);
-        MediaDescriptionCompatApi21.Builder.setExtras(bob, mExtras);
+        // Media URI was not added until API 23, so add it to the Bundle of extras to
+        // ensure the data is not lost - this ensures that
+        // fromMediaDescription(getMediaDescription(mediaDescriptionCompat)) returns
+        // an equivalent MediaDescriptionCompat on all API levels
+        Bundle extras = mExtras;
+        if (Build.VERSION.SDK_INT < 23 && mMediaUri != null) {
+            if (extras == null) {
+                extras = new Bundle();
+                extras.putBoolean(DESCRIPTION_KEY_NULL_BUNDLE_FLAG, true);
+            }
+            extras.putParcelable(DESCRIPTION_KEY_MEDIA_URI, mMediaUri);
+        }
+        MediaDescriptionCompatApi21.Builder.setExtras(bob, extras);
         if (Build.VERSION.SDK_INT >= 23) {
             MediaDescriptionCompatApi23.Builder.setMediaUri(bob, mMediaUri);
         }
@@ -251,8 +278,27 @@ public final class MediaDescriptionCompat implements Parcelable {
         bob.setDescription(MediaDescriptionCompatApi21.getDescription(descriptionObj));
         bob.setIconBitmap(MediaDescriptionCompatApi21.getIconBitmap(descriptionObj));
         bob.setIconUri(MediaDescriptionCompatApi21.getIconUri(descriptionObj));
-        bob.setExtras(MediaDescriptionCompatApi21.getExtras(descriptionObj));
-        if (Build.VERSION.SDK_INT >= 23) {
+        Bundle extras = MediaDescriptionCompatApi21.getExtras(descriptionObj);
+        Uri mediaUri = extras == null ? null :
+                (Uri) extras.getParcelable(DESCRIPTION_KEY_MEDIA_URI);
+        if (mediaUri != null) {
+            if (extras.containsKey(DESCRIPTION_KEY_NULL_BUNDLE_FLAG) && extras.size() == 2) {
+                // The extras were only created for the media URI, so we set it back to null to
+                // ensure mediaDescriptionCompat.getExtras() equals
+                // fromMediaDescription(getMediaDescription(mediaDescriptionCompat)).getExtras()
+                extras = null;
+            } else {
+                // Remove media URI keys to ensure mediaDescriptionCompat.getExtras().keySet()
+                // equals fromMediaDescription(getMediaDescription(mediaDescriptionCompat))
+                // .getExtras().keySet()
+                extras.remove(DESCRIPTION_KEY_MEDIA_URI);
+                extras.remove(DESCRIPTION_KEY_NULL_BUNDLE_FLAG);
+            }
+        }
+        bob.setExtras(extras);
+        if (mediaUri != null) {
+            bob.setMediaUri(mediaUri);
+        } else if (Build.VERSION.SDK_INT >= 23) {
             bob.setMediaUri(MediaDescriptionCompatApi23.getMediaUri(descriptionObj));
         }
         MediaDescriptionCompat descriptionCompat = bob.build();
