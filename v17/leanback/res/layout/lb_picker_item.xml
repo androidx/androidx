@@ -19,5 +19,4 @@
     android:layout_width="wrap_content"
     android:layout_height="@dimen/picker_item_height"
     android:layout_centerHorizontal="true"
-    android:focusable="true"
     android:gravity="center" />
