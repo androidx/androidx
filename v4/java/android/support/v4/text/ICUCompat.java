@@ -20,7 +20,7 @@ import android.os.Build;
 
 import java.util.Locale;
 
-public class ICUCompat {
+public final class ICUCompat {
 
     interface ICUCompatImpl {
         public String maximizeAndGetScript(Locale locale);
@@ -86,4 +86,6 @@ public class ICUCompat {
     public static String maximizeAndGetScript(Locale locale) {
         return IMPL.maximizeAndGetScript(locale);
     }
+
+    private ICUCompat() {}
 }
