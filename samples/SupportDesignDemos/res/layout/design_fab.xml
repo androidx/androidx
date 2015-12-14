@@ -47,7 +47,7 @@
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:layout_margin="16dp"
-                android:src="@drawable/abc_ic_ab_back_mtrl_am_alpha"
+                android:src="@drawable/ic_add"
                 android:clickable="true" />
 
         <TextView
@@ -61,7 +61,7 @@
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:layout_margin="16dp"
-                android:src="@drawable/abc_ic_ab_back_mtrl_am_alpha"
+                android:src="@drawable/ic_add"
                 android:clickable="true"
                 app:fabSize="mini" />
 

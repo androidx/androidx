@@ -51,7 +51,7 @@
             android:layout_width="wrap_content"
             app:layout_anchor="@id/appbar"
             app:layout_anchorGravity="bottom|right|end"
-            android:src="@drawable/abc_ic_ab_back_mtrl_am_alpha"
+            android:src="@drawable/ic_add"
             android:layout_marginRight="16dp"
             android:clickable="true"
             app:fabSize="mini"/>
