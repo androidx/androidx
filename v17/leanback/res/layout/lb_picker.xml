@@ -14,20 +14,11 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/picker_frame"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/picker"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:gravity="center" >
-
-    <view
-        class="android.support.v17.leanback.widget.picker.Picker$ChildFocusAwareLinearLayout"
-        android:id="@+id/picker"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_gravity="center"
-        android:focusable="false"
-        android:gravity="center_vertical"
-        android:orientation="horizontal" />
-
-</RelativeLayout>
+    android:layout_gravity="center"
+    android:gravity="center_vertical"
+    android:orientation="horizontal" />

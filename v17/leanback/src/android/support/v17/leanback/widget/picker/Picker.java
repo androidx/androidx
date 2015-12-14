@@ -21,6 +21,7 @@ import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +29,6 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -40,6 +40,26 @@ import java.util.List;
  * add or remove Column later.  Call {@link #updateAdapter(int)} if the column value range or labels
  * change.  Call {@link #updateValue(int, int, boolean)} to update the current value of
  * PickerColumn.
+ * <p>
+ * Picker has two states and will change height:
+ * <li>{@link #isExpanded()} is true: Picker shows typically three items vertically (see
+ * {@link #getVisiblePickerItemsInExpand()}}. Columns other than {@link #getActiveColumn()} still
+ * shows one item if the Picker is focused.  On a touch screen device, the Picker will not get
+ * focus so it always show three items on all columns.   On a non-touch device (a TV), the Picker
+ * will show three items only on currently activated column.  If the Picker has focus, it will
+ * intercept DPAD directions and select activated column.
+ * <li>{@link #isExpanded()} is false: Picker shows one item vertically (see
+ * {@link #getVisiblePickerItems()}) on all columns.  The size of Picker shrinks.
+ * <li> The expand mode will be toggled if the Picker has focus and {@link #isToggleExpandOnClick()}
+ * is true.
+ * Summarize Typically use cases:
+ * <li> On a touch screen based device,  the Picker focusableInTouchMode=false.  It won't get focus,
+ * it wont toggle expand mode on click or touch, should call {@link #setExpanded(boolean)} with
+ * true, so that user always sees three items on all columns.
+ * <li> On a TV: the Picker focusable=true.  It will get focus and toggle into expand mode when user
+ * clicks on it, toggle can be disabled by {@link #setToggleExpandOnClick(boolean)} with false.
+ * Only the activated column shows multiple items and the activated column is selected by DPAD left
+ * or right.
  */
 public class Picker extends FrameLayout {
 
@@ -49,7 +69,7 @@ public class Picker extends FrameLayout {
 
     private String mSeparator;
     private ViewGroup mRootView;
-    private ChildFocusAwareLinearLayout mPickerView;
+    private ViewGroup mPickerView;
     private List<VerticalGridView> mColumnViews = new ArrayList<VerticalGridView>();
     private ArrayList<PickerColumn> mColumns;
 
@@ -61,6 +81,11 @@ public class Picker extends FrameLayout {
     private Interpolator mDecelerateInterpolator;
     private Interpolator mAccelerateInterpolator;
     private ArrayList<PickerValueListener> mListeners;
+    private boolean mExpanded;
+    private float mVisibleItemsInExpand = 3;
+    private float mVisibleItems = 1;
+    private int mActivatedColumn = 0;
+    private boolean mToggleExpandOnClick = true;
 
     /**
      * Classes extending {@link Picker} can choose to override this method to
@@ -115,14 +140,6 @@ public class Picker extends FrameLayout {
     }
 
     /**
-     * Classes extending {@link Picker} can choose to override this method to
-     * supply the {@link Picker}'s column's height in pixels.
-     */
-    protected int getPickerColumnHeightPixels() {
-        return getContext().getResources().getDimensionPixelSize(R.dimen.picker_column_height);
-    }
-
-    /**
      * Creates a Picker widget.
      * @param context
      * @param attrs
@@ -130,6 +147,13 @@ public class Picker extends FrameLayout {
      */
     public Picker(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        // On TV, Picker is focusable and intercept Click / DPAD direction keys.  We dont want any
+        // child to get focus.  On touch screen, Picker is not focusable.
+        setFocusable(true);
+        setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+        // Make it enabled and clickable to receive Click event.
+        setEnabled(true);
+        setClickable(true);
 
         mFocusedAlpha = 1f; //getFloat(R.dimen.list_item_selected_title_text_alpha);
         mUnfocusedAlpha = 1f; //getFloat(R.dimen.list_item_unselected_text_alpha);
@@ -143,9 +167,7 @@ public class Picker extends FrameLayout {
 
         LayoutInflater inflater = LayoutInflater.from(getContext());
         mRootView = (ViewGroup) inflater.inflate(getRootLayoutId(), this, true);
-        mPickerView = (ChildFocusAwareLinearLayout) mRootView.findViewById(getPickerId());
-
-        mPickerView.setOnChildFocusListener(mColumnGainFocusListener);
+        mPickerView = (ViewGroup) mRootView.findViewById(getPickerId());
 
     }
 
@@ -187,10 +209,13 @@ public class Picker extends FrameLayout {
             final int colIndex = i;
             final VerticalGridView columnView = (VerticalGridView) inflater.inflate(
                     R.layout.lb_picker_column, mPickerView, false);
-            ViewGroup.LayoutParams lp = columnView.getLayoutParams();
-            lp.height = getPickerColumnHeightPixels();
-            columnView.setLayoutParams(lp);
+            // we dont want VerticalGridView to receive focus.
+            columnView.setFocusableInTouchMode(false);
+            columnView.setFocusable(false);
+            updateColumnSize(columnView);
+            // always center aligned, not aligning selected item on top/bottom edge.
             columnView.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_NO_EDGE);
+            // Width is dynamic, so has fixed size is false.
             columnView.setHasFixedSize(false);
             mColumnViews.add(columnView);
 
@@ -266,34 +291,33 @@ public class Picker extends FrameLayout {
         }
     }
 
-    private void updateColumnAlpha(VerticalGridView column, boolean animateAlpha) {
-        if (column == null) {
-            return;
-        }
+    private void updateColumnAlpha(int colIndex, boolean animate) {
+        VerticalGridView column = mColumnViews.get(colIndex);
 
         int selected = column.getSelectedPosition();
         View item;
-        boolean focused = column.hasFocus();
 
         for (int i = 0; i < column.getAdapter().getItemCount(); i++) {
             item = column.getLayoutManager().findViewByPosition(i);
             if (item != null) {
-                setOrAnimateAlpha(item, (selected == i), focused, animateAlpha);
+                setOrAnimateAlpha(item, (selected == i), colIndex, animate);
             }
         }
     }
 
-    private void setOrAnimateAlpha(View view, boolean selected, boolean focused, boolean animate) {
+    private void setOrAnimateAlpha(View view, boolean selected, int colIndex,
+            boolean animate) {
+        boolean columnShownAsActivated = colIndex == mActivatedColumn || !isFocused();
         if (selected) {
             // set alpha for main item (selected) in the column
-            if (focused) {
+            if (columnShownAsActivated) {
                 setOrAnimateAlpha(view, animate, mFocusedAlpha, -1, mDecelerateInterpolator);
             } else {
                 setOrAnimateAlpha(view, animate, mUnfocusedAlpha, -1,  mDecelerateInterpolator);
             }
         } else {
             // set alpha for remaining items in the column
-            if (focused) {
+            if (columnShownAsActivated) {
                 setOrAnimateAlpha(view, animate, mVisibleColumnAlpha, -1, mDecelerateInterpolator);
             } else {
                 setOrAnimateAlpha(view, animate, mInvisibleColumnAlpha, -1,
@@ -382,7 +406,7 @@ public class Picker extends FrameLayout {
             }
             setOrAnimateAlpha(holder.itemView,
                     (mColumnViews.get(mColIndex).getSelectedPosition() == position),
-                    mColumnViews.get(mColIndex).hasFocus(), false);
+                    mColIndex, false);
         }
 
         public void setData(PickerColumn data) {
@@ -392,44 +416,6 @@ public class Picker extends FrameLayout {
 
         public int getItemCount() {
             return mData == null ? 0 : mData.getItemsCount();
-        }
-    }
-
-    /**
-     * Interface for managing child focus in a ChildFocusAwareLinearLayout.
-     */
-    interface OnChildFocusListener {
-        public boolean onPreRequestChildFocus(View child, View focused);
-        public void onRequestChildFocus(View child, View focused);
-    }
-
-    static class ChildFocusAwareLinearLayout extends LinearLayout {
-
-
-        private OnChildFocusListener mOnChildFocusListener;
-
-        public void setOnChildFocusListener(OnChildFocusListener listener) {
-            mOnChildFocusListener = listener;
-        }
-
-        public OnChildFocusListener getOnChildFocusListener() {
-            return mOnChildFocusListener;
-        }
-
-        public ChildFocusAwareLinearLayout(Context context, AttributeSet attrs) {
-            super(context, attrs);
-        }
-
-        @Override
-        public void requestChildFocus(View child, View focused) {
-            boolean preReturnedTrue = false;
-            if (mOnChildFocusListener != null) {
-                preReturnedTrue = mOnChildFocusListener.onPreRequestChildFocus(child, focused);
-            }
-            super.requestChildFocus(child, focused);
-            if (preReturnedTrue && mOnChildFocusListener != null) {
-                mOnChildFocusListener.onRequestChildFocus(child, focused);
-            }
         }
     }
 
@@ -443,7 +429,7 @@ public class Picker extends FrameLayout {
                     .getAdapter();
 
             int colIndex = mColumnViews.indexOf(parent);
-            updateColumnAlpha((VerticalGridView) parent, parent.hasFocus());
+            updateColumnAlpha(colIndex, true);
             if (child != null) {
                 int newValue = mColumns.get(colIndex).getMinValue() + position;
                 onColumnValueChange(colIndex, newValue);
@@ -452,19 +438,191 @@ public class Picker extends FrameLayout {
 
     };
 
-    private final OnChildFocusListener mColumnGainFocusListener = new OnChildFocusListener() {
-        @Override
-        public boolean onPreRequestChildFocus(View child, View focused) {
+    @Override
+    public boolean dispatchKeyEvent(android.view.KeyEvent event) {
+        if (isExpanded()) {
+            final int keyCode = event.getKeyCode();
+            switch (keyCode) {
+            case KeyEvent.KEYCODE_DPAD_LEFT:
+            case KeyEvent.KEYCODE_DPAD_RIGHT:
+                if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                    if (getLayoutDirection() == View.LAYOUT_DIRECTION_RTL?
+                            keyCode == KeyEvent.KEYCODE_DPAD_LEFT :
+                            keyCode == KeyEvent.KEYCODE_DPAD_RIGHT ) {
+                        if (mActivatedColumn < getColumnsCount() - 1) {
+                            setActiveColumn(mActivatedColumn + 1);
+                        }
+                    } else {
+                        if (mActivatedColumn > 0) {
+                            setActiveColumn(mActivatedColumn - 1);
+                        }
+                    }
+                }
+                break;
+            case KeyEvent.KEYCODE_DPAD_UP:
+            case KeyEvent.KEYCODE_DPAD_DOWN:
+                if (event.getAction() == KeyEvent.ACTION_DOWN && mActivatedColumn >= 0) {
+                    VerticalGridView gridView = mColumnViews.get(mActivatedColumn);
+                    if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+                        int newPosition = gridView.getSelectedPosition() - 1;
+                        if (newPosition >= 0) {
+                            gridView.setSelectedPositionSmooth(newPosition);
+                        }
+                    } else {
+                        int newPosition = gridView.getSelectedPosition() + 1;
+                        if (newPosition < gridView.getAdapter().getItemCount()) {
+                            gridView.setSelectedPositionSmooth(newPosition);
+                        }
+                    }
+                }
+                break;
+            default:
+                return super.dispatchKeyEvent(event);
+            }
             return true;
         }
+        return super.dispatchKeyEvent(event);
+    }
 
-        @Override
-        public void onRequestChildFocus(View child, View focused) {
-            for (int i = 0; i < mColumnViews.size(); i++) {
-                VerticalGridView column = mColumnViews.get(i);
-                updateColumnAlpha(column, column.hasFocus());
+    /**
+     * Classes extending {@link Picker} can choose to override this method to
+     * supply the {@link Picker}'s column's single item height in pixels.
+     */
+    protected int getPickerItemHeightPixels() {
+        return getContext().getResources().getDimensionPixelSize(R.dimen.picker_item_height);
+    }
+
+    private void updateColumnSize() {
+        for (int i = 0; i < getColumnsCount(); i++) {
+            updateColumnSize(mColumnViews.get(i));
+        }
+    }
+
+    private void updateColumnSize(VerticalGridView columnView) {
+        ViewGroup.LayoutParams lp = columnView.getLayoutParams();
+        lp.height = (int) (getPickerItemHeightPixels() * (isExpanded() ?
+                getVisiblePickerItemsInExpand() : getVisiblePickerItems()));
+        columnView.setLayoutParams(lp);
+    }
+
+    /**
+     * Returns number of visible items showing in a column when it's expanded, it's 3 by default.
+     * @return Number of visible items showing in a column when it's expanded.
+     */
+    public float getVisiblePickerItemsInExpand() {
+        return mVisibleItemsInExpand;
+    }
+
+    /**
+     * Change number of visible items showing in a column when it's expanded.
+     * @param visiblePickerItems Number of visible items showing in a column when it's expanded.
+     */
+    public void setVisiblePickerItemsInExpand(float visiblePickerItems) {
+        if (visiblePickerItems <= 0) {
+            throw new IllegalArgumentException();
+        }
+        if (mVisibleItemsInExpand != visiblePickerItems) {
+            mVisibleItemsInExpand = visiblePickerItems;
+            if (isExpanded()) {
+                updateColumnSize();
             }
         }
-    };
+    }
+
+    /**
+     * Returns number of visible items showing in a column when it's not expanded, it's 1 by
+     * default.
+     * @return Number of visible items showing in a column when it's not expanded.
+     */
+    public float getVisiblePickerItems() {
+        return 1;
+    }
+
+    /**
+     * Change number of visible items showing in a column when it's not expanded, it's 1 by default.
+     * @param pickerItems Number of visible items showing in a column when it's not expanded.
+     */
+    public void setVisiblePickerItems(float pickerItems) {
+        if (pickerItems <= 0) {
+            throw new IllegalArgumentException();
+        }
+        if (mVisibleItems != pickerItems) {
+            mVisibleItems = pickerItems;
+            if (!isExpanded()) {
+                updateColumnSize();
+            }
+        }
+    }
+
+    /**
+     * Change expanded state of Picker, the height LayoutParams will be changed.
+     * @see #getVisiblePickerItemsInExpand()
+     * @see #getVisiblePickerItems()
+     * @param expanded New expanded state of Picker.
+     */
+    public void setExpanded(boolean expanded) {
+        if (mExpanded != expanded) {
+            mExpanded = expanded;
+            updateColumnSize();
+        }
+    }
+
+    /**
+     * Returns true if the Picker is currently expanded, false otherwise.
+     * @return True if the Picker is currently expanded, false otherwise.
+     */
+    public boolean isExpanded() {
+        return mExpanded;
+    }
+
+    /**
+     * Change current activated column.  Shows multiple items on activate column if Picker has
+     * focus. Show multiple items on all column if Picker has no focus (e.g. a Touchscreen
+     * screen).
+     * @param columnIndex Index of column to activate.
+     */
+    public void setActiveColumn(int columnIndex) {
+        if (mActivatedColumn != columnIndex) {
+            mActivatedColumn = columnIndex;
+            for (int i = 0; i < mColumnViews.size(); i++) {
+                updateColumnAlpha(i, true);
+            }
+        }
+    }
+
+    /**
+     * Get current activated column index.
+     * @return Current activated column index.
+     */
+    public int getActiveColumn() {
+        return mActivatedColumn;
+    }
+
+    /**
+     * Enable or disable toggle on click when Picker has focus.
+     * @param toggleExpandOnClick True to enable toggle on click when Picker has focus, false
+     * otherwise.
+     */
+    public void setToggleExpandOnClick(boolean toggleExpandOnClick) {
+        mToggleExpandOnClick = toggleExpandOnClick;
+    }
+
+    /**
+     * Returns true if toggle on click is enabled when Picker has focus, false otherwise.
+     * @return True if toggle on click is enabled when Picker has focus, false otherwise.
+     */
+    public boolean isToggleExpandOnClick() {
+        return mToggleExpandOnClick;
+    }
+
+    @Override
+    public boolean performClick() {
+        if (isFocused() && isToggleExpandOnClick()) {
+            setExpanded(!isExpanded());
+            super.performClick();
+            return true;
+        }
+        return super.performClick();
+    }
 
 }

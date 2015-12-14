@@ -1957,18 +1957,28 @@ package android.support.v17.leanback.widget.picker {
   public class Picker extends android.widget.FrameLayout {
     ctor public Picker(android.content.Context, android.util.AttributeSet, int);
     method public void addPickerValueListener(android.support.v17.leanback.widget.picker.Picker.PickerValueListener);
+    method public int getActiveColumn();
     method public android.support.v17.leanback.widget.picker.PickerColumn getColumnAt(int);
     method public int getColumnsCount();
-    method protected int getPickerColumnHeightPixels();
     method protected int getPickerId();
+    method protected int getPickerItemHeightPixels();
     method protected int getPickerItemLayoutId();
     method protected int getPickerItemTextViewId();
     method protected int getPickerSeparatorLayoutId();
     method protected int getRootLayoutId();
     method protected java.lang.String getSeparator();
+    method public float getVisiblePickerItems();
+    method public float getVisiblePickerItemsInExpand();
+    method public boolean isExpanded();
+    method public boolean isToggleExpandOnClick();
     method public void onColumnValueChange(int, int);
     method public void removePickerValueListener(android.support.v17.leanback.widget.picker.Picker.PickerValueListener);
+    method public void setActiveColumn(int);
     method public void setColumns(java.util.ArrayList<android.support.v17.leanback.widget.picker.PickerColumn>);
+    method public void setExpanded(boolean);
+    method public void setToggleExpandOnClick(boolean);
+    method public void setVisiblePickerItems(float);
+    method public void setVisiblePickerItemsInExpand(float);
     method public void updateAdapter(int);
     method public void updateValue(int, int, boolean);
   }
