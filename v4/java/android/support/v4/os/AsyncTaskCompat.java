@@ -23,7 +23,7 @@ import android.os.Build;
  * Helper for accessing features in {@link android.os.AsyncTask}
  * introduced after API level 4 in a backwards compatible fashion.
  */
-public class AsyncTaskCompat {
+public final class AsyncTaskCompat {
 
     /**
      * Executes the task with the specified parameters, allowing multiple tasks to run in parallel
@@ -50,5 +50,7 @@ public class AsyncTaskCompat {
 
         return task;
     }
+
+    private AsyncTaskCompat() {}
 
 }

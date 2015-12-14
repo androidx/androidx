@@ -23,7 +23,7 @@ import android.view.View;
  * Helper for accessing features in {@link KeyEvent} introduced after
  * API level 4 in a backwards compatible fashion.
  */
-public class KeyEventCompat {
+public final class KeyEventCompat {
     /**
      * Interface for the full API.
      */
@@ -208,4 +208,6 @@ public class KeyEventCompat {
                 Object target) {
         return IMPL.dispatch(event, receiver, state, target);
     }
+
+    private KeyEventCompat() {}
 }

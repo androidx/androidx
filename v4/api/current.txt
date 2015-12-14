@@ -1043,7 +1043,7 @@ package android.support.v4.content {
   public final class SharedPreferencesCompat {
   }
 
-  public static class SharedPreferencesCompat.EditorCompat {
+  public static final class SharedPreferencesCompat.EditorCompat {
     method public void apply(android.content.SharedPreferences.Editor);
     method public static android.support.v4.content.SharedPreferencesCompat.EditorCompat getInstance();
   }
@@ -1058,7 +1058,7 @@ package android.support.v4.content {
 
 package android.support.v4.content.pm {
 
-  public class ActivityInfoCompat {
+  public final class ActivityInfoCompat {
     field public static final int CONFIG_UI_MODE = 512; // 0x200
   }
 
@@ -1066,8 +1066,7 @@ package android.support.v4.content.pm {
 
 package android.support.v4.content.res {
 
-  public class ResourcesCompat {
-    ctor public ResourcesCompat();
+  public final class ResourcesCompat {
     method public static int getColor(android.content.res.Resources, int, android.content.res.Resources.Theme) throws android.content.res.Resources.NotFoundException;
     method public static android.content.res.ColorStateList getColorStateList(android.content.res.Resources, int, android.content.res.Resources.Theme) throws android.content.res.Resources.NotFoundException;
     method public static android.graphics.drawable.Drawable getDrawable(android.content.res.Resources, int, android.content.res.Resources.Theme) throws android.content.res.Resources.NotFoundException;
@@ -1735,8 +1734,7 @@ package android.support.v4.net {
 
 package android.support.v4.os {
 
-  public class AsyncTaskCompat {
-    ctor public AsyncTaskCompat();
+  public final class AsyncTaskCompat {
     method public static android.os.AsyncTask<Params, Progress, Result> executeParallel(android.os.AsyncTask<Params, Progress, Result>, Params...);
   }
 
@@ -1860,8 +1858,7 @@ package android.support.v4.text {
     method public android.support.v4.text.BidiFormatter.Builder stereoReset(boolean);
   }
 
-  public class ICUCompat {
-    ctor public ICUCompat();
+  public final class ICUCompat {
     method public static java.lang.String maximizeAndGetScript(java.util.Locale);
   }
 
@@ -2134,8 +2131,7 @@ package android.support.v4.view {
     field public static final int SOURCE_UNKNOWN = 0; // 0x0
   }
 
-  public class KeyEventCompat {
-    ctor public KeyEventCompat();
+  public final class KeyEventCompat {
     method public static boolean dispatch(android.view.KeyEvent, android.view.KeyEvent.Callback, java.lang.Object, java.lang.Object);
     method public static java.lang.Object getKeyDispatcherState(android.view.View);
     method public static boolean hasModifiers(android.view.KeyEvent, int);
@@ -2380,8 +2376,7 @@ package android.support.v4.view {
     method public static float getYVelocity(android.view.VelocityTracker, int);
   }
 
-  public class ViewCompat {
-    ctor public ViewCompat();
+  public final class ViewCompat {
     method public static android.support.v4.view.ViewPropertyAnimatorCompat animate(android.view.View);
     method public static boolean canScrollHorizontally(android.view.View, int);
     method public static boolean canScrollVertically(android.view.View, int);
@@ -2704,7 +2699,7 @@ package android.support.v4.view {
 
 package android.support.v4.view.accessibility {
 
-  public class AccessibilityEventCompat {
+  public final class AccessibilityEventCompat {
     method public static void appendRecord(android.view.accessibility.AccessibilityEvent, android.support.v4.view.accessibility.AccessibilityRecordCompat);
     method public static android.support.v4.view.accessibility.AccessibilityRecordCompat asRecord(android.view.accessibility.AccessibilityEvent);
     method public static int getContentChangeTypes(android.view.accessibility.AccessibilityEvent);
@@ -2733,8 +2728,7 @@ package android.support.v4.view.accessibility {
     field public static final int TYPE_WINDOW_CONTENT_CHANGED = 2048; // 0x800
   }
 
-  public class AccessibilityManagerCompat {
-    ctor public AccessibilityManagerCompat();
+  public final class AccessibilityManagerCompat {
     method public static boolean addAccessibilityStateChangeListener(android.view.accessibility.AccessibilityManager, android.support.v4.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListenerCompat);
     method public static java.util.List<android.accessibilityservice.AccessibilityServiceInfo> getEnabledAccessibilityServiceList(android.view.accessibility.AccessibilityManager, int);
     method public static java.util.List<android.accessibilityservice.AccessibilityServiceInfo> getInstalledAccessibilityServiceList(android.view.accessibility.AccessibilityManager);
@@ -3058,7 +3052,7 @@ package android.support.v4.view.animation {
     method public float getInterpolation(float);
   }
 
-  public class PathInterpolatorCompat {
+  public final class PathInterpolatorCompat {
     method public static android.view.animation.Interpolator create(android.graphics.Path);
     method public static android.view.animation.Interpolator create(float, float);
     method public static android.view.animation.Interpolator create(float, float, float, float);
