@@ -246,6 +246,19 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
 
         @Override
+        protected int calculateTimeForScrolling(int dx) {
+            int ms = super.calculateTimeForScrolling(dx);
+            if (mWindowAlignment.mainAxis().getSize() > 0) {
+                float minMs = (float) MIN_MS_SMOOTH_SCROLL_MAIN_SCREEN /
+                        mWindowAlignment.mainAxis().getSize() * dx;
+                if (ms < minMs) {
+                    ms = (int) minMs;
+                }
+            }
+            return ms;
+        }
+
+        @Override
         protected void onTargetFound(View targetView,
                 RecyclerView.State state, Action action) {
             if (getScrollPosition(targetView, null, sTwoInts)) {
@@ -387,6 +400,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     // maximum pending movement in one direction.
     private final static int MAX_PENDING_MOVES = 10;
+    // minimal milliseconds to scroll window size in major direction,  we put a cap to prevent the
+    // effect smooth scrolling too over to bind an item view then drag the item view back.
+    private final static int MIN_MS_SMOOTH_SCROLL_MAIN_SCREEN = 30;
 
     private String getTag() {
         return TAG + ":" + mBaseGridView.getId();
