@@ -38,7 +38,6 @@ LOCAL_RESOURCE_DIR = \
         frameworks/support/v7/cardview/res \
         frameworks/support/design/res \
         frameworks/support/v7/recyclerview/res
-
 LOCAL_AAPT_FLAGS := \
         --auto-add-overlay \
         --extra-packages android.support.v7.appcompat \
@@ -46,5 +45,6 @@ LOCAL_AAPT_FLAGS := \
         --extra-packages android.support.v7.gridlayout \
         --extra-packages android.support.v7.mediarouter \
         --extra-packages android.support.design \
-        --extra-packages android.support.v7.recyclerview
+        --extra-packages android.support.v7.recyclerview \
+        --no-version-vectors
 include $(BUILD_PACKAGE)
