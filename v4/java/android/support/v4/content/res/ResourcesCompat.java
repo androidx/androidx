@@ -33,7 +33,7 @@ import static android.os.Build.VERSION.SDK_INT;
  * Helper for accessing features in {@link android.content.res.Resources}
  * introduced after API level 4 in a backwards compatible fashion.
  */
-public class ResourcesCompat {
+public final class ResourcesCompat {
     /**
      * Return a drawable object associated with a particular resource ID and
      * styled for the specified theme. Various types of objects will be
@@ -155,4 +155,6 @@ public class ResourcesCompat {
             return res.getColorStateList(id);
         }
     }
+
+    private ResourcesCompat() {}
 }

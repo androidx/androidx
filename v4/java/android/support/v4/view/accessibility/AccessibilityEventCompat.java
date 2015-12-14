@@ -23,7 +23,7 @@ import android.view.accessibility.AccessibilityEvent;
  * Helper for accessing features in {@link AccessibilityEvent}
  * introduced after API level 4 in a backwards compatible fashion.
  */
-public class AccessibilityEventCompat {
+public final class AccessibilityEventCompat {
 
     static interface AccessibilityEventVersionImpl {
         int getRecordCount(AccessibilityEvent event);
