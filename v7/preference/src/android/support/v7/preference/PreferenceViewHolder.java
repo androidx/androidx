@@ -77,6 +77,10 @@ public class PreferenceViewHolder extends RecyclerView.ViewHolder {
      * Dividers are only drawn between items if both items allow it, or above the first and below
      * the last item if that item allows it.
      *
+     * By default, {@link Preference#onBindViewHolder(PreferenceViewHolder)} will set this to the
+     * same value as returned by {@link Preference#isSelectable()}, so that non-selectable items
+     * do not have a divider drawn above them.
+     *
      * @param allowed false to prevent dividers being drawn above this item
      */
     public void setDividerAllowedAbove(boolean allowed) {
@@ -96,6 +100,10 @@ public class PreferenceViewHolder extends RecyclerView.ViewHolder {
     /**
      * Dividers are only drawn between items if both items allow it, or above the first and below
      * the last item if that item allows it.
+     *
+     * By default, {@link Preference#onBindViewHolder(PreferenceViewHolder)} will set this to the
+     * same value as returned by {@link Preference#isSelectable()}, so that non-selectable items
+     * do not have a divider drawn below them.
      *
      * @param allowed false to prevent dividers being drawn below this item
      */
