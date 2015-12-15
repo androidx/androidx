@@ -20,6 +20,8 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.ArrayList;
+import java.nio.ByteBuffer;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -30,7 +32,6 @@ import android.graphics.BitmapFactory;
 import android.os.Process;
 import android.util.Log;
 import android.view.Surface;
-import java.util.ArrayList;
 
 /**
  * This class provides access to a RenderScript context, which controls RenderScript
@@ -56,6 +57,7 @@ public class RenderScript {
     private boolean mEnableMultiInput = false;
     // TODO: Update to set to true at the correct API level when reduce is added.
     private boolean mEnableReduce = false;
+    private int mDispatchAPILevel = 0;
 
     private int mContextFlags = 0;
     private int mContextSdkVersion = 0;
@@ -123,6 +125,9 @@ public class RenderScript {
      */
     public static final int CREATE_FLAG_NONE = 0x0000;
 
+    int getDispatchAPILevel() {
+        return mDispatchAPILevel;
+    }
 
     boolean isUseNative() {
         return useNative;
@@ -432,7 +437,16 @@ public class RenderScript {
         validate();
         rsnAllocationIoReceive(mContext, alloc);
     }
-
+    native ByteBuffer rsnAllocationGetByteBuffer(long con, long alloc, int xBytesSize, int dimY, int dimZ);
+    synchronized ByteBuffer nAllocationGetByteBuffer(long alloc, int xBytesSize, int dimY, int dimZ) {
+        validate();
+        return rsnAllocationGetByteBuffer(mContext, alloc, xBytesSize, dimY, dimZ);
+    }
+    native long rsnAllocationGetStride(long con, long alloc);
+    synchronized long nAllocationGetStride(long alloc) {
+        validate();
+        return rsnAllocationGetStride(mContext, alloc);
+    }
 
     native void rsnAllocationGenerateMipmaps(long con, long alloc);
     synchronized void nAllocationGenerateMipmaps(long alloc) {
@@ -546,7 +560,7 @@ public class RenderScript {
         validate();
         rsnAllocationRead1D(mContext, id, off, mip, count, d, sizeBytes, dt.mID, mSize, usePadding);
     }
-    
+
     /*
     native void rsnAllocationElementRead(long con,long id, int xoff, int yoff, int zoff,
                                          int mip, int compIdx, byte[] d, int sizeBytes);
@@ -1461,6 +1475,7 @@ public class RenderScript {
         rs.mContextType = ct;
         rs.mContextFlags = flags;
         rs.mContextSdkVersion = sdkVersion;
+        rs.mDispatchAPILevel = dispatchAPI;
         if (rs.mContext == 0) {
             throw new RSDriverException("Failed to create RS context.");
         }
