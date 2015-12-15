@@ -27,5 +27,6 @@
         <item name="dialogPreferenceStyle">@style/Preference.DialogPreference</item>
         <item name="editTextPreferenceStyle">@style/Preference.DialogPreference.EditTextPreference</item>
         <item name="preferenceFragmentListStyle">@style/PreferenceFragmentList</item>
+        <item name="dropdownPreferenceStyle">@style/Preference.DropDown</item>
     </style>
 </resources>
