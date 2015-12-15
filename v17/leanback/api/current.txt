@@ -240,6 +240,8 @@ package android.support.v17.leanback.app {
     method public int getSelectedActionPosition();
     method public int getSelectedButtonActionPosition();
     method public int getUiStyle();
+    method public boolean isFocusOutEndAllowed();
+    method public boolean isFocusOutStartAllowed();
     method public boolean isSubActionsExpanded();
     method public static boolean isUiStyleDefault(java.lang.String);
     method public static boolean isUiStyleEntrance(java.lang.String);
@@ -298,6 +300,8 @@ package android.support.v17.leanback.app {
     method public int getSelectedActionPosition();
     method public int getSelectedButtonActionPosition();
     method public int getUiStyle();
+    method public boolean isFocusOutEndAllowed();
+    method public boolean isFocusOutStartAllowed();
     method public boolean isSubActionsExpanded();
     method public static boolean isUiStyleDefault(java.lang.String);
     method public static boolean isUiStyleEntrance(java.lang.String);

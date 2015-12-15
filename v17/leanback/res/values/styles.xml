@@ -444,18 +444,14 @@
     <style name="Widget.Leanback.GuidedActionsListStyle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="android:focusable">true</item>
-        <item name="android:focusableInTouchMode">true</item>
-        <item name="focusOutEnd">true</item>
+        <item name="focusOutEnd">false</item>
         <item name="focusOutFront">false</item>
-        <item name="focusOutSideStart">false</item>
-        <item name="focusOutSideEnd">true</item>
     </style>
 
     <!-- Style for the vertical grid of sub actions in a GuidedActionsStylist's default layout. -->
     <style name="Widget.Leanback.GuidedSubActionsListStyle" parent="Widget.Leanback.GuidedActionsListStyle">
         <item name="focusOutEnd">false</item>
-        <item name="focusOutFront">true</item>
+        <item name="focusOutFront">false</item>
         <item name="focusOutSideStart">false</item>
         <item name="focusOutSideEnd">false</item>
         <item name="android:layout_marginBottom">@dimen/lb_guidedactions_sublist_bottom_margin</item>
@@ -463,8 +459,6 @@
 
     <!-- Style for the vertical grid of button actions in a GuidedActionsStylist's default layout. -->
     <style name="Widget.Leanback.GuidedButtonActionsListStyle" parent="Widget.Leanback.GuidedActionsListStyle">
-        <item name="focusOutSideStart">true</item>
-        <item name="focusOutSideEnd">false</item>
     </style>
 
     <!-- Style for an action's container in a GuidedActionsStylist's default item layout. -->
