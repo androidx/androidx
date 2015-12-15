@@ -957,8 +957,10 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
         resolveTheme();
         inflater = getThemeInflater(inflater);
 
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.lb_guidedstep_fragment,
-                container, false);
+        GuidedStepRootLayout root = (GuidedStepRootLayout) inflater.inflate(
+                R.layout.lb_guidedstep_fragment, container, false);
+        root.setFocusOutStart(isFocusOutStartAllowed());
+        root.setFocusOutEnd(isFocusOutEndAllowed());
         ViewGroup guidanceContainer = (ViewGroup) root.findViewById(R.id.content_fragment);
         ViewGroup actionContainer = (ViewGroup) root.findViewById(R.id.action_fragment);
 
@@ -1143,6 +1145,26 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
                 }
             }
         }
+    }
+
+    /**
+     * Returns true if allows focus out of start edge of GuidedStepFragment, false otherwise.
+     * Default value is false, the reason is to disable FocusFinder to find focusable views
+     * beneath content of GuidedStepFragment.  Subclass may override.
+     * @return True if allows focus out of start edge of GuidedStepFragment.
+     */
+    public boolean isFocusOutStartAllowed() {
+        return false;
+    }
+
+    /**
+     * Returns true if allows focus out of end edge of GuidedStepFragment, false otherwise.
+     * Default value is false, the reason is to disable FocusFinder to find focusable views
+     * beneath content of GuidedStepFragment.  Subclass may override.
+     * @return True if allows focus out of end edge of GuidedStepFragment.
+     */
+    public boolean isFocusOutEndAllowed() {
+        return false;
     }
 
     private void resolveTheme() {
