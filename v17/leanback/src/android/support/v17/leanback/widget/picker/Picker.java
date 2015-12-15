@@ -35,31 +35,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Picker is a widget showing multiple customized {@link PickerColumn}s.  The PickerColumns are
- * initialized in {@link #setColumns(ArrayList)}.  You could only set columns once and not able to
- * add or remove Column later.  Call {@link #updateAdapter(int)} if the column value range or labels
- * change.  Call {@link #updateValue(int, int, boolean)} to update the current value of
- * PickerColumn.
+ * Picker is a widget showing multiple customized {@link PickerColumn}s. The PickerColumns are
+ * initialized in {@link #setColumns(ArrayList)}. Call {@link #updateAdapter(int)} if the column
+ * value range or labels change. Call {@link #updateValue(int, int, boolean)} to update the current
+ * value of PickerColumn.
  * <p>
  * Picker has two states and will change height:
  * <li>{@link #isExpanded()} is true: Picker shows typically three items vertically (see
  * {@link #getVisiblePickerItemsInExpand()}}. Columns other than {@link #getActiveColumn()} still
- * shows one item if the Picker is focused.  On a touch screen device, the Picker will not get
- * focus so it always show three items on all columns.   On a non-touch device (a TV), the Picker
- * will show three items only on currently activated column.  If the Picker has focus, it will
- * intercept DPAD directions and select activated column.
+ * shows one item if the Picker is focused. On a touch screen device, the Picker will not get focus
+ * so it always show three items on all columns. On a non-touch device (a TV), the Picker will show
+ * three items only on currently activated column. If the Picker has focus, it will intercept DPAD
+ * directions and select activated column.
  * <li>{@link #isExpanded()} is false: Picker shows one item vertically (see
- * {@link #getVisiblePickerItems()}) on all columns.  The size of Picker shrinks.
- * <li> The expand mode will be toggled if the Picker has focus and {@link #isToggleExpandOnClick()}
- * is true.
- * Summarize Typically use cases:
- * <li> On a touch screen based device,  the Picker focusableInTouchMode=false.  It won't get focus,
- * it wont toggle expand mode on click or touch, should call {@link #setExpanded(boolean)} with
- * true, so that user always sees three items on all columns.
- * <li> On a TV: the Picker focusable=true.  It will get focus and toggle into expand mode when user
- * clicks on it, toggle can be disabled by {@link #setToggleExpandOnClick(boolean)} with false.
- * Only the activated column shows multiple items and the activated column is selected by DPAD left
- * or right.
+ * {@link #getVisiblePickerItems()}) on all columns. The size of Picker shrinks.
+ * <li>The expand mode will be toggled if the Picker has focus and {@link #isToggleExpandOnClick()}
+ * is true. Summarize Typically use cases:
+ * <li>On a touch screen based device, the Picker focusableInTouchMode=false. It won't get focus, it
+ * wont toggle expand mode on click or touch, should call {@link #setExpanded(boolean)} with true,
+ * so that user always sees three items on all columns.
+ * <li>On a TV: the Picker focusable=true. It will get focus and toggle into expand mode when user
+ * clicks on it, toggle can be disabled by {@link #setToggleExpandOnClick(boolean)} with false. Only
+ * the activated column shows multiple items and the activated column is selected by DPAD left or
+ * right.
  */
 public class Picker extends FrameLayout {
 
@@ -195,14 +193,16 @@ public class Picker extends FrameLayout {
     }
 
     /**
-     * Set columns and create Views.  The method is only allowed to be called once.
+     * Set columns and create Views.
      * @param columns PickerColumns to be shown in the Picker.
      */
     public void setColumns(ArrayList<PickerColumn> columns) {
-        if (mColumns != null) {
-            throw new IllegalStateException("columns can only be initialized once");
+        mColumnViews.clear();
+        mPickerView.removeAllViews();
+        mColumns = new ArrayList<PickerColumn>(columns);
+        if (mActivatedColumn > mColumns.size() - 1) {
+            mActivatedColumn = mColumns.size() - 1;
         }
-        mColumns = columns;
         LayoutInflater inflater = LayoutInflater.from(getContext());
         int totalCol = getColumnsCount();
         for (int i = 0; i < totalCol; i++) {
@@ -244,7 +244,7 @@ public class Picker extends FrameLayout {
     public void updateAdapter(int columnIndex) {
         VerticalGridView columnView = mColumnViews.get(columnIndex);
         PickerScrollArrayAdapter adapter = (PickerScrollArrayAdapter) columnView.getAdapter();
-        if (adapter != null) {
+        if (adapter != null && !columnView.isComputingLayout()) {
             adapter.notifyDataSetChanged();
         }
     }
