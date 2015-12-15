@@ -22,5 +22,7 @@
         android:id="@+id/settings_preference_fragment_container"
         android:layout_width="@dimen/lb_settings_pane_width"
         android:layout_height="match_parent"
-        android:layout_gravity="end"/>
+        android:layout_gravity="end"
+        android:elevation="@dimen/lb_preference_decor_elevation"
+        android:outlineProvider="bounds" />
 </android.support.v17.preference.LeanbackSettingsRootView>
