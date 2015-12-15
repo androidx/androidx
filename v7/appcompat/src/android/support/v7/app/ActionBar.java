@@ -1067,6 +1067,15 @@ public abstract class ActionBar {
     }
 
     /**
+     * Attempts to move focus to the ActionBar if it does not already contain the focus.
+     *
+     * @return {@code true} if focus changes or {@code false} if focus doesn't change.
+     */
+    boolean requestFocus() {
+        return false;
+    }
+
+    /**
      * Listener interface for ActionBar navigation events.
      *
      * @deprecated Action bar navigation modes are deprecated and not supported by inline
