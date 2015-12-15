@@ -1952,8 +1952,10 @@ package android.support.v17.leanback.widget.picker {
 
   public class DatePicker extends android.support.v17.leanback.widget.picker.Picker {
     ctor public DatePicker(android.content.Context, android.util.AttributeSet, int);
+    method public java.lang.String getDatePickerFormat();
     method public java.util.Calendar getMaxDate();
     method public java.util.Calendar getMinDate();
+    method public void setDatePickerFormat(java.lang.String);
     method public void setMaxDate(long);
     method public void setMinDate(long);
     method public void updateDate(int, int, int, boolean);
