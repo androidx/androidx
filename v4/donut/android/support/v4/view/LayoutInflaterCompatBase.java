@@ -45,4 +45,12 @@ class LayoutInflaterCompatBase {
         inflater.setFactory(factory != null ? new FactoryWrapper(factory) : null);
     }
 
+    static LayoutInflaterFactory getFactory(LayoutInflater inflater) {
+        LayoutInflater.Factory factory = inflater.getFactory();
+        if (factory instanceof FactoryWrapper) {
+            return ((FactoryWrapper) factory).mDelegateFactory;
+        }
+        return null;
+    }
+
 }

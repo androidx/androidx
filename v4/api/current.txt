@@ -2154,6 +2154,7 @@ package android.support.v4.view {
   }
 
   public final class LayoutInflaterCompat {
+    method public static android.support.v4.view.LayoutInflaterFactory getFactory(android.view.LayoutInflater);
     method public static void setFactory(android.view.LayoutInflater, android.support.v4.view.LayoutInflaterFactory);
   }
 

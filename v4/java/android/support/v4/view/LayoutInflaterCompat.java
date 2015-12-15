@@ -27,12 +27,18 @@ public final class LayoutInflaterCompat {
 
     interface LayoutInflaterCompatImpl {
         public void setFactory(LayoutInflater layoutInflater, LayoutInflaterFactory factory);
+        public LayoutInflaterFactory getFactory(LayoutInflater layoutInflater);
     }
 
     static class LayoutInflaterCompatImplBase implements LayoutInflaterCompatImpl {
         @Override
         public void setFactory(LayoutInflater layoutInflater, LayoutInflaterFactory factory) {
             LayoutInflaterCompatBase.setFactory(layoutInflater, factory);
+        }
+
+        @Override
+        public LayoutInflaterFactory getFactory(LayoutInflater layoutInflater) {
+            return LayoutInflaterCompatBase.getFactory(layoutInflater);
         }
     }
 
@@ -77,6 +83,20 @@ public final class LayoutInflaterCompat {
      */
     public static void setFactory(LayoutInflater inflater, LayoutInflaterFactory factory) {
         IMPL.setFactory(inflater, factory);
+    }
+
+    /**
+     * Return the current {@link LayoutInflaterFactory} (or null). This is
+     * called on each element name. If the factory returns a View, add that
+     * to the hierarchy. If it returns null, proceed to call onCreateView(name).
+     *
+     * @return The {@link LayoutInflaterFactory} associated with the
+     * {@link LayoutInflater}. Will be {@code null} if the inflater does not
+     * have a {@link LayoutInflaterFactory} but a raw {@link LayoutInflater.Factory}.
+     * @see LayoutInflater#getFactory()
+     */
+    public static LayoutInflaterFactory getFactory(LayoutInflater inflater) {
+        return IMPL.getFactory(inflater);
     }
 
 }
