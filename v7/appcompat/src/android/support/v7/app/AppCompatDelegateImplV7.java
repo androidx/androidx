@@ -969,8 +969,11 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
         if (layoutInflater.getFactory() == null) {
             LayoutInflaterCompat.setFactory(layoutInflater, this);
         } else {
-            Log.i(TAG, "The Activity's LayoutInflater already has a Factory installed"
-                    + " so we can not install AppCompat's");
+            if (!(LayoutInflaterCompat.getFactory(layoutInflater)
+                    instanceof AppCompatDelegateImplV7)) {
+                Log.i(TAG, "The Activity's LayoutInflater already has a Factory installed"
+                        + " so we can not install AppCompat's");
+            }
         }
     }
 
