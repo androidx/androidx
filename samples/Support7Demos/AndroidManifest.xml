@@ -463,6 +463,16 @@
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
             </intent-filter>
         </activity>
+
+        <!-- ListPopupWindow demo activity -->
+        <activity android:name=".widget.ListPopupWindowActivity"
+                  android:label="@string/list_popup_window_activity"
+                  android:theme="@style/Theme.AppCompat.Light">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
     </application>
 
 
