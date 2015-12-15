@@ -101,7 +101,6 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
 
     // true if we have installed a window sub-decor layout.
     private boolean mSubDecorInstalled;
-    private ViewGroup mWindowDecor;
     private ViewGroup mSubDecor;
 
     private TextView mTitleView;
@@ -146,8 +145,6 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        mWindowDecor = (ViewGroup) mWindow.getDecorView();
-
         if (mOriginalWindowCallback instanceof Activity) {
             if (NavUtils.getParentActivityName((Activity) mOriginalWindowCallback) != null) {
                 // Peek at the Action Bar and update it if it already exists
@@ -484,9 +481,10 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
         // the decor view's size, meaning that any padding is inset for the min/max widths below.
         // We don't control measurement at that level, so we need to workaround it by making sure
         // that the decor view's padding is taken into account.
-        cfl.setDecorPadding(mWindowDecor.getPaddingLeft(),
-                mWindowDecor.getPaddingTop(), mWindowDecor.getPaddingRight(),
-                mWindowDecor.getPaddingBottom());
+        final View windowDecor = mWindow.getDecorView();
+        cfl.setDecorPadding(windowDecor.getPaddingLeft(),
+                windowDecor.getPaddingTop(), windowDecor.getPaddingRight(),
+                windowDecor.getPaddingBottom());
 
         TypedArray a = mContext.obtainStyledAttributes(R.styleable.Theme);
         a.getValue(R.styleable.Theme_windowMinWidthMajor, cfl.getMinWidthMajor());
@@ -945,6 +943,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
             // The initial parent is null so just return false
             return false;
         }
+        final View windowDecor = mWindow.getDecorView();
         while (true) {
             if (parent == null) {
                 // Bingo. We've hit a view which has a null parent before being terminated from
@@ -952,7 +951,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
                 // call, therefore we should inherit. This works as the inflated layout is only
                 // added to the hierarchy at the end of the inflate() call.
                 return true;
-            } else if (parent == mWindowDecor || !(parent instanceof View)
+            } else if (parent == windowDecor || !(parent instanceof View)
                     || ViewCompat.isAttachedToWindow((View) parent)) {
                 // We have either hit the window's decor view, a parent which isn't a View
                 // (i.e. ViewRootImpl), or an attached view, so we know that the original parent
@@ -1125,7 +1124,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
                     // If we have a menu invalidation pending, do it now.
                     if (mInvalidatePanelMenuPosted &&
                             (mInvalidatePanelMenuFeatures & (1 << FEATURE_OPTIONS_PANEL)) != 0) {
-                        mWindowDecor.removeCallbacks(mInvalidatePanelMenuRunnable);
+                        mWindow.getDecorView().removeCallbacks(mInvalidatePanelMenuRunnable);
                         mInvalidatePanelMenuRunnable.run();
                     }
 
@@ -1524,8 +1523,8 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
     private void invalidatePanelMenu(int featureId) {
         mInvalidatePanelMenuFeatures |= 1 << featureId;
 
-        if (!mInvalidatePanelMenuPosted && mWindowDecor != null) {
-            ViewCompat.postOnAnimation(mWindowDecor, mInvalidatePanelMenuRunnable);
+        if (!mInvalidatePanelMenuPosted) {
+            ViewCompat.postOnAnimation(mWindow.getDecorView(), mInvalidatePanelMenuRunnable);
             mInvalidatePanelMenuPosted = true;
         }
     }
@@ -1664,7 +1663,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
         }
 
         if (mActionModePopup != null) {
-            mWindowDecor.removeCallbacks(mShowActionModePopup);
+            mWindow.getDecorView().removeCallbacks(mShowActionModePopup);
             if (mActionModePopup.isShowing()) {
                 try {
                     mActionModePopup.dismiss();

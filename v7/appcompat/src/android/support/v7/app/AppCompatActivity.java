@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
+import android.support.annotation.StyleRes;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
@@ -53,12 +54,25 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
         TaskStackBuilder.SupportParentable, ActionBarDrawerToggle.DelegateProvider {
 
     private AppCompatDelegate mDelegate;
+    private int mThemeId = 0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        getDelegate().installViewFactory();
-        getDelegate().onCreate(savedInstanceState);
+        final AppCompatDelegate delegate = getDelegate();
+        delegate.installViewFactory();
+        delegate.onCreate(savedInstanceState);
+        if (delegate.applyDayNight() && mThemeId != 0) {
+            // If day night has been applied, we need to re-set the theme for it to fully apply
+            setTheme(mThemeId);
+        }
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void setTheme(@StyleRes final int resid) {
+        super.setTheme(resid);
+        // Keep hold of the theme id so that we can re-set it later if needed
+        mThemeId = resid;
     }
 
     @Override
@@ -446,6 +460,12 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
     @Override
     public void onPanelClosed(int featureId, Menu menu) {
         super.onPanelClosed(featureId, menu);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        getDelegate().onSaveInstanceState(outState);
     }
 
     /**
