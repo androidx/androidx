@@ -29,6 +29,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
@@ -55,6 +56,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
 
     private AppCompatDelegate mDelegate;
     private int mThemeId = 0;
+    private boolean mEatKeyUpEvent;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -476,5 +478,26 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
             mDelegate = AppCompatDelegate.create(this, this);
         }
         return mDelegate;
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        final int keyCode = event.getKeyCode();
+        if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+            final int action = event.getAction();
+            if (action == KeyEvent.ACTION_DOWN) {
+                if (event.hasModifiers(KeyEvent.META_ALT_ON)) {
+                    final ActionBar actionBar = getSupportActionBar();
+                    if (actionBar != null && actionBar.isShowing() && actionBar.requestFocus()) {
+                        mEatKeyUpEvent = true;
+                        return true;
+                    }
+                }
+            } else if (action == KeyEvent.ACTION_UP && mEatKeyUpEvent) {
+                mEatKeyUpEvent = false;
+                return true;
+            }
+        }
+        return super.dispatchKeyEvent(event);
     }
 }
