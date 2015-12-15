@@ -179,21 +179,37 @@ public final class Target {
     }
 
     /**
-     * The weight of important that a color's saturation value has on selection.
+     * Returns the weight of importance that this target places on a color's saturation within
+     * the image.
+     *
+     * <p>The larger the weight, relative to the other weights, the more important that a color
+     * being close to the target value has on selection.</p>
+     *
+     * @see #getTargetSaturation()
      */
     public float getSaturationWeight() {
         return mWeights[INDEX_WEIGHT_SAT];
     }
 
     /**
-     * The weight of important that a color's lightness value has on selection.
+     * Returns the weight of importance that this target places on a color's lightness within
+     * the image.
+     *
+     * <p>The larger the weight, relative to the other weights, the more important that a color
+     * being close to the target value has on selection.</p>
+     *
+     * @see #getTargetLightness()
      */
     public float getLightnessWeight() {
         return mWeights[INDEX_WEIGHT_LUMA];
     }
 
     /**
-     * The weight of important that a color's population value has on selection.
+     * Returns the weight of importance that this target places on a color's population within
+     * the image.
+     *
+     * <p>The larger the weight, relative to the other weights, the more important that a
+     * color's population being close to the most populous has on selection.</p>
      */
     public float getPopulationWeight() {
         return mWeights[INDEX_WEIGHT_POP];
@@ -332,8 +348,15 @@ public final class Target {
         }
 
         /**
-         * Set the weight of important that a color's saturation value has on selection. A weight
-         * of <= 0 means that it has no weight and is ignored.
+         * Set the weight of importance that this target will place on saturation values.
+         *
+         * <p>The larger the weight, relative to the other weights, the more important that a color
+         * being close to the target value has on selection.</p>
+         *
+         * <p>A weight of 0 means that it has no weight, and thus has no
+         * bearing on the selection.</p>
+         *
+         * @see #setTargetSaturation(float)
          */
         public Builder setSaturationWeight(@FloatRange(from = 0) float weight) {
             mTarget.mWeights[INDEX_WEIGHT_SAT] = weight;
@@ -341,8 +364,15 @@ public final class Target {
         }
 
         /**
-         * Set the weight of important that a color's lightness value has on selection. A weight
-         * of <= 0 means that it has no weight and is ignored.
+         * Set the weight of importance that this target will place on lightness values.
+         *
+         * <p>The larger the weight, relative to the other weights, the more important that a color
+         * being close to the target value has on selection.</p>
+         *
+         * <p>A weight of 0 means that it has no weight, and thus has no
+         * bearing on the selection.</p>
+         *
+         * @see #setTargetLightness(float)
          */
         public Builder setLightnessWeight(@FloatRange(from = 0) float weight) {
             mTarget.mWeights[INDEX_WEIGHT_LUMA] = weight;
@@ -350,8 +380,14 @@ public final class Target {
         }
 
         /**
-         * Set the weight of important that a color's population value has on selection. A weight
-         * of <= 0 means that it has no weight and is ignored.
+         * Set the weight of importance that this target will place on a color's population within
+         * the image.
+         *
+         * <p>The larger the weight, relative to the other weights, the more important that a
+         * color's population being close to the most populous has on selection.</p>
+         *
+         * <p>A weight of 0 means that it has no weight, and thus has no
+         * bearing on the selection.</p>
          */
         public Builder setPopulationWeight(@FloatRange(from = 0) float weight) {
             mTarget.mWeights[INDEX_WEIGHT_POP] = weight;
