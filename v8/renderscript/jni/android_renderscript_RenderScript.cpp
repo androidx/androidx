@@ -2123,6 +2123,46 @@ nIncAllocationCreateTyped(JNIEnv *_env, jobject _this, jlong con, jlong incCon, 
     return (jlong)(uintptr_t) ainI;
 }
 
+static jobject
+nAllocationGetByteBuffer(JNIEnv *_env, jobject _this, jlong con, jlong alloc, jint xBytesSize, jint dimY, jint dimZ)
+{
+    LOG_API("nAllocationGetByteBuffer, con(%p), alloc(%p)", (RsContext)con, (RsAllocation)alloc);
+    size_t strideIn = xBytesSize;
+    void* ptr = NULL;
+    if (alloc != 0 && dispatchTab.AllocationGetPointer != nullptr) {
+        ptr = dispatchTab.AllocationGetPointer((RsContext)con, (RsAllocation)alloc, 0,
+                                               RS_ALLOCATION_CUBEMAP_FACE_POSITIVE_X, dimZ, 0,
+                                               &strideIn, sizeof(size_t));
+    }
+    if (ptr != NULL) {
+        size_t bufferSize = strideIn;
+        if (dimY > 0) {
+            bufferSize *= dimY;
+        }
+        if (dimZ > 0) {
+            bufferSize *= dimZ;
+        }
+        jobject byteBuffer = _env->NewDirectByteBuffer(ptr, (jlong) bufferSize);
+        return byteBuffer;
+    } else {
+        return NULL;
+    }
+}
+
+static jlong
+nAllocationGetStride(JNIEnv *_env, jobject _this, jlong con, jlong alloc)
+{
+    LOG_API("nAllocationGetStride, con(%p), alloc(%p)", (RsContext)con, (RsAllocation)alloc);
+    size_t strideIn;
+    void* ptr = NULL;
+    if (alloc != 0 && dispatchTab.AllocationGetPointer != nullptr) {
+        ptr = dispatchTab.AllocationGetPointer((RsContext)con, (RsAllocation)alloc, 0,
+                                               RS_ALLOCATION_CUBEMAP_FACE_POSITIVE_X, 0, 0,
+                                               &strideIn, sizeof(size_t));
+    }
+    return (jlong)strideIn;
+}
+
 // ---------------------------------------------------------------------------
 
 
@@ -2239,6 +2279,8 @@ static JNINativeMethod methods[] = {
 {"rsnIncElementCreate",              "(JJIZI)J",                              (void*)nIncElementCreate },
 {"rsnIncTypeCreate",                 "(JJIIIZZI)J",                           (void*)nIncTypeCreate },
 {"rsnIncAllocationCreateTyped",      "(JJJJI)J",                              (void*)nIncAllocationCreateTyped },
+{"rsnAllocationGetByteBuffer",       "(JJIII)Ljava/nio/ByteBuffer;",          (void*)nAllocationGetByteBuffer },
+{"rsnAllocationGetStride",           "(JJ)J",                                 (void*)nAllocationGetStride },
 };
 
 // ---------------------------------------------------------------------------

@@ -19,6 +19,8 @@ package android.support.v8.renderscript;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.nio.ByteBuffer;
+
 import android.content.res.Resources;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
@@ -61,8 +63,10 @@ public class Allocation extends BaseObj {
     Type mType;
     Bitmap mBitmap;
     int mUsage;
-    Allocation mAdaptedAllocation;
     int mSize;
+    Allocation mAdaptedAllocation;
+    ByteBuffer mByteBuffer = null;
+    long mByteBufferStride = 0;
 
     boolean mConstrainedLOD;
     boolean mConstrainedFace;
@@ -465,6 +469,56 @@ public class Allocation extends BaseObj {
      */
     public void ioSendOutput() {
         ioSend();
+    }
+
+    /**
+     * @hide
+     * Get the ByteBuffer pointing to the raw data associated with Allocation.
+     * Note: The ByteBuffer will be Read-Only for devices before Lollopop (API 21).
+     */
+    public ByteBuffer getByteBuffer() {
+        int xBytesSize = mType.getX() * mType.getElement().getBytesSize();
+        // When running on devices before L, we need to construct the ByteBuffer
+        // and explicitly copy the data from the allocation to it.
+        if (mRS.getDispatchAPILevel() < 21) {
+            byte[] data = null;
+            if (mType.getZ() > 0) {
+                // TODO: add support for 3D allocations.
+                return null;
+            } else if (mType.getY() > 0) {
+                // 2D Allocation
+                data = new byte[xBytesSize * mType.getY()];
+                copy2DRangeToUnchecked(0, 0, mType.getX(), mType.getY(), data,
+                                       Element.DataType.SIGNED_8, xBytesSize * mType.getY());
+            } else {
+                // 1D Allocation
+                data = new byte[xBytesSize];
+                copy1DRangeToUnchecked(0, mType.getX(), data);
+            }
+            ByteBuffer bBuffer = ByteBuffer.wrap(data).asReadOnlyBuffer();
+            mByteBufferStride = xBytesSize;
+            return bBuffer;
+        }
+        // Create a new ByteBuffer if it is not initialized or using IO_INPUT.
+        if (mByteBuffer == null || (mUsage & USAGE_IO_INPUT) != 0) {
+            mByteBuffer = mRS.nAllocationGetByteBuffer(getID(mRS), xBytesSize, mType.getY(), mType.getZ());
+        }
+        return mByteBuffer;
+    }
+
+    /**
+     * @hide
+     * Get the Stride of raw data associated with this 2D Allocation.
+     */
+    public long getStride() {
+        if (mByteBufferStride ==0) {
+            if (mRS.getDispatchAPILevel() > 21) {
+                mByteBufferStride = mRS.nAllocationGetStride(getID(mRS));
+            } else {
+                mByteBufferStride = mType.getX() * mType.getElement().getBytesSize();
+            }
+        }
+        return mByteBufferStride;
     }
 
     /**
