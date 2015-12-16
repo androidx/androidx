@@ -385,6 +385,7 @@ package android.support.v7.widget {
     method public abstract boolean animateDisappearance(android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
     method public abstract boolean animatePersistence(android.support.v7.widget.RecyclerView.ViewHolder, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo, android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
     method public boolean canReuseUpdatedViewHolder(android.support.v7.widget.RecyclerView.ViewHolder);
+    method public boolean canReuseUpdatedViewHolder(android.support.v7.widget.RecyclerView.ViewHolder, java.util.List<java.lang.Object>);
     method public final void dispatchAnimationFinished(android.support.v7.widget.RecyclerView.ViewHolder);
     method public final void dispatchAnimationStarted(android.support.v7.widget.RecyclerView.ViewHolder);
     method public final void dispatchAnimationsFinished();

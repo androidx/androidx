@@ -8,6 +8,8 @@ import android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo;
 import android.util.Log;
 import android.view.View;
 
+import java.util.List;
+
 /**
  * A wrapper class for ItemAnimator that records View bounds and decides whether it should run
  * move, change, add or remove animations. This class also replicates the original ItemAnimator
@@ -18,8 +20,7 @@ import android.view.View;
  * extend this class, you can override {@link #obtainHolderInfo()} method to provide your own info
  * class that extends {@link ItemHolderInfo}.
  */
-abstract public class
-        SimpleItemAnimator extends RecyclerView.ItemAnimator {
+abstract public class SimpleItemAnimator extends RecyclerView.ItemAnimator {
 
     private static final boolean DEBUG = false;
 
@@ -58,8 +59,16 @@ abstract public class
         mSupportsChangeAnimations = supportsChangeAnimations;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @return True if change animations are not supported or the ViewHolder is invalid,
+     * false otherwise.
+     *
+     * @see #setSupportsChangeAnimations(boolean)
+     */
     @Override
-    public boolean canReuseUpdatedViewHolder(RecyclerView.ViewHolder viewHolder) {
+    public boolean canReuseUpdatedViewHolder(@NonNull RecyclerView.ViewHolder viewHolder) {
         return !mSupportsChangeAnimations || viewHolder.isInvalid();
     }
 
