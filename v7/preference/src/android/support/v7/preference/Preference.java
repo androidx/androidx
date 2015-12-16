@@ -1087,6 +1087,16 @@ public class Preference implements Comparable<Preference> {
         registerDependency();
     }
 
+    /**
+     * Called when the Preference hierarchy has been detached from the
+     * list of preferences. This can also be called when this
+     * Preference has been removed from a group that was attached
+     * to the list of preferences.
+     */
+    public void onDetached() {
+        unregisterDependency();
+    }
+
     private void registerDependency() {
 
         if (TextUtils.isEmpty(mDependencyKey)) return;

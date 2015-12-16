@@ -318,14 +318,19 @@ public abstract class PreferenceFragment extends Fragment implements
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         if (mHavePrefs) {
             bindPreferences();
         }
 
         mInitDone = true;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
         if (savedInstanceState != null) {
             Bundle container = savedInstanceState.getBundle(PREFERENCES_TAG);
@@ -354,9 +359,12 @@ public abstract class PreferenceFragment extends Fragment implements
 
     @Override
     public void onDestroyView() {
-        mList = null;
         mHandler.removeCallbacks(mRequestFocus);
         mHandler.removeMessages(MSG_BIND_PREFERENCES);
+        if (mHavePrefs) {
+            unbindPreferences();
+        }
+        mList = null;
         super.onDestroyView();
     }
 
@@ -521,6 +529,15 @@ public abstract class PreferenceFragment extends Fragment implements
             preferenceScreen.onAttached();
         }
         onBindPreferences();
+    }
+
+    private void unbindPreferences() {
+        final PreferenceScreen preferenceScreen = getPreferenceScreen();
+        if (preferenceScreen != null) {
+            preferenceScreen.onDetached();
+            getListView().setAdapter(null);
+        }
+        onUnbindPreferences();
     }
 
     /** @hide */

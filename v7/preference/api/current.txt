@@ -124,6 +124,7 @@ package android.support.v7.preference {
     method public void onBindViewHolder(android.support.v7.preference.PreferenceViewHolder);
     method protected void onClick();
     method public void onDependencyChanged(android.support.v7.preference.Preference, boolean);
+    method public void onDetached();
     method protected java.lang.Object onGetDefaultValue(android.content.res.TypedArray, int);
     method public void onParentChanged(android.support.v7.preference.Preference, boolean);
     method protected void onPrepareForRemoval();
