@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package android.support.v7.app;
+package android.support.v7.testutils;
 
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.appcompat.test.R;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 
-abstract class BaseTestActivity extends AppCompatActivity {
+public abstract class BaseTestActivity extends AppCompatActivity {
 
     private Menu mMenu;
 
