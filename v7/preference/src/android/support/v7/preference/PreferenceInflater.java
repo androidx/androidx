@@ -231,6 +231,7 @@ class PreferenceInflater {
                     for (final String prefix : prefixes) {
                         try {
                             clazz = classLoader.loadClass(prefix + name);
+                            break;
                         } catch (final ClassNotFoundException e) {
                             notFoundException = e;
                         }
