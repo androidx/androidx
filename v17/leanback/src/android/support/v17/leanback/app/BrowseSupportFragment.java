@@ -27,7 +27,6 @@ import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
-import android.support.v17.leanback.widget.PresenterViewHolderTask;
 import android.support.v17.leanback.widget.RowHeaderPresenter;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.TitleView;
@@ -837,7 +836,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
      * fragment will be collapsed.
      */
     public void setSelectedPosition(int rowPosition, boolean smooth,
-            final PresenterViewHolderTask rowHolderTask) {
+            final Presenter.ViewHolderTask rowHolderTask) {
         if (mRowsSupportFragment == null) {
             return;
         }

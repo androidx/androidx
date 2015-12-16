@@ -101,6 +101,18 @@ public abstract class Presenter implements FacetProvider {
         }
     }
 
+    /**
+     * Base class to perform a task on Presenter.ViewHolder.
+     */
+    public static abstract class ViewHolderTask {
+        /**
+         * Called to perform a task on view holder.
+         * @param holder The view holder to perform task.
+         */
+        public void run(Presenter.ViewHolder holder) {
+        }
+    }
+
     private Map<Class, Object> mFacets;
 
     /**

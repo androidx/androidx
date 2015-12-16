@@ -30,7 +30,6 @@ import android.support.v17.leanback.widget.HorizontalGridView;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.Presenter;
-import android.support.v17.leanback.widget.PresenterViewHolderTask;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -583,7 +582,7 @@ public class RowsFragment extends BaseRowFragment {
      * @param rowHolderTask Task to perform on the Row.
      */
     public void setSelectedPosition(int rowPosition, boolean smooth,
-            final PresenterViewHolderTask rowHolderTask) {
+            final Presenter.ViewHolderTask rowHolderTask) {
         VerticalGridView verticalView = getVerticalGridView();
         if (verticalView == null) {
             return;

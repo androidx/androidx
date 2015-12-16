@@ -19,6 +19,7 @@ import android.os.Build;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.system.Settings;
 import android.support.v17.leanback.transition.TransitionHelper;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -122,6 +123,93 @@ public class ListRowPresenter extends RowPresenter {
                 return null;
             }
             return ibvh.getViewHolder();
+        }
+    }
+
+    /**
+     * A task on the ListRowPresenter.ViewHolder that can select an item by position in the
+     * HorizontalGridView and perform an optional item task on it.
+     */
+    public static class SelectItemViewHolderTask extends Presenter.ViewHolderTask {
+
+        private int mItemPosition;
+        private boolean mSmoothScroll = true;
+        private Presenter.ViewHolderTask mItemTask;
+
+        public SelectItemViewHolderTask(int itemPosition) {
+            setItemPosition(itemPosition);
+        }
+
+        /**
+         * Sets the adapter position of item to select.
+         * @param itemPosition Position of the item in adapter.
+         */
+        public void setItemPosition(int itemPosition) {
+            mItemPosition = itemPosition;
+        }
+
+        /**
+         * Returns the adapter position of item to select.
+         * @return The adapter position of item to select.
+         */
+        public int getItemPosition() {
+            return mItemPosition;
+        }
+
+        /**
+         * Sets smooth scrolling to the item or jump to the item without scrolling.  By default it is
+         * true.
+         * @param smoothScroll True for smooth scrolling to the item, false otherwise.
+         */
+        public void setSmoothScroll(boolean smoothScroll) {
+            mSmoothScroll = smoothScroll;
+        }
+
+        /**
+         * Returns true if smooth scrolling to the item false otherwise.  By default it is true.
+         * @return True for smooth scrolling to the item, false otherwise.
+         */
+        public boolean isSmoothScroll() {
+            return mSmoothScroll;
+        }
+
+        /**
+         * Returns optional task to run when the item is selected, null for no task.
+         * @return Optional task to run when the item is selected, null for no task.
+         */
+        public Presenter.ViewHolderTask getItemTask() {
+            return mItemTask;
+        }
+
+        /**
+         * Sets task to run when the item is selected, null for no task.
+         * @param itemTask Optional task to run when the item is selected, null for no task.
+         */
+        public void setItemTask(Presenter.ViewHolderTask itemTask) {
+            mItemTask = itemTask;
+        }
+
+        @Override
+        public void run(Presenter.ViewHolder holder) {
+            if (holder instanceof ListRowPresenter.ViewHolder) {
+                HorizontalGridView gridView = ((ListRowPresenter.ViewHolder) holder).getGridView();
+                android.support.v17.leanback.widget.ViewHolderTask task = null;
+                if (mItemTask != null) {
+                    task = new android.support.v17.leanback.widget.ViewHolderTask() {
+                        final Presenter.ViewHolderTask itemTask = mItemTask;
+                        @Override
+                        public void run(RecyclerView.ViewHolder rvh) {
+                            ItemBridgeAdapter.ViewHolder ibvh = (ItemBridgeAdapter.ViewHolder) rvh;
+                            itemTask.run(ibvh.getViewHolder());
+                        }
+                    };
+                }
+                if (isSmoothScroll()) {
+                    gridView.setSelectedPositionSmooth(mItemPosition, task);
+                } else {
+                    gridView.setSelectedPosition(mItemPosition, task);
+                }
+            }
         }
     }
 
