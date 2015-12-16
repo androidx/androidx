@@ -17,6 +17,7 @@
 package android.support.v7.app;
 
 import android.support.v7.appcompat.test.R;
+import android.support.v7.testutils.BaseTestActivity;
 
 public class WindowDecorActionBarActivity extends BaseTestActivity {
 

@@ -20,4 +20,7 @@
     <string name="drawer_title">Navigation</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
+
+    <string name="list_popup_window_activity">List popup window</string>
+    <string name="list_popup_window_show">Show popup</string>
 </resources>
