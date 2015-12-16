@@ -28,7 +28,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import android.support.v17.leanback.widget.ListRowPresenterSelectItemViewHolderTask;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.app.Instrumentation;
@@ -132,7 +131,7 @@ public class BrowseSupportFragmentTest extends
             @Override
             public void run() {
                 mActivity.getBrowseTestSupportFragment().setSelectedPosition(10, true,
-                        new ListRowPresenterSelectItemViewHolderTask(20) {
+                        new ListRowPresenter.SelectItemViewHolderTask(20) {
                     @Override
                     public void run(Presenter.ViewHolder holder) {
                         super.run(holder);
