@@ -40,6 +40,11 @@
                 android:label="@string/drawer_layout_activity"
                 android:theme="@style/Theme.SampleDrawerLayout" />
 
+        <activity
+                android:name="android.support.v7.widget.PopupTestActivity"
+                android:label="@string/list_popup_window_activity"
+                android:theme="@style/Theme.AppCompat.Light" />
+
     </application>
 
     <instrumentation

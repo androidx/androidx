@@ -16,6 +16,7 @@
 
 package android.support.v7.app;
 
+import android.support.v7.testutils.BaseTestActivity;
 import org.junit.Test;
 
 import android.support.v7.appcompat.test.R;

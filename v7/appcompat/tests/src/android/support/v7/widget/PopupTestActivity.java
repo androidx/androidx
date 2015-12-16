@@ -13,25 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package android.support.v7.app;
+package android.support.v7.widget;
 
 import android.support.v7.appcompat.test.R;
 import android.support.v7.testutils.BaseTestActivity;
-import android.support.v7.widget.Toolbar;
 
-public class ToolbarActionBarActivity extends BaseTestActivity {
-
-    private Toolbar mToolbar;
-
+public class PopupTestActivity extends BaseTestActivity {
     @Override
     protected int getContentViewLayoutResId() {
-        return R.layout.toolbar_decor_content;
-    }
-
-    @Override
-    protected void onContentViewSet() {
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(mToolbar);
+        return R.layout.popup_test_activity;
     }
 }
