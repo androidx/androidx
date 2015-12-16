@@ -1050,6 +1050,7 @@ package android.support.v17.leanback.widget {
     method public void setEditTitle(java.lang.CharSequence);
     method public void setEnabled(boolean);
     method public void setFocusable(boolean);
+    method public void setIntent(android.content.Intent);
     method public void setSubActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>);
     method public void setTitle(java.lang.CharSequence);
     field public static final long ACTION_ID_CANCEL = -5L; // 0xfffffffffffffffbL
@@ -1066,35 +1067,36 @@ package android.support.v17.leanback.widget {
   }
 
   public static class GuidedAction.Builder extends android.support.v17.leanback.widget.GuidedAction.BuilderBase {
-    ctor public GuidedAction.Builder();
+    ctor public deprecated GuidedAction.Builder();
+    ctor public GuidedAction.Builder(android.content.Context);
     method public android.support.v17.leanback.widget.GuidedAction build();
   }
 
   public static abstract class GuidedAction.BuilderBase {
-    ctor public GuidedAction.BuilderBase();
+    ctor public GuidedAction.BuilderBase(android.content.Context);
     method protected final void applyValues(android.support.v17.leanback.widget.GuidedAction);
     method public abstract T build();
     method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> checkSetId(int);
     method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> checked(boolean);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> constructCancel(android.content.Context);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> constructContinue(android.content.Context);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> constructFinish(android.content.Context);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> constructNo(android.content.Context);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> constructOK(android.content.Context);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> constructYes(android.content.Context);
+    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> clickAction(long);
     method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> description(java.lang.CharSequence);
+    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> description(int);
     method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> descriptionEditInputType(int);
     method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> descriptionEditable(boolean);
     method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> descriptionInputType(int);
     method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> editDescription(java.lang.CharSequence);
+    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> editDescription(int);
     method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> editInputType(int);
     method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> editTitle(java.lang.CharSequence);
+    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> editTitle(int);
     method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> editable(boolean);
     method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> enabled(boolean);
     method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> focusable(boolean);
+    method public android.content.Context getContext();
     method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> hasNext(boolean);
     method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> icon(android.graphics.drawable.Drawable);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> iconResourceId(int, android.content.Context);
+    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> icon(int);
+    method public deprecated android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> iconResourceId(int, android.content.Context);
     method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> id(long);
     method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> infoOnly(boolean);
     method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> inputType(int);
@@ -1102,6 +1104,7 @@ package android.support.v17.leanback.widget {
     method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> multilineDescription(boolean);
     method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> subActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>);
     method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> title(java.lang.CharSequence);
+    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> title(int);
   }
 
   public class GuidedActionEditText extends android.widget.EditText implements android.support.v17.leanback.widget.ImeKeyMonitor {

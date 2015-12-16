@@ -13,13 +13,15 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.support.annotation.DrawableRes;
+import android.support.annotation.StringRes;
 import android.support.v17.leanback.R;
+import android.support.v4.content.ContextCompat;
 
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.text.InputType;
-import android.util.Log;
 
 import java.util.List;
 
@@ -101,6 +103,7 @@ public class GuidedAction extends Action {
      * {@link #applyValues(GuidedAction)}.  When using GuidedAction directly, use {@link Builder}.
      */
     public abstract static class BuilderBase<T extends GuidedAction> {
+        private Context mContext;
         private long mId;
         private CharSequence mTitle;
         private CharSequence mEditTitle;
@@ -122,6 +125,22 @@ public class GuidedAction extends Action {
         private boolean mFocusable = true;
         private List<GuidedAction> mSubActions;
         private Intent mIntent;
+
+        /**
+         * Creates a BuilderBase for GuidedAction or its subclass.
+         * @param context Context object used to build the GuidedAction.
+         */
+        public BuilderBase(Context context) {
+            mContext = context;
+        }
+
+        /**
+         * Returns Context of this Builder.
+         * @return Context of this Builder.
+         */
+        public Context getContext() {
+            return mContext;
+        }
 
         /**
          * Builds the GuidedAction corresponding to this Builder.
@@ -161,69 +180,33 @@ public class GuidedAction extends Action {
         }
 
         /**
-         * Construct a standard "OK" action with {@link GuidedAction#ACTION_ID_OK}.
-         * @param context Context for loading action title.
+         * Construct a clickable action with associated id and auto assign pre-defined title for the
+         * action. If the id is not supported, the method simply does nothing.
+         * @param id One of {@link GuidedAction#ACTION_ID_OK} {@link GuidedAction#ACTION_ID_CANCEL}
+         * {@link GuidedAction#ACTION_ID_FINISH} {@link GuidedAction#ACTION_ID_CONTINUE}
+         * {@link GuidedAction#ACTION_ID_YES} {@link GuidedAction#ACTION_ID_NO}.
          * @return The same BuilderBase object.
          */
-        public BuilderBase<T> constructOK(Context context) {
-            mId = ACTION_ID_OK;
-            mTitle = context.getString(android.R.string.ok);
-            return this;
-        }
-
-        /**
-         * Construct a standard "Cancel" action with {@link GuidedAction#ACTION_ID_CANCEL}.
-         * @param context Context for loading action title.
-         * @return The same BuilderBase object.
-         */
-        public BuilderBase<T> constructCancel(Context context) {
-            mId = ACTION_ID_CANCEL;
-            mTitle = context.getString(android.R.string.cancel);
-            return this;
-        }
-
-        /**
-         * Construct a standard "Finish" action with {@link GuidedAction#ACTION_ID_FINISH}.
-         * @param context Context for loading action title.
-         * @return The same BuilderBase object.
-         */
-        public BuilderBase<T> constructFinish(Context context) {
-            mId = ACTION_ID_FINISH;
-            mTitle = context.getString(R.string.lb_guidedaction_finish_title);
-            return this;
-        }
-
-        /**
-         * Construct a standard "Continue" action with {@link GuidedAction#ACTION_ID_CONTINUE}.
-         * @param context Context for loading action title.
-         * @return The same BuilderBase object.
-         */
-        public BuilderBase<T> constructContinue(Context context) {
-            mId = ACTION_ID_CONTINUE;
-            mHasNext = true;
-            mTitle = context.getString(R.string.lb_guidedaction_continue_title);
-            return this;
-        }
-
-        /**
-         * Construct a standard "Yes" action with {@link GuidedAction#ACTION_ID_YES}.
-         * @param context Context for loading action title.
-         * @return The same BuilderBase object.
-         */
-        public BuilderBase<T> constructYes(Context context) {
-            mId = ACTION_ID_YES;
-            mTitle = context.getString(android.R.string.yes);
-            return this;
-        }
-
-        /**
-         * Construct a standard "No" action with {@link GuidedAction#ACTION_ID_NO}.
-         * @param context Context for loading action title.
-         * @return The same BuilderBase object.
-         */
-        public BuilderBase<T> constructNo(Context context) {
-            mId = ACTION_ID_NO;
-            mTitle = context.getString(android.R.string.no);
+        public BuilderBase<T> clickAction(long id) {
+            if (id == ACTION_ID_OK) {
+                mId = ACTION_ID_OK;
+                mTitle = mContext.getString(android.R.string.ok);
+            } else if (id == ACTION_ID_CANCEL) {
+                mId = ACTION_ID_CANCEL;
+                mTitle = mContext.getString(android.R.string.cancel);
+            } else if (id == ACTION_ID_FINISH) {
+                mId = ACTION_ID_FINISH;
+                mTitle = mContext.getString(R.string.lb_guidedaction_finish_title);
+            } else if (id == ACTION_ID_CONTINUE) {
+                mId = ACTION_ID_CONTINUE;
+                mTitle = mContext.getString(R.string.lb_guidedaction_continue_title);
+            } else if (id == ACTION_ID_YES) {
+                mId = ACTION_ID_YES;
+                mTitle = mContext.getString(android.R.string.yes);
+            } else if (id == ACTION_ID_NO) {
+                mId = ACTION_ID_NO;
+                mTitle = mContext.getString(android.R.string.no);
+            }
             return this;
         }
 
@@ -248,11 +231,33 @@ public class GuidedAction extends Action {
         }
 
         /**
+         * Sets the title for this action.  The title is typically a short string indicating the
+         * action to be taken on click, e.g. "Continue" or "Cancel".
+         * @param titleResourceId The resource id of title for this action.
+         */
+        public BuilderBase<T> title(@StringRes int titleResourceId) {
+            mTitle = getContext().getString(titleResourceId);
+            return this;
+        }
+
+        /**
          * Sets the optional title text to edit.  When TextView is activated, the edit title
          * replaces the string of title.
+         * @param editTitle The optional title text to edit when TextView is activated.
          */
         public BuilderBase<T> editTitle(CharSequence editTitle) {
             mEditTitle = editTitle;
+            return this;
+        }
+
+        /**
+         * Sets the optional title text to edit.  When TextView is activated, the edit title
+         * replaces the string of title.
+         * @param editTitleResourceId String resource id of the optional title text to edit when
+         * TextView is activated.
+         */
+        public BuilderBase<T> editTitle(@StringRes int editTitleResourceId) {
+            mEditTitle = getContext().getString(editTitleResourceId);
             return this;
         }
 
@@ -267,12 +272,33 @@ public class GuidedAction extends Action {
         }
 
         /**
+         * Sets the description for this action.  The description is typically a longer string
+         * providing extra information on what the action will do.
+         * @param descriptionResourceId String resource id of the description for this action.
+         */
+        public BuilderBase<T> description(@StringRes int descriptionResourceId) {
+            mDescription = getContext().getString(descriptionResourceId);
+            return this;
+        }
+
+        /**
          * Sets the optional description text to edit.  When TextView is activated, the edit
          * description replaces the string of description.
          * @param description The description to edit for this action.
          */
         public BuilderBase<T> editDescription(CharSequence description) {
             mEditDescription = description;
+            return this;
+        }
+
+        /**
+         * Sets the optional description text to edit.  When TextView is activated, the edit
+         * description replaces the string of description.
+         * @param descriptionResourceId String resource id of the description to edit for this
+         * action.
+         */
+        public BuilderBase<T> editDescription(@StringRes int descriptionResourceId) {
+            mEditDescription = getContext().getString(descriptionResourceId);
             return this;
         }
 
@@ -298,12 +324,24 @@ public class GuidedAction extends Action {
         /**
          * Sets the action's icon drawable by retrieving it by resource ID from the specified
          * context. This is a convenience function that simply looks up the drawable and calls
-         * {@link #icon}.
+         * {@link #icon(Drawable)}.
          * @param iconResourceId The resource ID for the icon associated with this action.
          * @param context The context whose resource ID should be retrieved.
+         * @deprecated Use {@link #icon(int)}.
          */
-        public BuilderBase<T> iconResourceId(int iconResourceId, Context context) {
-            return icon(context.getResources().getDrawable(iconResourceId));
+        @Deprecated
+        public BuilderBase<T> iconResourceId(@DrawableRes int iconResourceId, Context context) {
+            return icon(ContextCompat.getDrawable(context, iconResourceId));
+        }
+
+        /**
+         * Sets the action's icon drawable by retrieving it by resource ID from Builder's
+         * context. This is a convenience function that simply looks up the drawable and calls
+         * {@link #icon(Drawable)}.
+         * @param iconResourceId The resource ID for the icon associated with this action.
+         */
+        public BuilderBase<T> icon(@DrawableRes int iconResourceId) {
+            return icon(ContextCompat.getDrawable(getContext(), iconResourceId));
         }
 
         /**
@@ -388,7 +426,7 @@ public class GuidedAction extends Action {
         /**
          * Indicates whether this action is part of a single-select group similar to radio buttons
          * or this action is a checkbox. When one item in a check set is checked, all others with
-         * the same check set ID will be nchecked automatically.
+         * the same check set ID will be checked automatically.
          * @param checkSetId The check set ID, or {@link GuidedAction#NO_CHECK_SET} to indicate not
          * radio or checkbox, or {@link GuidedAction#CHECKBOX_CHECK_SET_ID} to indicate a checkbox.
          */
@@ -462,6 +500,22 @@ public class GuidedAction extends Action {
      * Builds a {@link GuidedAction} object.
      */
     public static class Builder extends BuilderBase<GuidedAction> {
+
+        /**
+         * @deprecated Use {@link GuidedAction.Builder#GuidedAction.Builder(Context)}.
+         */
+        @Deprecated
+        public Builder() {
+            super(null);
+        }
+
+        /**
+         * Creates a Builder for GuidedAction.
+         * @param context Context to build GuidedAction.
+         */
+        public Builder(Context context) {
+            super(context);
+        }
 
         @Override
         public GuidedAction build() {
@@ -577,6 +631,14 @@ public class GuidedAction extends Action {
      */
     public Intent getIntent() {
         return mIntent;
+    }
+
+    /**
+     * Sets the intent of this action.
+     * @param intent New intent to set on this action.
+     */
+    public void setIntent(Intent intent) {
+        mIntent = intent;
     }
 
     /**
