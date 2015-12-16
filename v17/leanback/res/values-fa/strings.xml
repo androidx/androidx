@@ -25,7 +25,7 @@ limitations under the License.
     <string name="lb_control_display_fast_forward_multiplier" msgid="4541442045214207774">"%1$dX"</string>
     <string name="lb_control_display_rewind_multiplier" msgid="3097220783222910245">"%1$dX"</string>
     <string name="lb_playback_controls_play" msgid="731953341987346903">"پخش"</string>
-    <string name="lb_playback_controls_pause" msgid="6189521112079849518">"توقف موقت"</string>
+    <string name="lb_playback_controls_pause" msgid="6189521112079849518">"مکث"</string>
     <string name="lb_playback_controls_fast_forward" msgid="8569951318244687220">"جلو بردن سریع"</string>
     <string name="lb_playback_controls_fast_forward_multiplier" msgid="1058753672110224526">"‏بازارسال سریع %1$dX"</string>
     <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"عقب بردن"</string>
