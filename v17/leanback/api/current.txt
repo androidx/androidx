@@ -265,6 +265,7 @@ package android.support.v17.leanback.app {
     method public void setUiStyle(int);
     field public static final java.lang.String EXTRA_UI_STYLE = "uiStyle";
     field public static final int UI_STYLE_ACTIVITY_ROOT = 2; // 0x2
+    field public static final deprecated int UI_STYLE_DEFAULT = 0; // 0x0
     field public static final int UI_STYLE_ENTRANCE = 1; // 0x1
     field public static final int UI_STYLE_REPLACE = 0; // 0x0
   }
@@ -320,6 +321,7 @@ package android.support.v17.leanback.app {
     method public void setUiStyle(int);
     field public static final java.lang.String EXTRA_UI_STYLE = "uiStyle";
     field public static final int UI_STYLE_ACTIVITY_ROOT = 2; // 0x2
+    field public static final deprecated int UI_STYLE_DEFAULT = 0; // 0x0
     field public static final int UI_STYLE_ENTRANCE = 1; // 0x1
     field public static final int UI_STYLE_REPLACE = 0; // 0x0
   }
