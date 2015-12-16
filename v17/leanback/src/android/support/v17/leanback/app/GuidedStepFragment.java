@@ -190,6 +190,12 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
     public static final int UI_STYLE_REPLACE = 0;
 
     /**
+     * @deprecated Same value as {@link #UI_STYLE_REPLACE}.
+     */
+    @Deprecated
+    public static final int UI_STYLE_DEFAULT = 0;
+
+    /**
      * Default value for argument {@link #EXTRA_UI_STYLE}. The default value is assigned in
      * GuidedStepFragment constructor. This is the case that we show GuidedStepFragment on top of
      * other content. The default behavior of this style:
