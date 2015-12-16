@@ -15,16 +15,12 @@
  */
 package android.support.v7.widget;
 
-import android.annotation.TargetApi;
 import android.app.Instrumentation;
-import android.app.UiAutomation;
 import android.graphics.Rect;
-import android.os.Build;
 import android.os.SystemClock;
 import android.support.v7.appcompat.test.R;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.SmallTest;
-import android.view.InputDevice;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
