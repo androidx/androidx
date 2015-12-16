@@ -134,7 +134,7 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         final RecyclerView.ViewHolder vh = mRecyclerView.findViewHolderForAdapterPosition(2);
         mAnimator.canReUseCallback = new CanReUseCallback() {
             @Override
-            public boolean canReUse(RecyclerView.ViewHolder viewHolder) {
+            public boolean canReUse(RecyclerView.ViewHolder viewHolder, List<Object> payloads) {
                 assertSame(viewHolder, vh);
                 return false;
             }
@@ -171,7 +171,7 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         final RecyclerView.ViewHolder reused = mRecyclerView.findViewHolderForAdapterPosition(3);
         mAnimator.canReUseCallback = new CanReUseCallback() {
             @Override
-            public boolean canReUse(RecyclerView.ViewHolder viewHolder) {
+            public boolean canReUse(RecyclerView.ViewHolder viewHolder, List<Object> payloads) {
                 if (viewHolder == replaced) {
                     return false;
                 } else if (viewHolder == reused) {
@@ -248,9 +248,18 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
 
     public void testUpdatePayload() throws Throwable {
         setupBasic(10);
-        RecyclerView.ViewHolder vh = mRecyclerView.findViewHolderForAdapterPosition(2);
+        final RecyclerView.ViewHolder vh = mRecyclerView.findViewHolderForAdapterPosition(2);
+        final Object payload = new Object();
+        mAnimator.canReUseCallback = new CanReUseCallback() {
+            @Override
+            public boolean canReUse(RecyclerView.ViewHolder viewHolder, List<Object> payloads) {
+                assertSame(vh, viewHolder);
+                assertEquals(1, payloads.size());
+                assertSame(payload, payloads.get(0));
+                return true;
+            }
+        };
         mLayoutManager.expectLayouts(2);
-        Object payload = new Object();
         mTestAdapter.changeAndNotifyWithPayload(2, 1, payload);
         mLayoutManager.waitForLayout(2);
         assertEquals(1, mAnimator.animateChangeList.size());
@@ -392,7 +401,7 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
 
         mAnimator.canReUseCallback = new CanReUseCallback() {
             @Override
-            public boolean canReUse(RecyclerView.ViewHolder viewHolder) {
+            public boolean canReUse(RecyclerView.ViewHolder viewHolder, List<Object> payloads) {
                 return viewHolder != vh;
             }
         };
@@ -425,7 +434,7 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
 
         CanReUseCallback canReUseCallback = new CanReUseCallback() {
             @Override
-            public boolean canReUse(RecyclerView.ViewHolder viewHolder) {
+            public boolean canReUse(RecyclerView.ViewHolder viewHolder, List<Object> payloads) {
                 return true;
             }
         };
@@ -438,8 +447,9 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         List<AnimateChange> animateChangeList = new ArrayList<>();
 
         @Override
-        public boolean canReuseUpdatedViewHolder(RecyclerView.ViewHolder viewHolder) {
-            return canReUseCallback.canReUse(viewHolder);
+        public boolean canReuseUpdatedViewHolder(RecyclerView.ViewHolder viewHolder,
+                List<Object> payloads) {
+            return canReUseCallback.canReUse(viewHolder, payloads);
         }
 
         @NonNull
@@ -536,6 +546,6 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
 
     interface CanReUseCallback {
 
-        boolean canReUse(RecyclerView.ViewHolder viewHolder);
+        boolean canReUse(RecyclerView.ViewHolder viewHolder, List<Object> payloads);
     }
 }

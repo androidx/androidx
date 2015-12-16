@@ -3406,7 +3406,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     }
 
     private boolean canReuseUpdatedViewHolder(ViewHolder viewHolder) {
-        return mItemAnimator == null || mItemAnimator.canReuseUpdatedViewHolder(viewHolder);
+        return mItemAnimator == null || mItemAnimator.canReuseUpdatedViewHolder(viewHolder,
+                viewHolder.getUnmodifiedPayloads());
     }
 
     private void setDataSetChangedAfterLayout() {
@@ -9965,7 +9966,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * <p>
          * When an item is updated, ItemAnimator has a chance to ask RecyclerView to keep the
          * previous presentation of the item as-is and supply a new ViewHolder for the updated
-         * presentation (see: {@link #canReuseUpdatedViewHolder(ViewHolder)}.
+         * presentation (see: {@link #canReuseUpdatedViewHolder(ViewHolder, List)}.
          * This is useful if you don't know the contents of the Item and would like
          * to cross-fade the old and the new one ({@link DefaultItemAnimator} uses this technique).
          * <p>
@@ -9974,7 +9975,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * <p>
          * When {@link Adapter#notifyItemChanged(int)} is called, the Item's view type may change.
          * If the Item's view type has changed or ItemAnimator returned <code>false</code> for
-         * this ViewHolder when {@link #canReuseUpdatedViewHolder(ViewHolder)} was called, the
+         * this ViewHolder when {@link #canReuseUpdatedViewHolder(ViewHolder, List)} was called, the
          * <code>oldHolder</code> and <code>newHolder</code> will be different ViewHolder instances
          * which represent the same Item. In that case, only the new ViewHolder is visible
          * to the LayoutManager but RecyclerView keeps old ViewHolder attached for animations.
@@ -10180,15 +10181,50 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * type ({@link Adapter#getItemViewType(int)}). Otherwise, ItemAnimator will always receive
          * both {@link ViewHolder}s in the
          * {@link #animateChange(ViewHolder, ViewHolder, ItemHolderInfo, ItemHolderInfo)} method.
+         * <p>
+         * If your application is using change payloads, you can override
+         * {@link #canReuseUpdatedViewHolder(ViewHolder, List)} to decide based on payloads.
          *
          * @param viewHolder The ViewHolder which represents the changed item's old content.
          *
          * @return True if RecyclerView should just rebind to the same ViewHolder or false if
          *         RecyclerView should create a new ViewHolder and pass this ViewHolder to the
          *         ItemAnimator to animate. Default implementation returns <code>true</code>.
+         *
+         * @see #canReuseUpdatedViewHolder(ViewHolder, List)
          */
-        public boolean canReuseUpdatedViewHolder(ViewHolder viewHolder) {
+        public boolean canReuseUpdatedViewHolder(@NonNull ViewHolder viewHolder) {
             return true;
+        }
+
+        /**
+         * When an item is changed, ItemAnimator can decide whether it wants to re-use
+         * the same ViewHolder for animations or RecyclerView should create a copy of the
+         * item and ItemAnimator will use both to run the animation (e.g. cross-fade).
+         * <p>
+         * Note that this method will only be called if the {@link ViewHolder} still has the same
+         * type ({@link Adapter#getItemViewType(int)}). Otherwise, ItemAnimator will always receive
+         * both {@link ViewHolder}s in the
+         * {@link #animateChange(ViewHolder, ViewHolder, ItemHolderInfo, ItemHolderInfo)} method.
+         *
+         * @param viewHolder The ViewHolder which represents the changed item's old content.
+         * @param payloads A non-null list of merged payloads that were sent with change
+         *                 notifications. Can be empty if the adapter is invalidated via
+         *                 {@link RecyclerView.Adapter#notifyDataSetChanged()}. The same list of
+         *                 payloads will be passed into
+         *                 {@link RecyclerView.Adapter#onBindViewHolder(ViewHolder, int, List)}
+         *                 method <b>if</b> this method returns <code>true</code>.
+         *
+         * @return True if RecyclerView should just rebind to the same ViewHolder or false if
+         *         RecyclerView should create a new ViewHolder and pass this ViewHolder to the
+         *         ItemAnimator to animate. Default implementation calls
+         *         {@link #canReuseUpdatedViewHolder(ViewHolder)}.
+         *
+         * @see #canReuseUpdatedViewHolder(ViewHolder)
+         */
+        public boolean canReuseUpdatedViewHolder(@NonNull ViewHolder viewHolder,
+                @NonNull List<Object> payloads) {
+            return canReuseUpdatedViewHolder(viewHolder);
         }
 
         /**
