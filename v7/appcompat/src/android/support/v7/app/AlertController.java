@@ -356,6 +356,7 @@ class AlertController {
 
         if (mIconView != null) {
             if (icon != null) {
+                mIconView.setVisibility(View.VISIBLE);
                 mIconView.setImageDrawable(icon);
             } else {
                 mIconView.setVisibility(View.GONE);
