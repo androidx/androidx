@@ -13,11 +13,8 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
 <resources>
-    <color name="drawer_sample_metal_blue">#FF505080</color>
-
-    <color name="test_red">#FF6030</color>
-    <color name="test_green">#50E080</color>
-    <color name="test_blue">#3050CF</color>
+    <dimen name="drawable_small_size">12dip</dimen>
+    <dimen name="drawable_medium_size">16dip</dimen>
+    <dimen name="drawable_large_size">20dip</dimen>
 </resources>
