@@ -145,7 +145,8 @@ public class BrowseSupportFragmentTest extends
         // wait for scrolling to the item.
         Thread.sleep(HORIZONTAL_SCROLL_WAIT);
         ListRowPresenter.ViewHolder row = (ListRowPresenter.ViewHolder) mActivity
-                .getBrowseTestSupportFragment().getSelectedRowViewHolder();
+                .getBrowseTestSupportFragment().getRowsSupportFragment().getRowViewHolder(mActivity
+                        .getBrowseTestSupportFragment().getSelectedPosition());
         assertEquals(20, row.getGridView().getSelectedPosition());
     }
 

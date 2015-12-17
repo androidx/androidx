@@ -805,17 +805,6 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     }
 
     /**
-     * Gets currently selected row ViewHolder.
-     * @return Currently selected row ViewHolder.
-     */
-    public RowPresenter.ViewHolder getSelectedRowViewHolder() {
-        if (mRowsSupportFragment == null) {
-            return null;
-        }
-        return mRowsSupportFragment.getSelectedRowViewHolder();
-    }
-
-    /**
      * Sets the selected row position.
      */
     public void setSelectedPosition(int position, boolean smooth) {
