@@ -2420,20 +2420,22 @@ public class ViewPager extends ViewGroup {
             throw new IllegalStateException("No fake drag in progress. Call beginFakeDrag first.");
         }
 
-        final VelocityTracker velocityTracker = mVelocityTracker;
-        velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
-        int initialVelocity = (int) VelocityTrackerCompat.getXVelocity(
-                velocityTracker, mActivePointerId);
-        mPopulatePending = true;
-        final int width = getClientWidth();
-        final int scrollX = getScrollX();
-        final ItemInfo ii = infoForCurrentScrollPosition();
-        final int currentPage = ii.position;
-        final float pageOffset = (((float) scrollX / width) - ii.offset) / ii.widthFactor;
-        final int totalDelta = (int) (mLastMotionX - mInitialMotionX);
-        int nextPage = determineTargetPage(currentPage, pageOffset, initialVelocity,
-                totalDelta);
-        setCurrentItemInternal(nextPage, true, true, initialVelocity);
+        if (mAdapter != null) {
+            final VelocityTracker velocityTracker = mVelocityTracker;
+            velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
+            int initialVelocity = (int) VelocityTrackerCompat.getXVelocity(
+                    velocityTracker, mActivePointerId);
+            mPopulatePending = true;
+            final int width = getClientWidth();
+            final int scrollX = getScrollX();
+            final ItemInfo ii = infoForCurrentScrollPosition();
+            final int currentPage = ii.position;
+            final float pageOffset = (((float) scrollX / width) - ii.offset) / ii.widthFactor;
+            final int totalDelta = (int) (mLastMotionX - mInitialMotionX);
+            int nextPage = determineTargetPage(currentPage, pageOffset, initialVelocity,
+                    totalDelta);
+            setCurrentItemInternal(nextPage, true, true, initialVelocity);
+        }
         endDrag();
 
         mFakeDragging = false;
@@ -2449,6 +2451,10 @@ public class ViewPager extends ViewGroup {
     public void fakeDragBy(float xOffset) {
         if (!mFakeDragging) {
             throw new IllegalStateException("No fake drag in progress. Call beginFakeDrag first.");
+        }
+
+        if (mAdapter == null) {
+            return;
         }
 
         mLastMotionX += xOffset;
