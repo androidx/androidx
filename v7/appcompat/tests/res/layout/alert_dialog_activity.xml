@@ -14,10 +14,16 @@
      limitations under the License.
 -->
 
-<resources>
-    <color name="drawer_sample_metal_blue">#FF505080</color>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <Button
+        android:id="@+id/test_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/alert_dialog_show" />
+</FrameLayout>
 
-    <color name="test_red">#FF6030</color>
-    <color name="test_green">#50E080</color>
-    <color name="test_blue">#3050CF</color>
-</resources>
