@@ -1094,12 +1094,24 @@ package android.support.v4.graphics {
 
   public final class ColorUtils {
     method public static int HSLToColor(float[]);
+    method public static int LABToColor(double, double, double);
+    method public static void LABToXYZ(double, double, double, double[]);
     method public static void RGBToHSL(int, int, int, float[]);
+    method public static void RGBToLAB(int, int, int, double[]);
+    method public static void RGBToXYZ(int, int, int, double[]);
+    method public static int XYZToColor(double, double, double);
+    method public static void XYZToLAB(double, double, double, double[]);
+    method public static int blendARGB(int, int, float);
+    method public static void blendHSL(float[], float[], float[], float);
+    method public static void blendLAB(double[], double[], double[], double);
     method public static double calculateContrast(int, int);
     method public static double calculateLuminance(int);
     method public static int calculateMinimumAlpha(int, int, float);
     method public static void colorToHSL(int, float[]);
+    method public static void colorToLAB(int, double[]);
+    method public static void colorToXYZ(int, double[]);
     method public static int compositeColors(int, int);
+    method public static double distanceEuclidean(double[], double[]);
     method public static int setAlphaComponent(int, int);
   }
 
