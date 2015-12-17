@@ -459,6 +459,7 @@ public class NotificationCompat {
         NotificationCompatBase.UnreadConversation getUnreadConversationFromBundle(
                 Bundle b, NotificationCompatBase.UnreadConversation.Factory factory,
                 RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory);
+        public NotificationCompatBase.Topic getTopic(Notification n);
     }
 
     /**
@@ -538,6 +539,11 @@ public class NotificationCompat {
 
         @Override
         public Bundle getBundleForUnreadConversation(NotificationCompatBase.UnreadConversation uc) {
+            return null;
+        }
+
+        @Override
+        public NotificationCompatBase.Topic getTopic(Notification n) {
             return null;
         }
 
@@ -914,6 +920,7 @@ public class NotificationCompat {
         int mColor = COLOR_DEFAULT;
         int mVisibility = VISIBILITY_PRIVATE;
         Notification mPublicVersion;
+        Topic mTopic;
 
         /** @hide */
         public Notification mNotification = new Notification();
@@ -1534,6 +1541,11 @@ public class NotificationCompat {
             return this;
         }
 
+        public Builder setTopic(Topic topic) {
+            mTopic = topic;
+            return this;
+        }
+
         /**
          * Apply an extender to this notification builder. Extenders may be used to add
          * metadata or change options on this builder.
@@ -1573,6 +1585,33 @@ public class NotificationCompat {
             }
             return cs;
         }
+    }
+
+    public static class Topic extends NotificationCompatBase.Topic {
+        private final String id;
+        private final CharSequence label;
+
+        public Topic(String id, CharSequence label) {
+            this.id = id;
+            this.label = label;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public CharSequence getLabel() {
+            return label;
+        }
+
+        /** @hide */
+        public static final Factory FACTORY = new Factory() {
+            @Override
+            public Topic build(String id, CharSequence label) {
+                return new Topic(id, label);
+            }
+
+        };
     }
 
     /**
@@ -3020,7 +3059,7 @@ public class NotificationCompat {
         /**
          * Gets the accent color.
          *
-         * @see setColor
+         * @see #setColor
          */
         @ColorInt
         public int getColor() {

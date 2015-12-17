@@ -57,6 +57,15 @@ public class NotificationCompatBase {
         }
     }
 
+    public static abstract class Topic {
+        public abstract String getId();
+        public abstract CharSequence getLabel();
+
+        public interface Factory {
+            Topic build(String id, CharSequence topic);
+        }
+    }
+
     public static Notification add(Notification notification, Context context,
             CharSequence contentTitle, CharSequence contentText, PendingIntent contentIntent) {
         notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
