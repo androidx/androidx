@@ -177,10 +177,13 @@ public class GuidedStepSupportActivity extends FragmentActivity {
 
         @Override
         public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
-            actions.add(new GuidedAction.Builder().constructContinue(getActivity())
+            Context context = getActivity();
+            actions.add(new GuidedAction.Builder(context)
+                    .clickAction(GuidedAction.ACTION_ID_CONTINUE)
                     .description("Let's do it")
                     .build());
-            actions.add(new GuidedAction.Builder().constructCancel(getActivity())
+            actions.add(new GuidedAction.Builder(context)
+                    .clickAction(GuidedAction.ACTION_ID_CANCEL)
                     .description("Never mind")
                     .build());
         }
@@ -224,7 +227,8 @@ public class GuidedStepSupportActivity extends FragmentActivity {
 
         @Override
         public void onCreateButtonActions(List<GuidedAction> actions, Bundle savedInstanceState) {
-            actions.add(new GuidedAction.Builder().constructOK(getActivity())
+            Context context = getActivity();
+            actions.add(new GuidedAction.Builder(context).clickAction(GuidedAction.ACTION_ID_OK)
                     .build());
             actions.get(actions.size() - 1).setEnabled(false);
         }
@@ -312,7 +316,8 @@ public class GuidedStepSupportActivity extends FragmentActivity {
 
         @Override
         public void onCreateButtonActions(List<GuidedAction> actions, Bundle savedInstanceState) {
-            actions.add(new GuidedAction.Builder().constructContinue(getActivity())
+            actions.add(new GuidedAction.Builder(getActivity())
+                    .clickAction(GuidedAction.ACTION_ID_CONTINUE)
                     .description("Continue")
                     .build());
         }
@@ -454,7 +459,8 @@ public class GuidedStepSupportActivity extends FragmentActivity {
 
         @Override
         public void onCreateButtonActions(List<GuidedAction> actions, Bundle savedInstanceState) {
-            actions.add(new GuidedAction.Builder().constructContinue(getActivity())
+            actions.add(new GuidedAction.Builder(getActivity())
+                    .clickAction(GuidedAction.ACTION_ID_CONTINUE)
                     .build());
         }
 
@@ -497,7 +503,8 @@ public class GuidedStepSupportActivity extends FragmentActivity {
 
         @Override
         public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
-            actions.add(new GuidedAction.Builder().constructFinish(getActivity())
+            actions.add(new GuidedAction.Builder(getActivity())
+                    .clickAction(GuidedAction.ACTION_ID_FINISH)
                     .description("All Done...")
                     .build());
             addAction(actions, BACK, "Start Over", "Let's try this again...");
