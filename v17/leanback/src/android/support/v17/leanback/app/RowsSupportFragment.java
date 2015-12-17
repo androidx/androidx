@@ -233,14 +233,6 @@ public class RowsSupportFragment extends BaseRowSupportFragment {
     }
 
     /**
-     * Get currently selected row ViewHolder.
-     * @return Currently selected row ViewHolder.
-     */
-    public RowPresenter.ViewHolder getSelectedRowViewHolder() {
-        return getRowViewHolder(mSelectedViewHolder);
-    }
-
-    /**
      * Get row ViewHolder at adapter position.  Returns null if the row object is not in adapter or
      * the row object has not been bound to a row view.
      * @param position Position of row in adapter.

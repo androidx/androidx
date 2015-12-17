@@ -52,6 +52,8 @@ for w in testcls:
     outfile.write("/* This file is auto-generated from {}FrgamentTest.java.  DO NOT MODIFY. */\n\n".format(w))
 
     for line in file:
+        for w in cls:
+            line = line.replace('{}Fragment'.format(w), '{}SupportFragment'.format(w))
         for w in testcls:
             line = line.replace('{}FragmentTest'.format(w), '{}SupportFragmentTest'.format(w))
             line = line.replace('{}FragmentTestActivity'.format(w), '{}SupportFragmentTestActivity'.format(w))
