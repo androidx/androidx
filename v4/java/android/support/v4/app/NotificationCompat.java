@@ -793,6 +793,27 @@ public class NotificationCompat {
         }
     }
 
+    static class NotificationCompatImplApi24 extends NotificationCompatImplApi21 {
+        @Override
+        public Notification build(Builder b, BuilderExtender extender) {
+            NotificationCompatApi24.Builder builder = new NotificationCompatApi24.Builder(
+                    b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
+                    b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
+                    b.mProgressMax, b.mProgress, b.mProgressIndeterminate, b.mShowWhen,
+                    b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mCategory,
+                    b.mPeople, b.mExtras, b.mColor, b.mVisibility, b.mPublicVersion,
+                    b.mGroupKey, b.mGroupSummary, b.mSortKey, b.mTopic);
+            addActionsToBuilder(builder, b.mActions);
+            addStyleToBuilderJellybean(builder, b.mStyle);
+            return extender.build(b, builder);
+        }
+
+        @Override
+        public NotificationCompatBase.Topic getTopic(Notification notification) {
+            return NotificationCompatApi24.getTopic(notification, Topic.FACTORY);
+        }
+    }
+
     private static void addActionsToBuilder(NotificationBuilderWithActions builder,
             ArrayList<Action> actions) {
         for (Action action : actions) {
@@ -831,7 +852,9 @@ public class NotificationCompat {
     }
 
     static {
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 24) {
+            IMPL = new NotificationCompatImplApi24();
+        } else if (Build.VERSION.SDK_INT >= 21) {
             IMPL = new NotificationCompatImplApi21();
         } else if (Build.VERSION.SDK_INT >= 20) {
             IMPL = new NotificationCompatImplApi20();
