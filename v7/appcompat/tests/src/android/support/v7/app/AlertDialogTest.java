@@ -26,7 +26,11 @@ import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckedTextView;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import org.hamcrest.Matcher;
 
 import static android.support.test.espresso.Espresso.onData;
 import static android.support.test.espresso.Espresso.onView;
@@ -40,6 +44,22 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.Is.is;
 
+/**
+ * Tests in this class make a few assumptions about the underlying implementation of
+ * <code>AlertDialog</code>. While the assumptions don't go all the way down to individual
+ * <code>R.id</code> references or very specific layout arrangements, internal refactoring
+ * of <code>AlertDialog</code> might require corresponding restructuring of the matching
+ * tests. Specifically:
+ *
+ * <ul>
+ *     <li>Testing <code>setIcon</code> API assumes that the icon is displayed by a separate
+ *     <code>ImageView</code> which is a sibling of a title view.</li>
+ *     <li>Testing <code>setMultiChoiceItems</code> API assumes that each item in the list
+ *     is rendered by a single <code></code>CheckedTextView</code>.</li>
+ *     <li>Testing <code>setSingleChoiceItems</code> API assumes that each item in the list
+ *     is rendered by a single <code></code>CheckedTextView</code>.</li>
+ * </ul>
+ */
 public class AlertDialogTest extends ActivityInstrumentationTestCase2<AlertDialogTestActivity> {
     private Button mButton;
 
@@ -86,6 +106,9 @@ public class AlertDialogTest extends ActivityInstrumentationTestCase2<AlertDialo
         onView(withText("Dialog content")).inRoot(isDialog()).check(matches(isDisplayed()));
         onView(withText("Dialog content")).inRoot(isDialog()).check(
                 isBelow(withText("Dialog title")));
+
+        ListView listView = mAlertDialog.getListView();
+        assertNull("No list view", listView);
     }
 
     @SmallTest
@@ -134,12 +157,42 @@ public class AlertDialogTest extends ActivityInstrumentationTestCase2<AlertDialo
         assertFalse("Dialog is not canceled", mIsCanceledCalled);
     }
 
+    private void verifySimpleItemsContent(String[] expectedContent) {
+        final int expectedCount = expectedContent.length;
+
+        onView(withId(R.id.test_button)).perform(click());
+
+        final ListView listView = mAlertDialog.getListView();
+        assertNotNull("List view is shown", listView);
+
+        final ListAdapter listAdapter = listView.getAdapter();
+        assertEquals("List has " + expectedCount + " entries",
+                expectedCount, listAdapter.getCount());
+        for (int i = 0; i < expectedCount; i++) {
+            assertEquals("List entry #" + i, expectedContent[i], listAdapter.getItem(i));
+        }
+
+        // Test that all items are showing
+        onView(withText("Dialog title")).inRoot(isDialog()).check(matches(isDisplayed()));
+        for (int i = 0; i < expectedCount; i++) {
+            onData(allOf(is(instanceOf(String.class)), is(expectedContent[i]))).inRoot(isDialog()).
+                    check(matches(isDisplayed()));
+        }
+
+        // Test that a click on an item invokes the registered listener
+        assertEquals("Before list item click", -1, mClickedItemIndex);
+        int indexToClick = expectedCount - 2;
+        onData(allOf(is(instanceOf(String.class)), is(expectedContent[indexToClick]))).
+                inRoot(isDialog()).perform(click());
+        assertEquals("List item clicked", indexToClick, mClickedItemIndex);
+    }
 
     @SmallTest
-    public void testListContent() {
+    public void testSimpleItemsFromRuntimeArray() {
+        final String[] content = new String[] { "Alice", "Bob", "Charlie", "Delta" };
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.alert_dialog_title)
-                .setItems(new String[]{"Alice", "Bob", "Charlie", "Delta"},
+                .setItems(content,
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -148,23 +201,259 @@ public class AlertDialogTest extends ActivityInstrumentationTestCase2<AlertDialo
                         });
         wireBuilder(builder);
 
+        verifySimpleItemsContent(content);
+    }
+
+    @SmallTest
+    public void testSimpleItemsFromResourcesArray() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.alert_dialog_title)
+                .setItems(R.array.alert_dialog_items,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                mClickedItemIndex = which;
+                            }
+                        });
+        wireBuilder(builder);
+
+        verifySimpleItemsContent(
+                getActivity().getResources().getStringArray(R.array.alert_dialog_items));
+    }
+
+    /**
+     * Helper method to verify the state of the multi-choice items list. It gets the String
+     * array of content and verifies that:
+     *
+     * 1. The items in the array are rendered as CheckedTextViews inside a ListView
+     * 2. Each item in the array is displayed
+     * 3. Checked state of each row in the ListView corresponds to the matching entry in the
+     *    passed boolean array
+     */
+    private void verifyMultiChoiceItemsState(String[] expectedContent,
+            boolean[] checkedTracker) {
+        final int expectedCount = expectedContent.length;
+
+        final ListView listView = mAlertDialog.getListView();
+        assertNotNull("List view is shown", listView);
+
+        final ListAdapter listAdapter = listView.getAdapter();
+        assertEquals("List has " + expectedCount + " entries",
+                expectedCount, listAdapter.getCount());
+        for (int i = 0; i < expectedCount; i++) {
+            assertEquals("List entry #" + i, expectedContent[i], listAdapter.getItem(i));
+        }
+
+        for (int i = 0; i < expectedCount; i++) {
+            Matcher checkedStateMatcher = checkedTracker[i] ? TestUtilsMatchers.isCheckedTextView() :
+                    TestUtilsMatchers.isNonCheckedTextView();
+            // Check that the corresponding row is rendered as CheckedTextView with expected
+            // checked state.
+            onData(allOf(is(instanceOf(String.class)), is(expectedContent[i]))).inRoot(isDialog()).
+                    check(matches(allOf(
+                            isDisplayed(),
+                            isAssignableFrom(CheckedTextView.class),
+                            isDescendantOfA(isAssignableFrom(ListView.class)),
+                            checkedStateMatcher)));
+        }
+    }
+
+    private void verifyMultiChoiceItemsContent(String[] expectedContent,
+            final boolean[] checkedTracker) {
+        final int expectedCount = expectedContent.length;
+
+        onView(withId(R.id.test_button)).perform(click());
+
+        final ListView listView = mAlertDialog.getListView();
+        assertNotNull("List view is shown", listView);
+
+        final ListAdapter listAdapter = listView.getAdapter();
+        assertEquals("List has " + expectedCount + " entries",
+                expectedCount, listAdapter.getCount());
+        for (int i = 0; i < expectedCount; i++) {
+            assertEquals("List entry #" + i, expectedContent[i], listAdapter.getItem(i));
+        }
+
+        // Test that all items are showing
+        onView(withText("Dialog title")).inRoot(isDialog()).check(matches(isDisplayed()));
+        verifyMultiChoiceItemsState(expectedContent, checkedTracker);
+
+        // We're going to click item #1 and test that the click listener has been invoked to
+        // update the original state array
+        boolean[] expectedAfterClick1 = checkedTracker.clone();
+        expectedAfterClick1[1] = !expectedAfterClick1[1];
+        onData(allOf(is(instanceOf(String.class)), is(expectedContent[1]))).
+                inRoot(isDialog()).perform(click());
+        verifyMultiChoiceItemsState(expectedContent, expectedAfterClick1);
+
+        // Now click item #1 again and test that the click listener has been invoked to update the
+        // original state array again
+        expectedAfterClick1[1] = !expectedAfterClick1[1];
+        onData(allOf(is(instanceOf(String.class)), is(expectedContent[1]))).
+                inRoot(isDialog()).perform(click());
+        verifyMultiChoiceItemsState(expectedContent, expectedAfterClick1);
+
+        // Now we're going to click the last item and test that the click listener has been invoked
+        // to update the original state array
+        boolean[] expectedAfterClickLast = checkedTracker.clone();
+        expectedAfterClickLast[expectedCount - 1] = !expectedAfterClickLast[expectedCount - 1];
+        onData(allOf(is(instanceOf(String.class)), is(expectedContent[expectedCount - 1]))).
+                inRoot(isDialog()).perform(click());
+        verifyMultiChoiceItemsState(expectedContent, expectedAfterClickLast);
+    }
+
+    @SmallTest
+    public void testMultiChoiceItemsFromRuntimeArray() {
+        final String[] content = new String[] { "Alice", "Bob", "Charlie", "Delta" };
+        final boolean[] checkedTracker = new boolean[] { false, true, false, false };
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.alert_dialog_title)
+                .setMultiChoiceItems(
+                        content, checkedTracker,
+                        new DialogInterface.OnMultiChoiceClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which,
+                                    boolean isChecked) {
+                                checkedTracker[which] = isChecked;
+                            }
+                        });
+        wireBuilder(builder);
+
+        // Pass the same boolean[] array as used for initialization since our click listener
+        // will be updating its content.
+        verifyMultiChoiceItemsContent(content, checkedTracker);
+    }
+
+    @SmallTest
+    public void testMultiChoiceItemsFromResourcesArray() {
+        final boolean[] checkedTracker = new boolean[] { true, false, true, false };
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.alert_dialog_title)
+                .setMultiChoiceItems(R.array.alert_dialog_items, checkedTracker,
+                        new DialogInterface.OnMultiChoiceClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which,
+                                    boolean isChecked) {
+                                checkedTracker[which] = isChecked;
+                            }
+                        });
+        wireBuilder(builder);
+
+        verifyMultiChoiceItemsContent(
+                getActivity().getResources().getStringArray(R.array.alert_dialog_items),
+                checkedTracker);
+    }
+
+    /**
+     * Helper method to verify the state of the single-choice items list. It gets the String
+     * array of content and verifies that:
+     *
+     * 1. The items in the array are rendered as CheckedTextViews inside a ListView
+     * 2. Each item in the array is displayed
+     * 3. Only one row in the ListView is checked, and that corresponds to the passed
+     *    integer index.
+     */
+    private void verifySingleChoiceItemsState(String[] expectedContent,
+            int currentlyExpectedSelectionIndex) {
+        final int expectedCount = expectedContent.length;
+
+        final ListView listView = mAlertDialog.getListView();
+        assertNotNull("List view is shown", listView);
+
+        final ListAdapter listAdapter = listView.getAdapter();
+        assertEquals("List has " + expectedCount + " entries",
+                expectedCount, listAdapter.getCount());
+        for (int i = 0; i < expectedCount; i++) {
+            assertEquals("List entry #" + i, expectedContent[i], listAdapter.getItem(i));
+        }
+
+        for (int i = 0; i < expectedCount; i++) {
+            Matcher checkedStateMatcher = (i == currentlyExpectedSelectionIndex) ?
+                    TestUtilsMatchers.isCheckedTextView() :
+                    TestUtilsMatchers.isNonCheckedTextView();
+            // Check that the corresponding row is rendered as CheckedTextView with expected
+            // checked state.
+            onData(allOf(is(instanceOf(String.class)), is(expectedContent[i]))).inRoot(isDialog()).
+                    check(matches(allOf(
+                            isDisplayed(),
+                            isAssignableFrom(CheckedTextView.class),
+                            isDescendantOfA(isAssignableFrom(ListView.class)),
+                            checkedStateMatcher)));
+        }
+    }
+
+    private void verifySingleChoiceItemsContent(String[] expectedContent,
+            int initialSelectionIndex) {
+        final int expectedCount = expectedContent.length;
+        int currentlyExpectedSelectionIndex = initialSelectionIndex;
+
         onView(withId(R.id.test_button)).perform(click());
 
         // Test that all items are showing
         onView(withText("Dialog title")).inRoot(isDialog()).check(matches(isDisplayed()));
-        onData(allOf(is(instanceOf(String.class)), is("Alice"))).inRoot(isDialog()).
-                check(matches(isDisplayed()));
-        onData(allOf(is(instanceOf(String.class)), is("Bob"))).inRoot(isDialog()).
-                check(matches(isDisplayed()));
-        onData(allOf(is(instanceOf(String.class)), is("Charlie"))).inRoot(isDialog()).
-                check(matches(isDisplayed()));
-        onData(allOf(is(instanceOf(String.class)), is("Delta"))).inRoot(isDialog()).
-                check(matches(isDisplayed()));
+        verifySingleChoiceItemsState(expectedContent, currentlyExpectedSelectionIndex);
 
-        // Test that a click on an item invokes the registered listener
-        onData(allOf(is(instanceOf(String.class)), is("Charlie"))).inRoot(isDialog()).
-                perform(click());
-        assertEquals("List item clicked", 2, mClickedItemIndex);
+        // We're going to click the first unselected item and test that the click listener has
+        // been invoked.
+        currentlyExpectedSelectionIndex = (currentlyExpectedSelectionIndex == 0) ? 1 : 0;
+        onData(allOf(is(instanceOf(String.class)),
+                is(expectedContent[currentlyExpectedSelectionIndex]))).
+                    inRoot(isDialog()).perform(click());
+        assertEquals("Selected first single-choice item",
+                currentlyExpectedSelectionIndex, mClickedItemIndex);
+        verifySingleChoiceItemsState(expectedContent, currentlyExpectedSelectionIndex);
+
+        // Now click the same item again and test that the selection has not changed
+        onData(allOf(is(instanceOf(String.class)),
+                is(expectedContent[currentlyExpectedSelectionIndex]))).
+                inRoot(isDialog()).perform(click());
+        assertEquals("Selected first single-choice item again",
+                currentlyExpectedSelectionIndex, mClickedItemIndex);
+        verifySingleChoiceItemsState(expectedContent, currentlyExpectedSelectionIndex);
+
+        // Now we're going to click the last item and test that the click listener has been invoked
+        // to update the original state array
+        currentlyExpectedSelectionIndex = expectedCount - 1;
+        onData(allOf(is(instanceOf(String.class)),
+                is(expectedContent[currentlyExpectedSelectionIndex]))).
+                inRoot(isDialog()).perform(click());
+        assertEquals("Selected last single-choice item",
+                currentlyExpectedSelectionIndex, mClickedItemIndex);
+        verifySingleChoiceItemsState(expectedContent, currentlyExpectedSelectionIndex);
+    }
+
+    @SmallTest
+    public void testSingleChoiceItemsFromRuntimeArray() {
+        final String[] content = new String[] { "Alice", "Bob", "Charlie", "Delta" };
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.alert_dialog_title)
+                .setSingleChoiceItems(
+                        content, 2,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                mClickedItemIndex = which;
+                            }
+                        });
+        wireBuilder(builder);
+
+        verifySingleChoiceItemsContent(content, 2);
+    }
+
+    @SmallTest
+    public void testSingleChoiceItemsFromResourcesArray() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.alert_dialog_title)
+                .setSingleChoiceItems(R.array.alert_dialog_items, 1,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                mClickedItemIndex = which;
+                            }
+                        });
+        wireBuilder(builder);
+
+        verifySingleChoiceItemsContent(new String[] { "Albania", "Belize", "Chad", "Djibouti" }, 1);
     }
 
     @SmallTest

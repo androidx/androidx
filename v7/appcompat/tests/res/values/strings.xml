@@ -28,4 +28,10 @@
     <string name="alert_dialog_show">Show alert dialog</string>
     <string name="alert_dialog_title">Dialog title</string>
     <string name="alert_dialog_content">Dialog content</string>
+    <string-array name="alert_dialog_items">
+        <item>Albania</item>
+        <item>Belize</item>
+        <item>Chad</item>
+        <item>Djibouti</item>
+    </string-array>
 </resources>
