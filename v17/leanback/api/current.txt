@@ -94,7 +94,6 @@ package android.support.v17.leanback.app {
     method public android.support.v17.leanback.widget.OnItemViewSelectedListener getOnItemViewSelectedListener();
     method public android.support.v17.leanback.app.RowsSupportFragment getRowsSupportFragment();
     method public int getSelectedPosition();
-    method public android.support.v17.leanback.widget.RowPresenter.ViewHolder getSelectedRowViewHolder();
     method public final boolean isHeadersTransitionOnBackEnabled();
     method public boolean isInHeadersTransition();
     method public boolean isShowingHeaders();
@@ -560,7 +559,6 @@ package android.support.v17.leanback.app {
     method public android.support.v17.leanback.widget.OnItemViewClickedListener getOnItemViewClickedListener();
     method public android.support.v17.leanback.widget.OnItemViewSelectedListener getOnItemViewSelectedListener();
     method public android.support.v17.leanback.widget.RowPresenter.ViewHolder getRowViewHolder(int);
-    method public android.support.v17.leanback.widget.RowPresenter.ViewHolder getSelectedRowViewHolder();
     method public void setExpand(boolean);
     method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.OnItemViewClickedListener);
     method public void setOnItemViewSelectedListener(android.support.v17.leanback.widget.OnItemViewSelectedListener);
