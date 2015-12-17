@@ -23,6 +23,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.DrawableContainer;
+import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.InsetDrawable;
 import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.StateListDrawable;
@@ -179,14 +180,12 @@ public final class AppCompatDrawableManager {
         Drawable drawable = ContextCompat.getDrawable(context, resId);
 
         if (drawable != null) {
-            if (Build.VERSION.SDK_INT >= 8) {
-                // Mutate can cause NPEs on 2.1
-                drawable = drawable.mutate();
-            }
-
             final ColorStateList tintList = getTintList(context, resId);
             if (tintList != null) {
-                // First wrap the Drawable and set the tint list
+                // First mutate the Drawable, then wrap it and set the tint list
+                if (shouldMutateDrawable(drawable)) {
+                    drawable = drawable.mutate();
+                }
                 drawable = DrawableCompat.wrap(drawable);
                 DrawableCompat.setTintList(drawable, tintList);
 
@@ -254,6 +253,10 @@ public final class AppCompatDrawableManager {
         }
 
         if (colorAttrSet) {
+            if (shouldMutateDrawable(drawable)) {
+                drawable = drawable.mutate();
+            }
+
             final int color = getThemeAttrColor(context, colorAttr);
             drawable.setColorFilter(getPorterDuffColorFilter(color, tintMode));
 
@@ -618,7 +621,7 @@ public final class AppCompatDrawableManager {
     }
 
     public static void tintDrawable(Drawable drawable, TintInfo tint, int[] state) {
-        if (shouldMutateBackground(drawable) && drawable.mutate() != drawable) {
+        if (shouldMutateDrawable(drawable) && drawable.mutate() != drawable) {
             Log.d(TAG, "Mutated drawable is not the same instance as the input.");
             return;
         }
@@ -639,7 +642,7 @@ public final class AppCompatDrawableManager {
         }
     }
 
-    private static boolean shouldMutateBackground(Drawable drawable) {
+    private static boolean shouldMutateDrawable(@NonNull Drawable drawable) {
         if (drawable instanceof LayerDrawable) {
             return Build.VERSION.SDK_INT >= 16;
         } else if (drawable instanceof InsetDrawable) {
@@ -647,6 +650,10 @@ public final class AppCompatDrawableManager {
         } else if (drawable instanceof StateListDrawable) {
             // StateListDrawable has a bug in mutate() on API 7
             return Build.VERSION.SDK_INT >= 8;
+        } else if (drawable instanceof GradientDrawable) {
+            // GradientDrawable has a bug pre-ICS which results in mutate() resulting
+            // in loss of color
+            return Build.VERSION.SDK_INT >= 14;
         } else if (drawable instanceof DrawableContainer) {
             // If we have a DrawableContainer, let's traverse it's child array
             final Drawable.ConstantState state = drawable.getConstantState();
@@ -654,7 +661,7 @@ public final class AppCompatDrawableManager {
                 final DrawableContainer.DrawableContainerState containerState =
                         (DrawableContainer.DrawableContainerState) state;
                 for (Drawable child : containerState.getChildren()) {
-                    if (!shouldMutateBackground(child)) {
+                    if (!shouldMutateDrawable(child)) {
                         return false;
                     }
                 }
@@ -686,6 +693,9 @@ public final class AppCompatDrawableManager {
     }
 
     private static void setPorterDuffColorFilter(Drawable d, int color, PorterDuff.Mode mode) {
+        if (shouldMutateDrawable(d)) {
+            d = d.mutate();
+        }
         d.setColorFilter(getPorterDuffColorFilter(color, mode == null ? DEFAULT_MODE : mode));
     }
 }
