@@ -14,10 +14,12 @@
      limitations under the License.
 -->
 
-<resources>
-    <color name="drawer_sample_metal_blue">#FF505080</color>
-
-    <color name="test_red">#FF6030</color>
-    <color name="test_green">#50E080</color>
-    <color name="test_blue">#3050CF</color>
-</resources>
+<shape
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <size
+        android:width="@dimen/drawable_medium_size"
+        android:height="@dimen/drawable_large_size" />
+    <solid
+        android:color="@color/test_green" />
+</shape>
