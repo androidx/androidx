@@ -21,14 +21,24 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.FloatRange;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
+import android.util.TypedValue;
 
 /**
  * A set of color-related utility methods, building upon those available in {@code Color}.
  */
 public final class ColorUtils {
 
+    private static final double XYZ_WHITE_REFERENCE_X = 95.047;
+    private static final double XYZ_WHITE_REFERENCE_Y = 100;
+    private static final double XYZ_WHITE_REFERENCE_Z = 108.883;
+    private static final double XYZ_EPSILON = 0.008856;
+    private static final double XYZ_KAPPA = 903.3;
+
     private static final int MIN_ALPHA_SEARCH_MAX_ITERATIONS = 10;
     private static final int MIN_ALPHA_SEARCH_PRECISION = 1;
+
+    private static final ThreadLocal<double[]> TEMP_ARRAY = new ThreadLocal<>();
 
     private ColorUtils() {}
 
@@ -60,24 +70,19 @@ public final class ColorUtils {
     }
 
     /**
-     * Returns the luminance of a color.
-     * <p>
-     * Formula defined
-     * <a href="http://www.w3.org/TR/2008/REC-WCAG20-20081211/#relativeluminancedef">here</a>.
-     * </p>
+     * Returns the luminance of a color as a float between {@code 0.0} and {@code 1.0}.
+     * <p>Defined as the Y component in the XYZ representation of {@code color}.</p>
      */
     @FloatRange(from = 0.0, to = 1.0)
     public static double calculateLuminance(@ColorInt int color) {
-        double red = Color.red(color) / 255d;
-        red = red < 0.03928 ? red / 12.92 : Math.pow((red + 0.055) / 1.055, 2.4);
-
-        double green = Color.green(color) / 255d;
-        green = green < 0.03928 ? green / 12.92 : Math.pow((green + 0.055) / 1.055, 2.4);
-
-        double blue = Color.blue(color) / 255d;
-        blue = blue < 0.03928 ? blue / 12.92 : Math.pow((blue + 0.055) / 1.055, 2.4);
-
-        return (0.2126 * red) + (0.7152 * green) + (0.0722 * blue);
+        double[] result = TEMP_ARRAY.get();
+        if (result == null) {
+            result = new double[3];
+            TEMP_ARRAY.set(result);
+        }
+        colorToXYZ(color, result);
+        // Luminance is the Y component
+        return result[1] / 100;
     }
 
     /**
@@ -300,12 +305,303 @@ public final class ColorUtils {
         return (color & 0x00ffffff) | (alpha << 24);
     }
 
+    /**
+     * Convert the ARGB color to its CIE Lab representative components.
+     *
+     * @param color the ARGB color to convert. The alpha component is ignored.
+     * @param result 3 element array which holds the resulting LAB components.
+     */
+    public static void colorToLAB(@ColorInt int color, @NonNull double[] result) {
+        RGBToLAB(Color.red(color), Color.green(color), Color.blue(color), result);
+    }
+
+    /**
+     * Convert RGB components to its CIE Lab representative components.
+     *
+     * <ul>
+     * <li>result[0] is L [0 ...1)</li>
+     * <li>result[1] is a [-128...127)</li>
+     * <li>result[2] is b [-128...127)</li>
+     * </ul>
+     *
+     * @param r   red component value [0..255)
+     * @param g   green component value [0..255)
+     * @param b   blue component value [0..255)
+     * @param result 3 element array which holds the resulting LAB components.
+     */
+    public static void RGBToLAB(@IntRange(from = 0x0, to = 0xFF) int r,
+            @IntRange(from = 0x0, to = 0xFF) int g, @IntRange(from = 0x0, to = 0xFF) int b,
+            @NonNull double[] result) {
+        // First we convert RGB to XYZ
+        RGBToXYZ(r, g, b, result);
+        // result now contains XYZ
+        XYZToLAB(result[0], result[1], result[2], result);
+        // result now contains LAB representation
+    }
+
+    /**
+     * Convert the ARGB color to it's CIE XYZ representative components.
+     *
+     * <p>The resulting XYZ representation will use the D65 illuminant and the CIE
+     * 2° Standard Observer (1931).</p>
+     *
+     * <ul>
+     * <li>result[0] is X [0 ...95.047)</li>
+     * <li>result[1] is Y [0...100)</li>
+     * <li>result[2] is Z [0...108.883)</li>
+     * </ul>
+     *
+     * @param color the ARGB color to convert. The alpha component is ignored.
+     * @param result 3 element array which holds the resulting LAB components.
+     */
+    public static void colorToXYZ(@ColorInt int color, @NonNull double[] result) {
+        RGBToXYZ(Color.red(color), Color.green(color), Color.blue(color), result);
+    }
+
+    /**
+     * Convert RGB components to it's CIE XYZ representative components.
+     *
+     * <p>The resulting XYZ representation will use the D65 illuminant and the CIE
+     * 2° Standard Observer (1931).</p>
+     *
+     * <ul>
+     * <li>result[0] is X [0 ...95.047)</li>
+     * <li>result[1] is Y [0...100)</li>
+     * <li>result[2] is Z [0...108.883)</li>
+     * </ul>
+     *
+     * @param r   red component value [0..255)
+     * @param g   green component value [0..255)
+     * @param b   blue component value [0..255)
+     * @param result 3 element array which holds the resulting XYZ components.
+     */
+    public static void RGBToXYZ(@IntRange(from = 0x0, to = 0xFF) int r,
+            @IntRange(from = 0x0, to = 0xFF) int g, @IntRange(from = 0x0, to = 0xFF) int b,
+            @NonNull double[] result) {
+        if (result.length != 3) {
+            throw new IllegalArgumentException("result must have a length of 3.");
+        }
+
+        double sr = r / 255.0;
+        sr = sr < 0.04045 ? sr / 12.92 : Math.pow((sr + 0.055) / 1.055, 2.4);
+        double sg = g / 255.0;
+        sg = sg < 0.04045 ? sg / 12.92 : Math.pow((sg + 0.055) / 1.055, 2.4);
+        double sb = b / 255.0;
+        sb = sb < 0.04045 ? sb / 12.92 : Math.pow((sb + 0.055) / 1.055, 2.4);
+
+        result[0] = 100 * (sr * 0.4124 + sg * 0.3576 + sb * 0.1805);
+        result[1] = 100 * (sr * 0.2126 + sg * 0.7152 + sb * 0.0722);
+        result[2] = 100 * (sr * 0.0193 + sg * 0.1192 + sb * 0.9505);
+    }
+
+    /**
+     * Converts a color from CIE XYZ to CIE Lab representation.
+     *
+     * <p>This method expects the XYZ representation to use the D65 illuminant and the CIE
+     * 2° Standard Observer (1931).</p>
+     *
+     * <ul>
+     * <li>result[0] is L [0 ...1)</li>
+     * <li>result[1] is a [-128...127)</li>
+     * <li>result[2] is b [-128...127)</li>
+     * </ul>
+     *
+     * @param x X component value [0...95.047)
+     * @param y Y component value [0...100)
+     * @param z Z component value [0...108.883)
+     * @param result 3 element array which holds the resulting Lab components.
+     */
+    public static void XYZToLAB(@FloatRange(from = 0f, to = XYZ_WHITE_REFERENCE_X) double x,
+            @FloatRange(from = 0f, to = XYZ_WHITE_REFERENCE_Y) double y,
+            @FloatRange(from = 0f, to = XYZ_WHITE_REFERENCE_Z) double z,
+            @NonNull double[] result) {
+        if (result.length != 3) {
+            throw new IllegalArgumentException("result must have a length of 3.");
+        }
+        x = pivotXyzComponent(x / XYZ_WHITE_REFERENCE_X);
+        y = pivotXyzComponent(y / XYZ_WHITE_REFERENCE_Y);
+        z = pivotXyzComponent(z / XYZ_WHITE_REFERENCE_Z);
+        result[0] = Math.max(0, 116 * y - 16);
+        result[1] = 500 * (x - y);
+        result[2] = 200 * (y - z);
+    }
+
+    /**
+     * Converts a color from CIE Lab to CIE XYZ representation.
+     *
+     * <p>The resulting XYZ representation will use the D65 illuminant and the CIE
+     * 2° Standard Observer (1931).</p>
+     *
+     * <ul>
+     * <li>result[0] is X [0 ...95.047)</li>
+     * <li>result[1] is Y [0...100)</li>
+     * <li>result[2] is Z [0...108.883)</li>
+     * </ul>
+     *
+     * @param l L component value [0...100)
+     * @param a A component value [-128...127)
+     * @param b B component value [-128...127)
+     * @param result 3 element array which holds the resulting XYZ components.
+     */
+    public static void LABToXYZ(@FloatRange(from = 0f, to = 100) final double l,
+            @FloatRange(from = -128, to = 127) final double a,
+            @FloatRange(from = -128, to = 127) final double b,
+            @NonNull double[] result) {
+        final double fy = (l + 16) / 116;
+        final double fx = a / 500 + fy;
+        final double fz = fy - b / 200;
+
+        double tmp = Math.pow(fx, 3);
+        final double xr = tmp > XYZ_EPSILON ? tmp : (116 * fx - 16) / XYZ_KAPPA;
+        final double yr = l > XYZ_KAPPA * XYZ_EPSILON ? Math.pow(fy, 3) : l / XYZ_KAPPA;
+
+        tmp = Math.pow(fz, 3);
+        final double zr = tmp > XYZ_EPSILON ? tmp : (116 * fz - 16) / XYZ_KAPPA;
+
+        result[0] = xr * XYZ_WHITE_REFERENCE_X;
+        result[1] = yr * XYZ_WHITE_REFERENCE_Y;
+        result[2] = zr * XYZ_WHITE_REFERENCE_Z;
+    }
+
+    /**
+     * Converts a color from CIE XYZ to its RGB representation.
+     *
+     * <p>This method expects the XYZ representation to use the D65 illuminant and the CIE
+     * 2° Standard Observer (1931).</p>
+     *
+     * @param x X component value [0...95.047)
+     * @param y Y component value [0...100)
+     * @param z Z component value [0...108.883)
+     * @return int containing the RGB representation
+     */
+    @ColorInt
+    public static int XYZToColor(@FloatRange(from = 0f, to = XYZ_WHITE_REFERENCE_X) double x,
+            @FloatRange(from = 0f, to = XYZ_WHITE_REFERENCE_Y) double y,
+            @FloatRange(from = 0f, to = XYZ_WHITE_REFERENCE_Z) double z) {
+        double r = (x * 3.2406 + y * -1.5372 + z * -0.4986) / 100;
+        double g = (x * -0.9689 + y * 1.8758 + z * 0.0415) / 100;
+        double b = (x * 0.0557 + y * -0.2040 + z * 1.0570) / 100;
+
+        r = r > 0.0031308 ? 1.055 * Math.pow(r, 1 / 2.4) - 0.055 : 12.92 * r;
+        g = g > 0.0031308 ? 1.055 * Math.pow(g, 1 / 2.4) - 0.055 : 12.92 * g;
+        b = b > 0.0031308 ? 1.055 * Math.pow(b, 1 / 2.4) - 0.055 : 12.92 * b;
+
+        return Color.rgb(
+                constrain((int) Math.round(r * 255), 0, 255),
+                constrain((int) Math.round(g * 255), 0, 255),
+                constrain((int) Math.round(b * 255), 0, 255));
+    }
+
+    /**
+     * Converts a color from CIE Lab to its RGB representation.
+     *
+     * @param l L component value [0...100)
+     * @param a A component value [-128...127)
+     * @param b B component value [-128...127)
+     * @return int containing the RGB representation
+     */
+    @ColorInt
+    public static int LABToColor(@FloatRange(from = 0f, to = 100) final double l,
+            @FloatRange(from = -128, to = 127) final double a,
+            @FloatRange(from = -128, to = 127) final double b) {
+        final double[] result = new double[3];
+        LABToXYZ(l, a, b, result);
+        return XYZToColor(result[0], result[1], result[2]);
+    }
+
+    /**
+     * Returns the euclidean distance between two LAB colors.
+     */
+    public static double distanceEuclidean(@NonNull double[] labX, @NonNull double[] labY) {
+        return Math.sqrt(Math.pow(labX[0] - labY[0], 2)
+                + Math.pow(labX[1] - labY[1], 2)
+                + Math.pow(labX[2] - labY[2], 2));
+    }
+
     private static float constrain(float amount, float low, float high) {
         return amount < low ? low : (amount > high ? high : amount);
     }
 
     private static int constrain(int amount, int low, int high) {
         return amount < low ? low : (amount > high ? high : amount);
+    }
+
+    private static double pivotXyzComponent(double component) {
+        return component > XYZ_EPSILON
+                ? Math.pow(component, 1 / 3.0)
+                : (XYZ_KAPPA * component + 16) / 116;
+    }
+
+    /**
+     * Blend between two ARGB colors using the given ratio.
+     *
+     * @param ratio of which to blend. 0.0 will return {@code color1}, 0.5 will give an even blend,
+     *              1.0 will return {@code color2}.
+     */
+    @ColorInt
+    public static int blendARGB(@ColorInt int color1, @ColorInt int color2,
+            @FloatRange(from = 0.0, to = 1.0) float ratio) {
+        final float inverseRatio = 1 - ratio;
+        float a = Color.alpha(color1) * inverseRatio + Color.alpha(color2) * ratio;
+        float r = Color.red(color1) * inverseRatio + Color.red(color2) * ratio;
+        float g = Color.green(color1) * inverseRatio + Color.green(color2) * ratio;
+        float b = Color.blue(color1) * inverseRatio + Color.blue(color2) * ratio;
+        return Color.argb((int) a, (int) r, (int) g, (int) b);
+    }
+
+    /**
+     * Blend between {@code hsl1} and {@code hsl2} using the given ratio. This will interpolate
+     * the hue using the shortest angle.
+     *
+     * @param hsl1 3 element array which holds the first HSL color.
+     * @param hsl2 3 element array which holds the second HSL color.
+     * @param result 3 element array which holds the resulting HSL components.
+     * @param ratio of which to blend. 0.0 will result in {@code hsl1},
+     *              0.5 will give an even blend, 1.0 will return {@code hsl2}.
+     */
+    public static void blendHSL(@NonNull float[] hsl1, @NonNull float[] hsl2,
+            @NonNull float[] result, @FloatRange(from = 0.0, to = 1.0) float ratio) {
+        if (result.length != 3) {
+            throw new IllegalArgumentException("result must have a length of 3.");
+        }
+        final float inverseRatio = 1 - ratio;
+        // Since hue is circular we will need to interpolate carefully
+        result[0] = circularInterpolate(hsl1[0], hsl2[0], ratio);
+        result[1] = hsl1[1] * inverseRatio + hsl2[1] * ratio;
+        result[2] = hsl1[2] * inverseRatio + hsl2[2] * ratio;
+    }
+
+    /**
+     * Blend between two CIE-LAB colors using the given ratio.
+     *
+     * @param lab1 3 element array which holds the first LAB color.
+     * @param lab2 3 element array which holds the second LAB color.
+     * @param result 3 element array which holds the resulting LAB components.
+     * @param ratio of which to blend. 0.0 will result in {@code lab1}, 0.5 will give an even blend,
+     *              1.0 will return {@code lab2}.
+     */
+    public static void blendLAB(@NonNull double[] lab1,
+            @NonNull double[] lab2, @NonNull double[] result,
+            @FloatRange(from = 0.0, to = 1.0) double ratio) {
+        if (result.length != 3) {
+            throw new IllegalArgumentException("result must have a length of 3.");
+        }
+        final double inverseRatio = 1 - ratio;
+        result[0] = lab1[0] * inverseRatio + lab2[0] * ratio;
+        result[1] = lab1[1] * inverseRatio + lab2[1] * ratio;
+        result[2] = lab1[2] * inverseRatio + lab2[2] * ratio;
+    }
+
+    @VisibleForTesting
+    static float circularInterpolate(float a, float b, float f) {
+        if (Math.abs(b - a) > 180) {
+            if (b > a) {
+                a += 360;
+            } else {
+                b += 360;
+            }
+        }
+        return (a + ((b - a) * f)) % 360;
     }
 
 }
