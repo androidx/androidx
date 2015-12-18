@@ -20,6 +20,7 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.support.test.espresso.matcher.BoundedMatcher;
 import android.view.View;
+import android.widget.CheckedTextView;
 import android.widget.ImageView;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -61,6 +62,58 @@ public class TestUtilsMatchers {
                     failedComparisonDescription = t.getMessage();
                     return false;
                 }
+            }
+        };
+    }
+
+    /**
+     * Returns a matcher that matches <code>CheckedTextView</code>s which are in checked state.
+     */
+    public static Matcher isCheckedTextView() {
+        return new BoundedMatcher<View, CheckedTextView>(CheckedTextView.class) {
+            private String failedDescription;
+
+            @Override
+            public void describeTo(final Description description) {
+                description.appendText("checked text view: ");
+
+                description.appendText(failedDescription);
+            }
+
+            @Override
+            public boolean matchesSafely(final CheckedTextView view) {
+                if (view.isChecked()) {
+                    return true;
+                }
+
+                failedDescription = "not checked";
+                return false;
+            }
+        };
+    }
+
+    /**
+     * Returns a matcher that matches <code>CheckedTextView</code>s which are in checked state.
+     */
+    public static Matcher isNonCheckedTextView() {
+        return new BoundedMatcher<View, CheckedTextView>(CheckedTextView.class) {
+            private String failedDescription;
+
+            @Override
+            public void describeTo(final Description description) {
+                description.appendText("non checked text view: ");
+
+                description.appendText(failedDescription);
+            }
+
+            @Override
+            public boolean matchesSafely(final CheckedTextView view) {
+                if (!view.isChecked()) {
+                    return true;
+                }
+
+                failedDescription = "checked";
+                return false;
             }
         };
     }
