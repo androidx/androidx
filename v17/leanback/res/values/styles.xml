@@ -112,6 +112,9 @@
         <item name="infoAreaBackground">@null</item>
     </style>
 
+    <style name="TextAppearance.Leanback.ImageCardView">
+    </style>
+
     <style name="Widget.Leanback.ImageCardView" />
 
     <style name="Widget.Leanback.ImageCardView.ImageStyle">
@@ -134,18 +137,26 @@
         <item name="android:paddingTop">@dimen/lb_basic_card_info_padding_top</item>
         <item name="android:background">@color/lb_basic_card_info_bg_color</item>
     </style>
-	
+
+    <style name="TextAppearance.Leanback.ImageCardView.Title">
+        <item name="android:textColor">@color/lb_basic_card_title_text_color</item>
+        <item name="android:textSize">@dimen/lb_basic_card_title_text_size</item>
+    </style>
+
     <style name="Widget.Leanback.ImageCardView.TitleStyle">
         <item name="android:id">@id/title_text</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:maxLines">1</item>
         <item name="android:layout_marginBottom">@dimen/lb_basic_card_info_text_margin</item>
-        <item name="android:fontFamily">sans-serif-condensed</item>
-        <item name="android:textColor">@color/lb_basic_card_title_text_color</item>
-        <item name="android:textSize">@dimen/lb_basic_card_title_text_size</item>
         <item name="android:textAlignment">viewStart</item>
         <item name="android:ellipsize">end</item>
+        <item name="android:textAppearance">@style/TextAppearance.Leanback.ImageCardView.Title</item>
+    </style>
+
+    <style name="TextAppearance.Leanback.ImageCardView.Content">
+        <item name="android:textColor">@color/lb_basic_card_content_text_color</item>
+        <item name="android:textSize">@dimen/lb_basic_card_content_text_size</item>
     </style>
 
     <style name="Widget.Leanback.ImageCardView.ContentStyle">
@@ -156,11 +167,9 @@
         <item name="android:layout_below">@+id/title_text</item>
         <item name="android:layout_toStartOf">@+id/extra_badge</item>
         <item name="android:maxLines">1</item>
-        <item name="android:fontFamily">sans-serif-condensed</item>
-        <item name="android:textColor">@color/lb_basic_card_content_text_color</item>
-        <item name="android:textSize">@dimen/lb_basic_card_content_text_size</item>
         <item name="android:textAlignment">viewStart</item>
         <item name="android:ellipsize">none</item>
+        <item name="android:textAppearance">@style/TextAppearance.Leanback.ImageCardView.Content</item>
     </style>
 
     <style name="Widget.Leanback.ImageCardView.BadgeStyle">
