@@ -17,12 +17,17 @@
 package android.support.v7.preference;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.EditText;
 
 public class EditTextPreferenceDialogFragmentCompat extends PreferenceDialogFragmentCompat {
 
+    private static final String SAVE_STATE_TEXT = "EditTextPreferenceDialogFragment.text";
+
     private EditText mEditText;
+
+    private CharSequence mText;
 
     public static EditTextPreferenceDialogFragmentCompat newInstance(String key) {
         final EditTextPreferenceDialogFragmentCompat
@@ -31,6 +36,22 @@ public class EditTextPreferenceDialogFragmentCompat extends PreferenceDialogFrag
         b.putString(ARG_KEY, key);
         fragment.setArguments(b);
         return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState == null) {
+            mText = getEditTextPreference().getText();
+        } else {
+            mText = savedInstanceState.getCharSequence(SAVE_STATE_TEXT);
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putCharSequence(SAVE_STATE_TEXT, mText);
     }
 
     @Override
@@ -44,7 +65,7 @@ public class EditTextPreferenceDialogFragmentCompat extends PreferenceDialogFrag
                     " @android:id/edit");
         }
 
-        mEditText.setText(getEditTextPreference().getText());
+        mEditText.setText(mText);
     }
 
     private EditTextPreference getEditTextPreference() {
