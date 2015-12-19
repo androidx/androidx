@@ -381,14 +381,6 @@ public class GuidedActionAdapter extends RecyclerView.Adapter {
 
         private boolean mKeyPressed = false;
 
-        private void playSound(View v, int soundEffect) {
-            if (v.isSoundEffectsEnabled()) {
-                Context ctx = v.getContext();
-                AudioManager manager = (AudioManager)ctx.getSystemService(Context.AUDIO_SERVICE);
-                manager.playSoundEffect(soundEffect);
-            }
-        }
-
         /**
          * Now only handles KEYCODE_ENTER and KEYCODE_NUMPAD_ENTER key event.
          */
@@ -424,7 +416,6 @@ public class GuidedActionAdapter extends RecyclerView.Adapter {
                             }
                             if (!mKeyPressed) {
                                 mKeyPressed = true;
-                                playSound(v, AudioManager.FX_KEY_CLICK);
                                 mStylist.onAnimateItemPressed(avh, mKeyPressed);
                             }
                             break;
