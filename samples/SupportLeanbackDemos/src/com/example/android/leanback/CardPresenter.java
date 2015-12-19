@@ -15,11 +15,13 @@ package com.example.android.leanback;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import com.example.android.leanback.R;
 import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.Presenter;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.ViewGroup;
+import android.view.ContextThemeWrapper;
 import android.view.View.MeasureSpec;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.TextView;
@@ -32,38 +34,56 @@ public class CardPresenter extends Presenter {
     private static final int IMAGE_HEIGHT_DP = 120;
 
     private static Random sRand = new Random();
-    private static int sRowHeight = 0;
-    private static int sExpandedRowHeight = 0;
+    private int mRowHeight = 0;
+    private int mExpandedRowHeight = 0;
 
-    private static void setupRowHeights(Context context) {
-        if (sRowHeight == 0) {
+    private int mCardThemeResId;
+    private Context mContextThemeWrapper;
+
+    public CardPresenter(int cardThemeResId) {
+        mCardThemeResId = cardThemeResId;
+    }
+
+    public CardPresenter() {
+        mCardThemeResId = 0;
+    }
+
+    private void setupRowHeights(Context context) {
+        if (mRowHeight == 0) {
             float density = context.getResources().getDisplayMetrics().density;
             int height = (int) (IMAGE_HEIGHT_DP * density + 0.5f);
 
             ImageCardView v = new ImageCardView(context);
             v.setMainImageDimensions(LayoutParams.WRAP_CONTENT, height);
             v.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
-            sRowHeight = v.getMeasuredHeight();
+            mRowHeight = v.getMeasuredHeight();
             v.setActivated(true);
             v.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
-            sExpandedRowHeight = v.getMeasuredHeight();
+            mExpandedRowHeight = v.getMeasuredHeight();
         }
     }
 
-    public static int getRowHeight(Context context) {
+    public int getRowHeight(Context context) {
         setupRowHeights(context);
-        return sRowHeight;
+        return mRowHeight;
     }
 
-    public static int getExpandedRowHeight(Context context) {
+    public int getExpandedRowHeight(Context context) {
         setupRowHeights(context);
-        return sExpandedRowHeight;
+        return mExpandedRowHeight;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent) {
         Log.d(TAG, "onCreateViewHolder");
-        ImageCardView v = new ImageCardView(parent.getContext());
+        Context context = parent.getContext();
+        if (mCardThemeResId != 0) {
+            if (mContextThemeWrapper == null) {
+                mContextThemeWrapper = new ContextThemeWrapper(context, mCardThemeResId);
+            }
+            context = mContextThemeWrapper;
+        }
+        ImageCardView v = new ImageCardView(context);
         v.setFocusable(true);
         v.setFocusableInTouchMode(true);
         // Randomly makes image view crop as a square or just stretch to original

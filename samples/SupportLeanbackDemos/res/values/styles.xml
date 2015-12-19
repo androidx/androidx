@@ -29,4 +29,22 @@
     <style name="Widget.Example.Leanback.SecondStepGuidanceIconStyle" parent="Widget.Leanback.GuidanceIconStyle">
         <item name="android:padding">24dp</item>
     </style>
+
+    <style name="MyImageCardViewStyle" parent="Widget.Leanback.ImageCardViewStyle">
+        <item name="lbImageCardViewType">Title|Content|IconOnRight</item>
+    </style>
+
+    <style name="MyImageCardViewTitleStyleText" parent="TextAppearance.Leanback.ImageCardView.Title">
+        <item name="android:textColor">@android:color/holo_blue_bright</item>
+    </style>
+
+    <style name="MyImageCardViewTitleStyle" parent="Widget.Leanback.ImageCardView.TitleStyle">
+        <item name="android:textAppearance">@style/MyImageCardViewTitleStyleText</item>
+    </style>
+
+    <style name="MyImageCardViewTheme" parent="Theme.Leanback">
+        <item name="imageCardViewStyle">@style/MyImageCardViewStyle</item>
+        <item name="imageCardViewTitleStyle">@style/MyImageCardViewTitleStyle</item>
+    </style>
+
 </resources>

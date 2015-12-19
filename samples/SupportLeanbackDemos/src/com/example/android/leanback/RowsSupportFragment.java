@@ -75,16 +75,16 @@ public class RowsSupportFragment extends android.support.v17.leanback.app.RowsSu
     private void setupRows() {
         ListRowPresenter lrp = new ListRowPresenter();
 
-        if (USE_FIXED_ROW_HEIGHT) {
-            lrp.setRowHeight(CardPresenter.getRowHeight(getActivity()));
-            lrp.setExpandedRowHeight(CardPresenter.getExpandedRowHeight(getActivity()));
-        }
-
-        mRowsAdapter = new ArrayObjectAdapter(lrp);
-
         // For good performance, it's important to use a single instance of
         // a card presenter for all rows using that presenter.
         final CardPresenter cardPresenter = new CardPresenter();
+
+        if (USE_FIXED_ROW_HEIGHT) {
+            lrp.setRowHeight(cardPresenter.getRowHeight(getActivity()));
+            lrp.setExpandedRowHeight(cardPresenter.getExpandedRowHeight(getActivity()));
+        }
+
+        mRowsAdapter = new ArrayObjectAdapter(lrp);
 
         for (int i = 0; i < NUM_ROWS; ++i) {
             ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
