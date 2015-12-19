@@ -200,6 +200,9 @@ public final class MediaBrowserCompat {
         mImpl.getItem(mediaId, cb);
     }
 
+    /**
+     * A class with information on a single media item for use in browsing media.
+     */
     public static class MediaItem implements Parcelable {
         private final int mFlags;
         private final MediaDescriptionCompat mDescription;

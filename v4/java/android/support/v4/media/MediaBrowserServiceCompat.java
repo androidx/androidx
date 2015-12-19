@@ -794,7 +794,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
         }
 
         /**
-         * Gets any extras about the brwoser service.
+         * Gets any extras about the browser service.
          */
         public Bundle getExtras() {
             return mExtras;
