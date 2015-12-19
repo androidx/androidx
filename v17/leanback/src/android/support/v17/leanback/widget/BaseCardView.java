@@ -148,10 +148,11 @@ public class BaseCardView extends FrameLayout {
         this(context, attrs, R.attr.baseCardViewStyle);
     }
 
-    public BaseCardView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
+    public BaseCardView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
 
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbBaseCardView, defStyle, 0);
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbBaseCardView,
+                defStyleAttr, 0);
 
         try {
             mCardType = a.getInteger(R.styleable.lbBaseCardView_cardType, CARD_TYPE_MAIN_ONLY);
