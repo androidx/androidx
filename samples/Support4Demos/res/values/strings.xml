@@ -172,7 +172,9 @@
     <string name="content_loading_progress_bar">Widget/Content Loading Progress Bar</string>
 
     <!--  Swipe refresh -->
-    <string name="swipe">Widget/SwipeRefreshLayout</string>
+    <string name="swipe_list">Widget/SwipeRefreshLayout ListView</string>
+    <string name="swipe_text">Widget/SwipeRefreshLayout TextView</string>
+    <string name="swipe_nested_sv">Widget/SwipeRefreshLayout NestedScrollView</string>
 
     <string name="nested_scroll">Widget/Nested Scrolling</string>
 
