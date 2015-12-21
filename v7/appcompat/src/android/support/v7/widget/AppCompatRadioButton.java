@@ -55,7 +55,7 @@ public class AppCompatRadioButton extends RadioButton implements TintableCompoun
     }
 
     public AppCompatRadioButton(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+        super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
         mDrawableManager = AppCompatDrawableManager.get();
         mCompoundButtonHelper = new AppCompatCompoundButtonHelper(this, mDrawableManager);
         mCompoundButtonHelper.loadFromAttributes(attrs, defStyleAttr);

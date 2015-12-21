@@ -16,8 +16,12 @@
 
 package android.support.v7.widget;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
@@ -31,15 +35,20 @@ import android.os.Build;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.ColorUtils;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v4.util.ArrayMap;
 import android.support.v4.util.LruCache;
 import android.support.v7.appcompat.R;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
+import android.util.TypedValue;
+import android.util.Xml;
 
-import java.util.ArrayList;
+import java.lang.reflect.Type;
 import java.util.WeakHashMap;
 
 import static android.support.v7.widget.ColorStateListUtils.getColorStateList;
@@ -53,27 +62,34 @@ import static android.support.v7.widget.ThemeUtils.getThemeAttrColorStateList;
 public final class AppCompatDrawableManager {
 
     public interface InflateDelegate {
-        /**
-         * Allows custom inflation of a drawable resource.
-         *
-         * @param context Context to inflate/create with
-         * @param resId Resource ID of the drawable
-         * @return the created drawable, or {@code null} to leave inflation to
-         * AppCompatDrawableManager.
-         */
-        @Nullable
-        Drawable onInflateDrawable(@NonNull Context context, @DrawableRes int resId);
+        Drawable createFromXmlInner(@NonNull Resources r, @NonNull XmlPullParser parser,
+                @NonNull AttributeSet attrs, @Nullable Resources.Theme theme);
     }
+
+    private static final InflateDelegate VDC_DELEGATE = new InflateDelegate() {
+        @Override
+        public Drawable createFromXmlInner(@NonNull Resources r, @NonNull XmlPullParser parser,
+                @NonNull AttributeSet attrs, @Nullable Resources.Theme theme) {
+            try {
+                return VectorDrawableCompat.createFromXmlInner(r, parser, attrs, theme);
+            } catch (Exception e) {
+                Log.e("VdcInflateDelegate", "Exception while inflating <vector>", e);
+                return null;
+            }
+        }
+    };
 
     private static final String TAG = "TintManager";
     private static final boolean DEBUG = false;
     private static final PorterDuff.Mode DEFAULT_MODE = PorterDuff.Mode.SRC_IN;
+    private static final String SKIP_DRAWABLE_TAG = "appcompat_skip_skip";
 
     private static AppCompatDrawableManager INSTANCE;
 
     public static AppCompatDrawableManager get() {
         if (INSTANCE == null) {
             INSTANCE = new AppCompatDrawableManager();
+            INSTANCE.addDelegate("vector", VDC_DELEGATE);
         }
         return INSTANCE;
     }
@@ -95,18 +111,8 @@ public final class AppCompatDrawableManager {
      * {@link DrawableCompat}'s tinting functionality.
      */
     private static final int[] TINT_COLOR_CONTROL_NORMAL = {
-            R.drawable.abc_ic_ab_back_mtrl_am_alpha,
-            R.drawable.abc_ic_go_search_api_mtrl_alpha,
             R.drawable.abc_ic_search_api_mtrl_alpha,
             R.drawable.abc_ic_commit_search_api_mtrl_alpha,
-            R.drawable.abc_ic_clear_mtrl_alpha,
-            R.drawable.abc_ic_menu_share_mtrl_alpha,
-            R.drawable.abc_ic_menu_copy_mtrl_am_alpha,
-            R.drawable.abc_ic_menu_cut_mtrl_alpha,
-            R.drawable.abc_ic_menu_selectall_mtrl_alpha,
-            R.drawable.abc_ic_menu_paste_mtrl_am_alpha,
-            R.drawable.abc_ic_menu_moreoverflow_mtrl_alpha,
-            R.drawable.abc_ic_voice_search_api_mtrl_alpha
     };
 
     /**
@@ -135,16 +141,9 @@ public final class AppCompatDrawableManager {
      * {@code R.attr.colorControlNormal} and {@code R.attr.colorControlActivated}
      */
     private static final int[] TINT_COLOR_CONTROL_STATE_LIST = {
-            R.drawable.abc_edit_text_material,
             R.drawable.abc_tab_indicator_material,
             R.drawable.abc_textfield_search_material,
-            R.drawable.abc_spinner_mtrl_am_alpha,
-            R.drawable.abc_spinner_textfield_background_material,
-            R.drawable.abc_ratingbar_full_material,
-            R.drawable.abc_switch_track_mtrl_alpha,
-            R.drawable.abc_switch_thumb_material,
-            R.drawable.abc_btn_default_mtrl_shape,
-            R.drawable.abc_btn_borderless_material
+            R.drawable.abc_ratingbar_full_material
     };
 
     /**
@@ -158,7 +157,10 @@ public final class AppCompatDrawableManager {
     };
 
     private WeakHashMap<Context, SparseArray<ColorStateList>> mTintLists;
-    private ArrayList<InflateDelegate> mDelegates;
+    private ArrayMap<String, InflateDelegate> mDelegates;
+    private SparseArray<String> mKnownDrawableIdTags;
+
+    private TypedValue mTypedValue;
 
     public Drawable getDrawable(@NonNull Context context, @DrawableRes int resId) {
         return getDrawable(context, resId, false);
@@ -166,71 +168,145 @@ public final class AppCompatDrawableManager {
 
     public Drawable getDrawable(@NonNull Context context, @DrawableRes int resId,
             boolean failIfNotKnown) {
-        // Let the InflateDelegates have a go first
-        if (mDelegates != null) {
-            for (int i = 0, count = mDelegates.size(); i < count; i++) {
-                final InflateDelegate delegate = mDelegates.get(i);
-                final Drawable result = delegate.onInflateDrawable(context, resId);
-                if (result != null) {
-                    return result;
-                }
-            }
+        Drawable drawable = loadDrawableFromDelegates(context, resId);
+        if (drawable == null) {
+            drawable = ContextCompat.getDrawable(context, resId);
         }
-
-        // The delegates failed so we'll carry on
-        Drawable drawable = ContextCompat.getDrawable(context, resId);
-
         if (drawable != null) {
-            final ColorStateList tintList = getTintList(context, resId);
-            if (tintList != null) {
-                // First mutate the Drawable, then wrap it and set the tint list
-                if (shouldMutateDrawable(drawable)) {
-                    drawable = drawable.mutate();
-                }
-                drawable = DrawableCompat.wrap(drawable);
-                DrawableCompat.setTintList(drawable, tintList);
+            return tintDrawable(context, resId, failIfNotKnown, drawable);
+        }
+        return null;
+    }
 
-                // If there is a blending mode specified for the drawable, use it
-                final PorterDuff.Mode tintMode = getTintMode(resId);
-                if (tintMode != null) {
-                    DrawableCompat.setTintMode(drawable, tintMode);
-                }
-            } else if (resId == R.drawable.abc_cab_background_top_material) {
-                return new LayerDrawable(new Drawable[]{
-                        getDrawable(context, R.drawable.abc_cab_background_internal_bg),
-                        getDrawable(context, R.drawable.abc_cab_background_top_mtrl_alpha)
-                });
-            } else if (resId == R.drawable.abc_seekbar_track_material) {
-                LayerDrawable ld = (LayerDrawable) drawable;
-                setPorterDuffColorFilter(ld.findDrawableByLayerId(android.R.id.background),
-                        getThemeAttrColor(context, R.attr.colorControlNormal), DEFAULT_MODE);
-                setPorterDuffColorFilter(ld.findDrawableByLayerId(android.R.id.secondaryProgress),
-                        getThemeAttrColor(context, R.attr.colorControlNormal), DEFAULT_MODE);
-                setPorterDuffColorFilter(ld.findDrawableByLayerId(android.R.id.progress),
-                        getThemeAttrColor(context, R.attr.colorControlActivated), DEFAULT_MODE);
-            } else if (resId == R.drawable.abc_ratingbar_indicator_material
-                    || resId == R.drawable.abc_ratingbar_small_material) {
-                LayerDrawable ld = (LayerDrawable) drawable;
-                setPorterDuffColorFilter(ld.findDrawableByLayerId(android.R.id.background),
-                        getDisabledThemeAttrColor(context, R.attr.colorControlNormal),
-                        DEFAULT_MODE);
-                setPorterDuffColorFilter(ld.findDrawableByLayerId(android.R.id.secondaryProgress),
-                        getThemeAttrColor(context, R.attr.colorControlActivated), DEFAULT_MODE);
-                setPorterDuffColorFilter(ld.findDrawableByLayerId(android.R.id.progress),
-                        getThemeAttrColor(context, R.attr.colorControlActivated), DEFAULT_MODE);
-            } else {
-                final boolean tinted = tintDrawableUsingColorFilter(context, resId, drawable);
-                if (!tinted && failIfNotKnown) {
-                    // If we didn't tint using a ColorFilter, and we're set to fail if we don't
-                    // know the id, return null
-                    drawable = null;
-                }
+    private Drawable tintDrawable(@NonNull Context context, @DrawableRes int resId,
+            boolean failIfNotKnown, @NonNull Drawable drawable) {
+        final ColorStateList tintList = getTintList(context, resId);
+        if (tintList != null) {
+            // First mutate the Drawable, then wrap it and set the tint list
+            if (shouldMutateDrawable(drawable)) {
+                drawable = drawable.mutate();
+            }
+            drawable = DrawableCompat.wrap(drawable);
+            DrawableCompat.setTintList(drawable, tintList);
+
+            // If there is a blending mode specified for the drawable, use it
+            final PorterDuff.Mode tintMode = getTintMode(resId);
+            if (tintMode != null) {
+                DrawableCompat.setTintMode(drawable, tintMode);
+            }
+        } else if (resId == R.drawable.abc_cab_background_top_material) {
+            return new LayerDrawable(new Drawable[]{
+                    getDrawable(context, R.drawable.abc_cab_background_internal_bg),
+                    getDrawable(context, R.drawable.abc_cab_background_top_mtrl_alpha)
+            });
+        } else if (resId == R.drawable.abc_seekbar_track_material) {
+            LayerDrawable ld = (LayerDrawable) drawable;
+            setPorterDuffColorFilter(ld.findDrawableByLayerId(android.R.id.background),
+                    getThemeAttrColor(context, R.attr.colorControlNormal), DEFAULT_MODE);
+            setPorterDuffColorFilter(ld.findDrawableByLayerId(android.R.id.secondaryProgress),
+                    getThemeAttrColor(context, R.attr.colorControlNormal), DEFAULT_MODE);
+            setPorterDuffColorFilter(ld.findDrawableByLayerId(android.R.id.progress),
+                    getThemeAttrColor(context, R.attr.colorControlActivated), DEFAULT_MODE);
+        } else if (resId == R.drawable.abc_ratingbar_indicator_material
+                || resId == R.drawable.abc_ratingbar_small_material) {
+            LayerDrawable ld = (LayerDrawable) drawable;
+            setPorterDuffColorFilter(ld.findDrawableByLayerId(android.R.id.background),
+                    getDisabledThemeAttrColor(context, R.attr.colorControlNormal),
+                    DEFAULT_MODE);
+            setPorterDuffColorFilter(ld.findDrawableByLayerId(android.R.id.secondaryProgress),
+                    getThemeAttrColor(context, R.attr.colorControlActivated), DEFAULT_MODE);
+            setPorterDuffColorFilter(ld.findDrawableByLayerId(android.R.id.progress),
+                    getThemeAttrColor(context, R.attr.colorControlActivated), DEFAULT_MODE);
+        } else {
+            final boolean tinted = tintDrawableUsingColorFilter(context, resId, drawable);
+            if (!tinted && failIfNotKnown) {
+                // If we didn't tint using a ColorFilter, and we're set to fail if we don't
+                // know the id, return null
+                drawable = null;
             }
         }
         return drawable;
     }
 
-    public final boolean tintDrawableUsingColorFilter(@NonNull Context context,
+    private Drawable loadDrawableFromDelegates(@NonNull Context context, @DrawableRes int resId) {
+        if (mDelegates != null && !mDelegates.isEmpty()) {
+            String cachedTagName = null;
+
+            if (mKnownDrawableIdTags != null) {
+                cachedTagName = mKnownDrawableIdTags.get(resId);
+                if (SKIP_DRAWABLE_TAG.equals(cachedTagName)
+                        || (cachedTagName != null && mDelegates.get(cachedTagName) == null)) {
+                    // If we don't have a delegate for the drawable tag, or we've been set to
+                    // skip it, fail fast and return null
+                    if (DEBUG) {
+                        Log.d(TAG, "loadDrawableFromDelegates. Skipping drawable "
+                                + context.getResources().getResourceName(resId));
+                    }
+                    return null;
+                }
+            } else {
+                // Create an id cache as we'll need one later
+                mKnownDrawableIdTags = new SparseArray<>();
+            }
+
+            if (mTypedValue == null) {
+                mTypedValue = new TypedValue();
+            }
+
+            final TypedValue tv = mTypedValue;
+            final Resources res = context.getResources();
+            res.getValue(resId, tv, true);
+
+            if (tv.string != null && tv.string.toString().endsWith(".xml")) {
+                // If the resource is an XML file, let's try and parse it
+                try {
+                    final XmlPullParser parser = res.getXml(resId);
+                    final AttributeSet attrs = Xml.asAttributeSet(parser);
+                    int type;
+                    while ((type = parser.next()) != XmlPullParser.START_TAG &&
+                            type != XmlPullParser.END_DOCUMENT) {
+                        // Empty loop
+                    }
+                    if (type != XmlPullParser.START_TAG) {
+                        throw new XmlPullParserException("No start tag found");
+                    }
+
+                    final String tagName = parser.getName();
+                    if (cachedTagName == null) {
+                        // If we don't already have this cached, add it to the cache
+                        mKnownDrawableIdTags.append(resId, tagName);
+                    }
+
+                    // Now try and find a delegate for the tag name and inflate if found
+                    final InflateDelegate delegate = mDelegates.get(tagName);
+                    if (delegate != null) {
+                        return delegate.createFromXmlInner(res, parser, attrs, context.getTheme());
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Exception while inflating drawable", e);
+                }
+            }
+        }
+
+        // If we reach here then the delegate inflation of the resource failed. Mark it as
+        // bad so we skip the id next time
+        mKnownDrawableIdTags.append(resId, SKIP_DRAWABLE_TAG);
+        return null;
+    }
+
+    public final Drawable onDrawableLoadedFromResources(@NonNull Context context,
+            @NonNull TintResources resources, @DrawableRes final int resId) {
+        Drawable drawable = loadDrawableFromDelegates(context, resId);
+        if (drawable == null) {
+            drawable = resources.superGetDrawable(resId);
+        }
+        if (drawable != null) {
+            return tintDrawable(context, resId, false, drawable);
+        }
+        return null;
+    }
+
+    private static boolean tintDrawableUsingColorFilter(@NonNull Context context,
             @DrawableRes final int resId, @NonNull Drawable drawable) {
         PorterDuff.Mode tintMode = DEFAULT_MODE;
         boolean colorAttrSet = false;
@@ -274,18 +350,16 @@ public final class AppCompatDrawableManager {
         return false;
     }
 
-    public void addDelegate(@NonNull InflateDelegate delegate) {
+    public final void addDelegate(@NonNull String tagName, @NonNull InflateDelegate delegate) {
         if (mDelegates == null) {
-            mDelegates = new ArrayList<>();
+            mDelegates = new ArrayMap<>();
         }
-        if (!mDelegates.contains(delegate)) {
-            mDelegates.add(delegate);
-        }
+        mDelegates.put(tagName, delegate);
     }
 
-    public void removeDelegate(@NonNull InflateDelegate delegate) {
-        if (mDelegates != null) {
-            mDelegates.remove(delegate);
+    public final void removeDelegate(@NonNull String tagName, @NonNull InflateDelegate delegate) {
+        if (mDelegates != null && mDelegates.get(tagName) == delegate) {
+            mDelegates.remove(tagName);
         }
     }
 

@@ -45,7 +45,7 @@ public class AppCompatCheckedTextView extends CheckedTextView {
     }
 
     public AppCompatCheckedTextView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+        super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
 
         mTextHelper = AppCompatTextHelper.create(this);
         mTextHelper.loadFromAttributes(attrs, defStyleAttr);

@@ -150,6 +150,7 @@
      <public type="attr" name="ratingBarStyle"/>
      <public type="attr" name="ratingBarStyleIndicator"/>
      <public type="attr" name="ratingBarStyleSmall"/>
+     <public type="attr" name="srcCompat"/>
      <public type="attr" name="searchHintIcon"/>
      <public type="attr" name="searchIcon"/>
      <public type="attr" name="searchViewStyle"/>
