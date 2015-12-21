@@ -24,7 +24,9 @@ LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
 LOCAL_PACKAGE_NAME := SupportAnimatedVectorDrawable
 
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-animatedvectordrawable android-support-v4
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-animatedvectordrawable \
+        android-support-vectordrawable \
+        android-support-v4
 
 LOCAL_AAPT_FLAGS += --auto-add-overlay \
         --extra-packages android.support.graphics.drawable \
