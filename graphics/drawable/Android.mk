@@ -30,9 +30,7 @@ LOCAL_MODULE := android-support-animatedvectordrawable
 LOCAL_SDK_VERSION := current
 LOCAL_SRC_FILES := $(call all-java-files-under, animated/src)
 
-LOCAL_JAVA_LIBRARIES := android-support-v4
-
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-vectordrawable
+LOCAL_JAVA_LIBRARIES := android-support-v4 android-support-vectordrawable
 
 LOCAL_AAPT_FLAGS := --no-version-vectors
 include $(BUILD_STATIC_JAVA_LIBRARY)

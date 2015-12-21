@@ -965,4 +965,10 @@
         <attr name="allowStacking" format="boolean" />
     </declare-styleable>
 
+    <declare-styleable name="AppCompatImageView">
+        <attr name="android:src"/>
+        <!-- TODO -->
+        <attr name="srcCompat" format="reference" />
+    </declare-styleable>
+
 </resources>
