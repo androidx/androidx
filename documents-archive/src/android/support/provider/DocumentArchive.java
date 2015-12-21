@@ -17,10 +17,13 @@
 package android.support.provider;
 
 import android.content.Context;
+import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.database.MatrixCursor;
+import android.graphics.Point;
 import android.net.Uri;
 import android.os.CancellationSignal;
+import android.os.OperationCanceledException;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract.Document;
 import android.provider.DocumentsProvider;
@@ -66,7 +69,8 @@ public class DocumentArchive implements Closeable {
             Document.COLUMN_DOCUMENT_ID,
             Document.COLUMN_DISPLAY_NAME,
             Document.COLUMN_MIME_TYPE,
-            Document.COLUMN_SIZE
+            Document.COLUMN_SIZE,
+            Document.COLUMN_FLAGS
     };
 
     private final Context mContext;
@@ -376,6 +380,8 @@ public class DocumentArchive implements Closeable {
                                     Log.e(TAG, "Failed to close the pipe after an error.", e2);
                                 }
                             }
+                        } catch (OperationCanceledException e) {
+                            // Cancelled gracefully.
                         } catch (IOException e) {
                             Log.e(TAG, "Failed to close the output stream gracefully.", e);
                         } finally {
@@ -385,6 +391,31 @@ public class DocumentArchive implements Closeable {
                 });
 
         return pipe[0];
+    }
+
+    /**
+     * Opens a thumbnail of a file within an archive.
+     *
+     * @see DocumentsProvider.openDocumentThumbnail(String, Point, CancellationSignal))
+     */
+    public AssetFileDescriptor openDocumentThumbnail(
+            String documentId, Point sizeHint, final CancellationSignal signal)
+            throws FileNotFoundException {
+        final ParsedDocumentId parsedId = ParsedDocumentId.fromDocumentId(documentId, mIdDelimiter);
+        Preconditions.checkArgumentEquals(mDocumentId, parsedId.mArchiveId,
+                "Mismatching document ID. Expected: %s, actual: %s.");
+        Preconditions.checkArgumentNotNull(parsedId.mPath, "Not a document within an archive.");
+        Preconditions.checkArgument(getDocumentType(documentId).startsWith("image/"),
+                "Thumbnails only supported for image/* MIME type.");
+
+        // TODO: Extract thumbnails from EXIF.
+        final ZipEntry entry = mZipFile.getEntry(parsedId.mPath);
+        if (entry == null) {
+            throw new FileNotFoundException();
+        }
+
+        return new AssetFileDescriptor(
+                openDocument(documentId, "r", signal), 0, entry.getSize(), null);
     }
 
     /**
@@ -408,10 +439,16 @@ public class DocumentArchive implements Closeable {
         final MatrixCursor.RowBuilder row = cursor.newRow();
         final ParsedDocumentId parsedId = new ParsedDocumentId(mDocumentId, entry.getName());
         row.add(Document.COLUMN_DOCUMENT_ID, parsedId.toDocumentId(mIdDelimiter));
+
         final File file = new File(entry.getName());
         row.add(Document.COLUMN_DISPLAY_NAME, file.getName());
         row.add(Document.COLUMN_SIZE, entry.getSize());
-        row.add(Document.COLUMN_MIME_TYPE, getMimeTypeForEntry(entry));
+
+        final String mimeType = getMimeTypeForEntry(entry);
+        row.add(Document.COLUMN_MIME_TYPE, mimeType);
+
+        final int flags = mimeType.startsWith("image/") ? Document.FLAG_SUPPORTS_THUMBNAIL : 0;
+        row.add(Document.COLUMN_FLAGS, flags);
     }
 
     private String getMimeTypeForEntry(ZipEntry entry) {
