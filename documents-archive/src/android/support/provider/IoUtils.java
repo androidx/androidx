@@ -16,6 +16,8 @@
 
 package android.support.provider;
 
+import android.support.annotation.Nullable;
+
 import java.io.Closeable;
 import java.io.InputStream;
 import java.util.Collection;
@@ -25,7 +27,7 @@ import java.util.Collection;
  * @hide
  */
 final class IoUtils {
-    static void closeQuietly(Closeable closeable) {
+    static void closeQuietly(@Nullable Closeable closeable) {
        if (closeable != null) {
             try {
                 closeable.close();
@@ -37,7 +39,7 @@ final class IoUtils {
         }
     }
 
-    static void closeQuietly(InputStream stream) {
+    static void closeQuietly(@Nullable InputStream stream) {
        if (stream != null) {
             try {
                 stream.close();
