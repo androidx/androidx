@@ -16,9 +16,11 @@
 
 package android.support.v7.testutils;
 
+import android.database.sqlite.SQLiteCursor;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.support.test.espresso.matcher.BoundedMatcher;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.CheckedTextView;
 import android.widget.ImageView;
@@ -114,6 +116,26 @@ public class TestUtilsMatchers {
 
                 failedDescription = "checked";
                 return false;
+            }
+        };
+    }
+
+    /**
+     * Returns a matcher that matches data entry in <code>SQLiteCursor</code> that has
+     * the specified text in the specified column.
+     */
+    public static Matcher<Object> withCursorItemContent(final String columnName,
+            final String expectedText) {
+        return new BoundedMatcher<Object, SQLiteCursor>(SQLiteCursor.class) {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("doesn't match " + expectedText);
+            }
+
+            @Override
+            protected boolean matchesSafely(SQLiteCursor cursor) {
+                return TextUtils.equals(expectedText,
+                        cursor.getString(cursor.getColumnIndex(columnName)));
             }
         };
     }
