@@ -34,11 +34,15 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.lang.IllegalArgumentException;
 import java.lang.IllegalStateException;
 import java.lang.UnsupportedOperationException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.zip.ZipEntry;
@@ -71,6 +75,7 @@ public class DocumentArchive implements Closeable {
     private final Uri mNotificationUri;
     private final ZipFile mZipFile;
     private final ExecutorService mExecutor;
+    private final Map<String, List<ZipEntry>> mTree;
 
     private DocumentArchive(
             Context context,
@@ -85,6 +90,36 @@ public class DocumentArchive implements Closeable {
         mNotificationUri = notificationUri;
         mZipFile = new ZipFile(file);
         mExecutor = Executors.newSingleThreadExecutor();
+
+        // Build the tree structure in memory.
+        mTree = new HashMap<String, List<ZipEntry>>();
+        mTree.put("/", new ArrayList<ZipEntry>());
+
+        // Traversing entries via ZipFile.entries() is very slow, so copy the entries to a temporary
+        // map for building the tree.
+        final Map<String, ZipEntry> entries = new HashMap<String, ZipEntry>();
+        for (final ZipEntry entry : Collections.list(mZipFile.entries())) {
+            entries.put(entry.getName(), entry);
+            if (entry.isDirectory()) {
+                mTree.put(entry.getName(), new ArrayList<ZipEntry>());
+            }
+        }
+
+        int delimiterIndex;
+        List<ZipEntry> parentList;
+        String parentPath;
+        for (final ZipEntry entry : entries.values()) {
+            delimiterIndex = entry.getName().lastIndexOf('/', entry.isDirectory()
+                    ? entry.getName().length() - 2 : entry.getName().length() - 1);
+            parentPath =
+                    delimiterIndex != -1 ? entry.getName().substring(0, delimiterIndex) + "/" : "/";
+            parentList = mTree.get(parentPath);
+            if (parentList != null) {
+                parentList.add(entry);
+            } else {
+                Log.w(TAG, "Archived files without a parent are not supported: " + entry.getName());
+            }
+        }
     }
 
     /**
@@ -176,23 +211,18 @@ public class DocumentArchive implements Closeable {
         Preconditions.checkArgumentEquals(mDocumentId, parsedParentId.mArchiveId,
                 "Mismatching document ID. Expected: %s, actual: %s.");
 
-        final String parentPath = parsedParentId.mPath != null ? normalizePath(
-                parsedParentId.mPath, true /* isDirectory */) : "/";
+        final String parentPath = parsedParentId.mPath != null ? parsedParentId.mPath : "/";
         final MatrixCursor result = new MatrixCursor(
                 projection != null ? projection : DEFAULT_PROJECTION);
         if (mNotificationUri != null) {
             result.setNotificationUri(mContext.getContentResolver(), mNotificationUri);
         }
 
-        File file;
-        String maybeParentPath;
-        // TODO: Build an in-memory tree for storing the directory structure.
-        for (final ZipEntry entry : Collections.list(mZipFile.entries())) {
-            file = new File(getPathForEntry(entry));
-            maybeParentPath = normalizePath(file.getParent(), true /* isDirectory */);
-            if (maybeParentPath.equals(parentPath)) {
-                addCursorRow(result, entry);
-            }
+        final List<ZipEntry> parentList = mTree.get(parentPath);
+        Preconditions.checkArgumentNotNull(
+                parentList, "The requested directory does not exist in the archive.");
+        for (final ZipEntry entry : parentList) {
+            addCursorRow(result, entry);
         }
         return result;
     }
@@ -248,11 +278,11 @@ public class DocumentArchive implements Closeable {
             return false;
         }
 
-        final String parentPath = getPathForEntry(parentEntry);
+        final String parentPath = entry.getName();
 
         // Add a trailing slash even if it's not a directory, so it's easy to check if the
         // entry is a descendant.
-        final String pathWithSlash = normalizePath(getPathForEntry(entry), true /* isDirectory */);
+        final String pathWithSlash = entry.isDirectory() ? entry.getName() : entry.getName() + "/";
         return pathWithSlash.startsWith(parentPath) && !parentPath.equals(pathWithSlash);
     }
 
@@ -399,22 +429,5 @@ public class DocumentArchive implements Closeable {
         }
 
         return "application/octet-stream";
-    }
-
-    private static String normalizePath(String path, boolean isDirectory) {
-        // TODO: Add support for different path separators.
-        final StringBuilder result = new StringBuilder();
-        if (!path.startsWith("/")) {
-            result.append("/");
-        }
-        result.append(path);
-        if (isDirectory && result.length() > 1 && !path.endsWith("/")) {
-            result.append("/");
-        }
-        return result.toString();
-    }
-
-    private static String getPathForEntry(ZipEntry entry) {
-        return normalizePath(entry.getName(), entry.isDirectory());
     }
 };
