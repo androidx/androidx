@@ -96,7 +96,7 @@ public class StubProvider extends DocumentsProvider {
             row.add(Document.COLUMN_DOCUMENT_ID, DOCUMENT_ID);
             row.add(Document.COLUMN_DISPLAY_NAME, mFile.getName());
             row.add(Document.COLUMN_SIZE, mFile.length());
-            row.add(Document.COLUMN_MIME_TYPE, DocumentArchiveHelper.ZIP_MIME_TYPE);
+            row.add(Document.COLUMN_MIME_TYPE, "application/zip");
             final int flags = mArchiveHelper.isSupportedArchiveType("application/zip")
                     ? Document.FLAG_ARCHIVE : 0;
             row.add(Document.COLUMN_FLAGS, flags);

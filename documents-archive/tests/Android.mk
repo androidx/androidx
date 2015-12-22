@@ -20,9 +20,9 @@ LOCAL_MODULE_TAGS := tests
 LOCAL_SDK_VERSION := current
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-provider
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-documents-archive
 LOCAL_JAVA_LIBRARIES := android.test.runner
 LOCAL_AAPT_FLAGS := --auto-add-overlay -0 zip
-LOCAL_PACKAGE_NAME := AndroidSupportProviderTests
+LOCAL_PACKAGE_NAME := AndroidSupportDocumentsArchiveTests
 
 include $(BUILD_PACKAGE)

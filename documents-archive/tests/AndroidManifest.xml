@@ -20,7 +20,9 @@
         <provider
             android:name="android.support.provider.tests.StubProvider"
             android:authorities="android.support.provider.tests.mystubprovider"
-            android:exported="false" />
+            android:grantUriPermissions="true"
+            android:exported="true"
+            android:permission="android.permission.MANAGE_DOCUMENTS" />
     </application>
 
     <instrumentation android:name="android.test.InstrumentationTestRunner"

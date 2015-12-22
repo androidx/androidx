@@ -90,9 +90,9 @@ public class DocumentArchiveTest extends AndroidTestCase {
         final Cursor cursor = mArchive.queryChildDocuments(DOCUMENT_ID, null, null);
 
         assertTrue(cursor.moveToFirst());
-        assertEquals("document-id:dir1/",
+        assertEquals("document-id:dir2/",
                 cursor.getString(cursor.getColumnIndexOrThrow(Document.COLUMN_DOCUMENT_ID)));
-        assertEquals("dir1",
+        assertEquals("dir2",
                 cursor.getString(cursor.getColumnIndexOrThrow(Document.COLUMN_DISPLAY_NAME)));
         assertEquals(Document.MIME_TYPE_DIR,
                 cursor.getString(cursor.getColumnIndexOrThrow(Document.COLUMN_MIME_TYPE)));
@@ -100,9 +100,9 @@ public class DocumentArchiveTest extends AndroidTestCase {
                 cursor.getInt(cursor.getColumnIndexOrThrow(Document.COLUMN_SIZE)));
 
         assertTrue(cursor.moveToNext());
-        assertEquals("document-id:dir2/",
+        assertEquals("document-id:dir1/",
                 cursor.getString(cursor.getColumnIndexOrThrow(Document.COLUMN_DOCUMENT_ID)));
-        assertEquals("dir2",
+        assertEquals("dir1",
                 cursor.getString(cursor.getColumnIndexOrThrow(Document.COLUMN_DISPLAY_NAME)));
         assertEquals(Document.MIME_TYPE_DIR,
                 cursor.getString(cursor.getColumnIndexOrThrow(Document.COLUMN_MIME_TYPE)));
@@ -122,7 +122,7 @@ public class DocumentArchiveTest extends AndroidTestCase {
         assertFalse(cursor.moveToNext());
 
         // Check if querying children works too.
-        final Cursor childCursor = mArchive.queryChildDocuments("document-id:dir1", null, null);
+        final Cursor childCursor = mArchive.queryChildDocuments("document-id:dir1/", null, null);
 
         assertTrue(childCursor.moveToFirst());
         assertEquals("document-id:dir1/cherries.txt",
@@ -145,7 +145,7 @@ public class DocumentArchiveTest extends AndroidTestCase {
 
     public void testIsChildDocument() throws IOException {
         assertTrue(mArchive.isChildDocument(DOCUMENT_ID, "document-id:dir1"));
-        assertFalse(mArchive.isChildDocument("document-id:dir1/", "document-id:dir1"));
+        assertTrue(mArchive.isChildDocument("document-id:dir1/", "document-id:dir1"));
         assertFalse(mArchive.isChildDocument(DOCUMENT_ID, "document-id:this-does-not-exist"));
         assertTrue(mArchive.isChildDocument("document-id:dir1/", "document-id:dir1/cherries.txt"));
         assertTrue(mArchive.isChildDocument(DOCUMENT_ID, "document-id:dir1/cherries.txt"));
