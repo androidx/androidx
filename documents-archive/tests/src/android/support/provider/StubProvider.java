@@ -17,12 +17,15 @@
 package android.support.provider.tests;
 
 import android.database.Cursor;
-import android.database.MatrixCursor;
 import android.database.MatrixCursor.RowBuilder;
-import android.provider.DocumentsProvider;
-import android.os.ParcelFileDescriptor;
+import android.database.MatrixCursor;
+import android.net.Uri;
+import android.os.Bundle;
 import android.os.CancellationSignal;
+import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract.Document;
+import android.provider.DocumentsContract;
+import android.provider.DocumentsProvider;
 import android.support.provider.DocumentArchiveHelper;
 import android.util.Log;
 
@@ -37,8 +40,7 @@ public class StubProvider extends DocumentsProvider {
     public static final String AUTHORITY = "android.support.provider.tests.mystubprovider";
     public static final String DOCUMENT_ID = "document-id";
     public static final String FILE_DOCUMENT_ID = "document-id:dir1/cherries.txt";
-    public File mFile;
-    public DocumentArchiveHelper mArchiveHelper;
+    public static final Uri NOTIFY_URI = DocumentsContract.buildRootsUri(AUTHORITY);
 
     private static final String TAG = "StubProvider";
     private static final String[] DEFAULT_PROJECTION = new String[] {
@@ -47,11 +49,31 @@ public class StubProvider extends DocumentsProvider {
             DocumentArchiveHelper.COLUMN_LOCAL_FILE_PATH
     };
 
+    public File file;
+    public DocumentArchiveHelper archiveHelper;
+    public boolean simulatedDelete = false;
+
+    @Override
+    public Bundle call(String method, String args, Bundle extras) {
+        switch (method) {
+            case "reset":
+                simulatedDelete = false;
+                getContext().getContentResolver().notifyChange(NOTIFY_URI, null);
+                return null;
+            case "delete":
+                simulatedDelete = true;
+                getContext().getContentResolver().notifyChange(NOTIFY_URI, null);
+                return null;
+            default:
+                return super.call(method, args, extras);
+        }
+    }
+
     @Override
     public boolean onCreate() {
         try {
-            mArchiveHelper = new DocumentArchiveHelper(this, ':');
-            mFile = TestUtils.createFileFromResource(getContext(), R.raw.archive);
+            archiveHelper = new DocumentArchiveHelper(this, ':');
+            file = TestUtils.createFileFromResource(getContext(), R.raw.archive);
             return true;
         } catch (IOException e) {
             Log.e(TAG, "Failed to initialize StubProvider.");
@@ -63,8 +85,8 @@ public class StubProvider extends DocumentsProvider {
     public ParcelFileDescriptor openDocument(
             String documentId, String mode, CancellationSignal signal)
             throws FileNotFoundException {
-        if (mArchiveHelper.isArchivedDocument(documentId)) {
-            return mArchiveHelper.openDocument(documentId, mode, signal);
+        if (archiveHelper.isArchivedDocument(documentId)) {
+            return archiveHelper.openDocument(documentId, mode, signal);
         }
 
         throw new UnsupportedOperationException();
@@ -74,9 +96,9 @@ public class StubProvider extends DocumentsProvider {
     public Cursor queryChildDocuments(
             String parentDocumentId, String[] projection, String sortOrder)
             throws FileNotFoundException {
-        if (mArchiveHelper.isArchivedDocument(parentDocumentId) ||
-                mArchiveHelper.isSupportedArchiveType(getDocumentType(parentDocumentId))) {
-            return mArchiveHelper.queryChildDocuments(parentDocumentId, projection, sortOrder);
+        if (archiveHelper.isArchivedDocument(parentDocumentId) ||
+                archiveHelper.isSupportedArchiveType(getDocumentType(parentDocumentId))) {
+            return archiveHelper.queryChildDocuments(parentDocumentId, projection, sortOrder);
         }
 
         throw new UnsupportedOperationException();
@@ -85,22 +107,27 @@ public class StubProvider extends DocumentsProvider {
     @Override
     public Cursor queryDocument(String documentId, String[] projection)
             throws FileNotFoundException {
-        if (mArchiveHelper.isArchivedDocument(documentId)) {
-            return mArchiveHelper.queryDocument(documentId, projection);
+        if (archiveHelper.isArchivedDocument(documentId)) {
+            return archiveHelper.queryDocument(documentId, projection);
         }
 
         if (DOCUMENT_ID.equals(documentId)) {
+            if (simulatedDelete) {
+                throw new FileNotFoundException();
+            }
+
             final MatrixCursor result = new MatrixCursor(
                     projection != null ? projection : DEFAULT_PROJECTION);
+            result.setNotificationUri(getContext().getContentResolver(), NOTIFY_URI);
             final RowBuilder row = result.newRow();
             row.add(Document.COLUMN_DOCUMENT_ID, DOCUMENT_ID);
-            row.add(Document.COLUMN_DISPLAY_NAME, mFile.getName());
-            row.add(Document.COLUMN_SIZE, mFile.length());
+            row.add(Document.COLUMN_DISPLAY_NAME, file.getName());
+            row.add(Document.COLUMN_SIZE, file.length());
             row.add(Document.COLUMN_MIME_TYPE, "application/zip");
-            final int flags = mArchiveHelper.isSupportedArchiveType("application/zip")
+            final int flags = archiveHelper.isSupportedArchiveType("application/zip")
                     ? Document.FLAG_ARCHIVE : 0;
             row.add(Document.COLUMN_FLAGS, flags);
-            row.add(DocumentArchiveHelper.COLUMN_LOCAL_FILE_PATH, mFile.getPath());
+            row.add(DocumentArchiveHelper.COLUMN_LOCAL_FILE_PATH, file.getPath());
             return result;
         }
 
@@ -114,8 +141,8 @@ public class StubProvider extends DocumentsProvider {
 
     @Override
     public String getDocumentType(String documentId) throws FileNotFoundException {
-        if (mArchiveHelper.isArchivedDocument(documentId)) {
-            return mArchiveHelper.getDocumentType(documentId);
+        if (archiveHelper.isArchivedDocument(documentId)) {
+            return archiveHelper.getDocumentType(documentId);
         }
 
         if (DOCUMENT_ID.equals(documentId)) {
