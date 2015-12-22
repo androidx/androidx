@@ -24,6 +24,7 @@ import android.os.CancellationSignal;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract.Document;
 import android.provider.DocumentsProvider;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
@@ -76,7 +77,7 @@ public class DocumentArchive implements Closeable {
             File file,
             String documentId,
             char idDelimiter,
-            Uri notificationUri)
+            @Nullable Uri notificationUri)
             throws IOException {
         mContext = context;
         mDocumentId = documentId;
@@ -100,7 +101,8 @@ public class DocumentArchive implements Closeable {
      *          Uri)
      */
     public static DocumentArchive createForLocalFile(
-            Context context, File file, String documentId, char idDelimiter, Uri notificationUri)
+            Context context, File file, String documentId, char idDelimiter,
+            @Nullable Uri notificationUri)
             throws IOException {
         return new DocumentArchive(context, file, documentId, idDelimiter, notificationUri);
     }
@@ -124,7 +126,7 @@ public class DocumentArchive implements Closeable {
      */
     public static DocumentArchive createForParcelFileDescriptor(
             Context context, ParcelFileDescriptor descriptor, String documentId,
-            char idDelimiter, Uri notificationUri)
+            char idDelimiter, @Nullable Uri notificationUri)
             throws IOException {
         File snapshotFile = null;
         try {
@@ -167,7 +169,8 @@ public class DocumentArchive implements Closeable {
      *
      * @see DocumentsProvider.queryChildDocuments(String, String[], String)
      */
-    public Cursor queryChildDocuments(String documentId, String[] projection, String sortOrder) {
+    public Cursor queryChildDocuments(String documentId, @Nullable String[] projection,
+            @Nullable String sortOrder) {
         final ParsedDocumentId parsedParentId = ParsedDocumentId.fromDocumentId(
                 documentId, mIdDelimiter);
         Preconditions.checkArgumentEquals(mDocumentId, parsedParentId.mArchiveId,
@@ -258,7 +261,7 @@ public class DocumentArchive implements Closeable {
      *
      * @see DocumentsProvider.queryDocument(String, String[])
      */
-    public Cursor queryDocument(String documentId, String[] projection)
+    public Cursor queryDocument(String documentId, @Nullable String[] projection)
             throws FileNotFoundException {
         final ParsedDocumentId parsedId = ParsedDocumentId.fromDocumentId(
                 documentId, mIdDelimiter);
@@ -286,7 +289,7 @@ public class DocumentArchive implements Closeable {
      * @see DocumentsProvider.openDocument(String, String, CancellationSignal))
      */
     public ParcelFileDescriptor openDocument(
-            String documentId, String mode, final CancellationSignal signal)
+            String documentId, String mode, @Nullable final CancellationSignal signal)
             throws FileNotFoundException {
         Preconditions.checkArgumentEquals("r", mode,
                 "Invalid mode. Only reading \"r\" supported, but got: \"%s\".");

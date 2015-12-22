@@ -25,6 +25,7 @@ import android.os.CancellationSignal;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract.Document;
 import android.provider.DocumentsProvider;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.LruCache;
 
@@ -104,7 +105,8 @@ public class DocumentArchiveHelper implements Closeable {
      *
      * @see DocumentsProvider.queryChildDocuments(String, String[], String)
      */
-    public Cursor queryChildDocuments(String documentId, String[] projection, String sortOrder)
+    public Cursor queryChildDocuments(String documentId, @Nullable String[] projection,
+            @Nullable String sortOrder)
             throws FileNotFoundException {
         Loader loader = null;
         try {
@@ -153,7 +155,7 @@ public class DocumentArchiveHelper implements Closeable {
      *
      * @see DocumentsProvider.queryDocument(String, String[])
      */
-    public Cursor queryDocument(String documentId, String[] projection)
+    public Cursor queryDocument(String documentId, @Nullable String[] projection)
             throws FileNotFoundException {
         Loader loader = null;
         try {
@@ -230,7 +232,7 @@ public class DocumentArchiveHelper implements Closeable {
         return loader;
     }
 
-    private void releaseInstance(/* @Nullable */ Loader loader) {
+    private void releaseInstance(@Nullable Loader loader) {
         if (loader != null) {
             loader.getReadLock().unlock();
         }
@@ -297,7 +299,7 @@ public class DocumentArchiveHelper implements Closeable {
         private final ReentrantReadWriteLock mLock = new ReentrantReadWriteLock();
         private DocumentArchive mArchive = null;
 
-        Loader(DocumentsProvider provider, /* @Nullable */ File localFile, ParsedDocumentId id,
+        Loader(DocumentsProvider provider, @Nullable File localFile, ParsedDocumentId id,
                 char idDelimiter, Uri notificationUri) {
             this.mProvider = provider;
             this.mLocalFile = localFile;

@@ -16,6 +16,7 @@
 
 package android.support.provider;
 
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import java.util.Collection;
@@ -38,7 +39,7 @@ final class Preconditions {
         }
     }
 
-    static void checkArgumentEquals(String expected, String actual, String message) {
+    static void checkArgumentEquals(String expected, @Nullable String actual, String message) {
         if (!TextUtils.equals(expected, actual)) {
             throw new IllegalArgumentException(String.format(message, String.valueOf(expected),
                     String.valueOf(actual)));
