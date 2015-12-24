@@ -61,7 +61,9 @@ public class DocumentArchiveHelper implements Closeable {
 
     private static final String TAG = "DocumentArchiveHelper";
     private static final int OPENED_ARCHIVES_CACHE_SIZE = 4;
-    private static final String ZIP_MIME_TYPE = "application/zip";
+    private static final String[] ZIP_MIME_TYPES = {
+            "application/zip", "application/x-zip", "application/x-zip-compressed"
+    };
 
     private final DocumentsProvider mProvider;
     private final char mIdDelimiter;
@@ -194,7 +196,12 @@ public class DocumentArchiveHelper implements Closeable {
      * Returns true if the passed mime type is supported by the helper.
      */
     public boolean isSupportedArchiveType(String mimeType) {
-        return ZIP_MIME_TYPE.equals(mimeType);
+        for (final String zipMimeType : ZIP_MIME_TYPES) {
+            if (zipMimeType.equals(mimeType)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
