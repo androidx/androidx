@@ -16,10 +16,12 @@
 
 package android.support.provider;
 
+import android.content.res.AssetFileDescriptor;
 import android.content.res.Configuration;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.database.MatrixCursor;
+import android.graphics.Point;
 import android.net.Uri;
 import android.os.CancellationSignal;
 import android.os.ParcelFileDescriptor;
@@ -180,6 +182,23 @@ public class DocumentArchiveHelper implements Closeable {
         try {
             loader = obtainInstance(documentId);
             return loader.get().openDocument(documentId, mode, signal);
+        } finally {
+            releaseInstance(loader);
+        }
+    }
+
+    /**
+     * Opens a thumbnail of a file within an archive.
+     *
+     * @see DocumentsProvider.openDocumentThumbnail(String, Point, CancellationSignal))
+     */
+    public AssetFileDescriptor openDocumentThumbnail(
+            String documentId, Point sizeHint, final CancellationSignal signal)
+            throws FileNotFoundException {
+        Loader loader = null;
+        try {
+            loader = obtainInstance(documentId);
+            return loader.get().openDocumentThumbnail(documentId, sizeHint, signal);
         } finally {
             releaseInstance(loader);
         }
