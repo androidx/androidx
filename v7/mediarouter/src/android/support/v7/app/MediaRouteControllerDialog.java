@@ -34,6 +34,7 @@ import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
+import android.support.v7.app.OverlayListView.OverlayObject;
 import android.support.v7.graphics.Palette;
 import android.support.v7.media.MediaRouteSelector;
 import android.support.v7.media.MediaRouter;
@@ -48,28 +49,35 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.AnimationUtils;
+import android.view.animation.Interpolator;
 import android.view.animation.Transformation;
+import android.view.animation.TranslateAnimation;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.io.BufferedInputStream;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.HashMap;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -128,9 +136,12 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private LinearLayout mVolumeControlLayout;
     private View mDividerView;
 
-    private ListView mVolumeGroupList;
+    private OverlayListView mVolumeGroupList;
     private VolumeGroupAdapter mVolumeGroupAdapter;
     private List<MediaRouter.RouteInfo> mGroupMemberRoutes;
+    private Set<MediaRouter.RouteInfo> mGroupMemberRoutesAdded;
+    private Set<MediaRouter.RouteInfo> mGroupMemberRoutesRemoved;
+    private Set<MediaRouter.RouteInfo> mGroupMemberRoutesAnimatingWithBitmap;
     private SeekBar mVolumeSlider;
     private VolumeChangeListener mVolumeChangeListener;
     private MediaRouter.RouteInfo mRouteInVolumeSliderTouched;
@@ -149,10 +160,25 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private Bitmap mArtIconBitmap;
     private Uri mArtIconUri;
     private boolean mIsGroupExpanded;
-    private boolean mIsGroupListAnimationNeeded;
+    private boolean mIsGroupListAnimating;
+    private boolean mIsGroupListAnimationPending;
     private int mGroupListAnimationDurationMs;
+    private int mGroupListFadeInDurationMs;
+    private int mGroupListFadeOutDurationMs;
+
+    private Interpolator mInterpolator;
+    private Interpolator mLinearOutSlowInInterpolator;
+    private Interpolator mFastOutSlowInInterpolator;
+    private Interpolator mAccelerateDecelerateInterpolator;
 
     private final AccessibilityManager mAccessibilityManager;
+
+    private Runnable mGroupListFadeInAnimation = new Runnable() {
+        @Override
+        public void run() {
+            startGroupListFadeInAnimation();
+        }
+    };
 
     public MediaRouteControllerDialog(Context context) {
         this(context, 0);
@@ -171,6 +197,13 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 R.dimen.mr_controller_volume_group_list_padding_top);
         mAccessibilityManager =
                 (AccessibilityManager) mContext.getSystemService(Context.ACCESSIBILITY_SERVICE);
+        if (android.os.Build.VERSION.SDK_INT >= 21) {
+            mLinearOutSlowInInterpolator = AnimationUtils.loadInterpolator(context,
+                    R.interpolator.mr_linear_out_slow_in);
+            mFastOutSlowInInterpolator = AnimationUtils.loadInterpolator(context,
+                    R.interpolator.mr_fast_out_slow_in);
+        }
+        mAccelerateDecelerateInterpolator = new AccelerateDecelerateInterpolator();
     }
 
     /**
@@ -219,6 +252,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
             mVolumeControlEnabled = enable;
             if (mCreated) {
                 updateVolumeControlLayout();
+                updateLayoutHeight(false);
             }
         }
     }
@@ -261,7 +295,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 : mMediaController.getMetadata();
         mDescription = metadata == null ? null : metadata.getDescription();
         mState = mMediaController == null ? null : mMediaController.getPlaybackState();
-        update();
+        update(false);
     }
 
     /**
@@ -353,11 +387,11 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mVolumeChangeListener = new VolumeChangeListener();
         mVolumeSlider.setOnSeekBarChangeListener(mVolumeChangeListener);
 
-        mVolumeGroupList = (ListView) findViewById(R.id.mr_volume_group_list);
+        mVolumeGroupList = (OverlayListView) findViewById(R.id.mr_volume_group_list);
         mGroupMemberRoutes = new ArrayList<MediaRouter.RouteInfo>();
         mVolumeGroupAdapter = new VolumeGroupAdapter(mContext, mGroupMemberRoutes);
         mVolumeGroupList.setAdapter(mVolumeGroupAdapter);
-        updateVolumeGroupList();
+        mGroupMemberRoutesAnimatingWithBitmap = new HashSet<>();
 
         MediaRouterThemeHelper.setMediaControlsBackgroundColor(mContext,
                 mMediaMainControlLayout, mVolumeGroupList, getGroup() != null);
@@ -375,14 +409,17 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 if (mIsGroupExpanded) {
                     mVolumeGroupList.setVisibility(View.VISIBLE);
                 }
-                // Request layout to update UI
-                mDefaultControlLayout.requestLayout();
-                mIsGroupListAnimationNeeded = true;
-                updateLayoutHeight();
+                loadInterpolator();
+                updateLayoutHeight(true);
             }
         });
+        loadInterpolator();
         mGroupListAnimationDurationMs = mContext.getResources().getInteger(
                 R.integer.mr_controller_volume_group_list_animation_duration_ms);
+        mGroupListFadeInDurationMs = mContext.getResources().getInteger(
+                R.integer.mr_controller_volume_group_list_fade_in_duration_ms);
+        mGroupListFadeOutDurationMs = mContext.getResources().getInteger(
+                R.integer.mr_controller_volume_group_list_fade_out_duration_ms);
 
         mCustomControlView = onCreateMediaControlView(savedInstanceState);
         if (mCustomControlView != null) {
@@ -414,7 +451,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         // Ensure the mArtView is updated.
         mArtIconBitmap = null;
         mArtIconUri = null;
-        update();
+        update(false);
     }
 
     @Override
@@ -454,7 +491,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         return super.onKeyUp(keyCode, event);
     }
 
-    private void update() {
+    private void update(boolean animate) {
         if (!mRoute.isSelected() || mRoute.isDefault()) {
             dismiss();
             return;
@@ -475,6 +512,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         }
         updateVolumeControlLayout();
         updatePlaybackControlLayout();
+        updateLayoutHeight(animate);
     }
 
     private boolean canShowPlaybackControlLayout() {
@@ -512,16 +550,21 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 && !canShowPlaybackControlLayout) ? View.GONE : View.VISIBLE);
     }
 
-    private void updateLayoutHeight() {
+    private void updateLayoutHeight(final boolean animate) {
         // We need to defer the update until the first layout has occurred, as we don't yet know the
         // overall visible display size in which the window this view is attached to has been
         // positioned in.
+        mDefaultControlLayout.requestLayout();
         ViewTreeObserver observer = mDefaultControlLayout.getViewTreeObserver();
         observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
                 mDefaultControlLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                updateLayoutHeightInternal();
+                if (mIsGroupListAnimating) {
+                    mIsGroupListAnimationPending = true;
+                } else {
+                    updateLayoutHeightInternal(animate);
+                }
             }
         });
     }
@@ -529,7 +572,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
     /**
      * Updates the height of views and hide artwork or metadata if space is limited.
      */
-    private void updateLayoutHeightInternal() {
+    private void updateLayoutHeightInternal(boolean animate) {
         // Measure the size of widgets and get the height of main components.
         int oldHeight = getLayoutHeight(mMediaMainControlLayout);
         setLayoutHeight(mMediaMainControlLayout, ViewGroup.LayoutParams.FILL_PARENT);
@@ -551,10 +594,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
         int mainControllerHeight = getMainControllerHeight(canShowPlaybackControlLayout());
         int volumeGroupListCount = mGroupMemberRoutes.size();
         // Scale down volume group list items in landscape mode.
-        for (int i = 0; i < mVolumeGroupList.getChildCount(); i++) {
-            updateVolumeGroupItemHeight(mVolumeGroupList.getChildAt(i));
-        }
-        int expandedGroupListHeight = mVolumeGroupListItemHeight * volumeGroupListCount;
+        int expandedGroupListHeight = getGroup() == null ? 0 :
+                mVolumeGroupListItemHeight * getGroup().getRoutes().size();
         if (volumeGroupListCount > 0) {
             expandedGroupListHeight += mVolumeGroupListPaddingTop;
         }
@@ -608,7 +649,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mMediaMainControlLayout.clearAnimation();
         mVolumeGroupList.clearAnimation();
         mDefaultControlLayout.clearAnimation();
-        if (mIsGroupListAnimationNeeded) {
+        if (animate) {
             animateLayoutHeight(mMediaMainControlLayout, mainControllerHeight);
             animateLayoutHeight(mVolumeGroupList, visibleGroupListHeight);
             animateLayoutHeight(mDefaultControlLayout, desiredControlLayoutHeight);
@@ -617,13 +658,14 @@ public class MediaRouteControllerDialog extends AlertDialog {
             setLayoutHeight(mVolumeGroupList, visibleGroupListHeight);
             setLayoutHeight(mDefaultControlLayout, desiredControlLayoutHeight);
         }
-        mIsGroupListAnimationNeeded = false;
         // Maximize the window size with a transparent layout in advance for smooth animation.
         setLayoutHeight(mExpandableAreaLayout, visibleRect.height());
+        rebuildVolumeGroupList(animate);
     }
 
     private void updateVolumeGroupItemHeight(View item) {
-        setLayoutHeight(item, mVolumeGroupListItemHeight);
+        LinearLayout container = (LinearLayout) item.findViewById(R.id.volume_item_container);
+        setLayoutHeight(container, mVolumeGroupListItemHeight);
         View icon = item.findViewById(R.id.mr_volume_item_icon);
         ViewGroup.LayoutParams lp = icon.getLayoutParams();
         lp.width = mVolumeGroupListItemIconSize;
@@ -643,26 +685,18 @@ public class MediaRouteControllerDialog extends AlertDialog {
         };
         anim.setDuration(mGroupListAnimationDurationMs);
         if (android.os.Build.VERSION.SDK_INT >= 21) {
-            anim.setInterpolator(mContext, mIsGroupExpanded ? R.interpolator.mr_linear_out_slow_in
-                    : R.interpolator.mr_fast_out_slow_in);
-        }
-        if (view == mVolumeGroupList) {
-            anim.setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
-                    mVolumeGroupList.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
-                }
-
-                @Override
-                public void onAnimationEnd(Animation animation) {
-                    mVolumeGroupList.setTranscriptMode(ListView.TRANSCRIPT_MODE_DISABLED);
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation animation) { }
-            });
+            anim.setInterpolator(mInterpolator);
         }
         view.startAnimation(anim);
+    }
+
+    private void loadInterpolator() {
+        if (android.os.Build.VERSION.SDK_INT >= 21) {
+            mInterpolator = mIsGroupExpanded ? mLinearOutSlowInInterpolator
+                    : mFastOutSlowInInterpolator;
+        } else {
+            mInterpolator = mAccelerateDecelerateInterpolator;
+        }
     }
 
     private void updateVolumeControlLayout() {
@@ -671,25 +705,241 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 mVolumeControlLayout.setVisibility(View.VISIBLE);
                 mVolumeSlider.setMax(mRoute.getVolumeMax());
                 mVolumeSlider.setProgress(mRoute.getVolume());
-                if (getGroup() == null) {
-                    mGroupExpandCollapseButton.setVisibility(View.GONE);
-                } else {
-                    mGroupExpandCollapseButton.setVisibility(View.VISIBLE);
-                }
+                mGroupExpandCollapseButton.setVisibility(getGroup() == null ? View.GONE
+                        : View.VISIBLE);
             }
-            updateVolumeGroupList();
         } else {
             mVolumeControlLayout.setVisibility(View.GONE);
         }
-        updateLayoutHeight();
     }
 
-    private void updateVolumeGroupList() {
-        mGroupMemberRoutes.clear();
-        if (getGroup() != null) {
-            mGroupMemberRoutes.addAll(getGroup().getRoutes());
+    private void rebuildVolumeGroupList(boolean animate) {
+        List<MediaRouter.RouteInfo> routes = getGroup() == null ? null : getGroup().getRoutes();
+        if (routes == null) {
+            mGroupMemberRoutes.clear();
+            mVolumeGroupAdapter.notifyDataSetChanged();
+        } else if (MediaRouteDialogHelper.listUnorderedEquals(mGroupMemberRoutes, routes)) {
+            mVolumeGroupAdapter.notifyDataSetChanged();
+        } else {
+            HashMap<MediaRouter.RouteInfo, Rect> previousRouteBoundMap = animate
+                    ? MediaRouteDialogHelper.getItemBoundMap(mVolumeGroupList, mVolumeGroupAdapter)
+                    : null;
+            HashMap<MediaRouter.RouteInfo, BitmapDrawable> previousRouteBitmapMap = animate
+                    ? MediaRouteDialogHelper.getItemBitmapMap(mContext, mVolumeGroupList,
+                            mVolumeGroupAdapter) : null;
+            mGroupMemberRoutesAdded =
+                    MediaRouteDialogHelper.getItemsAdded(mGroupMemberRoutes, routes);
+            mGroupMemberRoutesRemoved = MediaRouteDialogHelper.getItemsRemoved(mGroupMemberRoutes,
+                    routes);
+            mGroupMemberRoutes.addAll(0, mGroupMemberRoutesAdded);
+            mGroupMemberRoutes.removeAll(mGroupMemberRoutesRemoved);
+            mVolumeGroupAdapter.notifyDataSetChanged();
+            if (animate && mIsGroupExpanded
+                    && mGroupMemberRoutesAdded.size() + mGroupMemberRoutesRemoved.size() > 0) {
+                animateGroupListItems(previousRouteBoundMap, previousRouteBitmapMap);
+            } else {
+                mGroupMemberRoutesAdded = null;
+                mGroupMemberRoutesRemoved = null;
+            }
         }
-        mVolumeGroupAdapter.notifyDataSetChanged();
+    }
+
+    private void animateGroupListItems(final Map<MediaRouter.RouteInfo, Rect> previousRouteBoundMap,
+            final Map<MediaRouter.RouteInfo, BitmapDrawable> previousRouteBitmapMap) {
+        mVolumeGroupList.setEnabled(false);
+        mVolumeGroupList.requestLayout();
+        mIsGroupListAnimating = true;
+        ViewTreeObserver observer = mVolumeGroupList.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                mVolumeGroupList.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                animateGroupListItemsInternal(previousRouteBoundMap, previousRouteBitmapMap);
+            }
+        });
+    }
+
+    private void animateGroupListItemsInternal(
+            Map<MediaRouter.RouteInfo, Rect> previousRouteBoundMap,
+            Map<MediaRouter.RouteInfo, BitmapDrawable> previousRouteBitmapMap) {
+        if (mGroupMemberRoutesAdded == null || mGroupMemberRoutesRemoved == null) {
+            return;
+        }
+        int groupSizeDelta = mGroupMemberRoutesAdded.size() - mGroupMemberRoutesRemoved.size();
+        boolean listenerRegistered = false;
+        Animation.AnimationListener listener = new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                mVolumeGroupList.startAnimationAll();
+                mVolumeGroupList.postDelayed(mGroupListFadeInAnimation,
+                        mGroupListAnimationDurationMs);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) { }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) { }
+        };
+
+        // Animate visible items from previous positions to current positions except routes added
+        // just before. Added routes will remain hidden until translate animation finishes.
+        int first = mVolumeGroupList.getFirstVisiblePosition();
+        for (int i = 0; i < mVolumeGroupList.getChildCount(); ++i) {
+            View view = mVolumeGroupList.getChildAt(i);
+            int position = first + i;
+            MediaRouter.RouteInfo route = mVolumeGroupAdapter.getItem(position);
+            Rect previousBounds = previousRouteBoundMap.get(route);
+            int currentTop = view.getTop();
+            int previousTop = previousBounds != null ? previousBounds.top
+                    : (currentTop + mVolumeGroupListItemHeight * groupSizeDelta);
+            AnimationSet animSet = new AnimationSet(true);
+            if (mGroupMemberRoutesAdded != null && mGroupMemberRoutesAdded.contains(route)) {
+                previousTop = currentTop;
+                Animation alphaAnim = new AlphaAnimation(0.0f, 0.0f);
+                alphaAnim.setDuration(mGroupListFadeInDurationMs);
+                animSet.addAnimation(alphaAnim);
+            }
+            Animation translationAnim = new TranslateAnimation(0, 0, previousTop - currentTop, 0);
+            translationAnim.setDuration(mGroupListAnimationDurationMs);
+            animSet.addAnimation(translationAnim);
+            animSet.setFillAfter(true);
+            animSet.setFillEnabled(true);
+            animSet.setInterpolator(mInterpolator);
+            if (!listenerRegistered) {
+                listenerRegistered = true;
+                animSet.setAnimationListener(listener);
+            }
+            view.clearAnimation();
+            view.startAnimation(animSet);
+            previousRouteBoundMap.remove(route);
+            previousRouteBitmapMap.remove(route);
+        }
+
+        // If a member route doesn't exist any longer, it can be either removed or moved out of the
+        // ListView layout boundary. In this case, use the previously captured bitmaps for
+        // animation.
+        for (Map.Entry<MediaRouter.RouteInfo, BitmapDrawable> item
+                : previousRouteBitmapMap.entrySet()) {
+            final MediaRouter.RouteInfo route = item.getKey();
+            final BitmapDrawable bitmap = item.getValue();
+            final Rect bounds = previousRouteBoundMap.get(route);
+            OverlayObject object = null;
+            if (mGroupMemberRoutesRemoved.contains(route)) {
+                object = new OverlayObject(bitmap, bounds).setAlphaAnimation(1.0f, 0.0f)
+                        .setDuration(mGroupListFadeOutDurationMs)
+                        .setInterpolator(mInterpolator);
+            } else {
+                int deltaY = groupSizeDelta * mVolumeGroupListItemHeight;
+                object = new OverlayObject(bitmap, bounds).setTranslateYAnimation(deltaY)
+                        .setDuration(mGroupListAnimationDurationMs)
+                        .setInterpolator(mInterpolator)
+                        .setAnimationEndListener(new OverlayObject.OnAnimationEndListener() {
+                            @Override
+                            public void onAnimationEnd() {
+                                mGroupMemberRoutesAnimatingWithBitmap.remove(route);
+                                mVolumeGroupAdapter.notifyDataSetChanged();
+                            }
+                        });
+                mGroupMemberRoutesAnimatingWithBitmap.add(route);
+            }
+            mVolumeGroupList.addOverlayObject(object);
+        }
+    }
+
+    private void startGroupListFadeInAnimation() {
+        clearGroupListAnimation(true);
+        mVolumeGroupList.requestLayout();
+        ViewTreeObserver observer = mVolumeGroupList.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                mVolumeGroupList.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                startGroupListFadeInAnimationInternal();
+            }
+        });
+    }
+
+    private void startGroupListFadeInAnimationInternal() {
+        if (mGroupMemberRoutesAdded != null && mGroupMemberRoutesAdded.size() != 0) {
+            fadeInAddedRoutes();
+        } else {
+            finishAnimation(true);
+        }
+    }
+
+    private void finishAnimation(boolean animate) {
+        mGroupMemberRoutesAdded = null;
+        mGroupMemberRoutesRemoved = null;
+        mIsGroupListAnimating = false;
+        if (mIsGroupListAnimationPending) {
+            mIsGroupListAnimationPending = false;
+            updateLayoutHeight(animate);
+        }
+        mVolumeGroupList.setEnabled(true);
+    }
+
+    private void fadeInAddedRoutes() {
+        Animation.AnimationListener listener = new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) { }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                finishAnimation(true);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) { }
+        };
+        boolean listenerRegistered = false;
+        int first = mVolumeGroupList.getFirstVisiblePosition();
+        for (int i = 0; i < mVolumeGroupList.getChildCount(); ++i) {
+            View view = mVolumeGroupList.getChildAt(i);
+            int position = first + i;
+            MediaRouter.RouteInfo route = mVolumeGroupAdapter.getItem(position);
+            if (mGroupMemberRoutesAdded.contains(route)) {
+                Animation alphaAnim = new AlphaAnimation(0.0f, 1.0f);
+                alphaAnim.setDuration(mGroupListFadeInDurationMs);
+                alphaAnim.setFillEnabled(true);
+                alphaAnim.setFillAfter(true);
+                if (!listenerRegistered) {
+                    listenerRegistered = true;
+                    alphaAnim.setAnimationListener(listener);
+                }
+                view.clearAnimation();
+                view.startAnimation(alphaAnim);
+            }
+        }
+    }
+
+    void clearGroupListAnimation(boolean exceptAddedRoutes) {
+        int first = mVolumeGroupList.getFirstVisiblePosition();
+        for (int i = 0; i < mVolumeGroupList.getChildCount(); ++i) {
+            View view = mVolumeGroupList.getChildAt(i);
+            int position = first + i;
+            MediaRouter.RouteInfo route = mVolumeGroupAdapter.getItem(position);
+            if (exceptAddedRoutes && mGroupMemberRoutesAdded != null
+                    && mGroupMemberRoutesAdded.contains(route)) {
+                continue;
+            }
+            LinearLayout container = (LinearLayout) view.findViewById(R.id.volume_item_container);
+            container.setVisibility(View.VISIBLE);
+            AnimationSet animSet = new AnimationSet(true);
+            Animation alphaAnim = new AlphaAnimation(1.0f, 1.0f);
+            alphaAnim.setDuration(0);
+            animSet.addAnimation(alphaAnim);
+            Animation translationAnim = new TranslateAnimation(0, 0, 0, 0);
+            translationAnim.setDuration(0);
+            animSet.setFillAfter(true);
+            animSet.setFillEnabled(true);
+            view.clearAnimation();
+            view.startAnimation(animSet);
+        }
+        mVolumeGroupList.stopAnimationAll();
+        if (!exceptAddedRoutes) {
+            finishAnimation(false);
+        }
     }
 
     private void updatePlaybackControlLayout() {
@@ -754,7 +1004,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 }
             }
         }
-        updateLayoutHeight();
     }
 
     private boolean isVolumeControlAvailable(MediaRouter.RouteInfo route) {
@@ -796,12 +1045,12 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private final class MediaRouterCallback extends MediaRouter.Callback {
         @Override
         public void onRouteUnselected(MediaRouter router, MediaRouter.RouteInfo route) {
-            update();
+            update(false);
         }
 
         @Override
         public void onRouteChanged(MediaRouter router, MediaRouter.RouteInfo route) {
-            update();
+            update(true);
         }
 
         @Override
@@ -825,13 +1074,13 @@ public class MediaRouteControllerDialog extends AlertDialog {
         @Override
         public void onPlaybackStateChanged(PlaybackStateCompat state) {
             mState = state;
-            update();
+            update(false);
         }
 
         @Override
         public void onMetadataChanged(MediaMetadataCompat metadata) {
             mDescription = metadata == null ? null : metadata.getDescription();
-            update();
+            update(false);
         }
     }
 
@@ -960,6 +1209,22 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 ImageView volumeItemIcon =
                         (ImageView) v.findViewById(R.id.mr_volume_item_icon);
                 volumeItemIcon.setAlpha(isEnabled ? 0xFF : (int) (0xFF * mDisabledAlpha));
+
+                // If overlay bitmap exists, real view should remain hidden until
+                // the animation ends.
+                LinearLayout container = (LinearLayout) v.findViewById(R.id.volume_item_container);
+                container.setVisibility(mGroupMemberRoutesAnimatingWithBitmap.contains(route)
+                        ? View.INVISIBLE : View.VISIBLE);
+
+                // Routes which are being added will be invisible until animation ends.
+                if (mGroupMemberRoutesAdded != null && mGroupMemberRoutesAdded.contains(route)) {
+                    Animation alphaAnim = new AlphaAnimation(0.0f, 0.0f);
+                    alphaAnim.setDuration(0);
+                    alphaAnim.setFillEnabled(true);
+                    alphaAnim.setFillAfter(true);
+                    v.clearAnimation();
+                    v.startAnimation(alphaAnim);
+                }
             }
             return v;
         }
@@ -1056,7 +1321,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
                 mArtView.setImageBitmap(art);
                 mArtView.setBackgroundColor(mBackgroundColor);
-                updateLayoutHeight();
+                updateLayoutHeight(true);
             }
         }
 
