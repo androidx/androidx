@@ -9,6 +9,7 @@ package android.support.provider {
     method public boolean isChildDocument(java.lang.String, java.lang.String);
     method public boolean isSupportedArchiveType(java.lang.String);
     method public android.os.ParcelFileDescriptor openDocument(java.lang.String, java.lang.String, android.os.CancellationSignal) throws java.io.FileNotFoundException;
+    method public android.content.res.AssetFileDescriptor openDocumentThumbnail(java.lang.String, android.graphics.Point, android.os.CancellationSignal) throws java.io.FileNotFoundException;
     method public android.database.Cursor queryChildDocuments(java.lang.String, java.lang.String[], java.lang.String) throws java.io.FileNotFoundException;
     method public android.database.Cursor queryDocument(java.lang.String, java.lang.String[]) throws java.io.FileNotFoundException;
     field public static final java.lang.String COLUMN_LOCAL_FILE_PATH = "local_file_path";
