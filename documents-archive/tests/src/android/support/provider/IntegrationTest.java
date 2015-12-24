@@ -16,21 +16,25 @@
 
 package android.support.provider.tests;
 
+import android.content.ContentProviderClient;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
+import android.os.RemoteException;
 import android.provider.DocumentsContract.Document;
 import android.provider.DocumentsContract;
-import android.support.provider.DocumentArchive;
 import android.test.AndroidTestCase;
 import android.util.Log;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.IllegalArgumentException;
 import java.util.Scanner;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Integration tests for DocumentsProvider and DocumentArchiveHelper.
@@ -40,7 +44,23 @@ import java.util.Scanner;
  * done in {@code DocumentArchiveTest}.
  */
 public class IntegrationTest extends AndroidTestCase {
-    private DocumentArchive mArchive = null;
+    private ContentProviderClient mClient;
+
+    @Override
+    public void setUp() throws RemoteException {
+        mClient = getContext().getContentResolver().acquireContentProviderClient(
+                StubProvider.AUTHORITY);
+        assertNotNull(mClient);
+        mClient.call("reset", null, null);
+    }
+
+    @Override
+    public void tearDown() {
+        if (mClient != null) {
+            mClient.release();
+            mClient = null;
+        }
+    }
 
     public void testQueryForChildren() throws IOException {
         final Cursor cursor = mContext.getContentResolver().query(
@@ -50,7 +70,8 @@ public class IntegrationTest extends AndroidTestCase {
         assertEquals(3, cursor.getCount());
     }
 
-    public void testQueryForDocument() throws IOException {
+    public void testQueryForDocument_Archive()
+            throws IOException, RemoteException, InterruptedException {
         final Cursor cursor = mContext.getContentResolver().query(
                 DocumentsContract.buildDocumentUri(
                         StubProvider.AUTHORITY, StubProvider.DOCUMENT_ID),
@@ -59,6 +80,44 @@ public class IntegrationTest extends AndroidTestCase {
         assertTrue(cursor.moveToFirst());
         assertEquals(Document.FLAG_ARCHIVE,
                 cursor.getInt(cursor.getColumnIndexOrThrow(Document.COLUMN_FLAGS)));
+    }
+
+    public void testQueryForDocument_ArchiveDescendant()
+            throws IOException, RemoteException, InterruptedException {
+        final Cursor cursor = mContext.getContentResolver().query(
+                DocumentsContract.buildDocumentUri(
+                        StubProvider.AUTHORITY, StubProvider.FILE_DOCUMENT_ID),
+                        null, null, null, null);
+        assertEquals(1, cursor.getCount());
+        assertEquals(StubProvider.NOTIFY_URI, cursor.getNotificationUri());
+
+        final CountDownLatch changeSignal = new CountDownLatch(1);
+        final ContentObserver observer = new ContentObserver(null) {
+            @Override
+            public void onChange(boolean selfChange) {
+                changeSignal.countDown();
+            }
+        };
+
+        try {
+            getContext().getContentResolver().registerContentObserver(
+                    cursor.getNotificationUri(), false /* notifyForDescendants */, observer);
+
+            // Simulate deleting the archive file, then confirm that the notification is
+            // propagated and the archive closed.
+            mClient.call("delete", null, null);
+            changeSignal.await();
+
+            mContext.getContentResolver().query(
+                    DocumentsContract.buildChildDocumentsUri(
+                            StubProvider.AUTHORITY, StubProvider.FILE_DOCUMENT_ID),
+                            null, null, null, null);
+            fail("Expected IllegalStateException, but succeeded.");
+        } catch (IllegalStateException e) {
+            // Expected, as the file is gone.
+        } finally {
+            getContext().getContentResolver().unregisterContentObserver(observer);
+        }
     }
 
     public void testGetType() throws IOException {
