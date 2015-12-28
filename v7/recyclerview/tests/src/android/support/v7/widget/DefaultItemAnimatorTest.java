@@ -18,6 +18,7 @@ package android.support.v7.widget;
 
 import android.os.Looper;
 import android.test.ActivityInstrumentationTestCase2;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+@MediumTest
 public class DefaultItemAnimatorTest extends ActivityInstrumentationTestCase2<TestActivity> {
 
     private static final String TAG = "DefaultItemAnimatorTest";

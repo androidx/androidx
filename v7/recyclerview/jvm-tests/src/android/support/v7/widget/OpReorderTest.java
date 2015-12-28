@@ -28,6 +28,7 @@ import java.util.Random;
 import java.util.Set;
 
 import android.support.v7.widget.AdapterHelper.UpdateOp;
+import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
 
 import static android.support.v7.widget.AdapterHelper.UpdateOp.ADD;
@@ -37,6 +38,7 @@ import static android.support.v7.widget.AdapterHelper.UpdateOp.UPDATE;
 import static org.junit.Assert.*;
 
 @RunWith(JUnit4.class)
+@SmallTest
 public class OpReorderTest {
 
     private static final String TAG = "OpReorderTest";

@@ -18,6 +18,7 @@ package android.support.v7.util;
 
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.util.TileList;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.CoreMatchers.*;
@@ -26,6 +27,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
+@SmallTest
 public class TileListTest {
     int mTileSize = 3;
     TileList<Integer> mTileList;

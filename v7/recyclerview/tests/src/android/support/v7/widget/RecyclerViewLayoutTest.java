@@ -29,6 +29,7 @@ import android.graphics.Rect;
 import android.os.SystemClock;
 import android.support.v4.view.ViewCompat;
 import android.test.TouchUtils;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -56,6 +57,7 @@ import static android.support.v7.widget.RecyclerView.getChildViewHolderInt;
 import android.support.test.runner.AndroidJUnit4;
 
 @RunWith(AndroidJUnit4.class)
+@MediumTest
 public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest {
     private static final int FLAG_HORIZONTAL = 1;
     private static final int FLAG_VERTICAL = 1 << 1;

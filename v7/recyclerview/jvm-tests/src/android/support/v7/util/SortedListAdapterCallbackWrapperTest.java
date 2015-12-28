@@ -22,6 +22,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import android.test.suitebuilder.annotation.SmallTest;
+
 import static android.support.v7.util.SortedList.BatchedCallback.TYPE_NONE;
 import static android.support.v7.util.SortedList.BatchedCallback.TYPE_ADD;
 import static android.support.v7.util.SortedList.BatchedCallback.TYPE_REMOVE;
@@ -29,6 +31,7 @@ import static android.support.v7.util.SortedList.BatchedCallback.TYPE_CHANGE;
 import static android.support.v7.util.SortedList.BatchedCallback.TYPE_MOVE;
 
 @RunWith(JUnit4.class)
+@SmallTest
 public class SortedListAdapterCallbackWrapperTest extends TestCase {
 
     private int lastReceivedType = TYPE_NONE;

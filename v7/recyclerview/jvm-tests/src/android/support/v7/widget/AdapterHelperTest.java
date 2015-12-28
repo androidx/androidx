@@ -25,6 +25,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -39,6 +40,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static android.support.v7.widget.RecyclerView.*;
 
 @RunWith(JUnit4.class)
+@SmallTest
 public class AdapterHelperTest extends AndroidTestCase {
 
     private static final boolean DEBUG = false;

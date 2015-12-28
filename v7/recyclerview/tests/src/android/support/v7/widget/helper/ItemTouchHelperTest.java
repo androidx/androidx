@@ -23,6 +23,7 @@ import android.support.v7.widget.BaseRecyclerViewInstrumentationTest;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.WrappedRecyclerView;
 import android.test.InstrumentationTestCase;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -34,6 +35,7 @@ import java.util.List;
 
 import static android.support.v7.widget.helper.ItemTouchHelper.*;
 
+@MediumTest
 public class ItemTouchHelperTest extends BaseRecyclerViewInstrumentationTest {
 
     TestAdapter mAdapter;

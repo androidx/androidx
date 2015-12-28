@@ -23,6 +23,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import android.test.suitebuilder.annotation.SmallTest;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,6 +33,7 @@ import java.util.List;
 import java.util.Random;
 
 @RunWith(JUnit4.class)
+@SmallTest
 public class SortedListTest extends TestCase {
 
     SortedList<Item> mList;

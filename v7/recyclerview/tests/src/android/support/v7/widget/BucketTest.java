@@ -17,12 +17,14 @@
 package android.support.v7.widget;
 
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+@SmallTest
 public class BucketTest extends AndroidTestCase {
 
     ChildHelper.Bucket mBucket;
