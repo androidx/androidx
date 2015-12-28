@@ -17,11 +17,13 @@
 package android.support.v7.util;
 
 import android.support.annotation.UiThread;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.util.SparseBooleanArray;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+@MediumTest
 public class AsyncListUtilTest extends BaseThreadedTest {
 
     private static final int TILE_SIZE = 10;

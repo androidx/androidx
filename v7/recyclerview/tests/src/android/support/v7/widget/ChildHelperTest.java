@@ -24,6 +24,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.AndroidTestCase;
 import android.test.mock.MockContext;
+import android.test.suitebuilder.annotation.SmallTest;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
+@SmallTest
 public class ChildHelperTest extends AndroidTestCase {
     LoggingCallback  mLoggingCallback;
     ChildHelper mChildHelper;

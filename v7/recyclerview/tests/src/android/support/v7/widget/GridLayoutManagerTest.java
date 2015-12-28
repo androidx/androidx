@@ -21,6 +21,7 @@ import android.graphics.Rect;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.test.UiThreadTest;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.View;
@@ -41,6 +42,7 @@ import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
 import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+@MediumTest
 public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
 
     static final String TAG = "GridLayoutManagerTest";

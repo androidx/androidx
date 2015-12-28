@@ -23,6 +23,7 @@ import android.os.Parcelable;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityRecordCompat;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,6 +51,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * and stability of LinearLayoutManager in response to different events (state change, scrolling
  * etc) where it is very hard to do manual testing.
  */
+@MediumTest
 public class LinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
 
     private static final boolean DEBUG = false;

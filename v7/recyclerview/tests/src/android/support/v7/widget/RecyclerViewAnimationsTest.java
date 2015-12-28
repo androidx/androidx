@@ -18,7 +18,9 @@ package android.support.v7.widget;
 
 import android.graphics.Rect;
 import android.os.Debug;
+import android.support.annotation.NonNull;
 import android.support.v4.view.ViewCompat;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Tests for {@link SimpleItemAnimator} API.
  */
+@MediumTest
 public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
 
     final List<TestViewHolder> recycledVHs = new ArrayList<>();
@@ -769,19 +772,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         mLayoutManager.waitForLayout(2);
     }
 
-    private static boolean listEquals(List list1, List list2) {
-        if (list1.size() != list2.size()) {
-            return false;
-        }
-        for (int i = 0; i < list1.size(); i++) {
-            if (!list1.get(i).equals(list2.get(i))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private void testChangeWithPayload(final boolean supportsChangeAnim,
+    private void testChangeWithPayload(final boolean supportsChangeAnim, final boolean canReUse,
             Object[][] notifyPayloads, Object[][] expectedPayloadsInOnBind)
             throws Throwable {
         final List<Object> expectedPayloads = new ArrayList<Object>();
@@ -809,11 +800,18 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                 if (DEBUG) {
                     Log.d(TAG, " onBind to " + position + "" + holder.toString());
                 }
-                assertTrue(listEquals(payloads, expectedPayloads));
+                assertEquals(expectedPayloads, payloads);
             }
         };
         testAdapter.setHasStableIds(false);
         setupBasic(testAdapter.getItemCount(), 0, 10, testAdapter);
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator() {
+            @Override
+            public boolean canReuseUpdatedViewHolder(@NonNull RecyclerView.ViewHolder viewHolder,
+                    @NonNull List<Object> payloads) {
+                return canReUse && super.canReuseUpdatedViewHolder(viewHolder, payloads);
+            }
+        });
         ((SimpleItemAnimator) mRecyclerView.getItemAnimator()).setSupportsChangeAnimations(
                 supportsChangeAnim);
 
@@ -840,7 +838,26 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
 
     public void testCrossFadingChangeAnimationWithPayload() throws Throwable {
         // for crossfading change animation,  will receive EMPTY payload in onBindViewHolder
-        testChangeWithPayload(true,
+        testChangeWithPayload(true, true,
+                new Object[][]{
+                        new Object[]{"abc"},
+                        new Object[]{"abc", null, "cdf"},
+                        new Object[]{"abc", null},
+                        new Object[]{null, "abc"},
+                        new Object[]{"abc", "cdf"}
+                },
+                new Object[][]{
+                        new Object[]{"abc"},
+                        new Object[0],
+                        new Object[0],
+                        new Object[0],
+                        new Object[]{"abc", "cdf"}
+                });
+    }
+
+    public void testCrossFadingChangeAnimationWithPayloadWithoutReuse() throws Throwable {
+        // for crossfading change animation,  will receive EMPTY payload in onBindViewHolder
+        testChangeWithPayload(true, false,
                 new Object[][]{
                         new Object[]{"abc"},
                         new Object[]{"abc", null, "cdf"},
@@ -860,7 +877,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
     public void testNoChangeAnimationWithPayload() throws Throwable {
         // for Change Animation disabled, payload should match the payloads unless
         // null payload is fired.
-        testChangeWithPayload(false,
+        testChangeWithPayload(false, true,
                 new Object[][]{
                         new Object[]{"abc"},
                         new Object[]{"abc", null, "cdf"},

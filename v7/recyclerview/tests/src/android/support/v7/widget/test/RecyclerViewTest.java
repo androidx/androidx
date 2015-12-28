@@ -24,8 +24,10 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.test.ActivityInstrumentationTestCase2;
+import android.test.suitebuilder.annotation.SmallTest;
 import android.widget.LinearLayout;
 
+@SmallTest
 public class RecyclerViewTest extends ActivityInstrumentationTestCase2<RecyclerViewTestActivity> {
 
     public RecyclerViewTest() {
