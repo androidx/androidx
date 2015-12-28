@@ -26,6 +26,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityRecordCompat;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,6 +49,7 @@ import static android.support.v7.widget.LayoutState.*;
 import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
 import static android.support.v7.widget.StaggeredGridLayoutManager.*;
 
+@MediumTest
 public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
 
     private static final boolean DEBUG = false;

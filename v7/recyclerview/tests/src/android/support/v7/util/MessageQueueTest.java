@@ -17,6 +17,7 @@
 package android.support.v7.util;
 
 import android.support.test.runner.AndroidJUnit4;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -28,6 +29,7 @@ import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(AndroidJUnit4.class)
+@SmallTest
 public class MessageQueueTest {
     MessageThreadUtil.MessageQueue mQueue;
 

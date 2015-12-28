@@ -21,12 +21,14 @@ import static org.hamcrest.CoreMatchers.*;
 
 import android.os.Looper;
 import android.support.annotation.UiThread;
+import android.test.suitebuilder.annotation.MediumTest;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@MediumTest
 public class ThreadUtilTest extends BaseThreadedTest {
     Map<String, LockedObject> results = new HashMap<>();
 

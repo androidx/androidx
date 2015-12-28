@@ -18,6 +18,7 @@ package android.support.v7.widget;
 
 import android.content.Context;
 import android.support.v7.util.AsyncListUtil;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -26,6 +27,7 @@ import java.util.BitSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+@MediumTest
 public class AsyncListUtilLayoutTest extends BaseRecyclerViewInstrumentationTest {
 
     private static final boolean DEBUG = false;

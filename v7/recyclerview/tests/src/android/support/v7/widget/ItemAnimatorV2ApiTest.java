@@ -17,6 +17,7 @@ package android.support.v7.widget;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.test.suitebuilder.annotation.MediumTest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,6 +32,7 @@ import static android.support.v7.widget.RecyclerView.ItemAnimator.FLAG_REMOVED;
 /**
  * Includes tests for the new RecyclerView animations API (v2).
  */
+@MediumTest
 public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
     @Override
     protected RecyclerView.ItemAnimator createItemAnimator() {

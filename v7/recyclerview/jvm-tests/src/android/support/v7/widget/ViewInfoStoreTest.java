@@ -26,6 +26,7 @@ import org.junit.runners.JUnit4;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.Pair;
+import android.test.suitebuilder.annotation.SmallTest;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -42,6 +43,7 @@ import android.support.v7.widget.RecyclerView.ViewHolder;
 
 @SuppressWarnings("ConstantConditions")
 @RunWith(JUnit4.class)
+@SmallTest
 public class ViewInfoStoreTest extends TestCase {
     ViewInfoStore mStore;
     LoggingProcessCallback mCallback;
