@@ -21,6 +21,7 @@ import android.graphics.PointF;
 import android.graphics.Rect;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
@@ -29,6 +30,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
 
 import java.util.ArrayList;
@@ -65,6 +67,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
      */
     public static final int GAP_HANDLING_NONE = 0;
 
+    @SuppressWarnings("unused")
     @Deprecated
     public static final int GAP_HANDLING_LAZY = 1;
 
@@ -90,6 +93,12 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
     public static final int GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS = 2;
 
     private static final int INVALID_OFFSET = Integer.MIN_VALUE;
+    /**
+     * While trying to find next view to focus, LayoutManager will not try to scroll more
+     * than this factor times the total space of the list. If layout is vertical, total space is the
+     * height minus padding, if layout is horizontal, total space is the width minus padding.
+     */
+    private static final float MAX_SCROLL_FACTOR = 1 / 3f;
 
     /**
      * Number of spans
@@ -205,6 +214,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
      * Constructor used when layout manager is set in XML by RecyclerView attribute
      * "layoutManager". Defaults to single column and vertical.
      */
+    @SuppressWarnings("unused")
     public StaggeredGridLayoutManager(Context context, AttributeSet attrs, int defStyleAttr,
             int defStyleRes) {
         Properties properties = getProperties(context, attrs, defStyleAttr, defStyleRes);
@@ -1298,6 +1308,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             mLayoutState.mEndLine = mPrimaryOrientation.getEnd() + endExtra;
             mLayoutState.mStartLine = -startExtra;
         }
+        mLayoutState.mStopInFocusable = false;
     }
 
     private void setLayoutStateDirection(int direction) {
@@ -1493,7 +1504,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
                         mLaidOutInvalidFullSpan = true;
                     }
                 }
-
             }
             attachViewToSpans(view, lp, layoutState);
             final int otherStart = lp.mFullSpan ? mSecondaryOrientation.getStartAfterPadding()
@@ -1512,6 +1522,13 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
                 updateRemainingSpans(currentSpan, mLayoutState.mLayoutDirection, targetLine);
             }
             recycle(recycler, mLayoutState);
+            if (mLayoutState.mStopInFocusable && view.isFocusable()) {
+                if (lp.mFullSpan) {
+                    mRemainingSpans.clear();
+                } else {
+                    mRemainingSpans.set(currentSpan.mIndex, false);
+                }
+            }
             added = true;
         }
         if (!added) {
@@ -1563,6 +1580,9 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private void recycle(RecyclerView.Recycler recycler, LayoutState layoutState) {
+        if (layoutState.mStopInFocusable) {
+            return;
+        }
         if (layoutState.mAvailable == 0) {
             // easy, recycle line is still valid
             if (layoutState.mLayoutDirection == LAYOUT_START) {
@@ -2014,6 +2034,104 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         return mOrientation;
     }
 
+    @Nullable
+    @Override
+    public View onFocusSearchFailed(View focused, int direction, RecyclerView.Recycler recycler,
+            RecyclerView.State state) {
+        if (getChildCount() == 0) {
+            return null;
+        }
+
+        View directChild = findContainingItemView(focused);
+        if (directChild == null) {
+            return null;
+        }
+
+        ensureOrientationHelper();
+        resolveShouldLayoutReverse();
+        final int layoutDir = convertFocusDirectionToLayoutDirection(direction);
+        if (layoutDir == LayoutState.INVALID_LAYOUT) {
+            return null;
+        }
+        LayoutParams prevFocusLayoutParams = (LayoutParams) focused.getLayoutParams();
+        boolean prevFocusFullSpan = prevFocusLayoutParams.mFullSpan;
+        final Span prevFocusSpan = prevFocusLayoutParams.mSpan;
+        final int referenceChildPosition;
+        if (layoutDir == LAYOUT_END) { // layout towards end
+            referenceChildPosition = getLastChildPosition();
+        } else {
+            referenceChildPosition = getFirstChildPosition();
+        }
+        updateLayoutState(referenceChildPosition, state);
+        setLayoutStateDirection(layoutDir);
+
+        mLayoutState.mCurrentPosition = referenceChildPosition + mLayoutState.mItemDirection;
+        mLayoutState.mAvailable = (int) (MAX_SCROLL_FACTOR * mPrimaryOrientation.getTotalSpace());
+        mLayoutState.mStopInFocusable = true;
+        fill(recycler, mLayoutState, state);
+        mLastLayoutFromEnd = mShouldReverseLayout;
+        if (!prevFocusFullSpan) {
+            View view = prevFocusSpan.getFocusableViewAfter(referenceChildPosition, layoutDir);
+            if (view != null && view != focused) {
+                return view;
+            }
+        }
+        // either could not find from the desired span or prev view is full span.
+        // traverse all spans
+        if (preferLastSpan(layoutDir)) {
+            for (int i = mSpanCount - 1; i >= 0; i --) {
+                View view = mSpans[i].getFocusableViewAfter(referenceChildPosition, layoutDir);
+                if (view != null && view != focused) {
+                    return view;
+                }
+            }
+        } else {
+            for (int i = 0; i < mSpanCount; i ++) {
+                View view = mSpans[i].getFocusableViewAfter(referenceChildPosition, layoutDir);
+                if (view != null && view != focused) {
+                    return view;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Converts a focusDirection to orientation.
+     *
+     * @param focusDirection One of {@link View#FOCUS_UP}, {@link View#FOCUS_DOWN},
+     *                       {@link View#FOCUS_LEFT}, {@link View#FOCUS_RIGHT},
+     *                       {@link View#FOCUS_BACKWARD}, {@link View#FOCUS_FORWARD}
+     *                       or 0 for not applicable
+     * @return {@link LayoutState#LAYOUT_START} or {@link LayoutState#LAYOUT_END} if focus direction
+     * is applicable to current state, {@link LayoutState#INVALID_LAYOUT} otherwise.
+     */
+    private int convertFocusDirectionToLayoutDirection(int focusDirection) {
+        switch (focusDirection) {
+            case View.FOCUS_BACKWARD:
+                return LayoutState.LAYOUT_START;
+            case View.FOCUS_FORWARD:
+                return LayoutState.LAYOUT_END;
+            case View.FOCUS_UP:
+                return mOrientation == VERTICAL ? LayoutState.LAYOUT_START
+                        : LayoutState.INVALID_LAYOUT;
+            case View.FOCUS_DOWN:
+                return mOrientation == VERTICAL ? LayoutState.LAYOUT_END
+                        : LayoutState.INVALID_LAYOUT;
+            case View.FOCUS_LEFT:
+                return mOrientation == HORIZONTAL ? LayoutState.LAYOUT_START
+                        : LayoutState.INVALID_LAYOUT;
+            case View.FOCUS_RIGHT:
+                return mOrientation == HORIZONTAL ? LayoutState.LAYOUT_END
+                        : LayoutState.INVALID_LAYOUT;
+            default:
+                if (DEBUG) {
+                    Log.d(TAG, "Unknown focus request:" + focusDirection);
+                }
+                return LayoutState.INVALID_LAYOUT;
+        }
+
+    }
 
     /**
      * LayoutParams used by StaggeredGridLayoutManager.
@@ -2094,7 +2212,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
     class Span {
 
         static final int INVALID_LINE = Integer.MIN_VALUE;
-        private ArrayList<View> mViews = new ArrayList<View>();
+        private ArrayList<View> mViews = new ArrayList<>();
         int mCachedStart = INVALID_LINE;
         int mCachedEnd = INVALID_LINE;
         int mDeletedSize = 0;
@@ -2278,45 +2396,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             }
         }
 
-        // normalized offset is how much this span can scroll
-        int getNormalizedOffset(int dt, int targetStart, int targetEnd) {
-            if (mViews.size() == 0) {
-                return 0;
-            }
-            if (dt < 0) {
-                final int endSpace = getEndLine() - targetEnd;
-                if (endSpace <= 0) {
-                    return 0;
-                }
-                return -dt > endSpace ? -endSpace : dt;
-            } else {
-                final int startSpace = targetStart - getStartLine();
-                if (startSpace <= 0) {
-                    return 0;
-                }
-                return startSpace < dt ? startSpace : dt;
-            }
-        }
-
-        /**
-         * Returns if there is no child between start-end lines
-         *
-         * @param start The start line
-         * @param end   The end line
-         * @return true if a new child can be added between start and end
-         */
-        boolean isEmpty(int start, int end) {
-            final int count = mViews.size();
-            for (int i = 0; i < count; i++) {
-                final View view = mViews.get(i);
-                if (mPrimaryOrientation.getDecoratedStart(view) < end &&
-                        mPrimaryOrientation.getDecoratedEnd(view) > start) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
         public int findFirstVisibleItemPosition() {
             return mReverseLayout
                     ? findOneVisibleChild(mViews.size() - 1, -1, false)
@@ -2360,6 +2439,36 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
                 }
             }
             return NO_POSITION;
+        }
+
+        /**
+         * Depending on the layout direction, returns the View that is after the given position.
+         */
+        public View getFocusableViewAfter(int referenceChildPosition, int layoutDir) {
+            View candidate = null;
+            if (layoutDir == LAYOUT_START) {
+                final int limit = mViews.size();
+                for (int i = 0; i < limit; i++) {
+                    final View view = mViews.get(i);
+                    if (view.isFocusable() &&
+                            (getPosition(view) > referenceChildPosition == mReverseLayout) ) {
+                        candidate = view;
+                    } else {
+                        break;
+                    }
+                }
+            } else {
+                for (int i = mViews.size() - 1; i >= 0; i--) {
+                    final View view = mViews.get(i);
+                    if (view.isFocusable() &&
+                            (getPosition(view) > referenceChildPosition == !mReverseLayout)) {
+                        candidate = view;
+                    } else {
+                        break;
+                    }
+                }
+            }
+            return candidate;
         }
     }
 
@@ -2537,7 +2646,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
 
         public void addFullSpanItem(FullSpanItem fullSpanItem) {
             if (mFullSpanItems == null) {
-                mFullSpanItems = new ArrayList<FullSpanItem>();
+                mFullSpanItems = new ArrayList<>();
             }
             final int size = mFullSpanItems.size();
             for (int i = 0; i < size; i++) {
@@ -2629,10 +2738,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
                 return mGapPerSpan == null ? 0 : mGapPerSpan[spanIndex];
             }
 
-            public void invalidateSpanGaps() {
-                mGapPerSpan = null;
-            }
-
             @Override
             public int describeContents() {
                 return 0;
@@ -2712,6 +2817,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             mReverseLayout = in.readInt() == 1;
             mAnchorLayoutFromEnd = in.readInt() == 1;
             mLastLayoutRTL = in.readInt() == 1;
+            //noinspection unchecked
             mFullSpanItems = in.readArrayList(
                     LazySpanLookup.FullSpanItem.class.getClassLoader());
         }

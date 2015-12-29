@@ -265,6 +265,8 @@ package android.support.v7.widget {
     method public int computeVerticalScrollRange();
     method public boolean drawChild(android.graphics.Canvas, android.view.View, long);
     method public android.view.View findChildViewUnder(float, float);
+    method public android.view.View findContainingItemView(android.view.View);
+    method public android.support.v7.widget.RecyclerView.ViewHolder findContainingViewHolder(android.view.View);
     method public android.support.v7.widget.RecyclerView.ViewHolder findViewHolderForAdapterPosition(int);
     method public android.support.v7.widget.RecyclerView.ViewHolder findViewHolderForItemId(long);
     method public android.support.v7.widget.RecyclerView.ViewHolder findViewHolderForLayoutPosition(int);
@@ -469,6 +471,7 @@ package android.support.v7.widget {
     method public void detachView(android.view.View);
     method public void detachViewAt(int);
     method public void endAnimation(android.view.View);
+    method public android.view.View findContainingItemView(android.view.View);
     method public android.view.View findViewByPosition(int);
     method public abstract android.support.v7.widget.RecyclerView.LayoutParams generateDefaultLayoutParams();
     method public android.support.v7.widget.RecyclerView.LayoutParams generateLayoutParams(android.view.ViewGroup.LayoutParams);

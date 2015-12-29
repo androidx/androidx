@@ -18,7 +18,10 @@
 package android.support.v7.widget;
 
 
+import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -28,6 +31,7 @@ import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityRecordCompat;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
+import android.util.StateSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
@@ -45,9 +49,13 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static android.support.v7.widget.LayoutState.*;
+import static android.support.v7.widget.LayoutState.LAYOUT_END;
+import static android.support.v7.widget.LayoutState.LAYOUT_START;
 import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
-import static android.support.v7.widget.StaggeredGridLayoutManager.*;
+import static android.support.v7.widget.StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS;
+import static android.support.v7.widget.StaggeredGridLayoutManager.GAP_HANDLING_NONE;
+import static android.support.v7.widget.StaggeredGridLayoutManager.HORIZONTAL;
+import static android.support.v7.widget.StaggeredGridLayoutManager.LayoutParams;
 
 @MediumTest
 public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
@@ -81,7 +89,11 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
     }
 
     void setupByConfig(Config config) throws Throwable {
-        mAdapter = new GridTestAdapter(config.mItemCount, config.mOrientation);
+        setupByConfig(config, new GridTestAdapter(config.mItemCount, config.mOrientation));
+    }
+
+    void setupByConfig(Config config, GridTestAdapter adapter) throws Throwable {
+        mAdapter = adapter;
         mRecyclerView = new RecyclerView(getActivity());
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setHasFixedSize(true);
@@ -310,6 +322,103 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
 
     }
 
+    public void testFocusSearchFailureUp() throws Throwable {
+        focusSearchFailure(false);
+    }
+
+    public void testFocusSearchFailureDown() throws Throwable {
+        focusSearchFailure(true);
+    }
+
+    public void focusSearchFailure(boolean scrollDown) throws Throwable {
+        int focusDir = scrollDown ? View.FOCUS_DOWN : View.FOCUS_UP;
+        setupByConfig(new Config(VERTICAL, !scrollDown, 3, GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS)
+                , new GridTestAdapter(31, 1) {
+                    RecyclerView mAttachedRv;
+                    @Override
+                    public TestViewHolder onCreateViewHolder(ViewGroup parent,
+                            int viewType) {
+                        TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
+                        testViewHolder.itemView.setFocusable(true);
+                        testViewHolder.itemView.setFocusableInTouchMode(true);
+                        // Good to have colors for debugging
+                        StateListDrawable stl = new StateListDrawable();
+                        stl.addState(new int[]{android.R.attr.state_focused},
+                                new ColorDrawable(Color.RED));
+                        stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
+                        testViewHolder.itemView.setBackground(stl);
+                        return testViewHolder;
+                    }
+
+                    @Override
+                    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+                        mAttachedRv = recyclerView;
+                    }
+
+                    @Override
+                    public void onBindViewHolder(TestViewHolder holder,
+                            int position) {
+                        super.onBindViewHolder(holder, position);
+                        holder.itemView.setMinimumHeight(mAttachedRv.getHeight() / 3);
+                    }
+                });
+        /**
+         * 0  1  2
+         * 3  4  5
+         * 6  7  8
+         * 9  10 11
+         * 12 13 14
+         * 15 16 17
+         * 18 18 18
+         * 19
+         * 20 20 20
+         * 21 22
+         * 23 23 23
+         * 24 25 26
+         * 27 28 29
+         * 30
+         */
+        mAdapter.mFullSpanItems.add(18);
+        mAdapter.mFullSpanItems.add(20);
+        mAdapter.mFullSpanItems.add(23);
+        waitFirstLayout();
+        View viewToFocus = mRecyclerView.findViewHolderForAdapterPosition(1).itemView;
+        assertTrue(requestFocus(viewToFocus));
+        getInstrumentation().waitForIdleSync();
+        assertSame(viewToFocus, mRecyclerView.getFocusedChild());
+        int pos = 1;
+        View focusedView = viewToFocus;
+        while (pos < 16) {
+            focusSearchAndWaitForScroll(focusedView, focusDir);
+            focusedView = mRecyclerView.getFocusedChild();
+            assertEquals(pos + 3,
+                    mRecyclerView.getChildViewHolder(focusedView).getAdapterPosition());
+            pos += 3;
+        }
+        for (int i : new int[]{18, 19, 20, 21, 23, 24}) {
+            focusSearchAndWaitForScroll(focusedView, focusDir);
+            focusedView = mRecyclerView.getFocusedChild();
+            assertEquals(i, mRecyclerView.getChildViewHolder(focusedView).getAdapterPosition());
+        }
+        // now move right
+        focusSearch(focusedView, View.FOCUS_RIGHT);
+        focusedView = mRecyclerView.getFocusedChild();
+        assertEquals(25, mRecyclerView.getChildViewHolder(focusedView).getAdapterPosition());
+        for (int i : new int[]{28, 30}) {
+            focusSearchAndWaitForScroll(focusedView, focusDir);
+            focusedView = mRecyclerView.getFocusedChild();
+            assertEquals(i, mRecyclerView.getChildViewHolder(focusedView).getAdapterPosition());
+        }
+    }
+
+    private void focusSearchAndWaitForScroll(View focused, int dir) throws Throwable {
+        focusSearch(focused, dir);
+        getInstrumentation().waitForIdleSync();
+        while (mRecyclerView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE) {
+            Thread.sleep(100);
+        }
+    }
+
 
     public void testScrollBackAndPreservePositions() throws Throwable {
         for (boolean saveRestore : new boolean[]{false, true}) {
@@ -516,9 +625,9 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                         .findLastVisibleItemPositions(
                                 provideArr ? new int[mLayoutManager.getSpanCount()] : null);
                 assertEquals(config + ":\nfirst visible child should match traversal result\n"
-                                + "traversed:" + visibleChildren + "\n"
-                                + "queried:" + queryResult + "\n"
-                                + boundsLog, visibleChildren, queryResult
+                        + "traversed:" + visibleChildren + "\n"
+                        + "queried:" + queryResult + "\n"
+                        + boundsLog, visibleChildren, queryResult
                 );
             }
         };
@@ -929,6 +1038,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
                     lp.height = mRecyclerView.getHeight() / 3;
                 }
             }
+
             @Override
             boolean assignRandomSize() {
                 return false;
@@ -942,7 +1052,7 @@ public class StaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentat
             Rect recyclerViewBounds = getDecoratedRecyclerViewBounds();
             // workaround for SGLM's span distribution issue. Right now, it may leave gaps so we
             // avoid it by setting its layout params directly
-            if(config.mOrientation == HORIZONTAL) {
+            if (config.mOrientation == HORIZONTAL) {
                 recyclerViewBounds.bottom -= recyclerViewBounds.height() % config.mSpanCount;
             } else {
                 recyclerViewBounds.right -= recyclerViewBounds.width() % config.mSpanCount;
