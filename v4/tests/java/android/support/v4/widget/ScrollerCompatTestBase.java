@@ -17,6 +17,7 @@ package android.support.v4.widget;
 
 import android.content.Context;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
@@ -29,6 +30,7 @@ import java.lang.reflect.InvocationTargetException;
 /**
  * @hide
  */
+@MediumTest
 abstract public class ScrollerCompatTestBase extends AndroidTestCase {
 
     private static final boolean DEBUG = false;
