@@ -105,6 +105,19 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         });
     }
 
+    public void focusSearch(final View focused, final int direction)
+            throws Throwable {
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                View view = focused.focusSearch(direction);
+                if (view != null && view != focused) {
+                    view.requestFocus();
+                }
+            }
+        });
+    }
+
     protected WrappedRecyclerView inflateWrappedRV() {
         return (WrappedRecyclerView)
                 LayoutInflater.from(getActivity()).inflate(R.layout.wrapped_test_rv,
@@ -223,12 +236,16 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
 
     public boolean requestFocus(final View view) {
         final boolean[] result = new boolean[1];
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                result[0] = view.requestFocus();
-            }
-        });
+        try {
+            runTestOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    result[0] = view.requestFocus();
+                }
+            });
+        } catch (Throwable throwable) {
+            fail(throwable.getMessage());
+        }
         return result[0];
     }
 

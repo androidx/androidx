@@ -70,6 +70,11 @@ class LayoutState {
     int mEndLine = 0;
 
     /**
+     * If true, layout should stop if a focusable view is added
+     */
+    boolean mStopInFocusable;
+
+    /**
      * @return true if there are more items in the data adapter
      */
     boolean hasMore(RecyclerView.State state) {

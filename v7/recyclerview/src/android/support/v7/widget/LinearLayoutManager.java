@@ -58,7 +58,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
      * than this factor times the total space of the list. If layout is vertical, total space is the
      * height minus padding, if layout is horizontal, total space is the width minus padding.
      */
-    private static final float MAX_SCROLL_FACTOR = 0.33f;
+    private static final float MAX_SCROLL_FACTOR = 1 / 3f;
 
 
     /**
@@ -1449,7 +1449,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
      * @return {@link LayoutState#LAYOUT_START} or {@link LayoutState#LAYOUT_END} if focus direction
      * is applicable to current state, {@link LayoutState#INVALID_LAYOUT} otherwise.
      */
-    private int convertFocusDirectionToLayoutDirection(int focusDirection) {
+    int convertFocusDirectionToLayoutDirection(int focusDirection) {
         switch (focusDirection) {
             case View.FOCUS_BACKWARD:
                 return LayoutState.LAYOUT_START;

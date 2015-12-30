@@ -22,12 +22,12 @@
                       android.support.test.espresso.idling"/>
 
     <application>
-        <uses-library android:name="android.test.runner" />
+        <uses-library android:name="android.test.runner"/>
         <activity android:name="android.support.v7.widget.test.RecyclerViewTestActivity"/>
         <activity android:name="android.support.v7.widget.TestActivity"/>
     </application>
 
     <instrumentation android:name="android.test.InstrumentationTestRunner"
                      android:targetPackage="android.support.v7.recyclerview.test"
-                     />
+    />
 </manifest>

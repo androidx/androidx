@@ -842,6 +842,78 @@ public class GridLayoutManager extends LinearLayoutManager {
     }
 
     @Override
+    public View onFocusSearchFailed(View focused, int focusDirection,
+            RecyclerView.Recycler recycler, RecyclerView.State state) {
+        View prevFocusedChild = findContainingItemView(focused);
+        if (prevFocusedChild == null) {
+            return null;
+        }
+        LayoutParams lp = (LayoutParams) prevFocusedChild.getLayoutParams();
+        final int prevSpanStart = lp.mSpanIndex;
+        final int prevSpanEnd = lp.mSpanIndex + lp.mSpanSize;
+        View view = super.onFocusSearchFailed(focused, focusDirection, recycler, state);
+        if (view == null) {
+            return null;
+        }
+        // LinearLayoutManager finds the last child. What we want is the child which has the same
+        // spanIndex.
+        final int layoutDir = convertFocusDirectionToLayoutDirection(focusDirection);
+        final boolean ascend = (layoutDir == LayoutState.LAYOUT_END) != mShouldReverseLayout;
+        final int start, inc, limit;
+        if (ascend) {
+            start = getChildCount() - 1;
+            inc = -1;
+            limit = -1;
+        } else {
+            start = 0;
+            inc = 1;
+            limit = getChildCount();
+        }
+        final boolean preferLastSpan = mOrientation == VERTICAL && isLayoutRTL();
+        View weakCandidate = null; // somewhat matches but not strong
+        int weakCandidateSpanIndex = -1;
+        int weakCandidateOverlap = 0; // how many spans overlap
+
+        for (int i = start; i != limit; i += inc) {
+            View candidate = getChildAt(i);
+            if (candidate == prevFocusedChild) {
+                break;
+            }
+            if (!candidate.isFocusable()) {
+                continue;
+            }
+            final LayoutParams candidateLp = (LayoutParams) candidate.getLayoutParams();
+            final int candidateStart = candidateLp.mSpanIndex;
+            final int candidateEnd = candidateLp.mSpanIndex + candidateLp.mSpanSize;
+            if (candidateStart == prevSpanStart && candidateEnd == prevSpanEnd) {
+                return candidate; // perfect match
+            }
+            boolean assignAsWeek = false;
+            if (weakCandidate == null) {
+                assignAsWeek = true;
+            } else {
+                int maxStart = Math.max(candidateStart, prevSpanStart);
+                int minEnd = Math.min(candidateEnd, prevSpanEnd);
+                int overlap = minEnd - maxStart;
+                if (overlap > weakCandidateOverlap) {
+                    assignAsWeek = true;
+                } else if (overlap == weakCandidateOverlap &&
+                        preferLastSpan == (candidateStart > weakCandidateSpanIndex)) {
+                    assignAsWeek = true;
+                }
+            }
+
+            if (assignAsWeek) {
+                weakCandidate = candidate;
+                weakCandidateSpanIndex = candidateLp.mSpanIndex;
+                weakCandidateOverlap = Math.min(candidateEnd, prevSpanEnd) -
+                        Math.max(candidateStart, prevSpanStart);
+            }
+        }
+        return weakCandidate;
+    }
+
+    @Override
     public boolean supportsPredictiveItemAnimations() {
         return mPendingSavedState == null && !mPendingSpanCountChange;
     }

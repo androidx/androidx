@@ -17,13 +17,18 @@
 package android.support.v7.widget;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.test.UiThreadTest;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 import android.util.SparseIntArray;
+import android.util.StateSet;
+import android.view.FocusFinder;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -86,6 +91,65 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         mGlm.expectLayout(1);
         setRecyclerView(recyclerView);
         mGlm.waitForLayout(2);
+    }
+
+    public void testFocusSearchFailureUp() throws Throwable {
+        focusSearchFailure(false);
+    }
+
+    public void testFocusSearchFailureDown() throws Throwable {
+        focusSearchFailure(true);
+    }
+
+    public void focusSearchFailure(boolean scrollDown) throws Throwable {
+        final RecyclerView recyclerView = setupBasic(new Config(3, 31).reverseLayout(!scrollDown)
+                , new GridTestAdapter(31, 1) {
+            RecyclerView mAttachedRv;
+            @Override
+            public TestViewHolder onCreateViewHolder(ViewGroup parent,
+                    int viewType) {
+                TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
+                testViewHolder.itemView.setFocusable(true);
+                testViewHolder.itemView.setFocusableInTouchMode(true);
+                // Good to have colors for debugging
+                StateListDrawable stl = new StateListDrawable();
+                stl.addState(new int[]{android.R.attr.state_focused}, new ColorDrawable(Color.RED));
+                stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
+                testViewHolder.itemView.setBackground(stl);
+                return testViewHolder;
+            }
+
+            @Override
+            public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+                mAttachedRv = recyclerView;
+            }
+
+            @Override
+            public void onBindViewHolder(TestViewHolder holder,
+                    int position) {
+                super.onBindViewHolder(holder, position);
+                holder.itemView.setMinimumHeight(mAttachedRv.getHeight() / 3);
+            }
+        });
+        waitForFirstLayout(recyclerView);
+
+        View viewToFocus = recyclerView.findViewHolderForAdapterPosition(1).itemView;
+        assertTrue(requestFocus(viewToFocus));
+        getInstrumentation().waitForIdleSync();
+        assertSame(viewToFocus, recyclerView.getFocusedChild());
+        int pos = 1;
+        View focusedView = viewToFocus;
+        while (pos < 31) {
+            focusSearch(focusedView, scrollDown ? View.FOCUS_DOWN : View.FOCUS_UP);
+            getInstrumentation().waitForIdleSync();
+            while (recyclerView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE) {
+                Thread.sleep(100);
+            }
+            focusedView = recyclerView.getFocusedChild();
+            assertEquals(Math.min(pos + 3, mAdapter.getItemCount() - 1),
+                    recyclerView.getChildViewHolder(focusedView).getAdapterPosition());
+            pos += 3;
+        }
     }
 
     @UiThreadTest

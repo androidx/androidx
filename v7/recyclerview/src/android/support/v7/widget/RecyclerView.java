@@ -3472,6 +3472,44 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         return getChildViewHolderInt(child);
     }
 
+    /**
+     * Traverses the ascendants of the given view and returns the item view that contains it and
+     * also a direct child of the RecyclerView. This returned view can be used to get the
+     * ViewHolder by calling {@link #getChildViewHolder(View)}.
+     *
+     * @param view The view that is a descendant of the RecyclerView.
+     *
+     * @return The direct child of the RecyclerView which contains the given view or null if the
+     * provided view is not a descendant of this RecyclerView.
+     *
+     * @see #getChildViewHolder(View)
+     * @see #findContainingViewHolder(View)
+     */
+    @Nullable
+    public View findContainingItemView(View view) {
+        ViewParent parent = view.getParent();
+        while (parent != null && parent != this && parent instanceof View) {
+            view = (View) parent;
+            parent = view.getParent();
+        }
+        return parent == this ? view : null;
+    }
+
+    /**
+     * Returns the ViewHolder that contains the given view.
+     *
+     * @param view The view that is a descendant of the RecyclerView.
+     *
+     * @return The ViewHolder that contains the given view or null if the provided view is not a
+     * descendant of this RecyclerView.
+     */
+    @Nullable
+    public ViewHolder findContainingViewHolder(View view) {
+        View itemView = findContainingItemView(view);
+        return itemView == null ? null : getChildViewHolder(itemView);
+    }
+
+
     static ViewHolder getChildViewHolderInt(View child) {
         if (child == null) {
             return null;
@@ -6406,6 +6444,36 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          */
         public int getItemViewType(View view) {
             return getChildViewHolderInt(view).getItemViewType();
+        }
+
+        /**
+         * Traverses the ascendants of the given view and returns the item view that contains it
+         * and also a direct child of the LayoutManager.
+         * <p>
+         * Note that this method may return null if the view is a child of the RecyclerView but
+         * not a child of the LayoutManager (e.g. running a disappear animation).
+         *
+         * @param view The view that is a descendant of the LayoutManager.
+         *
+         * @return The direct child of the LayoutManager which contains the given view or null if
+         * the provided view is not a descendant of this LayoutManager.
+         *
+         * @see RecyclerView#getChildViewHolder(View)
+         * @see RecyclerView#findContainingViewHolder(View)
+         */
+        @Nullable
+        public View findContainingItemView(View view) {
+            if (mRecyclerView == null) {
+                return null;
+            }
+            View found = mRecyclerView.findContainingItemView(view);
+            if (found == null) {
+                return null;
+            }
+            if (mChildHelper.isHidden(found)) {
+                return null;
+            }
+            return found;
         }
 
         /**
