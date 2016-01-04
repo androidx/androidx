@@ -85,8 +85,7 @@ public abstract class PreferenceDialogFragmentCompat extends DialogFragment impl
             requestInputMethod(dialog);
         }
 
-
-        return builder.create();
+        return dialog;
     }
 
     /**

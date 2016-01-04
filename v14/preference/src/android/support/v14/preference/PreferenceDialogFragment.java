@@ -87,8 +87,7 @@ public abstract class PreferenceDialogFragment extends DialogFragment implements
             requestInputMethod(dialog);
         }
 
-
-        return builder.create();
+        return dialog;
     }
 
     /**
