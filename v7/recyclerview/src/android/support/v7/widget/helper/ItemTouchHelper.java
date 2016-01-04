@@ -20,16 +20,19 @@ import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.os.Build;
-import android.support.v4.animation.ValueAnimatorCompat;
 import android.support.v4.animation.AnimatorCompatHelper;
 import android.support.v4.animation.AnimatorListenerCompat;
 import android.support.v4.animation.AnimatorUpdateListenerCompat;
+import android.support.v4.animation.ValueAnimatorCompat;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.recyclerview.R;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView.OnItemTouchListener;
+import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.HapticFeedbackConstants;
@@ -38,14 +41,10 @@ import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewParent;
-import android.support.v7.recyclerview.R;
+import android.view.animation.Interpolator;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import android.support.v7.widget.RecyclerView.OnItemTouchListener;
-import android.support.v7.widget.RecyclerView.ViewHolder;
-import android.view.animation.Interpolator;
 
 /**
  * This is a utility class to add swipe to dismiss and drag & drop support to RecyclerView.
@@ -1024,7 +1023,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
 
     /**
      * Starts dragging the provided ViewHolder. By default, ItemTouchHelper starts a drag when a
-     * View is long pressed. You can disable that behavior via
+     * View is long pressed. You can disable that behavior by overriding
      * {@link ItemTouchHelper.Callback#isLongPressDragEnabled()}.
      * <p>
      * For this method to work:
@@ -1398,7 +1397,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         }
 
         /**
-         * Returns the {@link ItemTouchUIUtil} that is used by the {@link Callback} class for visual
+         * Returns the {@link ItemTouchUIUtil} that is used by the {@link Callback} class for
+         * visual
          * changes on Views in response to user interactions. {@link ItemTouchUIUtil} has different
          * implementations for different platform versions.
          * <p>
@@ -1693,7 +1693,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
          * You can increase this value to make it harder to swipe or decrease it to make it easier.
          * Keep in mind that ItemTouchHelper also checks the perpendicular velocity and makes sure
          * current direction velocity is larger then the perpendicular one. Otherwise, user's
-         * movement is ambiguous. You can change the threshold via
+         * movement is ambiguous. You can change the threshold by overriding
          * {@link #getSwipeVelocityThreshold(float)}.
          * <p>
          * The velocity is calculated in pixels per second.
@@ -1701,11 +1701,10 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
          * The default framework value is passed as a parameter so that you can modify it with a
          * multiplier.
          *
-         * @param defaultValue The default value (in pixels per second) used by the ItemTouchHelper.
-         *
+         * @param defaultValue The default value (in pixels per second) used by the
+         *                     ItemTouchHelper.
          * @return The minimum swipe velocity. The default implementation returns the
          * <code>defaultValue</code> parameter.
-         *
          * @see #getSwipeVelocityThreshold(float)
          * @see #getSwipeThreshold(ViewHolder)
          */
@@ -1728,10 +1727,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
          * need to make a rather straight finger movement to trigger a swipe.
          *
          * @param defaultValue The default value(in pixels per second) used by the ItemTouchHelper.
-         *
          * @return The velocity cap for pointer movements. The default implementation returns the
          * <code>defaultValue</code> parameter.
-         *
          * @see #getSwipeEscapeVelocity(float)
          */
         public float getSwipeVelocityThreshold(float defaultValue) {
@@ -1856,7 +1853,6 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
          * @param actionState One of {@link ItemTouchHelper#ACTION_STATE_IDLE},
          *                    {@link ItemTouchHelper#ACTION_STATE_SWIPE} or
          *                    {@link ItemTouchHelper#ACTION_STATE_DRAG}.
-         *
          * @see #clearView(RecyclerView, RecyclerView.ViewHolder)
          */
         public void onSelectedChanged(ViewHolder viewHolder, int actionState) {
@@ -2115,15 +2111,14 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
          * the faster the list will scroll. Similarly, the larger portion of the View is out of
          * bounds, the faster the RecyclerView will scroll.
          *
-         * @param recyclerView        The RecyclerView instance to which ItemTouchHelper is attached
-         *                            to.
+         * @param recyclerView        The RecyclerView instance to which ItemTouchHelper is
+         *                            attached to.
          * @param viewSize            The total size of the View in scroll direction, excluding
          *                            item decorations.
          * @param viewSizeOutOfBounds The total size of the View that is out of bounds. This value
          *                            is negative if the View is dragged towards left or top edge.
          * @param totalSize           The total size of RecyclerView in the scroll direction.
          * @param msSinceStartScroll  The time passed since View is kept out of bounds.
-         *
          * @return The amount that RecyclerView should scroll. Keep in mind that this value will
          * be passed to {@link RecyclerView#scrollBy(int, int)} method.
          */
