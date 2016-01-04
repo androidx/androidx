@@ -15,15 +15,22 @@
  */
 package android.support.v7.app;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.support.annotation.ColorInt;
+import android.support.annotation.StringRes;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.ViewInteraction;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.testutils.TestUtilsMatchers;
 import android.test.ActivityInstrumentationTestCase2;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckedTextView;
@@ -38,9 +45,11 @@ import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.PositionAssertions.isBelow;
 import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.LayoutMatchers.hasEllipsizedText;
 import static android.support.test.espresso.matcher.RootMatchers.isDialog;
 import static android.support.test.espresso.matcher.ViewMatchers.*;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.Is.is;
 
@@ -67,9 +76,13 @@ public class AlertDialogTest extends ActivityInstrumentationTestCase2<AlertDialo
 
     private boolean mIsDismissedCalled = false;
 
+    private int mWhichButtonClicked = -1;
+
     private int mClickedItemIndex = -1;
 
     private AlertDialog mAlertDialog;
+
+    private Handler mClickHandler;
 
     public AlertDialogTest() {
         super(AlertDialogTestActivity.class);
@@ -81,6 +94,12 @@ public class AlertDialogTest extends ActivityInstrumentationTestCase2<AlertDialo
 
         final AlertDialogTestActivity activity = getActivity();
         mButton = (Button) activity.findViewById(R.id.test_button);
+        mClickHandler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                mWhichButtonClicked = msg.what;
+            }
+        };
     }
 
     private void wireBuilder(final AlertDialog.Builder builder) {
@@ -107,9 +126,17 @@ public class AlertDialogTest extends ActivityInstrumentationTestCase2<AlertDialo
         onView(withText("Dialog content")).inRoot(isDialog()).check(
                 isBelow(withText("Dialog title")));
 
-        ListView listView = mAlertDialog.getListView();
-        assertNull("No list view", listView);
+        assertNull("No list view", mAlertDialog.getListView());
+
+        assertEquals("Positive button not shown", View.GONE,
+                mAlertDialog.getButton(AlertDialog.BUTTON_POSITIVE).getVisibility());
+        assertEquals("Negative button not shown", View.GONE,
+                mAlertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).getVisibility());
+        assertEquals("Neutral button not shown", View.GONE,
+                mAlertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).getVisibility());
     }
+
+    // Tests for cancel logic
 
     @SmallTest
     public void testCancelCancelableDialog() {
@@ -156,6 +183,8 @@ public class AlertDialogTest extends ActivityInstrumentationTestCase2<AlertDialo
         // Since our dialog is not cancelable, check that the cancel listener has not been invoked
         assertFalse("Dialog is not canceled", mIsCanceledCalled);
     }
+
+    // Tests for items content logic (simple, single-choice, multi-choice)
 
     private void verifySimpleItemsContent(String[] expectedContent) {
         final int expectedCount = expectedContent.length;
@@ -456,6 +485,8 @@ public class AlertDialogTest extends ActivityInstrumentationTestCase2<AlertDialo
         verifySingleChoiceItemsContent(new String[] { "Albania", "Belize", "Chad", "Djibouti" }, 1);
     }
 
+    // Tests for icon logic
+
     @SmallTest
     public void testIconResource() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
@@ -678,6 +709,439 @@ public class AlertDialogTest extends ActivityInstrumentationTestCase2<AlertDialo
                 hasSibling(withText("Dialog title"))));
         // And check that we couldn't find the title icon (since it's expected to be GONE)
         titleIconInteraction.check(doesNotExist());
+    }
+
+    // Tests for buttons logic
+
+    /**
+     * Helper method to verify visibility and text content of dialog buttons. Gets expected texts
+     * for three buttons (positive, negative and neutral) and for each button verifies that:
+     *
+     * If the text is null or empty, that the button is GONE
+     * If the text is not empty, that the button is VISIBLE and shows the corresponding text
+     */
+    private void verifyButtonContent(String expectedPositiveButtonText,
+            String expectedNegativeButtonText, String expectedNeutralButtonText) {
+        assertTrue("Dialog is showing", mAlertDialog.isShowing());
+
+        final Button positiveButton = mAlertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        final Button negativeButton = mAlertDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+        final Button neutralButton = mAlertDialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+
+        if (TextUtils.isEmpty(expectedPositiveButtonText)) {
+            assertEquals("Positive button not shown", View.GONE, positiveButton.getVisibility());
+        } else {
+            assertEquals("Positive button shown", View.VISIBLE, positiveButton.getVisibility());
+            assertEquals("Positive button text", expectedPositiveButtonText,
+                    positiveButton.getText());
+        }
+
+        if (TextUtils.isEmpty(expectedNegativeButtonText)) {
+            assertEquals("Negative button not shown", View.GONE, negativeButton.getVisibility());
+        } else {
+            assertEquals("Negative button shown", View.VISIBLE, negativeButton.getVisibility());
+            assertEquals("Negative button text", expectedNegativeButtonText,
+                    negativeButton.getText());
+        }
+
+        if (TextUtils.isEmpty(expectedNeutralButtonText)) {
+            assertEquals("Neutral button not shown", View.GONE, neutralButton.getVisibility());
+        } else {
+            assertEquals("Neutral button shown", View.VISIBLE, neutralButton.getVisibility());
+            assertEquals("Neutral button text", expectedNeutralButtonText,
+                    neutralButton.getText());
+        }
+    }
+
+    /**
+     * Helper method to verify dialog state after a button has been clicked.
+     */
+    private void verifyPostButtonClickState(int whichButtonClicked) {
+        assertEquals("Button clicked", whichButtonClicked, mWhichButtonClicked);
+        assertFalse("Dialog is not showing", mAlertDialog.isShowing());
+        assertTrue("Dialog dismiss listener called", mIsDismissedCalled);
+    }
+
+    /**
+     * Helper method to verify button-related logic for setXXXButton on AlertDialog.Builder
+     * that gets CharSequence parameter. This method configures the dialog buttons based
+     * on the passed texts (some of which may be null or empty, in which case the corresponding
+     * button is not configured), tests the buttons visibility and texts, simulates a click
+     * on the specified button and then tests the post-click dialog state.
+     */
+    private void verifyDialogButtons(String positiveButtonText, String negativeButtonText,
+            String neutralButtonText, int whichButtonToClick) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.alert_dialog_title);
+        // Configure buttons with non-empty texts
+        if (!TextUtils.isEmpty(positiveButtonText)) {
+            builder.setPositiveButton(positiveButtonText, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    assertEquals("Positive button clicked", AlertDialog.BUTTON_POSITIVE, which);
+                    mWhichButtonClicked = which;
+                }
+            });
+        }
+        if (!TextUtils.isEmpty(negativeButtonText)) {
+            builder.setNegativeButton(negativeButtonText, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    assertEquals("Negative button clicked", AlertDialog.BUTTON_NEGATIVE, which);
+                    mWhichButtonClicked = which;
+                }
+            });
+        }
+        if (!TextUtils.isEmpty(neutralButtonText)) {
+            builder.setNeutralButton(neutralButtonText, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    assertEquals("Neutral button clicked", AlertDialog.BUTTON_NEUTRAL, which);
+                    mWhichButtonClicked = which;
+                }
+            });
+        }
+        // Set a dismiss listener to verify that the dialog is dismissed on clicking any button
+        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                mIsDismissedCalled = true;
+            }
+        });
+
+        // Wire the builder to the button click and click that button to show the dialog
+        wireBuilder(builder);
+        onView(withId(R.id.test_button)).perform(click());
+
+        // Check that the dialog is showing the configured buttons
+        verifyButtonContent(positiveButtonText, negativeButtonText, neutralButtonText);
+
+        // Click the specified button and verify the post-click state
+        String textOfButtonToClick = null;
+        switch (whichButtonToClick) {
+            case DialogInterface.BUTTON_POSITIVE:
+                textOfButtonToClick = positiveButtonText;
+                break;
+            case DialogInterface.BUTTON_NEGATIVE:
+                textOfButtonToClick = negativeButtonText;
+                break;
+            case DialogInterface.BUTTON_NEUTRAL:
+                textOfButtonToClick = neutralButtonText;
+                break;
+        }
+        onView(withText(textOfButtonToClick)).inRoot(isDialog()).perform(click());
+        verifyPostButtonClickState(whichButtonToClick);
+    }
+
+    /**
+     * Helper method to verify button-related logic for setXXXButton on AlertDialog.Builder
+     * that gets string resource ID parameter. This method configures the dialog buttons based
+     * on the passed texts (some of which may be null or empty, in which case the corresponding
+     * button is not configured), tests the buttons visibility and texts, simulates a click
+     * on the specified button and then tests the post-click dialog state.
+     */
+    private void verifyDialogButtons(@StringRes int positiveButtonTextResId,
+            @StringRes int negativeButtonTextResId,
+            @StringRes int neutralButtonTextResId, int whichButtonToClick) {
+        Context context = getActivity();
+        String positiveButtonText = null;
+        String negativeButtonText = null;
+        String neutralButtonText = null;
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context)
+                .setTitle(R.string.alert_dialog_title);
+        // Configure buttons with non-zero text resource IDs
+        if (positiveButtonTextResId != 0) {
+            positiveButtonText = context.getString(positiveButtonTextResId);
+            builder.setPositiveButton(positiveButtonTextResId,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            assertEquals("Positive button clicked",
+                                    AlertDialog.BUTTON_POSITIVE, which);
+                            mWhichButtonClicked = which;
+                        }
+                    });
+        }
+        if (negativeButtonTextResId != 0) {
+            negativeButtonText = context.getString(negativeButtonTextResId);
+            builder.setNegativeButton(negativeButtonTextResId,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            assertEquals("Negative button clicked",
+                                    AlertDialog.BUTTON_NEGATIVE, which);
+                            mWhichButtonClicked = which;
+                        }
+                    });
+        }
+        if (neutralButtonTextResId != 0) {
+            neutralButtonText = context.getString(neutralButtonTextResId);
+            builder.setNeutralButton(neutralButtonTextResId,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            assertEquals("Neutral button clicked",
+                                    AlertDialog.BUTTON_NEUTRAL, which);
+                            mWhichButtonClicked = which;
+                        }
+                    });
+        }
+        // Set a dismiss listener to verify that the dialog is dismissed on clicking any button
+        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                mIsDismissedCalled = true;
+            }
+        });
+
+        // Wire the builder to the button click and click that button to show the dialog
+        wireBuilder(builder);
+        onView(withId(R.id.test_button)).perform(click());
+
+        // Check that the dialog is showing the configured buttons
+        verifyButtonContent(positiveButtonText, negativeButtonText, neutralButtonText);
+
+        // Click the specified button and verify the post-click state
+        String textOfButtonToClick = null;
+        switch (whichButtonToClick) {
+            case DialogInterface.BUTTON_POSITIVE:
+                textOfButtonToClick = positiveButtonText;
+                break;
+            case DialogInterface.BUTTON_NEGATIVE:
+                textOfButtonToClick = negativeButtonText;
+                break;
+            case DialogInterface.BUTTON_NEUTRAL:
+                textOfButtonToClick = neutralButtonText;
+                break;
+        }
+        onView(withText(textOfButtonToClick)).inRoot(isDialog()).perform(click());
+        verifyPostButtonClickState(whichButtonToClick);
+    }
+
+    /**
+     * Helper method to verify button-related logic for setButton on AlertDialog after the
+     * dialog has been create()'d. This method configures the dialog buttons based
+     * on the passed texts (some of which may be null or empty, in which case the corresponding
+     * button is not configured), tests the buttons visibility and texts, simulates a click
+     * on the specified button and then tests the post-click dialog state.
+     */
+    private void verifyDialogButtonsPostCreation(final String positiveButtonText,
+            final String negativeButtonText, final String neutralButtonText,
+            int whichButtonToClick) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.alert_dialog_title);
+        // Set a dismiss listener to verify that the dialog is dismissed on clicking any button
+        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                mIsDismissedCalled = true;
+            }
+        });
+
+        mButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog = builder.create();
+                // Configure buttons with non-empty texts
+                if (!TextUtils.isEmpty(positiveButtonText)) {
+                    mAlertDialog.setButton(DialogInterface.BUTTON_POSITIVE, positiveButtonText,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    assertEquals("Positive button clicked",
+                                            AlertDialog.BUTTON_POSITIVE, which);
+                                    mWhichButtonClicked = which;
+                                }
+                            });
+                }
+                if (!TextUtils.isEmpty(negativeButtonText)) {
+                    mAlertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, negativeButtonText,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    assertEquals("Negative button clicked",
+                                            AlertDialog.BUTTON_NEGATIVE, which);
+                                    mWhichButtonClicked = which;
+                                }
+                            });
+                }
+                if (!TextUtils.isEmpty(neutralButtonText)) {
+                    mAlertDialog.setButton(DialogInterface.BUTTON_NEUTRAL, neutralButtonText,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    assertEquals("Neutral button clicked",
+                                            AlertDialog.BUTTON_NEUTRAL, which);
+                                    mWhichButtonClicked = which;
+                                }
+                            });
+                }
+
+                mAlertDialog.show();
+            }
+        });
+
+        // Click the button to create the dialog, configure the buttons and show the dialog
+        onView(withId(R.id.test_button)).perform(click());
+
+        // Check that the dialog is showing the configured buttons
+        verifyButtonContent(positiveButtonText, negativeButtonText, neutralButtonText);
+
+        // Click the specified button and verify the post-click state
+        String textOfButtonToClick = null;
+        switch (whichButtonToClick) {
+            case DialogInterface.BUTTON_POSITIVE:
+                textOfButtonToClick = positiveButtonText;
+                break;
+            case DialogInterface.BUTTON_NEGATIVE:
+                textOfButtonToClick = negativeButtonText;
+                break;
+            case DialogInterface.BUTTON_NEUTRAL:
+                textOfButtonToClick = neutralButtonText;
+                break;
+        }
+        onView(withText(textOfButtonToClick)).inRoot(isDialog()).perform(click());
+        verifyPostButtonClickState(whichButtonToClick);
+    }
+
+    /**
+     * Helper method to verify button-related logic for setButton on AlertDialog after the
+     * dialog has been create()'d. This method configures the dialog buttons based
+     * on the passed texts (some of which may be null or empty, in which case the corresponding
+     * button is not configured), tests the buttons visibility and texts, simulates a click
+     * on the specified button and then tests the post-click dialog state.
+     */
+    private void verifyDialogButtonsPostCreationMessage(final String positiveButtonText,
+            final String negativeButtonText, final String neutralButtonText,
+            int whichButtonToClick) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.alert_dialog_title);
+        // Set a dismiss listener to verify that the dialog is dismissed on clicking any button
+        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                mIsDismissedCalled = true;
+            }
+        });
+
+        mButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog = builder.create();
+                // Configure buttons with non-empty texts
+                if (!TextUtils.isEmpty(positiveButtonText)) {
+                    mAlertDialog.setButton(DialogInterface.BUTTON_POSITIVE, positiveButtonText,
+                            Message.obtain(mClickHandler, DialogInterface.BUTTON_POSITIVE));
+                }
+                if (!TextUtils.isEmpty(negativeButtonText)) {
+                    mAlertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, negativeButtonText,
+                            Message.obtain(mClickHandler, DialogInterface.BUTTON_NEGATIVE));
+                }
+                if (!TextUtils.isEmpty(neutralButtonText)) {
+                    mAlertDialog.setButton(DialogInterface.BUTTON_NEUTRAL, neutralButtonText,
+                            Message.obtain(mClickHandler, DialogInterface.BUTTON_NEUTRAL));
+                }
+
+                mAlertDialog.show();
+            }
+        });
+
+        // Click the button to create the dialog, configure the buttons and show the dialog
+        onView(withId(R.id.test_button)).perform(click());
+
+        // Check that the dialog is showing the configured buttons
+        verifyButtonContent(positiveButtonText, negativeButtonText, neutralButtonText);
+
+        // Click the specified button and verify the post-click state
+        String textOfButtonToClick = null;
+        switch (whichButtonToClick) {
+            case DialogInterface.BUTTON_POSITIVE:
+                textOfButtonToClick = positiveButtonText;
+                break;
+            case DialogInterface.BUTTON_NEGATIVE:
+                textOfButtonToClick = negativeButtonText;
+                break;
+            case DialogInterface.BUTTON_NEUTRAL:
+                textOfButtonToClick = neutralButtonText;
+                break;
+        }
+        onView(withText(textOfButtonToClick)).inRoot(isDialog()).perform(click());
+        verifyPostButtonClickState(whichButtonToClick);
+    }
+
+    @SmallTest
+    public void testButtonVisibility() {
+        final String positiveButtonText = "Positive button";
+        final String negativeButtonText = "Negative button";
+        final String neutralButtonText = "Neutral button";
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.alert_dialog_title)
+                .setPositiveButton(positiveButtonText, null)
+                .setNegativeButton(negativeButtonText, null)
+                .setNeutralButton(neutralButtonText, null);
+        wireBuilder(builder);
+
+        onView(withId(R.id.test_button)).perform(click());
+
+        // Positive button should be fully displayed with no text eliding
+        onView(withText(positiveButtonText)).inRoot(isDialog()).check(
+                matches(isCompletelyDisplayed()));
+        onView(withText(positiveButtonText)).inRoot(isDialog()).check(
+                matches(not(hasEllipsizedText())));
+
+        // Negative button should be fully displayed with no text eliding
+        onView(withText(negativeButtonText)).inRoot(isDialog()).check(
+                matches(isCompletelyDisplayed()));
+        onView(withText(negativeButtonText)).inRoot(isDialog()).check(
+                matches(not(hasEllipsizedText())));
+
+        // Neutral button should be fully displayed with no text eliding
+        onView(withText(neutralButtonText)).inRoot(isDialog()).check(
+                matches(isCompletelyDisplayed()));
+        onView(withText(neutralButtonText)).inRoot(isDialog()).check(
+                matches(not(hasEllipsizedText())));
+    }
+
+    @MediumTest
+    public void testButtons() {
+        // Positive-only button
+        verifyDialogButtons("Positive", null, null, AlertDialog.BUTTON_POSITIVE);
+        verifyDialogButtons(R.string.alert_dialog_positive_button, 0, 0,
+                AlertDialog.BUTTON_POSITIVE);
+        verifyDialogButtonsPostCreation("Post positive", null, null, AlertDialog.BUTTON_POSITIVE);
+        verifyDialogButtonsPostCreationMessage("Message positive", null, null,
+                AlertDialog.BUTTON_POSITIVE);
+
+        // Negative-only button
+        verifyDialogButtons(null, "Negative", null, AlertDialog.BUTTON_NEGATIVE);
+        verifyDialogButtons(0, R.string.alert_dialog_negative_button, 0,
+                AlertDialog.BUTTON_NEGATIVE);
+        verifyDialogButtonsPostCreation(null, "Post negative", null, AlertDialog.BUTTON_NEGATIVE);
+        verifyDialogButtonsPostCreationMessage(null, "Message negative", null,
+                AlertDialog.BUTTON_NEGATIVE);
+
+        // Neutral-only button
+        verifyDialogButtons(null, null, "Neutral", AlertDialog.BUTTON_NEUTRAL);
+        verifyDialogButtons(0, 0, R.string.alert_dialog_neutral_button, AlertDialog.BUTTON_NEUTRAL);
+        verifyDialogButtonsPostCreation(null, null, "Post neutral", AlertDialog.BUTTON_NEUTRAL);
+        verifyDialogButtonsPostCreationMessage(null, null, "Message neutral",
+                AlertDialog.BUTTON_NEUTRAL);
+
+        // Show positive and negative, click positive
+        verifyDialogButtons(R.string.alert_dialog_positive_button,
+                R.string.alert_dialog_negative_button, 0, AlertDialog.BUTTON_POSITIVE);
+
+        // Show positive and neutral, click neutral
+        verifyDialogButtons("Positive", null, "Neutral", AlertDialog.BUTTON_NEUTRAL);
+
+        // Show negative and neutral, click negative
+        verifyDialogButtonsPostCreationMessage(null, "Message negative",
+                "Message neutral", AlertDialog.BUTTON_NEGATIVE);
+
+        // Show all, click positive
+        verifyDialogButtonsPostCreation("Post positive", "Post negative", "Post neutral",
+                AlertDialog.BUTTON_POSITIVE);
     }
 
     private static class TestDrawable extends ColorDrawable {
