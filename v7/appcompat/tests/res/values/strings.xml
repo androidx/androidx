@@ -34,4 +34,8 @@
         <item>Chad</item>
         <item>Djibouti</item>
     </string-array>
+    <string name="alert_dialog_positive_button">Forward</string>
+    <string name="alert_dialog_negative_button">Backward</string>
+    <string name="alert_dialog_neutral_button">Stall</string>
+
 </resources>

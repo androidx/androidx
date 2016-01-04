@@ -182,7 +182,8 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
     }
 
     /**
-     * Set a message to be sent when a button is pressed.
+     * Set a message to be sent when a button is pressed. This method has no effect if called
+     * after {@link #show()}.
      *
      * @param whichButton Which button to set the message for, can be one of
      *                    {@link DialogInterface#BUTTON_POSITIVE},
@@ -196,7 +197,8 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
     }
 
     /**
-     * Set a listener to be invoked when the positive button of the dialog is pressed.
+     * Set a listener to be invoked when the positive button of the dialog is pressed. This method
+     * has no effect if called after {@link #show()}.
      *
      * @param whichButton Which button to set the listener on, can be one of
      *                    {@link DialogInterface#BUTTON_POSITIVE},
