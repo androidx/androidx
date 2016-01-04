@@ -38,5 +38,9 @@
         <attr name="contentPaddingTop" format="dimension" />
         <!-- Inner padding between the bottom edge of the Card and children of the CardView. -->
         <attr name="contentPaddingBottom" format="dimension" />
+        <!-- Workaround to read user defined minimum width -->
+        <attr name="android:minWidth"/>
+        <!-- Workaround to read user defined minimum height -->
+        <attr name="android:minHeight"/>
     </declare-styleable>
 </resources>

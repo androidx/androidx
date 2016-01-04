@@ -86,6 +86,15 @@ public class CardView extends FrameLayout implements CardViewDelegate {
 
     private boolean mPreventCornerOverlap;
 
+    /**
+     * CardView requires to have a particular minimum size to draw shadows before API 21. If
+     * developer also sets min width/height, they might be overridden.
+     *
+     * CardView works around this issue by recording user given parameters and using an internal
+     * method to set them.
+     */
+    private int mUserSetMinWidth, mUserSetMinHeight;
+
     private final Rect mContentPadding = new Rect();
 
     private final Rect mShadowBounds = new Rect();
@@ -173,7 +182,7 @@ public class CardView extends FrameLayout implements CardViewDelegate {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        if (IMPL instanceof CardViewApi21 == false) {
+        if (!(IMPL instanceof CardViewApi21)) {
             final int widthMode = MeasureSpec.getMode(widthMeasureSpec);
             switch (widthMode) {
                 case MeasureSpec.EXACTLY:
@@ -220,8 +229,39 @@ public class CardView extends FrameLayout implements CardViewDelegate {
         if (elevation > maxElevation) {
             maxElevation = elevation;
         }
+        mUserSetMinWidth = a.getDimensionPixelSize(R.styleable.CardView_android_minWidth, 0);
+        mUserSetMinHeight = a.getDimensionPixelSize(R.styleable.CardView_android_minHeight, 0);
         a.recycle();
+
         IMPL.initialize(this, context, backgroundColor, radius, elevation, maxElevation);
+    }
+
+    @Override
+    public void setMinimumWidth(int minWidth) {
+        mUserSetMinWidth = minWidth;
+        super.setMinimumWidth(minWidth);
+    }
+
+    @Override
+    public void setMinimumHeight(int minHeight) {
+        mUserSetMinHeight = minHeight;
+        super.setMinimumHeight(minHeight);
+    }
+
+    /**
+     * Internal method used by CardView implementations to set min width / height that is necessary
+     * to draw shadows on APIs older than 21.
+     *
+     * @hide
+     */
+    @Override
+    public void setMinWidthHeightInternal(int width, int height) {
+        if (width > mUserSetMinWidth) {
+            super.setMinimumWidth(width);
+        }
+        if (height > mUserSetMinHeight) {
+            super.setMinimumHeight(height);
+        }
     }
 
     /**
