@@ -103,11 +103,6 @@
         <item name="infoVisibility">activated</item>
         <!-- In order to keep backward compatibility we have to create an icon on right. -->
         <item name="lbImageCardViewType">Title|Content|IconOnRight</item>
-        <item name="lbImageCardViewImageStyle">@style/Widget.Leanback.ImageCardView.ImageStyle</item>
-        <item name="lbImageCardViewTitleStyle">@style/Widget.Leanback.ImageCardView.TitleStyle</item>
-        <item name="lbImageCardViewContentStyle">@style/Widget.Leanback.ImageCardView.ContentStyle</item>
-        <item name="lbImageCardViewBadgeStyle">@style/Widget.Leanback.ImageCardView.BadgeStyle</item>
-        <item name="lbImageCardViewInfoAreaStyle">@style/Widget.Leanback.ImageCardView.InfoAreaStyle</item>
         <!-- Deprecated. Use 'Widget.Leanback.ImageCardView.InfoAreaStyle' instead. -->
         <item name="infoAreaBackground">@null</item>
     </style>

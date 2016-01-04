@@ -1199,7 +1199,7 @@ package android.support.v17.leanback.widget {
   }
 
   public class ImageCardView extends android.support.v17.leanback.widget.BaseCardView {
-    ctor public ImageCardView(android.content.Context, int);
+    ctor public deprecated ImageCardView(android.content.Context, int);
     ctor public ImageCardView(android.content.Context, android.util.AttributeSet, int);
     ctor public ImageCardView(android.content.Context);
     ctor public ImageCardView(android.content.Context, android.util.AttributeSet);
