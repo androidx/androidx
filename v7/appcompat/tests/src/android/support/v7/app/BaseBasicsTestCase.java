@@ -17,6 +17,8 @@
 package android.support.v7.app;
 
 import android.support.v7.testutils.BaseTestActivity;
+import android.test.suitebuilder.annotation.SmallTest;
+
 import org.junit.Test;
 
 public abstract class BaseBasicsTestCase<A extends BaseTestActivity>
@@ -27,16 +29,19 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity>
     }
 
     @Test
+    @SmallTest
     public void testActionBarExists() {
         assertNotNull("ActionBar is not null", getActivity().getSupportActionBar());
     }
 
     @Test
+    @SmallTest
      public void testDefaultActionBarTitle() {
         assertEquals(getActivity().getTitle(), getActivity().getSupportActionBar().getTitle());
     }
 
     @Test
+    @SmallTest
     public void testSetActionBarTitle() throws Throwable {
         final String newTitle = "hello";
         runTestOnUiThread(new Runnable() {

@@ -118,7 +118,6 @@ Extra.VendorId=android"
 createSourceProp.dependsOn unzipRepo
 prepareRepo.dependsOn createSourceProp
 
-
 import com.google.common.hash.HashCode
 import com.google.common.hash.HashFunction
 import com.google.common.hash.Hashing
@@ -167,6 +166,23 @@ subprojects {
     project.plugins.whenPluginAdded { plugin ->
         if ("com.android.build.gradle.LibraryPlugin".equals(plugin.class.name)) {
             project.android.buildToolsVersion = rootProject.buildToolsVersion
+        }
+    }
+
+    // Copy instrumentation test APK into the dist dir
+    project.afterEvaluate {
+        def assembleTestTask = project.tasks.findByPath('assembleAndroidTest')
+        if (assembleTestTask != null) {
+            assembleTestTask.doLast {
+                // If the project actually has some instrumentation tests, copy its APK
+                if (!project.android.sourceSets.androidTest.java.sourceFiles.isEmpty()) {
+                    def pkgTask = project.tasks.findByPath('packageDebugAndroidTest')
+                    copy {
+                        from(pkgTask.outputFile)
+                        into(rootProject.ext.testApkDistOut)
+                    }
+                }
+            }
         }
     }
 }

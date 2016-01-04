@@ -28,6 +28,7 @@ import android.support.v7.widget.AppCompatMultiAutoCompleteTextView;
 import android.support.v7.widget.AppCompatRadioButton;
 import android.support.v7.widget.AppCompatRatingBar;
 import android.support.v7.widget.AppCompatSpinner;
+import android.test.suitebuilder.annotation.SmallTest;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -38,6 +39,7 @@ public class LayoutInflaterFactoryTestCase extends BaseInstrumentationTestCase<A
     }
 
     @Test
+    @SmallTest
     public void testAndroidThemeInflation() throws Throwable {
         if (Build.VERSION.SDK_INT < 10) {
             // Ignore this test if running on Gingerbread or below
@@ -54,6 +56,7 @@ public class LayoutInflaterFactoryTestCase extends BaseInstrumentationTestCase<A
     }
 
     @Test
+    @SmallTest
     public void testAppThemeInflation() throws Throwable {
         if (Build.VERSION.SDK_INT < 10) {
             // Ignore this test if running on Gingerbread or below
@@ -70,42 +73,50 @@ public class LayoutInflaterFactoryTestCase extends BaseInstrumentationTestCase<A
     }
 
     @Test
+    @SmallTest
     public void testSpinnerInflation() throws Throwable {
         testAppCompatWidgetInflation(R.layout.layout_spinner, AppCompatSpinner.class);
     }
 
     @Test
+    @SmallTest
     public void testEditTextInflation() throws Throwable {
         testAppCompatWidgetInflation(R.layout.layout_edittext, AppCompatEditText.class);
     }
 
     @Test
+    @SmallTest
     public void testButtonInflation() throws Throwable {
         testAppCompatWidgetInflation(R.layout.layout_button, AppCompatButton.class);
     }
 
     @Test
+    @SmallTest
     public void testRadioButtonInflation() throws Throwable {
         testAppCompatWidgetInflation(R.layout.layout_radiobutton, AppCompatRadioButton.class);
     }
 
     @Test
+    @SmallTest
     public void testCheckBoxInflation() throws Throwable {
         testAppCompatWidgetInflation(R.layout.layout_checkbox, AppCompatCheckBox.class);
     }
 
     @Test
+    @SmallTest
     public void testActvInflation() throws Throwable {
         testAppCompatWidgetInflation(R.layout.layout_actv, AppCompatAutoCompleteTextView.class);
     }
 
     @Test
+    @SmallTest
     public void testMactvInflation() throws Throwable {
         testAppCompatWidgetInflation(R.layout.layout_mactv,
                 AppCompatMultiAutoCompleteTextView.class);
     }
 
     @Test
+    @SmallTest
     public void testRatingBarInflation() throws Throwable {
         testAppCompatWidgetInflation(R.layout.layout_ratingbar, AppCompatRatingBar.class);
     }

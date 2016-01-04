@@ -24,7 +24,5 @@
     </application>
 
     <instrumentation android:name="android.test.InstrumentationTestRunner"
-                     android:targetPackage="android.support.v7.gridlayout.test"
-                     android:label="GridLayout Tests" />
-
+                     android:targetPackage="android.support.v7.gridlayout.test"/>
 </manifest>
