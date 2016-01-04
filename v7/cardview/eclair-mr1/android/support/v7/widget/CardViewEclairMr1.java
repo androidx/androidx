@@ -91,8 +91,8 @@ class CardViewEclairMr1 implements CardViewImpl {
     public void updatePadding(CardViewDelegate cardView) {
         Rect shadowPadding = new Rect();
         getShadowBackground(cardView).getMaxShadowAndCornerPadding(shadowPadding);
-        ((View) cardView).setMinimumHeight((int) Math.ceil(getMinHeight(cardView)));
-        ((View) cardView).setMinimumWidth((int) Math.ceil(getMinWidth(cardView)));
+        cardView.setMinWidthHeightInternal((int) Math.ceil(getMinWidth(cardView)),
+                (int) Math.ceil(getMinHeight(cardView)));
         cardView.setShadowPadding(shadowPadding.left, shadowPadding.top,
                 shadowPadding.right, shadowPadding.bottom);
     }
