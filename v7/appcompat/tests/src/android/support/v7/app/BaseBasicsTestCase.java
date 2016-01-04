@@ -17,6 +17,7 @@
 package android.support.v7.app;
 
 import android.support.v7.testutils.BaseTestActivity;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import org.junit.Test;
@@ -36,7 +37,7 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity>
 
     @Test
     @SmallTest
-     public void testDefaultActionBarTitle() {
+    public void testDefaultActionBarTitle() {
         assertEquals(getActivity().getTitle(), getActivity().getSupportActionBar().getTitle());
     }
 
@@ -52,5 +53,31 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity>
                         newTitle, getActivity().getSupportActionBar().getTitle());
             }
         });
+    }
+
+    @Test
+    @MediumTest
+    public void testMenuInvalidationAfterDestroy() throws Throwable {
+        final A activity = getActivity();
+
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                // Reset to make sure that we don't have a menu currently
+                activity.reset();
+                assertNull(activity.getMenu());
+
+                // Now dispatch a menu invalidation
+                activity.supportInvalidateOptionsMenu();
+                // Now destroy the Activity
+                getInstrumentation().callActivityOnDestroy(activity);
+            }
+        });
+
+        // Now wait for any delayed menu population
+        Thread.sleep(100);
+
+        // Make sure that we don't have a menu given to use after being destroyed
+        assertNull(activity.getMenu());
     }
 }
