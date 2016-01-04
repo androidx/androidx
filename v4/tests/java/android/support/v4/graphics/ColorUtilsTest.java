@@ -18,6 +18,7 @@ package android.support.v4.graphics;
 
 import android.graphics.Color;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import java.lang.Integer;
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 /**
  * @hide
  */
+@SmallTest
 public class ColorUtilsTest extends AndroidTestCase {
 
     // 0.5% of the max value

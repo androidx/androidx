@@ -17,10 +17,12 @@
 package android.support.v4.text;
 
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import java.util.Locale;
 
 /** @hide */
+@SmallTest
 public class BidiFormatterTest extends AndroidTestCase {
 
     private static final BidiFormatter LTR_FMT = BidiFormatter.getInstance(false /* LTR context */);

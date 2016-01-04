@@ -21,6 +21,7 @@ import org.junit.Test;
 
 import android.os.SystemClock;
 import android.support.v7.appcompat.test.R;
+import android.test.suitebuilder.annotation.SmallTest;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.MenuItem;
@@ -33,6 +34,7 @@ public abstract class BaseKeyboardShortcutsTestCase<A extends BaseTestActivity>
     }
 
     @Test
+    @SmallTest
     public void testAlphabeticCtrlShortcut() {
         testKeyboardShortcut(KeyEvent.KEYCODE_A,
                 KeyEvent.META_CTRL_ON | KeyEvent.META_CTRL_LEFT_ON,

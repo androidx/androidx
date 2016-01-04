@@ -22,8 +22,10 @@ import android.support.v4.app.test.FragmentTestActivity.TestFragment;
 import android.support.v4.test.R;
 import android.support.v4.view.ViewCompat;
 import android.test.ActivityInstrumentationTestCase2;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.view.View;
 
+@MediumTest
 public class FragmentTransitionTest extends
         ActivityInstrumentationTestCase2<FragmentTestActivity> {
     private TestFragment mStartFragment;
