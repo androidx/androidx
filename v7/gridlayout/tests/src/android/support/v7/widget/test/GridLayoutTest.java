@@ -20,7 +20,8 @@ import android.app.Activity;
 import android.os.Debug;
 import android.support.v7.widget.GridLayout;
 import android.test.ActivityInstrumentationTestCase2;
-import android.support.v7.gridlayout.R;
+import android.test.suitebuilder.annotation.SmallTest;
+import android.support.v7.gridlayout.test.R;
 import android.test.UiThreadTest;
 import android.view.Gravity;
 import android.view.View;
@@ -30,6 +31,7 @@ import android.widget.Toast;
 /**
  * @hide
  */
+@SmallTest
 public class GridLayoutTest extends ActivityInstrumentationTestCase2 {
 
     public GridLayoutTest() {

@@ -19,10 +19,12 @@ package android.support.customtabs;
 import android.content.Intent;
 import android.graphics.Color;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.SmallTest;
 
 /**
  * Tests for CustomTabsIntent.
  */
+@SmallTest
 public class CustomTabsIntentTest extends AndroidTestCase {
 
     public void testBareboneCustomTabIntent() {

@@ -26,6 +26,7 @@ import android.graphics.drawable.Drawable;
 import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.graphics.drawable.test.R;
 import android.test.AndroidTestCase;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -33,6 +34,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+@MediumTest
 public class VectorDrawableTest extends AndroidTestCase {
     private static final String LOGTAG = "VectorDrawableTest";
 
