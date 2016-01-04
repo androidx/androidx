@@ -150,6 +150,8 @@ public abstract class BaseTestActivity extends AppCompatActivity {
         mOnKeyShortcutEvent = null;
         mOnMenuOpenedCalled = false;
         mOnPanelClosedCalled = false;
+        mMenu = null;
+        mOptionsItemSelected = null;
     }
 
     public void setShouldPopulateOptionsMenu(boolean populate) {
