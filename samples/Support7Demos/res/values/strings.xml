@@ -59,6 +59,7 @@
     <string name="action_bar_usage">AppCompat/Action Bar/Action Bar Usage</string>
     <string name="action_bar_tabs">AppCompat/Action Bar/Action Bar Tabs</string>
     <string name="action_bar_settings_action_provider">AppCompat/Action Bar/Settings Action Provider</string>
+    <string name="action_bar_share_action_provider">AppCompat/Action Bar/ShareActionProvider</string>
     <string name="action_bar_settings_action_provider_no_handling">Handling in onOptionsItemSelected avoided</string>
     <string name="action_bar_with_navigation_drawer">AppCompat/Action Bar/Navigation Drawer Toggle</string>
     <string name="action_bar_preferences">AppCompat/Action Bar/Preferences</string>
