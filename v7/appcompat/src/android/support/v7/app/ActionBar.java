@@ -1076,6 +1076,12 @@ public abstract class ActionBar {
     }
 
     /**
+     * Clean up any resources
+     */
+    void onDestroy() {
+    }
+
+    /**
      * Listener interface for ActionBar navigation events.
      *
      * @deprecated Action bar navigation modes are deprecated and not supported by inline

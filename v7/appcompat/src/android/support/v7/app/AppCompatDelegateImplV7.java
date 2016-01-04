@@ -196,8 +196,15 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
                     "by the window decor. Do not request Window.FEATURE_SUPPORT_ACTION_BAR and set " +
                     "windowActionBar to false in your theme to use a Toolbar instead.");
         }
-        // Clear out the MenuInflater to make sure that it is valid for the new Action Bar
+
+        // If we reach here then we're setting a new action bar
+        // First clear out the MenuInflater to make sure that it is valid for the new Action Bar
         mMenuInflater = null;
+
+        // If we have an action bar currently, destroy it
+        if (ab != null) {
+            ab.onDestroy();
+        }
 
         ToolbarActionBar tbab = new ToolbarActionBar(toolbar, ((Activity) mContext).getTitle(),
                 mAppCompatWindowCallback);
@@ -269,6 +276,16 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
         ViewGroup contentParent = (ViewGroup) mSubDecor.findViewById(android.R.id.content);
         contentParent.addView(v, lp);
         mOriginalWindowCallback.onContentChanged();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (mActionBar != null) {
+            mActionBar.onDestroy();
+            mActionBar = null;
+        }
     }
 
     private void ensureSubDecor() {
