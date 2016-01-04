@@ -191,6 +191,15 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".app.ActionBarShareActionProvider"
+                  android:label="@string/action_bar_share_action_provider"
+                  android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".app.ActionBarFragmentMenu"
                 android:label="@string/action_bar_fragment_menu"
                 android:theme="@style/Theme.AppCompat">
