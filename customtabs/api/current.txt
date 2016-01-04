@@ -23,6 +23,7 @@ package android.support.customtabs {
     method public void launchUrl(android.app.Activity, android.net.Uri);
     field public static final java.lang.String EXTRA_ACTION_BUTTON_BUNDLE = "android.support.customtabs.extra.ACTION_BUTTON_BUNDLE";
     field public static final java.lang.String EXTRA_CLOSE_BUTTON_ICON = "android.support.customtabs.extra.CLOSE_BUTTON_ICON";
+    field public static final java.lang.String EXTRA_DEFAULT_SHARE_MENU_ITEM = "android.support.customtabs.extra.SHARE_MENU_ITEM";
     field public static final java.lang.String EXTRA_ENABLE_URLBAR_HIDING = "android.support.customtabs.extra.ENABLE_URLBAR_HIDING";
     field public static final java.lang.String EXTRA_EXIT_ANIMATION_BUNDLE = "android.support.customtabs.extra.EXIT_ANIMATION_BUNDLE";
     field public static final java.lang.String EXTRA_MENU_ITEMS = "android.support.customtabs.extra.MENU_ITEMS";
@@ -43,6 +44,7 @@ package android.support.customtabs {
   public static final class CustomTabsIntent.Builder {
     ctor public CustomTabsIntent.Builder();
     ctor public CustomTabsIntent.Builder(android.support.customtabs.CustomTabsSession);
+    method public android.support.customtabs.CustomTabsIntent.Builder addDefaultShareMenuItem();
     method public android.support.customtabs.CustomTabsIntent.Builder addMenuItem(java.lang.String, android.app.PendingIntent);
     method public android.support.customtabs.CustomTabsIntent build();
     method public android.support.customtabs.CustomTabsIntent.Builder enableUrlBarHiding();

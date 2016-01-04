@@ -144,6 +144,12 @@ public final class CustomTabsIntent {
             "android.support.customtabs.extra.EXIT_ANIMATION_BUNDLE";
 
     /**
+     * Boolean extra that specifies whether a default share button will be shown in the menu.
+     */
+    public static final String EXTRA_DEFAULT_SHARE_MENU_ITEM =
+            "android.support.customtabs.extra.SHARE_MENU_ITEM";
+
+    /**
      * An {@link Intent} used to start the Custom Tabs Activity.
      */
     @NonNull public final Intent intent;
@@ -252,6 +258,14 @@ public final class CustomTabsIntent {
             bundle.putString(KEY_MENU_ITEM_TITLE, label);
             bundle.putParcelable(KEY_PENDING_INTENT, pendingIntent);
             mMenuItems.add(bundle);
+            return this;
+        }
+
+        /**
+         * Adds a default share item to the menu.
+         */
+        public Builder addDefaultShareMenuItem() {
+            mIntent.putExtra(EXTRA_DEFAULT_SHARE_MENU_ITEM, true);
             return this;
         }
 
