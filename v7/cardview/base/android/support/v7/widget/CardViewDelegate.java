@@ -30,4 +30,5 @@ interface CardViewDelegate {
     boolean getPreventCornerOverlap();
     float getRadius();
     void setShadowPadding(int left, int top, int right, int bottom);
+    void setMinWidthHeightInternal(int width, int height);
 }
