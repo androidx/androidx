@@ -485,6 +485,12 @@ class ToolbarActionBar extends ActionBar {
         return true;
     }
 
+    @Override
+    void onDestroy() {
+        // Remove any invalidation callbacks
+        mDecorToolbar.getViewGroup().removeCallbacks(mMenuInvalidator);
+    }
+
     public void addOnMenuVisibilityListener(OnMenuVisibilityListener listener) {
         mMenuVisibilityListeners.add(listener);
     }

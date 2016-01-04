@@ -180,7 +180,7 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
     abstract ActionMode startSupportActionModeFromWindow(ActionMode.Callback callback);
 
     @Override
-    public final void onDestroy() {
+    public void onDestroy() {
         mIsDestroyed = true;
     }
 
