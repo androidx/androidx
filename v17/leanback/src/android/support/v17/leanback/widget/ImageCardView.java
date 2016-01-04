@@ -29,74 +29,64 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 /**
- * A subclass of {@link BaseCardView} with an {@link ImageView} as its main
- * region. The {@link ImageCardView} is highly customizable and can be used for
- * various use-cases by adjusting the ImageViewCard's type to any combination of
- * Title, Content, Badge or ImageOnly.
+ * A subclass of {@link BaseCardView} with an {@link ImageView} as its main region. The
+ * {@link ImageCardView} is highly customizable and can be used for various use-cases by adjusting
+ * the ImageViewCard's type to any combination of Title, Content, Badge or ImageOnly.
  * <p>
- * <h3>Styling</h3> There are three different ways to style the ImageCardView.
- * <br>
- * No matter what way you use, all your styles applied to an ImageCardView have
- * to extend the style {@link R.style#Widget_Leanback_ImageCardViewStyle}.
+ * <h3>Styling</h3> There are two different ways to style the ImageCardView. <br>
+ * No matter what way you use, all your styles applied to an ImageCardView have to extend the style
+ * {@link R.style#Widget_Leanback_ImageCardViewStyle}.
  * <p>
  * <u>Example:</u><br>
  * 
  * <pre>
- * {@code <style name="CustomImageCardViewStyle" parent="Widget.Leanback.ImageCardViewStyle">
+ * {@code
+ * <style name="CustomImageCardViewStyle" parent="Widget.Leanback.ImageCardViewStyle">
         <item name="cardBackground">#F0F</item>
         <item name="lbImageCardViewType">Title|Content</item>
-        <item name="lbImageCardViewInfoAreaStyle">@style/ImageCardViewColoredInfoArea</item>
-        <item name="lbImageCardViewTitleStyle">@style/ImageCardViewColoredTitle</item>
+   </style>
+   <style name="CustomImageCardTheme" parent="Theme.Leanback">
+        <item name="imageCardViewStyle">@style/CustomImageCardViewStyle</item>
+        <item name="imageCardViewInfoAreaStyle">@style/ImageCardViewColoredInfoArea</item>
+        <item name="imageCardViewTitleStyle">@style/ImageCardViewColoredTitle</item>
     </style>}
  * </pre>
  * <p>
- * The first possibility is to set a custom Style in the Leanback Theme's
- * attribute <code>imageCardViewStyle</code>. The style set here, is the default
- * style for all ImageCardViews. The other two possibilities allow you to style
- * a particular ImageCardView. This is usefull if you want to create multiple
- * types of cards. E.g. you might want to display a card with only a title and
- * another one with title and content. Thus you need to define two different
- * <code>ImageCardViewStyles</code> and apply them to the ImageCardViews. You
- * can do this by either using a the {@link #ImageCardView(Context, int)}
- * constructor and passing a style as second argument or by setting the style in
- * a layout.
+ * The first possibility is to set custom Styles in the Leanback Theme's attributes
+ * <code>imageCardViewStyle</code>, <code>imageCardViewTitleStyle</code> etc. The styles set here,
+ * is the default style for all ImageCardViews.
+ * <p>
+ * The second possibility allows you to style a particular ImageCardView. This is useful if you
+ * want to create multiple types of cards. E.g. you might want to display a card with only a title
+ * and another one with title and content. Thus you need to define two different
+ * <code>ImageCardViewStyles</code> and two different themes and apply them to the ImageCardViews.
+ * You can do this by using a the {@link #ImageCardView(Context)} constructor and passing a
+ * ContextThemeWrapper with the custom ImageCardView theme id.
  * <p>
  * <u>Example (using constructor):</u><br>
  * 
  * <pre>
  * {@code
- *     new ImageCardView(context, R.style.CustomImageCardViewStyle);
+ *     new ImageCardView(new ContextThemeWrapper(context, R.style.CustomImageCardTheme));
  * }
  * </pre>
  * 
- * <u>Example (using style attribute in a layout):</u><br>
- * 
- * <pre>
- * {@code     <android.support.v17.leanback.widget.ImageCardView
-        android:id="@+id/imageCardView"
-        style="@style/CustomImageCardViewStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-    </android.support.v17.leanback.widget.ImageCardView>}
- * </pre>
  * <p>
- * You can style all ImageCardView's components such as the title, content,
- * badge, infoArea and the image itself by extending the corresponding style and
- * overriding the specific attribute in your custom
- * <code>ImageCardViewStyle</code>.
+ * You can style all ImageCardView's components such as the title, content, badge, infoArea and the
+ * image itself by extending the corresponding style and overriding the specific attribute in your
+ * custom ImageCardView theme.
  * 
- * <h3>Components</h3> The ImageCardView contains three components which can be
- * combined in any combination:
+ * <h3>Components</h3> The ImageCardView contains three components which can be combined in any
+ * combination:
  * <ul>
  * <li>Title: The card's title</li>
  * <li>Content: A short description</li>
- * <li>Badge: An icon which can be displayed on the right or left side of the
- * card.</li>
+ * <li>Badge: An icon which can be displayed on the right or left side of the card.</li>
  * </ul>
- * In order to choose the components you want to use in your ImageCardView, you
- * have to specify them in the <code>lbImageCardViewType</code> attribute of
- * your custom <code>ImageCardViewStyle</code>. You can combine the following
- * values: <code>Title, Content, IconOnRight, IconOnLeft, ImageOnly</code>.
+ * In order to choose the components you want to use in your ImageCardView, you have to specify them
+ * in the <code>lbImageCardViewType</code> attribute of your custom <code>ImageCardViewStyle</code>.
+ * You can combine the following values:
+ * <code>Title, Content, IconOnRight, IconOnLeft, ImageOnly</code>.
  * <p>
  * <u>Examples:</u><br>
  * 
@@ -118,11 +108,11 @@ import android.widget.TextView;
  * 
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackTheme_imageCardViewStyle
  * @attr ref android.support.v17.leanback.R.styleable#lbImageCardView_lbImageCardViewType
- * @attr ref android.support.v17.leanback.R.styleable#lbImageCardView_lbImageCardViewTitleStyle
- * @attr ref android.support.v17.leanback.R.styleable#lbImageCardView_lbImageCardViewContentStyle
- * @attr ref android.support.v17.leanback.R.styleable#lbImageCardView_lbImageCardViewBadgeStyle
- * @attr ref android.support.v17.leanback.R.styleable#lbImageCardView_lbImageCardViewImageStyle
- * @attr ref android.support.v17.leanback.R.styleable#lbImageCardView_lbImageCardViewInfoAreaStyle
+ * @attr ref android.support.v17.leanback.R.styleable#LeanbackTheme_imageCardViewTitleStyle
+ * @attr ref android.support.v17.leanback.R.styleable#LeanbackTheme_imageCardViewContentStyle
+ * @attr ref android.support.v17.leanback.R.styleable#LeanbackTheme_imageCardViewBadgeStyle
+ * @attr ref android.support.v17.leanback.R.styleable#LeanbackTheme_imageCardViewImageStyle
+ * @attr ref android.support.v17.leanback.R.styleable#LeanbackTheme_imageCardViewInfoAreaStyle
  */
 public class ImageCardView extends BaseCardView {
 
@@ -140,43 +130,50 @@ public class ImageCardView extends BaseCardView {
     private boolean mAttachedToWindow;
 
     /**
-     * Create an ImageCardView using a given style for customization.
+     * Create an ImageCardView using a given theme for customization.
      * 
      * @param context
      *            The Context the view is running in, through which it can
      *            access the current theme, resources, etc.
-     * @param styleResId
-     *            The resourceId of the style you want to apply to the
-     *            ImageCardView. The style has to extend
-     *            {@link R.style#Widget_Leanback_ImageCardViewStyle}.
+     * @param themeResId
+     *            The resourceId of the theme you want to apply to the ImageCardView. The theme
+     *            includes attributes "imageCardViewStyle", "imageCardViewTitleStyle",
+     *            "imageCardViewContentStyle" etc. to customize individual part of ImageCardView.
+     * @deprecated Calling this constructor inefficiently creates one ContextThemeWrapper per card,
+     * you should share it in card Presenter: wrapper = new ContextThemeWrapper(context, themResId);
+     * return new ImageCardView(wrapper);
      */
-    public ImageCardView(Context context, int styleResId) {
-        super(new ContextThemeWrapper(context, styleResId), null, 0);
-        buildImageCardView(styleResId);
+    @Deprecated
+    public ImageCardView(Context context, int themeResId) {
+        this(new ContextThemeWrapper(context, themeResId));
     }
 
     /**
      * @see #View(Context, AttributeSet, int)
      */
     public ImageCardView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(getStyledContext(context, attrs, defStyleAttr), attrs, defStyleAttr);
-        buildImageCardView(getImageCardViewStyle(context, attrs, defStyleAttr));
+        super(context, attrs, defStyleAttr);
+        buildImageCardView(attrs, defStyleAttr, R.style.Widget_Leanback_ImageCardView);
     }
 
-    private void buildImageCardView(int styleResId) {
+    private void buildImageCardView(AttributeSet attrs, int defStyleAttr, int defStyle) {
         // Make sure the ImageCardView is focusable.
         setFocusable(true);
         setFocusableInTouchMode(true);
 
         LayoutInflater inflater = LayoutInflater.from(getContext());
         inflater.inflate(R.layout.lb_image_card_view, this);
-        TypedArray cardAttrs = getContext().obtainStyledAttributes(styleResId, R.styleable.lbImageCardView);
-        int cardType = cardAttrs.getInt(R.styleable.lbImageCardView_lbImageCardViewType, CARD_TYPE_FLAG_IMAGE_ONLY);
+        TypedArray cardAttrs = getContext().obtainStyledAttributes(attrs,
+                R.styleable.lbImageCardView, defStyleAttr, defStyle);
+        int cardType = cardAttrs
+                .getInt(R.styleable.lbImageCardView_lbImageCardViewType, CARD_TYPE_FLAG_IMAGE_ONLY);
+
         boolean hasImageOnly = cardType == CARD_TYPE_FLAG_IMAGE_ONLY;
         boolean hasTitle = (cardType & CARD_TYPE_FLAG_TITLE) == CARD_TYPE_FLAG_TITLE;
         boolean hasContent = (cardType & CARD_TYPE_FLAG_CONTENT) == CARD_TYPE_FLAG_CONTENT;
         boolean hasIconRight = (cardType & CARD_TYPE_FLAG_ICON_RIGHT) == CARD_TYPE_FLAG_ICON_RIGHT;
-        boolean hasIconLeft = !hasIconRight && (cardType & CARD_TYPE_FLAG_ICON_LEFT) == CARD_TYPE_FLAG_ICON_LEFT;
+        boolean hasIconLeft =
+                !hasIconRight && (cardType & CARD_TYPE_FLAG_ICON_LEFT) == CARD_TYPE_FLAG_ICON_LEFT;
 
         mImageView = (ImageView) findViewById(R.id.main_image);
         if (mImageView.getDrawable() == null) {
@@ -191,12 +188,14 @@ public class ImageCardView extends BaseCardView {
         }
         // Create children
         if (hasTitle) {
-            mTitleView = (TextView) inflater.inflate(R.layout.lb_image_card_view_themed_title, mInfoArea, false);
+            mTitleView = (TextView) inflater.inflate(R.layout.lb_image_card_view_themed_title,
+                    mInfoArea, false);
             mInfoArea.addView(mTitleView);
         }
 
         if (hasContent) {
-            mContentView = (TextView) inflater.inflate(R.layout.lb_image_card_view_themed_content, mInfoArea, false);
+            mContentView = (TextView) inflater.inflate(R.layout.lb_image_card_view_themed_content,
+                    mInfoArea, false);
             mInfoArea.addView(mContentView);
         }
 
@@ -211,8 +210,8 @@ public class ImageCardView extends BaseCardView {
 
         // Set up LayoutParams for children
         if (hasTitle && !hasContent && mBadgeImage != null) {
-            RelativeLayout.LayoutParams relativeLayoutParams = (RelativeLayout.LayoutParams) mTitleView
-                    .getLayoutParams();
+            RelativeLayout.LayoutParams relativeLayoutParams =
+                    (RelativeLayout.LayoutParams) mTitleView.getLayoutParams();
             // Adjust title TextView if there is an icon but no content
             if (hasIconLeft) {
                 relativeLayoutParams.addRule(RelativeLayout.END_OF, mBadgeImage.getId());
@@ -224,8 +223,8 @@ public class ImageCardView extends BaseCardView {
 
         // Set up LayoutParams for children
         if (hasContent) {
-            RelativeLayout.LayoutParams relativeLayoutParams = (RelativeLayout.LayoutParams) mContentView
-                    .getLayoutParams();
+            RelativeLayout.LayoutParams relativeLayoutParams =
+                    (RelativeLayout.LayoutParams) mContentView.getLayoutParams();
             if (!hasTitle) {
                 relativeLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
             }
@@ -239,8 +238,8 @@ public class ImageCardView extends BaseCardView {
         }
 
         if (mBadgeImage != null) {
-            RelativeLayout.LayoutParams relativeLayoutParams = (RelativeLayout.LayoutParams) mBadgeImage
-                    .getLayoutParams();
+            RelativeLayout.LayoutParams relativeLayoutParams =
+                    (RelativeLayout.LayoutParams) mBadgeImage.getLayoutParams();
             if (hasContent) {
                 relativeLayoutParams.addRule(RelativeLayout.ALIGN_BOTTOM, mContentView.getId());
             } else if (hasTitle) {
@@ -267,23 +266,6 @@ public class ImageCardView extends BaseCardView {
             mBadgeImage.setVisibility(View.GONE);
         }
         cardAttrs.recycle();
-    }
-
-    private static Context getStyledContext(Context context, AttributeSet attrs, int defStyleAttr) {
-        int style = getImageCardViewStyle(context, attrs, defStyleAttr);
-        return new ContextThemeWrapper(context, style);
-    }
-
-    private static int getImageCardViewStyle(Context context, AttributeSet attrs, int defStyleAttr) {
-        // Read style attribute defined in XML layout.
-        int style = null == attrs ? 0 : attrs.getStyleAttribute();
-        if (0 == style) {
-            // Not found? Read global ImageCardView style from Theme attribute.
-            TypedArray styledAttrs = context.obtainStyledAttributes(R.styleable.LeanbackTheme);
-            style = styledAttrs.getResourceId(R.styleable.LeanbackTheme_imageCardViewStyle, 0);
-            styledAttrs.recycle();
-        }
-        return style;
     }
 
     /**
@@ -476,8 +458,8 @@ public class ImageCardView extends BaseCardView {
     private void fadeIn() {
         mImageView.setAlpha(0f);
         if (mAttachedToWindow) {
-            mImageView.animate().alpha(1f)
-                    .setDuration(mImageView.getResources().getInteger(android.R.integer.config_shortAnimTime));
+            mImageView.animate().alpha(1f).setDuration(
+                    mImageView.getResources().getInteger(android.R.integer.config_shortAnimTime));
         }
     }
 

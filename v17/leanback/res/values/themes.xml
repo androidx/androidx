@@ -32,6 +32,11 @@
 
         <item name="baseCardViewStyle">@style/Widget.Leanback.BaseCardViewStyle</item>
         <item name="imageCardViewStyle">@style/Widget.Leanback.ImageCardViewStyle</item>
+        <item name="imageCardViewImageStyle">@style/Widget.Leanback.ImageCardView.ImageStyle</item>
+        <item name="imageCardViewTitleStyle">@style/Widget.Leanback.ImageCardView.TitleStyle</item>
+        <item name="imageCardViewContentStyle">@style/Widget.Leanback.ImageCardView.ContentStyle</item>
+        <item name="imageCardViewBadgeStyle">@style/Widget.Leanback.ImageCardView.BadgeStyle</item>
+        <item name="imageCardViewInfoAreaStyle">@style/Widget.Leanback.ImageCardView.InfoAreaStyle</item>
 
         <item name="browsePaddingStart">@dimen/lb_browse_padding_start</item>
         <item name="browsePaddingEnd">@dimen/lb_browse_padding_end</item>
