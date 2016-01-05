@@ -599,9 +599,6 @@ public final class MediaControllerCompat {
 
         /**
          * Request that the player start playback for a specific {@link Uri}.
-         * <p>
-         * This method is not supported on API 21-22.
-         * </p>
          *
          * @param uri  The URI of the requested media.
          * @param extras Optional extras that can include extra information about the media item
