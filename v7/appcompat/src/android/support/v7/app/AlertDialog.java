@@ -141,25 +141,33 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
 
     /**
      * @see Builder#setCustomTitle(View)
+     *
+     * This method has no effect if called after {@link #show()}.
      */
     public void setCustomTitle(View customTitleView) {
         mAlert.setCustomTitle(customTitleView);
     }
 
+    /**
+     * Sets the message to display.
+     *
+     * @param message The message to display in the dialog.
+     */
     public void setMessage(CharSequence message) {
         mAlert.setMessage(message);
     }
 
     /**
-     * Set the view to display in that dialog.
+     * Set the view to display in the dialog. This method has no effect if called
+     * after {@link #show()}.
      */
     public void setView(View view) {
         mAlert.setView(view);
     }
 
     /**
-     * Set the view to display in that dialog, specifying the spacing to appear around that
-     * view.
+     * Set the view to display in the dialog, specifying the spacing to appear around that
+     * view.  This method has no effect if called after {@link #show()}.
      *
      * @param view              The view to show in the content area of the dialog
      * @param viewSpacingLeft   Extra space to appear to the left of {@code view}
@@ -182,7 +190,7 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
     }
 
     /**
-     * Set a message to be sent when a button is pressed. This method has no effect if called
+     * Sets a message to be sent when a button is pressed. This method has no effect if called
      * after {@link #show()}.
      *
      * @param whichButton Which button to set the message for, can be one of
@@ -197,7 +205,7 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
     }
 
     /**
-     * Set a listener to be invoked when the positive button of the dialog is pressed. This method
+     * Sets a listener to be invoked when the positive button of the dialog is pressed. This method
      * has no effect if called after {@link #show()}.
      *
      * @param whichButton Which button to set the listener on, can be one of
@@ -212,7 +220,8 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
     }
 
     /**
-     * Set resId to 0 if you don't want an icon.
+     * Set the resource id of the {@link Drawable} to be used in the title. Set resId to 0 if you
+     * don't want an icon.
      *
      * @param resId the resourceId of the drawable to use as the icon or 0
      *              if you don't want an icon.
@@ -221,12 +230,17 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
         mAlert.setIcon(resId);
     }
 
+    /**
+     * Set the {@link Drawable} to be used in the title.
+     *
+     * @param icon Drawable to use as the icon or null if you don't want an icon.
+     */
     public void setIcon(Drawable icon) {
         mAlert.setIcon(icon);
     }
 
     /**
-     * Set an icon as supplied by a theme attribute. e.g. android.R.attr.alertDialogIcon
+     * Sets an icon as supplied by a theme attribute. e.g. android.R.attr.alertDialogIcon
      *
      * @param attrId ID of a theme attribute that points to a drawable resource.
      */
