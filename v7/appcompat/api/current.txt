@@ -555,6 +555,7 @@ package android.support.v7.appcompat {
   public static final class R.bool {
     ctor public R.bool();
     field public static int abc_action_bar_embed_tabs;
+    field public static int abc_allow_stacked_button_bar;
     field public static int abc_config_actionMenuItemAllCaps;
     field public static int abc_config_closeDialogWhenTouchOutside;
     field public static int abc_config_showMenuShortcutsWhenKeyboardPresent;
