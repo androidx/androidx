@@ -31,7 +31,9 @@ import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.ImageView;
@@ -113,7 +115,8 @@ public class AlertDialogTest extends ActivityInstrumentationTestCase2<AlertDialo
 
     @SmallTest
     public void testBasicContent() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+        final Context context = getActivity();
+        AlertDialog.Builder builder = new AlertDialog.Builder(context)
                 .setTitle(R.string.alert_dialog_title)
                 .setMessage(R.string.alert_dialog_content);
         wireBuilder(builder);
@@ -121,10 +124,12 @@ public class AlertDialogTest extends ActivityInstrumentationTestCase2<AlertDialo
         onView(withId(R.id.test_button)).perform(click());
 
         // Test that we're showing a dialog with vertically stacked title and content
-        onView(withText("Dialog title")).inRoot(isDialog()).check(matches(isDisplayed()));
-        onView(withText("Dialog content")).inRoot(isDialog()).check(matches(isDisplayed()));
-        onView(withText("Dialog content")).inRoot(isDialog()).check(
-                isBelow(withText("Dialog title")));
+        final String expectedTitle = context.getString(R.string.alert_dialog_title);
+        final String expectedMessage = context.getString(R.string.alert_dialog_content);
+        onView(withText(expectedTitle)).inRoot(isDialog()).check(matches(isDisplayed()));
+        onView(withText(expectedMessage)).inRoot(isDialog()).check(matches(isDisplayed()));
+        onView(withText(expectedMessage)).inRoot(isDialog()).check(
+                isBelow(withText(expectedTitle)));
 
         assertNull("No list view", mAlertDialog.getListView());
 
@@ -134,6 +139,196 @@ public class AlertDialogTest extends ActivityInstrumentationTestCase2<AlertDialo
                 mAlertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).getVisibility());
         assertEquals("Neutral button not shown", View.GONE,
                 mAlertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).getVisibility());
+    }
+
+    // Tests for message logic
+
+    @SmallTest
+    public void testMessageString() {
+        final String dialogMessage = "Dialog message";
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.alert_dialog_title)
+                .setMessage(dialogMessage);
+        wireBuilder(builder);
+
+        onView(withId(R.id.test_button)).perform(click());
+        onView(withText(dialogMessage)).inRoot(isDialog()).check(matches(isDisplayed()));
+    }
+
+    @SmallTest
+    public void testMessageStringPostCreation() throws Throwable {
+        final String dialogInitialMessage = "Initial message";
+        final String dialogUpdatedMessage = "Updated message";
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.alert_dialog_title)
+                .setMessage(dialogInitialMessage);
+        wireBuilder(builder);
+
+        // Click the button to show the dialog and check that it shows the initial message
+        onView(withId(R.id.test_button)).perform(click());
+        onView(withText(dialogInitialMessage)).inRoot(isDialog()).check(matches(isDisplayed()));
+
+        // Update the dialog message
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mAlertDialog.setMessage(dialogUpdatedMessage);
+            }
+        });
+        // Check that the old message is not showing
+        onView(withText(dialogInitialMessage)).inRoot(isDialog()).check(doesNotExist());
+        // and that the new message is showing
+        onView(withText(dialogUpdatedMessage)).inRoot(isDialog()).check(matches(isDisplayed()));
+    }
+
+    // Tests for custom title logic
+
+    /**
+     * Helper method to verify that setting custom title hides the default title and shows
+     * the custom title above the dialog message.
+     */
+    private void verifyCustomTitle() {
+        final Context context = getActivity();
+
+        // Test that we're showing a dialog with vertically stacked custom title and content
+        final String title = context.getString(R.string.alert_dialog_title);
+        final String expectedCustomTitle = context.getString(R.string.alert_dialog_custom_title);
+        final String expectedMessage = context.getString(R.string.alert_dialog_content);
+
+        // Check that the default title is not showing
+        onView(withText(title)).inRoot(isDialog()).check(doesNotExist());
+        // Check that the custom title is fully displayed with no text eliding and is
+        // stacked above the message
+        onView(withText(expectedCustomTitle)).inRoot(isDialog()).check(
+                matches(isCompletelyDisplayed()));
+        onView(withText(expectedCustomTitle)).inRoot(isDialog()).check(
+                matches(not(hasEllipsizedText())));
+        onView(withText(expectedMessage)).inRoot(isDialog()).check(matches(isDisplayed()));
+        onView(withText(expectedMessage)).inRoot(isDialog()).check(
+                isBelow(withText(expectedCustomTitle)));
+    }
+
+    @SmallTest
+    public void testCustomTitle() {
+        final Context context = getActivity();
+        final LayoutInflater inflater = LayoutInflater.from(context);
+        AlertDialog.Builder builder = new AlertDialog.Builder(context)
+                .setTitle(R.string.alert_dialog_title)
+                .setMessage(R.string.alert_dialog_content)
+                .setCustomTitle(inflater.inflate(R.layout.alert_dialog_custom_title, null, false));
+        wireBuilder(builder);
+
+        onView(withId(R.id.test_button)).perform(click());
+
+        verifyCustomTitle();
+    }
+
+    @SmallTest
+    public void testCustomTitlePostCreation() {
+        final Context context = getActivity();
+        final LayoutInflater inflater = LayoutInflater.from(context);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context)
+                .setTitle(R.string.alert_dialog_title)
+                .setMessage(R.string.alert_dialog_content);
+
+        mButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog = builder.create();
+
+                // Configure custom title
+                mAlertDialog.setCustomTitle(inflater.inflate(
+                        R.layout.alert_dialog_custom_title, null, false));
+
+                mAlertDialog.show();
+            }
+        });
+
+        // Click the button to create the dialog, configure custom title and show the dialog
+        onView(withId(R.id.test_button)).perform(click());
+
+        verifyCustomTitle();
+    }
+
+    // Tests for custom view logic
+
+    /**
+     * Helper method to verify that setting custom view shows the content of that view.
+     */
+    private void verifyCustomView() {
+        final Context context = getActivity();
+
+        // Test that we're showing a dialog with vertically stacked custom title and content
+        final String expectedCustomText1 = context.getString(R.string.alert_dialog_custom_text1);
+        final String expectedCustomText2 = context.getString(R.string.alert_dialog_custom_text2);
+
+        // Check that we're showing the content of our custom view
+        onView(withId(R.id.alert_dialog_custom_view)).inRoot(isDialog()).check(
+                matches(isCompletelyDisplayed()));
+        onView(withText(expectedCustomText1)).inRoot(isDialog()).check(
+                matches(isCompletelyDisplayed()));
+        onView(withText(expectedCustomText1)).inRoot(isDialog()).check(
+                matches(not(hasEllipsizedText())));
+        onView(withText(expectedCustomText2)).inRoot(isDialog()).check(
+                matches(isCompletelyDisplayed()));
+        onView(withText(expectedCustomText2)).inRoot(isDialog()).check(
+                matches(not(hasEllipsizedText())));
+    }
+
+    @SmallTest
+    public void testCustomView() {
+        final Context context = getActivity();
+        final LayoutInflater inflater = LayoutInflater.from(context);
+        AlertDialog.Builder builder = new AlertDialog.Builder(context)
+                .setTitle(R.string.alert_dialog_title)
+                .setMessage(R.string.alert_dialog_content)
+                .setView(inflater.inflate(R.layout.alert_dialog_custom_view, null, false));
+        wireBuilder(builder);
+
+        onView(withId(R.id.test_button)).perform(click());
+
+        verifyCustomView();
+    }
+
+    @SmallTest
+    public void testCustomViewById() {
+        final Context context = getActivity();
+        AlertDialog.Builder builder = new AlertDialog.Builder(context)
+                .setTitle(R.string.alert_dialog_title)
+                .setMessage(R.string.alert_dialog_content)
+                .setView(R.layout.alert_dialog_custom_view);
+        wireBuilder(builder);
+
+        onView(withId(R.id.test_button)).perform(click());
+
+        verifyCustomView();
+    }
+
+    @SmallTest
+    public void testCustomViewPostCreation() {
+        final Context context = getActivity();
+        final LayoutInflater inflater = LayoutInflater.from(context);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context)
+                .setTitle(R.string.alert_dialog_title)
+                .setMessage(R.string.alert_dialog_content);
+
+        mButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAlertDialog = builder.create();
+
+                // Configure custom view
+                mAlertDialog.setView(inflater.inflate(
+                        R.layout.alert_dialog_custom_view, null, false));
+
+                mAlertDialog.show();
+            }
+        });
+
+        // Click the button to create the dialog, configure custom view and show the dialog
+        onView(withId(R.id.test_button)).perform(click());
+
+        verifyCustomView();
     }
 
     // Tests for cancel logic
@@ -214,6 +409,26 @@ public class AlertDialogTest extends ActivityInstrumentationTestCase2<AlertDialo
         onData(allOf(is(instanceOf(String.class)), is(expectedContent[indexToClick]))).
                 inRoot(isDialog()).perform(click());
         assertEquals("List item clicked", indexToClick, mClickedItemIndex);
+    }
+
+    @SmallTest
+    public void testCustomAdapter() {
+        final Context context = getActivity();
+        final String[] content = context.getResources().getStringArray(R.array.alert_dialog_items);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.alert_dialog_title)
+                .setAdapter(
+                        new ArrayAdapter<>(context, android.R.layout.simple_list_item_1,
+                                content),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                mClickedItemIndex = which;
+                            }
+                        });
+        wireBuilder(builder);
+
+        verifySimpleItemsContent(content);
     }
 
     @SmallTest

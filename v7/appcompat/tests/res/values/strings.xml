@@ -37,5 +37,8 @@
     <string name="alert_dialog_positive_button">Forward</string>
     <string name="alert_dialog_negative_button">Backward</string>
     <string name="alert_dialog_neutral_button">Stall</string>
+    <string name="alert_dialog_custom_title">Dialog custom title</string>
+    <string name="alert_dialog_custom_text1">Dialog custom text</string>
+    <string name="alert_dialog_custom_text2">Dialog more custom text</string>
 
 </resources>
