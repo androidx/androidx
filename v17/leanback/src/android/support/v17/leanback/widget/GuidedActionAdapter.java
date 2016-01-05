@@ -108,9 +108,13 @@ public class GuidedActionAdapter extends RecyclerView.Adapter {
                 GuidedActionsStylist.ViewHolder avh = (GuidedActionsStylist.ViewHolder)
                         getRecyclerView().getChildViewHolder(v);
                 GuidedAction action = avh.getAction();
-                if (action.isEditable() || action.isDescriptionEditable()) {
+                if (action.hasTextEditable()) {
                     if (DEBUG_EDIT) Log.v(TAG_EDIT, "openIme by click");
                     mGroup.openIme(GuidedActionAdapter.this, avh);
+                } else if (action.hasEditableActivatorView()) {
+                    if (DEBUG_EDIT) Log.v(TAG_EDIT, "toggle editing mode by click");
+                    getGuidedActionsStylist().setEditingMode(avh, avh.getAction(),
+                            !avh.isInEditingActivatorView());
                 } else {
                     handleCheckedActions(avh);
                     if (action.isEnabled() && !action.infoOnly()) {
