@@ -31,9 +31,8 @@ class MediaSessionCompatApi18 {
 
     private static boolean sIsMbrPendingIntentSupported = true;
 
-    public static Object createPlaybackPositionUpdateListener(
-            MediaSessionCompatApi14.Callback callback) {
-        return new OnPlaybackPositionUpdateListener<MediaSessionCompatApi14.Callback>(callback);
+    public static Object createPlaybackPositionUpdateListener(Callback callback) {
+        return new OnPlaybackPositionUpdateListener<Callback>(callback);
     }
 
     public static void registerMediaButtonEventReceiver(Context context, PendingIntent pi,
@@ -105,7 +104,7 @@ class MediaSessionCompatApi18 {
         return transportControlFlags;
     }
 
-    static class OnPlaybackPositionUpdateListener<T extends MediaSessionCompatApi14.Callback>
+    static class OnPlaybackPositionUpdateListener<T extends Callback>
             implements RemoteControlClient.OnPlaybackPositionUpdateListener {
         protected final T mCallback;
 
@@ -117,5 +116,9 @@ class MediaSessionCompatApi18 {
         public void onPlaybackPositionUpdate(long newPositionMs) {
             mCallback.onSeekTo(newPositionMs);
         }
+    }
+
+    interface Callback {
+        public void onSeekTo(long pos);
     }
 }
