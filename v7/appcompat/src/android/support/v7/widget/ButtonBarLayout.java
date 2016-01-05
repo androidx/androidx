@@ -17,6 +17,8 @@ package android.support.v7.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Build;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -83,9 +85,24 @@ public class ButtonBarLayout extends LinearLayout {
         }
         super.onMeasure(initialWidthMeasureSpec, heightMeasureSpec);
         if (mAllowStacking && !isStacked()) {
-            final int measuredWidth = getMeasuredWidthAndState();
-            final int measuredWidthState = measuredWidth & MEASURED_STATE_MASK;
-            if (measuredWidthState == MEASURED_STATE_TOO_SMALL) {
+            final boolean stack;
+
+            if (Build.VERSION.SDK_INT >= 11) {
+                // On API v11+ we can use MEASURED_STATE_MASK and MEASURED_STATE_TOO_SMALL
+                final int measuredWidth = ViewCompat.getMeasuredWidthAndState(this);
+                final int measuredWidthState = measuredWidth & ViewCompat.MEASURED_STATE_MASK;
+                stack = measuredWidthState == ViewCompat.MEASURED_STATE_TOO_SMALL;
+            } else {
+                // Before that we need to manually total up the children's preferred width.
+                // This isn't perfect but works well enough for a workaround.
+                int childWidthTotal = 0;
+                for (int i = 0, count = getChildCount(); i < count; i++) {
+                    childWidthTotal += getChildAt(i).getMeasuredWidth();
+                }
+                stack = (childWidthTotal + getPaddingLeft() + getPaddingRight()) > widthSize;
+            }
+
+            if (stack) {
                 setStacked(true);
                 // Measure again in the new orientation.
                 needsRemeasure = true;
