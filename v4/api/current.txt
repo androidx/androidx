@@ -1761,6 +1761,10 @@ package android.support.v4.os {
     method public static android.os.AsyncTask<Params, Progress, Result> executeParallel(android.os.AsyncTask<Params, Progress, Result>, Params...);
   }
 
+  public class BuildCompat {
+    method public static boolean isAtLeastN();
+  }
+
   public final class CancellationSignal {
     ctor public CancellationSignal();
     method public void cancel();
