@@ -1123,22 +1123,7 @@ public class MediaSessionCompat {
                 if (handler == null) {
                     handler = new Handler();
                 }
-                MediaSessionCompatApi14.Callback cb14 = new MediaSessionCompatApi14.Callback() {
-                    @Override
-                    public void onStop() {
-                        callback.onStop();
-                    }
-
-                    @Override
-                    public void onSkipToPrevious() {
-                        callback.onSkipToPrevious();
-                    }
-
-                    @Override
-                    public void onSkipToNext() {
-                        callback.onSkipToNext();
-                    }
-
+                MediaSessionCompatApi19.Callback cb19 = new MediaSessionCompatApi19.Callback() {
                     @Override
                     public void onSetRating(Object ratingObj) {
                         callback.onSetRating(RatingCompat.fromRating(ratingObj));
@@ -1148,46 +1133,16 @@ public class MediaSessionCompat {
                     public void onSeekTo(long pos) {
                         callback.onSeekTo(pos);
                     }
-
-                    @Override
-                    public void onRewind() {
-                        callback.onRewind();
-                    }
-
-                    @Override
-                    public void onPlay() {
-                        callback.onPlay();
-                    }
-
-                    @Override
-                    public void onPause() {
-                        callback.onPause();
-                    }
-
-                    @Override
-                    public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
-                        return callback.onMediaButtonEvent(mediaButtonIntent);
-                    }
-
-                    @Override
-                    public void onFastForward() {
-                        callback.onFastForward();
-                    }
-
-                    @Override
-                    public void onCommand(String command, Bundle extras, ResultReceiver cb) {
-                        callback.onCommand(command, extras, cb);
-                    }
                 };
                 if (android.os.Build.VERSION.SDK_INT >= 18) {
                     Object onPositionUpdateObj = MediaSessionCompatApi18
-                            .createPlaybackPositionUpdateListener(cb14);
+                            .createPlaybackPositionUpdateListener(cb19);
                     MediaSessionCompatApi18.setOnPlaybackPositionUpdateListener(mRccObj,
                             onPositionUpdateObj);
                 }
                 if (android.os.Build.VERSION.SDK_INT >= 19) {
                     Object onMetadataUpdateObj = MediaSessionCompatApi19
-                            .createMetadataUpdateListener(cb14);
+                            .createMetadataUpdateListener(cb19);
                     MediaSessionCompatApi19.setOnMetadataUpdateListener(mRccObj,
                             onMetadataUpdateObj);
                 }

@@ -132,7 +132,7 @@ class MediaSessionCompatApi21 {
         ((MediaSession) sessionObj).setExtras(extras);
     }
 
-    static interface Callback {
+    interface Callback extends MediaSessionCompatApi19.Callback {
         public void onCommand(String command, Bundle extras, ResultReceiver cb);
         public boolean onMediaButtonEvent(Intent mediaButtonIntent);
         public void onPlay();
@@ -145,8 +145,6 @@ class MediaSessionCompatApi21 {
         public void onFastForward();
         public void onRewind();
         public void onStop();
-        public void onSeekTo(long pos);
-        public void onSetRating(Object ratingObj);
         public void onCustomAction(String action, Bundle extras);
     }
 
