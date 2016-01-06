@@ -18,8 +18,11 @@ package android.support.v7.app;
 
 import org.junit.Test;
 
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.os.Build;
 import android.support.v7.appcompat.test.R;
+import android.support.v7.view.ContextThemeWrapper;
 import android.support.v7.widget.AppCompatAutoCompleteTextView;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatCheckBox;
@@ -31,26 +34,27 @@ import android.support.v7.widget.AppCompatSpinner;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
-public class LayoutInflaterFactoryTestCase extends BaseInstrumentationTestCase<AppCompatActivity> {
+public class LayoutInflaterFactoryTestCase
+        extends BaseInstrumentationTestCase<LayoutInflaterFactoryTestActivity> {
+
+    private static final String TINTCONTEXTWRAPPER_CLAZZ_NAME
+            = "android.support.v7.widget.TintContextWrapper";
 
     public LayoutInflaterFactoryTestCase() {
-        super(AppCompatActivity.class);
+        super(LayoutInflaterFactoryTestActivity.class);
     }
 
     @Test
     @SmallTest
     public void testAndroidThemeInflation() throws Throwable {
-        if (Build.VERSION.SDK_INT < 10) {
-            // Ignore this test if running on Gingerbread or below
-            return;
-        }
         runTestOnUiThread(new Runnable() {
             @Override
             public void run() {
-                LayoutInflater inflater = LayoutInflater.from(getActivity());
-                View view = inflater.inflate(R.layout.layout_android_theme, null);
-                assertTrue("View has themed Context", view.getContext() != getActivity());
+                final LayoutInflater inflater = LayoutInflater.from(getActivity());
+                assertThemedContext(inflater,
+                        inflater.inflate(R.layout.layout_android_theme, null));
             }
         });
     }
@@ -58,16 +62,36 @@ public class LayoutInflaterFactoryTestCase extends BaseInstrumentationTestCase<A
     @Test
     @SmallTest
     public void testAppThemeInflation() throws Throwable {
-        if (Build.VERSION.SDK_INT < 10) {
-            // Ignore this test if running on Gingerbread or below
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final LayoutInflater inflater = LayoutInflater.from(getActivity());
+                assertThemedContext(inflater, inflater.inflate(R.layout.layout_app_theme, null));
+            }
+        });
+    }
+
+    @Test
+    @SmallTest
+    public void testAndroidThemeWithChildrenInflation() throws Throwable {
+        if (Build.VERSION.SDK_INT < 11) {
+            // Propagation of themed context to children only works on API 11+. Ignoring test.
             return;
         }
         runTestOnUiThread(new Runnable() {
             @Override
             public void run() {
                 LayoutInflater inflater = LayoutInflater.from(getActivity());
-                View view = inflater.inflate(R.layout.layout_app_theme, null);
-                assertTrue("View has themed Context", view.getContext() != getActivity());
+                final ViewGroup root = (ViewGroup) inflater.inflate(
+                        R.layout.layout_android_theme_children, null);
+
+                assertThemedContext(inflater, root);
+
+                for (int i = 0; i < root.getChildCount(); i++) {
+                    final View child = root.getChildAt(i);
+                    assertSame("Child does not have parent's context",
+                            root.getContext(), unwrapContextIfNeeded(child.getContext()));
+                }
             }
         });
     }
@@ -121,6 +145,21 @@ public class LayoutInflaterFactoryTestCase extends BaseInstrumentationTestCase<A
         testAppCompatWidgetInflation(R.layout.layout_ratingbar, AppCompatRatingBar.class);
     }
 
+    @Test
+    @SmallTest
+    public void testDeclarativeOnClickWithContextWrapper() throws Throwable {
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                LayoutInflater inflater = LayoutInflater.from(getActivity());
+                View view = inflater.inflate(R.layout.layout_button_themed_onclick, null);
+
+                assertTrue(view.performClick());
+                assertTrue(getActivity().wasDeclarativeOnClickCalled());
+            }
+        });
+    }
+
     private void testAppCompatWidgetInflation(final int layout, final Class<?> expectedClass)
             throws Throwable {
         runTestOnUiThread(new Runnable() {
@@ -128,9 +167,27 @@ public class LayoutInflaterFactoryTestCase extends BaseInstrumentationTestCase<A
             public void run() {
                 LayoutInflater inflater = LayoutInflater.from(getActivity());
                 View view = inflater.inflate(layout, null);
-                assertEquals("View is " + expectedClass.getSimpleName(), expectedClass,
+                assertSame("View is " + expectedClass.getSimpleName(), expectedClass,
                         view.getClass());
             }
         });
+    }
+
+    private static void assertThemedContext(LayoutInflater inflater, View view) {
+        final Context viewContext = unwrapContextIfNeeded(view.getContext());
+
+        assertNotSame("View has same context to LayoutInflater",
+                inflater.getContext(), viewContext);
+        assertSame("View does not have ContextThemeWrapper context",
+                ContextThemeWrapper.class, viewContext.getClass());
+    }
+
+    private static Context unwrapContextIfNeeded(Context context) {
+        if (TINTCONTEXTWRAPPER_CLAZZ_NAME.equals(context.getClass().getName())) {
+            // TintContextWrapper is a special context wrapper used for resource hacking in
+            // AppCompat, we'll compare it's base class instead
+            return  ((ContextWrapper) context).getBaseContext();
+        }
+        return context;
     }
 }
