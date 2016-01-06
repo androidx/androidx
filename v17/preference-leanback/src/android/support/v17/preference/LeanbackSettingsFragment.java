@@ -40,13 +40,12 @@ public abstract class LeanbackSettingsFragment extends Fragment
     private static final String PREFERENCE_FRAGMENT_TAG =
             "android.support.v17.preference.LeanbackSettingsFragment.PREFERENCE_FRAGMENT";
 
+    private final RootViewOnKeyListener mRootViewOnKeyListener = new RootViewOnKeyListener();
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         final View v = inflater.inflate(R.layout.leanback_settings_fragment, container, false);
-
-        // Trap back button presses
-        ((LeanbackSettingsRootView) v).setOnBackKeyListener(new RootViewOnKeyListener());
 
         return v;
     }
@@ -56,6 +55,25 @@ public abstract class LeanbackSettingsFragment extends Fragment
         super.onViewCreated(view, savedInstanceState);
         if (savedInstanceState == null) {
             onPreferenceStartInitialScreen();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Trap back button presses
+        final LeanbackSettingsRootView rootView = (LeanbackSettingsRootView) getView();
+        if (rootView != null) {
+            rootView.setOnBackKeyListener(mRootViewOnKeyListener);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        final LeanbackSettingsRootView rootView = (LeanbackSettingsRootView) getView();
+        if (rootView != null) {
+            rootView.setOnBackKeyListener(null);
         }
     }
 
