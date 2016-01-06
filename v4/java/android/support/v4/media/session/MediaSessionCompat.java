@@ -50,7 +50,6 @@ import android.view.KeyEvent;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -1036,7 +1035,6 @@ public class MediaSessionCompat {
         private final Object mRccObj;
         private final MediaSessionStub mStub;
         private final Token mToken;
-        private final MessageHandler mHandler;
         private final String mPackageName;
         private final String mTag;
         private final AudioManager mAudioManager;
@@ -1045,11 +1043,12 @@ public class MediaSessionCompat {
         private final RemoteCallbackList<IMediaControllerCallback> mControllerCallbacks
                 = new RemoteCallbackList<IMediaControllerCallback>();
 
+        private MessageHandler mHandler;
         private boolean mDestroyed = false;
         private boolean mIsActive = false;
         private boolean mIsRccRegistered = false;
         private boolean mIsMbrRegistered = false;
-        private Callback mCallback;
+        private volatile Callback mCallback;
 
         private @SessionFlags int mFlags;
 
@@ -1106,10 +1105,11 @@ public class MediaSessionCompat {
         }
 
         @Override
-        public void setCallback(final Callback callback, Handler handler) {
+        public void setCallback(Callback callback, Handler handler) {
             if (callback == mCallback) {
                 return;
             }
+            mCallback = callback;
             if (callback == null || android.os.Build.VERSION.SDK_INT < 18) {
                 // There's nothing to register on API < 18 since media buttons
                 // all go through the media button receiver
@@ -1120,18 +1120,18 @@ public class MediaSessionCompat {
                     MediaSessionCompatApi19.setOnMetadataUpdateListener(mRccObj, null);
                 }
             } else {
-                if (handler == null) {
-                    handler = new Handler();
+                if (handler != null) {
+                    mHandler = new MessageHandler(handler.getLooper());
                 }
                 MediaSessionCompatApi19.Callback cb19 = new MediaSessionCompatApi19.Callback() {
                     @Override
                     public void onSetRating(Object ratingObj) {
-                        callback.onSetRating(RatingCompat.fromRating(ratingObj));
+                        mHandler.post(MessageHandler.MSG_RATE, RatingCompat.fromRating(ratingObj));
                     }
 
                     @Override
                     public void onSeekTo(long pos) {
-                        callback.onSeekTo(pos);
+                        mHandler.post(MessageHandler.MSG_SEEK_TO, pos);
                     }
                 };
                 if (android.os.Build.VERSION.SDK_INT >= 18) {
@@ -1147,7 +1147,6 @@ public class MediaSessionCompat {
                             onMetadataUpdateObj);
                 }
             }
-            mCallback = callback;
         }
 
         @Override
@@ -1499,7 +1498,7 @@ public class MediaSessionCompat {
             for (int i = size - 1; i >= 0; i--) {
                 IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
                 try {
-                    cb.onSessionDestroyed();;
+                    cb.onSessionDestroyed();
                 } catch (RemoteException e) {
                 }
             }
@@ -1838,64 +1837,65 @@ public class MediaSessionCompat {
 
             @Override
             public void handleMessage(Message msg) {
-                if (mCallback == null) {
+                MediaSessionCompat.Callback cb = mCallback;
+                if (cb == null) {
                     return;
                 }
                 switch (msg.what) {
                     case MSG_PLAY:
-                        mCallback.onPlay();
+                        cb.onPlay();
                         break;
                     case MSG_PLAY_MEDIA_ID:
-                        mCallback.onPlayFromMediaId((String) msg.obj, msg.getData());
+                        cb.onPlayFromMediaId((String) msg.obj, msg.getData());
                         break;
                     case MSG_PLAY_SEARCH:
-                        mCallback.onPlayFromSearch((String) msg.obj, msg.getData());
+                        cb.onPlayFromSearch((String) msg.obj, msg.getData());
                         break;
                     case MSG_PLAY_URI:
-                        mCallback.onPlayFromUri((Uri) msg.obj, msg.getData());
+                        cb.onPlayFromUri((Uri) msg.obj, msg.getData());
                         break;
                     case MSG_SKIP_TO_ITEM:
-                        mCallback.onSkipToQueueItem((Long) msg.obj);
+                        cb.onSkipToQueueItem((Long) msg.obj);
                         break;
                     case MSG_PAUSE:
-                        mCallback.onPause();
+                        cb.onPause();
                         break;
                     case MSG_STOP:
-                        mCallback.onStop();
+                        cb.onStop();
                         break;
                     case MSG_NEXT:
-                        mCallback.onSkipToNext();
+                        cb.onSkipToNext();
                         break;
                     case MSG_PREVIOUS:
-                        mCallback.onSkipToPrevious();
+                        cb.onSkipToPrevious();
                         break;
                     case MSG_FAST_FORWARD:
-                        mCallback.onFastForward();
+                        cb.onFastForward();
                         break;
                     case MSG_REWIND:
-                        mCallback.onRewind();
+                        cb.onRewind();
                         break;
                     case MSG_SEEK_TO:
-                        mCallback.onSeekTo((Long) msg.obj);
+                        cb.onSeekTo((Long) msg.obj);
                         break;
                     case MSG_RATE:
-                        mCallback.onSetRating((RatingCompat) msg.obj);
+                        cb.onSetRating((RatingCompat) msg.obj);
                         break;
                     case MSG_CUSTOM_ACTION:
-                        mCallback.onCustomAction((String) msg.obj, msg.getData());
+                        cb.onCustomAction((String) msg.obj, msg.getData());
                         break;
                     case MSG_MEDIA_BUTTON:
                         KeyEvent keyEvent = (KeyEvent) msg.obj;
                         Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
                         intent.putExtra(Intent.EXTRA_KEY_EVENT, keyEvent);
                         // Let the Callback handle events first before using the default behavior
-                        if (!mCallback.onMediaButtonEvent(intent)) {
-                            onMediaButtonEvent(keyEvent);
+                        if (!cb.onMediaButtonEvent(intent)) {
+                            onMediaButtonEvent(keyEvent, cb);
                         }
                         break;
                     case MSG_COMMAND:
                         Command cmd = (Command) msg.obj;
-                        mCallback.onCommand(cmd.command, cmd.extras, cmd.stub);
+                        cb.onCommand(cmd.command, cmd.extras, cmd.stub);
                         break;
                     case MSG_ADJUST_VOLUME:
                         adjustVolume((int) msg.obj, 0);
@@ -1906,7 +1906,7 @@ public class MediaSessionCompat {
                 }
             }
 
-            private void onMediaButtonEvent(KeyEvent ke) {
+            private void onMediaButtonEvent(KeyEvent ke, MediaSessionCompat.Callback cb) {
                 if (ke == null || ke.getAction() != KeyEvent.ACTION_DOWN) {
                     return;
                 }
@@ -1915,38 +1915,38 @@ public class MediaSessionCompat {
                     // Note KeyEvent.KEYCODE_MEDIA_PLAY is API 11+
                     case KEYCODE_MEDIA_PLAY:
                         if ((validActions & PlaybackStateCompat.ACTION_PLAY) != 0) {
-                            mCallback.onPlay();
+                            cb.onPlay();
                         }
                         break;
                     // Note KeyEvent.KEYCODE_MEDIA_PAUSE is API 11+
                     case KEYCODE_MEDIA_PAUSE:
                         if ((validActions & PlaybackStateCompat.ACTION_PAUSE) != 0) {
-                            mCallback.onPause();
+                            cb.onPause();
                         }
                         break;
                     case KeyEvent.KEYCODE_MEDIA_NEXT:
                         if ((validActions & PlaybackStateCompat.ACTION_SKIP_TO_NEXT) != 0) {
-                            mCallback.onSkipToNext();
+                            cb.onSkipToNext();
                         }
                         break;
                     case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
                         if ((validActions & PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS) != 0) {
-                            mCallback.onSkipToPrevious();
+                            cb.onSkipToPrevious();
                         }
                         break;
                     case KeyEvent.KEYCODE_MEDIA_STOP:
                         if ((validActions & PlaybackStateCompat.ACTION_STOP) != 0) {
-                            mCallback.onStop();
+                            cb.onStop();
                         }
                         break;
                     case KeyEvent.KEYCODE_MEDIA_FAST_FORWARD:
                         if ((validActions & PlaybackStateCompat.ACTION_FAST_FORWARD) != 0) {
-                            mCallback.onFastForward();
+                            cb.onFastForward();
                         }
                         break;
                     case KeyEvent.KEYCODE_MEDIA_REWIND:
                         if ((validActions & PlaybackStateCompat.ACTION_REWIND) != 0) {
-                            mCallback.onRewind();
+                            cb.onRewind();
                         }
                         break;
                     case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
@@ -1958,9 +1958,9 @@ public class MediaSessionCompat {
                         boolean canPause = (validActions & (PlaybackStateCompat.ACTION_PLAY_PAUSE
                                 | PlaybackStateCompat.ACTION_PAUSE)) != 0;
                         if (isPlaying && canPause) {
-                            mCallback.onPause();
+                            cb.onPause();
                         } else if (!isPlaying && canPlay) {
-                            mCallback.onPlay();
+                            cb.onPlay();
                         }
                         break;
                 }
