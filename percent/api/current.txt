@@ -29,7 +29,8 @@ package android.support.percent {
   public static class PercentLayoutHelper.PercentLayoutInfo {
     ctor public PercentLayoutHelper.PercentLayoutInfo();
     method public void fillLayoutParams(android.view.ViewGroup.LayoutParams, int, int);
-    method public void fillMarginLayoutParams(android.view.ViewGroup.MarginLayoutParams, int, int);
+    method public deprecated void fillMarginLayoutParams(android.view.ViewGroup.MarginLayoutParams, int, int);
+    method public void fillMarginLayoutParams(android.view.View, android.view.ViewGroup.MarginLayoutParams, int, int);
     method public void restoreLayoutParams(android.view.ViewGroup.LayoutParams);
     method public void restoreMarginLayoutParams(android.view.ViewGroup.MarginLayoutParams);
     field public float aspectRatio;

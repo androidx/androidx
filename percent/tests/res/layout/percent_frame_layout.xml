@@ -18,18 +18,87 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/percent_frame"
-    android:layout_width="200px"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Note the usage of layout_gravity that addresses a bug in FrameLayout on v9 and older
-         devices that didn't correctly treat the margin attributes. -->
+    <!-- Note the usage of layout_gravity in all child views that use margin attributes that
+         addresses a bug in FrameLayout on v9 and older devices that didn't correctly treat the
+         margin attributes. -->
+
+    <!-- For testing width + height only -->
     <View
-        android:id="@+id/percent_child"
+        android:id="@+id/child_width_height"
+        app:layout_widthPercent="50%"
+        app:layout_heightPercent="50%" />
+
+    <!-- For testing width + aspect ratio only -->
+    <View
+        android:id="@+id/child_width_ratio"
+        app:layout_widthPercent="60%"
+        app:layout_aspectRatio="120%" />
+
+    <!-- For testing height + aspect ratio only -->
+    <View
+        android:id="@+id/child_height_ratio"
+        app:layout_heightPercent="50%"
+        app:layout_aspectRatio="150%" />
+
+    <!-- For testing margins from a single attribute. Note that we still need core width / height
+         attributes since otherwise the logic in core FrameLayout will give size 0x0 to this
+         child. -->
+    <View
+        android:id="@+id/child_margins_single"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_marginPercent="30%"
+        android:layout_gravity="top" />
+
+    <!-- For testing margins from different attributes. Note that we still need core width / height
+         attributes since otherwise the logic in core FrameLayout will give size 0x0 to this
+         child. -->
+    <View
+        android:id="@+id/child_margins_multiple"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_marginTopPercent="10%"
+        app:layout_marginLeftPercent="15%"
+        app:layout_marginBottomPercent="20%"
+        app:layout_marginRightPercent="25%"
+        android:layout_gravity="top" />
+
+    <!-- For testing top + left margins with width + height -->
+    <View
+        android:id="@+id/child_margins_top_left"
         app:layout_widthPercent="50%"
         app:layout_heightPercent="50%"
         app:layout_marginTopPercent="20%"
         app:layout_marginLeftPercent="20%"
-        android:layout_gravity="top" />
+        android:layout_gravity="top|left" />
+
+    <!-- For testing bottom + right margin with width + height -->
+    <View
+        android:id="@+id/child_margins_bottom_right"
+        app:layout_widthPercent="60%"
+        app:layout_heightPercent="60%"
+        app:layout_marginBottomPercent="10%"
+        app:layout_marginRightPercent="10%"
+        android:layout_gravity="bottom|right" />
+
+    <!-- For testing start margin -->
+    <View
+        android:id="@+id/child_margin_start"
+        app:layout_widthPercent="50%"
+        app:layout_heightPercent="50%"
+        app:layout_marginStartPercent="20%"
+        android:layout_gravity="start" />
+
+    <!-- For testing end margin -->
+    <View
+        android:id="@+id/child_margin_end"
+        app:layout_widthPercent="50%"
+        app:layout_heightPercent="50%"
+        app:layout_marginEndPercent="30%"
+        android:layout_gravity="end" />
 
 </android.support.percent.PercentFrameLayout>
 
