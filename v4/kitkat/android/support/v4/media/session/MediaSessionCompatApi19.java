@@ -35,8 +35,8 @@ class MediaSessionCompatApi19 {
                 getRccTransportControlFlagsFromActions(actions));
     }
 
-    public static Object createMetadataUpdateListener(MediaSessionCompatApi14.Callback callback) {
-        return new OnMetadataUpdateListener<MediaSessionCompatApi14.Callback>(callback);
+    public static Object createMetadataUpdateListener(Callback callback) {
+        return new OnMetadataUpdateListener<Callback>(callback);
     }
 
     public static void setMetadata(Object rccObj, Bundle metadata, long actions) {
@@ -82,7 +82,7 @@ class MediaSessionCompatApi19 {
         }
     }
 
-    static class OnMetadataUpdateListener<T extends MediaSessionCompatApi14.Callback> implements
+    static class OnMetadataUpdateListener<T extends Callback> implements
             RemoteControlClient.OnMetadataUpdateListener {
         protected final T mCallback;
 
@@ -96,5 +96,9 @@ class MediaSessionCompatApi19 {
                 mCallback.onSetRating(newValue);
             }
         }
+    }
+
+    interface Callback extends MediaSessionCompatApi18.Callback {
+        public void onSetRating(Object ratingObj);
     }
 }
