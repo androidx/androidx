@@ -25,7 +25,7 @@ class MediaSessionCompatApi23 {
         return new CallbackProxy<Callback>(callback);
     }
 
-    public static interface Callback extends MediaSessionCompatApi21.Callback {
+    public interface Callback extends MediaSessionCompatApi21.Callback {
         public void onPlayFromUri(Uri uri, Bundle extras);
     }
 
