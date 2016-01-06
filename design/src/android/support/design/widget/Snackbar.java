@@ -520,10 +520,7 @@ public final class Snackbar {
 
                         @Override
                         public void onAnimationEnd(View view) {
-                            if (mCallback != null) {
-                                mCallback.onShown(Snackbar.this);
-                            }
-                            SnackbarManager.getInstance().onShown(mManagerCallback);
+                            onViewShown();
                         }
                     }).start();
         } else {
@@ -534,10 +531,7 @@ public final class Snackbar {
             anim.setAnimationListener(new Animation.AnimationListener() {
                 @Override
                 public void onAnimationEnd(Animation animation) {
-                    if (mCallback != null) {
-                        mCallback.onShown(Snackbar.this);
-                    }
-                    SnackbarManager.getInstance().onShown(mManagerCallback);
+                    onViewShown();
                 }
 
                 @Override
@@ -557,6 +551,8 @@ public final class Snackbar {
                     .setInterpolator(FAST_OUT_SLOW_IN_INTERPOLATOR)
                     .setDuration(ANIMATION_DURATION)
                     .setListener(new ViewPropertyAnimatorListenerAdapter() {
+                        boolean mEndCalled = false;
+
                         @Override
                         public void onAnimationStart(View view) {
                             mView.animateChildrenOut(0, ANIMATION_FADE_DURATION);
@@ -592,6 +588,13 @@ public final class Snackbar {
             onViewHidden(event);
         } else {
             animateViewOut(event);
+        }
+    }
+
+    private void onViewShown() {
+        SnackbarManager.getInstance().onShown(mManagerCallback);
+        if (mCallback != null) {
+            mCallback.onShown(this);
         }
     }
 
