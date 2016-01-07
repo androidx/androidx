@@ -15,6 +15,7 @@
  */
 package android.support.v4.view;
 
+import android.os.Build;
 import android.view.View;
 import android.view.animation.Interpolator;
 
@@ -521,8 +522,8 @@ public final class ViewPropertyAnimatorCompat {
         }
 
         static class MyVpaListener implements ViewPropertyAnimatorListener {
-
             ViewPropertyAnimatorCompat mVpa;
+            boolean mAnimEndCalled;
 
             MyVpaListener(ViewPropertyAnimatorCompat vpa) {
                 mVpa = vpa;
@@ -530,6 +531,9 @@ public final class ViewPropertyAnimatorCompat {
 
             @Override
             public void onAnimationStart(View view) {
+                // Reset our end called flag, since this is a new animation...
+                mAnimEndCalled = false;
+
                 if (mVpa.mOldLayerType >= 0) {
                     ViewCompat.setLayerType(view, ViewCompat.LAYER_TYPE_HARDWARE, null);
                 }
@@ -552,16 +556,21 @@ public final class ViewPropertyAnimatorCompat {
                     ViewCompat.setLayerType(view, mVpa.mOldLayerType, null);
                     mVpa.mOldLayerType = -1;
                 }
-                if (mVpa.mEndAction != null) {
-                    mVpa.mEndAction.run();
-                }
-                Object listenerTag = view.getTag(LISTENER_TAG_ID);
-                ViewPropertyAnimatorListener listener = null;
-                if (listenerTag instanceof ViewPropertyAnimatorListener) {
-                    listener = (ViewPropertyAnimatorListener) listenerTag;
-                }
-                if (listener != null) {
-                    listener.onAnimationEnd(view);
+                if (Build.VERSION.SDK_INT >= 16 || !mAnimEndCalled) {
+                    // Pre-v16 seems to have a bug where onAnimationEnd is called
+                    // twice, therefore we only dispatch on the first call
+                    if (mVpa.mEndAction != null) {
+                        mVpa.mEndAction.run();
+                    }
+                    Object listenerTag = view.getTag(LISTENER_TAG_ID);
+                    ViewPropertyAnimatorListener listener = null;
+                    if (listenerTag instanceof ViewPropertyAnimatorListener) {
+                        listener = (ViewPropertyAnimatorListener) listenerTag;
+                    }
+                    if (listener != null) {
+                        listener.onAnimationEnd(view);
+                    }
+                    mAnimEndCalled = true;
                 }
             }
 
