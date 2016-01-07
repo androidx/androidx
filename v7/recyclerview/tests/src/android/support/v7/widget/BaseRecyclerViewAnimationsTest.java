@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import static org.junit.Assert.*;
 
 /**
  * Base class for animation related tests.
@@ -44,11 +45,6 @@ public class BaseRecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentat
 
     public BaseRecyclerViewAnimationsTest() {
         super(DEBUG);
-    }
-
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
     }
 
     RecyclerView setupBasic(int itemCount) throws Throwable {

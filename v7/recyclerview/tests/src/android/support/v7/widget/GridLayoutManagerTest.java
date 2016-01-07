@@ -16,11 +16,16 @@
 
 package android.support.v7.widget;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.test.UiThreadTest;
@@ -46,8 +51,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
 import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assert.*;
 
 @MediumTest
+@RunWith(AndroidJUnit4.class)
 public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
 
     static final String TAG = "GridLayoutManagerTest";
@@ -60,9 +67,8 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
 
     final List<Config> mBaseVariations = new ArrayList<Config>();
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         for (int orientation : new int[]{VERTICAL, HORIZONTAL}) {
             for (boolean reverseLayout : new boolean[]{false, true}) {
                 for (int spanCount : new int[]{1, 3, 4}) {
@@ -93,11 +99,13 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         mGlm.waitForLayout(2);
     }
 
-    public void testFocusSearchFailureUp() throws Throwable {
+    @Test
+    public void focusSearchFailureUp() throws Throwable {
         focusSearchFailure(false);
     }
 
-    public void testFocusSearchFailureDown() throws Throwable {
+    @Test
+    public void focusSearchFailureDown() throws Throwable {
         focusSearchFailure(true);
     }
 
@@ -153,7 +161,8 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
     }
 
     @UiThreadTest
-    public void testScrollWithoutLayout() throws Throwable {
+    @Test
+    public void scrollWithoutLayout() throws Throwable {
         final RecyclerView recyclerView = setupBasic(new Config(3, 100));
         mGlm.expectLayout(1);
         setRecyclerView(recyclerView);
@@ -161,7 +170,8 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         recyclerView.scrollBy(0, 10);
     }
 
-    public void testScrollWithoutLayoutAfterInvalidate() throws Throwable {
+    @Test
+    public void scrollWithoutLayoutAfterInvalidate() throws Throwable {
         final RecyclerView recyclerView = setupBasic(new Config(3, 100));
         waitForFirstLayout(recyclerView);
         runTestOnUiThread(new Runnable() {
@@ -173,19 +183,23 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         });
     }
 
-    public void testPredictiveSpanLookup1() throws Throwable {
+    @Test
+    public void predictiveSpanLookup1() throws Throwable {
         predictiveSpanLookupTest(0, false);
     }
 
-    public void testPredictiveSpanLookup2() throws Throwable {
+    @Test
+    public void predictiveSpanLookup2() throws Throwable {
         predictiveSpanLookupTest(0, true);
     }
 
-    public void testPredictiveSpanLookup3() throws Throwable {
+    @Test
+    public void predictiveSpanLookup3() throws Throwable {
         predictiveSpanLookupTest(1, false);
     }
 
-    public void testPredictiveSpanLookup4() throws Throwable {
+    @Test
+    public void predictiveSpanLookup4() throws Throwable {
         predictiveSpanLookupTest(1, true);
     }
 
@@ -223,11 +237,13 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         checkForMainThreadException();
     }
 
-    public void testCustomWidthInHorizontal() throws Throwable {
+    @Test
+    public void customWidthInHorizontal() throws Throwable {
         customSizeInScrollDirectionTest(new Config(3, HORIZONTAL, false));
     }
 
-    public void testCustomHeightInVertical() throws Throwable {
+    @Test
+    public void customHeightInVertical() throws Throwable {
         customSizeInScrollDirectionTest(new Config(3, VERTICAL, false));
     }
 
@@ -300,7 +316,8 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         checkForMainThreadException();
     }
 
-    public void testRTL() throws Throwable {
+    @Test
+    public void rTL() throws Throwable {
         for (boolean changeRtlAfter : new boolean[]{false, true}) {
             for (boolean oneLine : new boolean[]{false, true}) {
                 for (Config config : mBaseVariations) {
@@ -361,7 +378,8 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         checkForMainThreadException();
     }
 
-    public void testMovingAGroupOffScreenForAddedItems() throws Throwable {
+    @Test
+    public void movingAGroupOffScreenForAddedItems() throws Throwable {
         final RecyclerView rv = setupBasic(new Config(3, 100));
         final int[] maxId = new int[1];
         maxId[0] = -1;
@@ -395,7 +413,8 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
 
     }
 
-    public void testCachedBorders() throws Throwable {
+    @Test
+    public void cachedBorders() throws Throwable {
         List<Config> testConfigurations = new ArrayList<Config>(mBaseVariations);
         testConfigurations.addAll(cachedBordersTestConfigs());
         for (Config config : testConfigurations) {
@@ -438,17 +457,20 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         return configs;
     }
 
-    public void testLayoutParams() throws Throwable {
+    @Test
+    public void layoutParams() throws Throwable {
         layoutParamsTest(GridLayoutManager.HORIZONTAL);
         removeRecyclerView();
         layoutParamsTest(GridLayoutManager.VERTICAL);
     }
 
-    public void testHorizontalAccessibilitySpanIndices() throws Throwable {
+    @Test
+    public void horizontalAccessibilitySpanIndices() throws Throwable {
         accessibilitySpanIndicesTest(HORIZONTAL);
     }
 
-    public void testVerticalAccessibilitySpanIndices() throws Throwable {
+    @Test
+    public void verticalAccessibilitySpanIndices() throws Throwable {
         accessibilitySpanIndicesTest(VERTICAL);
     }
 
@@ -563,7 +585,8 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         return view.getHeight();
     }
 
-    public void testAnchorUpdate() throws InterruptedException {
+    @Test
+    public void anchorUpdate() throws InterruptedException {
         GridLayoutManager glm = new GridLayoutManager(getActivity(), 11);
         final GridLayoutManager.SpanSizeLookup spanSizeLookup
                 = new GridLayoutManager.SpanSizeLookup() {
@@ -599,15 +622,18 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         assertEquals("gm should move anchor to first span", 31, glm.mAnchorInfo.mPosition);
     }
 
-    public void testSpanLookup() {
+    @Test
+    public void spanLookup() {
         spanLookupTest(false);
     }
 
-    public void testSpanLookupWithCache() {
+    @Test
+    public void spanLookupWithCache() {
         spanLookupTest(true);
     }
 
-    public void testSpanLookupCache() {
+    @Test
+    public void spanLookupCache() {
         final GridLayoutManager.SpanSizeLookup ssl
                 = new GridLayoutManager.SpanSizeLookup() {
             @Override
@@ -669,24 +695,28 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         assertEquals(0, ssl.getCachedSpanIndex(8, 5));
     }
 
-    public void testRemoveAnchorItem() throws Throwable {
+    @Test
+    public void removeAnchorItem() throws Throwable {
         removeAnchorItemTest(
                 new Config(3, 0).orientation(VERTICAL).reverseLayout(false), 100, 0);
     }
 
-    public void testRemoveAnchorItemReverse() throws Throwable {
+    @Test
+    public void removeAnchorItemReverse() throws Throwable {
         removeAnchorItemTest(
                 new Config(3, 0).orientation(VERTICAL).reverseLayout(true), 100,
                 0);
     }
 
-    public void testRemoveAnchorItemHorizontal() throws Throwable {
+    @Test
+    public void removeAnchorItemHorizontal() throws Throwable {
         removeAnchorItemTest(
                 new Config(3, 0).orientation(HORIZONTAL).reverseLayout(
                         false), 100, 0);
     }
 
-    public void testRemoveAnchorItemReverseHorizontal() throws Throwable {
+    @Test
+    public void removeAnchorItemReverseHorizontal() throws Throwable {
         removeAnchorItemTest(
                 new Config(3, 0).orientation(HORIZONTAL).reverseLayout(true),
                 100, 0);
@@ -785,7 +815,8 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
                 mRecyclerView.getChildCount() <= childCount + 1 + 3);
     }
 
-    public void testSpanGroupIndex() {
+    @Test
+    public void spanGroupIndex() {
         final GridLayoutManager.SpanSizeLookup ssl
                 = new GridLayoutManager.SpanSizeLookup() {
             @Override
@@ -808,7 +839,8 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         assertEquals(2, ssl.getSpanGroupIndex(8, 5));
     }
 
-    public void testNotifyDataSetChange() throws Throwable {
+    @Test
+    public void notifyDataSetChange() throws Throwable {
         final RecyclerView recyclerView = setupBasic(new Config(3, 100));
         final GridLayoutManager.SpanSizeLookup ssl = mGlm.getSpanSizeLookup();
         ssl.setSpanIndexCacheEnabled(true);
@@ -836,7 +868,8 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         checkForMainThreadException();
     }
 
-    public void testUnevenHeights() throws Throwable {
+    @Test
+    public void unevenHeights() throws Throwable {
         final Map<Integer, RecyclerView.ViewHolder> viewHolderMap =
                 new HashMap<Integer, RecyclerView.ViewHolder>();
         RecyclerView recyclerView = setupBasic(new Config(3, 3), new GridTestAdapter(3) {
@@ -861,7 +894,8 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         }
     }
 
-    public void testUnevenWidths() throws Throwable {
+    @Test
+    public void unevenWidths() throws Throwable {
         final Map<Integer, RecyclerView.ViewHolder> viewHolderMap =
                 new HashMap<Integer, RecyclerView.ViewHolder>();
         RecyclerView recyclerView = setupBasic(new Config(3, HORIZONTAL, false),
@@ -887,7 +921,8 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         }
     }
 
-    public void testScrollBackAndPreservePositions() throws Throwable {
+    @Test
+    public void scrollBackAndPreservePositions() throws Throwable {
         for (Config config : mBaseVariations) {
             config.mItemCount = 150;
             scrollBackAndPreservePositionsTest(config);
@@ -895,7 +930,8 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         }
     }
 
-    public void testSpanSizeChange() throws Throwable {
+    @Test
+    public void spanSizeChange() throws Throwable {
         final RecyclerView rv = setupBasic(new Config(3, 100));
         waitForFirstLayout(rv);
         assertTrue(mGlm.supportsPredictiveItemAnimations());
@@ -915,7 +951,8 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         assertTrue(mGlm.supportsPredictiveItemAnimations());
     }
 
-    public void testCacheSpanIndices() throws Throwable {
+    @Test
+    public void cacheSpanIndices() throws Throwable {
         final RecyclerView rv = setupBasic(new Config(3, 100));
         mGlm.mSpanSizeLookup.setSpanIndexCacheEnabled(true);
         waitForFirstLayout(rv);

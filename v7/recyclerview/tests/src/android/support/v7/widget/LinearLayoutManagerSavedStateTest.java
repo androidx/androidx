@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)
 public class LinearLayoutManagerSavedStateTest extends BaseLinearLayoutManagerTest {
@@ -263,19 +264,6 @@ public class LinearLayoutManagerSavedStateTest extends BaseLinearLayoutManagerTe
             }
         }
         return params;
-    }
-
-    @Before
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        injectInstrumentation(InstrumentationRegistry.getInstrumentation());
-    }
-
-    @After
-    @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
     }
 
     @Test

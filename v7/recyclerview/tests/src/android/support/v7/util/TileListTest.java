@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+
 package android.support.v7.util;
 
 import android.support.test.runner.AndroidJUnit4;
@@ -38,22 +39,22 @@ public class TileListTest {
     }
 
     @Test
-    public void testEmptyGet() {
+    public void emptyGet() {
         assertThat(mTileList.getItemAt(3), nullValue());
         assertThat(mTileList.getItemAt(100), nullValue());
     }
 
     @Test
-    public void testGetItemAt() {
+    public void getItemAt() {
         assertThat(mTileList.addOrReplace(createTile(0, 1, 2, 3)), nullValue());
-        assertThat(mTileList.getItemAt(0).intValue(), is(1));
-        assertThat(mTileList.getItemAt(1).intValue(), is(2));
-        assertThat(mTileList.getItemAt(2).intValue(), is(3));
+        assertThat(mTileList.getItemAt(0), is(1));
+        assertThat(mTileList.getItemAt(1), is(2));
+        assertThat(mTileList.getItemAt(2), is(3));
         assertThat(mTileList.getItemAt(3), nullValue());
     }
 
     @Test
-    public void testSize() {
+    public void size() {
         assertThat(mTileList.size(), is(0));
         assertThat(mTileList.addOrReplace(createTile(0, 1, 2, 3)), nullValue());
         assertThat(mTileList.size(), is(1));
@@ -67,7 +68,7 @@ public class TileListTest {
     }
 
     @Test
-    public void testGetAtIndex() {
+    public void getAtIndex() {
         assertThat(mTileList.addOrReplace(createTile(0, 1, 2, 3)), nullValue());
         assertThat(mTileList.addOrReplace(createTile(3, 1, 2, 3)), nullValue());
         assertThat(mTileList.addOrReplace(createTile(6, 1, 2, 3)), nullValue());
@@ -78,45 +79,46 @@ public class TileListTest {
         assertThat(mTileList.getAtIndex(3), nullValue());
     }
 
-    public void testAddShortTileAndGet() {
+    @Test
+    public void addShortTileAndGet() {
         assertThat(mTileList.addOrReplace(createTile(0, 1)), nullValue());
-        assertThat(mTileList.getItemAt(0).intValue(), is(1));
-        assertThat(mTileList.getItemAt(1).intValue(), nullValue());
-        assertThat(mTileList.getItemAt(2).intValue(), nullValue());
+        assertThat(mTileList.getItemAt(0), is(1));
+        assertThat(mTileList.getItemAt(1), nullValue());
+        assertThat(mTileList.getItemAt(2), nullValue());
     }
 
     @Test
-    public void testAddToReplaceAndGet() {
+    public void addToReplaceAndGet() {
         TileList.Tile<Integer> prev = createTile(0, 1, 2, 3);
         mTileList.addOrReplace(prev);
         assertThat(mTileList.addOrReplace(createTile(0, 4, 5, 6)), sameInstance(prev));
-        assertThat(mTileList.getItemAt(0).intValue(), is(4));
-        assertThat(mTileList.getItemAt(1).intValue(), is(5));
-        assertThat(mTileList.getItemAt(2).intValue(), is(6));
+        assertThat(mTileList.getItemAt(0), is(4));
+        assertThat(mTileList.getItemAt(1), is(5));
+        assertThat(mTileList.getItemAt(2), is(6));
         assertThat(mTileList.getItemAt(3), nullValue());
     }
 
     @Test
-    public void testAddRangeWithGapAndGet() {
+    public void addRangeWithGapAndGet() {
         mTileList.addOrReplace(createTile(0, 1, 2, 3));
         assertThat(mTileList.addOrReplace(createTile(mTileSize * 2, 4, 5, 6)), nullValue());
-        assertThat(mTileList.getItemAt(0).intValue(), is(1));
-        assertThat(mTileList.getItemAt(1).intValue(), is(2));
-        assertThat(mTileList.getItemAt(2).intValue(), is(3));
+        assertThat(mTileList.getItemAt(0), is(1));
+        assertThat(mTileList.getItemAt(1), is(2));
+        assertThat(mTileList.getItemAt(2), is(3));
         assertThat(mTileList.getItemAt(mTileSize), nullValue());
         assertThat(mTileList.getItemAt(mTileSize + 1), nullValue());
         assertThat(mTileList.getItemAt(mTileSize + 2), nullValue());
-        assertThat(mTileList.getItemAt(mTileSize * 2).intValue(), is(4));
-        assertThat(mTileList.getItemAt(mTileSize * 2 + 1).intValue(), is(5));
-        assertThat(mTileList.getItemAt(mTileSize * 2 + 2).intValue(), is(6));
+        assertThat(mTileList.getItemAt(mTileSize * 2), is(4));
+        assertThat(mTileList.getItemAt(mTileSize * 2 + 1), is(5));
+        assertThat(mTileList.getItemAt(mTileSize * 2 + 2), is(6));
         assertThat(mTileList.addOrReplace(createTile(mTileSize, 7, 8, 9)), nullValue());
-        assertThat(mTileList.getItemAt(mTileSize).intValue(), is(7));
-        assertThat(mTileList.getItemAt(mTileSize + 1).intValue(), is(8));
-        assertThat(mTileList.getItemAt(mTileSize + 2).intValue(), is(9));
+        assertThat(mTileList.getItemAt(mTileSize), is(7));
+        assertThat(mTileList.getItemAt(mTileSize + 1), is(8));
+        assertThat(mTileList.getItemAt(mTileSize + 2), is(9));
     }
 
     @Test
-    public void testRemove() {
+    public void remove() {
         mTileList.addOrReplace(createTile(0, 1, 2, 3));
         mTileList.addOrReplace(createTile(3, 4, 5, 6));
         mTileList.addOrReplace(createTile(6, 7, 8, 9));
