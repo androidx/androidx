@@ -24,4 +24,12 @@
         <item name="windowActionModeOverlay">true</item>
         <item name="android:windowContentOverlay">@null</item>
     </style>
+
+    <style name="TextStyleAllCapsOn" parent="@android:style/TextAppearance.Medium">
+        <item name="textAllCaps">true</item>
+    </style>
+
+    <style name="TextStyleAllCapsOff" parent="@android:style/TextAppearance.Medium">
+        <item name="textAllCaps">false</item>
+    </style>
 </resources>
