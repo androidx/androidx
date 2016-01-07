@@ -23,6 +23,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v7.appcompat.R;
 import android.support.v7.text.AllCapsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
@@ -74,27 +75,40 @@ class AppCompatTextHelper {
         }
         a.recycle();
 
-        // Now check TextAppearance's textAllCaps value
-        if (ap != -1) {
-            TypedArray appearance = context.obtainStyledAttributes(ap, R.styleable.TextAppearance);
-            if (appearance.hasValue(R.styleable.TextAppearance_textAllCaps)) {
-                setAllCaps(appearance.getBoolean(R.styleable.TextAppearance_textAllCaps, false));
-            }
-            appearance.recycle();
-        }
+        if (!(mView.getTransformationMethod() instanceof PasswordTransformationMethod)) {
+            // PasswordTransformationMethod wipes out all other TransformationMethod instances
+            // in TextView's constructor, so we should only set a new transformation method
+            // if we don't have a PasswordTransformationMethod currently...
 
-        // Now read the style's value
-        a = context.obtainStyledAttributes(attrs, TEXT_APPEARANCE_ATTRS, defStyleAttr, 0);
-        if (a.getBoolean(0, false)) {
-            setAllCaps(true);
+            boolean allCaps = false;
+
+            // First check TextAppearance's textAllCaps value
+            if (ap != -1) {
+                TypedArray appearance = context
+                        .obtainStyledAttributes(ap, R.styleable.TextAppearance);
+                if (appearance.hasValue(R.styleable.TextAppearance_textAllCaps)) {
+                    allCaps = appearance.getBoolean(R.styleable.TextAppearance_textAllCaps, false);
+                }
+                appearance.recycle();
+            }
+
+            // Now read the style's value
+            a = context.obtainStyledAttributes(attrs, TEXT_APPEARANCE_ATTRS, defStyleAttr, 0);
+            if (a.hasValue(0)) {
+                allCaps = a.getBoolean(0, false);
+            }
+            a.recycle();
+
+            if (allCaps) {
+                setAllCaps(true);
+            }
         }
-        a.recycle();
     }
 
     void onSetTextAppearance(Context context, int resId) {
         TypedArray appearance = context.obtainStyledAttributes(resId, TEXT_APPEARANCE_ATTRS);
-        if (appearance.hasValue(0)) {
-            setAllCaps(appearance.getBoolean(0, false));
+        if (appearance.getBoolean(R.styleable.TextAppearance_textAllCaps, false)) {
+            setAllCaps(true);
         }
         appearance.recycle();
     }
