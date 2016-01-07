@@ -19,6 +19,7 @@ package android.support.v7.app;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
@@ -188,9 +189,11 @@ class AppCompatViewInflater {
     private void checkOnClickListener(View view, AttributeSet attrs) {
         final Context context = view.getContext();
 
-        if (!ViewCompat.hasOnClickListeners(view) || !(context instanceof ContextWrapper)) {
-            // Skip our compat functionality if: the view doesn't have an onClickListener,
-            // or the Context isn't a ContextWrapper
+        if (!(context instanceof ContextWrapper) ||
+                (Build.VERSION.SDK_INT >= 15 && !ViewCompat.hasOnClickListeners(view))) {
+            // Skip our compat functionality if: the Context isn't a ContextWrapper, or
+            // the view doesn't have an OnClickListener (we can only rely on this on API 15+ so
+            // always use our compat code on older devices)
             return;
         }
 
