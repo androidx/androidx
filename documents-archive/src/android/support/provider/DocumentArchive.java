@@ -209,7 +209,7 @@ public class DocumentArchive implements Closeable {
      * @see DocumentsProvider.queryChildDocuments(String, String[], String)
      */
     public Cursor queryChildDocuments(String documentId, @Nullable String[] projection,
-            @Nullable String sortOrder) {
+            @Nullable String sortOrder) throws FileNotFoundException {
         final ParsedDocumentId parsedParentId = ParsedDocumentId.fromDocumentId(
                 documentId, mIdDelimiter);
         Preconditions.checkArgumentEquals(mDocumentId, parsedParentId.mArchiveId,
@@ -223,8 +223,9 @@ public class DocumentArchive implements Closeable {
         }
 
         final List<ZipEntry> parentList = mTree.get(parentPath);
-        Preconditions.checkArgumentNotNull(
-                parentList, "The requested directory does not exist in the archive.");
+        if (parentList == null) {
+            throw new FileNotFoundException();
+        }
         for (final ZipEntry entry : parentList) {
             addCursorRow(result, entry);
         }
