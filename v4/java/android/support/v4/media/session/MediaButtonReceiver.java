@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.support.v4.media.MediaBrowserServiceCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.view.KeyEvent;
@@ -44,8 +45,11 @@ import java.util.List;
  * &lt;/receiver&gt;
  * </pre>
  * This class assumes you have a {@link Service} in your app that controls
- * media playback via a {@link MediaSessionCompat}. That {@link Service} must
- * include an intent filter that also handles {@link Intent#ACTION_MEDIA_BUTTON}:
+ * media playback via a {@link MediaSessionCompat} - all {@link Intent}s received by
+ * the MediaButtonReceiver will be forwarded to that service.
+ * <p />
+ * First priority is given to a {@link Service}
+ * that includes an intent filter that handles {@link Intent#ACTION_MEDIA_BUTTON}:
  * <pre>
  * &lt;service android:name="com.example.android.MediaPlaybackService" &gt;
  *   &lt;intent-filter&gt;
@@ -54,9 +58,12 @@ import java.util.List;
  * &lt;/service&gt;
  * </pre>
  *
- * All {@link Intent}s sent to this MediaButtonReceiver will then be forwarded
- * to the {@link Service}. Events can then be handled in
- * {@link Service#onStartCommand(Intent, int, int)} by calling
+ * If such a {@link Service} is not found, MediaButtonReceiver will attempt to
+ * find a media browser service implementation.
+ * If neither is available or more than one valid service/media browser service is found, an
+ * {@link IllegalStateException} will be thrown.
+ * <p />
+ * Events can then be handled in {@link Service#onStartCommand(Intent, int, int)} by calling
  * {@link MediaButtonReceiver#handleIntent(MediaSessionCompat, Intent)}, passing in
  * your current {@link MediaSessionCompat}:
  * <pre>
@@ -78,9 +85,17 @@ public class MediaButtonReceiver extends BroadcastReceiver {
         queryIntent.setPackage(context.getPackageName());
         PackageManager pm = context.getPackageManager();
         List<ResolveInfo> resolveInfos = pm.queryIntentServices(queryIntent, 0);
-        if (resolveInfos.size() != 1) {
+        if (resolveInfos.isEmpty()) {
+            // Fall back to looking for any available media browser service
+            queryIntent.setAction(MediaBrowserServiceCompat.SERVICE_INTERFACE);
+            resolveInfos = pm.queryIntentServices(queryIntent, 0);
+        }
+        if (resolveInfos.isEmpty()) {
+            throw new IllegalStateException("Could not find any Service that handles " +
+                    Intent.ACTION_MEDIA_BUTTON + " or a media browser service implementation");
+        } else if (resolveInfos.size() != 1) {
             throw new IllegalStateException("Expected 1 Service that handles " +
-                    Intent.ACTION_MEDIA_BUTTON + ", found " + resolveInfos.size());
+                    queryIntent.getAction() + ", found " + resolveInfos.size() );
         }
         ResolveInfo resolveInfo = resolveInfos.get(0);
         ComponentName componentName = new ComponentName(resolveInfo.serviceInfo.packageName,
