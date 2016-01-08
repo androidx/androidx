@@ -35,6 +35,7 @@ import java.util.Map;
 import static android.support.v7.widget.LayoutState.LAYOUT_END;
 import static android.support.v7.widget.LayoutState.LAYOUT_START;
 import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
+import static org.junit.Assert.*;
 
 /**
  * Tests that rely on the basic configuration and does not do any additions / removals
@@ -58,6 +59,7 @@ public class LinearLayoutManagerBaseConfigSetTest extends BaseLinearLayoutManage
     @MediumTest
     public void scrollToPositionWithOffsetTest() throws Throwable {
         Config config = ((Config) mConfig.clone()).itemCount(300);
+        setupByConfig(config, true);
         OrientationHelper orientationHelper = OrientationHelper
                 .createOrientationHelper(mLayoutManager, config.mOrientation);
         Rect layoutBounds = getDecoratedRecyclerViewBounds();
@@ -215,19 +217,6 @@ public class LinearLayoutManagerBaseConfigSetTest extends BaseLinearLayoutManage
         runTestOnUiThread(viewInBoundsTest);
     }
 
-
-    @Before
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        injectInstrumentation(InstrumentationRegistry.getInstrumentation());
-    }
-
-    @After
-    @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
-    }
 
     private TargetTuple findInvisibleTarget(Config config) {
         int minPosition = Integer.MAX_VALUE, maxPosition = Integer.MIN_VALUE;

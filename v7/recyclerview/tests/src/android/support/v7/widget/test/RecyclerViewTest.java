@@ -16,27 +16,39 @@
 
 package android.support.v7.widget.test;
 
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import android.app.Activity;
+import android.app.Instrumentation;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.recyclerview.test.CustomLayoutManager;
 import android.support.v7.recyclerview.test.R;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.widget.LinearLayout;
 
-@SmallTest
-public class RecyclerViewTest extends ActivityInstrumentationTestCase2<RecyclerViewTestActivity> {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-    public RecyclerViewTest() {
-        super("android.support.v7.widget.test", RecyclerViewTestActivity.class);
-    }
+@SmallTest
+@RunWith(AndroidJUnit4.class)
+public class RecyclerViewTest {
+
+    @Rule
+    public ActivityTestRule<RecyclerViewTestActivity> mActivityRule
+            = new ActivityTestRule<>(RecyclerViewTestActivity.class);
 
     private void setContentView(final int layoutId) throws Throwable {
-        final Activity activity = getActivity();
-        runTestOnUiThread(new Runnable() {
+        final Activity activity = mActivityRule.getActivity();
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
                 activity.setContentView(layoutId);
@@ -44,7 +56,8 @@ public class RecyclerViewTest extends ActivityInstrumentationTestCase2<RecyclerV
         });
     }
 
-    public void testSavedStateAccess() throws ClassNotFoundException {
+    @Test
+    public void savedStateAccess() throws ClassNotFoundException {
         // this class should be accessible outside RecyclerView package
         assertNotNull(RecyclerView.SavedState.class);
         assertNotNull(LinearLayoutManager.SavedState.class);
@@ -52,7 +65,8 @@ public class RecyclerViewTest extends ActivityInstrumentationTestCase2<RecyclerV
         assertNotNull(StaggeredGridLayoutManager.SavedState.class);
     }
 
-    public void testInflation() throws Throwable {
+    @Test
+    public void inflation() throws Throwable {
         setContentView(R.layout.inflation_test);
         getInstrumentation().waitForIdleSync();
         RecyclerView view = (RecyclerView) getActivity().findViewById(R.id.recyclerView);
@@ -92,5 +106,13 @@ public class RecyclerViewTest extends ActivityInstrumentationTestCase2<RecyclerV
                 "android.support.v7.recyclerview.test.PrivateLayoutManager",
                 layoutManager.getClass().getName());
 
+    }
+
+    private Activity getActivity() {
+        return mActivityRule.getActivity();
+    }
+
+    private Instrumentation getInstrumentation() {
+        return InstrumentationRegistry.getInstrumentation();
     }
 }

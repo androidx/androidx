@@ -16,6 +16,12 @@
 
 package android.support.v7.widget;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+
+import android.support.test.runner.AndroidJUnit4;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
@@ -23,9 +29,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import static org.junit.Assert.*;
 
 @SmallTest
-public class BucketTest extends AndroidTestCase {
+@RunWith(JUnit4.class)
+public class BucketTest {
 
     ChildHelper.Bucket mBucket;
 
@@ -35,11 +43,10 @@ public class BucketTest extends AndroidTestCase {
 
     int max = 0;
 
-    @Override
+    @Before
     public void setUp() throws Exception {
-        super.setUp();
         mBucket = new ChildHelper.Bucket();
-        mArr = new ArrayList<Integer>();
+        mArr = new ArrayList<>();
         Collections.addAll(mArr, 0, 1, 2, 3, 4, 5, 6, 10, 12, 13, 21, 22, 122, 14, 44, 29, 205, 19);
         for (int i = 1; i < 4; i++) {
             mArr.add(i * (ChildHelper.Bucket.BITS_PER_WORD - 1));
@@ -50,7 +57,7 @@ public class BucketTest extends AndroidTestCase {
             mArr.add(i * ChildHelper.Bucket.BITS_PER_WORD + 1);
         }
 
-        mSet = new HashSet<Integer>();
+        mSet = new HashSet<>();
         max = 0;
         for (int i = mArr.size() - 1; i >= 0; i--) {
             if (!mSet.add(mArr.get(i))) {
@@ -61,7 +68,8 @@ public class BucketTest extends AndroidTestCase {
     }
 
 
-    public void testSetClear() {
+    @Test
+    public void setClear() {
         for (int i : mArr) {
             mBucket.set(i);
             assertTrue(mBucket.get(i));
@@ -81,7 +89,8 @@ public class BucketTest extends AndroidTestCase {
     }
 
 
-    public void testRemove() {
+    @Test
+    public void remove() {
         for (int i : mArr) {
             mBucket.reset();
             for (int j : mArr) {
@@ -101,7 +110,8 @@ public class BucketTest extends AndroidTestCase {
         }
     }
 
-    public void testInsert() {
+    @Test
+    public void insert() {
         for (int i : mArr) {
             for (boolean val : new boolean[]{true, false}) {
                 mBucket.reset();
@@ -125,7 +135,8 @@ public class BucketTest extends AndroidTestCase {
     }
 
 
-    public void testCountOnesBefore() {
+    @Test
+    public void countOnesBefore() {
         assertEquals(mBucket.countOnesBefore(0), 0);
         for (int i : mArr) {
             mBucket.set(i);

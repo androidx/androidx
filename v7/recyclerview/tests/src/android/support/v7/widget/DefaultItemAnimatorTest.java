@@ -16,7 +16,13 @@
 
 package android.support.v7.widget;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import android.os.Looper;
+import android.support.test.runner.AndroidJUnit4;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
@@ -34,9 +40,11 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import static org.junit.Assert.*;
 
 @MediumTest
-public class DefaultItemAnimatorTest extends ActivityInstrumentationTestCase2<TestActivity> {
+@RunWith(AndroidJUnit4.class)
+public class DefaultItemAnimatorTest extends BaseRecyclerViewInstrumentationTest {
 
     private static final String TAG = "DefaultItemAnimatorTest";
     Throwable mainThreadException;
@@ -53,13 +61,8 @@ public class DefaultItemAnimatorTest extends ActivityInstrumentationTestCase2<Te
 
     Semaphore mExpectedItemCount = new Semaphore(0);
 
-    public DefaultItemAnimatorTest() {
-        super("android.support.v7.recyclerview", TestActivity.class);
-    }
-
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         mAnimator = new DefaultItemAnimator() {
             @Override
             public void onRemoveFinished(RecyclerView.ViewHolder item) {
@@ -116,20 +119,8 @@ public class DefaultItemAnimatorTest extends ActivityInstrumentationTestCase2<Te
         }
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        getInstrumentation().waitForIdleSync();
-        super.tearDown();
-        try {
-            checkForMainThreadException();
-        } catch (Exception e) {
-            throw e;
-        } catch (Throwable throwable) {
-            throw new Exception(throwable);
-        }
-    }
-
-    public void testReUseWithPayload() {
+    @Test
+    public void reUseWithPayload() {
         RecyclerView.ViewHolder vh = new ViewHolder(new TextView(getActivity()));
         assertFalse(mAnimator.canReuseUpdatedViewHolder(vh, new ArrayList<>()));
         assertTrue(mAnimator.canReuseUpdatedViewHolder(vh, Arrays.asList((Object) "a")));
@@ -170,7 +161,8 @@ public class DefaultItemAnimatorTest extends ActivityInstrumentationTestCase2<Te
                 mExpectedItemCount.tryAcquire(1, 2, TimeUnit.SECONDS));
     }
 
-    public void testAnimateAdd() throws Throwable {
+    @Test
+    public void animateAdd() throws Throwable {
         ViewHolder vh = createViewHolder(1);
         expectItems(vh);
         assertTrue(animateAdd(vh));
@@ -178,7 +170,8 @@ public class DefaultItemAnimatorTest extends ActivityInstrumentationTestCase2<Te
         runAndWait(1, 1);
     }
 
-    public void testAnimateRemove() throws Throwable {
+    @Test
+    public void animateRemove() throws Throwable {
         ViewHolder vh = createViewHolder(1);
         expectItems(vh);
         assertTrue(animateRemove(vh));
@@ -186,7 +179,8 @@ public class DefaultItemAnimatorTest extends ActivityInstrumentationTestCase2<Te
         runAndWait(1, 1);
     }
 
-    public void testAnimateMove() throws Throwable {
+    @Test
+    public void animateMove() throws Throwable {
         ViewHolder vh = createViewHolder(1);
         expectItems(vh);
         assertTrue(animateMove(vh, 0, 0, 100, 100));
@@ -194,7 +188,8 @@ public class DefaultItemAnimatorTest extends ActivityInstrumentationTestCase2<Te
         runAndWait(1, 1);
     }
 
-    public void testAnimateChange() throws Throwable {
+    @Test
+    public void animateChange() throws Throwable {
         ViewHolder vh = createViewHolder(1);
         ViewHolder vh2 = createViewHolder(2);
         expectItems(vh, vh2);
@@ -227,35 +222,40 @@ public class DefaultItemAnimatorTest extends ActivityInstrumentationTestCase2<Te
         }
     }
 
-    public void testCancelAddBefore() throws Throwable {
+    @Test
+    public void cancelAddBefore() throws Throwable {
         final ViewHolder vh = createViewHolder(1);
         expectItems(vh);
         assertTrue(animateAdd(vh));
         cancelBefore(1, vh);
     }
 
-    public void testCancelAddAfter() throws Throwable {
+    @Test
+    public void cancelAddAfter() throws Throwable {
         final ViewHolder vh = createViewHolder(1);
         expectItems(vh);
         assertTrue(animateAdd(vh));
         cancelAfter(1, vh);
     }
 
-    public void testCancelMoveBefore() throws Throwable {
+    @Test
+    public void cancelMoveBefore() throws Throwable {
         ViewHolder vh = createViewHolder(1);
         expectItems(vh);
         assertTrue(animateMove(vh, 10, 10, 100, 100));
         cancelBefore(1, vh);
     }
 
-    public void testCancelMoveAfter() throws Throwable {
+    @Test
+    public void cancelMoveAfter() throws Throwable {
         ViewHolder vh = createViewHolder(1);
         expectItems(vh);
         assertTrue(animateMove(vh, 10, 10, 100, 100));
         cancelAfter(1, vh);
     }
 
-    public void testCancelRemove() throws Throwable {
+    @Test
+    public void cancelRemove() throws Throwable {
         ViewHolder vh = createViewHolder(1);
         expectItems(vh);
         assertTrue(animateRemove(vh));
@@ -263,10 +263,12 @@ public class DefaultItemAnimatorTest extends ActivityInstrumentationTestCase2<Te
         runAndWait(1, 1);
     }
 
-    public void testCancelChangeOldBefore() throws Throwable {
+    @Test
+    public void cancelChangeOldBefore() throws Throwable {
         cancelChangeOldTest(true);
     }
-    public void testCancelChangeOldAfter() throws Throwable {
+    @Test
+    public void cancelChangeOldAfter() throws Throwable {
         cancelChangeOldTest(false);
     }
 
@@ -278,11 +280,13 @@ public class DefaultItemAnimatorTest extends ActivityInstrumentationTestCase2<Te
         cancelTest(before, 2, vh);
     }
 
-    public void testCancelChangeNewBefore() throws Throwable {
+    @Test
+    public void cancelChangeNewBefore() throws Throwable {
         cancelChangeNewTest(true);
     }
 
-    public void testCancelChangeNewAfter() throws Throwable {
+    @Test
+    public void cancelChangeNewAfter() throws Throwable {
         cancelChangeNewTest(false);
     }
 
@@ -294,11 +298,13 @@ public class DefaultItemAnimatorTest extends ActivityInstrumentationTestCase2<Te
         cancelTest(before, 2, vh2);
     }
 
-    public void testCancelChangeBothBefore() throws Throwable {
+    @Test
+    public void cancelChangeBothBefore() throws Throwable {
         cancelChangeBothTest(true);
     }
 
-    public void testCancelChangeBothAfter() throws Throwable {
+    @Test
+    public void cancelChangeBothAfter() throws Throwable {
         cancelChangeBothTest(false);
     }
 
@@ -395,7 +401,7 @@ public class DefaultItemAnimatorTest extends ActivityInstrumentationTestCase2<Te
         List<String> mItems;
 
         private Adapter(int count) {
-            mItems = new ArrayList<String>();
+            mItems = new ArrayList<>();
             for (int i = 0; i < count; i++) {
                 mItems.add("item-" + i);
             }
@@ -432,7 +438,7 @@ public class DefaultItemAnimatorTest extends ActivityInstrumentationTestCase2<Te
     }
 
     private interface ThrowingRunnable {
-        public void run() throws Throwable;
+        void run() throws Throwable;
     }
 
     @Override

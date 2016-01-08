@@ -16,10 +16,18 @@
 
 package android.support.v7.widget;
 
+import org.hamcrest.MatcherAssert;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+
+import android.app.Activity;
 import android.app.Instrumentation;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.rule.ActivityTestRule;
 import android.support.v4.view.ViewCompat;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
@@ -41,8 +49,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import android.support.v7.recyclerview.test.R;
 
-abstract public class BaseRecyclerViewInstrumentationTest extends
-        ActivityInstrumentationTestCase2<TestActivity> {
+import static org.junit.Assert.*;
+
+abstract public class BaseRecyclerViewInstrumentationTest {
 
     private static final String TAG = "RecyclerViewTest";
 
@@ -56,12 +65,15 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
 
     Thread mInstrumentationThread;
 
+    @Rule
+    public ActivityTestRule<TestActivity> mActivityRule = new ActivityTestRule<>(
+            TestActivity.class);
+
     public BaseRecyclerViewInstrumentationTest() {
         this(false);
     }
 
     public BaseRecyclerViewInstrumentationTest(boolean debug) {
-        super("android.support.v7.recyclerview", TestActivity.class);
         mDebug = debug;
     }
 
@@ -71,9 +83,12 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         }
     }
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    protected TestActivity getActivity() {
+        return mActivityRule.getActivity();
+    }
+
+    @Before
+    public final void setUpInsThread() throws Exception {
         mInstrumentationThread = Thread.currentThread();
     }
 
@@ -93,7 +108,7 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
     protected void enableAccessibility()
             throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method getUIAutomation = Instrumentation.class.getMethod("getUiAutomation");
-        getUIAutomation.invoke(getInstrumentation());
+        getUIAutomation.invoke(InstrumentationRegistry.getInstrumentation());
     }
 
     void setAdapter(final RecyclerView.Adapter adapter) throws Throwable {
@@ -160,8 +175,12 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         }
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    public Instrumentation getInstrumentation() {
+        return InstrumentationRegistry.getInstrumentation();
+    }
+
+    @After
+    public final void tearDown() throws Exception {
         if (mRecyclerView != null) {
             try {
                 removeRecyclerView();
@@ -170,7 +189,6 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
             }
         }
         getInstrumentation().waitForIdleSync();
-        super.tearDown();
 
         try {
             checkForMainThreadException();
@@ -291,8 +309,8 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
                     RecyclerView.ViewHolder vh = parent.getChildViewHolder(view);
                     if (!vh.isRemoved()) {
                         assertNotSame("If getItemOffsets is called, child should have a valid"
-                                            + " adapter position unless it is removed : " + vh,
-                                    vh.getAdapterPosition(), RecyclerView.NO_POSITION);
+                                        + " adapter position unless it is removed : " + vh,
+                                vh.getAdapterPosition(), RecyclerView.NO_POSITION);
                     }
                 }
             });
@@ -903,12 +921,11 @@ abstract public class BaseRecyclerViewInstrumentationTest extends
         return Looper.myLooper() == Looper.getMainLooper();
     }
 
-    @Override
     public void runTestOnUiThread(Runnable r) throws Throwable {
         if (Looper.myLooper() == Looper.getMainLooper()) {
             r.run();
         } else {
-            super.runTestOnUiThread(r);
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(r);
         }
     }
 

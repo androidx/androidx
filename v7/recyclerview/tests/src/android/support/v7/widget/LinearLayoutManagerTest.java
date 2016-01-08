@@ -16,6 +16,8 @@
 
 package android.support.v7.widget;
 
+import org.junit.Test;
+
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Parcel;
@@ -43,6 +45,7 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import static org.junit.Assert.*;
 
 /**
  * Includes tests for {@link LinearLayoutManager}.
@@ -54,49 +57,57 @@ import java.util.concurrent.atomic.AtomicInteger;
 @MediumTest
 public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
 
-    public void testRemoveAnchorItem() throws Throwable {
+    @Test
+    public void removeAnchorItem() throws Throwable {
         removeAnchorItemTest(
                 new Config().orientation(VERTICAL).stackFromBottom(false).reverseLayout(
                         false), 100, 0);
     }
 
-    public void testRemoveAnchorItemReverse() throws Throwable {
+    @Test
+    public void removeAnchorItemReverse() throws Throwable {
         removeAnchorItemTest(
                 new Config().orientation(VERTICAL).stackFromBottom(false).reverseLayout(true), 100,
                 0);
     }
 
-    public void testRemoveAnchorItemStackFromEnd() throws Throwable {
+    @Test
+    public void removeAnchorItemStackFromEnd() throws Throwable {
         removeAnchorItemTest(
                 new Config().orientation(VERTICAL).stackFromBottom(true).reverseLayout(false), 100,
                 99);
     }
 
-    public void testRemoveAnchorItemStackFromEndAndReverse() throws Throwable {
+    @Test
+    public void removeAnchorItemStackFromEndAndReverse() throws Throwable {
         removeAnchorItemTest(
                 new Config().orientation(VERTICAL).stackFromBottom(true).reverseLayout(true), 100,
                 99);
     }
 
-    public void testRemoveAnchorItemHorizontal() throws Throwable {
+    @Test
+    public void removeAnchorItemHorizontal() throws Throwable {
         removeAnchorItemTest(
                 new Config().orientation(HORIZONTAL).stackFromBottom(false).reverseLayout(
                         false), 100, 0);
     }
 
-    public void testRemoveAnchorItemReverseHorizontal() throws Throwable {
+    @Test
+    public void removeAnchorItemReverseHorizontal() throws Throwable {
         removeAnchorItemTest(
                 new Config().orientation(HORIZONTAL).stackFromBottom(false).reverseLayout(true),
                 100, 0);
     }
 
-    public void testRemoveAnchorItemStackFromEndHorizontal() throws Throwable {
+    @Test
+    public void removeAnchorItemStackFromEndHorizontal() throws Throwable {
         removeAnchorItemTest(
                 new Config().orientation(HORIZONTAL).stackFromBottom(true).reverseLayout(false),
                 100, 99);
     }
 
-    public void testRemoveAnchorItemStackFromEndAndReverseHorizontal() throws Throwable {
+    @Test
+    public void removeAnchorItemStackFromEndAndReverseHorizontal() throws Throwable {
         removeAnchorItemTest(
                 new Config().orientation(HORIZONTAL).stackFromBottom(true).reverseLayout(true), 100,
                 99);
@@ -193,7 +204,8 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
                 mRecyclerView.getChildCount() <= childCount + 3 /*1 for removed view, 2 for its size*/);
     }
 
-    public void testKeepFocusOnRelayout() throws Throwable {
+    @Test
+    public void keepFocusOnRelayout() throws Throwable {
         setupByConfig(new Config(VERTICAL, false, false).itemCount(500), true);
         int center = (mLayoutManager.findLastVisibleItemPosition()
                 - mLayoutManager.findFirstVisibleItemPosition()) / 2;
@@ -220,27 +232,33 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
                 mLayoutManager.mOrientationHelper.getDecoratedStart(postVH.itemView));
     }
 
-    public void testKeepFullFocusOnResize() throws Throwable {
+    @Test
+    public void keepFullFocusOnResize() throws Throwable {
         keepFocusOnResizeTest(new Config(VERTICAL, false, false).itemCount(500), true);
     }
 
-    public void testKeepPartialFocusOnResize() throws Throwable {
+    @Test
+    public void keepPartialFocusOnResize() throws Throwable {
         keepFocusOnResizeTest(new Config(VERTICAL, false, false).itemCount(500), false);
     }
 
-    public void testKeepReverseFullFocusOnResize() throws Throwable {
+    @Test
+    public void keepReverseFullFocusOnResize() throws Throwable {
         keepFocusOnResizeTest(new Config(VERTICAL, true, false).itemCount(500), true);
     }
 
-    public void testKeepReversePartialFocusOnResize() throws Throwable {
+    @Test
+    public void keepReversePartialFocusOnResize() throws Throwable {
         keepFocusOnResizeTest(new Config(VERTICAL, true, false).itemCount(500), false);
     }
 
-    public void testKeepStackFromEndFullFocusOnResize() throws Throwable {
+    @Test
+    public void keepStackFromEndFullFocusOnResize() throws Throwable {
         keepFocusOnResizeTest(new Config(VERTICAL, false, true).itemCount(500), true);
     }
 
-    public void testKeepStackFromEndPartialFocusOnResize() throws Throwable {
+    @Test
+    public void keepStackFromEndPartialFocusOnResize() throws Throwable {
         keepFocusOnResizeTest(new Config(VERTICAL, false, true).itemCount(500), false);
     }
 
@@ -349,7 +367,8 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
         }
     }
 
-    public void testScrollToPositionWithPredictive() throws Throwable {
+    @Test
+    public void scrollToPositionWithPredictive() throws Throwable {
         scrollToPositionWithPredictive(0, LinearLayoutManager.INVALID_OFFSET);
         removeRecyclerView();
         scrollToPositionWithPredictive(3, 20);
@@ -360,7 +379,8 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
         scrollToPositionWithPredictive(Config.DEFAULT_ITEM_COUNT / 2, 10);
     }
 
-    public void testRecycleDuringAnimations() throws Throwable {
+    @Test
+    public void recycleDuringAnimations() throws Throwable {
         final AtomicInteger childCount = new AtomicInteger(0);
         final TestAdapter adapter = new TestAdapter(300) {
             @Override
@@ -426,7 +446,8 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
     }
 
 
-    public void testDontRecycleChildrenOnDetach() throws Throwable {
+    @Test
+    public void dontRecycleChildrenOnDetach() throws Throwable {
         setupByConfig(new Config().recycleChildrenOnDetach(false), true);
         runTestOnUiThread(new Runnable() {
             @Override
@@ -439,7 +460,8 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
         });
     }
 
-    public void testRecycleChildrenOnDetach() throws Throwable {
+    @Test
+    public void recycleChildrenOnDetach() throws Throwable {
         setupByConfig(new Config().recycleChildrenOnDetach(true), true);
         final int childCount = mLayoutManager.getChildCount();
         runTestOnUiThread(new Runnable() {
@@ -455,7 +477,8 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
         });
     }
 
-    public void testScrollAndClear() throws Throwable {
+    @Test
+    public void scrollAndClear() throws Throwable {
         setupByConfig(new Config(), true);
 
         assertTrue("Children not laid out", mLayoutManager.collectChildCoordinates().size() > 0);
@@ -474,7 +497,8 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
     }
 
 
-    public void testAccessibilityPositions() throws Throwable {
+    @Test
+    public void accessibilityPositions() throws Throwable {
         setupByConfig(new Config(VERTICAL, false, false), true);
         final AccessibilityDelegateCompat delegateCompat = mRecyclerView
                 .getCompatAccessibilityDelegate();

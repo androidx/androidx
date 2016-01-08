@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
+import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)
 public class LinearLayoutManagerPrepareForDropTest extends BaseLinearLayoutManagerTest {
@@ -41,19 +42,6 @@ public class LinearLayoutManagerPrepareForDropTest extends BaseLinearLayoutManag
             Config config, SelectTargetChildren selectTargetChildren) {
         mConfig = config;
         mSelectTargetChildren = selectTargetChildren;
-    }
-
-    @Before
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        injectInstrumentation(InstrumentationRegistry.getInstrumentation());
-    }
-
-    @After
-    @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
     }
 
     @Parameterized.Parameters(name = "{0}_{1}")

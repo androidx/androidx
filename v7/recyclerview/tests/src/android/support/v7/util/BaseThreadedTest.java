@@ -16,27 +16,52 @@
 
 package android.support.v7.util;
 
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+
+import android.app.Instrumentation;
 import android.support.annotation.UiThread;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.rule.ActivityTestRule;
 import android.support.v7.widget.TestActivity;
 import android.test.ActivityInstrumentationTestCase2;
 
-abstract public class BaseThreadedTest extends ActivityInstrumentationTestCase2<TestActivity> {
-    public BaseThreadedTest() {
-        super(TestActivity.class);
-    }
+abstract public class BaseThreadedTest {
+    @Rule
+    public ActivityTestRule<TestActivity> mActivityRule = new ActivityTestRule<>(
+            TestActivity.class);
 
-    @Override
-    public void setUp() throws Exception{
+    public final void setUp() throws Exception{
         try {
-            runTestOnUiThread(new Runnable() {
+            getInstrumentation().runOnMainSync(new Runnable() {
                 @Override
                 public void run() {
                     setUpUi();
                 }
             });
         } catch (Throwable throwable) {
-            fail(throwable.getMessage());
+            Assert.fail(throwable.getMessage());
         }
+    }
+
+    public Instrumentation getInstrumentation() {
+        return InstrumentationRegistry.getInstrumentation();
+    }
+
+    public void runTestOnUiThread(final Runnable test) {
+        final Throwable[] error = new Throwable[1];
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    test.run();
+                } catch (Throwable t) {
+                    error[0] = t;
+                }
+            }
+        });
+        Assert.assertNull(error[0]);
     }
 
     @UiThread
