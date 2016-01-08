@@ -16,9 +16,81 @@
 
 package android.support.v7.app;
 
+import android.os.SystemClock;
+import android.support.v7.appcompat.test.R;
+import android.support.v7.testutils.BaseTestActivity;
+import android.test.suitebuilder.annotation.SmallTest;
+import android.view.KeyCharacterMap;
+import android.view.KeyEvent;
+import android.view.View;
+
+import org.junit.Test;
+
 public class KeyboardShortcutsTestCaseWithToolbar
         extends BaseKeyboardShortcutsTestCase<ToolbarActionBarActivity> {
     public KeyboardShortcutsTestCaseWithToolbar() {
         super(ToolbarActionBarActivity.class);
     }
+
+    @Test
+    @SmallTest
+    public void testAccessActionBar() throws Throwable {
+        final BaseTestActivity activity = getActivity();
+
+        final View editText = activity.findViewById(R.id.editText);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                editText.requestFocus();
+            }
+        });
+
+        getInstrumentation().waitForIdleSync();
+        sendControlChar('<');
+        getInstrumentation().waitForIdleSync();
+
+        // Should jump to the action bar after control-<
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                assertFalse(editText.hasFocus());
+                final View toolbar = activity.findViewById(R.id.toolbar);
+                assertTrue(toolbar.hasFocus());
+            }
+        });
+        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_DOWN);
+        getInstrumentation().waitForIdleSync();
+
+        // Should jump to the first view again.
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                assertTrue(editText.hasFocus());
+            }
+        });
+        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_UP);
+        getInstrumentation().waitForIdleSync();
+
+        // Now it shouldn't go up to action bar -- it doesn't allow taking focus once left
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                assertTrue(editText.hasFocus());
+            }
+        });
+    }
+
+    private void sendControlChar(char key) throws Throwable {
+        KeyEvent tempEvent = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_A);
+        KeyCharacterMap map = tempEvent.getKeyCharacterMap();
+        KeyEvent[] events = map.getEvents(new char[] {key});
+        for (int i = 0; i < events.length; i++) {
+            long time = SystemClock.uptimeMillis();
+            KeyEvent event = events[i];
+            KeyEvent controlKey = new KeyEvent(time, time, event.getAction(), event.getKeyCode(),
+                    event.getRepeatCount(), event.getMetaState() | KeyEvent.META_CTRL_ON);
+            getInstrumentation().sendKeySync(controlKey);
+        }
+    }
+
 }
