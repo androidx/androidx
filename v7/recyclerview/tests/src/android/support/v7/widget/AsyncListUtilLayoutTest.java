@@ -16,7 +16,11 @@
 
 package android.support.v7.widget;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import android.content.Context;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.util.AsyncListUtil;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.view.View;
@@ -26,8 +30,10 @@ import android.widget.TextView;
 import java.util.BitSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import static org.junit.Assert.*;
 
 @MediumTest
+@RunWith(AndroidJUnit4.class)
 public class AsyncListUtilLayoutTest extends BaseRecyclerViewInstrumentationTest {
 
     private static final boolean DEBUG = false;
@@ -48,7 +54,8 @@ public class AsyncListUtilLayoutTest extends BaseRecyclerViewInstrumentationTest
     public int mStartPrefetch = 0;
     public int mEndPrefetch = 0;
 
-    public void testAsyncListUtil() throws Throwable {
+    @Test
+    public void asyncListUtil() throws Throwable {
         mRecyclerView = inflateWrappedRV();
         mRecyclerView.setHasFixedSize(true);
 

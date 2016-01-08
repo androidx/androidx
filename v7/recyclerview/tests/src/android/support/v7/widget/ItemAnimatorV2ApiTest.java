@@ -15,8 +15,12 @@
  */
 package android.support.v7.widget;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.MediumTest;
 
 import java.util.ArrayList;
@@ -28,18 +32,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static android.support.v7.widget.RecyclerView.ItemAnimator.FLAG_CHANGED;
 import static android.support.v7.widget.RecyclerView.ItemAnimator.FLAG_MOVED;
 import static android.support.v7.widget.RecyclerView.ItemAnimator.FLAG_REMOVED;
+import static org.junit.Assert.*;
 
 /**
  * Includes tests for the new RecyclerView animations API (v2).
  */
 @MediumTest
+@RunWith(AndroidJUnit4.class)
 public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
     @Override
     protected RecyclerView.ItemAnimator createItemAnimator() {
         return mAnimator;
     }
 
-    public void testChangeMovedOutside() throws Throwable {
+    @Test
+    public void changeMovedOutside() throws Throwable {
         setupBasic(10);
         final RecyclerView.ViewHolder target = mRecyclerView.findViewHolderForAdapterPosition(9);
         mLayoutManager.expectLayouts(2);
@@ -59,7 +66,8 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         // I don't think we can do much better since other option is to bind a fresh view
     }
 
-    public void testSimpleAdd() throws Throwable {
+    @Test
+    public void simpleAdd() throws Throwable {
         setupBasic(10);
         mLayoutManager.expectLayouts(2);
         mTestAdapter.addAndNotify(2, 1);
@@ -82,7 +90,8 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         checkForMainThreadException();
     }
 
-    public void testSimpleRemove() throws Throwable {
+    @Test
+    public void simpleRemove() throws Throwable {
         setupBasic(10);
         RecyclerView.ViewHolder vh = mRecyclerView.findViewHolderForAdapterPosition(2);
         mLayoutManager.expectLayouts(2);
@@ -106,7 +115,8 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         checkForMainThreadException();
     }
 
-    public void testSimpleUpdate() throws Throwable {
+    @Test
+    public void simpleUpdate() throws Throwable {
         setupBasic(10);
         RecyclerView.ViewHolder vh = mRecyclerView.findViewHolderForAdapterPosition(2);
         mLayoutManager.expectLayouts(2);
@@ -131,7 +141,8 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         checkForMainThreadException();
     }
 
-    public void testUpdateWithDuplicateViewHolder() throws Throwable {
+    @Test
+    public void updateWithDuplicateViewHolder() throws Throwable {
         setupBasic(10);
         final RecyclerView.ViewHolder vh = mRecyclerView.findViewHolderForAdapterPosition(2);
         mAnimator.canReUseCallback = new CanReUseCallback() {
@@ -167,7 +178,8 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         checkForMainThreadException();
     }
 
-    public void testUpdateWithOneDuplicateAndOneInPlace() throws Throwable {
+    @Test
+    public void updateWithOneDuplicateAndOneInPlace() throws Throwable {
         setupBasic(10);
         final RecyclerView.ViewHolder replaced = mRecyclerView.findViewHolderForAdapterPosition(2);
         final RecyclerView.ViewHolder reused = mRecyclerView.findViewHolderForAdapterPosition(3);
@@ -230,7 +242,8 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         checkForMainThreadException();
     }
 
-    public void testChangeToDisappear() throws Throwable {
+    @Test
+    public void changeToDisappear() throws Throwable {
         setupBasic(10);
         RecyclerView.ViewHolder vh = mRecyclerView.findViewHolderForAdapterPosition(9);
         mLayoutManager.mOnLayoutCallbacks.mLayoutItemCount = 9;
@@ -248,7 +261,8 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         checkForMainThreadException();
     }
 
-    public void testUpdatePayload() throws Throwable {
+    @Test
+    public void updatePayload() throws Throwable {
         setupBasic(10);
         final RecyclerView.ViewHolder vh = mRecyclerView.findViewHolderForAdapterPosition(2);
         final Object payload = new Object();
@@ -285,7 +299,8 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         checkForMainThreadException();
     }
 
-    public void testNotifyDataSetChanged() throws Throwable {
+    @Test
+    public void notifyDataSetChanged() throws Throwable {
         TestAdapter adapter = new TestAdapter(10);
         adapter.setHasStableIds(true);
         setupBasic(10, 0, 10, adapter);
@@ -303,7 +318,8 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         assertEquals(0, mAnimator.animateDisappearanceList.size());
     }
 
-    public void testNotifyDataSetChangedWithoutStableIds() throws Throwable {
+    @Test
+    public void notifyDataSetChangedWithoutStableIds() throws Throwable {
         TestAdapter adapter = new TestAdapter(10);
         adapter.setHasStableIds(false);
         setupBasic(10, 0, 10, adapter);
@@ -316,11 +332,13 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         assertEquals(0, mAnimator.animateDisappearanceList.size());
     }
 
-    public void testNotifyDataSetChangedWithAppearing() throws Throwable {
+    @Test
+    public void notifyDataSetChangedWithAppearing() throws Throwable {
         notifyDataSetChangedWithAppearing(false);
     }
 
-    public void testNotifyDataSetChangedWithAppearingNotifyBoth() throws Throwable {
+    @Test
+    public void notifyDataSetChangedWithAppearingNotifyBoth() throws Throwable {
         notifyDataSetChangedWithAppearing(true);
     }
 
@@ -353,11 +371,13 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         assertEquals(0, mAnimator.animateDisappearanceList.size());
     }
 
-    public void testNotifyDataSetChangedWithDispappearing() throws Throwable {
+    @Test
+    public void notifyDataSetChangedWithDispappearing() throws Throwable {
         notifyDataSetChangedWithDispappearing(false);
     }
 
-    public void testNotifyDataSetChangedWithDispappearingNotifyBoth() throws Throwable {
+    @Test
+    public void notifyDataSetChangedWithDispappearingNotifyBoth() throws Throwable {
         notifyDataSetChangedWithDispappearing(true);
     }
 
@@ -389,7 +409,8 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         assertEquals(2, mAnimator.animateDisappearanceList.size());
     }
 
-    public void testNotifyUpdateWithChangedAdapterType() throws Throwable {
+    @Test
+    public void notifyUpdateWithChangedAdapterType() throws Throwable {
         final AtomicInteger itemType = new AtomicInteger(1);
         final TestAdapter adapter = new TestAdapter(10) {
             @Override

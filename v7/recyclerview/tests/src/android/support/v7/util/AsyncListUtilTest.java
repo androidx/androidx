@@ -16,14 +16,22 @@
 
 package android.support.v7.util;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+
 import android.support.annotation.UiThread;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.SparseBooleanArray;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import static org.junit.Assert.*;
 
 @MediumTest
+@RunWith(JUnit4.class)
 public class AsyncListUtilTest extends BaseThreadedTest {
 
     private static final int TILE_SIZE = 10;
@@ -33,11 +41,10 @@ public class AsyncListUtilTest extends BaseThreadedTest {
 
     AsyncListUtil<String> mAsyncListUtil;
 
-    @Override
-    public void setUp() throws Exception {
+    @Before
+    public final void setupCallbacks() throws Exception {
         mDataCallback = new TestDataCallback();
         mViewCallback = new TestViewCallback();
-
         mDataCallback.expectTiles(0, 10, 20);
         super.setUp();
         mDataCallback.waitForTiles("initial load");
@@ -50,20 +57,22 @@ public class AsyncListUtilTest extends BaseThreadedTest {
                 String.class, TILE_SIZE, mDataCallback, mViewCallback);
     }
 
-    @Override
+    @After
     public void tearDown() throws Exception {
         /// Wait a little extra to catch spurious messages.
         new CountDownLatch(1).await(500, TimeUnit.MILLISECONDS);
     }
 
-    public void testWithNoPreload() throws Throwable {
+    @Test
+    public void withNoPreload() throws Throwable {
         scrollAndExpectTiles(10, "scroll to 10", 30);
         scrollAndExpectTiles(25, "scroll to 25", 40);
         scrollAndExpectTiles(45, "scroll to 45", 50, 60);
         scrollAndExpectTiles(70, "scroll to 70", 70, 80, 90);
     }
 
-    public void testWithPreload() throws Throwable {
+    @Test
+    public void withPreload() throws Throwable {
         mViewCallback.mStartPreload = 5;
         mViewCallback.mEndPreload = 15;
         scrollAndExpectTiles(50, "scroll down a lot", 40, 50, 60, 70, 80);
@@ -74,7 +83,8 @@ public class AsyncListUtilTest extends BaseThreadedTest {
         scrollAndExpectTiles(40, "scroll up a little, no new tiles loaded");
     }
 
-    public void testTileCaching() throws Throwable {
+    @Test
+    public void tileCaching() throws Throwable {
         scrollAndExpectTiles(25, "next screen", 30, 40);
 
         scrollAndExpectTiles(0, "back at top, no new page loads");
@@ -85,7 +95,8 @@ public class AsyncListUtilTest extends BaseThreadedTest {
         scrollAndExpectTiles(0, "scroll back to top, all pages should reload", 0, 10, 20);
     }
 
-    public void testDataRefresh() throws Throwable {
+    @Test
+    public void dataRefresh() throws Throwable {
         mViewCallback.expectDataSetChanged(40);
         mDataCallback.expectTiles(0, 10, 20);
         refreshOnUiThread();
@@ -99,7 +110,8 @@ public class AsyncListUtilTest extends BaseThreadedTest {
         mDataCallback.waitForTiles("decreasing item count");
     }
 
-    public void testItemChanged() throws Throwable {
+    @Test
+    public void itemChanged() throws Throwable {
         final int position = 30;
         final int count = 20;
 

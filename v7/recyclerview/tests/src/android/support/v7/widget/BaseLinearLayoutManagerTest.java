@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
 import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
+import static org.junit.Assert.*;
 
 public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
 
@@ -50,11 +51,6 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
 
     WrappedLinearLayoutManager mLayoutManager;
     TestAdapter mTestAdapter;
-
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
 
     protected static List<Config> addConfigVariation(List<Config> base, String fieldName,
             Object... variations)
