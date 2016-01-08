@@ -19,8 +19,10 @@ package android.support.v7.widget;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.res.Resources;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
+
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 
 /**
  * A {@link android.content.ContextWrapper} which returns a tint-aware
@@ -28,10 +30,25 @@ import android.support.annotation.NonNull;
  */
 class TintContextWrapper extends ContextWrapper {
 
-    public static Context wrap(Context context) {
+    private static final ArrayList<WeakReference<TintContextWrapper>> sCache = new ArrayList<>();
+
+    public static Context wrap(@NonNull final Context context) {
         if (!(context instanceof TintContextWrapper)) {
-            context = new TintContextWrapper(context);
+            // First check our instance cache
+            for (int i = 0, count = sCache.size(); i < count; i++) {
+                final WeakReference<TintContextWrapper> ref = sCache.get(i);
+                final TintContextWrapper wrapper = ref != null ? ref.get() : null;
+                if (wrapper != null && wrapper.getBaseContext() == context) {
+                    return wrapper;
+                }
+            }
+            // If we reach here then the cache didn't have a hit, so create a new instance
+            // and add it to the cahce
+            final TintContextWrapper wrapper = new TintContextWrapper(context);
+            sCache.add(new WeakReference<TintContextWrapper>(wrapper));
+            return wrapper;
         }
+
         return context;
     }
 
