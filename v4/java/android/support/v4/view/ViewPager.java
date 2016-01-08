@@ -1526,21 +1526,7 @@ public class ViewPager extends ViewGroup {
 
     private void recomputeScrollPosition(int width, int oldWidth, int margin, int oldMargin) {
         if (oldWidth > 0 && !mItems.isEmpty()) {
-            final int widthWithMargin = width - getPaddingLeft() - getPaddingRight() + margin;
-            final int oldWidthWithMargin = oldWidth - getPaddingLeft() - getPaddingRight()
-                                           + oldMargin;
-            final int xpos = getScrollX();
-            final float pageOffset = (float) xpos / oldWidthWithMargin;
-            final int newOffsetPixels = (int) (pageOffset * widthWithMargin);
-
-            scrollTo(newOffsetPixels, getScrollY());
-            if (!mScroller.isFinished()) {
-                // We now return to your regularly scheduled scroll, already in progress.
-                final int newDuration = mScroller.getDuration() - mScroller.timePassed();
-                ItemInfo targetInfo = infoForPosition(mCurItem);
-                mScroller.startScroll(newOffsetPixels, 0,
-                        (int) (targetInfo.offset * width), 0, newDuration);
-            }
+            scrollToItem(mCurItem, false, 0, false);
         } else {
             final ItemInfo ii = infoForPosition(mCurItem);
             final float scrollOffset = ii != null ? Math.min(ii.offset, mLastOffset) : 0;
