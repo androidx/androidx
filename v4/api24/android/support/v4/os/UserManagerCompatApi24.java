@@ -21,11 +21,7 @@ import android.os.UserManager;
 
 /** {@hide} */
 public class UserManagerCompatApi24 {
-    public static boolean isUserRunningAndLocked(Context context) {
-        return context.getSystemService(UserManager.class).isUserRunningAndLocked();
-    }
-
-    public static boolean isUserRunningAndUnlocked(Context context) {
-        return context.getSystemService(UserManager.class).isUserRunningAndUnlocked();
+    public static boolean isUserUnlocked(Context context) {
+        return context.getSystemService(UserManager.class).isUserUnlocked();
     }
 }

@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Process;
 import android.support.annotation.NonNull;
+import android.support.v4.os.BuildCompat;
 import android.support.v4.os.EnvironmentCompat;
 import android.util.Log;
 
@@ -463,6 +464,11 @@ public class ContextCompat {
      * Because device-encrypted data is available before user authentication,
      * you should carefully consider what data you store using this Context.
      * <p>
+     * If the underlying device does not have the ability to store
+     * device-encrypted and credential-encrypted data using different keys, then
+     * both storage areas will become available at the same time. They remain
+     * two distinct storage areas, and only the window of availability changes.
+     * <p>
      * Each call to this method returns a new instance of a Context object;
      * Context objects are not shared, however common state (ClassLoader, other
      * Resources for the same configuration) may be so the Context itself can be
@@ -473,7 +479,7 @@ public class ContextCompat {
      * @see ContextCompat#isDeviceEncryptedStorage(Context)
      */
     public static Context createDeviceEncryptedStorageContext(Context context) {
-        if ("N".equals(Build.VERSION.CODENAME)) {
+        if (BuildCompat.isAtLeastN()) {
             return ContextCompatApi24.createDeviceEncryptedStorageContext(context);
         } else {
             return null;
@@ -487,7 +493,7 @@ public class ContextCompat {
      * @see ContextCompat#createDeviceEncryptedStorageContext(Context)
      */
     public static boolean isDeviceEncryptedStorage(Context context) {
-        if ("N".equals(Build.VERSION.CODENAME)) {
+        if (BuildCompat.isAtLeastN()) {
             return ContextCompatApi24.isDeviceEncryptedStorage(context);
         } else {
             return false;

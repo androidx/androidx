@@ -1,0 +1,9 @@
+package android.support.v4.os {
+
+  public class UserManagerCompat {
+    method public static deprecated boolean isUserRunningAndLocked(android.content.Context);
+    method public static deprecated boolean isUserRunningAndUnlocked(android.content.Context);
+  }
+
+}
+

@@ -1804,8 +1804,7 @@ package android.support.v4.os {
 
   public class UserManagerCompat {
     ctor public UserManagerCompat();
-    method public static boolean isUserRunningAndLocked(android.content.Context);
-    method public static boolean isUserRunningAndUnlocked(android.content.Context);
+    method public static boolean isUserUnlocked(android.content.Context);
   }
 
 }
