@@ -910,10 +910,18 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * containing Activity.
      */
     public void startActivity(Intent intent) {
+        startActivity(intent, null);
+    }
+
+    /**
+     * Call {@link Activity#startActivity(Intent, Bundle)} from the fragment's
+     * containing Activity.
+     */
+    public void startActivity(Intent intent, @Nullable Bundle options) {
         if (mHost == null) {
             throw new IllegalStateException("Fragment " + this + " not attached to Activity");
         }
-        mHost.onStartActivityFromFragment(this /*fragment*/, intent, -1);
+        mHost.onStartActivityFromFragment(this /*fragment*/, intent, -1, options);
     }
 
     /**
@@ -921,10 +929,18 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * containing Activity.
      */
     public void startActivityForResult(Intent intent, int requestCode) {
+        startActivityForResult(intent, requestCode, null);
+    }
+
+    /**
+     * Call {@link Activity#startActivityForResult(Intent, int, Bundle)} from the fragment's
+     * containing Activity.
+     */
+    public void startActivityForResult(Intent intent, int requestCode, @Nullable Bundle options) {
         if (mHost == null) {
             throw new IllegalStateException("Fragment " + this + " not attached to Activity");
         }
-        mHost.onStartActivityFromFragment(this /*fragment*/, intent, requestCode);
+        mHost.onStartActivityFromFragment(this /*fragment*/, intent, requestCode, options);
     }
 
     /**
