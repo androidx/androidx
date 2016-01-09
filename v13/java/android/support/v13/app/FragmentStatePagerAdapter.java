@@ -127,7 +127,7 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
 
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
-        Fragment fragment = (Fragment)object;
+        Fragment fragment = (Fragment) object;
 
         if (mCurTransaction == null) {
             mCurTransaction = mFragmentManager.beginTransaction();
@@ -137,7 +137,8 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
         while (mSavedState.size() <= position) {
             mSavedState.add(null);
         }
-        mSavedState.set(position, mFragmentManager.saveFragmentInstanceState(fragment));
+        mSavedState.set(position, fragment.isAdded()
+                ? mFragmentManager.saveFragmentInstanceState(fragment) : null);
         mFragments.set(position, null);
 
         mCurTransaction.remove(fragment);
