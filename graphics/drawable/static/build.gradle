@@ -12,6 +12,8 @@ android {
 
     defaultConfig {
         minSdkVersion 7
+        // This disables the builds tools automatic vector -> PNG generation
+        generatedDensities = []
     }
 
     sourceSets {
