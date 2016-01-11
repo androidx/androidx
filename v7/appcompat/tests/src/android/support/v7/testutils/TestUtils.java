@@ -28,25 +28,6 @@ import junit.framework.Assert;
 public class TestUtils {
     /**
      * Checks whether all the pixels in the specified drawable are of the same specified color.
-     * If the passed <code>Drawable</code> does not have positive intrinsic dimensions set, this
-     * method will throw an <code>IllegalArgumentException</code>. If there is a color mismatch,
-     * this method will call <code>Assert.fail</code> with detailed description of the mismatch.
-     */
-    public static void assertAllPixelsOfColor(String failMessagePrefix, @NonNull Drawable drawable,
-            @ColorInt int color) {
-        int drawableWidth = drawable.getIntrinsicWidth();
-        int drawableHeight = drawable.getIntrinsicHeight();
-
-        if ((drawableWidth <= 0) || (drawableHeight <= 0)) {
-            throw new IllegalArgumentException("Drawable must be configured to have non-zero size");
-        }
-
-        assertAllPixelsOfColor(failMessagePrefix, drawable, drawableWidth, drawableHeight, color,
-                false);
-    }
-
-    /**
-     * Checks whether all the pixels in the specified drawable are of the same specified color.
      *
      * In case there is a color mismatch, the behavior of this method depends on the
      * <code>throwExceptionIfFails</code> parameter. If it is <code>true</code>, this method will
@@ -54,14 +35,16 @@ public class TestUtils {
      * <code>Assert.fail</code> with detailed description of the mismatch.
      */
     public static void assertAllPixelsOfColor(String failMessagePrefix, @NonNull Drawable drawable,
-            int drawableWidth, int drawableHeight, @ColorInt int color,
+            int drawableWidth, int drawableHeight, boolean callSetBounds, @ColorInt int color,
             boolean throwExceptionIfFails) {
         // Create a bitmap
         Bitmap bitmap = Bitmap.createBitmap(drawableWidth, drawableHeight, Bitmap.Config.ARGB_8888);
         // Create a canvas that wraps the bitmap
         Canvas canvas = new Canvas(bitmap);
-        // Configure the drawable to have bounds that match its intrinsic size
-        drawable.setBounds(0, 0, drawableWidth, drawableHeight);
+        if (callSetBounds) {
+            // Configure the drawable to have bounds that match the passed size
+            drawable.setBounds(0, 0, drawableWidth, drawableHeight);
+        }
         // And ask the drawable to draw itself to the canvas / bitmap
         drawable.draw(canvas);
 

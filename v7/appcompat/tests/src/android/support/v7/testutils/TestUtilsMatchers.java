@@ -20,12 +20,15 @@ import android.database.sqlite.SQLiteCursor;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.support.test.espresso.matcher.BoundedMatcher;
+import android.support.v4.view.TintableBackgroundView;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.CheckedTextView;
 import android.widget.ImageView;
+import junit.framework.Assert;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 
 public class TestUtilsMatchers {
     /**
@@ -55,7 +58,7 @@ public class TestUtilsMatchers {
                 // all pixels in a Drawable are of the same specified color.
                 try {
                     TestUtils.assertAllPixelsOfColor("", drawable, view.getWidth(),
-                            view.getHeight(), color, true);
+                            view.getHeight(), true, color, true);
                     // If we are here, the color comparison has passed.
                     failedComparisonDescription = null;
                     return true;
@@ -139,4 +142,22 @@ public class TestUtilsMatchers {
             }
         };
     }
+
+    /**
+     * Returns a matcher that matches Views which implement TintableBackgroundView.
+     */
+    public static Matcher<View> isTintableBackgroundView() {
+        return new TypeSafeMatcher<View>() {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("is TintableBackgroundView");
+            }
+
+            @Override
+            public boolean matchesSafely(View view) {
+                return TintableBackgroundView.class.isAssignableFrom(view.getClass());
+            }
+        };
+    }
+
 }
