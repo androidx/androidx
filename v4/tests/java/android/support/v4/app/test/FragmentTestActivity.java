@@ -16,11 +16,13 @@
 package android.support.v4.app.test;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.test.R;
 import android.transition.Transition;
 import android.transition.Transition.TransitionListener;
@@ -30,7 +32,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 /**
- * A simple activity used for Fragment Transitions
+ * A simple activity used for Fragment Transitions and lifecycle event ordering
  */
 public class FragmentTestActivity extends FragmentActivity {
     @Override
@@ -195,4 +197,25 @@ public class FragmentTestActivity extends FragmentActivity {
         void onTransition(TestFragment fragment);
     }
 
+    public static class ParentFragment extends Fragment {
+        public boolean wasAttachedInTime;
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            ChildFragment f = new ChildFragment();
+            FragmentManager fm = getChildFragmentManager();
+            fm.beginTransaction().add(f, "foo").commit();
+            fm.executePendingTransactions();
+            wasAttachedInTime = f.attached;
+        }
+    }
+
+    public static class ChildFragment extends Fragment {
+        public boolean attached;
+        @Override
+        public void onAttach(Context activity) {
+            super.onAttach(activity);
+            attached = true;
+        }
+    }
 }
