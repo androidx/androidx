@@ -40,6 +40,7 @@ package android.support.v7.preference {
     ctor public DropDownPreference(android.content.Context, android.util.AttributeSet);
     ctor public DropDownPreference(android.content.Context, android.util.AttributeSet, int);
     ctor public DropDownPreference(android.content.Context, android.util.AttributeSet, int, int);
+    method protected android.widget.ArrayAdapter createAdapter();
   }
 
   public class EditTextPreference extends android.support.v7.preference.DialogPreference {

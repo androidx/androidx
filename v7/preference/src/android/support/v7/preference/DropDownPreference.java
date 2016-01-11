@@ -48,7 +48,7 @@ public class DropDownPreference extends ListPreference {
             int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         mContext = context;
-        mAdapter = new ArrayAdapter<>(mContext, android.R.layout.simple_spinner_dropdown_item);
+        mAdapter = createAdapter();
 
         updateEntries();
     }
@@ -62,6 +62,20 @@ public class DropDownPreference extends ListPreference {
     public void setEntries(@NonNull CharSequence[] entries) {
         super.setEntries(entries);
         updateEntries();
+    }
+
+
+    /**
+     * By default, this class uses a simple {@link android.widget.ArrayAdapter}. But if you need
+     * a more complicated {@link android.widget.ArrayAdapter}, this method can be overriden to
+     * create a custom one.
+     * <p> Note: This method is called from the constructor. So, overriden methods will get called
+     * before any subclass initialization.
+     *
+     * @return The custom {@link android.widget.ArrayAdapter} that needs to be used with this class.
+     */
+    protected ArrayAdapter createAdapter() {
+        return new ArrayAdapter<>(mContext, android.R.layout.simple_spinner_dropdown_item);
     }
 
     private void updateEntries() {
