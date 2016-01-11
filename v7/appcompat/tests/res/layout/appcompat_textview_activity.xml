@@ -16,6 +16,7 @@
 
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -38,6 +39,22 @@
             android:layout_height="wrap_content"
             android:text="@string/sample_text2" />
 
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/text_view_no_background"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_text1"
+            app:backgroundTint="@color/color_state_list_lilac"
+            app:backgroundTintMode="src_in" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/text_view_tinted"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_text2"
+            android:background="@drawable/test_drawable"
+            app:backgroundTint="@color/color_state_list_lilac"
+            app:backgroundTintMode="src_in" />
     </LinearLayout>
 
 </ScrollView>
