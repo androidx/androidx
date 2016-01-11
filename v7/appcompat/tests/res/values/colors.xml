@@ -27,4 +27,7 @@
     <color name="sand_disabled">#FFC080</color>
     <color name="ocean_default">#50C0FF</color>
     <color name="ocean_disabled">#90F0FF</color>
+
+    <color name="emerald_translucent_default">#8020A060</color>
+    <color name="emerald_translucent_disabled">#8070C090</color>
 </resources>
