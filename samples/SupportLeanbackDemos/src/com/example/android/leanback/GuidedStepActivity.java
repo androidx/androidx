@@ -25,6 +25,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v17.leanback.app.GuidedStepFragment;
 import android.support.v17.leanback.widget.GuidedAction;
+import android.support.v17.leanback.widget.GuidedDatePickerAction;
 import android.support.v17.leanback.widget.GuidedActionsStylist;
 import android.support.v17.leanback.widget.GuidanceStylist;
 import android.support.v17.leanback.widget.GuidanceStylist.Guidance;
@@ -37,6 +38,7 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.inputmethod.EditorInfo;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -51,6 +53,7 @@ public class GuidedStepActivity extends Activity {
     private static final int PASSWORD = 5;
     private static final int PAYMENT = 6;
     private static final int NEW_PAYMENT = 7;
+    private static final int PAYMENT_EXPIRE = 8;
 
     private static final int OPTION_CHECK_SET_ID = 10;
     private static final int DEFAULT_OPTION = 0;
@@ -134,6 +137,14 @@ public class GuidedStepActivity extends Activity {
                 .description(desc)
                 .editDescription(editDesc)
                 .editable(true)
+                .build());
+    }
+
+    private static void addDatePickerAction(List<GuidedAction> actions, long id, String title) {
+        actions.add(new GuidedDatePickerAction.Builder(null)
+                .id(id)
+                .title(title)
+                .datePickerFormat("MY")
                 .build());
     }
 
@@ -221,6 +232,7 @@ public class GuidedStepActivity extends Activity {
             addEditableAction(actions, NEW_PAYMENT, "Input credit card number", "",
                     InputType.TYPE_CLASS_NUMBER,
                     "Input credit card number", "Input credit card number");
+            addDatePickerAction(actions, PAYMENT_EXPIRE, "Exp:");
         }
 
         @Override
@@ -253,10 +265,10 @@ public class GuidedStepActivity extends Activity {
         public long onGuidedActionEditedAndProceed(GuidedAction action) {
             if (action.getId() == NEW_PAYMENT) {
                 CharSequence editTitle = action.getEditTitle();
-                if (TextUtils.isDigitsOnly(editTitle) && editTitle.length() == 16) {
+                if (isCardNumberValid(editTitle)) {
                     editTitle = editTitle.subSequence(editTitle.length() - 4, editTitle.length());
                     action.setDescription("Visa XXXX-XXXX-XXXX-" + editTitle);
-                    updateOkButton(true);
+                    updateOkButton(isExpDateValid(findActionById(PAYMENT_EXPIRE)));
                     return GuidedAction.ACTION_ID_NEXT;
                 } else if (editTitle.length() == 0) {
                     action.setDescription("Input credit card number");
@@ -267,8 +279,22 @@ public class GuidedStepActivity extends Activity {
                     updateOkButton(false);
                     return GuidedAction.ACTION_ID_CURRENT;
                 }
+            } else if (action.getId() == PAYMENT_EXPIRE) {
+                updateOkButton(isExpDateValid(action) &&
+                        isCardNumberValid(findActionById(NEW_PAYMENT).getEditTitle()));
             }
             return GuidedAction.ACTION_ID_NEXT;
+        }
+
+        boolean isCardNumberValid(CharSequence number) {
+            return TextUtils.isDigitsOnly(number) && number.length() == 16;
+        }
+
+        boolean isExpDateValid(GuidedAction action) {
+            long date = ((GuidedDatePickerAction) action).getDate();
+            Calendar c = Calendar.getInstance();
+            c.setTimeInMillis(date);
+            return Calendar.getInstance().before(c);
         }
 
         void updateOkButton(boolean enabled) {
