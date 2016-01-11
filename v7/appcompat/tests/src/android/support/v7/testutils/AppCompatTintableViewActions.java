@@ -17,6 +17,9 @@
 package android.support.v7.testutils;
 
 import android.content.res.ColorStateList;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
+import android.support.annotation.DrawableRes;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
 import android.support.v4.view.TintableBackgroundView;
@@ -83,4 +86,87 @@ public class AppCompatTintableViewActions {
             }
         };
     }
+
+    /**
+     * Sets the passed mode as the background tint mode on a <code>View</code> that
+     * implements the <code>TintableBackgroundView</code> interface.
+     */
+    public static ViewAction setBackgroundTintMode(final PorterDuff.Mode tintMode) {
+        return new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return allOf(isDisplayingAtLeast(90), TestUtilsMatchers.isTintableBackgroundView());
+            }
+
+            @Override
+            public String getDescription() {
+                return "set background tint mode";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                uiController.loopMainThreadUntilIdle();
+
+                TintableBackgroundView tintableBackgroundView = (TintableBackgroundView) view;
+                tintableBackgroundView.setSupportBackgroundTintMode(tintMode);
+
+                uiController.loopMainThreadUntilIdle();
+            }
+        };
+    }
+
+    /**
+     * Sets background drawable on a <code>View</code> that implements the
+     * <code>TintableBackgroundView</code> interface.
+     */
+    public static ViewAction setBackgroundDrawable(final Drawable background) {
+        return new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return allOf(TestUtilsMatchers.isTintableBackgroundView());
+            }
+
+            @Override
+            public String getDescription() {
+                return "set background drawable";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                uiController.loopMainThreadUntilIdle();
+
+                view.setBackgroundDrawable(background);
+
+                uiController.loopMainThreadUntilIdle();
+            }
+        };
+    }
+
+    /**
+     * Sets background resource on a <code>View</code> that implements the
+     * <code>TintableBackgroundView</code> interface.
+     */
+    public static ViewAction setBackgroundResource(final @DrawableRes int resId) {
+        return new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return allOf(TestUtilsMatchers.isTintableBackgroundView());
+            }
+
+            @Override
+            public String getDescription() {
+                return "set background resource";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                uiController.loopMainThreadUntilIdle();
+
+                view.setBackgroundResource(resId);
+
+                uiController.loopMainThreadUntilIdle();
+            }
+        };
+    }
+
 }

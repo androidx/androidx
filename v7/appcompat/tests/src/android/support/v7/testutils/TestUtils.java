@@ -36,7 +36,7 @@ public class TestUtils {
      */
     public static void assertAllPixelsOfColor(String failMessagePrefix, @NonNull Drawable drawable,
             int drawableWidth, int drawableHeight, boolean callSetBounds, @ColorInt int color,
-            boolean throwExceptionIfFails) {
+            int allowedComponentVariance, boolean throwExceptionIfFails) {
         // Create a bitmap
         Bitmap bitmap = Bitmap.createBitmap(drawableWidth, drawableHeight, Bitmap.Config.ARGB_8888);
         // Create a canvas that wraps the bitmap
@@ -53,15 +53,34 @@ public class TestUtils {
             for (int row = 0; row < drawableHeight; row++) {
                 bitmap.getPixels(rowPixels, 0, drawableWidth, 0, row, drawableWidth, 1);
                 for (int column = 0; column < drawableWidth; column++) {
-                    if (rowPixels[column] != color) {
+                    int sourceAlpha = Color.alpha(rowPixels[column]);
+                    int sourceRed = Color.red(rowPixels[column]);
+                    int sourceGreen = Color.green(rowPixels[column]);
+                    int sourceBlue = Color.blue(rowPixels[column]);
+
+                    int expectedAlpha = Color.alpha(color);
+                    int expectedRed = Color.red(color);
+                    int expectedGreen = Color.green(color);
+                    int expectedBlue = Color.blue(color);
+
+                    int varianceAlpha = Math.abs(sourceAlpha - expectedAlpha);
+                    int varianceRed = Math.abs(sourceRed - expectedRed);
+                    int varianceGreen = Math.abs(sourceGreen - expectedGreen);
+                    int varianceBlue = Math.abs(sourceBlue - expectedBlue);
+
+                    boolean isColorMatch = (varianceAlpha <= allowedComponentVariance)
+                            && (varianceRed <= allowedComponentVariance)
+                            && (varianceGreen <= allowedComponentVariance)
+                            && (varianceBlue <= allowedComponentVariance);
+
+                    if (!isColorMatch) {
                         String mismatchDescription = failMessagePrefix
                                 + ": expected all drawable colors to be ["
-                                + Color.red(color) + "," + Color.green(color) + ","
-                                + Color.blue(color)
+                                + expectedAlpha + "," + expectedRed + ","
+                                + expectedGreen + "," + expectedBlue
                                 + "] but at position (" + row + "," + column + ") found ["
-                                + Color.red(rowPixels[column]) + ","
-                                + Color.green(rowPixels[column]) + ","
-                                + Color.blue(rowPixels[column]) + "]";
+                                + sourceAlpha + "," + sourceRed + ","
+                                + sourceGreen + "," + sourceBlue + "]";
                         if (throwExceptionIfFails) {
                             throw new RuntimeException(mismatchDescription);
                         } else {
