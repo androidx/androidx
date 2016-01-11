@@ -107,7 +107,10 @@ class AppCompatTextHelper {
 
     void onSetTextAppearance(Context context, int resId) {
         TypedArray appearance = context.obtainStyledAttributes(resId, TEXT_APPEARANCE_ATTRS);
-        if (appearance.getBoolean(R.styleable.TextAppearance_textAllCaps, false)) {
+        if (appearance.getBoolean(0, false)) {
+            // This follows the logic in TextView.setTextAppearance that serves as an "overlay"
+            // on the current state of the TextView. Here we only allow turning all-caps on when
+            // the passed style has textAllCaps attribute set to true.
             setAllCaps(true);
         }
         appearance.recycle();

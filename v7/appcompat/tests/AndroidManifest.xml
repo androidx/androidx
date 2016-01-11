@@ -50,6 +50,11 @@
                 android:label="@string/list_popup_window_activity"
                 android:theme="@style/Theme.AppCompat.Light" />
 
+        <activity
+                android:name="android.support.v7.widget.AppCompatTextViewActivity"
+                android:label="@string/app_compat_text_view_activity"
+                android:theme="@style/Theme.AppCompat.Light" />
+
     </application>
 
     <instrumentation
