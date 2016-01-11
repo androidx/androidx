@@ -26,6 +26,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.Drawable.ConstantState;
 import android.graphics.drawable.DrawableContainer;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.InsetDrawable;
@@ -40,6 +41,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.ColorUtils;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.util.ArrayMap;
+import android.support.v4.util.LongSparseArray;
 import android.support.v4.util.LruCache;
 import android.support.v7.appcompat.R;
 import android.util.AttributeSet;
@@ -48,7 +50,7 @@ import android.util.SparseArray;
 import android.util.TypedValue;
 import android.util.Xml;
 
-import java.lang.reflect.Type;
+import java.lang.ref.WeakReference;
 import java.util.WeakHashMap;
 
 import static android.support.v7.widget.ColorStateListUtils.getColorStateList;
@@ -61,25 +63,12 @@ import static android.support.v7.widget.ThemeUtils.getThemeAttrColorStateList;
  */
 public final class AppCompatDrawableManager {
 
-    public interface InflateDelegate {
+    private interface InflateDelegate {
         Drawable createFromXmlInner(@NonNull Resources r, @NonNull XmlPullParser parser,
                 @NonNull AttributeSet attrs, @Nullable Resources.Theme theme);
     }
 
-    private static final InflateDelegate VDC_DELEGATE = new InflateDelegate() {
-        @Override
-        public Drawable createFromXmlInner(@NonNull Resources r, @NonNull XmlPullParser parser,
-                @NonNull AttributeSet attrs, @Nullable Resources.Theme theme) {
-            try {
-                return VectorDrawableCompat.createFromXmlInner(r, parser, attrs, theme);
-            } catch (Exception e) {
-                Log.e("VdcInflateDelegate", "Exception while inflating <vector>", e);
-                return null;
-            }
-        }
-    };
-
-    private static final String TAG = "TintManager";
+    private static final String TAG = "AppCompatDrawableManager";
     private static final boolean DEBUG = false;
     private static final PorterDuff.Mode DEFAULT_MODE = PorterDuff.Mode.SRC_IN;
     private static final String SKIP_DRAWABLE_TAG = "appcompat_skip_skip";
@@ -89,7 +78,12 @@ public final class AppCompatDrawableManager {
     public static AppCompatDrawableManager get() {
         if (INSTANCE == null) {
             INSTANCE = new AppCompatDrawableManager();
-            INSTANCE.addDelegate("vector", VDC_DELEGATE);
+
+            if (Build.VERSION.SDK_INT < 21) {
+                // We only want to use the automatic VectorDrawableCompat handling where it's
+                // needed: on devices running before Lollipop
+                INSTANCE.addDelegate("vector", new VdcInflateDelegate());
+            }
         }
         return INSTANCE;
     }
@@ -159,6 +153,10 @@ public final class AppCompatDrawableManager {
     private WeakHashMap<Context, SparseArray<ColorStateList>> mTintLists;
     private ArrayMap<String, InflateDelegate> mDelegates;
     private SparseArray<String> mKnownDrawableIdTags;
+
+    private final Object mDelegateDrawableCacheLock = new Object();
+    private final WeakHashMap<Context, LongSparseArray<WeakReference<Drawable.ConstantState>>>
+            mDelegateDrawableCaches = new WeakHashMap<>(0);
 
     private TypedValue mTypedValue;
 
@@ -230,16 +228,14 @@ public final class AppCompatDrawableManager {
 
     private Drawable loadDrawableFromDelegates(@NonNull Context context, @DrawableRes int resId) {
         if (mDelegates != null && !mDelegates.isEmpty()) {
-            String cachedTagName = null;
-
             if (mKnownDrawableIdTags != null) {
-                cachedTagName = mKnownDrawableIdTags.get(resId);
+                final String cachedTagName = mKnownDrawableIdTags.get(resId);
                 if (SKIP_DRAWABLE_TAG.equals(cachedTagName)
                         || (cachedTagName != null && mDelegates.get(cachedTagName) == null)) {
                     // If we don't have a delegate for the drawable tag, or we've been set to
                     // skip it, fail fast and return null
                     if (DEBUG) {
-                        Log.d(TAG, "loadDrawableFromDelegates. Skipping drawable "
+                        Log.d(TAG, "[loadDrawableFromDelegates] Skipping drawable: "
                                 + context.getResources().getResourceName(resId));
                     }
                     return null;
@@ -257,6 +253,18 @@ public final class AppCompatDrawableManager {
             final Resources res = context.getResources();
             res.getValue(resId, tv, true);
 
+            final long key = (((long) tv.assetCookie) << 32) | tv.data;
+
+            Drawable dr = getCachedDelegateDrawable(context, key);
+            if (dr != null) {
+                if (DEBUG) {
+                    Log.i(TAG, "[loadDrawableFromDelegates] Returning cached drawable: " +
+                            context.getResources().getResourceName(resId));
+                }
+                // We have a cached drawable, return it!
+                return dr;
+            }
+
             if (tv.string != null && tv.string.toString().endsWith(".xml")) {
                 // If the resource is an XML file, let's try and parse it
                 try {
@@ -272,26 +280,76 @@ public final class AppCompatDrawableManager {
                     }
 
                     final String tagName = parser.getName();
-                    if (cachedTagName == null) {
-                        // If we don't already have this cached, add it to the cache
-                        mKnownDrawableIdTags.append(resId, tagName);
-                    }
+                    // Add the tag name to the cache
+                    mKnownDrawableIdTags.append(resId, tagName);
 
                     // Now try and find a delegate for the tag name and inflate if found
                     final InflateDelegate delegate = mDelegates.get(tagName);
                     if (delegate != null) {
-                        return delegate.createFromXmlInner(res, parser, attrs, context.getTheme());
+                        dr = delegate.createFromXmlInner(res, parser, attrs, context.getTheme());
+                    }
+                    if (dr != null) {
+                        // Add it to the drawable cache
+                        dr.setChangingConfigurations(tv.changingConfigurations);
+                        if (addCachedDelegateDrawable(context, key, dr) && DEBUG) {
+                            Log.i(TAG, "[loadDrawableFromDelegates] Saved drawable to cache: " +
+                                    context.getResources().getResourceName(resId));
+                        }
                     }
                 } catch (Exception e) {
                     Log.e(TAG, "Exception while inflating drawable", e);
                 }
             }
+            if (dr == null) {
+                // If we reach here then the delegate inflation of the resource failed. Mark it as
+                // bad so we skip the id next time
+                mKnownDrawableIdTags.append(resId, SKIP_DRAWABLE_TAG);
+            }
+            return dr;
         }
 
-        // If we reach here then the delegate inflation of the resource failed. Mark it as
-        // bad so we skip the id next time
-        mKnownDrawableIdTags.append(resId, SKIP_DRAWABLE_TAG);
         return null;
+    }
+
+    private Drawable getCachedDelegateDrawable(@NonNull final Context context, final long key) {
+        synchronized (mDelegateDrawableCacheLock) {
+            final LongSparseArray<WeakReference<ConstantState>> cache
+                    = mDelegateDrawableCaches.get(context);
+            if (cache == null) {
+                return null;
+            }
+
+            final WeakReference<ConstantState> wr = cache.get(key);
+            if (wr != null) {
+                // We have the key, and the secret
+                ConstantState entry = wr.get();
+                if (entry != null) {
+                    return entry.newDrawable(context.getResources());
+                } else {
+                    // Our entry has been purged
+                    cache.delete(key);
+                }
+            }
+        }
+        return null;
+    }
+
+    private boolean addCachedDelegateDrawable(@NonNull final Context context, final long key,
+            @NonNull final Drawable drawable) {
+        final ConstantState cs = drawable.getConstantState();
+        if (cs != null) {
+            synchronized (mDelegateDrawableCacheLock) {
+                LongSparseArray<WeakReference<ConstantState>> cache
+                        = mDelegateDrawableCaches.get(context);
+                if (cache == null) {
+                    cache = new LongSparseArray<>();
+                    mDelegateDrawableCaches.put(context, cache);
+                }
+                cache.put(key, new WeakReference<ConstantState>(cs));
+            }
+            return true;
+        }
+        return false;
     }
 
     public final Drawable onDrawableLoadedFromResources(@NonNull Context context,
@@ -342,7 +400,8 @@ public final class AppCompatDrawableManager {
             }
 
             if (DEBUG) {
-                Log.d(TAG, "Tinted Drawable: " + context.getResources().getResourceName(resId) +
+                Log.d(TAG, "[tintDrawableUsingColorFilter] Tinted "
+                        + context.getResources().getResourceName(resId) +
                         " with color: #" + Integer.toHexString(color));
             }
             return true;
@@ -350,14 +409,14 @@ public final class AppCompatDrawableManager {
         return false;
     }
 
-    public final void addDelegate(@NonNull String tagName, @NonNull InflateDelegate delegate) {
+    private void addDelegate(@NonNull String tagName, @NonNull InflateDelegate delegate) {
         if (mDelegates == null) {
             mDelegates = new ArrayMap<>();
         }
         mDelegates.put(tagName, delegate);
     }
 
-    public final void removeDelegate(@NonNull String tagName, @NonNull InflateDelegate delegate) {
+    private void removeDelegate(@NonNull String tagName, @NonNull InflateDelegate delegate) {
         if (mDelegates != null && mDelegates.get(tagName) == delegate) {
             mDelegates.remove(tagName);
         }
@@ -535,7 +594,7 @@ public final class AppCompatDrawableManager {
             return Build.VERSION.SDK_INT >= 14;
         } else if (drawable instanceof DrawableContainer) {
             // If we have a DrawableContainer, let's traverse it's child array
-            final Drawable.ConstantState state = drawable.getConstantState();
+            final ConstantState state = drawable.getConstantState();
             if (state instanceof DrawableContainer.DrawableContainerState) {
                 final DrawableContainer.DrawableContainerState containerState =
                         (DrawableContainer.DrawableContainerState) state;
@@ -576,5 +635,18 @@ public final class AppCompatDrawableManager {
             d = d.mutate();
         }
         d.setColorFilter(getPorterDuffColorFilter(color, mode == null ? DEFAULT_MODE : mode));
+    }
+
+    private static class VdcInflateDelegate implements InflateDelegate {
+        @Override
+        public Drawable createFromXmlInner(@NonNull Resources r, @NonNull XmlPullParser parser,
+                @NonNull AttributeSet attrs, @Nullable Resources.Theme theme) {
+            try {
+                return VectorDrawableCompat.createFromXmlInner(r, parser, attrs, theme);
+            } catch (Exception e) {
+                Log.e("VdcInflateDelegate", "Exception while inflating <vector>", e);
+                return null;
+            }
+        }
     }
 }
