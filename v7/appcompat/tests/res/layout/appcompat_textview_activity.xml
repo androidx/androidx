@@ -40,7 +40,7 @@
             android:text="@string/sample_text2" />
 
         <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/text_view_no_background"
+            android:id="@+id/text_view_tinted_no_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sample_text1"
@@ -48,13 +48,26 @@
             app:backgroundTintMode="src_in" />
 
         <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/text_view_tinted"
+            android:id="@+id/text_view_tinted_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sample_text2"
             android:background="@drawable/test_drawable"
             app:backgroundTint="@color/color_state_list_lilac"
             app:backgroundTintMode="src_in" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/text_view_untinted_no_background"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_text2" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/text_view_untinted_background"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_text2"
+            android:background="@drawable/test_background_green" />
     </LinearLayout>
 
 </ScrollView>

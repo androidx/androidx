@@ -58,7 +58,7 @@ public class TestUtilsMatchers {
                 // all pixels in a Drawable are of the same specified color.
                 try {
                     TestUtils.assertAllPixelsOfColor("", drawable, view.getWidth(),
-                            view.getHeight(), true, color, true);
+                            view.getHeight(), true, color, 0, true);
                     // If we are here, the color comparison has passed.
                     failedComparisonDescription = null;
                     return true;
