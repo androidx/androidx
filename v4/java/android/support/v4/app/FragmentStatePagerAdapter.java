@@ -16,14 +16,14 @@
 
 package android.support.v4.app;
 
-import java.util.ArrayList;
-
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.util.ArrayList;
 
 /**
  * Implementation of {@link android.support.v4.view.PagerAdapter} that
@@ -123,7 +123,7 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
 
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
-        Fragment fragment = (Fragment)object;
+        Fragment fragment = (Fragment) object;
 
         if (mCurTransaction == null) {
             mCurTransaction = mFragmentManager.beginTransaction();
@@ -133,7 +133,8 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
         while (mSavedState.size() <= position) {
             mSavedState.add(null);
         }
-        mSavedState.set(position, mFragmentManager.saveFragmentInstanceState(fragment));
+        mSavedState.set(position, fragment.isAdded()
+                ? mFragmentManager.saveFragmentInstanceState(fragment) : null);
         mFragments.set(position, null);
 
         mCurTransaction.remove(fragment);
