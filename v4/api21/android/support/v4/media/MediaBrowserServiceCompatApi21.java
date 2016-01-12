@@ -17,18 +17,14 @@
 package android.support.v4.media;
 
 import android.content.Intent;
-import android.content.pm.ParceledListSlice;
 import android.media.MediaDescription;
 import android.media.browse.MediaBrowser;
-import android.media.session.MediaSession;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
-import android.service.media.IMediaBrowserService;
-import android.service.media.IMediaBrowserServiceCallbacks;
 import android.service.media.MediaBrowserService;
 
 import java.util.ArrayList;
@@ -63,20 +59,20 @@ class MediaBrowserServiceCompatApi21 {
     }
 
     public static class ServiceCallbacksApi21 implements ServiceCallbacks {
-        private static final ParceledListSlice sNullParceledListSlice;
+        private static Object sNullParceledListSliceObj;
         static {
             MediaDescription nullDescription = new MediaDescription.Builder().setMediaId(
                     MediaBrowserCompatApi21.NULL_MEDIA_ITEM_ID).build();
             MediaBrowser.MediaItem nullMediaItem = new MediaBrowser.MediaItem(nullDescription, 0);
             List<MediaBrowser.MediaItem> nullMediaItemList = new ArrayList<>();
             nullMediaItemList.add(nullMediaItem);
-            sNullParceledListSlice = new ParceledListSlice(nullMediaItemList);
+            sNullParceledListSliceObj = ParceledListSliceAdapterApi21.newInstance(nullMediaItemList);
         }
 
-        private final IMediaBrowserServiceCallbacks mCallbacks;
+        private final IMediaBrowserServiceCallbacksAdapterApi21 mCallbacks;
 
-        ServiceCallbacksApi21(IMediaBrowserServiceCallbacks callbacks) {
-            mCallbacks = callbacks;
+        ServiceCallbacksApi21(Object callbacksObj) {
+            mCallbacks = new IMediaBrowserServiceCallbacksAdapterApi21(callbacksObj);
         }
 
         public IBinder asBinder() {
@@ -84,7 +80,7 @@ class MediaBrowserServiceCompatApi21 {
         }
 
         public void onConnect(String root, Object session, Bundle extras) throws RemoteException {
-            mCallbacks.onConnect(root, (MediaSession.Token) session, extras);
+            mCallbacks.onConnect(root, session, extras);
         }
 
         public void onConnectFailed() throws RemoteException {
@@ -101,11 +97,12 @@ class MediaBrowserServiceCompatApi21 {
                     parcel.recycle();
                 }
             }
-            ParceledListSlice<MediaBrowser.MediaItem> pls;
+            Object pls;
             if (Build.VERSION.SDK_INT > 23) {
-                pls = itemList == null ? null : new ParceledListSlice(itemList);
+                pls = itemList == null ? null : ParceledListSliceAdapterApi21.newInstance(itemList);
             } else {
-                pls = itemList == null ? sNullParceledListSlice : new ParceledListSlice(itemList);
+                pls = itemList == null ? sNullParceledListSliceObj
+                        : ParceledListSliceAdapterApi21.newInstance(itemList);
             }
             mCallbacks.onLoadChildren(mediaId, pls);
         }
@@ -125,34 +122,32 @@ class MediaBrowserServiceCompatApi21 {
             return null;
         }
 
-        static class ServiceBinderProxyApi21 extends IMediaBrowserService.Stub {
+        static class ServiceBinderProxyApi21 extends IMediaBrowserServiceAdapterApi21.Stub {
             final ServiceImplApi21 mServiceImpl;
 
             ServiceBinderProxyApi21(ServiceImplApi21 serviceImpl) {
+                super();
                 mServiceImpl = serviceImpl;
             }
 
             @Override
-            public void connect(final String pkg, final Bundle rootHints,
-                    final IMediaBrowserServiceCallbacks callbacks) {
+            public void connect(final String pkg, final Bundle rootHints, final Object callbacks) {
                 mServiceImpl.connect(pkg, rootHints, new ServiceCallbacksApi21(callbacks));
             }
 
             @Override
-            public void disconnect(final IMediaBrowserServiceCallbacks callbacks) {
+            public void disconnect(final Object callbacks) {
                 mServiceImpl.disconnect(new ServiceCallbacksApi21(callbacks));
             }
 
-
             @Override
-            public void addSubscription(final String id,
-                    final IMediaBrowserServiceCallbacks callbacks) {
+            public void addSubscription(final String id, final Object callbacks) {
                 mServiceImpl.addSubscription(id, new ServiceCallbacksApi21(callbacks));
             }
 
             @Override
             public void removeSubscription(final String id,
-                    final IMediaBrowserServiceCallbacks callbacks) {
+                    final Object callbacks) {
                 mServiceImpl.removeSubscription(id, new ServiceCallbacksApi21(callbacks));
             }
 
