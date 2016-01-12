@@ -19,6 +19,9 @@ package android.support.v7.widget;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.graphics.drawable.DrawableUtils;
@@ -32,6 +35,7 @@ class AppCompatBackgroundHelper {
 
     private TintInfo mInternalBackgroundTint;
     private TintInfo mBackgroundTint;
+    private TintInfo mTmpInfo;
 
     AppCompatBackgroundHelper(View view, AppCompatDrawableManager drawableManager) {
         mView = view;
@@ -113,6 +117,8 @@ class AppCompatBackgroundHelper {
             } else if (mInternalBackgroundTint != null) {
                 AppCompatDrawableManager.tintDrawable(background, mInternalBackgroundTint,
                         mView.getDrawableState());
+            } else if (shouldCompatTintUsingFrameworkTint(background)) {
+                compatTintDrawableUsingFrameworkTint(background);
             }
         }
     }
@@ -128,5 +134,33 @@ class AppCompatBackgroundHelper {
             mInternalBackgroundTint = null;
         }
         applySupportBackgroundTint();
+    }
+
+    private boolean shouldCompatTintUsingFrameworkTint(@NonNull Drawable background) {
+        // GradientDrawable doesn't implement setTintList on API 21
+        return (Build.VERSION.SDK_INT == 21 && background instanceof GradientDrawable);
+    }
+
+    private void compatTintDrawableUsingFrameworkTint(@NonNull Drawable background) {
+        if (mTmpInfo == null) {
+            mTmpInfo = new TintInfo();
+        }
+        final TintInfo info = mTmpInfo;
+        info.clear();
+
+        final ColorStateList tintList = ViewCompat.getBackgroundTintList(mView);
+        if (tintList != null) {
+            info.mHasTintList = true;
+            info.mTintList = tintList;
+        }
+        final PorterDuff.Mode mode = ViewCompat.getBackgroundTintMode(mView);
+        if (mode != null) {
+            info.mHasTintMode = true;
+            info.mTintMode = mode;
+        }
+
+        if (info.mHasTintList || info.mHasTintMode) {
+            AppCompatDrawableManager.tintDrawable(background, info, mView.getDrawableState());
+        }
     }
 }
