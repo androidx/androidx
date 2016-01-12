@@ -104,12 +104,14 @@ public class GuidedStepActivity extends Activity {
                 .build());
     }
 
-    private static void addEditableAction(List<GuidedAction> actions, long id, String title, String desc) {
-        actions.add(new GuidedAction.Builder()
+    private static void addEditableAction(Context context, List<GuidedAction> actions,
+            long id, String title, String desc) {
+        actions.add(new GuidedAction.Builder(context)
                 .id(id)
                 .title(title)
                 .description(desc)
                 .editable(true)
+                .icon(R.drawable.lb_ic_search_mic)
                 .build());
     }
 
@@ -304,8 +306,8 @@ public class GuidedStepActivity extends Activity {
 
         @Override
         public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
-            addEditableAction(actions, FIRST_NAME, "Pat", "Your first name");
-            addEditableAction(actions, LAST_NAME, "Smith", "Your last name");
+            addEditableAction(getContext(), actions, FIRST_NAME, "Pat", "Your first name");
+            addEditableAction(getContext(), actions, LAST_NAME, "Smith", "Your last name");
             List<GuidedAction> subActions = new ArrayList<GuidedAction>();
             addAction(actions, PAYMENT, "Select Payment", "", subActions);
             addEditableDescriptionAction(actions, PASSWORD, "Password", "", "",
