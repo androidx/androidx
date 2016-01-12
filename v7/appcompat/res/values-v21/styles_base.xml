@@ -42,10 +42,6 @@
            parent="android:Widget.Material.Light.ActionBar.TabText">
     </style>
 
-    <style name="Base.TextAppearance.AppCompat.Widget.ActionBar.Menu"
-           parent="android:TextAppearance.Material.Widget.ActionBar.Menu">
-    </style>
-
     <style name="Base.TextAppearance.AppCompat.Widget.ActionBar.Title"
            parent="android:TextAppearance.Material.Widget.ActionBar.Title">
     </style>
