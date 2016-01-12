@@ -25,48 +25,34 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <android.support.v7.widget.AppCompatTextView
-            style="@style/TextStyleAllCapsOn"
-            android:id="@+id/text_view_caps1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/sample_text1" />
-
-        <android.support.v7.widget.AppCompatTextView
-            style="@style/TextStyleAllCapsOff"
-            android:id="@+id/text_view_caps2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/sample_text2" />
-
-        <android.support.v7.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatImageView
             android:id="@+id/view_tinted_no_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/sample_text1"
+            android:src="@drawable/test_drawable_blue"
             app:backgroundTint="@color/color_state_list_lilac"
             app:backgroundTintMode="src_in" />
 
-        <android.support.v7.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatImageView
             android:id="@+id/view_tinted_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/sample_text2"
+            android:src="@drawable/test_drawable_blue"
             android:background="@drawable/test_drawable"
             app:backgroundTint="@color/color_state_list_lilac"
             app:backgroundTintMode="src_in" />
 
-        <android.support.v7.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatImageView
             android:id="@+id/view_untinted_no_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/sample_text2" />
+            android:src="@drawable/test_drawable_blue" />
 
-        <android.support.v7.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatImageView
             android:id="@+id/view_untinted_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/sample_text2"
+            android:src="@drawable/test_drawable_blue"
             android:background="@drawable/test_background_green" />
     </LinearLayout>
 
