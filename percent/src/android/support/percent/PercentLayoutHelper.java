@@ -121,7 +121,7 @@ public class PercentLayoutHelper {
                 }
                 if (info != null) {
                     if (params instanceof ViewGroup.MarginLayoutParams) {
-                        info.fillMarginLayoutParams((ViewGroup.MarginLayoutParams) params,
+                        info.fillMarginLayoutParams(view, (ViewGroup.MarginLayoutParams) params,
                                 widthHint, heightHint);
                     } else {
                         info.fillLayoutParams(params, widthHint, heightHint);
@@ -398,14 +398,25 @@ public class PercentLayoutHelper {
         }
 
         /**
+         * This method is deprecated. Use
+         * {@link #fillMarginLayoutParams(View, ViewGroup.MarginLayoutParams, int, int)}
+         * for proper RTL support.
+         */
+        @Deprecated
+        public void fillMarginLayoutParams(ViewGroup.MarginLayoutParams params,
+                int widthHint, int heightHint) {
+            fillMarginLayoutParams(null, params, widthHint, heightHint);
+        }
+
+        /**
          * Fills {@code ViewGroup.MarginLayoutParams} dimensions and margins based on percentage
          * values.
          */
-        public void fillMarginLayoutParams(ViewGroup.MarginLayoutParams params, int widthHint,
-                int heightHint) {
+        public void fillMarginLayoutParams(View view, ViewGroup.MarginLayoutParams params,
+                int widthHint, int heightHint) {
             fillLayoutParams(params, widthHint, heightHint);
 
-            // Preserver the original margins, so we can restore them after the measure step.
+            // Preserve the original margins, so we can restore them after the measure step.
             mPreservedParams.leftMargin = params.leftMargin;
             mPreservedParams.topMargin = params.topMargin;
             mPreservedParams.rightMargin = params.rightMargin;
@@ -427,13 +438,22 @@ public class PercentLayoutHelper {
             if (bottomMarginPercent >= 0) {
                 params.bottomMargin = (int) (heightHint * bottomMarginPercent);
             }
+            boolean shouldResolveLayoutDirection = false;
             if (startMarginPercent >= 0) {
                 MarginLayoutParamsCompat.setMarginStart(params,
                         (int) (widthHint * startMarginPercent));
+                shouldResolveLayoutDirection = true;
             }
             if (endMarginPercent >= 0) {
                 MarginLayoutParamsCompat.setMarginEnd(params,
                         (int) (widthHint * endMarginPercent));
+                shouldResolveLayoutDirection = true;
+            }
+            if (shouldResolveLayoutDirection && (view != null)) {
+                // Force the resolve pass so that start / end margins are propagated to the
+                // matching left / right fields
+                MarginLayoutParamsCompat.resolveLayoutDirection(params,
+                        ViewCompat.getLayoutDirection(view));
             }
             if (DEBUG) {
                 Log.d(TAG, "after fillMarginLayoutParams: (" + params.width + ", " + params.height
