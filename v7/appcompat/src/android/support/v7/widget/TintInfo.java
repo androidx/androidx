@@ -24,4 +24,11 @@ class TintInfo {
     public PorterDuff.Mode mTintMode;
     public boolean mHasTintMode;
     public boolean mHasTintList;
+
+    void clear() {
+        mTintList = null;
+        mHasTintList = false;
+        mTintMode = null;
+        mHasTintMode = false;
+    }
 }
