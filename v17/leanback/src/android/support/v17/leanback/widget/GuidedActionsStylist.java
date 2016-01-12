@@ -531,6 +531,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         if (vh.mCheckmarkView != null) {
             onBindCheckMarkView(vh, action);
         }
+        setIcon(vh.mIconView, action);
 
         if (action.hasMultilineDescription()) {
             if (vh.mTitleView != null) {
