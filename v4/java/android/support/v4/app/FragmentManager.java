@@ -1104,7 +1104,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 case Fragment.STARTED:
                     if (newState > Fragment.STARTED) {
                         if (DEBUG) Log.v(TAG, "moveto RESUMED: " + f);
-                        f.mResumed = true;
                         f.performResume();
                         f.mSavedFragmentState = null;
                         f.mSavedViewState = null;
@@ -1116,7 +1115,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                     if (newState < Fragment.RESUMED) {
                         if (DEBUG) Log.v(TAG, "movefrom RESUMED: " + f);
                         f.performPause();
-                        f.mResumed = false;
                     }
                 case Fragment.STARTED:
                     if (newState < Fragment.STARTED) {
@@ -1196,6 +1194,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                             if (DEBUG) Log.v(TAG, "movefrom CREATED: " + f);
                             if (!f.mRetaining) {
                                 f.performDestroy();
+                            } else {
+                                f.mState = Fragment.INITIALIZING;
                             }
 
                             f.mCalled = false;
@@ -1218,8 +1218,12 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                     }
             }
         }
-        
-        f.mState = newState;
+
+        if (f.mState != newState) {
+            Log.w(TAG, "moveToState: Fragment state for " + f + " not updated inline; "
+                    + "expected state " + newState + " found " + f.mState);
+            f.mState = newState;
+        }
     }
     
     void moveToState(Fragment f) {
