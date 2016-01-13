@@ -29,6 +29,7 @@
 
         <activity
                 android:name="android.support.v7.app.AppCompatActivity"/>
+
         <activity
                 android:name="android.support.v7.app.WindowDecorActionBarActivity"/>
         <activity
@@ -59,6 +60,9 @@
                 android:name="android.support.v7.widget.AppCompatImageViewActivity"
                 android:label="@string/app_compat_image_view_activity"
                 android:theme="@style/Theme.AppCompat.Light" />
+
+        <activity
+                android:name="android.support.v7.app.LayoutInflaterFactoryTestActivity"/>
 
     </application>
 
