@@ -16,9 +16,16 @@
 
 package android.support.v7.widget;
 
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.DrawableContainer;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.InsetDrawable;
+import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.util.Log;
 
@@ -30,8 +37,10 @@ class DrawableUtils {
     private static final String TAG = "DrawableUtils";
 
     public static final Rect INSETS_NONE = new Rect();
-
     private static Class<?> sInsetsClazz;
+
+    private static final String VECTOR_DRAWABLE_CLAZZ_NAME
+            = "android.graphics.drawable.VectorDrawable";
 
     static {
         if (Build.VERSION.SDK_INT >= 18) {
@@ -91,6 +100,81 @@ class DrawableUtils {
         // If we reach here, either we're running on a device pre-v18, the Drawable didn't have
         // any optical insets, or a reflection issue, so we'll just return an empty rect
         return INSETS_NONE;
+    }
+
+    /**
+     * Attempt the fix any issues in the given drawable, usually caused by platform bugs in the
+     * implementation. This method should be call after retrieval from
+     * {@link android.content.res.Resources} or a {@link android.content.res.TypedArray}.
+     */
+    static void fixDrawable(@NonNull final Drawable drawable) {
+        if (Build.VERSION.SDK_INT == 21
+                && VECTOR_DRAWABLE_CLAZZ_NAME.equals(drawable.getClass().getName())) {
+            fixVectorDrawableTinting(drawable);
+        }
+    }
+
+    /**
+     * Some drawable implementations have problems with mutation. This method returns false if
+     * there is a known issue in the given drawable's implementation.
+     */
+    static boolean canSafelyMutateDrawable(@NonNull Drawable drawable) {
+        if (drawable instanceof LayerDrawable) {
+            return Build.VERSION.SDK_INT >= 16;
+        } else if (drawable instanceof InsetDrawable) {
+            return Build.VERSION.SDK_INT >= 14;
+        } else if (drawable instanceof StateListDrawable) {
+            // StateListDrawable has a bug in mutate() on API 7
+            return Build.VERSION.SDK_INT >= 8;
+        } else if (drawable instanceof GradientDrawable) {
+            // GradientDrawable has a bug pre-ICS which results in mutate() resulting
+            // in loss of color
+            return Build.VERSION.SDK_INT >= 14;
+        } else if (drawable instanceof DrawableContainer) {
+            // If we have a DrawableContainer, let's traverse it's child array
+            final Drawable.ConstantState state = drawable.getConstantState();
+            if (state instanceof DrawableContainer.DrawableContainerState) {
+                final DrawableContainer.DrawableContainerState containerState =
+                        (DrawableContainer.DrawableContainerState) state;
+                for (Drawable child : containerState.getChildren()) {
+                    if (!canSafelyMutateDrawable(child)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * VectorDrawable has an issue on API 21 where it sometimes doesn't create its tint filter.
+     * Fixed by toggling it's state to force a filter creation.
+     */
+    private static void fixVectorDrawableTinting(final Drawable drawable) {
+        final int[] originalState = drawable.getState();
+        if (originalState == null || originalState.length == 0) {
+            // The drawable doesn't have a state, so set it to be checked
+            drawable.setState(ThemeUtils.CHECKED_STATE_SET);
+        } else {
+            // Else the drawable does have a state, so clear it
+            drawable.setState(ThemeUtils.EMPTY_STATE_SET);
+        }
+        // Now set the original state
+        drawable.setState(originalState);
+    }
+
+    static PorterDuff.Mode parseTintMode(int value, PorterDuff.Mode defaultMode) {
+        switch (value) {
+            case 3: return PorterDuff.Mode.SRC_OVER;
+            case 5: return PorterDuff.Mode.SRC_IN;
+            case 9: return PorterDuff.Mode.SRC_ATOP;
+            case 14: return PorterDuff.Mode.MULTIPLY;
+            case 15: return PorterDuff.Mode.SCREEN;
+            case 16: return Build.VERSION.SDK_INT >= 11
+                    ? PorterDuff.Mode.valueOf("ADD")
+                    : defaultMode;
+            default: return defaultMode;
+        }
     }
 
 }
