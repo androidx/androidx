@@ -37,15 +37,14 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
 
     private static final boolean TEST_ENTRANCE_TRANSITION = true;
     private static final int NUM_ROWS = 10;
-    // Row heights default to wrap content
-    private static final boolean USE_FIXED_ROW_HEIGHT = false;
 
     private ArrayObjectAdapter mRowsAdapter;
     private BackgroundHelper mBackgroundHelper = new BackgroundHelper();
 
     // For good performance, it's important to use a single instance of
     // a card presenter for all rows using that presenter.
-    final static CardPresenter sCardPresenter = new CardPresenter();
+    final CardPresenter mCardPresenter = new CardPresenter();
+    final CardPresenter mCardPresenter2 = new CardPresenter(R.style.MyImageCardViewTheme);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -99,11 +98,6 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
     private void setupRows() {
         ListRowPresenter lrp = new ListRowPresenter();
 
-        if (USE_FIXED_ROW_HEIGHT) {
-            lrp.setRowHeight(CardPresenter.getRowHeight(getActivity()));
-            lrp.setExpandedRowHeight(CardPresenter.getExpandedRowHeight(getActivity()));
-        }
-
         mRowsAdapter = new ArrayObjectAdapter(lrp);
 
         setAdapter(mRowsAdapter);
@@ -111,7 +105,8 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
 
     private void loadData() {
         for (int i = 0; i < NUM_ROWS; ++i) {
-            ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(sCardPresenter);
+            ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter((i & 1) == 0 ?
+                    mCardPresenter : mCardPresenter2);
             listRowAdapter.add(new PhotoItem("Hello world", R.drawable.gallery_photo_1));
             listRowAdapter.add(new PhotoItem("This is a test", "Only a test", R.drawable.gallery_photo_2));
             listRowAdapter.add(new PhotoItem("Android TV", "by Google", R.drawable.gallery_photo_3));
