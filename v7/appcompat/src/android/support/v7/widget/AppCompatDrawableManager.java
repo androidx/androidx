@@ -171,9 +171,14 @@ public final class AppCompatDrawableManager {
             drawable = ContextCompat.getDrawable(context, resId);
         }
         if (drawable != null) {
-            return tintDrawable(context, resId, failIfNotKnown, drawable);
+            // Tint it if needed
+            drawable = tintDrawable(context, resId, failIfNotKnown, drawable);
         }
-        return null;
+        if (drawable != null) {
+            // See if we need to 'fix' the drawable
+            DrawableUtils.fixDrawable(drawable);
+        }
+        return drawable;
     }
 
     private Drawable tintDrawable(@NonNull Context context, @DrawableRes int resId,
@@ -181,7 +186,7 @@ public final class AppCompatDrawableManager {
         final ColorStateList tintList = getTintList(context, resId);
         if (tintList != null) {
             // First mutate the Drawable, then wrap it and set the tint list
-            if (shouldMutateDrawable(drawable)) {
+            if (DrawableUtils.canSafelyMutateDrawable(drawable)) {
                 drawable = drawable.mutate();
             }
             drawable = DrawableCompat.wrap(drawable);
@@ -388,7 +393,7 @@ public final class AppCompatDrawableManager {
         }
 
         if (colorAttrSet) {
-            if (shouldMutateDrawable(drawable)) {
+            if (DrawableUtils.canSafelyMutateDrawable(drawable)) {
                 drawable = drawable.mutate();
             }
 
@@ -559,7 +564,8 @@ public final class AppCompatDrawableManager {
     }
 
     public static void tintDrawable(Drawable drawable, TintInfo tint, int[] state) {
-        if (shouldMutateDrawable(drawable) && drawable.mutate() != drawable) {
+        if (DrawableUtils.canSafelyMutateDrawable(drawable)
+                && drawable.mutate() != drawable) {
             Log.d(TAG, "Mutated drawable is not the same instance as the input.");
             return;
         }
@@ -578,34 +584,6 @@ public final class AppCompatDrawableManager {
             // so we force it ourselves
             drawable.invalidateSelf();
         }
-    }
-
-    private static boolean shouldMutateDrawable(@NonNull Drawable drawable) {
-        if (drawable instanceof LayerDrawable) {
-            return Build.VERSION.SDK_INT >= 16;
-        } else if (drawable instanceof InsetDrawable) {
-            return Build.VERSION.SDK_INT >= 14;
-        } else if (drawable instanceof StateListDrawable) {
-            // StateListDrawable has a bug in mutate() on API 7
-            return Build.VERSION.SDK_INT >= 8;
-        } else if (drawable instanceof GradientDrawable) {
-            // GradientDrawable has a bug pre-ICS which results in mutate() resulting
-            // in loss of color
-            return Build.VERSION.SDK_INT >= 14;
-        } else if (drawable instanceof DrawableContainer) {
-            // If we have a DrawableContainer, let's traverse it's child array
-            final ConstantState state = drawable.getConstantState();
-            if (state instanceof DrawableContainer.DrawableContainerState) {
-                final DrawableContainer.DrawableContainerState containerState =
-                        (DrawableContainer.DrawableContainerState) state;
-                for (Drawable child : containerState.getChildren()) {
-                    if (!shouldMutateDrawable(child)) {
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
     }
 
     private static PorterDuffColorFilter createTintFilter(ColorStateList tint,
@@ -631,7 +609,7 @@ public final class AppCompatDrawableManager {
     }
 
     private static void setPorterDuffColorFilter(Drawable d, int color, PorterDuff.Mode mode) {
-        if (shouldMutateDrawable(d)) {
+        if (DrawableUtils.canSafelyMutateDrawable(d)) {
             d = d.mutate();
         }
         d.setColorFilter(getPorterDuffColorFilter(color, mode == null ? DEFAULT_MODE : mode));

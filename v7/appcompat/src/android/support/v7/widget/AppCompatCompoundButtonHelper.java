@@ -25,7 +25,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.widget.CompoundButtonCompat;
 import android.support.v7.appcompat.R;
-import android.support.v7.graphics.drawable.DrawableUtils;
 import android.util.AttributeSet;
 import android.widget.CompoundButton;
 

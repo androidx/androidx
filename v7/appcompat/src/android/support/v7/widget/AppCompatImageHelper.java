@@ -48,6 +48,11 @@ class AppCompatImageHelper {
                     mView.setImageDrawable(d);
                 }
             }
+
+            final Drawable drawable = mView.getDrawable();
+            if (drawable != null) {
+                DrawableUtils.fixDrawable(drawable);
+            }
         } finally {
             a.recycle();
         }
@@ -55,9 +60,13 @@ class AppCompatImageHelper {
 
     void setImageResource(int resId) {
         if (resId != 0) {
-            mView.setImageDrawable(mDrawableManager != null
+            final Drawable d = mDrawableManager != null
                     ? mDrawableManager.getDrawable(mView.getContext(), resId)
-                    : ContextCompat.getDrawable(mView.getContext(), resId));
+                    : ContextCompat.getDrawable(mView.getContext(), resId);
+            if (d != null) {
+                DrawableUtils.fixDrawable(d);
+            }
+            mView.setImageDrawable(d);
         } else {
             mView.setImageDrawable(null);
         }

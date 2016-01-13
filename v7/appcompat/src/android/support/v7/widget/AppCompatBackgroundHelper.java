@@ -24,7 +24,6 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
-import android.support.v7.graphics.drawable.DrawableUtils;
 import android.util.AttributeSet;
 import android.view.View;
 
