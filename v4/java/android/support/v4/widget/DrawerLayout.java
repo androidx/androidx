@@ -968,8 +968,10 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
         final boolean applyInsets = mLastInsets != null && ViewCompat.getFitsSystemWindows(this);
         final int layoutDirection = ViewCompat.getLayoutDirection(this);
 
-        // Gravity value for each drawer we've seen. Only one of each permitted.
-        int foundDrawers = 0;
+        // Only one drawer is permitted along each vertical edge (left / right). These two booleans
+        // are tracking the presence of the edge drawers.
+        boolean hasDrawerOnLeftEdge = false;
+        boolean hasDrawerOnRightEdge = false;
         final int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             final View child = getChildAt(i);
@@ -1002,14 +1004,22 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
                         ViewCompat.setElevation(child, mDrawerElevation);
                     }
                 }
-                final int childGravity =
+                final @EdgeGravity int childGravity =
                         getDrawerViewAbsoluteGravity(child) & Gravity.HORIZONTAL_GRAVITY_MASK;
-                if ((foundDrawers & childGravity) != 0) {
+                // Note that the isDrawerView check guarantees that childGravity here is either
+                // LEFT or RIGHT
+                boolean isLeftEdgeDrawer = (childGravity == Gravity.LEFT);
+                if ((isLeftEdgeDrawer && hasDrawerOnLeftEdge) ||
+                        (!isLeftEdgeDrawer && hasDrawerOnRightEdge)) {
                     throw new IllegalStateException("Child drawer has absolute gravity " +
                             gravityToString(childGravity) + " but this " + TAG + " already has a " +
                             "drawer view along that edge");
                 }
-                foundDrawers = foundDrawers | childGravity;
+                if (isLeftEdgeDrawer) {
+                    hasDrawerOnLeftEdge = true;
+                } else {
+                    hasDrawerOnRightEdge = true;
+                }
                 final int drawerWidthSpec = getChildMeasureSpec(widthMeasureSpec,
                         mMinDrawerMargin + lp.leftMargin + lp.rightMargin,
                         lp.width);
@@ -1330,7 +1340,15 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
         final int gravity = ((LayoutParams) child.getLayoutParams()).gravity;
         final int absGravity = GravityCompat.getAbsoluteGravity(gravity,
                 ViewCompat.getLayoutDirection(child));
-        return (absGravity & (Gravity.LEFT | Gravity.RIGHT)) != 0;
+        if ((absGravity | Gravity.LEFT) != 0) {
+            // This child is a left-edge drawer
+            return true;
+        }
+        if ((absGravity | Gravity.RIGHT) != 0) {
+            // This child is a right-edge drawer
+            return true;
+        }
+        return false;
     }
 
     @Override
