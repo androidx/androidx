@@ -118,6 +118,12 @@ public class FragmentActivity extends BaseFragmentActivityHoneycomb implements
 
     boolean mOptionsMenuInvalidated;
     boolean mRequestedPermissionsFromFragment;
+    // We need to keep track of whether startActivityForResult originated from a Fragment, so we
+    // can conditionally check whether the requestCode collides with our reserved ID space for the
+    // fragment index. Unfortunately we can't just call super.startActivityForResult(...) to
+    // bypass the check when the call didn't come from a fragment, since we need to use the
+    // ActivityCompat version for backward compatibility.
+    boolean mStartedActivityFromFragment;
 
     static final class NonConfigurationInstances {
         Object custom;
@@ -778,8 +784,10 @@ public class FragmentActivity extends BaseFragmentActivityHoneycomb implements
      */
     @Override
     public void startActivityForResult(Intent intent, int requestCode) {
-        if (requestCode != -1 && (requestCode&0xffff0000) != 0) {
-            throw new IllegalArgumentException("Can only use lower 16 bits for requestCode");
+        if (mStartedActivityFromFragment) {
+            if (requestCode != -1 && (requestCode&0xffff0000) != 0) {
+                throw new IllegalArgumentException("Can only use lower 16 bits for requestCode");
+            }
         }
         super.startActivityForResult(intent, requestCode);
     }
@@ -845,14 +853,28 @@ public class FragmentActivity extends BaseFragmentActivityHoneycomb implements
      */
     public void startActivityFromFragment(Fragment fragment, Intent intent,
             int requestCode) {
-        if (requestCode == -1) {
-            super.startActivityForResult(intent, -1);
-            return;
+        startActivityFromFragment(fragment, intent, requestCode, null);
+    }
+
+    /**
+     * Called by Fragment.startActivityForResult() to implement its behavior.
+     */
+    public void startActivityFromFragment(Fragment fragment, Intent intent,
+            int requestCode, @Nullable Bundle options) {
+        mStartedActivityFromFragment = true;
+        try {
+            if (requestCode == -1) {
+                ActivityCompat.startActivityForResult(this, intent, -1, options);
+                return;
+            }
+            if ((requestCode&0xffff0000) != 0) {
+                throw new IllegalArgumentException("Can only use lower 16 bits for requestCode");
+            }
+            ActivityCompat.startActivityForResult(
+                this, intent, ((fragment.mIndex+1)<<16) + (requestCode&0xffff), options);
+        } finally {
+            mStartedActivityFromFragment = false;
         }
-        if ((requestCode&0xffff0000) != 0) {
-            throw new IllegalArgumentException("Can only use lower 16 bits for requestCode");
-        }
-        super.startActivityForResult(intent, ((fragment.mIndex+1)<<16) + (requestCode&0xffff));
     }
 
     /**
@@ -905,6 +927,12 @@ public class FragmentActivity extends BaseFragmentActivityHoneycomb implements
         @Override
         public void onStartActivityFromFragment(Fragment fragment, Intent intent, int requestCode) {
             FragmentActivity.this.startActivityFromFragment(fragment, intent, requestCode);
+        }
+
+        @Override
+        public void onStartActivityFromFragment(
+                Fragment fragment, Intent intent, int requestCode, @Nullable Bundle options) {
+            FragmentActivity.this.startActivityFromFragment(fragment, intent, requestCode, options);
         }
 
         @Override

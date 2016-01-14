@@ -19,6 +19,7 @@ package android.support.v4.app;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -115,6 +116,15 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
      * See {@link FragmentActivity#startActivityForResult(Intent, int)}.
      */
     public void onStartActivityFromFragment(Fragment fragment, Intent intent, int requestCode) {
+        onStartActivityFromFragment(fragment, intent, requestCode, null);
+    }
+
+    /**
+     * Starts a new {@link Activity} from the given fragment.
+     * See {@link FragmentActivity#startActivityForResult(Intent, int, Bundle)}.
+     */
+    public void onStartActivityFromFragment(
+            Fragment fragment, Intent intent, int requestCode, @Nullable Bundle options) {
         if (requestCode != -1) {
             throw new IllegalStateException(
                     "Starting activity with a requestCode requires a FragmentActivity host");
