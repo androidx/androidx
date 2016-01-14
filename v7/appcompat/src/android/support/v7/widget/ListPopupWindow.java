@@ -1709,7 +1709,6 @@ public class ListPopupWindow {
             }
 
             // Ensure that keyboard focus starts from the last touched position.
-            setSelection(position);
             positionSelectorLikeTouchCompat(position, child, x, y);
 
             // This needs some explanation. We need to disable the selector for this next call

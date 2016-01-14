@@ -34,19 +34,7 @@ public class ListViewAutoScrollHelper extends AutoScrollHelper {
 
     @Override
     public void scrollTargetBy(int deltaX, int deltaY) {
-        final ListView target = mTarget;
-        final int firstPosition = target.getFirstVisiblePosition();
-        if (firstPosition == ListView.INVALID_POSITION) {
-            return;
-        }
-
-        final View firstView = target.getChildAt(0);
-        if (firstView == null) {
-            return;
-        }
-
-        final int newTop = firstView.getTop() - deltaY;
-        target.setSelectionFromTop(firstPosition, newTop);
+        ListViewCompat.scrollListBy(mTarget, deltaY);
     }
 
     @Override
