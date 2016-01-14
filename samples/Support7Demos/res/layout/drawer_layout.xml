@@ -76,7 +76,21 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="start"
-            android:background="#ff333333"
+            android:background="#333333"
             android:fitsSystemWindows="true"/>
+
+    <!-- android:layout_gravity="end" tells DrawerLayout to treat
+         this as a sliding drawer on the ending side, which is
+         right for left-to-right locales. The drawer is given arbitrary
+         initial width and extends the full height of the container. A
+         solid background is used for contrast with the content view.
+         The actual width of drawer will be determined at runtime based on
+         the screen size according to the Material spec. -->
+    <FrameLayout
+            android:id="@+id/end_drawer"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            android:background="#808080"/>
 </android.support.v4.widget.DrawerLayout>
 
