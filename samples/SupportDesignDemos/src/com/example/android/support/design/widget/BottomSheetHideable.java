@@ -19,6 +19,7 @@ package com.example.android.support.design.widget;
 import com.example.android.support.design.R;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.view.View;
@@ -48,7 +49,8 @@ public class BottomSheetHideable extends BottomSheetUsageBase {
         mToggle.setOnClickListener(mOnClickListener);
         mBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
-            public void onStateChanged(@BottomSheetBehavior.State int newState) {
+            public void onStateChanged(@NonNull View bottomSheet,
+                    @BottomSheetBehavior.State int newState) {
                 switch (newState) {
                     case BottomSheetBehavior.STATE_HIDDEN:
                         mToggle.setText(R.string.bottomsheet_show);
@@ -63,7 +65,7 @@ public class BottomSheetHideable extends BottomSheetUsageBase {
             }
 
             @Override
-            public void onSlide(float slideOffset) {
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
                 mTextSlideOffset.setText(String.valueOf(slideOffset));
             }
         });
