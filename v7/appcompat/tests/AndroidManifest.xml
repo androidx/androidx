@@ -42,6 +42,11 @@
                 android:theme="@style/Theme.SampleDrawerLayout" />
 
         <activity
+                android:name="android.support.v7.app.DrawerDynamicLayoutActivity"
+                android:label="@string/drawer_layout_activity"
+                android:theme="@style/Theme.SampleDrawerLayout" />
+
+        <activity
                 android:name="android.support.v7.app.AlertDialogTestActivity"
                 android:label="@string/alert_dialog_activity"
                 android:theme="@style/Theme.AppCompat.Light" />
