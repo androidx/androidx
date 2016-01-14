@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.test.FragmentTestActivity;
+import android.support.v4.app.test.FragmentTestActivity.ChildFragment;
 import android.support.v4.app.test.FragmentTestActivity.ParentFragment;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.UiThreadTest;
@@ -57,7 +58,7 @@ public class NestedFragmentTest extends ActivityInstrumentationTestCase2<Fragmen
     @UiThreadTest
     public void testThrowsWhenUsingReservedRequestCode() {
         try {
-            mParentFragment.childFragment.startActivityForResult(
+            mParentFragment.getChildFragment().startActivityForResult(
                 new Intent(Intent.ACTION_CALL), 16777216 /* requestCode */);
             fail("Expected IllegalArgumentException");
         } catch (IllegalArgumentException expected) {}
@@ -72,12 +73,12 @@ public class NestedFragmentTest extends ActivityInstrumentationTestCase2<Fragmen
                         new IntentFilter(Intent.ACTION_CALL), activityResult, true /* block */);
 
         // Sanity check that onActivityResult hasn't been called yet.
-        assertFalse(mParentFragment.childFragment.onActivityResultCalled);
+        assertFalse(mParentFragment.getChildFragment().onActivityResultCalled);
 
         final CountDownLatch latch = new CountDownLatch(1);
         getActivity().runOnUiThread(new Runnable() {
             public void run() {
-                mParentFragment.childFragment.startActivityForResult(
+                mParentFragment.getChildFragment().startActivityForResult(
                         new Intent(Intent.ACTION_CALL),
                         5 /* requestCode */);
                 latch.countDown();
@@ -87,9 +88,9 @@ public class NestedFragmentTest extends ActivityInstrumentationTestCase2<Fragmen
 
         assertTrue(getInstrumentation().checkMonitorHit(activityMonitor, 1));
 
-        assertTrue(mParentFragment.childFragment.onActivityResultCalled);
-        assertEquals(5, mParentFragment.childFragment.onActivityResultRequestCode);
-        assertEquals(Activity.RESULT_OK,
-                mParentFragment.childFragment.onActivityResultResultCode);
+        final ChildFragment childFragment = mParentFragment.getChildFragment();
+        assertTrue(childFragment.onActivityResultCalled);
+        assertEquals(5, childFragment.onActivityResultRequestCode);
+        assertEquals(Activity.RESULT_OK, childFragment.onActivityResultResultCode);
     }
 }

@@ -299,10 +299,12 @@ package android.support.v4.app {
     method public void noteStateNotSaved();
     method public android.view.View onCreateView(android.view.View, java.lang.String, android.content.Context, android.util.AttributeSet);
     method public void reportLoaderStart();
-    method public void restoreAllState(android.os.Parcelable, java.util.List<android.support.v4.app.Fragment>);
+    method public deprecated void restoreAllState(android.os.Parcelable, java.util.List<android.support.v4.app.Fragment>);
+    method public void restoreAllState(android.os.Parcelable, android.support.v4.app.FragmentManagerNonConfig);
     method public void restoreLoaderNonConfig(android.support.v4.util.SimpleArrayMap<java.lang.String, android.support.v4.app.LoaderManager>);
     method public android.support.v4.util.SimpleArrayMap<java.lang.String, android.support.v4.app.LoaderManager> retainLoaderNonConfig();
-    method public java.util.List<android.support.v4.app.Fragment> retainNonConfig();
+    method public android.support.v4.app.FragmentManagerNonConfig retainNestedNonConfig();
+    method public deprecated java.util.List<android.support.v4.app.Fragment> retainNonConfig();
     method public android.os.Parcelable saveAllState();
   }
 
@@ -359,6 +361,9 @@ package android.support.v4.app {
 
   public static abstract interface FragmentManager.OnBackStackChangedListener {
     method public abstract void onBackStackChanged();
+  }
+
+  public class FragmentManagerNonConfig {
   }
 
   public abstract class FragmentPagerAdapter extends android.support.v4.view.PagerAdapter {

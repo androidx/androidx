@@ -143,7 +143,7 @@ public class FragmentActivity extends BaseFragmentActivityHoneycomb implements
 
     static final class NonConfigurationInstances {
         Object custom;
-        List<Fragment> fragments;
+        FragmentManagerNonConfig fragments;
         SimpleArrayMap<String, LoaderManager> loaders;
     }
 
@@ -543,7 +543,7 @@ public class FragmentActivity extends BaseFragmentActivityHoneycomb implements
 
         Object custom = onRetainCustomNonConfigurationInstance();
 
-        List<Fragment> fragments = mFragments.retainNonConfig();
+        FragmentManagerNonConfig fragments = mFragments.retainNestedNonConfig();
         SimpleArrayMap<String, LoaderManager> loaders = mFragments.retainLoaderNonConfig();
 
         if (fragments == null && loaders == null && custom == null) {

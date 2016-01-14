@@ -23,7 +23,6 @@ import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.test.R;
 import android.transition.Transition;
 import android.transition.Transition.TransitionListener;
@@ -199,21 +198,38 @@ public class FragmentTestActivity extends FragmentActivity {
     }
 
     public static class ParentFragment extends Fragment {
+        static final String CHILD_FRAGMENT_TAG = "childFragment";
         public boolean wasAttachedInTime;
-        public ChildFragment childFragment;
+
+        private boolean mRetainChild;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            childFragment = new ChildFragment();
-            FragmentManager fm = getChildFragmentManager();
-            fm.beginTransaction().add(childFragment, "foo").commit();
-            fm.executePendingTransactions();
-            wasAttachedInTime = childFragment.attached;
+
+            ChildFragment f = getChildFragment();
+            if (f == null) {
+                f = new ChildFragment();
+                if (mRetainChild) {
+                    f.setRetainInstance(true);
+                }
+                getChildFragmentManager().beginTransaction().add(f, CHILD_FRAGMENT_TAG).commitNow();
+            }
+            wasAttachedInTime = f.attached;
+        }
+
+        public ChildFragment getChildFragment() {
+            return (ChildFragment) getChildFragmentManager().findFragmentByTag(CHILD_FRAGMENT_TAG);
+        }
+
+        public void setRetainChildInstance(boolean retainChild) {
+            mRetainChild = retainChild;
         }
     }
 
     public static class ChildFragment extends Fragment {
+        private OnAttachListener mOnAttachListener;
+
         public boolean attached;
         public boolean onActivityResultCalled;
         public int onActivityResultRequestCode;
@@ -223,6 +239,17 @@ public class FragmentTestActivity extends FragmentActivity {
         public void onAttach(Context activity) {
             super.onAttach(activity);
             attached = true;
+            if (mOnAttachListener != null) {
+                mOnAttachListener.onAttach(activity, this);
+            }
+        }
+
+        public void setOnAttachListener(OnAttachListener listener) {
+            mOnAttachListener = listener;
+        }
+
+        public interface OnAttachListener {
+            void onAttach(Context activity, ChildFragment fragment);
         }
 
         @Override
