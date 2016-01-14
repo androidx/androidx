@@ -28,7 +28,7 @@
             android:layout_height="wrap_content"
             app:errorEnabled="true">
 
-        <EditText
+        <android.support.design.widget.TextInputEditText
                 android:id="@+id/edit_username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -61,7 +61,7 @@
             android:layout_marginTop="8dp"
             app:errorEnabled="true">
 
-        <EditText
+        <android.support.design.widget.TextInputEditText
                 android:id="@+id/edit_email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
