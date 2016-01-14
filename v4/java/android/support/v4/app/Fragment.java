@@ -1204,12 +1204,26 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * on things like the activity's content view hierarchy being initialized
      * at this point.  If you want to do work once the activity itself is
      * created, see {@link #onActivityCreated(Bundle)}.
+     *
+     * <p>Any restored child fragments will be created before the base
+     * <code>Fragment.onCreate</code> method returns.</p>
      * 
      * @param savedInstanceState If the fragment is being re-created from
      * a previous saved state, this is the state.
      */
     public void onCreate(@Nullable Bundle savedInstanceState) {
         mCalled = true;
+        if (savedInstanceState != null) {
+            Parcelable p = savedInstanceState.getParcelable(
+                    FragmentActivity.FRAGMENTS_TAG);
+            if (p != null) {
+                if (mChildFragmentManager == null) {
+                    instantiateChildFragmentManager();
+                }
+                mChildFragmentManager.restoreAllState(p, null);
+                mChildFragmentManager.dispatchCreate();
+            }
+        }
     }
 
     /**
@@ -1963,17 +1977,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         if (!mCalled) {
             throw new SuperNotCalledException("Fragment " + this
                     + " did not call through to super.onCreate()");
-        }
-        if (savedInstanceState != null) {
-            Parcelable p = savedInstanceState.getParcelable(
-                    FragmentActivity.FRAGMENTS_TAG);
-            if (p != null) {
-                if (mChildFragmentManager == null) {
-                    instantiateChildFragmentManager();
-                }
-                mChildFragmentManager.restoreAllState(p, null);
-                mChildFragmentManager.dispatchCreate();
-            }
         }
     }
 
