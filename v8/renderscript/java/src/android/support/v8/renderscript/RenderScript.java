@@ -1343,9 +1343,10 @@ public class RenderScript {
                     sUseGCHooks = false;
                 }
                 try {
-                    // For API 9+, always use the absolute path of librsjni.so
-                    // Bug: 25226912
-                    if (rs.mNativeLibDir != null) {
+                    // For API 9 - 22, always use the absolute path of librsjni.so
+                    // http://b/25226912
+                    if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.M &&
+                        rs.mNativeLibDir != null) {
                         System.load(rs.mNativeLibDir + "/librsjni.so");
                     } else {
                         System.loadLibrary("rsjni");
@@ -1376,9 +1377,10 @@ public class RenderScript {
         }
 
         String rssupportPath = null;
-        // For API 9+, always use the absolute path of libRSSupport.so
-        // Bug: 25226912
-        if (rs.mNativeLibDir != null) {
+        // For API 9 - 22, always use the absolute path of libRSSupport.so
+        // http://b/25226912
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.M &&
+            rs.mNativeLibDir != null) {
             rssupportPath = rs.mNativeLibDir + "/libRSSupport.so";
         }
         if (!rs.nLoadSO(useNative, dispatchAPI, rssupportPath)) {
@@ -1387,7 +1389,8 @@ public class RenderScript {
                 useNative = false;
             }
             try {
-                if (rs.mNativeLibDir != null) {
+                if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.M &&
+                    rs.mNativeLibDir != null) {
                     System.load(rssupportPath);
                 } else {
                     System.loadLibrary("RSSupport");
