@@ -15,6 +15,7 @@
  */
 package android.support.annotation;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -35,6 +36,7 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
  *  public abstract void setText(@NonNull String text) { ... }
  * </code></pre>
  */
+@Documented
 @Retention(CLASS)
 @Target({METHOD,CONSTRUCTOR,TYPE})
 public @interface UiThread {

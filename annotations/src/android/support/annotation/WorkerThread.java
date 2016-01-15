@@ -15,6 +15,7 @@
  */
 package android.support.annotation;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -34,6 +35,7 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
  *  protected abstract FilterResults performFiltering(CharSequence constraint);
  * </code></pre>
  */
+@Documented
 @Retention(CLASS)
 @Target({METHOD,CONSTRUCTOR,TYPE})
 public @interface WorkerThread {
