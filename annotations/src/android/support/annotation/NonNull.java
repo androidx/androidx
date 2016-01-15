@@ -15,6 +15,7 @@
  */
 package android.support.annotation;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -28,6 +29,7 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
  * <p>
  * This is a marker annotation and it has no specific attributes.
  */
+@Documented
 @Retention(CLASS)
 @Target({METHOD, PARAMETER, FIELD})
 public @interface NonNull {
