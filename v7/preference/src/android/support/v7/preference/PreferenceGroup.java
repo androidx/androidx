@@ -193,7 +193,7 @@ public abstract class PreferenceGroup extends Preference {
         synchronized(this) {
             preference.onPrepareForRemoval();
             boolean success = mPreferenceList.remove(preference);
-            if (success) {
+            if (success && mAttachedToHierarchy) {
                 preference.onDetached();
             }
             return success;
