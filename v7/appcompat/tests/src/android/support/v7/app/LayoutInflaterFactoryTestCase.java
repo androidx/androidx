@@ -22,7 +22,6 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.os.Build;
 import android.support.v7.appcompat.test.R;
-import android.support.v7.view.ContextThemeWrapper;
 import android.support.v7.widget.AppCompatAutoCompleteTextView;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatCheckBox;
@@ -178,8 +177,9 @@ public class LayoutInflaterFactoryTestCase
 
         assertNotSame("View has same context to LayoutInflater",
                 inflater.getContext(), viewContext);
-        assertSame("View does not have ContextThemeWrapper context",
-                ContextThemeWrapper.class, viewContext.getClass());
+        assertTrue("View does not have ContextThemeWrapper context",
+                viewContext instanceof android.support.v7.view.ContextThemeWrapper
+                        || viewContext instanceof android.view.ContextThemeWrapper);
     }
 
     private static Context unwrapContextIfNeeded(Context context) {
