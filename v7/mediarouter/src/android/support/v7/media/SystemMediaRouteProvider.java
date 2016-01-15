@@ -49,6 +49,9 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
     }
 
     public static SystemMediaRouteProvider obtain(Context context, SyncCallback syncCallback) {
+        if (Build.VERSION.SDK_INT >= 24) {
+            return new Api24Impl(context, syncCallback);
+        }
         if (Build.VERSION.SDK_INT >= 18) {
             return new JellybeanMr2Impl(context, syncCallback);
         }
@@ -834,6 +837,23 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         @Override
         protected boolean isConnecting(SystemRouteRecord record) {
             return MediaRouterJellybeanMr2.RouteInfo.isConnecting(record.mRouteObj);
+        }
+    }
+
+    /**
+     * Api24 implementation.
+     */
+    private static class Api24Impl extends JellybeanMr2Impl {
+        public Api24Impl(Context context, SyncCallback syncCallback) {
+            super(context, syncCallback);
+        }
+
+        @Override
+        protected void onBuildSystemRouteDescriptor(SystemRouteRecord record,
+                                                    MediaRouteDescriptor.Builder builder) {
+            super.onBuildSystemRouteDescriptor(record, builder);
+
+            builder.setDeviceType(MediaRouterApi24.RouteInfo.getDeviceType(record.mRouteObj));
         }
     }
 }
