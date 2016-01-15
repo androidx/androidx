@@ -20,7 +20,8 @@
     <string name="design_fab">Floating Action Button/Basic</string>
     <string name="design_navigation">NavigationView/Usage</string>
     <string name="design_navigation_without_drawer">NavigationView/Without drawer</string>
-    <string name="design_tabs_basic">TabLayout/Usage</string>
+    <string name="design_tabs_viewpager">TabLayout/Items from ViewPager</string>
+    <string name="design_tabs_layout_items">TabLayout/Items from layout</string>
     <string name="design_text_input">Text Input</string>
     <string name="design_bottomsheet_persistent">BottomSheet/Persistent</string>
     <string name="design_bottomsheet_hideable">BottomSheet/Hideable</string>
@@ -54,6 +55,8 @@
     <string name="add_tab">Add tab</string>
     <string name="remove_tab">Remove tab</string>
     <string name="select_first_tab">Select tab #0</string>
+
+    <string name="tab_text">Music</string>
 
     <string name="form_username">Username</string>
     <string name="form_email">Email address</string>
