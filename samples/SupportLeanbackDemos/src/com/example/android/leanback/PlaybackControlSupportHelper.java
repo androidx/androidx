@@ -54,6 +54,7 @@ abstract class PlaybackControlSupportHelper extends PlaybackControlSupportGlue {
     private PlaybackControlsRow.RepeatAction mRepeatAction;
     private PlaybackControlsRow.ThumbsUpAction mThumbsUpAction;
     private PlaybackControlsRow.ThumbsDownAction mThumbsDownAction;
+    private PlaybackControlsRow.PictureInPictureAction mPipAction;
 
     private Handler mHandler = new Handler();
     private final Runnable mUpdateProgressRunnable = new Runnable() {
@@ -71,6 +72,7 @@ abstract class PlaybackControlSupportHelper extends PlaybackControlSupportGlue {
         mThumbsDownAction = new PlaybackControlsRow.ThumbsDownAction(context);
         mThumbsDownAction.setIndex(PlaybackControlsRow.ThumbsDownAction.OUTLINE);
         mRepeatAction = new PlaybackControlsRow.RepeatAction(context);
+        mPipAction = new PlaybackControlsRow.PictureInPictureAction(context);
     }
 
     @Override
@@ -81,6 +83,9 @@ abstract class PlaybackControlSupportHelper extends PlaybackControlSupportGlue {
         getControlsRow().setSecondaryActionsAdapter(adapter);
         if (!THUMBS_PRIMARY) {
             adapter.add(mThumbsDownAction);
+        }
+        if (android.os.Build.VERSION.SDK_INT > 23) {
+            adapter.add(mPipAction);
         }
         adapter.add(mRepeatAction);
         if (!THUMBS_PRIMARY) {

@@ -44,7 +44,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-public class PlaybackOverlaySupportFragment extends android.support.v17.leanback.app.PlaybackOverlaySupportFragment {
+public class PlaybackOverlaySupportFragment
+        extends android.support.v17.leanback.app.PlaybackOverlaySupportFragment
+        implements PlaybackOverlaySupportActivity.PictureInPictureModeListener {
     private static final String TAG = "leanback.PlaybackControlsFragment";
 
     /**
@@ -123,6 +125,15 @@ public class PlaybackOverlaySupportFragment extends android.support.v17.leanback
                     getAdapter().notifyArrayItemRangeChanged(index, 1);
                 }
             }
+
+            @Override
+            public void onActionClicked(Action action) {
+                if (action.getId() == R.id.lb_control_picture_in_picture) {
+                    getActivity().enterPictureInPictureMode();
+                    return;
+                }
+                super.onActionClicked(action);
+            }
         };
 
         mGlue.setOnItemViewClickedListener(mOnItemViewClickedListener);
@@ -162,11 +173,25 @@ public class PlaybackOverlaySupportFragment extends android.support.v17.leanback
         super.onStart();
         mGlue.setFadingEnabled(true);
         mGlue.enableProgressUpdating(mGlue.hasValidMedia() && mGlue.isMediaPlaying());
+        ((PlaybackOverlaySupportActivity) getActivity()).registerPictureInPictureModeListener(this);
     }
 
     @Override
     public void onStop() {
         mGlue.enableProgressUpdating(false);
+        ((PlaybackOverlaySupportActivity) getActivity()).unregisterPictureInPictureModeListener(
+                this);
         super.onStop();
+    }
+
+    @Override
+    public void onPictureInPictureModeChanged(boolean pictureInPictureMode) {
+        if (pictureInPictureMode) {
+            // Hide the controls in picture-in-picture mode.
+            setFadingEnabled(true);
+            fadeOut();
+        } else {
+            setFadingEnabled(mGlue.isMediaPlaying());
+        }
     }
 }
