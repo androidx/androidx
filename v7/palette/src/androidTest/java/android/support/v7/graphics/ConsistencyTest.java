@@ -16,26 +16,28 @@
 
 package android.support.v7.graphics;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.test.runner.AndroidJUnit4;
 import android.test.InstrumentationTestCase;
+import android.test.suitebuilder.annotation.MediumTest;
 
-/**
- * @hide
- */
-public class ConsistencyTest extends InstrumentationTestCase {
+import static android.support.v7.graphics.TestUtils.loadSampleBitmap;
+import static org.junit.Assert.assertEquals;
+
+@RunWith(AndroidJUnit4.class)
+public class ConsistencyTest {
 
     private static final int NUMBER_TRIALS = 10;
 
+    @Test
+    @MediumTest
     public void testConsistency() {
-        Bitmap icon = BitmapFactory.decodeResource(getInstrumentation().getContext().getResources(),
-                android.R.drawable.sym_def_app_icon);
-
-        testConsistencyForBitmap(icon);
-    }
-
-    private void testConsistencyForBitmap(Bitmap bitmap) {
         Palette lastPalette = null;
+        final Bitmap bitmap = loadSampleBitmap();
 
         for (int i = 0; i < NUMBER_TRIALS; i++) {
             Palette newPalette = Palette.from(bitmap).generate();

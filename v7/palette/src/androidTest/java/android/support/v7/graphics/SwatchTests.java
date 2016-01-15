@@ -16,51 +16,51 @@
 
 package android.support.v7.graphics;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import android.graphics.Color;
-import android.support.v4.graphics.ColorUtils;
-import android.test.InstrumentationTestCase;
+import android.support.test.runner.AndroidJUnit4;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import static android.support.v4.graphics.ColorUtils.HSLToColor;
 import static android.support.v4.graphics.ColorUtils.calculateContrast;
+import static android.support.v7.graphics.TestUtils.loadSampleBitmap;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-/**
- * @hide
- */
-public class SwatchTests extends InstrumentationTestCase {
+@RunWith(AndroidJUnit4.class)
+public class SwatchTests {
 
     private static final float MIN_CONTRAST_TITLE_TEXT = 3.0f;
     private static final float MIN_CONTRAST_BODY_TEXT = 4.5f;
 
-    private Bitmap mSource;
-
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-
-        mSource = BitmapFactory.decodeResource(getInstrumentation().getContext().getResources(),
-                android.R.drawable.sym_def_app_icon);
-    }
-
+    @Test
+    @SmallTest
     public void testTextColorContrasts() {
-        Palette p = Palette.from(mSource).generate();
+        final Palette p = Palette.from(loadSampleBitmap()).generate();
 
         for (Palette.Swatch swatch : p.getSwatches()) {
             testSwatchTextColorContrasts(swatch);
         }
     }
 
+    @Test
+    @SmallTest
     public void testHslNotNull() {
-        Palette p = Palette.from(mSource).generate();
+        final Palette p = Palette.from(loadSampleBitmap()).generate();
 
         for (Palette.Swatch swatch : p.getSwatches()) {
             assertNotNull(swatch.getHsl());
         }
     }
 
+    @Test
+    @SmallTest
     public void testHslIsRgb() {
-        Palette p = Palette.from(mSource).generate();
+        final Palette p = Palette.from(loadSampleBitmap()).generate();
 
         for (Palette.Swatch swatch : p.getSwatches()) {
             assertEquals(HSLToColor(swatch.getHsl()), swatch.getRgb());
@@ -75,24 +75,32 @@ public class SwatchTests extends InstrumentationTestCase {
         assertTrue(calculateContrast(titleTextColor, swatch.getRgb()) >= MIN_CONTRAST_TITLE_TEXT);
     }
 
+    @Test
+    @SmallTest
     public void testEqualsWhenSame() {
         Palette.Swatch swatch1 = new Palette.Swatch(Color.WHITE, 50);
         Palette.Swatch swatch2 = new Palette.Swatch(Color.WHITE, 50);
         assertEquals(swatch1, swatch2);
     }
 
+    @Test
+    @SmallTest
     public void testEqualsWhenColorDifferent() {
         Palette.Swatch swatch1 = new Palette.Swatch(Color.BLACK, 50);
         Palette.Swatch swatch2 = new Palette.Swatch(Color.WHITE, 50);
         assertFalse(swatch1.equals(swatch2));
     }
 
+    @Test
+    @SmallTest
     public void testEqualsWhenPopulationDifferent() {
         Palette.Swatch swatch1 = new Palette.Swatch(Color.BLACK, 50);
         Palette.Swatch swatch2 = new Palette.Swatch(Color.BLACK, 100);
         assertFalse(swatch1.equals(swatch2));
     }
 
+    @Test
+    @SmallTest
     public void testEqualsWhenDifferent() {
         Palette.Swatch swatch1 = new Palette.Swatch(Color.BLUE, 50);
         Palette.Swatch swatch2 = new Palette.Swatch(Color.BLACK, 100);
