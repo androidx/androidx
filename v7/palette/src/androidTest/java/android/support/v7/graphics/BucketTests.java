@@ -16,46 +16,41 @@
 
 package android.support.v7.graphics;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.test.InstrumentationTestCase;
+import android.support.test.runner.AndroidJUnit4;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import java.util.ArrayList;
 
-/**
- * @hide
- */
-public class BucketTests extends InstrumentationTestCase {
+import static android.support.v7.graphics.TestUtils.loadSampleBitmap;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
-    private Bitmap mSource;
+@RunWith(AndroidJUnit4.class)
+public class BucketTests {
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-
-        mSource = BitmapFactory.decodeResource(getInstrumentation().getContext().getResources(),
-                android.R.drawable.sym_def_app_icon);
-    }
-
+    @Test
+    @SmallTest
     public void testSourceBitmapNotRecycled() {
-        Palette.from(mSource).generate();
-        assertFalse(mSource.isRecycled());
+        final Bitmap sample = loadSampleBitmap();
+
+        Palette.from(sample).generate();
+        assertFalse(sample.isRecycled());
     }
 
+    @Test(expected = UnsupportedOperationException.class)
+    @SmallTest
     public void testSwatchesUnmodifiable() {
-        Palette p = Palette.from(mSource).generate();
-        boolean thrown = false;
-
-        try {
-            p.getSwatches().remove(0);
-        } catch (UnsupportedOperationException e) {
-            thrown = true;
-        }
-
-        assertTrue(thrown);
+        Palette p = Palette.from(loadSampleBitmap()).generate();
+        p.getSwatches().remove(0);
     }
 
+    @Test
+    @SmallTest
     public void testSwatchesBuilder() {
         ArrayList<Palette.Swatch> swatches = new ArrayList<>();
         swatches.add(new Palette.Swatch(Color.BLACK, 40));
@@ -67,71 +62,52 @@ public class BucketTests extends InstrumentationTestCase {
         assertEquals(swatches, p.getSwatches());
     }
 
+    @Test
+    @SmallTest
     public void testRegionWhole() {
-        Palette.Builder b = new Palette.Builder(mSource);
-        b.setRegion(0, 0, mSource.getWidth(), mSource.getHeight());
+        final Bitmap sample = loadSampleBitmap();
 
-        Throwable thrown = null;
-        try {
-            b.generate();
-        } catch (Exception e) {
-            thrown = e;
-        }
-        assertNull(thrown);
+        Palette.Builder b = new Palette.Builder(sample);
+        b.setRegion(0, 0, sample.getWidth(), sample.getHeight());
+        b.generate();
     }
 
+    @Test
+    @SmallTest
     public void testRegionUpperLeft() {
-        Palette.Builder b = new Palette.Builder(mSource);
-        b.setRegion(0, 0, mSource.getWidth() / 2, mSource.getHeight() / 2);
+        final Bitmap sample = loadSampleBitmap();
 
-        Throwable thrown = null;
-        try {
-            b.generate();
-        } catch (Exception e) {
-            thrown = e;
-        }
-        assertNull(thrown);
+        Palette.Builder b = new Palette.Builder(sample);
+        b.setRegion(0, 0, sample.getWidth() / 2, sample.getHeight() / 2);
+        b.generate();
     }
 
+    @Test
+    @SmallTest
     public void testRegionBottomRight() {
-        Palette.Builder b = new Palette.Builder(mSource);
-        b.setRegion(mSource.getWidth() / 2, mSource.getHeight() / 2,
-                mSource.getWidth(), mSource.getHeight());
+        final Bitmap sample = loadSampleBitmap();
 
-        Throwable thrown = null;
-        try {
-            b.generate();
-        } catch (Exception e) {
-            thrown = e;
-        }
-        assertNull(thrown);
+        Palette.Builder b = new Palette.Builder(sample);
+        b.setRegion(sample.getWidth() / 2, sample.getHeight() / 2,
+                sample.getWidth(), sample.getHeight());
+        b.generate();
     }
 
+    @Test
+    @SmallTest
     public void testOnePixelTallBitmap() {
-        Bitmap bitmap = Bitmap.createBitmap(1000, 1, Bitmap.Config.ARGB_8888);
+        final Bitmap bitmap = Bitmap.createBitmap(1000, 1, Bitmap.Config.ARGB_8888);
 
         Palette.Builder b = new Palette.Builder(bitmap);
-
-        Throwable thrown = null;
-        try {
-            b.generate();
-        } catch (Exception e) {
-            thrown = e;
-        }
-        assertNull(thrown);
+        b.generate();
     }
 
+    @Test
+    @SmallTest
     public void testOnePixelWideBitmap() {
-        Bitmap bitmap = Bitmap.createBitmap(1, 1000, Bitmap.Config.ARGB_8888);
+        final Bitmap bitmap = Bitmap.createBitmap(1, 1000, Bitmap.Config.ARGB_8888);
 
         Palette.Builder b = new Palette.Builder(bitmap);
-
-        Throwable thrown = null;
-        try {
-            b.generate();
-        } catch (Exception e) {
-            thrown = e;
-        }
-        assertNull(thrown);
+        b.generate();
     }
 }
