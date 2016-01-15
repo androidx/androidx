@@ -27,6 +27,7 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static android.support.percent.LayoutDirectionActions.setLayoutDirection;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
@@ -48,19 +49,6 @@ public class PercentFrameTest extends BaseInstrumentationTestCase<TestFrameActiv
         mPercentFrameLayout = (PercentFrameLayout) activity.findViewById(R.id.container);
         mContainerWidth = mPercentFrameLayout.getWidth();
         mContainerHeight = mPercentFrameLayout.getHeight();
-    }
-
-    private void assertFuzzyEquals(String description, float expected, float actual) {
-        float difference = actual - expected;
-        // On devices with certain screen densities we may run into situations where multiplying
-        // container width / height by a certain fraction ends up in a number that is almost but
-        // not exactly a round float number. For example, we can do float math to compute 15%
-        // of 1440 pixels and get 216.00002 due to inexactness of float math. This is why our
-        // tolerance is slightly bigger than 1 pixel in the comparison below.
-        if (Math.abs(difference) > 1.1) {
-            Assert.fail(description + ": the difference between expected [" + expected +
-                    "] and actual [" + actual + "] is not within the tolerance bound");
-        }
     }
 
     @Test
@@ -175,7 +163,6 @@ public class PercentFrameTest extends BaseInstrumentationTestCase<TestFrameActiv
         int childRight = childToTest.getRight();
         int childBottom = childToTest.getBottom();
 
-        //Debug.waitForDebugger();
         assertFuzzyEquals("Child width as 60% of the container",
                 0.6f * mContainerWidth, childWidth);
         assertFuzzyEquals("Child height as 60% of the container",
@@ -205,10 +192,10 @@ public class PercentFrameTest extends BaseInstrumentationTestCase<TestFrameActiv
         if (Build.VERSION.SDK_INT >= 17) {
             // Force our child to inherit parent's layout direction
             onView(withId(R.id.child_margin_start)).perform(
-                    LayoutDirectionActions.setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_INHERIT));
+                    setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_INHERIT));
             // And force the container to RTL mode
             onView(withId(R.id.container)).perform(
-                    LayoutDirectionActions.setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_RTL));
+                    setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_RTL));
 
             // Force a full measure + layout pass on the container
             mPercentFrameLayout.measure(
@@ -249,10 +236,10 @@ public class PercentFrameTest extends BaseInstrumentationTestCase<TestFrameActiv
         if (Build.VERSION.SDK_INT >= 17) {
             // Force our child to inherit parent's layout direction
             onView(withId(R.id.child_margin_end)).perform(
-                    LayoutDirectionActions.setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_INHERIT));
+                    setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_INHERIT));
             // And force the container to RTL mode
             onView(withId(R.id.container)).perform(
-                    LayoutDirectionActions.setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_RTL));
+                    setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_RTL));
 
             // Force a full measure + layout pass on the container
             mPercentFrameLayout.measure(

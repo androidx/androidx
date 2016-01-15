@@ -319,6 +319,20 @@ public class PercentLayoutHelper {
                 info.mPreservedParams.height == ViewGroup.LayoutParams.WRAP_CONTENT;
     }
 
+    /* package */ static class PercentMarginLayoutParams extends ViewGroup.MarginLayoutParams {
+        // These two flags keep track of whether we're computing the LayoutParams width and height
+        // in the fill pass based on the aspect ratio. This allows the fill pass to be re-entrant
+        // as the framework code can call onMeasure() multiple times before the onLayout() is
+        // called. Those multiple invocations of onMeasure() are not guaranteed to be called with
+        // the same set of width / height.
+        private boolean mIsHeightComputedFromAspectRatio;
+        private boolean mIsWidthComputedFromAspectRatio;
+
+        public PercentMarginLayoutParams(int width, int height) {
+            super(width, height);
+        }
+    }
+
     /**
      * Container for information about percentage dimensions and margins. It acts as an extension
      * for {@code LayoutParams}.
@@ -342,7 +356,7 @@ public class PercentLayoutHelper {
 
         public float aspectRatio;
 
-        /* package */ final ViewGroup.MarginLayoutParams mPreservedParams;
+        /* package */ final PercentMarginLayoutParams mPreservedParams;
 
         public PercentLayoutInfo() {
             widthPercent = -1f;
@@ -353,7 +367,7 @@ public class PercentLayoutHelper {
             bottomMarginPercent = -1f;
             startMarginPercent = -1f;
             endMarginPercent = -1f;
-            mPreservedParams = new ViewGroup.MarginLayoutParams(0, 0);
+            mPreservedParams = new PercentMarginLayoutParams(0, 0);
         }
 
         /**
@@ -369,8 +383,12 @@ public class PercentLayoutHelper {
             // necessarily be true, as the user might explicitly set it to 0. However, we use this
             // information only for the aspect ratio. If the user set the aspect ratio attribute,
             // it means they accept or soon discover that it will be disregarded.
-            final boolean widthNotSet = params.width == 0 && widthPercent < 0;
-            final boolean heightNotSet = params.height == 0 && heightPercent < 0;
+            final boolean widthNotSet =
+                    (mPreservedParams.mIsWidthComputedFromAspectRatio
+                            || mPreservedParams.width == 0) && (widthPercent < 0);
+            final boolean heightNotSet =
+                    (mPreservedParams.mIsHeightComputedFromAspectRatio
+                            || mPreservedParams.height == 0) && (heightPercent < 0);
 
             if (widthPercent >= 0) {
                 params.width = (int) (widthHint * widthPercent);
@@ -383,9 +401,13 @@ public class PercentLayoutHelper {
             if (aspectRatio >= 0) {
                 if (widthNotSet) {
                     params.width = (int) (params.height * aspectRatio);
+                    // Keep track that we've filled the width based on the height and aspect ratio.
+                    mPreservedParams.mIsWidthComputedFromAspectRatio = true;
                 }
                 if (heightNotSet) {
                     params.height = (int) (params.width / aspectRatio);
+                    // Keep track that we've filled the height based on the width and aspect ratio.
+                    mPreservedParams.mIsHeightComputedFromAspectRatio = true;
                 }
             }
 
@@ -490,8 +512,20 @@ public class PercentLayoutHelper {
          * {@link PercentLayoutHelper.PercentLayoutInfo#fillLayoutParams}.
          */
         public void restoreLayoutParams(ViewGroup.LayoutParams params) {
-            params.width = mPreservedParams.width;
-            params.height = mPreservedParams.height;
+            if (!mPreservedParams.mIsWidthComputedFromAspectRatio) {
+                // Only restore the width if we didn't compute it based on the height and
+                // aspect ratio in the fill pass.
+                params.width = mPreservedParams.width;
+            }
+            if (!mPreservedParams.mIsHeightComputedFromAspectRatio) {
+                // Only restore the height if we didn't compute it based on the width and
+                // aspect ratio in the fill pass.
+                params.height = mPreservedParams.height;
+            }
+
+            // Reset the tracking flags.
+            mPreservedParams.mIsWidthComputedFromAspectRatio = false;
+            mPreservedParams.mIsHeightComputedFromAspectRatio = false;
         }
     }
 

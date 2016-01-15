@@ -27,6 +27,7 @@
         <uses-library android:name="android.test.runner" />
 
         <activity android:name="android.support.percent.TestFrameActivity"/>
+        <activity android:name="android.support.percent.TestRelativeActivity"/>
     </application>
 
     <instrumentation
