@@ -16,18 +16,11 @@
 
 package android.support.percent;
 
-import android.app.Activity;
-import android.os.Bundle;
 import android.support.percent.test.R;
-import android.view.WindowManager;
 
-import java.util.ArrayList;
-
-public class TestFrameActivity extends Activity {
+public class TestFrameActivity extends BaseTestActivity {
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setContentView(R.layout.percent_frame_layout);
+    protected int getContentViewLayoutResId() {
+        return R.layout.percent_frame_layout;
     }
 }
