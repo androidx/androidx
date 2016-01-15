@@ -29,10 +29,10 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
  * on the main thread.
  * <p>
  * Example:
- * <pre>{@code
+ * <pre><code>
  *  &#64;MainThread
  *  public void deliverResult(D data) { ... }
- * }</pre>
+ * </code></pre>
  */
 @Retention(CLASS)
 @Target({METHOD,CONSTRUCTOR,TYPE})

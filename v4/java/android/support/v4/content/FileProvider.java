@@ -365,7 +365,7 @@ public class FileProvider extends ContentProvider {
      *
      * @param context A {@link Context} for the current component.
      * @param authority The authority of a {@link FileProvider} defined in a
-     *            {@code &lt;provider&gt;} element in your app's manifest.
+     *            {@code <provider>} element in your app's manifest.
      * @param file A {@link File} pointing to the filename for which you want a
      * <code>content</code> {@link Uri}.
      * @return A content URI for the file.
@@ -547,7 +547,7 @@ public class FileProvider extends ContentProvider {
 
     /**
      * Parse and return {@link PathStrategy} for given authority as defined in
-     * {@link #META_DATA_FILE_PROVIDER_PATHS} {@code &lt;meta-data>}.
+     * {@link #META_DATA_FILE_PROVIDER_PATHS} {@code <meta-data>}.
      *
      * @see #getPathStrategy(Context, String)
      */
