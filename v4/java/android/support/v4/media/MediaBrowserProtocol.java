@@ -21,6 +21,17 @@ package android.support.v4.media;
  */
 class MediaBrowserProtocol {
 
+    public static final String DATA_CALLING_UID = "data_calling_uid";
+    public static final String DATA_ROOT_HINTS = "data_root_hints";
+    public static final String DATA_MEDIA_ITEM_ID = "data_media_item_id";
+    public static final String DATA_MEDIA_ITEM_LIST = "data_media_item_list";
+    public static final String DATA_MEDIA_SESSION_TOKEN = "data_media_session_token";
+    public static final String DATA_PACKAGE_NAME = "data_package_name";
+    public static final String DATA_RESULT_RECEIVER = "data_result_receiver";
+
+    public static final String EXTRA_SERVICE_VERSION = "extra_service_version";
+    public static final String EXTRA_MESSENGER_BINDER = "extra_messenger";
+
     /**
      * MediaBrowserCompat will check the version of the connected MediaBrowserServiceCompat,
      * and it will not send messages if they are introduced in the higher version of the
@@ -39,10 +50,10 @@ class MediaBrowserProtocol {
      * Sent after {@link MediaBrowserCompat#connect()} when the request has successfully
      * completed.
      * - arg1 : The service version
-     * - obj  : The root media item id
      * - data
-     *     SERVICE_DATA_MEDIA_SESSION_TOKEN : Media session token
-     *     SERVICE_DATA_EXTRAS : An extras bundle which contains EXTRA_SERVICE_VERSION
+     *     DATA_MEDIA_ITEM_ID : A string for the root media item id
+     *     DATA_MEDIA_SESSION_TOKEN : Media session token
+     *     DATA_ROOT_HINTS : An extras bundle which contains EXTRA_SERVICE_VERSION
      */
     public static final int SERVICE_MSG_ON_CONNECT = 1;
 
@@ -56,19 +67,11 @@ class MediaBrowserProtocol {
     /** (service v1)
      * Sent when the list of children is loaded or updated.
      * - arg1 : The service version
-     * - obj  : The parent media item id
      * - data
-     *     SERVICE_DATA_MEDIA_ITEM_LIST : An array list for the media item children
+     *     DATA_MEDIA_ITEM_ID : A string for the parent media item id
+     *     DATA_MEDIA_ITEM_LIST : An array list for the media item children
      */
     public static final int SERVICE_MSG_ON_LOAD_CHILDREN = 3;
-
-    public static final String SERVICE_DATA_MEDIA_SESSION_TOKEN = "data_media_session_token";
-    public static final String SERVICE_DATA_EXTRAS = "data_extras";
-    public static final String SERVICE_DATA_MEDIA_ITEM_LIST = "data_media_item_list";
-    public static final String SERVICE_DATA_RESULT_RECEIVER = "data_result_receiver";
-
-    public static final String EXTRA_SERVICE_VERSION = "extra_service_version";
-    public static final String EXTRA_MESSENGER_BINDER = "extra_messenger";
 
     /**
      * MediaBrowserServiceCompat will check the version of the MediaBrowserCompat, and it will not
@@ -87,7 +90,9 @@ class MediaBrowserProtocol {
      * Sent to connect to the media browse service compat.
      * - arg1 : The client version
      * - obj  : The package name
-     * - data : An optional root hints bundle of service-specific arguments
+     * - data
+     *     DATA_PACKAGE_NAME : A string for the package name of MediaBrowserCompat
+     *     DATA_ROOT_HINTS : An optional root hints bundle of service-specific arguments
      * - replayTo : Client messenger
      */
     public static final int CLIENT_MSG_CONNECT = 1;
@@ -102,7 +107,8 @@ class MediaBrowserProtocol {
     /** (client v1)
      * Sent to subscribe for changes to the children of the specified media id.
      * - arg1 : The client version
-     * - obj  : The media item id
+     * - data
+     *     DATA_MEDIA_ITEM_ID : A string for a media item id
      * - replayTo : Client messenger
      */
     public static final int CLIENT_MSG_ADD_SUBSCRIPTION = 3;
@@ -110,7 +116,8 @@ class MediaBrowserProtocol {
     /** (client v1)
      * Sent to unsubscribe for changes to the children of the specified media id.
      * - arg1 : The client version
-     * - obj  : The media item id
+     * - data
+     *     DATA_MEDIA_ITEM_ID : A string for a media item id
      * - replayTo : Client messenger
      */
     public static final int CLIENT_MSG_REMOVE_SUBSCRIPTION = 4;
@@ -118,9 +125,9 @@ class MediaBrowserProtocol {
     /** (client v1)
      * Sent to retrieves a specific media item from the connected service.
      * - arg1 : The client version
-     * - obj  : The media item id
      * - data
-     *     SERVICE_DATA_RESULT_RECEIVER : Result receiver to get the result
+     *     DATA_MEDIA_ITEM_ID : A string for a media item id
+     *     DATA_RESULT_RECEIVER : Result receiver to get the result
      */
     public static final int CLIENT_MSG_GET_MEDIA_ITEM = 5;
 }

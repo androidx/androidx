@@ -145,31 +145,42 @@ public abstract class MediaBrowserServiceCompat extends Service {
 
         @Override
         public void handleMessage(Message msg) {
+            Bundle data = msg.getData();
             switch (msg.what) {
                 case CLIENT_MSG_CONNECT:
-                    mServiceImpl.connect((String) msg.obj, msg.getData(),
+                    mServiceImpl.connect(data.getString(DATA_PACKAGE_NAME),
+                            data.getInt(DATA_CALLING_UID), data.getBundle(DATA_ROOT_HINTS),
                             new ServiceCallbacksCompat(msg.replyTo));
                     break;
                 case CLIENT_MSG_DISCONNECT:
                     mServiceImpl.disconnect(new ServiceCallbacksCompat(msg.replyTo));
                     break;
                 case CLIENT_MSG_ADD_SUBSCRIPTION:
-                    mServiceImpl.addSubscription((String) msg.obj,
+                    mServiceImpl.addSubscription(data.getString(DATA_MEDIA_ITEM_ID),
                             new ServiceCallbacksCompat(msg.replyTo));
                     break;
                 case CLIENT_MSG_REMOVE_SUBSCRIPTION:
-                    mServiceImpl.removeSubscription((String) msg.obj,
+                    mServiceImpl.removeSubscription(data.getString(DATA_MEDIA_ITEM_ID),
                             new ServiceCallbacksCompat(msg.replyTo));
                     break;
                 case CLIENT_MSG_GET_MEDIA_ITEM:
-                    mServiceImpl.getMediaItem((String) msg.obj, (ResultReceiver) msg.getData()
-                            .getParcelable(SERVICE_DATA_RESULT_RECEIVER));
+                    mServiceImpl.getMediaItem(data.getString(DATA_MEDIA_ITEM_ID),
+                            (ResultReceiver) data.getParcelable(DATA_RESULT_RECEIVER));
                     break;
                 default:
                     Log.w(TAG, "Unhandled message: " + msg
                             + "\n  Service version: " + SERVICE_VERSION_CURRENT
                             + "\n  Client version: " + msg.arg1);
             }
+        }
+
+        @Override
+        public boolean sendMessageAtTime(Message msg, long uptimeMillis) {
+            // Binder.getCallingUid() in handleMessage will return the uid of this process.
+            // In order to get the right calling uid, Binder.getCallingUid() should be called here.
+            Bundle data = msg.getData();
+            data.putInt(DATA_CALLING_UID, Binder.getCallingUid());
+            return super.sendMessageAtTime(msg, uptimeMillis);
         }
 
         public void postOrRun(Runnable r) {
@@ -258,10 +269,9 @@ public abstract class MediaBrowserServiceCompat extends Service {
     }
 
     private class ServiceImpl {
-        public void connect(final String pkg, final Bundle rootHints,
+        public void connect(final String pkg, final int uid, final Bundle rootHints,
                 final ServiceCallbacks callbacks) {
 
-            final int uid = Binder.getCallingUid();
             if (!isValidPackage(pkg, uid)) {
                 throw new IllegalArgumentException("Package/uid mismatch: uid=" + uid
                         + " package=" + pkg);
@@ -389,7 +399,8 @@ public abstract class MediaBrowserServiceCompat extends Service {
         @Override
         public void connect(final String pkg, final Bundle rootHints,
                 final MediaBrowserServiceCompatApi21.ServiceCallbacks callbacks) {
-            mServiceImpl.connect(pkg, rootHints, new ServiceCallbacksApi21(callbacks));
+            mServiceImpl.connect(pkg, Binder.getCallingUid(), rootHints,
+                    new ServiceCallbacksApi21(callbacks));
         }
 
         @Override
@@ -459,32 +470,31 @@ public abstract class MediaBrowserServiceCompat extends Service {
             }
             extras.putInt(EXTRA_SERVICE_VERSION, SERVICE_VERSION_CURRENT);
             Bundle data = new Bundle();
-            data.putParcelable(SERVICE_DATA_MEDIA_SESSION_TOKEN, session);
-            data.putBundle(SERVICE_DATA_EXTRAS, extras);
-            sendRequest(SERVICE_MSG_ON_CONNECT, root, data);
+            data.putString(DATA_MEDIA_ITEM_ID, root);
+            data.putParcelable(DATA_MEDIA_SESSION_TOKEN, session);
+            data.putBundle(DATA_ROOT_HINTS, extras);
+            sendRequest(SERVICE_MSG_ON_CONNECT, data);
         }
 
         public void onConnectFailed() throws RemoteException {
-            sendRequest(SERVICE_MSG_ON_CONNECT_FAILED, null, null);
+            sendRequest(SERVICE_MSG_ON_CONNECT_FAILED, null);
         }
 
         public void onLoadChildren(String mediaId, List<MediaBrowserCompat.MediaItem> list)
                 throws RemoteException {
-            Bundle data = null;
+            Bundle data = new Bundle();
+            data.putString(DATA_MEDIA_ITEM_ID, mediaId);
             if (list != null) {
-                data = new Bundle();
-                data.putParcelableArrayList(SERVICE_DATA_MEDIA_ITEM_LIST,
+                data.putParcelableArrayList(DATA_MEDIA_ITEM_LIST,
                         list instanceof ArrayList ? (ArrayList) list : new ArrayList<>(list));
             }
-            sendRequest(SERVICE_MSG_ON_LOAD_CHILDREN, mediaId, data);
+            sendRequest(SERVICE_MSG_ON_LOAD_CHILDREN, data);
         }
 
-        private void sendRequest(int what, Object obj, Bundle data)
-                throws RemoteException {
+        private void sendRequest(int what, Bundle data) throws RemoteException {
             Message msg = Message.obtain();
             msg.what = what;
             msg.arg1 = SERVICE_VERSION_CURRENT;
-            msg.obj = obj;
             msg.setData(data);
             mCallbacks.send(msg);
         }

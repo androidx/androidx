@@ -916,34 +916,40 @@ public final class MediaBrowserCompat {
             }
 
             void connect() throws RemoteException {
-                sendRequest(CLIENT_MSG_CONNECT, mContext.getPackageName(), mRootHints,
-                        mCallbacksMessenger);
+                Bundle data = new Bundle();
+                data.putString(DATA_PACKAGE_NAME, mContext.getPackageName());
+                data.putBundle(DATA_ROOT_HINTS, mRootHints);
+                sendRequest(CLIENT_MSG_CONNECT, data, mCallbacksMessenger);
             }
 
             void disconnect() throws RemoteException {
-                sendRequest(CLIENT_MSG_DISCONNECT, null, null, mCallbacksMessenger);
+                sendRequest(CLIENT_MSG_DISCONNECT, null, mCallbacksMessenger);
             }
 
             void addSubscription(String parentId) throws RemoteException {
-                sendRequest(CLIENT_MSG_ADD_SUBSCRIPTION, parentId, null, mCallbacksMessenger);
+                Bundle data = new Bundle();
+                data.putString(DATA_MEDIA_ITEM_ID, parentId);
+                sendRequest(CLIENT_MSG_ADD_SUBSCRIPTION, data, mCallbacksMessenger);
             }
 
             void removeSubscription(String parentId) throws RemoteException {
-                sendRequest(CLIENT_MSG_REMOVE_SUBSCRIPTION, parentId, null, mCallbacksMessenger);
+                Bundle data = new Bundle();
+                data.putString(DATA_MEDIA_ITEM_ID, parentId);
+                sendRequest(CLIENT_MSG_REMOVE_SUBSCRIPTION, data, mCallbacksMessenger);
             }
 
             void getMediaItem(String mediaId, ResultReceiver receiver) throws RemoteException {
                 Bundle data = new Bundle();
-                data.putParcelable(SERVICE_DATA_RESULT_RECEIVER, receiver);
-                sendRequest(CLIENT_MSG_GET_MEDIA_ITEM, mediaId, data, null);
+                data.putString(DATA_MEDIA_ITEM_ID, mediaId);
+                data.putParcelable(DATA_RESULT_RECEIVER, receiver);
+                sendRequest(CLIENT_MSG_GET_MEDIA_ITEM, data, null);
             }
 
-            private void sendRequest(int what, Object obj, Bundle data, Messenger cbMessenger)
+            private void sendRequest(int what, Bundle data, Messenger cbMessenger)
                     throws RemoteException {
                 Message msg = Message.obtain();
                 msg.what = what;
                 msg.arg1 = CLIENT_VERSION_CURRENT;
-                msg.obj = obj;
                 msg.setData(data);
                 msg.replyTo = cbMessenger;
                 mMessenger.send(msg);
@@ -1062,17 +1068,17 @@ public final class MediaBrowserCompat {
                 Bundle data = msg.getData();
                 switch (msg.what) {
                     case SERVICE_MSG_ON_CONNECT:
-                        onServiceConnected(mCallbacksMessenger, (String) msg.obj,
+                        onServiceConnected(mCallbacksMessenger, data.getString(DATA_MEDIA_ITEM_ID),
                                 (MediaSessionCompat.Token) data.getParcelable(
-                                        SERVICE_DATA_MEDIA_SESSION_TOKEN),
-                                data.getBundle(SERVICE_DATA_EXTRAS));
+                                        DATA_MEDIA_SESSION_TOKEN),
+                                data.getBundle(DATA_ROOT_HINTS));
                         break;
                     case SERVICE_MSG_ON_CONNECT_FAILED:
                         onConnectionFailed(mCallbacksMessenger);
                         break;
                     case SERVICE_MSG_ON_LOAD_CHILDREN:
-                        onLoadChildren(mCallbacksMessenger,  (String) msg.obj,
-                                data.getParcelableArrayList(SERVICE_DATA_MEDIA_ITEM_LIST));
+                        onLoadChildren(mCallbacksMessenger,  data.getString(DATA_MEDIA_ITEM_ID),
+                                data.getParcelableArrayList(DATA_MEDIA_ITEM_LIST));
                         break;
                     default:
                         Log.w(TAG, "Unhandled message: " + msg
@@ -1207,7 +1213,7 @@ public final class MediaBrowserCompat {
             };
             try {
                 Bundle data = new Bundle();
-                data.putParcelable(SERVICE_DATA_RESULT_RECEIVER, receiver);
+                data.putParcelable(DATA_RESULT_RECEIVER, receiver);
                 sendRequest(CLIENT_MSG_GET_MEDIA_ITEM, mediaId, data, null);
             } catch (RemoteException e) {
                 Log.i(TAG, "Remote error getting media item.");
