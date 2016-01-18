@@ -730,7 +730,7 @@ public final class MediaBrowserCompat {
             }
         }
 
-        public void getItem(final @NonNull String mediaId, @NonNull final ItemCallback cb) {
+        public void getItem(@NonNull final String mediaId, @NonNull final ItemCallback cb) {
             if (TextUtils.isEmpty(mediaId)) {
                 throw new IllegalArgumentException("mediaId is empty.");
             }
@@ -747,23 +747,7 @@ public final class MediaBrowserCompat {
                 });
                 return;
             }
-            ResultReceiver receiver = new ResultReceiver(mHandler) {
-                @Override
-                protected void onReceiveResult(int resultCode, Bundle resultData) {
-                    if (resultCode != 0 || resultData == null
-                            || !resultData.containsKey(MediaBrowserServiceCompat.KEY_MEDIA_ITEM)) {
-                        cb.onError(mediaId);
-                        return;
-                    }
-                    Parcelable item =
-                            resultData.getParcelable(MediaBrowserServiceCompat.KEY_MEDIA_ITEM);
-                    if (!(item instanceof MediaItem)) {
-                        cb.onError(mediaId);
-                        return;
-                    }
-                    cb.onItemLoaded((MediaItem)item);
-                }
-            };
+            ResultReceiver receiver = new ItemReceiver(mediaId, cb, mHandler);
             try {
                 mServiceBinderWrapper.getMediaItem(mediaId, receiver);
             } catch (RemoteException e) {
@@ -1066,6 +1050,7 @@ public final class MediaBrowserCompat {
             @Override
             public void handleMessage(Message msg) {
                 Bundle data = msg.getData();
+                data.setClassLoader(MediaSessionCompat.class.getClassLoader());
                 switch (msg.what) {
                     case SERVICE_MSG_ON_CONNECT:
                         onServiceConnected(mCallbacksMessenger, data.getString(DATA_MEDIA_ITEM_ID),
@@ -1194,23 +1179,7 @@ public final class MediaBrowserCompat {
                 });
                 return;
             }
-            ResultReceiver receiver = new ResultReceiver(mHandler) {
-                @Override
-                protected void onReceiveResult(int resultCode, Bundle resultData) {
-                    if (resultCode != 0 || resultData == null
-                            || !resultData.containsKey(MediaBrowserServiceCompat.KEY_MEDIA_ITEM)) {
-                        cb.onError(mediaId);
-                        return;
-                    }
-                    Parcelable item =
-                            resultData.getParcelable(MediaBrowserServiceCompat.KEY_MEDIA_ITEM);
-                    if (!(item instanceof MediaItem)) {
-                        cb.onError(mediaId);
-                        return;
-                    }
-                    cb.onItemLoaded((MediaItem)item);
-                }
-            };
+            ResultReceiver receiver = new ItemReceiver(mediaId, cb, mHandler);
             try {
                 Bundle data = new Bundle();
                 data.putParcelable(DATA_RESULT_RECEIVER, receiver);
@@ -1247,6 +1216,33 @@ public final class MediaBrowserCompat {
         @Override
         public void getItem(@NonNull String mediaId, @NonNull ItemCallback cb) {
             MediaBrowserCompatApi23.getItem(mBrowserObj, mediaId, cb.mItemCallbackObj);
+        }
+    }
+
+    static class ItemReceiver extends ResultReceiver {
+        private final String mMediaId;
+        private final ItemCallback mCallback;
+
+        ItemReceiver(String mediaId, ItemCallback callback, Handler handler) {
+            super(handler);
+            mMediaId = mediaId;
+            mCallback = callback;
+        }
+
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+            resultData.setClassLoader(MediaBrowserCompat.class.getClassLoader());
+            if (resultCode != 0 || resultData == null
+                    || !resultData.containsKey(MediaBrowserServiceCompat.KEY_MEDIA_ITEM)) {
+                mCallback.onError(mMediaId);
+                return;
+            }
+            Parcelable item = resultData.getParcelable(MediaBrowserServiceCompat.KEY_MEDIA_ITEM);
+            if (item instanceof MediaItem) {
+                mCallback.onItemLoaded((MediaItem) item);
+            } else {
+                mCallback.onError(mMediaId);
+            }
         }
     }
 }
