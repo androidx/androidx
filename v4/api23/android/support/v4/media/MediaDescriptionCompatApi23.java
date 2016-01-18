@@ -15,11 +15,8 @@
  */
 package android.support.v4.media;
 
-import android.graphics.Bitmap;
 import android.media.MediaDescription;
 import android.net.Uri;
-import android.os.Bundle;
-import android.os.Parcel;
 
 class MediaDescriptionCompatApi23 extends MediaDescriptionCompatApi21 {
     public static Uri getMediaUri(Object descriptionObj) {
