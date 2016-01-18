@@ -3260,6 +3260,10 @@ package android.support.v4.widget {
     method public void scrollTargetBy(int, int);
   }
 
+  public final class ListViewCompat {
+    method public static void scrollListBy(android.widget.ListView, int);
+  }
+
   public class NestedScrollView extends android.widget.FrameLayout implements android.support.v4.view.NestedScrollingChild android.support.v4.view.NestedScrollingParent android.support.v4.view.ScrollingView {
     ctor public NestedScrollView(android.content.Context);
     ctor public NestedScrollView(android.content.Context, android.util.AttributeSet);
