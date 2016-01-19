@@ -1182,8 +1182,9 @@ public final class MediaBrowserCompat {
             ResultReceiver receiver = new ItemReceiver(mediaId, cb, mHandler);
             try {
                 Bundle data = new Bundle();
+                data.putString(DATA_MEDIA_ITEM_ID, mediaId);
                 data.putParcelable(DATA_RESULT_RECEIVER, receiver);
-                sendRequest(CLIENT_MSG_GET_MEDIA_ITEM, mediaId, data, null);
+                sendRequest(CLIENT_MSG_GET_MEDIA_ITEM, data, null);
             } catch (RemoteException e) {
                 Log.i(TAG, "Remote error getting media item.");
                 mHandler.post(new Runnable() {
@@ -1195,12 +1196,11 @@ public final class MediaBrowserCompat {
             }
         }
 
-        private void sendRequest(int what, Object obj, Bundle data, Messenger cbMessenger)
+        private void sendRequest(int what, Bundle data, Messenger cbMessenger)
                 throws RemoteException {
             Message msg = Message.obtain();
             msg.what = what;
             msg.arg1 = CLIENT_VERSION_CURRENT;
-            msg.obj = obj;
             msg.setData(data);
             msg.replyTo = cbMessenger;
             mMessenger.send(msg);
