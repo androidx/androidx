@@ -1117,7 +1117,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
             boolean canUseExistingSpace, RecyclerView.State state) {
         mLayoutState.mExtra = getExtraLayoutSpace(state);
         mLayoutState.mLayoutDirection = layoutDirection;
-        int fastScrollSpace;
+        int scrollingOffset;
         if (layoutDirection == LayoutState.LAYOUT_END) {
             mLayoutState.mExtra += mOrientationHelper.getEndPadding();
             // get the first child in the direction we are going
@@ -1128,7 +1128,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
             mLayoutState.mCurrentPosition = getPosition(child) + mLayoutState.mItemDirection;
             mLayoutState.mOffset = mOrientationHelper.getDecoratedEnd(child);
             // calculate how much we can scroll without adding new children (independent of layout)
-            fastScrollSpace = mOrientationHelper.getDecoratedEnd(child)
+            scrollingOffset = mOrientationHelper.getDecoratedEnd(child)
                     - mOrientationHelper.getEndAfterPadding();
 
         } else {
@@ -1138,14 +1138,14 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
                     : LayoutState.ITEM_DIRECTION_HEAD;
             mLayoutState.mCurrentPosition = getPosition(child) + mLayoutState.mItemDirection;
             mLayoutState.mOffset = mOrientationHelper.getDecoratedStart(child);
-            fastScrollSpace = -mOrientationHelper.getDecoratedStart(child)
+            scrollingOffset = -mOrientationHelper.getDecoratedStart(child)
                     + mOrientationHelper.getStartAfterPadding();
         }
         mLayoutState.mAvailable = requiredSpace;
         if (canUseExistingSpace) {
-            mLayoutState.mAvailable -= fastScrollSpace;
+            mLayoutState.mAvailable -= scrollingOffset;
         }
-        mLayoutState.mScrollingOffset = fastScrollSpace;
+        mLayoutState.mScrollingOffset = scrollingOffset;
     }
 
     int scrollBy(int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {
@@ -1157,8 +1157,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         final int layoutDirection = dy > 0 ? LayoutState.LAYOUT_END : LayoutState.LAYOUT_START;
         final int absDy = Math.abs(dy);
         updateLayoutState(layoutDirection, absDy, true, state);
-        final int freeScroll = mLayoutState.mScrollingOffset;
-        final int consumed = freeScroll + fill(recycler, mLayoutState, state, false);
+        final int consumed = mLayoutState.mScrollingOffset
+                + fill(recycler, mLayoutState, state, false);
         if (consumed < 0) {
             if (DEBUG) {
                 Log.d(TAG, "Don't have any more elements to scroll");
