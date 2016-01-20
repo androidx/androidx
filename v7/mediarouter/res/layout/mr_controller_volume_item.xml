@@ -16,31 +16,36 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="fill_parent"
-              android:layout_height="@dimen/mr_controller_volume_group_list_item_height"
-              android:paddingLeft="24dp"
-              android:paddingRight="60dp"
-              android:paddingBottom="8dp"
-              android:orientation="vertical" >
-    <TextView android:id="@+id/mr_name"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:textAppearance="?attr/mediaRouteControllerSecondaryTextStyle"
-              android:singleLine="true" />
-    <LinearLayout android:layout_width="fill_parent"
+              android:layout_height="wrap_content">
+    <LinearLayout android:id="@+id/volume_item_container"
+                  android:layout_width="fill_parent"
+                  android:layout_height="@dimen/mr_controller_volume_group_list_item_height"
+                  android:paddingLeft="24dp"
+                  android:paddingRight="60dp"
+                  android:paddingBottom="8dp"
+                  android:orientation="vertical" >
+        <TextView android:id="@+id/mr_name"
+                  android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
-                  android:orientation="horizontal"
-                  android:gravity="center_vertical">
-        <ImageView android:id="@+id/mr_volume_item_icon"
-                   android:layout_width="@dimen/mr_controller_volume_group_list_item_icon_size"
-                   android:layout_height="@dimen/mr_controller_volume_group_list_item_icon_size"
-                   android:layout_marginTop="8dp"
-                   android:layout_marginBottom="8dp"
-                   android:scaleType="fitCenter"
-                   android:src="?attr/mediaRouteAudioTrackDrawable" />
-        <android.support.v7.app.MediaRouteVolumeSlider android:id="@+id/mr_volume_slider"
-                 android:layout_width="fill_parent"
-                 android:layout_height="40dp"
-                 android:minHeight="40dp"
-                 android:maxHeight="40dp" />
+                  android:textAppearance="?attr/mediaRouteControllerSecondaryTextStyle"
+                  android:singleLine="true" />
+        <LinearLayout android:layout_width="fill_parent"
+                      android:layout_height="wrap_content"
+                      android:orientation="horizontal"
+                      android:gravity="center_vertical">
+            <ImageView android:id="@+id/mr_volume_item_icon"
+                       android:layout_width="@dimen/mr_controller_volume_group_list_item_icon_size"
+                       android:layout_height="@dimen/mr_controller_volume_group_list_item_icon_size"
+                       android:layout_marginTop="8dp"
+                       android:layout_marginBottom="8dp"
+                       android:scaleType="fitCenter"
+                       android:src="?attr/mediaRouteAudioTrackDrawable" />
+            <android.support.v7.app.MediaRouteVolumeSlider
+                android:id="@+id/mr_volume_slider"
+                android:layout_width="fill_parent"
+                android:layout_height="40dp"
+                android:minHeight="40dp"
+                android:maxHeight="40dp" />
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

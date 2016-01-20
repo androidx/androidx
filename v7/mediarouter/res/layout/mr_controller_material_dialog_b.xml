@@ -82,13 +82,14 @@
                     <include android:id="@+id/mr_volume_control"
                              layout="@layout/mr_volume_control" />
                 </LinearLayout>
-                <ListView android:id="@+id/mr_volume_group_list"
-                          android:layout_width="fill_parent"
-                          android:layout_height="wrap_content"
-                          android:paddingTop="@dimen/mr_controller_volume_group_list_padding_top"
-                          android:scrollbarStyle="outsideOverlay"
-                          android:clipToPadding="false"
-                          android:visibility="gone" />
+                <android.support.v7.app.OverlayListView
+                        android:id="@+id/mr_volume_group_list"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="@dimen/mr_controller_volume_group_list_padding_top"
+                        android:scrollbarStyle="outsideOverlay"
+                        android:clipToPadding="false"
+                        android:visibility="gone" />
             </LinearLayout>
         </FrameLayout>
         <include layout="@layout/abc_alert_dialog_button_bar_material" />

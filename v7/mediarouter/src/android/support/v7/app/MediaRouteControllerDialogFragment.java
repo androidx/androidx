@@ -59,6 +59,14 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
     }
 
     @Override
+    public void onStop() {
+        super.onStop();
+        if (mDialog != null) {
+            mDialog.clearGroupListAnimation(false);
+        }
+    }
+
+    @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         if (mDialog != null) {
