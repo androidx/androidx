@@ -179,6 +179,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
             // Binder.getCallingUid() in handleMessage will return the uid of this process.
             // In order to get the right calling uid, Binder.getCallingUid() should be called here.
             Bundle data = msg.getData();
+            data.setClassLoader(MediaBrowserCompat.class.getClassLoader());
             data.putInt(DATA_CALLING_UID, Binder.getCallingUid());
             return super.sendMessageAtTime(msg, uptimeMillis);
         }
