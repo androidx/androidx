@@ -19,7 +19,9 @@ package android.support.v7.preference;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.content.res.TypedArrayUtils;
+import android.support.v4.util.SimpleArrayMap;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 
@@ -54,6 +56,17 @@ public abstract class PreferenceGroup extends Preference {
     private int mCurrentPreferenceOrder = 0;
 
     private boolean mAttachedToHierarchy = false;
+
+    private final SimpleArrayMap<String, Long> mIdRecycleCache = new SimpleArrayMap<>();
+    private final Handler mHandler = new Handler();
+    private final Runnable mClearRecycleCacheRunnable = new Runnable() {
+        @Override
+        public void run() {
+            synchronized (this) {
+                mIdRecycleCache.clear();
+            }
+        }
+    };
 
     public PreferenceGroup(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
@@ -166,7 +179,16 @@ public abstract class PreferenceGroup extends Preference {
             mPreferenceList.add(insertionIndex, preference);
         }
 
-        preference.onAttachedToHierarchy(getPreferenceManager());
+        final PreferenceManager preferenceManager = getPreferenceManager();
+        final String key = preference.getKey();
+        final long id;
+        if (key != null && mIdRecycleCache.containsKey(key)) {
+            id = mIdRecycleCache.get(key);
+            mIdRecycleCache.remove(key);
+        } else {
+            id = preferenceManager.getNextId();
+        }
+        preference.onAttachedToHierarchy(preferenceManager, id);
 
         if (mAttachedToHierarchy) {
             preference.onAttached();
@@ -193,9 +215,29 @@ public abstract class PreferenceGroup extends Preference {
         synchronized(this) {
             preference.onPrepareForRemoval();
             boolean success = mPreferenceList.remove(preference);
-            if (success && mAttachedToHierarchy) {
-                preference.onDetached();
+            if (success) {
+                // If this preference, or another preference with the same key, gets re-added
+                // immediately, we want it to have the same id so that it can be correctly tracked
+                // in the adapter by RecyclerView, to make it appear as if it has only been
+                // seamlessly updated. If the preference is not re-added by the time the handler
+                // runs, we take that as a signal that the preference will not be re-added soon
+                // in which case it does not need to retain the same id.
+
+                // If two (or more) preferences have the same (or null) key and both are removed
+                // and then re-added, only one id will be recycled and the second (and later)
+                // preferences will receive a newly generated id. This use pattern of the preference
+                // API is strongly discouraged.
+                final String key = preference.getKey();
+                if (key != null) {
+                    mIdRecycleCache.put(key, preference.getId());
+                    mHandler.removeCallbacks(mClearRecycleCacheRunnable);
+                    mHandler.post(mClearRecycleCacheRunnable);
+                }
+                if (mAttachedToHierarchy) {
+                    preference.onDetached();
+                }
             }
+
             return success;
         }
     }
