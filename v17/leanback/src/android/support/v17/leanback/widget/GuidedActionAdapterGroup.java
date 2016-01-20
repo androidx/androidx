@@ -127,6 +127,9 @@ public class GuidedActionAdapterGroup {
         }
         InputMethodManager mgr = (InputMethodManager)
                 v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        // Make the TextView focusable during editing, avoid the TextView gets accessibility focus
+        // before editing started. see also GuidedActionEditText where setFocusable(false).
+        v.setFocusable(true);
         v.requestFocus();
         mgr.showSoftInput(v, 0);
         if (!mImeOpened) {
