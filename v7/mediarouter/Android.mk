@@ -61,6 +61,16 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
 
+# A helper sub-library that makes direct use of V24 APIs.
+include $(CLEAR_VARS)
+LOCAL_MODULE := android-support-v7-mediarouter-api24
+LOCAL_SDK_VERSION := current
+LOCAL_SRC_FILES := $(call all-java-files-under, api24)
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-mediarouter-jellybean-mr2
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
+support_module_src_files += $(LOCAL_SRC_FILES)
+
 # Here is the final static library that apps can link against.
 # The R class is automatically excluded from the generated library.
 # Applications that use this library must specify LOCAL_RESOURCE_DIR
@@ -69,7 +79,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v7-mediarouter
 LOCAL_SDK_VERSION := 7
 LOCAL_SRC_FILES := $(call all-java-files-under,src)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-mediarouter-jellybean-mr2
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-mediarouter-api24
 LOCAL_JAVA_LIBRARIES := android-support-v4 android-support-v7-mediarouter-res \
     android-support-v7-appcompat \
     android-support-v7-palette
