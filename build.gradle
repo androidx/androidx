@@ -150,7 +150,10 @@ subprojects {
         repositories {
             mavenDeployer {
                 repository(url: uri("$rootProject.ext.supportRepoOut"))
-            }
+
+                // Disable unique names for SNAPSHOTS so they can be updated in place.
+                setUniqueVersion(false)
+           }
         }
     }
 
