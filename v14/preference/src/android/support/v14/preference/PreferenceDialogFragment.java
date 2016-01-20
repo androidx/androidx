@@ -22,7 +22,12 @@ import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.v7.preference.DialogPreference;
 import android.text.TextUtils;
@@ -32,12 +37,34 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+/**
+ * Abstract base class which presents a dialog associated with a
+ * {@link android.support.v7.preference.DialogPreference}. Since the preference object may
+ * not be available during fragment re-creation, the necessary information for displaying the dialog
+ * is read once during the initial call to {@link #onCreate(Bundle)} and saved/restored in the saved
+ * instance state. Custom subclasses should also follow this pattern.
+ */
 public abstract class PreferenceDialogFragment extends DialogFragment implements
         DialogInterface.OnClickListener {
 
     protected static final String ARG_KEY = "key";
 
+    private static final String SAVE_STATE_TITLE = "PreferenceDialogFragment.title";
+    private static final String SAVE_STATE_POSITIVE_TEXT = "PreferenceDialogFragment.positiveText";
+    private static final String SAVE_STATE_NEGATIVE_TEXT = "PreferenceDialogFragment.negativeText";
+    private static final String SAVE_STATE_MESSAGE = "PreferenceDialogFragment.message";
+    private static final String SAVE_STATE_LAYOUT = "PreferenceDialogFragment.layout";
+    private static final String SAVE_STATE_ICON = "PreferenceDialogFragment.icon";
+
     private DialogPreference mPreference;
+
+    private CharSequence mDialogTitle;
+    private CharSequence mPositiveButtonText;
+    private CharSequence mNegativeButtonText;
+    private CharSequence mDialogMessage;
+    private @LayoutRes int mDialogLayoutRes;
+
+    private BitmapDrawable mDialogIcon;
 
     /** Which button was clicked. */
     private int mWhichButtonClicked;
@@ -56,7 +83,50 @@ public abstract class PreferenceDialogFragment extends DialogFragment implements
                 (DialogPreference.TargetFragment) rawFragment;
 
         final String key = getArguments().getString(ARG_KEY);
-        mPreference = (DialogPreference) fragment.findPreference(key);
+        if (savedInstanceState == null) {
+            mPreference = (DialogPreference) fragment.findPreference(key);
+            mDialogTitle = mPreference.getDialogTitle();
+            mPositiveButtonText = mPreference.getPositiveButtonText();
+            mNegativeButtonText = mPreference.getNegativeButtonText();
+            mDialogMessage = mPreference.getDialogMessage();
+            mDialogLayoutRes = mPreference.getDialogLayoutResource();
+
+            final Drawable icon = mPreference.getDialogIcon();
+            if (icon == null || icon instanceof BitmapDrawable) {
+                mDialogIcon = (BitmapDrawable) icon;
+            } else {
+                final Bitmap bitmap = Bitmap.createBitmap(icon.getIntrinsicWidth(),
+                        icon.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+                final Canvas canvas = new Canvas(bitmap);
+                icon.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+                icon.draw(canvas);
+                mDialogIcon = new BitmapDrawable(getResources(), bitmap);
+            }
+        } else {
+            mDialogTitle = savedInstanceState.getCharSequence(SAVE_STATE_TITLE);
+            mPositiveButtonText = savedInstanceState.getCharSequence(SAVE_STATE_POSITIVE_TEXT);
+            mNegativeButtonText = savedInstanceState.getCharSequence(SAVE_STATE_NEGATIVE_TEXT);
+            mDialogMessage = savedInstanceState.getCharSequence(SAVE_STATE_MESSAGE);
+            mDialogLayoutRes = savedInstanceState.getInt(SAVE_STATE_LAYOUT, 0);
+            final Bitmap bitmap = savedInstanceState.getParcelable(SAVE_STATE_ICON);
+            if (bitmap != null) {
+                mDialogIcon = new BitmapDrawable(getResources(), bitmap);
+            }
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putCharSequence(SAVE_STATE_TITLE, mDialogTitle);
+        outState.putCharSequence(SAVE_STATE_POSITIVE_TEXT, mPositiveButtonText);
+        outState.putCharSequence(SAVE_STATE_NEGATIVE_TEXT, mNegativeButtonText);
+        outState.putCharSequence(SAVE_STATE_MESSAGE, mDialogMessage);
+        outState.putInt(SAVE_STATE_LAYOUT, mDialogLayoutRes);
+        if (mDialogIcon != null) {
+            outState.putParcelable(SAVE_STATE_ICON, mDialogIcon.getBitmap());
+        }
     }
 
     @Override
@@ -66,17 +136,17 @@ public abstract class PreferenceDialogFragment extends DialogFragment implements
         mWhichButtonClicked = DialogInterface.BUTTON_NEGATIVE;
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(context)
-                .setTitle(mPreference.getDialogTitle())
-                .setIcon(mPreference.getDialogIcon())
-                .setPositiveButton(mPreference.getPositiveButtonText(), this)
-                .setNegativeButton(mPreference.getNegativeButtonText(), this);
+                .setTitle(mDialogTitle)
+                .setIcon(mDialogIcon)
+                .setPositiveButton(mPositiveButtonText, this)
+                .setNegativeButton(mNegativeButtonText, this);
 
         View contentView = onCreateDialogView(context);
         if (contentView != null) {
             onBindDialogView(contentView);
             builder.setView(contentView);
         } else {
-            builder.setMessage(mPreference.getDialogMessage());
+            builder.setMessage(mDialogMessage);
         }
 
         onPrepareDialogBuilder(builder);
@@ -92,12 +162,18 @@ public abstract class PreferenceDialogFragment extends DialogFragment implements
 
     /**
      * Get the preference that requested this dialog. Available after {@link #onCreate(Bundle)} has
-     * been called.
+     * been called on the {@link PreferenceFragment} which launched this dialog.
      *
      * @return The {@link DialogPreference} associated with this
      * dialog.
      */
     public DialogPreference getPreference() {
+        if (mPreference == null) {
+            final String key = getArguments().getString(ARG_KEY);
+            final DialogPreference.TargetFragment fragment =
+                    (DialogPreference.TargetFragment) getTargetFragment();
+            mPreference = (DialogPreference) fragment.findPreference(key);
+        }
         return mPreference;
     }
 
@@ -137,7 +213,7 @@ public abstract class PreferenceDialogFragment extends DialogFragment implements
      * @see DialogPreference#setLayoutResource(int)
      */
     protected View onCreateDialogView(Context context) {
-        final int resId = mPreference.getDialogLayoutResource();
+        final int resId = mDialogLayoutRes;
         if (resId == 0) {
             return null;
         }
@@ -157,7 +233,7 @@ public abstract class PreferenceDialogFragment extends DialogFragment implements
         View dialogMessageView = view.findViewById(android.R.id.message);
 
         if (dialogMessageView != null) {
-            final CharSequence message = mPreference.getDialogMessage();
+            final CharSequence message = mDialogMessage;
             int newVisibility = View.GONE;
 
             if (!TextUtils.isEmpty(message)) {
