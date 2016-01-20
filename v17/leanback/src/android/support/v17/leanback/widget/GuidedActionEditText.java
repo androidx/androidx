@@ -14,10 +14,11 @@
 package android.support.v17.leanback.widget;
 
 import android.content.Context;
-import android.support.v17.leanback.widget.ImeKeyMonitor.ImeKeyListener;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.widget.EditText;
 import android.view.KeyEvent;
+import android.view.accessibility.AccessibilityNodeInfo;
 
 /**
  * A custom EditText that satisfies the IME key monitoring requirements of GuidedStepFragment.
@@ -55,4 +56,22 @@ public class GuidedActionEditText extends EditText implements ImeKeyMonitor {
         return result;
     }
 
+    @Override
+    public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
+        super.onInitializeAccessibilityNodeInfo(info);
+        // Dont let the TextView gets accessibility focus if it's not focused.
+        if (!isFocused()) {
+            info.setVisibleToUser(false);
+        }
+    }
+
+    @Override
+    protected void onFocusChanged(boolean focused, int direction, Rect previouslyFocusedRect) {
+        super.onFocusChanged(focused, direction, previouslyFocusedRect);
+        // Make the TextView focusable during editing, avoid the TextView gets accessibility focus
+        // before editing started. see also GuidedActionAdapterGroup where setFocusable(true).
+        if (!focused) {
+            setFocusable(false);
+        }
+    }
 }
