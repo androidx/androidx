@@ -384,6 +384,7 @@
 
     <!-- Style for the title view in a GuidanceStylist's default layout. -->
     <style name="Widget.Leanback.GuidanceTitleStyle">
+        <item name="android:importantForAccessibility">no</item>
         <item name="android:layout_toStartOf">@id/guidance_icon</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -402,6 +403,7 @@
 
     <!-- Style for the description view in a GuidanceStylist's default layout. -->
     <style name="Widget.Leanback.GuidanceDescriptionStyle">
+        <item name="android:importantForAccessibility">no</item>
         <item name="android:layout_below">@id/guidance_title</item>
         <item name="android:layout_toStartOf">@id/guidance_icon</item>
         <item name="android:layout_width">wrap_content</item>
@@ -419,6 +421,7 @@
 
     <!-- Style for the breadcrumb view in a GuidanceStylist's default layout. -->
     <style name="Widget.Leanback.GuidanceBreadcrumbStyle">
+        <item name="android:importantForAccessibility">no</item>
         <item name="android:layout_above">@id/guidance_title</item>
         <item name="android:layout_toStartOf">@id/guidance_icon</item>
         <item name="android:layout_width">wrap_content</item>
