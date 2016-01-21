@@ -20,6 +20,7 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v17.leanback.R;
+import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -154,6 +155,7 @@ public class GuidanceStylist implements FragmentAnimationProvider {
         mBreadcrumbView = (TextView) guidanceView.findViewById(R.id.guidance_breadcrumb);
         mDescriptionView = (TextView) guidanceView.findViewById(R.id.guidance_description);
         mIconView = (ImageView) guidanceView.findViewById(R.id.guidance_icon);
+        View guidanceContainer = guidanceView.findViewById(R.id.guidance_container);
 
         // We allow any of the cached subviews to be null, so that subclasses can choose not to
         // display a particular piece of information.
@@ -168,6 +170,16 @@ public class GuidanceStylist implements FragmentAnimationProvider {
         }
         if (mIconView != null) {
             mIconView.setImageDrawable(guidance.getIconDrawable());
+        }
+        if (guidanceContainer != null) {
+            CharSequence contentDescription = guidanceContainer.getContentDescription();
+            if (TextUtils.isEmpty(contentDescription)) {
+                guidanceContainer.setContentDescription(new StringBuilder()
+                        .append(guidance.getBreadcrumb()).append('\n')
+                        .append(guidance.getTitle()).append('\n')
+                        .append(guidance.getDescription())
+                        .toString());
+            }
         }
         return guidanceView;
     }
