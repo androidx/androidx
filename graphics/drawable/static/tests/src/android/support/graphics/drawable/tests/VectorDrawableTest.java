@@ -284,7 +284,7 @@ public class VectorDrawableTest extends AndroidTestCase {
 
     public void testGetConstantState() {
         VectorDrawableCompat vectorDrawable =
-                VectorDrawableCompat.create(mResources, R.drawable.vector_icon_arcto, mTheme);
+                VectorDrawableCompat.create(mResources, R.drawable.vector_icon_delete, mTheme);
         Drawable.ConstantState constantState = vectorDrawable.getConstantState();
         assertNotNull(constantState);
         assertEquals(0, constantState.getChangingConfigurations());
