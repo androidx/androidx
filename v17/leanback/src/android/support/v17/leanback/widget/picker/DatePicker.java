@@ -39,8 +39,8 @@ import java.util.TimeZone;
  * @attr ref R.styleable#lbDatePicker_android_maxDate
  * @attr ref R.styleable#lbDatePicker_android_minDate
  * @attr ref R.styleable#lbDatePicker_datePickerFormat
+ * @hide
  */
-
 public class DatePicker extends Picker {
 
     static final String LOG_TAG = "DatePicker";
@@ -62,23 +62,20 @@ public class DatePicker extends Picker {
     Calendar mCurrentDate;
     Calendar mTempDate;
 
+    public DatePicker(Context context, AttributeSet attrs) {
+        this(context, attrs, 0);
+    }
+
     public DatePicker(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
         updateCurrentLocale();
+        setSeparator(mConstant.dateSeparator);
 
         final TypedArray attributesArray = context.obtainStyledAttributes(attrs,
                 R.styleable.lbDatePicker);
         String minDate = attributesArray.getString(R.styleable.lbDatePicker_android_minDate);
         String maxDate = attributesArray.getString(R.styleable.lbDatePicker_android_maxDate);
-        String datePickerFormat = attributesArray
-                .getString(R.styleable.lbDatePicker_datePickerFormat);
-        if (TextUtils.isEmpty(datePickerFormat)) {
-            datePickerFormat = new String(
-                    android.text.format.DateFormat.getDateFormatOrder(context));
-        }
-        setDatePickerFormat(datePickerFormat);
-
         mTempDate.clear();
         if (!TextUtils.isEmpty(minDate)) {
             if (!parseDate(minDate, mTempDate)) {
@@ -87,7 +84,7 @@ public class DatePicker extends Picker {
         } else {
             mTempDate.set(1900, 0, 1);
         }
-        setMinDate(mTempDate.getTimeInMillis());
+        mMinDate.setTimeInMillis(mTempDate.getTimeInMillis());
 
         mTempDate.clear();
         if (!TextUtils.isEmpty(maxDate)) {
@@ -97,8 +94,15 @@ public class DatePicker extends Picker {
         } else {
             mTempDate.set(2100, 0, 1);
         }
-        setMaxDate(mTempDate.getTimeInMillis());
+        mMaxDate.setTimeInMillis(mTempDate.getTimeInMillis());
 
+        String datePickerFormat = attributesArray
+                .getString(R.styleable.lbDatePicker_datePickerFormat);
+        if (TextUtils.isEmpty(datePickerFormat)) {
+            datePickerFormat = new String(
+                    android.text.format.DateFormat.getDateFormatOrder(context));
+        }
+        setDatePickerFormat(datePickerFormat);
     }
 
     private boolean parseDate(String date, Calendar outDate) {
@@ -112,10 +116,14 @@ public class DatePicker extends Picker {
     }
 
     /**
-     * Changes format of showing dates, e.g. 'YMD'.
+     * Changes format of showing dates.  For example "YMD".
      * @param datePickerFormat Format of showing dates.
      */
     public void setDatePickerFormat(String datePickerFormat) {
+        if (TextUtils.isEmpty(datePickerFormat)) {
+            datePickerFormat = new String(
+                    android.text.format.DateFormat.getDateFormatOrder(getContext()));
+        }
         datePickerFormat = datePickerFormat.toUpperCase();
         if (TextUtils.equals(mDatePickerFormat, datePickerFormat)) {
             return;
@@ -132,14 +140,14 @@ public class DatePicker extends Picker {
                 }
                 columns.add(mYearColumn = new PickerColumn());
                 mColYearIndex = i;
-                mYearColumn.setValueLabelFormat("%d");
+                mYearColumn.setEntryFormat("%d");
                 break;
             case 'M':
                 if (mMonthColumn != null) {
                     throw new IllegalArgumentException("datePicker format error");
                 }
                 columns.add(mMonthColumn = new PickerColumn());
-                mMonthColumn.setValueStaticLabels(mConstant.months);
+                mMonthColumn.setEntries(mConstant.months);
                 mColMonthIndex = i;
                 break;
             case 'D':
@@ -147,7 +155,7 @@ public class DatePicker extends Picker {
                     throw new IllegalArgumentException("datePicker format error");
                 }
                 columns.add(mDayColumn = new PickerColumn());
-                mDayColumn.setValueLabelFormat("%02d");
+                mDayColumn.setEntryFormat("%02d");
                 mColDayIndex = i;
                 break;
             default:
@@ -159,19 +167,13 @@ public class DatePicker extends Picker {
     }
 
     /**
-     * Get format of showing dates, e.g. 'YMD'.  Default value is from
-     * {@link android.text.format.DateFormat#getDateFormatOrder}.
+     * Get format of showing dates.  For example "YMD".  Default value is from
+     * {@link android.text.format.DateFormat#getDateFormatOrder(Context)}.
      * @return Format of showing dates.
      */
     public String getDatePickerFormat() {
         return mDatePickerFormat;
     }
-
-    @Override
-    protected String getSeparator() {
-        return mConstant.dateSeparator;
-    }
-
 
     private Calendar getCalendarForLocale(Calendar oldCalendar, Locale locale) {
         if (oldCalendar == null) {
@@ -192,13 +194,13 @@ public class DatePicker extends Picker {
         mCurrentDate = getCalendarForLocale(mCurrentDate, mConstant.locale);
 
         if (mMonthColumn != null) {
-            mMonthColumn.setValueStaticLabels(mConstant.months);
-            updateAdapter(mColMonthIndex);
+            mMonthColumn.setEntries(mConstant.months);
+            setColumnAt(mColMonthIndex, mMonthColumn);
         }
     }
 
     @Override
-    public void onColumnValueChange(int column, int newVal) {
+    public final void onColumnValueChanged(int column, int newVal) {
         mTempDate.setTimeInMillis(mCurrentDate.getTimeInMillis());
         // take care of wrapping of days and months to update greater fields
         int oldVal = getColumnAt(column).getCurrentValue();
@@ -248,10 +250,8 @@ public class DatePicker extends Picker {
      *
      * @return The minimal supported date.
      */
-    public Calendar getMinDate() {
-        final Calendar minDate = Calendar.getInstance();
-        minDate.setTimeInMillis(mMinDate.getTimeInMillis());
-        return minDate;
+    public long getMinDate() {
+        return mMinDate.getTimeInMillis();
     }
 
     /**
@@ -284,10 +284,18 @@ public class DatePicker extends Picker {
      *
      * @return The maximal supported date.
      */
-    public Calendar getMaxDate() {
-        final Calendar maxDate = Calendar.getInstance();
-        maxDate.setTimeInMillis(mMaxDate.getTimeInMillis());
-        return maxDate;
+    public long getMaxDate() {
+        return mMaxDate.getTimeInMillis();
+    }
+
+    /**
+     * Gets current date value in milliseconds since January 1, 1970 00:00:00 in
+     * {@link TimeZone#getDefault()} time zone.
+     *
+     * @return Current date values.
+     */
+    public long getDate() {
+        return mCurrentDate.getTimeInMillis();
     }
 
     private void setDate(int year, int month, int dayOfMonth) {
@@ -321,72 +329,88 @@ public class DatePicker extends Picker {
                 || mCurrentDate.get(Calendar.DAY_OF_MONTH) != month);
     }
 
+    private static boolean updateMin(PickerColumn column, int value) {
+        if (value != column.getMinValue()) {
+            column.setMinValue(value);
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean updateMax(PickerColumn column, int value) {
+        if (value != column.getMaxValue()) {
+            column.setMaxValue(value);
+            return true;
+        }
+        return false;
+    }
+
     private void updateSpinners(boolean animation) {
         // set the spinner ranges respecting the min and max dates
         boolean dayRangeChanged = false;
         boolean monthRangeChanged = false;
         if (mCurrentDate.equals(mMinDate)) {
             if (mDayColumn != null) {
-                dayRangeChanged |= mDayColumn.setMinValue(mCurrentDate.get(Calendar.DAY_OF_MONTH));
-                dayRangeChanged |= mDayColumn
-                        .setMaxValue(mCurrentDate.getActualMaximum(Calendar.DAY_OF_MONTH));
+                dayRangeChanged |= updateMin(mDayColumn, mCurrentDate.get(Calendar.DAY_OF_MONTH));
+                dayRangeChanged |=
+                        updateMax(mDayColumn, mCurrentDate.getActualMaximum(Calendar.DAY_OF_MONTH));
             }
             if (mMonthColumn != null) {
-                monthRangeChanged |= mMonthColumn.setMinValue(mCurrentDate.get(Calendar.MONTH));
+                monthRangeChanged |= updateMin(mMonthColumn, mCurrentDate.get(Calendar.MONTH));
                 monthRangeChanged |=
-                        mMonthColumn.setMaxValue(mCurrentDate.getActualMaximum(Calendar.MONTH));
+                        updateMax(mMonthColumn, mCurrentDate.getActualMaximum(Calendar.MONTH));
             }
         } else if (mCurrentDate.equals(mMaxDate)) {
             if (mDayColumn != null) {
-                dayRangeChanged |= mDayColumn
-                        .setMinValue(mCurrentDate.getActualMinimum(Calendar.DAY_OF_MONTH));
-                dayRangeChanged |= mDayColumn.setMaxValue(mCurrentDate.get(Calendar.DAY_OF_MONTH));
+                dayRangeChanged |=
+                        updateMin(mDayColumn, mCurrentDate.getActualMinimum(Calendar.DAY_OF_MONTH));
+                dayRangeChanged |= updateMax(mDayColumn, mCurrentDate.get(Calendar.DAY_OF_MONTH));
             }
             if (mMonthColumn != null) {
                 monthRangeChanged |=
-                        mMonthColumn.setMinValue(mCurrentDate.getActualMinimum(Calendar.MONTH));
-                monthRangeChanged |= mMonthColumn.setMaxValue(mCurrentDate.get(Calendar.MONTH));
+                        updateMin(mMonthColumn, mCurrentDate.getActualMinimum(Calendar.MONTH));
+                monthRangeChanged |= updateMax(mMonthColumn, mCurrentDate.get(Calendar.MONTH));
             }
         } else {
             if (mDayColumn != null) {
-                dayRangeChanged |= mDayColumn
-                        .setMinValue(mCurrentDate.getActualMinimum(Calendar.DAY_OF_MONTH));
-                dayRangeChanged |= mDayColumn
-                        .setMaxValue(mCurrentDate.getActualMaximum(Calendar.DAY_OF_MONTH));
+                dayRangeChanged |=
+                        updateMin(mDayColumn, mCurrentDate.getActualMinimum(Calendar.DAY_OF_MONTH));
+                dayRangeChanged |=
+                        updateMax(mDayColumn, mCurrentDate.getActualMaximum(Calendar.DAY_OF_MONTH));
             }
             if (mMonthColumn != null) {
                 monthRangeChanged |=
-                        mMonthColumn.setMinValue(mCurrentDate.getActualMinimum(Calendar.MONTH));
+                        updateMin(mMonthColumn, mCurrentDate.getActualMinimum(Calendar.MONTH));
                 monthRangeChanged |=
-                        mMonthColumn.setMaxValue(mCurrentDate.getActualMaximum(Calendar.MONTH));
+                        updateMax(mMonthColumn, mCurrentDate.getActualMaximum(Calendar.MONTH));
             }
         }
 
         // year spinner range does not change based on the current date
         boolean yearRangeChanged = false;
         if (mYearColumn != null) {
-            yearRangeChanged |= mYearColumn.setMinValue(mMinDate.get(Calendar.YEAR));
-            yearRangeChanged |= mYearColumn.setMaxValue(mMaxDate.get(Calendar.YEAR));
+            yearRangeChanged |= updateMin(mYearColumn, mMinDate.get(Calendar.YEAR));
+            yearRangeChanged |= updateMax(mYearColumn, mMaxDate.get(Calendar.YEAR));
         }
 
         if (dayRangeChanged) {
-            updateAdapter(mColDayIndex);
+            setColumnAt(mColDayIndex, mDayColumn);
         }
         if (monthRangeChanged) {
-            updateAdapter(mColMonthIndex);
+            setColumnAt(mColMonthIndex, mMonthColumn);
         }
         if (yearRangeChanged) {
-            updateAdapter(mColYearIndex);
+            setColumnAt(mColYearIndex, mYearColumn);
         }
         // set the spinner values
         if (mYearColumn != null) {
-            updateValue(mColYearIndex, mCurrentDate.get(Calendar.YEAR), animation);
+            setColumnValue(mColYearIndex, mCurrentDate.get(Calendar.YEAR), animation);
         }
         if (mMonthColumn != null) {
-            updateValue(mColMonthIndex, mCurrentDate.get(Calendar.MONTH), animation);
+            setColumnValue(mColMonthIndex, mCurrentDate.get(Calendar.MONTH), animation);
         }
         if (mDayColumn != null) {
-            updateValue(mColDayIndex, mCurrentDate.get(Calendar.DAY_OF_MONTH), animation);
+            setColumnValue(mColDayIndex, mCurrentDate.get(Calendar.DAY_OF_MONTH), animation);
         }
 
     }

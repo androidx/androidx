@@ -14,54 +14,40 @@
 
 package android.support.v17.leanback.widget.picker;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 /**
  * Picker column class used by {@link Picker}, defines a contiguous value ranges and associated
  * labels.  A PickerColumn has a minValue and maxValue to choose between.  The Picker column has
  * a current value.
- * The labels can be dynamically generated from value by {@link #setValueLabelFormat(String)} or
- * a list of static labels set by {@link #setValueStaticLabels(String[])}.
+ * The labels can be dynamically generated from value by {@link #setEntryFormat(String)} or
+ * a list of static labels set by {@link #setEntries(CharSequence[])}.
  */
-public class PickerColumn implements Parcelable {
+public class PickerColumn {
 
     private int mCurrentValue;
     private int mMinValue;
     private int mMaxValue;
-    private String[] mStaticLabels;
-    private String mValueFormat;
+    private CharSequence[] mStaticEntrys;
+    private String mEntryFormat;
 
     public PickerColumn() {
     }
 
-    public PickerColumn(Parcel source) {
-        mValueFormat = source.readString();
-        int count = source.readInt();
-        if (count > 0) {
-            mStaticLabels = new String[count];
-            source.readStringArray(mStaticLabels);
-        }
-        mCurrentValue = source.readInt();
-        mMinValue = source.readInt();
-        mMaxValue = source.readInt();
-    }
-
     /**
-     * Set string format to display label for value, e.g. "%02d".  The string format is only
-     * used when {@link #setValueStaticLabels(String[])} is not called.
-     * @param valueFormat String format to display label for value.
+     * Set string format to display label for value. For example "%02d".
+     * {@link #setEntries(CharSequence[])} overrides the format.
+     *
+     * @param valueFormat String format to display label for value between minValue and maxValue.
      */
-    public void setValueLabelFormat(String valueFormat) {
-        mValueFormat = valueFormat;
+    public void setEntryFormat(String valueFormat) {
+        mEntryFormat = valueFormat;
     }
 
     /**
-     * Return string format to display label for value, e.g. "%02d".
+     * Return string format to display label for value.  For example "%02d".
      * @return String format to display label for value.
      */
-    public String getValueLabelFormat() {
-        return mValueFormat;
+    public String getEntryFormat() {
+        return mEntryFormat;
     }
 
     /**
@@ -69,21 +55,22 @@ public class PickerColumn implements Parcelable {
      * labels[labels.length - 1].
      * @param labels Static labels for each value between minValue and maxValue.
      */
-    public void setValueStaticLabels(String[] labels) {
-        mStaticLabels = labels;
+    public void setEntries(CharSequence[] labels) {
+        mStaticEntrys = labels;
     }
 
     /**
-     * Get a label for value.  The label can be static ({@link #setValueStaticLabels(String[])} or
-     * dynamically generated (@link {@link #setValueLabelFormat(String)}.
+     * Get a label for value. The label can be static ({@link #setEntries(CharSequence[])}
+     * or dynamically generated (@link {@link #setEntryFormat(String)}.
+     * 
      * @param value Value between minValue and maxValue.
      * @return Label for the value.
      */
-    public String getValueLabelAt(int value) {
-        if (mStaticLabels == null) {
-            return String.format(mValueFormat, value);
+    public CharSequence getEntryAt(int value) {
+        if (mStaticEntrys == null) {
+            return String.format(mEntryFormat, value);
         }
-        return mStaticLabels[value];
+        return mStaticEntrys[value];
     }
 
     /**
@@ -96,97 +83,49 @@ public class PickerColumn implements Parcelable {
 
     /**
      * Sets current value of the Column.
-     * @return True if current value has changed.
      */
-    public boolean setCurrentValue(int value) {
-        if (mCurrentValue != value) {
-            mCurrentValue = value;
-            return true;
-        }
-        return false;
+    public void setCurrentValue(int value) {
+        mCurrentValue = value;
     }
 
     /**
-     * Get total items count between minValue(inclusive) and maxValue (inclusive).
-     * @return Total items count between minValue(inclusive) and maxValue (inclusive).
+     * Get total items count between minValue and maxValue.
+     * @return Total items count between minValue and maxValue.
      */
-    public int getItemsCount() {
+    public int getItemCount() {
         return mMaxValue - mMinValue + 1;
     }
 
     /**
-     * Returns minimal value (inclusive) of the Column.
-     * @return Minimal value (inclusive) of the Column.
+     * Returns minimal value of the Column.
+     * @return Minimal value of the Column.
      */
     public int getMinValue() {
         return mMinValue;
     }
 
     /**
-     * Returns maximum value (inclusive) of the Column.
-     * @return Maximum value (inclusive) of the Column.
+     * Returns maximum value of the Column.
+     * @return Maximum value of the Column.
      */
     public int getMaxValue() {
         return mMaxValue;
     }
 
     /**
-     * Sets minimal value (inclusive) of the Column.
+     * Sets minimal value of the Column.
      * @param minValue New minimal value to set.
-     * @return True if minimal value changes.
      */
-    public boolean setMinValue(int minValue) {
-        if (minValue != mMinValue) {
-            mMinValue = minValue;
-            return true;
-        }
-        return false;
+    public void setMinValue(int minValue) {
+        mMinValue = minValue;
     }
 
     /**
-     * Sets maximum value (inclusive) of the Column.
+     * Sets maximum value of the Column.
      * @param maxValue New maximum value to set.
-     * @return True if maximum value changes.
      */
-    public boolean setMaxValue(int maxValue) {
-        if (maxValue != mMaxValue) {
-            mMaxValue = maxValue;
-            return true;
-        }
-        return false;
-    }
-
-    public static Parcelable.Creator<PickerColumn>
-            CREATOR = new Parcelable.Creator<PickerColumn>() {
-
-                @Override
-                public PickerColumn createFromParcel(Parcel source) {
-                    return new PickerColumn(source);
-                }
-
-                @Override
-                public PickerColumn[] newArray(int size) {
-                    return new PickerColumn[size];
-                }
-            };
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(mValueFormat);
-        if (mStaticLabels != null) {
-            dest.writeInt(mStaticLabels.length);
-            dest.writeStringArray(mStaticLabels);
-        } else {
-            dest.writeInt(0);
-        }
-        dest.writeInt(mCurrentValue);
-        dest.writeInt(mMinValue);
-        dest.writeInt(mMaxValue);
+    public void setMaxValue(int maxValue) {
+        mMaxValue = maxValue;
     }
 
 }
