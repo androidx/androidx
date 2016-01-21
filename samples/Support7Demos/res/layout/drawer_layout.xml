@@ -29,37 +29,32 @@
     <!-- As the main content view, the view below consumes the entire
          space available using match_parent in both dimensions. Note that
          this child does not specify android:layout_gravity attribute. -->
-    <FrameLayout
-            android:id="@+id/content"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+    <LinearLayout
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
         <!-- This will be set as the support action bar of the activity at runtime.
              It needs to be a dynamic runtime call for correct vertical layering of
              the drawer and the toolbar. -->
         <android.support.v7.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        <!-- Note layout_marginTop attribute with action bar height as the value.
-             This "pushes" down the main content so that it doesn't overlap with
-             the toolbar. Note the usage of layout_gravity that addresses a bug in
-             FrameLayout on v9 and older devices that didn't correctly treat the
-             margin attributes. -->
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize" />
+
         <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbarStyle="outsideOverlay">
+            <TextView
+                android:id="@+id/content_text"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="?attr/actionBarSize"
-                android:layout_gravity="top"
-                android:scrollbarStyle="outsideOverlay">
-            <TextView
-                    android:id="@+id/content_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:text="@string/drawer_layout_summary"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:padding="16dp"/>
+                android:text="@string/drawer_layout_summary"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:padding="16dp"/>
         </ScrollView>
-    </FrameLayout>
+    </LinearLayout>
 
     <!-- android:layout_gravity="start" tells DrawerLayout to treat
          this as a sliding drawer on the starting side, which is
