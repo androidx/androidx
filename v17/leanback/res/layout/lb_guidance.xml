@@ -20,6 +20,7 @@
     android:layout_height="match_parent" >
 
     <RelativeLayout
+        android:id="@+id/guidance_container"
         style="?attr/guidanceContainerStyle" >
 
         <ImageView
