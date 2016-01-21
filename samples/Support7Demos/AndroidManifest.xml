@@ -482,6 +482,16 @@
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
             </intent-filter>
         </activity>
+
+        <!-- PopupMenu demo activity -->
+        <activity android:name=".widget.PopupMenuActivity"
+                  android:label="@string/popup_menu_activity"
+                  android:theme="@style/Theme.AppCompat.Light">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
     </application>
 
 

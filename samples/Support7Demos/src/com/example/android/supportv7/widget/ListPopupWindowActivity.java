@@ -26,7 +26,6 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.FrameLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import com.example.android.supportv7.R;
@@ -112,7 +111,7 @@ public class ListPopupWindowActivity extends AppCompatActivity {
                 mListPopupWindow.setAdapter(mListPopupAdapter);
                 mListPopupWindow.setAnchorView(mButton);
 
-                // Register a listener to be notified when an item in out popup window has
+                // Register a listener to be notified when an item in our popup window has
                 // been clicked.
                 mListPopupWindow.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
