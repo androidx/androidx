@@ -30,7 +30,10 @@ import android.support.annotation.NonNull;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.transition.TransitionListener;
+import android.support.v17.leanback.widget.GuidedActionAdapter.EditListener;
 import android.support.v17.leanback.widget.VerticalGridView;
+import android.support.v17.leanback.widget.picker.DatePicker;
+import android.support.v17.leanback.widget.picker.Picker;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
@@ -39,6 +42,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -53,16 +57,22 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
+
+import static android.support.v17.leanback.widget.GuidedAction.EDITING_NONE;
+import static android.support.v17.leanback.widget.GuidedAction.EDITING_TITLE;
+import static android.support.v17.leanback.widget.GuidedAction.EDITING_DESCRIPTION;
+import static android.support.v17.leanback.widget.GuidedAction.EDITING_ACTIVATOR_VIEW;
 
 /**
  * GuidedActionsStylist is used within a {@link android.support.v17.leanback.app.GuidedStepFragment}
  * to supply the right-side panel where users can take actions. It consists of a container for the
  * list of actions, and a stationary selector view that indicates visually the location of focus.
  * GuidedActionsStylist has two different layouts: default is for normal actions including text,
- * radio, checkbox etc, the other when {@link #setAsButtonActions()} is called is recommended for
- * button actions such as "yes", "no".
+ * radio, checkbox, DatePicker, etc, the other when {@link #setAsButtonActions()} is called is
+ * recommended for button actions such as "yes", "no".
  * <p>
  * Many aspects of the base GuidedActionsStylist can be customized through theming; see the
  * theme attributes below. Note that these attributes are not set on individual elements in layout
@@ -72,8 +82,16 @@ import java.util.List;
  * <p>
  * If these hooks are insufficient, this class may also be subclassed. Subclasses may wish to
  * override the {@link #onProvideLayoutId} method to change the layout used to display the
- * list container and selector, or the {@link #onProvideItemLayoutId} method to change the layout
- * used to display each action.
+ * list container and selector; override {@link #onProvideItemLayoutId(int)} and
+ * {@link #getItemViewType(GuidedAction)} method to change the layout used to display each action.
+ * <p>
+ * To support a "click to activate" view similar to DatePicker, app needs:
+ * <li> Override {@link #onProvideItemLayoutId(int)} and {@link #getItemViewType(GuidedAction)},
+ * provides a layout id for the action.
+ * <li> The layout must include a widget with id "guidedactions_activator_item", the widget is
+ * toggled edit mode by {@link View#setActivated(boolean)}.
+ * <li> Override {@link #onBindActivatorView(ViewHolder, GuidedAction)} to populate values into View.
+ * <li> Override {@link #onUpdateActivatorView(ViewHolder, GuidedAction)} to update action.
  * <p>
  * Note: If an alternate list layout is provided, the following view IDs must be supplied:
  * <ul>
@@ -136,6 +154,11 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     public static final int VIEW_TYPE_DEFAULT = 0;
 
     /**
+     * ViewType for DatePicker.
+     */
+    public static final int VIEW_TYPE_DATE_PICKER = 1;
+
+    /**
      * ViewHolder caches information about the action item layouts' subviews. Subclasses of {@link
      * GuidedActionsStylist} may also wish to subclass this in order to add fields.
      * @see GuidedAction
@@ -146,11 +169,11 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         private View mContentView;
         private TextView mTitleView;
         private TextView mDescriptionView;
+        private View mActivatorView;
         private ImageView mIconView;
         private ImageView mCheckmarkView;
         private ImageView mChevronView;
-        private boolean mInEditing;
-        private boolean mInEditingDescription;
+        private int mEditingMode = EDITING_NONE;
         private final boolean mIsSubAction;
 
         /**
@@ -168,6 +191,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
 
             mContentView = v.findViewById(R.id.guidedactions_item_content);
             mTitleView = (TextView) v.findViewById(R.id.guidedactions_item_title);
+            mActivatorView = v.findViewById(R.id.guidedactions_activator_item);
             mDescriptionView = (TextView) v.findViewById(R.id.guidedactions_item_description);
             mIconView = (ImageView) v.findViewById(R.id.guidedactions_item_icon);
             mCheckmarkView = (ImageView) v.findViewById(R.id.guidedactions_item_checkmark);
@@ -235,26 +259,56 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         }
 
         /**
-         * Returns true if the TextView is in editing title or description, false otherwise.
+         * Returns true if in editing title, description, or activator View, false otherwise.
          */
         public boolean isInEditing() {
-            return mInEditing;
+            return mEditingMode != EDITING_NONE;
+        }
+
+        /**
+         * Returns true if in editing title, description, so IME would be open.
+         * @return True if in editing title, description, so IME would be open, false otherwise.
+         */
+        public boolean isInEditingText() {
+            return mEditingMode == EDITING_TITLE || mEditingMode == EDITING_DESCRIPTION;
+        }
+
+        /**
+         * Returns true if the TextView is in editing title, false otherwise.
+         */
+        public boolean isInEditingTitle() {
+            return mEditingMode == EDITING_TITLE;
         }
 
         /**
          * Returns true if the TextView is in editing description, false otherwise.
          */
         public boolean isInEditingDescription() {
-            return mInEditingDescription;
+            return mEditingMode == EDITING_DESCRIPTION;
         }
 
         /**
-         * @return Current editing title view or description view or null if not in editing.
+         * Returns true if is in editing activator view with id guidedactions_activator_item, false
+         * otherwise.
+         */
+        public boolean isInEditingActivatorView() {
+            return mEditingMode == EDITING_ACTIVATOR_VIEW;
+        }
+
+        /**
+         * @return Current editing title view or description view or activator view or null if not
+         * in editing.
          */
         public View getEditingView() {
-            if (mInEditing) {
-                return mInEditingDescription ?  mDescriptionView : mTitleView;
-            } else {
+            switch(mEditingMode) {
+            case EDITING_TITLE:
+                return mTitleView;
+            case EDITING_DESCRIPTION:
+                return mDescriptionView;
+            case EDITING_ACTIVATOR_VIEW:
+                return mActivatorView;
+            case EDITING_NONE:
+            default:
                 return null;
             }
         }
@@ -296,6 +350,8 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     private int mDescriptionMinLines;
     private int mVerticalPadding;
     private int mDisplayHeight;
+
+    private EditListener mEditListener;
 
     private GuidedAction mExpandedAction = null;
     private Object mExpandTransition;
@@ -428,6 +484,9 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      * @return View type that used in {@link #onProvideItemLayoutId(int)}.
      */
     public int getItemViewType(GuidedAction action) {
+        if (action instanceof GuidedDatePickerAction) {
+            return VIEW_TYPE_DATE_PICKER;
+        }
         return VIEW_TYPE_DEFAULT;
     }
 
@@ -451,19 +510,24 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     /**
      * Provides the resource ID of the layout defining the view for an individual guided actions.
      * Subclasses may override to provide their own customized layouts. The base implementation
-     * returns {@link android.support.v17.leanback.R.layout#lb_guidedactions_item}. If overridden,
-     * the substituted layout should contain matching IDs for any views that should be managed by
-     * the base class; this can be achieved by starting with a copy of the base layout file. Note
-     * that in order for the item to support editing, the title view should both subclass {@link
-     * android.widget.EditText} and implement {@link ImeKeyMonitor}; see {@link
-     * GuidedActionEditText}.
+     * supports:
+     * <li>{@link android.support.v17.leanback.R.layout#lb_guidedactions_item}
+     * <li>{{@link android.support.v17.leanback.R.layout#lb_guidedactions_datepicker_item}. If
+     * overridden, the substituted layout should contain matching IDs for any views that should be
+     * managed by the base class; this can be achieved by starting with a copy of the base layout
+     * file. Note that in order for the item to support editing, the title view should both subclass
+     * {@link android.widget.EditText} and implement {@link ImeKeyMonitor}; see
+     * {@link GuidedActionEditText}.
+     *
      * @param viewType View type returned by {@link #getItemViewType(GuidedAction)}
      * @return The resource ID of the layout to be inflated to define the view to display an
-     * individual GuidedAction.
+     *         individual GuidedAction.
      */
     public int onProvideItemLayoutId(int viewType) {
         if (viewType == VIEW_TYPE_DEFAULT) {
             return onProvideItemLayoutId();
+        } else if (viewType == VIEW_TYPE_DATE_PICKER) {
+            return R.layout.lb_guidedactions_datepicker_item;
         } else {
             throw new RuntimeException("ViewType " + viewType +
                     " not supported in GuidedActionsStylist");
@@ -549,6 +613,9 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
                 vh.mDescriptionView.setMaxLines(mDescriptionMinLines);
             }
         }
+        if (vh.mActivatorView != null) {
+            onBindActivatorView(vh, action);
+        }
         setEditingMode(vh, action, false);
         if (action.isFocusable()) {
             vh.itemView.setFocusable(true);
@@ -580,8 +647,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     }
 
     public void setEditingMode(ViewHolder vh, GuidedAction action, boolean editing) {
-        if (editing != vh.mInEditing) {
-            vh.mInEditing = editing;
+        if (editing != vh.isInEditing() && !isInExpandTransition()) {
             onEditingModeChange(vh, action, editing);
         }
     }
@@ -604,12 +670,15 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
                     descriptionView.setVisibility(View.VISIBLE);
                     descriptionView.setInputType(action.getDescriptionEditInputType());
                 }
-                vh.mInEditingDescription = true;
-            } else {
-                vh.mInEditingDescription = false;
+                vh.mEditingMode = EDITING_DESCRIPTION;
+            } else if (action.isEditable()){
                 if (titleView != null) {
                     titleView.setInputType(action.getEditInputType());
                 }
+                vh.mEditingMode = EDITING_TITLE;
+            } else if (vh.mActivatorView != null) {
+                onEditActivatorView(vh, action, editing);
+                vh.mEditingMode = EDITING_ACTIVATOR_VIEW;
             }
         } else {
             if (titleView != null) {
@@ -618,18 +687,22 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             if (descriptionView != null) {
                 descriptionView.setText(action.getDescription());
             }
-            if (vh.mInEditingDescription) {
+            if (vh.mEditingMode == EDITING_DESCRIPTION) {
                 if (descriptionView != null) {
                     descriptionView.setVisibility(TextUtils.isEmpty(action.getDescription()) ?
                             View.GONE : View.VISIBLE);
                     descriptionView.setInputType(action.getDescriptionInputType());
                 }
-                vh.mInEditingDescription = false;
-            } else {
+            } else if (vh.mEditingMode == EDITING_TITLE) {
                 if (titleView != null) {
                     titleView.setInputType(action.getInputType());
                 }
+            } else if (vh.mEditingMode == EDITING_ACTIVATOR_VIEW) {
+                if (vh.mActivatorView != null) {
+                    onEditActivatorView(vh, action, editing);
+                }
             }
+            vh.mEditingMode = EDITING_NONE;
         }
     }
 
@@ -716,6 +789,76 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     }
 
     /**
+     * Performs binding activator view value to action.  Default implementation supports
+     * GuidedDatePickerAction, subclass may override to add support of other views.
+     * @param vh ViewHolder of activator view.
+     * @param action GuidedAction to bind.
+     */
+    public void onBindActivatorView(ViewHolder vh, GuidedAction action) {
+        if (action instanceof GuidedDatePickerAction) {
+            GuidedDatePickerAction dateAction = (GuidedDatePickerAction) action;
+            DatePicker dateView = (DatePicker) vh.mActivatorView;
+            dateView.setDatePickerFormat(dateAction.getDatePickerFormat());
+            Calendar c = Calendar.getInstance();
+            c.setTimeInMillis(((GuidedDatePickerAction) action).getDate());
+            dateView.updateDate(c.get(Calendar.YEAR), c.get(Calendar.MONTH),
+                    c.get(Calendar.DAY_OF_MONTH), false);
+        }
+    }
+
+    /**
+     * Performs updating GuidedAction from activator view.  Default implementation supports
+     * GuidedDatePickerAction, subclass may override to add support of other views.
+     * @param vh ViewHolder of activator view.
+     * @param action GuidedAction to update.
+     * @return True if value has been updated, false otherwise.
+     */
+    public boolean onUpdateActivatorView(ViewHolder vh, GuidedAction action) {
+        if (action instanceof GuidedDatePickerAction) {
+            GuidedDatePickerAction dateAction = (GuidedDatePickerAction) action;
+            DatePicker dateView = (DatePicker) vh.mActivatorView;
+            if (dateAction.getDate() != dateView.getDate()) {
+                dateAction.setDate(dateView.getDate());
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Sets listener for reporting view being edited.
+     * @hide
+     */
+    public void setEditListener(EditListener listener) {
+        mEditListener = listener;
+    }
+
+    void onEditActivatorView(final ViewHolder vh, final GuidedAction action,
+            boolean editing) {
+        if (editing) {
+            vh.mActivatorView.requestFocus();
+            setExpandedViewHolder(vh);
+            vh.mActivatorView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (!isInExpandTransition()) {
+                        setEditingMode(vh, action, false);
+                    }
+                }
+            });
+        } else {
+            if (onUpdateActivatorView(vh, action)) {
+                if (mEditListener != null) {
+                    mEditListener.onGuidedActionEdited(action);
+                }
+            }
+            vh.itemView.requestFocus();
+            setExpandedViewHolder(null);
+            vh.mActivatorView.setOnClickListener(null);
+        }
+    }
+
+    /**
      * Sets states of chevron view, called by {@link #onBindViewHolder(ViewHolder, GuidedAction)}.
      * Subclass may override.
      *
@@ -750,7 +893,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      * hide the other items in main list.  When null, collapse the sub actions list.
      */
     public void setExpandedViewHolder(ViewHolder avh) {
-        if (mSubActionsGridView == null || isInExpandTransition()) {
+        if (isInExpandTransition()) {
             return;
         }
         if (isExpandTransitionSupported()) {
@@ -804,12 +947,15 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             onUpdateExpandedViewHolder(avh);
             return;
         }
+        boolean isSubActionTransition = focusAvh.getAction().hasSubActions();
         Object set = TransitionHelper.createTransitionSet(false);
+        float slideDistance = isSubActionTransition ? focusAvh.itemView.getHeight() :
+                focusAvh.itemView.getHeight() * 0.5f;
         Object slideAndFade = TransitionHelper.createFadeAndShortSlide(Gravity.TOP | Gravity.BOTTOM,
-                (float) focusAvh.itemView.getHeight());
+                slideDistance);
         Object changeFocusItemTransform = TransitionHelper.createChangeTransform();
         Object changeFocusItemBounds = TransitionHelper.createChangeBounds(false);
-        Object fadeGrid = TransitionHelper.createFadeTransition(TransitionHelper.FADE_IN |
+        Object fade = TransitionHelper.createFadeTransition(TransitionHelper.FADE_IN |
                 TransitionHelper.FADE_OUT);
         Object changeGridBounds = TransitionHelper.createChangeBounds(false);
         if (avh == null) {
@@ -817,7 +963,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             TransitionHelper.setStartDelay(changeFocusItemTransform, 100);
             TransitionHelper.setStartDelay(changeFocusItemBounds, 100);
         } else {
-            TransitionHelper.setStartDelay(fadeGrid, 100);
+            TransitionHelper.setStartDelay(fade, 100);
             TransitionHelper.setStartDelay(changeGridBounds, 100);
             TransitionHelper.setStartDelay(changeFocusItemTransform, 50);
             TransitionHelper.setStartDelay(changeFocusItemBounds, 50);
@@ -827,19 +973,25 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
                     .getChildViewHolder(mActionsGridView.getChildAt(i));
             if (vh == focusAvh) {
                 // going to expand/collapse this one.
-                TransitionHelper.include(changeFocusItemTransform, vh.itemView);
-                TransitionHelper.include(changeFocusItemBounds, vh.itemView);
+                if (isSubActionTransition) {
+                    TransitionHelper.include(changeFocusItemTransform, vh.itemView);
+                    TransitionHelper.include(changeFocusItemBounds, vh.itemView);
+                }
             } else {
                 // going to slide this item to top / bottom.
                 TransitionHelper.include(slideAndFade, vh.itemView);
+                TransitionHelper.exclude(fade, vh.itemView, true);
             }
         }
-        TransitionHelper.include(fadeGrid, mSubActionsGridView);
         TransitionHelper.include(changeGridBounds, mSubActionsGridView);
         TransitionHelper.addTransition(set, slideAndFade);
-        TransitionHelper.addTransition(set, changeFocusItemTransform);
-        TransitionHelper.addTransition(set, changeFocusItemBounds);
-        TransitionHelper.addTransition(set, fadeGrid);
+        // note that we don't run ChangeBounds for activating view due to the rounding problem
+        // of multiple level views ChangeBounds animation causing vertical jittering.
+        if (isSubActionTransition) {
+            TransitionHelper.addTransition(set, changeFocusItemTransform);
+            TransitionHelper.addTransition(set, changeFocusItemBounds);
+        }
+        TransitionHelper.addTransition(set, fade);
         TransitionHelper.addTransition(set, changeGridBounds);
         mExpandTransition = set;
         TransitionHelper.addTransitionListener(mExpandTransition, new TransitionListener() {
@@ -917,7 +1069,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             updateChevronAndVisibility(vh);
         }
         if (mSubActionsGridView != null) {
-            if (avh != null) {
+            if (avh != null && avh.getAction().hasSubActions()) {
                 ViewGroup.MarginLayoutParams lp =
                         (ViewGroup.MarginLayoutParams) mSubActionsGridView.getLayoutParams();
                 lp.topMargin = avh.itemView.getTop();
@@ -928,7 +1080,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
                 mSubActionsGridView.setSelectedPosition(0);
                 ((GuidedActionAdapter) mSubActionsGridView.getAdapter())
                         .setActions(avh.getAction().getSubActions());
-            } else {
+            } else if (mSubActionsGridView.getVisibility() == View.VISIBLE) {
                 mSubActionsGridView.setVisibility(View.INVISIBLE);
                 ViewGroup.MarginLayoutParams lp =
                         (ViewGroup.MarginLayoutParams) mSubActionsGridView.getLayoutParams();
@@ -946,9 +1098,17 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             if (mExpandedAction == null) {
                 vh.itemView.setVisibility(View.VISIBLE);
                 vh.itemView.setTranslationY(0);
+                if (vh.mActivatorView != null) {
+                    vh.mActivatorView.setActivated(false);
+                }
             } else if (vh.getAction() == mExpandedAction) {
                 vh.itemView.setVisibility(View.VISIBLE);
-                vh.itemView.setTranslationY(- vh.itemView.getHeight());
+                if (vh.getAction().hasSubActions()) {
+                    vh.itemView.setTranslationY(- vh.itemView.getHeight());
+                } else if (vh.mActivatorView != null) {
+                    vh.itemView.setTranslationY(0);
+                    vh.mActivatorView.setActivated(true);
+                }
             } else {
                 vh.itemView.setVisibility(View.INVISIBLE);
                 vh.itemView.setTranslationY(0);

@@ -1033,6 +1033,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
         mAdapterGroup.addAdpter(mAdapter, mButtonAdapter);
         mAdapterGroup.addAdpter(mSubAdapter, null);
         mAdapterGroup.setEditListener(editListener);
+        mActionsStylist.setEditListener(editListener);
 
         mActionsStylist.getActionsGridView().setAdapter(mAdapter);
         if (mActionsStylist.getSubActionsGridView() != null) {
