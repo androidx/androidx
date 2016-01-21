@@ -2413,7 +2413,7 @@ public final class ViewCompat {
     }
 
     /**
-     * The vertical location of this view relative to its {@link View#getTop() left} position.
+     * The vertical location of this view relative to its {@link View#getTop() top} position.
      * This position is post-layout, in addition to wherever the object's
      * layout placed it.
      *
