@@ -38,7 +38,7 @@ import java.util.List;
  * user input on selection, in which case they will be displayed with a chevron indicator.
  * <p>
  * GuidedAction recommends to use {@link Builder}. When application subclass GuidedAction, it
- * can subclass {@link BuilderBase}, implement {@link BuilderBase#build()} where it should
+ * can subclass {@link BuilderBase}, implement its own builder() method where it should
  * call {@link BuilderBase#applyValues(GuidedAction)}.
  */
 public class GuidedAction extends Action {
@@ -97,12 +97,17 @@ public class GuidedAction extends Action {
      */
     public static final long ACTION_ID_NO = -9;
 
+    static final int EDITING_NONE = 0;
+    static final int EDITING_TITLE = 1;
+    static final int EDITING_DESCRIPTION = 2;
+    static final int EDITING_ACTIVATOR_VIEW = 3;
+
     /**
      * Base builder class to build a {@link GuidedAction} object.  When subclass GuidedAction, you
-     * can override this BuilderBase class, implements {@link #build()} and call
+     * can override this BuilderBase class, implements your build() method which should call
      * {@link #applyValues(GuidedAction)}.  When using GuidedAction directly, use {@link Builder}.
      */
-    public abstract static class BuilderBase<T extends GuidedAction> {
+    public abstract static class BuilderBase<B extends BuilderBase> {
         private Context mContext;
         private long mId;
         private CharSequence mTitle;
@@ -114,8 +119,7 @@ public class GuidedAction extends Action {
         private boolean mMultilineDescription;
         private boolean mHasNext;
         private boolean mInfoOnly;
-        private boolean mEditable = false;
-        private boolean mDescriptionEditable = false;
+        private int mEditable = EDITING_NONE;
         private int mInputType = InputType.TYPE_CLASS_TEXT;
         private int mDescriptionInputType = InputType.TYPE_CLASS_TEXT;
         private int mEditInputType = InputType.TYPE_CLASS_TEXT;
@@ -143,12 +147,6 @@ public class GuidedAction extends Action {
         }
 
         /**
-         * Builds the GuidedAction corresponding to this Builder.
-         * @return the GuidedAction as configured through this BuilderBase.
-         */
-        public abstract T build();
-
-        /**
          * Subclass of BuilderBase should call this function to apply values.
          * @param action GuidedAction to apply BuilderBase values.
          */
@@ -164,7 +162,6 @@ public class GuidedAction extends Action {
             // Subclass values
             action.mIntent = mIntent;
             action.mEditable = mEditable;
-            action.mDescriptionEditable = mDescriptionEditable;
             action.mInputType = mInputType;
             action.mDescriptionInputType = mDescriptionInputType;
             action.mEditInputType = mEditInputType;
@@ -187,7 +184,7 @@ public class GuidedAction extends Action {
          * {@link GuidedAction#ACTION_ID_YES} {@link GuidedAction#ACTION_ID_NO}.
          * @return The same BuilderBase object.
          */
-        public BuilderBase<T> clickAction(long id) {
+        public B clickAction(long id) {
             if (id == ACTION_ID_OK) {
                 mId = ACTION_ID_OK;
                 mTitle = mContext.getString(android.R.string.ok);
@@ -207,7 +204,7 @@ public class GuidedAction extends Action {
                 mId = ACTION_ID_NO;
                 mTitle = mContext.getString(android.R.string.no);
             }
-            return this;
+            return (B) this;
         }
 
         /**
@@ -215,9 +212,9 @@ public class GuidedAction extends Action {
          * it is typically used to determine what to do when an action is clicked.
          * @param id The ID to associate with this action.
          */
-        public BuilderBase<T> id(long id) {
+        public B id(long id) {
             mId = id;
-            return this;
+            return (B) this;
         }
 
         /**
@@ -225,9 +222,9 @@ public class GuidedAction extends Action {
          * action to be taken on click, e.g. "Continue" or "Cancel".
          * @param title The title for this action.
          */
-        public BuilderBase<T> title(CharSequence title) {
+        public B title(CharSequence title) {
             mTitle = title;
-            return this;
+            return (B) this;
         }
 
         /**
@@ -235,9 +232,9 @@ public class GuidedAction extends Action {
          * action to be taken on click, e.g. "Continue" or "Cancel".
          * @param titleResourceId The resource id of title for this action.
          */
-        public BuilderBase<T> title(@StringRes int titleResourceId) {
+        public B title(@StringRes int titleResourceId) {
             mTitle = getContext().getString(titleResourceId);
-            return this;
+            return (B) this;
         }
 
         /**
@@ -245,9 +242,9 @@ public class GuidedAction extends Action {
          * replaces the string of title.
          * @param editTitle The optional title text to edit when TextView is activated.
          */
-        public BuilderBase<T> editTitle(CharSequence editTitle) {
+        public B editTitle(CharSequence editTitle) {
             mEditTitle = editTitle;
-            return this;
+            return (B) this;
         }
 
         /**
@@ -256,9 +253,9 @@ public class GuidedAction extends Action {
          * @param editTitleResourceId String resource id of the optional title text to edit when
          * TextView is activated.
          */
-        public BuilderBase<T> editTitle(@StringRes int editTitleResourceId) {
+        public B editTitle(@StringRes int editTitleResourceId) {
             mEditTitle = getContext().getString(editTitleResourceId);
-            return this;
+            return (B) this;
         }
 
         /**
@@ -266,9 +263,9 @@ public class GuidedAction extends Action {
          * providing extra information on what the action will do.
          * @param description The description for this action.
          */
-        public BuilderBase<T> description(CharSequence description) {
+        public B description(CharSequence description) {
             mDescription = description;
-            return this;
+            return (B) this;
         }
 
         /**
@@ -276,9 +273,9 @@ public class GuidedAction extends Action {
          * providing extra information on what the action will do.
          * @param descriptionResourceId String resource id of the description for this action.
          */
-        public BuilderBase<T> description(@StringRes int descriptionResourceId) {
+        public B description(@StringRes int descriptionResourceId) {
             mDescription = getContext().getString(descriptionResourceId);
-            return this;
+            return (B) this;
         }
 
         /**
@@ -286,9 +283,9 @@ public class GuidedAction extends Action {
          * description replaces the string of description.
          * @param description The description to edit for this action.
          */
-        public BuilderBase<T> editDescription(CharSequence description) {
+        public B editDescription(CharSequence description) {
             mEditDescription = description;
-            return this;
+            return (B) this;
         }
 
         /**
@@ -297,9 +294,9 @@ public class GuidedAction extends Action {
          * @param descriptionResourceId String resource id of the description to edit for this
          * action.
          */
-        public BuilderBase<T> editDescription(@StringRes int descriptionResourceId) {
+        public B editDescription(@StringRes int descriptionResourceId) {
             mEditDescription = getContext().getString(descriptionResourceId);
-            return this;
+            return (B) this;
         }
 
         /**
@@ -307,18 +304,18 @@ public class GuidedAction extends Action {
          * directly when the action is clicked.
          * @param intent The intent associated with this action.
          */
-        public BuilderBase<T> intent(Intent intent) {
+        public B intent(Intent intent) {
             mIntent = intent;
-            return this;
+            return (B) this;
         }
 
         /**
          * Sets the action's icon drawable.
          * @param icon The drawable for the icon associated with this action.
          */
-        public BuilderBase<T> icon(Drawable icon) {
+        public B icon(Drawable icon) {
             mIcon = icon;
-            return this;
+            return (B) this;
         }
 
         /**
@@ -330,7 +327,7 @@ public class GuidedAction extends Action {
          * @deprecated Use {@link #icon(int)}.
          */
         @Deprecated
-        public BuilderBase<T> iconResourceId(@DrawableRes int iconResourceId, Context context) {
+        public B iconResourceId(@DrawableRes int iconResourceId, Context context) {
             return icon(ContextCompat.getDrawable(context, iconResourceId));
         }
 
@@ -340,7 +337,7 @@ public class GuidedAction extends Action {
          * {@link #icon(Drawable)}.
          * @param iconResourceId The resource ID for the icon associated with this action.
          */
-        public BuilderBase<T> icon(@DrawableRes int iconResourceId) {
+        public B icon(@DrawableRes int iconResourceId) {
             return icon(ContextCompat.getDrawable(getContext(), iconResourceId));
         }
 
@@ -349,24 +346,48 @@ public class GuidedAction extends Action {
          * checked, or belong to a check set.
          * @param editable Whether this action is editable.
          */
-        public BuilderBase<T> editable(boolean editable) {
-            mEditable = editable;
+        public B editable(boolean editable) {
+            if (!editable && mEditable == EDITING_TITLE) {
+                mEditable = EDITING_NONE;
+                return (B) this;
+            }
+            mEditable = EDITING_TITLE;
             if (mChecked || mCheckSetId != NO_CHECK_SET) {
                 throw new IllegalArgumentException("Editable actions cannot also be checked");
             }
-            return this;
+            return (B) this;
         }
 
         /**
          * Indicates whether this action's description is editable
          * @param editable Whether this action description is editable.
          */
-        public BuilderBase<T> descriptionEditable(boolean editable) {
-            mDescriptionEditable = editable;
+        public B descriptionEditable(boolean editable) {
+            if (!editable && mEditable == EDITING_DESCRIPTION) {
+                mEditable = EDITING_NONE;
+                return (B) this;
+            }
+            mEditable = EDITING_DESCRIPTION;
             if (mChecked || mCheckSetId != NO_CHECK_SET) {
                 throw new IllegalArgumentException("Editable actions cannot also be checked");
             }
-            return this;
+            return (B) this;
+        }
+
+        /**
+         * Indicates whether this action has a view can be activated to edit, e.g. a DatePicker.
+         * @param editable Whether this action has view can be activated to edit.
+         */
+        public B hasEditableActivatorView(boolean editable) {
+            if (!editable && mEditable == EDITING_ACTIVATOR_VIEW) {
+                mEditable = EDITING_NONE;
+                return (B) this;
+            }
+            mEditable = EDITING_ACTIVATOR_VIEW;
+            if (mChecked || mCheckSetId != NO_CHECK_SET) {
+                throw new IllegalArgumentException("Editable actions cannot also be checked");
+            }
+            return (B) this;
         }
 
         /**
@@ -374,9 +395,9 @@ public class GuidedAction extends Action {
          *
          * @param inputType InputType for the action title not in editing.
          */
-        public BuilderBase<T> inputType(int inputType) {
+        public B inputType(int inputType) {
             mInputType = inputType;
-            return this;
+            return (B) this;
         }
 
         /**
@@ -384,9 +405,9 @@ public class GuidedAction extends Action {
          *
          * @param inputType InputType for the action description not in editing.
          */
-        public BuilderBase<T> descriptionInputType(int inputType) {
+        public B descriptionInputType(int inputType) {
             mDescriptionInputType = inputType;
-            return this;
+            return (B) this;
         }
 
 
@@ -395,9 +416,9 @@ public class GuidedAction extends Action {
          *
          * @param inputType InputType for the action title in editing.
          */
-        public BuilderBase<T> editInputType(int inputType) {
+        public B editInputType(int inputType) {
             mEditInputType = inputType;
-            return this;
+            return (B) this;
         }
 
         /**
@@ -405,9 +426,9 @@ public class GuidedAction extends Action {
          *
          * @param inputType InputType for the action description in editing.
          */
-        public BuilderBase<T> descriptionEditInputType(int inputType) {
+        public B descriptionEditInputType(int inputType) {
             mDescriptionEditInputType = inputType;
-            return this;
+            return (B) this;
         }
 
 
@@ -415,12 +436,12 @@ public class GuidedAction extends Action {
          * Indicates whether this action is initially checked.
          * @param checked Whether this action is checked.
          */
-        public BuilderBase<T> checked(boolean checked) {
+        public B checked(boolean checked) {
             mChecked = checked;
-            if (mEditable || mDescriptionEditable) {
+            if (mEditable != EDITING_NONE) {
                 throw new IllegalArgumentException("Editable actions cannot also be checked");
             }
-            return this;
+            return (B) this;
         }
 
         /**
@@ -430,12 +451,12 @@ public class GuidedAction extends Action {
          * @param checkSetId The check set ID, or {@link GuidedAction#NO_CHECK_SET} to indicate not
          * radio or checkbox, or {@link GuidedAction#CHECKBOX_CHECK_SET_ID} to indicate a checkbox.
          */
-        public BuilderBase<T> checkSetId(int checkSetId) {
+        public B checkSetId(int checkSetId) {
             mCheckSetId = checkSetId;
-            if (mEditable || mDescriptionEditable) {
+            if (mEditable != EDITING_NONE) {
                 throw new IllegalArgumentException("Editable actions cannot also be in check sets");
             }
-            return this;
+            return (B) this;
         }
 
         /**
@@ -443,36 +464,36 @@ public class GuidedAction extends Action {
          * appropriately.
          * @param multilineDescription Whether this action has a multiline description.
          */
-        public BuilderBase<T> multilineDescription(boolean multilineDescription) {
+        public B multilineDescription(boolean multilineDescription) {
             mMultilineDescription = multilineDescription;
-            return this;
+            return (B) this;
         }
 
         /**
          * Indicates whether this action has a next state and should display a chevron.
          * @param hasNext Whether this action has a next state.
          */
-        public BuilderBase<T> hasNext(boolean hasNext) {
+        public B hasNext(boolean hasNext) {
             mHasNext = hasNext;
-            return this;
+            return (B) this;
         }
 
         /**
          * Indicates whether this action is for information purposes only and cannot be clicked.
          * @param infoOnly Whether this action has a next state.
          */
-        public BuilderBase<T> infoOnly(boolean infoOnly) {
+        public B infoOnly(boolean infoOnly) {
             mInfoOnly = infoOnly;
-            return this;
+            return (B) this;
         }
 
         /**
          * Indicates whether this action is enabled.  If not enabled, an action cannot be clicked.
          * @param enabled Whether the action is enabled.
          */
-        public BuilderBase<T> enabled(boolean enabled) {
+        public B enabled(boolean enabled) {
             mEnabled = enabled;
-            return this;
+            return (B) this;
         }
 
         /**
@@ -480,9 +501,9 @@ public class GuidedAction extends Action {
          * @param focusable
          * @return The same BuilderBase object.
          */
-        public BuilderBase<T> focusable(boolean focusable) {
+        public B focusable(boolean focusable) {
             mFocusable = focusable;
-            return this;
+            return (B) this;
         }
 
         /**
@@ -490,16 +511,16 @@ public class GuidedAction extends Action {
          * @param subActions
          * @return The same BuilderBase object.
          */
-        public BuilderBase<T> subActions(List<GuidedAction> subActions) {
+        public B subActions(List<GuidedAction> subActions) {
             mSubActions = subActions;
-            return this;
+            return (B) this;
         }
     }
 
     /**
      * Builds a {@link GuidedAction} object.
      */
-    public static class Builder extends BuilderBase<GuidedAction> {
+    public static class Builder extends BuilderBase<Builder> {
 
         /**
          * @deprecated Use {@link GuidedAction.Builder#GuidedAction.Builder(Context)}.
@@ -517,7 +538,10 @@ public class GuidedAction extends Action {
             super(context);
         }
 
-        @Override
+        /**
+         * Builds the GuidedAction corresponding to this Builder.
+         * @return The GuidedAction as configured through this Builder.
+         */
         public GuidedAction build() {
             GuidedAction action = new GuidedAction();
             applyValues(action);
@@ -528,8 +552,7 @@ public class GuidedAction extends Action {
 
     private CharSequence mEditTitle;
     private CharSequence mEditDescription;
-    private boolean mEditable;
-    private boolean mDescriptionEditable;
+    private int mEditable;
     private int mInputType;
     private int mDescriptionInputType;
     private int mEditInputType;
@@ -642,11 +665,20 @@ public class GuidedAction extends Action {
     }
 
     /**
+     * Returns whether this action has any editable part, e.g. editable title, editable description
+     * or editable activate view.
+     * @return true if this action has any editable part, false otherwise.
+     */
+    public boolean hasAnyEditable() {
+        return mEditable != EDITING_NONE;
+    }
+
+    /**
      * Returns whether this action title is editable.
      * @return true if the action title is editable, false otherwise.
      */
     public boolean isEditable() {
-        return mEditable;
+        return mEditable == EDITING_TITLE;
     }
 
     /**
@@ -654,7 +686,23 @@ public class GuidedAction extends Action {
      * @return true if the action description is editable, false otherwise.
      */
     public boolean isDescriptionEditable() {
-        return mDescriptionEditable;
+        return mEditable == EDITING_DESCRIPTION;
+    }
+
+    /**
+     * Returns if this action has editable title or editable description.
+     * @return True if this action has editable title or editable description, false otherwise.
+     */
+    public boolean hasTextEditable() {
+        return mEditable == EDITING_TITLE || mEditable == EDITING_DESCRIPTION;
+    }
+
+    /**
+     * Returns whether this action can be activated to edit, e.g. a DatePicker.
+     * @return true if the action can be activated to edit.
+     */
+    public boolean hasEditableActivatorView() {
+        return mEditable == EDITING_ACTIVATOR_VIEW;
     }
 
     /**

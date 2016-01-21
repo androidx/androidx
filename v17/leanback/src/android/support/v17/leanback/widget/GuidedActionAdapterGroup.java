@@ -95,7 +95,7 @@ public class GuidedActionAdapterGroup {
                         (GuidedActionsStylist.ViewHolder) adapter.getGuidedActionsStylist()
                                 .getActionsGridView().findViewHolderForPosition(index);
                 if (vh != null) {
-                    if (vh.getAction().isEditable() || vh.getAction().isDescriptionEditable()) {
+                    if (vh.getAction().hasTextEditable()) {
                         if (DEBUG_EDIT) Log.v(TAG_EDIT, "openIme of next Action");
                         // open Ime on next action.
                         openIme(adapter, vh);
@@ -122,7 +122,7 @@ public class GuidedActionAdapterGroup {
     public void openIme(GuidedActionAdapter adapter, GuidedActionsStylist.ViewHolder avh) {
         adapter.getGuidedActionsStylist().setEditingMode(avh, avh.getAction(), true);
         View v = avh.getEditingView();
-        if (v == null) {
+        if (v == null || !avh.isInEditingText()) {
             return;
         }
         InputMethodManager mgr = (InputMethodManager)

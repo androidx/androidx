@@ -36,28 +36,19 @@ import java.util.List;
 
 /**
  * Picker is a widget showing multiple customized {@link PickerColumn}s. The PickerColumns are
- * initialized in {@link #setColumns(ArrayList)}. Call {@link #updateAdapter(int)} if the column
- * value range or labels change. Call {@link #updateValue(int, int, boolean)} to update the current
- * value of PickerColumn.
+ * initialized in {@link #setColumns(List)}. Call {@link #setColumnAt(int, PickerColumn)} if the
+ * column value range or labels change. Call {@link #setColumnValue(int, int, boolean)} to update
+ * the current value of PickerColumn.
  * <p>
  * Picker has two states and will change height:
- * <li>{@link #isExpanded()} is true: Picker shows typically three items vertically (see
- * {@link #getVisiblePickerItemsInExpand()}}. Columns other than {@link #getActiveColumn()} still
+ * <li>{@link #isActivated()} is true: Picker shows typically three items vertically (see
+ * {@link #getActivatedVisibleItemCount()}}. Columns other than {@link #getSelectedColumn()} still
  * shows one item if the Picker is focused. On a touch screen device, the Picker will not get focus
  * so it always show three items on all columns. On a non-touch device (a TV), the Picker will show
  * three items only on currently activated column. If the Picker has focus, it will intercept DPAD
  * directions and select activated column.
- * <li>{@link #isExpanded()} is false: Picker shows one item vertically (see
- * {@link #getVisiblePickerItems()}) on all columns. The size of Picker shrinks.
- * <li>The expand mode will be toggled if the Picker has focus and {@link #isToggleExpandOnClick()}
- * is true. Summarize Typically use cases:
- * <li>On a touch screen based device, the Picker focusableInTouchMode=false. It won't get focus, it
- * wont toggle expand mode on click or touch, should call {@link #setExpanded(boolean)} with true,
- * so that user always sees three items on all columns.
- * <li>On a TV: the Picker focusable=true. It will get focus and toggle into expand mode when user
- * clicks on it, toggle can be disabled by {@link #setToggleExpandOnClick(boolean)} with false. Only
- * the activated column shows multiple items and the activated column is selected by DPAD left or
- * right.
+ * <li>{@link #isActivated()} is false: Picker shows one item vertically (see
+ * {@link #getVisibleItemCount()}) on all columns. The size of Picker shrinks.
  */
 public class Picker extends FrameLayout {
 
@@ -65,7 +56,6 @@ public class Picker extends FrameLayout {
         public void onValueChanged(Picker picker, int column);
     }
 
-    private String mSeparator;
     private ViewGroup mRootView;
     private ViewGroup mPickerView;
     private List<VerticalGridView> mColumnViews = new ArrayList<VerticalGridView>();
@@ -79,62 +69,57 @@ public class Picker extends FrameLayout {
     private Interpolator mDecelerateInterpolator;
     private Interpolator mAccelerateInterpolator;
     private ArrayList<PickerValueListener> mListeners;
-    private boolean mExpanded;
-    private float mVisibleItemsInExpand = 3;
+    private float mVisibleItemsActivated = 3;
     private float mVisibleItems = 1;
-    private int mActivatedColumn = 0;
-    private boolean mToggleExpandOnClick = true;
+    private int mSelectedColumn = 0;
+
+    private CharSequence mSeparator;
+    private int mPickerItemLayoutId = R.layout.lb_picker_item;
+    private int mPickerItemTextViewId = 0;
 
     /**
-     * Classes extending {@link Picker} can choose to override this method to
-     * supply the separator string
+     * Gets separator string between columns.
      */
-    protected String getSeparator() {
+    public final CharSequence getSeparator() {
         return mSeparator;
     }
 
     /**
-     * Classes extending {@link Picker} can choose to override this method to
-     * supply the {@link Picker}'s root layout id
+     * Sets separator String between Picker columns.
+     * @param seperator Separator String between Picker columns.
      */
-    protected int getRootLayoutId() {
-        return R.layout.lb_picker;
-    }
-
-    /**
-     * Classes extending {@link Picker} can choose to override this method to
-     * supply the {@link Picker}'s id from within the layout provided by
-     * {@link Picker#getRootLayoutId()}
-     */
-    protected int getPickerId() {
-        return R.id.picker;
-    }
-
-    /**
-     * Classes extending {@link Picker} can choose to override this method to
-     * supply the {@link Picker}'s separator's layout id
-     */
-    protected int getPickerSeparatorLayoutId() {
-        return R.layout.lb_picker_separator;
+    public final void setSeparator(CharSequence seperator) {
+        mSeparator = seperator;
     }
 
     /**
      * Classes extending {@link Picker} can choose to override this method to
      * supply the {@link Picker}'s item's layout id
      */
-    protected int getPickerItemLayoutId() {
-        return R.layout.lb_picker_item;
+    public final int getPickerItemLayoutId() {
+        return mPickerItemLayoutId;
     }
 
     /**
-     * Classes extending {@link Picker} can choose to override this method to
-     * supply the {@link Picker}'s item's {@link TextView}'s id from within the
+     * Returns the {@link Picker}'s item's {@link TextView}'s id from within the
      * layout provided by {@link Picker#getPickerItemLayoutId()} or 0 if the
      * layout provided by {@link Picker#getPickerItemLayoutId()} is a {link
      * TextView}.
      */
-    protected int getPickerItemTextViewId() {
-        return 0;
+    public final int getPickerItemTextViewId() {
+        return mPickerItemTextViewId;
+    }
+
+    /**
+     * Sets the {@link Picker}'s item's {@link TextView}'s id from within the
+     * layout provided by {@link Picker#getPickerItemLayoutId()} or 0 if the
+     * layout provided by {@link Picker#getPickerItemLayoutId()} is a {link
+     * TextView}.
+     * @param textViewId View id of TextView inside a Picker item, or 0 if the Picker item is a
+     *                   TextView.
+     */
+    public final void setPickerItemTextViewId(int textViewId) {
+        mPickerItemTextViewId = textViewId;
     }
 
     /**
@@ -164,15 +149,15 @@ public class Picker extends FrameLayout {
         mAccelerateInterpolator = new AccelerateInterpolator(2.5F);
 
         LayoutInflater inflater = LayoutInflater.from(getContext());
-        mRootView = (ViewGroup) inflater.inflate(getRootLayoutId(), this, true);
-        mPickerView = (ViewGroup) mRootView.findViewById(getPickerId());
+        mRootView = (ViewGroup) inflater.inflate(R.layout.lb_picker, this, true);
+        mPickerView = (ViewGroup) mRootView.findViewById(R.id.picker);
 
     }
 
     /**
      * Get nth PickerColumn.
      * @param colIndex  Index of PickerColumn.
-     * @return PickerColumn at colIndex or null if {@link #setColumns(ArrayList)} is not called yet.
+     * @return PickerColumn at colIndex or null if {@link #setColumns(List)} is not called yet.
      */
     public PickerColumn getColumnAt(int colIndex) {
         if (mColumns == null) {
@@ -183,7 +168,7 @@ public class Picker extends FrameLayout {
 
     /**
      * Get number of PickerColumns.
-     * @return Number of PickerColumns or 0 if {@link #setColumns(ArrayList)} is not called yet.
+     * @return Number of PickerColumns or 0 if {@link #setColumns(List)} is not called yet.
      */
     public int getColumnsCount() {
         if (mColumns == null) {
@@ -196,12 +181,12 @@ public class Picker extends FrameLayout {
      * Set columns and create Views.
      * @param columns PickerColumns to be shown in the Picker.
      */
-    public void setColumns(ArrayList<PickerColumn> columns) {
+    public void setColumns(List<PickerColumn> columns) {
         mColumnViews.clear();
         mPickerView.removeAllViews();
         mColumns = new ArrayList<PickerColumn>(columns);
-        if (mActivatedColumn > mColumns.size() - 1) {
-            mActivatedColumn = mColumns.size() - 1;
+        if (mSelectedColumn > mColumns.size() - 1) {
+            mSelectedColumn = mColumns.size() - 1;
         }
         LayoutInflater inflater = LayoutInflater.from(getContext());
         int totalCol = getColumnsCount();
@@ -225,7 +210,7 @@ public class Picker extends FrameLayout {
             // add a separator if not the last element
             if (i != totalCol - 1 && getSeparator() != null) {
                 TextView separator = (TextView) inflater.inflate(
-                        getPickerSeparatorLayoutId(), mPickerView, false);
+                        R.layout.lb_picker_separator, mPickerView, false);
                 separator.setText(getSeparator());
                 mPickerView.addView(separator);
             }
@@ -240,8 +225,10 @@ public class Picker extends FrameLayout {
      * When column labels change or column range changes, call this function to re-populate the
      * selection list.
      * @param columnIndex Index of column to update.
+     * @param column New column to update.
      */
-    public void updateAdapter(int columnIndex) {
+    public void setColumnAt(int columnIndex, PickerColumn column) {
+        mColumns.set(columnIndex, column);
         VerticalGridView columnView = mColumnViews.get(columnIndex);
         PickerScrollArrayAdapter adapter = (PickerScrollArrayAdapter) columnView.getAdapter();
         if (adapter != null && !columnView.isComputingLayout()) {
@@ -255,8 +242,10 @@ public class Picker extends FrameLayout {
      * @param value New value of the column.
      * @param runAnimation True to scroll to the value or false otherwise.
      */
-    public void updateValue(int columnIndex, int value, boolean runAnimation) {
-        if (mColumns.get(columnIndex).setCurrentValue(value)) {
+    public void setColumnValue(int columnIndex, int value, boolean runAnimation) {
+        PickerColumn column = mColumns.get(columnIndex);
+        if (column.getCurrentValue() != value) {
+            column.setCurrentValue(value);
             notifyValueChanged(columnIndex);
             VerticalGridView columnView = mColumnViews.get(columnIndex);
             if (columnView != null) {
@@ -278,14 +267,22 @@ public class Picker extends FrameLayout {
         }
     }
 
-    public void addPickerValueListener(PickerValueListener listener) {
+    /**
+     * Register a callback to be invoked when the picker's value has changed.
+     * @param listener The callback to ad
+     */
+    public void addOnValueChangedListener(PickerValueListener listener) {
         if (mListeners == null) {
             mListeners = new ArrayList<Picker.PickerValueListener>();
         }
         mListeners.add(listener);
     }
 
-    public void removePickerValueListener(PickerValueListener listener) {
+    /**
+     * Remove a previously installed value changed callback
+     * @param listener The callback to remove.
+     */
+    public void removeOnValueChangedListener(PickerValueListener listener) {
         if (mListeners != null) {
             mListeners.remove(listener);
         }
@@ -307,7 +304,7 @@ public class Picker extends FrameLayout {
 
     private void setOrAnimateAlpha(View view, boolean selected, int colIndex,
             boolean animate) {
-        boolean columnShownAsActivated = colIndex == mActivatedColumn || !isFocused();
+        boolean columnShownAsActivated = colIndex == mSelectedColumn || !isFocused();
         if (selected) {
             // set alpha for main item (selected) in the column
             if (columnShownAsActivated) {
@@ -344,15 +341,17 @@ public class Picker extends FrameLayout {
 
     /**
      * Classes extending {@link Picker} can override this function to supply the
-     * behavior when a list has been scrolled.  Subclass may call {@link #updateValue(int, int,
-     * boolean)} and or {@link #updateAdapter(int)}.  Subclass should not directly call
+     * behavior when a list has been scrolled.  Subclass may call {@link #setColumnValue(int, int,
+     * boolean)} and or {@link #setColumnAt(int,PickerColumn)}.  Subclass should not directly call
      * {@link PickerColumn#setCurrentValue(int)} which does not update internal state or notify
      * listeners.
      * @param columnIndex index of which column was changed.
      * @param newValue A new value desired to be set on the column.
      */
-    public void onColumnValueChange(int columnIndex, int newValue) {
-        if (mColumns.get(columnIndex).setCurrentValue(newValue)) {
+    public void onColumnValueChanged(int columnIndex, int newValue) {
+        PickerColumn column = mColumns.get(columnIndex);
+        if (column.getCurrentValue() != newValue) {
+            column.setCurrentValue(newValue);
             notifyValueChanged(columnIndex);
         }
     }
@@ -402,7 +401,7 @@ public class Picker extends FrameLayout {
 
         public void onBindViewHolder(ViewHolder holder, int position) {
             if (holder.textView != null && mData != null) {
-                holder.textView.setText(mData.getValueLabelAt(mData.getMinValue() + position));
+                holder.textView.setText(mData.getEntryAt(mData.getMinValue() + position));
             }
             setOrAnimateAlpha(holder.itemView,
                     (mColumnViews.get(mColIndex).getSelectedPosition() == position),
@@ -415,7 +414,7 @@ public class Picker extends FrameLayout {
         }
 
         public int getItemCount() {
-            return mData == null ? 0 : mData.getItemsCount();
+            return mData == null ? 0 : mData.getItemCount();
         }
     }
 
@@ -432,7 +431,7 @@ public class Picker extends FrameLayout {
             updateColumnAlpha(colIndex, true);
             if (child != null) {
                 int newValue = mColumns.get(colIndex).getMinValue() + position;
-                onColumnValueChange(colIndex, newValue);
+                onColumnValueChanged(colIndex, newValue);
             }
         }
 
@@ -440,7 +439,7 @@ public class Picker extends FrameLayout {
 
     @Override
     public boolean dispatchKeyEvent(android.view.KeyEvent event) {
-        if (isExpanded()) {
+        if (isActivated()) {
             final int keyCode = event.getKeyCode();
             switch (keyCode) {
             case KeyEvent.KEYCODE_DPAD_LEFT:
@@ -449,20 +448,20 @@ public class Picker extends FrameLayout {
                     if (getLayoutDirection() == View.LAYOUT_DIRECTION_RTL?
                             keyCode == KeyEvent.KEYCODE_DPAD_LEFT :
                             keyCode == KeyEvent.KEYCODE_DPAD_RIGHT ) {
-                        if (mActivatedColumn < getColumnsCount() - 1) {
-                            setActiveColumn(mActivatedColumn + 1);
+                        if (mSelectedColumn < getColumnsCount() - 1) {
+                            setSelectedColumn(mSelectedColumn + 1);
                         }
                     } else {
-                        if (mActivatedColumn > 0) {
-                            setActiveColumn(mActivatedColumn - 1);
+                        if (mSelectedColumn > 0) {
+                            setSelectedColumn(mSelectedColumn - 1);
                         }
                     }
                 }
                 break;
             case KeyEvent.KEYCODE_DPAD_UP:
             case KeyEvent.KEYCODE_DPAD_DOWN:
-                if (event.getAction() == KeyEvent.ACTION_DOWN && mActivatedColumn >= 0) {
-                    VerticalGridView gridView = mColumnViews.get(mActivatedColumn);
+                if (event.getAction() == KeyEvent.ACTION_DOWN && mSelectedColumn >= 0) {
+                    VerticalGridView gridView = mColumnViews.get(mSelectedColumn);
                     if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
                         int newPosition = gridView.getSelectedPosition() - 1;
                         if (newPosition >= 0) {
@@ -500,90 +499,82 @@ public class Picker extends FrameLayout {
 
     private void updateColumnSize(VerticalGridView columnView) {
         ViewGroup.LayoutParams lp = columnView.getLayoutParams();
-        lp.height = (int) (getPickerItemHeightPixels() * (isExpanded() ?
-                getVisiblePickerItemsInExpand() : getVisiblePickerItems()));
+        lp.height = (int) (getPickerItemHeightPixels() * (isActivated() ?
+                getActivatedVisibleItemCount() : getVisibleItemCount()));
         columnView.setLayoutParams(lp);
     }
 
     /**
-     * Returns number of visible items showing in a column when it's expanded, it's 3 by default.
-     * @return Number of visible items showing in a column when it's expanded.
+     * Returns number of visible items showing in a column when it's activated.  The default value
+     * is 3.
+     * @return Number of visible items showing in a column when it's activated.
      */
-    public float getVisiblePickerItemsInExpand() {
-        return mVisibleItemsInExpand;
+    public float getActivatedVisibleItemCount() {
+        return mVisibleItemsActivated;
     }
 
     /**
-     * Change number of visible items showing in a column when it's expanded.
-     * @param visiblePickerItems Number of visible items showing in a column when it's expanded.
+     * Changes number of visible items showing in a column when it's activated.  The default value
+     * is 3.
+     * @param visiblePickerItems Number of visible items showing in a column when it's activated.
      */
-    public void setVisiblePickerItemsInExpand(float visiblePickerItems) {
+    public void setActivatedVisibleItemCount(float visiblePickerItems) {
         if (visiblePickerItems <= 0) {
             throw new IllegalArgumentException();
         }
-        if (mVisibleItemsInExpand != visiblePickerItems) {
-            mVisibleItemsInExpand = visiblePickerItems;
-            if (isExpanded()) {
+        if (mVisibleItemsActivated != visiblePickerItems) {
+            mVisibleItemsActivated = visiblePickerItems;
+            if (isActivated()) {
                 updateColumnSize();
             }
         }
     }
 
     /**
-     * Returns number of visible items showing in a column when it's not expanded, it's 1 by
-     * default.
-     * @return Number of visible items showing in a column when it's not expanded.
+     * Returns number of visible items showing in a column when it's not activated.  The default
+     * value is 1.
+     * @return Number of visible items showing in a column when it's not activated.
      */
-    public float getVisiblePickerItems() {
+    public float getVisibleItemCount() {
         return 1;
     }
 
     /**
-     * Change number of visible items showing in a column when it's not expanded, it's 1 by default.
-     * @param pickerItems Number of visible items showing in a column when it's not expanded.
+     * Changes number of visible items showing in a column when it's not activated.  The default
+     * value is 1.
+     * @param pickerItems Number of visible items showing in a column when it's not activated.
      */
-    public void setVisiblePickerItems(float pickerItems) {
+    public void setVisibleItemCount(float pickerItems) {
         if (pickerItems <= 0) {
             throw new IllegalArgumentException();
         }
         if (mVisibleItems != pickerItems) {
             mVisibleItems = pickerItems;
-            if (!isExpanded()) {
+            if (!isActivated()) {
                 updateColumnSize();
             }
         }
     }
 
-    /**
-     * Change expanded state of Picker, the height LayoutParams will be changed.
-     * @see #getVisiblePickerItemsInExpand()
-     * @see #getVisiblePickerItems()
-     * @param expanded New expanded state of Picker.
-     */
-    public void setExpanded(boolean expanded) {
-        if (mExpanded != expanded) {
-            mExpanded = expanded;
+    @Override
+    public void setActivated(boolean activated) {
+        if (activated != isActivated()) {
+            super.setActivated(activated);
             updateColumnSize();
+        } else {
+            super.setActivated(activated);
         }
     }
 
     /**
-     * Returns true if the Picker is currently expanded, false otherwise.
-     * @return True if the Picker is currently expanded, false otherwise.
-     */
-    public boolean isExpanded() {
-        return mExpanded;
-    }
-
-    /**
-     * Change current activated column.  Shows multiple items on activate column if Picker has
-     * focus. Show multiple items on all column if Picker has no focus (e.g. a Touchscreen
+     * Change current selected column.  Picker shows multiple items on selected column if Picker has
+     * focus.  Picker shows multiple items on all column if Picker has no focus (e.g. a Touchscreen
      * screen).
      * @param columnIndex Index of column to activate.
      */
-    public void setActiveColumn(int columnIndex) {
-        if (mActivatedColumn != columnIndex) {
-            mActivatedColumn = columnIndex;
+    public void setSelectedColumn(int columnIndex) {
+        if (mSelectedColumn != columnIndex) {
+            mSelectedColumn = columnIndex;
             for (int i = 0; i < mColumnViews.size(); i++) {
                 updateColumnAlpha(i, true);
             }
@@ -594,35 +585,8 @@ public class Picker extends FrameLayout {
      * Get current activated column index.
      * @return Current activated column index.
      */
-    public int getActiveColumn() {
-        return mActivatedColumn;
-    }
-
-    /**
-     * Enable or disable toggle on click when Picker has focus.
-     * @param toggleExpandOnClick True to enable toggle on click when Picker has focus, false
-     * otherwise.
-     */
-    public void setToggleExpandOnClick(boolean toggleExpandOnClick) {
-        mToggleExpandOnClick = toggleExpandOnClick;
-    }
-
-    /**
-     * Returns true if toggle on click is enabled when Picker has focus, false otherwise.
-     * @return True if toggle on click is enabled when Picker has focus, false otherwise.
-     */
-    public boolean isToggleExpandOnClick() {
-        return mToggleExpandOnClick;
-    }
-
-    @Override
-    public boolean performClick() {
-        if (isFocused() && isToggleExpandOnClick()) {
-            setExpanded(!isExpanded());
-            super.performClick();
-            return true;
-        }
-        return super.performClick();
+    public int getSelectedColumn() {
+        return mSelectedColumn;
     }
 
 }

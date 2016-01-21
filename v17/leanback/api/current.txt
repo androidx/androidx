@@ -1030,9 +1030,12 @@ package android.support.v17.leanback.widget {
     method public android.content.Intent getIntent();
     method public java.util.List<android.support.v17.leanback.widget.GuidedAction> getSubActions();
     method public java.lang.CharSequence getTitle();
+    method public boolean hasAnyEditable();
+    method public boolean hasEditableActivatorView();
     method public boolean hasMultilineDescription();
     method public boolean hasNext();
     method public boolean hasSubActions();
+    method public boolean hasTextEditable();
     method public boolean infoOnly();
     method public boolean isChecked();
     method public boolean isDescriptionEditable();
@@ -1071,36 +1074,36 @@ package android.support.v17.leanback.widget {
   public static abstract class GuidedAction.BuilderBase {
     ctor public GuidedAction.BuilderBase(android.content.Context);
     method protected final void applyValues(android.support.v17.leanback.widget.GuidedAction);
-    method public abstract T build();
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> checkSetId(int);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> checked(boolean);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> clickAction(long);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> description(java.lang.CharSequence);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> description(int);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> descriptionEditInputType(int);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> descriptionEditable(boolean);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> descriptionInputType(int);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> editDescription(java.lang.CharSequence);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> editDescription(int);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> editInputType(int);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> editTitle(java.lang.CharSequence);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> editTitle(int);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> editable(boolean);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> enabled(boolean);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> focusable(boolean);
+    method public B checkSetId(int);
+    method public B checked(boolean);
+    method public B clickAction(long);
+    method public B description(java.lang.CharSequence);
+    method public B description(int);
+    method public B descriptionEditInputType(int);
+    method public B descriptionEditable(boolean);
+    method public B descriptionInputType(int);
+    method public B editDescription(java.lang.CharSequence);
+    method public B editDescription(int);
+    method public B editInputType(int);
+    method public B editTitle(java.lang.CharSequence);
+    method public B editTitle(int);
+    method public B editable(boolean);
+    method public B enabled(boolean);
+    method public B focusable(boolean);
     method public android.content.Context getContext();
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> hasNext(boolean);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> icon(android.graphics.drawable.Drawable);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> icon(int);
-    method public deprecated android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> iconResourceId(int, android.content.Context);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> id(long);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> infoOnly(boolean);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> inputType(int);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> intent(android.content.Intent);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> multilineDescription(boolean);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> subActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> title(java.lang.CharSequence);
-    method public android.support.v17.leanback.widget.GuidedAction.BuilderBase<T> title(int);
+    method public B hasEditableActivatorView(boolean);
+    method public B hasNext(boolean);
+    method public B icon(android.graphics.drawable.Drawable);
+    method public B icon(int);
+    method public deprecated B iconResourceId(int, android.content.Context);
+    method public B id(long);
+    method public B infoOnly(boolean);
+    method public B inputType(int);
+    method public B intent(android.content.Intent);
+    method public B multilineDescription(boolean);
+    method public B subActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>);
+    method public B title(java.lang.CharSequence);
+    method public B title(int);
   }
 
   public class GuidedActionEditText extends android.widget.EditText implements android.support.v17.leanback.widget.ImeKeyMonitor {
@@ -1124,6 +1127,7 @@ package android.support.v17.leanback.widget {
     method public void onAnimateItemFocused(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, boolean);
     method public void onAnimateItemPressed(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, boolean);
     method public void onAnimateItemPressedCancelled(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder);
+    method public void onBindActivatorView(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, android.support.v17.leanback.widget.GuidedAction);
     method public void onBindCheckMarkView(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, android.support.v17.leanback.widget.GuidedAction);
     method public void onBindChevronView(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, android.support.v17.leanback.widget.GuidedAction);
     method public void onBindViewHolder(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, android.support.v17.leanback.widget.GuidedAction);
@@ -1137,12 +1141,14 @@ package android.support.v17.leanback.widget {
     method public int onProvideItemLayoutId();
     method public int onProvideItemLayoutId(int);
     method public int onProvideLayoutId();
+    method public boolean onUpdateActivatorView(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, android.support.v17.leanback.widget.GuidedAction);
     method public void onUpdateExpandedViewHolder(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder);
     method public void setAsButtonActions();
     method public void setEditingMode(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, android.support.v17.leanback.widget.GuidedAction, boolean);
     method public void setExpandedViewHolder(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder);
     method protected void setupImeOptions(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, android.support.v17.leanback.widget.GuidedAction);
     method public void startExpandedTransition(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder);
+    field public static final int VIEW_TYPE_DATE_PICKER = 1; // 0x1
     field public static final int VIEW_TYPE_DEFAULT = 0; // 0x0
   }
 
@@ -1160,8 +1166,30 @@ package android.support.v17.leanback.widget {
     method public android.widget.ImageView getIconView();
     method public android.widget.TextView getTitleView();
     method public boolean isInEditing();
+    method public boolean isInEditingActivatorView();
     method public boolean isInEditingDescription();
+    method public boolean isInEditingText();
+    method public boolean isInEditingTitle();
     method public boolean isSubAction();
+  }
+
+  public class GuidedDatePickerAction extends android.support.v17.leanback.widget.GuidedAction {
+    ctor public GuidedDatePickerAction();
+    method public long getDate();
+    method public java.lang.String getDatePickerFormat();
+    method public void setDate(long);
+  }
+
+  public static final class GuidedDatePickerAction.Builder extends android.support.v17.leanback.widget.GuidedDatePickerAction.BuilderBase {
+    ctor public GuidedDatePickerAction.Builder(android.content.Context);
+    method public android.support.v17.leanback.widget.GuidedDatePickerAction build();
+  }
+
+  public static abstract class GuidedDatePickerAction.BuilderBase extends android.support.v17.leanback.widget.GuidedAction.BuilderBase {
+    ctor public GuidedDatePickerAction.BuilderBase(android.content.Context);
+    method protected final void applyDatePickerValues(android.support.v17.leanback.widget.GuidedDatePickerAction);
+    method public B date(long);
+    method public B datePickerFormat(java.lang.String);
   }
 
   public class HeaderItem {
@@ -1945,67 +1973,47 @@ package android.support.v17.leanback.widget {
 
 package android.support.v17.leanback.widget.picker {
 
-  public class DatePicker extends android.support.v17.leanback.widget.picker.Picker {
-    ctor public DatePicker(android.content.Context, android.util.AttributeSet, int);
-    method public java.lang.String getDatePickerFormat();
-    method public java.util.Calendar getMaxDate();
-    method public java.util.Calendar getMinDate();
-    method public void setDatePickerFormat(java.lang.String);
-    method public void setMaxDate(long);
-    method public void setMinDate(long);
-    method public void updateDate(int, int, int, boolean);
-  }
-
   public class Picker extends android.widget.FrameLayout {
     ctor public Picker(android.content.Context, android.util.AttributeSet, int);
-    method public void addPickerValueListener(android.support.v17.leanback.widget.picker.Picker.PickerValueListener);
-    method public int getActiveColumn();
+    method public void addOnValueChangedListener(android.support.v17.leanback.widget.picker.Picker.PickerValueListener);
+    method public float getActivatedVisibleItemCount();
     method public android.support.v17.leanback.widget.picker.PickerColumn getColumnAt(int);
     method public int getColumnsCount();
-    method protected int getPickerId();
     method protected int getPickerItemHeightPixels();
-    method protected int getPickerItemLayoutId();
-    method protected int getPickerItemTextViewId();
-    method protected int getPickerSeparatorLayoutId();
-    method protected int getRootLayoutId();
-    method protected java.lang.String getSeparator();
-    method public float getVisiblePickerItems();
-    method public float getVisiblePickerItemsInExpand();
-    method public boolean isExpanded();
-    method public boolean isToggleExpandOnClick();
-    method public void onColumnValueChange(int, int);
-    method public void removePickerValueListener(android.support.v17.leanback.widget.picker.Picker.PickerValueListener);
-    method public void setActiveColumn(int);
-    method public void setColumns(java.util.ArrayList<android.support.v17.leanback.widget.picker.PickerColumn>);
-    method public void setExpanded(boolean);
-    method public void setToggleExpandOnClick(boolean);
-    method public void setVisiblePickerItems(float);
-    method public void setVisiblePickerItemsInExpand(float);
-    method public void updateAdapter(int);
-    method public void updateValue(int, int, boolean);
+    method public final int getPickerItemLayoutId();
+    method public final int getPickerItemTextViewId();
+    method public int getSelectedColumn();
+    method public final java.lang.CharSequence getSeparator();
+    method public float getVisibleItemCount();
+    method public void onColumnValueChanged(int, int);
+    method public void removeOnValueChangedListener(android.support.v17.leanback.widget.picker.Picker.PickerValueListener);
+    method public void setActivatedVisibleItemCount(float);
+    method public void setColumnAt(int, android.support.v17.leanback.widget.picker.PickerColumn);
+    method public void setColumnValue(int, int, boolean);
+    method public void setColumns(java.util.List<android.support.v17.leanback.widget.picker.PickerColumn>);
+    method public final void setPickerItemTextViewId(int);
+    method public void setSelectedColumn(int);
+    method public final void setSeparator(java.lang.CharSequence);
+    method public void setVisibleItemCount(float);
   }
 
   public static abstract interface Picker.PickerValueListener {
     method public abstract void onValueChanged(android.support.v17.leanback.widget.picker.Picker, int);
   }
 
-  public class PickerColumn implements android.os.Parcelable {
+  public class PickerColumn {
     ctor public PickerColumn();
-    ctor public PickerColumn(android.os.Parcel);
-    method public int describeContents();
     method public int getCurrentValue();
-    method public int getItemsCount();
+    method public java.lang.CharSequence getEntryAt(int);
+    method public java.lang.String getEntryFormat();
+    method public int getItemCount();
     method public int getMaxValue();
     method public int getMinValue();
-    method public java.lang.String getValueLabelAt(int);
-    method public java.lang.String getValueLabelFormat();
-    method public boolean setCurrentValue(int);
-    method public boolean setMaxValue(int);
-    method public boolean setMinValue(int);
-    method public void setValueLabelFormat(java.lang.String);
-    method public void setValueStaticLabels(java.lang.String[]);
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static android.os.Parcelable.Creator<android.support.v17.leanback.widget.picker.PickerColumn> CREATOR;
+    method public void setCurrentValue(int);
+    method public void setEntries(java.lang.CharSequence[]);
+    method public void setEntryFormat(java.lang.String);
+    method public void setMaxValue(int);
+    method public void setMinValue(int);
   }
 
 }
