@@ -1106,8 +1106,8 @@ package android.support.v4.graphics {
     method public static int XYZToColor(double, double, double);
     method public static void XYZToLAB(double, double, double, double[]);
     method public static int blendARGB(int, int, float);
-    method public static void blendHSL(float[], float[], float[], float);
-    method public static void blendLAB(double[], double[], double[], double);
+    method public static void blendHSL(float[], float[], float, float[]);
+    method public static void blendLAB(double[], double[], double, double[]);
     method public static double calculateContrast(int, int);
     method public static double calculateLuminance(int);
     method public static int calculateMinimumAlpha(int, int, float);
