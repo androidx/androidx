@@ -34,5 +34,6 @@
      <item type="id" name="lb_control_shuffle" />
      <item type="id" name="lb_control_high_quality" />
      <item type="id" name="lb_control_closed_captioning" />
+     <item type="id" name="lb_control_picture_in_picture" />
 
 </resources>

@@ -1500,6 +1500,10 @@ package android.support.v17.leanback.widget {
     method public void setSecondaryLabels(java.lang.String[]);
   }
 
+  public static class PlaybackControlsRow.PictureInPictureAction extends android.support.v17.leanback.widget.Action {
+    ctor public PlaybackControlsRow.PictureInPictureAction(android.content.Context);
+  }
+
   public static class PlaybackControlsRow.PlayPauseAction extends android.support.v17.leanback.widget.PlaybackControlsRow.MultiAction {
     ctor public PlaybackControlsRow.PlayPauseAction(android.content.Context);
     field public static int PAUSE;
