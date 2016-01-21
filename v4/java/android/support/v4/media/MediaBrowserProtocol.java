@@ -95,14 +95,14 @@ class MediaBrowserProtocol {
      * - data
      *     DATA_PACKAGE_NAME : A string for the package name of MediaBrowserCompat
      *     DATA_ROOT_HINTS : An optional root hints bundle of service-specific arguments
-     * - replyTo : Client messenger
+     * - replyTo : Callback messenger
      */
     public static final int CLIENT_MSG_CONNECT = 1;
 
     /** (client v1)
      * Sent to disconnect from the media browse service compat.
      * - arg1 : The client version
-     * - replyTo : Client messenger
+     * - replyTo : Callback messenger
      */
     public static final int CLIENT_MSG_DISCONNECT = 2;
 
@@ -113,8 +113,7 @@ class MediaBrowserProtocol {
      *     DATA_MEDIA_ITEM_ID : A string for a media item id
      *     DATA_OPTIONS : A bundle of service-specific arguments sent from the media browse to
      *                    the media browser service
-     *
-     * - replyTo : Client messenger
+     * - replyTo : Callback messenger
      */
     public static final int CLIENT_MSG_ADD_SUBSCRIPTION = 3;
 
@@ -125,7 +124,7 @@ class MediaBrowserProtocol {
      *     DATA_MEDIA_ITEM_ID : A string for a media item id
      *     DATA_OPTIONS : A bundle of service-specific arguments sent from the media browse to
      *                    the media browser service
-     * - replyTo : Client messenger
+     * - replyTo : Callback messenger
      */
     public static final int CLIENT_MSG_REMOVE_SUBSCRIPTION = 4;
 
@@ -137,4 +136,11 @@ class MediaBrowserProtocol {
      *     DATA_RESULT_RECEIVER : Result receiver to get the result
      */
     public static final int CLIENT_MSG_GET_MEDIA_ITEM = 5;
+
+    /** (client v1)
+     * Sent to register the client messenger
+     * - arg1 : The client version
+     * - replyTo : Callback messenger
+     */
+    public static final int CLIENT_MSG_REGISTER_CALLBACK_MESSENGER = 6;
 }

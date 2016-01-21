@@ -178,6 +178,9 @@ public abstract class MediaBrowserServiceCompat extends Service {
                     mServiceImpl.getMediaItem(data.getString(DATA_MEDIA_ITEM_ID),
                             (ResultReceiver) data.getParcelable(DATA_RESULT_RECEIVER));
                     break;
+                case CLIENT_MSG_REGISTER_CALLBACK_MESSENGER:
+                    mServiceImpl.registerCallbacks(new ServiceCallbacksCompat(msg.replyTo));
+                    break;
                 default:
                     Log.w(TAG, "Unhandled message: " + msg
                             + "\n  Service version: " + SERVICE_VERSION_CURRENT
@@ -403,6 +406,22 @@ public abstract class MediaBrowserServiceCompat extends Service {
                 @Override
                 public void run() {
                     performLoadItem(mediaId, receiver);
+                }
+            });
+        }
+
+        // Used when {@link MediaBrowserProtocol#EXTRA_MESSENGER_BINDER} is used.
+        public void registerCallbacks(final ServiceCallbacks callbacks) {
+            mHandler.postOrRun(new Runnable() {
+                @Override
+                public void run() {
+                    final IBinder b = callbacks.asBinder();
+                    // Clear out the old subscriptions. We are getting new ones.
+                    mConnections.remove(b);
+
+                    final ConnectionRecord connection = new ConnectionRecord();
+                    connection.callbacks = callbacks;
+                    mConnections.put(b, connection);
                 }
             });
         }
@@ -847,7 +866,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
 
                 List<MediaBrowserCompat.MediaItem> filteredList =
                         (flag & RESULT_FLAG_OPTION_NOT_HANDLED) != 0
-                                ? applyOptions(list, options) : list;
+                                ? MediaBrowserCompatUtils.applyOptions(list, options) : list;
                 try {
                     connection.callbacks.onLoadChildren(parentId, filteredList, options);
                 } catch (RemoteException ex) {
