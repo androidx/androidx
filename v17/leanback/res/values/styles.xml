@@ -371,6 +371,7 @@
         <item name="shuffle">@drawable/lb_ic_shuffle</item>
         <item name="high_quality">@drawable/lb_ic_hq</item>
         <item name="closed_captioning">@drawable/lb_ic_cc</item>
+        <item name="picture_in_picture">@drawable/lb_ic_pip</item>
     </style>
 
     <!-- Style for the main container view in a GuidanceStylist's default layout. -->

@@ -166,6 +166,7 @@
         <attr name="shuffle" format="reference"/>
         <attr name="high_quality" format="reference"/>
         <attr name="closed_captioning" format="reference"/>
+        <attr name="picture_in_picture" format="reference"/>
     </declare-styleable>
 
     <declare-styleable name="lbSlide">
