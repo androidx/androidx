@@ -44,7 +44,7 @@ LOCAL_AIDL_INCLUDES := $(support_module_aidl_includes)
 LOCAL_JAVA_LIBRARIES := $(support_module_java_libraries)
 LOCAL_ADDITIONAL_JAVA_DIR := \
     $(call intermediates-dir-for,$(LOCAL_MODULE_CLASS),$(support_module),,COMMON)/src
-LOCAL_SDK_VERSION := current
+LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 
 LOCAL_DROIDDOC_OPTIONS:= \
     -stubs $(TARGET_OUT_COMMON_INTERMEDIATES)/$(LOCAL_MODULE_CLASS)/$(LOCAL_MODULE)_intermediates/src \
