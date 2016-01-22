@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.graphics.Rect;
+import android.support.annotation.NonNull;
 import android.os.Debug;
 import android.support.annotation.NonNull;
 import android.support.test.runner.AndroidJUnit4;
@@ -797,8 +798,8 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         mLayoutManager.waitForLayout(2);
     }
 
-    private void testChangeWithPayload(final boolean supportsChangeAnim, final boolean canReUse,
-            Object[][] notifyPayloads, Object[][] expectedPayloadsInOnBind)
+    private void testChangeWithPayload(final boolean supportsChangeAnim,
+            final boolean canReUse, Object[][] notifyPayloads, Object[][] expectedPayloadsInOnBind)
             throws Throwable {
         final List<Object> expectedPayloads = new ArrayList<Object>();
         final int changedIndex = 3;

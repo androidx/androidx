@@ -19,8 +19,10 @@ package android.support.v7.widget;
 import android.content.Context;
 import android.support.v4.view.NestedScrollingParent;
 import android.support.v4.view.ViewCompat;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 public class TestedFrameLayout extends FrameLayout implements NestedScrollingParent {
@@ -34,6 +36,103 @@ public class TestedFrameLayout extends FrameLayout implements NestedScrollingPar
 
     public TestedFrameLayout(Context context) {
         super(context);
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        RecyclerView recyclerView = getRvChild();
+        if (recyclerView == null) {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+            return;
+        }
+        FullControlLayoutParams lp = (FullControlLayoutParams) recyclerView.getLayoutParams();
+        if (lp.wSpec == null && lp.hSpec == null) {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+            return;
+        }
+        final int childWidthMeasureSpec;
+        if (lp.wSpec != null) {
+            childWidthMeasureSpec = lp.wSpec;
+        } else if (lp.width == LayoutParams.MATCH_PARENT) {
+            final int width = Math.max(0, getMeasuredWidth()
+                    - lp.leftMargin - lp.rightMargin);
+            childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY);
+        } else {
+            childWidthMeasureSpec = getChildMeasureSpec(widthMeasureSpec,
+                    lp.leftMargin + lp.rightMargin, lp.width);
+        }
+
+        final int childHeightMeasureSpec;
+        if (lp.hSpec != null) {
+            childHeightMeasureSpec = lp.hSpec;
+        } else if (lp.height == LayoutParams.MATCH_PARENT) {
+            final int height = Math.max(0, getMeasuredHeight()
+                    - lp.topMargin - lp.bottomMargin);
+            childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
+        } else {
+            childHeightMeasureSpec = getChildMeasureSpec(heightMeasureSpec,
+                    lp.topMargin + lp.bottomMargin, lp.height);
+        }
+        recyclerView.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+        if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.EXACTLY &&
+                MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.EXACTLY) {
+            setMeasuredDimension(
+                    MeasureSpec.getSize(widthMeasureSpec),
+                    MeasureSpec.getSize(heightMeasureSpec)
+            );
+        } else {
+            setMeasuredDimension(
+                    chooseSize(widthMeasureSpec,
+                            recyclerView.getWidth() + getPaddingLeft() + getPaddingRight(),
+                            getMinimumWidth()),
+                    chooseSize(heightMeasureSpec,
+                            recyclerView.getHeight() + getPaddingTop() + getPaddingBottom(),
+                            getMinimumHeight()));
+        }
+    }
+
+    public static int chooseSize(int spec, int desired, int min) {
+        final int mode = View.MeasureSpec.getMode(spec);
+        final int size = View.MeasureSpec.getSize(spec);
+        switch (mode) {
+            case View.MeasureSpec.EXACTLY:
+                return size;
+            case View.MeasureSpec.AT_MOST:
+                return Math.min(size, desired);
+            case View.MeasureSpec.UNSPECIFIED:
+            default:
+                return Math.max(desired, min);
+        }
+    }
+
+
+    private RecyclerView getRvChild() {
+        for (int i = 0; i < getChildCount(); i++) {
+            if (getChildAt(i) instanceof RecyclerView) {
+                return (RecyclerView) getChildAt(i);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {
+        return p instanceof FullControlLayoutParams;
+    }
+
+    @Override
+    protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
+        return new FullControlLayoutParams(p);
+    }
+
+    @Override
+    public LayoutParams generateLayoutParams(AttributeSet attrs) {
+        return new FullControlLayoutParams(getContext(), attrs);
+    }
+
+    @Override
+    protected LayoutParams generateDefaultLayoutParams() {
+        return new FullControlLayoutParams(getWidth(), getHeight());
     }
 
     @Override
@@ -97,5 +196,31 @@ public class TestedFrameLayout extends FrameLayout implements NestedScrollingPar
 
     public void setNestedFlingMode(int mode) {
         mNestedFlingMode = mode;
+    }
+
+    public static class FullControlLayoutParams extends FrameLayout.LayoutParams {
+
+        Integer wSpec;
+        Integer hSpec;
+
+        public FullControlLayoutParams(Context c, AttributeSet attrs) {
+            super(c, attrs);
+        }
+
+        public FullControlLayoutParams(int width, int height) {
+            super(width, height);
+        }
+
+        public FullControlLayoutParams(ViewGroup.LayoutParams source) {
+            super(source);
+        }
+
+        public FullControlLayoutParams(FrameLayout.LayoutParams source) {
+            super(source);
+        }
+
+        public FullControlLayoutParams(MarginLayoutParams source) {
+            super(source);
+        }
     }
 }

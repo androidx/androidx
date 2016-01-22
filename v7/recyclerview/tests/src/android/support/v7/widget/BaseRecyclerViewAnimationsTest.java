@@ -35,7 +35,7 @@ import static org.junit.Assert.*;
  */
 public class BaseRecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationTest {
 
-    protected static final boolean DEBUG = false;
+    protected static final boolean DEBUG = true;
 
     protected static final String TAG = "RecyclerViewAnimationsTest";
 
@@ -645,6 +645,14 @@ public class BaseRecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentat
             }
             setFrom(viewHolder);
         }
+
+        @Override
+        public String toString() {
+            return "LoggingInfo{" +
+                    "changeFlags=" + changeFlags +
+                    ", payloads=" + payloads +
+                    '}';
+        }
     }
 
     static class AnimateChange extends AnimateLogBase {
@@ -681,15 +689,23 @@ public class BaseRecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentat
     }
     static class AnimateLogBase {
 
-        final RecyclerView.ViewHolder viewHolder;
-        final LoggingInfo preInfo;
-        final LoggingInfo postInfo;
+        public final RecyclerView.ViewHolder viewHolder;
+        public final LoggingInfo preInfo;
+        public final LoggingInfo postInfo;
 
         public AnimateLogBase(RecyclerView.ViewHolder viewHolder, LoggingInfo pre,
                 LoggingInfo postInfo) {
             this.viewHolder = viewHolder;
             this.preInfo = pre;
             this.postInfo = postInfo;
+        }
+
+        public String log() {
+            return getClass().getSimpleName() + "[" +  log(preInfo) + " - " + log(postInfo) + "]";
+        }
+
+        public String log(LoggingInfo info) {
+            return info == null ? "null" : info.toString();
         }
 
         @Override

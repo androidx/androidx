@@ -61,20 +61,46 @@ public class StaggeredGridLayoutManagerBaseConfigSetTest
 
     @Test
     public void rTL() throws Throwable {
-        rtlTest(false);
+        rtlTest(false, false);
     }
 
     @Test
     public void rTLChangeAfter() throws Throwable {
-        rtlTest(true);
+        rtlTest(true, false);
     }
 
-    void rtlTest(boolean changeRtlAfter) throws Throwable {
+    @Test
+    public void rTLItemWrapContent() throws Throwable {
+        rtlTest(false, true);
+    }
+
+    @Test
+    public void rTLChangeAfterItemWrapContent() throws Throwable {
+        rtlTest(true, true);
+    }
+
+    void rtlTest(boolean changeRtlAfter, final boolean wrapContent) throws Throwable {
         if (mConfig.mSpanCount == 1) {
             mConfig.mSpanCount = 2;
         }
         String logPrefix = mConfig + ", changeRtlAfterLayout:" + changeRtlAfter;
-        setupByConfig(mConfig.itemCount(5));
+        setupByConfig(mConfig.itemCount(5),
+                new GridTestAdapter(mConfig.mItemCount, mConfig.mOrientation) {
+                    @Override
+                    public void onBindViewHolder(TestViewHolder holder,
+                            int position) {
+                        super.onBindViewHolder(holder, position);
+                        if (wrapContent) {
+                            if (mOrientation == HORIZONTAL) {
+                                holder.itemView.getLayoutParams().height
+                                        = RecyclerView.LayoutParams.WRAP_CONTENT;
+                            } else {
+                                holder.itemView.getLayoutParams().width
+                                        = RecyclerView.LayoutParams.MATCH_PARENT;
+                            }
+                        }
+                    }
+                });
         if (changeRtlAfter) {
             waitFirstLayout();
             mLayoutManager.expectLayouts(1);

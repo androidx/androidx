@@ -17,25 +17,28 @@
 package android.support.v7.widget;
 
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import android.graphics.Rect;
-import android.support.test.InstrumentationRegistry;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import static android.support.v7.widget.LayoutState.LAYOUT_END;
 import static android.support.v7.widget.LayoutState.LAYOUT_START;
 import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
-import static org.junit.Assert.*;
+import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 
 /**
  * Tests that rely on the basic configuration and does not do any additions / removals
@@ -52,7 +55,11 @@ public class LinearLayoutManagerBaseConfigSetTest extends BaseLinearLayoutManage
 
     @Parameterized.Parameters(name = "{0}")
     public static List<Config> configs() throws CloneNotSupportedException {
-        return createBaseVariations();
+        List<Config> result = new ArrayList<>();
+        for (Config config : createBaseVariations()) {
+            result.add(config);
+        }
+        return result;
     }
 
     @Test

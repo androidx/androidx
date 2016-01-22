@@ -166,6 +166,32 @@ public abstract class OrientationHelper {
     public abstract int getEndPadding();
 
     /**
+     * Returns the MeasureSpec mode for the current layout calculation.
+     *
+     * This value is always {@code View.MeasureSpec.EXACTLY} if the RecyclerView is not currently
+     * measuring. Otherwise, it is the parameter that the RecyclerView's parent passed into the
+     * RecyclerView's {@code onMeasure} method.
+     *
+     * @return The current measure spec mode.
+     *
+     * @see View.MeasureSpec
+     */
+    public abstract int getMode();
+
+    /**
+     * Returns the MeasureSpec mode for the perpendicular orientation.
+     *
+     * This value is always {@code View.MeasureSpec.EXACTLY} if the RecyclerView is not currently
+     * measuring. Otherwise, it is the parameter that the RecyclerView's parent passed into the
+     * RecyclerView's {@code onMeasure} method.
+     *
+     * @return The current measure spec mode.
+     *
+     * @see View.MeasureSpec
+     */
+    public abstract int getModeInOther();
+
+    /**
      * Creates an OrientationHelper for the given LayoutManager and orientation.
      *
      * @param layoutManager LayoutManager to attach to
@@ -257,6 +283,16 @@ public abstract class OrientationHelper {
             public int getEndPadding() {
                 return mLayoutManager.getPaddingRight();
             }
+
+            @Override
+            public int getMode() {
+                return mLayoutManager.getWidthMode();
+            }
+
+            @Override
+            public int getModeInOther() {
+                return mLayoutManager.getHeightMode();
+            }
         };
     }
 
@@ -332,6 +368,16 @@ public abstract class OrientationHelper {
             @Override
             public int getEndPadding() {
                 return mLayoutManager.getPaddingBottom();
+            }
+
+            @Override
+            public int getMode() {
+                return mLayoutManager.getHeightMode();
+            }
+
+            @Override
+            public int getModeInOther() {
+                return mLayoutManager.getWidthMode();
             }
         };
     }

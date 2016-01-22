@@ -27,12 +27,13 @@ import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.os.SystemClock;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.util.TouchUtils;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -50,11 +51,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
-import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_DRAGGING;
+import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_SETTLING;
 import static android.support.v7.widget.RecyclerView.getChildViewHolderInt;
-import android.support.test.runner.AndroidJUnit4;
 import static org.junit.Assert.*;
 
 @RunWith(AndroidJUnit4.class)
@@ -208,13 +208,23 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         });
         assertTrue(c.hasFocus());
         freezeLayout(true);
-        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_DOWN);
+        focusSearch(recyclerView, c, View.FOCUS_DOWN);
         assertEquals("onFocusSearchFailed should not be called when layout is frozen",
                 0, focusSearchCalled.get());
         freezeLayout(false);
-        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_DOWN);
+        focusSearch(recyclerView, c, View.FOCUS_DOWN);
         assertTrue(focusLatch.await(2, TimeUnit.SECONDS));
         assertEquals(1, focusSearchCalled.get());
+    }
+
+    public void focusSearch(final ViewGroup parent, final View focused, final int direction)
+            throws Throwable {
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                parent.focusSearch(focused, direction);
+            }
+        });
     }
 
     @Test
@@ -1261,10 +1271,13 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     }
 
     @Test
-    public void accessRecyclerOnOnMeasure() throws Throwable {
-        accessRecyclerOnOnMeasureTest(false);
-        removeRecyclerView();
+    public void aAccessRecyclerOnOnMeasureWithPredictive() throws Throwable {
         accessRecyclerOnOnMeasureTest(true);
+    }
+
+    @Test
+    public void accessRecyclerOnOnMeasureWithoutPredictive() throws Throwable {
+        accessRecyclerOnOnMeasureTest(false);
     }
 
     @Test
@@ -1481,8 +1494,10 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                         assertNotNull(view);
                         assertEquals(i, getPosition(view));
                     }
-                    assertEquals(state.toString(),
-                            expectedOnMeasureStateCount.get(), state.getItemCount());
+                    if (!state.isPreLayout()) {
+                        assertEquals(state.toString(),
+                                expectedOnMeasureStateCount.get(), state.getItemCount());
+                    }
                 } catch (Throwable t) {
                     postExceptionToInstrumentation(t);
                 }
