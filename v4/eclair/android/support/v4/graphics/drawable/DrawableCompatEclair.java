@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,13 @@ package android.support.v4.graphics.drawable;
 import android.graphics.drawable.Drawable;
 
 /**
- * Implementation of drawable compatibility that can call Lollipop-MR1 APIs.
+ * Implementation of drawable compatibility that can call Eclair APIs.
  */
-class DrawableCompatApi22 {
-
+class DrawableCompatEclair {
     public static Drawable wrapForTinting(Drawable drawable) {
-        // We need to wrap to force an invalidation on any state change
-        if (!(drawable instanceof DrawableWrapperLollipop)) {
-            return new DrawableWrapperLollipop(drawable);
+        if (!(drawable instanceof DrawableWrapperEclair)) {
+            return new DrawableWrapperEclair(drawable);
         }
         return drawable;
     }
-
 }

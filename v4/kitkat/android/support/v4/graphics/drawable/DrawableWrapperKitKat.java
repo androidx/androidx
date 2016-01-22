@@ -16,12 +16,18 @@
 
 package android.support.v4.graphics.drawable;
 
+import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.Nullable;
 
 class DrawableWrapperKitKat extends DrawableWrapperHoneycomb {
 
     DrawableWrapperKitKat(Drawable drawable) {
         super(drawable);
+    }
+
+    DrawableWrapperKitKat(DrawableWrapperState state, Resources resources) {
+        super(state, resources);
     }
 
     @Override
@@ -32,5 +38,22 @@ class DrawableWrapperKitKat extends DrawableWrapperHoneycomb {
     @Override
     public boolean isAutoMirrored() {
         return mDrawable.isAutoMirrored();
+    }
+
+    @Override
+    DrawableWrapperState mutateConstantState() {
+        return new DrawableWrapperStateKitKat(mState, null);
+    }
+
+    private static class DrawableWrapperStateKitKat extends DrawableWrapperState {
+        DrawableWrapperStateKitKat(@Nullable DrawableWrapperState orig,
+                @Nullable Resources res) {
+            super(orig, res);
+        }
+
+        @Override
+        public Drawable newDrawable(@Nullable Resources res) {
+            return new DrawableWrapperKitKat(this, res);
+        }
     }
 }

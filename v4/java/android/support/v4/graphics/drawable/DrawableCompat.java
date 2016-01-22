@@ -103,9 +103,19 @@ public final class DrawableCompat {
     }
 
     /**
+     * Interface implementation for devices with at least v5 APIs.
+     */
+    static class EclairDrawableImpl extends BaseDrawableImpl {
+        @Override
+        public Drawable wrap(Drawable drawable) {
+            return DrawableCompatEclair.wrapForTinting(drawable);
+        }
+    }
+
+    /**
      * Interface implementation for devices with at least v11 APIs.
      */
-    static class HoneycombDrawableImpl extends BaseDrawableImpl {
+    static class HoneycombDrawableImpl extends EclairDrawableImpl {
         @Override
         public void jumpToCurrentState(Drawable drawable) {
             DrawableCompatHoneycomb.jumpToCurrentState(drawable);
@@ -186,19 +196,9 @@ public final class DrawableCompat {
     }
 
     /**
-     * Interface implementation for devices with at least L APIs.
-     */
-    static class LollipopMr1DrawableImpl extends LollipopDrawableImpl {
-        @Override
-        public Drawable wrap(Drawable drawable) {
-            return DrawableCompatApi22.wrapForTinting(drawable);
-        }
-    }
-
-    /**
      * Interface implementation for devices with at least M APIs.
      */
-    static class MDrawableImpl extends LollipopMr1DrawableImpl {
+    static class MDrawableImpl extends LollipopDrawableImpl {
         @Override
         public void setLayoutDirection(Drawable drawable, int layoutDirection) {
             DrawableCompatApi23.setLayoutDirection(drawable, layoutDirection);
@@ -207,6 +207,12 @@ public final class DrawableCompat {
         @Override
         public int getLayoutDirection(Drawable drawable) {
             return DrawableCompatApi23.getLayoutDirection(drawable);
+        }
+
+        @Override
+        public Drawable wrap(Drawable drawable) {
+            // No need to wrap on M+
+            return drawable;
         }
     }
 
@@ -218,8 +224,6 @@ public final class DrawableCompat {
         final int version = android.os.Build.VERSION.SDK_INT;
         if (version >= 23) {
             IMPL = new MDrawableImpl();
-        } else if (version >= 22) {
-            IMPL = new LollipopMr1DrawableImpl();
         } else if (version >= 21) {
             IMPL = new LollipopDrawableImpl();
         } else if (version >= 19) {
@@ -228,6 +232,8 @@ public final class DrawableCompat {
             IMPL = new JellybeanMr1DrawableImpl();
         } else if (version >= 11) {
             IMPL = new HoneycombDrawableImpl();
+        } else if (version >= 5) {
+            IMPL = new EclairDrawableImpl();
         } else {
             IMPL = new BaseDrawableImpl();
         }
