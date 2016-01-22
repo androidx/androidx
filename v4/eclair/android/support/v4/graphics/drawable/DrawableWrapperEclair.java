@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,39 +16,45 @@
 
 package android.support.v4.graphics.drawable;
 
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
+import android.graphics.Canvas;
+import android.graphics.ColorFilter;
+import android.graphics.PorterDuff;
+import android.graphics.Rect;
+import android.graphics.Region;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 
-class DrawableWrapperHoneycomb extends DrawableWrapperDonut {
+class DrawableWrapperEclair extends DrawableWrapperDonut {
 
-    DrawableWrapperHoneycomb(Drawable drawable) {
+    DrawableWrapperEclair(Drawable drawable) {
         super(drawable);
     }
 
-    DrawableWrapperHoneycomb(DrawableWrapperState state, Resources resources) {
+    DrawableWrapperEclair(DrawableWrapperState state, Resources resources) {
         super(state, resources);
     }
 
     @Override
-    public void jumpToCurrentState() {
-        mDrawable.jumpToCurrentState();
+    DrawableWrapperState mutateConstantState() {
+        return new DrawableWrapperStateEclair(mState, null);
     }
 
     @Override
-    DrawableWrapperState mutateConstantState() {
-        return new DrawableWrapperStateHoneycomb(mState, null);
+    protected Drawable newDrawableFromState(Drawable.ConstantState state, Resources res) {
+        return state.newDrawable(res);
     }
 
-    private static class DrawableWrapperStateHoneycomb extends DrawableWrapperState {
-        DrawableWrapperStateHoneycomb(@Nullable DrawableWrapperState orig,
+    private static class DrawableWrapperStateEclair extends DrawableWrapperState {
+        DrawableWrapperStateEclair(@Nullable DrawableWrapperState orig,
                 @Nullable Resources res) {
             super(orig, res);
         }
 
         @Override
         public Drawable newDrawable(@Nullable Resources res) {
-            return new DrawableWrapperHoneycomb(this, res);
+            return new DrawableWrapperEclair(this, res);
         }
     }
 }

@@ -22,18 +22,20 @@ import android.graphics.Outline;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.DrawableContainer;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.InsetDrawable;
+import android.os.Build;
+import android.support.annotation.Nullable;
 
 class DrawableWrapperLollipop extends DrawableWrapperKitKat {
 
-    private final boolean mUseCompatTinting;
-
     DrawableWrapperLollipop(Drawable drawable) {
-        this(drawable, false);
+        super(drawable);
     }
 
-    DrawableWrapperLollipop(Drawable drawable, boolean useCompatTinting) {
-        super(drawable);
-        mUseCompatTinting = useCompatTinting;
+    DrawableWrapperLollipop(DrawableWrapperState state, Resources resources) {
+        super(state, resources);
     }
 
     @Override
@@ -52,23 +54,13 @@ class DrawableWrapperLollipop extends DrawableWrapperKitKat {
     }
 
     @Override
-    public void applyTheme(Resources.Theme t) {
-        mDrawable.applyTheme(t);
-    }
-
-    @Override
-    public boolean canApplyTheme() {
-        return mDrawable.canApplyTheme();
-    }
-
-    @Override
     public Rect getDirtyBounds() {
         return mDrawable.getDirtyBounds();
     }
 
     @Override
     public void setTintList(ColorStateList tint) {
-        if (mUseCompatTinting) {
+        if (isCompatTintEnabled()) {
             setCompatTintList(tint);
         } else {
             mDrawable.setTintList(tint);
@@ -77,7 +69,7 @@ class DrawableWrapperLollipop extends DrawableWrapperKitKat {
 
     @Override
     public void setTint(int tintColor) {
-        if (mUseCompatTinting) {
+        if (isCompatTintEnabled()) {
             setCompatTint(tintColor);
         } else {
             mDrawable.setTint(tintColor);
@@ -86,7 +78,7 @@ class DrawableWrapperLollipop extends DrawableWrapperKitKat {
 
     @Override
     public void setTintMode(PorterDuff.Mode tintMode) {
-        if (mUseCompatTinting) {
+        if (isCompatTintEnabled()) {
             setCompatTintMode(tintMode);
         } else {
             mDrawable.setTintMode(tintMode);
@@ -106,6 +98,28 @@ class DrawableWrapperLollipop extends DrawableWrapperKitKat {
 
     @Override
     protected boolean isCompatTintEnabled() {
-        return mUseCompatTinting;
+        if (Build.VERSION.SDK_INT == 21) {
+            final Drawable drawable = mDrawable;
+            return drawable instanceof GradientDrawable || drawable instanceof DrawableContainer
+                    || drawable instanceof InsetDrawable;
+        }
+        return false;
+    }
+
+    @Override
+    DrawableWrapperState mutateConstantState() {
+        return new DrawableWrapperStateLollipop(mState, null);
+    }
+
+    private static class DrawableWrapperStateLollipop extends DrawableWrapperState {
+        DrawableWrapperStateLollipop(@Nullable DrawableWrapperState orig,
+                @Nullable Resources res) {
+            super(orig, res);
+        }
+
+        @Override
+        public Drawable newDrawable(@Nullable Resources res) {
+            return new DrawableWrapperLollipop(this, res);
+        }
     }
 }
