@@ -201,5 +201,17 @@
     <string name="list_popup_window_summary">This activity illustrates the use of list popup windows. The popup window is shown by clicking the button above. The checkbox controls the modality. The text area below logs various events - it should log a tap on itself when a non-modal popup window is dismissed by tapping on the log area.</string>
     <string name="list_popup_window_button">Show popup!</string>
     <string name="list_popup_window_is_modal">is modal</string>
+
+    <string name="popup_menu_activity">Popup menu</string>
+    <string name="popup_menu_summary">This activity illustrates the use of popup menus. The popup menu is shown by clicking the button above. The text area below logs various events.</string>
+    <string name="popup_menu_button">Show popup!</string>
+    <string name="popup_menu_highlight">Highlight</string>
+    <string name="popup_menu_edit">Edit</string>
+    <string name="popup_menu_delete">Delete</string>
+    <string name="popup_menu_ignore">Ignore</string>
+    <string name="popup_menu_share">Share</string>
+    <string name="popup_menu_share_email">Via email</string>
+    <string name="popup_menu_share_circles">To my circles</string>
+    <string name="popup_menu_print">Print</string>
 </resources>
 
