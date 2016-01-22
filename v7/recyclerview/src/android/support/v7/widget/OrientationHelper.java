@@ -166,28 +166,24 @@ public abstract class OrientationHelper {
     public abstract int getEndPadding();
 
     /**
-     * Returns the MeasureSpec mode for the current layout calculation.
-     *
-     * This value is always {@code View.MeasureSpec.EXACTLY} if the RecyclerView is not currently
-     * measuring. Otherwise, it is the parameter that the RecyclerView's parent passed into the
-     * RecyclerView's {@code onMeasure} method.
+     * Returns the MeasureSpec mode for the current orientation from the LayoutManager.
      *
      * @return The current measure spec mode.
      *
      * @see View.MeasureSpec
+     * @see RecyclerView.LayoutManager#getWidthMode()
+     * @see RecyclerView.LayoutManager#getHeightMode()
      */
     public abstract int getMode();
 
     /**
-     * Returns the MeasureSpec mode for the perpendicular orientation.
-     *
-     * This value is always {@code View.MeasureSpec.EXACTLY} if the RecyclerView is not currently
-     * measuring. Otherwise, it is the parameter that the RecyclerView's parent passed into the
-     * RecyclerView's {@code onMeasure} method.
+     * Returns the MeasureSpec mode for the perpendicular orientation from the LayoutManager.
      *
      * @return The current measure spec mode.
      *
      * @see View.MeasureSpec
+     * @see RecyclerView.LayoutManager#getWidthMode()
+     * @see RecyclerView.LayoutManager#getHeightMode()
      */
     public abstract int getModeInOther();
 
