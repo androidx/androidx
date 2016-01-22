@@ -50,6 +50,13 @@ javadoc {
     source    sourceSets.main.allJava
 }
 
+// Disable strict javadoc lint checks with javadoc v8 builds on Mac. http://b/26744780
+if (JavaVersion.current().isJava8Compatible()) {
+    tasks.withType(Javadoc) {
+        options.addBooleanOption('Xdoclint:none', true)
+    }
+}
+
 // custom tasks for creating source/javadoc jars
 task sourcesJar(type: Jar, dependsOn:classes) {
     classifier = 'sources'
