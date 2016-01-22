@@ -3589,7 +3589,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     }
 
     /**
-     * Traverses the ascendants of the given view and returns the item view that contains it and
+     * Traverses the ancestors of the given view and returns the item view that contains it and
      * also a direct child of the RecyclerView. This returned view can be used to get the
      * ViewHolder by calling {@link #getChildViewHolder(View)}.
      *
@@ -6088,8 +6088,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
 
         /**
-         * Chooses a size from given specs and parameters that is closest to the desired and also
-         * complies with the spec.
+         * Chooses a size from the given specs and parameters that is closest to the desired size
+         * and also complies with the spec.
          *
          * @param spec The measureSpec
          * @param desired The preferred measurement
@@ -6128,6 +6128,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         /**
          * Defines whether the layout should be measured by the RecyclerView or the LayoutManager
          * wants to handle the layout measurements itself.
+         * <p>
+         * This method is usually called by the LayoutManager with value {@code true} if it wants
+         * to support WRAP_CONTENT. If you are using a public LayoutManager but want to customize
+         * the measurement logic, you can call this method with {@code false} and override
+         * {@link LayoutManager#onMeasure(int, int)} to implement your custom measurement logic.
          * <p>
          * AutoMeasure is a convenience mechanism for LayoutManagers to easily wrap their content or
          * handle various specs provided by the RecyclerView's parent.
@@ -6764,7 +6769,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
 
         /**
-         * Traverses the ascendants of the given view and returns the item view that contains it
+         * Traverses the ancestors of the given view and returns the item view that contains it
          * and also a direct child of the LayoutManager.
          * <p>
          * Note that this method may return null if the view is a child of the RecyclerView but
@@ -7382,7 +7387,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
         /**
          * Sets whether RecyclerView should use its own measurement cache for the children. This is
-         * a more aggressive cache then the framework uses.
+         * a more aggressive cache than the framework uses.
          *
          * @param measurementCacheEnabled True to enable the measurement cache, false otherwise.
          *
