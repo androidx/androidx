@@ -246,6 +246,18 @@ public class AdapterHelperTest extends AndroidTestCase {
     }
 
     @Test
+    public void testNotifyAfterPre() {
+        setupBasic(10, 2, 3);
+        add(2, 1);
+        mAdapterHelper.preProcess();
+        add(3, 1);
+        mAdapterHelper.consumeUpdatesInOnePass();
+        mPreProcessClone.applyOps(mFirstPassUpdates, mTestAdapter);
+        mPreProcessClone.applyOps(mSecondPassUpdates, mTestAdapter);
+        assertAdaptersEqual(mTestAdapter, mPreProcessClone);
+    }
+
+    @Test
     public void testSinglePass() {
         setupBasic(10, 2, 3);
         add(2, 1);

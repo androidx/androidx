@@ -38,11 +38,6 @@ public class GridLayoutManager extends LinearLayoutManager {
     private static final String TAG = "GridLayoutManager";
     public static final int DEFAULT_SPAN_COUNT = -1;
     /**
-     * The measure spec for the scroll direction.
-     */
-    static final int MAIN_DIR_SPEC =
-            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-    /**
      * Span size have been changed but we've not done a new layout calculation.
      */
     boolean mPendingSpanCountChange = false;
@@ -221,8 +216,13 @@ public class GridLayoutManager extends LinearLayoutManager {
 
     @Override
     public RecyclerView.LayoutParams generateDefaultLayoutParams() {
-        return new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
+        if (mOrientation == HORIZONTAL) {
+            return new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.FILL_PARENT);
+        } else {
+            return new LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
     }
 
     @Override
@@ -273,26 +273,61 @@ public class GridLayoutManager extends LinearLayoutManager {
         calculateItemBorders(totalSpace);
     }
 
-    private void calculateItemBorders(int totalSpace) {
-        if (mCachedBorders == null || mCachedBorders.length != mSpanCount + 1
-                || mCachedBorders[mCachedBorders.length - 1] != totalSpace) {
-            mCachedBorders = new int[mSpanCount + 1];
+    @Override
+    public void setMeasuredDimension(Rect childrenBounds, int wSpec, int hSpec) {
+        if (mCachedBorders == null) {
+            super.setMeasuredDimension(childrenBounds, wSpec, hSpec);
         }
-        mCachedBorders[0] = 0;
-        int sizePerSpan = totalSpace / mSpanCount;
-        int sizePerSpanRemainder = totalSpace % mSpanCount;
+        final int width, height;
+        if (mOrientation == VERTICAL) {
+            int usedHeight = childrenBounds.height() + getPaddingTop() + getPaddingBottom();
+            height = chooseSize(hSpec, usedHeight, getMinimumHeight());
+            width = chooseSize(wSpec, mCachedBorders[mCachedBorders.length - 1],
+                    getMinimumWidth());
+        } else {
+            int usedWidth = childrenBounds.width() + getPaddingLeft() + getPaddingRight();
+            width = chooseSize(wSpec, usedWidth, getMinimumWidth());
+            height = chooseSize(hSpec, mCachedBorders[mCachedBorders.length - 1],
+                    getMinimumHeight());
+        }
+        setMeasuredDimension(width, height);
+    }
+
+    /**
+     * @param totalSpace Total available space after padding is removed
+     */
+    private void calculateItemBorders(int totalSpace) {
+        mCachedBorders = calculateItemBorders(mCachedBorders, mSpanCount, totalSpace);
+    }
+
+    /**
+     * @param cachedBorders The out array
+     * @param spanCount number of spans
+     * @param totalSpace total available space after padding is removed
+     * @return The updated array. Might be the same instance as the provided array if its size
+     * has not changed.
+     */
+    static int[] calculateItemBorders(int[] cachedBorders, int spanCount, int totalSpace) {
+        if (cachedBorders == null || cachedBorders.length != spanCount + 1
+                || cachedBorders[cachedBorders.length - 1] != totalSpace) {
+            cachedBorders = new int[spanCount + 1];
+        }
+        cachedBorders[0] = 0;
+        int sizePerSpan = totalSpace / spanCount;
+        int sizePerSpanRemainder = totalSpace % spanCount;
         int consumedPixels = 0;
         int additionalSize = 0;
-        for (int i = 1; i <= mSpanCount; i++) {
+        for (int i = 1; i <= spanCount; i++) {
             int itemSize = sizePerSpan;
             additionalSize += sizePerSpanRemainder;
-            if (additionalSize > 0 && (mSpanCount - additionalSize) < sizePerSpanRemainder) {
+            if (additionalSize > 0 && (spanCount - additionalSize) < sizePerSpanRemainder) {
                 itemSize += 1;
-                additionalSize -= mSpanCount;
+                additionalSize -= spanCount;
             }
             consumedPixels += itemSize;
-            mCachedBorders[i] = consumedPixels;
+            cachedBorders[i] = consumedPixels;
         }
+        return cachedBorders;
     }
 
     @Override
@@ -433,6 +468,15 @@ public class GridLayoutManager extends LinearLayoutManager {
     @Override
     void layoutChunk(RecyclerView.Recycler recycler, RecyclerView.State state,
             LayoutState layoutState, LayoutChunkResult result) {
+        final int otherDirSpecMode = mOrientationHelper.getModeInOther();
+        final boolean flexibleInOtherDir = otherDirSpecMode != View.MeasureSpec.EXACTLY;
+        final int currentOtherDirSize = getChildCount() > 0 ? mCachedBorders[mSpanCount] : 0;
+        // if grid layout's dimensions are not specified, let the new row change the measurements
+        // This is not perfect since we not covering all rows but still solves an important case
+        // where they may have a header row which should be laid out according to children.
+        if (flexibleInOtherDir) {
+            updateMeasurements(); //  reset measurements
+        }
         final boolean layingOutInPrimaryDirection =
                 layoutState.mItemDirection == LayoutState.ITEM_DIRECTION_TAIL;
         int count = 0;
@@ -470,6 +514,7 @@ public class GridLayoutManager extends LinearLayoutManager {
         }
 
         int maxSize = 0;
+        float maxSizeInOther = 0; // use a float to get size per span
 
         // we should assign spans before item decor offsets are calculated
         assignSpans(recycler, state, count, consumedSpanCount, layingOutInPrimaryDirection);
@@ -490,35 +535,68 @@ public class GridLayoutManager extends LinearLayoutManager {
             }
 
             final LayoutParams lp = (LayoutParams) view.getLayoutParams();
-            final int spec = View.MeasureSpec.makeMeasureSpec(
-                    mCachedBorders[lp.mSpanIndex + lp.mSpanSize] -
-                            mCachedBorders[lp.mSpanIndex],
-                    View.MeasureSpec.EXACTLY);
+            final int spec = getChildMeasureSpec(mCachedBorders[lp.mSpanIndex + lp.mSpanSize] -
+                    mCachedBorders[lp.mSpanIndex], otherDirSpecMode, 0,
+                    mOrientation == HORIZONTAL ? lp.height : lp.width,
+                    false);
+            final int mainSpec = getChildMeasureSpec(mOrientationHelper.getTotalSpace(),
+                    mOrientationHelper.getMode(), 0,
+                    mOrientation == VERTICAL ? lp.height : lp.width, true);
             if (mOrientation == VERTICAL) {
-                measureChildWithDecorationsAndMargin(view, spec, getMainDirSpec(lp.height), false);
+                measureChildWithDecorationsAndMargin(view, spec, mainSpec, false, false);
             } else {
-                measureChildWithDecorationsAndMargin(view, getMainDirSpec(lp.width), spec, false);
+                measureChildWithDecorationsAndMargin(view, mainSpec, spec, false, false);
             }
             final int size = mOrientationHelper.getDecoratedMeasurement(view);
             if (size > maxSize) {
                 maxSize = size;
             }
+            final float otherSize = 1f * mOrientationHelper.getDecoratedMeasurementInOther(view) /
+                    lp.mSpanSize;
+            if (otherSize > maxSizeInOther) {
+                maxSizeInOther = otherSize;
+            }
         }
-
-        // views that did not measure the maxSize has to be re-measured
-        final int maxMeasureSpec = getMainDirSpec(maxSize);
+        if (flexibleInOtherDir) {
+            // re-distribute columns
+            guessMeasurement(maxSizeInOther, currentOtherDirSize);
+            // now we should re-measure any item that was match parent.
+            maxSize = 0;
+            for (int i = 0; i < count; i++) {
+                View view = mSet[i];
+                final LayoutParams lp = (LayoutParams) view.getLayoutParams();
+                final int spec = getChildMeasureSpec(mCachedBorders[lp.mSpanIndex + lp.mSpanSize] -
+                                mCachedBorders[lp.mSpanIndex], View.MeasureSpec.EXACTLY, 0,
+                        mOrientation == HORIZONTAL ? lp.height : lp.width, false);
+                final int mainSpec = getChildMeasureSpec(mOrientationHelper.getTotalSpace(),
+                        mOrientationHelper.getMode(), 0,
+                        mOrientation == VERTICAL ? lp.height : lp.width, true);
+                if (mOrientation == VERTICAL) {
+                    measureChildWithDecorationsAndMargin(view, spec, mainSpec, false, true);
+                } else {
+                    measureChildWithDecorationsAndMargin(view, mainSpec, spec, false, true);
+                }
+                final int size = mOrientationHelper.getDecoratedMeasurement(view);
+                if (size > maxSize) {
+                    maxSize = size;
+                }
+            }
+        }
+        // Views that did not measure the maxSize has to be re-measured
+        // We will stop doing this once we introduce Gravity in the GLM layout params
+        final int maxMeasureSpec = View.MeasureSpec.makeMeasureSpec(maxSize,
+                View.MeasureSpec.EXACTLY);
         for (int i = 0; i < count; i ++) {
             final View view = mSet[i];
             if (mOrientationHelper.getDecoratedMeasurement(view) != maxSize) {
                 final LayoutParams lp = (LayoutParams) view.getLayoutParams();
-                final int spec = View.MeasureSpec.makeMeasureSpec(
-                        mCachedBorders[lp.mSpanIndex + lp.mSpanSize] -
-                                mCachedBorders[lp.mSpanIndex],
-                        View.MeasureSpec.EXACTLY);
+                final int spec = getChildMeasureSpec(mCachedBorders[lp.mSpanIndex + lp.mSpanSize]
+                                - mCachedBorders[lp.mSpanIndex], View.MeasureSpec.EXACTLY, 0,
+                        mOrientation == HORIZONTAL ? lp.height : lp.width, false);
                 if (mOrientation == VERTICAL) {
-                    measureChildWithDecorationsAndMargin(view, spec, maxMeasureSpec, true);
+                    measureChildWithDecorationsAndMargin(view, spec, maxMeasureSpec, true, true);
                 } else {
-                    measureChildWithDecorationsAndMargin(view, maxMeasureSpec, spec, true);
+                    measureChildWithDecorationsAndMargin(view, maxMeasureSpec, spec, true, true);
                 }
             }
         }
@@ -547,8 +625,13 @@ public class GridLayoutManager extends LinearLayoutManager {
             View view = mSet[i];
             LayoutParams params = (LayoutParams) view.getLayoutParams();
             if (mOrientation == VERTICAL) {
-                left = getPaddingLeft() + mCachedBorders[params.mSpanIndex];
-                right = left + mOrientationHelper.getDecoratedMeasurementInOther(view);
+                if (isLayoutRTL()) {
+                    right = getPaddingLeft() + mCachedBorders[params.mSpanIndex + params.mSpanSize];
+                    left = right - mOrientationHelper.getDecoratedMeasurementInOther(view);
+                } else {
+                    left = getPaddingLeft() + mCachedBorders[params.mSpanIndex];
+                    right = left + mOrientationHelper.getDecoratedMeasurementInOther(view);
+                }
             } else {
                 top = getPaddingTop() + mCachedBorders[params.mSpanIndex];
                 bottom = top + mOrientationHelper.getDecoratedMeasurementInOther(view);
@@ -572,16 +655,24 @@ public class GridLayoutManager extends LinearLayoutManager {
         Arrays.fill(mSet, null);
     }
 
-    private int getMainDirSpec(int dim) {
-        if (dim < 0) {
-            return MAIN_DIR_SPEC;
-        } else {
-            return View.MeasureSpec.makeMeasureSpec(dim, View.MeasureSpec.EXACTLY);
-        }
+    /**
+     * This is called after laying out a row (if vertical) or a column (if horizontal) when the
+     * RecyclerView does not have exact measurement specs.
+     * <p>
+     * Here we try to assign a best guess width or height and re-do the layout to update other
+     * views that wanted to FILL_PARENT in the non-scroll orientation.
+     *
+     * @param maxSizeInOther The maximum size per span ratio from the measurement of the children.
+     * @param currentOtherDirSize The size before this layout chunk. There is no reason to go below.
+     */
+    private void guessMeasurement(float maxSizeInOther, int currentOtherDirSize) {
+        final int contentSize = Math.round(maxSizeInOther * mSpanCount);
+        // always re-calculate because borders were stretched during the fill
+        calculateItemBorders(Math.max(contentSize, currentOtherDirSize));
     }
 
     private void measureChildWithDecorationsAndMargin(View child, int widthSpec, int heightSpec,
-            boolean capBothSpecs) {
+            boolean capBothSpecs, boolean alreadyMeasured) {
         calculateItemDecorationsForChild(child, mDecorInsets);
         RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) child.getLayoutParams();
         if (capBothSpecs || mOrientation == VERTICAL) {
@@ -592,7 +683,16 @@ public class GridLayoutManager extends LinearLayoutManager {
             heightSpec = updateSpecWithExtra(heightSpec, lp.topMargin + mDecorInsets.top,
                     lp.bottomMargin + mDecorInsets.bottom);
         }
-        child.measure(widthSpec, heightSpec);
+        final boolean measure;
+        if (alreadyMeasured) {
+            measure = shouldReMeasureChild(child, widthSpec, heightSpec, lp);
+        } else {
+            measure = shouldMeasureChild(child, widthSpec, heightSpec, lp);
+        }
+        if (measure) {
+            child.measure(widthSpec, heightSpec);
+        }
+
     }
 
     private int updateSpecWithExtra(int spec, int startInset, int endInset) {

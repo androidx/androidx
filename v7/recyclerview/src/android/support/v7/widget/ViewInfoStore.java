@@ -21,6 +21,7 @@ import android.support.annotation.VisibleForTesting;
 import android.support.v4.util.ArrayMap;
 import android.support.v4.util.LongSparseArray;
 import android.support.v4.util.Pools;
+import android.view.View;
 
 import static android.support.v7.widget.RecyclerView.ViewHolder;
 import static android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo;
@@ -239,6 +240,10 @@ class ViewInfoStore {
 
     void onDetach() {
         InfoRecord.drainCache();
+    }
+
+    public void onViewDetached(ViewHolder viewHolder) {
+        removeFromDisappearedInLayout(viewHolder);
     }
 
     interface ProcessCallback {

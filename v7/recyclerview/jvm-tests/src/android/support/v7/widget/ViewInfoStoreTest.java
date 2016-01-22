@@ -54,6 +54,37 @@ public class ViewInfoStoreTest extends TestCase {
     }
 
     @Test
+    public void addOverridePre() {
+        RecyclerView.ViewHolder vh = new MockViewHolder();
+        MockInfo info = new MockInfo();
+        mStore.addToPreLayout(vh, info);
+        MockInfo info2 = new MockInfo();
+        mStore.addToPreLayout(vh, info2);
+        assertSame(info2, find(vh, FLAG_PRE));
+    }
+
+    @Test
+    public void addOverridePost() {
+        RecyclerView.ViewHolder vh = new MockViewHolder();
+        MockInfo info = new MockInfo();
+        mStore.addToPostLayout(vh, info);
+        MockInfo info2 = new MockInfo();
+        mStore.addToPostLayout(vh, info2);
+        assertSame(info2, find(vh, FLAG_POST));
+    }
+
+    @Test
+    public void addRemoveAndReAdd() {
+        RecyclerView.ViewHolder vh = new MockViewHolder();
+        MockInfo pre = new MockInfo();
+        mStore.addToPreLayout(vh, pre);
+        MockInfo post1 = new MockInfo();
+        mStore.addToPostLayout(vh, post1);
+        mStore.onViewDetached(vh);
+        mStore.addToDisappearedInLayout(vh);
+    }
+
+    @Test
     public void addToPreLayout() {
         RecyclerView.ViewHolder vh = new MockViewHolder();
         MockInfo info = new MockInfo();

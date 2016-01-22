@@ -15,6 +15,7 @@
  */
 
 package android.support.v7.widget;
+
 import android.view.View;
 
 /**
@@ -35,8 +36,11 @@ class LayoutState {
 
     final static int ITEM_DIRECTION_TAIL = 1;
 
-    final static int SCOLLING_OFFSET_NaN = Integer.MIN_VALUE;
-
+    /**
+     * We may not want to recycle children in some cases (e.g. layout)
+     */
+    boolean mRecycle = true;
+    
     /**
      * Number of pixels that we should fill, in the layout direction.
      */
@@ -73,6 +77,11 @@ class LayoutState {
      * If true, layout should stop if a focusable view is added
      */
     boolean mStopInFocusable;
+
+    /**
+     * If the content is not wrapped with any value
+     */
+    boolean mInfinite;
 
     /**
      * @return true if there are more items in the data adapter

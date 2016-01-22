@@ -19,6 +19,7 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -30,6 +31,8 @@ import java.util.concurrent.TimeUnit;
 
 import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
 import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
+import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static org.junit.Assert.*;
 
 public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
@@ -42,7 +45,11 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
         for (int orientation : new int[]{VERTICAL, HORIZONTAL}) {
             for (boolean reverseLayout : new boolean[]{false, true}) {
                 for (boolean stackFromBottom : new boolean[]{false, true}) {
-                    variations.add(new Config(orientation, reverseLayout, stackFromBottom));
+                    for (boolean wrap : new boolean[]{false, true}) {
+                        variations.add(
+                                new Config(orientation, reverseLayout, stackFromBottom).wrap(wrap));
+                    }
+
                 }
             }
         }
@@ -79,6 +86,14 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
         mLayoutManager.setStackFromEnd(config.mStackFromEnd);
         mLayoutManager.setRecycleChildrenOnDetach(config.mRecycleChildrenOnDetach);
         mRecyclerView.setLayoutManager(mLayoutManager);
+        if (config.mWrap) {
+            mRecyclerView.setLayoutParams(
+                    new ViewGroup.LayoutParams(
+                            config.mOrientation == HORIZONTAL ? WRAP_CONTENT : FILL_PARENT,
+                            config.mOrientation == VERTICAL ? WRAP_CONTENT : FILL_PARENT
+                    )
+            );
+        }
         if (waitForFirstLayout) {
             waitForFirstLayout();
         }
@@ -248,6 +263,8 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
 
         int mItemCount = DEFAULT_ITEM_COUNT;
 
+        boolean mWrap = false;
+
         TestAdapter mTestAdapter;
 
         Config(int orientation, boolean reverseLayout, boolean stackFromEnd) {
@@ -304,7 +321,13 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
                     ", mReverseLayout=" + mReverseLayout +
                     ", mRecycleChildrenOnDetach=" + mRecycleChildrenOnDetach +
                     ", mItemCount=" + mItemCount +
+                    ", wrap=" + mWrap +
                     '}';
+        }
+
+        public Config wrap(boolean wrap) {
+            mWrap = wrap;
+            return this;
         }
     }
 

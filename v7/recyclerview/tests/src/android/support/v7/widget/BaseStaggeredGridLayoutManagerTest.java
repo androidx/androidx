@@ -1,7 +1,5 @@
 package android.support.v7.widget;
 
-import org.junit.Before;
-
 import android.graphics.Rect;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -45,8 +43,11 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
                 for (int spanCount : new int[]{1, 3}) {
                     for (int gapStrategy : new int[]{GAP_HANDLING_NONE,
                             GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS}) {
-                        variations.add(new Config(orientation, reverseLayout, spanCount,
-                                gapStrategy));
+                        for (boolean wrap : new boolean[]{true, false}) {
+                            variations.add(new Config(orientation, reverseLayout, spanCount,
+                                    gapStrategy).wrap(wrap));
+                        }
+
                     }
                 }
             }
@@ -391,6 +392,8 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
 
         int mItemCount = DEFAULT_ITEM_COUNT;
 
+        boolean mWrap = false;
+
         Config(int orientation, boolean reverseLayout, int spanCount, int gapStrategy) {
             mOrientation = orientation;
             mReverseLayout = reverseLayout;
@@ -427,6 +430,11 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
             return this;
         }
 
+        public Config wrap(boolean wrap) {
+            mWrap = wrap;
+            return this;
+        }
+
         @Override
         public String toString() {
             return "[CONFIG:" +
@@ -434,6 +442,7 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
                     " orientation:" + (mOrientation == HORIZONTAL ? "horz," : "vert,") +
                     " reverse:" + (mReverseLayout ? "T" : "F") +
                     " itemCount:" + mItemCount +
+                    " wrapContent:" + mWrap +
                     " gap strategy: " + gapStrategyName(mGapStrategy);
         }
 
@@ -789,11 +798,12 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
             RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) holder.itemView
                     .getLayoutParams();
             if (lp instanceof StaggeredGridLayoutManager.LayoutParams) {
-                ((StaggeredGridLayoutManager.LayoutParams) lp).setFullSpan(mFullSpanItems.contains(item.mAdapterIndex));
+                ((StaggeredGridLayoutManager.LayoutParams) lp)
+                        .setFullSpan(mFullSpanItems.contains(item.mAdapterIndex));
             } else {
-                StaggeredGridLayoutManager.LayoutParams
-                        slp = new StaggeredGridLayoutManager.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT);
+                StaggeredGridLayoutManager.LayoutParams slp
+                        = (StaggeredGridLayoutManager.LayoutParams) mLayoutManager
+                        .generateDefaultLayoutParams();
                 holder.itemView.setLayoutParams(slp);
                 slp.setFullSpan(mFullSpanItems.contains(item.mAdapterIndex));
                 lp = slp;
