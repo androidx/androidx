@@ -17,12 +17,15 @@
 package android.support.v4.graphics.drawable;
 
 import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.Region;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * Drawable which delegates all calls to it's wrapped {@link android.graphics.drawable.Drawable}.
@@ -32,19 +35,49 @@ import android.graphics.drawable.Drawable;
  */
 class DrawableWrapperDonut extends Drawable implements Drawable.Callback, DrawableWrapper {
 
-    static final PorterDuff.Mode DEFAULT_MODE = PorterDuff.Mode.SRC_IN;
-
-    private ColorStateList mTintList;
-    private PorterDuff.Mode mTintMode = DEFAULT_MODE;
+    static final PorterDuff.Mode DEFAULT_TINT_MODE = PorterDuff.Mode.SRC_IN;
 
     private int mCurrentColor;
     private PorterDuff.Mode mCurrentMode;
     private boolean mColorFilterSet;
 
+    DrawableWrapperState mState;
+    private boolean mMutated;
+
     Drawable mDrawable;
 
-    DrawableWrapperDonut(Drawable drawable) {
-        setWrappedDrawable(drawable);
+    DrawableWrapperDonut(@NonNull DrawableWrapperState state, @Nullable Resources res) {
+        mState = state;
+        updateLocalState(res);
+    }
+    /**
+     * Creates a new wrapper around the specified drawable.
+     *
+     * @param dr the drawable to wrap
+     */
+    DrawableWrapperDonut(@Nullable Drawable dr) {
+        mState = mutateConstantState();
+        mDrawable = dr;
+    }
+
+    /**
+     * Initializes local dynamic properties from state. This should be called
+     * after significant state changes, e.g. from the One True Constructor and
+     * after inflating or applying a theme.
+     */
+    private void updateLocalState(@Nullable Resources res) {
+        if (mState != null && mState.mDrawableState != null) {
+            final Drawable dr = newDrawableFromState(mState.mDrawableState, res);
+            setWrappedDrawable(dr);
+        }
+    }
+
+    /**
+     * Allows us to call ConstantState.newDrawable(*) is a API safe way
+     */
+    protected Drawable newDrawableFromState(@NonNull Drawable.ConstantState state,
+            @Nullable Resources res) {
+        return state.newDrawable();
     }
 
     @Override
@@ -66,7 +99,9 @@ class DrawableWrapperDonut extends Drawable implements Drawable.Callback, Drawab
 
     @Override
     public int getChangingConfigurations() {
-        return mDrawable.getChangingConfigurations();
+        return super.getChangingConfigurations()
+                | (mState != null ? mState.getChangingConfigurations() : 0)
+                | mDrawable.getChangingConfigurations();
     }
 
     @Override
@@ -91,7 +126,7 @@ class DrawableWrapperDonut extends Drawable implements Drawable.Callback, Drawab
 
     @Override
     public boolean isStateful() {
-        final ColorStateList tintList = isCompatTintEnabled() ? mTintList : null;
+        final ColorStateList tintList = isCompatTintEnabled() ? mState.mTint : null;
         return (tintList != null && tintList.isStateful()) || mDrawable.isStateful();
     }
 
@@ -153,15 +188,40 @@ class DrawableWrapperDonut extends Drawable implements Drawable.Callback, Drawab
     }
 
     @Override
-    public Drawable mutate() {
-        Drawable wrapped = mDrawable;
-        Drawable mutated = wrapped.mutate();
-        if (mutated != wrapped) {
-            // If mutate() returned a new instance, update our reference
-            setWrappedDrawable(mutated);
+    @Nullable
+    public ConstantState getConstantState() {
+        if (mState != null && mState.canConstantState()) {
+            mState.mChangingConfigurations = getChangingConfigurations();
+            return mState;
         }
-        // We return ourselves, since only the wrapped drawable needs to mutate
+        return null;
+    }
+
+    @Override
+    public Drawable mutate() {
+        if (!mMutated && super.mutate() == this) {
+            mState = mutateConstantState();
+            if (mDrawable != null) {
+                mDrawable.mutate();
+            }
+            if (mState != null) {
+                mState.mDrawableState = mDrawable != null ? mDrawable.getConstantState() : null;
+            }
+            mMutated = true;
+        }
         return this;
+    }
+
+    /**
+     * Mutates the constant state and returns the new state.
+     * <p>
+     * This method should never call the super implementation; it should always
+     * mutate and return its own constant state.
+     *
+     * @return the new state
+     */
+    DrawableWrapperState mutateConstantState() {
+        return new DrawableWrapperStateDonut(mState, null);
     }
 
     /**
@@ -197,18 +257,14 @@ class DrawableWrapperDonut extends Drawable implements Drawable.Callback, Drawab
 
     @Override
     public void setCompatTintList(ColorStateList tint) {
-        if (mTintList != tint) {
-            mTintList = tint;
-            updateTint(getState());
-        }
+        mState.mTint = tint;
+        updateTint(getState());
     }
 
     @Override
     public void setCompatTintMode(PorterDuff.Mode tintMode) {
-        if (mTintMode != tintMode) {
-            mTintMode = tintMode;
-            updateTint(getState());
-        }
+        mState.mTintMode = tintMode;
+        updateTint(getState());
     }
 
     private boolean updateTint(int[] state) {
@@ -217,12 +273,15 @@ class DrawableWrapperDonut extends Drawable implements Drawable.Callback, Drawab
             return false;
         }
 
-        if (mTintList != null && mTintMode != null) {
-            final int color = mTintList.getColorForState(state, mTintList.getDefaultColor());
-            if (!mColorFilterSet || color != mCurrentColor || mTintMode != mCurrentMode) {
-                setColorFilter(color, mTintMode);
+        final ColorStateList tintList = mState.mTint;
+        final PorterDuff.Mode tintMode = mState.mTintMode;
+
+        if (tintList != null && tintMode != null) {
+            final int color = tintList.getColorForState(state, tintList.getDefaultColor());
+            if (!mColorFilterSet || color != mCurrentColor || tintMode != mCurrentMode) {
+                setColorFilter(color, tintMode);
                 mCurrentColor = color;
-                mCurrentMode = mTintMode;
+                mCurrentMode = tintMode;
                 mColorFilterSet = true;
                 return true;
             }
@@ -243,30 +302,76 @@ class DrawableWrapperDonut extends Drawable implements Drawable.Callback, Drawab
     /**
      * Sets the current wrapped {@link Drawable}
      */
-    public void setWrappedDrawable(Drawable drawable) {
+    public void setWrappedDrawable(Drawable dr) {
         if (mDrawable != null) {
             mDrawable.setCallback(null);
         }
-        mDrawable = null;
 
-        if (drawable != null) {
-            // Copy over the bounds from the drawable
-            setBounds(drawable.getBounds());
-            // Set ourselves as the callback for invalidations
-            drawable.setCallback(this);
-        } else {
-            // Clear our bounds
-            setBounds(0, 0, 0, 0);
+        mDrawable = dr;
+
+        if (dr != null) {
+            dr.setCallback(this);
+            // Only call setters for data that's stored in the base Drawable.
+            dr.setVisible(isVisible(), true);
+            dr.setState(getState());
+            dr.setLevel(getLevel());
+            dr.setBounds(getBounds());
+            if (mState != null) {
+                mState.mDrawableState = dr.getConstantState();
+            }
         }
 
-        mDrawable = drawable;
-
-        // Invalidate ourselves
         invalidateSelf();
     }
 
     protected boolean isCompatTintEnabled() {
         // It's enabled by default on Donut
         return true;
+    }
+
+    protected static abstract class DrawableWrapperState extends Drawable.ConstantState {
+        int mChangingConfigurations;
+        Drawable.ConstantState mDrawableState;
+
+        ColorStateList mTint = null;
+        PorterDuff.Mode mTintMode = DEFAULT_TINT_MODE;
+
+        DrawableWrapperState(@Nullable DrawableWrapperState orig, @Nullable Resources res) {
+            if (orig != null) {
+                mChangingConfigurations = orig.mChangingConfigurations;
+                mDrawableState = orig.mDrawableState;
+                mTint = orig.mTint;
+                mTintMode = orig.mTintMode;
+            }
+        }
+
+        @Override
+        public Drawable newDrawable() {
+            return newDrawable(null);
+        }
+
+        public abstract Drawable newDrawable(@Nullable Resources res);
+
+        @Override
+        public int getChangingConfigurations() {
+            return mChangingConfigurations
+                    | (mDrawableState != null ? mDrawableState.getChangingConfigurations() : 0);
+        }
+
+        boolean canConstantState() {
+            return mDrawableState != null;
+        }
+    }
+
+    private static class DrawableWrapperStateDonut extends DrawableWrapperState {
+        DrawableWrapperStateDonut(
+                @Nullable DrawableWrapperState orig, @Nullable Resources res) {
+            super(orig, res);
+        }
+
+        @Override
+        public Drawable newDrawable(@Nullable Resources res) {
+            return new DrawableWrapperDonut(this, res);
+        }
     }
 }
