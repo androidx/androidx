@@ -47,11 +47,14 @@ import android.view.inputmethod.EditorInfo;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.AccessibilityDelegate;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewPropertyAnimator;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
+import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Checkable;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -176,6 +179,22 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         private int mEditingMode = EDITING_NONE;
         private final boolean mIsSubAction;
 
+        final AccessibilityDelegate mDelegate = new AccessibilityDelegate() {
+            @Override
+            public void onInitializeAccessibilityEvent(View host, AccessibilityEvent event) {
+                super.onInitializeAccessibilityEvent(host, event);
+                event.setChecked(mAction != null && mAction.isChecked());
+            }
+
+            @Override
+            public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfo info) {
+                super.onInitializeAccessibilityNodeInfo(host, info);
+                info.setCheckable(
+                        mAction != null && mAction.getCheckSetId() != GuidedAction.NO_CHECK_SET);
+                info.setChecked(mAction != null && mAction.isChecked());
+            }
+        };
+
         /**
          * Constructs an ViewHolder and caches the relevant subviews.
          */
@@ -197,6 +216,8 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             mCheckmarkView = (ImageView) v.findViewById(R.id.guidedactions_item_checkmark);
             mChevronView = (ImageView) v.findViewById(R.id.guidedactions_item_chevron);
             mIsSubAction = isSubAction;
+
+            v.setAccessibilityDelegate(mDelegate);
         }
 
         /**
