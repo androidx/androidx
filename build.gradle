@@ -153,6 +153,19 @@ subprojects {
 
                 // Disable unique names for SNAPSHOTS so they can be updated in place.
                 setUniqueVersion(false)
+                doLast {
+                    // Remove any invalid maven-metadata.xml files that may have been created
+                    // for SNAPSHOT versions that are *not* uniquely versioned.
+                    pom*.each { pom ->
+                        if (pom.version.endsWith('-SNAPSHOT')) {
+                            final File artifactDir = new File(rootProject.ext.supportRepoOut,
+                                    pom.groupId.replace('.', '/')
+                                    + '/' + pom.artifactId
+                                    + '/' + pom.version)
+                            delete fileTree(dir: artifactDir, include: 'maven-metadata.xml*')
+                        }
+                    }
+                }
            }
         }
     }
