@@ -55,49 +55,7 @@ import static org.junit.Assert.*;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
-public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
-
-    static final String TAG = "GridLayoutManagerTest";
-
-    static final boolean DEBUG = false;
-
-    WrappedGridLayoutManager mGlm;
-
-    GridTestAdapter mAdapter;
-
-    final List<Config> mBaseVariations = new ArrayList<Config>();
-
-    @Before
-    public void setUp() throws Exception {
-        for (int orientation : new int[]{VERTICAL, HORIZONTAL}) {
-            for (boolean reverseLayout : new boolean[]{false, true}) {
-                for (int spanCount : new int[]{1, 3, 4}) {
-                    mBaseVariations.add(new Config(spanCount, orientation, reverseLayout));
-                }
-            }
-        }
-    }
-
-    public RecyclerView setupBasic(Config config) throws Throwable {
-        return setupBasic(config, new GridTestAdapter(config.mItemCount));
-    }
-
-    public RecyclerView setupBasic(Config config, GridTestAdapter testAdapter) throws Throwable {
-        RecyclerView recyclerView = new RecyclerView(getActivity());
-        mAdapter = testAdapter;
-        mGlm = new WrappedGridLayoutManager(getActivity(), config.mSpanCount, config.mOrientation,
-                config.mReverseLayout);
-        mAdapter.assignSpanSizeLookup(mGlm);
-        recyclerView.setAdapter(mAdapter);
-        recyclerView.setLayoutManager(mGlm);
-        return recyclerView;
-    }
-
-    public void waitForFirstLayout(RecyclerView recyclerView) throws Throwable {
-        mGlm.expectLayout(1);
-        setRecyclerView(recyclerView);
-        mGlm.waitForLayout(2);
-    }
+public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
 
     @Test
     public void focusSearchFailureUp() throws Throwable {
@@ -109,7 +67,7 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         focusSearchFailure(true);
     }
 
-    public void focusSearchFailure(boolean scrollDown) throws Throwable {
+    private void focusSearchFailure(boolean scrollDown) throws Throwable {
         final RecyclerView recyclerView = setupBasic(new Config(3, 31).reverseLayout(!scrollDown)
                 , new GridTestAdapter(31, 1) {
             RecyclerView mAttachedRv;
@@ -317,68 +275,6 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
     }
 
     @Test
-    public void rTL() throws Throwable {
-        for (boolean changeRtlAfter : new boolean[]{false, true}) {
-            for (boolean oneLine : new boolean[]{false, true}) {
-                for (Config config : mBaseVariations) {
-                    rtlTest(config, changeRtlAfter, oneLine);
-                    removeRecyclerView();
-                }
-            }
-        }
-    }
-
-    void rtlTest(Config config, boolean changeRtlAfter, boolean oneLine) throws Throwable {
-        if (oneLine && config.mOrientation != VERTICAL) {
-            return;// nothing to test
-        }
-        if (config.mSpanCount == 1) {
-            config.mSpanCount = 2;
-        }
-        String logPrefix = config + ", changeRtlAfterLayout:" + changeRtlAfter + ", oneLine:" + oneLine;
-        config.mItemCount = 5;
-        if (oneLine) {
-            config.mSpanCount = config.mItemCount + 1;
-        } else {
-            config.mSpanCount = Math.min(config.mItemCount - 1, config.mSpanCount);
-        }
-
-        RecyclerView rv = setupBasic(config);
-        if (changeRtlAfter) {
-            waitForFirstLayout(rv);
-            mGlm.expectLayout(1);
-            mGlm.setFakeRtl(true);
-            mGlm.waitForLayout(2);
-        } else {
-            mGlm.mFakeRTL = true;
-            waitForFirstLayout(rv);
-        }
-
-        assertEquals("view should become rtl", true, mGlm.isLayoutRTL());
-        OrientationHelper helper = OrientationHelper.createHorizontalHelper(mGlm);
-        View child0 = mGlm.findViewByPosition(0);
-        final int secondChildPos = config.mOrientation == VERTICAL ? 1
-                : config.mSpanCount;
-        View child1 = mGlm.findViewByPosition(secondChildPos);
-        assertNotNull(logPrefix + " child position 0 should be laid out", child0);
-        assertNotNull(
-                logPrefix + " second child position " + (secondChildPos) + " should be laid out",
-                child1);
-        if (config.mOrientation == VERTICAL || !config.mReverseLayout) {
-            assertTrue(logPrefix + " second child should be to the left of first child",
-                    helper.getDecoratedStart(child0) >= helper.getDecoratedEnd(child1));
-            assertEquals(logPrefix + " first child should be right aligned",
-                    helper.getDecoratedEnd(child0), helper.getEndAfterPadding());
-        } else {
-            assertTrue(logPrefix + " first child should be to the left of second child",
-                    helper.getDecoratedStart(child1) >= helper.getDecoratedEnd(child0));
-            assertEquals(logPrefix + " first child should be left aligned",
-                    helper.getDecoratedStart(child0), helper.getStartAfterPadding());
-        }
-        checkForMainThreadException();
-    }
-
-    @Test
     public void movingAGroupOffScreenForAddedItems() throws Throwable {
         final RecyclerView rv = setupBasic(new Config(3, 100));
         final int[] maxId = new int[1];
@@ -411,50 +307,6 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         assertEquals("last items span count should be queried twice", 2,
                 spanLookups.get(lastPos + 30));
 
-    }
-
-    @Test
-    public void cachedBorders() throws Throwable {
-        List<Config> testConfigurations = new ArrayList<Config>(mBaseVariations);
-        testConfigurations.addAll(cachedBordersTestConfigs());
-        for (Config config : testConfigurations) {
-            gridCachedBorderstTest(config);
-        }
-    }
-
-    private void gridCachedBorderstTest(Config config) throws Throwable {
-        RecyclerView recyclerView = setupBasic(config);
-        waitForFirstLayout(recyclerView);
-        final boolean vertical = config.mOrientation == GridLayoutManager.VERTICAL;
-        final int expectedSizeSum = vertical ? recyclerView.getWidth() : recyclerView.getHeight();
-        final int lastVisible = mGlm.findLastVisibleItemPosition();
-        for (int i = 0; i < lastVisible; i += config.mSpanCount) {
-            if ((i+1)*config.mSpanCount - 1 < lastVisible) {
-                int childrenSizeSum = 0;
-                for (int j = 0; j < config.mSpanCount; j++) {
-                    View child = recyclerView.getChildAt(i * config.mSpanCount + j);
-                    childrenSizeSum += vertical ? child.getWidth() : child.getHeight();
-                }
-                assertEquals(expectedSizeSum, childrenSizeSum);
-            }
-        }
-        removeRecyclerView();
-    }
-
-    private List<Config> cachedBordersTestConfigs() {
-        ArrayList<Config> configs = new ArrayList<Config>();
-        final int [] spanCounts = new int[]{88, 279, 741};
-        final int [] spanPerItem = new int[]{11, 9, 13};
-        for (int orientation : new int[]{VERTICAL, HORIZONTAL}) {
-            for (boolean reverseLayout : new boolean[]{false, true}) {
-                for (int i = 0 ; i < spanCounts.length; i++) {
-                    Config config = new Config(spanCounts[i], orientation, reverseLayout);
-                    config.mSpanPerItem = spanPerItem[i];
-                    configs.add(config);
-                }
-            }
-        }
-        return configs;
     }
 
     @Test
@@ -576,13 +428,6 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         assertEquals(secondRowSize, getSize(mGlm.findViewByPosition(3)));
         assertEquals(secondRowSize, getSize(mGlm.findViewByPosition(4)));
         assertEquals(secondRowSize, getSize(mGlm.findViewByPosition(5)));
-    }
-
-    private int getSize(View view) {
-        if (mGlm.getOrientation() == GridLayoutManager.HORIZONTAL) {
-            return view.getWidth();
-        }
-        return view.getHeight();
     }
 
     @Test
@@ -922,15 +767,6 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
     }
 
     @Test
-    public void scrollBackAndPreservePositions() throws Throwable {
-        for (Config config : mBaseVariations) {
-            config.mItemCount = 150;
-            scrollBackAndPreservePositionsTest(config);
-            removeRecyclerView();
-        }
-    }
-
-    @Test
     public void spanSizeChange() throws Throwable {
         final RecyclerView rv = setupBasic(new Config(3, 100));
         waitForFirstLayout(rv);
@@ -966,278 +802,5 @@ public class GridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
         mGlm.waitForLayout(2);
         assertEquals("item index 5 should be in span 2", 0,
                 getLp(mGlm.findViewByPosition(5)).getSpanIndex());
-    }
-
-    GridLayoutManager.LayoutParams getLp(View view) {
-        return (GridLayoutManager.LayoutParams) view.getLayoutParams();
-    }
-
-    public void scrollBackAndPreservePositionsTest(final Config config) throws Throwable {
-        final RecyclerView rv = setupBasic(config);
-        for (int i = 1; i < mAdapter.getItemCount(); i += config.mSpanCount + 2) {
-            mAdapter.setFullSpan(i);
-        }
-        waitForFirstLayout(rv);
-        final int[] globalPositions = new int[mAdapter.getItemCount()];
-        Arrays.fill(globalPositions, Integer.MIN_VALUE);
-        final int scrollStep = (mGlm.mOrientationHelper.getTotalSpace() / 20)
-                * (config.mReverseLayout ? -1 : 1);
-        final String logPrefix = config.toString();
-        final int[] globalPos = new int[1];
-        runTestOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                assertSame("test sanity", mRecyclerView, rv);
-                int globalScrollPosition = 0;
-                int visited = 0;
-                while (visited < mAdapter.getItemCount()) {
-                    for (int i = 0; i < mRecyclerView.getChildCount(); i++) {
-                        View child = mRecyclerView.getChildAt(i);
-                        final int pos = mRecyclerView.getChildLayoutPosition(child);
-                        if (globalPositions[pos] != Integer.MIN_VALUE) {
-                            continue;
-                        }
-                        visited++;
-                        GridLayoutManager.LayoutParams lp = (GridLayoutManager.LayoutParams)
-                                child.getLayoutParams();
-                        if (config.mReverseLayout) {
-                            globalPositions[pos] = globalScrollPosition +
-                                    mGlm.mOrientationHelper.getDecoratedEnd(child);
-                        } else {
-                            globalPositions[pos] = globalScrollPosition +
-                                    mGlm.mOrientationHelper.getDecoratedStart(child);
-                        }
-                        assertEquals(logPrefix + " span index should match",
-                                mGlm.getSpanSizeLookup().getSpanIndex(pos, mGlm.getSpanCount()),
-                                lp.getSpanIndex());
-                    }
-                    int scrolled = mGlm.scrollBy(scrollStep,
-                            mRecyclerView.mRecycler, mRecyclerView.mState);
-                    globalScrollPosition += scrolled;
-                    if (scrolled == 0) {
-                        assertEquals(
-                                logPrefix + " If scroll is complete, all views should be visited",
-                                visited, mAdapter.getItemCount());
-                    }
-                }
-                if (DEBUG) {
-                    Log.d(TAG, "done recording positions " + Arrays.toString(globalPositions));
-                }
-                globalPos[0] = globalScrollPosition;
-            }
-        });
-        checkForMainThreadException();
-        // test sanity, ensure scroll happened
-        runTestOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                final int childCount = mGlm.getChildCount();
-                final BitSet expectedPositions = new BitSet();
-                for (int i = 0; i < childCount; i ++) {
-                    expectedPositions.set(mAdapter.getItemCount() - i - 1);
-                }
-                for (int i = 0; i <childCount; i ++) {
-                    final View view = mGlm.getChildAt(i);
-                    int position = mGlm.getPosition(view);
-                    assertTrue("child position should be in last page", expectedPositions.get(position));
-                }
-            }
-        });
-        getInstrumentation().waitForIdleSync();
-        runTestOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                int globalScrollPosition = globalPos[0];
-                // now scroll back and make sure global positions match
-                BitSet shouldTest = new BitSet(mAdapter.getItemCount());
-                shouldTest.set(0, mAdapter.getItemCount() - 1, true);
-                String assertPrefix = config
-                        + " global pos must match when scrolling in reverse for position ";
-                int scrollAmount = Integer.MAX_VALUE;
-                while (!shouldTest.isEmpty() && scrollAmount != 0) {
-                    for (int i = 0; i < mRecyclerView.getChildCount(); i++) {
-                        View child = mRecyclerView.getChildAt(i);
-                        int pos = mRecyclerView.getChildLayoutPosition(child);
-                        if (!shouldTest.get(pos)) {
-                            continue;
-                        }
-                        GridLayoutManager.LayoutParams lp = (GridLayoutManager.LayoutParams)
-                                child.getLayoutParams();
-                        shouldTest.clear(pos);
-                        int globalPos;
-                        if (config.mReverseLayout) {
-                            globalPos = globalScrollPosition +
-                                    mGlm.mOrientationHelper.getDecoratedEnd(child);
-                        } else {
-                            globalPos = globalScrollPosition +
-                                    mGlm.mOrientationHelper.getDecoratedStart(child);
-                        }
-                        assertEquals(assertPrefix + pos,
-                                globalPositions[pos], globalPos);
-                        assertEquals("span index should match",
-                                mGlm.getSpanSizeLookup().getSpanIndex(pos, mGlm.getSpanCount()),
-                                lp.getSpanIndex());
-                    }
-                    scrollAmount = mGlm.scrollBy(-scrollStep,
-                            mRecyclerView.mRecycler, mRecyclerView.mState);
-                    globalScrollPosition += scrollAmount;
-                }
-                assertTrue("all views should be seen", shouldTest.isEmpty());
-            }
-        });
-        checkForMainThreadException();
-    }
-
-    class WrappedGridLayoutManager extends GridLayoutManager {
-
-        CountDownLatch mLayoutLatch;
-
-        List<Callback> mCallbacks = new ArrayList<Callback>();
-
-        Boolean mFakeRTL;
-
-        public WrappedGridLayoutManager(Context context, int spanCount) {
-            super(context, spanCount);
-        }
-
-        public WrappedGridLayoutManager(Context context, int spanCount, int orientation,
-                boolean reverseLayout) {
-            super(context, spanCount, orientation, reverseLayout);
-        }
-
-        @Override
-        protected boolean isLayoutRTL() {
-            return mFakeRTL == null ? super.isLayoutRTL() : mFakeRTL;
-        }
-
-        public void setFakeRtl(Boolean fakeRtl) {
-            mFakeRTL = fakeRtl;
-            try {
-                requestLayoutOnUIThread(mRecyclerView);
-            } catch (Throwable throwable) {
-                postExceptionToInstrumentation(throwable);
-            }
-        }
-
-        @Override
-        public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
-            try {
-                for (Callback callback : mCallbacks) {
-                    callback.onBeforeLayout(recycler, state);
-                }
-                super.onLayoutChildren(recycler, state);
-                for (Callback callback : mCallbacks) {
-                    callback.onAfterLayout(recycler, state);
-                }
-            } catch (Throwable t) {
-                postExceptionToInstrumentation(t);
-            }
-            mLayoutLatch.countDown();
-        }
-
-        @Override
-        LayoutState createLayoutState() {
-            return new LayoutState() {
-                @Override
-                View next(RecyclerView.Recycler recycler) {
-                    final boolean hadMore = hasMore(mRecyclerView.mState);
-                    final int position = mCurrentPosition;
-                    View next = super.next(recycler);
-                    assertEquals("if has more, should return a view", hadMore, next != null);
-                    assertEquals("position of the returned view must match current position",
-                            position, RecyclerView.getChildViewHolderInt(next).getLayoutPosition());
-                    return next;
-                }
-            };
-        }
-
-        public void expectLayout(int layoutCount) {
-            mLayoutLatch = new CountDownLatch(layoutCount);
-        }
-
-        public void waitForLayout(int seconds) throws InterruptedException {
-            mLayoutLatch.await(seconds, SECONDS);
-        }
-    }
-
-    class Config {
-
-        int mSpanCount;
-        int mOrientation = GridLayoutManager.VERTICAL;
-        int mItemCount = 1000;
-        int mSpanPerItem = 1;
-        boolean mReverseLayout = false;
-
-        Config(int spanCount, int itemCount) {
-            mSpanCount = spanCount;
-            mItemCount = itemCount;
-        }
-
-        public Config(int spanCount, int orientation, boolean reverseLayout) {
-            mSpanCount = spanCount;
-            mOrientation = orientation;
-            mReverseLayout = reverseLayout;
-        }
-
-        Config orientation(int orientation) {
-            mOrientation = orientation;
-            return this;
-        }
-
-        @Override
-        public String toString() {
-            return "Config{" +
-                    "mSpanCount=" + mSpanCount +
-                    ", mOrientation=" + (mOrientation == GridLayoutManager.HORIZONTAL ? "h" : "v") +
-                    ", mItemCount=" + mItemCount +
-                    ", mReverseLayout=" + mReverseLayout +
-                    '}';
-        }
-
-        public Config reverseLayout(boolean reverseLayout) {
-            mReverseLayout = reverseLayout;
-            return this;
-        }
-
-
-    }
-
-    class GridTestAdapter extends TestAdapter {
-
-        Set<Integer> mFullSpanItems = new HashSet<Integer>();
-        int mSpanPerItem = 1;
-
-        GridTestAdapter(int count) {
-            super(count);
-        }
-
-        GridTestAdapter(int count, int spanPerItem) {
-            super(count);
-            mSpanPerItem = spanPerItem;
-        }
-
-        void setFullSpan(int... items) {
-            for (int i : items) {
-                mFullSpanItems.add(i);
-            }
-        }
-
-        void assignSpanSizeLookup(final GridLayoutManager glm) {
-            glm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
-                @Override
-                public int getSpanSize(int position) {
-                    return mFullSpanItems.contains(position) ? glm.getSpanCount() : mSpanPerItem;
-                }
-            });
-        }
-    }
-
-    class Callback {
-
-        public void onBeforeLayout(RecyclerView.Recycler recycler, RecyclerView.State state) {
-        }
-
-        public void onAfterLayout(RecyclerView.Recycler recycler, RecyclerView.State state) {
-        }
     }
 }

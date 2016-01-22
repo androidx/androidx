@@ -30,7 +30,6 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
 
 import java.util.ArrayList;
@@ -38,10 +37,10 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 
-import static android.support.v7.widget.LayoutState.LAYOUT_START;
-import static android.support.v7.widget.LayoutState.LAYOUT_END;
 import static android.support.v7.widget.LayoutState.ITEM_DIRECTION_HEAD;
 import static android.support.v7.widget.LayoutState.ITEM_DIRECTION_TAIL;
+import static android.support.v7.widget.LayoutState.LAYOUT_END;
+import static android.support.v7.widget.LayoutState.LAYOUT_START;
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 /**
@@ -177,7 +176,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
     /**
      * Re-used measurement specs. updated by onLayout.
      */
-    private int mFullSizeSpec, mWidthSpec, mHeightSpec;
+    private int mFullSizeSpec;
 
     /**
      * Re-used rectangle to get child decor offsets.
@@ -221,6 +220,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         setOrientation(properties.orientation);
         setSpanCount(properties.spanCount);
         setReverseLayout(properties.reverseLayout);
+        setAutoMeasureEnabled(mGapStrategy != GAP_HANDLING_NONE);
     }
 
     /**
@@ -233,6 +233,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
     public StaggeredGridLayoutManager(int spanCount, int orientation) {
         mOrientation = orientation;
         setSpanCount(spanCount);
+        setAutoMeasureEnabled(mGapStrategy != GAP_HANDLING_NONE);
     }
 
     /**
@@ -373,10 +374,16 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
     private boolean checkSpanForGap(Span span) {
         if (mShouldReverseLayout) {
             if (span.getEndLine() < mPrimaryOrientation.getEndAfterPadding()) {
-                return true;
+                // if it is full span, it is OK
+                final View endView = span.mViews.get(span.mViews.size() - 1);
+                final LayoutParams lp = span.getLayoutParams(endView);
+                return !lp.mFullSpan;
             }
         } else if (span.getStartLine() > mPrimaryOrientation.getStartAfterPadding()) {
-            return true;
+            // if it is full span, it is OK
+            final View startView = span.mViews.get(0);
+            final LayoutParams lp = span.getLayoutParams(startView);
+            return !lp.mFullSpan;
         }
         return false;
     }
@@ -488,6 +495,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
                     + "or GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS");
         }
         mGapStrategy = gapStrategy;
+        setAutoMeasureEnabled(mGapStrategy != GAP_HANDLING_NONE);
         requestLayout();
     }
 
@@ -556,8 +564,31 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
     public boolean getReverseLayout() {
         return mReverseLayout;
     }
+
+    @Override
+    public void setMeasuredDimension(Rect childrenBounds, int wSpec, int hSpec) {
+        // we don't like it to wrap content in our non-scroll direction.
+        final int width, height;
+        if (mOrientation == VERTICAL) {
+            int usedHeight = childrenBounds.height() + getPaddingTop() + getPaddingBottom();
+            height = chooseSize(hSpec, usedHeight, getMinimumHeight());
+            width = chooseSize(wSpec, mSizePerSpan * mSpanCount, getMinimumWidth());
+        } else {
+            int usedWidth = childrenBounds.width() + getPaddingLeft() + getPaddingRight();
+            width = chooseSize(wSpec, usedWidth, getMinimumWidth());
+            height = chooseSize(hSpec, mSizePerSpan * mSpanCount, getMinimumHeight());
+        }
+        setMeasuredDimension(width, height);
+    }
+
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+        onLayoutChildren(recycler, state, true);
+    }
+
+
+    private void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state,
+            boolean shouldCheckForGaps) {
         ensureOrientationHelper();
         final AnchorInfo anchorInfo = mAnchorInfo;
         anchorInfo.reset();
@@ -603,8 +634,9 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             }
         }
         detachAndScrapAttachedViews(recycler);
+        mLayoutState.mRecycle = false;
         mLaidOutInvalidFullSpan = false;
-        updateMeasureSpecs();
+        updateMeasureSpecs(mSecondaryOrientation.getTotalSpace());
         updateLayoutState(anchorInfo.mPosition, state);
         if (anchorInfo.mLayoutFromEnd) {
             // Layout start.
@@ -624,6 +656,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             fill(recycler, mLayoutState, state);
         }
 
+        repositionToWrapContentIfNecessary();
+
         if (getChildCount() > 0) {
             if (mShouldReverseLayout) {
                 fixEndGap(recycler, state, true);
@@ -633,14 +667,16 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
                 fixEndGap(recycler, state, false);
             }
         }
-
-        if (!state.isPreLayout()) {
+        boolean hasGaps = false;
+        if (shouldCheckForGaps && !state.isPreLayout()) {
             final boolean needToCheckForGaps = mGapStrategy != GAP_HANDLING_NONE
                     && getChildCount() > 0
                     && (mLaidOutInvalidFullSpan || hasGapsToFix() != null);
             if (needToCheckForGaps) {
                 removeCallbacks(mCheckForGapsRunnable);
-                postOnAnimation(mCheckForGapsRunnable);
+                if (checkForGaps()) {
+                    hasGaps = true;
+                }
             }
             mPendingScrollPosition = NO_POSITION;
             mPendingScrollPositionOffset = INVALID_OFFSET;
@@ -648,6 +684,58 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         mLastLayoutFromEnd = anchorInfo.mLayoutFromEnd;
         mLastLayoutRTL = isLayoutRTL();
         mPendingSavedState = null; // we don't need this anymore
+        if (hasGaps) {
+            onLayoutChildren(recycler, state, false);
+        }
+    }
+
+    private void repositionToWrapContentIfNecessary() {
+        if (mSecondaryOrientation.getMode() == View.MeasureSpec.EXACTLY) {
+            return; // nothing to do
+        }
+        float maxSize = 0;
+        final int childCount = getChildCount();
+        for (int i = 0; i < childCount; i ++) {
+            View child = getChildAt(i);
+            float size = mSecondaryOrientation.getDecoratedMeasurement(child);
+            if (size < maxSize) {
+                continue;
+            }
+            LayoutParams layoutParams = (LayoutParams) child.getLayoutParams();
+            if (layoutParams.isFullSpan()) {
+                size = 1f * size / mSpanCount;
+            }
+            maxSize = Math.max(maxSize, size);
+        }
+        int before = mSizePerSpan;
+        int desired = Math.round(maxSize * mSpanCount);
+        if (mSecondaryOrientation.getMode() == View.MeasureSpec.AT_MOST) {
+            desired = Math.min(desired, mSecondaryOrientation.getTotalSpace());
+        }
+        updateMeasureSpecs(desired);
+        if (mSizePerSpan == before) {
+            return; // nothing has changed
+        }
+        for (int i = 0; i < childCount; i ++) {
+            View child = getChildAt(i);
+            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            if (lp.mFullSpan) {
+                continue;
+            }
+            if (isLayoutRTL() && mOrientation == VERTICAL) {
+                int newOffset = -(mSpanCount - 1 - lp.mSpan.mIndex) * mSizePerSpan;
+                int prevOffset = -(mSpanCount - 1 - lp.mSpan.mIndex) * before;
+                child.offsetLeftAndRight(newOffset - prevOffset);
+            } else {
+                int newOffset = lp.mSpan.mIndex * mSizePerSpan;
+                int prevOffset = lp.mSpan.mIndex * before;
+                if (mOrientation == VERTICAL) {
+                    child.offsetLeftAndRight(newOffset - prevOffset);
+                } else {
+                    child.offsetTopAndBottom(newOffset - prevOffset);
+                }
+            }
+        }
     }
 
     private void applyPendingSavedState(AnchorInfo anchorInfo) {
@@ -795,17 +883,11 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         return true;
     }
 
-    void updateMeasureSpecs() {
-        mSizePerSpan = mSecondaryOrientation.getTotalSpace() / mSpanCount;
+    void updateMeasureSpecs(int totalSpace) {
+        mSizePerSpan = totalSpace / mSpanCount;
+        //noinspection ResourceType
         mFullSizeSpec = View.MeasureSpec.makeMeasureSpec(
-                mSecondaryOrientation.getTotalSpace(), View.MeasureSpec.EXACTLY);
-        if (mOrientation == VERTICAL) {
-            mWidthSpec = View.MeasureSpec.makeMeasureSpec(mSizePerSpan, View.MeasureSpec.EXACTLY);
-            mHeightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-        } else {
-            mHeightSpec = View.MeasureSpec.makeMeasureSpec(mSizePerSpan, View.MeasureSpec.EXACTLY);
-            mWidthSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-        }
+                totalSpace, mSecondaryOrientation.getMode());
     }
 
     @Override
@@ -1004,43 +1086,48 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         return computeScrollRange(state);
     }
 
-    private void measureChildWithDecorationsAndMargin(View child, LayoutParams lp) {
+    private void measureChildWithDecorationsAndMargin(View child, LayoutParams lp,
+            boolean alreadyMeasured) {
         if (lp.mFullSpan) {
             if (mOrientation == VERTICAL) {
                 measureChildWithDecorationsAndMargin(child, mFullSizeSpec,
-                        getSpecForDimension(lp.height, mHeightSpec));
+                        getChildMeasureSpec(getHeight(), getHeightMode(), 0, lp.height, true),
+                        alreadyMeasured);
             } else {
                 measureChildWithDecorationsAndMargin(child,
-                        getSpecForDimension(lp.width, mWidthSpec), mFullSizeSpec);
+                        getChildMeasureSpec(getWidth(), getWidthMode(), 0, lp.width, true),
+                        mFullSizeSpec, alreadyMeasured);
             }
         } else {
             if (mOrientation == VERTICAL) {
-                measureChildWithDecorationsAndMargin(child, mWidthSpec,
-                        getSpecForDimension(lp.height, mHeightSpec));
+                measureChildWithDecorationsAndMargin(child,
+                        getChildMeasureSpec(mSizePerSpan, getWidthMode(), 0, lp.width, false),
+                        getChildMeasureSpec(getHeight(), getHeightMode(), 0, lp.height, true),
+                        alreadyMeasured);
             } else {
                 measureChildWithDecorationsAndMargin(child,
-                        getSpecForDimension(lp.width, mWidthSpec), mHeightSpec);
+                        getChildMeasureSpec(getWidth(), getWidthMode(), 0, lp.width, true),
+                        getChildMeasureSpec(mSizePerSpan, getHeightMode(), 0, lp.height, false),
+                        alreadyMeasured);
             }
-        }
-    }
-
-    private int getSpecForDimension(int dim, int defaultSpec) {
-        if (dim < 0) {
-            return defaultSpec;
-        } else {
-            return View.MeasureSpec.makeMeasureSpec(dim, View.MeasureSpec.EXACTLY);
         }
     }
 
     private void measureChildWithDecorationsAndMargin(View child, int widthSpec,
-            int heightSpec) {
+            int heightSpec, boolean alreadyMeasured) {
         calculateItemDecorationsForChild(child, mTmpRect);
         LayoutParams lp = (LayoutParams) child.getLayoutParams();
         widthSpec = updateSpecWithExtra(widthSpec, lp.leftMargin + mTmpRect.left,
                 lp.rightMargin + mTmpRect.right);
         heightSpec = updateSpecWithExtra(heightSpec, lp.topMargin + mTmpRect.top,
                 lp.bottomMargin + mTmpRect.bottom);
-        child.measure(widthSpec, heightSpec);
+        final boolean measure = alreadyMeasured
+                ? shouldReMeasureChild(child, widthSpec, heightSpec, lp)
+                : shouldMeasureChild(child, widthSpec, heightSpec, lp);
+        if (measure) {
+            child.measure(widthSpec, heightSpec);
+        }
+
     }
 
     private int updateSpecWithExtra(int spec, int startInset, int endInset) {
@@ -1253,7 +1340,10 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
 
     private void fixEndGap(RecyclerView.Recycler recycler, RecyclerView.State state,
             boolean canOffsetChildren) {
-        final int maxEndLine = getMaxEnd(mPrimaryOrientation.getEndAfterPadding());
+        final int maxEndLine = getMaxEnd(Integer.MIN_VALUE);
+        if (maxEndLine == Integer.MIN_VALUE) {
+            return;
+        }
         int gap = mPrimaryOrientation.getEndAfterPadding() - maxEndLine;
         int fixOffset;
         if (gap > 0) {
@@ -1269,7 +1359,10 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
 
     private void fixStartGap(RecyclerView.Recycler recycler, RecyclerView.State state,
             boolean canOffsetChildren) {
-        final int minStartLine = getMinStart(mPrimaryOrientation.getStartAfterPadding());
+        final int minStartLine = getMinStart(Integer.MAX_VALUE);
+        if (minStartLine == Integer.MAX_VALUE) {
+            return;
+        }
         int gap = minStartLine - mPrimaryOrientation.getStartAfterPadding();
         int fixOffset;
         if (gap > 0) {
@@ -1309,6 +1402,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             mLayoutState.mStartLine = -startExtra;
         }
         mLayoutState.mStopInFocusable = false;
+        mLayoutState.mRecycle = true;
+        mLayoutState.mInfinite = mPrimaryOrientation.getMode() == View.MeasureSpec.UNSPECIFIED;
     }
 
     private void setLayoutStateDirection(int direction) {
@@ -1413,10 +1508,18 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         final int targetLine;
 
         // Line of the furthest row.
-        if (layoutState.mLayoutDirection == LAYOUT_END) {
-            targetLine = layoutState.mEndLine + layoutState.mAvailable;
-        } else { // LAYOUT_START
-            targetLine = layoutState.mStartLine - layoutState.mAvailable;
+        if (mLayoutState.mInfinite) {
+            if (layoutState.mLayoutDirection == LAYOUT_END) {
+                targetLine = Integer.MAX_VALUE;
+            } else { // LAYOUT_START
+                targetLine = Integer.MIN_VALUE;
+            }
+        } else {
+            if (layoutState.mLayoutDirection == LAYOUT_END) {
+                targetLine = layoutState.mEndLine + layoutState.mAvailable;
+            } else { // LAYOUT_START
+                targetLine = layoutState.mStartLine - layoutState.mAvailable;
+            }
         }
 
         updateAllRemainingSpans(layoutState.mLayoutDirection, targetLine);
@@ -1430,7 +1533,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
                 ? mPrimaryOrientation.getEndAfterPadding()
                 : mPrimaryOrientation.getStartAfterPadding();
         boolean added = false;
-        while (layoutState.hasMore(state) && !mRemainingSpans.isEmpty()) {
+        while (layoutState.hasMore(state)
+                && (mLayoutState.mInfinite || !mRemainingSpans.isEmpty())) {
             View view = layoutState.next(recycler);
             LayoutParams lp = ((LayoutParams) view.getLayoutParams());
             final int position = lp.getViewLayoutPosition();
@@ -1456,7 +1560,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             } else {
                 addView(view, 0);
             }
-            measureChildWithDecorationsAndMargin(view, lp);
+            measureChildWithDecorationsAndMargin(view, lp, false);
 
             final int start;
             final int end;
@@ -1506,10 +1610,20 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
                 }
             }
             attachViewToSpans(view, lp, layoutState);
-            final int otherStart = lp.mFullSpan ? mSecondaryOrientation.getStartAfterPadding()
-                    : currentSpan.mIndex * mSizePerSpan +
-                            mSecondaryOrientation.getStartAfterPadding();
-            final int otherEnd = otherStart + mSecondaryOrientation.getDecoratedMeasurement(view);
+            final int otherStart;
+            final int otherEnd;
+            if (isLayoutRTL() && mOrientation == VERTICAL) {
+                otherEnd = lp.mFullSpan ? mSecondaryOrientation.getEndAfterPadding() :
+                        mSecondaryOrientation.getEndAfterPadding()
+                                - (mSpanCount - 1 - currentSpan.mIndex) * mSizePerSpan;
+                otherStart = otherEnd - mSecondaryOrientation.getDecoratedMeasurement(view);
+            } else {
+                otherStart = lp.mFullSpan ? mSecondaryOrientation.getStartAfterPadding()
+                        : currentSpan.mIndex * mSizePerSpan +
+                                mSecondaryOrientation.getStartAfterPadding();
+                otherEnd = otherStart + mSecondaryOrientation.getDecoratedMeasurement(view);
+            }
+
             if (mOrientation == VERTICAL) {
                 layoutDecoratedWithMargins(view, otherStart, start, otherEnd, end);
             } else {
@@ -1580,7 +1694,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private void recycle(RecyclerView.Recycler recycler, LayoutState layoutState) {
-        if (layoutState.mStopInFocusable) {
+        if (!layoutState.mRecycle || layoutState.mInfinite) {
             return;
         }
         if (layoutState.mAvailable == 0) {
@@ -1938,6 +2052,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             layoutDir = LAYOUT_START;
             referenceChildPosition = getFirstChildPosition();
         }
+        mLayoutState.mRecycle = true;
         updateLayoutState(referenceChildPosition, state);
         setLayoutStateDirection(layoutDir);
         mLayoutState.mCurrentPosition = referenceChildPosition + mLayoutState.mItemDirection;
@@ -2007,8 +2122,13 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public RecyclerView.LayoutParams generateDefaultLayoutParams() {
-        return new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
+        if (mOrientation == HORIZONTAL) {
+            return new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.FILL_PARENT);
+        } else {
+            return new LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
     }
 
     @Override
@@ -2068,6 +2188,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         mLayoutState.mCurrentPosition = referenceChildPosition + mLayoutState.mItemDirection;
         mLayoutState.mAvailable = (int) (MAX_SCROLL_FACTOR * mPrimaryOrientation.getTotalSpace());
         mLayoutState.mStopInFocusable = true;
+        mLayoutState.mRecycle = false;
         fill(recycler, mLayoutState, state);
         mLastLayoutFromEnd = mShouldReverseLayout;
         if (!prevFocusFullSpan) {

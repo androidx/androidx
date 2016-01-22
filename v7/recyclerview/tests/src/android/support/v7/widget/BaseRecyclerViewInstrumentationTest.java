@@ -541,7 +541,6 @@ abstract public class BaseRecyclerViewInstrumentationTest {
                 assertEquals("getViewForPosition should return correct position",
                         i, getPosition(view));
                 addView(view);
-
                 measureChildWithMargins(view, 0, 0);
                 if (getLayoutDirection() == ViewCompat.LAYOUT_DIRECTION_RTL) {
                     layoutDecorated(view, getWidth() - getDecoratedMeasuredWidth(view), top,
@@ -672,7 +671,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
             assertNotNull(holder.mOwnerRecyclerView);
             assertEquals(position, holder.getAdapterPosition());
             final Item item = mItems.get(position);
-            ((TextView) (holder.itemView)).setText(item.mText + "(" + item.mAdapterIndex + ")");
+            ((TextView) (holder.itemView)).setText(item.mText + "(" + item.mId + ")");
             holder.mBoundItem = item;
         }
 
