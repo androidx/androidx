@@ -565,6 +565,7 @@ package android.support.v7.media {
     method public void onRouteRemoved(android.support.v7.media.MediaRouter, android.support.v7.media.MediaRouter.RouteInfo);
     method public void onRouteSelected(android.support.v7.media.MediaRouter, android.support.v7.media.MediaRouter.RouteInfo);
     method public void onRouteUnselected(android.support.v7.media.MediaRouter, android.support.v7.media.MediaRouter.RouteInfo);
+    method public void onRouteUnselected(android.support.v7.media.MediaRouter, android.support.v7.media.MediaRouter.RouteInfo, int);
     method public void onRouteVolumeChanged(android.support.v7.media.MediaRouter, android.support.v7.media.MediaRouter.RouteInfo);
   }
 
