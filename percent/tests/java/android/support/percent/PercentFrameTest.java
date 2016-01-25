@@ -43,9 +43,7 @@ public class PercentFrameTest extends BaseInstrumentationTestCase<TestFrameActiv
 
     @Before
     public void setUp() throws Exception {
-        super.setUp();
-
-        final TestFrameActivity activity = getActivity();
+        final TestFrameActivity activity = mActivityTestRule.getActivity();
         mPercentFrameLayout = (PercentFrameLayout) activity.findViewById(R.id.container);
         mContainerWidth = mPercentFrameLayout.getWidth();
         mContainerHeight = mPercentFrameLayout.getHeight();
