@@ -18,6 +18,7 @@ package android.support.v7.widget;
 import android.app.Instrumentation;
 import android.graphics.Rect;
 import android.os.SystemClock;
+import android.support.test.InstrumentationRegistry;
 import android.support.v7.app.BaseInstrumentationTestCase;
 import android.support.v7.appcompat.test.R;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -68,7 +69,7 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
 
     @Before
     public void setUp() throws Exception {
-        final PopupTestActivity activity = getActivity();
+        final PopupTestActivity activity = mActivityTestRule.getActivity();
         mContainer = (FrameLayout) activity.findViewById(R.id.container);
         mButton = (Button) mContainer.findViewById(R.id.test_button);
     }
@@ -83,7 +84,7 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
         assertNotNull("Popup window created", mListPopupWindow);
         assertTrue("Popup window showing", mListPopupWindow.isShowing());
 
-        final View mainDecorView = getActivity().getWindow().getDecorView();
+        final View mainDecorView = mActivityTestRule.getActivity().getWindow().getDecorView();
         onView(withText("Alice"))
                 .inRoot(withDecorView(not(is(mainDecorView))))
                 .check(matches(isDisplayed()));
@@ -128,14 +129,14 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
 
     @Test
     @SmallTest
-    public void testDismissalViaAPI() throws Throwable {
+    public void testDismissalViaAPI() {
         Builder popupBuilder = new Builder().withDismissListener();
         popupBuilder.wireToActionButton();
 
         onView(withId(R.id.test_button)).perform(click());
         assertTrue("Popup window showing", mListPopupWindow.isShowing());
 
-        runTestOnUiThread(new Runnable() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
                 mListPopupWindow.dismiss();
@@ -184,7 +185,7 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
         // of view or data. Also, we don't want to use View.dispatchTouchEvent directly as
         // that would require emulation of two separate sequences as well.
 
-        Instrumentation instrumentation = getInstrumentation();
+        Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
 
         // Inject DOWN event
         long downTime = SystemClock.uptimeMillis();
@@ -240,8 +241,9 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
 
         assertEquals("Clicked item before click", -1, mListPopupClickedItem);
 
+        final View mainDecorView = mActivityTestRule.getActivity().getWindow().getDecorView();
         onView(withText("Charlie"))
-                .inRoot(withDecorView(not(is(getActivity().getWindow().getDecorView()))))
+                .inRoot(withDecorView(not(is(mainDecorView))))
                 .perform(click());
         assertEquals("Clicked item after click", 2, mListPopupClickedItem);
         // Our item click listener also dismisses the popup
@@ -250,7 +252,7 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
 
     @Test
     @SmallTest
-    public void testItemClickViaAPI() throws Throwable {
+    public void testItemClickViaAPI() {
         Builder popupBuilder = new Builder().withItemClickListener();
         popupBuilder.wireToActionButton();
 
@@ -258,7 +260,7 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
         assertTrue("Popup window showing", mListPopupWindow.isShowing());
 
         assertEquals("Clicked item before click", -1, mListPopupClickedItem);
-        runTestOnUiThread(new Runnable() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
                 mListPopupWindow.performItemClick(1);
