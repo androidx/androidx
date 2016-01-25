@@ -21,6 +21,9 @@ import org.junit.Test;
 import android.app.Dialog;
 import android.os.Bundle;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 public class DialogTestCase extends BaseInstrumentationTestCase<WindowDecorActionBarActivity> {
 
     public DialogTestCase() {

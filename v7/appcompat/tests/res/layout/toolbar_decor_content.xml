@@ -24,4 +24,9 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"/>
 
+    <android.support.v7.custom.FitWindowsContentLayout
+            android:id="@+id/test_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
 </LinearLayout>
