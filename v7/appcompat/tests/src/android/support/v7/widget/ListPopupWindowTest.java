@@ -31,6 +31,8 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+
+import org.junit.Before;
 import org.junit.Test;
 
 import static android.support.test.espresso.Espresso.onView;
@@ -40,6 +42,10 @@ import static android.support.test.espresso.matcher.RootMatchers.withDecorView;
 import static android.support.test.espresso.matcher.ViewMatchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestActivity> {
     private FrameLayout mContainer;
@@ -60,10 +66,8 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
         super(PopupTestActivity.class);
     }
 
-    @Override
+    @Before
     public void setUp() throws Exception {
-        super.setUp();
-
         final PopupTestActivity activity = getActivity();
         mContainer = (FrameLayout) activity.findViewById(R.id.container);
         mButton = (Button) mContainer.findViewById(R.id.test_button);
