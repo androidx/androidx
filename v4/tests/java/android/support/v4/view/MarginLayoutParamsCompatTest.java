@@ -15,16 +15,10 @@
  */
 package android.support.v4.view;
 
-import android.view.View;
-
-import android.support.v4.view.MarginLayoutParamsCompat;
-import android.support.v4.view.ViewCompat;
-
 import android.os.Build;
-import android.view.ViewGroup;
-
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.view.ViewGroup;
 
 public class MarginLayoutParamsCompatTest extends AndroidTestCase {
     @SmallTest

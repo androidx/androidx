@@ -17,47 +17,32 @@ package android.support.v4.view;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.support.v4.BaseInstrumentationTestCase;
+import android.support.v4.test.R;
+import android.support.v4.testutils.TestUtilsAssertions;
+import android.support.v4.testutils.TestUtilsMatchers;
+import android.test.suitebuilder.annotation.SmallTest;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import android.support.test.espresso.Espresso;
-import android.support.test.espresso.UiController;
-import android.support.v4.test.R;
-import android.support.v4.testutils.TestUtilsAssertions;
-import android.support.v4.testutils.TestUtilsMatchers;
-import android.support.v4.view.ViewPager;
-import android.support.v4.view.PagerTitleStrip;
-import android.support.v4.widget.TestActivity;
-
-import android.test.ActivityInstrumentationTestCase2;
-import android.test.suitebuilder.annotation.SmallTest;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.ArrayList;
 
-import org.hamcrest.Matcher;
-
 import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.swipeLeft;
 import static android.support.test.espresso.action.ViewActions.swipeRight;
+import static android.support.test.espresso.assertion.PositionAssertions.*;
 import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.assertion.PositionAssertions.isBelow;
-import static android.support.test.espresso.assertion.PositionAssertions.isBottomAlignedWith;
-import static android.support.test.espresso.assertion.PositionAssertions.isLeftAlignedWith;
-import static android.support.test.espresso.assertion.PositionAssertions.isRightAlignedWith;
-import static android.support.test.espresso.assertion.PositionAssertions.isTopAlignedWith;
-import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
-import static android.support.test.espresso.matcher.ViewMatchers.isDescendantOfA;
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.matcher.ViewMatchers.withText;
-
+import static android.support.test.espresso.matcher.ViewMatchers.*;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.core.IsNot.not;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Base class for testing <code>ViewPager</code>. Most of the testing logic should be in this
@@ -67,8 +52,7 @@ import static org.hamcrest.core.IsNot.not;
  * Testing logic that does depend on the specific pager title implementation is pushed into the
  * extending classes in <code>assertStripInteraction()</code> method.
  */
-public abstract class BaseViewPagerTest<T extends Activity>
-        extends ActivityInstrumentationTestCase2<T> {
+public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrumentationTestCase<T> {
     protected ViewPager mViewPager;
 
     protected static class BasePagerAdapter<Q> extends PagerAdapter {
@@ -181,14 +165,12 @@ public abstract class BaseViewPagerTest<T extends Activity>
     }
 
     public BaseViewPagerTest(Class<T> activityClass) {
-        super("android.support.v4.view", activityClass);
+        super(activityClass);
     }
 
-    @Override
+    @Before
     public void setUp() throws Exception {
-        super.setUp();
-
-        final T activity = getActivity();
+        final T activity = mActivityTestRule.getActivity();
         mViewPager = (ViewPager) activity.findViewById(R.id.pager);
 
         ColorPagerAdapter adapter = new ColorPagerAdapter();
@@ -199,13 +181,12 @@ public abstract class BaseViewPagerTest<T extends Activity>
                 ViewPagerActions.scrollToPage(0));
     }
 
-    @Override
+    @After
     public void tearDown() throws Exception {
         onView(withId(R.id.pager)).perform(ViewPagerActions.setAdapter(null));
-
-        super.tearDown();
     }
 
+    @Test
     @SmallTest
     public void testPageSelections() {
         assertEquals("Initial state", 0, mViewPager.getCurrentItem());
@@ -232,6 +213,7 @@ public abstract class BaseViewPagerTest<T extends Activity>
 
     }
 
+    @Test
     @SmallTest
     public void testPageSwipes() {
         assertEquals("Initial state", 0, mViewPager.getCurrentItem());
@@ -257,6 +239,7 @@ public abstract class BaseViewPagerTest<T extends Activity>
         assertEquals("Swipe right beyond first page", 0, mViewPager.getCurrentItem());
     }
 
+    @Test
     @SmallTest
     public void testPageSwipesComposite() {
         assertEquals("Initial state", 0, mViewPager.getCurrentItem());
@@ -275,6 +258,7 @@ public abstract class BaseViewPagerTest<T extends Activity>
         assertEquals("Swipe right beyond first page and then left", 1, mViewPager.getCurrentItem());
     }
 
+    @Test
     @SmallTest
     public void testPageContent() {
         assertEquals("Initial state", 0, mViewPager.getCurrentItem());
@@ -315,6 +299,7 @@ public abstract class BaseViewPagerTest<T extends Activity>
                 TestUtilsMatchers.backgroundColor(Color.BLUE))));
     }
 
+    @Test
     @SmallTest
     public void testAdapterChange() {
         // Verify that we have the expected initial adapter
@@ -427,6 +412,7 @@ public abstract class BaseViewPagerTest<T extends Activity>
         }
     }
 
+    @Test
     @SmallTest
     public void testPagerStrip() {
         // Set an adapter with 5 pages

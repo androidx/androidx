@@ -21,8 +21,6 @@ import android.os.Bundle;
 import android.support.v4.test.R;
 import android.view.WindowManager;
 
-import java.util.ArrayList;
-
 public class ViewPagerWithTitleStripActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {

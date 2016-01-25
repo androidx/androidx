@@ -18,9 +18,11 @@ package android.support.v4.widget;
 
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StyleRes;
 import android.widget.TextView;
 
 /**
@@ -40,10 +42,11 @@ public final class TextViewCompat {
                 @Nullable Drawable start, @Nullable Drawable top, @Nullable Drawable end,
                 @Nullable Drawable bottom);
         void setCompoundDrawablesRelativeWithIntrinsicBounds(@NonNull TextView textView,
-                int start, int top, int end, int bottom);
+                @DrawableRes int start, @DrawableRes int top, @DrawableRes int end,
+                @DrawableRes int bottom);
         int getMaxLines(TextView textView);
         int getMinLines(TextView textView);
-        void setTextAppearance(@NonNull TextView textView, @IdRes int resId);
+        void setTextAppearance(@NonNull TextView textView, @StyleRes int resId);
     }
 
     static class BaseTextViewCompatImpl implements TextViewCompatImpl {
@@ -63,7 +66,8 @@ public final class TextViewCompat {
 
         @Override
         public void setCompoundDrawablesRelativeWithIntrinsicBounds(@NonNull TextView textView,
-                int start, int top, int end, int bottom) {
+                @DrawableRes int start, @DrawableRes int top, @DrawableRes int end,
+                @DrawableRes int bottom) {
             textView.setCompoundDrawablesWithIntrinsicBounds(start, top, end, bottom);
         }
 
@@ -78,7 +82,7 @@ public final class TextViewCompat {
         }
 
         @Override
-        public void setTextAppearance(TextView textView, int resId) {
+        public void setTextAppearance(TextView textView, @StyleRes int resId) {
             TextViewCompatDonut.setTextAppearance(textView, resId);
         }
     }
@@ -113,7 +117,8 @@ public final class TextViewCompat {
 
         @Override
         public void setCompoundDrawablesRelativeWithIntrinsicBounds(@NonNull TextView textView,
-                int start, int top, int end, int bottom) {
+                @DrawableRes int start, @DrawableRes int top, @DrawableRes int end,
+                @DrawableRes int bottom) {
             TextViewCompatJbMr1.setCompoundDrawablesRelativeWithIntrinsicBounds(textView,
                     start, top, end, bottom);
         }
@@ -138,7 +143,8 @@ public final class TextViewCompat {
 
         @Override
         public void setCompoundDrawablesRelativeWithIntrinsicBounds(@NonNull TextView textView,
-                int start, int top, int end, int bottom) {
+                @DrawableRes int start, @DrawableRes int top, @DrawableRes int end,
+                @DrawableRes int bottom) {
             TextViewCompatJbMr2.setCompoundDrawablesRelativeWithIntrinsicBounds(textView,
                     start, top, end, bottom);
         }
@@ -146,7 +152,7 @@ public final class TextViewCompat {
 
     static class Api23TextViewCompatImpl extends JbMr2TextViewCompatImpl {
         @Override
-        public void setTextAppearance(@NonNull TextView textView, @IdRes int resId) {
+        public void setTextAppearance(@NonNull TextView textView, @StyleRes int resId) {
             TextViewCompatApi23.setTextAppearance(textView, resId);
         }
     }
@@ -228,7 +234,8 @@ public final class TextViewCompat {
      * @attr ref android.R.styleable#TextView_drawableBottom
      */
     public static void setCompoundDrawablesRelativeWithIntrinsicBounds(@NonNull TextView textView,
-            int start, int top, int end, int bottom) {
+            @DrawableRes int start, @DrawableRes int top, @DrawableRes int end,
+            @DrawableRes int bottom) {
         IMPL.setCompoundDrawablesRelativeWithIntrinsicBounds(textView, start, top, end, bottom);
     }
 
@@ -259,7 +266,7 @@ public final class TextViewCompat {
      * @param textView The TextView against which to invoke the method.
      * @param resId    The resource identifier of the style to apply.
      */
-    public static void setTextAppearance(@NonNull TextView textView, @IdRes int resId) {
+    public static void setTextAppearance(@NonNull TextView textView, @StyleRes int resId) {
         IMPL.setTextAppearance(textView, resId);
     }
 }
