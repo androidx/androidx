@@ -15,6 +15,7 @@
  */
 package android.support.v7.widget;
 
+import android.support.test.InstrumentationRegistry;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
@@ -76,15 +77,21 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
 
     private boolean mIsDismissedCalled = false;
 
+    private Resources mResources;
+
+    private View mMainDecorView;
+
     public PopupMenuTest() {
         super(PopupTestActivity.class);
     }
 
     @Before
     public void setUp() throws Exception {
-        final PopupTestActivity activity = getActivity();
+        final PopupTestActivity activity = mActivityTestRule.getActivity();
         mContainer = (FrameLayout) activity.findViewById(R.id.container);
         mButton = (Button) mContainer.findViewById(R.id.test_button);
+        mResources = mActivityTestRule.getActivity().getResources();
+        mMainDecorView = mActivityTestRule.getActivity().getWindow().getDecorView();
     }
 
     @Test
@@ -104,33 +111,31 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
         // and not the "on screen" visibility state. This is why we're testing the display
         // visibility of our main and sub menu items.
 
-        final Resources res = getActivity().getResources();
-        final View mainDecorView = getActivity().getWindow().getDecorView();
-        onView(withText(res.getString(R.string.popup_menu_highlight)))
-                .inRoot(withDecorView(not(is(mainDecorView))))
+        onView(withText(mResources.getString(R.string.popup_menu_highlight)))
+                .inRoot(withDecorView(not(is(mMainDecorView))))
                 .check(matches(isDisplayed()));
-        onView(withText(res.getString(R.string.popup_menu_edit)))
-                .inRoot(withDecorView(not(is(mainDecorView))))
+        onView(withText(mResources.getString(R.string.popup_menu_edit)))
+                .inRoot(withDecorView(not(is(mMainDecorView))))
                 .check(matches(isDisplayed()));
-        onView(withText(res.getString(R.string.popup_menu_delete)))
-                .inRoot(withDecorView(not(is(mainDecorView))))
+        onView(withText(mResources.getString(R.string.popup_menu_delete)))
+                .inRoot(withDecorView(not(is(mMainDecorView))))
                 .check(matches(isDisplayed()));
-        onView(withText(res.getString(R.string.popup_menu_ignore)))
-                .inRoot(withDecorView(not(is(mainDecorView))))
+        onView(withText(mResources.getString(R.string.popup_menu_ignore)))
+                .inRoot(withDecorView(not(is(mMainDecorView))))
                 .check(matches(isDisplayed()));
-        onView(withText(res.getString(R.string.popup_menu_share)))
-                .inRoot(withDecorView(not(is(mainDecorView))))
+        onView(withText(mResources.getString(R.string.popup_menu_share)))
+                .inRoot(withDecorView(not(is(mMainDecorView))))
                 .check(matches(isDisplayed()));
-        onView(withText(res.getString(R.string.popup_menu_print)))
-                .inRoot(withDecorView(not(is(mainDecorView))))
+        onView(withText(mResources.getString(R.string.popup_menu_print)))
+                .inRoot(withDecorView(not(is(mMainDecorView))))
                 .check(matches(isDisplayed()));
 
         // Share submenu items should not be visible
-        onView(withText(res.getString(R.string.popup_menu_share_email)))
-                .inRoot(withDecorView(not(is(mainDecorView))))
+        onView(withText(mResources.getString(R.string.popup_menu_share_email)))
+                .inRoot(withDecorView(not(is(mMainDecorView))))
                 .check(doesNotExist());
-        onView(withText(res.getString(R.string.popup_menu_share_circles)))
-                .inRoot(withDecorView(not(is(mainDecorView))))
+        onView(withText(mResources.getString(R.string.popup_menu_share_circles)))
+                .inRoot(withDecorView(not(is(mMainDecorView))))
                 .check(doesNotExist());
     }
 
@@ -269,7 +274,7 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
 
     @Test
     @SmallTest
-    public void testDismissalViaAPI() throws Throwable {
+    public void testDismissalViaAPI() {
         Builder menuBuilder = new Builder().withDismissListener();
         menuBuilder.wireToActionButton();
 
@@ -277,7 +282,7 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
 
         // Since PopupMenu is not a View, we can't use Espresso's view actions to invoke
         // the dismiss() API
-        runTestOnUiThread(new Runnable() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
                 mPopupMenu.dismiss();
@@ -317,7 +322,7 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
         // of view or data. Also, we don't want to use View.dispatchTouchEvent directly as
         // that would require emulation of two separate sequences as well.
 
-        Instrumentation instrumentation = getInstrumentation();
+        Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
 
         // Inject DOWN event
         long downTime = SystemClock.uptimeMillis();
@@ -356,9 +361,8 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
 
         assertEquals("Clicked item before click", -1, mPopupClickedMenuItemId);
 
-        final Resources res = getActivity().getResources();
-        onView(withText(res.getString(R.string.popup_menu_delete)))
-                .inRoot(withDecorView(not(is(getActivity().getWindow().getDecorView()))))
+        onView(withText(mResources.getString(R.string.popup_menu_delete)))
+                .inRoot(withDecorView(not(is(mMainDecorView))))
                 .perform(click());
         assertEquals("Clicked item after click", R.id.action_delete, mPopupClickedMenuItemId);
 
@@ -368,14 +372,14 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
 
     @Test
     @SmallTest
-    public void testSimpleMenuItemClickViaAPI() throws Throwable {
+    public void testSimpleMenuItemClickViaAPI() {
         Builder menuBuilder = new Builder().withMenuItemClickListener();
         menuBuilder.wireToActionButton();
 
         onView(withId(R.id.test_button)).perform(click());
 
         assertEquals("Clicked item before click", -1, mPopupClickedMenuItemId);
-        runTestOnUiThread(new Runnable() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
                 mPopupMenu.getMenu().performIdentifierAction(R.id.action_highlight, 0);
@@ -398,9 +402,8 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
 
         assertEquals("Clicked item before click", -1, mPopupClickedMenuItemId);
 
-        final Resources res = getActivity().getResources();
-        onView(withText(res.getString(R.string.popup_menu_share)))
-                .inRoot(withDecorView(not(is(getActivity().getWindow().getDecorView()))))
+        onView(withText(mResources.getString(R.string.popup_menu_share)))
+                .inRoot(withDecorView(not(is(mMainDecorView))))
                 .perform(click());
         assertEquals("Clicked item after click", R.id.action_share, mPopupClickedMenuItemId);
 
@@ -418,9 +421,8 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
 
         // Unlike ListPopupWindow, PopupMenu doesn't have an API to check whether it is showing.
         // Use a custom matcher to check the visibility of the drop down list view instead.
-        final View mainDecorView = getActivity().getWindow().getDecorView();
         onView(withClassName(Matchers.is(DROP_DOWN_CLASS_NAME)))
-                .inRoot(allOf(withDecorView(not(is(mainDecorView))), hasWindowFocus()))
+                .inRoot(allOf(withDecorView(not(is(mMainDecorView))), hasWindowFocus()))
                 .check(matches(isDisplayed()));
 
         // Note that MenuItem.isVisible() refers to the current "data" visibility state
@@ -428,16 +430,16 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
         // visibility of our main and sub menu items.
 
         // Share submenu items should now be visible
-        onView(withText(res.getString(R.string.popup_menu_share_email)))
-                .inRoot(allOf(withDecorView(not(is(mainDecorView))), hasWindowFocus()))
+        onView(withText(mResources.getString(R.string.popup_menu_share_email)))
+                .inRoot(allOf(withDecorView(not(is(mMainDecorView))), hasWindowFocus()))
                 .check(matches(isDisplayed()));
-        onView(withText(res.getString(R.string.popup_menu_share_circles)))
-                .inRoot(allOf(withDecorView(not(is(mainDecorView))), hasWindowFocus()))
+        onView(withText(mResources.getString(R.string.popup_menu_share_circles)))
+                .inRoot(allOf(withDecorView(not(is(mMainDecorView))), hasWindowFocus()))
                 .check(matches(isDisplayed()));
 
         // Now click an item in the sub-menu
-        onView(withText(res.getString(R.string.popup_menu_share_circles)))
-                .inRoot(allOf(withDecorView(not(is(mainDecorView))), hasWindowFocus()))
+        onView(withText(mResources.getString(R.string.popup_menu_share_circles)))
+                .inRoot(allOf(withDecorView(not(is(mMainDecorView))), hasWindowFocus()))
                 .perform(click());
         assertEquals("Clicked submenu item after click", R.id.action_share_circles,
                 mPopupClickedMenuItemId);
@@ -455,7 +457,7 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
         onView(withId(R.id.test_button)).perform(click());
 
         assertEquals("Clicked item before click", -1, mPopupClickedMenuItemId);
-        runTestOnUiThread(new Runnable() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
                 mPopupMenu.getMenu().performIdentifierAction(R.id.action_share, 0);
@@ -478,27 +480,24 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
 
         // Unlike ListPopupWindow, PopupMenu doesn't have an API to check whether it is showing.
         // Use a custom matcher to check the visibility of the drop down list view instead.
-        final View mainDecorView = getActivity().getWindow().getDecorView();
         onView(withClassName(Matchers.is(DROP_DOWN_CLASS_NAME)))
-                .inRoot(allOf(withDecorView(not(is(mainDecorView))), hasWindowFocus()))
+                .inRoot(allOf(withDecorView(not(is(mMainDecorView))), hasWindowFocus()))
                 .check(matches(isDisplayed()));
 
         // Note that MenuItem.isVisible() refers to the current "data" visibility state
         // and not the "on screen" visibility state. This is why we're testing the display
         // visibility of our main and sub menu items.
 
-        final Resources res = getActivity().getResources();
-
         // Share submenu items should now be visible
-        onView(withText(res.getString(R.string.popup_menu_share_email)))
-                .inRoot(allOf(withDecorView(not(is(mainDecorView))), hasWindowFocus()))
+        onView(withText(mResources.getString(R.string.popup_menu_share_email)))
+                .inRoot(allOf(withDecorView(not(is(mMainDecorView))), hasWindowFocus()))
                 .check(matches(isDisplayed()));
-        onView(withText(res.getString(R.string.popup_menu_share_circles)))
-                .inRoot(allOf(withDecorView(not(is(mainDecorView))), hasWindowFocus()))
+        onView(withText(mResources.getString(R.string.popup_menu_share_circles)))
+                .inRoot(allOf(withDecorView(not(is(mMainDecorView))), hasWindowFocus()))
                 .check(matches(isDisplayed()));
 
         // Now ask the share submenu to perform an action on its specific menu item
-        runTestOnUiThread(new Runnable() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
                 mPopupMenu.getMenu().findItem(R.id.action_share).getSubMenu().
