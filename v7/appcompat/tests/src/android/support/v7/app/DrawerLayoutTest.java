@@ -27,6 +27,8 @@ import android.support.v4.view.GravityCompat;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.custom.CustomDrawerLayout;
 import android.view.View;
+import android.test.suitebuilder.annotation.MediumTest;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
@@ -46,9 +48,9 @@ public class DrawerLayoutTest extends BaseInstrumentationTestCase<DrawerLayoutAc
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
 
-        final DrawerLayoutActivity activity = getActivity();
+        final DrawerLayoutActivity activity = mActivityTestRule.getActivity();
         mDrawerLayout = (CustomDrawerLayout) activity.findViewById(R.id.drawer_layout);
         mStartDrawer = mDrawerLayout.findViewById(R.id.start_drawer);
         mContentView = mDrawerLayout.findViewById(R.id.content);
@@ -59,6 +61,7 @@ public class DrawerLayoutTest extends BaseInstrumentationTestCase<DrawerLayoutAc
     }
 
     @Test
+    @MediumTest
     public void testDrawerOpenCloseViaAPI() {
         assertFalse("Initial state", mDrawerLayout.isDrawerOpen(GravityCompat.START));
 
@@ -74,6 +77,7 @@ public class DrawerLayoutTest extends BaseInstrumentationTestCase<DrawerLayoutAc
     }
 
     @Test
+    @MediumTest
     public void testDrawerOpenCloseWithRedundancyViaAPI() {
         assertFalse("Initial state", mDrawerLayout.isDrawerOpen(GravityCompat.START));
 
@@ -101,6 +105,7 @@ public class DrawerLayoutTest extends BaseInstrumentationTestCase<DrawerLayoutAc
     }
 
     @Test
+    @MediumTest
     public void testDrawerOpenCloseViaSwipes() {
         assertFalse("Initial state", mDrawerLayout.isDrawerOpen(GravityCompat.START));
 
@@ -118,6 +123,7 @@ public class DrawerLayoutTest extends BaseInstrumentationTestCase<DrawerLayoutAc
     }
 
     @Test
+    @MediumTest
     public void testDrawerOpenCloseWithRedundancyViaSwipes() {
         assertFalse("Initial state", mDrawerLayout.isDrawerOpen(GravityCompat.START));
 
@@ -149,6 +155,7 @@ public class DrawerLayoutTest extends BaseInstrumentationTestCase<DrawerLayoutAc
     }
 
     @Test
+    @SmallTest
     public void testDrawerHeight() {
         // Open the drawer so it becomes visible
         onView(withId(R.id.drawer_layout)).perform(
