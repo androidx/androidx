@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.ActivityInstrumentationTestCase2;
+import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 
@@ -39,4 +40,12 @@ public abstract class BaseInstrumentationTestCase<A extends Activity>
         getActivity();
     }
 
+    protected static void assertFuzzyEquals(String description, float expected, float actual) {
+        // On devices with certain screen densities we may run into situations where multiplying
+        // container width / height by a certain fraction ends up in a number that is almost but
+        // not exactly a round float number. For example, we can do float math to compute 15%
+        // of 1440 pixels and get 216.00002 due to inexactness of float math. This is why our
+        // tolerance is slightly bigger than 1 pixel in the comparison below.
+        assertEquals(description, expected, actual, 1.1f);
+    }
 }
