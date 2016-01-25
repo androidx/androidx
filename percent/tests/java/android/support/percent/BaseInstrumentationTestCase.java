@@ -17,27 +17,25 @@
 package android.support.percent;
 
 import android.app.Activity;
+import android.app.Instrumentation;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.ActivityInstrumentationTestCase2;
 import junit.framework.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.runner.RunWith;
 
+import static junit.framework.Assert.assertEquals;
+
 @RunWith(AndroidJUnit4.class)
-public abstract class BaseInstrumentationTestCase<A extends Activity>
-        extends ActivityInstrumentationTestCase2<A> {
+public abstract class BaseInstrumentationTestCase<A extends Activity> {
+    @Rule
+    public final ActivityTestRule<A> mActivityTestRule;
 
     protected BaseInstrumentationTestCase(Class<A> activityClass) {
-        super(activityClass);
-    }
-
-    @Before
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        injectInstrumentation(InstrumentationRegistry.getInstrumentation());
-        getActivity();
+        mActivityTestRule = new ActivityTestRule<A>(activityClass);
     }
 
     protected static void assertFuzzyEquals(String description, float expected, float actual) {
