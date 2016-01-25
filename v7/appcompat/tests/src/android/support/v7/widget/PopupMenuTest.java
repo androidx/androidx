@@ -15,6 +15,13 @@
  */
 package android.support.v7.widget;
 
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
+import org.hamcrest.TypeSafeMatcher;
+import org.junit.Before;
+import org.junit.Test;
+
 import android.app.Instrumentation;
 import android.content.res.Resources;
 import android.graphics.Rect;
@@ -33,11 +40,6 @@ import android.view.View;
 import android.view.ViewParent;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
-import org.hamcrest.TypeSafeMatcher;
-import org.junit.Test;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
@@ -45,10 +47,16 @@ import static android.support.test.espresso.assertion.ViewAssertions.doesNotExis
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.RootMatchers.isPlatformPopup;
 import static android.support.test.espresso.matcher.RootMatchers.withDecorView;
-import static android.support.test.espresso.matcher.ViewMatchers.*;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity> {
     // Since PopupMenu doesn't expose any access to the underlying
@@ -72,10 +80,8 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
         super(PopupTestActivity.class);
     }
 
-    @Override
+    @Before
     public void setUp() throws Exception {
-        super.setUp();
-
         final PopupTestActivity activity = getActivity();
         mContainer = (FrameLayout) activity.findViewById(R.id.container);
         mButton = (Button) mContainer.findViewById(R.id.test_button);
