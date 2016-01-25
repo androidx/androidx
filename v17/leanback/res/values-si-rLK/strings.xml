@@ -46,6 +46,7 @@ limitations under the License.
     <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"උපරිම ගුණත්වය අබල කරන ලදි"</string>
     <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"වැසුණු ශිර්ෂ කිරීම සබල කරන ලදි"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"වැසුණු ශිර්ෂ කිරීම අබල කරන ලදි"</string>
+    <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"පින්තූරය-තුළ-පින්තූරය ප්‍රකාරයට ඇතුළු වන්න"</string>
     <string name="lb_guidedaction_finish_title" msgid="4015190340667946245">"අවසානය"</string>
     <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"දිගටම කර ගෙන යන්න"</string>
     <string name="lb_date_separator" msgid="2440386660906697298">"/"</string>
