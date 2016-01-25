@@ -24,17 +24,20 @@ import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.ColorUtils;
+import android.support.v7.app.BaseInstrumentationTestCase;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.testutils.AppCompatTintableViewActions;
 import android.support.v7.testutils.BaseTestActivity;
 import android.support.v7.testutils.TestUtils;
-import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.view.View;
 import android.view.ViewGroup;
+import org.junit.Before;
+import org.junit.Test;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static org.junit.Assert.assertNull;
 
 /**
  * Base class for testing custom view extensions in appcompat-v7 that implement the
@@ -43,19 +46,20 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
  * base view class (such as <code>AppCompatTextView</code>'s all-caps support).
  */
 public abstract class AppCompatBaseViewTest<A extends BaseTestActivity, T extends View>
-        extends ActivityInstrumentationTestCase2<A> {
+        extends BaseInstrumentationTestCase<A> {
     protected ViewGroup mContainer;
+
+    protected Resources mResources;
 
     public AppCompatBaseViewTest(Class clazz) {
         super(clazz);
     }
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-
-        final A activity = getActivity();
+    @Before
+    public void setUp() {
+        final A activity = mActivityTestRule.getActivity();
         mContainer = (ViewGroup) activity.findViewById(R.id.container);
+        mResources = activity.getResources();
     }
 
     private void verifyBackgroundIsColoredAs(String description, @NonNull View view,
@@ -70,10 +74,10 @@ public abstract class AppCompatBaseViewTest<A extends BaseTestActivity, T extend
      * This method tests that background tinting is not applied when the
      * tintable view has no background.
      */
+    @Test
     @SmallTest
     public void testBackgroundTintingWithNoBackground() {
         final @IdRes int viewId = R.id.view_tinted_no_background;
-        final Resources res = getActivity().getResources();
         final T view = (T) mContainer.findViewById(viewId);
 
         // Note that all the asserts in this test check that the view background
@@ -93,7 +97,7 @@ public abstract class AppCompatBaseViewTest<A extends BaseTestActivity, T extend
         // Load a new color state list, set it on the view and check that the background
         // is still null.
         final ColorStateList sandColor = ResourcesCompat.getColorStateList(
-                res, R.color.color_state_list_sand, null);
+                mResources, R.color.color_state_list_sand, null);
         onView(withId(viewId)).perform(
                 AppCompatTintableViewActions.setBackgroundTintList(sandColor));
 
@@ -111,18 +115,24 @@ public abstract class AppCompatBaseViewTest<A extends BaseTestActivity, T extend
      * in enabled and disabled state across a number of <code>ColorStateList</code>s set as
      * background tint lists on the same background.
      */
+    @Test
     @SmallTest
     public void testBackgroundTintingAcrossStateChange() {
         final @IdRes int viewId = R.id.view_tinted_background;
-        final Resources res = getActivity().getResources();
         final T view = (T) mContainer.findViewById(viewId);
 
-        @ColorInt int lilacDefault = ResourcesCompat.getColor(res, R.color.lilac_default, null);
-        @ColorInt int lilacDisabled = ResourcesCompat.getColor(res, R.color.lilac_disabled, null);
-        @ColorInt int sandDefault = ResourcesCompat.getColor(res, R.color.sand_default, null);
-        @ColorInt int sandDisabled = ResourcesCompat.getColor(res, R.color.sand_disabled, null);
-        @ColorInt int oceanDefault = ResourcesCompat.getColor(res, R.color.ocean_default, null);
-        @ColorInt int oceanDisabled = ResourcesCompat.getColor(res, R.color.ocean_disabled, null);
+        final @ColorInt int lilacDefault = ResourcesCompat.getColor(
+                mResources, R.color.lilac_default, null);
+        final @ColorInt int lilacDisabled = ResourcesCompat.getColor(
+                mResources, R.color.lilac_disabled, null);
+        final @ColorInt int sandDefault = ResourcesCompat.getColor(
+                mResources, R.color.sand_default, null);
+        final @ColorInt int sandDisabled = ResourcesCompat.getColor(
+                mResources, R.color.sand_disabled, null);
+        final @ColorInt int oceanDefault = ResourcesCompat.getColor(
+                mResources, R.color.ocean_default, null);
+        final @ColorInt int oceanDisabled = ResourcesCompat.getColor(
+                mResources, R.color.ocean_disabled, null);
 
         // Test the default state for tinting set up in the layout XML file.
         verifyBackgroundIsColoredAs("Default lilac tinting in enabled state", view,
@@ -143,7 +153,7 @@ public abstract class AppCompatBaseViewTest<A extends BaseTestActivity, T extend
         // Load a new color state list, set it on the view and check that the background has
         // switched to the matching entry in newly set color state list.
         final ColorStateList sandColor = ResourcesCompat.getColorStateList(
-                res, R.color.color_state_list_sand, null);
+                mResources, R.color.color_state_list_sand, null);
         onView(withId(viewId)).perform(
                 AppCompatTintableViewActions.setBackgroundTintList(sandColor));
         verifyBackgroundIsColoredAs("New sand tinting in enabled state", view,
@@ -164,7 +174,7 @@ public abstract class AppCompatBaseViewTest<A extends BaseTestActivity, T extend
         // Load another color state list, set it on the view and check that the background has
         // switched to the matching entry in newly set color state list.
         final ColorStateList oceanColor = ResourcesCompat.getColorStateList(
-                res, R.color.color_state_list_ocean, null);
+                mResources, R.color.color_state_list_ocean, null);
         onView(withId(viewId)).perform(
                 AppCompatTintableViewActions.setBackgroundTintList(oceanColor));
         verifyBackgroundIsColoredAs("New ocean tinting in enabled state", view,
@@ -188,20 +198,20 @@ public abstract class AppCompatBaseViewTest<A extends BaseTestActivity, T extend
      * in enabled and disabled state across the same background respects the currently set
      * background tinting mode.
      */
+    @Test
     @SmallTest
     public void testBackgroundTintingAcrossModeChange() {
         final @IdRes int viewId = R.id.view_untinted_background;
-        final Resources res = getActivity().getResources();
         final T view = (T) mContainer.findViewById(viewId);
 
-        @ColorInt int emeraldDefault = ResourcesCompat.getColor(
-                res, R.color.emerald_translucent_default, null);
-        @ColorInt int emeraldDisabled = ResourcesCompat.getColor(
-                res, R.color.emerald_translucent_disabled, null);
+        final @ColorInt int emeraldDefault = ResourcesCompat.getColor(
+                mResources, R.color.emerald_translucent_default, null);
+        final @ColorInt int emeraldDisabled = ResourcesCompat.getColor(
+                mResources, R.color.emerald_translucent_disabled, null);
         // This is the fill color of R.drawable.test_background_green set on our view
         // that we'll be testing in this method
-        @ColorInt int backgroundColor = ResourcesCompat.getColor(
-                res, R.color.test_green, null);
+        final @ColorInt int backgroundColor = ResourcesCompat.getColor(
+                mResources, R.color.test_green, null);
 
         // Test the default state for tinting set up in the layout XML file.
         verifyBackgroundIsColoredAs("Default no tinting in enabled state", view,
@@ -221,7 +231,7 @@ public abstract class AppCompatBaseViewTest<A extends BaseTestActivity, T extend
         // Load a new color state list, set it on the view and check that the background has
         // switched to the matching entry in newly set color state list.
         final ColorStateList emeraldColor = ResourcesCompat.getColorStateList(
-                res, R.color.color_state_list_emerald_translucent, null);
+                mResources, R.color.color_state_list_emerald_translucent, null);
         onView(withId(viewId)).perform(
                 AppCompatTintableViewActions.setBackgroundTintList(emeraldColor));
         verifyBackgroundIsColoredAs("New emerald tinting in enabled state under src_in", view,
@@ -259,20 +269,22 @@ public abstract class AppCompatBaseViewTest<A extends BaseTestActivity, T extend
      * This method tests that opaque background tinting applied to tintable view
      * is applied correctly after changing the background itself of the view.
      */
+    @Test
     @SmallTest
     public void testBackgroundOpaqueTintingAcrossBackgroundChange() {
         final @IdRes int viewId = R.id.view_tinted_no_background;
-        final Resources res = getActivity().getResources();
         final T view = (T) mContainer.findViewById(viewId);
 
-        @ColorInt int lilacDefault = ResourcesCompat.getColor(res, R.color.lilac_default, null);
-        @ColorInt int lilacDisabled = ResourcesCompat.getColor(res, R.color.lilac_disabled, null);
+        final @ColorInt int lilacDefault = ResourcesCompat.getColor(
+                mResources, R.color.lilac_default, null);
+        final @ColorInt int lilacDisabled = ResourcesCompat.getColor(
+                mResources, R.color.lilac_disabled, null);
 
         assertNull("No background after XML loading", view.getBackground());
 
         // Set background on our view
         onView(withId(viewId)).perform(AppCompatTintableViewActions.setBackgroundDrawable(
-                ResourcesCompat.getDrawable(res, R.drawable.test_background_green, null)));
+                ResourcesCompat.getDrawable(mResources, R.drawable.test_background_green, null)));
 
         // Test the default state for tinting set up in the layout XML file.
         verifyBackgroundIsColoredAs("Default lilac tinting in enabled state on green background",
@@ -315,22 +327,22 @@ public abstract class AppCompatBaseViewTest<A extends BaseTestActivity, T extend
      * This method tests that translucent background tinting applied to tintable view
      * is applied correctly after changing the background itself of the view.
      */
+    @Test
     @SmallTest
     public void testBackgroundTranslucentTintingAcrossBackgroundChange() {
         final @IdRes int viewId = R.id.view_untinted_no_background;
-        final Resources res = getActivity().getResources();
         final T view = (T) mContainer.findViewById(viewId);
 
-        @ColorInt int emeraldDefault = ResourcesCompat.getColor(
-                res, R.color.emerald_translucent_default, null);
-        @ColorInt int emeraldDisabled = ResourcesCompat.getColor(
-                res, R.color.emerald_translucent_disabled, null);
+        final @ColorInt int emeraldDefault = ResourcesCompat.getColor(
+                mResources, R.color.emerald_translucent_default, null);
+        final @ColorInt int emeraldDisabled = ResourcesCompat.getColor(
+                mResources, R.color.emerald_translucent_disabled, null);
         // This is the fill color of R.drawable.test_background_green set on our view
         // that we'll be testing in this method
-        @ColorInt int backgroundColorGreen = ResourcesCompat.getColor(
-                res, R.color.test_green, null);
-        @ColorInt int backgroundColorRed = ResourcesCompat.getColor(
-                res, R.color.test_red, null);
+        final @ColorInt int backgroundColorGreen = ResourcesCompat.getColor(
+                mResources, R.color.test_green, null);
+        final @ColorInt int backgroundColorRed = ResourcesCompat.getColor(
+                mResources, R.color.test_red, null);
 
         assertNull("No background after XML loading", view.getBackground());
 
@@ -342,13 +354,13 @@ public abstract class AppCompatBaseViewTest<A extends BaseTestActivity, T extend
                 AppCompatTintableViewActions.setBackgroundTintMode(PorterDuff.Mode.SRC_OVER));
         // Load and set a translucent color state list as the background tint list
         final ColorStateList emeraldColor = ResourcesCompat.getColorStateList(
-                res, R.color.color_state_list_emerald_translucent, null);
+                mResources, R.color.color_state_list_emerald_translucent, null);
         onView(withId(viewId)).perform(
                 AppCompatTintableViewActions.setBackgroundTintList(emeraldColor));
 
         // Set background on our view
         onView(withId(viewId)).perform(AppCompatTintableViewActions.setBackgroundDrawable(
-                ResourcesCompat.getDrawable(res, R.drawable.test_background_green, null)));
+                ResourcesCompat.getDrawable(mResources, R.drawable.test_background_green, null)));
 
         // From this point on in this method we're allowing a margin of error in checking the
         // color of the view background. This is due to both translucent colors being used
