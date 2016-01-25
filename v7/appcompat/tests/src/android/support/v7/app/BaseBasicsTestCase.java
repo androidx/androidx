@@ -16,11 +16,23 @@
 
 package android.support.v7.app;
 
-import android.support.v7.testutils.BaseTestActivity;
-import android.test.suitebuilder.annotation.MediumTest;
-import android.test.suitebuilder.annotation.SmallTest;
-
 import org.junit.Test;
+
+import android.os.Build;
+import android.support.v7.appcompat.test.R;
+import android.support.v7.custom.FitWindowsContentLayout;
+import android.support.v7.testutils.BaseTestActivity;
+import android.support.v7.testutils.TestUtils;
+import android.test.suitebuilder.annotation.SmallTest;
+import android.view.View;
+import android.view.WindowInsets;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public abstract class BaseBasicsTestCase<A extends BaseTestActivity>
         extends BaseInstrumentationTestCase<A> {
@@ -56,28 +68,53 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity>
     }
 
     @Test
-    @MediumTest
+    @SmallTest
     public void testMenuInvalidationAfterDestroy() throws Throwable {
         final A activity = getActivity();
+        // Reset to make sure that we don't have a menu currently
+        activity.reset();
+        assertNull(activity.getMenu());
 
-        getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                // Reset to make sure that we don't have a menu currently
-                activity.reset();
-                assertNull(activity.getMenu());
+        // Now destroy the Activity
+        activity.finish();
+        TestUtils.waitForActivityDestroyed(activity);
 
-                // Now dispatch a menu invalidation
-                activity.supportInvalidateOptionsMenu();
-                // Now destroy the Activity
-                getInstrumentation().callActivityOnDestroy(activity);
-            }
-        });
-
-        // Now wait for any delayed menu population
-        Thread.sleep(100);
+        // Now dispatch a menu invalidation and wait for an idle sync
+        activity.supportInvalidateOptionsMenu();
+        getInstrumentation().waitForIdleSync();
 
         // Make sure that we don't have a menu given to use after being destroyed
         assertNull(activity.getMenu());
+    }
+
+    @Test
+    @SmallTest
+    public void testFitSystemWindowsReachesContent() {
+        final FitWindowsContentLayout content =
+                (FitWindowsContentLayout) getActivity().findViewById(R.id.test_content);
+        assertNotNull(content);
+        assertTrue(content.getFitsSystemWindowsCalled());
+    }
+
+    @Test
+    @SmallTest
+    public void testOnApplyWindowInsetsReachesContent() {
+        if (Build.VERSION.SDK_INT < 21) {
+            // OnApplyWindowInsetsListener is only available on API 21+
+            return;
+        }
+
+        final View content = getActivity().findViewById(R.id.test_content);
+        assertNotNull(content);
+
+        final AtomicBoolean applyWindowInsetsCalled = new AtomicBoolean();
+        content.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+            @Override
+            public WindowInsets onApplyWindowInsets(View view, WindowInsets windowInsets) {
+                applyWindowInsetsCalled.set(true);
+                return windowInsets;
+            }
+        });
+        assertTrue(applyWindowInsetsCalled.get());
     }
 }

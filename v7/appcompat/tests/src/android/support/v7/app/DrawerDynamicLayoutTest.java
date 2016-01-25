@@ -15,6 +15,12 @@
  */
 package android.support.v7.app;
 
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
+import org.junit.After;
+import org.junit.Test;
+
 import android.support.annotation.LayoutRes;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
@@ -22,11 +28,6 @@ import android.support.v7.appcompat.test.R;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.view.View;
 import android.view.ViewStub;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
-import org.junit.After;
-import org.junit.Test;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
@@ -45,7 +46,6 @@ public class DrawerDynamicLayoutTest
     }
 
     @After
-    @Override
     public void tearDown() throws Exception {
         // Now that the test is done, replace the activity content view with ViewStub so
         // that it's ready to be replaced for the next test.
@@ -60,8 +60,6 @@ public class DrawerDynamicLayoutTest
         } catch (Throwable t) {
             throw new Exception(t);
         }
-
-        super.tearDown();
     }
 
     /**

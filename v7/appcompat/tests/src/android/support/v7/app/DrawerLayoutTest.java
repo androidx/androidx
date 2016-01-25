@@ -15,23 +15,24 @@
  */
 package android.support.v7.app;
 
-import android.content.res.Resources;
-import android.os.Build;
-import android.view.View;
+import org.junit.Before;
+import org.junit.Test;
 
-import android.support.test.espresso.action.Press;
+import android.os.Build;
 import android.support.test.espresso.action.GeneralLocation;
 import android.support.test.espresso.action.GeneralSwipeAction;
+import android.support.test.espresso.action.Press;
 import android.support.test.espresso.action.Swipe;
-
 import android.support.v4.view.GravityCompat;
-import android.support.v7.custom.CustomDrawerLayout;
 import android.support.v7.appcompat.test.R;
-
-import org.junit.Test;
+import android.support.v7.custom.CustomDrawerLayout;
+import android.view.View;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class DrawerLayoutTest extends BaseInstrumentationTestCase<DrawerLayoutActivity> {
     private CustomDrawerLayout mDrawerLayout;
@@ -44,8 +45,8 @@ public class DrawerLayoutTest extends BaseInstrumentationTestCase<DrawerLayoutAc
         super(DrawerLayoutActivity.class);
     }
 
+    @Before
     public void setUp() throws Exception {
-        super.setUp();
 
         final DrawerLayoutActivity activity = getActivity();
         mDrawerLayout = (CustomDrawerLayout) activity.findViewById(R.id.drawer_layout);
