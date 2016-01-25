@@ -1302,7 +1302,10 @@ public class MenuBuilder implements SupportMenu {
         mCurrentMenuInfo = menuInfo;
     }
 
-    void setOptionalIconsVisible(boolean visible) {
+    /**
+     * @hide
+     */
+    public void setOptionalIconsVisible(boolean visible) {
         mOptionalIconsVisible = visible;
     }
 
