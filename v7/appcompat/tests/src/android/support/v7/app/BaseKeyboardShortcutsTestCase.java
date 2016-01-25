@@ -16,15 +16,18 @@
 
 package android.support.v7.app;
 
-import android.support.v7.testutils.BaseTestActivity;
 import org.junit.Test;
 
 import android.os.SystemClock;
 import android.support.v7.appcompat.test.R;
+import android.support.v7.testutils.BaseTestActivity;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.MenuItem;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public abstract class BaseKeyboardShortcutsTestCase<A extends BaseTestActivity>
         extends BaseInstrumentationTestCase<A> {

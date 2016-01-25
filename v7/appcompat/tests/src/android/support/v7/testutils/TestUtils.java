@@ -17,13 +17,15 @@
 
 package android.support.v7.testutils;
 
+import junit.framework.Assert;
+
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.os.SystemClock;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
-import junit.framework.Assert;
 
 public class TestUtils {
     /**
@@ -91,6 +93,12 @@ public class TestUtils {
             }
         } finally {
             bitmap.recycle();
+        }
+    }
+
+    public static void waitForActivityDestroyed(BaseTestActivity activity) {
+        while (!activity.isDestroyed()) {
+            SystemClock.sleep(30);
         }
     }
 }
