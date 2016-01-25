@@ -99,9 +99,7 @@ public class PercentRelativeRtlTest extends BaseInstrumentationTestCase<TestRela
 
     @Before
     public void setUp() throws Exception {
-        super.setUp();
-
-        final TestRelativeRtlActivity activity = getActivity();
+        final TestRelativeRtlActivity activity = mActivityTestRule.getActivity();
         mPercentRelativeLayout = (PercentRelativeLayout) activity.findViewById(R.id.container);
         mContainerWidth = mPercentRelativeLayout.getWidth();
         mContainerHeight = mPercentRelativeLayout.getHeight();
