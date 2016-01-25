@@ -18,8 +18,8 @@ package android.support.v7.widget;
 import android.app.Instrumentation;
 import android.graphics.Rect;
 import android.os.SystemClock;
+import android.support.v7.app.BaseInstrumentationTestCase;
 import android.support.v7.appcompat.test.R;
-import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -31,18 +31,17 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import org.junit.Test;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.RootMatchers.withDecorView;
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static android.support.test.espresso.matcher.ViewMatchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 
-public class ListPopupWindowTest extends ActivityInstrumentationTestCase2<PopupTestActivity> {
+public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestActivity> {
     private FrameLayout mContainer;
 
     private Button mButton;
@@ -62,7 +61,7 @@ public class ListPopupWindowTest extends ActivityInstrumentationTestCase2<PopupT
     }
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
 
         final PopupTestActivity activity = getActivity();
@@ -70,6 +69,7 @@ public class ListPopupWindowTest extends ActivityInstrumentationTestCase2<PopupT
         mButton = (Button) mContainer.findViewById(R.id.test_button);
     }
 
+    @Test
     @SmallTest
     public void testBasicContent() {
         Builder popupBuilder = new Builder();
@@ -97,6 +97,7 @@ public class ListPopupWindowTest extends ActivityInstrumentationTestCase2<PopupT
                 .check(matches(isDisplayed()));
     }
 
+    @Test
     @SmallTest
     public void testAnchoring() {
         Builder popupBuilder = new Builder();
@@ -121,6 +122,7 @@ public class ListPopupWindowTest extends ActivityInstrumentationTestCase2<PopupT
                 popupOnScreenXY[1] + rect.top);
     }
 
+    @Test
     @SmallTest
     public void testDismissalViaAPI() throws Throwable {
         Builder popupBuilder = new Builder().withDismissListener();
@@ -211,16 +213,19 @@ public class ListPopupWindowTest extends ActivityInstrumentationTestCase2<PopupT
         assertEquals("Click on underlying container", !setupAsModal, mIsContainerClicked);
     }
 
+    @Test
     @SmallTest
     public void testDismissalOutsideNonModal() throws Throwable {
         testDismissalViaTouch(false);
     }
 
+    @Test
     @SmallTest
     public void testDismissalOutsideModal() throws Throwable {
         testDismissalViaTouch(true);
     }
 
+    @Test
     @SmallTest
     public void testItemClickViaEvent() {
         Builder popupBuilder = new Builder().withItemClickListener();
@@ -239,6 +244,7 @@ public class ListPopupWindowTest extends ActivityInstrumentationTestCase2<PopupT
         assertFalse("Popup window not showing after click", mListPopupWindow.isShowing());
     }
 
+    @Test
     @SmallTest
     public void testItemClickViaAPI() throws Throwable {
         Builder popupBuilder = new Builder().withItemClickListener();
