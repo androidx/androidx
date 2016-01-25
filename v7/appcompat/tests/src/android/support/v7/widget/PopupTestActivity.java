@@ -18,6 +18,10 @@ package android.support.v7.widget;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.testutils.BaseTestActivity;
 
+/**
+ * This activity is used to test both {@link ListPopupWindow} and {@link PopupMenu} classes.
+ *
+ */
 public class PopupTestActivity extends BaseTestActivity {
     @Override
     protected int getContentViewLayoutResId() {

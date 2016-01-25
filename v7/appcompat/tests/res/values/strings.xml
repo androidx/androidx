@@ -21,8 +21,16 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
 
-    <string name="list_popup_window_activity">List popup window</string>
-    <string name="list_popup_window_show">Show popup</string>
+    <string name="popup_activity">Popup activity</string>
+    <string name="popup_show">Show popup</string>
+    <string name="popup_menu_highlight">Highlight</string>
+    <string name="popup_menu_edit">Edit</string>
+    <string name="popup_menu_delete">Delete</string>
+    <string name="popup_menu_ignore">Ignore</string>
+    <string name="popup_menu_share">Share</string>
+    <string name="popup_menu_share_email">Via email</string>
+    <string name="popup_menu_share_circles">To my circles</string>
+    <string name="popup_menu_print">Print</string>
 
     <string name="alert_dialog_activity">Alert dialog</string>
     <string name="alert_dialog_show">Show alert dialog</string>
