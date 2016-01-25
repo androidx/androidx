@@ -27,7 +27,7 @@ import org.hamcrest.Matcher;
 
 public class DrawerLayoutActions {
     /**
-     * Opens the drawer.
+     * Opens the drawer at the specified edge gravity.
      */
     public static ViewAction openDrawer(final int drawerEdgeGravity) {
         return new ViewAction() {
@@ -55,7 +55,35 @@ public class DrawerLayoutActions {
     }
 
     /**
-     * Closes the drawer.
+     * Opens the drawer.
+     */
+    public static ViewAction openDrawer(final View drawerView) {
+        return new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return isAssignableFrom(DrawerLayout.class);
+            }
+
+            @Override
+            public String getDescription() {
+                return "Opens the drawer";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                uiController.loopMainThreadUntilIdle();
+
+                DrawerLayout drawerLayout = (DrawerLayout) view;
+                drawerLayout.openDrawer(drawerView);
+
+                // Wait for a full second to let the inner ViewDragHelper complete the operation
+                uiController.loopMainThreadForAtLeast(1000);
+            }
+        };
+    }
+
+    /**
+     * Closes the drawer at the specified edge gravity.
      */
     public static ViewAction closeDrawer(final int drawerEdgeGravity) {
         return new ViewAction() {
@@ -78,6 +106,88 @@ public class DrawerLayoutActions {
 
                 // Wait for a full second to let the inner ViewDragHelper complete the operation
                 uiController.loopMainThreadForAtLeast(1000);
+            }
+        };
+    }
+
+    /**
+     * Closes the drawer.
+     */
+    public static ViewAction closeDrawer(final View drawerView) {
+        return new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return isAssignableFrom(DrawerLayout.class);
+            }
+
+            @Override
+            public String getDescription() {
+                return "Closes the drawer";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                uiController.loopMainThreadUntilIdle();
+
+                DrawerLayout drawerLayout = (DrawerLayout) view;
+                drawerLayout.closeDrawer(drawerView);
+
+                // Wait for a full second to let the inner ViewDragHelper complete the operation
+                uiController.loopMainThreadForAtLeast(1000);
+            }
+        };
+    }
+
+    /**
+     * Sets the lock mode for the drawer at the specified edge gravity.
+     */
+    public static ViewAction setDrawerLockMode(final int lockMode, final int drawerEdgeGravity) {
+        return new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return isAssignableFrom(DrawerLayout.class);
+            }
+
+            @Override
+            public String getDescription() {
+                return "Sets drawer lock mode";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                uiController.loopMainThreadUntilIdle();
+
+                DrawerLayout drawerLayout = (DrawerLayout) view;
+                drawerLayout.setDrawerLockMode(lockMode, drawerEdgeGravity);
+
+                uiController.loopMainThreadUntilIdle();
+            }
+        };
+    }
+
+    /**
+     * Sets the lock mode for the drawer.
+     */
+    public static ViewAction setDrawerLockMode(final int lockMode, final View drawerView) {
+        return new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return isAssignableFrom(DrawerLayout.class);
+            }
+
+            @Override
+            public String getDescription() {
+                return "Sets drawer lock mode";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                uiController.loopMainThreadUntilIdle();
+
+                DrawerLayout drawerLayout = (DrawerLayout) view;
+                drawerLayout.setDrawerLockMode(lockMode, drawerView);
+
+                uiController.loopMainThreadUntilIdle();
             }
         };
     }

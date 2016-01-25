@@ -53,7 +53,7 @@ public class DrawerDynamicLayoutTest
             runTestOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    final DrawerDynamicLayoutActivity activity = getActivity();
+                    final DrawerDynamicLayoutActivity activity = mActivityTestRule.getActivity();
                     activity.setContentView(R.layout.drawer_dynamic_layout);
                 }
             });
