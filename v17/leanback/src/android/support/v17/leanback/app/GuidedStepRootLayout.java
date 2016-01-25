@@ -18,13 +18,13 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
-import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 /**
  * Utility class used by GuidedStepFragment to disable focus out left/right.
  * @hide
  */
-class GuidedStepRootLayout extends FrameLayout {
+class GuidedStepRootLayout extends LinearLayout {
 
     private boolean mFocusOutStart = false;
     private boolean mFocusOutEnd = false;

@@ -25,8 +25,8 @@ import android.content.res.TypedArray;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.R;
+import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.widget.GuidanceStylist;
 import android.support.v17.leanback.widget.GuidanceStylist.Guidance;
 import android.support.v17.leanback.widget.GuidedAction;
@@ -46,8 +46,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -582,7 +582,6 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
     public static int addAsRoot(Activity activity, GuidedStepFragment fragment, int id) {
         // Workaround b/23764120: call getDecorView() to force requestFeature of ActivityTransition.
         activity.getWindow().getDecorView();
-
         FragmentManager fragmentManager = activity.getFragmentManager();
         FragmentTransaction ft = fragmentManager.beginTransaction();
         fragment.setUiStyle(UI_STYLE_ACTIVITY_ROOT);
@@ -965,8 +964,10 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
 
         GuidedStepRootLayout root = (GuidedStepRootLayout) inflater.inflate(
                 R.layout.lb_guidedstep_fragment, container, false);
+
         root.setFocusOutStart(isFocusOutStartAllowed());
         root.setFocusOutEnd(isFocusOutEndAllowed());
+
         ViewGroup guidanceContainer = (ViewGroup) root.findViewById(R.id.content_fragment);
         ViewGroup actionContainer = (ViewGroup) root.findViewById(R.id.action_fragment);
 
@@ -1066,9 +1067,12 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
 
         setSelectedButtonActionPosition(0);
 
+        // Add the background view.
         View backgroundView = onCreateBackgroundView(inflater, root, savedInstanceState);
         if (backgroundView != null) {
-            root.addView(backgroundView, 0);
+            FrameLayout backgroundViewRoot = (FrameLayout)root.findViewById(
+                R.id.guidedstep_background_view_root);
+            backgroundViewRoot.addView(backgroundView, 0);
         }
         return root;
     }

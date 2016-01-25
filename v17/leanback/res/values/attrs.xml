@@ -318,6 +318,11 @@
              can set this to <code>@style/Theme.Leanback.GuidedStep</code> in order to specify the
              default GuidedStepFragment styles. -->
         <attr name="guidedStepTheme" format="reference" />
+        <!-- Used to control the height of the fragment. By default this fragment will take
+             up the full height of it's parent. The height of this fragment is governed by
+             this property. Default weight is set to 2.0, so inorder to render the fragment
+             in half screen mode, this attribute should be set to 1.0 -->
+        <attr name="guidedStepHeightWeight" format="float" />
 
         <!-- @hide
              Theme attribute used to inspect theme inheritance. -->
@@ -475,7 +480,6 @@
         <attr name="guidedActionContentWidth" format="reference" />
         <!-- Deprecated theme attribute, do not use -->
         <attr name="guidedActionContentWidthNoIcon" format="reference" />
-
     </declare-styleable>
 
     <declare-styleable name="lbDatePicker">
