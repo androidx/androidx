@@ -15,6 +15,7 @@
  */
 package android.support.v7.app;
 
+import android.support.test.InstrumentationRegistry;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -49,17 +50,13 @@ public class DrawerDynamicLayoutTest
     public void tearDown() throws Exception {
         // Now that the test is done, replace the activity content view with ViewStub so
         // that it's ready to be replaced for the next test.
-        try {
-            runTestOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    final DrawerDynamicLayoutActivity activity = mActivityTestRule.getActivity();
-                    activity.setContentView(R.layout.drawer_dynamic_layout);
-                }
-            });
-        } catch (Throwable t) {
-            throw new Exception(t);
-        }
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                final DrawerDynamicLayoutActivity activity = mActivityTestRule.getActivity();
+                activity.setContentView(R.layout.drawer_dynamic_layout);
+            }
+        });
     }
 
     /**
