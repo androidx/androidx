@@ -784,7 +784,9 @@ public class FragmentActivity extends BaseFragmentActivityHoneycomb implements
      */
     @Override
     public void startActivityForResult(Intent intent, int requestCode) {
-        if (mStartedActivityFromFragment) {
+        // If this was started from a Fragment we've already checked the upper 16 bits were not in
+        // use, and then repurposed them for the Fragment's index.
+        if (!mStartedActivityFromFragment) {
             if (requestCode != -1 && (requestCode&0xffff0000) != 0) {
                 throw new IllegalArgumentException("Can only use lower 16 bits for requestCode");
             }
