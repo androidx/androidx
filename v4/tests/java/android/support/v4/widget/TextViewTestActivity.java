@@ -13,18 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.support.v4.view;
 
-import android.test.AndroidTestCase;
-import android.test.suitebuilder.annotation.SmallTest;
-import android.view.View;
+package android.support.v4.widget;
 
-public class ViewCompatTest extends AndroidTestCase {
-    @SmallTest
-    public void testConstants() {
-        // Compat constants must match core constants since they can be used interchangeably
-        // in various support lib calls.
-        assertEquals("LTR constants", View.LAYOUT_DIRECTION_LTR, ViewCompat.LAYOUT_DIRECTION_LTR);
-        assertEquals("RTL constants", View.LAYOUT_DIRECTION_RTL, ViewCompat.LAYOUT_DIRECTION_RTL);
+import android.support.v4.BaseTestActivity;
+import android.support.v4.test.R;
+
+public class TextViewTestActivity extends BaseTestActivity {
+    @Override
+    protected int getContentViewLayoutResId() {
+        return R.layout.text_view_activity;
     }
 }
