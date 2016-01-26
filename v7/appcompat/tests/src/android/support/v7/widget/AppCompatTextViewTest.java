@@ -15,13 +15,14 @@
  */
 package android.support.v7.widget;
 
-import android.content.res.Resources;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.testutils.AppCompatTextViewActions;
 import android.test.suitebuilder.annotation.SmallTest;
+import org.junit.Test;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static org.junit.Assert.assertEquals;
 
 /**
  * In addition to all tinting-related tests done by the base class, this class provides
@@ -33,11 +34,11 @@ public class AppCompatTextViewTest
         super(AppCompatTextViewActivity.class);
     }
 
+    @Test
     @SmallTest
     public void testAllCaps() throws Throwable {
-        final Resources res = getActivity().getResources();
-        final String text1 = res.getString(R.string.sample_text1);
-        final String text2 = res.getString(R.string.sample_text2);
+        final String text1 = mResources.getString(R.string.sample_text1);
+        final String text2 = mResources.getString(R.string.sample_text2);
 
         final AppCompatTextView textView1 =
                 (AppCompatTextView) mContainer.findViewById(R.id.text_view_caps1);
