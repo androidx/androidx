@@ -15,14 +15,6 @@
  */
 package android.support.v7.widget;
 
-import android.content.res.Resources;
-import android.support.v7.appcompat.test.R;
-import android.support.v7.testutils.AppCompatTextViewActions;
-import android.test.suitebuilder.annotation.SmallTest;
-
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
-
 /**
  * In addition to all tinting-related tests done by the base class, this class provides
  * tests specific to <code>AppCompatImageView</code> class.
