@@ -17,12 +17,12 @@ package android.support.annotation;
 
 import java.lang.annotation.Retention;
 
-import static java.lang.annotation.RetentionPolicy.SOURCE;
+import static java.lang.annotation.RetentionPolicy.CLASS;
 
 /**
  * Denotes that the class, method or field has its visibility relaxed, so that it is more widely
  * visible than otherwise necessary to make code testable.
  */
-@Retention(SOURCE)
+@Retention(CLASS)
 public @interface VisibleForTesting {
 }
