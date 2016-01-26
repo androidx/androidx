@@ -15,7 +15,6 @@
  */
 package android.support.v4.view;
 
-import android.support.v4.view.PagerTitleStrip;
 import android.support.v4.test.R;
 
 import static android.support.test.espresso.Espresso.onView;
@@ -23,8 +22,8 @@ import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.matcher.ViewMatchers.isDescendantOfA;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-
 import static org.hamcrest.Matchers.allOf;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Provides assertions that depend on the interactive nature of <code>PagerTabStrip</code>.

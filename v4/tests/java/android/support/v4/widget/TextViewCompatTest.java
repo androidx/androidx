@@ -17,35 +17,27 @@
 
 package android.support.v4.widget;
 
-import org.junit.After;
+import android.content.res.Resources;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.support.annotation.ColorInt;
+import android.support.v4.BaseInstrumentationTestCase;
+import android.support.v4.test.R;
+import android.support.v4.testutils.TestUtils;
+import android.support.v4.view.ViewCompat;
+import android.test.suitebuilder.annotation.MediumTest;
+import android.test.suitebuilder.annotation.SmallTest;
+import android.widget.TextView;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-import android.app.Instrumentation;
-import android.content.res.Resources;
-import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.ColorDrawable;
-import android.os.Looper;
-import android.test.ActivityInstrumentationTestCase2;
-import android.test.UiThreadTest;
-import android.test.suitebuilder.annotation.SmallTest;
-import android.test.suitebuilder.annotation.MediumTest;
-import android.support.annotation.ColorInt;
-import android.support.annotation.LayoutRes;
-import android.support.test.InstrumentationRegistry;
-import android.support.v4.test.R;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.widget.TextViewCompat;
-import android.support.v4.testutils.TestUtils;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.TextView;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.v4.testutils.LayoutDirectionActions.setLayoutDirection;
+import static android.support.v4.testutils.TextViewActions.*;
+import static org.junit.Assert.*;
 
-public class TextViewCompatTest extends ActivityInstrumentationTestCase2<TestActivity> {
+public class TextViewCompatTest extends BaseInstrumentationTestCase<TextViewTestActivity> {
     private static final String TAG = "TextViewCompatTest";
 
     private TextView mTextView;
@@ -72,127 +64,75 @@ public class TextViewCompatTest extends ActivityInstrumentationTestCase2<TestAct
     }
 
     public TextViewCompatTest() {
-        super("android.support.v4.widget", TestActivity.class);
+        super(TextViewTestActivity.class);
     }
 
-    @Override
-    public void tearDown() throws Exception {
-        if (mTextView != null) {
-            removeTextView();
-        }
-
-        getInstrumentation().waitForIdleSync();
-        super.tearDown();
+    @Before
+    public void setUp() {
+        mTextView = (TextView) mActivityTestRule.getActivity().findViewById(R.id.text_view);
     }
 
-    private boolean isMainThread() {
-        return Looper.myLooper() == Looper.getMainLooper();
-    }
-
-    private void removeTextView() {
-        if (mTextView == null) {
-            return;
-        }
-        if (!isMainThread()) {
-            getInstrumentation().waitForIdleSync();
-        }
-        try {
-            runTestOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    getActivity().mContainer.removeAllViews();
-                }
-            });
-        } catch (Throwable throwable) {
-            Log.e(TAG, "", throwable);
-        }
-        mTextView = null;
-    }
-
-    private void createAndAddTextView() {
-        final TestActivity activity = getActivity();
-        mTextView = new TextView(activity);
-        activity.mContainer.addView(mTextView);
-
-        // Explicitly measure and layout the text view. This way the core TextView updates its
-        // internal tracking of various visual facets so those can be tested in the relevant
-        // tests - such as, for example, where each drawable is positioned relative to the text.
-        final DisplayMetrics metrics = getActivity().getResources().getDisplayMetrics();
-        int textViewWidthPx = TestUtils.convertSizeDipsToPixels(metrics, 200);
-        int textViewHeightPx = TestUtils.convertSizeDipsToPixels(metrics, 60);
-        mTextView.measure(
-                View.MeasureSpec.makeMeasureSpec(textViewWidthPx, View.MeasureSpec.EXACTLY),
-                View.MeasureSpec.makeMeasureSpec(textViewHeightPx, View.MeasureSpec.EXACTLY));
-        mTextView.layout(0, 0, textViewWidthPx, textViewHeightPx);
-    }
-
-    @UiThreadTest
+    @Test
     @SmallTest
     public void testMaxLines() throws Throwable {
-        createAndAddTextView();
         final int maxLinesCount = 4;
-        mTextView.setMaxLines(maxLinesCount);
+        onView(withId(R.id.text_view)).perform(setMaxLines(maxLinesCount));
 
         assertEquals("Empty view: Max lines must match", TextViewCompat.getMaxLines(mTextView),
                 maxLinesCount);
 
-        mTextView.setText(R.string.test_text_short);
+        onView(withId(R.id.text_view)).perform(setText(R.string.test_text_short));
         assertEquals("Short text: Max lines must match", TextViewCompat.getMaxLines(mTextView),
                 maxLinesCount);
 
-        mTextView.setText(R.string.test_text_medium);
+        onView(withId(R.id.text_view)).perform(setText(R.string.test_text_medium));
         assertEquals("Medium text: Max lines must match", TextViewCompat.getMaxLines(mTextView),
                 maxLinesCount);
 
-        mTextView.setText(R.string.test_text_long);
+        onView(withId(R.id.text_view)).perform(setText(R.string.test_text_long));
         assertEquals("Long text: Max lines must match", TextViewCompat.getMaxLines(mTextView),
                 maxLinesCount);
     }
 
-    @UiThreadTest
+    @Test
     @SmallTest
     public void testMinLines() throws Throwable {
-        createAndAddTextView();
         final int minLinesCount = 3;
-        mTextView.setMinLines(minLinesCount);
+        onView(withId(R.id.text_view)).perform(setMinLines(minLinesCount));
 
         assertEquals("Empty view: Min lines must match", TextViewCompat.getMinLines(mTextView),
                 minLinesCount);
 
-        mTextView.setText(R.string.test_text_short);
+        onView(withId(R.id.text_view)).perform(setText(R.string.test_text_short));
         assertEquals("Short text: Min lines must match", TextViewCompat.getMinLines(mTextView),
                 minLinesCount);
 
-        mTextView.setText(R.string.test_text_medium);
+        onView(withId(R.id.text_view)).perform(setText(R.string.test_text_medium));
         assertEquals("Medium text: Min lines must match", TextViewCompat.getMinLines(mTextView),
                 minLinesCount);
 
-        mTextView.setText(R.string.test_text_long);
+        onView(withId(R.id.text_view)).perform(setText(R.string.test_text_long));
         assertEquals("Long text: Min lines must match", TextViewCompat.getMinLines(mTextView),
                 minLinesCount);
     }
 
-    @UiThreadTest
+    @Test
     @SmallTest
     public void testStyle() throws Throwable {
-        createAndAddTextView();
+        onView(withId(R.id.text_view)).perform(setTextAppearance(R.style.TextMediumStyle));
 
-        TextViewCompat.setTextAppearance(mTextView, R.style.TextMediumStyle);
-
-        final Resources res = getActivity().getResources();
+        final Resources res = mActivityTestRule.getActivity().getResources();
         assertTrue("Styled text view: style",
                 mTextView.getTypeface().isItalic() || (mTextView.getPaint().getTextSkewX() < 0));
         assertEquals("Styled text view: color", mTextView.getTextColors().getDefaultColor(),
                 res.getColor(R.color.text_color));
         assertEquals("Styled text view: size", mTextView.getTextSize(),
-                (float) res.getDimensionPixelSize(R.dimen.text_medium_size));
+                (float) res.getDimensionPixelSize(R.dimen.text_medium_size), 1.0f);
     }
 
-    @UiThreadTest
+    @Test
     @SmallTest
     public void testCompoundDrawablesRelative() throws Throwable {
-        createAndAddTextView();
-
         final Drawable drawableStart = new ColorDrawable(0xFFFF0000);
         drawableStart.setBounds(0, 0, 20, 20);
         final Drawable drawableTop = new ColorDrawable(0xFF00FF00);
@@ -200,9 +140,9 @@ public class TextViewCompatTest extends ActivityInstrumentationTestCase2<TestAct
         final Drawable drawableEnd = new ColorDrawable(0xFF0000FF);
         drawableEnd.setBounds(0, 0, 25, 20);
 
-        mTextView.setText(R.string.test_text_medium);
-        TextViewCompat.setCompoundDrawablesRelative(mTextView, drawableStart, drawableTop,
-                drawableEnd, null);
+        onView(withId(R.id.text_view)).perform(setText(R.string.test_text_medium));
+        onView(withId(R.id.text_view)).perform(setCompoundDrawablesRelative(drawableStart,
+                drawableTop, drawableEnd, null));
 
         final Drawable[] drawablesAbsolute = mTextView.getCompoundDrawables();
 
@@ -227,12 +167,10 @@ public class TextViewCompatTest extends ActivityInstrumentationTestCase2<TestAct
         assertNull("Compound drawable: bottom", drawablesAbsolute[3]);
     }
 
-    @UiThreadTest
+    @Test
     @SmallTest
     public void testCompoundDrawablesRelativeRtl() throws Throwable {
-        createAndAddTextView();
-
-        ViewCompat.setLayoutDirection(mTextView, ViewCompat.LAYOUT_DIRECTION_RTL);
+        onView(withId(R.id.text_view)).perform(setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_RTL));
 
         final Drawable drawableStart = new ColorDrawable(0xFFFF0000);
         drawableStart.setBounds(0, 0, 20, 20);
@@ -241,9 +179,9 @@ public class TextViewCompatTest extends ActivityInstrumentationTestCase2<TestAct
         final Drawable drawableEnd = new ColorDrawable(0xFF0000FF);
         drawableEnd.setBounds(0, 0, 25, 20);
 
-        mTextView.setText(R.string.test_text_medium);
-        TextViewCompat.setCompoundDrawablesRelative(mTextView, drawableStart, drawableTop,
-                drawableEnd, null);
+        onView(withId(R.id.text_view)).perform(setText(R.string.test_text_medium));
+        onView(withId(R.id.text_view)).perform(setCompoundDrawablesRelative(drawableStart,
+                drawableTop, drawableEnd, null));
 
         // Check to see whether our text view is under RTL mode
         if (ViewCompat.getLayoutDirection(mTextView) != ViewCompat.LAYOUT_DIRECTION_RTL) {
@@ -276,18 +214,16 @@ public class TextViewCompatTest extends ActivityInstrumentationTestCase2<TestAct
         assertNull("Compound drawable: bottom", drawablesAbsolute[3]);
     }
 
-    @UiThreadTest
+    @Test
     @SmallTest
     public void testCompoundDrawablesRelativeWithIntrinsicBounds() throws Throwable {
-        createAndAddTextView();
-
         final Drawable drawableStart = new TestDrawable(0xFFFF0000, 30, 20);
         final Drawable drawableEnd = new TestDrawable(0xFF0000FF, 25, 45);
         final Drawable drawableBottom = new TestDrawable(0xFF00FF00, 15, 35);
 
-        mTextView.setText(R.string.test_text_long);
-        TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(mTextView, drawableStart,
-                null, drawableEnd, drawableBottom);
+        onView(withId(R.id.text_view)).perform(setText(R.string.test_text_long));
+        onView(withId(R.id.text_view)).perform(setCompoundDrawablesRelativeWithIntrinsicBounds(
+                drawableStart, null, drawableEnd, drawableBottom));
 
         final Drawable[] drawablesAbsolute = mTextView.getCompoundDrawables();
 
@@ -312,20 +248,18 @@ public class TextViewCompatTest extends ActivityInstrumentationTestCase2<TestAct
                 drawablesAbsolute[3].getBounds().height(), 35);
     }
 
-    @UiThreadTest
+    @Test
     @SmallTest
     public void testCompoundDrawablesRelativeWithIntrinsicBoundsRtl() throws Throwable {
-        createAndAddTextView();
-
-        ViewCompat.setLayoutDirection(mTextView, ViewCompat.LAYOUT_DIRECTION_RTL);
+        onView(withId(R.id.text_view)).perform(setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_RTL));
 
         final Drawable drawableStart = new TestDrawable(0xFFFF0000, 30, 20);
         final Drawable drawableEnd = new TestDrawable(0xFF0000FF, 25, 45);
         final Drawable drawableBottom = new TestDrawable(0xFF00FF00, 15, 35);
 
-        mTextView.setText(R.string.test_text_long);
-        TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(mTextView, drawableStart,
-                null, drawableEnd, drawableBottom);
+        onView(withId(R.id.text_view)).perform(setText(R.string.test_text_long));
+        onView(withId(R.id.text_view)).perform(setCompoundDrawablesRelativeWithIntrinsicBounds(
+                drawableStart, null, drawableEnd, drawableBottom));
 
         // Check to see whether our text view is under RTL mode
         if (ViewCompat.getLayoutDirection(mTextView) != ViewCompat.LAYOUT_DIRECTION_RTL) {
@@ -358,18 +292,16 @@ public class TextViewCompatTest extends ActivityInstrumentationTestCase2<TestAct
                 drawablesAbsolute[3].getBounds().height(), 35);
     }
 
-    @UiThreadTest
+    @Test
     @MediumTest
     public void testCompoundDrawablesRelativeWithIntrinsicBoundsById() throws Throwable {
-        createAndAddTextView();
-
-        mTextView.setText(R.string.test_text_long);
-        TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(mTextView,
+        onView(withId(R.id.text_view)).perform(setText(R.string.test_text_long));
+        onView(withId(R.id.text_view)).perform(setCompoundDrawablesRelativeWithIntrinsicBounds(
                 R.drawable.test_drawable_red, 0,
-                R.drawable.test_drawable_green, R.drawable.test_drawable_blue);
+                R.drawable.test_drawable_green, R.drawable.test_drawable_blue));
 
         final Drawable[] drawablesAbsolute = mTextView.getCompoundDrawables();
-        final Resources res = getActivity().getResources();
+        final Resources res = mActivityTestRule.getActivity().getResources();
 
         // The entire left drawable should be the specific red color
         TestUtils.assertAllPixelsOfColor("Compound drawable: left color",
@@ -404,17 +336,15 @@ public class TextViewCompatTest extends ActivityInstrumentationTestCase2<TestAct
                 res.getDimensionPixelSize(R.dimen.drawable_small_size));
     }
 
-    @UiThreadTest
+    @Test
     @MediumTest
     public void testCompoundDrawablesRelativeWithIntrinsicBoundsByIdRtl() throws Throwable {
-        createAndAddTextView();
+        onView(withId(R.id.text_view)).perform(setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_RTL));
 
-        ViewCompat.setLayoutDirection(mTextView, ViewCompat.LAYOUT_DIRECTION_RTL);
-
-        mTextView.setText(R.string.test_text_long);
-        TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(mTextView,
+        onView(withId(R.id.text_view)).perform(setText(R.string.test_text_long));
+        onView(withId(R.id.text_view)).perform(setCompoundDrawablesRelativeWithIntrinsicBounds(
                 R.drawable.test_drawable_red, 0,
-                R.drawable.test_drawable_green, R.drawable.test_drawable_blue);
+                R.drawable.test_drawable_green, R.drawable.test_drawable_blue));
 
         // Check to see whether our text view is under RTL mode
         if (ViewCompat.getLayoutDirection(mTextView) != ViewCompat.LAYOUT_DIRECTION_RTL) {
@@ -423,7 +353,7 @@ public class TextViewCompatTest extends ActivityInstrumentationTestCase2<TestAct
         }
 
         final Drawable[] drawablesAbsolute = mTextView.getCompoundDrawables();
-        final Resources res = getActivity().getResources();
+        final Resources res = mActivityTestRule.getActivity().getResources();
 
         // The entire left / end drawable should be the specific green color
         TestUtils.assertAllPixelsOfColor("Compound drawable: left color",
