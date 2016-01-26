@@ -237,6 +237,8 @@
     <dimen name="lb_guidedactions_elevation">12dp</dimen>
     <dimen name="lb_guidedactions_vertical_padding">12dp</dimen>
 
+    <item name="lb_guidedstep_height_weight" format="float" type="string">2.0</item>
+    <item name="lb_guidedstep_height_weight_translucent" format="float" type="string">1.0</item>
     <item name="lb_guidedactions_item_disabled_text_alpha" format="float" type="string">0.25</item>
     <item name="lb_guidedactions_item_disabled_description_text_alpha" format="float" type="string">0.25</item>
     <item name="lb_guidedactions_item_unselected_text_alpha" format="float" type="string">1.00</item>
