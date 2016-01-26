@@ -206,11 +206,18 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
             ab.onDestroy();
         }
 
-        ToolbarActionBar tbab = new ToolbarActionBar(toolbar, ((Activity) mContext).getTitle(),
-                mAppCompatWindowCallback);
-        mActionBar = tbab;
-        mWindow.setCallback(tbab.getWrappedWindowCallback());
-        tbab.invalidateOptionsMenu();
+        if (toolbar != null) {
+            final ToolbarActionBar tbab = new ToolbarActionBar(toolbar,
+                    ((Activity) mContext).getTitle(), mAppCompatWindowCallback);
+            mActionBar = tbab;
+            mWindow.setCallback(tbab.getWrappedWindowCallback());
+        } else {
+            mActionBar = null;
+            // Re-set the original window callback since we may have already set a Toolbar wrapper
+            mWindow.setCallback(mAppCompatWindowCallback);
+        }
+
+        invalidateOptionsMenu();
     }
 
     @Override
