@@ -76,4 +76,9 @@
     <color name="lb_guidedactions_item_unselected_text_color">#FFF1F1F1</color>
     <!-- end refactor naming -->
 
+    <!-- Onboarding screen -->
+    <color name="lb_page_indicator_dot">#014269</color>
+    <color name="lb_page_indicator_arrow_background">#EEEEEE</color>
+    <color name="lb_page_indicator_arrow_shadow">#4C000000</color>
+
 </resources>

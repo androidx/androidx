@@ -85,4 +85,9 @@ limitations under the License.
     <!-- Separator for time picker [CHAR LIMIT=2] -->
     <string name="lb_time_separator">:</string>
 
+    <!-- Onboarding screen -->
+    <eat-comment />
+    <!-- Text for "GET STARTED" button. This text should be in ALL CAPS. -->
+    <string name="lb_onboarding_get_started">GET STARTED</string>
+
 </resources>
