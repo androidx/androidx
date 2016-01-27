@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.support.annotation.IntDef;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.appcompat.R;
@@ -187,6 +188,7 @@ public abstract class AppCompatDelegate {
      *
      * @return AppCompat's action bar, or null if it does not have one.
      */
+    @Nullable
     public abstract ActionBar getSupportActionBar();
 
     /**
@@ -202,9 +204,9 @@ public abstract class AppCompatDelegate {
      * must not request the window feature
      * {@link AppCompatDelegate#FEATURE_SUPPORT_ACTION_BAR FEATURE_SUPPORT_ACTION_BAR}.</p>
      *
-     * @param toolbar Toolbar to set as the Activity's action bar
+     * @param toolbar Toolbar to set as the Activity's action bar, or {@code null} to clear it
      */
-    public abstract void setSupportActionBar(Toolbar toolbar);
+    public abstract void setSupportActionBar(@Nullable Toolbar toolbar);
 
     /**
      * Return the value of this call from your {@link Activity#getMenuInflater()}
@@ -271,7 +273,7 @@ public abstract class AppCompatDelegate {
     /**
      * Should be called from {@link Activity#onTitleChanged(CharSequence, int)}}
      */
-    public abstract void setTitle(CharSequence title);
+    public abstract void setTitle(@Nullable CharSequence title);
 
     /**
      * Should be called from {@link Activity#invalidateOptionsMenu()}} or
@@ -288,6 +290,7 @@ public abstract class AppCompatDelegate {
      * Returns an {@link ActionBarDrawerToggle.Delegate} which can be returned from your Activity
      * if it implements {@link ActionBarDrawerToggle.DelegateProvider}.
      */
+    @Nullable
     public abstract ActionBarDrawerToggle.Delegate getDrawerToggleDelegate();
 
     /**
@@ -317,7 +320,8 @@ public abstract class AppCompatDelegate {
      * @param callback Callback that will manage lifecycle events for this context mode
      * @return The ContextMode that was started, or null if it was canceled
      */
-    public abstract ActionMode startSupportActionMode(ActionMode.Callback callback);
+    @Nullable
+    public abstract ActionMode startSupportActionMode(@NonNull ActionMode.Callback callback);
 
     /**
      * Installs AppCompat's {@link android.view.LayoutInflater} Factory so that it can replace
@@ -348,7 +352,7 @@ public abstract class AppCompatDelegate {
      * {@link android.view.LayoutInflater LayoutInflater} factory, and have therefore not
      * installed the default factory via {@link #installViewFactory()}.
      */
-    public abstract View createView(View parent, String name, @NonNull Context context,
+    public abstract View createView(@Nullable View parent, String name, @NonNull Context context,
             @NonNull AttributeSet attrs);
 
     /**
