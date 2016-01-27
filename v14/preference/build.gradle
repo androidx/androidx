@@ -16,7 +16,7 @@
 
 
 
-apply plugin: 'android-library'
+apply plugin: 'com.android.library'
 
 archivesBaseName = 'preference-v14'
 
@@ -28,7 +28,7 @@ dependencies {
 }
 
 android {
-    compileSdkVersion 'current'
+    compileSdkVersion project.ext.currentSdk
 
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'
