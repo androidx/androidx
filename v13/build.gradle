@@ -1,4 +1,4 @@
-apply plugin: 'android-library'
+apply plugin: 'com.android.library'
 
 archivesBaseName = 'support-v13'
 
@@ -80,6 +80,11 @@ android {
     lintOptions {
         // TODO: fix errors and reenable.
         abortOnError false
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
     }
 }
 

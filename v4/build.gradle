@@ -1,4 +1,4 @@
-apply plugin: 'android-library'
+apply plugin: 'com.android.library'
 archivesBaseName = 'support-v4'
 
 // create a jar task for the code internal implementation
@@ -111,7 +111,7 @@ android {
 
     testOptions {
         unitTests.returnDefaultValues = true
-        compileSdkVersion 'current'
+        compileSdkVersion project.ext.currentSdk
     }
 }
 
