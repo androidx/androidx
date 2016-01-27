@@ -297,6 +297,17 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
         }
     }
 
+    /**
+     * Fades out the playback overlay immediately.
+     */
+    public void fadeOut() {
+        if (!mFadingEnabled) {
+            return;
+        }
+        mHandler.removeMessages(START_FADE_OUT);
+        fade(false);
+    }
+
     private boolean areControlsHidden() {
         return mFadingStatus == IDLE && mBgAlpha == 0;
     }

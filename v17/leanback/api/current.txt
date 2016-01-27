@@ -485,6 +485,7 @@ package android.support.v17.leanback.app {
 
   public class PlaybackOverlayFragment extends android.support.v17.leanback.app.DetailsFragment {
     ctor public PlaybackOverlayFragment();
+    method public void fadeOut();
     method public int getBackgroundType();
     method public android.support.v17.leanback.app.PlaybackOverlayFragment.OnFadeCompleteListener getFadeCompleteListener();
     method public final android.support.v17.leanback.app.PlaybackOverlayFragment.InputEventHandler getInputEventHandler();
@@ -513,6 +514,7 @@ package android.support.v17.leanback.app {
 
   public class PlaybackOverlaySupportFragment extends android.support.v17.leanback.app.DetailsSupportFragment {
     ctor public PlaybackOverlaySupportFragment();
+    method public void fadeOut();
     method public int getBackgroundType();
     method public android.support.v17.leanback.app.PlaybackOverlaySupportFragment.OnFadeCompleteListener getFadeCompleteListener();
     method public final android.support.v17.leanback.app.PlaybackOverlaySupportFragment.InputEventHandler getInputEventHandler();
