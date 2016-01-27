@@ -1,4 +1,4 @@
-apply plugin: 'android-library'
+apply plugin: 'com.android.library'
 
 archivesBaseName = 'customtabs'
 
@@ -8,7 +8,7 @@ dependencies {
 }
 
 android {
-    compileSdkVersion 'current'
+    compileSdkVersion project.ext.currentSdk
 
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'

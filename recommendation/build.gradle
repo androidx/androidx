@@ -1,4 +1,4 @@
-apply plugin: 'android-library'
+apply plugin: 'com.android.library'
 
 archivesBaseName = 'recommendation'
 
@@ -7,7 +7,7 @@ dependencies {
 }
 
 android {
-    compileSdkVersion 'current'
+    compileSdkVersion project.ext.currentSdk
 
     defaultConfig {
         minSdkVersion 21

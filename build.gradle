@@ -133,7 +133,7 @@ def getSha1(File inputFile) {
 subprojects {
     // Change buildDir first so that all plugins pick up the new value.
     project.buildDir = project.file("$project.parent.buildDir/../$project.name/build")
-
+    project.ext.currentSdk = 'current'
     apply plugin: 'maven'
 
     version = rootProject.ext.supportVersion

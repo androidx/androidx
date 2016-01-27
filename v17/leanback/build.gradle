@@ -1,4 +1,4 @@
-apply plugin: 'android-library'
+apply plugin: 'com.android.library'
 
 archivesBaseName = 'leanback-v17'
 
@@ -9,7 +9,7 @@ dependencies {
 
 android {
     // WARNING: should be 17
-    compileSdkVersion 'current'
+    compileSdkVersion project.ext.currentSdk
 
     defaultConfig {
         minSdkVersion 17
