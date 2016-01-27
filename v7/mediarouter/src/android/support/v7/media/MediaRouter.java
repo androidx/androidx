@@ -78,12 +78,14 @@ public final class MediaRouter {
 
     /**
      * Passed to {@link android.support.v7.media.MediaRouteProvider.RouteController#onUnselect(int)}
-     * when the reason the route was unselected is unknown.
+     * and {@link Callback#onRouteUnselected(MediaRouter, RouteInfo, int)} when the reason the route
+     * was unselected is unknown.
      */
     public static final int UNSELECT_REASON_UNKNOWN = 0;
     /**
      * Passed to {@link android.support.v7.media.MediaRouteProvider.RouteController#onUnselect(int)}
-     * when the user pressed the disconnect button to disconnect and keep playing.
+     * and {@link Callback#onRouteUnselected(MediaRouter, RouteInfo, int)} when the user pressed
+     * the disconnect button to disconnect and keep playing.
      * <p>
      *
      * @see {@link MediaRouteDescriptor#canDisconnectAndKeepPlaying()}.
@@ -91,12 +93,14 @@ public final class MediaRouter {
     public static final int UNSELECT_REASON_DISCONNECTED = 1;
     /**
      * Passed to {@link android.support.v7.media.MediaRouteProvider.RouteController#onUnselect(int)}
-     * when the user pressed the stop casting button.
+     * and {@link Callback#onRouteUnselected(MediaRouter, RouteInfo, int)} when the user pressed
+     * the stop casting button.
      */
     public static final int UNSELECT_REASON_STOPPED = 2;
     /**
      * Passed to {@link android.support.v7.media.MediaRouteProvider.RouteController#onUnselect(int)}
-     * when the user selected a different route.
+     * and {@link Callback#onRouteUnselected(MediaRouter, RouteInfo, int)} when the user selected
+     * a different route.
      */
     public static final int UNSELECT_REASON_ROUTE_CHANGED = 3;
 
@@ -1712,11 +1716,33 @@ public final class MediaRouter {
 
         /**
          * Called when the supplied media route becomes unselected as the active route.
+         * For detailed reason, override {@link #onRouteUnselected(MediaRouter, RouteInfo, int)}
+         * instead.
          *
          * @param router The media router reporting the event.
          * @param route The route that has been unselected.
          */
         public void onRouteUnselected(MediaRouter router, RouteInfo route) {
+        }
+
+        /**
+         * Called when the supplied media route becomes unselected as the active route.
+         * The default implementation calls {@link #onRouteUnselected}.
+         * <p>
+         * The reason provided will be one of the following:
+         * <ul>
+         * <li>{@link MediaRouter#UNSELECT_REASON_UNKNOWN}</li>
+         * <li>{@link MediaRouter#UNSELECT_REASON_DISCONNECTED}</li>
+         * <li>{@link MediaRouter#UNSELECT_REASON_STOPPED}</li>
+         * <li>{@link MediaRouter#UNSELECT_REASON_ROUTE_CHANGED}</li>
+         * </ul>
+         *
+         * @param router The media router reporting the event.
+         * @param route The route that has been unselected.
+         * @param reason The reason for unselecting the route.
+         */
+        public void onRouteUnselected(MediaRouter router, RouteInfo route, int reason) {
+            onRouteUnselected(router, route);
         }
 
         /**
@@ -2444,7 +2470,8 @@ public final class MediaRouter {
                         Log.d(TAG, "Route unselected: " + mSelectedRoute + " reason: "
                                 + unselectReason);
                     }
-                    mCallbackHandler.post(CallbackHandler.MSG_ROUTE_UNSELECTED, mSelectedRoute);
+                    mCallbackHandler.post(CallbackHandler.MSG_ROUTE_UNSELECTED, mSelectedRoute,
+                            unselectReason);
                     if (mSelectedRouteController != null) {
                         mSelectedRouteController.onUnselect(unselectReason);
                         mSelectedRouteController.onRelease();
@@ -2733,10 +2760,17 @@ public final class MediaRouter {
                 obtainMessage(msg, obj).sendToTarget();
             }
 
+            public void post(int msg, Object obj, int arg) {
+                Message message = obtainMessage(msg, obj);
+                message.arg1 = arg;
+                message.sendToTarget();
+            }
+
             @Override
             public void handleMessage(Message msg) {
                 final int what = msg.what;
                 final Object obj = msg.obj;
+                final int arg = msg.arg1;
 
                 // Synchronize state with the system media router.
                 syncWithSystemProvider(what, obj);
@@ -2756,7 +2790,7 @@ public final class MediaRouter {
 
                     final int callbackCount = mTempCallbackRecords.size();
                     for (int i = 0; i < callbackCount; i++) {
-                        invokeCallback(mTempCallbackRecords.get(i), what, obj);
+                        invokeCallback(mTempCallbackRecords.get(i), what, obj, arg);
                     }
                 } finally {
                     mTempCallbackRecords.clear();
@@ -2780,7 +2814,7 @@ public final class MediaRouter {
                 }
             }
 
-            private void invokeCallback(CallbackRecord record, int what, Object obj) {
+            private void invokeCallback(CallbackRecord record, int what, Object obj, int arg) {
                 final MediaRouter router = record.mRouter;
                 final MediaRouter.Callback callback = record.mCallback;
                 switch (what & MSG_TYPE_MASK) {
@@ -2809,7 +2843,7 @@ public final class MediaRouter {
                                 callback.onRouteSelected(router, route);
                                 break;
                             case MSG_ROUTE_UNSELECTED:
-                                callback.onRouteUnselected(router, route);
+                                callback.onRouteUnselected(router, route, arg);
                                 break;
                         }
                         break;
