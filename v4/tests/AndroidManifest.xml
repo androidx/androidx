@@ -38,6 +38,8 @@
 
         <activity android:name="android.support.v4.widget.TestActivity"/>
 
+        <activity android:name="android.support.v4.view.VpaActivity"/>
+
         <activity
             android:name="android.support.v4.ThemedYellowActivity"
             android:theme="@style/YellowTheme" />
