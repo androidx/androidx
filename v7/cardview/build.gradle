@@ -1,15 +1,20 @@
-apply plugin: 'android-library'
+apply plugin: 'com.android.library'
 
 archivesBaseName = 'cardview-v7'
 
 android {
     // WARNING: should be 7
-    compileSdkVersion 'current'
+    compileSdkVersion project.ext.currentSdk
 
     defaultConfig {
         minSdkVersion 7
         // TODO: get target from branch
         //targetSdkVersion 19
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
     }
 
     sourceSets {
