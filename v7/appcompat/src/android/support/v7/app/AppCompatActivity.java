@@ -21,6 +21,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StyleRes;
 import android.support.v4.app.ActivityCompat;
@@ -96,20 +97,20 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
     }
 
     /**
-     * Set a {@link android.widget.Toolbar Toolbar} to act as the {@link android.support.v7.app.ActionBar} for this
-     * Activity window.
+     * Set a {@link android.widget.Toolbar Toolbar} to act as the
+     * {@link android.support.v7.app.ActionBar} for this Activity window.
      *
      * <p>When set to a non-null value the {@link #getActionBar()} method will return
-     * an {@link android.support.v7.app.ActionBar} object that can be used to control the given toolbar as if it were
-     * a traditional window decor action bar. The toolbar's menu will be populated with the
-     * Activity's options menu and the navigation button will be wired through the standard
-     * {@link android.R.id#home home} menu select action.</p>
+     * an {@link android.support.v7.app.ActionBar} object that can be used to control the given
+     * toolbar as if it were a traditional window decor action bar. The toolbar's menu will be
+     * populated with the Activity's options menu and the navigation button will be wired through
+     * the standard {@link android.R.id#home home} menu select action.</p>
      *
      * <p>In order to use a Toolbar within the Activity's window content the application
      * must not request the window feature
      * {@link android.view.Window#FEATURE_ACTION_BAR FEATURE_SUPPORT_ACTION_BAR}.</p>
      *
-     * @param toolbar Toolbar to set as the Activity's action bar
+     * @param toolbar Toolbar to set as the Activity's action bar, or {@code null} to clear it
      */
     public void setSupportActionBar(@Nullable Toolbar toolbar) {
         getDelegate().setSupportActionBar(toolbar);
@@ -221,7 +222,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
      * @param mode The new action mode.
      */
     @CallSuper
-    public void onSupportActionModeStarted(ActionMode mode) {
+    public void onSupportActionModeStarted(@NonNull ActionMode mode) {
     }
 
     /**
@@ -231,7 +232,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
      * @param mode The action mode that just finished.
      */
     @CallSuper
-    public void onSupportActionModeFinished(ActionMode mode) {
+    public void onSupportActionModeFinished(@NonNull ActionMode mode) {
     }
 
     /**
@@ -245,11 +246,18 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
      */
     @Nullable
     @Override
-    public ActionMode onWindowStartingSupportActionMode(ActionMode.Callback callback) {
+    public ActionMode onWindowStartingSupportActionMode(@NonNull ActionMode.Callback callback) {
         return null;
     }
 
-    public ActionMode startSupportActionMode(ActionMode.Callback callback) {
+    /**
+     * Start an action mode.
+     *
+     * @param callback Callback that will manage lifecycle events for this context mode
+     * @return The ContextMode that was started, or null if it was canceled
+     */
+    @Nullable
+    public ActionMode startSupportActionMode(@NonNull ActionMode.Callback callback) {
         return getDelegate().startSupportActionMode(callback);
     }
 
@@ -304,7 +312,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
      * @param builder An empty TaskStackBuilder - the application should add intents representing
      *                the desired task stack
      */
-    public void onCreateSupportNavigateUpTaskStack(TaskStackBuilder builder) {
+    public void onCreateSupportNavigateUpTaskStack(@NonNull TaskStackBuilder builder) {
         builder.addParentStack(this);
     }
 
@@ -323,7 +331,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
      * @param builder A TaskStackBuilder that has been populated with Intents by
      *                onCreateNavigateUpTaskStack.
      */
-    public void onPrepareSupportNavigateUpTaskStack(TaskStackBuilder builder) {
+    public void onPrepareSupportNavigateUpTaskStack(@NonNull TaskStackBuilder builder) {
     }
 
     /**
@@ -403,7 +411,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
      * @return true if navigating up should recreate a new task stack, false if the same task
      *         should be used for the destination
      */
-    public boolean supportShouldUpRecreateTask(Intent targetIntent) {
+    public boolean supportShouldUpRecreateTask(@NonNull Intent targetIntent) {
         return NavUtils.shouldUpRecreateTask(this, targetIntent);
     }
 
@@ -419,7 +427,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
      *
      * @param upIntent An intent representing the target destination for up navigation
      */
-    public void supportNavigateUpTo(Intent upIntent) {
+    public void supportNavigateUpTo(@NonNull Intent upIntent) {
         NavUtils.navigateUpTo(this, upIntent);
     }
 
@@ -473,6 +481,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
     /**
      * @return The {@link AppCompatDelegate} being used by this Activity.
      */
+    @NonNull
     public AppCompatDelegate getDelegate() {
         if (mDelegate == null) {
             mDelegate = AppCompatDelegate.create(this, this);
