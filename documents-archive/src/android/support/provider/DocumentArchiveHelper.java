@@ -50,6 +50,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * synchronization.
  *
  * TODO: Update the documentation. b/26047732
+ * @hide
  */
 public class DocumentArchiveHelper implements Closeable {
     /**
