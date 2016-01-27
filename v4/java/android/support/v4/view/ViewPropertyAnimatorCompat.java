@@ -298,6 +298,8 @@ public final class ViewPropertyAnimatorCompat {
             }
             Runnable startAction = vpa.mStartAction;
             Runnable endAction = vpa.mEndAction;
+            vpa.mStartAction = null;
+            vpa.mEndAction = null;
             if (startAction != null) {
                 startAction.run();
             }
@@ -538,7 +540,9 @@ public final class ViewPropertyAnimatorCompat {
                     ViewCompat.setLayerType(view, ViewCompat.LAYER_TYPE_HARDWARE, null);
                 }
                 if (mVpa.mStartAction != null) {
-                    mVpa.mStartAction.run();
+                    Runnable startAction = mVpa.mStartAction;
+                    mVpa.mStartAction = null;
+                    startAction.run();
                 }
                 Object listenerTag = view.getTag(LISTENER_TAG_ID);
                 ViewPropertyAnimatorListener listener = null;
@@ -560,7 +564,9 @@ public final class ViewPropertyAnimatorCompat {
                     // Pre-v16 seems to have a bug where onAnimationEnd is called
                     // twice, therefore we only dispatch on the first call
                     if (mVpa.mEndAction != null) {
-                        mVpa.mEndAction.run();
+                        Runnable endAction = mVpa.mEndAction;
+                        mVpa.mEndAction = null;
+                        endAction.run();
                     }
                     Object listenerTag = view.getTag(LISTENER_TAG_ID);
                     ViewPropertyAnimatorListener listener = null;
