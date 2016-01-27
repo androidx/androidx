@@ -5,6 +5,8 @@ archivesBaseName = 'appcompat-v7'
 dependencies {
     compile project(':support-v4')
     compile project(':support-vector-drawable')
+    compile project(':support-animated-vector-drawable')
+
     androidTestCompile ('com.android.support.test:runner:0.4.1') {
         exclude module: 'support-annotations'
     }
