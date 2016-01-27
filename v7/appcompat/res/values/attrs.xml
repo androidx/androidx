@@ -174,6 +174,8 @@
         <attr name="textAppearanceLargePopupMenu" format="reference"/>
         <!-- Text color, typeface, size, and style for small text inside of a popup menu. -->
         <attr name="textAppearanceSmallPopupMenu" format="reference"/>
+        <!-- Text color, typeface, size, and style for header text inside of a popup menu. -->
+        <attr name="textAppearancePopupMenuHeader" format="reference" />
 
 
         <!-- =================== -->
@@ -385,6 +387,8 @@
         <!-- Default style for the Switch widget. -->
         <attr name="switchStyle" format="reference" />
 
+        <!-- Default menu-style ListView style. -->
+        <attr name="listMenuViewStyle" format="reference" />
     </declare-styleable>
 
 
@@ -560,6 +564,8 @@
         <attr name="android:itemIconDisabledAlpha"/>
         <!-- Whether space should be reserved in layout when an icon is missing. -->
         <attr name="preserveIconSpacing" format="boolean" />
+        <!-- Drawable for the arrow icon indicating a particular item is a submenu. -->
+        <attr name="subMenuArrow" format="reference" />
     </declare-styleable>
     <declare-styleable name="ActionMenuView">
         <!-- Size of padding on either end of a divider. -->

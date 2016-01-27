@@ -17,9 +17,9 @@
 package android.support.v7.view.menu;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.support.v7.appcompat.R;
+import android.support.v7.widget.TintTypedArray;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,7 +37,6 @@ import android.widget.TextView;
  * @hide
  */
 public class ListMenuItemView extends LinearLayout implements MenuView.ItemView {
-
     private static final String TAG = "ListMenuItemView";
     private MenuItemImpl mItemData;
 
@@ -46,25 +45,29 @@ public class ListMenuItemView extends LinearLayout implements MenuView.ItemView 
     private TextView mTitleView;
     private CheckBox mCheckBox;
     private TextView mShortcutView;
+    private ImageView mSubMenuArrowView;
 
     private Drawable mBackground;
     private int mTextAppearance;
     private Context mTextAppearanceContext;
     private boolean mPreserveIconSpacing;
+    private Drawable mSubMenuArrow;
 
     private int mMenuType;
 
-    private Context mContext;
     private LayoutInflater mInflater;
 
     private boolean mForceShowIcon;
 
-    public ListMenuItemView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs);
-        mContext = context;
+    public ListMenuItemView(Context context, AttributeSet attrs) {
+        this(context, attrs, R.attr.listMenuViewStyle);
+    }
 
-        final TypedArray a = context.obtainStyledAttributes(
-                attrs, R.styleable.MenuView, defStyle, 0);
+    public ListMenuItemView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs);
+
+        final TintTypedArray a = TintTypedArray.obtainStyledAttributes(getContext(),
+                attrs, R.styleable.MenuView, defStyleAttr, 0);
 
         mBackground = a.getDrawable(R.styleable.MenuView_android_itemBackground);
         mTextAppearance = a.getResourceId(R.styleable.
@@ -72,12 +75,9 @@ public class ListMenuItemView extends LinearLayout implements MenuView.ItemView 
         mPreserveIconSpacing = a.getBoolean(
                 R.styleable.MenuView_preserveIconSpacing, false);
         mTextAppearanceContext = context;
+        mSubMenuArrow = a.getDrawable(R.styleable.MenuView_subMenuArrow);
 
         a.recycle();
-    }
-
-    public ListMenuItemView(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
     }
 
     @Override
@@ -93,6 +93,10 @@ public class ListMenuItemView extends LinearLayout implements MenuView.ItemView 
         }
 
         mShortcutView = (TextView) findViewById(R.id.shortcut);
+        mSubMenuArrowView = (ImageView) findViewById(R.id.submenuarrow);
+        if (mSubMenuArrowView != null) {
+            mSubMenuArrowView.setImageDrawable(mSubMenuArrow);
+        }
     }
 
     public void initialize(MenuItemImpl itemData, int menuType) {
@@ -106,6 +110,7 @@ public class ListMenuItemView extends LinearLayout implements MenuView.ItemView 
         setShortcut(itemData.shouldShowShortcut(), itemData.getShortcut());
         setIcon(itemData.getIcon());
         setEnabled(itemData.isEnabled());
+        setSubMenuArrowVisible(itemData.hasSubMenu());
     }
 
     public void setForceShowIcon(boolean forceShow) {
@@ -188,6 +193,12 @@ public class ListMenuItemView extends LinearLayout implements MenuView.ItemView 
         }
 
         compoundButton.setChecked(checked);
+    }
+
+    private void setSubMenuArrowVisible(boolean hasSubmenu) {
+        if (mSubMenuArrowView != null) {
+            mSubMenuArrowView.setVisibility(hasSubmenu ? View.VISIBLE : View.GONE);
+        }
     }
 
     public void setShortcut(boolean showShortcut, char shortcutKey) {
@@ -274,7 +285,7 @@ public class ListMenuItemView extends LinearLayout implements MenuView.ItemView 
 
     private LayoutInflater getInflater() {
         if (mInflater == null) {
-            mInflater = LayoutInflater.from(mContext);
+            mInflater = LayoutInflater.from(getContext());
         }
         return mInflater;
     }

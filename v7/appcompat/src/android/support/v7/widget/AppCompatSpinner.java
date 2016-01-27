@@ -31,6 +31,7 @@ import android.support.v4.view.TintableBackgroundView;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.view.ContextThemeWrapper;
+import android.support.v7.view.menu.ShowableListMenu;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -83,7 +84,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
     private Context mPopupContext;
 
     /** Forwarding listener used to implement drag-to-open. */
-    private ListPopupWindow.ForwardingListener mForwardingListener;
+    private ForwardingListener mForwardingListener;
 
     /** Temporary holder for setAdapter() calls from the super constructor. */
     private SpinnerAdapter mTempAdapter;
@@ -249,9 +250,9 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
                 pa.recycle();
 
                 mPopup = popup;
-                mForwardingListener = new ListPopupWindow.ForwardingListener(this) {
+                mForwardingListener = new ForwardingListener(this) {
                     @Override
-                    public ListPopupWindow getPopup() {
+                    public ShowableListMenu getPopup() {
                         return popup;
                     }
 
