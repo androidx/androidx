@@ -404,7 +404,7 @@ public class ContextCompat {
      *
      * @see android.content.Context.getFilesDir
      */
-    public static File getNoBackupFilesDir(Context context) {
+    public final File getNoBackupFilesDir(Context context) {
         final int version = Build.VERSION.SDK_INT;
         if (version >= 21) {
             return ContextCompatApi21.getNoBackupFilesDir(context);
