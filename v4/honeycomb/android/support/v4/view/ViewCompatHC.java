@@ -160,4 +160,12 @@ class ViewCompatHC {
     public static int combineMeasuredStates(int curState, int newState) {
         return View.combineMeasuredStates(curState, newState);
     }
+
+    static void offsetTopAndBottom(View view, int offset) {
+        view.offsetTopAndBottom(offset);
+    }
+
+    static void offsetLeftAndRight(View view, int offset) {
+        view.offsetLeftAndRight(offset);
+    }
 }
