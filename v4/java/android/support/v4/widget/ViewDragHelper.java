@@ -727,10 +727,10 @@ public class ViewDragHelper {
             final int dy = y - mCapturedView.getTop();
 
             if (dx != 0) {
-                mCapturedView.offsetLeftAndRight(dx);
+                ViewCompat.offsetLeftAndRight(mCapturedView, dx);
             }
             if (dy != 0) {
-                mCapturedView.offsetTopAndBottom(dy);
+                ViewCompat.offsetTopAndBottom(mCapturedView, dy);
             }
 
             if (dx != 0 || dy != 0) {
@@ -1402,11 +1402,11 @@ public class ViewDragHelper {
         final int oldTop = mCapturedView.getTop();
         if (dx != 0) {
             clampedX = mCallback.clampViewPositionHorizontal(mCapturedView, left, dx);
-            mCapturedView.offsetLeftAndRight(clampedX - oldLeft);
+            ViewCompat.offsetLeftAndRight(mCapturedView, clampedX - oldLeft);
         }
         if (dy != 0) {
             clampedY = mCallback.clampViewPositionVertical(mCapturedView, top, dy);
-            mCapturedView.offsetTopAndBottom(clampedY - oldTop);
+            ViewCompat.offsetTopAndBottom(mCapturedView, clampedY - oldTop);
         }
 
         if (dx != 0 || dy != 0) {
