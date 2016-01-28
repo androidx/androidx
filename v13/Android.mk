@@ -35,7 +35,7 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 # A helper sub-library that makes direct use of MNC APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v13-mnc
-LOCAL_SDK_VERSION := current
+LOCAL_SDK_VERSION := 23
 LOCAL_SRC_FILES := $(call all-java-files-under, api23)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v13-ics-mr1
 include $(BUILD_STATIC_JAVA_LIBRARY)

@@ -14,13 +14,13 @@
 
 LOCAL_PATH := $(call my-dir)
 
-# Build the resources using the current SDK version.
+# Build the resources using the latest applicable SDK version.
 # We do this here because the final static library must be compiled with an older
 # SDK version than the resources.  The resources library and the R class that it
 # contains will not be linked into the final static library.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v7-mediarouter-res
-LOCAL_SDK_VERSION := current
+LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := $(call all-java-files-under, dummy)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res \
 	frameworks/support/v7/appcompat/res
@@ -64,7 +64,7 @@ support_module_src_files += $(LOCAL_SRC_FILES)
 # A helper sub-library that makes direct use of V24 APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v7-mediarouter-api24
-LOCAL_SDK_VERSION := current
+LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := $(call all-java-files-under, api24)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-mediarouter-jellybean-mr2
 include $(BUILD_STATIC_JAVA_LIBRARY)
