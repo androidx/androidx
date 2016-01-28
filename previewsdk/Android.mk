@@ -26,7 +26,7 @@ $(previewsdk_gen_java_files): $(previewsdk_generate_constants_exe)
 		bash $< > $@
 
 LOCAL_MODULE := android-support-previewsdk
-LOCAL_SDK_VERSION := current
+LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_GENERATED_SOURCES := $(previewsdk_gen_java_files)
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 include $(BUILD_STATIC_JAVA_LIBRARY)
