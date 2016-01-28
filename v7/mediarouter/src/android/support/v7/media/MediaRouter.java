@@ -2479,7 +2479,7 @@ public final class MediaRouter {
                     }
                     if (mGroupMemberControllers != null) {
                         for (RouteController controller : mGroupMemberControllers.values()) {
-                            controller.onUnselect();
+                            controller.onUnselect(unselectReason);
                             controller.onRelease();
                         }
                         mGroupMemberControllers = null;
