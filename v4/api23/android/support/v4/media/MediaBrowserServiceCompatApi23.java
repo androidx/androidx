@@ -24,7 +24,7 @@ import android.service.media.MediaBrowserService;
 import android.util.Log;
 
 class MediaBrowserServiceCompatApi23 extends MediaBrowserServiceCompatApi21 {
-    private static final String TAG = "MediaBrowserServiceCompatApi21";
+    private static final String TAG = "MediaBrowserServiceCompatApi23";
 
     public static Object createService() {
         return new MediaBrowserServiceAdaptorApi23();
@@ -35,7 +35,7 @@ class MediaBrowserServiceCompatApi23 extends MediaBrowserServiceCompatApi21 {
     }
 
     public interface ServiceImplApi23 extends ServiceImplApi21 {
-        void getMediaItem(final String mediaId, final ItemCallback cb);
+        void getMediaItem(String mediaId, ItemCallback cb);
     }
 
     public interface ItemCallback {
@@ -48,7 +48,7 @@ class MediaBrowserServiceCompatApi23 extends MediaBrowserServiceCompatApi21 {
             mBinder = new ServiceBinderProxyApi23(serviceImpl);
         }
 
-        private static class ServiceBinderProxyApi23 extends ServiceBinderProxyApi21 {
+        static class ServiceBinderProxyApi23 extends ServiceBinderProxyApi21 {
             ServiceImplApi23 mServiceImpl;
 
             ServiceBinderProxyApi23(ServiceImplApi23 serviceImpl) {
@@ -57,7 +57,7 @@ class MediaBrowserServiceCompatApi23 extends MediaBrowserServiceCompatApi21 {
             }
 
             @Override
-            public void getMediaItem(final String mediaId, final ResultReceiver receiver) {
+            public void getMediaItem(String mediaId, final ResultReceiver receiver) {
                 final String KEY_MEDIA_ITEM;
                 try {
                     KEY_MEDIA_ITEM = (String) MediaBrowserService.class.getDeclaredField(
