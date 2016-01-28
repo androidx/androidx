@@ -15,6 +15,7 @@
 package android.support.v17.leanback.widget.picker;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.OnChildViewHolderSelectedListener;
 import android.support.v17.leanback.widget.VerticalGridView;
@@ -58,7 +59,7 @@ public class Picker extends FrameLayout {
 
     private ViewGroup mRootView;
     private ViewGroup mPickerView;
-    private List<VerticalGridView> mColumnViews = new ArrayList<VerticalGridView>();
+    private final List<VerticalGridView> mColumnViews = new ArrayList<VerticalGridView>();
     private ArrayList<PickerColumn> mColumns;
 
     private float mUnfocusedAlpha;
@@ -130,13 +131,8 @@ public class Picker extends FrameLayout {
      */
     public Picker(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        // On TV, Picker is focusable and intercept Click / DPAD direction keys.  We dont want any
-        // child to get focus.  On touch screen, Picker is not focusable.
-        setFocusable(true);
-        setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
         // Make it enabled and clickable to receive Click event.
         setEnabled(true);
-        setClickable(true);
 
         mFocusedAlpha = 1f; //getFloat(R.dimen.list_item_selected_title_text_alpha);
         mUnfocusedAlpha = 1f; //getFloat(R.dimen.list_item_unselected_text_alpha);
@@ -195,8 +191,6 @@ public class Picker extends FrameLayout {
             final VerticalGridView columnView = (VerticalGridView) inflater.inflate(
                     R.layout.lb_picker_column, mPickerView, false);
             // we dont want VerticalGridView to receive focus.
-            columnView.setFocusableInTouchMode(false);
-            columnView.setFocusable(false);
             updateColumnSize(columnView);
             // always center aligned, not aligning selected item on top/bottom edge.
             columnView.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_NO_EDGE);
@@ -304,7 +298,7 @@ public class Picker extends FrameLayout {
 
     private void setOrAnimateAlpha(View view, boolean selected, int colIndex,
             boolean animate) {
-        boolean columnShownAsActivated = colIndex == mSelectedColumn || !isFocused();
+        boolean columnShownAsActivated = colIndex == mSelectedColumn || !hasFocus();
         if (selected) {
             // set alpha for main item (selected) in the column
             if (columnShownAsActivated) {
@@ -386,6 +380,7 @@ public class Picker extends FrameLayout {
             mData = mColumns.get(mColIndex);
         }
 
+        @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             LayoutInflater inflater = LayoutInflater.from(parent.getContext());
             View v = inflater.inflate(mResource, parent, false);
@@ -399,6 +394,7 @@ public class Picker extends FrameLayout {
             return vh;
         }
 
+        @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
             if (holder.textView != null && mData != null) {
                 holder.textView.setText(mData.getEntryAt(mData.getMinValue() + position));
@@ -408,11 +404,17 @@ public class Picker extends FrameLayout {
                     mColIndex, false);
         }
 
+        @Override
+        public void onViewAttachedToWindow(ViewHolder holder) {
+            holder.itemView.setFocusable(isActivated());
+        }
+
         public void setData(PickerColumn data) {
             mData = data;
             notifyDataSetChanged();
         }
 
+        @Override
         public int getItemCount() {
             return mData == null ? 0 : mData.getItemCount();
         }
@@ -442,37 +444,10 @@ public class Picker extends FrameLayout {
         if (isActivated()) {
             final int keyCode = event.getKeyCode();
             switch (keyCode) {
-            case KeyEvent.KEYCODE_DPAD_LEFT:
-            case KeyEvent.KEYCODE_DPAD_RIGHT:
-                if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                    if (getLayoutDirection() == View.LAYOUT_DIRECTION_RTL?
-                            keyCode == KeyEvent.KEYCODE_DPAD_LEFT :
-                            keyCode == KeyEvent.KEYCODE_DPAD_RIGHT ) {
-                        if (mSelectedColumn < getColumnsCount() - 1) {
-                            setSelectedColumn(mSelectedColumn + 1);
-                        }
-                    } else {
-                        if (mSelectedColumn > 0) {
-                            setSelectedColumn(mSelectedColumn - 1);
-                        }
-                    }
-                }
-                break;
-            case KeyEvent.KEYCODE_DPAD_UP:
-            case KeyEvent.KEYCODE_DPAD_DOWN:
-                if (event.getAction() == KeyEvent.ACTION_DOWN && mSelectedColumn >= 0) {
-                    VerticalGridView gridView = mColumnViews.get(mSelectedColumn);
-                    if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-                        int newPosition = gridView.getSelectedPosition() - 1;
-                        if (newPosition >= 0) {
-                            gridView.setSelectedPositionSmooth(newPosition);
-                        }
-                    } else {
-                        int newPosition = gridView.getSelectedPosition() + 1;
-                        if (newPosition < gridView.getAdapter().getItemCount()) {
-                            gridView.setSelectedPositionSmooth(newPosition);
-                        }
-                    }
+            case KeyEvent.KEYCODE_DPAD_CENTER:
+            case KeyEvent.KEYCODE_ENTER:
+                if (event.getAction() == KeyEvent.ACTION_UP) {
+                    performClick();
                 }
                 break;
             default:
@@ -481,6 +456,15 @@ public class Picker extends FrameLayout {
             return true;
         }
         return super.dispatchKeyEvent(event);
+    }
+
+    @Override
+    protected boolean onRequestFocusInDescendants(int direction, Rect previouslyFocusedRect) {
+        int column = getSelectedColumn();
+        if (column < mColumnViews.size()) {
+            return mColumnViews.get(column).requestFocus(direction, previouslyFocusedRect);
+        }
+        return false;
     }
 
     /**
@@ -504,6 +488,16 @@ public class Picker extends FrameLayout {
         columnView.setLayoutParams(lp);
     }
 
+    private void updateItemFocusable() {
+        final boolean activated = isActivated();
+        for (int i = 0; i < getColumnsCount(); i++) {
+            VerticalGridView grid = mColumnViews.get(i);
+            for (int j = 0; j < grid.getChildCount(); j++) {
+                View view = grid.getChildAt(j);
+                view.setFocusable(activated);
+            }
+        }
+    }
     /**
      * Returns number of visible items showing in a column when it's activated.  The default value
      * is 3.
@@ -561,8 +555,19 @@ public class Picker extends FrameLayout {
         if (activated != isActivated()) {
             super.setActivated(activated);
             updateColumnSize();
+            updateItemFocusable();
         } else {
             super.setActivated(activated);
+        }
+    }
+
+    @Override
+    public void requestChildFocus(View child, View focused) {
+        super.requestChildFocus(child, focused);
+        for (int i = 0; i < mColumnViews.size(); i++) {
+            if (mColumnViews.get(i).hasFocus()) {
+                setSelectedColumn(i);
+            }
         }
     }
 

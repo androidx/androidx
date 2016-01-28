@@ -348,6 +348,13 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         public GuidedAction getAction() {
             return mAction;
         }
+
+        void setActivated(boolean activated) {
+            mActivatorView.setActivated(activated);
+            if (itemView instanceof GuidedActionItemContainer) {
+                ((GuidedActionItemContainer) itemView).setFocusOutAllowed(!activated);
+            }
+        }
     }
 
     private static String TAG = "GuidedActionsStylist";
@@ -857,6 +864,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     void onEditActivatorView(final ViewHolder vh, final GuidedAction action,
             boolean editing) {
         if (editing) {
+            vh.itemView.setFocusable(false);
             vh.mActivatorView.requestFocus();
             setExpandedViewHolder(vh);
             vh.mActivatorView.setOnClickListener(new View.OnClickListener() {
@@ -873,9 +881,11 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
                     mEditListener.onGuidedActionEdited(action);
                 }
             }
+            vh.itemView.setFocusable(true);
             vh.itemView.requestFocus();
             setExpandedViewHolder(null);
             vh.mActivatorView.setOnClickListener(null);
+            vh.mActivatorView.setClickable(false);
         }
     }
 
@@ -1120,7 +1130,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
                 vh.itemView.setVisibility(View.VISIBLE);
                 vh.itemView.setTranslationY(0);
                 if (vh.mActivatorView != null) {
-                    vh.mActivatorView.setActivated(false);
+                    vh.setActivated(false);
                 }
             } else if (vh.getAction() == mExpandedAction) {
                 vh.itemView.setVisibility(View.VISIBLE);
@@ -1128,7 +1138,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
                     vh.itemView.setTranslationY(- vh.itemView.getHeight());
                 } else if (vh.mActivatorView != null) {
                     vh.itemView.setTranslationY(0);
-                    vh.mActivatorView.setActivated(true);
+                    vh.setActivated(true);
                 }
             } else {
                 vh.itemView.setVisibility(View.INVISIBLE);

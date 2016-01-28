@@ -14,6 +14,7 @@
 package android.support.v17.leanback.app;
 
 import android.content.Context;
+import android.support.v17.leanback.widget.Util;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,25 +46,11 @@ class GuidedStepRootLayout extends LinearLayout {
         mFocusOutEnd = focusOutEnd;
     }
 
-    private boolean isDescendant(View view) {
-        while (view != null) {
-            if (view == this) {
-                return true;
-            }
-            ViewParent p = view.getParent();
-            if (!(p instanceof View)) {
-                return false;
-            }
-            view = (View) p;
-        }
-        return false;
-    }
-
     @Override
     public View focusSearch(View focused, int direction) {
         View newFocus = super.focusSearch(focused, direction);
         if (direction == FOCUS_LEFT || direction == FOCUS_RIGHT) {
-            if (isDescendant(newFocus)) {
+            if (Util.isDescendant(this, newFocus)) {
                 return newFocus;
             }
             if (getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_LTR ?

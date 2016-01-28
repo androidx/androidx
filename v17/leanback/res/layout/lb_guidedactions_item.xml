@@ -15,7 +15,7 @@
      limitations under the License.
 -->
 <!-- Layout for an action item displayed in the 2 pane actions fragment. -->
-<android.support.v17.leanback.widget.NonOverlappingLinearLayoutWithForeground
+<android.support.v17.leanback.widget.GuidedActionItemContainer
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     style="?attr/guidedActionItemContainerStyle" >
@@ -49,4 +49,4 @@
         style="?attr/guidedActionItemChevronStyle"
         tools:ignore="ContentDescription" />
 
-</android.support.v17.leanback.widget.NonOverlappingLinearLayoutWithForeground>
+</android.support.v17.leanback.widget.GuidedActionItemContainer>
