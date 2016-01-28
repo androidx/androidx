@@ -35,4 +35,6 @@
     <style name="Theme.Example.Leanback.GuidedStep.First">
         <item name="guidanceIconStyle">@style/Widget.Example.Leanback.FirstStepGuidanceIconStyle</item>
     </style>
+    <style name="Theme.Example.Leanback.GuidedStep.Half" parent="Theme.Leanback.GuidedStep.Half">
+    </style>
 </resources>

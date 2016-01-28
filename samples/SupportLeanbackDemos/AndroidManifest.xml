@@ -98,6 +98,16 @@
             android:windowSoftInputMode="adjustResize"
             android:exported="true" />
 
+        <activity android:name="GuidedStepHalfScreenActivity"
+            android:theme="@style/Theme.Example.Leanback.GuidedStep.Half"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="true" />
+
+        <activity android:name="GuidedStepSupportHalfScreenActivity"
+            android:theme="@style/Theme.Example.Leanback.GuidedStep.Half"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="true" />
+
         <activity android:name="DetailsPresenterSelectionActivity"
             android:theme="@style/Theme.Example.Leanback.GuidedStep"
             android:exported="true" />

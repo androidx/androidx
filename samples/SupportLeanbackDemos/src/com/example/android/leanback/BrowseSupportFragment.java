@@ -18,7 +18,6 @@ package com.example.android.leanback;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v17.leanback.app.GuidedStepSupportFragment;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
@@ -30,6 +29,7 @@ import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -113,8 +113,8 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
             listRowAdapter.add(new PhotoItem("This is a test", "Only a test", R.drawable.gallery_photo_2));
             listRowAdapter.add(new PhotoItem("Android TV", "by Google", R.drawable.gallery_photo_3));
             listRowAdapter.add(new PhotoItem("Leanback", R.drawable.gallery_photo_4));
-            listRowAdapter.add(new PhotoItem("Hello world", R.drawable.gallery_photo_5));
-            listRowAdapter.add(new PhotoItem("This is a test", "Open GuidedStepSupportFragment", R.drawable.gallery_photo_6));
+            listRowAdapter.add(new PhotoItem("GuidedStep (Slide left/right)", R.drawable.gallery_photo_5));
+            listRowAdapter.add(new PhotoItem("GuidedStep (Slide bottom up)", "Open GuidedStepSupportFragment", R.drawable.gallery_photo_6));
             listRowAdapter.add(new PhotoItem("Android TV", "open RowsSupportActivity", R.drawable.gallery_photo_7));
             listRowAdapter.add(new PhotoItem("Leanback", "open BrowseSupportActivity", R.drawable.gallery_photo_8));
             HeaderItem header = new HeaderItem(i, "Row " + i);
@@ -132,9 +132,13 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
             Bundle bundle;
             if (((PhotoItem) item).getImageResourceId() == R.drawable.gallery_photo_6) {
                 GuidedStepSupportFragment.add(getFragmentManager(),
-                        new GuidedStepSupportActivity.FirstStepFragment(),
+                        new GuidedStepSupportHalfScreenActivity.FirstStepFragment(),
                         R.id.lb_guidedstep_host);
                 return;
+            } else if (((PhotoItem) item).getImageResourceId() == R.drawable.gallery_photo_5) {
+                GuidedStepSupportFragment.add(getFragmentManager(),
+                    new GuidedStepSupportActivity.FirstStepFragment(), R.id.lb_guidedstep_host);
+              return;
             } else if ( ((PhotoItem) item).getImageResourceId() == R.drawable.gallery_photo_8) {
                 intent = new Intent(getActivity(), BrowseSupportActivity.class);
                 bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity())

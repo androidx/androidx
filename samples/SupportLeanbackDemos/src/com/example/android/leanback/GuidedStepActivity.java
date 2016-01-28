@@ -24,12 +24,12 @@ import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v17.leanback.app.GuidedStepFragment;
-import android.support.v17.leanback.widget.GuidedAction;
-import android.support.v17.leanback.widget.GuidedDatePickerAction;
-import android.support.v17.leanback.widget.GuidedActionsStylist;
 import android.support.v17.leanback.widget.GuidanceStylist;
 import android.support.v17.leanback.widget.GuidanceStylist.Guidance;
+import android.support.v17.leanback.widget.GuidedAction;
+import android.support.v17.leanback.widget.GuidedActionsStylist;
 import android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder;
+import android.support.v17.leanback.widget.GuidedDatePickerAction;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
@@ -172,6 +172,7 @@ public class GuidedStepActivity extends Activity {
     }
 
     public static class FirstStepFragment extends GuidedStepFragment {
+
         @Override
         public int onProvideTheme() {
             return R.style.Theme_Example_Leanback_GuidedStep_First;
@@ -208,7 +209,6 @@ public class GuidedStepActivity extends Activity {
                 finishGuidedStepFragments();
             }
         }
-
     }
 
     static ArrayList<String> sCards = new ArrayList<String>();
