@@ -332,11 +332,11 @@ public class GridLayoutManager extends LinearLayoutManager {
 
     @Override
     void onAnchorReady(RecyclerView.Recycler recycler, RecyclerView.State state,
-                       AnchorInfo anchorInfo) {
-        super.onAnchorReady(recycler, state, anchorInfo);
+                       AnchorInfo anchorInfo, int itemDirection) {
+        super.onAnchorReady(recycler, state, anchorInfo, itemDirection);
         updateMeasurements();
         if (state.getItemCount() > 0 && !state.isPreLayout()) {
-            ensureAnchorIsInFirstSpan(recycler, state, anchorInfo);
+            ensureAnchorIsInCorrectSpan(recycler, state, anchorInfo, itemDirection);
         }
         ensureViewSet();
     }
@@ -363,12 +363,32 @@ public class GridLayoutManager extends LinearLayoutManager {
         return super.scrollVerticallyBy(dy, recycler, state);
     }
 
-    private void ensureAnchorIsInFirstSpan(RecyclerView.Recycler recycler, RecyclerView.State state,
-                                           AnchorInfo anchorInfo) {
+    private void ensureAnchorIsInCorrectSpan(RecyclerView.Recycler recycler,
+            RecyclerView.State state, AnchorInfo anchorInfo, int itemDirection) {
+        final boolean layingOutInPrimaryDirection =
+                itemDirection == LayoutState.ITEM_DIRECTION_TAIL;
         int span = getSpanIndex(recycler, state, anchorInfo.mPosition);
-        while (span > 0 && anchorInfo.mPosition > 0) {
-            anchorInfo.mPosition--;
-            span = getSpanIndex(recycler, state, anchorInfo.mPosition);
+        if (layingOutInPrimaryDirection) {
+            // choose span 0
+            while (span > 0 && anchorInfo.mPosition > 0) {
+                anchorInfo.mPosition--;
+                span = getSpanIndex(recycler, state, anchorInfo.mPosition);
+            }
+        } else {
+            // choose the max span we can get. hopefully last one
+            final int indexLimit = state.getItemCount() - 1;
+            int pos = anchorInfo.mPosition;
+            int bestSpan = span;
+            while (pos < indexLimit) {
+                int next = getSpanIndex(recycler, state, pos + 1);
+                if (next > bestSpan) {
+                    pos += 1;
+                    bestSpan = next;
+                } else {
+                    break;
+                }
+            }
+            anchorInfo.mPosition = pos;
         }
     }
 
