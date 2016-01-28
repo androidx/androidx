@@ -16,11 +16,10 @@
 
 package android.support.v7.widget;
 
-import org.junit.Before;
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
@@ -30,28 +29,25 @@ import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.test.UiThreadTest;
 import android.test.suitebuilder.annotation.MediumTest;
-import android.util.Log;
 import android.util.SparseIntArray;
 import android.util.StateSet;
-import android.view.FocusFinder;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
 import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -67,36 +63,90 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         focusSearchFailure(true);
     }
 
+    @Test
+    public void scrollToBadOffset() throws Throwable {
+        scrollToBadOffset(false);
+    }
+
+    @Test
+    public void scrollToBadOffsetReverse() throws Throwable {
+        scrollToBadOffset(true);
+    }
+
+    private void scrollToBadOffset(boolean reverseLayout) throws Throwable {
+        final int w = 500;
+        final int h = 1000;
+        RecyclerView recyclerView = setupBasic(new Config(2, 100).reverseLayout(reverseLayout),
+                new GridTestAdapter(100) {
+                    @Override
+                    public void onBindViewHolder(TestViewHolder holder,
+                            int position) {
+                        super.onBindViewHolder(holder, position);
+                        ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
+                        if (lp == null) {
+                            lp = new ViewGroup.LayoutParams(w / 2, h / 2);
+                            holder.itemView.setLayoutParams(lp);
+                        } else {
+                            lp.width = w / 2;
+                            lp.height = h / 2;
+                            holder.itemView.setLayoutParams(lp);
+                        }
+                    }
+                });
+        TestedFrameLayout.FullControlLayoutParams lp
+                = new TestedFrameLayout.FullControlLayoutParams(w, h);
+        recyclerView.setLayoutParams(lp);
+        waitForFirstLayout(recyclerView);
+        mGlm.expectLayout(1);
+        scrollToPosition(11);
+        mGlm.waitForLayout(2);
+        // assert spans and position etc
+        for (int i = 0; i < mGlm.getChildCount(); i++) {
+            View child = mGlm.getChildAt(i);
+            GridLayoutManager.LayoutParams params = (GridLayoutManager.LayoutParams) child
+                    .getLayoutParams();
+            assertThat("span index for child at " + i + " with position " + params
+                            .getViewAdapterPosition(),
+                    params.getSpanIndex(), CoreMatchers.is(params.getViewAdapterPosition() % 2));
+        }
+        // assert spans and positions etc.
+        int lastVisible = mGlm.findLastVisibleItemPosition();
+        // this should be the scrolled child
+        assertThat(lastVisible, CoreMatchers.is(11));
+    }
+
     private void focusSearchFailure(boolean scrollDown) throws Throwable {
         final RecyclerView recyclerView = setupBasic(new Config(3, 31).reverseLayout(!scrollDown)
                 , new GridTestAdapter(31, 1) {
-            RecyclerView mAttachedRv;
-            @Override
-            public TestViewHolder onCreateViewHolder(ViewGroup parent,
-                    int viewType) {
-                TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
-                testViewHolder.itemView.setFocusable(true);
-                testViewHolder.itemView.setFocusableInTouchMode(true);
-                // Good to have colors for debugging
-                StateListDrawable stl = new StateListDrawable();
-                stl.addState(new int[]{android.R.attr.state_focused}, new ColorDrawable(Color.RED));
-                stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
-                testViewHolder.itemView.setBackground(stl);
-                return testViewHolder;
-            }
+                    RecyclerView mAttachedRv;
 
-            @Override
-            public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-                mAttachedRv = recyclerView;
-            }
+                    @Override
+                    public TestViewHolder onCreateViewHolder(ViewGroup parent,
+                            int viewType) {
+                        TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
+                        testViewHolder.itemView.setFocusable(true);
+                        testViewHolder.itemView.setFocusableInTouchMode(true);
+                        // Good to have colors for debugging
+                        StateListDrawable stl = new StateListDrawable();
+                        stl.addState(new int[]{android.R.attr.state_focused},
+                                new ColorDrawable(Color.RED));
+                        stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
+                        testViewHolder.itemView.setBackground(stl);
+                        return testViewHolder;
+                    }
 
-            @Override
-            public void onBindViewHolder(TestViewHolder holder,
-                    int position) {
-                super.onBindViewHolder(holder, position);
-                holder.itemView.setMinimumHeight(mAttachedRv.getHeight() / 3);
-            }
-        });
+                    @Override
+                    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+                        mAttachedRv = recyclerView;
+                    }
+
+                    @Override
+                    public void onBindViewHolder(TestViewHolder holder,
+                            int position) {
+                        super.onBindViewHolder(holder, position);
+                        holder.itemView.setMinimumHeight(mAttachedRv.getHeight() / 3);
+                    }
+                });
         waitForFirstLayout(recyclerView);
 
         View viewToFocus = recyclerView.findViewHolderForAdapterPosition(1).itemView;
@@ -263,7 +313,8 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         }
         waitForFirstLayout(rv);
 
-        assertTrue("[test sanity] some views should be laid out", mRecyclerView.getChildCount() > 0);
+        assertTrue("[test sanity] some views should be laid out",
+                mRecyclerView.getChildCount() > 0);
         for (int i = 0; i < mRecyclerView.getChildCount(); i++) {
             View child = mRecyclerView.getChildAt(i);
             final int size = config.mOrientation == HORIZONTAL ? child.getWidth()
@@ -292,7 +343,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                 return 3;
             }
         });
-        ((SimpleItemAnimator)rv.getItemAnimator()).setSupportsChangeAnimations(true);
+        ((SimpleItemAnimator) rv.getItemAnimator()).setSupportsChangeAnimations(true);
         waitForFirstLayout(rv);
         View lastView = rv.getChildAt(rv.getChildCount() - 1);
         final int lastPos = rv.getChildAdapterPosition(lastView);
@@ -349,10 +400,10 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                 orientation == HORIZONTAL ? itemInfo.getColumnIndex() : itemInfo.getRowIndex());
         assertEquals("result should have span index",
                 ssl.getSpanIndex(position, mGlm.getSpanCount()),
-                orientation == HORIZONTAL ? itemInfo.getRowIndex() :  itemInfo.getColumnIndex());
+                orientation == HORIZONTAL ? itemInfo.getRowIndex() : itemInfo.getColumnIndex());
         assertEquals("result should have span size",
                 ssl.getSpanSize(position),
-                orientation == HORIZONTAL ? itemInfo.getRowSpan() :  itemInfo.getColumnSpan());
+                orientation == HORIZONTAL ? itemInfo.getRowSpan() : itemInfo.getColumnSpan());
     }
 
     public GridLayoutManager.LayoutParams ensureGridLp(View view) {
@@ -451,20 +502,49 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         RecyclerView.State state = new RecyclerView.State();
         mRecyclerView = new RecyclerView(getActivity());
         state.mItemCount = 1000;
-        glm.onAnchorReady(mRecyclerView.mRecycler, state, glm.mAnchorInfo);
+        glm.onAnchorReady(mRecyclerView.mRecycler, state, glm.mAnchorInfo,
+                LinearLayoutManager.LayoutState.ITEM_DIRECTION_TAIL);
         assertEquals("gm should keep anchor in first span", 11, glm.mAnchorInfo.mPosition);
 
+        glm.onAnchorReady(mRecyclerView.mRecycler, state, glm.mAnchorInfo,
+                LinearLayoutManager.LayoutState.ITEM_DIRECTION_HEAD);
+        assertEquals("gm should keep anchor in last span in the row", 20,
+                glm.mAnchorInfo.mPosition);
+
+        glm.mAnchorInfo.mPosition = 5;
+        glm.onAnchorReady(mRecyclerView.mRecycler, state, glm.mAnchorInfo,
+                LinearLayoutManager.LayoutState.ITEM_DIRECTION_HEAD);
+        assertEquals("gm should keep anchor in last span in the row", 10,
+                glm.mAnchorInfo.mPosition);
+
         glm.mAnchorInfo.mPosition = 13;
-        glm.onAnchorReady(mRecyclerView.mRecycler, state, glm.mAnchorInfo);
+        glm.onAnchorReady(mRecyclerView.mRecycler, state, glm.mAnchorInfo,
+                LinearLayoutManager.LayoutState.ITEM_DIRECTION_TAIL);
         assertEquals("gm should move anchor to first span", 11, glm.mAnchorInfo.mPosition);
 
+        glm.onAnchorReady(mRecyclerView.mRecycler, state, glm.mAnchorInfo,
+                LinearLayoutManager.LayoutState.ITEM_DIRECTION_HEAD);
+        assertEquals("gm should keep anchor in last span in the row", 20,
+                glm.mAnchorInfo.mPosition);
+
         glm.mAnchorInfo.mPosition = 23;
-        glm.onAnchorReady(mRecyclerView.mRecycler, state, glm.mAnchorInfo);
+        glm.onAnchorReady(mRecyclerView.mRecycler, state, glm.mAnchorInfo,
+                LinearLayoutManager.LayoutState.ITEM_DIRECTION_TAIL);
         assertEquals("gm should move anchor to first span", 21, glm.mAnchorInfo.mPosition);
 
+        glm.onAnchorReady(mRecyclerView.mRecycler, state, glm.mAnchorInfo,
+                LinearLayoutManager.LayoutState.ITEM_DIRECTION_HEAD);
+        assertEquals("gm should keep anchor in last span in the row", 25,
+                glm.mAnchorInfo.mPosition);
+
         glm.mAnchorInfo.mPosition = 35;
-        glm.onAnchorReady(mRecyclerView.mRecycler, state, glm.mAnchorInfo);
+        glm.onAnchorReady(mRecyclerView.mRecycler, state, glm.mAnchorInfo,
+                LinearLayoutManager.LayoutState.ITEM_DIRECTION_TAIL);
         assertEquals("gm should move anchor to first span", 31, glm.mAnchorInfo.mPosition);
+        glm.onAnchorReady(mRecyclerView.mRecycler, state, glm.mAnchorInfo,
+                LinearLayoutManager.LayoutState.ITEM_DIRECTION_HEAD);
+        assertEquals("gm should keep anchor in last span in the row", 35,
+                glm.mAnchorInfo.mPosition);
     }
 
     @Test
