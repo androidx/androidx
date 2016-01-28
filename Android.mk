@@ -16,6 +16,7 @@ LOCAL_PATH:= $(call my-dir)
 # Don't include in unbundled build.
 ifeq ($(TARGET_BUILD_APPS),)
 
+SUPPORT_CURRENT_SDK_VERSION := 23
 SUPPORT_API_CHECK := $(LOCAL_PATH)/apicheck.mk
 api_check_current_msg_file := $(LOCAL_PATH)/apicheck_msg_current.txt
 api_check_last_msg_file := $(LOCAL_PATH)/apicheck_msg_last.txt
@@ -30,6 +31,7 @@ sdk: check-support-api
 include $(call all-makefiles-under,$(LOCAL_PATH))
 
 # Clear out variables
+SUPPORT_CURRENT_SDK_VERSION :=
 SUPPORT_API_CHECK :=
 api_check_current_msg_file :=
 api_check_last_msg_file :=

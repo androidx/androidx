@@ -18,7 +18,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE_TAGS := tests
 
-LOCAL_SDK_VERSION := current
+LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
