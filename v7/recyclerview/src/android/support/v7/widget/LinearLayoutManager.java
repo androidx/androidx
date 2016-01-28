@@ -529,7 +529,16 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         }
         int startOffset;
         int endOffset;
-        onAnchorReady(recycler, state, mAnchorInfo);
+        final int firstLayoutDirection;
+        if (mAnchorInfo.mLayoutFromEnd) {
+            firstLayoutDirection = mShouldReverseLayout ? LayoutState.ITEM_DIRECTION_TAIL :
+                    LayoutState.ITEM_DIRECTION_HEAD;
+        } else {
+            firstLayoutDirection = mShouldReverseLayout ? LayoutState.ITEM_DIRECTION_HEAD :
+                    LayoutState.ITEM_DIRECTION_TAIL;
+        }
+
+        onAnchorReady(recycler, state, mAnchorInfo, firstLayoutDirection);
         detachAndScrapAttachedViews(recycler);
         mLayoutState.mInfinite = mOrientationHelper.getMode() == View.MeasureSpec.UNSPECIFIED;
         mLayoutState.mIsPreLayout = state.isPreLayout();
@@ -624,13 +633,14 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     /**
      * Method called when Anchor position is decided. Extending class can setup accordingly or
      * even update anchor info if necessary.
-     *
-     * @param recycler
-     * @param state
-     * @param anchorInfo Simple data structure to keep anchor point information for the next layout
+     * @param recycler The recycler for the layout
+     * @param state The layout state
+     * @param anchorInfo The mutable POJO that keeps the position and offset.
+     * @param firstLayoutItemDirection The direction of the first layout filling in terms of adapter
+     *                                 indices.
      */
     void onAnchorReady(RecyclerView.Recycler recycler, RecyclerView.State state,
-                       AnchorInfo anchorInfo) {
+                       AnchorInfo anchorInfo, int firstLayoutItemDirection) {
     }
 
     /**
