@@ -22,7 +22,6 @@ import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.FloatRange;
 import android.support.annotation.IdRes;
@@ -456,6 +455,8 @@ public final class ViewCompat {
         public void setScrollIndicators(View view, int indicators);
         public void setScrollIndicators(View view, int indicators, int mask);
         public int getScrollIndicators(View view);
+        public void offsetTopAndBottom(View view, int offset);
+        public void offsetLeftAndRight(View view, int offset);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -1055,6 +1056,16 @@ public final class ViewCompat {
         public void setScrollIndicators(View view, int indicators, int mask) {
             // no-op
         }
+
+        @Override
+        public void offsetLeftAndRight(View view, int offset) {
+            ViewCompatBase.offsetLeftAndRight(view, offset);
+        }
+
+        @Override
+        public void offsetTopAndBottom(View view, int offset) {
+            ViewCompatBase.offsetTopAndBottom(view, offset);
+        }
     }
 
     static class EclairMr1ViewCompatImpl extends BaseViewCompatImpl {
@@ -1238,6 +1249,16 @@ public final class ViewCompat {
         @Override
         public int combineMeasuredStates(int curState, int newState) {
             return ViewCompatHC.combineMeasuredStates(curState, newState);
+        }
+
+        @Override
+        public void offsetLeftAndRight(View view, int offset) {
+            ViewCompatHC.offsetLeftAndRight(view, offset);
+        }
+
+        @Override
+        public void offsetTopAndBottom(View view, int offset) {
+            ViewCompatHC.offsetTopAndBottom(view, offset);
         }
     }
 
@@ -3151,25 +3172,16 @@ public final class ViewCompat {
      * @param offset the number of pixels to offset the view by
      */
     public static void offsetTopAndBottom(View view, int offset) {
-        view.offsetTopAndBottom(offset);
-
-        if (offset != 0 && Build.VERSION.SDK_INT < 11) {
-            // We need to manually invalidate pre-honeycomb
-            view.invalidate();
-        }
+        IMPL.offsetTopAndBottom(view, offset);
     }
+
     /**
      * Offset this view's horizontal location by the specified amount of pixels.
      *
      * @param offset the number of pixels to offset the view by
      */
     public static void offsetLeftAndRight(View view, int offset) {
-        view.offsetLeftAndRight(offset);
-
-        if (offset != 0 && Build.VERSION.SDK_INT < 11) {
-            // We need to manually invalidate pre-honeycomb
-            view.invalidate();
-        }
+        IMPL.offsetLeftAndRight(view, offset);
     }
 
     /**

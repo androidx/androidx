@@ -19,6 +19,7 @@ package android.support.v4.view;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.view.View;
+import android.view.ViewParent;
 
 import java.lang.reflect.Field;
 
@@ -107,5 +108,45 @@ class ViewCompatBase {
 
     static boolean isAttachedToWindow(View view) {
         return view.getWindowToken() != null;
+    }
+
+    static void offsetTopAndBottom(View view, int offset) {
+        final int currentTop = view.getTop();
+        view.offsetTopAndBottom(offset);
+
+        if (offset != 0) {
+            // We need to manually invalidate pre-honeycomb
+            final ViewParent parent = view.getParent();
+            if (parent instanceof View) {
+                final int absOffset = Math.abs(offset);
+                ((View) parent).invalidate(
+                        view.getLeft(),
+                        currentTop - absOffset,
+                        view.getRight(),
+                        currentTop + view.getHeight() + absOffset);
+            } else {
+                view.invalidate();
+            }
+        }
+    }
+
+    static void offsetLeftAndRight(View view, int offset) {
+        final int currentLeft = view.getLeft();
+        view.offsetLeftAndRight(offset);
+
+        if (offset != 0) {
+            // We need to manually invalidate pre-honeycomb
+            final ViewParent parent = view.getParent();
+            if (parent instanceof View) {
+                final int absOffset = Math.abs(offset);
+                ((View) parent).invalidate(
+                        currentLeft - absOffset,
+                        view.getTop(),
+                        currentLeft + view.getWidth() + absOffset,
+                        view.getBottom());
+            } else {
+                view.invalidate();
+            }
+        }
     }
 }
