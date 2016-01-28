@@ -225,6 +225,18 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
      */
     public static final int UI_STYLE_ACTIVITY_ROOT = 2;
 
+    /**
+     * Animation to slide the contents from the side (left/right).
+     * @hide
+     */
+    public static final int SLIDE_FROM_SIDE = 0;
+
+    /**
+     * Animation to slide the contents from the bottom.
+     * @hide
+     */
+    public static final int SLIDE_FROM_BOTTOM = 1;
+
     private static final String TAG = "GuidedStepSupportFragment";
     private static final boolean DEBUG = false;
 
@@ -254,6 +266,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
     private List<GuidedAction> mButtonActions = new ArrayList<GuidedAction>();
     private int mSelectedIndex = -1;
     private int mButtonSelectedIndex = -1;
+    private int entranceTransitionType = SLIDE_FROM_SIDE;
 
     public GuidedStepSupportFragment() {
         // We need to supply the theme before any potential call to onInflate in order
@@ -829,18 +842,24 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
                 Object changeBounds = TransitionHelper.createChangeBounds(false);
                 TransitionHelper.setSharedElementEnterTransition(this, changeBounds);
             } else if (uiStyle == UI_STYLE_ENTRANCE) {
-                Object fade = TransitionHelper.createFadeTransition(TransitionHelper.FADE_IN |
-                        TransitionHelper.FADE_OUT);
-                TransitionHelper.include(fade, R.id.guidedstep_background);
-                Object slide = TransitionHelper.createFadeAndShortSlide(Gravity.END |
-                        Gravity.START);
-                TransitionHelper.include(slide, R.id.content_fragment);
-                TransitionHelper.include(slide, R.id.action_fragment_root);
-                Object enterTransition = TransitionHelper.createTransitionSet(false);
-                TransitionHelper.addTransition(enterTransition, fade);
-                TransitionHelper.addTransition(enterTransition, slide);
-                TransitionHelper.setEnterTransition(this, enterTransition);
-
+                if (entranceTransitionType == SLIDE_FROM_SIDE) {
+                    Object fade = TransitionHelper.createFadeTransition(TransitionHelper.FADE_IN |
+                            TransitionHelper.FADE_OUT);
+                    TransitionHelper.include(fade, R.id.guidedstep_background);
+                    Object slideFromSide = TransitionHelper.createFadeAndShortSlide(Gravity.END | Gravity.START);
+                    TransitionHelper.include(slideFromSide, R.id.content_fragment);
+                    TransitionHelper.include(slideFromSide, R.id.action_fragment_root);
+                    Object enterTransition = TransitionHelper.createTransitionSet(false);
+                    TransitionHelper.addTransition(enterTransition, fade);
+                    TransitionHelper.addTransition(enterTransition, slideFromSide);
+                    TransitionHelper.setEnterTransition(this, enterTransition);
+                } else {
+                    Object slideFromBottom = TransitionHelper.createFadeAndShortSlide(Gravity.BOTTOM);
+                    TransitionHelper.include(slideFromBottom, R.id.guidedstep_background_view_root);
+                    Object enterTransition = TransitionHelper.createTransitionSet(false);
+                    TransitionHelper.addTransition(enterTransition, slideFromBottom);
+                    TransitionHelper.setEnterTransition(this, enterTransition);
+                }
                 // No shared element transition
                 TransitionHelper.setSharedElementEnterTransition(this, null);
             } else if (uiStyle == UI_STYLE_ACTIVITY_ROOT) {
@@ -1178,6 +1197,23 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
      */
     public boolean isFocusOutEndAllowed() {
         return false;
+    }
+
+    /**
+     * Sets the transition type to be used for {@link #UI_STYLE_ENTRANCE} animation.
+     * Currently we provide 2 different variations for animation - slide in from
+     * side (default) or bottom.
+     *
+     * Ideally we can retireve the screen mode settings from the theme attribute
+     * {@code Theme.Leanback.GuidedStep#guidedStepHeightWeight} and use that to
+     * determine the transition. But the fragment context to retrieve the theme
+     * isn't available on platform v23 or earlier.
+     *
+     * For now clients(subclasses) can call this method inside the contructor.
+     * @hide
+     */
+    public void setEntranceTransitionType(int transitionType) {
+      this.entranceTransitionType = transitionType;
     }
 
     private void resolveTheme() {

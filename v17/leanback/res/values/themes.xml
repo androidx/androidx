@@ -171,6 +171,7 @@
     </style>
 
     <style name="Theme.Leanback.GuidedStep.Half" parent="Theme.Leanback.GuidedStep">
+      <item name="android:windowEnterTransition">@transition/lb_guidedstep_activity_enter_bottom</item>
       <item name="guidedStepHeightWeight">@string/lb_guidedstep_height_weight_translucent</item>
       <item name="android:windowIsTranslucent">true</item>
       <item name="android:windowBackground">@android:color/transparent</item>
