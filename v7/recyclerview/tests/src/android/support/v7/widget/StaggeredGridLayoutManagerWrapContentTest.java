@@ -15,24 +15,41 @@
  */
 
 package android.support.v7.widget;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+
+import static android.support.v7.widget.BaseWrapContentWithAspectRatioTest.MeasureBehavior;
+import static android.support.v7.widget.BaseWrapContentWithAspectRatioTest.WrapContentAdapter;
+import static android.support.v7.widget.StaggeredGridLayoutManager.HORIZONTAL;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 import android.graphics.Rect;
 import android.view.Gravity;
 import android.view.View;
 
-import static android.support.v7.widget.StaggeredGridLayoutManager.VERTICAL;
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-import static android.support.v7.widget.BaseWrapContentWithAspectRatioTest.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
-@RunWith(JUnit4.class)
+import java.util.Arrays;
+import java.util.List;
+
+@RunWith(Parameterized.class)
 public class StaggeredGridLayoutManagerWrapContentTest extends BaseWrapContentTest {
+    int mOrientation = StaggeredGridLayoutManager.VERTICAL;
+    public StaggeredGridLayoutManagerWrapContentTest(Rect padding) {
+        super(new WrapContentConfig(false, false, padding));
+    }
 
-    public StaggeredGridLayoutManagerWrapContentTest() {
-        super(new WrapContentConfig(false, false));
+    @Parameterized.Parameters(name = "paddingRect={0}")
+    public static List<Rect> params() {
+        return Arrays.asList(
+                new Rect(0, 0, 0, 0),
+                new Rect(5, 0, 0, 0),
+                new Rect(0, 3, 0, 0),
+                new Rect(0, 0, 2, 0),
+                new Rect(0, 0, 0, 7),
+                new Rect(3, 5, 7, 11)
+        );
     }
 
     @Test
@@ -52,6 +69,26 @@ public class StaggeredGridLayoutManagerWrapContentTest extends BaseWrapContentTe
                 new Rect(0, 10, 20, 20)
         };
         layoutAndCheck(lp, adapter, expected, 60, 20);
+    }
+
+    @Test
+    public void testSimpleHorizontal() throws Throwable {
+        mOrientation = HORIZONTAL;
+        TestedFrameLayout.FullControlLayoutParams lp =
+                mWrapContentConfig.toLayoutParams(WRAP_CONTENT, WRAP_CONTENT);
+        WrapContentAdapter adapter = new WrapContentAdapter(
+                new MeasureBehavior(10, 10, WRAP_CONTENT, WRAP_CONTENT),
+                new MeasureBehavior(15, 10, WRAP_CONTENT, WRAP_CONTENT),
+                new MeasureBehavior(20, 10, WRAP_CONTENT, WRAP_CONTENT),
+                new MeasureBehavior(10, 20, WRAP_CONTENT, WRAP_CONTENT)
+        );
+        Rect[] expected = new Rect[] {
+                new Rect(0, 0, 10, 10),
+                new Rect(0, 20, 15, 30),
+                new Rect(0, 40, 20, 50),
+                new Rect(10, 0, 20, 20)
+        };
+        layoutAndCheck(lp, adapter, expected, 20, 60);
     }
 
     @Test
@@ -96,7 +133,7 @@ public class StaggeredGridLayoutManagerWrapContentTest extends BaseWrapContentTe
 
     @Override
     RecyclerView.LayoutManager createLayoutManager() {
-        return new StaggeredGridLayoutManager(3, VERTICAL);
+        return new StaggeredGridLayoutManager(3, mOrientation);
     }
 
     @Override
