@@ -2282,6 +2282,8 @@ package android.support.v4.view {
     field public static final int AXIS_LTRIGGER = 17; // 0x11
     field public static final int AXIS_ORIENTATION = 8; // 0x8
     field public static final int AXIS_PRESSURE = 2; // 0x2
+    field public static final int AXIS_RELATIVE_X = 27; // 0x1b
+    field public static final int AXIS_RELATIVE_Y = 28; // 0x1c
     field public static final int AXIS_RTRIGGER = 18; // 0x12
     field public static final int AXIS_RUDDER = 20; // 0x14
     field public static final int AXIS_RX = 12; // 0xc
@@ -2479,6 +2481,7 @@ package android.support.v4.view {
     method public static boolean hasNestedScrollingParent(android.view.View);
     method public static boolean hasOnClickListeners(android.view.View);
     method public static boolean hasOverlappingRendering(android.view.View);
+    method public static boolean hasPointerCapture(android.view.View);
     method public static boolean hasTransientState(android.view.View);
     method public static boolean isAttachedToWindow(android.view.View);
     method public static boolean isLaidOut(android.view.View);
@@ -2497,6 +2500,7 @@ package android.support.v4.view {
     method public static void postInvalidateOnAnimation(android.view.View, int, int, int, int);
     method public static void postOnAnimation(android.view.View, java.lang.Runnable);
     method public static void postOnAnimationDelayed(android.view.View, java.lang.Runnable, long);
+    method public static void releasePointerCapture(android.view.View);
     method public static void requestApplyInsets(android.view.View);
     method public static int resolveSizeAndState(int, int, int);
     method public static void setAccessibilityDelegate(android.view.View, android.support.v4.view.AccessibilityDelegateCompat);
@@ -2521,6 +2525,7 @@ package android.support.v4.view {
     method public static void setPaddingRelative(android.view.View, int, int, int, int);
     method public static void setPivotX(android.view.View, float);
     method public static void setPivotY(android.view.View, float);
+    method public static void setPointerCapture(android.view.View);
     method public static void setRotation(android.view.View, float);
     method public static void setRotationX(android.view.View, float);
     method public static void setRotationY(android.view.View, float);
