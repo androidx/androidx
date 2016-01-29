@@ -166,7 +166,7 @@
     <string name="palette">Palette</string>
     <string name="palette_all_colors">Full color palette</string>
     <string name="search_hint">Search...</string>
-    <string name="sorted_list_activity">Sorted List</string>
+    <string name="sorted_list_activity">RecyclerView/Sorted List</string>
     <string name="add_new_item">Add New Item</string>
     <string name="start_action_mode">Start Action Mode</string>
 
@@ -197,12 +197,12 @@
     <string name="mode_night_dialog_title">AppCompat/DayNight/Dialog Usage</string>
     <string name="mode_night_alertdialog_title">AppCompat/DayNight/AlertDialog Usage</string>
 
-    <string name="list_popup_window_activity">List popup window</string>
+    <string name="list_popup_window_activity">AppCompat/List popup window</string>
     <string name="list_popup_window_summary">This activity illustrates the use of list popup windows. The popup window is shown by clicking the button above. The checkbox controls the modality. The text area below logs various events - it should log a tap on itself when a non-modal popup window is dismissed by tapping on the log area.</string>
     <string name="list_popup_window_button">Show popup!</string>
     <string name="list_popup_window_is_modal">is modal</string>
 
-    <string name="popup_menu_activity">Popup menu</string>
+    <string name="popup_menu_activity">AppCompat/Popup menu</string>
     <string name="popup_menu_summary">This activity illustrates the use of popup menus. The popup menu is shown by clicking the button above. The text area below logs various events.</string>
     <string name="popup_menu_button">Show popup!</string>
     <string name="popup_menu_highlight">Highlight</string>
@@ -213,5 +213,8 @@
     <string name="popup_menu_share_email">Via email</string>
     <string name="popup_menu_share_circles">To my circles</string>
     <string name="popup_menu_print">Print</string>
+
+    <string name="appcompat_vector_disabled">AnimatedVectorDrawableCompat does not work on devices running API v10 or below</string>
+    <string name="appcompat_vector_title">AppCompat/Integrations/AnimatedVectorDrawable</string>
 </resources>
 
