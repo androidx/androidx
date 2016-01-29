@@ -2241,11 +2241,13 @@ package android.support.v4.view {
     method public static int getActionMasked(android.view.MotionEvent);
     method public static float getAxisValue(android.view.MotionEvent, int);
     method public static float getAxisValue(android.view.MotionEvent, int, int);
+    method public static int getButtonState(android.view.MotionEvent);
     method public static int getPointerCount(android.view.MotionEvent);
     method public static int getPointerId(android.view.MotionEvent, int);
     method public static int getSource(android.view.MotionEvent);
     method public static float getX(android.view.MotionEvent, int);
     method public static float getY(android.view.MotionEvent, int);
+    method public static boolean isFromSource(android.view.MotionEvent, int);
     field public static final int ACTION_HOVER_ENTER = 9; // 0x9
     field public static final int ACTION_HOVER_EXIT = 10; // 0xa
     field public static final int ACTION_HOVER_MOVE = 7; // 0x7
@@ -2297,6 +2299,7 @@ package android.support.v4.view {
     field public static final int AXIS_X = 0; // 0x0
     field public static final int AXIS_Y = 1; // 0x1
     field public static final int AXIS_Z = 11; // 0xb
+    field public static final int BUTTON_PRIMARY = 1; // 0x1
   }
 
   public abstract interface NestedScrollingChild {

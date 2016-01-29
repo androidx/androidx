@@ -36,6 +36,7 @@ public final class MotionEventCompat {
         public int getSource(MotionEvent event);
         float getAxisValue(MotionEvent event, int axis);
         float getAxisValue(MotionEvent event, int axis, int pointerIndex);
+        int getButtonState(MotionEvent event);
     }
 
     /**
@@ -89,6 +90,11 @@ public final class MotionEventCompat {
 
         @Override
         public float getAxisValue(MotionEvent event, int axis, int pointerIndex) {
+            return 0;
+        }
+
+        @Override
+        public int getButtonState(MotionEvent event) {
             return 0;
         }
     }
@@ -145,12 +151,25 @@ public final class MotionEventCompat {
         }
     }
 
+
+    /**
+     * Interface implementation for devices with at least v14 APIs.
+     */
+    private static class ICSMotionEventVersionImpl extends GingerbreadMotionEventVersionImpl {
+        @Override
+        public int getButtonState(MotionEvent event) {
+            return MotionEventCompatICS.getButtonState(event);
+        }
+    }
+
     /**
      * Select the correct implementation to use for the current platform.
      */
     static final MotionEventVersionImpl IMPL;
     static {
-        if (Build.VERSION.SDK_INT >= 12) {
+        if (Build.VERSION.SDK_INT >= 14) {
+            IMPL = new ICSMotionEventVersionImpl();
+        } else if (Build.VERSION.SDK_INT >= 12) {
             IMPL = new HoneycombMr1MotionEventVersionImpl();
         } else if (Build.VERSION.SDK_INT >= 9) {
             IMPL = new GingerbreadMotionEventVersionImpl();
@@ -419,6 +438,11 @@ public final class MotionEventCompat {
     public static final int AXIS_GENERIC_16 = 47;
 
     /**
+     * Synonym for {@link MotionEvent#BUTTON_PRIMARY}.
+     */
+    public static final int BUTTON_PRIMARY = 1;
+
+    /**
      * Call {@link MotionEvent#getAction}, returning only the {@link #ACTION_MASK}
      * portion.
      */
@@ -489,6 +513,15 @@ public final class MotionEventCompat {
     }
 
     /**
+     * Determines whether the event is from the given source.
+     * @param source The input source to check against.
+     * @return Whether the event is from the given source.
+     */
+    public static boolean isFromSource(MotionEvent event, int source) {
+        return (getSource(event) & source) == source;
+    }
+
+    /**
      * Get axis value for the first pointer index (may be an
      * arbitrary pointer identifier).
      *
@@ -515,6 +548,15 @@ public final class MotionEventCompat {
      */
     public static float getAxisValue(MotionEvent event, int axis, int pointerIndex) {
         return IMPL.getAxisValue(event, axis, pointerIndex);
+    }
+
+    /**
+     *
+     * @param event
+     * @return
+     */
+    public static int getButtonState(MotionEvent event) {
+        return IMPL.getButtonState(event);
     }
 
     private MotionEventCompat() {}
