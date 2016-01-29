@@ -15,31 +15,70 @@
  */
 package android.support.v7.widget;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import static android.support.v7.widget.BaseWrapContentWithAspectRatioTest.AspectRatioMeasureBehavior;
+import static android.support.v7.widget.BaseWrapContentWithAspectRatioTest.MeasureBehavior;
+import static android.support.v7.widget.BaseWrapContentWithAspectRatioTest.WrapContentAdapter;
+import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
+import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
-import android.graphics.Color;
 import android.graphics.Rect;
 import android.view.Gravity;
 
-import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-import static android.support.v7.widget.BaseWrapContentWithAspectRatioTest.*;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
-@RunWith(JUnit4.class)
+import java.util.Arrays;
+import java.util.List;
+
+@RunWith(Parameterized.class)
 public class GridLayoutManagerWrapContentTest extends BaseWrapContentTest {
+    private boolean mHorizontal = false;
+    private int mSpanCount = 3;
+    public GridLayoutManagerWrapContentTest(Rect padding) {
+        super(new WrapContentConfig(false, false, padding));
+    }
 
-    public GridLayoutManagerWrapContentTest() {
-        super(new WrapContentConfig(false, false));
+    @Parameterized.Parameters(name = "paddingRect={0}")
+    public static List<Rect> params() {
+        return Arrays.asList(
+                new Rect(0, 0, 0, 0),
+                new Rect(5, 0, 0, 0),
+                new Rect(0, 3, 0, 0),
+                new Rect(0, 0, 2, 0),
+                new Rect(0, 0, 0, 7),
+                new Rect(3, 5, 7, 11)
+        );
     }
 
     @Override
     RecyclerView.LayoutManager createLayoutManager() {
-        return new GridLayoutManager(getActivity(), 3);
+        GridLayoutManager lm = new GridLayoutManager(getActivity(), mSpanCount);
+        lm.setOrientation(mHorizontal ? HORIZONTAL : VERTICAL);
+        return lm;
+    }
+
+    @Test
+    public void testHorizontal() throws Throwable {
+        mHorizontal = true;
+        mSpanCount = 2;
+        TestedFrameLayout.FullControlLayoutParams lp =
+                mWrapContentConfig.toLayoutParams(WRAP_CONTENT, WRAP_CONTENT);
+        WrapContentAdapter adapter = new WrapContentAdapter(
+                new MeasureBehavior(10, 10, WRAP_CONTENT, WRAP_CONTENT),
+                new MeasureBehavior(10, 10, WRAP_CONTENT, WRAP_CONTENT),
+                new MeasureBehavior(10, 10, WRAP_CONTENT, WRAP_CONTENT),
+                new MeasureBehavior(20, 10, WRAP_CONTENT, WRAP_CONTENT)
+        );
+        Rect[] expected = new Rect[] {
+                new Rect(0, 0, 10, 10),
+                new Rect(0, 10, 10, 20),
+                new Rect(10, 0, 30, 10),
+                new Rect(10, 10, 30, 20)
+        };
+        layoutAndCheck(lp, adapter, expected, 30, 20);
     }
 
     @Test

@@ -279,15 +279,17 @@ public class GridLayoutManager extends LinearLayoutManager {
             super.setMeasuredDimension(childrenBounds, wSpec, hSpec);
         }
         final int width, height;
+        final int horizontalPadding = getPaddingLeft() + getPaddingRight();
+        final int verticalPadding = getPaddingTop() + getPaddingBottom();
         if (mOrientation == VERTICAL) {
-            int usedHeight = childrenBounds.height() + getPaddingTop() + getPaddingBottom();
+            final int usedHeight = childrenBounds.height() + verticalPadding;
             height = chooseSize(hSpec, usedHeight, getMinimumHeight());
-            width = chooseSize(wSpec, mCachedBorders[mCachedBorders.length - 1],
+            width = chooseSize(wSpec, mCachedBorders[mCachedBorders.length - 1] + horizontalPadding,
                     getMinimumWidth());
         } else {
-            int usedWidth = childrenBounds.width() + getPaddingLeft() + getPaddingRight();
+            final int usedWidth = childrenBounds.width() + horizontalPadding;
             width = chooseSize(wSpec, usedWidth, getMinimumWidth());
-            height = chooseSize(hSpec, mCachedBorders[mCachedBorders.length - 1],
+            height = chooseSize(hSpec, mCachedBorders[mCachedBorders.length - 1] + verticalPadding,
                     getMinimumHeight());
         }
         setMeasuredDimension(width, height);
