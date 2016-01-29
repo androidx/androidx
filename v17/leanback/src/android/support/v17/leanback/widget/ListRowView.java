@@ -43,6 +43,9 @@ public final class ListRowView extends LinearLayout {
         inflater.inflate(R.layout.lb_list_row, this);
 
         mGridView = (HorizontalGridView) findViewById(R.id.row_content);
+        // since we use WRAP_CONTENT for height in lb_list_row, we need set fixed size to false
+        mGridView.setHasFixedSize(false);
+
         // Uncomment this to experiment with page-based scrolling.
         // mGridView.setFocusScrollStrategy(HorizontalGridView.FOCUS_SCROLL_PAGE);
 
