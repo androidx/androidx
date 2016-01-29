@@ -7806,8 +7806,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             final int parentTop = getPaddingTop();
             final int parentRight = getWidth() - getPaddingRight();
             final int parentBottom = getHeight() - getPaddingBottom();
-            final int childLeft = child.getLeft() + rect.left;
-            final int childTop = child.getTop() + rect.top;
+            final int childLeft = child.getLeft() + rect.left - child.getScrollX();
+            final int childTop = child.getTop() + rect.top - child.getScrollY();
             final int childRight = childLeft + rect.width();
             final int childBottom = childTop + rect.height();
 
