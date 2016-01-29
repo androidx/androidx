@@ -376,7 +376,7 @@ public final class CustomTabsIntent {
          * @param color The color for the secondary action bar.
          */
         public Builder setSecondaryActionBarColor(@ColorInt int color) {
-            mIntent.putExtra(EXTRA_CUSTOM_ACTION_BAR_COLOR, color);
+            mIntent.putExtra(EXTRA_SECONDARY_ACTION_BAR_COLOR, color);
             return this;
         }
 
