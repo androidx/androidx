@@ -16,20 +16,22 @@
 
 package android.support.v7.widget;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import static android.support.v7.widget.BaseLinearLayoutManagerTest.Config;
+import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
+import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
 
+import android.graphics.Rect;
 import android.support.v4.view.ViewCompat;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.view.Gravity;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
-import static android.support.v7.widget.BaseLinearLayoutManagerTest.Config;
-import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
-import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @RunWith(Parameterized.class)
 @MediumTest
@@ -100,22 +102,32 @@ public class LinearLayoutManagerWrapContentTest extends BaseWrapContentTest {
     @Parameterized.Parameters(name = "{0} {1}")
     public static Iterable<Object[]> data() {
         List<Object[]> params = new ArrayList<>();
-        for (int orientation : new int[]{VERTICAL, HORIZONTAL}) {
-            for (boolean reverseLayout : new boolean[]{false, true}) {
-                for (boolean stackFromBottom : new boolean[]{false, true}) {
-                    params.add(
-                            new Object[]{
-                                    new Config(orientation, reverseLayout, stackFromBottom),
-                                    new WrapContentConfig(false, false)
-                            }
-                    );
-                    params.add(
-                            new Object[]{
-                                    new Config(orientation, reverseLayout, stackFromBottom),
-                                    new WrapContentConfig(HORIZONTAL == orientation,
-                                            VERTICAL == orientation)
-                            }
-                    );
+        List<Rect> paddings = Arrays.asList(
+                new Rect(0, 0, 0, 0),
+                new Rect(5, 0, 0, 0),
+                new Rect(0, 6, 0, 0),
+                new Rect(0, 0, 7, 0),
+                new Rect(0, 0, 0, 8),
+                new Rect(3, 5, 7, 11)
+        );
+        for (Rect padding : paddings) {
+            for (int orientation : new int[]{VERTICAL, HORIZONTAL}) {
+                for (boolean reverseLayout : new boolean[]{false, true}) {
+                    for (boolean stackFromBottom : new boolean[]{false, true}) {
+                        params.add(
+                                new Object[]{
+                                        new Config(orientation, reverseLayout, stackFromBottom),
+                                        new WrapContentConfig(false, false, new Rect(padding))
+                                }
+                        );
+                        params.add(
+                                new Object[]{
+                                        new Config(orientation, reverseLayout, stackFromBottom),
+                                        new WrapContentConfig(HORIZONTAL == orientation,
+                                                VERTICAL == orientation, new Rect(padding))
+                                }
+                        );
+                    }
                 }
             }
         }

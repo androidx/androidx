@@ -15,6 +15,12 @@
  */
 package android.support.v7.widget;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -30,12 +36,6 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Class to test any generic wrap content behavior.
@@ -146,21 +146,27 @@ abstract public class BaseWrapContentTest extends BaseRecyclerViewInstrumentatio
         recyclerView.setLayoutManager(createLayoutManager());
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutParams(lp);
+        Rect padding = mWrapContentConfig.padding;
+        recyclerView.setPadding(padding.left, padding.top,
+                padding.right, padding.bottom);
         setRecyclerView(recyclerView);
         recyclerView.waitUntilLayout();
         Snapshot snapshot = takeSnapshot();
         int index = 0;
+        Rect tmp = new Rect();
         for (BaseWrapContentWithAspectRatioTest.MeasureBehavior behavior : adapter.behaviors) {
+            tmp.set(expected[index]);
+            tmp.offset(padding.left, padding.top);
             assertThat("behavior " + index, snapshot.mChildCoordinates.get(behavior.getId()),
-                    is(expected[index]));
+                    is(tmp));
             index ++;
         }
         Rect boundingBox = new Rect(0, 0, 0, 0);
         for (Rect rect : expected) {
             boundingBox.union(rect);
         }
-        assertThat(recyclerView.getWidth(), is(width));
-        assertThat(recyclerView.getHeight(), is(height));
+        assertThat(recyclerView.getWidth(), is(width + padding.left + padding.right));
+        assertThat(recyclerView.getHeight(), is(height + padding.top + padding.bottom));
     }
 
 
@@ -469,12 +475,19 @@ abstract public class BaseWrapContentTest extends BaseRecyclerViewInstrumentatio
 
     static class WrapContentConfig {
 
-        private boolean unlimitedWidth;
-        private boolean unlimitedHeight;
+        public boolean unlimitedWidth;
+        public boolean unlimitedHeight;
+        public Rect padding = new Rect(0, 0, 0, 0);
 
         public WrapContentConfig(boolean unlimitedWidth, boolean unlimitedHeight) {
             this.unlimitedWidth = unlimitedWidth;
             this.unlimitedHeight = unlimitedHeight;
+        }
+
+        public WrapContentConfig(boolean unlimitedWidth, boolean unlimitedHeight, Rect padding) {
+            this.unlimitedWidth = unlimitedWidth;
+            this.unlimitedHeight = unlimitedHeight;
+            this.padding.set(padding);
         }
 
         public boolean isUnlimitedWidth() {
@@ -497,10 +510,11 @@ abstract public class BaseWrapContentTest extends BaseRecyclerViewInstrumentatio
 
         @Override
         public String toString() {
-            return "WrapContentConfig{" +
-                    "unlimitedWidth=" + unlimitedWidth +
-                    ", unlimitedHeight=" + unlimitedHeight +
-                    '}';
+            return "WrapContentConfig{"
+                    + "unlimitedWidth=" + unlimitedWidth
+                    + ", unlimitedHeight=" + unlimitedHeight
+                    + ", padding=" + padding
+                    + '}';
         }
 
         public TestedFrameLayout.FullControlLayoutParams toLayoutParams(int wDim, int hDim) {

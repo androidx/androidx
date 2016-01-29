@@ -16,6 +16,8 @@
 
 package android.support.v7.widget;
 
+import static android.support.v7.widget.RecyclerView.NO_POSITION;
+
 import android.content.Context;
 import android.graphics.PointF;
 import android.os.Parcel;
@@ -32,8 +34,6 @@ import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 
 import java.util.List;
-
-import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 /**
  * A {@link android.support.v7.widget.RecyclerView.LayoutManager} implementation which provides
