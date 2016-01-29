@@ -201,17 +201,28 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
             if (type != XmlPullParser.START_TAG) {
                 throw new XmlPullParserException("No start tag found");
             }
-
-            final AnimatedVectorDrawableCompat drawable = new AnimatedVectorDrawableCompat(context);
-            drawable.inflate(resources, parser, attrs, context.getTheme());
-
-            return drawable;
+            return createFromXmlInner(context, context.getResources(), parser, attrs,
+                    context.getTheme());
         } catch (XmlPullParserException e) {
             Log.e(LOGTAG, "parser error", e);
         } catch (IOException e) {
             Log.e(LOGTAG, "parser error", e);
         }
         return null;
+    }
+
+    /**
+     * Create a AnimatedVectorDrawableCompat from inside an XML document using an optional
+     * {@link Theme}. Called on a parser positioned at a tag in an XML
+     * document, tries to create a Drawable from that tag. Returns {@code null}
+     * if the tag is not a valid drawable.
+     */
+    public static AnimatedVectorDrawableCompat createFromXmlInner(Context context, Resources r,
+            XmlPullParser parser, AttributeSet attrs, Theme theme)
+            throws XmlPullParserException, IOException {
+        final AnimatedVectorDrawableCompat drawable = new AnimatedVectorDrawableCompat(context);
+        drawable.inflate(r, parser, attrs, theme);
+        return drawable;
     }
 
     /**
