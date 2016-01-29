@@ -3181,6 +3181,7 @@ package android.support.v4.widget {
     ctor public DrawerLayout(android.content.Context);
     ctor public DrawerLayout(android.content.Context, android.util.AttributeSet);
     ctor public DrawerLayout(android.content.Context, android.util.AttributeSet, int);
+    method public void addDrawerListener(android.support.v4.widget.DrawerLayout.DrawerListener);
     method public void closeDrawer(android.view.View);
     method public void closeDrawer(int);
     method public void closeDrawers();
@@ -3197,8 +3198,9 @@ package android.support.v4.widget {
     method protected void onLayout(boolean, int, int, int, int);
     method public void openDrawer(android.view.View);
     method public void openDrawer(int);
+    method public void removeDrawerListener(android.support.v4.widget.DrawerLayout.DrawerListener);
     method public void setDrawerElevation(float);
-    method public void setDrawerListener(android.support.v4.widget.DrawerLayout.DrawerListener);
+    method public deprecated void setDrawerListener(android.support.v4.widget.DrawerLayout.DrawerListener);
     method public void setDrawerLockMode(int);
     method public void setDrawerLockMode(int, int);
     method public void setDrawerLockMode(int, android.view.View);
