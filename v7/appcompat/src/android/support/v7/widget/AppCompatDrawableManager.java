@@ -36,6 +36,7 @@ import android.os.Build;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.graphics.drawable.AnimatedVectorDrawableCompat;
 import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.ColorUtils;
@@ -63,7 +64,7 @@ import static android.support.v7.widget.ThemeUtils.getThemeAttrColorStateList;
 public final class AppCompatDrawableManager {
 
     private interface InflateDelegate {
-        Drawable createFromXmlInner(@NonNull Resources r, @NonNull XmlPullParser parser,
+        Drawable createFromXmlInner(@NonNull Context context, @NonNull XmlPullParser parser,
                 @NonNull AttributeSet attrs, @Nullable Resources.Theme theme);
     }
 
@@ -77,14 +78,23 @@ public final class AppCompatDrawableManager {
     public static AppCompatDrawableManager get() {
         if (INSTANCE == null) {
             INSTANCE = new AppCompatDrawableManager();
-
-            if (Build.VERSION.SDK_INT < 21) {
-                // We only want to use the automatic VectorDrawableCompat handling where it's
-                // needed: on devices running before Lollipop
-                INSTANCE.addDelegate("vector", new VdcInflateDelegate());
-            }
+            installDefaultInflateDelegates(INSTANCE);
         }
         return INSTANCE;
+    }
+
+    private static void installDefaultInflateDelegates(@NonNull AppCompatDrawableManager manager) {
+        final int sdk = Build.VERSION.SDK_INT;
+        if (sdk < 21) {
+            // We only want to use the automatic VectorDrawableCompat handling where it's
+            // needed: on devices running before Lollipop
+            manager.addDelegate("vector", new VdcInflateDelegate());
+
+            if (sdk >= 11) {
+                // AnimatedVectorDrawableCompat only works on API v11+
+                manager.addDelegate("animated-vector", new AvdcInflateDelegate());
+            }
+        }
     }
 
     private static final ColorFilterLruCache COLOR_FILTER_CACHE = new ColorFilterLruCache(6);
@@ -290,7 +300,8 @@ public final class AppCompatDrawableManager {
                     // Now try and find a delegate for the tag name and inflate if found
                     final InflateDelegate delegate = mDelegates.get(tagName);
                     if (delegate != null) {
-                        dr = delegate.createFromXmlInner(res, parser, attrs, context.getTheme());
+                        dr = delegate.createFromXmlInner(context, parser, attrs,
+                                context.getTheme());
                     }
                     if (dr != null) {
                         // Add it to the drawable cache
@@ -812,12 +823,27 @@ public final class AppCompatDrawableManager {
 
     private static class VdcInflateDelegate implements InflateDelegate {
         @Override
-        public Drawable createFromXmlInner(@NonNull Resources r, @NonNull XmlPullParser parser,
+        public Drawable createFromXmlInner(@NonNull Context context, @NonNull XmlPullParser parser,
                 @NonNull AttributeSet attrs, @Nullable Resources.Theme theme) {
             try {
-                return VectorDrawableCompat.createFromXmlInner(r, parser, attrs, theme);
+                return VectorDrawableCompat
+                        .createFromXmlInner(context.getResources(), parser, attrs, theme);
             } catch (Exception e) {
                 Log.e("VdcInflateDelegate", "Exception while inflating <vector>", e);
+                return null;
+            }
+        }
+    }
+
+    private static class AvdcInflateDelegate implements InflateDelegate {
+        @Override
+        public Drawable createFromXmlInner(@NonNull Context context, @NonNull XmlPullParser parser,
+                @NonNull AttributeSet attrs, @Nullable Resources.Theme theme) {
+            try {
+                return AnimatedVectorDrawableCompat
+                        .createFromXmlInner(context, context.getResources(), parser, attrs, theme);
+            } catch (Exception e) {
+                Log.e("AvdcInflateDelegate", "Exception while inflating <animated-vector>", e);
                 return null;
             }
         }
