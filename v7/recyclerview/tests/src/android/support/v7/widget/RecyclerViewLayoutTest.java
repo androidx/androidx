@@ -17,10 +17,12 @@
 
 package android.support.v7.widget;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 
 import android.support.test.InstrumentationRegistry;
 import android.graphics.Color;
@@ -56,6 +58,7 @@ import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_SETTLING;
 import static android.support.v7.widget.RecyclerView.getChildViewHolderInt;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
@@ -80,6 +83,43 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     @Test
     public void dragFrozen() throws Throwable {
         testScrollFrozen(false);
+    }
+
+    @Test
+    public void requestRectOnScreenWithScrollOffset() throws Throwable {
+        final RecyclerView recyclerView = new RecyclerView(getActivity());
+        final LayoutAllLayoutManager tlm = spy(new LayoutAllLayoutManager());
+        final int scrollY = 50;
+        RecyclerView.Adapter adapter = new RecyclerView.Adapter() {
+            @Override
+            public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                View view = new View(parent.getContext());
+                view.setScrollY(scrollY);
+                return new RecyclerView.ViewHolder(view) {
+                };
+            }
+            @Override
+            public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {}
+            @Override
+            public int getItemCount() {
+                return 1;
+            }
+        };
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(tlm);
+        tlm.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        tlm.waitForLayout(1);
+        final View child = recyclerView.getChildAt(0);
+        assertThat(child.getScrollY(), CoreMatchers.is(scrollY));
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                recyclerView.requestChildRectangleOnScreen(child, new Rect(3, 4, 5, 6), true);
+                verify(tlm, times(1)).scrollVerticallyBy(eq(-46), any(RecyclerView.Recycler.class),
+                        any(RecyclerView.State.class));
+            }
+        });
     }
 
     private void testScrollFrozen(boolean fling) throws Throwable {
@@ -3281,7 +3321,14 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
     private static interface AdapterRunnable {
 
-        public void run(TestAdapter adapter) throws Throwable;
+        void run(TestAdapter adapter) throws Throwable;
     }
 
+    public class LayoutAllLayoutManager extends TestLayoutManager {
+        @Override
+        public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+            layoutRange(recycler, 0, state.getItemCount());
+            layoutLatch.countDown();
+        }
+    }
 }
