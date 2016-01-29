@@ -14,7 +14,9 @@
      limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
           package="android.support.v7.appcompat">
-    <uses-sdk android:minSdkVersion="7"/>
-    <application />
+    <uses-sdk android:minSdkVersion="7"
+              tools:overrideLibrary="android.support.graphics.drawable.animated"/>
+    <application/>
 </manifest>
