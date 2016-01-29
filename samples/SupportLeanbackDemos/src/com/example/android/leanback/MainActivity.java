@@ -20,13 +20,16 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v17.leanback.app.GuidedStepFragment;
-import android.support.v17.leanback.widget.GuidedAction;
 import android.support.v17.leanback.widget.GuidanceStylist.Guidance;
+import android.support.v17.leanback.widget.GuidedAction;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Activity that allows navigation among the demo activities.
@@ -41,10 +44,10 @@ public class MainActivity extends Activity {
 
         mGuidedStepFragment = new StepFragment();
         GuidedStepFragment.addAsRoot(this, mGuidedStepFragment, android.R.id.content);
-
     }
 
     public static class StepFragment extends GuidedStepFragment {
+
         @Override
         public Guidance onCreateGuidance(Bundle savedInstanceState) {
             String title = getString(R.string.main_title);
@@ -83,6 +86,11 @@ public class MainActivity extends Activity {
                     R.string.guidedstep_description);
             addAction(actions, GuidedStepSupportActivity.class, R.string.guidedstepsupport,
                     R.string.guidedstepsupport_description);
+            addAction(actions, GuidedStepHalfScreenActivity.class, R.string.guidedstephalfscreen,
+                    R.string.guidedstep_description);
+            addAction(actions, GuidedStepSupportHalfScreenActivity.class,
+                R.string.guidedstepsupporthalfscreen,
+                R.string.guidedstep_description);
             addAction(actions, BrowseErrorActivity.class, R.string.browseerror,
                     R.string.browseerror_description);
             addAction(actions, BrowseErrorSupportActivity.class, R.string.browseerror_support,

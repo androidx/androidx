@@ -16,6 +16,7 @@
 
 import os
 import sys
+import getopt
 
 def write_java_head(tofile, name):
     tofile.write("/* This file is auto-generated from {}.java.  DO NOT MODIFY. */\n\n".format(name))
@@ -36,6 +37,20 @@ for line in file:
 file.close()
 outfile.close()
 
+file = open('src/com/example/android/leanback/GuidedStepHalfScreenActivity.java', 'r')
+outfile = open('src/com/example/android/leanback/GuidedStepSupportHalfScreenActivity.java', 'w')
+write_java_head(outfile, "GuidedStepHalfScreenActivity")
+for line in file:
+    line = line.replace('android.app.Fragment', 'android.support.v4.app.Fragment')
+    line = line.replace('android.app.Activity', 'android.support.v4.app.FragmentActivity')
+    line = line.replace('GuidedStepFragment', 'GuidedStepSupportFragment')
+    line = line.replace('GuidedStepActivity', 'GuidedStepSupportActivity')
+    line = line.replace('GuidedStepHalfScreenActivity', 'GuidedStepSupportHalfScreenActivity')
+    line = line.replace('extends Activity', 'extends FragmentActivity')
+    outfile.write(line)
+file.close()
+outfile.close()
+
 file = open('src/com/example/android/leanback/BrowseFragment.java', 'r')
 outfile = open('src/com/example/android/leanback/BrowseSupportFragment.java', 'w')
 write_java_head(outfile, "BrowseFragment")
@@ -49,6 +64,7 @@ for line in file:
     line = line.replace('DetailsActivity', 'DetailsSupportActivity')
     line = line.replace('SearchActivity', 'SearchSupportActivity')
     line = line.replace('RowsActivity', 'RowsSupportActivity')
+    line = line.replace('GuidedStepHalfScreenActivity', 'GuidedStepSupportHalfScreenActivity')
     outfile.write(line)
 file.close()
 outfile.close()
