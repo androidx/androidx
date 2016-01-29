@@ -32,6 +32,7 @@ import android.os.SystemClock;
 import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
@@ -207,7 +208,8 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
     private boolean mDisallowInterceptRequested;
     private boolean mChildrenCanceledTouch;
 
-    private DrawerListener mListener;
+    private @Deprecated @Nullable DrawerListener mListener;
+    private List<DrawerListener> mListeners;
 
     private float mInitialMotionX;
     private float mInitialMotionY;
@@ -508,13 +510,58 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
     }
 
     /**
-     * Set a listener to be notified of drawer events.
+     * Set a listener to be notified of drawer events. Note that this method is deprecated
+     * and you should use {@link #addDrawerListener(DrawerListener)} to add a listener and
+     * {@link #removeDrawerListener(DrawerListener)} to remove a registered listener.
      *
      * @param listener Listener to notify when drawer events occur
      * @see DrawerListener
+     * @see #addDrawerListener(DrawerListener)
+     * @see #removeDrawerListener(DrawerListener)
      */
+    @Deprecated
     public void setDrawerListener(DrawerListener listener) {
+        // The logic in this method emulates what we had before support for multiple
+        // registered listeners.
+        if (mListener != null) {
+            removeDrawerListener(mListener);
+        }
+        if (listener != null) {
+            addDrawerListener(listener);
+        }
+        // Update the deprecated field so that we can remove the passed listener the next
+        // time we're called
         mListener = listener;
+    }
+
+    /**
+     * Adds the specified listener to the list of listeners that will be notified of drawer events.
+     *
+     * @param listener Listener to notify when drawer events occur.
+     * @see #removeDrawerListener(DrawerListener)
+     */
+    public void addDrawerListener(@NonNull DrawerListener listener) {
+        if (listener == null) {
+            return;
+        }
+        if (mListeners == null) {
+            mListeners = new ArrayList<DrawerListener>();
+        }
+        mListeners.add(listener);
+    }
+
+    /**
+     * Removes the specified listener from the list of listeners that will be notified of drawer
+     * events.
+     *
+     * @param listener Listener to remove from being notified of drawer events
+     * @see #addDrawerListener(DrawerListener)
+     */
+    public void removeDrawerListener(@NonNull DrawerListener listener) {
+        if (listener == null) {
+            return;
+        }
+        mListeners.remove(listener);
     }
 
     /**
@@ -764,8 +811,13 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
         if (state != mDrawerState) {
             mDrawerState = state;
 
-            if (mListener != null) {
-                mListener.onDrawerStateChanged(state);
+            if (mListeners != null) {
+                // Notify the listeners. Do that from the end of the list so that if a listener
+                // removes itself as the result of being called, it won't mess up with our iteration
+                int listenerCount = mListeners.size();
+                for (int i = listenerCount - 1; i >= 0; i--) {
+                    mListeners.get(i).onDrawerStateChanged(state);
+                }
             }
         }
     }
@@ -774,8 +826,14 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
         final LayoutParams lp = (LayoutParams) drawerView.getLayoutParams();
         if ((lp.openState & LayoutParams.FLAG_IS_OPENED) == 1) {
             lp.openState = 0;
-            if (mListener != null) {
-                mListener.onDrawerClosed(drawerView);
+
+            if (mListeners != null) {
+                // Notify the listeners. Do that from the end of the list so that if a listener
+                // removes itself as the result of being called, it won't mess up with our iteration
+                int listenerCount = mListeners.size();
+                for (int i = listenerCount - 1; i >= 0; i--) {
+                    mListeners.get(i).onDrawerClosed(drawerView);
+                }
             }
 
             updateChildrenImportantForAccessibility(drawerView, false);
@@ -796,8 +854,13 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
         final LayoutParams lp = (LayoutParams) drawerView.getLayoutParams();
         if ((lp.openState & LayoutParams.FLAG_IS_OPENED) == 0) {
             lp.openState = LayoutParams.FLAG_IS_OPENED;
-            if (mListener != null) {
-                mListener.onDrawerOpened(drawerView);
+            if (mListeners != null) {
+                // Notify the listeners. Do that from the end of the list so that if a listener
+                // removes itself as the result of being called, it won't mess up with our iteration
+                int listenerCount = mListeners.size();
+                for (int i = listenerCount - 1; i >= 0; i--) {
+                    mListeners.get(i).onDrawerOpened(drawerView);
+                }
             }
 
             updateChildrenImportantForAccessibility(drawerView, true);
@@ -829,8 +892,13 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
     }
 
     void dispatchOnDrawerSlide(View drawerView, float slideOffset) {
-        if (mListener != null) {
-            mListener.onDrawerSlide(drawerView, slideOffset);
+        if (mListeners != null) {
+            // Notify the listeners. Do that from the end of the list so that if a listener
+            // removes itself as the result of being called, it won't mess up with our iteration
+            int listenerCount = mListeners.size();
+            for (int i = listenerCount - 1; i >= 0; i--) {
+                mListeners.get(i).onDrawerSlide(drawerView, slideOffset);
+            }
         }
     }
 

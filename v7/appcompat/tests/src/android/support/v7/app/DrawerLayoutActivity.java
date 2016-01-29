@@ -17,6 +17,8 @@
 package android.support.v7.app;
 
 import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -26,6 +28,7 @@ import android.support.v7.testutils.Shakespeare;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -104,7 +107,7 @@ public class DrawerLayoutActivity extends BaseTestActivity {
             }
         };
 
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mDrawerLayout.addDrawerListener(mDrawerToggle);
 
         // Configure the background color fill of the system status bar (on supported platform
         // versions) and the toolbar itself. We're using the same color, and android:statusBar
@@ -112,6 +115,42 @@ public class DrawerLayoutActivity extends BaseTestActivity {
         final int metalBlueColor = getResources().getColor(R.color.drawer_sample_metal_blue);
         mDrawerLayout.setStatusBarBackgroundColor(metalBlueColor);
         mToolbar.setBackgroundColor(metalBlueColor);
+
+        // Register a pre-draw listener to get the initial width of the DrawerLayout so
+        // that we can determine the width of the drawer based on the Material spec at
+        // https://www.google.com/design/spec/patterns/navigation-drawer.html#navigation-drawer-specs
+        mDrawerLayout.getViewTreeObserver().addOnPreDrawListener(
+                new ViewTreeObserver.OnPreDrawListener() {
+                    @Override
+                    public boolean onPreDraw() {
+                        // What is the width of the entire DrawerLayout?
+                        final int drawerLayoutWidth = mDrawerLayout.getWidth();
+
+                        // What is the action bar size?
+                        final Resources.Theme theme = mDrawerLayout.getContext().getTheme();
+                        final TypedArray a = theme.obtainStyledAttributes(
+                                new int[] { android.support.v7.appcompat.R.attr.actionBarSize });
+                        final int actionBarSize = a.getDimensionPixelSize(0, 0);
+                        if (a != null) {
+                            a.recycle();
+                        }
+
+                        // Compute the width of the drawer and set it on the layout params.
+                        final int idealDrawerWidth = 5 * actionBarSize;
+                        final int maxDrawerWidth = Math.max(0, drawerLayoutWidth - actionBarSize);
+                        final int drawerWidth = Math.min(idealDrawerWidth, maxDrawerWidth);
+
+                        final DrawerLayout.LayoutParams drawerLp =
+                                (DrawerLayout.LayoutParams) mDrawer.getLayoutParams();
+                        drawerLp.width = drawerWidth;
+                        mDrawer.setLayoutParams(drawerLp);
+
+                        // Remove ourselves as the pre-draw listener since this is a one-time
+                        // configuration.
+                        mDrawerLayout.getViewTreeObserver().removeOnPreDrawListener(this);
+                        return true;
+                    }
+                });
     }
 
     @Override
