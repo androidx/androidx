@@ -412,7 +412,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         });
     }
 
-    class TestViewHolder extends RecyclerView.ViewHolder {
+    public class TestViewHolder extends RecyclerView.ViewHolder {
 
         Item mBoundItem;
 
