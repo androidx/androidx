@@ -19,6 +19,7 @@ package android.support.v4.print;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Build;
+
 import android.net.Uri;
 
 import java.io.FileNotFoundException;
@@ -151,13 +152,14 @@ public final class PrintHelper {
     }
 
     /**
-     * Implementation used on KitKat (and above)
+     * Generic implementation for KitKat to Api24
      */
-    private static final class PrintHelperKitkatImpl implements PrintHelperVersionImpl {
-        private final PrintHelperKitkat mPrintHelper;
+    private static class PrintHelperImpl<RealHelper extends PrintHelperKitkat>
+            implements PrintHelperVersionImpl {
+        private final RealHelper mPrintHelper;
 
-        PrintHelperKitkatImpl(Context context) {
-            mPrintHelper = new PrintHelperKitkat(context);
+        protected PrintHelperImpl(RealHelper helper) {
+            mPrintHelper = helper;
         }
 
         @Override
@@ -193,9 +195,9 @@ public final class PrintHelper {
         @Override
         public void printBitmap(String jobName, Bitmap bitmap,
                 final OnPrintFinishCallback callback) {
-            PrintHelperKitkat.OnPrintFinishCallback delegateCallback = null;
+            RealHelper.OnPrintFinishCallback delegateCallback = null;
             if (callback != null) {
-                delegateCallback = new PrintHelperKitkat.OnPrintFinishCallback() {
+                delegateCallback = new RealHelper.OnPrintFinishCallback() {
                     @Override
                     public void onFinish() {
                         callback.onFinish();
@@ -208,9 +210,9 @@ public final class PrintHelper {
         @Override
         public void printBitmap(String jobName, Uri imageFile,
                 final OnPrintFinishCallback callback) throws FileNotFoundException {
-            PrintHelperKitkat.OnPrintFinishCallback delegateCallback = null;
+            RealHelper.OnPrintFinishCallback delegateCallback = null;
             if (callback != null) {
-                delegateCallback = new PrintHelperKitkat.OnPrintFinishCallback() {
+                delegateCallback = new RealHelper.OnPrintFinishCallback() {
                     @Override
                     public void onFinish() {
                         callback.onFinish();
@@ -222,6 +224,33 @@ public final class PrintHelper {
     }
 
     /**
+     * Implementation used on KitKat
+     */
+    private static final class PrintHelperKitkatImpl extends PrintHelperImpl<PrintHelperKitkat> {
+        PrintHelperKitkatImpl(Context context) {
+            super(new PrintHelperKitkat(context));
+        }
+    }
+
+    /**
+     * Implementation used on Api20 to Api23
+     */
+    private static final class PrintHelperApi20Impl extends PrintHelperImpl<PrintHelperApi20> {
+        PrintHelperApi20Impl(Context context) {
+            super(new PrintHelperApi20(context));
+        }
+    }
+
+    /**
+     * Implementation used on Api24 and above
+     */
+    private static final class PrintHelperApi24Impl extends PrintHelperImpl<PrintHelperApi24> {
+        PrintHelperApi24Impl(Context context) {
+            super(new PrintHelperApi24(context));
+        }
+    }
+
+    /**
      * Returns the PrintHelper that can be used to print images.
      *
      * @param context A context for accessing system resources.
@@ -229,7 +258,13 @@ public final class PrintHelper {
      */
     public PrintHelper(Context context) {
         if (systemSupportsPrint()) {
-            mImpl = new PrintHelperKitkatImpl(context);
+            if (Build.VERSION.CODENAME.equals("N") ) {
+                mImpl = new PrintHelperApi24Impl(context);
+            } else if (Build.VERSION.SDK_INT >= 20) {
+                mImpl = new PrintHelperApi20Impl(context);
+            } else {
+                mImpl = new PrintHelperKitkatImpl(context);
+            }
         } else {
             mImpl = new PrintHelperStubImpl();
         }

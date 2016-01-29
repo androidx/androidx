@@ -37,6 +37,7 @@ import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.print.PrintDocumentInfo;
 import android.print.PrintManager;
+import android.print.PrintAttributes.MediaSize;
 import android.print.pdf.PrintedPdfDocument;
 import android.util.Log;
 
@@ -87,13 +88,20 @@ class PrintHelperKitkat {
         public void onFinish();
     }
 
+    /**
+     * Whether the PrintActivity respects the suggested orientation
+     */
+    protected boolean mPrintActivityRespectsOrientation;
+
     int mScaleMode = SCALE_MODE_FILL;
 
     int mColorMode = COLOR_MODE_COLOR;
 
-    int mOrientation = ORIENTATION_LANDSCAPE;
+    int mOrientation;
 
     PrintHelperKitkat(Context context) {
+        mPrintActivityRespectsOrientation = true;
+
         mContext = context;
     }
 
@@ -150,6 +158,10 @@ class PrintHelperKitkat {
      * {@link #ORIENTATION_LANDSCAPE} or {@link #ORIENTATION_PORTRAIT}
      */
     public int getOrientation() {
+        /// Unset defaults to landscape but might turn image
+        if (mOrientation == 0) {
+            return ORIENTATION_LANDSCAPE;
+        }
         return mOrientation;
     }
 
@@ -161,6 +173,20 @@ class PrintHelperKitkat {
      */
     public int getColorMode() {
         return mColorMode;
+    }
+
+    /**
+     * Check if the supplied bitmap should best be printed on a portrait orientation paper.
+     *
+     * @param bitmap The bitmap to be printed.
+     * @return true iff the picture should best be printed on a portrait orientation paper.
+     */
+    private static boolean isPortrait(Bitmap bitmap) {
+        if (bitmap.getWidth() <= bitmap.getHeight()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -177,8 +203,10 @@ class PrintHelperKitkat {
         }
         final int fittingMode = mScaleMode; // grab the fitting mode at time of call
         PrintManager printManager = (PrintManager) mContext.getSystemService(Context.PRINT_SERVICE);
-        PrintAttributes.MediaSize mediaSize = PrintAttributes.MediaSize.UNKNOWN_PORTRAIT;
-        if (bitmap.getWidth() > bitmap.getHeight()) {
+        PrintAttributes.MediaSize mediaSize;
+        if (isPortrait(bitmap)) {
+            mediaSize = PrintAttributes.MediaSize.UNKNOWN_PORTRAIT;
+        } else {
             mediaSize = PrintAttributes.MediaSize.UNKNOWN_LANDSCAPE;
         }
         PrintAttributes attr = new PrintAttributes.Builder()
@@ -325,7 +353,9 @@ class PrintHelperKitkat {
                                  final LayoutResultCallback layoutResultCallback,
                                  Bundle bundle) {
 
-                mAttributes = newPrintAttributes;
+                synchronized (this) {
+                    mAttributes = newPrintAttributes;
+                }
 
                 if (cancellationSignal.isCanceled()) {
                     layoutResultCallback.onLayoutCancelled();
@@ -343,7 +373,6 @@ class PrintHelperKitkat {
                 }
 
                 mLoadBitmap = new AsyncTask<Uri, Boolean, Bitmap>() {
-
                     @Override
                     protected void onPreExecute() {
                         // First register for cancellation requests.
@@ -370,12 +399,35 @@ class PrintHelperKitkat {
                     @Override
                     protected void onPostExecute(Bitmap bitmap) {
                         super.onPostExecute(bitmap);
+
+                        // If orientation was not set by the caller, try to fit the bitmap on
+                        // the current paper by potentially rotating the bitmap by 90 degrees.
+                        if (bitmap != null
+                                && (!mPrintActivityRespectsOrientation || mOrientation == 0)) {
+                            MediaSize mediaSize;
+
+                            synchronized (this) {
+                                mediaSize = mAttributes.getMediaSize();
+                            }
+
+                            if (mediaSize != null) {
+                                if (mediaSize.isPortrait() != isPortrait(bitmap)) {
+                                    Matrix rotation = new Matrix();
+
+                                    rotation.postRotate(90);
+                                    bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
+                                            bitmap.getHeight(), rotation, true);
+                                }
+                            }
+                        }
+
                         mBitmap = bitmap;
                         if (bitmap != null) {
                             PrintDocumentInfo info = new PrintDocumentInfo.Builder(jobName)
                                     .setContentType(PrintDocumentInfo.CONTENT_TYPE_PHOTO)
                                     .setPageCount(1)
                                     .build();
+
                             boolean changed = !newPrintAttributes.equals(oldPrintAttributes);
 
                             layoutResultCallback.onLayoutFinished(info, changed);
@@ -478,7 +530,7 @@ class PrintHelperKitkat {
         PrintAttributes.Builder builder = new PrintAttributes.Builder();
         builder.setColorMode(mColorMode);
 
-        if (mOrientation == ORIENTATION_LANDSCAPE) {
+        if (mOrientation == ORIENTATION_LANDSCAPE || mOrientation == 0) {
             builder.setMediaSize(PrintAttributes.MediaSize.UNKNOWN_LANDSCAPE);
         } else if (mOrientation == ORIENTATION_PORTRAIT) {
             builder.setMediaSize(PrintAttributes.MediaSize.UNKNOWN_PORTRAIT);
