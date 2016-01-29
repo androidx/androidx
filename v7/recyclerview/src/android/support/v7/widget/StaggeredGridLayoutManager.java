@@ -16,6 +16,12 @@
 
 package android.support.v7.widget;
 
+import static android.support.v7.widget.LayoutState.ITEM_DIRECTION_HEAD;
+import static android.support.v7.widget.LayoutState.ITEM_DIRECTION_TAIL;
+import static android.support.v7.widget.LayoutState.LAYOUT_END;
+import static android.support.v7.widget.LayoutState.LAYOUT_START;
+import static android.support.v7.widget.RecyclerView.NO_POSITION;
+
 import android.content.Context;
 import android.graphics.PointF;
 import android.graphics.Rect;
@@ -36,12 +42,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
-
-import static android.support.v7.widget.LayoutState.ITEM_DIRECTION_HEAD;
-import static android.support.v7.widget.LayoutState.ITEM_DIRECTION_TAIL;
-import static android.support.v7.widget.LayoutState.LAYOUT_END;
-import static android.support.v7.widget.LayoutState.LAYOUT_START;
-import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 /**
  * A LayoutManager that lays out children in a staggered grid formation.
@@ -569,14 +569,18 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
     public void setMeasuredDimension(Rect childrenBounds, int wSpec, int hSpec) {
         // we don't like it to wrap content in our non-scroll direction.
         final int width, height;
+        final int horizontalPadding = getPaddingLeft() + getPaddingRight();
+        final int verticalPadding = getPaddingTop() + getPaddingBottom();
         if (mOrientation == VERTICAL) {
-            int usedHeight = childrenBounds.height() + getPaddingTop() + getPaddingBottom();
+            final int usedHeight = childrenBounds.height() + verticalPadding;
             height = chooseSize(hSpec, usedHeight, getMinimumHeight());
-            width = chooseSize(wSpec, mSizePerSpan * mSpanCount, getMinimumWidth());
+            width = chooseSize(wSpec, mSizePerSpan * mSpanCount + horizontalPadding,
+                    getMinimumWidth());
         } else {
-            int usedWidth = childrenBounds.width() + getPaddingLeft() + getPaddingRight();
+            final int usedWidth = childrenBounds.width() + horizontalPadding;
             width = chooseSize(wSpec, usedWidth, getMinimumWidth());
-            height = chooseSize(hSpec, mSizePerSpan * mSpanCount, getMinimumHeight());
+            height = chooseSize(hSpec, mSizePerSpan * mSpanCount + verticalPadding,
+                    getMinimumHeight());
         }
         setMeasuredDimension(width, height);
     }
