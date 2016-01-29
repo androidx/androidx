@@ -103,6 +103,13 @@ public final class CustomTabsIntent {
             "android.support.customtabs.extra.ACTION_BAR_ITEMS";
 
     /**
+     * Extra that changes the background color for the secondary action bar. The value should be an
+     * int that specifies a {@link Color}, not a resource id.
+     */
+    public static final String EXTRA_SECONDARY_ACTION_BAR_COLOR =
+            "android.support.customtabs.extra.SECONDARY_ACTION_BAR_COLOR";
+
+    /**
      * Key that specifies the {@link Bitmap} to be used as the image source for the action button.
      *  The icon should't be more than 24dp in height (No padding needed. The button itself will be
      *  48dp in height) and have a width/height ratio of less than 2.
@@ -361,6 +368,15 @@ public final class CustomTabsIntent {
             bundle.putString(KEY_DESCRIPTION, description);
             bundle.putParcelable(KEY_PENDING_INTENT, pendingIntent);
             mActionButtons.add(bundle);
+            return this;
+        }
+
+        /**
+         * Sets the color of the secondary action bar.
+         * @param color The color for the secondary action bar.
+         */
+        public Builder setSecondaryActionBarColor(@ColorInt int color) {
+            mIntent.putExtra(EXTRA_CUSTOM_ACTION_BAR_COLOR, color);
             return this;
         }
 

@@ -29,6 +29,7 @@ package android.support.customtabs {
     field public static final java.lang.String EXTRA_ENABLE_URLBAR_HIDING = "android.support.customtabs.extra.ENABLE_URLBAR_HIDING";
     field public static final java.lang.String EXTRA_EXIT_ANIMATION_BUNDLE = "android.support.customtabs.extra.EXIT_ANIMATION_BUNDLE";
     field public static final java.lang.String EXTRA_MENU_ITEMS = "android.support.customtabs.extra.MENU_ITEMS";
+    field public static final java.lang.String EXTRA_SECONDARY_ACTION_BAR_COLOR = "android.support.customtabs.extra.SECONDARY_ACTION_BAR_COLOR";
     field public static final java.lang.String EXTRA_SESSION = "android.support.customtabs.extra.SESSION";
     field public static final java.lang.String EXTRA_TINT_ACTION_BUTTON = "android.support.customtabs.extra.TINT_ACTION_BUTTON";
     field public static final java.lang.String EXTRA_TITLE_VISIBILITY_STATE = "android.support.customtabs.extra.TITLE_VISIBILITY";
@@ -57,6 +58,7 @@ package android.support.customtabs {
     method public android.support.customtabs.CustomTabsIntent.Builder setActionButton(android.graphics.Bitmap, java.lang.String, android.app.PendingIntent);
     method public android.support.customtabs.CustomTabsIntent.Builder setCloseButtonIcon(android.graphics.Bitmap);
     method public android.support.customtabs.CustomTabsIntent.Builder setExitAnimations(android.content.Context, int, int);
+    method public android.support.customtabs.CustomTabsIntent.Builder setSecondaryActionBarColor(int);
     method public android.support.customtabs.CustomTabsIntent.Builder setShowTitle(boolean);
     method public android.support.customtabs.CustomTabsIntent.Builder setStartAnimations(android.content.Context, int, int);
     method public android.support.customtabs.CustomTabsIntent.Builder setToolbarColor(int);
