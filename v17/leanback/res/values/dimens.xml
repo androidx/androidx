@@ -276,4 +276,25 @@
     <!-- picker separator horizontal padding -->
     <dimen name="picker_separator_horizontal_padding">4dp</dimen>
 
+    <!-- Onboarding screen -->
+    <dimen name="lb_onboarding_content_width">536dp</dimen>
+    <dimen name="lb_onboarding_header_height">100dp</dimen>
+    <dimen name="lb_onboarding_header_margin_top">64dp</dimen>
+    <dimen name="lb_onboarding_start_button_height">36dp</dimen>
+    <dimen name="onlb_boarding_start_button_margin_bottom">62dp</dimen>
+    <!-- This value should be onboarding_header_margin_top + onboarding_header_height -->
+    <dimen name="lb_onboarding_content_margin_top">164dp</dimen>
+    <!-- This value should be onboarding_start_button_height + onboarding_start_button_margin_bottom -->
+    <dimen name="lb_onboarding_content_margin_bottom">98dp</dimen>
+    <!-- This value should be page_indicator_arrow_diameter + 2 * page_indicator_arrow_shadow_radius -->
+    <dimen name="lb_onboarding_navigation_height">40dp</dimen>
+    <dimen name="lb_page_indicator_arrow_diameter">36dp</dimen>
+    <dimen name="lb_page_indicator_arrow_shadow_radius">2dp</dimen>
+    <dimen name="lb_page_indicator_arrow_shadow_offset">1dp</dimen>
+    <dimen name="lb_page_indicator_arrow_gap">32dp</dimen>
+    <!-- This value must be twice page_indicator_dot_radius -->
+    <dimen name="lb_page_indicator_dot_diameter">10dp</dimen>
+    <dimen name="lb_page_indicator_dot_radius">5dp</dimen>
+    <dimen name="lb_page_indicator_dot_gap">16dp</dimen>
+
 </resources>
