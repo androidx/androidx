@@ -17,6 +17,7 @@ package android.support.v4.app.test;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
@@ -199,23 +200,36 @@ public class FragmentTestActivity extends FragmentActivity {
 
     public static class ParentFragment extends Fragment {
         public boolean wasAttachedInTime;
+        public ChildFragment childFragment;
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            ChildFragment f = new ChildFragment();
+            childFragment = new ChildFragment();
             FragmentManager fm = getChildFragmentManager();
-            fm.beginTransaction().add(f, "foo").commit();
+            fm.beginTransaction().add(childFragment, "foo").commit();
             fm.executePendingTransactions();
-            wasAttachedInTime = f.attached;
+            wasAttachedInTime = childFragment.attached;
         }
     }
 
     public static class ChildFragment extends Fragment {
         public boolean attached;
+        public boolean onActivityResultCalled;
+        public int onActivityResultRequestCode;
+        public int onActivityResultResultCode;
+
         @Override
         public void onAttach(Context activity) {
             super.onAttach(activity);
             attached = true;
+        }
+
+        @Override
+        public void onActivityResult(int requestCode, int resultCode, Intent data) {
+            onActivityResultCalled = true;
+            onActivityResultRequestCode = requestCode;
+            onActivityResultResultCode = resultCode;
         }
     }
 }
