@@ -25,7 +25,8 @@
     <FrameLayout
         android:id="@+id/background_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:visibility="gone" />
 
     <LinearLayout
         android:id="@+id/page_container"
@@ -36,7 +37,8 @@
         android:layout_marginTop="@dimen/lb_onboarding_header_margin_top"
         android:clipChildren="false"
         android:clipToPadding="false"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone">
         <TextView
             android:id="@+id/title"
             android:layout_width="match_parent"
@@ -67,7 +69,8 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/page_indicator"
         android:layout_below="@id/page_container"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:visibility="gone" />
 
     <com.google.android.tv.common.ui.setup.leanback.PagingIndicator
         android:id="@id/page_indicator"
@@ -76,7 +79,8 @@
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="58dp"
-        android:focusable="true" />
+        android:focusable="true"
+        android:visibility="gone" />
 
     <Button
         android:id="@+id/button_start"
@@ -97,12 +101,14 @@
         android:text="@string/lb_onboarding_get_started"
         android:textAllCaps="true"
         android:textColor="#014269"
-        android:textSize="16sp" />
+        android:textSize="16sp"
+        android:visibility="gone" />
 
     <FrameLayout
         android:id="@+id/foreground_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:visibility="gone" />
 
     <ImageView
         android:id="@+id/logo"
