@@ -44,7 +44,7 @@ import android.widget.Toast;
 
 public class PlaybackOverlayFragment
         extends android.support.v17.leanback.app.PlaybackOverlayFragment
-        implements PlaybackOverlayActivity.PictureInPictureModeListener {
+        implements PlaybackOverlayActivity.PictureInPictureListener {
     private static final String TAG = "leanback.PlaybackControlsFragment";
 
     /**
@@ -127,7 +127,7 @@ public class PlaybackOverlayFragment
             @Override
             public void onActionClicked(Action action) {
                 if (action.getId() == R.id.lb_control_picture_in_picture) {
-                    getActivity().enterPictureInPictureMode();
+                    getActivity().enterPictureInPicture();
                     return;
                 }
                 super.onActionClicked(action);
@@ -171,19 +171,19 @@ public class PlaybackOverlayFragment
         super.onStart();
         mGlue.setFadingEnabled(true);
         mGlue.enableProgressUpdating(mGlue.hasValidMedia() && mGlue.isMediaPlaying());
-        ((PlaybackOverlayActivity) getActivity()).registerPictureInPictureModeListener(this);
+        ((PlaybackOverlayActivity) getActivity()).registerPictureInPictureListener(this);
     }
 
     @Override
     public void onStop() {
         mGlue.enableProgressUpdating(false);
-        ((PlaybackOverlayActivity) getActivity()).unregisterPictureInPictureModeListener(this);
+        ((PlaybackOverlayActivity) getActivity()).unregisterPictureInPictureListener(this);
         super.onStop();
     }
 
     @Override
-    public void onPictureInPictureModeChanged(boolean pictureInPictureMode) {
-        if (pictureInPictureMode) {
+    public void onPictureInPictureChanged(boolean inPictureInPicture) {
+        if (inPictureInPicture) {
             // Hide the controls in picture-in-picture mode.
             setFadingEnabled(true);
             fadeOut();
