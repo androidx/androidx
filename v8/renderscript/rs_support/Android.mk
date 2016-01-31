@@ -132,8 +132,7 @@ LOCAL_SRC_FILES:= \
 	cpu_ref/rsCpuIntrinsicHistogram.cpp \
 	cpu_ref/rsCpuIntrinsicLUT.cpp \
 	cpu_ref/rsCpuIntrinsicResize.cpp \
-	cpu_ref/rsCpuIntrinsicYuvToRGB.cpp \
-	cpu_ref/rsCpuRuntimeMathFuncs.cpp
+	cpu_ref/rsCpuIntrinsicYuvToRGB.cpp
 
 ifeq ($(ARCH_ARM_HAVE_ARMV7A),true)
 LOCAL_CFLAGS_arm := -DARCH_ARM_HAVE_VFP -DARCH_ARM_USE_INTRINSICS
