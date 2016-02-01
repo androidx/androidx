@@ -51,6 +51,8 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
     private final float mUnfocusedZ;
     private final float mFocusedZ;
     private ValueAnimator mColorAnimator;
+    private boolean mColorAnimationEnabled;
+    private boolean mAttachedToWindow;
 
     /**
      * A set of colors used to display the search orb.
@@ -342,11 +344,16 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
      * </p>
      */
     public void enableOrbColorAnimation(boolean enable) {
+        mColorAnimationEnabled = enable;
+        updateColorAnimator();
+    }
+
+    private void updateColorAnimator() {
         if (mColorAnimator != null) {
             mColorAnimator.end();
             mColorAnimator = null;
         }
-        if (enable) {
+        if (mColorAnimationEnabled && mAttachedToWindow) {
             // TODO: set interpolator (material if available)
             mColorAnimator = ValueAnimator.ofObject(mColorEvaluator,
                     mColors.color, mColors.brightColor, mColors.color);
@@ -364,9 +371,17 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
     }
 
     @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        mAttachedToWindow = true;
+        updateColorAnimator();
+    }
+
+    @Override
     protected void onDetachedFromWindow() {
+        mAttachedToWindow = false;
         // Must stop infinite animation to prevent activity leak
-        enableOrbColorAnimation(false);
+        updateColorAnimator();
         super.onDetachedFromWindow();
     }
 }
