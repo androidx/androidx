@@ -48,9 +48,11 @@ limitations under the License.
     <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"उच्च गुणस्तर असक्षम"</string>
     <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"बन्द क्याप्सनहरु सक्षम"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"बन्द क्याप्सनहरु असक्षम"</string>
-    <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"चित्रमा चित्र मोड प्रविष्ट गर्नुहोस्"</string>
+    <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"चित्रलाई चित्र मोडमा प्रविष्ट गर्नुहोस्"</string>
     <string name="lb_guidedaction_finish_title" msgid="4015190340667946245">"समाप्त गर्नुहोस्"</string>
     <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"जारी राख्नुहोस्"</string>
     <string name="lb_date_separator" msgid="2440386660906697298">"/"</string>
     <string name="lb_time_separator" msgid="2763247350845477227">":"</string>
+    <!-- no translation found for lb_onboarding_get_started (6961440391306351139) -->
+    <skip />
 </resources>
