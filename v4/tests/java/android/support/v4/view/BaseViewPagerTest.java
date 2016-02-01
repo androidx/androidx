@@ -40,6 +40,9 @@ import static android.support.test.espresso.assertion.PositionAssertions.*;
 import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.*;
+import static android.support.v4.testutils.TestUtilsAssertions.hasDisplayedChildren;
+import static android.support.v4.testutils.TestUtilsMatchers.*;
+import static android.support.v4.view.ViewPagerActions.*;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertEquals;
@@ -177,40 +180,56 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
         adapter.add("Red", Color.RED);
         adapter.add("Green", Color.GREEN);
         adapter.add("Blue", Color.BLUE);
-        onView(withId(R.id.pager)).perform(ViewPagerActions.setAdapter(adapter),
-                ViewPagerActions.scrollToPage(0));
+        onView(withId(R.id.pager)).perform(setAdapter(adapter), scrollToPage(0, false));
     }
 
     @After
     public void tearDown() throws Exception {
-        onView(withId(R.id.pager)).perform(ViewPagerActions.setAdapter(null));
+        onView(withId(R.id.pager)).perform(setAdapter(null));
+    }
+
+    private void verifyPageSelections(boolean smoothScroll) {
+        assertEquals("Initial state", 0, mViewPager.getCurrentItem());
+
+        onView(withId(R.id.pager)).perform(scrollRight(smoothScroll));
+        assertEquals("Scroll right", 1, mViewPager.getCurrentItem());
+
+        onView(withId(R.id.pager)).perform(scrollRight(smoothScroll));
+        assertEquals("Scroll right", 2, mViewPager.getCurrentItem());
+
+        // Try "scrolling" beyond the last page and test that we're still on the last page.
+        onView(withId(R.id.pager)).perform(scrollRight(smoothScroll));
+        assertEquals("Scroll right beyond last page", 2, mViewPager.getCurrentItem());
+
+        onView(withId(R.id.pager)).perform(scrollLeft(smoothScroll));
+        assertEquals("Scroll left", 1, mViewPager.getCurrentItem());
+
+        onView(withId(R.id.pager)).perform(scrollLeft(smoothScroll));
+        assertEquals("Scroll left", 0, mViewPager.getCurrentItem());
+
+        // Try "scrolling" beyond the first page and test that we're still on the first page.
+        onView(withId(R.id.pager)).perform(scrollLeft(smoothScroll));
+        assertEquals("Scroll left beyond first page", 0, mViewPager.getCurrentItem());
+
+        // Go from index 0 to index 2
+        onView(withId(R.id.pager)).perform(scrollToPage(2, smoothScroll));
+        assertEquals("Scroll to last page", 2, mViewPager.getCurrentItem());
+
+        // And back to 0
+        onView(withId(R.id.pager)).perform(scrollToPage(0, smoothScroll));
+        assertEquals("Scroll to first page", 0, mViewPager.getCurrentItem());
     }
 
     @Test
     @SmallTest
-    public void testPageSelections() {
-        assertEquals("Initial state", 0, mViewPager.getCurrentItem());
+    public void testPageSelectionsImmediate() {
+        verifyPageSelections(false);
+    }
 
-        onView(withId(R.id.pager)).perform(ViewPagerActions.scrollRight());
-        assertEquals("Scroll right", 1, mViewPager.getCurrentItem());
-
-        onView(withId(R.id.pager)).perform(ViewPagerActions.scrollRight());
-        assertEquals("Scroll right", 2, mViewPager.getCurrentItem());
-
-        // Try "scrolling" beyond the last page and test that we're still on the last page.
-        onView(withId(R.id.pager)).perform(ViewPagerActions.scrollRight());
-        assertEquals("Scroll right beyond last page", 2, mViewPager.getCurrentItem());
-
-        onView(withId(R.id.pager)).perform(ViewPagerActions.scrollLeft());
-        assertEquals("Scroll left", 1, mViewPager.getCurrentItem());
-
-        onView(withId(R.id.pager)).perform(ViewPagerActions.scrollLeft());
-        assertEquals("Scroll left", 0, mViewPager.getCurrentItem());
-
-        // Try "scrolling" beyond the first page and test that we're still on the first page.
-        onView(withId(R.id.pager)).perform(ViewPagerActions.scrollLeft());
-        assertEquals("Scroll left beyond first page", 0, mViewPager.getCurrentItem());
-
+    @Test
+    @SmallTest
+    public void testPageSelectionsSmooth() {
+        verifyPageSelections(true);
     }
 
     @Test
@@ -258,9 +277,7 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
         assertEquals("Swipe right beyond first page and then left", 1, mViewPager.getCurrentItem());
     }
 
-    @Test
-    @SmallTest
-    public void testPageContent() {
+    private void verifyPageContent(boolean smoothScroll) {
         assertEquals("Initial state", 0, mViewPager.getCurrentItem());
 
         // Verify the displayed content to match the initial adapter - with 3 pages and each
@@ -269,39 +286,49 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
         // Page #0 should be displayed, page #1 should not be displayed and page #2 should not exist
         // yet as it's outside of the offscreen window limit.
         onView(withId(R.id.page_0)).check(matches(allOf(
-                TestUtilsMatchers.isOfClass(View.class),
+                isOfClass(View.class),
                 isDisplayed(),
-                TestUtilsMatchers.backgroundColor(Color.RED))));
+                backgroundColor(Color.RED))));
         onView(withId(R.id.page_1)).check(matches(not(isDisplayed())));
         onView(withId(R.id.page_2)).check(doesNotExist());
 
         // Scroll one page to select page #1
-        onView(withId(R.id.pager)).perform(ViewPagerActions.scrollRight());
+        onView(withId(R.id.pager)).perform(scrollRight(smoothScroll));
         assertEquals("Scroll right", 1, mViewPager.getCurrentItem());
         // Pages #0 / #2 should not be displayed, page #1 should be displayed.
         onView(withId(R.id.page_0)).check(matches(not(isDisplayed())));
         onView(withId(R.id.page_1)).check(matches(allOf(
-                TestUtilsMatchers.isOfClass(View.class),
+                isOfClass(View.class),
                 isDisplayed(),
-                TestUtilsMatchers.backgroundColor(Color.GREEN))));
+                backgroundColor(Color.GREEN))));
         onView(withId(R.id.page_2)).check(matches(not(isDisplayed())));
 
         // Scroll one more page to select page #2
-        onView(withId(R.id.pager)).perform(ViewPagerActions.scrollRight());
+        onView(withId(R.id.pager)).perform(scrollRight(smoothScroll));
         assertEquals("Scroll right again", 2, mViewPager.getCurrentItem());
         // Page #0 should not exist as it's bumped to the outside of the offscreen window limit,
         // page #1 should not be displayed, page #2 should be displayed.
         onView(withId(R.id.page_0)).check(doesNotExist());
         onView(withId(R.id.page_1)).check(matches(not(isDisplayed())));
         onView(withId(R.id.page_2)).check(matches(allOf(
-                TestUtilsMatchers.isOfClass(View.class),
+                isOfClass(View.class),
                 isDisplayed(),
-                TestUtilsMatchers.backgroundColor(Color.BLUE))));
+                backgroundColor(Color.BLUE))));
     }
 
     @Test
     @SmallTest
-    public void testAdapterChange() {
+    public void testPageContentImmediate() {
+        verifyPageContent(false);
+    }
+
+    @Test
+    @SmallTest
+    public void testPageContentSmooth() {
+        verifyPageContent(true);
+    }
+
+    private void verifyAdapterChange(boolean smoothScroll) {
         // Verify that we have the expected initial adapter
         PagerAdapter initialAdapter = mViewPager.getAdapter();
         assertEquals("Initial adapter class", ColorPagerAdapter.class, initialAdapter.getClass());
@@ -313,8 +340,7 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
         newAdapter.add("Title 1", "Body 1");
         newAdapter.add("Title 2", "Body 2");
         newAdapter.add("Title 3", "Body 3");
-        onView(withId(R.id.pager)).perform(ViewPagerActions.setAdapter(newAdapter),
-                ViewPagerActions.scrollToPage(0));
+        onView(withId(R.id.pager)).perform(setAdapter(newAdapter), scrollToPage(0, smoothScroll));
 
         // Verify the displayed content to match the newly set adapter - with 4 pages and each
         // one rendered as a TextView.
@@ -322,7 +348,7 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
         // Page #0 should be displayed, page #1 should not be displayed and pages #2 / #3 should not
         // exist yet as they're outside of the offscreen window limit.
         onView(withId(R.id.page_0)).check(matches(allOf(
-                TestUtilsMatchers.isOfClass(TextView.class),
+                isOfClass(TextView.class),
                 isDisplayed(),
                 withText("Body 0"))));
         onView(withId(R.id.page_1)).check(matches(not(isDisplayed())));
@@ -330,33 +356,33 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
         onView(withId(R.id.page_3)).check(doesNotExist());
 
         // Scroll one page to select page #1
-        onView(withId(R.id.pager)).perform(ViewPagerActions.scrollRight());
+        onView(withId(R.id.pager)).perform(scrollRight(smoothScroll));
         assertEquals("Scroll right", 1, mViewPager.getCurrentItem());
         // Pages #0 / #2 should not be displayed, page #1 should be displayed, page #3 is still
         // outside the offscreen limit.
         onView(withId(R.id.page_0)).check(matches(not(isDisplayed())));
         onView(withId(R.id.page_1)).check(matches(allOf(
-                TestUtilsMatchers.isOfClass(TextView.class),
+                isOfClass(TextView.class),
                 isDisplayed(),
                 withText("Body 1"))));
         onView(withId(R.id.page_2)).check(matches(not(isDisplayed())));
         onView(withId(R.id.page_3)).check(doesNotExist());
 
         // Scroll one more page to select page #2
-        onView(withId(R.id.pager)).perform(ViewPagerActions.scrollRight());
+        onView(withId(R.id.pager)).perform(scrollRight(smoothScroll));
         assertEquals("Scroll right again", 2, mViewPager.getCurrentItem());
         // Page #0 should not exist as it's bumped to the outside of the offscreen window limit,
         // pages #1 / #3 should not be displayed, page #2 should be displayed.
         onView(withId(R.id.page_0)).check(doesNotExist());
         onView(withId(R.id.page_1)).check(matches(not(isDisplayed())));
         onView(withId(R.id.page_2)).check(matches(allOf(
-                TestUtilsMatchers.isOfClass(TextView.class),
+                isOfClass(TextView.class),
                 isDisplayed(),
                 withText("Body 2"))));
         onView(withId(R.id.page_3)).check(matches(not(isDisplayed())));
 
         // Scroll one more page to select page #2
-        onView(withId(R.id.pager)).perform(ViewPagerActions.scrollRight());
+        onView(withId(R.id.pager)).perform(scrollRight(smoothScroll));
         assertEquals("Scroll right one more time", 3, mViewPager.getCurrentItem());
         // Pages #0 / #1 should not exist as they're bumped to the outside of the offscreen window
         // limit, page #2 should not be displayed, page #3 should be displayed.
@@ -364,12 +390,24 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
         onView(withId(R.id.page_1)).check(doesNotExist());
         onView(withId(R.id.page_2)).check(matches(not(isDisplayed())));
         onView(withId(R.id.page_3)).check(matches(allOf(
-                TestUtilsMatchers.isOfClass(TextView.class),
+                isOfClass(TextView.class),
                 isDisplayed(),
                 withText("Body 3"))));
     }
 
-    private void testTitleStripLayout(String expectedStartTitle, String expectedSelectedTitle,
+    @Test
+    @SmallTest
+    public void testAdapterChangeImmediate() {
+        verifyAdapterChange(false);
+    }
+
+    @Test
+    @SmallTest
+    public void testAdapterChangeSmooth() {
+        verifyAdapterChange(true);
+    }
+
+    private void verifyTitleStripLayout(String expectedStartTitle, String expectedSelectedTitle,
             String expectedEndTitle, int selectedPageId) {
         // Check that the title strip spans the whole width of the pager and is aligned to
         // its top
@@ -389,32 +427,27 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
 
         // Check that the title strip shows the expected number of children (tab titles)
         int nonNullTitles = (hasStartTitle ? 1 : 0) + 1 + (hasEndTitle ? 1 : 0);
-        onView(withId(R.id.titles)).check(TestUtilsAssertions.hasDisplayedChildren(nonNullTitles));
+        onView(withId(R.id.titles)).check(hasDisplayedChildren(nonNullTitles));
 
         if (hasStartTitle) {
             // Check that the title for the start page is displayed at the start edge of its parent
             // (title strip)
             onView(withId(R.id.titles)).check(matches(hasDescendant(
-                    allOf(withText(expectedStartTitle), isDisplayed(),
-                            TestUtilsMatchers.startAlignedToParent()))));
+                    allOf(withText(expectedStartTitle), isDisplayed(), startAlignedToParent()))));
         }
         // Check that the title for the selected page is displayed centered in its parent
         // (title strip)
         onView(withId(R.id.titles)).check(matches(hasDescendant(
-                allOf(withText(expectedSelectedTitle), isDisplayed(),
-                        TestUtilsMatchers.centerAlignedInParent()))));
+                allOf(withText(expectedSelectedTitle), isDisplayed(), centerAlignedInParent()))));
         if (hasEndTitle) {
             // Check that the title for the end page is displayed at the end edge of its parent
             // (title strip)
             onView(withId(R.id.titles)).check(matches(hasDescendant(
-                    allOf(withText(expectedEndTitle), isDisplayed(),
-                            TestUtilsMatchers.endAlignedToParent()))));
+                    allOf(withText(expectedEndTitle), isDisplayed(), endAlignedToParent()))));
         }
     }
 
-    @Test
-    @SmallTest
-    public void testPagerStrip() {
+    private void verifyPagerStrip(boolean smoothScroll) {
         // Set an adapter with 5 pages
         final ColorPagerAdapter adapter = new ColorPagerAdapter();
         adapter.add("Red", Color.RED);
@@ -422,14 +455,14 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
         adapter.add("Blue", Color.BLUE);
         adapter.add("Yellow", Color.YELLOW);
         adapter.add("Magenta", Color.MAGENTA);
-        onView(withId(R.id.pager)).perform(ViewPagerActions.setAdapter(adapter),
-                ViewPagerActions.scrollToPage(0));
+        onView(withId(R.id.pager)).perform(setAdapter(adapter),
+                scrollToPage(0, smoothScroll));
 
         // Check that the pager has a title strip
         onView(withId(R.id.pager)).check(matches(hasDescendant(withId(R.id.titles))));
         // Check that the title strip is displayed and is of the expected class
         onView(withId(R.id.titles)).check(matches(allOf(
-                isDisplayed(), TestUtilsMatchers.isOfClass(getStripClass()))));
+                isDisplayed(), isOfClass(getStripClass()))));
 
         // The following block tests the overall layout of tab strip and main pager content
         // (vertical stacking), the content of the tab strip (showing texts for the selected
@@ -437,28 +470,40 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
         // tab strip (selected in center, others on left and right).
 
         // Check the content and alignment of title strip for selected page #0
-        testTitleStripLayout(null, "Red", "Green", R.id.page_0);
+        verifyTitleStripLayout(null, "Red", "Green", R.id.page_0);
 
         // Scroll one page to select page #1 and check layout / content of title strip
-        onView(withId(R.id.pager)).perform(ViewPagerActions.scrollRight());
-        testTitleStripLayout("Red", "Green", "Blue", R.id.page_1);
+        onView(withId(R.id.pager)).perform(scrollRight(smoothScroll));
+        verifyTitleStripLayout("Red", "Green", "Blue", R.id.page_1);
 
         // Scroll one page to select page #2 and check layout / content of title strip
-        onView(withId(R.id.pager)).perform(ViewPagerActions.scrollRight());
-        testTitleStripLayout("Green", "Blue", "Yellow", R.id.page_2);
+        onView(withId(R.id.pager)).perform(scrollRight(smoothScroll));
+        verifyTitleStripLayout("Green", "Blue", "Yellow", R.id.page_2);
 
         // Scroll one page to select page #3 and check layout / content of title strip
-        onView(withId(R.id.pager)).perform(ViewPagerActions.scrollRight());
-        testTitleStripLayout("Blue", "Yellow", "Magenta", R.id.page_3);
+        onView(withId(R.id.pager)).perform(scrollRight(smoothScroll));
+        verifyTitleStripLayout("Blue", "Yellow", "Magenta", R.id.page_3);
 
         // Scroll one page to select page #4 and check layout / content of title strip
-        onView(withId(R.id.pager)).perform(ViewPagerActions.scrollRight());
-        testTitleStripLayout("Yellow", "Magenta", null, R.id.page_4);
+        onView(withId(R.id.pager)).perform(scrollRight(smoothScroll));
+        verifyTitleStripLayout("Yellow", "Magenta", null, R.id.page_4);
 
         // Scroll back to page #0
-        onView(withId(R.id.pager)).perform(ViewPagerActions.scrollToPage(0));
+        onView(withId(R.id.pager)).perform(scrollToPage(0, smoothScroll));
 
-        assertStripInteraction();
+        assertStripInteraction(smoothScroll);
+    }
+
+    @Test
+    @SmallTest
+    public void testPagerStripImmediate() {
+        verifyPagerStrip(false);
+    }
+
+    @Test
+    @SmallTest
+    public void testPagerStripSmooth() {
+        verifyPagerStrip(true);
     }
 
     /**
@@ -470,5 +515,5 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
      * Checks assertions that are specific to the pager strip implementation (interactive or
      * non interactive).
      */
-    protected abstract void assertStripInteraction();
+    protected abstract void assertStripInteraction(boolean smoothScroll);
 }
