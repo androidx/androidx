@@ -89,5 +89,7 @@ limitations under the License.
     <eat-comment />
     <!-- Text for "GET STARTED" button. This text should be in ALL CAPS. -->
     <string name="lb_onboarding_get_started">GET STARTED</string>
+    <!-- Content description for page navigator. -->
+    <string name="lb_onboarding_accessibility_next">Next</string>
 
 </resources>
