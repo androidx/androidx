@@ -19,6 +19,7 @@ package android.support.v4.view;
 import android.animation.ValueAnimator;
 import android.graphics.Paint;
 import android.view.View;
+import android.view.ViewParent;
 
 class ViewCompatHC {
     static long getFrameTime() {
@@ -163,9 +164,23 @@ class ViewCompatHC {
 
     static void offsetTopAndBottom(View view, int offset) {
         view.offsetTopAndBottom(offset);
+        ViewParent parent = view.getParent();
+        if (parent instanceof View) {
+            tickleInvalidationFlag((View) parent);
+        }
     }
 
     static void offsetLeftAndRight(View view, int offset) {
         view.offsetLeftAndRight(offset);
+        ViewParent parent = view.getParent();
+        if (parent instanceof View) {
+            tickleInvalidationFlag((View) parent);
+        }
+    }
+
+    private static void tickleInvalidationFlag(View view) {
+        final float y = view.getTranslationY();
+        view.setTranslationY(y + 1);
+        view.setTranslationY(y);
     }
 }
