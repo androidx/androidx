@@ -21,6 +21,7 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.DataInteraction;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.testutils.TestUtilsMatchers;
@@ -32,6 +33,9 @@ import android.widget.CheckedTextView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import org.hamcrest.Matcher;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 
@@ -44,9 +48,11 @@ import static android.support.test.espresso.matcher.ViewMatchers.*;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class AlertDialogCursorTest
-        extends ActivityInstrumentationTestCase2<AlertDialogTestActivity> {
+        extends BaseInstrumentationTestCase<AlertDialogTestActivity> {
 
     private Button mButton;
 
@@ -71,10 +77,8 @@ public class AlertDialogCursorTest
         super(AlertDialogTestActivity.class);
     }
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-
+    @Before
+    public void setUp() {
         // Ideally these constant arrays would be defined as final static fields on the
         // class level, but for some reason those get reset to null on v9- devices after
         // the first test method has been executed.
@@ -91,11 +95,10 @@ public class AlertDialogCursorTest
                 TEXT_COLUMN_NAME             // 1
         };
 
-        final AlertDialogTestActivity activity = getActivity();
+        final AlertDialogTestActivity activity = mActivityTestRule.getActivity();
         mButton = (Button) activity.findViewById(R.id.test_button);
 
-        Context context = getInstrumentation().getTargetContext();
-        File dbDir = context.getDir("tests", Context.MODE_PRIVATE);
+        File dbDir = activity.getDir("tests", Context.MODE_PRIVATE);
         mDatabaseFile = new File(dbDir, "database_alert_dialog_test.db");
         if (mDatabaseFile.exists()) {
             mDatabaseFile.delete();
@@ -113,22 +116,18 @@ public class AlertDialogCursorTest
         }
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() {
         if (mCursor != null) {
-            try {
-                // Close the cursor on the UI thread as the list view in the alert dialog
-                // will get notified of any change to the underlying cursor.
-                runTestOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mCursor.close();
-                        mCursor = null;
-                    }
-                });
-            } catch (Throwable t) {
-                throw new RuntimeException(t);
-            }
+            // Close the cursor on the UI thread as the list view in the alert dialog
+            // will get notified of any change to the underlying cursor.
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                    mCursor.close();
+                    mCursor = null;
+                }
+            });
         }
         if (mDatabase != null) {
             mDatabase.close();
@@ -136,7 +135,6 @@ public class AlertDialogCursorTest
         if (mDatabaseFile != null) {
             mDatabaseFile.delete();
         }
-        super.tearDown();
     }
 
     private void wireBuilder(final AlertDialog.Builder builder) {
@@ -180,13 +178,14 @@ public class AlertDialogCursorTest
         assertEquals("List item clicked", indexToClick, mClickedItemIndex);
     }
 
+    @Test
     @SmallTest
     public void testSimpleItemsFromCursor() {
         mCursor = mDatabase.query("test", mProjectionWithoutChecked,
                 null, null, null, null, null);
         assertNotNull(mCursor);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+        AlertDialog.Builder builder = new AlertDialog.Builder(mActivityTestRule.getActivity())
                 .setTitle(R.string.alert_dialog_title)
                 .setCursor(mCursor,
                         new DialogInterface.OnClickListener() {
@@ -282,6 +281,7 @@ public class AlertDialogCursorTest
         verifyMultiChoiceItemsState(expectedContent, expectedAfterClickLast);
     }
 
+    @Test
     @SmallTest
     public void testMultiChoiceItemsFromCursor() {
         mCursor = mDatabase.query("test", mProjectionWithChecked,
@@ -289,7 +289,7 @@ public class AlertDialogCursorTest
         assertNotNull(mCursor);
 
         final boolean[] checkedTracker = mCheckedContent.clone();
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+        AlertDialog.Builder builder = new AlertDialog.Builder(mActivityTestRule.getActivity())
                 .setTitle(R.string.alert_dialog_title)
                 .setMultiChoiceItems(mCursor, CHECKED_COLUMN_NAME, TEXT_COLUMN_NAME,
                         new DialogInterface.OnMultiChoiceClickListener() {
@@ -395,13 +395,14 @@ public class AlertDialogCursorTest
         verifySingleChoiceItemsState(expectedContent, currentlyExpectedSelectionIndex);
     }
 
+    @Test
     @SmallTest
     public void testSingleChoiceItemsFromCursor() {
         mCursor = mDatabase.query("test", mProjectionWithoutChecked,
                 null, null, null, null, null);
         assertNotNull(mCursor);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+        AlertDialog.Builder builder = new AlertDialog.Builder(mActivityTestRule.getActivity())
                 .setTitle(R.string.alert_dialog_title)
                 .setSingleChoiceItems(mCursor, 2, TEXT_COLUMN_NAME,
                         new DialogInterface.OnClickListener() {
