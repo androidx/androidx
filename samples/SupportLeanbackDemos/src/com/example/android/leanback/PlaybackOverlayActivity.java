@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PlaybackOverlayActivity extends Activity {
-    private List<PictureInPictureModeListener> mListeners = new ArrayList<>();
+    private List<PictureInPictureListener> mListeners = new ArrayList<>();
 
     /** Called when the activity is first created. */
     @Override
@@ -31,21 +31,21 @@ public class PlaybackOverlayActivity extends Activity {
     }
 
     @Override
-    public void onPictureInPictureModeChanged(boolean pictureInPictureMode) {
-        for (PictureInPictureModeListener listener : mListeners) {
-            listener.onPictureInPictureModeChanged(pictureInPictureMode);
+    public void onPictureInPictureChanged(boolean inPictureInPicture) {
+        for (PictureInPictureListener listener : mListeners) {
+            listener.onPictureInPictureChanged(inPictureInPicture);
         }
     }
 
-    public void registerPictureInPictureModeListener(PictureInPictureModeListener listener) {
+    public void registerPictureInPictureListener(PictureInPictureListener listener) {
         mListeners.add(listener);
     }
 
-    public void unregisterPictureInPictureModeListener(PictureInPictureModeListener listener) {
+    public void unregisterPictureInPictureListener(PictureInPictureListener listener) {
         mListeners.remove(listener);
     }
 
-    public interface PictureInPictureModeListener {
-        void onPictureInPictureModeChanged(boolean pictureInPictureMode);
+    public interface PictureInPictureListener {
+        void onPictureInPictureChanged(boolean inPictureInPicture);
     }
 }
