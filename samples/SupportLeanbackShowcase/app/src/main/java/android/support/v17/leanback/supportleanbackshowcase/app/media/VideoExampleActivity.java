@@ -15,6 +15,7 @@
 package android.support.v17.leanback.supportleanbackshowcase.app.media;
 
 import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v17.leanback.supportleanbackshowcase.R;
 
@@ -23,17 +24,20 @@ import android.support.v17.leanback.supportleanbackshowcase.R;
  */
 public class VideoExampleActivity extends Activity {
 
-    public static final String VIDEO_SURFACE_FRAGMENT_TAG = "VIDEO_SURFACE";
+    public static final String TAG = "VideoExampleActivity";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_example);
 
+        FragmentTransaction ft1 = getFragmentManager().beginTransaction();
+        ft1.replace(R.id.videoFragment, new VideoSurfaceFragment(), VideoSurfaceFragment.TAG);
+        ft1.commit();
 
-        getFragmentManager().beginTransaction()
-                .replace(R.id.videoFragment, new VideoSurfaceFragment(), VIDEO_SURFACE_FRAGMENT_TAG)
-                .add(R.id.videoFragment, new VideoConsumptionExampleFragment())
-                .commit();
+        FragmentTransaction ft2 = getFragmentManager().beginTransaction();
+        ft2.add(R.id.videoFragment, new VideoConsumptionExampleFragment(), VideoConsumptionExampleFragment.TAG);
+        ft2.commit();
     }
+
 }

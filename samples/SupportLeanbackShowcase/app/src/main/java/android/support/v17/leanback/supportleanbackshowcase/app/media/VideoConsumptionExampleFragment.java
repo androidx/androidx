@@ -17,7 +17,6 @@ package android.support.v17.leanback.supportleanbackshowcase.app.media;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.v17.leanback.app.PlaybackOverlayFragment;
-import android.support.v17.leanback.supportleanbackshowcase.app.MainFragment;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
@@ -34,6 +33,7 @@ public class VideoConsumptionExampleFragment extends PlaybackOverlayFragment imp
         OnItemViewClickedListener, MediaPlayerGlue.OnMediaFileFinishedPlayingListener {
 
     private static final String URL = "http://techslides.com/demos/sample-videos/small.mp4";
+    public static final String TAG = "VideoConsumptionExampleFragment";
     private ArrayObjectAdapter mRowsAdapter;
     private MediaPlayerGlue mGlue;
 
@@ -56,8 +56,10 @@ public class VideoConsumptionExampleFragment extends PlaybackOverlayFragment imp
         mGlue.setMetaData(metaData);
         mGlue.setMediaSource(URL);
 
+
         Fragment videoSurfaceFragment = getFragmentManager()
-                .findFragmentByTag(VideoExampleActivity.VIDEO_SURFACE_FRAGMENT_TAG);
+                .findFragmentByTag(VideoSurfaceFragment.TAG);
+
         SurfaceView surface = (SurfaceView) videoSurfaceFragment.getView();
         surface.getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
