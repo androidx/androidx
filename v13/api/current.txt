@@ -55,5 +55,11 @@ package android.support.v13.view {
     ctor public DragStartHelper.ShadowBuilder(android.view.View);
   }
 
+  public class ViewCompat extends android.support.v4.view.ViewCompat {
+    method public static void cancelDragAndDrop(android.view.View);
+    method public static boolean startDragAndDrop(android.view.View, android.content.ClipData, android.view.View.DragShadowBuilder, java.lang.Object, int);
+    method public static void updateDragShadow(android.view.View, android.view.View.DragShadowBuilder);
+  }
+
 }
 

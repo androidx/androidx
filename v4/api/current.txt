@@ -2425,7 +2425,8 @@ package android.support.v4.view {
     method public static float getYVelocity(android.view.VelocityTracker, int);
   }
 
-  public final class ViewCompat {
+  public class ViewCompat {
+    ctor protected ViewCompat();
     method public static android.support.v4.view.ViewPropertyAnimatorCompat animate(android.view.View);
     method public static boolean canScrollHorizontally(android.view.View, int);
     method public static boolean canScrollVertically(android.view.View, int);
