@@ -347,8 +347,10 @@ public class GuidedAction extends Action {
          * @param editable Whether this action is editable.
          */
         public B editable(boolean editable) {
-            if (!editable && mEditable == EDITING_TITLE) {
-                mEditable = EDITING_NONE;
+            if (!editable) {
+                if (mEditable == EDITING_TITLE) {
+                    mEditable = EDITING_NONE;
+                }
                 return (B) this;
             }
             mEditable = EDITING_TITLE;
@@ -363,8 +365,10 @@ public class GuidedAction extends Action {
          * @param editable Whether this action description is editable.
          */
         public B descriptionEditable(boolean editable) {
-            if (!editable && mEditable == EDITING_DESCRIPTION) {
-                mEditable = EDITING_NONE;
+            if (!editable) {
+                if (mEditable == EDITING_DESCRIPTION) {
+                    mEditable = EDITING_NONE;
+                }
                 return (B) this;
             }
             mEditable = EDITING_DESCRIPTION;
@@ -379,8 +383,10 @@ public class GuidedAction extends Action {
          * @param editable Whether this action has view can be activated to edit.
          */
         public B hasEditableActivatorView(boolean editable) {
-            if (!editable && mEditable == EDITING_ACTIVATOR_VIEW) {
-                mEditable = EDITING_NONE;
+            if (!editable) {
+                if (mEditable == EDITING_ACTIVATOR_VIEW) {
+                    mEditable = EDITING_NONE;
+                }
                 return (B) this;
             }
             mEditable = EDITING_ACTIVATOR_VIEW;
