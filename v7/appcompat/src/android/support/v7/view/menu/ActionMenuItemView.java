@@ -31,6 +31,7 @@ import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.ListPopupWindow;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -101,11 +102,21 @@ public class ActionMenuItemView extends AppCompatTextView
      * false for situations where space is extremely limited. -->
      */
     private boolean shouldAllowTextWithIcon() {
-        final Configuration configuration = getContext().getResources().getConfiguration();
-        final int width = configuration.screenWidthDp;
-        final int height = configuration.screenHeightDp;
-        return  width >= 480 || (width >= 640 && height >= 480)
-                || configuration.orientation == Configuration.ORIENTATION_LANDSCAPE;
+        final Configuration config = getContext().getResources().getConfiguration();
+
+        final int widthDp;
+        final int heightDp;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
+            widthDp = config.screenWidthDp;
+            heightDp = config.screenHeightDp;
+        } else {
+            final DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
+            widthDp = (int) (metrics.widthPixels / metrics.density);
+            heightDp = (int) (metrics.heightPixels / metrics.density);
+        }
+
+        return widthDp >= 480 || (widthDp >= 640 && heightDp >= 480)
+                || config.orientation == Configuration.ORIENTATION_LANDSCAPE;
     }
 
     @Override

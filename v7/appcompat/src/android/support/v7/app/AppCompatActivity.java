@@ -28,6 +28,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.view.KeyEventCompat;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
@@ -491,7 +492,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        if (event.isCtrlPressed() &&
+        if (KeyEventCompat.isCtrlPressed(event) &&
                 event.getUnicodeChar(event.getMetaState() & ~KeyEvent.META_CTRL_MASK) == '<') {
             // Capture the Control-< and send focus to the ActionBar
             final int action = event.getAction();
