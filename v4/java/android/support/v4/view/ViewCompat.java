@@ -49,7 +49,7 @@ import java.util.WeakHashMap;
  * Helper for accessing features in {@link View} introduced after API
  * level 4 in a backwards compatible fashion.
  */
-public final class ViewCompat {
+public class ViewCompat {
     private static final String TAG = "ViewCompat";
 
     /** @hide */
@@ -3302,5 +3302,5 @@ public final class ViewCompat {
         return IMPL.getScrollIndicators(view);
     }
 
-    private ViewCompat() {}
+    protected ViewCompat() {}
 }
