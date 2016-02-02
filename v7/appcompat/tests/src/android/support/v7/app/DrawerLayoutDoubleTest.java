@@ -26,9 +26,9 @@ import org.junit.Test;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.v7.app.DrawerLayoutActions.closeDrawer;
-import static android.support.v7.app.DrawerLayoutActions.openDrawer;
-import static android.support.v7.app.DrawerLayoutActions.setDrawerLockMode;
+import static android.support.v7.testutils.DrawerLayoutActions.closeDrawer;
+import static android.support.v7.testutils.DrawerLayoutActions.openDrawer;
+import static android.support.v7.testutils.DrawerLayoutActions.setDrawerLockMode;
 import static android.support.v7.testutils.TestUtilsActions.setLayoutDirection;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
