@@ -19,7 +19,6 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.support.v4.test.R;
-import android.support.v4.testutils.TestUtilsAssertions;
 import android.support.v4.testutils.TestUtilsMatchers;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.text.TextUtils;
@@ -30,6 +29,7 @@ import android.widget.TextView;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.util.ArrayList;
 
@@ -46,6 +46,7 @@ import static android.support.v4.view.ViewPagerActions.*;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
 
 /**
  * Base class for testing <code>ViewPager</code>. Most of the testing logic should be in this
@@ -191,33 +192,59 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
     private void verifyPageSelections(boolean smoothScroll) {
         assertEquals("Initial state", 0, mViewPager.getCurrentItem());
 
+        ViewPager.OnPageChangeListener mockPageChangeListener =
+                mock(ViewPager.OnPageChangeListener.class);
+        mViewPager.addOnPageChangeListener(mockPageChangeListener);
+
         onView(withId(R.id.pager)).perform(scrollRight(smoothScroll));
         assertEquals("Scroll right", 1, mViewPager.getCurrentItem());
+        verify(mockPageChangeListener, times(1)).onPageSelected(1);
 
         onView(withId(R.id.pager)).perform(scrollRight(smoothScroll));
         assertEquals("Scroll right", 2, mViewPager.getCurrentItem());
+        verify(mockPageChangeListener, times(1)).onPageSelected(2);
 
         // Try "scrolling" beyond the last page and test that we're still on the last page.
         onView(withId(R.id.pager)).perform(scrollRight(smoothScroll));
         assertEquals("Scroll right beyond last page", 2, mViewPager.getCurrentItem());
+        // We're still on this page, so we shouldn't have been called again with index 2
+        verify(mockPageChangeListener, times(1)).onPageSelected(2);
 
         onView(withId(R.id.pager)).perform(scrollLeft(smoothScroll));
         assertEquals("Scroll left", 1, mViewPager.getCurrentItem());
+        // Verify that this is the second time we're called on index 1
+        verify(mockPageChangeListener, times(2)).onPageSelected(1);
 
         onView(withId(R.id.pager)).perform(scrollLeft(smoothScroll));
         assertEquals("Scroll left", 0, mViewPager.getCurrentItem());
+        // Verify that this is the first time we're called on index 0
+        verify(mockPageChangeListener, times(1)).onPageSelected(0);
 
         // Try "scrolling" beyond the first page and test that we're still on the first page.
         onView(withId(R.id.pager)).perform(scrollLeft(smoothScroll));
         assertEquals("Scroll left beyond first page", 0, mViewPager.getCurrentItem());
+        // We're still on this page, so we shouldn't have been called again with index 0
+        verify(mockPageChangeListener, times(1)).onPageSelected(0);
+
+        // Unregister our listener
+        mViewPager.removeOnPageChangeListener(mockPageChangeListener);
 
         // Go from index 0 to index 2
         onView(withId(R.id.pager)).perform(scrollToPage(2, smoothScroll));
         assertEquals("Scroll to last page", 2, mViewPager.getCurrentItem());
+        // Our listener is not registered anymore, so we shouldn't have been called with index 2
+        verify(mockPageChangeListener, times(1)).onPageSelected(2);
 
         // And back to 0
         onView(withId(R.id.pager)).perform(scrollToPage(0, smoothScroll));
         assertEquals("Scroll to first page", 0, mViewPager.getCurrentItem());
+        // Our listener is not registered anymore, so we shouldn't have been called with index 0
+        verify(mockPageChangeListener, times(1)).onPageSelected(0);
+
+        // Verify the overall sequence of calls to onPageSelected of our listener
+        ArgumentCaptor<Integer> pageSelectedCaptor = ArgumentCaptor.forClass(int.class);
+        verify(mockPageChangeListener, times(4)).onPageSelected(pageSelectedCaptor.capture());
+        assertThat(pageSelectedCaptor.getAllValues(), TestUtilsMatchers.matches(1, 2, 1, 0));
     }
 
     @Test
@@ -237,25 +264,46 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
     public void testPageSwipes() {
         assertEquals("Initial state", 0, mViewPager.getCurrentItem());
 
+        ViewPager.OnPageChangeListener mockPageChangeListener =
+                mock(ViewPager.OnPageChangeListener.class);
+        mViewPager.addOnPageChangeListener(mockPageChangeListener);
+
         onView(withId(R.id.pager)).perform(swipeLeft());
         assertEquals("Swipe left", 1, mViewPager.getCurrentItem());
+        verify(mockPageChangeListener, times(1)).onPageSelected(1);
 
         onView(withId(R.id.pager)).perform(swipeLeft());
         assertEquals("Swipe left", 2, mViewPager.getCurrentItem());
+        verify(mockPageChangeListener, times(1)).onPageSelected(2);
 
         // Try swiping beyond the last page and test that we're still on the last page.
         onView(withId(R.id.pager)).perform(swipeLeft());
         assertEquals("Swipe left beyond last page", 2, mViewPager.getCurrentItem());
+        // We're still on this page, so we shouldn't have been called again with index 2
+        verify(mockPageChangeListener, times(1)).onPageSelected(2);
 
         onView(withId(R.id.pager)).perform(swipeRight());
         assertEquals("Swipe right", 1, mViewPager.getCurrentItem());
+        // Verify that this is the second time we're called on index 1
+        verify(mockPageChangeListener, times(2)).onPageSelected(1);
 
         onView(withId(R.id.pager)).perform(swipeRight());
         assertEquals("Swipe right", 0, mViewPager.getCurrentItem());
+        // Verify that this is the first time we're called on index 0
+        verify(mockPageChangeListener, times(1)).onPageSelected(0);
 
         // Try swiping beyond the first page and test that we're still on the first page.
         onView(withId(R.id.pager)).perform(swipeRight());
         assertEquals("Swipe right beyond first page", 0, mViewPager.getCurrentItem());
+        // We're still on this page, so we shouldn't have been called again with index 0
+        verify(mockPageChangeListener, times(1)).onPageSelected(0);
+
+        mViewPager.removeOnPageChangeListener(mockPageChangeListener);
+
+        // Verify the overall sequence of calls to onPageSelected of our listener
+        ArgumentCaptor<Integer> pageSelectedCaptor = ArgumentCaptor.forClass(int.class);
+        verify(mockPageChangeListener, times(4)).onPageSelected(pageSelectedCaptor.capture());
+        assertThat(pageSelectedCaptor.getAllValues(), TestUtilsMatchers.matches(1, 2, 1, 0));
     }
 
     @Test
