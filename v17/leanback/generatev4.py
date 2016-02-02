@@ -20,7 +20,7 @@ import sys
 print "Generate v4 fragment related code for leanback"
 
 cls = ['Background', 'Base', 'BaseRow', 'Browse', 'Details', 'Error', 'Headers',
-      'PlaybackOverlay', 'Rows', 'Search', 'VerticalGrid', 'Branded', 'GuidedStep']
+      'PlaybackOverlay', 'Rows', 'Search', 'VerticalGrid', 'Branded', 'GuidedStep', 'Onboarding']
 
 for w in cls:
     print "copy {}Fragment to {}SupportFragment".format(w, w)
