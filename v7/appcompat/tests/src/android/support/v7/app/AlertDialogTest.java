@@ -28,7 +28,6 @@ import android.support.test.espresso.Espresso;
 import android.support.test.espresso.ViewInteraction;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.testutils.TestUtilsMatchers;
-import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.text.TextUtils;
@@ -58,6 +57,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests in this class make a few assumptions about the underlying implementation of
@@ -78,17 +78,11 @@ import static org.junit.Assert.*;
 public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTestActivity> {
     private Button mButton;
 
-    private boolean mIsCanceledCalled = false;
-
-    private boolean mIsDismissedCalled = false;
-
-    private int mWhichButtonClicked = -1;
-
-    private int mClickedItemIndex = -1;
-
     private AlertDialog mAlertDialog;
 
     private Handler mClickHandler;
+
+    private int mButtonFromMessage;
 
     public AlertDialogTest() {
         super(AlertDialogTestActivity.class);
@@ -101,7 +95,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
         mClickHandler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) {
-                mWhichButtonClicked = msg.what;
+                mButtonFromMessage = msg.what;
             }
         };
     }
@@ -346,16 +340,13 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     @Test
     @SmallTest
     public void testCancelCancelableDialog() {
+        DialogInterface.OnCancelListener mockCancelListener =
+                mock(DialogInterface.OnCancelListener.class);
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivityTestRule.getActivity())
                 .setTitle(R.string.alert_dialog_title)
                 .setMessage(R.string.alert_dialog_content)
                 .setCancelable(true)
-                .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        mIsCanceledCalled = true;
-                    }
-                });
+                .setOnCancelListener(mockCancelListener);
         wireBuilder(builder);
 
         onView(withId(R.id.test_button)).perform(click());
@@ -364,22 +355,19 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
         Espresso.pressBack();
 
         // Since our dialog is cancelable, check that the cancel listener has been invoked
-        assertTrue("Dialog is canceled", mIsCanceledCalled);
+        verify(mockCancelListener, times(1)).onCancel(mAlertDialog);
     }
 
     @Test
     @SmallTest
     public void testCancelNonCancelableDialog() {
+        DialogInterface.OnCancelListener mockCancelListener =
+                mock(DialogInterface.OnCancelListener.class);
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivityTestRule.getActivity())
                 .setTitle(R.string.alert_dialog_title)
                 .setMessage(R.string.alert_dialog_content)
                 .setCancelable(false)
-                .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        mIsCanceledCalled = true;
-                    }
-                });
+                .setOnCancelListener(mockCancelListener);
         wireBuilder(builder);
 
         onView(withId(R.id.test_button)).perform(click());
@@ -388,12 +376,13 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
         Espresso.pressBack();
 
         // Since our dialog is not cancelable, check that the cancel listener has not been invoked
-        assertFalse("Dialog is not canceled", mIsCanceledCalled);
+        verify(mockCancelListener, never()).onCancel(mAlertDialog);
     }
 
     // Tests for items content logic (simple, single-choice, multi-choice)
 
-    private void verifySimpleItemsContent(String[] expectedContent) {
+    private void verifySimpleItemsContent(String[] expectedContent,
+            DialogInterface.OnClickListener onClickListener) {
         final int expectedCount = expectedContent.length;
 
         onView(withId(R.id.test_button)).perform(click());
@@ -415,12 +404,13 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
                     check(matches(isDisplayed()));
         }
 
+        // Verify that our click listener hasn't been called yet
+        verify(onClickListener, never()).onClick(any(DialogInterface.class), any(int.class));
         // Test that a click on an item invokes the registered listener
-        assertEquals("Before list item click", -1, mClickedItemIndex);
         int indexToClick = expectedCount - 2;
         onData(allOf(is(instanceOf(String.class)), is(expectedContent[indexToClick]))).
                 inRoot(isDialog()).perform(click());
-        assertEquals("List item clicked", indexToClick, mClickedItemIndex);
+        verify(onClickListener, times(1)).onClick(mAlertDialog, indexToClick);
     }
 
     @Test
@@ -428,56 +418,44 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     public void testCustomAdapter() {
         final Context context = mActivityTestRule.getActivity();
         final String[] content = context.getResources().getStringArray(R.array.alert_dialog_items);
+        final DialogInterface.OnClickListener mockClickListener =
+                mock(DialogInterface.OnClickListener.class);
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivityTestRule.getActivity())
                 .setTitle(R.string.alert_dialog_title)
                 .setAdapter(
-                        new ArrayAdapter<>(context, android.R.layout.simple_list_item_1,
-                                content),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                mClickedItemIndex = which;
-                            }
-                        });
+                        new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, content),
+                        mockClickListener);
         wireBuilder(builder);
 
-        verifySimpleItemsContent(content);
+        verifySimpleItemsContent(content, mockClickListener);
     }
 
     @Test
     @SmallTest
     public void testSimpleItemsFromRuntimeArray() {
         final String[] content = new String[] { "Alice", "Bob", "Charlie", "Delta" };
+        final DialogInterface.OnClickListener mockClickListener =
+                mock(DialogInterface.OnClickListener.class);
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivityTestRule.getActivity())
                 .setTitle(R.string.alert_dialog_title)
-                .setItems(content,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                mClickedItemIndex = which;
-                            }
-                        });
+                .setItems(content, mockClickListener);
         wireBuilder(builder);
 
-        verifySimpleItemsContent(content);
+        verifySimpleItemsContent(content, mockClickListener);
     }
 
     @Test
     @SmallTest
     public void testSimpleItemsFromResourcesArray() {
+        final DialogInterface.OnClickListener mockClickListener =
+                mock(DialogInterface.OnClickListener.class);
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivityTestRule.getActivity())
                 .setTitle(R.string.alert_dialog_title)
-                .setItems(R.array.alert_dialog_items,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                mClickedItemIndex = which;
-                            }
-                        });
+                .setItems(R.array.alert_dialog_items, mockClickListener);
         wireBuilder(builder);
 
         verifySimpleItemsContent(mActivityTestRule.getActivity().getResources().getStringArray(
-                R.array.alert_dialog_items));
+                R.array.alert_dialog_items), mockClickListener);
     }
 
     /**
@@ -645,7 +623,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     }
 
     private void verifySingleChoiceItemsContent(String[] expectedContent,
-            int initialSelectionIndex) {
+            int initialSelectionIndex, DialogInterface.OnClickListener onClickListener) {
         final int expectedCount = expectedContent.length;
         int currentlyExpectedSelectionIndex = initialSelectionIndex;
 
@@ -661,16 +639,14 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
         onData(allOf(is(instanceOf(String.class)),
                 is(expectedContent[currentlyExpectedSelectionIndex]))).
                     inRoot(isDialog()).perform(click());
-        assertEquals("Selected first single-choice item",
-                currentlyExpectedSelectionIndex, mClickedItemIndex);
+        verify(onClickListener, times(1)).onClick(mAlertDialog, currentlyExpectedSelectionIndex);
         verifySingleChoiceItemsState(expectedContent, currentlyExpectedSelectionIndex);
 
         // Now click the same item again and test that the selection has not changed
         onData(allOf(is(instanceOf(String.class)),
                 is(expectedContent[currentlyExpectedSelectionIndex]))).
                 inRoot(isDialog()).perform(click());
-        assertEquals("Selected first single-choice item again",
-                currentlyExpectedSelectionIndex, mClickedItemIndex);
+        verify(onClickListener, times(2)).onClick(mAlertDialog, currentlyExpectedSelectionIndex);
         verifySingleChoiceItemsState(expectedContent, currentlyExpectedSelectionIndex);
 
         // Now we're going to click the last item and test that the click listener has been invoked
@@ -679,8 +655,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
         onData(allOf(is(instanceOf(String.class)),
                 is(expectedContent[currentlyExpectedSelectionIndex]))).
                 inRoot(isDialog()).perform(click());
-        assertEquals("Selected last single-choice item",
-                currentlyExpectedSelectionIndex, mClickedItemIndex);
+        verify(onClickListener, times(1)).onClick(mAlertDialog, currentlyExpectedSelectionIndex);
         verifySingleChoiceItemsState(expectedContent, currentlyExpectedSelectionIndex);
     }
 
@@ -688,36 +663,28 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     @SmallTest
     public void testSingleChoiceItemsFromRuntimeArray() {
         final String[] content = new String[] { "Alice", "Bob", "Charlie", "Delta" };
+        final DialogInterface.OnClickListener mockClickListener =
+                mock(DialogInterface.OnClickListener.class);
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivityTestRule.getActivity())
                 .setTitle(R.string.alert_dialog_title)
-                .setSingleChoiceItems(
-                        content, 2,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                mClickedItemIndex = which;
-                            }
-                        });
+                .setSingleChoiceItems(content, 2, mockClickListener);
         wireBuilder(builder);
 
-        verifySingleChoiceItemsContent(content, 2);
+        verifySingleChoiceItemsContent(content, 2, mockClickListener);
     }
 
     @Test
     @SmallTest
     public void testSingleChoiceItemsFromResourcesArray() {
+        final DialogInterface.OnClickListener mockClickListener =
+                mock(DialogInterface.OnClickListener.class);
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivityTestRule.getActivity())
                 .setTitle(R.string.alert_dialog_title)
-                .setSingleChoiceItems(R.array.alert_dialog_items, 1,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                mClickedItemIndex = which;
-                            }
-                        });
+                .setSingleChoiceItems(R.array.alert_dialog_items, 1, mockClickListener);
         wireBuilder(builder);
 
-        verifySingleChoiceItemsContent(new String[] { "Albania", "Belize", "Chad", "Djibouti" }, 1);
+        verifySingleChoiceItemsContent(new String[] { "Albania", "Belize", "Chad", "Djibouti" }, 1,
+                mockClickListener);
     }
 
     // Tests for icon logic
@@ -999,10 +966,28 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     /**
      * Helper method to verify dialog state after a button has been clicked.
      */
-    private void verifyPostButtonClickState(int whichButtonClicked) {
-        assertEquals("Button clicked", whichButtonClicked, mWhichButtonClicked);
+    private void verifyPostButtonClickState(int whichButtonClicked,
+            DialogInterface.OnDismissListener onDismissListener) {
+        assertEquals("Button clicked", whichButtonClicked, mButtonFromMessage);
         assertFalse("Dialog is not showing", mAlertDialog.isShowing());
-        assertTrue("Dialog dismiss listener called", mIsDismissedCalled);
+        if (onDismissListener != null) {
+            verify(onDismissListener, times(1)).onDismiss(mAlertDialog);
+        }
+    }
+
+    /**
+     * Helper method to verify dialog state after a button has been clicked.
+     */
+    private void verifyPostButtonClickState(int whichButtonClicked,
+            DialogInterface.OnClickListener onClickListener,
+            DialogInterface.OnDismissListener onDismissListener) {
+        if (onClickListener != null) {
+            verify(onClickListener, times(1)).onClick(mAlertDialog, whichButtonClicked);
+        }
+        assertFalse("Dialog is not showing", mAlertDialog.isShowing());
+        if (onDismissListener != null) {
+            verify(onDismissListener, times(1)).onDismiss(mAlertDialog);
+        }
     }
 
     /**
@@ -1017,40 +1002,21 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
         final AlertDialog.Builder builder = new AlertDialog.Builder(mActivityTestRule.getActivity())
                 .setTitle(R.string.alert_dialog_title);
         // Configure buttons with non-empty texts
+        DialogInterface.OnClickListener mockClickListener =
+                mock(DialogInterface.OnClickListener.class);
         if (!TextUtils.isEmpty(positiveButtonText)) {
-            builder.setPositiveButton(positiveButtonText, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    assertEquals("Positive button clicked", AlertDialog.BUTTON_POSITIVE, which);
-                    mWhichButtonClicked = which;
-                }
-            });
+            builder.setPositiveButton(positiveButtonText, mockClickListener);
         }
         if (!TextUtils.isEmpty(negativeButtonText)) {
-            builder.setNegativeButton(negativeButtonText, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    assertEquals("Negative button clicked", AlertDialog.BUTTON_NEGATIVE, which);
-                    mWhichButtonClicked = which;
-                }
-            });
+            builder.setNegativeButton(negativeButtonText, mockClickListener);
         }
         if (!TextUtils.isEmpty(neutralButtonText)) {
-            builder.setNeutralButton(neutralButtonText, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    assertEquals("Neutral button clicked", AlertDialog.BUTTON_NEUTRAL, which);
-                    mWhichButtonClicked = which;
-                }
-            });
+            builder.setNeutralButton(neutralButtonText, mockClickListener);
         }
         // Set a dismiss listener to verify that the dialog is dismissed on clicking any button
-        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                mIsDismissedCalled = true;
-            }
-        });
+        DialogInterface.OnDismissListener mockDismissListener =
+                mock(DialogInterface.OnDismissListener.class);
+        builder.setOnDismissListener(mockDismissListener);
 
         // Wire the builder to the button click and click that button to show the dialog
         wireBuilder(builder);
@@ -1073,7 +1039,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
                 break;
         }
         onView(withText(textOfButtonToClick)).inRoot(isDialog()).perform(click());
-        verifyPostButtonClickState(whichButtonToClick);
+        verifyPostButtonClickState(whichButtonToClick, mockClickListener, mockDismissListener);
     }
 
     /**
@@ -1093,50 +1059,25 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(context)
                 .setTitle(R.string.alert_dialog_title);
+        DialogInterface.OnClickListener mockClickListener =
+                mock(DialogInterface.OnClickListener.class);
         // Configure buttons with non-zero text resource IDs
         if (positiveButtonTextResId != 0) {
             positiveButtonText = context.getString(positiveButtonTextResId);
-            builder.setPositiveButton(positiveButtonTextResId,
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            assertEquals("Positive button clicked",
-                                    AlertDialog.BUTTON_POSITIVE, which);
-                            mWhichButtonClicked = which;
-                        }
-                    });
+            builder.setPositiveButton(positiveButtonTextResId, mockClickListener);
         }
         if (negativeButtonTextResId != 0) {
             negativeButtonText = context.getString(negativeButtonTextResId);
-            builder.setNegativeButton(negativeButtonTextResId,
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            assertEquals("Negative button clicked",
-                                    AlertDialog.BUTTON_NEGATIVE, which);
-                            mWhichButtonClicked = which;
-                        }
-                    });
+            builder.setNegativeButton(negativeButtonTextResId, mockClickListener);
         }
         if (neutralButtonTextResId != 0) {
             neutralButtonText = context.getString(neutralButtonTextResId);
-            builder.setNeutralButton(neutralButtonTextResId,
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            assertEquals("Neutral button clicked",
-                                    AlertDialog.BUTTON_NEUTRAL, which);
-                            mWhichButtonClicked = which;
-                        }
-                    });
+            builder.setNeutralButton(neutralButtonTextResId, mockClickListener);
         }
         // Set a dismiss listener to verify that the dialog is dismissed on clicking any button
-        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                mIsDismissedCalled = true;
-            }
-        });
+        DialogInterface.OnDismissListener mockDismissListener =
+                mock(DialogInterface.OnDismissListener.class);
+        builder.setOnDismissListener(mockDismissListener);
 
         // Wire the builder to the button click and click that button to show the dialog
         wireBuilder(builder);
@@ -1159,7 +1100,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
                 break;
         }
         onView(withText(textOfButtonToClick)).inRoot(isDialog()).perform(click());
-        verifyPostButtonClickState(whichButtonToClick);
+        verifyPostButtonClickState(whichButtonToClick, mockClickListener, mockDismissListener);
     }
 
     /**
@@ -1175,12 +1116,12 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
         final AlertDialog.Builder builder = new AlertDialog.Builder(mActivityTestRule.getActivity())
                 .setTitle(R.string.alert_dialog_title);
         // Set a dismiss listener to verify that the dialog is dismissed on clicking any button
-        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                mIsDismissedCalled = true;
-            }
-        });
+        DialogInterface.OnDismissListener mockDismissListener =
+                mock(DialogInterface.OnDismissListener.class);
+        builder.setOnDismissListener(mockDismissListener);
+
+        final DialogInterface.OnClickListener mockClickListener =
+                mock(DialogInterface.OnClickListener.class);
 
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1189,36 +1130,15 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
                 // Configure buttons with non-empty texts
                 if (!TextUtils.isEmpty(positiveButtonText)) {
                     mAlertDialog.setButton(DialogInterface.BUTTON_POSITIVE, positiveButtonText,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    assertEquals("Positive button clicked",
-                                            AlertDialog.BUTTON_POSITIVE, which);
-                                    mWhichButtonClicked = which;
-                                }
-                            });
+                            mockClickListener);
                 }
                 if (!TextUtils.isEmpty(negativeButtonText)) {
                     mAlertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, negativeButtonText,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    assertEquals("Negative button clicked",
-                                            AlertDialog.BUTTON_NEGATIVE, which);
-                                    mWhichButtonClicked = which;
-                                }
-                            });
+                            mockClickListener);
                 }
                 if (!TextUtils.isEmpty(neutralButtonText)) {
                     mAlertDialog.setButton(DialogInterface.BUTTON_NEUTRAL, neutralButtonText,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    assertEquals("Neutral button clicked",
-                                            AlertDialog.BUTTON_NEUTRAL, which);
-                                    mWhichButtonClicked = which;
-                                }
-                            });
+                            mockClickListener);
                 }
 
                 mAlertDialog.show();
@@ -1245,7 +1165,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
                 break;
         }
         onView(withText(textOfButtonToClick)).inRoot(isDialog()).perform(click());
-        verifyPostButtonClickState(whichButtonToClick);
+        verifyPostButtonClickState(whichButtonToClick, mockClickListener, null);
     }
 
     /**
@@ -1261,12 +1181,9 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
         final AlertDialog.Builder builder = new AlertDialog.Builder(mActivityTestRule.getActivity())
                 .setTitle(R.string.alert_dialog_title);
         // Set a dismiss listener to verify that the dialog is dismissed on clicking any button
-        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                mIsDismissedCalled = true;
-            }
-        });
+        DialogInterface.OnDismissListener mockDismissListener =
+                mock(DialogInterface.OnDismissListener.class);
+        builder.setOnDismissListener(mockDismissListener);
 
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1310,7 +1227,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
                 break;
         }
         onView(withText(textOfButtonToClick)).inRoot(isDialog()).perform(click());
-        verifyPostButtonClickState(whichButtonToClick);
+        verifyPostButtonClickState(whichButtonToClick, mockDismissListener);
     }
 
     @Test
