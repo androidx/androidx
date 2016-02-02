@@ -43,11 +43,29 @@ import android.widget.FrameLayout;
  */
 public class HeadersSupportFragment extends BaseRowSupportFragment {
 
-    interface OnHeaderClickedListener {
-        void onHeaderClicked();
+    /**
+     * Interface definition for a callback to be invoked when a header item is clicked.
+     */
+    public interface OnHeaderClickedListener {
+        /**
+         * Called when a header item has been clicked.
+         *
+         * @param viewHolder Row ViewHolder object corresponding to the selected Header.
+         * @param row Row object corresponding to the selected Header.
+         */
+        void onHeaderClicked(RowHeaderPresenter.ViewHolder viewHolder, Row row);
     }
 
-    interface OnHeaderViewSelectedListener {
+    /**
+     * Interface definition for a callback to be invoked when a header item is selected.
+     */
+    public interface OnHeaderViewSelectedListener {
+        /**
+         * Called when a header item has been selected.
+         *
+         * @param viewHolder Row ViewHolder object corresponding to the selected Header.
+         * @param row Row object corresponding to the selected Header.
+         */
         void onHeaderSelected(RowHeaderPresenter.ViewHolder viewHolder, Row row);
     }
 
@@ -83,10 +101,9 @@ public class HeadersSupportFragment extends BaseRowSupportFragment {
             int position, int subposition) {
         if (mOnHeaderViewSelectedListener != null) {
             if (viewHolder != null && position >= 0) {
-                Row row = (Row) getAdapter().get(position);
                 ItemBridgeAdapter.ViewHolder vh = (ItemBridgeAdapter.ViewHolder) viewHolder;
                 mOnHeaderViewSelectedListener.onHeaderSelected(
-                        (RowHeaderPresenter.ViewHolder) vh.getViewHolder(), row);
+                        (RowHeaderPresenter.ViewHolder) vh.getViewHolder(), (Row) vh.getItem());
             } else {
                 mOnHeaderViewSelectedListener.onHeaderSelected(null, null);
             }
@@ -96,13 +113,15 @@ public class HeadersSupportFragment extends BaseRowSupportFragment {
     private final ItemBridgeAdapter.AdapterListener mAdapterListener =
             new ItemBridgeAdapter.AdapterListener() {
         @Override
-        public void onCreate(ItemBridgeAdapter.ViewHolder viewHolder) {
+        public void onCreate(final ItemBridgeAdapter.ViewHolder viewHolder) {
             View headerView = viewHolder.getViewHolder().view;
             headerView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (mOnHeaderClickedListener != null) {
-                        mOnHeaderClickedListener.onHeaderClicked();
+                        mOnHeaderClickedListener.onHeaderClicked(
+                                (RowHeaderPresenter.ViewHolder) viewHolder.getViewHolder(),
+                                (Row) viewHolder.getItem());
                     }
                 }
             });

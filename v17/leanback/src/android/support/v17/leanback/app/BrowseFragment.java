@@ -733,7 +733,7 @@ public class BrowseFragment extends BaseFragment {
     private HeadersFragment.OnHeaderClickedListener mHeaderClickedListener =
         new HeadersFragment.OnHeaderClickedListener() {
             @Override
-            public void onHeaderClicked() {
+            public void onHeaderClicked(RowHeaderPresenter.ViewHolder viewHolder, Row row) {
                 if (!mCanShowHeaders || !mShowingHeaders || isInHeadersTransition()) {
                     return;
                 }
