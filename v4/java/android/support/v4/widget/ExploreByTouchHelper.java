@@ -26,6 +26,8 @@ import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.KeyEventCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.view.ViewCompat.FocusDirection;
+import android.support.v4.view.ViewCompat.FocusRealDirection;
 import android.support.v4.view.ViewParentCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityManagerCompat;
@@ -41,12 +43,6 @@ import android.view.accessibility.AccessibilityManager;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import android.support.v4.view.ViewCompat.FocusDirection;
-import android.support.v4.view.ViewCompat.FocusRealDirection;
-
-import static android.support.v4.view.ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
-import static android.support.v4.view.ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES;
 
 /**
  * ExploreByTouchHelper is a utility class for implementing accessibility
@@ -149,8 +145,10 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
         // Host view must be focusable so that we can delegate to virtual
         // views.
         host.setFocusable(true);
-        if (ViewCompat.getImportantForAccessibility(host) == IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
-            ViewCompat.setImportantForAccessibility(host, IMPORTANT_FOR_ACCESSIBILITY_YES);
+        if (ViewCompat.getImportantForAccessibility(host)
+                == ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
+            ViewCompat.setImportantForAccessibility(
+                    host, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
         }
     }
 
@@ -655,11 +653,15 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
     private AccessibilityEvent createEventForHost(int eventType) {
         final AccessibilityEvent event = AccessibilityEvent.obtain(eventType);
         ViewCompat.onInitializeAccessibilityEvent(mHost, event);
+        return event;
+    }
+
+    @Override
+    public void onInitializeAccessibilityEvent(View host, AccessibilityEvent event) {
+        super.onInitializeAccessibilityEvent(host, event);
 
         // Allow the client to populate the event.
         onPopulateEventForHost(event);
-
-        return event;
     }
 
     /**
@@ -739,25 +741,31 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      */
     @NonNull
     private AccessibilityNodeInfoCompat createNodeForHost() {
-        final AccessibilityNodeInfoCompat node = AccessibilityNodeInfoCompat.obtain(mHost);
-        ViewCompat.onInitializeAccessibilityNodeInfo(mHost, node);
-        final int realNodeCount = node.getChildCount();
-
-        // Allow the client to populate the host node.
-        onPopulateNodeForHost(node);
+        final AccessibilityNodeInfoCompat info = AccessibilityNodeInfoCompat.obtain(mHost);
+        ViewCompat.onInitializeAccessibilityNodeInfo(mHost, info);
 
         // Add the virtual descendants.
         final ArrayList<Integer> virtualViewIds = new ArrayList<>();
         getVisibleVirtualViews(virtualViewIds);
+
+        final int realNodeCount = info.getChildCount();
         if (realNodeCount > 0 && virtualViewIds.size() > 0) {
             throw new RuntimeException("Views cannot have both real and virtual children");
         }
 
         for (int i = 0, count = virtualViewIds.size(); i < count; i++) {
-            node.addChild(mHost, virtualViewIds.get(i));
+            info.addChild(mHost, virtualViewIds.get(i));
         }
 
-        return node;
+        return info;
+    }
+
+    @Override
+    public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {
+        super.onInitializeAccessibilityNodeInfo(host, info);
+
+        // Allow the client to populate the host node.
+        onPopulateNodeForHost(info);
     }
 
     /**
