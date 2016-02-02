@@ -1,5 +1,9 @@
 package android.support.v13.app {
 
+  public class ActivityCompat extends android.support.v4.app.ActivityCompat {
+    method public static android.support.v13.view.DropPermissionsCompat requestDropPermissions(android.app.Activity, android.view.DragEvent);
+  }
+
   public class FragmentCompat {
     ctor public FragmentCompat();
     method public static void requestPermissions(android.app.Fragment, java.lang.String[], int);
@@ -53,6 +57,10 @@ package android.support.v13.view {
 
   public class DragStartHelper.ShadowBuilder extends android.view.View.DragShadowBuilder {
     ctor public DragStartHelper.ShadowBuilder(android.view.View);
+  }
+
+  public final class DropPermissionsCompat {
+    method public void release();
   }
 
   public class ViewCompat extends android.support.v4.view.ViewCompat {
