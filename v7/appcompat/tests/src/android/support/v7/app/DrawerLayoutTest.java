@@ -21,6 +21,7 @@ import android.support.test.espresso.action.GeneralSwipeAction;
 import android.support.test.espresso.action.Press;
 import android.support.test.espresso.action.Swipe;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.custom.CustomDrawerLayout;
 import android.test.suitebuilder.annotation.MediumTest;
@@ -28,13 +29,16 @@ import android.test.suitebuilder.annotation.SmallTest;
 import android.view.View;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.v7.app.DrawerLayoutActions.closeDrawer;
-import static android.support.v7.app.DrawerLayoutActions.openDrawer;
-import static android.support.v7.app.DrawerLayoutActions.wrap;
+import static android.support.v7.testutils.DrawerLayoutActions.*;
+import static android.support.v7.testutils.TestUtilsMatchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class DrawerLayoutTest extends BaseInstrumentationTestCase<DrawerLayoutActivity> {
     private CustomDrawerLayout mDrawerLayout;
@@ -49,7 +53,6 @@ public class DrawerLayoutTest extends BaseInstrumentationTestCase<DrawerLayoutAc
 
     @Before
     public void setUp() {
-
         final DrawerLayoutActivity activity = mActivityTestRule.getActivity();
         mDrawerLayout = (CustomDrawerLayout) activity.findViewById(R.id.drawer_layout);
         mStartDrawer = mDrawerLayout.findViewById(R.id.start_drawer);
@@ -59,7 +62,9 @@ public class DrawerLayoutTest extends BaseInstrumentationTestCase<DrawerLayoutAc
         onView(withId(R.id.drawer_layout)).perform(closeDrawer(GravityCompat.START));
     }
 
-   @Test
+    // Tests for opening and closing the drawer and checking the open state
+
+    @Test
     @MediumTest
     public void testDrawerOpenCloseViaAPI() {
         assertFalse("Initial state", mDrawerLayout.isDrawerOpen(GravityCompat.START));
@@ -191,5 +196,177 @@ public class DrawerLayoutTest extends BaseInstrumentationTestCase<DrawerLayoutAc
             assertEquals("Drawer layout and drawer heights on L+",
                     drawerLayoutHeight - drawerTopInset, contentHeight);
         }
+    }
+
+    // Tests for listener(s) being notified of various events
+
+    @Test
+    @SmallTest
+    public void testDrawerListenerCallbacksOnOpeningViaAPI() {
+        // Register a mock listener
+        DrawerLayout.DrawerListener mockedListener = mock(DrawerLayout.DrawerListener.class);
+        mDrawerLayout.addDrawerListener(mockedListener);
+
+        // Open the drawer so it becomes visible
+        onView(withId(R.id.drawer_layout)).perform(openDrawer(GravityCompat.START));
+
+        // We expect that our listener has been notified that the drawer has been opened
+        // with the reference to our drawer
+        verify(mockedListener, times(1)).onDrawerOpened(mStartDrawer);
+        // We expect that our listener has not been notified that the drawer has been closed
+        verify(mockedListener, never()).onDrawerClosed(any(View.class));
+
+        // We expect that our listener has been notified at least once on the drawer slide
+        // event. We expect that all such callbacks pass the reference to our drawer as the first
+        // parameter, and we capture the float slide values for further analysis
+        ArgumentCaptor<Float> floatSlideCaptor = ArgumentCaptor.forClass(float.class);
+        verify(mockedListener, atLeastOnce()).onDrawerSlide(eq(mStartDrawer),
+                floatSlideCaptor.capture());
+        // Now we verify that calls to onDrawerSlide "gave" us an increasing sequence of values
+        // in [0..1] range. Note that we don't have any expectation on how many times onDrawerSlide
+        // is called since that depends on the hardware capabilities of the device and the current
+        // load on the CPU / GPU.
+        assertThat(floatSlideCaptor.getAllValues(), inRange(0.0f, 1.0f));
+        assertThat(floatSlideCaptor.getAllValues(), inAscendingOrder());
+
+        // We expect that our listener will be called with specific state changes
+        InOrder inOrder = inOrder(mockedListener);
+        inOrder.verify(mockedListener).onDrawerStateChanged(DrawerLayout.STATE_SETTLING);
+        inOrder.verify(mockedListener).onDrawerStateChanged(DrawerLayout.STATE_IDLE);
+
+        mDrawerLayout.removeDrawerListener(mockedListener);
+    }
+
+    @Test
+    @SmallTest
+    public void testDrawerListenerCallbacksOnClosingViaAPI() {
+        // Open the drawer so it becomes visible
+        onView(withId(R.id.drawer_layout)).perform(openDrawer(GravityCompat.START));
+
+        // Register a mock listener
+        DrawerLayout.DrawerListener mockedListener = mock(DrawerLayout.DrawerListener.class);
+        mDrawerLayout.addDrawerListener(mockedListener);
+
+        // Close the drawer
+        onView(withId(R.id.drawer_layout)).perform(closeDrawer(GravityCompat.START));
+
+        // We expect that our listener has not been notified that the drawer has been opened
+        verify(mockedListener, never()).onDrawerOpened(any(View.class));
+        // We expect that our listener has been notified that the drawer has been closed
+        // with the reference to our drawer
+        verify(mockedListener, times(1)).onDrawerClosed(mStartDrawer);
+
+        // We expect that our listener has been notified at least once on the drawer slide
+        // event. We expect that all such callbacks pass the reference to our drawer as the first
+        // parameter, and we capture the float slide values for further analysis
+        ArgumentCaptor<Float> floatSlideCaptor = ArgumentCaptor.forClass(float.class);
+        verify(mockedListener, atLeastOnce()).onDrawerSlide(eq(mStartDrawer),
+                floatSlideCaptor.capture());
+        // Now we verify that calls to onDrawerSlide "gave" us a decreasing sequence of values
+        // in [0..1] range. Note that we don't have any expectation on how many times onDrawerSlide
+        // is called since that depends on the hardware capabilities of the device and the current
+        // load on the CPU / GPU.
+        assertThat(floatSlideCaptor.getAllValues(), inRange(0.0f, 1.0f));
+        assertThat(floatSlideCaptor.getAllValues(), inDescendingOrder());
+
+        // We expect that our listener will be called with specific state changes
+        InOrder inOrder = inOrder(mockedListener);
+        inOrder.verify(mockedListener).onDrawerStateChanged(DrawerLayout.STATE_SETTLING);
+        inOrder.verify(mockedListener).onDrawerStateChanged(DrawerLayout.STATE_IDLE);
+
+        mDrawerLayout.removeDrawerListener(mockedListener);
+    }
+
+    @Test
+    @SmallTest
+    public void testDrawerListenerCallbacksOnOpeningViaSwipes() {
+        // Register a mock listener
+        DrawerLayout.DrawerListener mockedListener = mock(DrawerLayout.DrawerListener.class);
+        mDrawerLayout.addDrawerListener(mockedListener);
+
+        // Open the drawer so it becomes visible
+        // Note that we're using GeneralSwipeAction instead of swipeLeft() / swipeRight().
+        // Those Espresso actions use edge fuzzying which doesn't work well with edge-based
+        // detection of swiping the drawers open in DrawerLayout.
+        // It's critically important to wrap the GeneralSwipeAction to "wait" until the
+        // DrawerLayout has settled to STATE_IDLE state before continuing to query the drawer
+        // open / close state. This is done in DrawerLayoutActions.wrap method.
+        onView(withId(R.id.drawer_layout)).perform(
+                wrap(new GeneralSwipeAction(Swipe.FAST, GeneralLocation.CENTER_LEFT,
+                        GeneralLocation.CENTER_RIGHT, Press.FINGER)));
+
+        // We expect that our listener has been notified that the drawer has been opened
+        // with the reference to our drawer
+        verify(mockedListener, times(1)).onDrawerOpened(mStartDrawer);
+        // We expect that our listener has not been notified that the drawer has been closed
+        verify(mockedListener, never()).onDrawerClosed(any(View.class));
+
+        // We expect that our listener has been notified at least once on the drawer slide
+        // event. We expect that all such callbacks pass the reference to our drawer as the first
+        // parameter, and we capture the float slide values for further analysis
+        ArgumentCaptor<Float> floatSlideCaptor = ArgumentCaptor.forClass(float.class);
+        verify(mockedListener, atLeastOnce()).onDrawerSlide(eq(mStartDrawer),
+                floatSlideCaptor.capture());
+        // Now we verify that calls to onDrawerSlide "gave" us an increasing sequence of values
+        // in [0..1] range. Note that we don't have any expectation on how many times onDrawerSlide
+        // is called since that depends on the hardware capabilities of the device and the current
+        // load on the CPU / GPU.
+        assertThat(floatSlideCaptor.getAllValues(), inRange(0.0f, 1.0f));
+        assertThat(floatSlideCaptor.getAllValues(), inAscendingOrder());
+
+        // We expect that our listener will be called with specific state changes
+        InOrder inOrder = inOrder(mockedListener);
+        inOrder.verify(mockedListener).onDrawerStateChanged(DrawerLayout.STATE_DRAGGING);
+        inOrder.verify(mockedListener).onDrawerStateChanged(DrawerLayout.STATE_IDLE);
+
+        mDrawerLayout.removeDrawerListener(mockedListener);
+    }
+
+    @Test
+    @SmallTest
+    public void testDrawerListenerCallbacksOnClosingViaSwipes() {
+        // Open the drawer so it becomes visible
+        onView(withId(R.id.drawer_layout)).perform(openDrawer(GravityCompat.START));
+
+        // Register a mock listener
+        DrawerLayout.DrawerListener mockedListener = mock(DrawerLayout.DrawerListener.class);
+        mDrawerLayout.addDrawerListener(mockedListener);
+
+        // Close the drawer
+        // Note that we're using GeneralSwipeAction instead of swipeLeft() / swipeRight().
+        // Those Espresso actions use edge fuzzying which doesn't work well with edge-based
+        // detection of swiping the drawers open in DrawerLayout.
+        // It's critically important to wrap the GeneralSwipeAction to "wait" until the
+        // DrawerLayout has settled to STATE_IDLE state before continuing to query the drawer
+        // open / close state. This is done in DrawerLayoutActions.wrap method.
+        onView(withId(R.id.drawer_layout)).perform(
+                wrap(new GeneralSwipeAction(Swipe.FAST, GeneralLocation.CENTER_RIGHT,
+                        GeneralLocation.CENTER_LEFT, Press.FINGER)));
+
+        // We expect that our listener has not been notified that the drawer has been opened
+        verify(mockedListener, never()).onDrawerOpened(any(View.class));
+        // We expect that our listener has been notified that the drawer has been closed
+        // with the reference to our drawer
+        verify(mockedListener, times(1)).onDrawerClosed(mStartDrawer);
+
+        // We expect that our listener has been notified at least once on the drawer slide
+        // event. We expect that all such callbacks pass the reference to our drawer as the first
+        // parameter, and we capture the float slide values for further analysis
+        ArgumentCaptor<Float> floatSlideCaptor = ArgumentCaptor.forClass(float.class);
+        verify(mockedListener, atLeastOnce()).onDrawerSlide(eq(mStartDrawer),
+                floatSlideCaptor.capture());
+        // Now we verify that calls to onDrawerSlide "gave" us a decreasing sequence of values
+        // in [0..1] range. Note that we don't have any expectation on how many times onDrawerSlide
+        // is called since that depends on the hardware capabilities of the device and the current
+        // load on the CPU / GPU.
+        assertThat(floatSlideCaptor.getAllValues(), inRange(0.0f, 1.0f));
+        assertThat(floatSlideCaptor.getAllValues(), inDescendingOrder());
+
+        // We expect that our listener will be called with specific state changes
+        InOrder inOrder = inOrder(mockedListener);
+        inOrder.verify(mockedListener).onDrawerStateChanged(DrawerLayout.STATE_DRAGGING);
+        inOrder.verify(mockedListener).onDrawerStateChanged(DrawerLayout.STATE_IDLE);
+
+        mDrawerLayout.removeDrawerListener(mockedListener);
     }
 }
