@@ -476,6 +476,7 @@ public class ViewCompat {
         void setPointerCapture(View view);
         boolean hasPointerCapture(View view);
         void releasePointerCapture(View view);
+        void setPointerIcon(View view, PointerIconCompat pointerIcon);
     }
 
     static class BaseViewCompatImpl implements ViewCompatImpl {
@@ -1100,6 +1101,11 @@ public class ViewCompat {
         public void releasePointerCapture(View view) {
             // no-op
         }
+
+        @Override
+        public void setPointerIcon(View view, PointerIconCompat pointerIcon) {
+            // no-op
+        }
     }
 
     static class EclairMr1ViewCompatImpl extends BaseViewCompatImpl {
@@ -1713,6 +1719,11 @@ public class ViewCompat {
         @Override
         public void releasePointerCapture(View view) {
             ViewCompatApi24.releasePointerCapture(view);
+        }
+
+        @Override
+        public void setPointerIcon(View view, PointerIconCompat pointerIconCompat) {
+            ViewCompatApi24.setPointerIcon(view, pointerIconCompat.getPointerIcon());
         }
     }
 
@@ -3379,6 +3390,15 @@ public class ViewCompat {
      */
     public static void releasePointerCapture(@NonNull View view) {
         IMPL.releasePointerCapture(view);
+    }
+
+
+    /**
+     * Set the pointer icon for the current view.
+     * @param pointerIcon A PointerIconCompat instance which will be shown when the mouse hovers.
+     */
+    public static void setPointerIcon(@NonNull View view, PointerIconCompat pointerIcon) {
+        IMPL.setPointerIcon(view, pointerIcon);
     }
 
     protected ViewCompat() {}
