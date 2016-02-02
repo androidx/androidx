@@ -16,6 +16,9 @@
 
 package android.support.v4.view;
 
+import android.support.annotation.Nullable;
+import android.support.test.espresso.Espresso;
+import android.support.test.espresso.IdlingResource;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
 import android.support.test.espresso.action.CoordinatesProvider;
@@ -31,126 +34,114 @@ import static android.support.test.espresso.matcher.ViewMatchers.isDisplayingAtL
 
 public class ViewPagerActions {
     /**
+     * View pager listener that serves as Espresso's {@link IdlingResource} and notifies the
+     * registered callback when the view pager gets to STATE_IDLE state.
+     */
+    private static class CustomViewPagerListener
+            implements ViewPager.OnPageChangeListener, IdlingResource {
+        private int mCurrState = ViewPager.SCROLL_STATE_IDLE;
+
+        @Nullable
+        private IdlingResource.ResourceCallback mCallback;
+
+        private boolean mNeedsIdle = false;
+
+        @Override
+        public void registerIdleTransitionCallback(ResourceCallback resourceCallback) {
+            mCallback = resourceCallback;
+        }
+
+        @Override
+        public String getName() {
+            return "View pager listener";
+        }
+
+        @Override
+        public boolean isIdleNow() {
+            if (!mNeedsIdle) {
+                return true;
+            } else {
+                return mCurrState == ViewPager.SCROLL_STATE_IDLE;
+            }
+        }
+
+        @Override
+        public void onPageSelected(int position) {
+            if (mCurrState == ViewPager.SCROLL_STATE_IDLE) {
+                if (mCallback != null) {
+                    mCallback.onTransitionToIdle();
+                }
+            }
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int state) {
+            mCurrState = state;
+            if (mCurrState == ViewPager.SCROLL_STATE_IDLE) {
+                if (mCallback != null) {
+                    mCallback.onTransitionToIdle();
+                }
+            }
+        }
+
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+        }
+    }
+
+    private abstract static class WrappedViewAction implements ViewAction {
+    }
+
+    public static ViewAction wrap(final ViewAction baseAction) {
+        if (baseAction instanceof WrappedViewAction) {
+            throw new IllegalArgumentException("Don't wrap an already wrapped action");
+        }
+
+        return new WrappedViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return baseAction.getConstraints();
+            }
+
+            @Override
+            public String getDescription() {
+                return baseAction.getDescription();
+            }
+
+            @Override
+            public final void perform(UiController uiController, View view) {
+                final ViewPager viewPager = (ViewPager) view;
+                // Add a custom tracker listener
+                final CustomViewPagerListener customListener = new CustomViewPagerListener();
+                viewPager.addOnPageChangeListener(customListener);
+
+                // Note that we're running the following block in a try-finally construct. This
+                // is needed since some of the wrapped actions are going to throw (expected)
+                // exceptions. If that happens, we still need to clean up after ourselves to
+                // leave the system (Espesso) in a good state.
+                try {
+                    // Register our listener as idling resource so that Espresso waits until the
+                    // wrapped action results in the view pager getting to the STATE_IDLE state
+                    Espresso.registerIdlingResources(customListener);
+                    baseAction.perform(uiController, view);
+                    customListener.mNeedsIdle = true;
+                    uiController.loopMainThreadUntilIdle();
+                    customListener.mNeedsIdle = false;
+                } finally {
+                    // Unregister our idling resource
+                    Espresso.unregisterIdlingResources(customListener);
+                    // And remove our tracker listener from ViewPager
+                    viewPager.removeOnPageChangeListener(customListener);
+                }
+            }
+        };
+    }
+
+    /**
      * Moves <code>ViewPager</code> to the right by one page.
      */
-    public static ViewAction scrollRight() {
-        return new ViewAction() {
-            @Override
-            public Matcher<View> getConstraints() {
-                return isDisplayingAtLeast(90);
-            }
-
-            @Override
-            public String getDescription() {
-                return "ViewPager scroll one page to the right";
-            }
-
-            @Override
-            public void perform(UiController uiController, View view) {
-                uiController.loopMainThreadUntilIdle();
-
-                ViewPager viewPager = (ViewPager) view;
-                int current = viewPager.getCurrentItem();
-                viewPager.setCurrentItem(current + 1, false);
-
-                uiController.loopMainThreadUntilIdle();
-            }
-        };
-    }
-
-    /**
-     * Moves <code>ViewPager</code> to the left by one page.
-     */
-    public static ViewAction scrollLeft() {
-        return new ViewAction() {
-            @Override
-            public Matcher<View> getConstraints() {
-                return isDisplayingAtLeast(90);
-            }
-
-            @Override
-            public String getDescription() {
-                return "ViewPager scroll one page to the left";
-            }
-
-            @Override
-            public void perform(UiController uiController, View view) {
-                uiController.loopMainThreadUntilIdle();
-
-                ViewPager viewPager = (ViewPager) view;
-                int current = viewPager.getCurrentItem();
-                viewPager.setCurrentItem(current - 1, false);
-
-                uiController.loopMainThreadUntilIdle();
-            }
-        };
-    }
-
-    /**
-     * Moves <code>ViewPager</code> to the last page.
-     */
-    public static ViewAction scrollToLast() {
-        return new ViewAction() {
-            @Override
-            public Matcher<View> getConstraints() {
-                return isDisplayingAtLeast(90);
-            }
-
-            @Override
-            public String getDescription() {
-                return "ViewPager scroll to last page";
-            }
-
-            @Override
-            public void perform(UiController uiController, View view) {
-                uiController.loopMainThreadUntilIdle();
-
-                ViewPager viewPager = (ViewPager) view;
-                int size = viewPager.getAdapter().getCount();
-                if (size > 0) {
-                    viewPager.setCurrentItem(size - 1, false);
-                }
-
-                uiController.loopMainThreadUntilIdle();
-            }
-        };
-    }
-
-    /**
-     * Moves <code>ViewPager</code> to the first page.
-     */
-    public static ViewAction scrollToFirst() {
-        return new ViewAction() {
-            @Override
-            public Matcher<View> getConstraints() {
-                return isDisplayingAtLeast(90);
-            }
-
-            @Override
-            public String getDescription() {
-                return "ViewPager scroll to first page";
-            }
-
-            @Override
-            public void perform(UiController uiController, View view) {
-                uiController.loopMainThreadUntilIdle();
-
-                ViewPager viewPager = (ViewPager) view;
-                int size = viewPager.getAdapter().getCount();
-                if (size > 0) {
-                    viewPager.setCurrentItem(0, false);
-                }
-
-                uiController.loopMainThreadUntilIdle();
-            }
-        };
-    }
-
-    /**
-     * Moves <code>ViewPager</code> to specific page.
-     */
-    public static ViewAction scrollToPage(final int page) {
-        return new ViewAction() {
+    public static ViewAction scrollRight(final boolean smoothScroll) {
+        return wrap(new ViewAction() {
             @Override
             public Matcher<View> getConstraints() {
                 return isDisplayingAtLeast(90);
@@ -166,11 +157,127 @@ public class ViewPagerActions {
                 uiController.loopMainThreadUntilIdle();
 
                 ViewPager viewPager = (ViewPager) view;
-                viewPager.setCurrentItem(page, false);
+                int current = viewPager.getCurrentItem();
+                viewPager.setCurrentItem(current + 1, smoothScroll);
 
                 uiController.loopMainThreadUntilIdle();
             }
-        };
+        });
+    }
+
+    /**
+     * Moves <code>ViewPager</code> to the left by one page.
+     */
+    public static ViewAction scrollLeft(final boolean smoothScroll) {
+        return wrap(new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return isDisplayingAtLeast(90);
+            }
+
+            @Override
+            public String getDescription() {
+                return "ViewPager move one page to the left";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                uiController.loopMainThreadUntilIdle();
+
+                ViewPager viewPager = (ViewPager) view;
+                int current = viewPager.getCurrentItem();
+                viewPager.setCurrentItem(current - 1, smoothScroll);
+
+                uiController.loopMainThreadUntilIdle();
+            }
+        });
+    }
+
+    /**
+     * Moves <code>ViewPager</code> to the last page.
+     */
+    public static ViewAction scrollToLast(final boolean smoothScroll) {
+        return wrap(new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return isDisplayingAtLeast(90);
+            }
+
+            @Override
+            public String getDescription() {
+                return "ViewPager move to last page";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                uiController.loopMainThreadUntilIdle();
+
+                ViewPager viewPager = (ViewPager) view;
+                int size = viewPager.getAdapter().getCount();
+                if (size > 0) {
+                    viewPager.setCurrentItem(size - 1, smoothScroll);
+                }
+
+                uiController.loopMainThreadUntilIdle();
+            }
+        });
+    }
+
+    /**
+     * Moves <code>ViewPager</code> to the first page.
+     */
+    public static ViewAction scrollToFirst(final boolean smoothScroll) {
+        return wrap(new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return isDisplayingAtLeast(90);
+            }
+
+            @Override
+            public String getDescription() {
+                return "ViewPager move to first page";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                uiController.loopMainThreadUntilIdle();
+
+                ViewPager viewPager = (ViewPager) view;
+                int size = viewPager.getAdapter().getCount();
+                if (size > 0) {
+                    viewPager.setCurrentItem(0, smoothScroll);
+                }
+
+                uiController.loopMainThreadUntilIdle();
+            }
+        });
+    }
+
+    /**
+     * Moves <code>ViewPager</code> to specific page.
+     */
+    public static ViewAction scrollToPage(final int page, final boolean smoothScroll) {
+        return wrap(new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return isDisplayingAtLeast(90);
+            }
+
+            @Override
+            public String getDescription() {
+                return "ViewPager move to page";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                uiController.loopMainThreadUntilIdle();
+
+                ViewPager viewPager = (ViewPager) view;
+                viewPager.setCurrentItem(page, smoothScroll);
+
+                uiController.loopMainThreadUntilIdle();
+            }
+        });
     }
 
     /**
