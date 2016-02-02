@@ -30,6 +30,8 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
+import java.util.List;
+
 public class TestUtilsMatchers {
     /**
      * Returns a matcher that matches <code>ImageView</code>s which have drawable flat-filled
@@ -160,4 +162,102 @@ public class TestUtilsMatchers {
         };
     }
 
+    /**
+     * Returns a matcher that matches lists of float values that fall into the specified range.
+     */
+    public static Matcher<List<Float>> inRange(final float from, final float to) {
+        return new TypeSafeMatcher<List<Float>>() {
+            private String mFailedDescription;
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText(mFailedDescription);
+            }
+
+            @Override
+            protected boolean matchesSafely(List<Float> item) {
+                int itemCount = item.size();
+
+                for (int i = 0; i < itemCount; i++) {
+                    float curr = item.get(i);
+
+                    if ((curr < from) || (curr > to)) {
+                        mFailedDescription = "Value #" + i + ":" + curr + " should be between " +
+                                from + " and " + to;
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        };
+    }
+
+    /**
+     * Returns a matcher that matches lists of float values that are in ascending order.
+     */
+    public static Matcher<List<Float>> inAscendingOrder() {
+        return new TypeSafeMatcher<List<Float>>() {
+            private String mFailedDescription;
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText(mFailedDescription);
+            }
+
+            @Override
+            protected boolean matchesSafely(List<Float> item) {
+                int itemCount = item.size();
+
+                if (itemCount >= 2) {
+                    for (int i = 0; i < itemCount - 1; i++) {
+                        float curr = item.get(i);
+                        float next = item.get(i + 1);
+
+                        if (curr > next) {
+                            mFailedDescription = "Values should increase between #" + i +
+                                    ":" + curr + " and #" + (i + 1) + ":" + next;
+                            return false;
+                        }
+                    }
+                }
+
+                return true;
+            }
+        };
+    }
+
+    /**
+     * Returns a matcher that matches lists of float values that are in descending order.
+     */
+    public static Matcher<List<Float>> inDescendingOrder() {
+        return new TypeSafeMatcher<List<Float>>() {
+            private String mFailedDescription;
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText(mFailedDescription);
+            }
+
+            @Override
+            protected boolean matchesSafely(List<Float> item) {
+                int itemCount = item.size();
+
+                if (itemCount >= 2) {
+                    for (int i = 0; i < itemCount - 1; i++) {
+                        float curr = item.get(i);
+                        float next = item.get(i + 1);
+
+                        if (curr < next) {
+                            mFailedDescription = "Values should decrease between #" + i +
+                                    ":" + curr + " and #" + (i + 1) + ":" + next;
+                            return false;
+                        }
+                    }
+                }
+
+                return true;
+            }
+        };
+    }
 }

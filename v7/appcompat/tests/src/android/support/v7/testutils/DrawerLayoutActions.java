@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.v7.app;
+package android.support.v7.testutils;
 
 import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 
