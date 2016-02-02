@@ -31,6 +31,8 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnPreDrawListener;
 import android.view.animation.AccelerateInterpolator;
@@ -79,6 +81,55 @@ abstract public class OnboardingFragment extends Fragment {
      */
     abstract protected void runStartAnimation();
 
+    private final OnClickListener mOnClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            if (!mEnterTransitionFinished) {
+                // Do not change page until the enter transition finishes.
+                return;
+            }
+            if (mCurrentPageIndex == getPageCount() - 1) {
+                onFinishFragment();
+            } else {
+                ++mCurrentPageIndex;
+                onPageChanged(mCurrentPageIndex - 1);
+            }
+        }
+    };
+
+    private final OnKeyListener mOnKeyListener = new OnKeyListener() {
+        @Override
+        public boolean onKey(View v, int keyCode, KeyEvent event) {
+            if (!mEnterTransitionFinished) {
+                // Ignore key event until the enter transition finishes.
+                return keyCode != KeyEvent.KEYCODE_BACK;
+            }
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                return false;
+            }
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_BACK:
+                    if (mCurrentPageIndex == 0) {
+                        return false;
+                    }
+                    // pass through
+                case KeyEvent.KEYCODE_DPAD_LEFT:
+                    if (mCurrentPageIndex > 0) {
+                        --mCurrentPageIndex;
+                        onPageChanged(mCurrentPageIndex + 1);
+                    }
+                    return true;
+                case KeyEvent.KEYCODE_DPAD_RIGHT:
+                    if (mCurrentPageIndex < getPageCount() - 1) {
+                        ++mCurrentPageIndex;
+                        onPageChanged(mCurrentPageIndex - 1);
+                    }
+                    return true;
+            }
+            return false;
+        }
+    };
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
@@ -87,57 +138,11 @@ abstract public class OnboardingFragment extends Fragment {
                 false);
         mPageIndicator = (PagingIndicator) view.findViewById(R.id.page_indicator);
         mPageIndicator.setPageCount(getPageCount());
-        mPageIndicator.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (!mEnterTransitionFinished) {
-                    // Do not change page until the enter transition finishes.
-                    return;
-                }
-                if (mCurrentPageIndex == getPageCount() - 1) {
-                    // Remove page indicator not to show the exit animation.
-                    mPageIndicator.setVisibility(View.GONE);
-                    onFinishFragment();
-                } else {
-                    mPageIndicator.onPageSelected(++mCurrentPageIndex, true);
-                    onPageChanged(mCurrentPageIndex - 1);
-                }
-            }
-        });
-        mPageIndicator.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (!mEnterTransitionFinished) {
-                    // Ignore key event until the enter transition finishes.
-                    return keyCode != KeyEvent.KEYCODE_BACK;
-                }
-                if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                    return false;
-                }
-                switch (keyCode) {
-                    case KeyEvent.KEYCODE_BACK:
-                        if (mCurrentPageIndex == 0) {
-                            return false;
-                        }
-                        // pass through
-                    case KeyEvent.KEYCODE_DPAD_LEFT:
-                        if (mCurrentPageIndex > 0) {
-                            --mCurrentPageIndex;
-                            onPageChanged(mCurrentPageIndex + 1);
-                            mPageIndicator.onPageSelected(mCurrentPageIndex, true);
-                        }
-                        return true;
-                    case KeyEvent.KEYCODE_DPAD_RIGHT:
-                        if (mCurrentPageIndex < getPageCount() - 1) {
-                            mPageIndicator.onPageSelected(++mCurrentPageIndex, true);
-                            onPageChanged(mCurrentPageIndex - 1);
-                        }
-                        return true;
-                }
-                return false;
-            }
-        });
+        mPageIndicator.setOnClickListener(mOnClickListener);
+        mPageIndicator.setOnKeyListener(mOnKeyListener);
         mStartButton = view.findViewById(R.id.button_start);
+        mStartButton.setOnClickListener(mOnClickListener);
+        mStartButton.setOnKeyListener(mOnKeyListener);
         mLogoView = (ImageView) view.findViewById(R.id.logo);
         mLogoView.setImageResource(getLogoResourceId());
         mTitleView = (TextView) view.findViewById(R.id.title);
@@ -216,20 +221,17 @@ abstract public class OnboardingFragment extends Fragment {
         // Make views visible which were invisible while logo animation is running.
         getView().findViewById(R.id.page_container).setVisibility(View.VISIBLE);
         getView().findViewById(R.id.content_container).setVisibility(View.VISIBLE);
-        mPageIndicator.setVisibility(View.VISIBLE);
-        mStartButton.setVisibility(View.VISIBLE);
 
         List<Animator> animators = new ArrayList<>();
         Animator animator = AnimatorInflater.loadAnimator(getActivity(),
                 R.animator.lb_onboarding_page_indicator_enter);
         if (getPageCount() <= 1) {
             // Start button
-            // Page indicator is the only focusable view in this screen and it should be always
-            // visible to handle the key event.
-            mPageIndicator.setAlpha(0.0f);
+            mStartButton.setVisibility(View.VISIBLE);
             animator.setTarget(mStartButton);
         } else {
             // Page indicator
+            mPageIndicator.setVisibility(View.VISIBLE);
             animator.setTarget(mPageIndicator);
         }
         animators.add(animator);
@@ -253,6 +255,8 @@ abstract public class OnboardingFragment extends Fragment {
         mAnimator.playTogether(animators);
         mAnimator.start();
         runStartAnimation();
+        // Search focus and give the focus to the appropriate child which has become visible.
+        getView().requestFocus();
     }
 
     /**
@@ -355,6 +359,7 @@ abstract public class OnboardingFragment extends Fragment {
         if (mAnimator != null) {
             mAnimator.end();
         }
+        mPageIndicator.onPageSelected(mCurrentPageIndex, true);
 
         List<Animator> animators = new ArrayList<>();
         // Header animation
@@ -389,6 +394,7 @@ abstract public class OnboardingFragment extends Fragment {
 
         // Animator for switching between page indicator and button.
         if (getCurrentPageIndex() == getPageCount() - 1) {
+            mStartButton.setVisibility(View.VISIBLE);
             Animator navigatorFadeOutAnimator = AnimatorInflater.loadAnimator(getActivity(),
                     R.animator.lb_onboarding_page_indicator_fade_out);
             navigatorFadeOutAnimator.setTarget(mPageIndicator);
@@ -396,14 +402,27 @@ abstract public class OnboardingFragment extends Fragment {
                     R.animator.lb_onboarding_start_button_fade_in);
             buttonFadeInAnimator.setTarget(mStartButton);
             animators.add(navigatorFadeOutAnimator);
+            navigatorFadeOutAnimator.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mPageIndicator.setVisibility(View.GONE);
+                }
+            });
             animators.add(buttonFadeInAnimator);
         } else if (previousPage == getPageCount() - 1) {
+            mPageIndicator.setVisibility(View.VISIBLE);
             Animator navigatorFadeInAnimator = AnimatorInflater.loadAnimator(getActivity(),
                     R.animator.lb_onboarding_page_indicator_fade_in);
             navigatorFadeInAnimator.setTarget(mPageIndicator);
             Animator buttonFadeOutAnimator = AnimatorInflater.loadAnimator(getActivity(),
                     R.animator.lb_onboarding_start_button_fade_out);
             buttonFadeOutAnimator.setTarget(mStartButton);
+            buttonFadeOutAnimator.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mStartButton.setVisibility(View.GONE);
+                }
+            });
             mAnimator = new AnimatorSet();
             mAnimator.playTogether(navigatorFadeInAnimator, buttonFadeOutAnimator);
             mAnimator.start();
