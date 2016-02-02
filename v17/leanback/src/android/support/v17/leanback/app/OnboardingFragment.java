@@ -43,9 +43,66 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-// TODO: Add Javadoc
 /**
- * A base fragment class for onboarding screen.
+ * An OnboardingFragment provides a common and simple way to build their own onboarding screen for
+ * the applications.
+ * <p>
+ * <h3>Building the screen</h3>
+ * The view structure of onboarding screen is composed of the common parts and custom parts. The
+ * common parts are composed of title, description and page navigator and the custom parts are
+ * composed of background, contents and foreground.
+ * <p>
+ * To build the screen views, the inherited class should override:
+ * <ul>
+ * <li>{@link #onCreateBackgroundView} to provide the background view. Background view has the same
+ * size as the screen and the lowest z-order.</li>
+ * <li>{@link #onCreateContentView} to provide the contents view. The content view is located in
+ * the content area at the center of the screen.</li>
+ * <li>{@link #onCreateForegroundView} to provide the foreground view. Foreground view has the same
+ * size as the screen and the highest z-order</li>
+ * </ul>
+ * <p>
+ * Each of these methods can return {@code null} if the application doesn't want to provide it.
+ * <p>
+ * <h3>Page information</h3>
+ * The onboarding screen may have several pages which explain the functionality of the application.
+ * The inherited class should provide the page information by overriding the methods:
+ * <p>
+ * <ul>
+ * <li>{@link #getPageCount} to provide the number of pages.</li>
+ * <li>{@link #getPageTitle} to provide the title of the page.</li>
+ * <li>{@link #getPageDescription} to provide the description of the page.</li>
+ * </ul>
+ * <p>
+ * <h3><a name="logoAnimation">Logo Splash Animation</a></h3>
+ * When onboarding screen appears, the logo splash animation is played by default. The animation
+ * fades in the logo image, pauses in a few seconds and fades it out. To support this animation with
+ * its own logo image, the inherited class should override the following method.
+ * <p>
+ * <ul>
+ * <li>{@link #getLogoResourceId()}</li>
+ * </ul>
+ * <p>
+ * <h3>Animation</h3>
+ * This page has three kinds of animations:
+ * <p>
+ * <ul>
+ * <li><b>Logo splash animation</b> which starts as soon as onboarding screen is shown as described
+ * in <a href="#logoAnimation">Logo Splash Animation</a>.</li>
+ * <li><b>Page enter animation</b> which runs just after the logo animation finishes. The
+ * application can run the animations of their custom views by overriding
+ * {@link #onStartEnterAnimation}.</li>
+ * <li><b>Page change animation</b> which runs when the page changes. The pages can move backward or
+ * forward direction and the application can start the page change animations by overriding
+ * {@link #onStartPageChangeAnimation}.</li>
+ * </ul>
+ * <p>
+ * <h3>Finishing the screen</h3>
+ * <p>
+ * If the user finishes the onboarding screen after navigating all the pages,
+ * {@link #onFinishFragment} is called. The inherited class can override this method to show another
+ * fragment or activity, or just remove this fragment.
+ *
  * @hide
  */
 abstract public class OnboardingFragment extends Fragment {
@@ -79,7 +136,7 @@ abstract public class OnboardingFragment extends Fragment {
      * Called to have the inherited class create its own start animation. The start animation runs
      * after logo splash animation ends.
      */
-    abstract protected void runStartAnimation();
+    abstract protected void onStartEnterAnimation();
 
     private final OnClickListener mOnClickListener = new OnClickListener() {
         @Override
@@ -187,7 +244,7 @@ abstract public class OnboardingFragment extends Fragment {
                 mEnterTransitionFinished = true;
                 if (getActivity() != null) {
                     onLogoAnimationFinished();
-                    runStartAnimation();
+                    onStartEnterAnimation();
                 }
             }
         });
@@ -254,7 +311,7 @@ abstract public class OnboardingFragment extends Fragment {
         mAnimator = new AnimatorSet();
         mAnimator.playTogether(animators);
         mAnimator.start();
-        runStartAnimation();
+        onStartEnterAnimation();
         // Search focus and give the focus to the appropriate child which has become visible.
         getView().requestFocus();
     }
@@ -262,7 +319,7 @@ abstract public class OnboardingFragment extends Fragment {
     /**
      * Returns the page count.
      *
-     * @return the page count.
+     * @return The page count.
      */
     abstract protected int getPageCount();
 
@@ -271,7 +328,7 @@ abstract public class OnboardingFragment extends Fragment {
      *
      * @param pageIndex The page index.
      *
-     * @return the title of the page.
+     * @return The title of the page.
      */
     abstract protected String getPageTitle(int pageIndex);
 
@@ -280,14 +337,14 @@ abstract public class OnboardingFragment extends Fragment {
      *
      * @param pageIndex The page index.
      *
-     * @return the description of the page.
+     * @return The description of the page.
      */
     abstract protected String getPageDescription(int pageIndex);
 
     /**
      * Returns the index of the current page.
      *
-     * @return the index of the current page.
+     * @return The index of the current page.
      */
     protected final int getCurrentPageIndex() {
         return mCurrentPageIndex;
@@ -296,7 +353,7 @@ abstract public class OnboardingFragment extends Fragment {
     /**
      * Returns the resource ID of the splash logo image.
      *
-     * @return the resource ID of the splash logo image.
+     * @return The resource ID of the splash logo image.
      */
     abstract protected int getLogoResourceId();
 
@@ -309,7 +366,7 @@ abstract public class OnboardingFragment extends Fragment {
      * @param container The parent view that the additional views are attached to.The fragment
      *        should not add the view by itself.
      *
-     * @return the background view for the onboarding screen, or null.
+     * @return The background view for the onboarding screen, or {@code null}.
      */
     @Nullable
     abstract protected View onCreateBackgroundView(LayoutInflater inflater, ViewGroup container);
@@ -325,7 +382,7 @@ abstract public class OnboardingFragment extends Fragment {
      * @param container The parent view that the additional views are attached to.The fragment
      *        should not add the view by itself.
      *
-     * @return the content view for the onboarding screen, or null.
+     * @return The content view for the onboarding screen, or {@code null}.
      */
     @Nullable
     abstract protected View onCreateContentView(LayoutInflater inflater, ViewGroup container);
@@ -341,7 +398,7 @@ abstract public class OnboardingFragment extends Fragment {
      * @param container The parent view that the additional views are attached to.The fragment
      *        should not add the view by itself.
      *
-     * @return the foreground view for the onboarding screen, or null.
+     * @return The foreground view for the onboarding screen, or {@code null}.
      */
     @Nullable
     abstract protected View onCreateForegroundView(LayoutInflater inflater, ViewGroup container);
@@ -349,8 +406,7 @@ abstract public class OnboardingFragment extends Fragment {
     /**
      * Called when the onboarding flow finishes.
      */
-    protected void onFinishFragment() {
-    }
+    protected void onFinishFragment() { }
 
     /**
      * Called when the page changes.
@@ -430,7 +486,7 @@ abstract public class OnboardingFragment extends Fragment {
         mAnimator = new AnimatorSet();
         mAnimator.playTogether(animators);
         mAnimator.start();
-        runPageChangeAnimation(previousPage);
+        onStartPageChangeAnimation(previousPage);
     }
 
     private Animator createAnimator(View view, boolean fadeIn, int slideDirection,
@@ -471,5 +527,5 @@ abstract public class OnboardingFragment extends Fragment {
      *
      * @param previousPage The previous page.
      */
-    abstract protected void runPageChangeAnimation(int previousPage);
+    abstract protected void onStartPageChangeAnimation(int previousPage);
 }
