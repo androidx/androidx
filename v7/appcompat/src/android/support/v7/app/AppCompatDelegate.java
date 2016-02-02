@@ -28,6 +28,7 @@ import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.os.BuildCompat;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.view.ActionMode;
@@ -167,7 +168,9 @@ public abstract class AppCompatDelegate {
     private static AppCompatDelegate create(Context context, Window window,
             AppCompatCallback callback) {
         final int sdk = Build.VERSION.SDK_INT;
-        if (sdk >= 23) {
+        if (BuildCompat.isAtLeastN()) {
+            return new AppCompatDelegateImplN(context, window, callback);
+        } else if (sdk >= 23) {
             return new AppCompatDelegateImplV23(context, window, callback);
         } else if (sdk >= 14) {
             return new AppCompatDelegateImplV14(context, window, callback);

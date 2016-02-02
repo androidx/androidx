@@ -1502,7 +1502,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
         return null;
     }
 
-    private PanelFeatureState getPanelState(int featureId, boolean required) {
+    protected PanelFeatureState getPanelState(int featureId, boolean required) {
         PanelFeatureState[] ar;
         if ((ar = mPanels) == null || ar.length <= featureId) {
             PanelFeatureState[] nar = new PanelFeatureState[featureId + 1];
@@ -1805,7 +1805,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
         }
     }
 
-    private static final class PanelFeatureState {
+    protected static final class PanelFeatureState {
 
         /** Feature ID for this panel. */
         int featureId;
