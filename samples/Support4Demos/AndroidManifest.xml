@@ -271,6 +271,14 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".accessibility.AccessibilityRoleDescriptionSupportActivity"
+                android:label="@string/accessibility_roledescription_title">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".app.SharingSupport"
                   android:label="@string/sharing_support_title">
             <intent-filter>
