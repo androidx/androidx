@@ -30,4 +30,12 @@ class ViewCompatMarshmallow {
     public static int getScrollIndicators(View view) {
         return view.getScrollIndicators();
     }
+
+    static void offsetTopAndBottom(View view, int offset) {
+        view.offsetTopAndBottom(offset);
+    }
+
+    static void offsetLeftAndRight(View view, int offset) {
+        view.offsetLeftAndRight(offset);
+    }
 }
