@@ -25,6 +25,7 @@ import android.support.v7.appcompat.R;
 import android.support.v7.text.AllCapsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.widget.TextView;
 
 class AppCompatTextHelper {
@@ -36,10 +37,13 @@ class AppCompatTextHelper {
         return new AppCompatTextHelper(textView);
     }
 
-    private static final int[] VIEW_ATTRS = {android.R.attr.textAppearance,
-            android.R.attr.drawableLeft, android.R.attr.drawableTop,
-            android.R.attr.drawableRight, android.R.attr.drawableBottom };
-    private static final int[] TEXT_APPEARANCE_ATTRS = {R.attr.textAllCaps};
+    private static final int[] VIEW_ATTRS = {
+            android.R.attr.textAppearance,
+            android.R.attr.drawableLeft,
+            android.R.attr.drawableTop,
+            android.R.attr.drawableRight,
+            android.R.attr.drawableBottom
+    };
 
     final TextView mView;
 
@@ -57,9 +61,9 @@ class AppCompatTextHelper {
         final AppCompatDrawableManager drawableManager = AppCompatDrawableManager.get();
 
         // First read the TextAppearance style id
-        TypedArray a = context.obtainStyledAttributes(attrs, VIEW_ATTRS, defStyleAttr, 0);
+        TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs,
+                VIEW_ATTRS, defStyleAttr, 0);
         final int ap = a.getResourceId(0, -1);
-
         // Now read the compound drawable and grab any tints
         if (a.hasValue(1)) {
             mDrawableLeftTint = createTintInfo(context, drawableManager, a.getResourceId(1, 0));
@@ -75,45 +79,75 @@ class AppCompatTextHelper {
         }
         a.recycle();
 
-        if (!(mView.getTransformationMethod() instanceof PasswordTransformationMethod)) {
-            // PasswordTransformationMethod wipes out all other TransformationMethod instances
-            // in TextView's constructor, so we should only set a new transformation method
-            // if we don't have a PasswordTransformationMethod currently...
+        // PasswordTransformationMethod wipes out all other TransformationMethod instances
+        // in TextView's constructor, so we should only set a new transformation method
+        // if we don't have a PasswordTransformationMethod currently...
+        final boolean hasPwdTm =
+                mView.getTransformationMethod() instanceof PasswordTransformationMethod;
+        boolean allCaps = false;
 
-            boolean allCaps = false;
-
-            // First check TextAppearance's textAllCaps value
-            if (ap != -1) {
-                TypedArray appearance = context
-                        .obtainStyledAttributes(ap, R.styleable.TextAppearance);
-                if (appearance.hasValue(R.styleable.TextAppearance_textAllCaps)) {
-                    allCaps = appearance.getBoolean(R.styleable.TextAppearance_textAllCaps, false);
-                }
-                appearance.recycle();
+        // First check TextAppearance's textAllCaps value
+        if (ap != -1) {
+            a = TintTypedArray.obtainStyledAttributes(context, ap, R.styleable.TextAppearance);
+            if (!hasPwdTm && a.hasValue(R.styleable.TextAppearance_textAllCaps)) {
+                allCaps = a.getBoolean(R.styleable.TextAppearance_textAllCaps, false);
             }
-
-            // Now read the style's value
-            a = context.obtainStyledAttributes(attrs, TEXT_APPEARANCE_ATTRS, defStyleAttr, 0);
-            if (a.hasValue(0)) {
-                allCaps = a.getBoolean(0, false);
+            if (Build.VERSION.SDK_INT < 23 && TypedValue.TYPE_STRING
+                    == a.getType(R.styleable.TextAppearance_android_textColor)) {
+                // If we're running on < API 23, have a color set and it's a String reference,
+                // it may contain theme references so let's re-set using our own inflater
+                final ColorStateList textColor
+                        = a.getColorStateList(R.styleable.TextAppearance_android_textColor);
+                if (textColor != null) {
+                    mView.setTextColor(textColor);
+                }
             }
             a.recycle();
+        }
 
-            if (allCaps) {
-                setAllCaps(true);
+        // Now read the style's values
+        a = TintTypedArray.obtainStyledAttributes(context, attrs, R.styleable.TextAppearance,
+                defStyleAttr, 0);
+        if (!hasPwdTm && a.hasValue(R.styleable.TextAppearance_textAllCaps)) {
+            allCaps = a.getBoolean(R.styleable.TextAppearance_textAllCaps, false);
+        }
+        if (Build.VERSION.SDK_INT < 23 && TypedValue.TYPE_STRING ==
+                a.getType(R.styleable.TextAppearance_android_textColor)) {
+            // If we're running on < API 23, have a color set and it's a String reference, it may
+            // contain theme references so let's re-set using our own inflater
+            final ColorStateList textColor =
+                    a.getColorStateList(R.styleable.TextAppearance_android_textColor);
+            if (textColor != null) {
+                mView.setTextColor(textColor);
             }
+        }
+        a.recycle();
+
+        if (!hasPwdTm && allCaps) {
+            setAllCaps(true);
         }
     }
 
     void onSetTextAppearance(Context context, int resId) {
-        TypedArray appearance = context.obtainStyledAttributes(resId, TEXT_APPEARANCE_ATTRS);
-        if (appearance.getBoolean(0, false)) {
+        final TintTypedArray a = TintTypedArray.obtainStyledAttributes(context,
+                resId, R.styleable.TextAppearance);
+        if (a.getBoolean(R.styleable.TextAppearance_textAllCaps, false)) {
             // This follows the logic in TextView.setTextAppearance that serves as an "overlay"
             // on the current state of the TextView. Here we only allow turning all-caps on when
             // the passed style has textAllCaps attribute set to true.
             setAllCaps(true);
         }
-        appearance.recycle();
+        if (Build.VERSION.SDK_INT < 23 && TypedValue.TYPE_STRING
+                == a.getType(R.styleable.TextAppearance_android_textColor)) {
+            // If we're running on < API 23, have a color set and it's a String reference,
+            // it may contain theme references so let's re-set using our own inflater
+            final ColorStateList textColor
+                    = a.getColorStateList(R.styleable.TextAppearance_android_textColor);
+            if (textColor != null) {
+                mView.setTextColor(textColor);
+            }
+        }
+        a.recycle();
     }
 
     void setAllCaps(boolean allCaps) {
