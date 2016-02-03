@@ -2800,11 +2800,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 }
             }
         } else {
+            int focusableCount = views.size();
             if (mFocusScrollStrategy != BaseGridView.FOCUS_SCROLL_ALIGNED) {
                 // adding views not overlapping padding area to avoid scrolling in gaining focus
                 int left = mWindowAlignment.mainAxis().getPaddingLow();
                 int right = mWindowAlignment.mainAxis().getClientSize() + left;
-                int focusableCount = views.size();
                 for (int i = 0, count = getChildCount(); i < count; i++) {
                     View child = getChildAt(i);
                     if (child.getVisibility() == View.VISIBLE) {
@@ -2821,13 +2821,16 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                             child.addFocusables(views, direction, focusableMode);
                         }
                     }
-                    if (views.size() != focusableCount) {
-                        return true;
-                    }
-                } else {
-                    return true;
                 }
-                // if still cannot find any, fall through and add itself
+            } else {
+                View view = findViewByPosition(mFocusPosition);
+                if (view != null) {
+                    view.addFocusables(views, direction, focusableMode);
+                }
+            }
+            // if still cannot find any, fall through and add itself
+            if (views.size() != focusableCount) {
+                return true;
             }
             if (recyclerView.isFocusable()) {
                 views.add(recyclerView);
