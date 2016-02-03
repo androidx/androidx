@@ -23,6 +23,7 @@ import android.support.v7.app.BaseInstrumentationTestCase;
 import android.support.v7.appcompat.test.R;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,6 +48,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestActivity> {
     private FrameLayout mContainer;
@@ -57,11 +60,20 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
 
     private BaseAdapter mListPopupAdapter;
 
-    private int mListPopupClickedItem = -1;
+    private AdapterView.OnItemClickListener mItemClickListener;
 
-    private boolean mIsDismissedCalled = false;
-
-    private boolean mIsContainerClicked = false;
+    /**
+     * Item click listener that dismisses our <code>ListPopupWindow</code> when any item
+     * is clicked. Note that this needs to be a separate class that is also protected (not
+     * private) so that Mockito can "spy" on it.
+     */
+    protected class PopupItemClickListener implements AdapterView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position,
+                long id) {
+            mListPopupWindow.dismiss();
+        }
+    }
 
     public ListPopupWindowTest() {
         super(PopupTestActivity.class);
@@ -72,6 +84,7 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
         final PopupTestActivity activity = mActivityTestRule.getActivity();
         mContainer = (FrameLayout) activity.findViewById(R.id.container);
         mButton = (Button) mContainer.findViewById(R.id.test_button);
+        mItemClickListener = new PopupItemClickListener();
     }
 
     @Test
@@ -143,7 +156,8 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
             }
         });
 
-        assertTrue("Dismiss listener called", mIsDismissedCalled);
+        // Verify that our dismiss listener has been called
+        verify(popupBuilder.mOnDismissListener, times(1)).onDismiss();
         assertFalse("Popup window not showing after dismissal", mListPopupWindow.isShowing());
     }
 
@@ -152,12 +166,8 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
         popupBuilder.wireToActionButton();
 
         // Also register a click listener on the top-level container
-        mContainer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mIsContainerClicked = true;
-            }
-        });
+        View.OnClickListener mockContainerClickListener = mock(View.OnClickListener.class);
+        mContainer.setOnClickListener(mockContainerClickListener);
 
         onView(withId(R.id.test_button)).perform(click());
         assertTrue("Popup window showing", mListPopupWindow.isShowing());
@@ -210,12 +220,12 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
 
         // At this point our popup should not be showing and should have notified its
         // dismiss listener
-        assertTrue("Dismiss listener called", mIsDismissedCalled);
+        verify(popupBuilder.mOnDismissListener, times(1)).onDismiss();
         assertFalse("Popup window not showing after outside click", mListPopupWindow.isShowing());
 
         // Also test that the click outside the popup bounds has been "delivered" to the main
         // container only if the popup is not modal
-        assertEquals("Click on underlying container", !setupAsModal, mIsContainerClicked);
+        verify(mockContainerClickListener, times(setupAsModal ? 0 : 1)).onClick(mContainer);
     }
 
     @Test
@@ -239,13 +249,20 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
         onView(withId(R.id.test_button)).perform(click());
         assertTrue("Popup window showing", mListPopupWindow.isShowing());
 
-        assertEquals("Clicked item before click", -1, mListPopupClickedItem);
+        // Verify that our menu item click listener hasn't been called yet
+        verify(popupBuilder.mOnItemClickListener, never()).onItemClick(
+                any(AdapterView.class), any(View.class), any(int.class), any(int.class));
 
         final View mainDecorView = mActivityTestRule.getActivity().getWindow().getDecorView();
         onView(withText("Charlie"))
                 .inRoot(withDecorView(not(is(mainDecorView))))
                 .perform(click());
-        assertEquals("Clicked item after click", 2, mListPopupClickedItem);
+        // Verify that out menu item click listener has been called with the expected item
+        // position. Note that we use any() for other parameters, as we don't want to tie ourselves
+        // to the specific implementation details of how ListPopupWindow displays its content.
+        verify(popupBuilder.mOnItemClickListener, times(1)).onItemClick(
+                any(AdapterView.class), any(View.class), eq(2), any(int.class));
+
         // Our item click listener also dismisses the popup
         assertFalse("Popup window not showing after click", mListPopupWindow.isShowing());
     }
@@ -259,7 +276,10 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
         onView(withId(R.id.test_button)).perform(click());
         assertTrue("Popup window showing", mListPopupWindow.isShowing());
 
-        assertEquals("Clicked item before click", -1, mListPopupClickedItem);
+        // Verify that our menu item click listener hasn't been called yet
+        verify(popupBuilder.mOnItemClickListener, never()).onItemClick(
+                any(AdapterView.class), any(View.class), any(int.class), any(int.class));
+
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
@@ -267,7 +287,11 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
             }
         });
 
-        assertEquals("Clicked item after click", 1, mListPopupClickedItem);
+        // Verify that out menu item click listener has been called with the expected item
+        // position. Note that we use any() for other parameters, as we don't want to tie ourselves
+        // to the specific implementation details of how ListPopupWindow displays its content.
+        verify(popupBuilder.mOnItemClickListener, times(1)).onItemClick(
+                any(AdapterView.class), any(View.class), eq(1), any(int.class));
         // Our item click listener also dismisses the popup
         assertFalse("Popup window not showing after click", mListPopupWindow.isShowing());
     }
@@ -279,13 +303,13 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
      * we can't add logic that is specific to a certain test (such as dismissing a non-modal
      * popup window) once it's shown and we have a reference to a displayed ListPopupWindow.
      */
-    private class Builder {
+    public class Builder {
         private boolean mIsModal;
         private boolean mHasDismissListener;
         private boolean mHasItemClickListener;
 
-        public Builder() {
-        }
+        private AdapterView.OnItemClickListener mOnItemClickListener;
+        private PopupWindow.OnDismissListener mOnDismissListener;
 
         public Builder setModal(boolean isModal) {
             mIsModal = isModal;
@@ -346,26 +370,23 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
             mListPopupWindow.setAdapter(mListPopupAdapter);
             mListPopupWindow.setAnchorView(mButton);
 
-            // The following listeners have to be set before the call to show() as
+            // The following mock listeners have to be set before the call to show() as
             // they are set on the internally constructed drop down.
             if (mHasItemClickListener) {
-                mListPopupWindow.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position,
-                            long id) {
-                        mListPopupClickedItem = position;
-                        mListPopupWindow.dismiss();
-                    }
-                });
+                // Wrap our item click listener with a Mockito spy
+                mOnItemClickListener = spy(mItemClickListener);
+                // Register that spy as the item click listener on the ListPopupWindow
+                mListPopupWindow.setOnItemClickListener(mOnItemClickListener);
+                // And configure Mockito to call our original listener with onItemClick.
+                // This way we can have both our item click listener running to dismiss the popup
+                // window, and track the invocations of onItemClick with Mockito APIs.
+                doCallRealMethod().when(mOnItemClickListener).onItemClick(
+                        any(AdapterView.class), any(View.class), any(int.class), any(int.class));
             }
 
             if (mHasDismissListener) {
-                mListPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
-                    @Override
-                    public void onDismiss() {
-                        mIsDismissedCalled = true;
-                    }
-                });
+                mOnDismissListener = mock(PopupWindow.OnDismissListener.class);
+                mListPopupWindow.setOnDismissListener(mOnDismissListener);
             }
 
             mListPopupWindow.setModal(mIsModal);
