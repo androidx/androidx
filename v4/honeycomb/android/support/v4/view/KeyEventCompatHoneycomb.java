@@ -33,4 +33,8 @@ class KeyEventCompatHoneycomb {
     public static boolean metaStateHasNoModifiers(int metaState) {
         return KeyEvent.metaStateHasNoModifiers(metaState);
     }
+
+    public static boolean isCtrlPressed(KeyEvent event) {
+        return event.isCtrlPressed();
+    }
 }

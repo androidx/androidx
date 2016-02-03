@@ -2183,6 +2183,7 @@ package android.support.v4.view {
     method public static java.lang.Object getKeyDispatcherState(android.view.View);
     method public static boolean hasModifiers(android.view.KeyEvent, int);
     method public static boolean hasNoModifiers(android.view.KeyEvent);
+    method public static boolean isCtrlPressed(android.view.KeyEvent);
     method public static boolean isTracking(android.view.KeyEvent);
     method public static boolean metaStateHasModifiers(int, int);
     method public static boolean metaStateHasNoModifiers(int);

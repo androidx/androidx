@@ -1758,16 +1758,25 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
          * Get minimum width of the search view text entry area.
          */
         private int getSearchViewTextMinWidthDp() {
-            final Configuration configuration = getResources().getConfiguration();
-            final int width = configuration.screenWidthDp;
-            final int height = configuration.screenHeightDp;
-            final int orientation = configuration.orientation;
-            if (width >= 960 && height >= 720
-                    && orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            final Configuration config = getResources().getConfiguration();
+
+            final int widthDp;
+            final int heightDp;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
+                widthDp = config.screenWidthDp;
+                heightDp = config.screenHeightDp;
+            } else {
+                final DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
+                widthDp = (int) (metrics.widthPixels / metrics.density);
+                heightDp = (int) (metrics.heightPixels / metrics.density);
+            }
+
+            if (widthDp >= 960 && heightDp >= 720
+                    && config.orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 return 256;
-            } else if (width >= 600 || (width >= 640 && height >= 480)) {
+            } else if (widthDp >= 600 || (widthDp >= 640 && heightDp >= 480)) {
                 return 192;
-            };
+            }
             return 160;
         }
     }

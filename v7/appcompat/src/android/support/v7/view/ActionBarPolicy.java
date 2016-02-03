@@ -23,6 +23,7 @@ import android.content.res.TypedArray;
 import android.os.Build;
 import android.support.v4.view.ViewConfigurationCompat;
 import android.support.v7.appcompat.R;
+import android.util.DisplayMetrics;
 import android.view.ViewConfiguration;
 
 /**
@@ -50,22 +51,36 @@ public class ActionBarPolicy {
      */
     public int getMaxActionButtons() {
         final Configuration config = mContext.getResources().getConfiguration();
-        final int width = config.screenWidthDp;
-        final int height = config.screenHeightDp;
+        final int sdk = Build.VERSION.SDK_INT;
+
+        final int widthDp;
+        final int heightDp;
+        if (sdk >= Build.VERSION_CODES.HONEYCOMB_MR1) {
+            widthDp = config.screenWidthDp;
+            heightDp = config.screenHeightDp;
+        } else {
+            final DisplayMetrics metrics = mContext.getResources().getDisplayMetrics();
+            widthDp = (int) (metrics.widthPixels / metrics.density);
+            heightDp = (int) (metrics.heightPixels / metrics.density);
+        }
+
         final int smallest;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+        if (sdk >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             smallest = config.smallestScreenWidthDp;
         } else {
-            smallest = 0;
+            // Not quite perfect but close enough
+            smallest = Math.min(widthDp, heightDp);
         }
-        if (smallest > 600 || width > 600 || (width > 960 && height > 720)
-                || (width > 720 && height > 960)) {
+
+        if (smallest > 600 || widthDp > 600 || (widthDp > 960 && heightDp > 720)
+                || (widthDp > 720 && heightDp > 960)) {
             // For values-w600dp, values-sw600dp and values-xlarge.
             return 5;
-        } else if (width >= 500 || (width > 640 && height > 480) || (width > 480 && height > 640)) {
+        } else if (widthDp >= 500 || (widthDp > 640 && heightDp > 480)
+                || (widthDp > 480 && heightDp > 640)) {
             // For values-w500dp and values-large.
             return 4;
-        } else if (width >= 360) {
+        } else if (widthDp >= 360) {
             // For values-w360dp.
             return 3;
         } else {
@@ -86,18 +101,7 @@ public class ActionBarPolicy {
     }
 
     public boolean hasEmbeddedTabs() {
-        final int targetSdk = mContext.getApplicationInfo().targetSdkVersion;
-        if (targetSdk >= Build.VERSION_CODES.JELLY_BEAN) {
-            return mContext.getResources().getBoolean(R.bool.abc_action_bar_embed_tabs);
-        }
-
-        // The embedded tabs policy changed in Jellybean; give older apps the old policy
-        // so they get what they expect.
-        final Configuration configuration = mContext.getResources().getConfiguration();
-        final int width = configuration.screenWidthDp;
-        final int height = configuration.screenHeightDp;
-        return configuration.orientation == Configuration.ORIENTATION_LANDSCAPE ||
-                width >= 480 || (width >= 640 && height >= 480);
+        return mContext.getResources().getBoolean(R.bool.abc_action_bar_embed_tabs);
     }
 
     public int getTabContainerHeight() {
