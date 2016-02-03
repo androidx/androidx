@@ -44,8 +44,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * An OnboardingFragment provides a common and simple way to build their own onboarding screen for
- * the applications.
+ * An OnboardingFragment provides a common and simple way to build onboarding screen for
+ * applications.
  * <p>
  * <h3>Building the screen</h3>
  * The view structure of onboarding screen is composed of the common parts and custom parts. The
@@ -74,28 +74,35 @@ import java.util.List;
  * <li>{@link #getPageDescription} to provide the description of the page.</li>
  * </ul>
  * <p>
- * <h3><a name="logoAnimation">Logo Splash Animation</a></h3>
- * When onboarding screen appears, the logo splash animation is played by default. The animation
- * fades in the logo image, pauses in a few seconds and fades it out. To support this animation with
- * its own logo image, the inherited class should override the following method.
- * <p>
- * <ul>
- * <li>{@link #getLogoResourceId()}</li>
- * </ul>
+ * Note that the information is used in {@link #onCreateView}, so should be initialized before
+ * calling {@code super.onCreateView} or in {@link Fragment#onAttach(android.app.Activity)}.
  * <p>
  * <h3>Animation</h3>
- * This page has three kinds of animations:
+ * Onboarding screen has three kinds of animations:
  * <p>
+ * <h4>Logo Splash Animation</a></h4>
+ * When onboarding screen appears, the logo splash animation is played by default. The animation
+ * fades in the logo image, pauses in a few seconds and fades it out.
+ * <p>
+ * In most cases, the logo animation needs to be customized because the logo images of applications
+ * are different from each other, or some applications may want to show their own animations.
+ * <p>
+ * The logo animation can be customized in two ways:
  * <ul>
- * <li><b>Logo splash animation</b> which starts as soon as onboarding screen is shown as described
- * in <a href="#logoAnimation">Logo Splash Animation</a>.</li>
- * <li><b>Page enter animation</b> which runs just after the logo animation finishes. The
- * application can run the animations of their custom views by overriding
- * {@link #onStartEnterAnimation}.</li>
- * <li><b>Page change animation</b> which runs when the page changes. The pages can move backward or
- * forward direction and the application can start the page change animations by overriding
- * {@link #onStartPageChangeAnimation}.</li>
+ * <li>The simplest way is to provide the logo image by calling {@link #setLogoResourceId} to show
+ * the default logo animation. This method should be called in {@link Fragment#onCreateView}.</li>
+ * <li>If the logo animation is complex, then override {@link #onCreateLogoAnimation} and return the
+ * {@link Animator} object to run.</li>
  * </ul>
+ * <p>
+ * If the inherited class provides neither the logo image nor the animation, the logo animation will
+ * be omitted.
+ * <h4>Page enter animation</h4>
+ * After logo animation finishes, page enter animation starts. The application can provide the
+ * animations of custom views by overriding {@link #onCreateEnterAnimation}.
+ * <h4>Page change animation</h4>
+ * When the page changes, the default animations of the title and description are played. The
+ * inherited class can override {@link #onPageChanged} to start the custom animations.
  * <p>
  * <h3>Finishing the screen</h3>
  * <p>
@@ -121,22 +128,22 @@ abstract public class OnboardingFragment extends Fragment {
     private static final TimeInterpolator HEADER_DISAPPEAR_INTERPOLATOR
             = new AccelerateInterpolator();
 
+    // Keys used to save and restore the states.
+    private static final String KEY_CURRENT_PAGE_INDEX = "leanback.onboarding.current_page_index";
+
     private PagingIndicator mPageIndicator;
     private View mStartButton;
     private ImageView mLogoView;
     private TextView mTitleView;
     private TextView mDescriptionView;
 
+    // No need to save/restore the logo resource ID, because the logo animation will not appear when
+    // the fragment is restored.
+    private int mLogoResourceId;
     private boolean mEnterTransitionFinished;
     private int mCurrentPageIndex;
 
     private AnimatorSet mAnimator;
-
-    /**
-     * Called to have the inherited class create its own start animation. The start animation runs
-     * after logo splash animation ends.
-     */
-    abstract protected void onStartEnterAnimation();
 
     private final OnClickListener mOnClickListener = new OnClickListener() {
         @Override
@@ -149,7 +156,7 @@ abstract public class OnboardingFragment extends Fragment {
                 onFinishFragment();
             } else {
                 ++mCurrentPageIndex;
-                onPageChanged(mCurrentPageIndex - 1);
+                onPageChangedInternal(mCurrentPageIndex - 1);
             }
         }
     };
@@ -173,13 +180,13 @@ abstract public class OnboardingFragment extends Fragment {
                 case KeyEvent.KEYCODE_DPAD_LEFT:
                     if (mCurrentPageIndex > 0) {
                         --mCurrentPageIndex;
-                        onPageChanged(mCurrentPageIndex + 1);
+                        onPageChangedInternal(mCurrentPageIndex + 1);
                     }
                     return true;
                 case KeyEvent.KEYCODE_DPAD_RIGHT:
                     if (mCurrentPageIndex < getPageCount() - 1) {
                         ++mCurrentPageIndex;
-                        onPageChanged(mCurrentPageIndex - 1);
+                        onPageChangedInternal(mCurrentPageIndex - 1);
                     }
                     return true;
             }
@@ -194,81 +201,140 @@ abstract public class OnboardingFragment extends Fragment {
         ViewGroup view = (ViewGroup) inflater.inflate(R.layout.lb_onboarding_fragment, container,
                 false);
         mPageIndicator = (PagingIndicator) view.findViewById(R.id.page_indicator);
-        mPageIndicator.setPageCount(getPageCount());
         mPageIndicator.setOnClickListener(mOnClickListener);
         mPageIndicator.setOnKeyListener(mOnKeyListener);
         mStartButton = view.findViewById(R.id.button_start);
         mStartButton.setOnClickListener(mOnClickListener);
         mStartButton.setOnKeyListener(mOnKeyListener);
         mLogoView = (ImageView) view.findViewById(R.id.logo);
-        mLogoView.setImageResource(getLogoResourceId());
         mTitleView = (TextView) view.findViewById(R.id.title);
-        mTitleView.setText(getPageTitle(0));
         mDescriptionView = (TextView) view.findViewById(R.id.description);
-        mDescriptionView.setText(getPageDescription(0));
         if (sSlideDistance == 0) {
             sSlideDistance = (int) (SLIDE_DISTANCE * getActivity().getResources()
                     .getDisplayMetrics().scaledDensity);
         }
-        mCurrentPageIndex = 0;
-        mPageIndicator.onPageSelected(0, false);
-        view.requestFocus();
-        if (getLogoResourceId() != 0) {
+        if (savedInstanceState == null) {
+            mCurrentPageIndex = 0;
+            mEnterTransitionFinished = false;
+            mPageIndicator.onPageSelected(0, false);
             container.getViewTreeObserver().addOnPreDrawListener(new OnPreDrawListener() {
                 @Override
                 public boolean onPreDraw() {
                     container.getViewTreeObserver().removeOnPreDrawListener(this);
-                    startLogoAnimation();
+                    if (!startLogoAnimation()) {
+                        startEnterAnimation();
+                    }
                     return true;
                 }
             });
         } else {
-            onLogoAnimationFinished();
+            mEnterTransitionFinished = true;
+            mCurrentPageIndex = savedInstanceState.getInt(KEY_CURRENT_PAGE_INDEX);
+            initializeViews(view);
         }
+        view.requestFocus();
         return view;
     }
 
-    private void startLogoAnimation() {
-        mLogoView.setVisibility(View.VISIBLE);
-        Animator inAnimator = AnimatorInflater.loadAnimator(getActivity(),
-                R.animator.lb_onboarding_logo_enter);
-        Animator outAnimator = AnimatorInflater.loadAnimator(getActivity(),
-                R.animator.lb_onboarding_logo_exit);
-        outAnimator.setStartDelay(LOGO_SPLASH_PAUSE_DURATION_MS);
-        AnimatorSet animator = new AnimatorSet();
-        animator.playSequentially(inAnimator, outAnimator);
-        animator.setTarget(mLogoView);
-        animator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                mEnterTransitionFinished = true;
-                if (getActivity() != null) {
-                    onLogoAnimationFinished();
-                    onStartEnterAnimation();
-                }
-            }
-        });
-        animator.start();
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(KEY_CURRENT_PAGE_INDEX, mCurrentPageIndex);
     }
 
-    private void onLogoAnimationFinished() {
+    /**
+     * Sets the resource ID of the splash logo image. If the logo resource id set, the default logo
+     * splash animation will be played.
+     *
+     * @param id The resource ID of the logo image.
+     */
+    public final void setLogoResourceId(int id) {
+        mLogoResourceId = id;
+    }
+
+    /**
+     * Returns the resource ID of the splash logo image.
+     *
+     * @return The resource ID of the splash logo image.
+     */
+    public final int getLogoResourceId() {
+        return mLogoResourceId;
+    }
+
+    /**
+     * Called to have the inherited class create its own logo animation.
+     * <p>
+     * This is called only if the logo image resource ID is not set by {@link #setLogoResourceId}.
+     * If this returns {@code null}, the logo animation is skipped.
+     *
+     * @return The {@link Animator} object which runs the logo animation.
+     */
+    @Nullable
+    protected Animator onCreateLogoAnimation() {
+        return null;
+    }
+
+    private boolean startLogoAnimation() {
+        Animator animator = null;
+        if (mLogoResourceId != 0) {
+            mLogoView.setVisibility(View.VISIBLE);
+            mLogoView.setImageResource(mLogoResourceId);
+            Animator inAnimator = AnimatorInflater.loadAnimator(getActivity(),
+                    R.animator.lb_onboarding_logo_enter);
+            Animator outAnimator = AnimatorInflater.loadAnimator(getActivity(),
+                    R.animator.lb_onboarding_logo_exit);
+            outAnimator.setStartDelay(LOGO_SPLASH_PAUSE_DURATION_MS);
+            AnimatorSet logoAnimator = new AnimatorSet();
+            logoAnimator.playSequentially(inAnimator, outAnimator);
+            logoAnimator.setTarget(mLogoView);
+            animator = logoAnimator;
+        } else {
+            animator = onCreateLogoAnimation();
+        }
+        if (animator != null) {
+            animator.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    if (getActivity() != null) {
+                        startEnterAnimation();
+                    }
+                }
+            });
+            animator.start();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Called to have the inherited class create its enter animation. The start animation runs after
+     * logo animation ends.
+     *
+     * @return The {@link Animator} object which runs the page enter animation.
+     */
+    @Nullable
+    protected Animator onCreateEnterAnimation() {
+        return null;
+    }
+
+    private void initializeViews(View container) {
         mLogoView.setVisibility(View.GONE);
         // Create custom views.
         LayoutInflater inflater = LayoutInflater.from(getActivity());
-        ViewGroup backgroundContainer = (ViewGroup) getView().findViewById(
+        ViewGroup backgroundContainer = (ViewGroup) container.findViewById(
                 R.id.background_container);
         View background = onCreateBackgroundView(inflater, backgroundContainer);
         if (background != null) {
             backgroundContainer.setVisibility(View.VISIBLE);
             backgroundContainer.addView(background);
         }
-        ViewGroup contentContainer = (ViewGroup) getView().findViewById(R.id.content_container);
+        ViewGroup contentContainer = (ViewGroup) container.findViewById(R.id.content_container);
         View content = onCreateContentView(inflater, contentContainer);
         if (content != null) {
             contentContainer.setVisibility(View.VISIBLE);
             contentContainer.addView(content);
         }
-        ViewGroup foregroundContainer = (ViewGroup) getView().findViewById(
+        ViewGroup foregroundContainer = (ViewGroup) container.findViewById(
                 R.id.foreground_container);
         View foreground = onCreateForegroundView(inflater, foregroundContainer);
         if (foreground != null) {
@@ -276,21 +342,29 @@ abstract public class OnboardingFragment extends Fragment {
             foregroundContainer.addView(foreground);
         }
         // Make views visible which were invisible while logo animation is running.
-        getView().findViewById(R.id.page_container).setVisibility(View.VISIBLE);
-        getView().findViewById(R.id.content_container).setVisibility(View.VISIBLE);
+        container.findViewById(R.id.page_container).setVisibility(View.VISIBLE);
+        container.findViewById(R.id.content_container).setVisibility(View.VISIBLE);
+        if (getPageCount() > 1) {
+            mPageIndicator.setPageCount(getPageCount());
+            mPageIndicator.onPageSelected(mCurrentPageIndex, false);
+        }
+        if (mCurrentPageIndex == getPageCount() - 1) {
+            mStartButton.setVisibility(View.VISIBLE);
+        } else {
+            mPageIndicator.setVisibility(View.VISIBLE);
+        }
+        // Header views.
+        mTitleView.setText(getPageTitle(mCurrentPageIndex));
+        mDescriptionView.setText(getPageDescription(mCurrentPageIndex));
+    }
 
+    private void startEnterAnimation() {
+        mEnterTransitionFinished = true;
+        initializeViews(getView());
         List<Animator> animators = new ArrayList<>();
         Animator animator = AnimatorInflater.loadAnimator(getActivity(),
                 R.animator.lb_onboarding_page_indicator_enter);
-        if (getPageCount() <= 1) {
-            // Start button
-            mStartButton.setVisibility(View.VISIBLE);
-            animator.setTarget(mStartButton);
-        } else {
-            // Page indicator
-            mPageIndicator.setVisibility(View.VISIBLE);
-            animator.setTarget(mPageIndicator);
-        }
+        animator.setTarget(getPageCount() <= 1 ? mStartButton : mPageIndicator);
         animators.add(animator);
         // Header title
         View view = getActivity().findViewById(R.id.title);
@@ -308,10 +382,14 @@ abstract public class OnboardingFragment extends Fragment {
         animator.setStartDelay(START_DELAY_DESCRIPTION_MS);
         animator.setTarget(view);
         animators.add(animator);
+        // Customized animation by the inherited class.
+        Animator customAnimator = onCreateEnterAnimation();
+        if (customAnimator != null) {
+            animators.add(customAnimator);
+        }
         mAnimator = new AnimatorSet();
         mAnimator.playTogether(animators);
         mAnimator.start();
-        onStartEnterAnimation();
         // Search focus and give the focus to the appropriate child which has become visible.
         getView().requestFocus();
     }
@@ -349,13 +427,6 @@ abstract public class OnboardingFragment extends Fragment {
     protected final int getCurrentPageIndex() {
         return mCurrentPageIndex;
     }
-
-    /**
-     * Returns the resource ID of the splash logo image.
-     *
-     * @return The resource ID of the splash logo image.
-     */
-    abstract protected int getLogoResourceId();
 
     /**
      * Called to have the inherited class create background view. This is optional and the fragment
@@ -411,7 +482,7 @@ abstract public class OnboardingFragment extends Fragment {
     /**
      * Called when the page changes.
      */
-    private void onPageChanged(int previousPage) {
+    private void onPageChangedInternal(int previousPage) {
         if (mAnimator != null) {
             mAnimator.end();
         }
@@ -486,8 +557,16 @@ abstract public class OnboardingFragment extends Fragment {
         mAnimator = new AnimatorSet();
         mAnimator.playTogether(animators);
         mAnimator.start();
-        onStartPageChangeAnimation(previousPage);
+        onPageChanged(mCurrentPageIndex, previousPage);
     }
+
+    /**
+     * Called when the page has been changed.
+     *
+     * @param newPage The new page.
+     * @param previousPage The previous page.
+     */
+    protected void onPageChanged(int newPage, int previousPage) { }
 
     private Animator createAnimator(View view, boolean fadeIn, int slideDirection,
             long startDelay) {
@@ -521,11 +600,4 @@ abstract public class OnboardingFragment extends Fragment {
         }
         return animator;
     }
-
-    /**
-     * Called to have the inherited class run its own page change animation
-     *
-     * @param previousPage The previous page.
-     */
-    abstract protected void onStartPageChangeAnimation(int previousPage);
 }
