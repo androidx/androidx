@@ -33,10 +33,10 @@ limitations under the License.
     <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"Ignorer l\'élément suivant"</string>
     <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"Ignorer l\'élément précédent"</string>
     <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"Autres actions"</string>
-    <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"Désélectionner \"J\'aime\""</string>
-    <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"Sélectionner \"J\'aime\""</string>
-    <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"Désélectionner \"Je n\'aime pas\""</string>
-    <string name="lb_playback_controls_thumb_down_outline" msgid="2936020280629424365">"Sélectionner \"Je n\'aime pas\""</string>
+    <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"Annuler +1"</string>
+    <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"Sélectionner +1"</string>
+    <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"Annuler -1"</string>
+    <string name="lb_playback_controls_thumb_down_outline" msgid="2936020280629424365">"Sélectionner -1"</string>
     <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"Ne rien lire en boucle"</string>
     <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"Tout lire en boucle"</string>
     <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"Lire en boucle un élément"</string>
