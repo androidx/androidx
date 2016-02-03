@@ -19,7 +19,7 @@
     <string name="mr_system_route_name" msgid="5441529851481176817">"Համակարգ"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"Սարքեր"</string>
     <string name="mr_button_content_description" msgid="3698378085901466129">"Հեռարձակման կոճակ"</string>
-    <string name="mr_chooser_title" msgid="414301941546135990">"Հեռարձակել դեպի"</string>
+    <string name="mr_chooser_title" msgid="414301941546135990">"Ընտրեք սարքը"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"Սարքերի որոնում"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"Անջատել"</string>
     <string name="mr_controller_stop" msgid="4570331844078181931">"Դադարեցնել հեռարձակումը"</string>
