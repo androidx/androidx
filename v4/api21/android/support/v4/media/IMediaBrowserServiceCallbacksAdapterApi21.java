@@ -30,11 +30,13 @@ import java.lang.reflect.Method;
  * IMediaBrowserServiceCallbacks.Stub using reflection.
  */
 class IMediaBrowserServiceCallbacksAdapterApi21 {
+
     Object mCallbackObject;
     private Method mAsBinderMethod;
     private Method mOnConnectMethod;
     private Method mOnConnectFailedMethod;
     private Method mOnLoadChildrenMethod;
+    private Method mOnLoadChildrenMethodWithOptions;
 
     IMediaBrowserServiceCallbacksAdapterApi21(Object callbackObject) {
         mCallbackObject = callbackObject;
@@ -47,6 +49,10 @@ class IMediaBrowserServiceCallbacksAdapterApi21 {
             mOnConnectFailedMethod = theClass.getMethod("onConnectFailed");
             mOnLoadChildrenMethod = theClass.getMethod("onLoadChildren",
                     new Class[] { String.class, parceledListSliceClass });
+            if (Build.VERSION.SDK_INT >= 24) {
+                mOnLoadChildrenMethodWithOptions = theClass.getMethod("onLoadChildrenWithOptions",
+                        new Class[] { String.class, parceledListSliceClass, Bundle.class });
+            }
         } catch (ClassNotFoundException | NoSuchMethodException e) {
             e.printStackTrace();
         }
@@ -82,6 +88,16 @@ class IMediaBrowserServiceCallbacksAdapterApi21 {
         try {
             mOnLoadChildrenMethod.invoke(mCallbackObject, mediaId, parceledListSliceObj);
         } catch (IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+    }
+
+    void onLoadChildrenWithOptions(String mediaId, Object parceledListSliceObj, Bundle options)
+            throws RemoteException {
+        try {
+            mOnLoadChildrenMethodWithOptions.invoke(
+                    mCallbackObject, mediaId, parceledListSliceObj, options);
+        } catch (IllegalAccessException | InvocationTargetException | NullPointerException e) {
             e.printStackTrace();
         }
     }
