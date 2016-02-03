@@ -19,12 +19,12 @@ package android.support.v4.media;
 import android.content.Intent;
 import android.media.MediaDescription;
 import android.media.browse.MediaBrowser;
+import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
 import android.os.RemoteException;
-import android.os.ResultReceiver;
 import android.service.media.MediaBrowserService;
 
 import java.util.ArrayList;
@@ -84,10 +84,10 @@ class MediaBrowserServiceCompatApi21 {
     }
 
     public static class ServiceCallbacksImplApi21 implements ServiceCallbacksApi21 {
-        protected final IMediaBrowserServiceCallbacksAdapterApi21 mCallbacks;
+        final IMediaBrowserServiceCallbacksAdapterApi21 mCallbacks;
 
         ServiceCallbacksImplApi21(Object callbacksObj) {
-            mCallbacks = new IMediaBrowserServiceCallbacksAdapterApi21(callbacksObj);
+            mCallbacks = createCallbacks(callbacksObj);
         }
 
         public IBinder asBinder() {
@@ -105,13 +105,17 @@ class MediaBrowserServiceCompatApi21 {
         public void onLoadChildren(String mediaId, List<Parcel> list) throws RemoteException {
             mCallbacks.onLoadChildren(mediaId, parcelListToParceledListSliceObject(list));
         }
+
+        IMediaBrowserServiceCallbacksAdapterApi21 createCallbacks(Object callbacksObj) {
+            return new IMediaBrowserServiceCallbacksAdapterApi21(callbacksObj);
+        }
     }
 
     static class MediaBrowserServiceAdaptorApi21 {
-        ServiceBinderProxyApi21 mBinder;
+        Binder mBinder;
 
         public void onCreate(ServiceImplApi21 serviceImpl) {
-            mBinder = new ServiceBinderProxyApi21(serviceImpl);
+            mBinder = createServiceBinder(serviceImpl);
         }
 
         public IBinder onBind(Intent intent) {
@@ -121,49 +125,8 @@ class MediaBrowserServiceCompatApi21 {
             return null;
         }
 
-        static class ServiceBinderProxyApi21 extends IMediaBrowserServiceAdapterApi21.Stub {
-            final ServiceImplApi21 mServiceImpl;
-
-            ServiceBinderProxyApi21(ServiceImplApi21 serviceImpl) {
-                super();
-                mServiceImpl = serviceImpl;
-            }
-
-            @Override
-            public void connect(String pkg, Bundle rootHints, Object callbacks) {
-                mServiceImpl.connect(pkg, rootHints, new ServiceCallbacksImplApi21(callbacks));
-            }
-
-            @Override
-            public void disconnect(Object callbacks) {
-                mServiceImpl.disconnect(new ServiceCallbacksImplApi21(callbacks));
-            }
-
-            @Override
-            public void addSubscription(String id, Object callbacks) {
-                mServiceImpl.addSubscription(id, new ServiceCallbacksImplApi21(callbacks));
-            }
-
-            @Override
-            public void removeSubscription(String id, Object callbacks) {
-                mServiceImpl.removeSubscription(id, new ServiceCallbacksImplApi21(callbacks));
-            }
-
-            @Override
-            public void getMediaItem(String mediaId, ResultReceiver receiver) {
-                // No operation since this method is added in API 23.
-            }
-
-            @Override
-            public void addSubscription(String id, Bundle options,
-                    final Object callbacks) {
-                // No operation since this method is added in API 24.
-            }
-
-            @Override
-            public void removeSubscription(String id, Bundle options, Object callbacks) {
-                // No operation since this method is added in API 24.
-            }
+        protected Binder createServiceBinder(ServiceImplApi21 serviceImpl) {
+            return new IMediaBrowserServiceAdapterApi21(serviceImpl);
         }
     }
 }
