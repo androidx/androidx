@@ -358,6 +358,16 @@ public final class MotionEventCompat {
     public static final int AXIS_TILT = 25;
 
     /**
+     * Synonym for {@link MotionEvent#AXIS_RELATIVE_X}.
+     */
+    public static final int AXIS_RELATIVE_X = 27;
+
+    /**
+     * Synonym for {@link MotionEvent#AXIS_RELATIVE_Y}.
+     */
+    public static final int AXIS_RELATIVE_Y = 28;
+
+    /**
      * Synonym for {@link MotionEvent#AXIS_GENERIC_1}.
      */
     public static final int AXIS_GENERIC_1 = 32;
