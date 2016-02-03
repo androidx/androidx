@@ -91,6 +91,12 @@ public class Preference implements Comparable<Preference> {
      */
     private long mId;
 
+    /**
+     * Set true temporarily to keep {@link #onAttachedToHierarchy(PreferenceManager)} from
+     * overwriting mId
+     */
+    private boolean mHasId;
+
     private OnPreferenceChangeListener mOnChangeListener;
     private OnPreferenceClickListener mOnClickListener;
 
@@ -1066,9 +1072,25 @@ public class Preference implements Comparable<Preference> {
     protected void onAttachedToHierarchy(PreferenceManager preferenceManager) {
         mPreferenceManager = preferenceManager;
 
-        mId = preferenceManager.getNextId();
+        if (!mHasId) {
+            mId = preferenceManager.getNextId();
+        }
 
         dispatchSetInitialValue();
+    }
+
+    /**
+     * Called from {@link PreferenceGroup} to pass in an ID for reuse
+     * @hide
+     */
+    protected void onAttachedToHierarchy(PreferenceManager preferenceManager, long id) {
+        mId = id;
+        mHasId = true;
+        try {
+            onAttachedToHierarchy(preferenceManager);
+        } finally {
+            mHasId = false;
+        }
     }
 
     /**
