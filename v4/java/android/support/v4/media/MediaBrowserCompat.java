@@ -525,7 +525,7 @@ public final class MediaBrowserCompat {
     /**
      * Callbacks for subscription related events.
      */
-    public static class SubscriptionCallbackApi21 extends SubscriptionCallback {
+    static class SubscriptionCallbackApi21 extends SubscriptionCallback {
         SubscriptionCallback mSubscriptionCallback;
         private final Object mSubscriptionCallbackObj;
         private Bundle mOptions;
