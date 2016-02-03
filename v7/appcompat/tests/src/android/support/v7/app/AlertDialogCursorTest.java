@@ -50,13 +50,13 @@ import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 public class AlertDialogCursorTest
         extends BaseInstrumentationTestCase<AlertDialogTestActivity> {
 
     private Button mButton;
-
-    private int mClickedItemIndex = -1;
 
     private static final String TEXT_COLUMN_NAME = "text";
     private static final String CHECKED_COLUMN_NAME = "checked";
@@ -146,7 +146,8 @@ public class AlertDialogCursorTest
         });
     }
 
-    private void verifySimpleItemsContent(String[] expectedContent) {
+    private void verifySimpleItemsContent(String[] expectedContent,
+            DialogInterface.OnClickListener onClickListener) {
         final int expectedCount = expectedContent.length;
 
         onView(withId(R.id.test_button)).perform(click());
@@ -167,15 +168,16 @@ public class AlertDialogCursorTest
             rowInteraction.inRoot(isDialog()).check(matches(isDisplayed()));
         }
 
+        // Verify that our click listener hasn't been called yet
+        verify(onClickListener, never()).onClick(any(DialogInterface.class), any(int.class));
         // Test that a click on an item invokes the registered listener
-        assertEquals("Before list item click", -1, mClickedItemIndex);
         int indexToClick = expectedCount - 2;
         DataInteraction interactionForClick = onData(allOf(
                 is(instanceOf(SQLiteCursor.class)),
                 TestUtilsMatchers.withCursorItemContent(
                         TEXT_COLUMN_NAME, expectedContent[indexToClick])));
         interactionForClick.inRoot(isDialog()).perform(click());
-        assertEquals("List item clicked", indexToClick, mClickedItemIndex);
+        verify(onClickListener, times(1)).onClick(mAlertDialog, indexToClick);
     }
 
     @Test
@@ -185,18 +187,14 @@ public class AlertDialogCursorTest
                 null, null, null, null, null);
         assertNotNull(mCursor);
 
+        final DialogInterface.OnClickListener mockClickListener =
+                mock(DialogInterface.OnClickListener.class);
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivityTestRule.getActivity())
                 .setTitle(R.string.alert_dialog_title)
-                .setCursor(mCursor,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                mClickedItemIndex = which;
-                            }
-                        }, "text");
+                .setCursor(mCursor, mockClickListener, "text");
         wireBuilder(builder);
 
-        verifySimpleItemsContent(mTextContent);
+        verifySimpleItemsContent(mTextContent, mockClickListener);
     }
 
     /**
@@ -354,7 +352,7 @@ public class AlertDialogCursorTest
     }
 
     private void verifySingleChoiceItemsContent(String[] expectedContent,
-            int initialSelectionIndex) {
+            int initialSelectionIndex, DialogInterface.OnClickListener onClickListener) {
         final int expectedCount = expectedContent.length;
         int currentlyExpectedSelectionIndex = initialSelectionIndex;
 
@@ -372,14 +370,12 @@ public class AlertDialogCursorTest
                 TestUtilsMatchers.withCursorItemContent(TEXT_COLUMN_NAME,
                         expectedContent[currentlyExpectedSelectionIndex])));
         interactionForClick.inRoot(isDialog()).perform(click());
-        assertEquals("Selected first single-choice item",
-                currentlyExpectedSelectionIndex, mClickedItemIndex);
+        verify(onClickListener, times(1)).onClick(mAlertDialog, currentlyExpectedSelectionIndex);
         verifySingleChoiceItemsState(expectedContent, currentlyExpectedSelectionIndex);
 
         // Now click the same item again and test that the selection has not changed
         interactionForClick.inRoot(isDialog()).perform(click());
-        assertEquals("Selected first single-choice item again",
-                currentlyExpectedSelectionIndex, mClickedItemIndex);
+        verify(onClickListener, times(2)).onClick(mAlertDialog, currentlyExpectedSelectionIndex);
         verifySingleChoiceItemsState(expectedContent, currentlyExpectedSelectionIndex);
 
         // Now we're going to click the last item and test that the click listener has been invoked
@@ -390,8 +386,7 @@ public class AlertDialogCursorTest
                 TestUtilsMatchers.withCursorItemContent(TEXT_COLUMN_NAME,
                         expectedContent[currentlyExpectedSelectionIndex])));
         interactionForClick.inRoot(isDialog()).perform(click());
-        assertEquals("Selected last single-choice item",
-                currentlyExpectedSelectionIndex, mClickedItemIndex);
+        verify(onClickListener, times(1)).onClick(mAlertDialog, currentlyExpectedSelectionIndex);
         verifySingleChoiceItemsState(expectedContent, currentlyExpectedSelectionIndex);
     }
 
@@ -402,17 +397,13 @@ public class AlertDialogCursorTest
                 null, null, null, null, null);
         assertNotNull(mCursor);
 
+        final DialogInterface.OnClickListener mockClickListener =
+                mock(DialogInterface.OnClickListener.class);
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivityTestRule.getActivity())
                 .setTitle(R.string.alert_dialog_title)
-                .setSingleChoiceItems(mCursor, 2, TEXT_COLUMN_NAME,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                mClickedItemIndex = which;
-                            }
-                        });
+                .setSingleChoiceItems(mCursor, 2, TEXT_COLUMN_NAME, mockClickListener);
         wireBuilder(builder);
 
-        verifySingleChoiceItemsContent(mTextContent, 2);
+        verifySingleChoiceItemsContent(mTextContent, 2, mockClickListener);
     }
 }

@@ -58,6 +58,7 @@ import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
 
 public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity> {
     // Since PopupMenu doesn't expose any access to the underlying
@@ -72,10 +73,6 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
     private Button mButton;
 
     private PopupMenu mPopupMenu;
-
-    private int mPopupClickedMenuItemId = -1;
-
-    private boolean mIsDismissedCalled = false;
 
     private Resources mResources;
 
@@ -289,7 +286,8 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
             }
         });
 
-        assertTrue("Dismiss listener called", mIsDismissedCalled);
+        verify(menuBuilder.mOnDismissListener, times(1)).onDismiss(mPopupMenu);
+
         // Unlike ListPopupWindow, PopupMenu doesn't have an API to check whether it is showing.
         // Use a custom matcher to check the visibility of the drop down list view instead.
         onView(withClassName(Matchers.is(DROP_DOWN_CLASS_NAME))).check(doesNotExist());
@@ -347,7 +345,7 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
 
         // At this point our popup should not be showing and should have notified its
         // dismiss listener
-        assertTrue("Dismiss listener called", mIsDismissedCalled);
+        verify(menuBuilder.mOnDismissListener, times(1)).onDismiss(mPopupMenu);
         onView(withClassName(Matchers.is(DROP_DOWN_CLASS_NAME))).check(doesNotExist());
     }
 
@@ -359,12 +357,16 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
 
         onView(withId(R.id.test_button)).perform(click());
 
-        assertEquals("Clicked item before click", -1, mPopupClickedMenuItemId);
+        // Verify that our menu item click listener hasn't been called yet
+        verify(menuBuilder.mOnMenuItemClickListener, never()).onMenuItemClick(any(MenuItem.class));
 
         onView(withText(mResources.getString(R.string.popup_menu_delete)))
                 .inRoot(withDecorView(not(is(mMainDecorView))))
                 .perform(click());
-        assertEquals("Clicked item after click", R.id.action_delete, mPopupClickedMenuItemId);
+
+        // Verify that out menu item click listener has been called with the expected menu item
+        verify(menuBuilder.mOnMenuItemClickListener, times(1)).onMenuItemClick(
+                mPopupMenu.getMenu().findItem(R.id.action_delete));
 
         // Popup menu should be automatically dismissed on selecting an item
         onView(withClassName(Matchers.is(DROP_DOWN_CLASS_NAME))).check(doesNotExist());
@@ -378,7 +380,9 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
 
         onView(withId(R.id.test_button)).perform(click());
 
-        assertEquals("Clicked item before click", -1, mPopupClickedMenuItemId);
+        // Verify that our menu item click listener hasn't been called yet
+        verify(menuBuilder.mOnMenuItemClickListener, never()).onMenuItemClick(any(MenuItem.class));
+
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
@@ -386,7 +390,9 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
             }
         });
 
-        assertEquals("Clicked item after click", R.id.action_highlight, mPopupClickedMenuItemId);
+        // Verify that out menu item click listener has been called with the expected menu item
+        verify(menuBuilder.mOnMenuItemClickListener, times(1)).onMenuItemClick(
+                mPopupMenu.getMenu().findItem(R.id.action_highlight));
 
         // Popup menu should be automatically dismissed on selecting an item
         onView(withClassName(Matchers.is(DROP_DOWN_CLASS_NAME))).check(doesNotExist());
@@ -400,12 +406,16 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
 
         onView(withId(R.id.test_button)).perform(click());
 
-        assertEquals("Clicked item before click", -1, mPopupClickedMenuItemId);
+        // Verify that our menu item click listener hasn't been called yet
+        verify(menuBuilder.mOnMenuItemClickListener, never()).onMenuItemClick(any(MenuItem.class));
 
         onView(withText(mResources.getString(R.string.popup_menu_share)))
                 .inRoot(withDecorView(not(is(mMainDecorView))))
                 .perform(click());
-        assertEquals("Clicked item after click", R.id.action_share, mPopupClickedMenuItemId);
+
+        // Verify that out menu item click listener has been called with the expected menu item
+        verify(menuBuilder.mOnMenuItemClickListener, times(1)).onMenuItemClick(
+                mPopupMenu.getMenu().findItem(R.id.action_share));
 
         // Sleep for a bit to allow the menu -> submenu transition to complete
         Thread.sleep(1000);
@@ -441,8 +451,10 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
         onView(withText(mResources.getString(R.string.popup_menu_share_circles)))
                 .inRoot(allOf(withDecorView(not(is(mMainDecorView))), hasWindowFocus()))
                 .perform(click());
-        assertEquals("Clicked submenu item after click", R.id.action_share_circles,
-                mPopupClickedMenuItemId);
+
+        // Verify that out menu item click listener has been called with the expected menu item
+        verify(menuBuilder.mOnMenuItemClickListener, times(1)).onMenuItemClick(
+                mPopupMenu.getMenu().findItem(R.id.action_share_circles));
 
         // Popup menu should be automatically dismissed on selecting an item in the submenu
         onView(withClassName(Matchers.is(DROP_DOWN_CLASS_NAME))).check(doesNotExist());
@@ -456,7 +468,9 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
 
         onView(withId(R.id.test_button)).perform(click());
 
-        assertEquals("Clicked item before click", -1, mPopupClickedMenuItemId);
+        // Verify that our menu item click listener hasn't been called yet
+        verify(menuBuilder.mOnMenuItemClickListener, never()).onMenuItemClick(any(MenuItem.class));
+
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
@@ -464,7 +478,9 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
             }
         });
 
-        assertEquals("Clicked item after click", R.id.action_share, mPopupClickedMenuItemId);
+        // Verify that out menu item click listener has been called with the expected menu item
+        verify(menuBuilder.mOnMenuItemClickListener, times(1)).onMenuItemClick(
+                mPopupMenu.getMenu().findItem(R.id.action_share));
 
         // Sleep for a bit to allow the menu -> submenu transition to complete
         Thread.sleep(1000);
@@ -504,8 +520,10 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
                         performIdentifierAction(R.id.action_share_email, 0);
             }
         });
-        assertEquals("Clicked submenu item after click", R.id.action_share_email,
-                mPopupClickedMenuItemId);
+
+        // Verify that out menu item click listener has been called with the expected menu item
+        verify(menuBuilder.mOnMenuItemClickListener, times(1)).onMenuItemClick(
+                mPopupMenu.getMenu().findItem(R.id.action_share_email));
 
         // Popup menu should be automatically dismissed on selecting an item in the submenu
         onView(withClassName(Matchers.is(DROP_DOWN_CLASS_NAME))).check(doesNotExist());
@@ -518,12 +536,12 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
      * we can't add logic that is specific to a certain test once it's shown and we have a
      * reference to a displayed PopupMenu.
      */
-    private class Builder {
+    public class Builder {
         private boolean mHasDismissListener;
         private boolean mHasMenuItemClickListener;
 
-        public Builder() {
-        }
+        private PopupMenu.OnMenuItemClickListener mOnMenuItemClickListener;
+        private PopupMenu.OnDismissListener mOnDismissListener;
 
         public Builder withMenuItemClickListener() {
             mHasMenuItemClickListener = true;
@@ -541,25 +559,16 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
             menuInflater.inflate(R.menu.popup_menu, mPopupMenu.getMenu());
 
             if (mHasMenuItemClickListener) {
-                // Register a listener to be notified when a menu item in our popup menu has
+                // Register a mock listener to be notified when a menu item in our popup menu has
                 // been clicked.
-                mPopupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        mPopupClickedMenuItemId = item.getItemId();
-                        return true;
-                    }
-                });
+                mOnMenuItemClickListener = mock(PopupMenu.OnMenuItemClickListener.class);
+                mPopupMenu.setOnMenuItemClickListener(mOnMenuItemClickListener);
             }
 
             if (mHasDismissListener) {
-                // Register a listener to be notified when our popup menu is dismissed.
-                mPopupMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
-                    @Override
-                    public void onDismiss(PopupMenu menu) {
-                        mIsDismissedCalled = true;
-                    }
-                });
+                // Register a mock listener to be notified when our popup menu is dismissed.
+                mOnDismissListener = mock(PopupMenu.OnDismissListener.class);
+                mPopupMenu.setOnDismissListener(mOnDismissListener);
             }
 
             // Show the popup menu
