@@ -151,21 +151,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
         }
     }
 
-    class MediaBrowserServiceImplApi24 implements MediaBrowserServiceImpl {
-        private Object mServiceObj;
-
-        @Override
-        public void onCreate() {
-            mServiceObj = MediaBrowserServiceCompatApi24.createService();
-            MediaBrowserServiceCompatApi24.onCreate(mServiceObj, new ServiceImplApi24());
-        }
-
-        @Override
-        public IBinder onBind(Intent intent) {
-            return MediaBrowserServiceCompatApi23.onBind(mServiceObj, intent);
-        }
-    }
-
     private final class ServiceHandler extends Handler {
         private final ServiceImpl mServiceImpl = new ServiceImpl();
 
@@ -450,27 +435,27 @@ public abstract class MediaBrowserServiceCompat extends Service {
         }
 
         @Override
-        public void connect(String pkg, Bundle rootHints,
-                final MediaBrowserServiceCompatApi21.ServiceCallbacksApi21 callbacks) {
+        public void connect(final String pkg, final Bundle rootHints,
+                final MediaBrowserServiceCompatApi21.ServiceCallbacks callbacks) {
             mServiceImpl.connect(pkg, Binder.getCallingUid(), rootHints,
                     new ServiceCallbacksApi21(callbacks));
         }
 
         @Override
-        public void disconnect(MediaBrowserServiceCompatApi21.ServiceCallbacksApi21 callbacks) {
+        public void disconnect(final MediaBrowserServiceCompatApi21.ServiceCallbacks callbacks) {
             mServiceImpl.disconnect(new ServiceCallbacksApi21(callbacks));
         }
 
 
         @Override
         public void addSubscription(
-                String id, MediaBrowserServiceCompatApi21.ServiceCallbacksApi21 callbacks) {
+                final String id, final MediaBrowserServiceCompatApi21.ServiceCallbacks callbacks) {
             mServiceImpl.addSubscription(id, null, new ServiceCallbacksApi21(callbacks));
         }
 
         @Override
-        public void removeSubscription(
-                String id, MediaBrowserServiceCompatApi21.ServiceCallbacksApi21 callbacks) {
+        public void removeSubscription(final String id,
+                final MediaBrowserServiceCompatApi21.ServiceCallbacks callbacks) {
             mServiceImpl.removeSubscription(id, null, new ServiceCallbacksApi21(callbacks));
         }
     }
@@ -478,8 +463,8 @@ public abstract class MediaBrowserServiceCompat extends Service {
     private class ServiceImplApi23 extends ServiceImplApi21
             implements MediaBrowserServiceCompatApi23.ServiceImplApi23 {
         @Override
-        public void getMediaItem(
-                String mediaId, final MediaBrowserServiceCompatApi23.ItemCallback cb) {
+        public void getMediaItem(final String mediaId,
+                final MediaBrowserServiceCompatApi23.ItemCallback cb) {
             ResultReceiver receiverCompat = new ResultReceiver(mHandler) {
                 @Override
                 protected void onReceiveResult(int resultCode, Bundle resultData) {
@@ -493,27 +478,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
                 }
             };
             mServiceImpl.getMediaItem(mediaId, receiverCompat);
-        }
-    }
-
-    private class ServiceImplApi24 extends ServiceImplApi23
-            implements MediaBrowserServiceCompatApi24.ServiceImplApi24 {
-        @Override
-        public void connect(String pkg, Bundle rootHints,
-                final MediaBrowserServiceCompatApi24.ServiceCallbacksApi24 callbacks) {
-            mServiceImpl.connect(pkg, Binder.getCallingUid(), rootHints,
-                    new ServiceCallbacksApi24(callbacks));
-        }
-
-        @Override
-        public void addSubscription(String id, Bundle options,
-                MediaBrowserServiceCompatApi24.ServiceCallbacksApi24 callbacks) {
-            mServiceImpl.addSubscription(id, options, new ServiceCallbacksApi24(callbacks));
-        }
-
-        public void removeSubscription(String id, Bundle options,
-                MediaBrowserServiceCompatApi24.ServiceCallbacksApi24 callbacks) {
-            mServiceImpl.removeSubscription(id, options, new ServiceCallbacksApi24(callbacks));
         }
     }
 
@@ -576,10 +540,10 @@ public abstract class MediaBrowserServiceCompat extends Service {
     }
 
     private class ServiceCallbacksApi21 implements ServiceCallbacks {
-        final MediaBrowserServiceCompatApi21.ServiceCallbacksApi21 mCallbacks;
+        final MediaBrowserServiceCompatApi21.ServiceCallbacks mCallbacks;
         Messenger mMessenger;
 
-        ServiceCallbacksApi21(MediaBrowserServiceCompatApi21.ServiceCallbacksApi21 callbacks) {
+        ServiceCallbacksApi21(MediaBrowserServiceCompatApi21.ServiceCallbacks callbacks) {
             mCallbacks = callbacks;
         }
 
@@ -617,39 +581,10 @@ public abstract class MediaBrowserServiceCompat extends Service {
         }
     }
 
-    private class ServiceCallbacksApi24 extends ServiceCallbacksApi21 {
-        final MediaBrowserServiceCompatApi24.ServiceCallbacksApi24 mCallbacks;
-
-        ServiceCallbacksApi24(MediaBrowserServiceCompatApi24.ServiceCallbacksApi24 callbacks) {
-            super(callbacks);
-            mCallbacks = callbacks;
-        }
-
-        public void onLoadChildren(String mediaId, List<MediaBrowserCompat.MediaItem> list,
-                Bundle options) throws RemoteException {
-            List<Parcel> parcelList = null;
-            if (list != null) {
-                parcelList = new ArrayList<>();
-                for (MediaBrowserCompat.MediaItem item : list) {
-                    Parcel parcel = Parcel.obtain();
-                    item.writeToParcel(parcel, 0);
-                    parcelList.add(parcel);
-                }
-            }
-            if (options == null) {
-                mCallbacks.onLoadChildren(mediaId, parcelList);
-            } else {
-                mCallbacks.onLoadChildren(mediaId, parcelList, options);
-            }
-        }
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
-        if (Build.VERSION.SDK_INT >= 24) {
-            mImpl = new MediaBrowserServiceImplApi24();
-        } else if (Build.VERSION.SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT >= 23) {
             mImpl = new MediaBrowserServiceImplApi23();
         } else if (Build.VERSION.SDK_INT >= 21) {
             mImpl = new MediaBrowserServiceImplApi21();
