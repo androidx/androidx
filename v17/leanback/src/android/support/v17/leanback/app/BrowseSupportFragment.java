@@ -735,7 +735,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     private HeadersSupportFragment.OnHeaderClickedListener mHeaderClickedListener =
         new HeadersSupportFragment.OnHeaderClickedListener() {
             @Override
-            public void onHeaderClicked() {
+            public void onHeaderClicked(RowHeaderPresenter.ViewHolder viewHolder, Row row) {
                 if (!mCanShowHeaders || !mShowingHeaders || isInHeadersTransition()) {
                     return;
                 }
