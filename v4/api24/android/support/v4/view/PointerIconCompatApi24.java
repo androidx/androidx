@@ -16,23 +16,21 @@
 
 package android.support.v4.view;
 
+import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.view.PointerIcon;
-import android.view.View;
 
-class ViewCompatApi24 {
-    public static void setPointerCapture(View view) {
-        view.setPointerCapture();
+class PointerIconCompatApi24 {
+    public static Object getSystemIcon(Context context, int style) {
+        return PointerIcon.getSystemIcon(context, style);
     }
 
-    public static boolean hasPointerCapture(View view) {
-        return view.hasPointerCapture();
+    public static Object createCustomIcon(Bitmap bitmap, float hotSpotX, float hotSpotY) {
+        return PointerIcon.createCustomIcon(bitmap, hotSpotX, hotSpotY);
     }
 
-    public static void releasePointerCapture(View view) {
-        view.releasePointerCapture();
-    }
-
-    public static void setPointerIcon(View view, Object pointerIcon) {
-        view.setPointerIcon((PointerIcon)pointerIcon);
+    public static Object loadCustomIcon(Resources resources, int resourceId) {
+        return PointerIcon.loadCustomIcon(resources, resourceId);
     }
 }
