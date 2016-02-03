@@ -330,11 +330,11 @@ package android.support.v17.leanback.app {
     method public void setOnHeaderViewSelectedListener(android.support.v17.leanback.app.HeadersFragment.OnHeaderViewSelectedListener);
   }
 
-   static abstract interface HeadersFragment.OnHeaderClickedListener {
-    method public abstract void onHeaderClicked();
+  public static abstract interface HeadersFragment.OnHeaderClickedListener {
+    method public abstract void onHeaderClicked(android.support.v17.leanback.widget.RowHeaderPresenter.ViewHolder, android.support.v17.leanback.widget.Row);
   }
 
-   static abstract interface HeadersFragment.OnHeaderViewSelectedListener {
+  public static abstract interface HeadersFragment.OnHeaderViewSelectedListener {
     method public abstract void onHeaderSelected(android.support.v17.leanback.widget.RowHeaderPresenter.ViewHolder, android.support.v17.leanback.widget.Row);
   }
 
@@ -344,11 +344,11 @@ package android.support.v17.leanback.app {
     method public void setOnHeaderViewSelectedListener(android.support.v17.leanback.app.HeadersSupportFragment.OnHeaderViewSelectedListener);
   }
 
-   static abstract interface HeadersSupportFragment.OnHeaderClickedListener {
-    method public abstract void onHeaderClicked();
+  public static abstract interface HeadersSupportFragment.OnHeaderClickedListener {
+    method public abstract void onHeaderClicked(android.support.v17.leanback.widget.RowHeaderPresenter.ViewHolder, android.support.v17.leanback.widget.Row);
   }
 
-   static abstract interface HeadersSupportFragment.OnHeaderViewSelectedListener {
+  public static abstract interface HeadersSupportFragment.OnHeaderViewSelectedListener {
     method public abstract void onHeaderSelected(android.support.v17.leanback.widget.RowHeaderPresenter.ViewHolder, android.support.v17.leanback.widget.Row);
   }
 
