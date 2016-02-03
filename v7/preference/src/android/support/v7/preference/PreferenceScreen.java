@@ -74,6 +74,8 @@ import android.util.AttributeSet;
  */
 public final class PreferenceScreen extends PreferenceGroup  {
 
+    private boolean mShouldUseGeneratedIds = true;
+
     /**
      * Do NOT use this constructor, use {@link PreferenceManager#createPreferenceScreen(Context)}.
      * @hide-
@@ -99,4 +101,34 @@ public final class PreferenceScreen extends PreferenceGroup  {
         return false;
     }
 
+    /**
+     * See {@link #setShouldUseGeneratedIds(boolean)}
+     * @return {@code true} if the adapter should use the preference IDs returned by
+     *         {@link Preference#getId()} as stable item IDs
+     */
+    public boolean shouldUseGeneratedIds() {
+        return mShouldUseGeneratedIds;
+    }
+
+    /**
+     * Set whether the adapter created for this screen should attempt to use the auto-generated
+     * preference IDs returned by {@link Preference#getId()} as stable item IDs. Setting this to
+     * false can suppress unwanted animations if {@link Preference} objects are frequently removed
+     * from and re-added to their containing {@link PreferenceGroup}.
+     * <p>
+     * This method may only be called when the preference screen is not attached to the hierarchy.
+     * <p>
+     * Default value is {@code true}.
+     *
+     * @param shouldUseGeneratedIds {@code true} if the adapter should use the preference ID as a
+     *                                          stable ID, or {@code false} to disable the use of
+     *                                          stable IDs
+     */
+    public void setShouldUseGeneratedIds(boolean shouldUseGeneratedIds) {
+        if (isAttached()) {
+            throw new IllegalStateException("Cannot change the usage of generated IDs while" +
+                    " attached to the preference hierarchy");
+        }
+        mShouldUseGeneratedIds = shouldUseGeneratedIds;
+    }
 }
