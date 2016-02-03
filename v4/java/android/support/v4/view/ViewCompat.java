@@ -1678,6 +1678,17 @@ public class ViewCompat {
         public int getScrollIndicators(View view) {
             return ViewCompatMarshmallow.getScrollIndicators(view);
         }
+
+
+        @Override
+        public void offsetLeftAndRight(View view, int offset) {
+            ViewCompatMarshmallow.offsetLeftAndRight(view, offset);
+        }
+
+        @Override
+        public void offsetTopAndBottom(View view, int offset) {
+            ViewCompatMarshmallow.offsetTopAndBottom(view, offset);
+        }
     }
 
     static final ViewCompatImpl IMPL;
