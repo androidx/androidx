@@ -31,15 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 class MediaBrowserServiceCompatApi21 {
-    private static Object sNullParceledListSliceObj;
-    static {
-        MediaDescription nullDescription = new MediaDescription.Builder().setMediaId(
-                MediaBrowserCompatApi21.NULL_MEDIA_ITEM_ID).build();
-        MediaBrowser.MediaItem nullMediaItem = new MediaBrowser.MediaItem(nullDescription, 0);
-        List<MediaBrowser.MediaItem> nullMediaItemList = new ArrayList<>();
-        nullMediaItemList.add(nullMediaItem);
-        sNullParceledListSliceObj = ParceledListSliceAdapterApi21.newInstance(nullMediaItemList);
-    }
 
     public static Object createService() {
         return new MediaBrowserServiceAdaptorApi21();
@@ -53,40 +44,34 @@ class MediaBrowserServiceCompatApi21 {
         return ((MediaBrowserServiceAdaptorApi21) serviceObj).onBind(intent);
     }
 
-    public static Object parcelListToParceledListSliceObject(List<Parcel> list) {
-        if (list == null) {
-            if (Build.VERSION.SDK_INT <= 23) {
-                return sNullParceledListSliceObj;
-            }
-            return null;
-        }
-        List<MediaBrowser.MediaItem> itemList = new ArrayList<>();
-        for (Parcel parcel : list) {
-            parcel.setDataPosition(0);
-            itemList.add(MediaBrowser.MediaItem.CREATOR.createFromParcel(parcel));
-            parcel.recycle();
-        }
-        return ParceledListSliceAdapterApi21.newInstance(itemList);
-    }
-
     public interface ServiceImplApi21 {
-        void connect(String pkg, Bundle rootHints, ServiceCallbacksApi21 callbacks);
-        void disconnect(ServiceCallbacksApi21 callbacks);
-        void addSubscription(String id, ServiceCallbacksApi21 callbacks);
-        void removeSubscription(String id, ServiceCallbacksApi21 callbacks);
+        void connect(final String pkg, final Bundle rootHints, final ServiceCallbacks callbacks);
+        void disconnect(final ServiceCallbacks callbacks);
+        void addSubscription(final String id, final ServiceCallbacks callbacks);
+        void removeSubscription(final String id, final ServiceCallbacks callbacks);
     }
 
-    public interface ServiceCallbacksApi21 {
+    public interface ServiceCallbacks {
         IBinder asBinder();
         void onConnect(String root, Object session, Bundle extras) throws RemoteException;
         void onConnectFailed() throws RemoteException;
         void onLoadChildren(String mediaId, List<Parcel> list) throws RemoteException;
     }
 
-    public static class ServiceCallbacksImplApi21 implements ServiceCallbacksApi21 {
-        protected final IMediaBrowserServiceCallbacksAdapterApi21 mCallbacks;
+    public static class ServiceCallbacksApi21 implements ServiceCallbacks {
+        private static Object sNullParceledListSliceObj;
+        static {
+            MediaDescription nullDescription = new MediaDescription.Builder().setMediaId(
+                    MediaBrowserCompatApi21.NULL_MEDIA_ITEM_ID).build();
+            MediaBrowser.MediaItem nullMediaItem = new MediaBrowser.MediaItem(nullDescription, 0);
+            List<MediaBrowser.MediaItem> nullMediaItemList = new ArrayList<>();
+            nullMediaItemList.add(nullMediaItem);
+            sNullParceledListSliceObj = ParceledListSliceAdapterApi21.newInstance(nullMediaItemList);
+        }
 
-        ServiceCallbacksImplApi21(Object callbacksObj) {
+        private final IMediaBrowserServiceCallbacksAdapterApi21 mCallbacks;
+
+        ServiceCallbacksApi21(Object callbacksObj) {
             mCallbacks = new IMediaBrowserServiceCallbacksAdapterApi21(callbacksObj);
         }
 
@@ -103,7 +88,23 @@ class MediaBrowserServiceCompatApi21 {
         }
 
         public void onLoadChildren(String mediaId, List<Parcel> list) throws RemoteException {
-            mCallbacks.onLoadChildren(mediaId, parcelListToParceledListSliceObject(list));
+            List<MediaBrowser.MediaItem> itemList = null;
+            if (list != null) {
+                itemList = new ArrayList<>();
+                for (Parcel parcel : list) {
+                    parcel.setDataPosition(0);
+                    itemList.add(MediaBrowser.MediaItem.CREATOR.createFromParcel(parcel));
+                    parcel.recycle();
+                }
+            }
+            Object pls;
+            if (Build.VERSION.SDK_INT > 23) {
+                pls = itemList == null ? null : ParceledListSliceAdapterApi21.newInstance(itemList);
+            } else {
+                pls = itemList == null ? sNullParceledListSliceObj
+                        : ParceledListSliceAdapterApi21.newInstance(itemList);
+            }
+            mCallbacks.onLoadChildren(mediaId, pls);
         }
     }
 
@@ -130,39 +131,29 @@ class MediaBrowserServiceCompatApi21 {
             }
 
             @Override
-            public void connect(String pkg, Bundle rootHints, Object callbacks) {
-                mServiceImpl.connect(pkg, rootHints, new ServiceCallbacksImplApi21(callbacks));
+            public void connect(final String pkg, final Bundle rootHints, final Object callbacks) {
+                mServiceImpl.connect(pkg, rootHints, new ServiceCallbacksApi21(callbacks));
             }
 
             @Override
-            public void disconnect(Object callbacks) {
-                mServiceImpl.disconnect(new ServiceCallbacksImplApi21(callbacks));
+            public void disconnect(final Object callbacks) {
+                mServiceImpl.disconnect(new ServiceCallbacksApi21(callbacks));
             }
 
             @Override
-            public void addSubscription(String id, Object callbacks) {
-                mServiceImpl.addSubscription(id, new ServiceCallbacksImplApi21(callbacks));
+            public void addSubscription(final String id, final Object callbacks) {
+                mServiceImpl.addSubscription(id, new ServiceCallbacksApi21(callbacks));
             }
 
             @Override
-            public void removeSubscription(String id, Object callbacks) {
-                mServiceImpl.removeSubscription(id, new ServiceCallbacksImplApi21(callbacks));
-            }
-
-            @Override
-            public void getMediaItem(String mediaId, ResultReceiver receiver) {
-                // No operation since this method is added in API 23.
-            }
-
-            @Override
-            public void addSubscription(String id, Bundle options,
+            public void removeSubscription(final String id,
                     final Object callbacks) {
-                // No operation since this method is added in API 24.
+                mServiceImpl.removeSubscription(id, new ServiceCallbacksApi21(callbacks));
             }
 
             @Override
-            public void removeSubscription(String id, Bundle options, Object callbacks) {
-                // No operation since this method is added in API 24.
+            public void getMediaItem(final String mediaId, final ResultReceiver receiver) {
+                // No operation since this method is added in API 23.
             }
         }
     }
