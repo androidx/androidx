@@ -601,8 +601,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
      * Parses a {@link android.graphics.PorterDuff.Mode} from a tintMode
      * attribute's enum value.
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    private static PorterDuff.Mode parseTintMode(int value, Mode defaultMode) {
+    private static PorterDuff.Mode parseTintModeCompat(int value, Mode defaultMode) {
         switch (value) {
             case 3:
                 return Mode.SRC_OVER;
@@ -631,7 +630,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
 
         final int mode = TypedArrayUtils.getNamedInt(a, parser, "tintMode",
                 AndroidResources.styleable_VectorDrawable_Mode, -1);
-        state.mTintMode = parseTintMode(mode, Mode.SRC_IN);
+        state.mTintMode = parseTintModeCompat(mode, Mode.SRC_IN);
 
         final ColorStateList tint =
                 a.getColorStateList(AndroidResources.styleable_VectorDrawable_tint);
