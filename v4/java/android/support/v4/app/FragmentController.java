@@ -19,6 +19,7 @@ package android.support.v4.app;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 import android.support.v4.util.SimpleArrayMap;
 import android.util.AttributeSet;
 import android.view.Menu;
@@ -63,6 +64,14 @@ public class FragmentController {
      */
     public LoaderManager getSupportLoaderManager() {
         return mHost.getLoaderManagerImpl();
+    }
+
+    /**
+     * Returns a fragment with the given identifier.
+     */
+    @Nullable
+    Fragment findFragmentByWho(String who) {
+        return mHost.mFragmentManager.findFragmentByWho(who);
     }
 
     /**
