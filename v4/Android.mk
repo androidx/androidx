@@ -229,6 +229,19 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
 
+
+# -----------------------------------------------------------------------
+
+# A helper sub-library that makes direct use of V24 APIs.
+include $(CLEAR_VARS)
+LOCAL_MODULE := android-support-v4-api24
+LOCAL_SDK_VERSION := current
+LOCAL_SRC_FILES := $(call all-java-files-under, api24)
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-api23
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
+support_module_src_files += $(LOCAL_SRC_FILES)
+
 # -----------------------------------------------------------------------
 
 # A helper sub-library that makes direct use of V24 APIs.

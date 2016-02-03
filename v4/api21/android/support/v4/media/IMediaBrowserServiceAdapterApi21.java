@@ -38,6 +38,10 @@ class IMediaBrowserServiceAdapterApi21 {
         private static final int TRANSACTION_removeSubscription =
                 IBinder.FIRST_CALL_TRANSACTION + 3;
         private static final int TRANSACTION_getMediaItem = IBinder.FIRST_CALL_TRANSACTION + 4;
+        private static final int TRANSACTION_addSubscriptionWithOptions =
+                IBinder.FIRST_CALL_TRANSACTION + 5;
+        private static final int TRANSACTION_removeSubscriptionWithOptions =
+                IBinder.FIRST_CALL_TRANSACTION + 6;
 
         public Stub() {
             attachInterface(this, DESCRIPTOR);
@@ -105,6 +109,26 @@ class IMediaBrowserServiceAdapterApi21 {
                     getMediaItem(arg0, arg1);
                     return true;
                 }
+                case TRANSACTION_addSubscriptionWithOptions: {
+                    data.enforceInterface(DESCRIPTOR);
+                    String arg0 = data.readString();
+                    Bundle arg1 = (data.readInt() == 0)
+                            ? null : Bundle.CREATOR.createFromParcel(data);
+                    Object arg2 = IMediaBrowserServiceCallbacksAdapterApi21.Stub.asInterface(
+                            data.readStrongBinder());
+                    addSubscription(arg0, arg1, arg2);
+                    return true;
+                }
+                case TRANSACTION_removeSubscriptionWithOptions: {
+                    data.enforceInterface(DESCRIPTOR);
+                    String arg0 = data.readString();
+                    Bundle arg1 = (data.readInt() == 0)
+                            ? null : Bundle.CREATOR.createFromParcel(data);
+                    Object arg2 = IMediaBrowserServiceCallbacksAdapterApi21.Stub.asInterface(
+                            data.readStrongBinder());
+                    removeSubscription(arg0, arg1, arg2);
+                    return true;
+                }
             }
             return super.onTransact(code, data, reply, flags);
         }
@@ -113,7 +137,11 @@ class IMediaBrowserServiceAdapterApi21 {
                 final Object callbacks);
         public abstract void disconnect(final Object callbacks);
         public abstract void addSubscription(final String id, final Object callbacks);
+        public abstract void addSubscription(final String id, final Bundle options,
+                final Object callbacks);
         public abstract void removeSubscription(final String id, final Object callbacks);
+        public abstract void removeSubscription(final String id, final Bundle options,
+                final Object callbacks);
         public abstract void getMediaItem(final String mediaId, final ResultReceiver receiver);
     }
 }
