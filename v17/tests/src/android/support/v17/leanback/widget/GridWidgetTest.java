@@ -2267,6 +2267,52 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         assertTrue(v.getBottom() >= windowSize - mGridView.getVerticalMargin());
     }
 
+    public void testFocusFinder() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear_with_button);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 3);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        // test focus from button to vertical grid view
+        final View button = mActivity.findViewById(R.id.button);
+        assertTrue(button.isFocused());
+        sendKeys(KeyEvent.KEYCODE_DPAD_DOWN);
+        assertFalse(mGridView.isFocused());
+        assertTrue(mGridView.hasFocus());
+
+        // FocusFinder should find last focused(2nd) item on DPAD_DOWN
+        final View secondChild = mGridView.getChildAt(1);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                secondChild.requestFocus();
+                button.requestFocus();
+            }
+        });
+        assertTrue(button.isFocused());
+        sendKeys(KeyEvent.KEYCODE_DPAD_DOWN);
+        assertTrue(secondChild.isFocused());
+
+        // Bug 26918143 Even VerticalGridView is not focusable, FocusFinder should find last focused
+        // (2nd) item on DPAD_DOWN.
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                button.requestFocus();
+            }
+        });
+        mGridView.setFocusable(false);
+        mGridView.setFocusableInTouchMode(false);
+        assertTrue(button.isFocused());
+        sendKeys(KeyEvent.KEYCODE_DPAD_DOWN);
+        assertTrue(secondChild.isFocused());
+    }
+
     public void testAccessibility() throws Throwable {
         mInstrumentation = getInstrumentation();
         Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
