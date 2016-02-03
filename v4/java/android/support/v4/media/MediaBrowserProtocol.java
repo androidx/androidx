@@ -22,12 +22,13 @@ package android.support.v4.media;
 class MediaBrowserProtocol {
 
     public static final String DATA_CALLING_UID = "data_calling_uid";
-    public static final String DATA_ROOT_HINTS = "data_root_hints";
     public static final String DATA_MEDIA_ITEM_ID = "data_media_item_id";
     public static final String DATA_MEDIA_ITEM_LIST = "data_media_item_list";
     public static final String DATA_MEDIA_SESSION_TOKEN = "data_media_session_token";
+    public static final String DATA_OPTIONS = "data_options";
     public static final String DATA_PACKAGE_NAME = "data_package_name";
     public static final String DATA_RESULT_RECEIVER = "data_result_receiver";
+    public static final String DATA_ROOT_HINTS = "data_root_hints";
 
     public static final String EXTRA_SERVICE_VERSION = "extra_service_version";
     public static final String EXTRA_MESSENGER_BINDER = "extra_messenger";
@@ -70,6 +71,8 @@ class MediaBrowserProtocol {
      * - data
      *     DATA_MEDIA_ITEM_ID : A string for the parent media item id
      *     DATA_MEDIA_ITEM_LIST : An array list for the media item children
+     *     DATA_OPTIONS : A bundle of service-specific arguments sent from the media browse to
+     *                    the media browser service
      */
     public static final int SERVICE_MSG_ON_LOAD_CHILDREN = 3;
 
@@ -108,6 +111,9 @@ class MediaBrowserProtocol {
      * - arg1 : The client version
      * - data
      *     DATA_MEDIA_ITEM_ID : A string for a media item id
+     *     DATA_OPTIONS : A bundle of service-specific arguments sent from the media browse to
+     *                    the media browser service
+     *
      * - replyTo : Client messenger
      */
     public static final int CLIENT_MSG_ADD_SUBSCRIPTION = 3;
@@ -117,6 +123,8 @@ class MediaBrowserProtocol {
      * - arg1 : The client version
      * - data
      *     DATA_MEDIA_ITEM_ID : A string for a media item id
+     *     DATA_OPTIONS : A bundle of service-specific arguments sent from the media browse to
+     *                    the media browser service
      * - replyTo : Client messenger
      */
     public static final int CLIENT_MSG_REMOVE_SUBSCRIPTION = 4;
