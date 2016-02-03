@@ -31,6 +31,7 @@ def api20SS        = createApiSourceset('api20',        'api20',         '20',  
 def api21SS        = createApiSourceset('api21',        'api21',         '21',      api20SS)
 def api22SS        = createApiSourceset('api22',        'api22',         '22',      api21SS)
 def api23SS        = createApiSourceset('api23',        'api23',         'current', api22SS)
+def api24SS        = createApiSourceset('api24',        'api24',         'current', api23SS)
 
 
 def createApiSourceset(String name, String folder, String apiLevel, SourceSet previousSource) {
