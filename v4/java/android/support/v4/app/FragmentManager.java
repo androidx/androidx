@@ -1581,16 +1581,36 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
     }
 
+    public void execSingleAction(Runnable action, boolean allowStateLoss) {
+        if (mExecutingActions) {
+            throw new IllegalStateException("FragmentManager is already executing transactions");
+        }
+
+        if (Looper.myLooper() != mHost.getHandler().getLooper()) {
+            throw new IllegalStateException("Must be called from main thread of fragment host");
+        }
+
+        if (allowStateLoss) {
+            checkStateLoss();
+        }
+
+        mExecutingActions = true;
+        action.run();
+        mExecutingActions = false;
+
+        doPendingDeferredStart();
+    }
+
     /**
      * Only call from main thread!
      */
     public boolean execPendingActions() {
         if (mExecutingActions) {
-            throw new IllegalStateException("Recursive entry to executePendingTransactions");
+            throw new IllegalStateException("FragmentManager is already executing transactions");
         }
         
         if (Looper.myLooper() != mHost.getHandler().getLooper()) {
-            throw new IllegalStateException("Must be called from main thread of process");
+            throw new IllegalStateException("Must be called from main thread of fragment host");
         }
 
         boolean didSomething = false;
@@ -1621,9 +1641,15 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             didSomething = true;
         }
         
+        doPendingDeferredStart();
+
+        return didSomething;
+    }
+
+    void doPendingDeferredStart() {
         if (mHavePendingDeferredStart) {
             boolean loadersRunning = false;
-            for (int i=0; i<mActive.size(); i++) {
+            for (int i = 0; i < mActive.size(); i++) {
                 Fragment f = mActive.get(i);
                 if (f != null && f.mLoaderManager != null) {
                     loadersRunning |= f.mLoaderManager.hasRunningLoaders();
@@ -1634,7 +1660,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 startPendingDeferredFragments();
             }
         }
-        return didSomething;
     }
 
     void reportBackStackChanged() {

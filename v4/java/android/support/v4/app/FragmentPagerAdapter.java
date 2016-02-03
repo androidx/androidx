@@ -136,9 +136,8 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
     @Override
     public void finishUpdate(ViewGroup container) {
         if (mCurTransaction != null) {
-            mCurTransaction.commitAllowingStateLoss();
+            mCurTransaction.commitNowAllowingStateLoss();
             mCurTransaction = null;
-            mFragmentManager.executePendingTransactions();
         }
     }
 
