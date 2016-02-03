@@ -19,6 +19,7 @@ package android.support.v4.view.accessibility;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.accessibilityservice.AccessibilityServiceInfoCompat;
 import android.support.v4.view.ViewCompat;
 import android.text.InputType;
@@ -611,6 +612,8 @@ public class AccessibilityNodeInfoCompat {
         public boolean isMultiLine(Object info);
         public void setMultiLine(Object info, boolean multiLine);
         public boolean refresh(Object info);
+        public CharSequence getRoleDescription(Object info);
+        public void setRoleDescription(Object info, CharSequence roleDescription);
     }
 
     static class AccessibilityNodeInfoStubImpl implements AccessibilityNodeInfoImpl {
@@ -1215,6 +1218,15 @@ public class AccessibilityNodeInfoCompat {
         public boolean refresh(Object info) {
             return false;
         }
+
+        @Override
+        public CharSequence getRoleDescription(Object info) {
+            return null;
+        }
+
+        @Override
+        public void setRoleDescription(Object info, CharSequence roleDescription) {
+        }
     }
 
     static class AccessibilityNodeInfoIcsImpl extends AccessibilityNodeInfoStubImpl {
@@ -1752,6 +1764,16 @@ public class AccessibilityNodeInfoCompat {
         @Override
         public void setMultiLine(Object info, boolean multiLine) {
             AccessibilityNodeInfoCompatKitKat.setMultiLine(info, multiLine);
+        }
+
+        @Override
+        public CharSequence getRoleDescription(Object info) {
+            return AccessibilityNodeInfoCompatKitKat.getRoleDescription(info);
+        }
+
+        @Override
+        public void setRoleDescription(Object info, CharSequence roleDescription) {
+            AccessibilityNodeInfoCompatKitKat.setRoleDescription(info, roleDescription);
         }
     }
 
@@ -3766,6 +3788,42 @@ public class AccessibilityNodeInfoCompat {
      */
     public boolean refresh() {
         return IMPL.refresh(mInfo);
+    }
+
+    /**
+     * Gets the custom role description.
+     * @return The role description.
+     */
+    public @Nullable CharSequence getRoleDescription() {
+        return IMPL.getRoleDescription(mInfo);
+    }
+
+    /**
+     * Sets the custom role description.
+     *
+     * <p>
+     *   The role description allows you to customize the name for the view's semantic
+     *   role. For example, if you create a custom subclass of {@link android.view.View}
+     *   to display a menu bar, you could assign it the role description of "menu bar".
+     * </p>
+     * <p>
+     *   <strong>Warning:</strong> For consistency with other applications, you should
+     *   not use the role description to force accessibility services to describe
+     *   standard views (such as buttons or checkboxes) using specific wording. For
+     *   example, you should not set a role description of "check box" or "tick box" for
+     *   a standard {@link android.widget.CheckBox}. Instead let accessibility services
+     *   decide what feedback to provide.
+     * </p>
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param roleDescription The role description.
+     */
+    public void setRoleDescription(@Nullable CharSequence roleDescription) {
+        IMPL.setRoleDescription(mInfo, roleDescription);
     }
 
     @Override

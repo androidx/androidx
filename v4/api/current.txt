@@ -2867,6 +2867,7 @@ package android.support.v4.view.accessibility {
     method public java.lang.CharSequence getPackageName();
     method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat getParent();
     method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.RangeInfoCompat getRangeInfo();
+    method public java.lang.CharSequence getRoleDescription();
     method public java.lang.CharSequence getText();
     method public int getTextSelectionEnd();
     method public int getTextSelectionStart();
@@ -2935,6 +2936,7 @@ package android.support.v4.view.accessibility {
     method public void setParent(android.view.View, int);
     method public void setPassword(boolean);
     method public void setRangeInfo(android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.RangeInfoCompat);
+    method public void setRoleDescription(java.lang.CharSequence);
     method public void setScrollable(boolean);
     method public void setSelected(boolean);
     method public void setSource(android.view.View);

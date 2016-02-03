@@ -23,6 +23,9 @@ import android.view.accessibility.AccessibilityNodeInfo;
  * KitKat-specific AccessibilityNodeInfo API implementation.
  */
 class AccessibilityNodeInfoCompatKitKat {
+    private static final String ROLE_DESCRIPTION_KEY =
+            "AccessibilityNodeInfo.roleDescription";
+
     static int getLiveRegion(Object info) {
         return ((AccessibilityNodeInfo) info).getLiveRegion();
     }
@@ -110,6 +113,16 @@ class AccessibilityNodeInfoCompatKitKat {
 
     public static void setMultiLine(Object info, boolean multiLine) {
         ((AccessibilityNodeInfo) info).setMultiLine(multiLine);
+    }
+
+    public static CharSequence getRoleDescription(Object info) {
+        Bundle extras = getExtras(info);
+        return extras.getCharSequence(ROLE_DESCRIPTION_KEY);
+    }
+
+    public static void setRoleDescription(Object info, CharSequence roleDescription) {
+        Bundle extras = getExtras(info);
+        extras.putCharSequence(ROLE_DESCRIPTION_KEY, roleDescription);
     }
 
     static class CollectionInfo {
