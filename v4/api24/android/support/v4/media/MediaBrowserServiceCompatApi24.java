@@ -16,7 +16,6 @@
 
 package android.support.v4.media;
 
-import android.os.Binder;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.RemoteException;
@@ -26,6 +25,10 @@ import java.util.List;
 class MediaBrowserServiceCompatApi24 extends MediaBrowserServiceCompatApi23 {
     public static Object createService() {
         return new MediaBrowserServiceAdaptorApi24();
+    }
+
+    public static void onCreate(Object serviceObj, ServiceImplApi24 serviceImpl) {
+        ((MediaBrowserServiceAdaptorApi24) serviceObj).onCreate(serviceImpl);
     }
 
     public interface ServiceImplApi24 extends ServiceImplApi23 {
@@ -48,19 +51,39 @@ class MediaBrowserServiceCompatApi24 extends MediaBrowserServiceCompatApi23 {
         @Override
         public void onLoadChildren(String mediaId, List<Parcel> list, Bundle options)
                 throws RemoteException {
-            ((IMediaBrowserServiceCallbacksAdapterApi24)mCallbacks).onLoadChildrenWithOptions(
-                    mediaId, parcelListToParceledListSliceObject(list), options);
-        }
-
-        @Override
-        IMediaBrowserServiceCallbacksAdapterApi24 createCallbacks(Object callbacksObj) {
-            return new IMediaBrowserServiceCallbacksAdapterApi24(callbacksObj);
+            mCallbacks.onLoadChildrenWithOptions(mediaId,
+                    parcelListToParceledListSliceObject(list), options);
         }
     }
 
     static class MediaBrowserServiceAdaptorApi24 extends MediaBrowserServiceAdaptorApi23 {
-        protected Binder createServiceBinder(ServiceImplApi21 serviceImpl) {
-            return new IMediaBrowserServiceAdapterApi24((ServiceImplApi24) serviceImpl);
+        public void onCreate(ServiceImplApi24 serviceImpl) {
+            mBinder = new ServiceBinderProxyApi24(serviceImpl);
+        }
+
+        static class ServiceBinderProxyApi24 extends ServiceBinderProxyApi23 {
+            ServiceImplApi24 mServiceImpl;
+
+            ServiceBinderProxyApi24(ServiceImplApi24 serviceImpl) {
+                super(serviceImpl);
+                mServiceImpl = serviceImpl;
+            }
+
+            @Override
+            public void connect(String pkg, Bundle rootHints, Object callbacks) {
+                mServiceImpl.connect(pkg, rootHints, new ServiceCallbacksImplApi24(callbacks));
+            }
+
+            @Override
+            public void addSubscription(String id, Bundle options, Object callbacks) {
+                mServiceImpl.addSubscription(id, options, new ServiceCallbacksImplApi24(callbacks));
+            }
+
+            @Override
+            public void removeSubscription(String id, Bundle options, Object callbacks) {
+                mServiceImpl.removeSubscription(id, options,
+                        new ServiceCallbacksImplApi24(callbacks));
+            }
         }
     }
 }
