@@ -24,7 +24,6 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -119,7 +118,11 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
         mPreferenceListInternal = new ArrayList<>();
         mPreferenceLayouts = new ArrayList<>();
 
-        setHasStableIds(true);
+        if (mPreferenceGroup instanceof PreferenceScreen) {
+            setHasStableIds(((PreferenceScreen) mPreferenceGroup).shouldUseGeneratedIds());
+        } else {
+            setHasStableIds(true);
+        }
 
         syncMyPreferences();
     }
@@ -206,7 +209,9 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
     }
 
     public long getItemId(int position) {
-        if (position < 0 || position >= getItemCount()) return ListView.INVALID_ROW_ID;
+        if (!hasStableIds()) {
+            return RecyclerView.NO_ID;
+        }
         return this.getItem(position).getId();
     }
 

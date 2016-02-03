@@ -287,6 +287,8 @@ package android.support.v7.preference {
   }
 
   public final class PreferenceScreen extends android.support.v7.preference.PreferenceGroup {
+    method public void setShouldUseGeneratedIds(boolean);
+    method public boolean shouldUseGeneratedIds();
   }
 
   public class PreferenceViewHolder extends android.support.v7.widget.RecyclerView.ViewHolder {

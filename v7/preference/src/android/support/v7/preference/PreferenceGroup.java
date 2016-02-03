@@ -315,6 +315,14 @@ public abstract class PreferenceGroup extends Preference {
         return true;
     }
 
+    /**
+     * Returns true if we're between {@link #onAttached()} and {@link #onPrepareForRemoval()}
+     * @hide
+     */
+    public boolean isAttached() {
+        return mAttachedToHierarchy;
+    }
+
     @Override
     public void onAttached() {
         super.onAttached();
