@@ -17,6 +17,7 @@
 package android.support.v4.testutils;
 
 import java.lang.String;
+import java.util.List;
 
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -228,4 +229,44 @@ public class TestUtilsMatchers {
             }
         };
     }
+
+    /**
+     * Returns a matcher that matches lists of integer values that match the specified sequence
+     * of values.
+     */
+    public static Matcher<List<Integer>> matches(final int ... expectedValues) {
+        return new TypeSafeMatcher<List<Integer>>() {
+            private String mFailedDescription;
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText(mFailedDescription);
+            }
+
+            @Override
+            protected boolean matchesSafely(List<Integer> item) {
+                int actualCount = item.size();
+                int expectedCount = expectedValues.length;
+
+                if (actualCount != expectedCount) {
+                    mFailedDescription = "Expected " + expectedCount + " values, but got " +
+                            actualCount;
+                    return false;
+                }
+
+                for (int i = 0; i < expectedCount; i++) {
+                    int curr = item.get(i);
+
+                    if (curr != expectedValues[i]) {
+                        mFailedDescription = "At #" + i + " got " + curr + " but should be " +
+                                expectedValues[i];
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        };
+    }
+
 }
