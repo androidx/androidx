@@ -28,7 +28,7 @@ import android.widget.ImageView;
 public class IconCardPresenter extends ImageCardViewPresenter {
 
     public IconCardPresenter(Context context) {
-        super(context, R.style.IconCardStyle);
+        super(context, R.style.IconCardTheme);
     }
 
     @Override

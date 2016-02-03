@@ -18,6 +18,8 @@ import android.content.Context;
 import android.support.v17.leanback.supportleanbackshowcase.R;
 import android.support.v17.leanback.supportleanbackshowcase.models.Card;
 import android.support.v17.leanback.widget.ImageCardView;
+import android.view.ContextThemeWrapper;
+
 import com.squareup.picasso.Picasso;
 
 /**
@@ -27,21 +29,17 @@ import com.squareup.picasso.Picasso;
  */
 public class ImageCardViewPresenter extends AbstractCardPresenter<ImageCardView> {
 
-    private final int mCardStyleResId;
-
-    public ImageCardViewPresenter(Context context, int cardStyleResId) {
-        super(context);
-        mCardStyleResId = cardStyleResId;
+    public ImageCardViewPresenter(Context context, int cardThemeResId) {
+        super(new ContextThemeWrapper(context, cardThemeResId));
     }
 
     public ImageCardViewPresenter(Context context) {
-        super(context);
-        mCardStyleResId = R.style.DefaultCardStyle;
+        this(context, R.style.DefaultCardTheme);
     }
 
     @Override
     protected ImageCardView onCreateView() {
-        return new ImageCardView(getContext(), mCardStyleResId);
+        return new ImageCardView(getContext());
     }
 
     @Override

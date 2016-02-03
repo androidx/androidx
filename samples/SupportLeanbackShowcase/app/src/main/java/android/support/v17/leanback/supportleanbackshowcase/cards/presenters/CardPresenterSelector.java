@@ -53,19 +53,19 @@ public class CardPresenterSelector extends PresenterSelector {
                 case SQUARE_BIG:
                 case GRID_SQUARE:
                 case GAME: {
-                    int style = R.style.MovieCardSimpleStyle;
+                    int themeResId = R.style.MovieCardSimpleTheme;
                     if (card.getType() == Card.Type.MOVIE_BASE) {
-                        style = R.style.MovieCardBasicStyle;
+                        themeResId = R.style.MovieCardBasicTheme;
                     } else if (card.getType() == Card.Type.MOVIE_COMPLETE) {
-                        style = R.style.MovieCardCompleteStyle;
+                        themeResId = R.style.MovieCardCompleteTheme;
                     } else if (card.getType() == Card.Type.SQUARE_BIG) {
-                        style = R.style.SquareBigCard;
+                        themeResId = R.style.SquareBigCardTheme;
                     } else if (card.getType() == Card.Type.GRID_SQUARE) {
-                        style = R.style.GridCardStyle;
+                        themeResId = R.style.GridCardTheme;
                     } else if (card.getType() == Card.Type.GAME) {
-                        style = R.style.GameCardStyle;
+                        themeResId = R.style.GameCardTheme;
                     }
-                    presenter = new ImageCardViewPresenter(mContext, style);
+                    presenter = new ImageCardViewPresenter(mContext, themeResId);
                     break;
                 }
                 case SIDE_INFO:

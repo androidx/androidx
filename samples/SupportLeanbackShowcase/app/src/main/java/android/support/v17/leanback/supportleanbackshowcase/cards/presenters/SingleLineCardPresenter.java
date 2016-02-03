@@ -27,7 +27,7 @@ import android.support.v17.leanback.widget.ImageCardView;
 public class SingleLineCardPresenter extends ImageCardViewPresenter {
 
     public SingleLineCardPresenter(Context context) {
-        super(context, R.style.SingleLineCardStyle);
+        super(context, R.style.SingleLineCardTheme);
     }
 
     @Override public void onBindViewHolder(Card card, ImageCardView cardView) {

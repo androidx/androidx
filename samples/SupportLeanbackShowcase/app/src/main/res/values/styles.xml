@@ -51,21 +51,35 @@
         <item name="android:layout_height">@dimen/movie_image_card_height</item>
     </style>
 
+
     <style name="MovieCardSimpleStyle" parent="Widget.Leanback.ImageCardViewStyle">
         <item name="lbImageCardViewType">Title</item>
-        <item name="lbImageCardViewImageStyle">@style/MovieCardImageStyle</item>
         <item name="cardBackground">@null</item>
     </style>
 
+    <!-- Theme corresponding to the MovieCardSimpleStyle -->
+    <style name="MovieCardSimpleTheme" parent="Theme.Leanback">
+        <item name="imageCardViewStyle"> @style/MovieCardSimpleStyle </item>
+        <item name="imageCardViewImageStyle">@style/MovieCardImageStyle</item>
+    </style>
+
     <style name="MovieCardCompleteStyle" parent="MovieCardSimpleStyle">
-        <item name="lbImageCardViewTitleStyle">@style/MovieCardTitleTwoLineStyle</item>
-        <item name="lbImageCardViewBadgeStyle">@style/MovieCardBadgeStyle</item>
-        <item name="lbImageCardViewContentStyle">@style/MovieCardContentStyle</item>
+
         <item name="lbImageCardViewType">Title|Content|IconOnLeft</item>
     </style>
 
-    <style name="MovieCardBasicStyle" parent="MovieCardCompleteStyle">
-        <item name="lbImageCardViewContentStyle">@style/MovieCardContentGoneStyle</item>
+    <!-- Theme corresponding to the MovieCardCompleteStyle -->
+    <style name="MovieCardCompleteTheme" parent="Theme.Leanback">
+        <item name="imageCardViewStyle"> @style/MovieCardCompleteStyle </item>
+        <item name="imageCardViewImageStyle">@style/MovieCardImageStyle</item>
+        <item name="imageCardViewTitleStyle">@style/MovieCardTitleTwoLineStyle</item>
+        <item name="imageCardViewBadgeStyle">@style/MovieCardBadgeStyle</item>
+        <item name="imageCardViewContentStyle">@style/MovieCardContentStyle</item>
+    </style>
+    
+    <!-- Theme corresponding to the MovieCardBasicStyle -->
+    <style name="MovieCardBasicTheme" parent="MovieCardCompleteTheme">
+        <item name="imageCardViewContentStyle">@style/MovieCardContentGoneStyle</item>
     </style>
 
     <!-- Squared Title/Content card style. Used in cards example. -->
@@ -75,8 +89,13 @@
     </style>
 
     <style name="SquareBigCard" parent="Widget.Leanback.ImageCardViewStyle">
-        <item name="lbImageCardViewImageStyle">@style/SquareBigCardImageStyle</item>
         <item name="cardBackground">@null</item>
+    </style>
+
+    <!-- Theme corresponding to the SquareBigCard -->
+    <style name="SquareBigCardTheme" parent="Theme.Leanback">
+        <item name="imageCardViewStyle"> @style/SquareBigCard </item>
+        <item name="imageCardViewImageStyle">@style/SquareBigCardImageStyle</item>
     </style>
 
     <!-- SideInfo. used in cards example -->
@@ -102,8 +121,13 @@
     </style>
 
     <style name="GridCardStyle" parent="Widget.Leanback.ImageCardViewStyle">
-        <item name="lbImageCardViewImageStyle">@style/GridCardImageStyle</item>
         <item name="cardBackground">@null</item>
+    </style>
+
+    <!-- Theme corresponding to the GridCardTheme -->
+    <style name="GridCardTheme" parent="Theme.Leanback">
+        <item name="imageCardViewStyle"> @style/GridCardStyle </item>
+        <item name="imageCardViewImageStyle">@style/GridCardImageStyle</item>
     </style>
 
     <!-- A default card style. Used in cards example. -->
@@ -114,7 +138,11 @@
 
     <style name="DefaultCardStyle" parent="Widget.Leanback.ImageCardViewStyle">
         <item name="cardBackground">@null</item>
-        <item name="lbImageCardViewImageStyle">@style/DefaultCardImageStyle</item>
+    </style>
+
+    <style name="DefaultCardTheme" parent="Theme.Leanback">
+        <item name="imageCardViewStyle"> @style/DefaultCardStyle </item>
+        <item name="imageCardViewImageStyle">@style/DefaultCardImageStyle</item>
     </style>
 
     <!-- Game card styles with custom Badge icon. Used in cards example. -->
@@ -127,9 +155,15 @@
     </style>
 
     <style name="GameCardStyle" parent="DefaultCardStyle">
-        <item name="lbImageCardViewContentStyle">@style/GameCardContentStyle</item>
         <item name="lbImageCardViewType">Title|Content|IconOnLeft</item>
-        <item name="lbImageCardViewBadgeStyle">@style/GameCardBadgeStyle</item>
+    </style>
+
+    <!-- Theme corresponding to the GameCardStyle -->
+    <style name="GameCardTheme" parent="Theme.Leanback">
+        <item name="imageCardViewStyle"> @style/GameCardStyle </item>
+        <item name="imageCardViewContentStyle">@style/GameCardContentStyle</item>
+        <item name="imageCardViewBadgeStyle">@style/GameCardBadgeStyle</item>
+        <item name="imageCardViewImageStyle">@style/DefaultCardImageStyle</item>
     </style>
 
     <!-- Squared single line card with colored footer style. Used in cards example. -->
@@ -149,13 +183,23 @@
     </style>
 
     <style name="SingleLineCardStyle" parent="DefaultCardStyle">
-        <item name="lbImageCardViewTitleStyle">@style/SingleLineCardTitleStyle</item>
         <item name="lbImageCardViewType">Title</item>
-        <item name="lbImageCardViewImageStyle">@style/SingleLineCardImageStyle</item>
-        <item name="lbImageCardViewInfoAreaStyle">@style/SingleLineCardInfoAreaStyle</item>
     </style>
 
+    <!-- Theme corresponding to the SingleLineCardStyle -->
+    <style name="SingleLineCardTheme" parent="Theme.Leanback">
+        <item name="imageCardViewStyle"> @style/SingleLineCardStyle </item>
+        <item name="imageCardViewTitleStyle">@style/SingleLineCardTitleStyle</item>
+        <item name="imageCardViewImageStyle">@style/SingleLineCardImageStyle</item>
+        <item name="imageCardViewInfoAreaStyle">@style/SingleLineCardInfoAreaStyle</item>
+    </style>
+
+
     <!-- Icon card style with custom focus handler. Used in cards example. -->
+    <style name="IconCardViewStyle" parent="DefaultCardStyle">
+        <item name="lbImageCardViewType">Title</item>
+    </style>
+
     <style name="IconCardImageStyle" parent="Widget.Leanback.ImageCardView.ImageStyle">
         <item name="android:layout_width">96dp</item>
         <item name="android:layout_height">96dp</item>
@@ -174,13 +218,12 @@
         <item name="layout_viewType">main</item>
     </style>
 
-    <style name="IconCardStyle" parent="DefaultCardStyle">
-        <item name="android:layout_width">96dp</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="lbImageCardViewTitleStyle">@style/IconCardTitleStyle</item>
-        <item name="lbImageCardViewType">Title</item>
-        <item name="lbImageCardViewImageStyle">@style/IconCardImageStyle</item>
-        <item name="lbImageCardViewInfoAreaStyle">@style/IconCardInfoAreaStyle</item>
+    <!-- Theme corresponding to the IconCardStyle -->
+    <style name="IconCardTheme" parent="Theme.Leanback">
+        <item name="imageCardViewStyle"> @style/IconCardViewStyle </item>
+        <item name="imageCardViewTitleStyle">@style/IconCardTitleStyle</item>
+        <item name="imageCardViewImageStyle">@style/IconCardImageStyle</item>
+        <item name="imageCardViewInfoAreaStyle">@style/IconCardInfoAreaStyle</item>
     </style>
 
 </resources>
