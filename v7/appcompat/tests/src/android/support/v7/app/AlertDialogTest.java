@@ -19,7 +19,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.ColorInt;
 import android.support.annotation.StringRes;
@@ -42,6 +41,7 @@ import android.widget.ListView;
 import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import static android.support.test.espresso.Espresso.onData;
 import static android.support.test.espresso.Espresso.onView;
@@ -80,10 +80,6 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
 
     private AlertDialog mAlertDialog;
 
-    private Handler mClickHandler;
-
-    private int mButtonFromMessage;
-
     public AlertDialogTest() {
         super(AlertDialogTestActivity.class);
     }
@@ -92,12 +88,6 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     public void setUp() {
         final AlertDialogTestActivity activity = mActivityTestRule.getActivity();
         mButton = (Button) activity.findViewById(R.id.test_button);
-        mClickHandler = new Handler(Looper.getMainLooper()) {
-            @Override
-            public void handleMessage(Message msg) {
-                mButtonFromMessage = msg.what;
-            }
-        };
     }
 
     private void wireBuilder(final AlertDialog.Builder builder) {
@@ -967,10 +957,17 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
      * Helper method to verify dialog state after a button has been clicked.
      */
     private void verifyPostButtonClickState(int whichButtonClicked,
-            DialogInterface.OnDismissListener onDismissListener) {
-        assertEquals("Button clicked", whichButtonClicked, mButtonFromMessage);
+            DialogInterface.OnDismissListener onDismissListener,
+            Handler messageHandler) {
+        // Verify that a Message with expected 'what' field has been posted on our mock handler
+        ArgumentCaptor<Message> messageArgumentCaptor = ArgumentCaptor.forClass(Message.class);
+        verify(messageHandler, times(1)).sendMessageDelayed(
+                messageArgumentCaptor.capture(), anyInt());
+        assertEquals("Button clicked", whichButtonClicked, messageArgumentCaptor.getValue().what);
+        // Verify that the dialog is no longer showing
         assertFalse("Dialog is not showing", mAlertDialog.isShowing());
         if (onDismissListener != null) {
+            // And that our mock listener has been called when the dialog was dismissed
             verify(onDismissListener, times(1)).onDismiss(mAlertDialog);
         }
     }
@@ -1185,6 +1182,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
                 mock(DialogInterface.OnDismissListener.class);
         builder.setOnDismissListener(mockDismissListener);
 
+        final Handler mockMessageHandler = mock(Handler.class);
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1192,15 +1190,15 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
                 // Configure buttons with non-empty texts
                 if (!TextUtils.isEmpty(positiveButtonText)) {
                     mAlertDialog.setButton(DialogInterface.BUTTON_POSITIVE, positiveButtonText,
-                            Message.obtain(mClickHandler, DialogInterface.BUTTON_POSITIVE));
+                            Message.obtain(mockMessageHandler, DialogInterface.BUTTON_POSITIVE));
                 }
                 if (!TextUtils.isEmpty(negativeButtonText)) {
                     mAlertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, negativeButtonText,
-                            Message.obtain(mClickHandler, DialogInterface.BUTTON_NEGATIVE));
+                            Message.obtain(mockMessageHandler, DialogInterface.BUTTON_NEGATIVE));
                 }
                 if (!TextUtils.isEmpty(neutralButtonText)) {
                     mAlertDialog.setButton(DialogInterface.BUTTON_NEUTRAL, neutralButtonText,
-                            Message.obtain(mClickHandler, DialogInterface.BUTTON_NEUTRAL));
+                            Message.obtain(mockMessageHandler, DialogInterface.BUTTON_NEUTRAL));
                 }
 
                 mAlertDialog.show();
@@ -1227,7 +1225,7 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
                 break;
         }
         onView(withText(textOfButtonToClick)).inRoot(isDialog()).perform(click());
-        verifyPostButtonClickState(whichButtonToClick, mockDismissListener);
+        verifyPostButtonClickState(whichButtonToClick, mockDismissListener, mockMessageHandler);
     }
 
     @Test
