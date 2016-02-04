@@ -11,7 +11,9 @@ ext.allSS = []
 
 def icsSS          = createApiSourceset('ics',          'ics',         '14',       null)
 def icsMr1SS       = createApiSourceset('icsmr1',       'ics-mr1',     '15',       icsSS)
-def api23SS        = createApiSourceset('api23',        'api23',       'current',  icsMr1SS)
+def api23SS        = createApiSourceset('api23',        'api23',       '23',  icsMr1SS)
+def api24SS        = createApiSourceset('api24',        'api24',       'current',  api23SS)
+
 
 def createApiSourceset(String name, String folder, String apiLevel, SourceSet previousSource) {
     def sourceSet = sourceSets.create(name)
