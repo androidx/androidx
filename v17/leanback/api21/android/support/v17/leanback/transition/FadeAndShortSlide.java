@@ -18,11 +18,15 @@ package android.support.v17.leanback.transition;
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.TimeInterpolator;
+import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Rect;
+import android.support.v17.leanback.R;
 import android.transition.Fade;
 import android.transition.Transition;
 import android.transition.TransitionValues;
 import android.transition.Visibility;
+import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -146,6 +150,14 @@ public class FadeAndShortSlide extends Visibility {
         setSlideEdge(slideEdge);
     }
 
+    public FadeAndShortSlide(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbSlide);
+        int edge = a.getInt(R.styleable.lbSlide_lb_slideEdge, Gravity.START);
+        setSlideEdge(edge);
+        a.recycle();
+    }
+
     @Override
     public void setEpicenterCallback(EpicenterCallback epicenterCallback) {
         super.setEpicenterCallback(epicenterCallback);
@@ -159,17 +171,22 @@ public class FadeAndShortSlide extends Visibility {
         transitionValues.values.put(PROPNAME_SCREEN_POSITION, position);
     }
 
+    // We should not be calling mFade.captureStartValues (or captureEndValues)
+    // as it will duplicate the work done by {@code super.captureStartValues} and
+    // as a side effect, will wrongly override visibility attribute to visible
+    // as forceVisibility isn't set on Fade. As both start and end views will have
+    // the same value for visibility, framework will skip any animation. To avoid
+    // that, we only use it during onAppear and onDisappear calls, to run fade and
+    // slide animations together.
     @Override
     public void captureStartValues(TransitionValues transitionValues) {
         super.captureStartValues(transitionValues);
-        mFade.captureStartValues(transitionValues);
         captureValues(transitionValues);
     }
 
     @Override
     public void captureEndValues(TransitionValues transitionValues) {
         super.captureEndValues(transitionValues);
-        mFade.captureEndValues(transitionValues);
         captureValues(transitionValues);
     }
 
@@ -196,9 +213,6 @@ public class FadeAndShortSlide extends Visibility {
             default:
                 throw new IllegalArgumentException("Invalid slide direction");
         }
-        // SidePropagation propagation = new SidePropagation();
-        // propagation.setSide(slideEdge);
-        // setPropagation(propagation);
     }
 
     @Override
@@ -221,6 +235,7 @@ public class FadeAndShortSlide extends Visibility {
         final Animator slideAnimator = TranslationAnimationCreator.createAnimation(view, endValues,
                 left, top, startX, startY, endX, endY, sDecelerate, this);
         final Animator fadeAnimator = mFade.onAppear(sceneRoot, view, startValues, endValues);
+
         if (slideAnimator == null) {
             return fadeAnimator;
         } else if (fadeAnimator == null) {
