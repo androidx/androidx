@@ -129,25 +129,26 @@ class MediaBrowserCompatApi21 {
         @Override
         public void onChildrenLoaded(@NonNull String parentId,
                 List<MediaBrowser.MediaItem> children) {
-            List<Parcel> parcelList = null;
-            if (children != null && children.size() == 1
-                    && children.get(0).getMediaId().equals(NULL_MEDIA_ITEM_ID)) {
-                children = null;
-            }
-            if (children != null) {
-                parcelList = new ArrayList<>();
-                for (MediaBrowser.MediaItem item : children) {
-                    Parcel parcel = Parcel.obtain();
-                    item.writeToParcel(parcel, 0);
-                    parcelList.add(parcel);
-                }
-            }
-            mSubscriptionCallback.onChildrenLoaded(parentId, parcelList);
+            mSubscriptionCallback.onChildrenLoaded(parentId, itemListToParcelList(children));
         }
 
         @Override
         public void onError(@NonNull String parentId) {
             mSubscriptionCallback.onError(parentId);
+        }
+
+        static List<Parcel> itemListToParcelList(List<MediaBrowser.MediaItem> itemList) {
+            if (itemList == null || (itemList.size() == 1
+                    && itemList.get(0).getMediaId().equals(NULL_MEDIA_ITEM_ID))) {
+                return null;
+            }
+            List<Parcel> parcelList = new ArrayList<>();
+            for (MediaBrowser.MediaItem item : itemList) {
+                Parcel parcel = Parcel.obtain();
+                item.writeToParcel(parcel, 0);
+                parcelList.add(parcel);
+            }
+            return parcelList;
         }
     }
 }

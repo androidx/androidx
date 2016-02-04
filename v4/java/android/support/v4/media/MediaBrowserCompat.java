@@ -19,6 +19,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -92,9 +93,9 @@ public final class MediaBrowserCompat {
      */
     public MediaBrowserCompat(Context context, ComponentName serviceComponent,
             ConnectionCallback callback, Bundle rootHints) {
-        if (android.os.Build.VERSION.SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT >= 23) {
             mImpl = new MediaBrowserImplApi23(context, serviceComponent, callback, rootHints);
-        } else if (android.os.Build.VERSION.SDK_INT >= 21) {
+        } else if (Build.VERSION.SDK_INT >= 21) {
             mImpl = new MediaBrowserImplApi21(context, serviceComponent, callback, rootHints);
         } else {
             mImpl = new MediaBrowserServiceImplBase(context, serviceComponent, callback, rootHints);
@@ -169,7 +170,7 @@ public final class MediaBrowserCompat {
      *
      * @throws IllegalStateException if not connected.
      */
-     public @NonNull MediaSessionCompat.Token getSessionToken() {
+    public @NonNull MediaSessionCompat.Token getSessionToken() {
         return mImpl.getSessionToken();
     }
 
@@ -402,7 +403,7 @@ public final class MediaBrowserCompat {
         private ConnectionCallbackInternal mConnectionCallbackInternal;
 
         public ConnectionCallback() {
-            if (android.os.Build.VERSION.SDK_INT >= 21) {
+            if (Build.VERSION.SDK_INT >= 21) {
                 mConnectionCallbackObj =
                         MediaBrowserCompatApi21.createConnectionCallback(new StubApi21());
             } else {
@@ -595,16 +596,7 @@ public final class MediaBrowserCompat {
         private class StubApi21 implements MediaBrowserCompatApi21.SubscriptionCallback {
             @Override
             public void onChildrenLoaded(@NonNull String parentId, List<Parcel> children) {
-                List<MediaBrowserCompat.MediaItem> mediaItems = null;
-                if (children != null) {
-                    mediaItems = new ArrayList<>();
-                    for (Parcel parcel : children) {
-                        parcel.setDataPosition(0);
-                        mediaItems.add(
-                                MediaBrowserCompat.MediaItem.CREATOR.createFromParcel(parcel));
-                        parcel.recycle();
-                    }
-                }
+                List<MediaBrowserCompat.MediaItem> mediaItems = parcelListToItemList(children);
                 if (mOptions != null) {
                     SubscriptionCallbackApi21.this.onChildrenLoaded(parentId,
                             MediaBrowserCompatUtils.applyOptions(mediaItems, mOptions),
@@ -622,6 +614,20 @@ public final class MediaBrowserCompat {
                     SubscriptionCallbackApi21.this.onError(parentId);
                 }
             }
+
+            List<MediaBrowserCompat.MediaItem> parcelListToItemList(
+                    List<Parcel> parcelList) {
+                if (parcelList == null) {
+                    return null;
+                }
+                List<MediaBrowserCompat.MediaItem> items = new ArrayList<>();
+                for (Parcel parcel : parcelList) {
+                    parcel.setDataPosition(0);
+                    items.add(MediaBrowserCompat.MediaItem.CREATOR.createFromParcel(parcel));
+                    parcel.recycle();
+                }
+                return items;
+            }
         }
     }
 
@@ -632,7 +638,7 @@ public final class MediaBrowserCompat {
         final Object mItemCallbackObj;
 
         public ItemCallback() {
-            if (android.os.Build.VERSION.SDK_INT >= 23) {
+            if (Build.VERSION.SDK_INT >= 23) {
                 mItemCallbackObj = MediaBrowserCompatApi23.createItemCallback(new StubApi23());
             } else {
                 mItemCallbackObj = null;
