@@ -151,6 +151,21 @@ public abstract class MediaBrowserServiceCompat extends Service {
         }
     }
 
+    class MediaBrowserServiceImplApi24 implements MediaBrowserServiceImpl {
+        private Object mServiceObj;
+
+        @Override
+        public void onCreate() {
+            mServiceObj = MediaBrowserServiceCompatApi24.createService();
+            MediaBrowserServiceCompatApi24.onCreate(mServiceObj, new ServiceImplApi24());
+        }
+
+        @Override
+        public IBinder onBind(Intent intent) {
+            return MediaBrowserServiceCompatApi23.onBind(mServiceObj, intent);
+        }
+    }
+
     private final class ServiceHandler extends Handler {
         private final ServiceImpl mServiceImpl = new ServiceImpl();
 
@@ -481,6 +496,27 @@ public abstract class MediaBrowserServiceCompat extends Service {
         }
     }
 
+    private class ServiceImplApi24 extends ServiceImplApi23
+            implements MediaBrowserServiceCompatApi24.ServiceImplApi24 {
+        @Override
+        public void connect(String pkg, Bundle rootHints,
+                MediaBrowserServiceCompatApi24.ServiceCallbacksApi24 callbacks) {
+            mServiceImpl.connect(pkg, Binder.getCallingUid(), rootHints,
+                    new ServiceCallbacksApi24(callbacks));
+        }
+
+        @Override
+        public void addSubscription(String id, Bundle options,
+                MediaBrowserServiceCompatApi24.ServiceCallbacksApi24 callbacks) {
+            mServiceImpl.addSubscription(id, options, new ServiceCallbacksApi24(callbacks));
+        }
+
+        public void removeSubscription(String id, Bundle options,
+                MediaBrowserServiceCompatApi24.ServiceCallbacksApi24 callbacks) {
+            mServiceImpl.removeSubscription(id, options, new ServiceCallbacksApi24(callbacks));
+        }
+    }
+
     private interface ServiceCallbacks {
         IBinder asBinder();
         void onConnect(String root, MediaSessionCompat.Token session, Bundle extras)
@@ -581,10 +617,39 @@ public abstract class MediaBrowserServiceCompat extends Service {
         }
     }
 
+    private class ServiceCallbacksApi24 extends ServiceCallbacksApi21 {
+        final MediaBrowserServiceCompatApi24.ServiceCallbacksApi24 mCallbacks;
+
+        ServiceCallbacksApi24(MediaBrowserServiceCompatApi24.ServiceCallbacksApi24 callbacks) {
+            super(callbacks);
+            mCallbacks = callbacks;
+        }
+
+        public void onLoadChildren(String mediaId, List<MediaBrowserCompat.MediaItem> list,
+                Bundle options) throws RemoteException {
+            List<Parcel> parcelList = null;
+            if (list != null) {
+                parcelList = new ArrayList<>();
+                for (MediaBrowserCompat.MediaItem item : list) {
+                    Parcel parcel = Parcel.obtain();
+                    item.writeToParcel(parcel, 0);
+                    parcelList.add(parcel);
+                }
+            }
+            if (options == null) {
+                mCallbacks.onLoadChildren(mediaId, parcelList);
+            } else {
+                mCallbacks.onLoadChildren(mediaId, parcelList, options);
+            }
+        }
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
-        if (Build.VERSION.SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT >= 24) {
+            mImpl = new MediaBrowserServiceImplApi24();
+        } else if (Build.VERSION.SDK_INT >= 23) {
             mImpl = new MediaBrowserServiceImplApi23();
         } else if (Build.VERSION.SDK_INT >= 21) {
             mImpl = new MediaBrowserServiceImplApi21();

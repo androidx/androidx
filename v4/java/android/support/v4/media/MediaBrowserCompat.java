@@ -93,7 +93,9 @@ public final class MediaBrowserCompat {
      */
     public MediaBrowserCompat(Context context, ComponentName serviceComponent,
             ConnectionCallback callback, Bundle rootHints) {
-        if (Build.VERSION.SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT >= 24) {
+            mImpl = new MediaBrowserImplApi24(context, serviceComponent, callback, rootHints);
+        } else if (Build.VERSION.SDK_INT >= 23) {
             mImpl = new MediaBrowserImplApi23(context, serviceComponent, callback, rootHints);
         } else if (Build.VERSION.SDK_INT >= 21) {
             mImpl = new MediaBrowserImplApi21(context, serviceComponent, callback, rootHints);
@@ -534,8 +536,13 @@ public final class MediaBrowserCompat {
         public SubscriptionCallbackApi21(SubscriptionCallback callback, Bundle options) {
             mSubscriptionCallback = callback;
             mOptions = options;
-            mSubscriptionCallbackObj =
-                    MediaBrowserCompatApi21.createSubscriptionCallback(new StubApi21());
+            if (Build.VERSION.SDK_INT >= 24) {
+                mSubscriptionCallbackObj =
+                        MediaBrowserCompatApi24.createSubscriptionCallback(new StubApi24());
+            } else  {
+                mSubscriptionCallbackObj =
+                        MediaBrowserCompatApi21.createSubscriptionCallback(new StubApi21());
+            }
         }
 
         /**
@@ -627,6 +634,21 @@ public final class MediaBrowserCompat {
                     parcel.recycle();
                 }
                 return items;
+            }
+        }
+
+        private class StubApi24 extends StubApi21
+                implements MediaBrowserCompatApi24.SubscriptionCallback {
+            @Override
+            public void onChildrenLoaded(@NonNull String parentId, @NonNull List<Parcel> children,
+                    @NonNull Bundle options) {
+                SubscriptionCallbackApi21.this.onChildrenLoaded(
+                        parentId, parcelListToItemList(children), mOptions);
+            }
+
+            @Override
+            public void onError(@NonNull String parentId, @NonNull Bundle options) {
+                SubscriptionCallbackApi21.this.onError(parentId, mOptions);
             }
         }
     }
@@ -1483,6 +1505,35 @@ public final class MediaBrowserCompat {
         @Override
         public void getItem(@NonNull String mediaId, @NonNull ItemCallback cb) {
             MediaBrowserCompatApi23.getItem(mBrowserObj, mediaId, cb.mItemCallbackObj);
+        }
+    }
+
+    static class MediaBrowserImplApi24 extends MediaBrowserImplApi23 {
+        public MediaBrowserImplApi24(Context context, ComponentName serviceComponent,
+                ConnectionCallback callback, Bundle rootHints) {
+            super(context, serviceComponent, callback, rootHints);
+        }
+
+        @Override
+        public void subscribe(@NonNull String parentId, @NonNull Bundle options,
+                @NonNull SubscriptionCallback callback) {
+            SubscriptionCallbackApi21 cb21 = new SubscriptionCallbackApi21(callback, options);
+            if (options == null) {
+                MediaBrowserCompatApi21.subscribe(
+                        mBrowserObj, parentId, cb21.mSubscriptionCallbackObj);
+            } else {
+                MediaBrowserCompatApi24.subscribe(
+                        mBrowserObj, parentId, options, cb21.mSubscriptionCallbackObj);
+            }
+        }
+
+        @Override
+        public void unsubscribe(@NonNull String parentId, Bundle options) {
+            if (options == null) {
+                MediaBrowserCompatApi21.unsubscribe(mBrowserObj, parentId);
+            } else {
+                MediaBrowserCompatApi24.unsubscribe(mBrowserObj, parentId, options);
+            }
         }
     }
 
