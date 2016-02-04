@@ -627,7 +627,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
 
         if (action.hasMultilineDescription()) {
             if (vh.mTitleView != null) {
-                vh.mTitleView.setMaxLines(mTitleMaxLines);
+                setMaxLines(vh.mTitleView, mTitleMaxLines);
                 if (vh.mDescriptionView != null) {
                     vh.mDescriptionView.setMaxHeight(getDescriptionMaxHeight(
                             vh.itemView.getContext(), vh.mTitleView));
@@ -635,10 +635,10 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             }
         } else {
             if (vh.mTitleView != null) {
-                vh.mTitleView.setMaxLines(mTitleMinLines);
+                setMaxLines(vh.mTitleView, mTitleMinLines);
             }
             if (vh.mDescriptionView != null) {
-                vh.mDescriptionView.setMaxLines(mDescriptionMinLines);
+                setMaxLines(vh.mDescriptionView, mDescriptionMinLines);
             }
         }
         if (vh.mActivatorView != null) {
@@ -655,6 +655,17 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         setupImeOptions(vh, action);
 
         updateChevronAndVisibility(vh);
+    }
+
+    private static void setMaxLines(TextView view, int maxLines) {
+        // setSingleLine must be called before setMaxLines because it resets maximum to
+        // Integer.MAX_VALUE.
+        if (maxLines == 1) {
+            view.setSingleLine(true);
+        } else {
+            view.setSingleLine(false);
+            view.setMaxLines(maxLines);
+        }
     }
 
     /**
