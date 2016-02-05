@@ -17,9 +17,11 @@ package android.support.v4.view;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.support.test.espresso.ViewAction;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.support.v4.test.R;
 import android.support.v4.testutils.TestUtilsMatchers;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -564,4 +566,81 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
      * non interactive).
      */
     protected abstract void assertStripInteraction(boolean smoothScroll);
+
+    /**
+     * Helper method that performs the specified action on the <code>ViewPager</code> and then
+     * checks the sequence of calls to the page change listener based on the specified expected
+     * scroll state changes.
+     *
+     * If that expected list is empty, this method verifies that there were no calls to
+     * onPageScrollStateChanged when the action was performed. Otherwise it verifies that the actual
+     * sequence of calls to onPageScrollStateChanged matches the expected (specified) one.
+     */
+    private void verifyScrollStateChange(ViewAction viewAction, int... expectedScrollStateChanges) {
+        ViewPager.OnPageChangeListener mockPageChangeListener =
+                mock(ViewPager.OnPageChangeListener.class);
+        mViewPager.addOnPageChangeListener(mockPageChangeListener);
+
+        // Perform our action
+        onView(withId(R.id.pager)).perform(viewAction);
+
+        int expectedScrollStateChangeCount = (expectedScrollStateChanges != null) ?
+                expectedScrollStateChanges.length : 0;
+
+        if (expectedScrollStateChangeCount == 0) {
+            verify(mockPageChangeListener, never()).onPageScrollStateChanged(anyInt());
+        } else {
+            ArgumentCaptor<Integer> pageScrollStateCaptor = ArgumentCaptor.forClass(int.class);
+            verify(mockPageChangeListener, times(expectedScrollStateChangeCount)).
+                    onPageScrollStateChanged(pageScrollStateCaptor.capture());
+            assertThat(pageScrollStateCaptor.getAllValues(),
+                    TestUtilsMatchers.matches(expectedScrollStateChanges));
+        }
+
+        // Remove our mock listener to get back to clean state for the next test
+        mViewPager.removeOnPageChangeListener(mockPageChangeListener);
+    }
+
+    @Test
+    @SmallTest
+    public void testPageScrollStateChangedImmediate() {
+        // Note that all the actions tested in this method are immediate (no scrolling) and
+        // as such we test that we do not get any calls to onPageScrollStateChanged in any of them
+
+        // Select one page to the right
+        verifyScrollStateChange(scrollRight(false));
+        // Select one more page to the right
+        verifyScrollStateChange(scrollRight(false));
+        // Select one page to the left
+        verifyScrollStateChange(scrollLeft(false));
+        // Select one more page to the left
+        verifyScrollStateChange(scrollLeft(false));
+        // Select last page
+        verifyScrollStateChange(scrollToLast(false));
+        // Select first page
+        verifyScrollStateChange(scrollToFirst(false));
+    }
+
+    @Test
+    @MediumTest
+    public void testPageScrollStateChangedSmooth() {
+        // Note that all the actions tested in this method use smooth scrolling and as such we test
+        // that we get the matching calls to onPageScrollStateChanged
+        final int[] expectedScrollStateChanges = new int[] {
+                ViewPager.SCROLL_STATE_SETTLING, ViewPager.SCROLL_STATE_IDLE
+        };
+
+        // Select one page to the right
+        verifyScrollStateChange(scrollRight(true), expectedScrollStateChanges);
+        // Select one more page to the right
+        verifyScrollStateChange(scrollRight(true), expectedScrollStateChanges);
+        // Select one page to the left
+        verifyScrollStateChange(scrollLeft(true), expectedScrollStateChanges);
+        // Select one more page to the left
+        verifyScrollStateChange(scrollLeft(true), expectedScrollStateChanges);
+        // Select last page
+        verifyScrollStateChange(scrollToLast(true), expectedScrollStateChanges);
+        // Select first page
+        verifyScrollStateChange(scrollToFirst(true), expectedScrollStateChanges);
+    }
 }
