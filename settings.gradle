@@ -59,3 +59,6 @@ project(':support-vector-drawable').projectDir = new File(rootDir, 'graphics/dra
 include ':support-animated-vector-drawable'
 project(':support-animated-vector-drawable').projectDir = new File(rootDir, 'graphics/drawable/animated')
 
+include ':support-transition'
+project(':support-transition').projectDir = new File(rootDir, 'transition')
+
