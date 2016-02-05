@@ -972,7 +972,8 @@ public abstract class MediaBrowserServiceCompat extends Service {
          *
          * <p>When creating a media browser for a given media browser service, this key can be
          * supplied as a root hint for retrieving the media items suggested by the media browser
-         * service.
+         * service. The list of media items passed in {@link android.support.v4.media.MediaBrowserCompat.SubscriptionCallback#onChildrenLoaded(String, List)}
+         * is considered ordered by relevance, first being the top suggestion.
          * If the media browser service can provide such media items, the implementation must return
          * the key in the root hint when {@link #onGetRoot(String, int, Bundle)} is called back.
          *
