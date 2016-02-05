@@ -76,7 +76,7 @@
         <item name="imageCardViewBadgeStyle">@style/MovieCardBadgeStyle</item>
         <item name="imageCardViewContentStyle">@style/MovieCardContentStyle</item>
     </style>
-    
+
     <!-- Theme corresponding to the MovieCardBasicStyle -->
     <style name="MovieCardBasicTheme" parent="MovieCardCompleteTheme">
         <item name="imageCardViewContentStyle">@style/MovieCardContentGoneStyle</item>

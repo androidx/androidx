@@ -60,18 +60,18 @@ public class WizardExample2ndStepFragment extends WizardExampleBaseStepFragment 
     public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
         boolean rentHighDefinition = getArguments().getBoolean(ARG_HD);
 
-        GuidedAction action = new GuidedAction.Builder()
+        GuidedAction action = new GuidedAction.Builder(getActivity())
                 .id(ACTION_ID_CONFIRM)
-                .title(getString(R.string.wizard_example_rent))
+                .title(R.string.wizard_example_rent)
                 .description(rentHighDefinition ? mMovie.getPriceHd() : mMovie.getPriceSd())
                 .editable(false)
                 .build();
         actions.add(action);
-        action = new GuidedAction.Builder()
+        action = new GuidedAction.Builder(getActivity())
                 .id(ACTION_ID_PAYMENT_METHOD)
-                .title(getString(R.string.wizard_example_payment_method))
+                .title(R.string.wizard_example_payment_method)
                 .editTitle("")
-                .description(getString(R.string.wizard_example_input_credit))
+                .description(R.string.wizard_example_input_credit)
                 .editable(true)
                 .build();
         actions.add(action);

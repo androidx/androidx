@@ -44,16 +44,16 @@ public class WizardExample4thStepFragment extends WizardExampleBaseStepFragment 
 
     @Override
     public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
-        GuidedAction action = new GuidedAction.Builder()
+        GuidedAction action = new GuidedAction.Builder(getActivity())
                 .id(ACTION_ID_WATCH)
                 .editable(false)
-                .title(getString(R.string.wizard_example_watch_now))
+                .title(R.string.wizard_example_watch_now)
                 .build();
         actions.add(action);
-        action = new GuidedAction.Builder()
+        action = new GuidedAction.Builder(getActivity())
                 .id(ACTION_ID_LATER)
                 .editable(false)
-                .title(getString(R.string.wizard_example_later))
+                .title(R.string.wizard_example_later)
                 .build();
         actions.add(action);
     }
