@@ -89,6 +89,9 @@ public final class MediaBrowserCompat {
      * to the media browse service when connecting and retrieving the root id
      * for browsing, or null if none. The contents of this bundle may affect
      * the information returned when browsing.
+     * @see MediaBrowserServiceCompat.BrowserRoot#EXTRA_RECENT
+     * @see MediaBrowserServiceCompat.BrowserRoot#EXTRA_OFFLINE
+     * @see MediaBrowserServiceCompat.BrowserRoot#EXTRA_SUGGESTED
      */
     public MediaBrowserCompat(Context context, ComponentName serviceComponent,
             ConnectionCallback callback, Bundle rootHints) {
