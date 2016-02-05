@@ -14,7 +14,11 @@
 package android.support.v17.leanback.widget;
 
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.ColorFilter;
+import android.graphics.PixelFormat;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.widget.EditText;
 import android.view.KeyEvent;
@@ -25,7 +29,38 @@ import android.view.accessibility.AccessibilityNodeInfo;
  */
 public class GuidedActionEditText extends EditText implements ImeKeyMonitor {
 
+    /**
+     * Workaround for b/26990627 forcing recompute the padding for the View when we turn on/off
+     * the default background of EditText
+     */
+    static final class NoPaddingDrawable extends Drawable {
+        @Override
+        public boolean getPadding(Rect padding) {
+            padding.set(0, 0, 0, 0);
+            return true;
+        }
+
+        @Override
+        public void draw(Canvas canvas) {
+        }
+
+        @Override
+        public void setAlpha(int alpha) {
+        }
+
+        @Override
+        public void setColorFilter(ColorFilter colorFilter) {
+        }
+
+        @Override
+        public int getOpacity() {
+            return PixelFormat.TRANSPARENT;
+        }
+    }
+
     private ImeKeyListener mKeyListener;
+    private final Drawable mSavedBackground;
+    private final Drawable mNoPaddingDrawable;
 
     public GuidedActionEditText(Context ctx) {
         this(ctx, null);
@@ -37,6 +72,9 @@ public class GuidedActionEditText extends EditText implements ImeKeyMonitor {
 
     public GuidedActionEditText(Context ctx, AttributeSet attrs, int defStyleAttr) {
         super(ctx, attrs, defStyleAttr);
+        mSavedBackground = getBackground();
+        mNoPaddingDrawable = new NoPaddingDrawable();
+        setBackground(mNoPaddingDrawable);
     }
 
     @Override
@@ -68,6 +106,11 @@ public class GuidedActionEditText extends EditText implements ImeKeyMonitor {
     @Override
     protected void onFocusChanged(boolean focused, int direction, Rect previouslyFocusedRect) {
         super.onFocusChanged(focused, direction, previouslyFocusedRect);
+        if (focused) {
+            setBackground(mSavedBackground);
+        } else {
+            setBackground(mNoPaddingDrawable);
+        }
         // Make the TextView focusable during editing, avoid the TextView gets accessibility focus
         // before editing started. see also GuidedActionAdapterGroup where setFocusable(true).
         if (!focused) {
