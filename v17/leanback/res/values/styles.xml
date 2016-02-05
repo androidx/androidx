@@ -522,7 +522,6 @@
         <item name="android:textColor">@color/lb_guidedactions_item_unselected_text_color</item>
         <item name="android:textSize">@dimen/lb_guidedactions_item_title_font_size</item>
         <item name="android:textAlignment">viewStart</item>
-        <item name="android:background">@null</item>
     </style>
 
     <!-- Style for an action's description in a GuidedActionsStylist's default item layout. -->
@@ -537,7 +536,6 @@
         <item name="android:textSize">@dimen/lb_guidedactions_item_description_font_size</item>
         <item name="android:textAlignment">viewStart</item>
         <item name="android:visibility">gone</item>
-        <item name="android:background">@null</item>
     </style>
 
     <!-- Style for an action's chevron in a GuidedActionsStylist's default item layout. -->
