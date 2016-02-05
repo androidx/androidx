@@ -28,6 +28,7 @@ import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.AppCompatTextView;
+import android.support.v7.widget.ForwardingListener;
 import android.support.v7.widget.ListPopupWindow;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -50,7 +51,7 @@ public class ActionMenuItemView extends AppCompatTextView
     private CharSequence mTitle;
     private Drawable mIcon;
     private MenuBuilder.ItemInvoker mItemInvoker;
-    private ListPopupWindow.ForwardingListener mForwardingListener;
+    private ForwardingListener mForwardingListener;
     private PopupCallback mPopupCallback;
 
     private boolean mAllowTextWithIcon;
@@ -312,13 +313,13 @@ public class ActionMenuItemView extends AppCompatTextView
         }
     }
 
-    private class ActionMenuItemForwardingListener extends ListPopupWindow.ForwardingListener {
+    private class ActionMenuItemForwardingListener extends ForwardingListener {
         public ActionMenuItemForwardingListener() {
             super(ActionMenuItemView.this);
         }
 
         @Override
-        public ListPopupWindow getPopup() {
+        public ShowableListMenu getPopup() {
             if (mPopupCallback != null) {
                 return mPopupCallback.getPopup();
             }
@@ -329,7 +330,7 @@ public class ActionMenuItemView extends AppCompatTextView
         protected boolean onForwardingStarted() {
             // Call the invoker, then check if the expected popup is showing.
             if (mItemInvoker != null && mItemInvoker.invokeItem(mItemData)) {
-                final ListPopupWindow popup = getPopup();
+                final ShowableListMenu popup = getPopup();
                 return popup != null && popup.isShowing();
             }
             return false;
@@ -344,6 +345,6 @@ public class ActionMenuItemView extends AppCompatTextView
     }
 
     public static abstract class PopupCallback {
-        public abstract ListPopupWindow getPopup();
+        public abstract ShowableListMenu getPopup();
     }
 }

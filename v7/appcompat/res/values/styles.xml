@@ -143,37 +143,25 @@
            parent="Base.Widget.AppCompat.Light.PopupMenu.Overflow">
     </style>
 
-    <style name="Widget.AppCompat.PopupMenu" parent="Base.Widget.AppCompat.PopupMenu">
-    </style>
+    <style name="Widget.AppCompat.PopupMenu" parent="Base.Widget.AppCompat.PopupMenu" />
 
-    <style name="Widget.AppCompat.Light.PopupMenu"
-           parent="Base.Widget.AppCompat.Light.PopupMenu">
-    </style>
+    <style name="Widget.AppCompat.Light.PopupMenu" parent="Base.Widget.AppCompat.Light.PopupMenu" />
 
-    <style name="Widget.AppCompat.ListView.Menu" parent="Base.Widget.AppCompat.ListView.Menu">
-    </style>
+    <style name="Widget.AppCompat.ListView.Menu" parent="Base.Widget.AppCompat.ListView.Menu" />
+
+    <style name="Widget.AppCompat.ListMenuView" parent="Base.Widget.AppCompat.ListMenuView" />
 
     <style name="Widget.AppCompat.PopupWindow" parent="Base.Widget.AppCompat.PopupWindow">
     </style>
 
-    <style name="TextAppearance.AppCompat.Widget.PopupMenu.Large"
-           parent="Base.TextAppearance.AppCompat.Widget.PopupMenu.Large">
-    </style>
+    <style name="TextAppearance.AppCompat.Widget.PopupMenu.Large" parent="Base.TextAppearance.AppCompat.Widget.PopupMenu.Large" />
 
-    <style name="TextAppearance.AppCompat.Widget.PopupMenu.Small"
-           parent="Base.TextAppearance.AppCompat.Widget.PopupMenu.Small">
-    </style>
+    <style name="TextAppearance.AppCompat.Widget.PopupMenu.Small" parent="Base.TextAppearance.AppCompat.Widget.PopupMenu.Small" />
 
-    <style name="TextAppearance.AppCompat.Light.Widget.PopupMenu.Large"
-           parent="Base.TextAppearance.AppCompat.Light.Widget.PopupMenu.Large">
-    </style>
-
-    <style name="TextAppearance.AppCompat.Light.Widget.PopupMenu.Small"
-           parent="Base.TextAppearance.AppCompat.Light.Widget.PopupMenu.Small">
-    </style>
+    <style name="TextAppearance.AppCompat.Widget.PopupMenu.Header" parent="Base.TextAppearance.AppCompat.Widget.PopupMenu.Header" />
 
     <style name="TextAppearance.AppCompat.SearchResult.Title"
-           parent="Base.TextAppearance.AppCompat.SearchResult.Title">
+           parent="TextAppearance.AppCompat.SearchResult.Title">
     </style>
 
     <style name="TextAppearance.AppCompat.SearchResult.Subtitle"
@@ -329,6 +317,8 @@
     <style name="Widget.AppCompat.Light.ListPopupWindow" parent="Widget.AppCompat.ListPopupWindow" />
     <style name="Widget.AppCompat.Light.AutoCompleteTextView" parent="Widget.AppCompat.AutoCompleteTextView" />
     <style name="Widget.AppCompat.Light.ActivityChooserView" parent="Widget.AppCompat.ActivityChooserView" />
+    <style name="TextAppearance.AppCompat.Light.Widget.PopupMenu.Large" parent="TextAppearance.AppCompat.Widget.PopupMenu.Large" />
+    <style name="TextAppearance.AppCompat.Light.Widget.PopupMenu.Small" parent="TextAppearance.AppCompat.Widget.PopupMenu.Small" />
 
     <!-- These styles didn't exist on v7. Since we only use the media template in later versions
          (ICS+), just define it here and use the correct references in values/v14 -->

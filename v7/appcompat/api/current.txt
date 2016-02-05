@@ -456,6 +456,7 @@ package android.support.v7.appcompat {
     field public static int listDividerAlertDialog;
     field public static int listItemLayout;
     field public static int listLayout;
+    field public static int listMenuViewStyle;
     field public static int listPopupWindowStyle;
     field public static int listPreferredItemHeight;
     field public static int listPreferredItemHeightLarge;
@@ -504,6 +505,7 @@ package android.support.v7.appcompat {
     field public static int splitTrack;
     field public static int srcCompat;
     field public static int state_above_anchor;
+    field public static int subMenuArrow;
     field public static int submitBackground;
     field public static int subtitle;
     field public static int subtitleTextAppearance;
@@ -518,6 +520,7 @@ package android.support.v7.appcompat {
     field public static int textAppearanceLargePopupMenu;
     field public static int textAppearanceListItem;
     field public static int textAppearanceListItemSmall;
+    field public static int textAppearancePopupMenuHeader;
     field public static int textAppearanceSearchResultSubtitle;
     field public static int textAppearanceSearchResultTitle;
     field public static int textAppearanceSmallPopupMenu;
@@ -558,6 +561,7 @@ package android.support.v7.appcompat {
     field public static int abc_allow_stacked_button_bar;
     field public static int abc_config_actionMenuItemAllCaps;
     field public static int abc_config_closeDialogWhenTouchOutside;
+    field public static int abc_config_enableCascadingSubmenus;
     field public static int abc_config_showMenuShortcutsWhenKeyboardPresent;
   }
 
@@ -704,6 +708,7 @@ package android.support.v7.appcompat {
     field public static int abc_text_size_headline_material;
     field public static int abc_text_size_large_material;
     field public static int abc_text_size_medium_material;
+    field public static int abc_text_size_menu_header_material;
     field public static int abc_text_size_menu_material;
     field public static int abc_text_size_small_material;
     field public static int abc_text_size_subhead_material;
@@ -745,6 +750,7 @@ package android.support.v7.appcompat {
     field public static int abc_dialog_material_background_light;
     field public static int abc_edit_text_material;
     field public static int abc_ic_ab_back_material;
+    field public static int abc_ic_arrow_drop_right_black_24dp;
     field public static int abc_ic_clear_material;
     field public static int abc_ic_commit_search_api_mtrl_alpha;
     field public static int abc_ic_go_search_api_material;
@@ -883,6 +889,7 @@ package android.support.v7.appcompat {
     field public static int src_in;
     field public static int src_over;
     field public static int status_bar_latest_event_content;
+    field public static int submenuarrow;
     field public static int submit_area;
     field public static int tabMode;
     field public static int text;
@@ -926,6 +933,7 @@ package android.support.v7.appcompat {
     field public static int abc_list_menu_item_icon;
     field public static int abc_list_menu_item_layout;
     field public static int abc_list_menu_item_radio;
+    field public static int abc_popup_menu_header_item_layout;
     field public static int abc_popup_menu_item_layout;
     field public static int abc_screen_content_include;
     field public static int abc_screen_simple;
@@ -960,6 +968,18 @@ package android.support.v7.appcompat {
     field public static int abc_activitychooserview_choose_application;
     field public static int abc_capital_off;
     field public static int abc_capital_on;
+    field public static int abc_font_family_body_1_material;
+    field public static int abc_font_family_body_2_material;
+    field public static int abc_font_family_button_material;
+    field public static int abc_font_family_caption_material;
+    field public static int abc_font_family_display_1_material;
+    field public static int abc_font_family_display_2_material;
+    field public static int abc_font_family_display_3_material;
+    field public static int abc_font_family_display_4_material;
+    field public static int abc_font_family_headline_material;
+    field public static int abc_font_family_menu_material;
+    field public static int abc_font_family_subhead_material;
+    field public static int abc_font_family_title_material;
     field public static int abc_search_hint;
     field public static int abc_searchview_description_clear;
     field public static int abc_searchview_description_query;
@@ -1021,6 +1041,7 @@ package android.support.v7.appcompat {
     field public static int Base_TextAppearance_AppCompat_Widget_Button;
     field public static int Base_TextAppearance_AppCompat_Widget_Button_Inverse;
     field public static int Base_TextAppearance_AppCompat_Widget_DropDownItem;
+    field public static int Base_TextAppearance_AppCompat_Widget_PopupMenu_Header;
     field public static int Base_TextAppearance_AppCompat_Widget_PopupMenu_Large;
     field public static int Base_TextAppearance_AppCompat_Widget_PopupMenu_Small;
     field public static int Base_TextAppearance_AppCompat_Widget_Switch;
@@ -1100,6 +1121,7 @@ package android.support.v7.appcompat {
     field public static int Base_Widget_AppCompat_Light_ActionBar_TabView;
     field public static int Base_Widget_AppCompat_Light_PopupMenu;
     field public static int Base_Widget_AppCompat_Light_PopupMenu_Overflow;
+    field public static int Base_Widget_AppCompat_ListMenuView;
     field public static int Base_Widget_AppCompat_ListPopupWindow;
     field public static int Base_Widget_AppCompat_ListView;
     field public static int Base_Widget_AppCompat_ListView_DropDown;
@@ -1184,6 +1206,7 @@ package android.support.v7.appcompat {
     field public static int TextAppearance_AppCompat_Widget_Button;
     field public static int TextAppearance_AppCompat_Widget_Button_Inverse;
     field public static int TextAppearance_AppCompat_Widget_DropDownItem;
+    field public static int TextAppearance_AppCompat_Widget_PopupMenu_Header;
     field public static int TextAppearance_AppCompat_Widget_PopupMenu_Large;
     field public static int TextAppearance_AppCompat_Widget_PopupMenu_Small;
     field public static int TextAppearance_AppCompat_Widget_Switch;
@@ -1270,6 +1293,7 @@ package android.support.v7.appcompat {
     field public static int Widget_AppCompat_Light_PopupMenu_Overflow;
     field public static int Widget_AppCompat_Light_SearchView;
     field public static int Widget_AppCompat_Light_Spinner_DropDown_ActionBar;
+    field public static int Widget_AppCompat_ListMenuView;
     field public static int Widget_AppCompat_ListPopupWindow;
     field public static int Widget_AppCompat_ListView;
     field public static int Widget_AppCompat_ListView_DropDown;
@@ -1422,6 +1446,7 @@ package android.support.v7.appcompat {
     field public static int MenuView_android_verticalDivider;
     field public static int MenuView_android_windowAnimationStyle;
     field public static int MenuView_preserveIconSpacing;
+    field public static int MenuView_subMenuArrow;
     field public static final int[] PopupWindow;
     field public static final int[] PopupWindowBackgroundState;
     field public static int PopupWindowBackgroundState_state_above_anchor;
@@ -1543,6 +1568,7 @@ package android.support.v7.appcompat {
     field public static int Theme_imageButtonStyle;
     field public static int Theme_listChoiceBackgroundIndicator;
     field public static int Theme_listDividerAlertDialog;
+    field public static int Theme_listMenuViewStyle;
     field public static int Theme_listPopupWindowStyle;
     field public static int Theme_listPreferredItemHeight;
     field public static int Theme_listPreferredItemHeightLarge;
@@ -1568,6 +1594,7 @@ package android.support.v7.appcompat {
     field public static int Theme_textAppearanceLargePopupMenu;
     field public static int Theme_textAppearanceListItem;
     field public static int Theme_textAppearanceListItemSmall;
+    field public static int Theme_textAppearancePopupMenuHeader;
     field public static int Theme_textAppearanceSearchResultSubtitle;
     field public static int Theme_textAppearanceSearchResultTitle;
     field public static int Theme_textAppearanceSmallPopupMenu;

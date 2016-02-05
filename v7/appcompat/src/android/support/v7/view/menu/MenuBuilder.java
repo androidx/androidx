@@ -26,6 +26,7 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.internal.view.SupportMenu;
 import android.support.v4.internal.view.SupportMenuItem;
@@ -69,8 +70,8 @@ public class MenuBuilder implements SupportMenu {
     };
 
     private final Context mContext;
-
     private final Resources mResources;
+    private final boolean mShowCascadingMenus;
 
     /**
      * Whether the shortcuts should be qwerty-accessible. Use isQwertyMode() instead of accessing
@@ -214,14 +215,16 @@ public class MenuBuilder implements SupportMenu {
     public MenuBuilder(Context context) {
         mContext = context;
         mResources = context.getResources();
+        mShowCascadingMenus = context.getResources().getBoolean(
+                R.bool.abc_config_enableCascadingSubmenus);
 
-        mItems = new ArrayList<MenuItemImpl>();
+        mItems = new ArrayList<>();
 
-        mVisibleItems = new ArrayList<MenuItemImpl>();
+        mVisibleItems = new ArrayList<>();
         mIsVisibleItemsStale = true;
 
-        mActionItems = new ArrayList<MenuItemImpl>();
-        mNonActionItems = new ArrayList<MenuItemImpl>();
+        mActionItems = new ArrayList<>();
+        mNonActionItems = new ArrayList<>();
         mIsActionItemsStale = true;
 
         setShortcutsVisibleInner(true);
@@ -842,7 +845,7 @@ public class MenuBuilder implements SupportMenu {
         }
 
         if ((flags & FLAG_ALWAYS_PERFORM_CLOSE) != 0) {
-            close(true);
+            close(true /* closeAllMenus */);
         }
 
         return handled;
@@ -961,9 +964,13 @@ public class MenuBuilder implements SupportMenu {
         final boolean providerHasSubMenu = provider != null && provider.hasSubMenu();
         if (itemImpl.hasCollapsibleActionView()) {
             invoked |= itemImpl.expandActionView();
-            if (invoked) close(true);
+            if (invoked) {
+                close(true /* closeAllMenus */);
+            }
         } else if (itemImpl.hasSubMenu() || providerHasSubMenu) {
-            close(false);
+            if (!mShowCascadingMenus) {
+                close(false /* closeAllMenus */);
+            }
 
             if (!itemImpl.hasSubMenu()) {
                 itemImpl.setSubMenu(new SubMenuBuilder(getContext(), this, itemImpl));
@@ -974,10 +981,12 @@ public class MenuBuilder implements SupportMenu {
                 provider.onPrepareSubMenu(subMenu);
             }
             invoked |= dispatchSubMenuSelected(subMenu, preferredPresenter);
-            if (!invoked) close(true);
+            if (!invoked) {
+                close(true /* closeAllMenus */);
+            }
         } else {
             if ((flags & FLAG_PERFORM_NO_CLOSE) == 0) {
-                close(true);
+                close(true /* closeAllMenus */);
             }
         }
 
@@ -985,15 +994,14 @@ public class MenuBuilder implements SupportMenu {
     }
 
     /**
-     * Closes the visible menu.
+     * Closes the menu.
      *
-     * @param allMenusAreClosing Whether the menus are completely closing (true),
-     *            or whether there is another menu coming in this menu's place
-     *            (false). For example, if the menu is closing because a
-     *            sub menu is about to be shown, <var>allMenusAreClosing</var>
-     *            is false.
+     * @param closeAllMenus {@code true} if all displayed menus and submenus
+     *                      should be completely closed (as when a menu item is
+     *                      selected) or {@code false} if only this menu should
+     *                      be closed
      */
-    public final void close(boolean allMenusAreClosing) {
+    public final void close(boolean closeAllMenus) {
         if (mIsClosing) return;
 
         mIsClosing = true;
@@ -1002,7 +1010,7 @@ public class MenuBuilder implements SupportMenu {
             if (presenter == null) {
                 mPresenters.remove(ref);
             } else {
-                presenter.onCloseMenu(this, allMenusAreClosing);
+                presenter.onCloseMenu(this, closeAllMenus);
             }
         }
         mIsClosing = false;
@@ -1010,7 +1018,7 @@ public class MenuBuilder implements SupportMenu {
 
     @Override
     public void close() {
-        close(true);
+        close(true /* closeAllMenus */);
     }
 
     /**
@@ -1076,6 +1084,7 @@ public class MenuBuilder implements SupportMenu {
         onItemsChanged(true);
     }
 
+    @NonNull
     public ArrayList<MenuItemImpl> getVisibleItems() {
         if (!mIsVisibleItemsStale) return mVisibleItems;
 
@@ -1284,7 +1293,6 @@ public class MenuBuilder implements SupportMenu {
 
     /**
      * Gets the root menu (if this is a submenu, find its root menu).
-     *
      * @return The root menu.
      */
     public MenuBuilder getRootMenu() {
@@ -1302,9 +1310,6 @@ public class MenuBuilder implements SupportMenu {
         mCurrentMenuInfo = menuInfo;
     }
 
-    /**
-     * @hide
-     */
     public void setOptionalIconsVisible(boolean visible) {
         mOptionalIconsVisible = visible;
     }
