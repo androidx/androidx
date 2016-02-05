@@ -621,6 +621,9 @@ public abstract class MediaBrowserServiceCompat extends Service {
      *            root id for browsing, or null if none. The contents of this
      *            bundle may affect the information returned when browsing.
      * @return The {@link BrowserRoot} for accessing this app's content or null.
+     * @see BrowserRoot#EXTRA_RECENT
+     * @see BrowserRoot#EXTRA_OFFLINE
+     * @see BrowserRoot#EXTRA_SUGGESTED
      */
     public abstract @Nullable BrowserRoot onGetRoot(@NonNull String clientPackageName,
             int clientUid, @Nullable Bundle rootHints);
@@ -944,7 +947,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
          *
          * @see #EXTRA_OFFLINE
          * @see #EXTRA_SUGGESTED
-         * @hide
          */
         public static final String EXTRA_RECENT = "android.service.media.extra.RECENT";
 
@@ -962,7 +964,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
          *
          * @see #EXTRA_RECENT
          * @see #EXTRA_SUGGESTED
-         * @hide
          */
         public static final String EXTRA_OFFLINE = "android.service.media.extra.OFFLINE";
 
@@ -981,7 +982,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
          *
          * @see #EXTRA_RECENT
          * @see #EXTRA_OFFLINE
-         * @hide
          */
         public static final String EXTRA_SUGGESTED = "android.service.media.extra.SUGGESTED";
 
