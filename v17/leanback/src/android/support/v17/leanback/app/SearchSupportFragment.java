@@ -20,25 +20,25 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.speech.SpeechRecognizer;
 import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
+import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.ObjectAdapter.DataObserver;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
+import android.support.v17.leanback.widget.Presenter.ViewHolder;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.SearchBar;
-import android.support.v17.leanback.widget.VerticalGridView;
-import android.support.v17.leanback.widget.Presenter.ViewHolder;
 import android.support.v17.leanback.widget.SpeechRecognitionCallback;
+import android.support.v17.leanback.widget.VerticalGridView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.CompletionInfo;
 import android.widget.FrameLayout;
-import android.support.v17.leanback.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -346,6 +346,9 @@ public class SearchSupportFragment extends Fragment {
         list.setWindowAlignmentOffset(mContainerListAlignTop);
         list.setWindowAlignmentOffsetPercent(VerticalGridView.WINDOW_ALIGN_OFFSET_PERCENT_DISABLED);
         list.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_NO_EDGE);
+        // VerticalGridView should not be focusable (see b/26894680 for details).
+        list.setFocusable(false);
+        list.setFocusableInTouchMode(false);
     }
 
     @Override
