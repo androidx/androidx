@@ -245,7 +245,7 @@ public class DrawerLayoutActions {
      * Sets the lock mode for the drawer at the specified edge gravity.
      */
     public static ViewAction setDrawerLockMode(final int lockMode, final int drawerEdgeGravity) {
-        return new ViewAction() {
+        return wrap(new ViewAction() {
             @Override
             public Matcher<View> getConstraints() {
                 return isAssignableFrom(DrawerLayout.class);
@@ -265,14 +265,14 @@ public class DrawerLayoutActions {
 
                 uiController.loopMainThreadUntilIdle();
             }
-        };
+        });
     }
 
     /**
      * Sets the lock mode for the drawer.
      */
     public static ViewAction setDrawerLockMode(final int lockMode, final View drawerView) {
-        return new ViewAction() {
+        return wrap(new ViewAction() {
             @Override
             public Matcher<View> getConstraints() {
                 return isAssignableFrom(DrawerLayout.class);
@@ -292,6 +292,6 @@ public class DrawerLayoutActions {
 
                 uiController.loopMainThreadUntilIdle();
             }
-        };
+        });
     }
 }
