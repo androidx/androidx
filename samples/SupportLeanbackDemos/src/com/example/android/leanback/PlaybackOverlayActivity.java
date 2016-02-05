@@ -16,11 +16,7 @@ package com.example.android.leanback;
 import android.app.Activity;
 import android.os.Bundle;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class PlaybackOverlayActivity extends Activity {
-    private List<PictureInPictureListener> mListeners = new ArrayList<>();
 
     /** Called when the activity is first created. */
     @Override
@@ -28,24 +24,5 @@ public class PlaybackOverlayActivity extends Activity {
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.playback_controls);
-    }
-
-    @Override
-    public void onPictureInPictureChanged(boolean inPictureInPicture) {
-        for (PictureInPictureListener listener : mListeners) {
-            listener.onPictureInPictureChanged(inPictureInPicture);
-        }
-    }
-
-    public void registerPictureInPictureListener(PictureInPictureListener listener) {
-        mListeners.add(listener);
-    }
-
-    public void unregisterPictureInPictureListener(PictureInPictureListener listener) {
-        mListeners.remove(listener);
-    }
-
-    public interface PictureInPictureListener {
-        void onPictureInPictureChanged(boolean inPictureInPicture);
     }
 }
