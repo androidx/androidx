@@ -41,4 +41,7 @@
     <color name="detail_view_actionbar_background">#04549D</color>
     <color name="detail_view_background">#0374BF</color>
     <color name="detail_view_related_background">#022A4E</color>
+
+    <color name="guidedstep_actions_background">#C03800</color>
+    <color name="guidedstep_dialog_actions_background">#263238</color>
 </resources>

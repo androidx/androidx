@@ -18,14 +18,6 @@
     <style name="AppTheme" parent="@style/Theme.Leanback">
     </style>
 
-    <style name="WizardActionsContainerStyle" parent="Widget.Leanback.GuidedActionsContainerStyle">
-        <item name="android:background">#C03800</item>
-    </style>
-
-    <style name="DialogActionsContainerStyle" parent="Widget.Leanback.GuidedActionsContainerStyle">
-        <item name="android:background">#263238</item>
-    </style>
-
     <!-- Various movie card styles. Used in cards example. -->
     <style name="MovieCardBadgeStyle" parent="Widget.Leanback.ImageCardView.BadgeStyle">
         <item name="android:src">@drawable/stars_red</item>
