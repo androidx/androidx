@@ -120,7 +120,9 @@ public class GridLayoutManager extends LinearLayoutManager {
         if (state.getItemCount() < 1) {
             return 0;
         }
-        return getSpanGroupIndex(recycler, state, state.getItemCount() - 1);
+
+        // Row count is one more than the last item's row index.
+        return getSpanGroupIndex(recycler, state, state.getItemCount() - 1) + 1;
     }
 
     @Override
@@ -132,7 +134,9 @@ public class GridLayoutManager extends LinearLayoutManager {
         if (state.getItemCount() < 1) {
             return 0;
         }
-        return getSpanGroupIndex(recycler, state, state.getItemCount() - 1);
+
+        // Column count is one more than the last item's column index.
+        return getSpanGroupIndex(recycler, state, state.getItemCount() - 1) + 1;
     }
 
     @Override
