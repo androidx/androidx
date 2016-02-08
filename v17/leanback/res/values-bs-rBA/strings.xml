@@ -85,6 +85,5 @@ limitations under the License.
     <!-- no translation found for lb_time_separator (2763247350845477227) -->
     <skip />
     <string name="lb_onboarding_get_started" msgid="6961440391306351139">"ZAPOČNITE"</string>
-    <!-- no translation found for lb_onboarding_accessibility_next (2918313444257732434) -->
-    <skip />
+    <string name="lb_onboarding_accessibility_next" msgid="2918313444257732434">"Sljedeća"</string>
 </resources>
