@@ -17,16 +17,17 @@
 package android.support.v4.view.accessibility;
 
 import android.graphics.Rect;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
  * ICS specific AccessibilityNodeInfo API implementation.
  */
 class AccessibilityNodeInfoCompatIcs {
-
     public static Object obtain() {
         return AccessibilityNodeInfo.obtain();
     }
@@ -95,6 +96,13 @@ class AccessibilityNodeInfoCompatIcs {
 
     public static int getWindowId(Object info) {
         return ((AccessibilityNodeInfo) info).getWindowId();
+    }
+
+    public static boolean hasImage(Object info) {
+        CharSequence className = getClassName(info);
+        return (!TextUtils.isEmpty(className) &&
+                (className.equals("android.widget.ImageButton") ||
+                 className.equals("android.widget.ImageView")));
     }
 
     public static boolean isCheckable(Object info) {
@@ -216,4 +224,5 @@ class AccessibilityNodeInfoCompatIcs {
     public static void recycle(Object info) {
         ((AccessibilityNodeInfo) info).recycle();
     }
+
 }

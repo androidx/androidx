@@ -23,6 +23,10 @@ import android.view.accessibility.AccessibilityNodeInfo;
  * KitKat-specific AccessibilityNodeInfo API implementation.
  */
 class AccessibilityNodeInfoCompatKitKat {
+    private static final byte TRAIT_UNSET = -1;
+    private static final String TRAITS_KEY =
+            "android.view.accessibility.AccessibilityNodeInfo.traits";
+    private static final long TRAIT_HAS_IMAGE = 0x00000001;
     private static final String ROLE_DESCRIPTION_KEY =
             "AccessibilityNodeInfo.roleDescription";
 
@@ -91,12 +95,35 @@ class AccessibilityNodeInfoCompatKitKat {
         return ((AccessibilityNodeInfo) info).getExtras();
     }
 
+    private static long getTraits(Object info) {
+        return getExtras(info).getLong(TRAITS_KEY, TRAIT_UNSET);
+    }
+
+    private static void setTrait(Object info, long trait) {
+        Bundle extras = getExtras(info);
+        long traits = extras.getLong(TRAITS_KEY, 0);
+        extras.putLong(TRAITS_KEY, traits | trait);
+    }
+
     public static int getInputType(Object info) {
         return ((AccessibilityNodeInfo) info).getInputType();
     }
 
     public static void setInputType(Object info, int inputType) {
         ((AccessibilityNodeInfo) info).setInputType(inputType);
+    }
+
+    public static boolean hasImage(Object info) {
+        long traits = getTraits(info);
+        if (traits == TRAIT_UNSET) {
+            return AccessibilityNodeInfoCompatIcs.hasImage(info);
+        } else {
+            return (traits & TRAIT_HAS_IMAGE) != 0;
+        }
+    }
+
+    public static void setHasImage(Object info, boolean hasImage) {
+        setTrait(info, TRAIT_HAS_IMAGE);
     }
 
     public static boolean isDismissable(Object info) {
