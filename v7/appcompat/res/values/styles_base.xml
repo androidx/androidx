@@ -455,7 +455,7 @@
 
     <!-- Colored borderless ink button -->
     <style name="Base.Widget.AppCompat.Button.Borderless.Colored">
-        <item name="android:textColor">?attr/colorAccent</item>
+        <item name="android:textColor">@color/abc_btn_colored_borderless_text_material</item>
     </style>
 
     <style name="Base.Widget.AppCompat.Button.ButtonBar.AlertDialog" parent="Widget.AppCompat.Button.Borderless.Colored">
