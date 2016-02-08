@@ -21,7 +21,6 @@ import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 
@@ -37,21 +36,16 @@ public class TintTypedArray {
     private final Context mContext;
     private final TypedArray mWrapped;
 
-    private TypedValue mTypedValue;
-
     public static TintTypedArray obtainStyledAttributes(Context context, AttributeSet set,
             int[] attrs) {
-        return new TintTypedArray(context, context.obtainStyledAttributes(set, attrs));
+        TypedArray array = context.obtainStyledAttributes(set, attrs);
+        return new TintTypedArray(context, array);
     }
 
     public static TintTypedArray obtainStyledAttributes(Context context, AttributeSet set,
             int[] attrs, int defStyleAttr, int defStyleRes) {
-        return new TintTypedArray(context,
-                context.obtainStyledAttributes(set, attrs, defStyleAttr, defStyleRes));
-    }
-
-    public static TintTypedArray obtainStyledAttributes(Context context, int resid, int[] attrs) {
-        return new TintTypedArray(context, context.obtainStyledAttributes(resid, attrs));
+        TypedArray array = context.obtainStyledAttributes(set, attrs, defStyleAttr, defStyleRes);
+        return new TintTypedArray(context, array);
     }
 
     private TintTypedArray(Context context, TypedArray array) {
@@ -178,15 +172,7 @@ public class TintTypedArray {
     }
 
     public int getType(int index) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return mWrapped.getType(index);
-        } else {
-            if (mTypedValue == null) {
-                mTypedValue = new TypedValue();
-            }
-            mWrapped.getValue(index, mTypedValue);
-            return mTypedValue.type;
-        }
+        return mWrapped.getType(index);
     }
 
     public boolean hasValue(int index) {
