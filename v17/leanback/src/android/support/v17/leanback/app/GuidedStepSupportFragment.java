@@ -501,24 +501,32 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
      */
     protected void onAddSharedElementTransition(FragmentTransaction ft, GuidedStepSupportFragment
             disappearing) {
-        TransitionHelper.addSharedElement(ft, disappearing.getView().findViewById(
+        View fragmentView = disappearing.getView();
+        addNonNullSharedElementTransition(ft, fragmentView.findViewById(
                 R.id.action_fragment_root), "action_fragment_root");
-        TransitionHelper.addSharedElement(ft, disappearing.getView().findViewById(
+        addNonNullSharedElementTransition(ft, fragmentView.findViewById(
                 R.id.action_fragment_background), "action_fragment_background");
-        TransitionHelper.addSharedElement(ft, disappearing.getView().findViewById(
+        addNonNullSharedElementTransition(ft, fragmentView.findViewById(
                 R.id.action_fragment), "action_fragment");
-        TransitionHelper.addSharedElement(ft, disappearing.getView().findViewById(
+        addNonNullSharedElementTransition(ft, fragmentView.findViewById(
                 R.id.guidedactions_root), "guidedactions_root");
-        TransitionHelper.addSharedElement(ft, disappearing.getView().findViewById(
+        addNonNullSharedElementTransition(ft, fragmentView.findViewById(
                 R.id.guidedactions_content), "guidedactions_content");
-        TransitionHelper.addSharedElement(ft, disappearing.getView().findViewById(
+        addNonNullSharedElementTransition(ft, fragmentView.findViewById(
                 R.id.guidedactions_list_background), "guidedactions_list_background");
-        TransitionHelper.addSharedElement(ft, disappearing.getView().findViewById(
+        addNonNullSharedElementTransition(ft, fragmentView.findViewById(
                 R.id.guidedactions_root2), "guidedactions_root2");
-        TransitionHelper.addSharedElement(ft, disappearing.getView().findViewById(
+        addNonNullSharedElementTransition(ft, fragmentView.findViewById(
                 R.id.guidedactions_content2), "guidedactions_content2");
-        TransitionHelper.addSharedElement(ft, disappearing.getView().findViewById(
+        addNonNullSharedElementTransition(ft, fragmentView.findViewById(
                 R.id.guidedactions_list_background2), "guidedactions_list_background2");
+    }
+
+    private static void addNonNullSharedElementTransition (FragmentTransaction ft, View subView,
+                                                           String transitionName)
+    {
+        if (subView != null)
+            TransitionHelper.addSharedElement(ft, subView, transitionName);
     }
 
     /**
