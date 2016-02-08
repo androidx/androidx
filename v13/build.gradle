@@ -51,6 +51,9 @@ dependencies {
     compile files(internalJar.archivePath)
 }
 
+sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility = JavaVersion.VERSION_1_7
+
 android {
     compileSdkVersion 13
 
@@ -60,7 +63,6 @@ android {
         //targetSdkVersion 19
     }
 
-
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'
         main.java.srcDirs = ['java']
@@ -68,6 +70,11 @@ android {
 
         androidTest.setRoot('tests')
         androidTest.java.srcDir 'tests/java'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
     }
 
     lintOptions {
