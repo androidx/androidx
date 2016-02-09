@@ -74,21 +74,21 @@ public final class CustomTabsSession {
      * @param icon          The new icon of the action button.
      * @param description   Content description of the action button.
      *
-     * @see {@link CustomTabsSession#setActionBarItem(int, Bitmap, String)}
+     * @see {@link CustomTabsSession#setToolbarItem(int, Bitmap, String)}
      */
     public boolean setActionButton(@NonNull Bitmap icon, @NonNull String description) {
-        return setActionBarItem(CustomTabsIntent.TOOLBAR_ACTION_BUTTON_ID, icon, description);
+        return setToolbarItem(CustomTabsIntent.TOOLBAR_ACTION_BUTTON_ID, icon, description);
     }
 
     /**
-     * Updates the visuals for action bar items. Will only succeed if the given
-     * session is the active one in browser and the given id is valid.
+     * Updates the visuals for toolbar items. Will only succeed if a custom tab created using this
+     * session is in the foreground in browser and the given id is valid.
      * @param id            The id for the item to update.
-     * @param icon          The new icon of the action bar item.
-     * @param description   Content description of the action bar item.
+     * @param icon          The new icon of the toolbar item.
+     * @param description   Content description of the toolbar item.
      * @return              Whether the update succeeded.
      */
-    public boolean setActionBarItem(int id, @NonNull Bitmap icon, @NonNull String description) {
+    public boolean setToolbarItem(int id, @NonNull Bitmap icon, @NonNull String description) {
         Bundle bundle = new Bundle();
         bundle.putInt(CustomTabsIntent.KEY_ID, id);
         bundle.putParcelable(CustomTabsIntent.KEY_ICON, icon);
