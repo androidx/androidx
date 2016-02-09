@@ -3,46 +3,37 @@ package android.support.v7.app {
   public abstract class ActionBar {
     ctor public ActionBar();
     method public abstract void addOnMenuVisibilityListener(android.support.v7.app.ActionBar.OnMenuVisibilityListener);
-    method public abstract void addTab(android.support.v7.app.ActionBar.Tab);
-    method public abstract void addTab(android.support.v7.app.ActionBar.Tab, boolean);
-    method public abstract void addTab(android.support.v7.app.ActionBar.Tab, int);
-    method public abstract void addTab(android.support.v7.app.ActionBar.Tab, int, boolean);
-    method public boolean collapseActionView();
-    method public void dispatchMenuVisibilityChanged(boolean);
+    method public abstract deprecated void addTab(android.support.v7.app.ActionBar.Tab);
+    method public abstract deprecated void addTab(android.support.v7.app.ActionBar.Tab, boolean);
+    method public abstract deprecated void addTab(android.support.v7.app.ActionBar.Tab, int);
+    method public abstract deprecated void addTab(android.support.v7.app.ActionBar.Tab, int, boolean);
     method public abstract android.view.View getCustomView();
     method public abstract int getDisplayOptions();
     method public float getElevation();
     method public abstract int getHeight();
     method public int getHideOffset();
-    method public abstract int getNavigationItemCount();
-    method public abstract int getNavigationMode();
-    method public abstract int getSelectedNavigationIndex();
-    method public abstract android.support.v7.app.ActionBar.Tab getSelectedTab();
+    method public abstract deprecated int getNavigationItemCount();
+    method public abstract deprecated int getNavigationMode();
+    method public abstract deprecated int getSelectedNavigationIndex();
+    method public abstract deprecated android.support.v7.app.ActionBar.Tab getSelectedTab();
     method public abstract java.lang.CharSequence getSubtitle();
-    method public abstract android.support.v7.app.ActionBar.Tab getTabAt(int);
-    method public abstract int getTabCount();
+    method public abstract deprecated android.support.v7.app.ActionBar.Tab getTabAt(int);
+    method public abstract deprecated int getTabCount();
     method public android.content.Context getThemedContext();
     method public abstract java.lang.CharSequence getTitle();
     method public abstract void hide();
-    method public boolean invalidateOptionsMenu();
     method public boolean isHideOnContentScrollEnabled();
     method public abstract boolean isShowing();
-    method public boolean isTitleTruncated();
-    method public abstract android.support.v7.app.ActionBar.Tab newTab();
-    method public void onConfigurationChanged(android.content.res.Configuration);
-    method public boolean onKeyShortcut(int, android.view.KeyEvent);
-    method public boolean onMenuKeyEvent(android.view.KeyEvent);
-    method public boolean openOptionsMenu();
-    method public abstract void removeAllTabs();
+    method public abstract deprecated android.support.v7.app.ActionBar.Tab newTab();
+    method public abstract deprecated void removeAllTabs();
     method public abstract void removeOnMenuVisibilityListener(android.support.v7.app.ActionBar.OnMenuVisibilityListener);
-    method public abstract void removeTab(android.support.v7.app.ActionBar.Tab);
-    method public abstract void removeTabAt(int);
-    method public abstract void selectTab(android.support.v7.app.ActionBar.Tab);
+    method public abstract deprecated void removeTab(android.support.v7.app.ActionBar.Tab);
+    method public abstract deprecated void removeTabAt(int);
+    method public abstract deprecated void selectTab(android.support.v7.app.ActionBar.Tab);
     method public abstract void setBackgroundDrawable(android.graphics.drawable.Drawable);
     method public abstract void setCustomView(android.view.View);
     method public abstract void setCustomView(android.view.View, android.support.v7.app.ActionBar.LayoutParams);
     method public abstract void setCustomView(int);
-    method public void setDefaultDisplayHomeAsUpEnabled(boolean);
     method public abstract void setDisplayHomeAsUpEnabled(boolean);
     method public abstract void setDisplayOptions(int);
     method public abstract void setDisplayOptions(int, int);
@@ -60,29 +51,26 @@ package android.support.v7.app {
     method public void setHomeButtonEnabled(boolean);
     method public abstract void setIcon(int);
     method public abstract void setIcon(android.graphics.drawable.Drawable);
-    method public abstract void setListNavigationCallbacks(android.widget.SpinnerAdapter, android.support.v7.app.ActionBar.OnNavigationListener);
+    method public abstract deprecated void setListNavigationCallbacks(android.widget.SpinnerAdapter, android.support.v7.app.ActionBar.OnNavigationListener);
     method public abstract void setLogo(int);
     method public abstract void setLogo(android.graphics.drawable.Drawable);
-    method public abstract void setNavigationMode(int);
-    method public abstract void setSelectedNavigationItem(int);
-    method public void setShowHideAnimationEnabled(boolean);
+    method public abstract deprecated void setNavigationMode(int);
+    method public abstract deprecated void setSelectedNavigationItem(int);
     method public void setSplitBackgroundDrawable(android.graphics.drawable.Drawable);
     method public void setStackedBackgroundDrawable(android.graphics.drawable.Drawable);
     method public abstract void setSubtitle(java.lang.CharSequence);
     method public abstract void setSubtitle(int);
     method public abstract void setTitle(java.lang.CharSequence);
     method public abstract void setTitle(int);
-    method public void setWindowTitle(java.lang.CharSequence);
     method public abstract void show();
-    method public android.support.v7.view.ActionMode startActionMode(android.support.v7.view.ActionMode.Callback);
     field public static final int DISPLAY_HOME_AS_UP = 4; // 0x4
     field public static final int DISPLAY_SHOW_CUSTOM = 16; // 0x10
     field public static final int DISPLAY_SHOW_HOME = 2; // 0x2
     field public static final int DISPLAY_SHOW_TITLE = 8; // 0x8
     field public static final int DISPLAY_USE_LOGO = 1; // 0x1
-    field public static final int NAVIGATION_MODE_LIST = 1; // 0x1
-    field public static final int NAVIGATION_MODE_STANDARD = 0; // 0x0
-    field public static final int NAVIGATION_MODE_TABS = 2; // 0x2
+    field public static final deprecated int NAVIGATION_MODE_LIST = 1; // 0x1
+    field public static final deprecated int NAVIGATION_MODE_STANDARD = 0; // 0x0
+    field public static final deprecated int NAVIGATION_MODE_TABS = 2; // 0x2
   }
 
   public static class ActionBar.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
@@ -99,11 +87,11 @@ package android.support.v7.app {
     method public abstract void onMenuVisibilityChanged(boolean);
   }
 
-  public static abstract interface ActionBar.OnNavigationListener {
+  public static abstract deprecated interface ActionBar.OnNavigationListener {
     method public abstract boolean onNavigationItemSelected(int, long);
   }
 
-  public static abstract class ActionBar.Tab {
+  public static abstract deprecated class ActionBar.Tab {
     ctor public ActionBar.Tab();
     method public abstract java.lang.CharSequence getContentDescription();
     method public abstract android.view.View getCustomView();
@@ -125,7 +113,7 @@ package android.support.v7.app {
     field public static final int INVALID_POSITION = -1; // 0xffffffff
   }
 
-  public static abstract interface ActionBar.TabListener {
+  public static abstract deprecated interface ActionBar.TabListener {
     method public abstract void onTabReselected(android.support.v7.app.ActionBar.Tab, android.support.v4.app.FragmentTransaction);
     method public abstract void onTabSelected(android.support.v7.app.ActionBar.Tab, android.support.v4.app.FragmentTransaction);
     method public abstract void onTabUnselected(android.support.v7.app.ActionBar.Tab, android.support.v4.app.FragmentTransaction);
@@ -157,6 +145,10 @@ package android.support.v7.app {
     method public abstract void setActionBarUpIndicator(android.graphics.drawable.Drawable, int);
   }
 
+  public static abstract interface ActionBarDrawerToggle.DelegateProvider {
+    method public abstract android.support.v7.app.ActionBarDrawerToggle.Delegate getDrawerToggleDelegate();
+  }
+
   public class AlertDialog extends android.support.v7.app.AppCompatDialog implements android.content.DialogInterface {
     ctor protected AlertDialog(android.content.Context);
     ctor protected AlertDialog(android.content.Context, int);
@@ -172,6 +164,47 @@ package android.support.v7.app {
     method public void setMessage(java.lang.CharSequence);
     method public void setView(android.view.View);
     method public void setView(android.view.View, int, int, int, int);
+  }
+
+  public static class AlertDialog.Builder {
+    ctor public AlertDialog.Builder(android.content.Context);
+    ctor public AlertDialog.Builder(android.content.Context, int);
+    method public android.support.v7.app.AlertDialog create();
+    method public android.content.Context getContext();
+    method public android.support.v7.app.AlertDialog.Builder setAdapter(android.widget.ListAdapter, android.content.DialogInterface.OnClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setCancelable(boolean);
+    method public android.support.v7.app.AlertDialog.Builder setCursor(android.database.Cursor, android.content.DialogInterface.OnClickListener, java.lang.String);
+    method public android.support.v7.app.AlertDialog.Builder setCustomTitle(android.view.View);
+    method public android.support.v7.app.AlertDialog.Builder setIcon(int);
+    method public android.support.v7.app.AlertDialog.Builder setIcon(android.graphics.drawable.Drawable);
+    method public android.support.v7.app.AlertDialog.Builder setIconAttribute(int);
+    method public android.support.v7.app.AlertDialog.Builder setInverseBackgroundForced(boolean);
+    method public android.support.v7.app.AlertDialog.Builder setItems(int, android.content.DialogInterface.OnClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setItems(java.lang.CharSequence[], android.content.DialogInterface.OnClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setMessage(int);
+    method public android.support.v7.app.AlertDialog.Builder setMessage(java.lang.CharSequence);
+    method public android.support.v7.app.AlertDialog.Builder setMultiChoiceItems(int, boolean[], android.content.DialogInterface.OnMultiChoiceClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setMultiChoiceItems(java.lang.CharSequence[], boolean[], android.content.DialogInterface.OnMultiChoiceClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setMultiChoiceItems(android.database.Cursor, java.lang.String, java.lang.String, android.content.DialogInterface.OnMultiChoiceClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setNegativeButton(int, android.content.DialogInterface.OnClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setNegativeButton(java.lang.CharSequence, android.content.DialogInterface.OnClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setNeutralButton(int, android.content.DialogInterface.OnClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setNeutralButton(java.lang.CharSequence, android.content.DialogInterface.OnClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setOnCancelListener(android.content.DialogInterface.OnCancelListener);
+    method public android.support.v7.app.AlertDialog.Builder setOnDismissListener(android.content.DialogInterface.OnDismissListener);
+    method public android.support.v7.app.AlertDialog.Builder setOnItemSelectedListener(android.widget.AdapterView.OnItemSelectedListener);
+    method public android.support.v7.app.AlertDialog.Builder setOnKeyListener(android.content.DialogInterface.OnKeyListener);
+    method public android.support.v7.app.AlertDialog.Builder setPositiveButton(int, android.content.DialogInterface.OnClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setPositiveButton(java.lang.CharSequence, android.content.DialogInterface.OnClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setSingleChoiceItems(int, int, android.content.DialogInterface.OnClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setSingleChoiceItems(android.database.Cursor, int, java.lang.String, android.content.DialogInterface.OnClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setSingleChoiceItems(java.lang.CharSequence[], int, android.content.DialogInterface.OnClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setSingleChoiceItems(android.widget.ListAdapter, int, android.content.DialogInterface.OnClickListener);
+    method public android.support.v7.app.AlertDialog.Builder setTitle(int);
+    method public android.support.v7.app.AlertDialog.Builder setTitle(java.lang.CharSequence);
+    method public android.support.v7.app.AlertDialog.Builder setView(int);
+    method public android.support.v7.app.AlertDialog.Builder setView(android.view.View);
+    method public android.support.v7.app.AlertDialog show();
   }
 
   public abstract interface AppCompatCallback {
