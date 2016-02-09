@@ -838,8 +838,14 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             GuidedDatePickerAction dateAction = (GuidedDatePickerAction) action;
             DatePicker dateView = (DatePicker) vh.mActivatorView;
             dateView.setDatePickerFormat(dateAction.getDatePickerFormat());
+            if (dateAction.getMinDate() != Long.MIN_VALUE) {
+                dateView.setMinDate(dateAction.getMinDate());
+            }
+            if (dateAction.getMaxDate() != Long.MAX_VALUE) {
+                dateView.setMaxDate(dateAction.getMaxDate());
+            }
             Calendar c = Calendar.getInstance();
-            c.setTimeInMillis(((GuidedDatePickerAction) action).getDate());
+            c.setTimeInMillis(dateAction.getDate());
             dateView.updateDate(c.get(Calendar.YEAR), c.get(Calendar.MONTH),
                     c.get(Calendar.DAY_OF_MONTH), false);
         }

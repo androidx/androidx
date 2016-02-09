@@ -1030,7 +1030,6 @@ package android.support.v17.leanback.widget {
     method public android.content.Intent getIntent();
     method public java.util.List<android.support.v17.leanback.widget.GuidedAction> getSubActions();
     method public java.lang.CharSequence getTitle();
-    method public boolean hasAnyEditable();
     method public boolean hasEditableActivatorView();
     method public boolean hasMultilineDescription();
     method public boolean hasNext();
@@ -1177,6 +1176,8 @@ package android.support.v17.leanback.widget {
     ctor public GuidedDatePickerAction();
     method public long getDate();
     method public java.lang.String getDatePickerFormat();
+    method public long getMaxDate();
+    method public long getMinDate();
     method public void setDate(long);
   }
 
@@ -1190,6 +1191,8 @@ package android.support.v17.leanback.widget {
     method protected final void applyDatePickerValues(android.support.v17.leanback.widget.GuidedDatePickerAction);
     method public B date(long);
     method public B datePickerFormat(java.lang.String);
+    method public B maxDate(long);
+    method public B minDate(long);
   }
 
   public class HeaderItem {
@@ -2003,17 +2006,18 @@ package android.support.v17.leanback.widget.picker {
 
   public class PickerColumn {
     ctor public PickerColumn();
+    method public int getCount();
     method public int getCurrentValue();
-    method public java.lang.CharSequence getEntryAt(int);
-    method public java.lang.String getEntryFormat();
-    method public int getItemCount();
+    method public java.lang.CharSequence getLabelFor(int);
+    method public java.lang.String getLabelFormat();
     method public int getMaxValue();
     method public int getMinValue();
+    method public java.lang.CharSequence[] getStaticLabels();
     method public void setCurrentValue(int);
-    method public void setEntries(java.lang.CharSequence[]);
-    method public void setEntryFormat(java.lang.String);
+    method public void setLabelFormat(java.lang.String);
     method public void setMaxValue(int);
     method public void setMinValue(int);
+    method public void setStaticLabels(java.lang.CharSequence[]);
   }
 
 }
