@@ -62,6 +62,7 @@
                 "screenSize|smallestScreenSize|screenLayout|orientation"
             android:resizeableActivity="true"
             android:supportsPictureInPicture="true"
+            android:launchMode="singleTask"
             android:exported="true" />
 
         <activity android:name="PlaybackOverlaySupportActivity"
@@ -69,6 +70,7 @@
                 "screenSize|smallestScreenSize|screenLayout|orientation"
             android:resizeableActivity="true"
             android:supportsPictureInPicture="true"
+            android:launchMode="singleTask"
             android:exported="true" />
 
         <activity android:name="VerticalGridActivity"
