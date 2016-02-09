@@ -270,32 +270,32 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
                 mock(ViewPager.OnPageChangeListener.class);
         mViewPager.addOnPageChangeListener(mockPageChangeListener);
 
-        onView(withId(R.id.pager)).perform(swipeLeft());
+        onView(withId(R.id.pager)).perform(wrap(swipeLeft()));
         assertEquals("Swipe left", 1, mViewPager.getCurrentItem());
         verify(mockPageChangeListener, times(1)).onPageSelected(1);
 
-        onView(withId(R.id.pager)).perform(swipeLeft());
+        onView(withId(R.id.pager)).perform(wrap(swipeLeft()));
         assertEquals("Swipe left", 2, mViewPager.getCurrentItem());
         verify(mockPageChangeListener, times(1)).onPageSelected(2);
 
         // Try swiping beyond the last page and test that we're still on the last page.
-        onView(withId(R.id.pager)).perform(swipeLeft());
+        onView(withId(R.id.pager)).perform(wrap(swipeLeft()));
         assertEquals("Swipe left beyond last page", 2, mViewPager.getCurrentItem());
         // We're still on this page, so we shouldn't have been called again with index 2
         verify(mockPageChangeListener, times(1)).onPageSelected(2);
 
-        onView(withId(R.id.pager)).perform(swipeRight());
+        onView(withId(R.id.pager)).perform(wrap(swipeRight()));
         assertEquals("Swipe right", 1, mViewPager.getCurrentItem());
         // Verify that this is the second time we're called on index 1
         verify(mockPageChangeListener, times(2)).onPageSelected(1);
 
-        onView(withId(R.id.pager)).perform(swipeRight());
+        onView(withId(R.id.pager)).perform(wrap(swipeRight()));
         assertEquals("Swipe right", 0, mViewPager.getCurrentItem());
         // Verify that this is the first time we're called on index 0
         verify(mockPageChangeListener, times(1)).onPageSelected(0);
 
         // Try swiping beyond the first page and test that we're still on the first page.
-        onView(withId(R.id.pager)).perform(swipeRight());
+        onView(withId(R.id.pager)).perform(wrap(swipeRight()));
         assertEquals("Swipe right beyond first page", 0, mViewPager.getCurrentItem());
         // We're still on this page, so we shouldn't have been called again with index 0
         verify(mockPageChangeListener, times(1)).onPageSelected(0);
@@ -313,17 +313,17 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
     public void testPageSwipesComposite() {
         assertEquals("Initial state", 0, mViewPager.getCurrentItem());
 
-        onView(withId(R.id.pager)).perform(swipeLeft(), swipeLeft());
+        onView(withId(R.id.pager)).perform(wrap(swipeLeft()), wrap(swipeLeft()));
         assertEquals("Swipe twice left", 2, mViewPager.getCurrentItem());
 
-        onView(withId(R.id.pager)).perform(swipeLeft(), swipeRight());
+        onView(withId(R.id.pager)).perform(wrap(swipeLeft()), wrap(swipeRight()));
         assertEquals("Swipe left beyond last page and then right", 1, mViewPager.getCurrentItem());
 
-        onView(withId(R.id.pager)).perform(swipeRight(), swipeRight());
+        onView(withId(R.id.pager)).perform(wrap(swipeRight()), wrap(swipeRight()));
         assertEquals("Swipe right and then right beyond first page", 0,
                 mViewPager.getCurrentItem());
 
-        onView(withId(R.id.pager)).perform(swipeRight(), swipeLeft());
+        onView(withId(R.id.pager)).perform(wrap(swipeRight()), wrap(swipeLeft()));
         assertEquals("Swipe right beyond first page and then left", 1, mViewPager.getCurrentItem());
     }
 
@@ -642,5 +642,30 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
         verifyScrollStateChange(scrollToLast(true), expectedScrollStateChanges);
         // Select first page
         verifyScrollStateChange(scrollToFirst(true), expectedScrollStateChanges);
+    }
+
+    @Test
+    @MediumTest
+    public void testPageScrollStateChangedSwipe() {
+        // Note that all the actions tested in this method use swiping and as such we test
+        // that we get the matching calls to onPageScrollStateChanged
+        final int[] expectedScrollStateChanges = new int[] { ViewPager.SCROLL_STATE_DRAGGING,
+                ViewPager.SCROLL_STATE_SETTLING, ViewPager.SCROLL_STATE_IDLE };
+
+        // Swipe one page to the left
+        verifyScrollStateChange(wrap(swipeLeft()), expectedScrollStateChanges);
+        assertEquals("Swipe left", 1, mViewPager.getCurrentItem());
+
+        // Swipe one more page to the left
+        verifyScrollStateChange(wrap(swipeLeft()), expectedScrollStateChanges);
+        assertEquals("Swipe left", 2, mViewPager.getCurrentItem());
+
+        // Swipe one page to the right
+        verifyScrollStateChange(wrap(swipeRight()), expectedScrollStateChanges);
+        assertEquals("Swipe right", 1, mViewPager.getCurrentItem());
+
+        // Swipe one more page to the right
+        verifyScrollStateChange(wrap(swipeRight()), expectedScrollStateChanges);
+        assertEquals("Swipe right", 0, mViewPager.getCurrentItem());
     }
 }
