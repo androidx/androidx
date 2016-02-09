@@ -16,21 +16,26 @@
 package android.support.v17.leanback.transition;
 
 import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.support.v17.leanback.R;
-import android.transition.Fade;
 import android.transition.Transition;
 import android.transition.TransitionValues;
 import android.transition.Visibility;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * Execute horizontal slide of 1/4 width and fade (to workaround bug 23718734)
@@ -42,9 +47,11 @@ public class FadeAndShortSlide extends Visibility {
     // private static final TimeInterpolator sAccelerate = new AccelerateInterpolator();
     private static final String PROPNAME_SCREEN_POSITION =
             "android:fadeAndShortSlideTransition:screenPosition";
+    private static final String PROPNAME_TRANSITION_ALPHA =
+            "android:FadeAndShortSlide:transitionAlpha";
+    private static final String TAG = "FadeAndShortSlide";
 
     private CalculateSlide mSlideCalculator;
-    private Visibility mFade = new Fade();
     private float mDistance = -1;
 
     private static abstract class CalculateSlide {
@@ -161,7 +168,6 @@ public class FadeAndShortSlide extends Visibility {
     @Override
     public void setEpicenterCallback(EpicenterCallback epicenterCallback) {
         super.setEpicenterCallback(epicenterCallback);
-        mFade.setEpicenterCallback(epicenterCallback);
     }
 
     private void captureValues(TransitionValues transitionValues) {
@@ -182,12 +188,20 @@ public class FadeAndShortSlide extends Visibility {
     public void captureStartValues(TransitionValues transitionValues) {
         super.captureStartValues(transitionValues);
         captureValues(transitionValues);
+        Object transitionValue = getTransitionAlpha(transitionValues.view, 0);
+        // We need to call this here as Fade animation expects this property in
+        // transitionValues.values map.
+        transitionValues.values.put(PROPNAME_TRANSITION_ALPHA, transitionValue);
     }
 
     @Override
     public void captureEndValues(TransitionValues transitionValues) {
         super.captureEndValues(transitionValues);
         captureValues(transitionValues);
+        Object transitionValue = getTransitionAlpha(transitionValues.view, 1);
+        // We need to call this here as Fade animation expects this property in
+        // transitionValues.values map.
+        transitionValues.values.put(PROPNAME_TRANSITION_ALPHA, transitionValue);
     }
 
     public void setSlideEdge(int slideEdge) {
@@ -234,7 +248,15 @@ public class FadeAndShortSlide extends Visibility {
         float startY = mSlideCalculator.getGoneY(this, sceneRoot, view, position);
         final Animator slideAnimator = TranslationAnimationCreator.createAnimation(view, endValues,
                 left, top, startX, startY, endX, endY, sDecelerate, this);
-        final Animator fadeAnimator = mFade.onAppear(sceneRoot, view, startValues, endValues);
+
+        float startAlpha = 0;
+        if (startValues != null) {
+            startAlpha = (Float) startValues.values.get(PROPNAME_TRANSITION_ALPHA);
+            if (startAlpha == 1) {
+                startAlpha = 0;
+            }
+        }
+        final Animator fadeAnimator = createFadeAnimator(view, startAlpha, 1);
 
         if (slideAnimator == null) {
             return fadeAnimator;
@@ -267,7 +289,9 @@ public class FadeAndShortSlide extends Visibility {
         final Animator slideAnimator = TranslationAnimationCreator.createAnimation(view,
                 startValues, left, top, startX, startY, endX, endY, sDecelerate /* sAccelerate */,
                 this);
-        final Animator fadeAnimator = mFade.onDisappear(sceneRoot, view, startValues, endValues);
+        float startAlpha = (Float) startValues.values.get(PROPNAME_TRANSITION_ALPHA);
+        final Animator fadeAnimator = createFadeAnimator(view, startAlpha, 0);
+
         if (slideAnimator == null) {
             return fadeAnimator;
         } else if (fadeAnimator == null) {
@@ -277,18 +301,6 @@ public class FadeAndShortSlide extends Visibility {
         set.play(slideAnimator).with(fadeAnimator);
 
         return set;
-    }
-
-    @Override
-    public Transition addListener(TransitionListener listener) {
-        mFade.addListener(listener);
-        return super.addListener(listener);
-    }
-
-    @Override
-    public Transition removeListener(TransitionListener listener) {
-        mFade.removeListener(listener);
-        return super.removeListener(listener);
     }
 
     /**
@@ -308,12 +320,95 @@ public class FadeAndShortSlide extends Visibility {
         mDistance = distance;
     }
 
-    @Override
-    public Transition clone() {
-        FadeAndShortSlide clone = null;
-        clone = (FadeAndShortSlide) super.clone();
-        clone.mFade = (Visibility) mFade.clone();
-        return clone;
+    /**
+     * Utility method to handle creating and running the fade animator.
+     */
+    private Animator createFadeAnimator(final View view, float startAlpha, final float endAlpha) {
+        if (startAlpha == endAlpha) {
+            return null;
+        }
+
+        setTransitionAlpha(view, startAlpha);
+        final ObjectAnimator anim = ObjectAnimator.ofFloat(view, "transitionAlpha", endAlpha);
+        final FadeAnimatorListener listener = new FadeAnimatorListener(view);
+        anim.addListener(listener);
+        addListener(new TransitionListener() {
+            @Override
+            public void onTransitionStart(Transition transition) {
+            }
+
+            @Override
+            public void onTransitionEnd(Transition transition) {
+                setTransitionAlpha(view, 1);
+            }
+
+            @Override
+            public void onTransitionCancel(Transition transition) {
+            }
+
+            @Override
+            public void onTransitionPause(Transition transition) {
+            }
+
+            @Override
+            public void onTransitionResume(Transition transition) {
+            }
+        });
+        return anim;
+    }
+
+    private static class FadeAnimatorListener extends AnimatorListenerAdapter {
+        private final View mView;
+        private boolean mLayerTypeChanged = false;
+
+        public FadeAnimatorListener(View view) {
+            mView = view;
+        }
+
+        @Override
+        public void onAnimationStart(Animator animator) {
+            if (mView.hasOverlappingRendering() && mView.getLayerType() == View.LAYER_TYPE_NONE) {
+                mLayerTypeChanged = true;
+                mView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+            }
+        }
+
+        @Override
+        public void onAnimationEnd(Animator animator) {
+            setTransitionAlpha(mView, 1);
+            if (mLayerTypeChanged) {
+                mView.setLayerType(View.LAYER_TYPE_NONE, null);
+            }
+        }
+    }
+
+    private static Object getTransitionAlpha(View view, float defaultValue) {
+        try {
+            Method getTranslationAlpha = View.class.getMethod("getTransitionAlpha", null);
+            return getTranslationAlpha.invoke(view);
+        } catch (NoSuchMethodException e) {
+            Log.d(TAG, String.format("Couldn't find method getTransitionAlpha: %s", e));
+        } catch (InvocationTargetException e) {
+            Log.d(TAG, String.format("getTransitionAlpha call failed with exception: %s", e));
+        } catch (IllegalAccessException e) {
+            Log.d(TAG, String.format("getTransitionAlpha call failed with exception: %s", e));
+        }
+        return defaultValue;
+    }
+
+    private static boolean setTransitionAlpha(View view, float value) {
+        try {
+            Method setTranslationAlpha = View.class.getMethod(
+                    "setTransitionAlpha", new Class[] {Float.TYPE});
+            setTranslationAlpha.invoke(view, value);
+            return true;
+        } catch (NoSuchMethodException e) {
+            Log.d(TAG, String.format("Couldn't find method setTransitionAlpha: %s", e));
+        } catch (InvocationTargetException e) {
+            Log.d(TAG, String.format("setTransitionAlpha call failed with exception: %s", e));
+        } catch (IllegalAccessException e) {
+            Log.d(TAG, String.format("setTransitionAlpha call failed with exception: %s", e));
+        }
+        return false;
     }
 }
-
