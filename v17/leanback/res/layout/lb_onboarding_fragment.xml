@@ -90,7 +90,6 @@
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="62dp"
-        android:alpha="0.0"
         android:background="@drawable/lb_onboarding_start_button_background"
         android:elevation="1.5dp"
         android:fontFamily="sans-serif"
