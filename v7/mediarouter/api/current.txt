@@ -248,6 +248,7 @@ package android.support.v7.app {
     field public static final int FEATURE_SUPPORT_ACTION_BAR = 108; // 0x6c
     field public static final int FEATURE_SUPPORT_ACTION_BAR_OVERLAY = 109; // 0x6d
     field public static final int MODE_NIGHT_AUTO = 0; // 0x0
+    field public static final int MODE_NIGHT_FOLLOW_SYSTEM = -1; // 0xffffffff
     field public static final int MODE_NIGHT_NO = 1; // 0x1
     field public static final int MODE_NIGHT_YES = 2; // 0x2
   }
