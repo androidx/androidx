@@ -2,60 +2,11 @@ apply plugin: 'com.android.library'
 
 archivesBaseName = 'support-v13'
 
-// --------------------------
-// TO ADD NEW PLATFORM SPECIFIC CODE, UPDATE THIS:
-// create and configure the sourcesets/dependencies for platform-specific code.
-// values are: sourceset name, source folder name, api level, previous sourceset.
-
-ext.allSS = []
-
-def icsSS          = createApiSourceset('ics',          'ics',         '14',       null)
-def icsMr1SS       = createApiSourceset('icsmr1',       'ics-mr1',     '15',       icsSS)
-def api23SS        = createApiSourceset('api23',        'api23',       '23',  icsMr1SS)
-def api24SS        = createApiSourceset('api24',        'api24',       'current',  api23SS)
-
-
-def createApiSourceset(String name, String folder, String apiLevel, SourceSet previousSource) {
-    def sourceSet = sourceSets.create(name)
-    sourceSet.java.srcDirs = [folder]
-
-    def configName = sourceSet.getCompileConfigurationName()
-
-    project.getDependencies().add(configName, getAndroidPrebuilt(apiLevel))
-    if (previousSource != null) {
-        setupDependencies(configName, previousSource)
-    }
-    ext.allSS.add(sourceSet)
-    return sourceSet
-}
-
-def setupDependencies(String configName, SourceSet previousSourceSet) {
-    project.getDependencies().add(configName, previousSourceSet.output)
-    project.getDependencies().add(configName, previousSourceSet.compileClasspath)
-}
-
-// create a jar task for the code above
-tasks.create(name: "internalJar", type: Jar) {
-    baseName "internal_impl"
-}
-
-ext.allSS.each { ss ->
-    internalJar.from ss.output
-}
-
-dependencies {
-    compile project(':support-v4')
-
-    // add the internal implementation as a dependency.
-    // this is not enough to make the regular compileJava task
-    // depend on the generation of this jar. This is done below
-    // when manipulating the libraryVariants.
-    compile files(internalJar.archivePath)
-}
-
 sourceCompatibility = JavaVersion.VERSION_1_7
 targetCompatibility = JavaVersion.VERSION_1_7
 
+createApiSourceSets(project, gradle.ext.studioCompat.modules.v13.apiTargets)
+setApiModuleDependencies(project, dependencies, gradle.ext.studioCompat.modules.v13.dependencies)
 android {
     compileSdkVersion 13
 
@@ -91,8 +42,6 @@ android {
 }
 
 android.libraryVariants.all { variant ->
-    variant.javaCompile.dependsOn internalJar
-
     def name = variant.buildType.name
 
     if (name.equals(com.android.builder.core.BuilderConstants.DEBUG)) {
