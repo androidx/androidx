@@ -42,6 +42,8 @@
     <string name="wizard_example_watch_hd">Watch in HD on supported devices</string>
     <string name="wizard_example_watch_sd">Watch in standard definition on the web and supported devices</string>
     <string name="wizard_example_rental_period">Rental period: start within 30 days,\nfinish within 24 hours</string>
+    <string name="wizard_example_input_card">Enter credit card number</string>
+    <string name="wizard_example_expiration_date">Exp. date</string>
     <string name="wizard_example_payment_method">Payment Method</string>
     <string name="wizard_example_toast_payment_method_clicked">\'Payment Method\' clicked.</string>
     <string name="wizard_example_rent">Rent</string>
@@ -51,8 +53,11 @@
     <string name="wizard_example_watch_now">Watch now</string>
     <string name="wizard_example_later">Later</string>
     <string name="wizard_example_watch_now_clicked">\'Watch now\' clicked.</string>
-    <string name="wizard_example_input_credit">Input credit card number</string>
-    <string name="wizard_example_visa">Visa XXXX-XXXX-XXXX-%s</string>
-    <string name="wizard_example_input_credit_wrong">Error credit card number</string>
+    <string name="wizard_example_new_payment_guidance_title">New credit card</string>
+    <string name="wizard_example_new_payment_guidance_description">Enter new credit card information here</string>
+    <string name="wizard_example_input_credit">Input Payment Type</string>
+    <string name="wizard_example_visa">Visa-%s</string>
+    <string name="wizard_example_master">Master-%s</string>
+    <string name="wizard_example_input_credit_wrong">Error: invalid credit card number</string>
     s<string name="wizard_example_just_a_second">Just a second...</string>
 </resources>

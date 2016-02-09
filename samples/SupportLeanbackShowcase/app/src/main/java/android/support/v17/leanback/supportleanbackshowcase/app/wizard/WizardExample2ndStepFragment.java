@@ -14,6 +14,7 @@
 
 package android.support.v17.leanback.supportleanbackshowcase.app.wizard;
 
+import android.app.FragmentManager;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ import android.support.v17.leanback.widget.GuidedAction;
 import android.support.v17.leanback.widget.GuidedActionsStylist;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -36,6 +38,16 @@ public class WizardExample2ndStepFragment extends WizardExampleBaseStepFragment 
     private static final String ARG_HD = "hd";
     private static final int ACTION_ID_CONFIRM = 1;
     private static final int ACTION_ID_PAYMENT_METHOD = ACTION_ID_CONFIRM + 1;
+    private static final int ACTION_ID_NEW_PAYMENT = ACTION_ID_PAYMENT_METHOD + 1;
+
+    protected static ArrayList<String> sCards = new ArrayList<>();
+    protected static int sSelectedCard = -1;
+
+    static {
+        sCards.add("Visa-1234");
+        sCards.add("Master-4321");
+    }
+
 
     public static GuidedStepFragment build(boolean hd, WizardExampleBaseStepFragment previousFragment) {
         GuidedStepFragment fragment = new WizardExample2ndStepFragment();
@@ -66,27 +78,67 @@ public class WizardExample2ndStepFragment extends WizardExampleBaseStepFragment 
                 .description(rentHighDefinition ? mMovie.getPriceHd() : mMovie.getPriceSd())
                 .editable(false)
                 .build();
+        action.setEnabled(false);
         actions.add(action);
+        List<GuidedAction> subActions = new ArrayList<>();
         action = new GuidedAction.Builder(getActivity())
                 .id(ACTION_ID_PAYMENT_METHOD)
                 .title(R.string.wizard_example_payment_method)
                 .editTitle("")
                 .description(R.string.wizard_example_input_credit)
-                .editable(true)
+                .subActions(subActions)
                 .build();
         actions.add(action);
     }
 
     @Override
-    public void onGuidedActionEdited(GuidedAction action) {
-        CharSequence editTitle = action.getEditTitle();
-        if (TextUtils.isDigitsOnly(editTitle) && editTitle.length() == 16) {
-            action.setDescription(getString(R.string.wizard_example_visa,
-                    editTitle.subSequence(editTitle.length() - 4, editTitle.length())));
-        } else if (editTitle.length() == 0) {
-            action.setDescription(getString(R.string.wizard_example_input_credit));
+    public void onResume() {
+        super.onResume();
+        GuidedAction payment = findActionById(ACTION_ID_PAYMENT_METHOD);
+
+        List<GuidedAction> paymentSubActions = payment.getSubActions();
+        paymentSubActions.clear();
+        for (int i = 0; i < sCards.size(); i++) {
+            paymentSubActions.add(new GuidedAction.Builder(getActivity())
+                            .title(sCards.get(i))
+                            .description("")
+                            .checkSetId(GuidedAction.DEFAULT_CHECK_SET_ID)
+                            .build()
+            );
+        }
+        paymentSubActions.add(new GuidedAction.Builder(getActivity())
+                .id(ACTION_ID_NEW_PAYMENT)
+                .title("Add New Card")
+                .description("")
+                .editable(false)
+                .build()
+        );
+        if ( sSelectedCard >= 0 && sSelectedCard < sCards.size() ) {
+            payment.setDescription(sCards.get(sSelectedCard));
+            findActionById(ACTION_ID_CONFIRM).setEnabled(true);
+        } else
+            findActionById(ACTION_ID_CONFIRM).setEnabled(false);
+        notifyActionChanged(findActionPositionById(ACTION_ID_CONFIRM));
+    }
+
+    @Override
+    public boolean onSubGuidedActionClicked(GuidedAction action) {
+
+        if (action.isChecked()) {
+            String payment = action.getTitle().toString();
+            if ( (sSelectedCard = sCards.indexOf(payment)) != -1 ) {
+                findActionById(ACTION_ID_PAYMENT_METHOD).setDescription(payment);
+                notifyActionChanged(findActionPositionById(ACTION_ID_PAYMENT_METHOD));
+                findActionById(ACTION_ID_CONFIRM).setEnabled(true);
+                notifyActionChanged(findActionPositionById(ACTION_ID_CONFIRM));
+            }
+            return true;
         } else {
-            action.setDescription(getString(R.string.wizard_example_input_credit_wrong));
+            FragmentManager fm = getFragmentManager();
+            GuidedStepFragment fragment = new WizardNewPaymentStepFragment();
+            fragment.setArguments(getArguments());
+            add(fm, fragment);
+            return false;
         }
     }
 

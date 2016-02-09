@@ -25,7 +25,8 @@ import android.support.v17.leanback.supportleanbackshowcase.R;
  */
 public class WizardExampleActivity extends Activity {
 
-    @Override public void onCreate(Bundle savedInstanceState) {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setBackgroundDrawableResource(R.drawable.wizard_background_blackned);
 

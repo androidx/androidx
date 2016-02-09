@@ -56,7 +56,7 @@ public class WizardExample1stStepFragment extends WizardExampleBaseStepFragment 
                 .title(getString(R.string.wizard_example_rent_sd))
                 .editable(false)
                 .description(mMovie.getPriceSd() + " " +
-                        R.string.wizard_example_watch_sd)
+                        getString(R.string.wizard_example_watch_sd))
                 .build();
         actions.add(action);
     }

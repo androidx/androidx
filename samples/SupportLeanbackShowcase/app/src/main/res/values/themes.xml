@@ -35,7 +35,8 @@
     </style>
 
     <style name="Theme.Example.LeanbackWizard" parent="Theme.Leanback.GuidedStep">
-        <item name="guidedActionsBackground">@color/guidedstep_actions_background</item>
+        <item name="guidedActionsBackground">@color/app_guidedstep_actions_background</item>
+        <item name="guidedActionsBackgroundDark">@color/app_guidedstep_subactions_background</item>
     </style>
 
     <style name="Theme.Example.LeanbackWizard.NoSelector">
@@ -43,7 +44,7 @@
     </style>
 
     <style name="Theme.Example.LeanbackDialog" parent="Theme.Leanback.GuidedStep">
-        <item name="guidedActionsBackground">@color/guidedstep_dialog_actions_background</item>
+        <item name="guidedActionsBackground">@color/app_guidedstep_dialog_actions_background</item>
     </style>
 
     <style name="Theme.Example.LeanbackPreferences" parent="Theme.Leanback">
