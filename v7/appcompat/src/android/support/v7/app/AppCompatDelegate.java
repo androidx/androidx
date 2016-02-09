@@ -18,7 +18,6 @@ package android.support.v7.app;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.UiModeManager;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Build;
@@ -79,20 +78,20 @@ public abstract class AppCompatDelegate {
     static final String TAG = "AppCompatDelegate";
 
     /**
-     * Mode which means to not use night mode, and therefore not use {@code night} qualified
-     * resources, regardless of the time.
+     * Mode which means to not use night mode, and therefore not use {@code night} and
+     * {@code notnight} qualified resources, regardless of the time.
      *
      * @see #setLocalNightMode(int)
      */
-    public static final int MODE_NIGHT_NO = UiModeManager.MODE_NIGHT_NO;
+    public static final int MODE_NIGHT_NO = 1;
 
     /**
-     * Mode which means to always use night mode, and therefore use {@code night} qualified
-     * resources, regardless of the time.
+     * Mode which means to always use night mode, and therefore use {@code night} and
+     * {@code notnight} qualified resources, regardless of the time.
      *
      * @see #setLocalNightMode(int)
      */
-    public static final int MODE_NIGHT_YES = UiModeManager.MODE_NIGHT_YES;
+    public static final int MODE_NIGHT_YES = 2;
 
     /**
      * Mode which means to use night mode when it is determined that it is night or not.
@@ -104,14 +103,27 @@ public abstract class AppCompatDelegate {
      *
      * @see #setLocalNightMode(int)
      */
-    public static final int MODE_NIGHT_AUTO = UiModeManager.MODE_NIGHT_AUTO;
+    public static final int MODE_NIGHT_AUTO = 0;
+
+    /**
+     * Mode which uses the system's night mode setting to determine if it is night or not.
+     *
+     * @see #setLocalNightMode(int)
+     */
+    public static final int MODE_NIGHT_FOLLOW_SYSTEM = -1;
+
+    static final int MODE_NIGHT_UNSPECIFIED = -100;
 
     @NightMode
-    private static int sDefaultNightMode = MODE_NIGHT_NO;
+    private static int sDefaultNightMode = MODE_NIGHT_FOLLOW_SYSTEM;
 
-    @IntDef({MODE_NIGHT_NO, MODE_NIGHT_YES, MODE_NIGHT_AUTO})
+    @IntDef({MODE_NIGHT_NO, MODE_NIGHT_YES, MODE_NIGHT_AUTO, MODE_NIGHT_FOLLOW_SYSTEM})
     @Retention(RetentionPolicy.SOURCE)
     @interface NightMode {}
+
+    @IntDef({MODE_NIGHT_NO, MODE_NIGHT_YES})
+    @Retention(RetentionPolicy.SOURCE)
+    @interface BinaryNightMode {}
 
     /**
      * Flag for enabling the support Action Bar.
@@ -423,6 +435,7 @@ public abstract class AppCompatDelegate {
             case MODE_NIGHT_AUTO:
             case MODE_NIGHT_NO:
             case MODE_NIGHT_YES:
+            case MODE_NIGHT_FOLLOW_SYSTEM:
                 sDefaultNightMode = mode;
                 break;
             default:
