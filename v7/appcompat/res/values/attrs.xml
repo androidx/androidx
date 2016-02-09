@@ -31,7 +31,7 @@
     <attr name="isLightTheme" format="boolean" />
 
     <!-- These are the standard attributes that make up a complete theme. -->
-    <declare-styleable name="Theme">
+    <declare-styleable name="AppCompatTheme">
 
         <!-- ============= -->
         <!-- Window styles -->

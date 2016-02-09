@@ -324,27 +324,27 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
     }
 
     private ViewGroup createSubDecor() {
-        TypedArray a = mContext.obtainStyledAttributes(R.styleable.Theme);
+        TypedArray a = mContext.obtainStyledAttributes(R.styleable.AppCompatTheme);
 
-        if (!a.hasValue(R.styleable.Theme_windowActionBar)) {
+        if (!a.hasValue(R.styleable.AppCompatTheme_windowActionBar)) {
             a.recycle();
             throw new IllegalStateException(
                     "You need to use a Theme.AppCompat theme (or descendant) with this activity.");
         }
 
-        if (a.getBoolean(R.styleable.Theme_windowNoTitle, false)) {
+        if (a.getBoolean(R.styleable.AppCompatTheme_windowNoTitle, false)) {
             requestWindowFeature(Window.FEATURE_NO_TITLE);
-        } else if (a.getBoolean(R.styleable.Theme_windowActionBar, false)) {
+        } else if (a.getBoolean(R.styleable.AppCompatTheme_windowActionBar, false)) {
             // Don't allow an action bar if there is no title.
             requestWindowFeature(FEATURE_SUPPORT_ACTION_BAR);
         }
-        if (a.getBoolean(R.styleable.Theme_windowActionBarOverlay, false)) {
+        if (a.getBoolean(R.styleable.AppCompatTheme_windowActionBarOverlay, false)) {
             requestWindowFeature(FEATURE_SUPPORT_ACTION_BAR_OVERLAY);
         }
-        if (a.getBoolean(R.styleable.Theme_windowActionModeOverlay, false)) {
+        if (a.getBoolean(R.styleable.AppCompatTheme_windowActionModeOverlay, false)) {
             requestWindowFeature(FEATURE_ACTION_MODE_OVERLAY);
         }
-        mIsFloating = a.getBoolean(R.styleable.Theme_android_windowIsFloating, false);
+        mIsFloating = a.getBoolean(R.styleable.AppCompatTheme_android_windowIsFloating, false);
         a.recycle();
 
         final LayoutInflater inflater = LayoutInflater.from(mContext);
@@ -510,21 +510,25 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
                 windowDecor.getPaddingTop(), windowDecor.getPaddingRight(),
                 windowDecor.getPaddingBottom());
 
-        TypedArray a = mContext.obtainStyledAttributes(R.styleable.Theme);
-        a.getValue(R.styleable.Theme_windowMinWidthMajor, cfl.getMinWidthMajor());
-        a.getValue(R.styleable.Theme_windowMinWidthMinor, cfl.getMinWidthMinor());
+        TypedArray a = mContext.obtainStyledAttributes(R.styleable.AppCompatTheme);
+        a.getValue(R.styleable.AppCompatTheme_windowMinWidthMajor, cfl.getMinWidthMajor());
+        a.getValue(R.styleable.AppCompatTheme_windowMinWidthMinor, cfl.getMinWidthMinor());
 
-        if (a.hasValue(R.styleable.Theme_windowFixedWidthMajor)) {
-            a.getValue(R.styleable.Theme_windowFixedWidthMajor, cfl.getFixedWidthMajor());
+        if (a.hasValue(R.styleable.AppCompatTheme_windowFixedWidthMajor)) {
+            a.getValue(R.styleable.AppCompatTheme_windowFixedWidthMajor,
+                    cfl.getFixedWidthMajor());
         }
-        if (a.hasValue(R.styleable.Theme_windowFixedWidthMinor)) {
-            a.getValue(R.styleable.Theme_windowFixedWidthMinor, cfl.getFixedWidthMinor());
+        if (a.hasValue(R.styleable.AppCompatTheme_windowFixedWidthMinor)) {
+            a.getValue(R.styleable.AppCompatTheme_windowFixedWidthMinor,
+                    cfl.getFixedWidthMinor());
         }
-        if (a.hasValue(R.styleable.Theme_windowFixedHeightMajor)) {
-            a.getValue(R.styleable.Theme_windowFixedHeightMajor, cfl.getFixedHeightMajor());
+        if (a.hasValue(R.styleable.AppCompatTheme_windowFixedHeightMajor)) {
+            a.getValue(R.styleable.AppCompatTheme_windowFixedHeightMajor,
+                    cfl.getFixedHeightMajor());
         }
-        if (a.hasValue(R.styleable.Theme_windowFixedHeightMinor)) {
-            a.getValue(R.styleable.Theme_windowFixedHeightMinor, cfl.getFixedHeightMinor());
+        if (a.hasValue(R.styleable.AppCompatTheme_windowFixedHeightMinor)) {
+            a.getValue(R.styleable.AppCompatTheme_windowFixedHeightMinor,
+                    cfl.getFixedHeightMinor());
         }
         a.recycle();
 
@@ -1917,11 +1921,11 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
 
             listPresenterContext = context;
 
-            TypedArray a = context.obtainStyledAttributes(R.styleable.Theme);
+            TypedArray a = context.obtainStyledAttributes(R.styleable.AppCompatTheme);
             background = a.getResourceId(
-                    R.styleable.Theme_panelBackground, 0);
+                    R.styleable.AppCompatTheme_panelBackground, 0);
             windowAnimations = a.getResourceId(
-                    R.styleable.Theme_android_windowAnimationStyle, 0);
+                    R.styleable.AppCompatTheme_android_windowAnimationStyle, 0);
             a.recycle();
         }
 
