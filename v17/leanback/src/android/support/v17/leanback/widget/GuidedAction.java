@@ -671,15 +671,6 @@ public class GuidedAction extends Action {
     }
 
     /**
-     * Returns whether this action has any editable part, e.g. editable title, editable description
-     * or editable activate view.
-     * @return true if this action has any editable part, false otherwise.
-     */
-    public boolean hasAnyEditable() {
-        return mEditable != EDITING_NONE;
-    }
-
-    /**
      * Returns whether this action title is editable.
      * @return true if the action title is editable, false otherwise.
      */
