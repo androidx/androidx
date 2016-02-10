@@ -422,8 +422,10 @@ public class GuidedStepSupportActivity extends FragmentActivity {
 
         boolean isPaymentValid() {
             CharSequence paymentType = findActionById(PAYMENT).getDescription();
-            return paymentType.subSequence(0, 4).toString().equals("Visa") ||
-                    paymentType.subSequence(0, 6).toString().equals("Master");
+            return (paymentType.length() >= 4 &&
+                    paymentType.subSequence(0, 4).toString().equals("Visa")) ||
+                    (paymentType.length() >= 6 &&
+                    paymentType.subSequence(0, 6).toString().equals("Master"));
         }
 
         boolean isPasswordValid() {
