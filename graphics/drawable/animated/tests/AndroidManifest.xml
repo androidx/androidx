@@ -3,6 +3,6 @@
           package="android.support.graphics.drawable.animated.tests">
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <application>
-    <activity android:name="android.support.graphics.drawable.tests.DrawableStubActivity"/>
+        <activity android:name="android.support.graphics.drawable.tests.DrawableStubActivity"/>
     </application>
 </manifest>

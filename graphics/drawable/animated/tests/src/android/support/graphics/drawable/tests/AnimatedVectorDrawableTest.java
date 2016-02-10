@@ -16,13 +16,11 @@
 
 package android.support.graphics.drawable.tests;
 
-import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.drawable.Animatable2;
+import android.support.annotation.UiThread;
 import android.support.graphics.drawable.AnimatedVectorDrawableCompat;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Drawable.ConstantState;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.AttributeSet;
@@ -31,12 +29,16 @@ import android.util.Xml;
 
 import android.support.graphics.drawable.animated.test.R;
 
+import android.view.View;
+import android.widget.ImageButton;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class AnimatedVectorDrawableTest extends ActivityInstrumentationTestCase2<DrawableStubActivity> {
     private static final String LOGTAG = AnimatedVectorDrawableTest.class.getSimpleName();
@@ -100,6 +102,7 @@ public class AnimatedVectorDrawableTest extends ActivityInstrumentationTestCase2
         }
     }
 
+    @UiThread
     public void testInflate() throws Exception {
         // Setup AnimatedVectorDrawableCompat from xml file
         XmlPullParser parser = mResources.getXml(mResId);
@@ -154,7 +157,7 @@ public class AnimatedVectorDrawableTest extends ActivityInstrumentationTestCase2
         }
     }
 
-    public void testGetConstantState() {
+    public void testGetConstantState() throws InterruptedException, Throwable {
         AnimatedVectorDrawableCompat avd = AnimatedVectorDrawableCompat.create(mActivity, mResId);
         ConstantState constantState = avd.getConstantState();
         if (constantState != null) {
@@ -165,6 +168,57 @@ public class AnimatedVectorDrawableTest extends ActivityInstrumentationTestCase2
             assertNotNull(constantState);
             assertEquals(1, constantState.getChangingConfigurations());
         }
+    }
+
+    public void testAnimateColor() throws InterruptedException, Throwable {
+        final ImageButton imageButton = (ImageButton) getActivity().findViewById(R.id.imageButton);
+        final int viewW = imageButton.getWidth();
+        final int viewH = imageButton.getHeight();
+        int pixelX = viewW / 2;
+        int pixelY = viewH / 2;
+        final int numTests = 5;
+        final Bitmap bitmap = Bitmap.createBitmap(imageButton.getWidth(), imageButton.getHeight(),
+                Bitmap.Config.ARGB_8888);
+        final Canvas c = new Canvas(bitmap);
+        CountDownLatch latch = new CountDownLatch(numTests);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                AnimatedVectorDrawableCompat avd = AnimatedVectorDrawableCompat.create(mActivity,
+                        R.drawable.animated_color_fill);
+                imageButton.setBackgroundDrawable(avd);
+                avd.start();
+            }
+        });
+        // Check the view several times during the animation to verify that it only
+        // has red color in it
+        for (int i = 0; i < numTests; ++i) {
+            Thread.sleep(100);
+            // check fill
+            verifyRedOnly(pixelX, pixelY, imageButton, bitmap, c, latch);
+            // check stroke
+            verifyRedOnly(1, 1, imageButton, bitmap, c, latch);
+        }
+        latch.await(1000, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * Utility method to verify that the pixel at the given location has only red values.
+     */
+    private void verifyRedOnly(final int pixelX, final int pixelY, final View button,
+            final Bitmap bitmap, final Canvas canvas, final CountDownLatch latch) throws Throwable {
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                button.draw(canvas);
+                int pixel = bitmap.getPixel(pixelX, pixelY);
+                int blue = pixel & 0xff;
+                int green = pixel & 0xff00 >> 8;
+                assertEquals("Blue channel not zero", 0, blue);
+                assertEquals("Green channel not zero", 0, green);
+                latch.countDown();
+            }
+        });
     }
 
     public void testMutate() {
