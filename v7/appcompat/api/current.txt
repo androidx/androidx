@@ -570,6 +570,7 @@ package android.support.v7.appcompat {
     ctor public R.color();
     field public static int abc_background_cache_hint_selector_material_dark;
     field public static int abc_background_cache_hint_selector_material_light;
+    field public static int abc_btn_colored_borderless_text_material;
     field public static int abc_color_highlight_material;
     field public static int abc_input_method_navigation_guard;
     field public static int abc_primary_text_disable_only_material_dark;
