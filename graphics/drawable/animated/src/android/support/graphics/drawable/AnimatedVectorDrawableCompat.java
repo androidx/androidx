@@ -43,86 +43,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * This class uses {@link android.animation.ObjectAnimator} and
+ * For API 21 and above, this class is delegating to the framework's {@link AnimatedVectorDrawable}.
+ * For API 20 and below, this class uses {@link android.animation.ObjectAnimator} and
  * {@link android.animation.AnimatorSet} to animate the properties of a
  * {@link VectorDrawableCompat} to create an animated drawable.
  * <p>
- * AnimatedVectorDrawableCompat are normally defined as 3 separate XML files.
+ * AnimatedVectorDrawableCompat are defined in the same XML format as {@link AnimatedVectorDrawable}.
  * </p>
- * <p>
- * First is the XML file for {@link VectorDrawableCompat}. Note that we
- * allow the animation to happen on the group's attributes and path's attributes, which requires they
- * are uniquely named in this XML file. Groups and paths without animations do not need names.
- * </p>
- * <li>Here is a simple VectorDrawable in this vectordrawable.xml file.
- * <pre>
- * &lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
- *     android:height=&quot;64dp&quot;
- *     android:width=&quot;64dp&quot;
- *     android:viewportHeight=&quot;600&quot;
- *     android:viewportWidth=&quot;600&quot; &gt;
- *     &lt;group
- *         android:name=&quot;rotationGroup&quot;
- *         android:pivotX=&quot;300.0&quot;
- *         android:pivotY=&quot;300.0&quot;
- *         android:rotation=&quot;45.0&quot; &gt;
- *         &lt;path
- *             android:name=&quot;v&quot;
- *             android:fillColor=&quot;#000000&quot;
- *             android:pathData=&quot;M300,70 l 0,-70 70,70 0,0 -70,70z&quot; /&gt;
- *     &lt;/group&gt;
- * &lt;/vector&gt;
- * </pre></li>
- * <p>
- * Second is the AnimatedVectorDrawableCompat's XML file, which defines the target
- * VectorDrawableCompat, the target paths and groups to animate, the properties of the path and
- * group to animate and the animations defined as the ObjectAnimators or AnimatorSets.
- * </p>
- * <li>Here is a simple AnimatedVectorDrawable defined in this avd.xml file.
- * Note how we use the names to refer to the groups and paths in the vectordrawable.xml.
- * <pre>
- * &lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
- *   android:drawable=&quot;@drawable/vectordrawable&quot; &gt;
- *     &lt;target
- *         android:name=&quot;rotationGroup&quot;
- *         android:animation=&quot;@anim/rotation&quot; /&gt;
- *     &lt;target
- *         android:name=&quot;v&quot;
- *         android:animation=&quot;@anim/path_morph&quot; /&gt;
- * &lt;/animated-vector&gt;
- * </pre></li>
- * <p>
- * Last is the Animator XML file, which is the same as a normal ObjectAnimator or AnimatorSet. To
- * complete this example, here are the 2 animator files used in avd.xml: rotation.xml and
- * path_morph.xml.
- * </p>
- * <li>Here is the rotation.xml, which will rotate the target group for 360 degrees.
- * <pre>
- * &lt;objectAnimator
- *     android:duration=&quot;6000&quot;
- *     android:propertyName=&quot;rotation&quot;
- *     android:valueFrom=&quot;0&quot;
- *     android:valueTo=&quot;360&quot; /&gt;
- * </pre></li>
- * <li>Here is the path_morph.xml, which will morph the path from one shape to
- * the other. Note that the paths must be compatible for morphing.
- * In more details, the paths should have exact same length of commands, and
- * exact same length of parameters for each commands.
- * Note that the path strings are better stored in strings.xml for reusing.
- * <pre>
- * &lt;set xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;&gt;
- *     &lt;objectAnimator
- *         android:duration=&quot;3000&quot;
- *         android:propertyName=&quot;pathData&quot;
- *         android:valueFrom=&quot;M300,70 l 0,-70 70,70 0,0   -70,70z&quot;
- *         android:valueTo=&quot;M300,70 l 0,-70 70,0  0,140 -70,0 z&quot;
- *         android:valueType=&quot;pathType&quot;/&gt;
- * &lt;/set&gt;
- * </pre></li>
- *
- * @attr ref android.R.styleable#AnimatedVectorDrawableCompat_drawable
- * @attr ref android.R.styleable#AnimatedVectorDrawableCompatTarget_name
- * @attr ref android.R.styleable#AnimatedVectorDrawableCompatTarget_animation
+ * You can always create a AnimatedVectorDrawableCompat object and use it as a Drawable by the Java
+ * API. In order to refer to AnimatedVectorDrawableCompat inside a XML file, you can use
+ * app:srcCompat attribute in AppCompat library's ImageButton or ImageView.
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implements Animatable {
