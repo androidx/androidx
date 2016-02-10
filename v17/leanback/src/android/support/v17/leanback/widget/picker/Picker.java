@@ -228,6 +228,7 @@ public class Picker extends FrameLayout {
         if (adapter != null && !columnView.isComputingLayout()) {
             adapter.notifyDataSetChanged();
         }
+        columnView.setSelectedPosition(column.getCurrentValue() - column.getMinValue());
     }
 
     /**
@@ -397,7 +398,7 @@ public class Picker extends FrameLayout {
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
             if (holder.textView != null && mData != null) {
-                holder.textView.setText(mData.getEntryAt(mData.getMinValue() + position));
+                holder.textView.setText(mData.getLabelFor(mData.getMinValue() + position));
             }
             setOrAnimateAlpha(holder.itemView,
                     (mColumnViews.get(mColIndex).getSelectedPosition() == position),
@@ -409,14 +410,9 @@ public class Picker extends FrameLayout {
             holder.itemView.setFocusable(isActivated());
         }
 
-        public void setData(PickerColumn data) {
-            mData = data;
-            notifyDataSetChanged();
-        }
-
         @Override
         public int getItemCount() {
-            return mData == null ? 0 : mData.getItemCount();
+            return mData == null ? 0 : mData.getCount();
         }
     }
 
