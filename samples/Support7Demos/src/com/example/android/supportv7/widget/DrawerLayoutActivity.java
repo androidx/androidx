@@ -141,7 +141,7 @@ public class DrawerLayoutActivity extends AppCompatActivity {
             }
         };
 
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mDrawerLayout.addDrawerListener(mDrawerToggle);
 
         // Configure the background color fill of the system status bar (on supported platform
         // versions) and the toolbar itself. We're using the same color, and android:statusBar
