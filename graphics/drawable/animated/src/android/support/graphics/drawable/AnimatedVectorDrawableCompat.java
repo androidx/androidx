@@ -16,6 +16,9 @@ package android.support.graphics.drawable;
 
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
+import android.animation.AnimatorSet;
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -41,6 +44,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class uses {@link android.animation.ObjectAnimator} and
@@ -136,6 +140,8 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
     private AnimatedVectorDrawableCompatState mAnimatedVectorState;
 
     private Context mContext;
+
+    private ArgbEvaluator mArgbEvaluator = null;
 
     AnimatedVectorDrawableDelegateState mCachedConstantStateDelegate;
 
@@ -573,9 +579,38 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
         }
     }
 
+    /**
+     * Utility function to fix color interpolation prior to Lollipop. Without this fix, colors
+     * are evaluated as raw integers instead of as colors, which leads to artifacts during
+     * fillColor animations.
+     */
+    private void setupColorAnimator(Animator animator) {
+        if (animator instanceof AnimatorSet) {
+            List<Animator> childAnimators = ((AnimatorSet) animator).getChildAnimations();
+            if (childAnimators != null) {
+                for (int i = 0; i < childAnimators.size(); ++i) {
+                    setupColorAnimator(childAnimators.get(i));
+                }
+            }
+        }
+        if (animator instanceof ObjectAnimator) {
+            ObjectAnimator objectAnim = (ObjectAnimator) animator;
+            final String propertyName = objectAnim.getPropertyName();
+            if ("fillColor".equals(propertyName) || "strokeColor".equals(propertyName)) {
+                if (mArgbEvaluator == null) {
+                    mArgbEvaluator = new ArgbEvaluator();
+                }
+                objectAnim.setEvaluator(mArgbEvaluator);
+            }
+        }
+    }
+
     private void setupAnimatorsForTarget(String name, Animator animator) {
         Object target = mAnimatedVectorState.mVectorDrawable.getTargetByName(name);
         animator.setTarget(target);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            setupColorAnimator(animator);
+        }
         if (mAnimatedVectorState.mAnimators == null) {
             mAnimatedVectorState.mAnimators = new ArrayList<Animator>();
             mAnimatedVectorState.mTargetNameMap = new ArrayMap<Animator, String>();
