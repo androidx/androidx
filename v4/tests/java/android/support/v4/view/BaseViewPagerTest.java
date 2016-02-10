@@ -29,11 +29,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.swipeLeft;
@@ -45,6 +47,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.*;
 import static android.support.v4.testutils.TestUtilsAssertions.hasDisplayedChildren;
 import static android.support.v4.testutils.TestUtilsMatchers.*;
 import static android.support.v4.view.ViewPagerActions.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertEquals;
@@ -667,5 +670,310 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
         // Swipe one more page to the right
         verifyScrollStateChange(wrap(swipeRight()), expectedScrollStateChanges);
         assertEquals("Swipe right", 0, mViewPager.getCurrentItem());
+    }
+
+    /**
+     * Helper method to verify the internal consistency of values passed to
+     * {@link ViewPager.OnPageChangeListener#onPageScrolled} callback when we go from a page with
+     * lower index to a page with higher index.
+     *
+     * @param startPageIndex Index of the starting page.
+     * @param endPageIndex Index of the ending page.
+     * @param pageWidth Page width in pixels.
+     * @param positions List of "position" values passed to all
+     *      {@link ViewPager.OnPageChangeListener#onPageScrolled} calls.
+     * @param positionOffsets List of "positionOffset" values passed to all
+     *      {@link ViewPager.OnPageChangeListener#onPageScrolled} calls.
+     * @param positionOffsetPixels List of "positionOffsetPixel" values passed to all
+     *      {@link ViewPager.OnPageChangeListener#onPageScrolled} calls.
+     */
+    private void verifyScrollCallbacksToHigherPage(int startPageIndex, int endPageIndex,
+            int pageWidth, List<Integer> positions, List<Float> positionOffsets,
+            List<Integer> positionOffsetPixels) {
+        int callbackCount = positions.size();
+
+        // The last entry in all three lists must match the index of the end page
+        Assert.assertEquals("Position at last index",
+                endPageIndex, (int) positions.get(callbackCount - 1));
+        Assert.assertEquals("Position offset at last index",
+                0.0f, positionOffsets.get(callbackCount - 1), 0.0f);
+        Assert.assertEquals("Position offset pixel at last index",
+                0, (int) positionOffsetPixels.get(callbackCount - 1));
+
+        // If this was our only callback, return. This can happen on immediate page change
+        // or on very slow devices.
+        if (callbackCount == 1) {
+            return;
+        }
+
+        // If we have additional callbacks, verify that the values provided to our callback reflect
+        // a valid sequence of events going from startPageIndex to endPageIndex.
+        for (int i = 0; i < callbackCount - 1; i++) {
+            // Page position must be between start page and end page
+            int pagePositionCurr = positions.get(i);
+            if ((pagePositionCurr < startPageIndex) || (pagePositionCurr > endPageIndex)) {
+                Assert.fail("Position at #" + i + " is " + pagePositionCurr +
+                        ", but should be between " + startPageIndex + " and " + endPageIndex);
+            }
+
+            // Page position sequence cannot be decreasing
+            int pagePositionNext = positions.get(i + 1);
+            if (pagePositionCurr > pagePositionNext) {
+                Assert.fail("Position at #" + i + " is " + pagePositionCurr +
+                        " and then decreases to " + pagePositionNext + " at #" + (i + 1));
+            }
+
+            // Position offset must be in [0..1) range (inclusive / exclusive)
+            float positionOffsetCurr = positionOffsets.get(i);
+            if ((positionOffsetCurr < 0.0f) || (positionOffsetCurr >= 1.0f)) {
+                Assert.fail("Position offset at #" + i + " is " + positionOffsetCurr +
+                        ", but should be in [0..1) range");
+            }
+
+            // Position pixel offset must be in [0..pageWidth) range (inclusive / exclusive)
+            int positionOffsetPixelCurr = positionOffsetPixels.get(i);
+            if ((positionOffsetPixelCurr < 0.0f) || (positionOffsetPixelCurr >= pageWidth)) {
+                Assert.fail("Position pixel offset at #" + i + " is " + positionOffsetCurr +
+                        ", but should be in [0.." + pageWidth + ") range");
+            }
+
+            // Position pixel offset must match the position offset and page width within
+            // a one-pixel tolerance range
+            Assert.assertEquals("Position pixel offset at #" + i + " is " +
+                    positionOffsetPixelCurr + ", but doesn't match position offset which is" +
+                    positionOffsetCurr + " and page width which is " + pageWidth,
+                    positionOffsetPixelCurr, positionOffsetCurr * pageWidth, 1.0f);
+
+            // If we stay on the same page between this index and the next one, both position
+            // offset and position pixel offset must increase
+            if (pagePositionNext == pagePositionCurr) {
+                float positionOffsetNext = positionOffsets.get(i + 1);
+                // Note that since position offset sequence is float, we are checking for strict
+                // increasing
+                if (positionOffsetNext <= positionOffsetCurr) {
+                    Assert.fail("Position offset at #" + i + " is " + positionOffsetCurr +
+                            " and at #" + (i + 1) + " is " + positionOffsetNext +
+                            ". Since both are for page " + pagePositionCurr +
+                            ", they cannot decrease");
+                }
+
+                int positionOffsetPixelNext = positionOffsetPixels.get(i + 1);
+                // Note that since position offset pixel sequence is the mapping of position offset
+                // into screen pixels, we can get two (or more) callbacks with strictly increasing
+                // position offsets that are converted into the same pixel value. This is why here
+                // we are checking for non-strict increasing
+                if (positionOffsetPixelNext < positionOffsetPixelCurr) {
+                    Assert.fail("Position offset pixel at #" + i + " is " +
+                            positionOffsetPixelCurr + " and at #" + (i + 1) + " is " +
+                            positionOffsetPixelNext + ". Since both are for page " +
+                            pagePositionCurr + ", they cannot decrease");
+                }
+            }
+        }
+    }
+
+    /**
+     * Helper method to verify the internal consistency of values passed to
+     * {@link ViewPager.OnPageChangeListener#onPageScrolled} callback when we go from a page with
+     * higher index to a page with lower index.
+     *
+     * @param startPageIndex Index of the starting page.
+     * @param endPageIndex Index of the ending page.
+     * @param pageWidth Page width in pixels.
+     * @param positions List of "position" values passed to all
+     *      {@link ViewPager.OnPageChangeListener#onPageScrolled} calls.
+     * @param positionOffsets List of "positionOffset" values passed to all
+     *      {@link ViewPager.OnPageChangeListener#onPageScrolled} calls.
+     * @param positionOffsetPixels List of "positionOffsetPixel" values passed to all
+     *      {@link ViewPager.OnPageChangeListener#onPageScrolled} calls.
+     */
+    private void verifyScrollCallbacksToLowerPage(int startPageIndex, int endPageIndex,
+            int pageWidth, List<Integer> positions, List<Float> positionOffsets,
+            List<Integer> positionOffsetPixels) {
+        int callbackCount = positions.size();
+
+        // The last entry in all three lists must match the index of the end page
+        Assert.assertEquals("Position at last index",
+                endPageIndex, (int) positions.get(callbackCount - 1));
+        Assert.assertEquals("Position offset at last index",
+                0.0f, positionOffsets.get(callbackCount - 1), 0.0f);
+        Assert.assertEquals("Position offset pixel at last index",
+                0, (int) positionOffsetPixels.get(callbackCount - 1));
+
+        // If this was our only callback, return. This can happen on immediate page change
+        // or on very slow devices.
+        if (callbackCount == 1) {
+            return;
+        }
+
+        // If we have additional callbacks, verify that the values provided to our callback reflect
+        // a valid sequence of events going from startPageIndex to endPageIndex.
+        for (int i = 0; i < callbackCount - 1; i++) {
+            // Page position must be between start page and end page
+            int pagePositionCurr = positions.get(i);
+            if ((pagePositionCurr > startPageIndex) || (pagePositionCurr < endPageIndex)) {
+                Assert.fail("Position at #" + i + " is " + pagePositionCurr +
+                        ", but should be between " + endPageIndex + " and " + startPageIndex);
+            }
+
+            // Page position sequence cannot be increasing
+            int pagePositionNext = positions.get(i + 1);
+            if (pagePositionCurr < pagePositionNext) {
+                Assert.fail("Position at #" + i + " is " + pagePositionCurr +
+                        " and then increases to " + pagePositionNext + " at #" + (i + 1));
+            }
+
+            // Position offset must be in [0..1) range (inclusive / exclusive)
+            float positionOffsetCurr = positionOffsets.get(i);
+            if ((positionOffsetCurr < 0.0f) || (positionOffsetCurr >= 1.0f)) {
+                Assert.fail("Position offset at #" + i + " is " + positionOffsetCurr +
+                        ", but should be in [0..1) range");
+            }
+
+            // Position pixel offset must be in [0..pageWidth) range (inclusive / exclusive)
+            int positionOffsetPixelCurr = positionOffsetPixels.get(i);
+            if ((positionOffsetPixelCurr < 0.0f) || (positionOffsetPixelCurr >= pageWidth)) {
+                Assert.fail("Position pixel offset at #" + i + " is " + positionOffsetCurr +
+                        ", but should be in [0.." + pageWidth + ") range");
+            }
+
+            // Position pixel offset must match the position offset and page width within
+            // a one-pixel tolerance range
+            Assert.assertEquals("Position pixel offset at #" + i + " is " +
+                            positionOffsetPixelCurr + ", but doesn't match position offset which is" +
+                            positionOffsetCurr + " and page width which is " + pageWidth,
+                    positionOffsetPixelCurr, positionOffsetCurr * pageWidth, 1.0f);
+
+            // If we stay on the same page between this index and the next one, both position
+            // offset and position pixel offset must decrease
+            if (pagePositionNext == pagePositionCurr) {
+                float positionOffsetNext = positionOffsets.get(i + 1);
+                // Note that since position offset sequence is float, we are checking for strict
+                // decreasing
+                if (positionOffsetNext >= positionOffsetCurr) {
+                    Assert.fail("Position offset at #" + i + " is " + positionOffsetCurr +
+                            " and at #" + (i + 1) + " is " + positionOffsetNext +
+                            ". Since both are for page " + pagePositionCurr +
+                            ", they cannot increase");
+                }
+
+                int positionOffsetPixelNext = positionOffsetPixels.get(i + 1);
+                // Note that since position offset pixel sequence is the mapping of position offset
+                // into screen pixels, we can get two (or more) callbacks with strictly decreasing
+                // position offsets that are converted into the same pixel value. This is why here
+                // we are checking for non-strict decreasing
+                if (positionOffsetPixelNext > positionOffsetPixelCurr) {
+                    Assert.fail("Position offset pixel at #" + i + " is " +
+                            positionOffsetPixelCurr + " and at #" + (i + 1) + " is " +
+                            positionOffsetPixelNext + ". Since both are for page " +
+                            pagePositionCurr + ", they cannot increase");
+                }
+            }
+        }
+    }
+
+    private void verifyScrollCallbacksToHigherPage(ViewAction viewAction,
+            int expectedEndPageIndex) {
+        final int startPageIndex = mViewPager.getCurrentItem();
+
+        ViewPager.OnPageChangeListener mockPageChangeListener =
+                mock(ViewPager.OnPageChangeListener.class);
+        mViewPager.addOnPageChangeListener(mockPageChangeListener);
+
+        // Perform our action
+        onView(withId(R.id.pager)).perform(viewAction);
+
+        final int endPageIndex = mViewPager.getCurrentItem();
+        Assert.assertEquals("Current item after action", expectedEndPageIndex, endPageIndex);
+
+        ArgumentCaptor<Integer> positionCaptor = ArgumentCaptor.forClass(int.class);
+        ArgumentCaptor<Float> positionOffsetCaptor = ArgumentCaptor.forClass(float.class);
+        ArgumentCaptor<Integer> positionOffsetPixelsCaptor = ArgumentCaptor.forClass(int.class);
+        verify(mockPageChangeListener, atLeastOnce()).onPageScrolled(positionCaptor.capture(),
+                positionOffsetCaptor.capture(), positionOffsetPixelsCaptor.capture());
+
+        verifyScrollCallbacksToHigherPage(startPageIndex, endPageIndex, mViewPager.getWidth(),
+                positionCaptor.getAllValues(), positionOffsetCaptor.getAllValues(),
+                positionOffsetPixelsCaptor.getAllValues());
+
+        // Remove our mock listener to get back to clean state for the next test
+        mViewPager.removeOnPageChangeListener(mockPageChangeListener);
+    }
+
+    private void verifyScrollCallbacksToLowerPage(ViewAction viewAction,
+            int expectedEndPageIndex) {
+        final int startPageIndex = mViewPager.getCurrentItem();
+
+        ViewPager.OnPageChangeListener mockPageChangeListener =
+                mock(ViewPager.OnPageChangeListener.class);
+        mViewPager.addOnPageChangeListener(mockPageChangeListener);
+
+        // Perform our action
+        onView(withId(R.id.pager)).perform(viewAction);
+
+        final int endPageIndex = mViewPager.getCurrentItem();
+        Assert.assertEquals("Current item after action", expectedEndPageIndex, endPageIndex);
+
+        ArgumentCaptor<Integer> positionCaptor = ArgumentCaptor.forClass(int.class);
+        ArgumentCaptor<Float> positionOffsetCaptor = ArgumentCaptor.forClass(float.class);
+        ArgumentCaptor<Integer> positionOffsetPixelsCaptor = ArgumentCaptor.forClass(int.class);
+        verify(mockPageChangeListener, atLeastOnce()).onPageScrolled(positionCaptor.capture(),
+                positionOffsetCaptor.capture(), positionOffsetPixelsCaptor.capture());
+
+        verifyScrollCallbacksToLowerPage(startPageIndex, endPageIndex, mViewPager.getWidth(),
+                positionCaptor.getAllValues(), positionOffsetCaptor.getAllValues(),
+                positionOffsetPixelsCaptor.getAllValues());
+
+        // Remove our mock listener to get back to clean state for the next test
+        mViewPager.removeOnPageChangeListener(mockPageChangeListener);
+    }
+
+    @Test
+    @SmallTest
+    public void testPageScrollPositionChangesImmediate() {
+        // Scroll one page to the right
+        verifyScrollCallbacksToHigherPage(scrollRight(false), 1);
+        // Scroll one more page to the right
+        verifyScrollCallbacksToHigherPage(scrollRight(false), 2);
+        // Scroll one page to the left
+        verifyScrollCallbacksToLowerPage(scrollLeft(false), 1);
+        // Scroll one more page to the left
+        verifyScrollCallbacksToLowerPage(scrollLeft(false), 0);
+
+        // Scroll to the last page
+        verifyScrollCallbacksToHigherPage(scrollToLast(false), 2);
+        // Scroll to the first page
+        verifyScrollCallbacksToLowerPage(scrollToFirst(false), 0);
+    }
+
+    @Test
+    @MediumTest
+    public void testPageScrollPositionChangesSmooth() {
+        // Scroll one page to the right
+        verifyScrollCallbacksToHigherPage(scrollRight(true), 1);
+        // Scroll one more page to the right
+        verifyScrollCallbacksToHigherPage(scrollRight(true), 2);
+        // Scroll one page to the left
+        verifyScrollCallbacksToLowerPage(scrollLeft(true), 1);
+        // Scroll one more page to the left
+        verifyScrollCallbacksToLowerPage(scrollLeft(true), 0);
+
+        // Scroll to the last page
+        verifyScrollCallbacksToHigherPage(scrollToLast(true), 2);
+        // Scroll to the first page
+        verifyScrollCallbacksToLowerPage(scrollToFirst(true), 0);
+    }
+
+    @Test
+    @MediumTest
+    public void testPageScrollPositionChangesSwipe() {
+        // Swipe one page to the left
+        verifyScrollCallbacksToHigherPage(wrap(swipeLeft()), 1);
+        // Swipe one more page to the left
+        verifyScrollCallbacksToHigherPage(wrap(swipeLeft()), 2);
+        // Swipe one page to the right
+        verifyScrollCallbacksToLowerPage(wrap(swipeRight()), 1);
+        // Swipe one more page to the right
+        verifyScrollCallbacksToLowerPage(wrap(swipeRight()), 0);
     }
 }
