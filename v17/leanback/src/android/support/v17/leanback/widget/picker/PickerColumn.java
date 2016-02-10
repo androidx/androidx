@@ -18,36 +18,37 @@ package android.support.v17.leanback.widget.picker;
  * Picker column class used by {@link Picker}, defines a contiguous value ranges and associated
  * labels.  A PickerColumn has a minValue and maxValue to choose between.  The Picker column has
  * a current value.
- * The labels can be dynamically generated from value by {@link #setEntryFormat(String)} or
- * a list of static labels set by {@link #setEntries(CharSequence[])}.
+ * The labels can be dynamically generated from value by {@link #setLabelFormat(String)} or
+ * a list of static labels set by {@link #setStaticLabels(CharSequence[])}.
  */
 public class PickerColumn {
 
     private int mCurrentValue;
     private int mMinValue;
     private int mMaxValue;
-    private CharSequence[] mStaticEntrys;
-    private String mEntryFormat;
+    private CharSequence[] mStaticLabels;
+    private String mLabelFormat;
 
     public PickerColumn() {
     }
 
     /**
-     * Set string format to display label for value. For example "%02d".
-     * {@link #setEntries(CharSequence[])} overrides the format.
+     * Set string format (see {@link String#format}) to display label for an
+     * integer value.  {@link #setStaticLabels(CharSequence[])} overrides the format.
      *
-     * @param valueFormat String format to display label for value between minValue and maxValue.
+     * @param labelFormat String format to display label for value between minValue and maxValue.
      */
-    public void setEntryFormat(String valueFormat) {
-        mEntryFormat = valueFormat;
+    public void setLabelFormat(String labelFormat) {
+        mLabelFormat = labelFormat;
     }
 
     /**
-     * Return string format to display label for value.  For example "%02d".
+     * Return string format (see {@link String#format}) to display label for
+     * value.
      * @return String format to display label for value.
      */
-    public String getEntryFormat() {
-        return mEntryFormat;
+    public String getLabelFormat() {
+        return mLabelFormat;
     }
 
     /**
@@ -55,22 +56,30 @@ public class PickerColumn {
      * labels[labels.length - 1].
      * @param labels Static labels for each value between minValue and maxValue.
      */
-    public void setEntries(CharSequence[] labels) {
-        mStaticEntrys = labels;
+    public void setStaticLabels(CharSequence[] labels) {
+        mStaticLabels = labels;
     }
 
     /**
-     * Get a label for value. The label can be static ({@link #setEntries(CharSequence[])}
-     * or dynamically generated (@link {@link #setEntryFormat(String)}.
+     * Returns static labels for each value, minValue maps to labels[0], maxValue maps to
+     * labels[labels.length - 1].  When null, {@link #getLabelFormat()} will be used.
+     */
+    public CharSequence[] getStaticLabels() {
+        return mStaticLabels;
+    }
+
+    /**
+     * Get a label for value. The label can be static ({@link #setStaticLabels(CharSequence[])}
+     * or dynamically generated (@link {@link #setLabelFormat(String)} when static labels is null.
      * 
      * @param value Value between minValue and maxValue.
      * @return Label for the value.
      */
-    public CharSequence getEntryAt(int value) {
-        if (mStaticEntrys == null) {
-            return String.format(mEntryFormat, value);
+    public CharSequence getLabelFor(int value) {
+        if (mStaticLabels == null) {
+            return String.format(mLabelFormat, value);
         }
-        return mStaticEntrys[value];
+        return mStaticLabels[value];
     }
 
     /**
@@ -92,7 +101,7 @@ public class PickerColumn {
      * Get total items count between minValue and maxValue.
      * @return Total items count between minValue and maxValue.
      */
-    public int getItemCount() {
+    public int getCount() {
         return mMaxValue - mMinValue + 1;
     }
 

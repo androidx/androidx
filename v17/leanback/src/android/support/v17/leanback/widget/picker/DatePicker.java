@@ -140,14 +140,14 @@ public class DatePicker extends Picker {
                 }
                 columns.add(mYearColumn = new PickerColumn());
                 mColYearIndex = i;
-                mYearColumn.setEntryFormat("%d");
+                mYearColumn.setLabelFormat("%d");
                 break;
             case 'M':
                 if (mMonthColumn != null) {
                     throw new IllegalArgumentException("datePicker format error");
                 }
                 columns.add(mMonthColumn = new PickerColumn());
-                mMonthColumn.setEntries(mConstant.months);
+                mMonthColumn.setStaticLabels(mConstant.months);
                 mColMonthIndex = i;
                 break;
             case 'D':
@@ -155,7 +155,7 @@ public class DatePicker extends Picker {
                     throw new IllegalArgumentException("datePicker format error");
                 }
                 columns.add(mDayColumn = new PickerColumn());
-                mDayColumn.setEntryFormat("%02d");
+                mDayColumn.setLabelFormat("%02d");
                 mColDayIndex = i;
                 break;
             default:
@@ -194,7 +194,7 @@ public class DatePicker extends Picker {
         mCurrentDate = getCalendarForLocale(mCurrentDate, mConstant.locale);
 
         if (mMonthColumn != null) {
-            mMonthColumn.setEntries(mConstant.months);
+            mMonthColumn.setStaticLabels(mConstant.months);
             setColumnAt(mColMonthIndex, mMonthColumn);
         }
     }
