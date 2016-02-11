@@ -17,9 +17,21 @@
 package android.support.v7.widget.test;
 
 import android.app.Activity;
+import android.os.Bundle;
 
 /**
  * @hide
  */
 public class GridLayoutTestActivity extends Activity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        overridePendingTransition(0, 0);
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(0, 0);
+    }
 }

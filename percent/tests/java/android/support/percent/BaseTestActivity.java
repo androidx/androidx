@@ -24,6 +24,7 @@ abstract class BaseTestActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        overridePendingTransition(0, 0);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         final int contentView = getContentViewLayoutResId();
         if (contentView > 0) {
@@ -31,6 +32,12 @@ abstract class BaseTestActivity extends Activity {
         }
         onContentViewSet();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(0, 0);
     }
 
     protected abstract int getContentViewLayoutResId();
