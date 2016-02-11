@@ -47,7 +47,7 @@ LOCAL_ADDITIONAL_JAVA_DIR := \
 LOCAL_SDK_VERSION := current
 
 LOCAL_DROIDDOC_OPTIONS:= \
-    -stubs $(TARGET_OUT_COMMON_INTERMEDIATES)/$(LOCAL_MODULE_CLASS)/$(LOCAL_MODULE)_intermediates/src \
+    -stubs $(TARGET_OUT_COMMON_INTERMEDIATES)/$(LOCAL_MODULE_CLASS)/$(LOCAL_MODULE)_intermediates/stubs/src \
     -stubpackages "$(subst $(space),:,$(support_module_java_packages))" \
     -api $(support_module_api_file) \
     -removedApi $(support_module_removed_file) \
