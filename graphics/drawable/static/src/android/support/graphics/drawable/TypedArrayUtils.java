@@ -17,8 +17,7 @@ package android.support.graphics.drawable;
 import android.content.res.TypedArray;
 import org.xmlpull.v1.XmlPullParser;
 
-
-public class TypedArrayUtils {
+class TypedArrayUtils {
     private static final String NAMESPACE = "http://schemas.android.com/apk/res/android";
 
     public static boolean hasAttribute(XmlPullParser parser, String attrName) {
