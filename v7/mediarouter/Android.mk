@@ -81,7 +81,19 @@ support_module_src_files += $(LOCAL_SRC_FILES)
 # ---------------------------------------------
 support_module := $(LOCAL_MODULE)
 support_module_api_dir := $(LOCAL_PATH)/api
-support_module_src_files := $(LOCAL_SRC_FILES)
+# We're asking doclava to generate stubs for android.support.v7.app in addition
+# to mediarouter, so we'll have to point doclava at the sources for
+# android.support.v7.app. Note that this API definition will overlap with that
+# of the android.support.v7.app package.
+support_module_src_files := $(LOCAL_SRC_FILES) \
+  ../appcompat/src/android/support/v7/app/AppCompatDelegate.java \
+  ../appcompat/src/android/support/v7/app/AppCompatCallback.java \
+  ../appcompat/src/android/support/v7/app/AppCompatDialog.java \
+  ../appcompat/src/android/support/v7/app/AlertDialog.java \
+  ../appcompat/src/android/support/v7/app/ActionBar.java \
+  ../appcompat/src/android/support/v7/app/ActionBarDrawerToggle.java \
+
+
 support_module_java_libraries := $(LOCAL_JAVA_LIBRARIES)
 support_module_java_packages := android.support.v7.app android.support.v7.media
 include $(SUPPORT_API_CHECK)
