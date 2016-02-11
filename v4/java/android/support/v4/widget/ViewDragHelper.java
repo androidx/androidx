@@ -18,7 +18,6 @@
 package android.support.v4.widget;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v4.view.ViewCompat;
@@ -102,12 +101,6 @@ public class ViewDragHelper {
     public static final int DIRECTION_ALL = DIRECTION_HORIZONTAL | DIRECTION_VERTICAL;
 
     private static final int EDGE_SIZE = 20; // dp
-    /**
-     * Ratio to calculate the edge size on watch devices. This is bounded by
-     * {@link #WATCH_MAX_EDGE_SIZE}.
-     */
-    private static final float WATCH_EDGE_SIZE_RATIO = .2f;
-    private static final int WATCH_MAX_EDGE_SIZE = 48; // dp
 
     private static final int BASE_SETTLE_DURATION = 256; // ms
     private static final int MAX_SETTLE_DURATION = 600; // ms
@@ -144,9 +137,6 @@ public class ViewDragHelper {
     private boolean mReleaseInProgress;
 
     private final ViewGroup mParentView;
-
-    private final float mDisplayDensity;
-    private final boolean mIsUiModeTypeWatch;
 
     /**
      * A Callback is used as a communication channel with the ViewDragHelper back to the
@@ -391,12 +381,10 @@ public class ViewDragHelper {
         mParentView = forParent;
         mCallback = cb;
 
-        mDisplayDensity = context.getResources().getDisplayMetrics().density;
-        mIsUiModeTypeWatch = (context.getResources().getConfiguration().uiMode
-                & Configuration.UI_MODE_TYPE_MASK) == Configuration.UI_MODE_TYPE_WATCH;
-        refreshEdgeSize();
-
         final ViewConfiguration vc = ViewConfiguration.get(context);
+        final float density = context.getResources().getDisplayMetrics().density;
+        mEdgeSize = (int) (EDGE_SIZE * density + 0.5f);
+
         mTouchSlop = vc.getScaledTouchSlop();
         mMaxVelocity = vc.getScaledMaximumFlingVelocity();
         mMinVelocity = vc.getScaledMinimumFlingVelocity();
@@ -458,21 +446,6 @@ public class ViewDragHelper {
      */
     public int getEdgeSize() {
         return mEdgeSize;
-    }
-
-    /**
-     * Refreshes the edge size. This can be used if the edge size should change depending on the
-     * size of the {@link ViewGroup}. A good time to call this method is during
-     * {@link View#onSizeChanged()}.
-     */
-    public void refreshEdgeSize() {
-        if (mIsUiModeTypeWatch) {
-            int edgeSizePx = (int) (WATCH_EDGE_SIZE_RATIO * mParentView.getHeight());
-            int maxEdgeSizePx = (int) (WATCH_MAX_EDGE_SIZE * mDisplayDensity);
-            mEdgeSize = Math.min(edgeSizePx, maxEdgeSizePx);
-        } else {
-            mEdgeSize = (int) (EDGE_SIZE * mDisplayDensity + 0.5f);
-        }
     }
 
     /**
