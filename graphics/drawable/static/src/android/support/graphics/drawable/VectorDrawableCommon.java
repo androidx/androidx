@@ -24,7 +24,6 @@ import android.graphics.Rect;
 import android.graphics.Region;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -60,9 +59,9 @@ abstract class VectorDrawableCommon extends Drawable {
     @Override
     public ColorFilter getColorFilter() {
         if (mDelegateDrawable != null) {
-            return DrawableCompat.getColorFilter(mDelegateDrawable);
+            return mDelegateDrawable.getColorFilter();
         }
-        return null;
+        return super.getColorFilter();
     }
 
     @Override
@@ -86,17 +85,36 @@ abstract class VectorDrawableCommon extends Drawable {
     public void setHotspot(float x, float y) {
         // API >= 21 only.
         if (mDelegateDrawable != null) {
-            DrawableCompat.setHotspot(mDelegateDrawable, x, y);
+            mDelegateDrawable.setHotspot(x, y);
         }
         return;
     }
 
     @Override
     public void setHotspotBounds(int left, int top, int right, int bottom) {
+        // API >= 21 only.
         if (mDelegateDrawable != null) {
-            DrawableCompat.setHotspotBounds(mDelegateDrawable, left, top, right, bottom);
+            mDelegateDrawable.setHotspotBounds(left, top, right, bottom);
             return;
         }
+    }
+
+    @TargetApi(23)
+    @Override
+    public void getHotspotBounds(Rect outRect) {
+        // API >= 21 only.
+        if (mDelegateDrawable != null && Build.VERSION.SDK_INT >= 23) {
+            mDelegateDrawable.getHotspotBounds(outRect);
+            return;
+        }
+    }
+
+    @Override
+    public Rect getDirtyBounds() {
+        if (mDelegateDrawable != null) {
+            return mDelegateDrawable.getBounds();
+        }
+        return super.getDirtyBounds();
     }
 
     @Override
@@ -107,10 +125,29 @@ abstract class VectorDrawableCommon extends Drawable {
         }
     }
 
+    @TargetApi(23)
+    @Override
+    public boolean isFilterBitmap() {
+        // API >= 23 only
+        if (mDelegateDrawable != null && Build.VERSION.SDK_INT >= 23) {
+            return mDelegateDrawable.isFilterBitmap();
+        }
+        return false;
+    }
+
+    @Override
+    public void getOutline(Outline outline) {
+        // API >= 21 only
+        if (mDelegateDrawable != null) {
+            mDelegateDrawable.getOutline(outline);
+            return;
+        }
+    }
+
     @Override
     public void jumpToCurrentState() {
         if (mDelegateDrawable != null) {
-            DrawableCompat.jumpToCurrentState(mDelegateDrawable);
+            mDelegateDrawable.jumpToCurrentState();
             return;
         }
     }
@@ -119,8 +156,7 @@ abstract class VectorDrawableCommon extends Drawable {
     public void setAutoMirrored(boolean mirrored) {
         // API >= 21 only.
         if (mDelegateDrawable != null) {
-            DrawableCompat.setAutoMirrored(mDelegateDrawable, mirrored);
-
+            mDelegateDrawable.setAutoMirrored(mirrored);
             return;
         }
     }
@@ -129,7 +165,7 @@ abstract class VectorDrawableCommon extends Drawable {
     public boolean isAutoMirrored() {
         // API >= 21 only.
         if (mDelegateDrawable != null) {
-            DrawableCompat.isAutoMirrored(mDelegateDrawable);
+            return mDelegateDrawable.isAutoMirrored();
         }
         return false;
     }
@@ -138,17 +174,27 @@ abstract class VectorDrawableCommon extends Drawable {
     public void applyTheme(Resources.Theme t) {
         // API >= 21 only.
         if (mDelegateDrawable != null) {
-            DrawableCompat.applyTheme(mDelegateDrawable, t);
+            mDelegateDrawable.applyTheme(t);
             return;
         }
     }
 
+    @TargetApi(23)
     @Override
     public int getLayoutDirection() {
-        if (mDelegateDrawable != null) {
-            DrawableCompat.getLayoutDirection(mDelegateDrawable);
+        if (mDelegateDrawable != null && Build.VERSION.SDK_INT >= 23) {
+            return mDelegateDrawable.getLayoutDirection();
         }
         return View.LAYOUT_DIRECTION_LTR;
+    }
+
+    @TargetApi(23)
+    @Override
+    public boolean onLayoutDirectionChanged(int layoutDirection) {
+        if (mDelegateDrawable != null && Build.VERSION.SDK_INT >= 23) {
+            return mDelegateDrawable.onLayoutDirectionChanged(layoutDirection);
+        }
+        return false;
     }
 
     @Override
