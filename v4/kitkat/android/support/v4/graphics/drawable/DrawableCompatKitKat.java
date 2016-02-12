@@ -38,8 +38,4 @@ class DrawableCompatKitKat {
         }
         return drawable;
     }
-
-    public static int getAlpha(Drawable drawable) {
-        return drawable.getAlpha();
-    }
 }

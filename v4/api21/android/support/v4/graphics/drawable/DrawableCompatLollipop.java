@@ -17,15 +17,8 @@
 package android.support.v4.graphics.drawable;
 
 import android.content.res.ColorStateList;
-import android.content.res.Resources;
-import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.util.AttributeSet;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
 
 /**
  * Implementation of drawable compatibility that can call L APIs.
@@ -58,23 +51,5 @@ class DrawableCompatLollipop {
             return new DrawableWrapperLollipop(drawable);
         }
         return drawable;
-    }
-
-    public static void applyTheme(Drawable drawable, Resources.Theme t) {
-        drawable.applyTheme(t);
-    }
-
-    public static boolean canApplyTheme(Drawable drawable) {
-        return drawable.canApplyTheme();
-    }
-
-    public static ColorFilter getColorFilter(Drawable drawable) {
-        return drawable.getColorFilter();
-    }
-
-    public static void inflate(Drawable drawable, Resources res, XmlPullParser parser,
-                               AttributeSet attrs, Resources.Theme t)
-            throws IOException, XmlPullParserException {
-        drawable.inflate(res, parser, attrs, t);
     }
 }
