@@ -32,4 +32,9 @@
     <style name="TextStyleAllCapsOff" parent="@android:style/TextAppearance.Medium">
         <item name="textAllCaps">false</item>
     </style>
+
+    <style name="MagentaThemeOverlay">
+        <item name="colorAccent">#FF00FF</item>
+    </style>
+
 </resources>
