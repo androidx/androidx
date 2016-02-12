@@ -17,19 +17,12 @@
 package android.support.v4.graphics.drawable;
 
 import android.content.res.ColorStateList;
-import android.content.res.Resources;
-import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
-import android.util.AttributeSet;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
 
 /**
  * Helper for accessing features in {@link android.graphics.drawable.Drawable}
@@ -51,12 +44,6 @@ public final class DrawableCompat {
         Drawable wrap(Drawable drawable);
         void setLayoutDirection(Drawable drawable, int layoutDirection);
         int getLayoutDirection(Drawable drawable);
-        int getAlpha(Drawable drawable);
-        void applyTheme(Drawable drawable, Resources.Theme t);
-        boolean canApplyTheme(Drawable drawable);
-        ColorFilter getColorFilter(Drawable drawable);
-        void inflate(Drawable drawable, Resources res, XmlPullParser parser, AttributeSet attrs,
-                     Resources.Theme t) throws IOException, XmlPullParserException;
     }
 
     /**
@@ -112,32 +99,6 @@ public final class DrawableCompat {
         @Override
         public int getLayoutDirection(Drawable drawable) {
             return ViewCompat.LAYOUT_DIRECTION_LTR;
-        }
-
-        @Override
-        public int getAlpha(Drawable drawable) {
-            return 0;
-        }
-
-        @Override
-        public void applyTheme(Drawable drawable, Resources.Theme t) {
-        }
-
-        @Override
-        public boolean canApplyTheme(Drawable drawable) {
-            return false;
-        }
-
-        @Override
-        public ColorFilter getColorFilter(Drawable drawable) {
-            return null;
-        }
-
-        @Override
-        public void inflate(Drawable drawable, Resources res, XmlPullParser parser,
-                            AttributeSet attrs, Resources.Theme t)
-                throws IOException, XmlPullParserException {
-            DrawableCompatBase.inflate(drawable, res, parser, attrs, t);
         }
     }
 
@@ -197,11 +158,6 @@ public final class DrawableCompat {
         public Drawable wrap(Drawable drawable) {
             return DrawableCompatKitKat.wrapForTinting(drawable);
         }
-
-        @Override
-        public int getAlpha(Drawable drawable) {
-            return DrawableCompatKitKat.getAlpha(drawable);
-        }
     }
 
     /**
@@ -236,28 +192,6 @@ public final class DrawableCompat {
         @Override
         public Drawable wrap(Drawable drawable) {
             return DrawableCompatLollipop.wrapForTinting(drawable);
-        }
-
-        @Override
-        public void applyTheme(Drawable drawable, Resources.Theme t) {
-            DrawableCompatLollipop.applyTheme(drawable, t);
-        }
-
-        @Override
-        public boolean canApplyTheme(Drawable drawable) {
-            return DrawableCompatLollipop.canApplyTheme(drawable);
-        }
-
-        @Override
-        public ColorFilter getColorFilter(Drawable drawable) {
-            return DrawableCompatLollipop.getColorFilter(drawable);
-        }
-
-        @Override
-        public void inflate(Drawable drawable, Resources res, XmlPullParser parser,
-                            AttributeSet attrs, Resources.Theme t)
-                throws IOException, XmlPullParserException {
-            DrawableCompatLollipop.inflate(drawable, res, parser, attrs, t);
         }
     }
 
@@ -398,55 +332,6 @@ public final class DrawableCompat {
      */
     public static void setTintMode(@NonNull Drawable drawable, @Nullable PorterDuff.Mode tintMode) {
         IMPL.setTintMode(drawable, tintMode);
-    }
-
-    /**
-     * Get the alpha value of the {@code drawable}.
-     * 0 means fully transparent, 255 means fully opaque.
-     *
-     * @param drawable The Drawable against which to invoke the method.
-     */
-    public static int getAlpha(@NonNull Drawable drawable) {
-        return IMPL.getAlpha(drawable);
-    }
-
-    /**
-     * Applies the specified theme to this Drawable and its children.
-     */
-    public static void applyTheme(Drawable drawable, Resources.Theme t) {
-        IMPL.applyTheme(drawable, t);
-    }
-
-    /**
-     * Whether a theme can be applied to this Drawable and its children.
-     */
-    public static boolean canApplyTheme(Drawable drawable) {
-        return IMPL.canApplyTheme(drawable);
-    }
-
-    /**
-     * Returns the current color filter, or {@code null} if none set.
-     *
-     * @return the current color filter, or {@code null} if none set
-     */
-    public static ColorFilter getColorFilter(Drawable drawable) {
-        return IMPL.getColorFilter(drawable);
-    }
-
-    /**
-     * Inflate this Drawable from an XML resource optionally styled by a theme.
-     *
-     * @param res Resources used to resolve attribute values
-     * @param parser XML parser from which to inflate this Drawable
-     * @param attrs Base set of attribute values
-     * @param theme Theme to apply, may be null
-     * @throws XmlPullParserException
-     * @throws IOException
-     */
-    public static void inflate(Drawable drawable, Resources res, XmlPullParser parser,
-                               AttributeSet attrs, Resources.Theme theme)
-            throws XmlPullParserException, IOException {
-        IMPL.inflate(drawable, res, parser, attrs, theme);
     }
 
     /**

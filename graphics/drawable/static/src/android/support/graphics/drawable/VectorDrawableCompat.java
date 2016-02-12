@@ -14,8 +14,6 @@
 
 package android.support.graphics.drawable;
 
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -339,7 +337,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
 
     public int getAlpha() {
         if (mDelegateDrawable != null) {
-            return DrawableCompat.getAlpha(mDelegateDrawable);
+            return mDelegateDrawable.getAlpha();
         }
 
         return mVectorState.mVPathRenderer.getRootAlpha();
@@ -386,7 +384,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
 
     public void setTint(int tint) {
         if (mDelegateDrawable != null) {
-            DrawableCompat.setTint(mDelegateDrawable, tint);
+            mDelegateDrawable.setTint(tint);
             return;
         }
 
@@ -395,7 +393,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
 
     public void setTintList(ColorStateList tint) {
         if (mDelegateDrawable != null) {
-            DrawableCompat.setTintList(mDelegateDrawable, tint);
+            mDelegateDrawable.setTintList(tint);
             return;
         }
 
@@ -409,7 +407,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
 
     public void setTintMode(Mode tintMode) {
         if (mDelegateDrawable != null) {
-            DrawableCompat.setTintMode(mDelegateDrawable, tintMode);
+            mDelegateDrawable.setTintMode(tintMode);
             return;
         }
 
@@ -476,7 +474,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
     // Don't support re-applying themes. The initial theme loading is working.
     public boolean canApplyTheme() {
         if (mDelegateDrawable != null) {
-            DrawableCompat.canApplyTheme(mDelegateDrawable);
+            return mDelegateDrawable.canApplyTheme();
         }
 
         return false;
@@ -518,7 +516,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
                                               @Nullable Theme theme) {
         if (Build.VERSION.SDK_INT >= 21) {
             final VectorDrawableCompat drawable = new VectorDrawableCompat();
-            drawable.mDelegateDrawable = ResourcesCompat.getDrawable(res, resId, theme);
+            drawable.mDelegateDrawable = (VectorDrawable) res.getDrawable(resId, theme);
             drawable.mCachedConstantStateDelegate = new VectorDrawableDelegateState(
                     drawable.mDelegateDrawable.getConstantState());
             return drawable;
@@ -578,7 +576,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
     public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs, Theme theme)
             throws XmlPullParserException, IOException {
         if (mDelegateDrawable != null) {
-            DrawableCompat.inflate(mDelegateDrawable, res, parser, attrs, theme);
+            mDelegateDrawable.inflate(res, parser, attrs, theme);
             return;
         }
 
