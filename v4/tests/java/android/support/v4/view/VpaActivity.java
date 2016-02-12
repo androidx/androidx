@@ -16,14 +16,12 @@
 
 package android.support.v4.view;
 
-import android.app.Activity;
+import android.support.v4.BaseTestActivity;
 import android.support.v4.test.R;
-import android.os.Bundle;
 
-public class VpaActivity extends Activity {
+public class VpaActivity extends BaseTestActivity {
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.vpa_activity);
+    protected int getContentViewLayoutResId() {
+        return R.layout.vpa_activity;
     }
 }

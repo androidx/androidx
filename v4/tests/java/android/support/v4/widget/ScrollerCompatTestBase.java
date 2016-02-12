@@ -16,22 +16,28 @@
 package android.support.v4.widget;
 
 import android.content.Context;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 
-/**
- * @hide
- */
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+@RunWith(AndroidJUnit4.class)
 @MediumTest
-abstract public class ScrollerCompatTestBase extends AndroidTestCase {
+public abstract class ScrollerCompatTestBase {
 
     private static final boolean DEBUG = false;
 
@@ -52,9 +58,11 @@ abstract public class ScrollerCompatTestBase extends AndroidTestCase {
         Constructor<ScrollerCompat> constructor = ScrollerCompat.class
                 .getDeclaredConstructor(int.class, Context.class, Interpolator.class);
         constructor.setAccessible(true);
-        mScroller = constructor.newInstance(mApiLevel, getContext(), interpolator);
+        mScroller = constructor.newInstance(mApiLevel, InstrumentationRegistry.getContext(),
+                interpolator);
     }
 
+    @Test
     public void testTargetReached() throws Throwable {
         if (DEBUG) {
             Log.d(TAG, "testing if target is reached");
@@ -70,6 +78,7 @@ abstract public class ScrollerCompatTestBase extends AndroidTestCase {
                 mScroller.getCurrY());
     }
 
+    @Test
     public void testAbort() throws Throwable {
         if (DEBUG) {
             Log.d(TAG, "testing abort");
