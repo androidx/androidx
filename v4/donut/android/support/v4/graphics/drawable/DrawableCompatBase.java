@@ -17,8 +17,14 @@
 package android.support.v4.graphics.drawable;
 
 import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.util.AttributeSet;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 
 /**
  * Base implementation of drawable compatibility.
@@ -50,4 +56,9 @@ class DrawableCompatBase {
         return drawable;
     }
 
+    public static void inflate(Drawable drawable, Resources res, XmlPullParser parser,
+                               AttributeSet attrs, Resources.Theme t)
+            throws IOException, XmlPullParserException {
+        drawable.inflate(res, parser, attrs);
+    }
 }
