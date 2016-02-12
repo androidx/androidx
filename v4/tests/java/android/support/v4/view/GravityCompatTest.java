@@ -17,13 +17,20 @@ package android.support.v4.view;
 
 import android.graphics.Rect;
 import android.os.Build;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.testutils.TestUtils;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.view.Gravity;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-public class GravityCompatTest extends AndroidTestCase {
-    @SmallTest
+import static org.junit.Assert.assertEquals;
+
+@RunWith(AndroidJUnit4.class)
+@SmallTest
+public class GravityCompatTest {
+    @Test
     public void testConstants() {
         // Compat constants must match core constants since they can be OR'd with
         // other core constants.
@@ -31,7 +38,7 @@ public class GravityCompatTest extends AndroidTestCase {
         assertEquals("End constants", Gravity.END, GravityCompat.END);
     }
 
-    @SmallTest
+    @Test
     public void testGetAbsoluteGravity() {
         assertEquals("Left under LTR",
                 GravityCompat.getAbsoluteGravity(Gravity.LEFT, ViewCompat.LAYOUT_DIRECTION_LTR),
@@ -78,7 +85,7 @@ public class GravityCompatTest extends AndroidTestCase {
         }
     }
 
-    @SmallTest
+    @Test
     public void testApplyNoOffsetsLtr() {
         Rect outRect = new Rect();
 
@@ -176,7 +183,7 @@ public class GravityCompatTest extends AndroidTestCase {
                 outRect, 100, 50, 200, 100);
     }
 
-    @SmallTest
+    @Test
     public void testApplyNoOffsetsRtl() {
         Rect outRect = new Rect();
 
