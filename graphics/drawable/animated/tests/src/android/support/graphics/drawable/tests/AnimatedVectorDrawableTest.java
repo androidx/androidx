@@ -16,21 +16,26 @@
 
 package android.support.graphics.drawable.tests;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.support.annotation.UiThread;
-import android.support.graphics.drawable.AnimatedVectorDrawableCompat;
 import android.graphics.drawable.Drawable.ConstantState;
-import android.test.ActivityInstrumentationTestCase2;
+import android.support.annotation.DrawableRes;
+import android.support.graphics.drawable.AnimatedVectorDrawableCompat;
+import android.support.graphics.drawable.animated.test.R;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Xml;
-
-import android.support.graphics.drawable.animated.test.R;
-
 import android.view.View;
 import android.widget.ImageButton;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -40,34 +45,37 @@ import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class AnimatedVectorDrawableTest extends ActivityInstrumentationTestCase2<DrawableStubActivity> {
+import static org.junit.Assert.*;
+
+@RunWith(AndroidJUnit4.class)
+public class AnimatedVectorDrawableTest {
+    @Rule public final ActivityTestRule<DrawableStubActivity> mActivityTestRule;
     private static final String LOGTAG = AnimatedVectorDrawableTest.class.getSimpleName();
 
     private static final int IMAGE_WIDTH = 64;
     private static final int IMAGE_HEIGHT = 64;
+    private static final @DrawableRes int DRAWABLE_RES_ID =
+            R.drawable.animation_vector_drawable_grouping_1;
 
-    private DrawableStubActivity mActivity;
+    private Context mContext;
     private Resources mResources;
     private AnimatedVectorDrawableCompat mAnimatedVectorDrawable;
     private Bitmap mBitmap;
     private Canvas mCanvas;
     private static final boolean DBG_DUMP_PNG = false;
-    private int mResId = R.drawable.animation_vector_drawable_grouping_1;
 
     public AnimatedVectorDrawableTest() {
-        super(DrawableStubActivity.class);
+        mActivityTestRule = new ActivityTestRule<>(DrawableStubActivity.class);
     }
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-
+    @Before
+    public void setup() throws Exception {
         mBitmap = Bitmap.createBitmap(IMAGE_WIDTH, IMAGE_HEIGHT, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
-        mActivity = getActivity();
-        mResources = mActivity.getResources();
+        mContext = mActivityTestRule.getActivity();
+        mResources = mContext.getResources();
 
-        mAnimatedVectorDrawable = AnimatedVectorDrawableCompat.create(mActivity, mResId);
+        mAnimatedVectorDrawable = AnimatedVectorDrawableCompat.create(mContext, DRAWABLE_RES_ID);
     }
 
     // This is only for debugging or golden image (re)generation purpose.
@@ -102,10 +110,10 @@ public class AnimatedVectorDrawableTest extends ActivityInstrumentationTestCase2
         }
     }
 
-    @UiThread
+    @Test
     public void testInflate() throws Exception {
         // Setup AnimatedVectorDrawableCompat from xml file
-        XmlPullParser parser = mResources.getXml(mResId);
+        XmlPullParser parser = mResources.getXml(DRAWABLE_RES_ID);
         AttributeSet attrs = Xml.asAttributeSet(parser);
 
         int type;
@@ -128,50 +136,52 @@ public class AnimatedVectorDrawableTest extends ActivityInstrumentationTestCase2
         assertTrue(earthColor == 0xFF5656EA);
 
         if (DBG_DUMP_PNG) {
-            saveVectorDrawableIntoPNG(mBitmap, mResId);
+            saveVectorDrawableIntoPNG(mBitmap, DRAWABLE_RES_ID);
         }
     }
 
+    @Test
     public void testGetChangingConfigurations() {
-        AnimatedVectorDrawableCompat avd = AnimatedVectorDrawableCompat.create(mActivity, mResId);
-        ConstantState constantState = avd.getConstantState();
+        ConstantState constantState = mAnimatedVectorDrawable.getConstantState();
 
         if (constantState != null) {
             // default
             assertEquals(0, constantState.getChangingConfigurations());
-            assertEquals(0, avd.getChangingConfigurations());
+            assertEquals(0, mAnimatedVectorDrawable.getChangingConfigurations());
 
             // change the drawable's configuration does not affect the state's configuration
-            avd.setChangingConfigurations(0xff);
-            assertEquals(0xff, avd.getChangingConfigurations());
+            mAnimatedVectorDrawable.setChangingConfigurations(0xff);
+            assertEquals(0xff, mAnimatedVectorDrawable.getChangingConfigurations());
             assertEquals(0, constantState.getChangingConfigurations());
 
             // the state's configuration get refreshed
-            constantState = avd.getConstantState();
+            constantState = mAnimatedVectorDrawable.getConstantState();
             assertEquals(0xff, constantState.getChangingConfigurations());
 
             // set a new configuration to drawable
-            avd.setChangingConfigurations(0xff00);
+            mAnimatedVectorDrawable.setChangingConfigurations(0xff00);
             assertEquals(0xff, constantState.getChangingConfigurations());
-            assertEquals(0xffff, avd.getChangingConfigurations());
+            assertEquals(0xffff, mAnimatedVectorDrawable.getChangingConfigurations());
         }
     }
 
-    public void testGetConstantState() throws InterruptedException, Throwable {
-        AnimatedVectorDrawableCompat avd = AnimatedVectorDrawableCompat.create(mActivity, mResId);
-        ConstantState constantState = avd.getConstantState();
+    @Test
+    public void testGetConstantState() {
+        ConstantState constantState = mAnimatedVectorDrawable.getConstantState();
         if (constantState != null) {
             assertEquals(0, constantState.getChangingConfigurations());
 
-            avd.setChangingConfigurations(1);
-            constantState = avd.getConstantState();
+            mAnimatedVectorDrawable.setChangingConfigurations(1);
+            constantState = mAnimatedVectorDrawable.getConstantState();
             assertNotNull(constantState);
             assertEquals(1, constantState.getChangingConfigurations());
         }
     }
 
-    public void testAnimateColor() throws InterruptedException, Throwable {
-        final ImageButton imageButton = (ImageButton) getActivity().findViewById(R.id.imageButton);
+    @Test
+    public void testAnimateColor() throws Throwable {
+        final ImageButton imageButton =
+                (ImageButton) mActivityTestRule.getActivity().findViewById(R.id.imageButton);
         final int viewW = imageButton.getWidth();
         final int viewH = imageButton.getHeight();
         int pixelX = viewW / 2;
@@ -181,10 +191,11 @@ public class AnimatedVectorDrawableTest extends ActivityInstrumentationTestCase2
                 Bitmap.Config.ARGB_8888);
         final Canvas c = new Canvas(bitmap);
         CountDownLatch latch = new CountDownLatch(numTests);
-        runTestOnUiThread(new Runnable() {
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                AnimatedVectorDrawableCompat avd = AnimatedVectorDrawableCompat.create(mActivity,
+                AnimatedVectorDrawableCompat avd = AnimatedVectorDrawableCompat.create(mContext,
                         R.drawable.animated_color_fill);
                 imageButton.setBackgroundDrawable(avd);
                 avd.start();
@@ -207,7 +218,7 @@ public class AnimatedVectorDrawableTest extends ActivityInstrumentationTestCase2
      */
     private void verifyRedOnly(final int pixelX, final int pixelY, final View button,
             final Bitmap bitmap, final Canvas canvas, final CountDownLatch latch) throws Throwable {
-        runTestOnUiThread(new Runnable() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
                 button.draw(canvas);
@@ -221,10 +232,14 @@ public class AnimatedVectorDrawableTest extends ActivityInstrumentationTestCase2
         });
     }
 
+    @Test
     public void testMutate() {
-        AnimatedVectorDrawableCompat d1 = AnimatedVectorDrawableCompat.create(mActivity, mResId);
-        AnimatedVectorDrawableCompat d2 = AnimatedVectorDrawableCompat.create(mActivity, mResId);
-        AnimatedVectorDrawableCompat d3 = AnimatedVectorDrawableCompat.create(mActivity, mResId);
+        AnimatedVectorDrawableCompat d1 =
+                AnimatedVectorDrawableCompat.create(mContext, DRAWABLE_RES_ID);
+        AnimatedVectorDrawableCompat d2 =
+                AnimatedVectorDrawableCompat.create(mContext, DRAWABLE_RES_ID);
+        AnimatedVectorDrawableCompat d3 =
+                AnimatedVectorDrawableCompat.create(mContext, DRAWABLE_RES_ID);
 
         if (d1.getConstantState() != null) {
             int originalAlpha = d2.getAlpha();
