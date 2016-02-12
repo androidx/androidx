@@ -39,6 +39,7 @@ import android.support.v7.widget.AppCompatRatingBar;
 import android.support.v7.widget.AppCompatSeekBar;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.AppCompatTextView;
+import android.support.v7.widget.TintContextWrapper;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.InflateException;
@@ -78,7 +79,7 @@ class AppCompatViewInflater {
 
     public final View createView(View parent, final String name, @NonNull Context context,
             @NonNull AttributeSet attrs, boolean inheritContext,
-            boolean readAndroidTheme, boolean readAppTheme) {
+            boolean readAndroidTheme, boolean readAppTheme, boolean wrapContext) {
         final Context originalContext = context;
 
         // We can emulate Lollipop's android:theme attribute propagating down the view hierarchy
@@ -89,6 +90,9 @@ class AppCompatViewInflater {
         if (readAndroidTheme || readAppTheme) {
             // We then apply the theme on the context, if specified
             context = themifyContext(context, attrs, readAndroidTheme, readAppTheme);
+        }
+        if (wrapContext) {
+            context = TintContextWrapper.wrap(context);
         }
 
         View view = null;
