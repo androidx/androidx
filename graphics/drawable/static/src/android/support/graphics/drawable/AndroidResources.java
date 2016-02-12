@@ -14,7 +14,7 @@
 
 package android.support.graphics.drawable;
 
-public class AndroidResources {
+class AndroidResources {
 
     // Resources ID generated in the latest R.java for framework.
     static final int[] styleable_VectorDrawableTypeArray = {
