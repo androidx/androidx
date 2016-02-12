@@ -15,11 +15,4 @@
      limitations under the License.
 -->
 <resources>
-    <!-- GuidedStepFragment -->
-    <dimen name="lb_guidedstep_slide_start_distance">200dp</dimen>
-    <dimen name="lb_guidedstep_slide_end_distance">-200dp</dimen>
-    <dimen name="lb_guidance_entry_translationX">120dp</dimen>
-    <dimen name="lb_guidedactions_entry_translationX">-384dp</dimen>
-    <!-- end GuidedStepFragment -->
-
 </resources>

@@ -224,13 +224,8 @@
     <dimen name="lb_rounded_rect_corner_radius">2dp</dimen>
 
     <!-- GuidedStepFragment -->
-    <dimen name="lb_guidedstep_slide_start_distance">-200dp</dimen>
-    <dimen name="lb_guidedstep_slide_end_distance">200dp</dimen>
     <dimen name="lb_guidedstep_slide_ime_distance">-100dp</dimen>
 
-    <dimen name="lb_guidance_entry_translationX">-120dp</dimen>
-
-    <dimen name="lb_guidedactions_entry_translationX">384dp</dimen>
     <item name="lb_guidedactions_width_weight" format="float" type="string">0.666666667</item>
     <item name="lb_guidedactions_width_weight_two_panels" format="float" type="string">1</item>
     <dimen name="lb_guidedactions_section_shadow_width">16dp</dimen>
@@ -259,11 +254,7 @@
     <dimen name="lb_guidedactions_item_description_font_size">12sp</dimen>
     <dimen name="lb_guidedactions_sublist_bottom_margin">28dp</dimen>
 
-    <integer name="lb_guidedstep_entry_animation_delay">550</integer>
-    <integer name="lb_guidedstep_entry_animation_duration">250</integer>
-
     <integer name="lb_guidedactions_item_animation_duration">100</integer>
-    <integer name="lb_guidedactions_animation_duration">150</integer>
     <integer name="lb_guidedactions_item_title_min_lines">1</integer>
     <integer name="lb_guidedactions_item_title_max_lines">3</integer>
     <integer name="lb_guidedactions_item_description_min_lines">2</integer>
