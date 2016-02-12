@@ -54,134 +54,14 @@ import java.util.ArrayList;
 import java.util.Stack;
 
 /**
- * This lets you create a drawable based on an XML vector graphic. It can be defined in an XML file
- * with the <code>&lt;vector></code> element.
- * <p/>
- * The vector drawable has the following elements:
- * <p/>
- * <dt><code>&lt;vector></code></dt>
- * <dl>
- * <dd>Used to define a vector drawable
- * <dl>
- * <dt><code>android:name</code></dt>
- * <dd>Defines the name of this vector drawable.</dd>
- * <dt><code>android:width</code></dt>
- * <dd>Used to define the intrinsic width of the drawable. This support all the dimension units,
- * normally specified with dp.</dd>
- * <dt><code>android:height</code></dt>
- * <dd>Used to define the intrinsic height the drawable. This support all the dimension units,
- * normally specified with dp.</dd>
- * <dt><code>android:viewportWidth</code></dt>
- * <dd>Used to define the width of the viewport space. Viewport is basically the virtual canvas
- * where the paths are drawn on.</dd>
- * <dt><code>android:viewportHeight</code></dt>
- * <dd>Used to define the height of the viewport space. Viewport is basically the virtual canvas
- * where the paths are drawn on.</dd>
- * <dt><code>android:tint</code></dt>
- * <dd>The color to apply to the drawable as a tint. By default, no tint is applied.</dd>
- * <dt><code>android:tintMode</code></dt>
- * <dd>The Porter-Duff blending mode for the tint color. The default value is src_in.</dd>
- * <dt><code>android:autoMirrored</code></dt>
- * <dd>Indicates if the drawable needs to be mirrored when its layout direction is RTL
- * (right-to-left).</dd>
- * <dt><code>android:alpha</code></dt>
- * <dd>The opacity of this drawable.</dd>
- * </dl>
- * </dd>
- * </dl>
- * <dl>
- * <dt><code>&lt;group></code></dt>
- * <dd>Defines a group of paths or subgroups, plus transformation information. The transformations
- * are defined in the same coordinates as the viewport. And the transformations are applied in the
- * order of scale, rotate then translate.
- * <dl>
- * <dt><code>android:name</code></dt>
- * <dd>Defines the name of the group.</dd>
- * <dt><code>android:rotation</code></dt>
- * <dd>The degrees of rotation of the group.</dd>
- * <dt><code>android:pivotX</code></dt>
- * <dd>The X coordinate of the pivot for the scale and rotation of the group. This is defined in the
- * viewport space.</dd>
- * <dt><code>android:pivotY</code></dt>
- * <dd>The Y coordinate of the pivot for the scale and rotation of the group. This is defined in the
- * viewport space.</dd>
- * <dt><code>android:scaleX</code></dt>
- * <dd>The amount of scale on the X Coordinate.</dd>
- * <dt><code>android:scaleY</code></dt>
- * <dd>The amount of scale on the Y coordinate.</dd>
- * <dt><code>android:translateX</code></dt>
- * <dd>The amount of translation on the X coordinate. This is defined in the viewport space.</dd>
- * <dt><code>android:translateY</code></dt>
- * <dd>The amount of translation on the Y coordinate. This is defined in the viewport space.</dd>
- * </dl>
- * </dd>
- * </dl>
- * <dl>
- * <dt><code>&lt;path></code></dt>
- * <dd>Defines paths to be drawn.
- * <dl>
- * <dt><code>android:name</code></dt>
- * <dd>Defines the name of the path.</dd>
- * <dt><code>android:pathData</code></dt>
- * <dd>Defines path data using exactly same format as "d" attribute in the SVG's path
- * data. This is defined in the viewport space.</dd>
- * <dt><code>android:fillColor</code></dt>
- * <dd>Defines the color to fill the path (none if not present).</dd>
- * <dt><code>android:strokeColor</code></dt>
- * <dd>Defines the color to draw the path outline (none if not present).</dd>
- * <dt><code>android:strokeWidth</code></dt>
- * <dd>The width a path stroke.</dd>
- * <dt><code>android:strokeAlpha</code></dt>
- * <dd>The opacity of a path stroke.</dd>
- * <dt><code>android:fillAlpha</code></dt>
- * <dd>The opacity to fill the path with.</dd>
- * <dt><code>android:trimPathStart</code></dt>
- * <dd>The fraction of the path to trim from the start, in the range from 0 to 1.</dd>
- * <dt><code>android:trimPathEnd</code></dt>
- * <dd>The fraction of the path to trim from the end, in the range from 0 to 1.</dd>
- * <dt><code>android:trimPathOffset</code></dt>
- * <dd>Shift trim region (allows showed region to include the start and end), in the range from 0 to
- * 1.</dd>
- * <dt><code>android:strokeLineCap</code></dt>
- * <dd>Sets the linecap for a stroked path: butt, round, square.</dd>
- * <dt><code>android:strokeLineJoin</code></dt>
- * <dd>Sets the lineJoin for a stroked path: miter,round,bevel.</dd>
- * <dt><code>android:strokeMiterLimit</code></dt>
- * <dd>Sets the Miter limit for a stroked path.</dd>
- * </dl>
- * </dd>
- * </dl>
- * <dl>
- * <dt><code>&lt;clip-path></code></dt>
- * <dd>Defines path to be the current clip.
- * <dl>
- * <dt><code>android:name</code></dt>
- * <dd>Defines the name of the clip path.</dd>
- * <dt><code>android:pathData</code></dt>
- * <dd>Defines clip path data using the same format as "d" attribute in the SVG's
- * path data.</dd>
- * </dl>
- * </dd>
- * </dl>
- * <li>Here is a simple VectorDrawable in this vectordrawable.xml file.
- * <pre>
- * &lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
- *     android:height=&quot;64dp&quot;
- *     android:width=&quot;64dp&quot;
- *     android:viewportHeight=&quot;600&quot;
- *     android:viewportWidth=&quot;600&quot; &gt;
- *     &lt;group
- *         android:name=&quot;rotationGroup&quot;
- *         android:pivotX=&quot;300.0&quot;
- *         android:pivotY=&quot;300.0&quot;
- *         android:rotation=&quot;45.0&quot; &gt;
- *         &lt;path
- *             android:name=&quot;v&quot;
- *             android:fillColor=&quot;#000000&quot;
- *             android:pathData=&quot;M300,70 l 0,-70 70,70 0,0 -70,70z&quot; /&gt;
- *     &lt;/group&gt;
- * &lt;/vector&gt;
- * </pre></li>
+ * For API 21 and above, this class is delegating to the framework's {@link VectorDrawable}.
+ * For API 20 and below, this class lets you create a drawable based on an XML vector graphic.
+ * <p>
+ * VectorDrawableCompat are defined in the same XML format as {@link VectorDrawable}.
+ * </p>
+ * You can always create a VectorDrawableCompat object and use it as a Drawable by the Java API.
+ * In order to refer to VectorDrawableCompat inside a XML file,  you can use app:srcCompat attribute
+ * in AppCompat library's ImageButton or ImageView.
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class VectorDrawableCompat extends VectorDrawableCommon {
