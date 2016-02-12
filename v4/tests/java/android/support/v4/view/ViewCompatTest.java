@@ -15,12 +15,19 @@
  */
 package android.support.v4.view;
 
+import android.support.test.runner.AndroidJUnit4;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.view.View;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-public class ViewCompatTest extends AndroidTestCase {
-    @SmallTest
+import static org.junit.Assert.assertEquals;
+
+@RunWith(AndroidJUnit4.class)
+@SmallTest
+public class ViewCompatTest {
+    @Test
     public void testConstants() {
         // Compat constants must match core constants since they can be used interchangeably
         // in various support lib calls.

@@ -16,12 +16,19 @@
 package android.support.v4.view;
 
 import android.os.Build;
+import android.support.test.runner.AndroidJUnit4;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.view.ViewGroup;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-public class MarginLayoutParamsCompatTest extends AndroidTestCase {
-    @SmallTest
+import static org.junit.Assert.assertEquals;
+
+@RunWith(AndroidJUnit4.class)
+@SmallTest
+public class MarginLayoutParamsCompatTest {
+    @Test
     public void testLayoutDirection() {
         ViewGroup.MarginLayoutParams mlp = new ViewGroup.MarginLayoutParams(0, 0);
 
@@ -43,8 +50,7 @@ public class MarginLayoutParamsCompatTest extends AndroidTestCase {
                 MarginLayoutParamsCompat.getLayoutDirection(mlp));
     }
 
-
-    @SmallTest
+    @Test
     public void testMappingOldMarginsToNewMarginsLtr() {
         ViewGroup.MarginLayoutParams mlp = new ViewGroup.MarginLayoutParams(0, 0);
 
@@ -57,7 +63,7 @@ public class MarginLayoutParamsCompatTest extends AndroidTestCase {
                 MarginLayoutParamsCompat.getMarginEnd(mlp));
     }
 
-    @SmallTest
+    @Test
     public void testMappingOldMarginsToNewMarginsRtl() {
         ViewGroup.MarginLayoutParams mlp = new ViewGroup.MarginLayoutParams(0, 0);
 
@@ -79,7 +85,7 @@ public class MarginLayoutParamsCompatTest extends AndroidTestCase {
         }
     }
 
-    @SmallTest
+    @Test
     public void testMappingNewMarginsToNewMarginsLtr() {
         ViewGroup.MarginLayoutParams mlp = new ViewGroup.MarginLayoutParams(0, 0);
 
@@ -98,7 +104,7 @@ public class MarginLayoutParamsCompatTest extends AndroidTestCase {
                 MarginLayoutParamsCompat.getMarginStart(mlp));
     }
 
-    @SmallTest
+    @Test
     public void testMappingNewMarginsToNewMarginsRtl() {
         ViewGroup.MarginLayoutParams mlp = new ViewGroup.MarginLayoutParams(0, 0);
 
@@ -123,7 +129,7 @@ public class MarginLayoutParamsCompatTest extends AndroidTestCase {
                 MarginLayoutParamsCompat.getMarginStart(mlp));
     }
 
-    @SmallTest
+    @Test
     public void testResolveMarginsLtr() {
         ViewGroup.MarginLayoutParams mlp = new ViewGroup.MarginLayoutParams(0, 0);
 
@@ -142,7 +148,7 @@ public class MarginLayoutParamsCompatTest extends AndroidTestCase {
         assertEquals("Keeping left margin field under LTR", 50, mlp.leftMargin);
     }
 
-    @SmallTest
+    @Test
     public void testResolveMarginsRtl() {
         ViewGroup.MarginLayoutParams mlp = new ViewGroup.MarginLayoutParams(0, 0);
 
