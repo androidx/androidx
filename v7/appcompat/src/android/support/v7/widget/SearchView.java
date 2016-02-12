@@ -34,6 +34,8 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.os.ResultReceiver;
 import android.speech.RecognizerIntent;
 import android.support.v4.view.KeyEventCompat;
@@ -1264,6 +1266,47 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
         setIconified(false);
     }
 
+    static class SavedState extends BaseSavedState {
+        boolean isIconified;
+
+        SavedState(Parcelable superState) {
+            super(superState);
+        }
+
+        public SavedState(Parcel source) {
+            super(source);
+            isIconified = (Boolean) source.readValue(null);
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            super.writeToParcel(dest, flags);
+            dest.writeValue(isIconified);
+        }
+
+        @Override
+        public String toString() {
+            return "SearchView.SavedState{"
+                    + Integer.toHexString(System.identityHashCode(this))
+                    + " isIconified=" + isIconified + "}";
+        }
+    }
+
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Parcelable superState = super.onSaveInstanceState();
+        SavedState ss = new SavedState(superState);
+        ss.isIconified = isIconified();
+        return ss;
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        SavedState ss = (SavedState) state;
+        super.onRestoreInstanceState(ss.getSuperState());
+        updateViewsVisibility(ss.isIconified);
+        requestLayout();
+    }
 
     private void adjustDropDownSizeAndPosition() {
         if (mDropDownAnchor.getWidth() > 1) {
