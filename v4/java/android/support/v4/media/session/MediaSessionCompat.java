@@ -1092,7 +1092,6 @@ public class MediaSessionCompat {
             mMediaButtonEventReceiver = mbr;
             mStub = new MediaSessionStub();
             mToken = new Token(mStub);
-            mHandler = new MessageHandler(Looper.myLooper());
 
             mRatingType = RatingCompat.RATING_NONE;
             mVolumeType = MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_LOCAL;
@@ -1106,12 +1105,9 @@ public class MediaSessionCompat {
 
         @Override
         public void setCallback(Callback callback, Handler handler) {
-            if (callback == mCallback) {
-                return;
-            }
             mCallback = callback;
-            if (callback == null || android.os.Build.VERSION.SDK_INT < 18) {
-                // There's nothing to register on API < 18 since media buttons
+            if (callback == null) {
+                // There's nothing to unregister on API < 18 since media buttons
                 // all go through the media button receiver
                 if (android.os.Build.VERSION.SDK_INT >= 18) {
                     MediaSessionCompatApi18.setOnPlaybackPositionUpdateListener(mRccObj, null);
@@ -1120,18 +1116,22 @@ public class MediaSessionCompat {
                     MediaSessionCompatApi19.setOnMetadataUpdateListener(mRccObj, null);
                 }
             } else {
-                if (handler != null) {
+                if (handler == null) {
+                    handler = new Handler();
+                }
+                synchronized (mLock) {
                     mHandler = new MessageHandler(handler.getLooper());
                 }
                 MediaSessionCompatApi19.Callback cb19 = new MediaSessionCompatApi19.Callback() {
                     @Override
                     public void onSetRating(Object ratingObj) {
-                        mHandler.post(MessageHandler.MSG_RATE, RatingCompat.fromRating(ratingObj));
+                        postToHandler(MessageHandler.MSG_RATE,
+                                RatingCompat.fromRating(ratingObj));
                     }
 
                     @Override
                     public void onSeekTo(long pos) {
-                        mHandler.post(MessageHandler.MSG_SEEK_TO, pos);
+                        postToHandler(MessageHandler.MSG_SEEK_TO, pos);
                     }
                 };
                 if (android.os.Build.VERSION.SDK_INT >= 18) {
@@ -1145,6 +1145,22 @@ public class MediaSessionCompat {
                             .createMetadataUpdateListener(cb19);
                     MediaSessionCompatApi19.setOnMetadataUpdateListener(mRccObj,
                             onMetadataUpdateObj);
+                }
+            }
+        }
+
+        private void postToHandler(int what) {
+            postToHandler(what, null);
+        }
+
+        private void postToHandler(int what, Object obj) {
+            postToHandler(what, obj, null);
+        }
+
+        private void postToHandler(int what, Object obj, Bundle extras) {
+            synchronized (mLock) {
+                if (mHandler != null) {
+                    mHandler.post(what, obj, extras);
                 }
             }
         }
@@ -1569,7 +1585,7 @@ public class MediaSessionCompat {
         class MediaSessionStub extends IMediaSession.Stub {
             @Override
             public void sendCommand(String command, Bundle args, ResultReceiverWrapper cb) {
-                mHandler.post(MessageHandler.MSG_COMMAND,
+                postToHandler(MessageHandler.MSG_COMMAND,
                         new Command(command, args, cb.mResultReceiver));
             }
 
@@ -1578,7 +1594,7 @@ public class MediaSessionCompat {
                 boolean handlesMediaButtons =
                         (mFlags & MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS) != 0;
                 if (handlesMediaButtons) {
-                    mHandler.post(MessageHandler.MSG_MEDIA_BUTTON, mediaButton);
+                    postToHandler(MessageHandler.MSG_MEDIA_BUTTON, mediaButton);
                 }
                 return handlesMediaButtons;
             }
@@ -1666,73 +1682,73 @@ public class MediaSessionCompat {
 
             @Override
             public void play() throws RemoteException {
-                mHandler.post(MessageHandler.MSG_PLAY);
+                postToHandler(MessageHandler.MSG_PLAY);
             }
 
             @Override
             public void playFromMediaId(String mediaId, Bundle extras) throws RemoteException {
-                mHandler.post(MessageHandler.MSG_PLAY_MEDIA_ID, mediaId, extras);
+                postToHandler(MessageHandler.MSG_PLAY_MEDIA_ID, mediaId, extras);
             }
 
             @Override
             public void playFromSearch(String query, Bundle extras) throws RemoteException {
-                mHandler.post(MessageHandler.MSG_PLAY_SEARCH, query, extras);
+                postToHandler(MessageHandler.MSG_PLAY_SEARCH, query, extras);
             }
 
             @Override
             public void playFromUri(Uri uri, Bundle extras) throws RemoteException {
-                mHandler.post(MessageHandler.MSG_PLAY_URI, uri, extras);
+                postToHandler(MessageHandler.MSG_PLAY_URI, uri, extras);
             }
 
             @Override
             public void skipToQueueItem(long id) {
-                mHandler.post(MessageHandler.MSG_SKIP_TO_ITEM, id);
+                postToHandler(MessageHandler.MSG_SKIP_TO_ITEM, id);
             }
 
             @Override
             public void pause() throws RemoteException {
-                mHandler.post(MessageHandler.MSG_PAUSE);
+                postToHandler(MessageHandler.MSG_PAUSE);
             }
 
             @Override
             public void stop() throws RemoteException {
-                mHandler.post(MessageHandler.MSG_STOP);
+                postToHandler(MessageHandler.MSG_STOP);
             }
 
             @Override
             public void next() throws RemoteException {
-                mHandler.post(MessageHandler.MSG_NEXT);
+                postToHandler(MessageHandler.MSG_NEXT);
             }
 
             @Override
             public void previous() throws RemoteException {
-                mHandler.post(MessageHandler.MSG_PREVIOUS);
+                postToHandler(MessageHandler.MSG_PREVIOUS);
             }
 
             @Override
             public void fastForward() throws RemoteException {
-                mHandler.post(MessageHandler.MSG_FAST_FORWARD);
+                postToHandler(MessageHandler.MSG_FAST_FORWARD);
             }
 
             @Override
             public void rewind() throws RemoteException {
-                mHandler.post(MessageHandler.MSG_REWIND);
+                postToHandler(MessageHandler.MSG_REWIND);
             }
 
             @Override
             public void seekTo(long pos) throws RemoteException {
-                mHandler.post(MessageHandler.MSG_SEEK_TO, pos);
+                postToHandler(MessageHandler.MSG_SEEK_TO, pos);
             }
 
             @Override
             public void rate(RatingCompat rating) throws RemoteException {
-                mHandler.post(MessageHandler.MSG_RATE, rating);
+                postToHandler(MessageHandler.MSG_RATE, rating);
             }
 
             @Override
             public void sendCustomAction(String action, Bundle args)
                     throws RemoteException {
-                mHandler.post(MessageHandler.MSG_CUSTOM_ACTION, action, args);
+                postToHandler(MessageHandler.MSG_CUSTOM_ACTION, action, args);
             }
 
             @Override
