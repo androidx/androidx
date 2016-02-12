@@ -55,7 +55,8 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 # Animated API Check
 support_module := $(LOCAL_MODULE)
 support_module_api_dir := $(LOCAL_PATH)/animated/api
-support_module_src_files := $(LOCAL_SRC_FILES)
+support_module_src_files := $(LOCAL_SRC_FILES) \
+    static/src/android/support/graphics/drawable/VectorDrawableCommon.java
 support_module_java_libraries := $(LOCAL_JAVA_LIBRARIES)
 support_module_java_packages := android.support.graphics.drawable
 include $(SUPPORT_API_CHECK)
