@@ -27,7 +27,6 @@ import android.content.res.Resources.Theme;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
-import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.AnimatedVectorDrawable;
@@ -36,8 +35,6 @@ import android.os.Build;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.util.ArrayMap;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -190,8 +187,9 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
                                                       @DrawableRes int resId) {
         if (Build.VERSION.SDK_INT >= 21) {
             final AnimatedVectorDrawableCompat drawable = new AnimatedVectorDrawableCompat(context);
-            drawable.mDelegateDrawable = ResourcesCompat.getDrawable(context.getResources(), resId,
-                    context.getTheme());
+            drawable.mDelegateDrawable =
+                    (AnimatedVectorDrawable) context.getResources().getDrawable(resId,
+                            context.getTheme());
             drawable.mDelegateDrawable.setCallback(drawable.mCallback);
             drawable.mCachedConstantStateDelegate = new AnimatedVectorDrawableDelegateState(
                     drawable.mDelegateDrawable.getConstantState());
@@ -297,7 +295,7 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
     @Override
     public int getAlpha() {
         if (mDelegateDrawable != null) {
-            return DrawableCompat.getAlpha(mDelegateDrawable);
+            return mDelegateDrawable.getAlpha();
         }
         return mAnimatedVectorState.mVectorDrawable.getAlpha();
     }
@@ -320,31 +318,21 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
         mAnimatedVectorState.mVectorDrawable.setColorFilter(colorFilter);
     }
 
-    public void setTint(int tint) {
-        if (mDelegateDrawable != null) {
-            DrawableCompat.setTint(mDelegateDrawable, tint);
-            return;
-        }
-
-        mAnimatedVectorState.mVectorDrawable.setTint(tint);
-    }
-
     public void setTintList(ColorStateList tint) {
         if (mDelegateDrawable != null) {
-            DrawableCompat.setTintList(mDelegateDrawable, tint);
+            mDelegateDrawable.setTintList(tint);
             return;
         }
-
         mAnimatedVectorState.mVectorDrawable.setTintList(tint);
     }
 
-    public void setTintMode(PorterDuff.Mode tintMode) {
+    @Override
+    public void setHotspot(float x, float y) {
         if (mDelegateDrawable != null) {
-            DrawableCompat.setTintMode(mDelegateDrawable, tintMode);
+            mDelegateDrawable.setHotspot(x, y);
             return;
         }
-
-        mAnimatedVectorState.mVectorDrawable.setTintMode(tintMode);
+        mDelegateDrawable.setHotspot(x, y);
     }
 
     @Override
@@ -402,7 +390,7 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
     public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs, Theme theme)
             throws XmlPullParserException, IOException {
         if (mDelegateDrawable != null) {
-            DrawableCompat.inflate(mDelegateDrawable, res, parser, attrs, theme);
+            mDelegateDrawable.inflate(res, parser, attrs, theme);
             return;
         }
         int eventType = parser.getEventType();
@@ -468,7 +456,7 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
     @Override
     public void applyTheme(Theme t) {
         if (mDelegateDrawable != null) {
-            DrawableCompat.applyTheme(mDelegateDrawable, t);
+            mDelegateDrawable.applyTheme(t);
             return;
         }
         // TODO: support theming in older platform.
@@ -477,7 +465,7 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
 
     public boolean canApplyTheme() {
         if (mDelegateDrawable != null) {
-            return DrawableCompat.canApplyTheme(mDelegateDrawable);
+            return mDelegateDrawable.canApplyTheme();
         }
         // TODO: support theming in older platform.
         return false;
@@ -499,7 +487,8 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
         public Drawable newDrawable() {
             AnimatedVectorDrawableCompat drawableCompat =
                     new AnimatedVectorDrawableCompat();
-            drawableCompat.mDelegateDrawable = mDelegateState.newDrawable();
+            drawableCompat.mDelegateDrawable =
+                    (AnimatedVectorDrawable) mDelegateState.newDrawable();
             drawableCompat.mDelegateDrawable.setCallback(drawableCompat.mCallback);
             return drawableCompat;
         }
@@ -508,7 +497,8 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
         public Drawable newDrawable(Resources res) {
             AnimatedVectorDrawableCompat drawableCompat =
                     new AnimatedVectorDrawableCompat();
-            drawableCompat.mDelegateDrawable = mDelegateState.newDrawable(res);
+            drawableCompat.mDelegateDrawable =
+                    (AnimatedVectorDrawable) mDelegateState.newDrawable(res);
             drawableCompat.mDelegateDrawable.setCallback(drawableCompat.mCallback);
             return drawableCompat;
         }
@@ -517,7 +507,8 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
         public Drawable newDrawable(Resources res, Theme theme) {
             AnimatedVectorDrawableCompat drawableCompat =
                     new AnimatedVectorDrawableCompat();
-            drawableCompat.mDelegateDrawable = mDelegateState.newDrawable(res, theme);
+            drawableCompat.mDelegateDrawable =
+                    (AnimatedVectorDrawable) mDelegateState.newDrawable(res, theme);
             drawableCompat.mDelegateDrawable.setCallback(drawableCompat.mCallback);
             return drawableCompat;
         }
