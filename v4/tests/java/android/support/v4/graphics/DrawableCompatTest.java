@@ -19,20 +19,27 @@ package android.support.v4.graphics;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-public class DrawableCompatTest extends AndroidTestCase {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
-    @SmallTest
+@RunWith(AndroidJUnit4.class)
+@SmallTest
+public class DrawableCompatTest {
+    @Test
     public void testDrawableUnwrap() {
         final Drawable original = new GradientDrawable();
         final Drawable wrappedDrawable = DrawableCompat.wrap(original);
         assertSame(original, DrawableCompat.unwrap(wrappedDrawable));
     }
 
-    @SmallTest
+    @Test
     public void testDrawableChangeBoundsCopy() {
         final Rect bounds = new Rect(0, 0, 10, 10);
 
@@ -43,10 +50,9 @@ public class DrawableCompatTest extends AndroidTestCase {
         assertEquals(bounds, wrapped.getBounds());
     }
 
-    @SmallTest
+    @Test
     public void testDrawableWrapOnlyWrapsOnce() {
         final Drawable wrappedDrawable = DrawableCompat.wrap(new GradientDrawable());
         assertSame(wrappedDrawable, DrawableCompat.wrap(wrappedDrawable));
     }
-
 }

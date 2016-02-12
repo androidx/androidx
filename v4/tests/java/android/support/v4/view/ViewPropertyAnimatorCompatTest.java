@@ -31,10 +31,10 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+@MediumTest
 public class ViewPropertyAnimatorCompatTest extends BaseInstrumentationTestCase<VpaActivity> {
 
     private View mView;
-    private int mVariable;
     private int mNumListenerCalls = 0;
 
     public ViewPropertyAnimatorCompatTest() {
@@ -42,13 +42,12 @@ public class ViewPropertyAnimatorCompatTest extends BaseInstrumentationTestCase<
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         final Activity activity = mActivityTestRule.getActivity();
         mView = activity.findViewById(R.id.view);
     }
 
     @Test
-    @MediumTest
     public void testWithEndAction() throws Throwable {
         final CountDownLatch latch1 = new CountDownLatch(1);
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
@@ -87,7 +86,6 @@ public class ViewPropertyAnimatorCompatTest extends BaseInstrumentationTestCase<
     }
 
     @Test
-    @MediumTest
     public void testWithStartAction() throws Throwable {
         final CountDownLatch latch1 = new CountDownLatch(1);
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {

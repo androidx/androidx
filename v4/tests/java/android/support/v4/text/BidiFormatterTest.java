@@ -16,14 +16,19 @@
 
 package android.support.v4.text;
 
-import android.test.AndroidTestCase;
+import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.SmallTest;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.Locale;
 
-/** @hide */
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
+@RunWith(AndroidJUnit4.class)
 @SmallTest
-public class BidiFormatterTest extends AndroidTestCase {
+public class BidiFormatterTest {
 
     private static final BidiFormatter LTR_FMT = BidiFormatter.getInstance(false /* LTR context */);
     private static final BidiFormatter RTL_FMT = BidiFormatter.getInstance(true /* RTL context */);
@@ -42,6 +47,7 @@ public class BidiFormatterTest extends AndroidTestCase {
     private static final String RLE = "\u202B";
     private static final String PDF = "\u202C";
 
+    @Test
     public void testIsRtlContext() {
         assertEquals(false, LTR_FMT.isRtlContext());
         assertEquals(true, RTL_FMT.isRtlContext());
@@ -50,11 +56,13 @@ public class BidiFormatterTest extends AndroidTestCase {
         assertEquals(true, BidiFormatter.getInstance(true).isRtlContext());
     }
 
+    @Test
     public void testBuilderIsRtlContext() {
         assertEquals(false, new BidiFormatter.Builder(false).build().isRtlContext());
         assertEquals(true, new BidiFormatter.Builder(true).build().isRtlContext());
     }
 
+    @Test
     public void testIsRtl() {
         assertEquals(true, BidiFormatter.getInstance(true).isRtl(HE));
         assertEquals(true, BidiFormatter.getInstance(false).isRtl(HE));
@@ -63,6 +71,7 @@ public class BidiFormatterTest extends AndroidTestCase {
         assertEquals(false, BidiFormatter.getInstance(false).isRtl(EN));
     }
 
+    @Test
     public void testUnicodeWrap() {
         // Make sure an input of null doesn't crash anything.
         assertNull(LTR_FMT.unicodeWrap(null));
@@ -148,14 +157,16 @@ public class BidiFormatterTest extends AndroidTestCase {
                 LTR_FMT.unicodeWrap(HE + EN + HE, TextDirectionHeuristicsCompat.LTR));
         assertEquals("entry and exit dir opposite to LTR context, no isolation",
                 HE + EN + HE,
-                LTR_FMT_EXIT_RESET.unicodeWrap(HE + EN + HE, TextDirectionHeuristicsCompat.LTR, false));
+                LTR_FMT_EXIT_RESET.unicodeWrap(HE + EN + HE, TextDirectionHeuristicsCompat.LTR,
+                        false));
 
         assertEquals("entry and exit dir opposite to RTL context",
                 EN + HE + EN + RLM,
                 RTL_FMT_EXIT_RESET.unicodeWrap(EN + HE + EN, TextDirectionHeuristicsCompat.RTL));
         assertEquals("entry and exit dir opposite to RTL context, no isolation",
                 EN + HE + EN,
-                RTL_FMT_EXIT_RESET.unicodeWrap(EN + HE + EN, TextDirectionHeuristicsCompat.RTL, false));
+                RTL_FMT_EXIT_RESET.unicodeWrap(EN + HE + EN, TextDirectionHeuristicsCompat.RTL,
+                        false));
 
         // Entry and exit directionality matching context, but with opposite overall directionality.
         assertEquals("overall dir (but not entry or exit dir) opposite to LTR context",
@@ -166,7 +177,8 @@ public class BidiFormatterTest extends AndroidTestCase {
                 LTR_FMT.unicodeWrap(EN + HE + EN, TextDirectionHeuristicsCompat.RTL));
         assertEquals("overall dir (but not entry or exit dir) opposite to LTR context, no isolation",
                 RLE + EN + HE + EN + PDF,
-                LTR_FMT_EXIT_RESET.unicodeWrap(EN + HE + EN, TextDirectionHeuristicsCompat.RTL, false));
+                LTR_FMT_EXIT_RESET.unicodeWrap(EN + HE + EN, TextDirectionHeuristicsCompat.RTL,
+                        false));
 
         assertEquals("overall dir (but not entry or exit dir) opposite to RTL context",
                 LRE + HE + EN + HE + PDF + RLM,
@@ -176,6 +188,7 @@ public class BidiFormatterTest extends AndroidTestCase {
                 RTL_FMT.unicodeWrap(HE + EN + HE, TextDirectionHeuristicsCompat.LTR));
         assertEquals("overall dir (but not entry or exit dir) opposite to RTL context, no isolation",
                 LRE + HE + EN + HE + PDF,
-                RTL_FMT_EXIT_RESET.unicodeWrap(HE + EN + HE, TextDirectionHeuristicsCompat.LTR, false));
+                RTL_FMT_EXIT_RESET.unicodeWrap(HE + EN + HE, TextDirectionHeuristicsCompat.LTR,
+                        false));
     }
 }
