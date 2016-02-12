@@ -39,8 +39,7 @@ public class DocumentArchiveTest extends AndroidTestCase {
     private static final String NOTIFICATION_URI = "content://notification-uri";
     private DocumentArchive mArchive = null;
 
-    @Override
-    public void setUp() {
+    public void loadArchive(int resource) {
         // Extract the file from resources.
         File file = null;
         try {
@@ -52,7 +51,7 @@ public class DocumentArchiveTest extends AndroidTestCase {
                                 ParcelFileDescriptor.open(
                                         file, ParcelFileDescriptor.MODE_WRITE_ONLY));
                 final InputStream inputStream =
-                        mContext.getResources().openRawResource(R.raw.archive);
+                        mContext.getResources().openRawResource(resource);
             ) {
                 final byte[] buffer = new byte[32 * 1024];
                 int bytes;
@@ -87,12 +86,13 @@ public class DocumentArchiveTest extends AndroidTestCase {
     }
 
     public void testQueryChildDocument() throws IOException {
+        loadArchive(R.raw.archive);
         final Cursor cursor = mArchive.queryChildDocuments(DOCUMENT_ID, null, null);
 
         assertTrue(cursor.moveToFirst());
-        assertEquals("document-id:dir2/",
+        assertEquals("document-id:dir1/",
                 cursor.getString(cursor.getColumnIndexOrThrow(Document.COLUMN_DOCUMENT_ID)));
-        assertEquals("dir2",
+        assertEquals("dir1",
                 cursor.getString(cursor.getColumnIndexOrThrow(Document.COLUMN_DISPLAY_NAME)));
         assertEquals(Document.MIME_TYPE_DIR,
                 cursor.getString(cursor.getColumnIndexOrThrow(Document.COLUMN_MIME_TYPE)));
@@ -100,9 +100,9 @@ public class DocumentArchiveTest extends AndroidTestCase {
                 cursor.getInt(cursor.getColumnIndexOrThrow(Document.COLUMN_SIZE)));
 
         assertTrue(cursor.moveToNext());
-        assertEquals("document-id:dir1/",
+        assertEquals("document-id:dir2/",
                 cursor.getString(cursor.getColumnIndexOrThrow(Document.COLUMN_DOCUMENT_ID)));
-        assertEquals("dir1",
+        assertEquals("dir2",
                 cursor.getString(cursor.getColumnIndexOrThrow(Document.COLUMN_DISPLAY_NAME)));
         assertEquals(Document.MIME_TYPE_DIR,
                 cursor.getString(cursor.getColumnIndexOrThrow(Document.COLUMN_MIME_TYPE)));
@@ -138,20 +138,116 @@ public class DocumentArchiveTest extends AndroidTestCase {
                 childCursor.getInt(childCursor.getColumnIndexOrThrow(Document.COLUMN_SIZE)));
     }
 
+    public void testQueryChildDocument_NoDirs() throws IOException {
+        loadArchive(R.raw.no_dirs);
+        final Cursor cursor = mArchive.queryChildDocuments(DOCUMENT_ID, null, null);
+
+        assertTrue(cursor.moveToFirst());
+        assertEquals("document-id:dir1/",
+                cursor.getString(cursor.getColumnIndexOrThrow(Document.COLUMN_DOCUMENT_ID)));
+        assertEquals("dir1",
+                cursor.getString(cursor.getColumnIndexOrThrow(Document.COLUMN_DISPLAY_NAME)));
+        assertEquals(Document.MIME_TYPE_DIR,
+                cursor.getString(cursor.getColumnIndexOrThrow(Document.COLUMN_MIME_TYPE)));
+        assertEquals(0,
+                cursor.getInt(cursor.getColumnIndexOrThrow(Document.COLUMN_SIZE)));
+        assertFalse(cursor.moveToNext());
+
+        final Cursor childCursor = mArchive.queryChildDocuments("document-id:dir1/", null, null);
+
+        assertTrue(childCursor.moveToFirst());
+        assertEquals("document-id:dir1/dir2/",
+                childCursor.getString(childCursor.getColumnIndexOrThrow(
+                        Document.COLUMN_DOCUMENT_ID)));
+        assertEquals("dir2",
+                childCursor.getString(childCursor.getColumnIndexOrThrow(
+                        Document.COLUMN_DISPLAY_NAME)));
+        assertEquals(Document.MIME_TYPE_DIR,
+                childCursor.getString(childCursor.getColumnIndexOrThrow(
+                        Document.COLUMN_MIME_TYPE)));
+        assertEquals(0,
+                childCursor.getInt(childCursor.getColumnIndexOrThrow(Document.COLUMN_SIZE)));
+        assertFalse(childCursor.moveToNext());
+
+        final Cursor childCursor2 = mArchive.queryChildDocuments(
+                "document-id:dir1/dir2/", null, null);
+
+        assertTrue(childCursor2.moveToFirst());
+        assertEquals("document-id:dir1/dir2/cherries.txt",
+                childCursor2.getString(childCursor.getColumnIndexOrThrow(
+                        Document.COLUMN_DOCUMENT_ID)));
+        assertFalse(childCursor2.moveToNext());
+    }
+
+    public void testQueryChildDocument_EmptyDirs() throws IOException {
+        loadArchive(R.raw.empty_dirs);
+        final Cursor cursor = mArchive.queryChildDocuments(DOCUMENT_ID, null, null);
+
+        assertTrue(cursor.moveToFirst());
+        assertEquals("document-id:dir1/",
+                cursor.getString(cursor.getColumnIndexOrThrow(Document.COLUMN_DOCUMENT_ID)));
+        assertEquals("dir1",
+                cursor.getString(cursor.getColumnIndexOrThrow(Document.COLUMN_DISPLAY_NAME)));
+        assertEquals(Document.MIME_TYPE_DIR,
+                cursor.getString(cursor.getColumnIndexOrThrow(Document.COLUMN_MIME_TYPE)));
+        assertEquals(0,
+                cursor.getInt(cursor.getColumnIndexOrThrow(Document.COLUMN_SIZE)));
+        assertFalse(cursor.moveToNext());
+
+        final Cursor childCursor = mArchive.queryChildDocuments("document-id:dir1/", null, null);
+
+        assertTrue(childCursor.moveToFirst());
+        assertEquals("document-id:dir1/dir2/",
+                childCursor.getString(childCursor.getColumnIndexOrThrow(
+                        Document.COLUMN_DOCUMENT_ID)));
+        assertEquals("dir2",
+                childCursor.getString(childCursor.getColumnIndexOrThrow(
+                        Document.COLUMN_DISPLAY_NAME)));
+        assertEquals(Document.MIME_TYPE_DIR,
+                childCursor.getString(childCursor.getColumnIndexOrThrow(
+                        Document.COLUMN_MIME_TYPE)));
+        assertEquals(0,
+                childCursor.getInt(childCursor.getColumnIndexOrThrow(Document.COLUMN_SIZE)));
+
+        assertTrue(childCursor.moveToNext());
+        assertEquals("document-id:dir1/dir3/",
+                childCursor.getString(childCursor.getColumnIndexOrThrow(
+                        Document.COLUMN_DOCUMENT_ID)));
+        assertEquals("dir3",
+                childCursor.getString(childCursor.getColumnIndexOrThrow(
+                        Document.COLUMN_DISPLAY_NAME)));
+        assertEquals(Document.MIME_TYPE_DIR,
+                childCursor.getString(childCursor.getColumnIndexOrThrow(
+                        Document.COLUMN_MIME_TYPE)));
+        assertEquals(0,
+                childCursor.getInt(childCursor.getColumnIndexOrThrow(Document.COLUMN_SIZE)));
+        assertFalse(cursor.moveToNext());
+
+        final Cursor childCursor2 = mArchive.queryChildDocuments(
+                "document-id:dir1/dir2/", null, null);
+        assertFalse(childCursor2.moveToFirst());
+
+        final Cursor childCursor3 = mArchive.queryChildDocuments(
+                "document-id:dir1/dir3/", null, null);
+        assertFalse(childCursor3.moveToFirst());
+    }
+
     public void testGetDocumentType() throws IOException {
+        loadArchive(R.raw.archive);
         assertEquals(Document.MIME_TYPE_DIR, mArchive.getDocumentType("document-id:dir1/"));
         assertEquals("text/plain", mArchive.getDocumentType("document-id:file1.txt"));
     }
 
     public void testIsChildDocument() throws IOException {
-        assertTrue(mArchive.isChildDocument(DOCUMENT_ID, "document-id:dir1"));
-        assertTrue(mArchive.isChildDocument("document-id:dir1/", "document-id:dir1"));
+        loadArchive(R.raw.archive);
+        assertTrue(mArchive.isChildDocument(DOCUMENT_ID, "document-id:dir1/"));
         assertFalse(mArchive.isChildDocument(DOCUMENT_ID, "document-id:this-does-not-exist"));
         assertTrue(mArchive.isChildDocument("document-id:dir1/", "document-id:dir1/cherries.txt"));
         assertTrue(mArchive.isChildDocument(DOCUMENT_ID, "document-id:dir1/cherries.txt"));
     }
 
     public void testQueryDocument() throws IOException {
+        loadArchive(R.raw.archive);
         final Cursor cursor = mArchive.queryDocument("document-id:dir2/strawberries.txt", null);
 
         assertTrue(cursor.moveToFirst());
@@ -166,6 +262,7 @@ public class DocumentArchiveTest extends AndroidTestCase {
     }
 
     public void testOpenDocument() throws IOException {
+        loadArchive(R.raw.archive);
         final ParcelFileDescriptor descriptor = mArchive.openDocument(
                 "document-id:dir2/strawberries.txt", "r", null /* signal */);
         try (final ParcelFileDescriptor.AutoCloseInputStream inputStream =

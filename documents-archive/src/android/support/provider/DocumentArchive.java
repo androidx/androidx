@@ -46,6 +46,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.zip.ZipEntry;
@@ -79,6 +80,7 @@ public class DocumentArchive implements Closeable {
     private final Uri mNotificationUri;
     private final ZipFile mZipFile;
     private final ExecutorService mExecutor;
+    private final Map<String, ZipEntry> mEntries;
     private final Map<String, List<ZipEntry>> mTree;
 
     private DocumentArchive(
@@ -99,30 +101,50 @@ public class DocumentArchive implements Closeable {
         mTree = new HashMap<String, List<ZipEntry>>();
         mTree.put("/", new ArrayList<ZipEntry>());
 
-        // Traversing entries via ZipFile.entries() is very slow, so copy the entries to a temporary
-        // map for building the tree.
-        final Map<String, ZipEntry> entries = new HashMap<String, ZipEntry>();
-        for (final ZipEntry entry : Collections.list(mZipFile.entries())) {
-            entries.put(entry.getName(), entry);
+        mEntries = new HashMap<String, ZipEntry>();
+        ZipEntry entry;
+        final List<? extends ZipEntry> entries = Collections.list(mZipFile.entries());
+        final Stack<ZipEntry> stack = new Stack<>();
+        for (int i = entries.size() - 1; i >= 0; i--) {
+            entry = entries.get(i);
+            mEntries.put(entry.getName(), entry);
             if (entry.isDirectory()) {
                 mTree.put(entry.getName(), new ArrayList<ZipEntry>());
             }
+            stack.push(entry);
         }
 
         int delimiterIndex;
-        List<ZipEntry> parentList;
         String parentPath;
-        for (final ZipEntry entry : entries.values()) {
+        ZipEntry parentEntry;
+        List<ZipEntry> parentList;
+
+        while (stack.size() > 0) {
+            entry = stack.pop();
+
             delimiterIndex = entry.getName().lastIndexOf('/', entry.isDirectory()
                     ? entry.getName().length() - 2 : entry.getName().length() - 1);
             parentPath =
                     delimiterIndex != -1 ? entry.getName().substring(0, delimiterIndex) + "/" : "/";
             parentList = mTree.get(parentPath);
-            if (parentList != null) {
-                parentList.add(entry);
-            } else {
-                Log.w(TAG, "Archived files without a parent are not supported: " + entry.getName());
+
+            if (parentList == null) {
+                parentEntry = mEntries.get(parentPath);
+                if (parentEntry == null) {
+                    // The ZIP file doesn't contain all directories leading to the entry.
+                    // It's rare, but can happen in a valid ZIP archive. In such case create a
+                    // fake ZipEntry and add it on top of the stack to process it next.
+                    parentEntry = new ZipEntry(parentPath);
+                    parentEntry.setSize(0);
+                    parentEntry.setTime(entry.getTime());
+                    mEntries.put(parentPath, parentEntry);
+                    stack.push(parentEntry);
+                }
+                parentList = new ArrayList<ZipEntry>();
+                mTree.put(parentPath, parentList);
             }
+
+            parentList.add(entry);
         }
     }
 
@@ -244,7 +266,7 @@ public class DocumentArchive implements Closeable {
                 "Mismatching document ID. Expected: %s, actual: %s.");
         Preconditions.checkArgumentNotNull(parsedId.mPath, "Not a document within an archive.");
 
-        final ZipEntry entry = mZipFile.getEntry(parsedId.mPath);
+        final ZipEntry entry = mEntries.get(parsedId.mPath);
         if (entry == null) {
             throw new FileNotFoundException();
         }
@@ -267,7 +289,7 @@ public class DocumentArchive implements Closeable {
         Preconditions.checkArgumentNotNull(parsedId.mPath,
                 "Not a document within an archive.");
 
-        final ZipEntry entry = mZipFile.getEntry(parsedId.mPath);
+        final ZipEntry entry = mEntries.get(parsedId.mPath);
         if (entry == null) {
             return false;
         }
@@ -278,7 +300,7 @@ public class DocumentArchive implements Closeable {
             return true;
         }
 
-        final ZipEntry parentEntry = mZipFile.getEntry(parsedParentId.mPath);
+        final ZipEntry parentEntry = mEntries.get(parsedParentId.mPath);
         if (parentEntry == null || !parentEntry.isDirectory()) {
             return false;
         }
@@ -304,7 +326,7 @@ public class DocumentArchive implements Closeable {
                 "Mismatching document ID. Expected: %s, actual: %s.");
         Preconditions.checkArgumentNotNull(parsedId.mPath, "Not a document within an archive.");
 
-        final ZipEntry entry = mZipFile.getEntry(parsedId.mPath);
+        final ZipEntry entry = mEntries.get(parsedId.mPath);
         if (entry == null) {
             throw new FileNotFoundException();
         }
@@ -334,7 +356,7 @@ public class DocumentArchive implements Closeable {
                 "Mismatching document ID. Expected: %s, actual: %s.");
         Preconditions.checkArgumentNotNull(parsedId.mPath, "Not a document within an archive.");
 
-        final ZipEntry entry = mZipFile.getEntry(parsedId.mPath);
+        final ZipEntry entry = mEntries.get(parsedId.mPath);
         if (entry == null) {
             throw new FileNotFoundException();
         }
@@ -410,7 +432,7 @@ public class DocumentArchive implements Closeable {
                 "Thumbnails only supported for image/* MIME type.");
 
         // TODO: Extract thumbnails from EXIF.
-        final ZipEntry entry = mZipFile.getEntry(parsedId.mPath);
+        final ZipEntry entry = mEntries.get(parsedId.mPath);
         if (entry == null) {
             throw new FileNotFoundException();
         }
