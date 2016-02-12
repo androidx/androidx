@@ -958,7 +958,8 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
 
         return mAppCompatViewInflater.createView(parent, name, context, attrs, inheritContext,
                 isPre21, /* Only read android:theme pre-L (L+ handles this anyway) */
-                true /* Read read app:theme as a fallback at all times for legacy reasons */
+                true, /* Read read app:theme as a fallback at all times for legacy reasons */
+                isPre21 /* Only tint wrap the context pre-L */
         );
     }
 
