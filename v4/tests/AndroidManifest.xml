@@ -36,8 +36,6 @@
 
         <activity android:name="android.support.v4.view.ViewPagerWithTabStripActivity"/>
 
-        <activity android:name="android.support.v4.widget.TestActivity"/>
-
         <activity android:name="android.support.v4.view.VpaActivity"/>
 
         <activity

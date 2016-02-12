@@ -17,17 +17,20 @@
 package android.support.v4.graphics;
 
 import android.graphics.Color;
-import android.test.AndroidTestCase;
+import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.SmallTest;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.lang.Integer;
 import java.util.ArrayList;
 
-/**
- * @hide
- */
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+@RunWith(AndroidJUnit4.class)
 @SmallTest
-public class ColorUtilsTest extends AndroidTestCase {
+public class ColorUtilsTest {
 
     // 0.5% of the max value
     private static final float ALLOWED_OFFSET_HUE = 360 * 0.005f;
@@ -81,16 +84,18 @@ public class ColorUtilsTest extends AndroidTestCase {
 
     public void testColorToHSL() {
         for (TestEntry entry : sEntryList) {
-            testColorToHSL(entry.rgb, entry.hsl);
+            verifyColorToHSL(entry.rgb, entry.hsl);
         }
     }
 
+    @Test
     public void testHSLToColor() {
         for (TestEntry entry : sEntryList) {
-            testHSLToColor(entry.hsl, entry.rgb);
+            verifyHSLToColor(entry.hsl, entry.rgb);
         }
     }
 
+    @Test
     public void testColorToHslLimits() {
         final float[] hsl = new float[3];
 
@@ -103,68 +108,77 @@ public class ColorUtilsTest extends AndroidTestCase {
         }
     }
 
+    @Test
     public void testColorToXYZ() {
         for (TestEntry entry : sEntryList) {
-            testColorToXYZ(entry.rgb, entry.xyz);
+            verifyColorToXYZ(entry.rgb, entry.xyz);
         }
     }
 
+    @Test
     public void testColorToLAB() {
         for (TestEntry entry : sEntryList) {
-            testColorToLAB(entry.rgb, entry.lab);
+            verifyColorToLAB(entry.rgb, entry.lab);
         }
     }
 
+    @Test
     public void testLABToXYZ() {
         for (TestEntry entry : sEntryList) {
-            testLABToXYZ(entry.lab, entry.xyz);
+            verifyLABToXYZ(entry.lab, entry.xyz);
         }
     }
 
+    @Test
     public void testXYZToColor() {
         for (TestEntry entry : sEntryList) {
-            testXYZToColor(entry.xyz, entry.rgb);
+            verifyXYZToColor(entry.xyz, entry.rgb);
         }
     }
 
+    @Test
     public void testLABToColor() {
         for (TestEntry entry : sEntryList) {
-            testLABToColor(entry.lab, entry.rgb);
+            verifyLABToColor(entry.lab, entry.rgb);
         }
     }
 
+    @Test
     public void testMinAlphas() {
         for (TestEntry entry : sEntryList) {
-            testMinAlpha("Black title", entry.rgb, entry.blackMinAlpha30,
+            verifyMinAlpha("Black title", entry.rgb, entry.blackMinAlpha30,
                     ColorUtils.calculateMinimumAlpha(Color.BLACK, entry.rgb, 3.0f));
-            testMinAlpha("Black body", entry.rgb, entry.blackMinAlpha45,
+            verifyMinAlpha("Black body", entry.rgb, entry.blackMinAlpha45,
                     ColorUtils.calculateMinimumAlpha(Color.BLACK, entry.rgb, 4.5f));
-            testMinAlpha("White title", entry.rgb, entry.whiteMinAlpha30,
+            verifyMinAlpha("White title", entry.rgb, entry.whiteMinAlpha30,
                     ColorUtils.calculateMinimumAlpha(Color.WHITE, entry.rgb, 3.0f));
-            testMinAlpha("White body", entry.rgb, entry.whiteMinAlpha45,
+            verifyMinAlpha("White body", entry.rgb, entry.whiteMinAlpha45,
                     ColorUtils.calculateMinimumAlpha(Color.WHITE, entry.rgb, 4.5f));
         }
     }
 
+    @Test
     public void testCircularInterpolationForwards() {
-        assertEquals(0f, ColorUtils.circularInterpolate(0, 180, 0f));
-        assertEquals(90f, ColorUtils.circularInterpolate(0, 180, 0.5f));
-        assertEquals(180f, ColorUtils.circularInterpolate(0, 180, 1f));
+        assertEquals(0f, ColorUtils.circularInterpolate(0, 180, 0f), 0f);
+        assertEquals(90f, ColorUtils.circularInterpolate(0, 180, 0.5f), 0f);
+        assertEquals(180f, ColorUtils.circularInterpolate(0, 180, 1f), 0f);
     }
 
+    @Test
     public void testCircularInterpolationBackwards() {
-        assertEquals(180f, ColorUtils.circularInterpolate(180, 0, 0f));
-        assertEquals(90f, ColorUtils.circularInterpolate(180, 0, 0.5f));
-        assertEquals(0f, ColorUtils.circularInterpolate(180, 0, 1f));
+        assertEquals(180f, ColorUtils.circularInterpolate(180, 0, 0f), 0f);
+        assertEquals(90f, ColorUtils.circularInterpolate(180, 0, 0.5f), 0f);
+        assertEquals(0f, ColorUtils.circularInterpolate(180, 0, 1f), 0f);
     }
 
+    @Test
     public void testCircularInterpolationCrossZero() {
-        assertEquals(270f, ColorUtils.circularInterpolate(270, 90, 0f));
-        assertEquals(180f, ColorUtils.circularInterpolate(270, 90, 0.5f));
-        assertEquals(90f, ColorUtils.circularInterpolate(270, 90, 1f));
+        assertEquals(270f, ColorUtils.circularInterpolate(270, 90, 0f), 0f);
+        assertEquals(180f, ColorUtils.circularInterpolate(270, 90, 0.5f), 0f);
+        assertEquals(90f, ColorUtils.circularInterpolate(270, 90, 1f), 0f);
     }
 
-    private static void testMinAlpha(String title, int color, float expected, int actual) {
+    private static void verifyMinAlpha(String title, int color, float expected, int actual) {
         final String message = title + " text within error for #" + Integer.toHexString(color);
         if (expected < 0) {
             assertEquals(message, actual, -1);
@@ -173,7 +187,7 @@ public class ColorUtilsTest extends AndroidTestCase {
         }
     }
 
-    private static void testColorToHSL(int color, float[] expected) {
+    private static void verifyColorToHSL(int color, float[] expected) {
         float[] actualHSL = new float[3];
         ColorUtils.colorToHSL(color, actualHSL);
 
@@ -185,7 +199,7 @@ public class ColorUtilsTest extends AndroidTestCase {
                 ALLOWED_OFFSET_LIGHTNESS);
     }
 
-    private static void testHSLToColor(float[] hsl, int expected) {
+    private static void verifyHSLToColor(float[] hsl, int expected) {
         final int actualRgb = ColorUtils.HSLToColor(hsl);
 
         assertEquals("Red not within offset", Color.red(expected), Color.red(actualRgb),
@@ -196,7 +210,7 @@ public class ColorUtilsTest extends AndroidTestCase {
                 ALLOWED_OFFSET_RGB_COMPONENT);
     }
 
-    private static void testColorToLAB(int color, double[] expected) {
+    private static void verifyColorToLAB(int color, double[] expected) {
         double[] result = new double[3];
         ColorUtils.colorToLAB(color, result);
 
@@ -205,7 +219,7 @@ public class ColorUtilsTest extends AndroidTestCase {
         assertEquals("B not within offset", expected[2], result[2], ALLOWED_OFFSET_LAB);
     }
 
-    private static void testColorToXYZ(int color, double[] expected) {
+    private static void verifyColorToXYZ(int color, double[] expected) {
         double[] result = new double[3];
         ColorUtils.colorToXYZ(color, result);
 
@@ -214,7 +228,7 @@ public class ColorUtilsTest extends AndroidTestCase {
         assertEquals("Z not within offset", expected[2], result[2], ALLOWED_OFFSET_XYZ);
     }
 
-    private static void testLABToXYZ(double[] lab, double[] expected) {
+    private static void verifyLABToXYZ(double[] lab, double[] expected) {
         double[] result = new double[3];
         ColorUtils.LABToXYZ(lab[0], lab[1], lab[2], result);
 
@@ -223,17 +237,17 @@ public class ColorUtilsTest extends AndroidTestCase {
         assertEquals("Z not within offset", expected[2], result[2], ALLOWED_OFFSET_XYZ);
     }
 
-    private static void testXYZToColor(double[] xyz, int expected) {
+    private static void verifyXYZToColor(double[] xyz, int expected) {
         final int result = ColorUtils.XYZToColor(xyz[0], xyz[1], xyz[2]);
-        assertRGBComponentsClose(expected, result);
+        verifyRGBComponentsClose(expected, result);
     }
 
-    private static void testLABToColor(double[] lab, int expected) {
+    private static void verifyLABToColor(double[] lab, int expected) {
         final int result = ColorUtils.LABToColor(lab[0], lab[1], lab[2]);
-        assertRGBComponentsClose(expected, result);
+        verifyRGBComponentsClose(expected, result);
     }
 
-    private static void assertRGBComponentsClose(int expected, int actual) {
+    private static void verifyRGBComponentsClose(int expected, int actual) {
         final String message = "Expected: #" + Integer.toHexString(expected)
                 + ", Actual: #" + Integer.toHexString(actual);
         assertEquals("R not equal: " + message, Color.red(expected), Color.red(actual), 1);

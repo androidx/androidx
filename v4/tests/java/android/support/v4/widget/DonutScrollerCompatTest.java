@@ -15,14 +15,8 @@
  */
 package android.support.v4.widget;
 
-import android.os.Build;
-
-/**
- * @hide
- */
 public class DonutScrollerCompatTest extends ScrollerCompatTestBase {
-
     public DonutScrollerCompatTest() {
-        super(Build.VERSION_CODES.DONUT);
+        super(4);
     }
 }
