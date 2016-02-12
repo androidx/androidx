@@ -16,7 +16,7 @@
     -->
 
 <resources>
-    <declare-styleable name="Theme">
+    <declare-styleable name="PreferenceTheme">
 
         <!-- =================== -->
         <!-- Preference styles   -->
