@@ -19,7 +19,8 @@ package android.support.v7.app;
 import org.junit.Test;
 
 import android.content.Context;
-import android.content.ContextWrapper;
+import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.Build;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.widget.AppCompatAutoCompleteTextView;
@@ -31,19 +32,17 @@ import android.support.v7.widget.AppCompatRadioButton;
 import android.support.v7.widget.AppCompatRatingBar;
 import android.support.v7.widget.AppCompatSpinner;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 public class LayoutInflaterFactoryTestCase
         extends BaseInstrumentationTestCase<LayoutInflaterFactoryTestActivity> {
-
-    private static final String TINTCONTEXTWRAPPER_CLAZZ_NAME
-            = "android.support.v7.widget.TintContextWrapper";
 
     public LayoutInflaterFactoryTestCase() {
         super(LayoutInflaterFactoryTestActivity.class);
@@ -56,8 +55,7 @@ public class LayoutInflaterFactoryTestCase
             @Override
             public void run() {
                 final LayoutInflater inflater = LayoutInflater.from(getActivity());
-                assertThemedContext(inflater,
-                        inflater.inflate(R.layout.layout_android_theme, null));
+                assertThemedContext(inflater.inflate(R.layout.layout_android_theme, null));
             }
         });
     }
@@ -69,7 +67,7 @@ public class LayoutInflaterFactoryTestCase
             @Override
             public void run() {
                 final LayoutInflater inflater = LayoutInflater.from(getActivity());
-                assertThemedContext(inflater, inflater.inflate(R.layout.layout_app_theme, null));
+                assertThemedContext(inflater.inflate(R.layout.layout_app_theme, null));
             }
         });
     }
@@ -88,12 +86,11 @@ public class LayoutInflaterFactoryTestCase
                 final ViewGroup root = (ViewGroup) inflater.inflate(
                         R.layout.layout_android_theme_children, null);
 
-                assertThemedContext(inflater, root);
+                assertThemedContext(root);
 
                 for (int i = 0; i < root.getChildCount(); i++) {
                     final View child = root.getChildAt(i);
-                    assertSame("Child does not have parent's context",
-                            root.getContext(), unwrapContextIfNeeded(child.getContext()));
+                    assertThemedContext(child);
                 }
             }
         });
@@ -176,22 +173,19 @@ public class LayoutInflaterFactoryTestCase
         });
     }
 
-    private static void assertThemedContext(LayoutInflater inflater, View view) {
-        final Context viewContext = unwrapContextIfNeeded(view.getContext());
+    private static void assertThemedContext(View view) {
+        final Context viewContext = view.getContext();
 
-        assertNotSame("View has same context to LayoutInflater",
-                inflater.getContext(), viewContext);
-        assertTrue("View does not have ContextThemeWrapper context",
-                viewContext instanceof android.support.v7.view.ContextThemeWrapper
-                        || viewContext instanceof android.view.ContextThemeWrapper);
+        final TypedValue colorAccentValue = getColorAccentValue(viewContext.getTheme());
+        assertTrue(colorAccentValue.type >= TypedValue.TYPE_FIRST_COLOR_INT
+                && colorAccentValue.type <= TypedValue.TYPE_LAST_COLOR_INT);
+        assertEquals("View does not have ContextThemeWrapper context",
+                Color.MAGENTA, colorAccentValue.data);
     }
 
-    private static Context unwrapContextIfNeeded(Context context) {
-        if (TINTCONTEXTWRAPPER_CLAZZ_NAME.equals(context.getClass().getName())) {
-            // TintContextWrapper is a special context wrapper used for resource hacking in
-            // AppCompat, we'll compare it's base class instead
-            return  ((ContextWrapper) context).getBaseContext();
-        }
-        return context;
+    private static TypedValue getColorAccentValue(final Resources.Theme theme) {
+        final TypedValue typedValue = new TypedValue();
+        theme.resolveAttribute(R.attr.colorAccent, typedValue, true);
+        return typedValue;
     }
 }
