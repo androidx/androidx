@@ -27,8 +27,10 @@ import java.util.ArrayList;
 /**
  * A {@link android.content.ContextWrapper} which returns a tint-aware
  * {@link android.content.res.Resources} instance from {@link #getResources()}.
+ *
+ * @hide
  */
-class TintContextWrapper extends ContextWrapper {
+public class TintContextWrapper extends ContextWrapper {
 
     private static final ArrayList<WeakReference<TintContextWrapper>> sCache = new ArrayList<>();
 
@@ -43,9 +45,9 @@ class TintContextWrapper extends ContextWrapper {
                 }
             }
             // If we reach here then the cache didn't have a hit, so create a new instance
-            // and add it to the cahce
+            // and add it to the cache
             final TintContextWrapper wrapper = new TintContextWrapper(context);
-            sCache.add(new WeakReference<TintContextWrapper>(wrapper));
+            sCache.add(new WeakReference<>(wrapper));
             return wrapper;
         }
 
