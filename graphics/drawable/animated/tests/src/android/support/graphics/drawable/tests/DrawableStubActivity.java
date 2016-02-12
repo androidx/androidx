@@ -17,16 +17,24 @@ package android.support.graphics.drawable.tests;
 
 import android.app.Activity;
 import android.os.Bundle;
-
 import android.support.graphics.drawable.animated.test.R;
+import android.view.WindowManager;
 
 public class DrawableStubActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        overridePendingTransition(0, 0);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.avd_layout);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(0, 0);
+    }
 }
 
 

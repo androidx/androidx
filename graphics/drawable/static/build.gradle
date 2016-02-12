@@ -4,6 +4,12 @@ archivesBaseName = 'support-vector-drawable'
 
 dependencies {
     compile project(':support-v4')
+    androidTestCompile ('com.android.support.test:runner:0.4.1') {
+        exclude module: 'support-annotations'
+    }
+    androidTestCompile ('com.android.support.test.espresso:espresso-core:2.2.1') {
+        exclude module: 'support-annotations'
+    }
     testCompile 'junit:junit:4.12'
 }
 
@@ -12,6 +18,7 @@ android {
 
     defaultConfig {
         minSdkVersion 7
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         // This disables the builds tools automatic vector -> PNG generation
         generatedDensities = []
     }

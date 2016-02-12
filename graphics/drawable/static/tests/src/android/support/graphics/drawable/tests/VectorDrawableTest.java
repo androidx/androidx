@@ -16,6 +16,7 @@
 
 package android.support.graphics.drawable.tests;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.Resources.Theme;
 import android.graphics.Bitmap;
@@ -25,17 +26,24 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.graphics.drawable.test.R;
-import android.test.AndroidTestCase;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import static org.junit.Assert.*;
+
+@RunWith(AndroidJUnit4.class)
 @MediumTest
-public class VectorDrawableTest extends AndroidTestCase {
+public class VectorDrawableTest {
     private static final String LOGTAG = "VectorDrawableTest";
 
     private static final int[] ICON_RES_IDS = new int[]{
@@ -108,29 +116,30 @@ public class VectorDrawableTest extends AndroidTestCase {
 
     private static final boolean DBG_DUMP_PNG = false;
 
+    private Context mContext;
     private Resources mResources;
     private VectorDrawableCompat mVectorDrawable;
     private Bitmap mBitmap;
     private Canvas mCanvas;
     private Theme mTheme;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setup() {
         final int width = IMAGE_WIDTH;
         final int height = IMAGE_HEIGHT;
 
         mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
 
+        mContext = InstrumentationRegistry.getContext();
         mResources = mContext.getResources();
         mTheme = mContext.getTheme();
     }
 
-    public void testSimpleVectorDrawables() throws XmlPullParserException, IOException {
+    @Test
+    public void testSimpleVectorDrawables() throws Exception {
         verifyVectorDrawables(ICON_RES_IDS, GOLDEN_IMAGES, null);
     }
-
 
     private void verifyVectorDrawables(int[] resIds, int[] goldenImages, int[] stateSet)
             throws XmlPullParserException, IOException {
@@ -204,12 +213,11 @@ public class VectorDrawableTest extends AndroidTestCase {
             return "";
         }
 
-        final Resources res = getContext().getResources();
         final StringBuilder builder = new StringBuilder();
         for (int i = 0; i < stateSet.length; i++) {
             builder.append('_');
 
-            final String state = res.getResourceName(stateSet[i]);
+            final String state = mResources.getResourceName(stateSet[i]);
             final int stateIndex = state.indexOf("state_");
             if (stateIndex >= 0) {
                 builder.append(state.substring(stateIndex + 6));
@@ -258,6 +266,7 @@ public class VectorDrawableTest extends AndroidTestCase {
 
     }
 
+    @Test
     public void testGetChangingConfigurations() {
         VectorDrawableCompat vectorDrawable =
                 VectorDrawableCompat.create(mResources, TEST_ICON, mTheme);
@@ -282,6 +291,7 @@ public class VectorDrawableTest extends AndroidTestCase {
         assertEquals(0xffff, vectorDrawable.getChangingConfigurations());
     }
 
+    @Test
     public void testGetConstantState() {
         VectorDrawableCompat vectorDrawable =
                 VectorDrawableCompat.create(mResources, R.drawable.vector_icon_delete, mTheme);
@@ -295,8 +305,8 @@ public class VectorDrawableTest extends AndroidTestCase {
         assertEquals(1, constantState.getChangingConfigurations());
     }
 
+    @Test
     public void testMutate() {
-        Resources resources = mContext.getResources();
         VectorDrawableCompat d1 =
                 VectorDrawableCompat.create(mResources, TEST_ICON, mTheme);
         VectorDrawableCompat d2 =
