@@ -41,18 +41,6 @@
         <attr name="android:disableDependentsState" />
     </declare-styleable>
 
-    <declare-styleable name="MultiSelectListPreference">
-        <!-- The human-readable array to present as a list. Each entry must have a corresponding
-             index in entryValues. -->
-        <attr name="entries" />
-        <attr name="android:entries" />
-        <!-- The array to find the value to save for a preference when an entry from
-             entries is selected. If a user clicks the second item in entries, the
-             second item in this array will be saved to the preference. -->
-        <attr name="entryValues" />
-        <attr name="android:entryValues" />
-    </declare-styleable>
-
     <!-- Base attributes available to PreferenceFragment. -->
     <declare-styleable name="PreferenceFragment">
         <!-- The layout for the PreferenceFragment. This should rarely need to be changed. -->
