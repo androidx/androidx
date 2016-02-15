@@ -17,69 +17,38 @@ limitations under the License.
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for orb_search_action (5651268540267663887) -->
-    <skip />
-    <!-- no translation found for lb_search_bar_hint (8325490927970116252) -->
-    <skip />
-    <!-- no translation found for lb_search_bar_hint_speech (5511270823320183816) -->
-    <skip />
-    <!-- no translation found for lb_search_bar_hint_with_title (1627103380996590035) -->
-    <skip />
-    <!-- no translation found for lb_search_bar_hint_with_title_speech (2712734639766312034) -->
-    <skip />
-    <!-- no translation found for lb_control_display_fast_forward_multiplier (4541442045214207774) -->
-    <skip />
-    <!-- no translation found for lb_control_display_rewind_multiplier (3097220783222910245) -->
-    <skip />
-    <!-- no translation found for lb_playback_controls_play (731953341987346903) -->
-    <skip />
-    <!-- no translation found for lb_playback_controls_pause (6189521112079849518) -->
-    <skip />
-    <!-- no translation found for lb_playback_controls_fast_forward (8569951318244687220) -->
-    <skip />
-    <!-- no translation found for lb_playback_controls_fast_forward_multiplier (1058753672110224526) -->
-    <skip />
-    <!-- no translation found for lb_playback_controls_rewind (2227196334132350684) -->
-    <skip />
-    <!-- no translation found for lb_playback_controls_rewind_multiplier (1640629531440849942) -->
-    <skip />
-    <!-- no translation found for lb_playback_controls_skip_next (2946499493161095772) -->
-    <skip />
-    <!-- no translation found for lb_playback_controls_skip_previous (2326801832933178348) -->
-    <skip />
-    <!-- no translation found for lb_playback_controls_more_actions (2330770008796987655) -->
-    <skip />
-    <!-- no translation found for lb_playback_controls_thumb_up (6530420347129222601) -->
-    <skip />
-    <!-- no translation found for lb_playback_controls_thumb_up_outline (1577637924003500946) -->
-    <skip />
-    <!-- no translation found for lb_playback_controls_thumb_down (4498041193172964797) -->
-    <skip />
-    <!-- no translation found for lb_playback_controls_thumb_down_outline (2936020280629424365) -->
-    <skip />
-    <!-- no translation found for lb_playback_controls_repeat_none (87476947476529036) -->
-    <skip />
-    <!-- no translation found for lb_playback_controls_repeat_all (6730354406289599000) -->
-    <skip />
-    <!-- no translation found for lb_playback_controls_repeat_one (3285202316452203619) -->
-    <skip />
-    <!-- no translation found for lb_playback_controls_shuffle_enable (1099874107835264529) -->
-    <skip />
-    <!-- no translation found for lb_playback_controls_shuffle_disable (8388150597335115226) -->
-    <skip />
-    <!-- no translation found for lb_playback_controls_high_quality_enable (202415780019335254) -->
-    <skip />
-    <!-- no translation found for lb_playback_controls_high_quality_disable (8637371582779057866) -->
-    <skip />
-    <!-- no translation found for lb_playback_controls_closed_captioning_enable (2429655367176440226) -->
-    <skip />
-    <!-- no translation found for lb_playback_controls_closed_captioning_disable (6133362019475930048) -->
-    <skip />
+    <string name="orb_search_action" msgid="5651268540267663887">"Pretraživanje"</string>
+    <string name="lb_search_bar_hint" msgid="8325490927970116252">"Pretraga"</string>
+    <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"Izgovorite da biste tražili"</string>
+    <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"Pretraži <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
+    <string name="lb_search_bar_hint_with_title_speech" msgid="2712734639766312034">"Izgovorite da biste tražili <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
+    <string name="lb_control_display_fast_forward_multiplier" msgid="4541442045214207774">"%1$dX"</string>
+    <string name="lb_control_display_rewind_multiplier" msgid="3097220783222910245">"%1$dX"</string>
+    <string name="lb_playback_controls_play" msgid="731953341987346903">"Pokreni"</string>
+    <string name="lb_playback_controls_pause" msgid="6189521112079849518">"Pauza"</string>
+    <string name="lb_playback_controls_fast_forward" msgid="8569951318244687220">"Ubrzaj"</string>
+    <string name="lb_playback_controls_fast_forward_multiplier" msgid="1058753672110224526">"Ubrzaj %1$dX"</string>
+    <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"Premotaj"</string>
+    <string name="lb_playback_controls_rewind_multiplier" msgid="1640629531440849942">"Premotaj %1$dX"</string>
+    <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"Preskoči sljedeće"</string>
+    <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"Preskoči prethodno"</string>
+    <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"Više radnji"</string>
+    <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"Poništi pozitivnu ocjenu"</string>
+    <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"Odaberi pozitivnu ocjenu"</string>
+    <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"Poništi negativnu ocjenu"</string>
+    <string name="lb_playback_controls_thumb_down_outline" msgid="2936020280629424365">"Odaberi negativnu ocjenu"</string>
+    <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"Ne ponavljaj"</string>
+    <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"Ponovi sve"</string>
+    <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"Ponovi jedno"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"Uključi izmiješani redoslijed"</string>
+    <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"Isključi izmiješani redoslijed"</string>
+    <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"Uključi visoki kvalitet"</string>
+    <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"Isključi visoki kvalitet"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"Uključi titlove"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"Isključi titlove"</string>
     <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"Uđi u način rada Slika u slici"</string>
-    <!-- no translation found for lb_guidedaction_finish_title (4015190340667946245) -->
-    <skip />
-    <!-- no translation found for lb_guidedaction_continue_title (8842094924543063706) -->
-    <skip />
+    <string name="lb_guidedaction_finish_title" msgid="4015190340667946245">"Završiti"</string>
+    <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"Nastaviti"</string>
     <!-- no translation found for lb_date_separator (2440386660906697298) -->
     <skip />
     <!-- no translation found for lb_time_separator (2763247350845477227) -->
