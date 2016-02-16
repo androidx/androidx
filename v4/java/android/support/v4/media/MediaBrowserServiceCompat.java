@@ -435,27 +435,27 @@ public abstract class MediaBrowserServiceCompat extends Service {
         }
 
         @Override
-        public void connect(final String pkg, final Bundle rootHints,
-                final MediaBrowserServiceCompatApi21.ServiceCallbacks callbacks) {
+        public void connect(String pkg, Bundle rootHints,
+                MediaBrowserServiceCompatApi21.ServiceCallbacksApi21 callbacks) {
             mServiceImpl.connect(pkg, Binder.getCallingUid(), rootHints,
                     new ServiceCallbacksApi21(callbacks));
         }
 
         @Override
-        public void disconnect(final MediaBrowserServiceCompatApi21.ServiceCallbacks callbacks) {
+        public void disconnect(MediaBrowserServiceCompatApi21.ServiceCallbacksApi21 callbacks) {
             mServiceImpl.disconnect(new ServiceCallbacksApi21(callbacks));
         }
 
 
         @Override
         public void addSubscription(
-                final String id, final MediaBrowserServiceCompatApi21.ServiceCallbacks callbacks) {
+                String id, MediaBrowserServiceCompatApi21.ServiceCallbacksApi21 callbacks) {
             mServiceImpl.addSubscription(id, null, new ServiceCallbacksApi21(callbacks));
         }
 
         @Override
-        public void removeSubscription(final String id,
-                final MediaBrowserServiceCompatApi21.ServiceCallbacks callbacks) {
+        public void removeSubscription(
+                String id, MediaBrowserServiceCompatApi21.ServiceCallbacksApi21 callbacks) {
             mServiceImpl.removeSubscription(id, null, new ServiceCallbacksApi21(callbacks));
         }
     }
@@ -463,7 +463,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
     private class ServiceImplApi23 extends ServiceImplApi21
             implements MediaBrowserServiceCompatApi23.ServiceImplApi23 {
         @Override
-        public void getMediaItem(final String mediaId,
+        public void getMediaItem(String mediaId,
                 final MediaBrowserServiceCompatApi23.ItemCallback cb) {
             ResultReceiver receiverCompat = new ResultReceiver(mHandler) {
                 @Override
@@ -540,10 +540,10 @@ public abstract class MediaBrowserServiceCompat extends Service {
     }
 
     private class ServiceCallbacksApi21 implements ServiceCallbacks {
-        final MediaBrowserServiceCompatApi21.ServiceCallbacks mCallbacks;
+        final MediaBrowserServiceCompatApi21.ServiceCallbacksApi21 mCallbacks;
         Messenger mMessenger;
 
-        ServiceCallbacksApi21(MediaBrowserServiceCompatApi21.ServiceCallbacks callbacks) {
+        ServiceCallbacksApi21(MediaBrowserServiceCompatApi21.ServiceCallbacksApi21 callbacks) {
             mCallbacks = callbacks;
         }
 
@@ -913,13 +913,13 @@ public abstract class MediaBrowserServiceCompat extends Service {
     private void performLoadItem(String itemId, final ResultReceiver receiver) {
         final Result<MediaBrowserCompat.MediaItem> result =
                 new Result<MediaBrowserCompat.MediaItem>(itemId) {
-            @Override
-            void onResultSent(MediaBrowserCompat.MediaItem item, @ResultFlags int flag) {
-                Bundle bundle = new Bundle();
-                bundle.putParcelable(KEY_MEDIA_ITEM, item);
-                receiver.send(0, bundle);
-            }
-        };
+                    @Override
+                    void onResultSent(MediaBrowserCompat.MediaItem item, @ResultFlags int flag) {
+                        Bundle bundle = new Bundle();
+                        bundle.putParcelable(KEY_MEDIA_ITEM, item);
+                        receiver.send(0, bundle);
+                    }
+                };
 
         MediaBrowserServiceCompat.this.onLoadItem(itemId, result);
 

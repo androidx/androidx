@@ -28,15 +28,14 @@ import java.lang.reflect.Method;
  * An adapter class for accessing the hidden framework classes, IMediaBrowserServiceCallbacks and
  * IMediaBrowserServiceCallbacks.Stub using reflection.
  */
-class IMediaBrowserServiceCallbacksAdapterApi21 {
-
+class ServiceCallbacksAdapterApi21 {
     Object mCallbackObject;
     private Method mAsBinderMethod;
     private Method mOnConnectMethod;
     private Method mOnConnectFailedMethod;
     private Method mOnLoadChildrenMethod;
 
-    IMediaBrowserServiceCallbacksAdapterApi21(Object callbackObject) {
+    ServiceCallbacksAdapterApi21(Object callbackObject) {
         mCallbackObject = callbackObject;
         try {
             Class theClass = Class.forName("android.service.media.IMediaBrowserServiceCallbacks");
