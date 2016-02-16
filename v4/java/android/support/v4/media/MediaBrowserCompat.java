@@ -920,7 +920,7 @@ public final class MediaBrowserCompat {
                 sub = new Subscription();
                 mSubscriptions.put(parentId, sub);
             }
-            sub.setCallbackForOptions(callback, options);
+            sub.putCallback(options, callback);
 
             // If we are connected, tell the service that we are watching. If we aren't
             // connected, the service will be told when we connect.
@@ -945,7 +945,7 @@ public final class MediaBrowserCompat {
             Subscription sub = mSubscriptions.get(parentId);
 
             // Tell the service if necessary.
-            if (sub != null && sub.remove(options) && mState == CONNECT_STATE_CONNECTED) {
+            if (sub != null && sub.removeCallback(options) && mState == CONNECT_STATE_CONNECTED) {
                 try {
                     mServiceBinderWrapper.removeSubscription(
                             parentId, options, mCallbacksMessenger);
@@ -1315,7 +1315,7 @@ public final class MediaBrowserCompat {
                 sub = new Subscription();
                 mSubscriptions.put(parentId, sub);
             }
-            sub.setCallbackForOptions(cb21, options);
+            sub.putCallback(options, cb21);
             if (MediaBrowserCompatApi21.isConnected(mBrowserObj)) {
                 if (options == null || mServiceBinderWrapper == null) {
                     MediaBrowserCompatApi21.subscribe(
@@ -1342,7 +1342,7 @@ public final class MediaBrowserCompat {
 
             // Remove from our list.
             Subscription sub = mSubscriptions.get(parentId);
-            if (sub != null && sub.remove(options)) {
+            if (sub != null && sub.removeCallback(options)) {
                 // Tell the service if necessary.
                 if (options == null || mServiceBinderWrapper == null) {
                     if (mServiceBinderWrapper != null || sub.isEmpty()) {
@@ -1561,7 +1561,16 @@ public final class MediaBrowserCompat {
             return mCallbacks;
         }
 
-        public void setCallbackForOptions(SubscriptionCallback callback, Bundle options) {
+        public SubscriptionCallback getCallback(Bundle options) {
+            for (int i = 0; i < mOptionsList.size(); ++i) {
+                if (MediaBrowserCompatUtils.areSameOptions(mOptionsList.get(i), options)) {
+                    return mCallbacks.get(i);
+                }
+            }
+            return null;
+        }
+
+        public void putCallback(Bundle options, SubscriptionCallback callback) {
             for (int i = 0; i < mOptionsList.size(); ++i) {
                 if (MediaBrowserCompatUtils.areSameOptions(mOptionsList.get(i), options)) {
                     mCallbacks.set(i, callback);
@@ -1572,7 +1581,7 @@ public final class MediaBrowserCompat {
             mOptionsList.add(options);
         }
 
-        public boolean remove(Bundle options) {
+        public boolean removeCallback(Bundle options) {
             for (int i = 0; i < mOptionsList.size(); ++i) {
                 if (MediaBrowserCompatUtils.areSameOptions(mOptionsList.get(i), options)) {
                     mCallbacks.remove(i);
@@ -1581,15 +1590,6 @@ public final class MediaBrowserCompat {
                 }
             }
             return false;
-        }
-
-        public SubscriptionCallback getCallback(Bundle options) {
-            for (int i = 0; i < mOptionsList.size(); ++i) {
-                if (MediaBrowserCompatUtils.areSameOptions(mOptionsList.get(i), options)) {
-                    return mCallbacks.get(i);
-                }
-            }
-            return null;
         }
     }
 
