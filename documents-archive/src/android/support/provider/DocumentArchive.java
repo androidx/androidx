@@ -112,6 +112,9 @@ public class DocumentArchive implements Closeable {
                 throw new IOException(
                         "Directories must have a trailing slash, and files must not.");
             }
+            if (mEntries.containsKey(entry.getName())) {
+                throw new IOException("Multiple entries with the same name are not supported.");
+            }
             mEntries.put(entry.getName(), entry);
             if (entry.isDirectory()) {
                 mTree.put(entry.getName(), new ArrayList<ZipEntry>());
