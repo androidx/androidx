@@ -45,6 +45,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.ExecutorService;
@@ -481,7 +482,7 @@ public class DocumentArchive implements Closeable {
 
         final int lastDot = entry.getName().lastIndexOf('.');
         if (lastDot >= 0) {
-            final String extension = entry.getName().substring(lastDot + 1).toLowerCase();
+            final String extension = entry.getName().substring(lastDot + 1).toLowerCase(Locale.US);
             final String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
             if (mimeType != null) {
                 return mimeType;
