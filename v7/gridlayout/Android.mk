@@ -35,5 +35,3 @@ support_module_src_files := $(LOCAL_SRC_FILES)
 support_module_java_libraries := $(LOCAL_JAVA_LIBRARIES) android-support-v7-gridlayout
 support_module_java_packages := android.support.v7.widget
 include $(SUPPORT_API_CHECK)
-
-include $(call all-makefiles-under,$(LOCAL_PATH))

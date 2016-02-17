@@ -4,10 +4,22 @@ archivesBaseName = 'gridlayout-v7'
 
 dependencies {
     compile project(':support-v4')
+
+    androidTestCompile ('com.android.support.test:runner:0.4.1') {
+        exclude module: 'support-annotations'
+    }
+    androidTestCompile ('com.android.support.test.espresso:espresso-core:2.2.1') {
+        exclude module: 'support-annotations'
+    }
+    testCompile 'junit:junit:4.12'
 }
 
 android {
     compileSdkVersion project.ext.currentSdk
+
+    defaultConfig {
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
 
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'
