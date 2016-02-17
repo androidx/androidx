@@ -224,7 +224,6 @@
     <dimen name="lb_rounded_rect_corner_radius">2dp</dimen>
 
     <!-- GuidedStepFragment -->
-    <dimen name="lb_guidedstep_guidance_section_width">576dp</dimen>
     <dimen name="lb_guidedstep_slide_start_distance">-200dp</dimen>
     <dimen name="lb_guidedstep_slide_end_distance">200dp</dimen>
     <dimen name="lb_guidedstep_slide_ime_distance">-100dp</dimen>
@@ -232,7 +231,8 @@
     <dimen name="lb_guidance_entry_translationX">-120dp</dimen>
 
     <dimen name="lb_guidedactions_entry_translationX">384dp</dimen>
-    <dimen name="lb_guidedactions_section_width">384dp</dimen>
+    <item name="lb_guidedactions_width_weight" format="float" type="string">0.666666667</item>
+    <item name="lb_guidedactions_width_weight_two_panels" format="float" type="string">1</item>
     <dimen name="lb_guidedactions_section_shadow_width">16dp</dimen>
     <dimen name="lb_guidedactions_elevation">12dp</dimen>
     <dimen name="lb_guidedactions_selector_min_height">8dp</dimen>
@@ -248,10 +248,10 @@
     <dimen name="lb_guidedactions_item_text_width">248dp</dimen>
     <dimen name="lb_guidedactions_item_text_width_no_icon">284dp</dimen>
     <dimen name="lb_guidedactions_item_min_height">64dp</dimen>
-    <dimen name="lb_guidedactions_item_start_padding">20dp</dimen>
+    <dimen name="lb_guidedactions_item_start_padding">28dp</dimen>
     <dimen name="lb_guidedactions_item_end_padding">28dp</dimen>
     <dimen name="lb_guidedactions_item_delimiter_padding">4dp</dimen>
-    <dimen name="lb_guidedactions_item_checkmark_diameter">8dp</dimen>
+    <dimen name="lb_guidedactions_item_checkmark_diameter">16dp</dimen>
     <dimen name="lb_guidedactions_item_icon_width">32dp</dimen>
     <dimen name="lb_guidedactions_item_icon_height">32dp</dimen>
     <dimen name="lb_guidedactions_item_title_font_size">18sp</dimen>

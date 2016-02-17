@@ -14,16 +14,15 @@
      limitations under the License.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:auto="http://schemas.android.com/apk/res-auto"
-        auto:height="48dp"
-        auto:width="48dp"
-        auto:viewportHeight="48"
-        auto:viewportWidth="48" >
+        android:height="48dp"
+        android:width="48dp"
+        android:viewportHeight="48"
+        android:viewportWidth="48" >
 
     <group>
         <path
-            auto:name="plus1"
-            auto:pathData="M20 16h-4v8h-8v4h8v8h4v-8h8v-4h-8zm9-3.84v3.64l5-1v21.2h4v-26z"
-            auto:fillColor="#ff00ff00"/>
+            android:name="plus1"
+            android:pathData="M20 16h-4v8h-8v4h8v8h4v-8h8v-4h-8zm9-3.84v3.64l5-1v21.2h4v-26z"
+            android:fillColor="#ff00ff00"/>
     </group>
 </vector>

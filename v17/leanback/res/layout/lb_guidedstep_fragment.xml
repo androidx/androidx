@@ -15,25 +15,57 @@
      limitations under the License.
 -->
 <!-- Layout for the frame of a 2 pane actions fragment. -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/content_frame"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/guidedstep_root"
+    android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
-
-    <android.support.v17.leanback.widget.NonOverlappingFrameLayout
-        android:id="@+id/content_fragment"
-        android:layout_width="@dimen/lb_guidedstep_guidance_section_width"
-        android:layout_height="match_parent"
-        android:layout_alignParentStart="true" />
-
-    <FrameLayout
-        android:id="@+id/action_fragment"
-        android:layout_toEndOf="@+id/content_fragment"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        android:paddingLeft="@dimen/lb_guidedactions_section_shadow_width"
+    <LinearLayout
+        android:id="@+id/content_frame"
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentEnd="true" />
+        android:layout_height="match_parent" >
 
-</RelativeLayout>
+        <android.support.v17.leanback.widget.NonOverlappingFrameLayout
+            android:id="@+id/content_fragment"
+            android:layout_toStartOf="@+id/action_fragment"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true" />
+
+        <android.support.v17.leanback.widget.NonOverlappingFrameLayout
+            android:id="@+id/action_fragment_root"
+            android:transitionName="action_fragment_root"
+            android:transitionGroup="false"
+            android:orientation="horizontal"
+            android:clipToPadding="false"
+            android:clipChildren="false"
+            android:paddingStart="@dimen/lb_guidedactions_section_shadow_width"
+            android:layout_width="0dp"
+            android:layout_weight="?attr/guidedActionContentWidthWeight"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true">
+
+            <android.support.v17.leanback.widget.NonOverlappingView
+                android:id="@+id/action_fragment_background"
+                android:transitionName="action_fragment_background"
+                android:orientation="horizontal"
+                android:outlineProvider="paddedBounds"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="?attr/guidedActionsBackground"
+                android:elevation="?attr/guidedActionsElevation" />
+
+            <android.support.v17.leanback.widget.NonOverlappingLinearLayout
+                android:id="@+id/action_fragment"
+                android:transitionName="action_fragment"
+                android:transitionGroup="false"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:elevation="?attr/guidedActionsElevation" />
+        </android.support.v17.leanback.widget.NonOverlappingFrameLayout>
+
+    </LinearLayout>
+</FrameLayout>

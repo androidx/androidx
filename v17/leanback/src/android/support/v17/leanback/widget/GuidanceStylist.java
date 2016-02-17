@@ -173,6 +173,16 @@ public class GuidanceStylist implements FragmentAnimationProvider {
     }
 
     /**
+     * Called when destroy the View created by GuidanceStylist.
+     */
+    public void onDestroyView() {
+        mBreadcrumbView = null;
+        mDescriptionView = null;
+        mIconView = null;
+        mTitleView = null;
+    }
+
+    /**
      * Provides the resource ID of the layout defining the guidance view. Subclasses may override
      * to provide their own customized layouts. The base implementation returns
      * {@link android.support.v17.leanback.R.layout#lb_guidance}. If overridden, the substituted

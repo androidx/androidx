@@ -18,17 +18,12 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="5441529851481176817">"Tizim"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"Qurilmalar"</string>
-    <string name="mr_button_content_description" msgid="3698378085901466129">"Translatsiya tugmasi"</string>
-    <string name="mr_chooser_title" msgid="414301941546135990">"Quyidagiga translatsiya qilish:"</string>
-    <string name="mr_chooser_searching" msgid="6349900579507521956">"Qurilmalarni topish"</string>
-    <string name="mr_controller_disconnect" msgid="1227264889412989580">"Ulanishni uzish"</string>
-    <string name="mr_controller_stop" msgid="4570331844078181931">"Translatsiyani to‘xtatish"</string>
-    <string name="mr_controller_close_description" msgid="7333862312480583260">"Yopish"</string>
-    <string name="mr_controller_play" msgid="683634565969987458">"Boshlash"</string>
-    <string name="mr_controller_pause" msgid="5451884435510905406">"To‘xtatib turish"</string>
-    <string name="mr_controller_expand_group" msgid="8062427022744266907">"Yoyish"</string>
-    <string name="mr_controller_collapse_group" msgid="7924809056904240926">"Yig‘ish"</string>
-    <string name="mr_controller_no_media_selected" msgid="6547130360349182381">"Multimedia tanlamagan"</string>
-    <string name="mr_controller_no_info_available" msgid="5585418471741142924">"Hech qanday ma’lumot yo‘q"</string>
-    <string name="mr_controller_casting_screen" msgid="4868457957151124867">"Ekranni translatsiya qilish"</string>
+    <string name="mr_button_content_description" msgid="8327680881775995150">"Translatsiya qilish"</string>
+    <string name="mr_chooser_title" msgid="7106830097177242655">"Qurilmaga ulanish"</string>
+    <string name="mr_chooser_searching" msgid="7553005460920830010">"Qurilmalar izlanmoqda…"</string>
+    <string name="mr_controller_disconnect" msgid="109793632378378069">"Uzish"</string>
+    <string name="mr_controller_stop" msgid="5398645111664294430">"Translatsiyani to‘xtatish"</string>
+    <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"Yo‘naltirish sozlamalari"</string>
+    <string name="mr_controller_play" msgid="5214423499524760404">"Ijro qilish"</string>
+    <string name="mr_controller_pause" msgid="8315773974194466049">"To‘xtatib turish"</string>
 </resources>

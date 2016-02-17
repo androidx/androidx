@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 class MediaBrowserCompatApi21 {
+    static final String NULL_MEDIA_ITEM_ID =
+            "android.support.v4.media.MediaBrowserCompat.NULL_MEDIA_ITEM";
 
     public static Object createConnectionCallback(ConnectionCallback callback) {
         return new ConnectionCallbackProxy<>(callback);
@@ -112,7 +114,7 @@ class MediaBrowserCompatApi21 {
     }
 
     interface SubscriptionCallback {
-        void onChildrenLoaded(@NonNull String parentId, @NonNull List<Parcel> children);
+        void onChildrenLoaded(@NonNull String parentId, List<Parcel> children);
         void onError(@NonNull String parentId);
     }
 
@@ -126,8 +128,12 @@ class MediaBrowserCompatApi21 {
 
         @Override
         public void onChildrenLoaded(@NonNull String parentId,
-                @NonNull List<MediaBrowser.MediaItem> children) {
+                List<MediaBrowser.MediaItem> children) {
             List<Parcel> parcelList = null;
+            if (children != null && children.size() == 1
+                    && children.get(0).getMediaId().equals(NULL_MEDIA_ITEM_ID)) {
+                children = null;
+            }
             if (children != null) {
                 parcelList = new ArrayList<>();
                 for (MediaBrowser.MediaItem item : children) {
@@ -142,16 +148,6 @@ class MediaBrowserCompatApi21 {
         @Override
         public void onError(@NonNull String parentId) {
             mSubscriptionCallback.onError(parentId);
-        }
-    }
-
-    static class MediaItem {
-        public static Object getDescription(Object mediaItem) {
-            return ((MediaBrowser.MediaItem) mediaItem).getDescription();
-        }
-
-        public static int getFlags(Object mediaItem) {
-            return ((MediaBrowser.MediaItem) mediaItem).getFlags();
         }
     }
 }

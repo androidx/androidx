@@ -17,6 +17,7 @@
 <android.support.v17.leanback.widget.NonOverlappingView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/guidedstep_background"
+    android:transitionName="guidedstep_background"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/guidedStepBackground" />

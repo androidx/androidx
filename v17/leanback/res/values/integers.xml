@@ -29,4 +29,11 @@
     <integer name="lb_playback_rows_fade_out_ms">250</integer>
     <integer name="lb_playback_rows_fade_delay_ms">100</integer>
     <integer name="lb_playback_controls_show_time_ms">3000</integer>
+
+    <!-- Gravity.LEFT -->
+    <integer name="slideEdgeStart">3</integer>
+    <!-- Gravity.RIGHT -->
+    <integer name="slideEdgeEnd">5</integer>
+
+    <integer name="lb_guidedstep_activity_background_fade_duration_ms">350</integer>
 </resources>

@@ -15,13 +15,14 @@
      limitations under the License.
 -->
 
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- LeanbackBase may be overridden for specific api levels -->
     <style name="Theme.LeanbackBase" parent="android:Theme.Holo.NoActionBar">
         <item name="playbackProgressPrimaryColor">@color/lb_playback_progress_color_no_theme</item>
         <item name="playbackControlsIconHighlightColor">@color/lb_playback_icon_highlight_no_theme</item>
         <item name="defaultBrandColor">@color/lb_default_brand_color</item>
+        <item name="defaultBrandColorDark">@color/lb_default_brand_color_dark</item>
 
         <item name="android:windowOverscan">true</item>
         <item name="guidedStepTheme">@style/Theme.Leanback.GuidedStep</item>
@@ -118,7 +119,13 @@
 
         <item name="android:windowEnterTransition">@transition/lb_guidedstep_activity_enter</item>
 
-        <item name="guidedStepBackground">?android:attr/windowBackground</item>
+        <!-- background applied to each GuidedStepFragment by default-->
+        <item name="guidedStepBackground">?android:attr/colorBackground</item>
+        <!-- Each GuidedStepFragment has a background so activity does not need a background.
+             But We still need a dumb background to keep the temporary translucent state last
+             as long as the background view fade-in transition -->
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowTransitionBackgroundFadeDuration">@integer/lb_guidedstep_activity_background_fade_duration_ms</item>
 
         <item name="guidedStepImeAppearingAnimation">@animator/lb_guidedstep_slide_up</item>
         <item name="guidedStepImeDisappearingAnimation">@animator/lb_guidedstep_slide_down</item>
@@ -129,7 +136,9 @@
         <item name="guidanceBreadcrumbStyle">@style/Widget.Leanback.GuidanceBreadcrumbStyle</item>
         <item name="guidanceDescriptionStyle">@style/Widget.Leanback.GuidanceDescriptionStyle</item>
 
-        <item name="guidedActionsContainerStyle">@style/Widget.Leanback.GuidedActionsContainerStyle</item>
+        <item name="guidedActionsElevation">@dimen/lb_guidedactions_elevation</item>
+        <item name="guidedActionsBackground">@color/lb_guidedactions_background</item>
+        <item name="guidedActionsBackgroundDark">@color/lb_guidedactions_background_dark</item>
         <item name="guidedActionsSelectorStyle">@style/Widget.Leanback.GuidedActionsSelectorStyle</item>
         <item name="guidedActionsListStyle">@style/Widget.Leanback.GuidedActionsListStyle</item>
         <item name="guidedActionsSelectorShowAnimation">@animator/lb_guidedactions_selector_show</item>
@@ -143,14 +152,12 @@
         <item name="guidedActionItemDescriptionStyle">@style/Widget.Leanback.GuidedActionItemDescriptionStyle</item>
         <item name="guidedActionItemChevronStyle">@style/Widget.Leanback.GuidedActionItemChevronStyle</item>
 
-        <item name="guidedActionCheckedAnimation">@animator/lb_guidedactions_item_checked</item>
-        <item name="guidedActionUncheckedAnimation">@animator/lb_guidedactions_item_unchecked</item>
         <item name="guidedActionPressedAnimation">@animator/lb_guidedactions_item_pressed</item>
         <item name="guidedActionUnpressedAnimation">@animator/lb_guidedactions_item_unpressed</item>
         <item name="guidedActionEnabledChevronAlpha">@string/lb_guidedactions_item_enabled_chevron_alpha</item>
         <item name="guidedActionDisabledChevronAlpha">@string/lb_guidedactions_item_disabled_chevron_alpha</item>
-        <item name="guidedActionContentWidth">@dimen/lb_guidedactions_item_text_width</item>
-        <item name="guidedActionContentWidthNoIcon">@dimen/lb_guidedactions_item_text_width_no_icon</item>
+        <item name="guidedActionContentWidthWeight">@string/lb_guidedactions_width_weight</item>
+        <item name="guidedActionContentWidthWeightTwoPanels">@string/lb_guidedactions_width_weight_two_panels</item>
         <item name="guidedActionTitleMinLines">@integer/lb_guidedactions_item_title_min_lines</item>
         <item name="guidedActionTitleMaxLines">@integer/lb_guidedactions_item_title_max_lines</item>
         <item name="guidedActionDescriptionMinLines">@integer/lb_guidedactions_item_description_min_lines</item>

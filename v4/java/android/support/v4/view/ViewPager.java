@@ -418,7 +418,7 @@ public class ViewPager extends ViewGroup {
      */
     public void setAdapter(PagerAdapter adapter) {
         if (mAdapter != null) {
-            mAdapter.unregisterDataSetObserver(mObserver);
+            mAdapter.setViewPagerObserver(null);
             mAdapter.startUpdate(this);
             for (int i = 0; i < mItems.size(); i++) {
                 final ItemInfo ii = mItems.get(i);
@@ -439,7 +439,7 @@ public class ViewPager extends ViewGroup {
             if (mObserver == null) {
                 mObserver = new PagerObserver();
             }
-            mAdapter.registerDataSetObserver(mObserver);
+            mAdapter.setViewPagerObserver(mObserver);
             mPopulatePending = false;
             final boolean wasFirstLayout = mFirstLayout;
             mFirstLayout = true;

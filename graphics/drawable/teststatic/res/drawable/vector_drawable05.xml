@@ -14,24 +14,23 @@
      limitations under the License.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:auto="http://schemas.android.com/apk/res-auto"
-        auto:height="64dp"
-        auto:width="64dp"
-        auto:viewportHeight="12.25"
-        auto:viewportWidth="7.30625" >
+        android:height="64dp"
+        android:width="64dp"
+        android:viewportHeight="12.25"
+        android:viewportWidth="7.30625" >
 
     <group>
         <path
-            auto:name="one"
-            auto:fillColor="#ffff00"
-            auto:pathData="M 1.215625,9.5l 1.9375,0.0 0.0-6.671875-2.109375,0.421875 0.0-1.078125
+            android:name="one"
+            android:fillColor="#ffff00"
+            android:pathData="M 1.215625,9.5l 1.9375,0.0 0.0-6.671875-2.109375,0.421875 0.0-1.078125
                 l 2.09375-0.421875 1.1874998,0.0 0.0,7.75 1.9375,0.0 0.0,1.0
                 l-5.046875,0.0 0.0-1.0Z" />
         <path
-            auto:name="two"
-            auto:fillColor="#ffff00"
-            auto:fillAlpha="0"
-            auto:pathData="M 2.534375,9.6875l 4.140625,0.0 0.0,1.0-5.5625,0.0 0.0-1.0q 0.671875-0.6875 1.828125-1.859375
+            android:name="two"
+            android:fillColor="#ffff00"
+            android:fillAlpha="0"
+            android:pathData="M 2.534375,9.6875l 4.140625,0.0 0.0,1.0-5.5625,0.0 0.0-1.0q 0.671875-0.6875 1.828125-1.859375
                         q 1.1718752-1.1875 1.4687502-1.53125 0.578125-0.625 0.796875-1.0625
                         q 0.234375-0.453125 0.234375-0.875 0.0-0.703125-0.5-1.140625
                         q-0.484375-0.4375-1.2656252-0.4375-0.5625,0.0-1.1875,0.1875

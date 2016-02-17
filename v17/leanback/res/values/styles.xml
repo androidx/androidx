@@ -195,6 +195,7 @@
     <style name="Widget.Leanback.GridItems" />
 
     <style name="Widget.Leanback.Headers.VerticalGridView" >
+        <item name="android:background">?attr/defaultBrandColor</item>
         <item name="android:paddingStart">?attr/browsePaddingStart</item>
         <item name="focusOutFront">true</item>
         <item name="focusOutEnd">true</item>
@@ -422,28 +423,16 @@
         <item name="android:scaleType">fitCenter</item>
     </style>
 
-    <!-- Style for the container view in a GuidedActionsStylist's default layout. -->
-    <style name="Widget.Leanback.GuidedActionsContainerStyle">
-        <item name="android:elevation">@dimen/lb_guidedactions_elevation</item>
-        <item name="android:layout_width">@dimen/lb_guidedactions_section_width</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_alignParentEnd">true</item>
-        <item name="android:background">@color/lb_guidedactions_background</item>
-    </style>
-
     <!-- Style for the selector view in a GuidedActionsStylist's default layout. -->
     <style name="Widget.Leanback.GuidedActionsSelectorStyle">
-        <item name="android:elevation">@dimen/lb_guidedactions_elevation</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">@dimen/lb_guidedactions_selector_min_height</item>
         <item name="android:layout_centerVertical">true</item>
-        <item name="android:alpha">0</item>
         <item name="android:background">@color/lb_guidedactions_selector_color</item>
     </style>
 
     <!-- Style for the vertical grid of actions in a GuidedActionsStylist's default layout. -->
     <style name="Widget.Leanback.GuidedActionsListStyle">
-        <item name="android:elevation">@dimen/lb_guidedactions_elevation</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:focusable">true</item>
@@ -468,9 +457,8 @@
         <item name="android:layout_height">@dimen/lb_guidedactions_item_checkmark_diameter</item>
         <item name="android:layout_gravity">center</item>
         <item name="android:layout_marginEnd">@dimen/lb_guidedactions_item_delimiter_padding</item>
-        <item name="android:scaleType">center</item>
-        <item name="android:src">@drawable/lb_guidedactions_item_checkmark</item>
-        <item name="android:visibility">invisible</item>
+        <item name="android:scaleType">centerInside</item>
+        <item name="android:visibility">gone</item>
     </style>
 
     <!-- Style for an action's icon in a GuidedActionsStylist's default item layout. -->
@@ -485,7 +473,7 @@
 
     <!-- Style for an action's text content in a GuidedActionsStylist's default item layout. -->
     <style name="Widget.Leanback.GuidedActionItemContentStyle">
-        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_gravity">start|center_vertical</item>
         <item name="android:layout_weight">1</item>

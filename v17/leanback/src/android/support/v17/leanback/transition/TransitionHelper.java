@@ -67,6 +67,12 @@ public final class TransitionHelper {
 
         public void setExitTransition(android.app.Fragment fragment, Object transition);
 
+        public void setSharedElementEnterTransition(android.app.Fragment fragment,
+                Object transition);
+
+        public void addSharedElement(android.app.FragmentTransaction ft,
+                View view, String transitionName);
+
         public Object getSharedElementEnterTransition(Window window);
 
         public Object getSharedElementReturnTransition(Window window);
@@ -156,6 +162,14 @@ public final class TransitionHelper {
         }
 
         public void setExitTransition(android.app.Fragment fragment, Object transition) {
+        }
+
+        public void setSharedElementEnterTransition(android.app.Fragment fragment,
+                Object transition) {
+        }
+
+        public void addSharedElement(android.app.FragmentTransaction ft,
+                View view, String transitionName) {
         }
 
         @Override
@@ -502,6 +516,16 @@ public final class TransitionHelper {
             TransitionHelperApi21.setExitTransition(fragment, transition);
         }
 
+        public void setSharedElementEnterTransition(android.app.Fragment fragment,
+                Object transition) {
+            TransitionHelperApi21.setSharedElementEnterTransition(fragment, transition);
+        }
+
+        public void addSharedElement(android.app.FragmentTransaction ft,
+                View view, String transitionName) {
+            TransitionHelperApi21.addSharedElement(ft, view, transitionName);
+        }
+
         @Override
         public Object getSharedElementEnterTransition(Window window) {
             return TransitionHelperApi21.getSharedElementEnterTransition(window);
@@ -722,6 +746,16 @@ public final class TransitionHelper {
         sImpl.setExitTransition(fragment, transition);
     }
 
+    public static void setSharedElementEnterTransition(android.app.Fragment fragment,
+            Object transition) {
+        sImpl.setSharedElementEnterTransition(fragment, transition);
+    }
+
+    public static void addSharedElement(android.app.FragmentTransaction ft,
+            View view, String transitionName) {
+        sImpl.addSharedElement(ft, view, transitionName);
+    }
+
     public static void setEnterTransition(android.support.v4.app.Fragment fragment,
             Object transition) {
         fragment.setEnterTransition(transition);
@@ -730,6 +764,16 @@ public final class TransitionHelper {
     public static void setExitTransition(android.support.v4.app.Fragment fragment,
             Object transition) {
         fragment.setExitTransition(transition);
+    }
+
+    public static void setSharedElementEnterTransition(android.support.v4.app.Fragment fragment,
+            Object transition) {
+        fragment.setSharedElementEnterTransition(transition);
+    }
+
+    public static void addSharedElement(android.support.v4.app.FragmentTransaction ft,
+            View view, String transitionName) {
+        ft.addSharedElement(view, transitionName);
     }
 
     public static Object createFadeAndShortSlide(int edge) {

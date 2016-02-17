@@ -113,7 +113,8 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
     public static final int STATE_SETTLING = ViewDragHelper.STATE_SETTLING;
 
     /** @hide */
-    @IntDef({LOCK_MODE_UNLOCKED, LOCK_MODE_LOCKED_CLOSED, LOCK_MODE_LOCKED_OPEN})
+    @IntDef({LOCK_MODE_UNLOCKED, LOCK_MODE_LOCKED_CLOSED, LOCK_MODE_LOCKED_OPEN,
+            LOCK_MODE_UNDEFINED})
     @Retention(RetentionPolicy.SOURCE)
     private @interface LockMode {}
 
@@ -133,6 +134,11 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
      * may close it programmatically.
      */
     public static final int LOCK_MODE_LOCKED_OPEN = 2;
+
+    /**
+     * The drawer's lock state is reset to default.
+     */
+    public static final int LOCK_MODE_UNDEFINED = 3;
 
     /** @hide */
     @IntDef({Gravity.LEFT, Gravity.RIGHT, GravityCompat.START, GravityCompat.END})
@@ -192,8 +198,12 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
     private int mDrawerState;
     private boolean mInLayout;
     private boolean mFirstLayout = true;
-    private int mLockModeLeft;
-    private int mLockModeRight;
+
+    private @LockMode int mLockModeLeft = LOCK_MODE_UNDEFINED;
+    private @LockMode int mLockModeRight = LOCK_MODE_UNDEFINED;
+    private @LockMode int mLockModeStart = LOCK_MODE_UNDEFINED;
+    private @LockMode int mLockModeEnd = LOCK_MODE_UNDEFINED;
+
     private boolean mDisallowInterceptRequested;
     private boolean mChildrenCanceledTouch;
 
@@ -547,11 +557,22 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
     public void setDrawerLockMode(@LockMode int lockMode, @EdgeGravity int edgeGravity) {
         final int absGravity = GravityCompat.getAbsoluteGravity(edgeGravity,
                 ViewCompat.getLayoutDirection(this));
-        if (absGravity == Gravity.LEFT) {
-            mLockModeLeft = lockMode;
-        } else if (absGravity == Gravity.RIGHT) {
-            mLockModeRight = lockMode;
+
+        switch (edgeGravity) {
+            case Gravity.LEFT:
+                mLockModeLeft = lockMode;
+                break;
+            case Gravity.RIGHT:
+                mLockModeRight = lockMode;
+                break;
+            case GravityCompat.START:
+                mLockModeStart = lockMode;
+                break;
+            case GravityCompat.END:
+                mLockModeEnd = lockMode;
+                break;
         }
+
         if (lockMode != LOCK_MODE_UNLOCKED) {
             // Cancel interaction in progress
             final ViewDragHelper helper = absGravity == Gravity.LEFT ? mLeftDragger : mRightDragger;
@@ -569,8 +590,8 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
                 if (toClose != null) {
                     closeDrawer(toClose);
                 }
-                break;
-            // default: do nothing
+            break;
+                // default: do nothing
         }
     }
 
@@ -610,13 +631,51 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
      */
     @LockMode
     public int getDrawerLockMode(@EdgeGravity int edgeGravity) {
-        final int absGravity = GravityCompat.getAbsoluteGravity(
-                edgeGravity, ViewCompat.getLayoutDirection(this));
-        if (absGravity == Gravity.LEFT) {
-            return mLockModeLeft;
-        } else if (absGravity == Gravity.RIGHT) {
-            return mLockModeRight;
+        int layoutDirection = ViewCompat.getLayoutDirection(this);
+
+        switch (edgeGravity) {
+            case Gravity.LEFT:
+                if (mLockModeLeft != LOCK_MODE_UNDEFINED) {
+                    return mLockModeLeft;
+                }
+                int leftLockMode = (layoutDirection == ViewCompat.LAYOUT_DIRECTION_LTR) ?
+                        mLockModeStart : mLockModeEnd;
+                if (leftLockMode != LOCK_MODE_UNDEFINED) {
+                    return leftLockMode;
+                }
+                break;
+            case Gravity.RIGHT:
+                if (mLockModeRight != LOCK_MODE_UNDEFINED) {
+                    return mLockModeRight;
+                }
+                int rightLockMode = (layoutDirection == ViewCompat.LAYOUT_DIRECTION_LTR) ?
+                        mLockModeEnd : mLockModeStart;
+                if (rightLockMode != LOCK_MODE_UNDEFINED) {
+                    return rightLockMode;
+                }
+                break;
+            case GravityCompat.START:
+                if (mLockModeStart != LOCK_MODE_UNDEFINED) {
+                    return mLockModeStart;
+                }
+                int startLockMode = (layoutDirection == ViewCompat.LAYOUT_DIRECTION_LTR) ?
+                        mLockModeLeft : mLockModeRight;
+                if (startLockMode != LOCK_MODE_UNDEFINED) {
+                    return startLockMode;
+                }
+                break;
+            case GravityCompat.END:
+                if (mLockModeEnd != LOCK_MODE_UNDEFINED) {
+                    return mLockModeEnd;
+                }
+                int endLockMode = (layoutDirection == ViewCompat.LAYOUT_DIRECTION_LTR) ?
+                        mLockModeRight : mLockModeLeft;
+                if (endLockMode != LOCK_MODE_UNDEFINED) {
+                    return endLockMode;
+                }
+                break;
         }
+
         return LOCK_MODE_UNLOCKED;
     }
 
@@ -629,13 +688,8 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
      */
     @LockMode
     public int getDrawerLockMode(View drawerView) {
-        final int absGravity = getDrawerViewAbsoluteGravity(drawerView);
-        if (absGravity == Gravity.LEFT) {
-            return mLockModeLeft;
-        } else if (absGravity == Gravity.RIGHT) {
-            return mLockModeRight;
-        }
-        return LOCK_MODE_UNLOCKED;
+        final int drawerGravity = ((LayoutParams) drawerView.getLayoutParams()).gravity;
+        return getDrawerLockMode(drawerGravity);
     }
 
     /**
@@ -715,8 +769,8 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
 
     void dispatchOnDrawerClosed(View drawerView) {
         final LayoutParams lp = (LayoutParams) drawerView.getLayoutParams();
-        if (lp.knownOpen) {
-            lp.knownOpen = false;
+        if ((lp.openState & LayoutParams.FLAG_IS_OPENED) == 1) {
+            lp.openState = 0;
             if (mListener != null) {
                 mListener.onDrawerClosed(drawerView);
             }
@@ -737,8 +791,8 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
 
     void dispatchOnDrawerOpened(View drawerView) {
         final LayoutParams lp = (LayoutParams) drawerView.getLayoutParams();
-        if (!lp.knownOpen) {
-            lp.knownOpen = true;
+        if ((lp.openState & LayoutParams.FLAG_IS_OPENED) == 0) {
+            lp.openState = LayoutParams.FLAG_IS_OPENED;
             if (mListener != null) {
                 mListener.onDrawerOpened(drawerView);
             }
@@ -809,7 +863,8 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
         final int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             final View child = getChildAt(i);
-            if (((LayoutParams) child.getLayoutParams()).knownOpen) {
+            final LayoutParams childLp = (LayoutParams) child.getLayoutParams();
+            if ((childLp.openState & LayoutParams.FLAG_IS_OPENED) == 1) {
                 return child;
             }
         }
@@ -1439,13 +1494,15 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
             throw new IllegalArgumentException("View " + drawerView + " is not a sliding drawer");
         }
 
+        final LayoutParams lp = (LayoutParams) drawerView.getLayoutParams();
         if (mFirstLayout) {
-            final LayoutParams lp = (LayoutParams) drawerView.getLayoutParams();
             lp.onScreen = 1.f;
-            lp.knownOpen = true;
+            lp.openState = LayoutParams.FLAG_IS_OPENED;
 
             updateChildrenImportantForAccessibility(drawerView, true);
         } else {
+            lp.openState |= LayoutParams.FLAG_IS_OPENING;
+
             if (checkDrawerViewAbsoluteGravity(drawerView, Gravity.LEFT)) {
                 mLeftDragger.smoothSlideViewTo(drawerView, 0, drawerView.getTop());
             } else {
@@ -1481,11 +1538,13 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
             throw new IllegalArgumentException("View " + drawerView + " is not a sliding drawer");
         }
 
+        final LayoutParams lp = (LayoutParams) drawerView.getLayoutParams();
         if (mFirstLayout) {
-            final LayoutParams lp = (LayoutParams) drawerView.getLayoutParams();
             lp.onScreen = 0.f;
-            lp.knownOpen = false;
+            lp.openState = 0;
         } else {
+            lp.openState |= LayoutParams.FLAG_IS_CLOSING;
+
             if (checkDrawerViewAbsoluteGravity(drawerView, Gravity.LEFT)) {
                 mLeftDragger.smoothSlideViewTo(drawerView, -drawerView.getWidth(),
                         drawerView.getTop());
@@ -1525,7 +1584,8 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
         if (!isDrawerView(drawer)) {
             throw new IllegalArgumentException("View " + drawer + " is not a drawer");
         }
-        return ((LayoutParams) drawer.getLayoutParams()).knownOpen;
+        LayoutParams drawerLp = (LayoutParams) drawer.getLayoutParams();
+        return (drawerLp.openState & LayoutParams.FLAG_IS_OPENED) == 1;
     }
 
     /**
@@ -1709,8 +1769,18 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
             }
         }
 
-        setDrawerLockMode(ss.lockModeLeft, Gravity.LEFT);
-        setDrawerLockMode(ss.lockModeRight, Gravity.RIGHT);
+        if (ss.lockModeLeft != LOCK_MODE_UNDEFINED) {
+            setDrawerLockMode(ss.lockModeLeft, Gravity.LEFT);
+        }
+        if (ss.lockModeRight != LOCK_MODE_UNDEFINED) {
+            setDrawerLockMode(ss.lockModeRight, Gravity.RIGHT);
+        }
+        if (ss.lockModeStart != LOCK_MODE_UNDEFINED) {
+            setDrawerLockMode(ss.lockModeStart, GravityCompat.START);
+        }
+        if (ss.lockModeEnd != LOCK_MODE_UNDEFINED) {
+            setDrawerLockMode(ss.lockModeEnd, GravityCompat.END);
+        }
     }
 
     @Override
@@ -1718,13 +1788,26 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
         final Parcelable superState = super.onSaveInstanceState();
         final SavedState ss = new SavedState(superState);
 
-        final View openDrawer = findOpenDrawer();
-        if (openDrawer != null) {
-            ss.openDrawerGravity = ((LayoutParams) openDrawer.getLayoutParams()).gravity;
+        final int childCount = getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            final View child = getChildAt(i);
+            LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            // Is the current child fully opened (that is, not closing)?
+            boolean isOpenedAndNotClosing = (lp.openState == LayoutParams.FLAG_IS_OPENED);
+            // Is the current child opening?
+            boolean isClosedAndOpening = (lp.openState == LayoutParams.FLAG_IS_OPENING);
+            if (isOpenedAndNotClosing || isClosedAndOpening) {
+                // If one of the conditions above holds, save the child's gravity
+                // so that we open that child during state restore.
+                ss.openDrawerGravity = lp.gravity;
+                break;
+            }
         }
 
         ss.lockModeLeft = mLockModeLeft;
         ss.lockModeRight = mLockModeRight;
+        ss.lockModeStart = mLockModeStart;
+        ss.lockModeEnd = mLockModeEnd;
 
         return ss;
     }
@@ -1770,12 +1853,18 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
      */
     protected static class SavedState extends BaseSavedState {
         int openDrawerGravity = Gravity.NO_GRAVITY;
-        int lockModeLeft = LOCK_MODE_UNLOCKED;
-        int lockModeRight = LOCK_MODE_UNLOCKED;
+        @LockMode int lockModeLeft;
+        @LockMode int lockModeRight;
+        @LockMode int lockModeStart;
+        @LockMode int lockModeEnd;
 
         public SavedState(Parcel in) {
             super(in);
             openDrawerGravity = in.readInt();
+            lockModeLeft = in.readInt();
+            lockModeRight = in.readInt();
+            lockModeStart = in.readInt();
+            lockModeEnd = in.readInt();
         }
 
         public SavedState(Parcelable superState) {
@@ -1786,6 +1875,10 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
         public void writeToParcel(Parcel dest, int flags) {
             super.writeToParcel(dest, flags);
             dest.writeInt(openDrawerGravity);
+            dest.writeInt(lockModeLeft);
+            dest.writeInt(lockModeRight);
+            dest.writeInt(lockModeStart);
+            dest.writeInt(lockModeEnd);
         }
 
         public static final Parcelable.Creator<SavedState> CREATOR =
@@ -1969,11 +2062,14 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
     }
 
     public static class LayoutParams extends ViewGroup.MarginLayoutParams {
+        private static final int FLAG_IS_OPENED = 0x1;
+        private static final int FLAG_IS_OPENING = 0x2;
+        private static final int FLAG_IS_CLOSING = 0x4;
 
         public int gravity = Gravity.NO_GRAVITY;
-        float onScreen;
-        boolean isPeeking;
-        boolean knownOpen;
+        private float onScreen;
+        private boolean isPeeking;
+        private int openState;
 
         public LayoutParams(Context c, AttributeSet attrs) {
             super(c, attrs);

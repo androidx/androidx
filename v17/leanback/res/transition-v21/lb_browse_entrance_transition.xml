@@ -23,6 +23,6 @@
   <slide
       android:duration="350"
       android:interpolator="@android:interpolator/linear_out_slow_in"
-      android:slideEdge="right">
+      android:slideEdge="@integer/slideEdgeEnd">
   </slide>
 </transitionSet>

@@ -18,8 +18,11 @@ package android.service.media;
 
 import android.content.pm.ParceledListSlice;
 import android.media.session.MediaSession;
+import android.os.Binder;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.IInterface;
+import android.os.Parcel;
 import android.os.RemoteException;
 
 /**
@@ -30,6 +33,56 @@ import android.os.RemoteException;
  * @hide
  */
 public interface IMediaBrowserServiceCallbacks extends IInterface {
+    public static abstract class Stub extends Binder implements IMediaBrowserServiceCallbacks
+    {
+        public Stub() {
+        }
+
+        public static IMediaBrowserServiceCallbacks asInterface(IBinder obj) {
+            return null;
+        }
+
+        @Override
+        public IBinder asBinder() {
+            return null;
+        }
+
+        @Override
+        public boolean onTransact(int code, Parcel data, Parcel reply, int flags)
+                throws RemoteException {
+            return false;
+        }
+
+        private static class Proxy implements IMediaBrowserServiceCallbacks
+        {
+            Proxy(IBinder remote) {
+            }
+
+            @Override
+            public IBinder asBinder() {
+                return null;
+            }
+
+            public String getInterfaceDescriptor() {
+                return null;
+            }
+
+            @Override
+            public void onConnect(String root, MediaSession.Token session, Bundle extras)
+                    throws RemoteException {
+            }
+
+            @Override
+            public void onConnectFailed() throws RemoteException {
+            }
+
+            @Override
+            public void onLoadChildren(String mediaId, ParceledListSlice list)
+                    throws RemoteException {
+            }
+        }
+    }
+
     public void onConnect(String root, MediaSession.Token session, Bundle extras)
             throws RemoteException;
     public void onConnectFailed() throws RemoteException;

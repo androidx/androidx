@@ -52,6 +52,7 @@
     <color name="lb_basic_card_content_text_color">#B3EEEEEE</color>
 
     <color name="lb_default_brand_color">#FF455A64</color>
+    <color name="lb_default_brand_color_dark">#FF222D32</color>
     <color name="lb_default_search_color">#FFFFAA3F</color>
 
     <color name="lb_control_button_color">#66EEEEEE</color>
@@ -71,6 +72,7 @@
 
     <!-- refactor naming here -->
     <color name="lb_guidedactions_background">#FF111111</color>
+    <color name="lb_guidedactions_background_dark">#FF080808</color>
     <color name="lb_guidedactions_selector_color">#26FFFFFF</color>
     <color name="lb_guidedactions_item_unselected_text_color">#FFF1F1F1</color>
     <!-- end refactor naming -->

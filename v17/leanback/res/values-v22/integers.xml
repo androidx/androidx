@@ -14,9 +14,11 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<objectAnimator xmlns:android="http://schemas.android.com/apk/res/android"
-    android:duration="@integer/lb_guidedactions_item_animation_duration"
-    android:propertyName="alpha"
-    android:valueFrom="1.0"
-    android:valueTo="0.0"
-    android:valueType="floatType" />
+<resources>
+
+    <!-- Gravity.START -->
+    <integer name="slideEdgeStart">0x800003</integer>
+    <!-- Gravity.END -->
+    <integer name="slideEdgeEnd">0x800005</integer>
+
+</resources>

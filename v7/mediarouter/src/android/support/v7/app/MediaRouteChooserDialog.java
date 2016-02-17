@@ -28,7 +28,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.v7.media.MediaControlIntent;
 import android.support.v7.media.MediaRouteSelector;
 import android.support.v7.media.MediaRouter;
 import android.support.v7.mediarouter.R;
@@ -65,9 +64,6 @@ import java.util.List;
 public class MediaRouteChooserDialog extends Dialog {
     private static final String TAG = "MediaRouteChooserDialog";
 
-    // Should match to SystemMediaRouteProvider.PACKAGE_NAME.
-    static final String SYSTEM_MEDIA_ROUTE_PROVIDER_PACKAGE_NAME = "android";
-
     private final MediaRouter mRouter;
     private final MediaRouterCallback mCallback;
 
@@ -82,7 +78,7 @@ public class MediaRouteChooserDialog extends Dialog {
     }
 
     public MediaRouteChooserDialog(Context context, int theme) {
-        super(MediaRouterThemeHelper.createThemedContext(context), theme);
+        super(MediaRouterThemeHelper.createThemedContext(context, theme), theme);
         context = getContext();
 
         mRouter = MediaRouter.getInstance(context);
@@ -322,7 +318,7 @@ public class MediaRouteChooserDialog extends Dialog {
                 // Only speakers can be grouped for now.
                 return mSpeakerGroupIcon;
             }
-            if (isSystemLiveAudioOnlyRoute(route)) {
+            if (route.isDeviceTypeBluetooth()) {
                 return mBluetoothIcon;
             }
             return mDefaultIcon;
@@ -365,11 +361,16 @@ public class MediaRouteChooserDialog extends Dialog {
 
         @Override
         public int compare(MediaRouter.RouteInfo lhs, MediaRouter.RouteInfo rhs) {
-            if (isSystemLiveAudioOnlyRoute(lhs)) {
-                if (!isSystemLiveAudioOnlyRoute(rhs)) {
+            if (lhs == null) {
+                return rhs == null ? 0 : -1;
+            } else if (rhs == null) {
+                return 1;
+            }
+            if (lhs.isDeviceTypeBluetooth()) {
+                if (!rhs.isDeviceTypeBluetooth()) {
                     return 1;
                 }
-            } else if (isSystemLiveAudioOnlyRoute(rhs)) {
+            } else if (rhs.isDeviceTypeBluetooth()) {
                 return -1;
             }
             Float lhsUsageScore = sRouteUsageScoreMap.get(lhs.getId());
@@ -429,18 +430,5 @@ public class MediaRouteChooserDialog extends Dialog {
             prefEditor.putString(PREF_ROUTE_IDS, routeIdsBuilder.toString());
             prefEditor.commit();
         }
-    }
-
-    // Used to determine whether the route represents a bluetooth device.
-    // TODO: Find a better way to precisely detect bluetooth routes.
-    private static boolean isSystemLiveAudioOnlyRoute(MediaRouter.RouteInfo route) {
-        return isSystemMediaRouteProvider(route)
-                && route.supportsControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
-                && !route.supportsControlCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO);
-    }
-
-    private static boolean isSystemMediaRouteProvider(MediaRouter.RouteInfo route) {
-        return TextUtils.equals(route.getProviderInstance().getMetadata().getPackageName(),
-                SYSTEM_MEDIA_ROUTE_PROVIDER_PACKAGE_NAME);
     }
 }

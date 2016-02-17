@@ -18,17 +18,12 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="5441529851481176817">"Isistimu"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"Amadivayisi"</string>
-    <string name="mr_button_content_description" msgid="3698378085901466129">"Inkinobho ye-Cast"</string>
-    <string name="mr_chooser_title" msgid="414301941546135990">"Sakaza ku-"</string>
-    <string name="mr_chooser_searching" msgid="6349900579507521956">"Ithola amadivayisi"</string>
-    <string name="mr_controller_disconnect" msgid="1227264889412989580">"Nqamula"</string>
-    <string name="mr_controller_stop" msgid="4570331844078181931">"Misa ukusakaza"</string>
-    <string name="mr_controller_close_description" msgid="7333862312480583260">"Vala"</string>
-    <string name="mr_controller_play" msgid="683634565969987458">"Dlala"</string>
-    <string name="mr_controller_pause" msgid="5451884435510905406">"Misa isikhashana"</string>
-    <string name="mr_controller_expand_group" msgid="8062427022744266907">"Nweba"</string>
-    <string name="mr_controller_collapse_group" msgid="7924809056904240926">"Goqa"</string>
-    <string name="mr_controller_no_media_selected" msgid="6547130360349182381">"Ayikho imidiya ekhethiwe"</string>
-    <string name="mr_controller_no_info_available" msgid="5585418471741142924">"Alukho ulwazi olutholakalayo"</string>
-    <string name="mr_controller_casting_screen" msgid="4868457957151124867">"Isikrini sokusakaza"</string>
+    <string name="mr_button_content_description" msgid="8327680881775995150">"Abalingisi"</string>
+    <string name="mr_chooser_title" msgid="7106830097177242655">"Xhumeka kudivayisi"</string>
+    <string name="mr_chooser_searching" msgid="7553005460920830010">"Iseshela amadivayisi…"</string>
+    <string name="mr_controller_disconnect" msgid="109793632378378069">"Nqamula"</string>
+    <string name="mr_controller_stop" msgid="5398645111664294430">"Misa ukusakaza"</string>
+    <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"Izilungiselelo zomzila"</string>
+    <string name="mr_controller_play" msgid="5214423499524760404">"Dlala"</string>
+    <string name="mr_controller_pause" msgid="8315773974194466049">"Misa isikhashana"</string>
 </resources>

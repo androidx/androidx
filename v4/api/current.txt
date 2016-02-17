@@ -1208,6 +1208,77 @@ package android.support.v4.hardware.fingerprint {
 
 package android.support.v4.media {
 
+  public final class MediaBrowserCompat {
+    ctor public MediaBrowserCompat(android.content.Context, android.content.ComponentName, android.support.v4.media.MediaBrowserCompat.ConnectionCallback, android.os.Bundle);
+    method public void connect();
+    method public void disconnect();
+    method public android.os.Bundle getExtras();
+    method public void getItem(java.lang.String, android.support.v4.media.MediaBrowserCompat.ItemCallback);
+    method public java.lang.String getRoot();
+    method public android.content.ComponentName getServiceComponent();
+    method public android.support.v4.media.session.MediaSessionCompat.Token getSessionToken();
+    method public boolean isConnected();
+    method public void subscribe(java.lang.String, android.support.v4.media.MediaBrowserCompat.SubscriptionCallback);
+    method public void unsubscribe(java.lang.String);
+  }
+
+  public static class MediaBrowserCompat.ConnectionCallback {
+    ctor public MediaBrowserCompat.ConnectionCallback();
+    method public void onConnected();
+    method public void onConnectionFailed();
+    method public void onConnectionSuspended();
+  }
+
+  public static abstract class MediaBrowserCompat.ItemCallback {
+    ctor public MediaBrowserCompat.ItemCallback();
+    method public void onError(java.lang.String);
+    method public void onItemLoaded(android.support.v4.media.MediaBrowserCompat.MediaItem);
+  }
+
+  public static class MediaBrowserCompat.MediaItem implements android.os.Parcelable {
+    ctor public MediaBrowserCompat.MediaItem(android.support.v4.media.MediaDescriptionCompat, int);
+    method public int describeContents();
+    method public android.support.v4.media.MediaDescriptionCompat getDescription();
+    method public int getFlags();
+    method public java.lang.String getMediaId();
+    method public boolean isBrowsable();
+    method public boolean isPlayable();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<android.support.v4.media.MediaBrowserCompat.MediaItem> CREATOR;
+    field public static final int FLAG_BROWSABLE = 1; // 0x1
+    field public static final int FLAG_PLAYABLE = 2; // 0x2
+  }
+
+  public static abstract class MediaBrowserCompat.SubscriptionCallback {
+    ctor public MediaBrowserCompat.SubscriptionCallback();
+    method public void onChildrenLoaded(java.lang.String, java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem>);
+    method public void onError(java.lang.String);
+  }
+
+  public abstract class MediaBrowserServiceCompat extends android.app.Service {
+    ctor public MediaBrowserServiceCompat();
+    method public void dump(java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
+    method public android.support.v4.media.session.MediaSessionCompat.Token getSessionToken();
+    method public void notifyChildrenChanged(java.lang.String);
+    method public android.os.IBinder onBind(android.content.Intent);
+    method public abstract android.support.v4.media.MediaBrowserServiceCompat.BrowserRoot onGetRoot(java.lang.String, int, android.os.Bundle);
+    method public abstract void onLoadChildren(java.lang.String, android.support.v4.media.MediaBrowserServiceCompat.Result<java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem>>);
+    method public void onLoadItem(java.lang.String, android.support.v4.media.MediaBrowserServiceCompat.Result<android.support.v4.media.MediaBrowserCompat.MediaItem>);
+    method public void setSessionToken(android.support.v4.media.session.MediaSessionCompat.Token);
+    field public static final java.lang.String SERVICE_INTERFACE = "android.media.browse.MediaBrowserService";
+  }
+
+  public static final class MediaBrowserServiceCompat.BrowserRoot {
+    ctor public MediaBrowserServiceCompat.BrowserRoot(java.lang.String, android.os.Bundle);
+    method public android.os.Bundle getExtras();
+    method public java.lang.String getRootId();
+  }
+
+  public static class MediaBrowserServiceCompat.Result {
+    method public void detach();
+    method public void sendResult(T);
+  }
+
   public final class MediaDescriptionCompat implements android.os.Parcelable {
     method public int describeContents();
     method public static android.support.v4.media.MediaDescriptionCompat fromMediaDescription(java.lang.Object);
@@ -3124,6 +3195,7 @@ package android.support.v4.widget {
     method public void setStatusBarBackgroundColor(int);
     field public static final int LOCK_MODE_LOCKED_CLOSED = 1; // 0x1
     field public static final int LOCK_MODE_LOCKED_OPEN = 2; // 0x2
+    field public static final int LOCK_MODE_UNDEFINED = 3; // 0x3
     field public static final int LOCK_MODE_UNLOCKED = 0; // 0x0
     field public static final int STATE_DRAGGING = 1; // 0x1
     field public static final int STATE_IDLE = 0; // 0x0
@@ -3414,6 +3486,7 @@ package android.support.v4.widget {
     method public static void setCompoundDrawablesRelative(android.widget.TextView, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable);
     method public static void setCompoundDrawablesRelativeWithIntrinsicBounds(android.widget.TextView, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable);
     method public static void setCompoundDrawablesRelativeWithIntrinsicBounds(android.widget.TextView, int, int, int, int);
+    method public static void setTextAppearance(android.widget.TextView, int);
   }
 
   public abstract interface TintableCompoundButton {

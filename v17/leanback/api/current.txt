@@ -207,45 +207,51 @@ package android.support.v17.leanback.app {
     method public static int addAsRoot(android.app.Activity, android.support.v17.leanback.app.GuidedStepFragment, int);
     method public android.support.v17.leanback.widget.GuidedAction findActionById(long);
     method public int findActionPositionById(long);
+    method public android.support.v17.leanback.widget.GuidedAction findButtonActionById(long);
+    method public int findButtonActionPositionById(long);
     method public void finishGuidedStepFragments();
     method public java.lang.String generateStackEntryName();
     method public static java.lang.String generateStackEntryName(int, java.lang.Class);
     method public android.view.View getActionItemView(int);
     method public java.util.List<android.support.v17.leanback.widget.GuidedAction> getActions();
-    method protected int getContainerIdForBackground();
+    method public android.view.View getButtonActionItemView(int);
+    method public java.util.List<android.support.v17.leanback.widget.GuidedAction> getButtonActions();
     method public static android.support.v17.leanback.app.GuidedStepFragment getCurrentGuidedStepFragment(android.app.FragmentManager);
     method public android.support.v17.leanback.widget.GuidanceStylist getGuidanceStylist();
     method public android.support.v17.leanback.widget.GuidedActionsStylist getGuidedActionsStylist();
+    method public android.support.v17.leanback.widget.GuidedActionsStylist getGuidedButtonActionsStylist();
     method public static java.lang.String getGuidedStepFragmentClassName(java.lang.String);
     method public int getSelectedActionPosition();
+    method public int getSelectedButtonActionPosition();
     method public int getUiStyle();
     method public static boolean isUiStyleDefault(java.lang.String);
     method public static boolean isUiStyleEntrance(java.lang.String);
     method public void notifyActionChanged(int);
+    method public void notifyButtonActionChanged(int);
+    method protected void onAddSharedElementTransition(android.app.FragmentTransaction, android.support.v17.leanback.app.GuidedStepFragment);
     method public void onCreateActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>, android.os.Bundle);
     method public android.support.v17.leanback.widget.GuidedActionsStylist onCreateActionsStylist();
+    method public android.view.View onCreateBackgroundView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
+    method public void onCreateButtonActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>, android.os.Bundle);
+    method public android.support.v17.leanback.widget.GuidedActionsStylist onCreateButtonActionsStylist();
     method public android.support.v17.leanback.widget.GuidanceStylist.Guidance onCreateGuidance(android.os.Bundle);
     method public android.support.v17.leanback.widget.GuidanceStylist onCreateGuidanceStylist();
     method public void onGuidedActionClicked(android.support.v17.leanback.widget.GuidedAction);
     method public void onGuidedActionEdited(android.support.v17.leanback.widget.GuidedAction);
     method public long onGuidedActionEditedAndProceed(android.support.v17.leanback.widget.GuidedAction);
     method public void onGuidedActionFocused(android.support.v17.leanback.widget.GuidedAction);
-    method protected android.app.Fragment onProvideBackgroundFragment();
     method protected void onProvideFragmentTransitions();
     method public int onProvideTheme();
     method public void popBackStackToGuidedStepFragment(java.lang.Class, int);
     method public void setActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>);
+    method public void setButtonActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>);
     method public void setSelectedActionPosition(int);
+    method public void setSelectedButtonActionPosition(int);
     method public void setUiStyle(int);
     field public static final java.lang.String EXTRA_UI_STYLE = "uiStyle";
     field public static final int UI_STYLE_ACTIVITY_ROOT = 2; // 0x2
-    field public static final int UI_STYLE_DEFAULT = 0; // 0x0
     field public static final int UI_STYLE_ENTRANCE = 1; // 0x1
-  }
-
-  public static class GuidedStepFragment.GuidedStepBackgroundFragment extends android.app.Fragment {
-    ctor public GuidedStepFragment.GuidedStepBackgroundFragment();
-    method protected void onProvideFragmentTransitions();
+    field public static final int UI_STYLE_REPLACE = 0; // 0x0
   }
 
   public class GuidedStepSupportFragment extends android.support.v4.app.Fragment {
@@ -255,45 +261,51 @@ package android.support.v17.leanback.app {
     method public static int addAsRoot(android.support.v4.app.FragmentActivity, android.support.v17.leanback.app.GuidedStepSupportFragment, int);
     method public android.support.v17.leanback.widget.GuidedAction findActionById(long);
     method public int findActionPositionById(long);
+    method public android.support.v17.leanback.widget.GuidedAction findButtonActionById(long);
+    method public int findButtonActionPositionById(long);
     method public void finishGuidedStepSupportFragments();
     method public java.lang.String generateStackEntryName();
     method public static java.lang.String generateStackEntryName(int, java.lang.Class);
     method public android.view.View getActionItemView(int);
     method public java.util.List<android.support.v17.leanback.widget.GuidedAction> getActions();
-    method protected int getContainerIdForBackground();
+    method public android.view.View getButtonActionItemView(int);
+    method public java.util.List<android.support.v17.leanback.widget.GuidedAction> getButtonActions();
     method public static android.support.v17.leanback.app.GuidedStepSupportFragment getCurrentGuidedStepSupportFragment(android.support.v4.app.FragmentManager);
     method public android.support.v17.leanback.widget.GuidanceStylist getGuidanceStylist();
     method public android.support.v17.leanback.widget.GuidedActionsStylist getGuidedActionsStylist();
+    method public android.support.v17.leanback.widget.GuidedActionsStylist getGuidedButtonActionsStylist();
     method public static java.lang.String getGuidedStepSupportFragmentClassName(java.lang.String);
     method public int getSelectedActionPosition();
+    method public int getSelectedButtonActionPosition();
     method public int getUiStyle();
     method public static boolean isUiStyleDefault(java.lang.String);
     method public static boolean isUiStyleEntrance(java.lang.String);
     method public void notifyActionChanged(int);
+    method public void notifyButtonActionChanged(int);
+    method protected void onAddSharedElementTransition(android.support.v4.app.FragmentTransaction, android.support.v17.leanback.app.GuidedStepSupportFragment);
     method public void onCreateActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>, android.os.Bundle);
     method public android.support.v17.leanback.widget.GuidedActionsStylist onCreateActionsStylist();
+    method public android.view.View onCreateBackgroundView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
+    method public void onCreateButtonActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>, android.os.Bundle);
+    method public android.support.v17.leanback.widget.GuidedActionsStylist onCreateButtonActionsStylist();
     method public android.support.v17.leanback.widget.GuidanceStylist.Guidance onCreateGuidance(android.os.Bundle);
     method public android.support.v17.leanback.widget.GuidanceStylist onCreateGuidanceStylist();
     method public void onGuidedActionClicked(android.support.v17.leanback.widget.GuidedAction);
     method public void onGuidedActionEdited(android.support.v17.leanback.widget.GuidedAction);
     method public long onGuidedActionEditedAndProceed(android.support.v17.leanback.widget.GuidedAction);
     method public void onGuidedActionFocused(android.support.v17.leanback.widget.GuidedAction);
-    method protected android.support.v4.app.Fragment onProvideBackgroundSupportFragment();
     method protected void onProvideFragmentTransitions();
     method public int onProvideTheme();
     method public void popBackStackToGuidedStepSupportFragment(java.lang.Class, int);
     method public void setActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>);
+    method public void setButtonActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>);
     method public void setSelectedActionPosition(int);
+    method public void setSelectedButtonActionPosition(int);
     method public void setUiStyle(int);
     field public static final java.lang.String EXTRA_UI_STYLE = "uiStyle";
     field public static final int UI_STYLE_ACTIVITY_ROOT = 2; // 0x2
-    field public static final int UI_STYLE_DEFAULT = 0; // 0x0
     field public static final int UI_STYLE_ENTRANCE = 1; // 0x1
-  }
-
-  public static class GuidedStepSupportFragment.GuidedStepBackgroundSupportFragment extends android.support.v4.app.Fragment {
-    ctor public GuidedStepSupportFragment.GuidedStepBackgroundSupportFragment();
-    method protected void onProvideFragmentTransitions();
+    field public static final int UI_STYLE_REPLACE = 0; // 0x0
   }
 
   public class HeadersFragment extends android.support.v17.leanback.app.BaseRowFragment {
@@ -966,6 +978,7 @@ package android.support.v17.leanback.widget {
     method public android.widget.ImageView getIconView();
     method public android.widget.TextView getTitleView();
     method public android.view.View onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.support.v17.leanback.widget.GuidanceStylist.Guidance);
+    method public void onDestroyView();
     method public void onImeAppearing(java.util.List<android.animation.Animator>);
     method public void onImeDisappearing(java.util.List<android.animation.Animator>);
     method public int onProvideLayoutId();
@@ -980,6 +993,7 @@ package android.support.v17.leanback.widget {
   }
 
   public class GuidedAction extends android.support.v17.leanback.widget.Action {
+    ctor protected GuidedAction();
     method public int getCheckSetId();
     method public java.lang.CharSequence getDescription();
     method public int getDescriptionEditInputType();
@@ -998,11 +1012,13 @@ package android.support.v17.leanback.widget {
     method public boolean isEditTitleUsed();
     method public boolean isEditable();
     method public boolean isEnabled();
+    method public boolean isFocusable();
     method public void setChecked(boolean);
     method public void setDescription(java.lang.CharSequence);
     method public void setEditDescription(java.lang.CharSequence);
     method public void setEditTitle(java.lang.CharSequence);
     method public void setEnabled(boolean);
+    method public void setFocusable(boolean);
     method public void setTitle(java.lang.CharSequence);
     field public static final long ACTION_ID_CANCEL = -5L; // 0xfffffffffffffffbL
     field public static final long ACTION_ID_CONTINUE = -7L; // 0xfffffffffffffff9L
@@ -1012,13 +1028,15 @@ package android.support.v17.leanback.widget {
     field public static final long ACTION_ID_NO = -9L; // 0xfffffffffffffff7L
     field public static final long ACTION_ID_OK = -4L; // 0xfffffffffffffffcL
     field public static final long ACTION_ID_YES = -8L; // 0xfffffffffffffff8L
+    field public static final int CHECKBOX_CHECK_SET_ID = -1; // 0xffffffff
     field public static final int DEFAULT_CHECK_SET_ID = 1; // 0x1
     field public static final int NO_CHECK_SET = 0; // 0x0
   }
 
   public static class GuidedAction.Builder {
     ctor public GuidedAction.Builder();
-    method public android.support.v17.leanback.widget.GuidedAction build();
+    method protected final void applyValues(android.support.v17.leanback.widget.GuidedAction);
+    method public final android.support.v17.leanback.widget.GuidedAction build();
     method public android.support.v17.leanback.widget.GuidedAction.Builder checkSetId(int);
     method public android.support.v17.leanback.widget.GuidedAction.Builder checked(boolean);
     method public android.support.v17.leanback.widget.GuidedAction.Builder constructCancel(android.content.Context);
@@ -1036,6 +1054,7 @@ package android.support.v17.leanback.widget {
     method public android.support.v17.leanback.widget.GuidedAction.Builder editTitle(java.lang.CharSequence);
     method public android.support.v17.leanback.widget.GuidedAction.Builder editable(boolean);
     method public android.support.v17.leanback.widget.GuidedAction.Builder enabled(boolean);
+    method public android.support.v17.leanback.widget.GuidedAction.Builder focusable(boolean);
     method public android.support.v17.leanback.widget.GuidedAction.Builder hasNext(boolean);
     method public android.support.v17.leanback.widget.GuidedAction.Builder icon(android.graphics.drawable.Drawable);
     method public android.support.v17.leanback.widget.GuidedAction.Builder iconResourceId(int, android.content.Context);
@@ -1057,21 +1076,29 @@ package android.support.v17.leanback.widget {
   public class GuidedActionsStylist implements android.support.v17.leanback.widget.FragmentAnimationProvider {
     ctor public GuidedActionsStylist();
     method public android.support.v17.leanback.widget.VerticalGridView getActionsGridView();
+    method public int getItemViewType(android.support.v17.leanback.widget.GuidedAction);
+    method public boolean isButtonActions();
     method public void onAnimateItemChecked(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, boolean);
     method public void onAnimateItemFocused(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, boolean);
     method public void onAnimateItemPressed(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, boolean);
+    method public void onAnimateItemPressedCancelled(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder);
+    method public void onBindCheckMarkView(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, android.support.v17.leanback.widget.GuidedAction);
+    method public void onBindChevronView(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, android.support.v17.leanback.widget.GuidedAction);
     method public void onBindViewHolder(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, android.support.v17.leanback.widget.GuidedAction);
     method public android.view.View onCreateView(android.view.LayoutInflater, android.view.ViewGroup);
     method public android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder onCreateViewHolder(android.view.ViewGroup);
+    method public android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder onCreateViewHolder(android.view.ViewGroup, int);
+    method public void onDestroyView();
     method protected void onEditingModeChange(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, android.support.v17.leanback.widget.GuidedAction, boolean);
     method public void onImeAppearing(java.util.List<android.animation.Animator>);
     method public void onImeDisappearing(java.util.List<android.animation.Animator>);
     method public int onProvideItemLayoutId();
+    method public int onProvideItemLayoutId(int);
     method public int onProvideLayoutId();
+    method public void setAsButtonActions();
     method public void setEditingMode(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, android.support.v17.leanback.widget.GuidedAction, boolean);
-    field protected android.support.v17.leanback.widget.VerticalGridView mActionsGridView;
-    field protected android.view.View mMainView;
-    field protected android.view.View mSelectorView;
+    method protected void setupImeOptions(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, android.support.v17.leanback.widget.GuidedAction);
+    field public static final int VIEW_TYPE_DEFAULT = 0; // 0x0
   }
 
   public static class GuidedActionsStylist.ViewHolder {

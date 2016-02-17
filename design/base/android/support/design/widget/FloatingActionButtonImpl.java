@@ -20,6 +20,7 @@ import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.support.annotation.Nullable;
@@ -27,6 +28,14 @@ import android.support.design.R;
 import android.view.ViewTreeObserver;
 
 abstract class FloatingActionButtonImpl {
+
+    Drawable mShapeDrawable;
+    Drawable mRippleDrawable;
+    CircularBorderDrawable mBorderDrawable;
+    Drawable mContentBackground;
+
+    float mElevation;
+    float mPressedTranslationZ;
 
     interface InternalVisibilityChangedListener {
         public void onShown();
@@ -44,6 +53,7 @@ abstract class FloatingActionButtonImpl {
     final VisibilityAwareImageButton mView;
     final ShadowViewDelegate mShadowViewDelegate;
 
+    private final Rect mTmpRect = new Rect();
     private ViewTreeObserver.OnPreDrawListener mPreDrawListener;
 
     FloatingActionButtonImpl(VisibilityAwareImageButton view,
@@ -61,9 +71,25 @@ abstract class FloatingActionButtonImpl {
 
     abstract void setRippleColor(int rippleColor);
 
-    abstract void setElevation(float elevation);
+    final void setElevation(float elevation) {
+        if (mElevation != elevation) {
+            mElevation = elevation;
+            onElevationChanged(elevation);
+        }
+    }
 
-    abstract void setPressedTranslationZ(float translationZ);
+    abstract float getElevation();
+
+    final void setPressedTranslationZ(float translationZ) {
+        if (mPressedTranslationZ != translationZ) {
+            mPressedTranslationZ = translationZ;
+            onTranslationZChanged(translationZ);
+        }
+    }
+
+    abstract void onElevationChanged(float elevation);
+
+    abstract void onTranslationZChanged(float translationZ);
 
     abstract void onDrawableStateChanged(int[] state);
 
@@ -72,6 +98,23 @@ abstract class FloatingActionButtonImpl {
     abstract void hide(@Nullable InternalVisibilityChangedListener listener, boolean fromUser);
 
     abstract void show(@Nullable InternalVisibilityChangedListener listener, boolean fromUser);
+
+    final Drawable getContentBackground() {
+        return mContentBackground;
+    }
+
+    abstract void onCompatShadowChanged();
+
+    final void updatePadding() {
+        Rect rect = mTmpRect;
+        getPadding(rect);
+        onPaddingUpdated(rect);
+        mShadowViewDelegate.setShadowPadding(rect.left, rect.top, rect.right, rect.bottom);
+    }
+
+    abstract void getPadding(Rect rect);
+
+    void onPaddingUpdated(Rect padding) {}
 
     void onAttachedToWindow() {
         if (requirePreDrawListener()) {

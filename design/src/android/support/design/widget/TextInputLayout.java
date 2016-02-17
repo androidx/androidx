@@ -22,7 +22,10 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.DrawableContainer;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StyleRes;
@@ -61,11 +64,14 @@ public class TextInputLayout extends LinearLayout {
     private static final int INVALID_MAX_LENGTH = -1;
 
     private EditText mEditText;
+
+    private boolean mHintEnabled;
     private CharSequence mHint;
 
     private Paint mTmpPaint;
 
     private LinearLayout mIndicatorArea;
+    private int mIndicatorsAdded;
 
     private boolean mErrorEnabled;
     private TextView mErrorView;
@@ -86,6 +92,8 @@ public class TextInputLayout extends LinearLayout {
 
     private boolean mHintAnimationEnabled;
     private ValueAnimatorCompat mAnimator;
+
+    private boolean mHasReconstructedEditTextBackground;
 
     public TextInputLayout(Context context) {
         this(context, null);
@@ -111,6 +119,7 @@ public class TextInputLayout extends LinearLayout {
 
         final TypedArray a = context.obtainStyledAttributes(attrs,
                 R.styleable.TextInputLayout, defStyleAttr, R.style.Widget_Design_TextInputLayout);
+        mHintEnabled = a.getBoolean(R.styleable.TextInputLayout_hintEnabled, true);
         setHint(a.getText(R.styleable.TextInputLayout_android_hint));
         mHintAnimationEnabled = a.getBoolean(
                 R.styleable.TextInputLayout_hintAnimationEnabled, true);
@@ -198,7 +207,7 @@ public class TextInputLayout extends LinearLayout {
         mEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void afterTextChanged(Editable s) {
-                updateLabelVisibility(true);
+                updateLabelState(true);
                 if (mCounterEnabled) {
                     updateCounter(s.length());
                 }
@@ -216,8 +225,8 @@ public class TextInputLayout extends LinearLayout {
             mDefaultTextColor = mEditText.getHintTextColors();
         }
 
-        // If we do not have a valid hint, try and retrieve it from the EditText
-        if (TextUtils.isEmpty(mHint)) {
+        // If we do not have a valid hint, try and retrieve it from the EditText, if enabled
+        if (mHintEnabled && TextUtils.isEmpty(mHint)) {
             setHint(mEditText.getHint());
             // Clear the EditText's hint as we will display it ourselves
             mEditText.setHint(null);
@@ -232,7 +241,7 @@ public class TextInputLayout extends LinearLayout {
         }
 
         // Update the label visibility with no animation
-        updateLabelVisibility(false);
+        updateLabelState(false);
     }
 
     private LayoutParams updateEditTextMargin(ViewGroup.LayoutParams lp) {
@@ -240,17 +249,21 @@ public class TextInputLayout extends LinearLayout {
         // to the EditText so make room for the label
         LayoutParams llp = lp instanceof LayoutParams ? (LayoutParams) lp : new LayoutParams(lp);
 
-        if (mTmpPaint == null) {
-            mTmpPaint = new Paint();
+        if (mHintEnabled) {
+            if (mTmpPaint == null) {
+                mTmpPaint = new Paint();
+            }
+            mTmpPaint.setTypeface(mCollapsingTextHelper.getCollapsedTypeface());
+            mTmpPaint.setTextSize(mCollapsingTextHelper.getCollapsedTextSize());
+            llp.topMargin = (int) -mTmpPaint.ascent();
+        } else {
+            llp.topMargin = 0;
         }
-        mTmpPaint.setTypeface(mCollapsingTextHelper.getCollapsedTypeface());
-        mTmpPaint.setTextSize(mCollapsingTextHelper.getCollapsedTextSize());
-        llp.topMargin = (int) -mTmpPaint.ascent();
 
         return llp;
     }
 
-    private void updateLabelVisibility(boolean animate) {
+    private void updateLabelState(boolean animate) {
         final boolean hasText = mEditText != null && !TextUtils.isEmpty(mEditText.getText());
         final boolean isFocused = arrayContains(getDrawableState(), android.R.attr.state_focused);
         final boolean isErrorShowing = !TextUtils.isEmpty(getError());
@@ -287,25 +300,89 @@ public class TextInputLayout extends LinearLayout {
     }
 
     /**
-     * Set the hint to be displayed in the floating label
+     * Set the hint to be displayed in the floating label, if enabled.
+     *
+     * @see #setHintEnabled(boolean)
      *
      * @attr ref android.support.design.R.styleable#TextInputLayout_android_hint
      */
     public void setHint(@Nullable CharSequence hint) {
+        if (mHintEnabled) {
+            setHintInternal(hint);
+            sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED);
+        }
+    }
+
+    private void setHintInternal(CharSequence hint) {
         mHint = hint;
         mCollapsingTextHelper.setText(hint);
-
-        sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED);
     }
 
     /**
-     * Returns the hint which is displayed in the floating label.
+     * Returns the hint which is displayed in the floating label, if enabled.
+     *
+     * @return the hint, or null if there isn't one set, or the hint is not enabled.
      *
      * @attr ref android.support.design.R.styleable#TextInputLayout_android_hint
      */
     @Nullable
     public CharSequence getHint() {
-        return mHint;
+        return mHintEnabled ? mHint : null;
+    }
+
+    /**
+     * Sets whether the floating label functionality is enabled or not in this layout.
+     *
+     * <p>If enabled, any non-empty hint in the child EditText will be moved into the floating
+     * hint, and its existing hint will be cleared. If disabled, then any non-empty floating hint
+     * in this layout will be moved into the EditText, and this layout's hint will be cleared.</p>
+     *
+     * @see #setHint(CharSequence)
+     * @see #isHintEnabled()
+     *
+     * @attr ref android.support.design.R.styleable#TextInputLayout_hintEnabled
+     */
+    public void setHintEnabled(boolean enabled) {
+        if (enabled != mHintEnabled) {
+            mHintEnabled = enabled;
+
+            final CharSequence editTextHint = mEditText.getHint();
+            if (!mHintEnabled) {
+                if (!TextUtils.isEmpty(mHint) && TextUtils.isEmpty(editTextHint)) {
+                    // If the hint is disabled, but we have a hint set, and the EditText doesn't,
+                    // pass it through...
+                    mEditText.setHint(mHint);
+                }
+                // Now clear out any set hint
+                setHintInternal(null);
+            } else {
+                if (!TextUtils.isEmpty(editTextHint)) {
+                    // If the hint is now enabled and the EditText has one set, we'll use it if
+                    // we don't already have one, and clear the EditText's
+                    if (TextUtils.isEmpty(mHint)) {
+                        setHint(editTextHint);
+                    }
+                    mEditText.setHint(null);
+                }
+            }
+
+            // Now update the EditText top margin
+            if (mEditText != null) {
+                final LayoutParams lp = updateEditTextMargin(mEditText.getLayoutParams());
+                mEditText.setLayoutParams(lp);
+            }
+        }
+    }
+
+    /**
+     * Returns whether the floating label functionality is enabled or not in this layout.
+     *
+     * @see #setHintEnabled(boolean)
+     *
+     * @attr ref android.support.design.R.styleable#TextInputLayout_hintEnabled
+     */
+    public boolean isHintEnabled() {
+        return mHintEnabled;
     }
 
     /**
@@ -318,7 +395,7 @@ public class TextInputLayout extends LinearLayout {
         mFocusedTextColor = ColorStateList.valueOf(mCollapsingTextHelper.getCollapsedTextColor());
 
         if (mEditText != null) {
-            updateLabelVisibility(false);
+            updateLabelState(false);
 
             // Text size might have changed so update the top margin
             LayoutParams lp = updateEditTextMargin(mEditText.getLayoutParams());
@@ -345,6 +422,7 @@ public class TextInputLayout extends LinearLayout {
         }
         mIndicatorArea.setVisibility(View.VISIBLE);
         mIndicatorArea.addView(indicator, index);
+        mIndicatorsAdded++;
     }
 
     private void adjustIndicatorPadding() {
@@ -356,7 +434,7 @@ public class TextInputLayout extends LinearLayout {
     private void removeIndicator(TextView indicator) {
         if (mIndicatorArea != null) {
             mIndicatorArea.removeView(indicator);
-            if (mIndicatorArea.getChildCount() == 0) {
+            if (--mIndicatorsAdded == 0) {
                 mIndicatorArea.setVisibility(View.GONE);
             }
         }
@@ -425,24 +503,37 @@ public class TextInputLayout extends LinearLayout {
         }
 
         if (!TextUtils.isEmpty(error)) {
-            ViewCompat.setAlpha(mErrorView, 0f);
-            mErrorView.setText(error);
-            ViewCompat.animate(mErrorView)
-                    .alpha(1f)
-                    .setDuration(ANIMATION_DURATION)
-                    .setInterpolator(AnimationUtils.LINEAR_OUT_SLOW_IN_INTERPOLATOR)
-                    .setListener(new ViewPropertyAnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationStart(View view) {
-                            view.setVisibility(VISIBLE);
-                        }
-                    })
-                    .start();
+            boolean animate;
+            if (TextUtils.equals(error, mErrorView.getText())) {
+                // We've been given the same error message, so only animate if needed
+                animate = !mErrorView.isShown() || ViewCompat.getAlpha(mErrorView) < 1f;
+            } else {
+                animate = true;
+                mErrorView.setText(error);
+            }
+
+            if (animate) {
+                if (ViewCompat.getAlpha(mErrorView) == 1f) {
+                    // If it's currently 100% show, we'll animate it from 0
+                    ViewCompat.setAlpha(mErrorView, 0f);
+                }
+                ViewCompat.animate(mErrorView)
+                        .alpha(1f)
+                        .setDuration(ANIMATION_DURATION)
+                        .setInterpolator(AnimationUtils.LINEAR_OUT_SLOW_IN_INTERPOLATOR)
+                        .setListener(new ViewPropertyAnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationStart(View view) {
+                                view.setVisibility(VISIBLE);
+                            }
+                        })
+                        .start();
+            }
 
             // Set the EditText's background tint to the error color
             mErrorShown = true;
             updateEditTextBackground();
-            updateLabelVisibility(true);
+            updateLabelState(true);
         } else {
             if (mErrorView.getVisibility() == VISIBLE) {
                 ViewCompat.animate(mErrorView)
@@ -454,7 +545,7 @@ public class TextInputLayout extends LinearLayout {
                             public void onAnimationEnd(View view) {
                                 view.setVisibility(INVISIBLE);
 
-                                updateLabelVisibility(true);
+                                updateLabelState(true);
                             }
                         }).start();
 
@@ -547,23 +638,66 @@ public class TextInputLayout extends LinearLayout {
                     length, mCounterMaxLength));
         }
         if (mEditText != null && wasCounterOverflowed != mCounterOverflowed) {
-            updateLabelVisibility(false);
+            updateLabelState(false);
             updateEditTextBackground();
         }
     }
 
     private void updateEditTextBackground() {
+        ensureBackgroundDrawableStateWorkaround();
+
+        final Drawable editTextBackground = mEditText.getBackground();
+        if (editTextBackground == null) {
+            return;
+        }
+
         if (mErrorShown && mErrorView != null) {
-            // Set the EditText's background tint to the error color
-            ViewCompat.setBackgroundTintList(mEditText,
-                    ColorStateList.valueOf(mErrorView.getCurrentTextColor()));
+            // Set a color filter of the error color
+            editTextBackground.setColorFilter(
+                    AppCompatDrawableManager.getPorterDuffColorFilter(
+                            mErrorView.getCurrentTextColor(), PorterDuff.Mode.SRC_IN));
         } else if (mCounterOverflowed && mCounterView != null) {
-            ViewCompat.setBackgroundTintList(mEditText,
-                    ColorStateList.valueOf(mCounterView.getCurrentTextColor()));
+            // Set a color filter of the counter color
+            editTextBackground.setColorFilter(
+                    AppCompatDrawableManager.getPorterDuffColorFilter(
+                            mCounterView.getCurrentTextColor(), PorterDuff.Mode.SRC_IN));
         } else {
-            ViewCompat.setBackgroundTintList(mEditText,
-                    AppCompatDrawableManager.get()
-                            .getTintList(getContext(), R.drawable.abc_edit_text_material));
+            // Else reset the color filter and refresh the drawable state so that the
+            // normal tint is used
+            editTextBackground.clearColorFilter();
+            mEditText.refreshDrawableState();
+        }
+    }
+
+    private void ensureBackgroundDrawableStateWorkaround() {
+        final Drawable bg = mEditText.getBackground();
+        if (bg == null) {
+            return;
+        }
+
+        if (!mHasReconstructedEditTextBackground) {
+            // This is gross. There is an issue in the platform which affects container Drawables
+            // where the first drawable retrieved from resources will propogate any changes
+            // (like color filter) to all instances from the cache. We'll try to workaround it...
+
+            final Drawable newBg = bg.getConstantState().newDrawable();
+
+            if (bg instanceof DrawableContainer) {
+                // If we have a Drawable container, we can try and set it's constant state via
+                // reflection from the new Drawable
+                mHasReconstructedEditTextBackground =
+                        DrawableUtils.setContainerConstantState(
+                                (DrawableContainer) bg, newBg.getConstantState());
+            }
+
+            if (!mHasReconstructedEditTextBackground) {
+                // If we reach here then we just need to set a brand new instance of the Drawable
+                // as the background. This has the unfortunate side-effect of wiping out any
+                // user set padding, but I'd hope that use of custom padding on an EditText
+                // is limited.
+                mEditText.setBackgroundDrawable(newBg);
+                mHasReconstructedEditTextBackground = true;
+            }
         }
     }
 
@@ -609,14 +743,17 @@ public class TextInputLayout extends LinearLayout {
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
-        mCollapsingTextHelper.draw(canvas);
+
+        if (mHintEnabled) {
+            mCollapsingTextHelper.draw(canvas);
+        }
     }
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
 
-        if (mEditText != null) {
+        if (mHintEnabled && mEditText != null) {
             final int l = mEditText.getLeft() + mEditText.getCompoundPaddingLeft();
             final int r = mEditText.getRight() - mEditText.getCompoundPaddingRight();
 
@@ -637,7 +774,7 @@ public class TextInputLayout extends LinearLayout {
     public void refreshDrawableState() {
         super.refreshDrawableState();
         // Drawable state has changed so see if we need to update the label
-        updateLabelVisibility(ViewCompat.isLaidOut(this));
+        updateLabelState(ViewCompat.isLaidOut(this));
     }
 
     private void collapseHint(boolean animate) {

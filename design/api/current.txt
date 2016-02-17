@@ -222,10 +222,15 @@ package android.support.design.widget {
     ctor public FloatingActionButton(android.content.Context);
     ctor public FloatingActionButton(android.content.Context, android.util.AttributeSet);
     ctor public FloatingActionButton(android.content.Context, android.util.AttributeSet, int);
+    method public android.graphics.drawable.Drawable getContentBackground();
     method public boolean getContentRect(android.graphics.Rect);
+    method public float getFloatingActionButtonElevation();
+    method public boolean getUseCompatPadding();
     method public void hide();
     method public void hide(android.support.design.widget.FloatingActionButton.OnVisibilityChangedListener);
+    method public void setFloatingActionButtonElevation(float);
     method public void setRippleColor(int);
+    method public void setUseCompatPadding(boolean);
     method public void show();
     method public void show(android.support.design.widget.FloatingActionButton.OnVisibilityChangedListener);
   }
@@ -370,7 +375,7 @@ package android.support.design.widget {
     method public void setTabMode(int);
     method public void setTabTextColors(android.content.res.ColorStateList);
     method public void setTabTextColors(int, int);
-    method public void setTabsFromPagerAdapter(android.support.v4.view.PagerAdapter);
+    method public deprecated void setTabsFromPagerAdapter(android.support.v4.view.PagerAdapter);
     method public void setupWithViewPager(android.support.v4.view.ViewPager);
     field public static final int GRAVITY_CENTER = 1; // 0x1
     field public static final int GRAVITY_FILL = 0; // 0x0
@@ -431,12 +436,14 @@ package android.support.design.widget {
     method public boolean isCounterEnabled();
     method public boolean isErrorEnabled();
     method public boolean isHintAnimationEnabled();
+    method public boolean isHintEnabled();
     method public void setCounterEnabled(boolean);
     method public void setCounterMaxLength(int);
     method public void setError(java.lang.CharSequence);
     method public void setErrorEnabled(boolean);
     method public void setHint(java.lang.CharSequence);
     method public void setHintAnimationEnabled(boolean);
+    method public void setHintEnabled(boolean);
     method public void setHintTextAppearance(int);
     method public void setTypeface(android.graphics.Typeface);
   }

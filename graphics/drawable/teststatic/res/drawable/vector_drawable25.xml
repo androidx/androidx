@@ -14,70 +14,69 @@
      limitations under the License.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:auto="http://schemas.android.com/apk/res-auto"
-        auto:height="64dp"
-        auto:width="64dp"
-        auto:viewportHeight="400"
-        auto:viewportWidth="400" >
+        android:height="64dp"
+        android:width="64dp"
+        android:viewportHeight="400"
+        android:viewportWidth="400" >
 
     <group
-        auto:name="FirstLevelGroup"
-        auto:translateX="100.0"
-        auto:translateY="0.0" >
+        android:name="FirstLevelGroup"
+        android:translateX="100.0"
+        android:translateY="0.0" >
         <group
-            auto:name="SecondLevelGroup1"
-            auto:translateX="-100.0"
-            auto:translateY="50.0" >
+            android:name="SecondLevelGroup1"
+            android:translateX="-100.0"
+            android:translateY="50.0" >
             <path
-                auto:fillColor="#FF00FF00"
-                auto:pathData="@string/rectangle200" />
+                android:fillColor="#FF00FF00"
+                android:pathData="@string/rectangle200" />
 
             <group
-                auto:name="ThridLevelGroup1"
-                auto:translateX="-100.0"
-                auto:translateY="50.0" >
+                android:name="ThridLevelGroup1"
+                android:translateX="-100.0"
+                android:translateY="50.0" >
                 <path
-                    auto:fillColor="#FF0000FF"
-                    auto:pathData="@string/rectangle200" />
+                    android:fillColor="#FF0000FF"
+                    android:pathData="@string/rectangle200" />
             </group>
             <group
-                auto:name="ThridLevelGroup2"
-                auto:translateX="100.0"
-                auto:translateY="50.0" >
+                android:name="ThridLevelGroup2"
+                android:translateX="100.0"
+                android:translateY="50.0" >
                 <path
-                    auto:fillColor="#FF000000"
-                    auto:pathData="@string/rectangle200" />
+                    android:fillColor="#FF000000"
+                    android:pathData="@string/rectangle200" />
             </group>
         </group>
         <group
-            auto:name="SecondLevelGroup2"
-            auto:translateX="100.0"
-            auto:translateY="50.0" >
+            android:name="SecondLevelGroup2"
+            android:translateX="100.0"
+            android:translateY="50.0" >
             <path
-                auto:fillColor="#FF0000FF"
-                auto:pathData="@string/rectangle200" />
+                android:fillColor="#FF0000FF"
+                android:pathData="@string/rectangle200" />
 
             <group
-                auto:name="ThridLevelGroup3"
-                auto:translateX="-100.0"
-                auto:translateY="50.0" >
+                android:name="ThridLevelGroup3"
+                android:translateX="-100.0"
+                android:translateY="50.0" >
                 <path
-                    auto:fillColor="#FFFF0000"
-                    auto:pathData="@string/rectangle200" />
+                    android:fillColor="#FFFF0000"
+                    android:pathData="@string/rectangle200" />
             </group>
             <group
-                auto:name="ThridLevelGroup4"
-                auto:translateX="100.0"
-                auto:translateY="50.0" >
+                android:name="ThridLevelGroup4"
+                android:translateX="100.0"
+                android:translateY="50.0" >
                 <path
-                    auto:fillColor="#FF00FF00"
-                    auto:pathData="@string/rectangle200" />
+                    android:fillColor="#FF00FF00"
+                    android:pathData="@string/rectangle200" />
             </group>
         </group>
 
         <path
-            auto:fillColor="#FFFF0000"
-            auto:pathData="@string/rectangle200" />
+            android:fillColor="#FFFF0000"
+            android:pathData="@string/rectangle200" />
     </group>
 
 </vector>
