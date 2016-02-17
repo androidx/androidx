@@ -2218,5 +2218,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             throw new SuperNotCalledException("Fragment " + this
                     + " did not call through to super.onDestroy()");
         }
+        mChildFragmentManager = null;
     }
 }
