@@ -108,6 +108,10 @@ public class DocumentArchive implements Closeable {
         final Stack<ZipEntry> stack = new Stack<>();
         for (int i = entries.size() - 1; i >= 0; i--) {
             entry = entries.get(i);
+            if (entry.isDirectory() != entry.getName().endsWith("/")) {
+                throw new IOException(
+                        "Directories must have a trailing slash, and files must not.");
+            }
             mEntries.put(entry.getName(), entry);
             if (entry.isDirectory()) {
                 mTree.put(entry.getName(), new ArrayList<ZipEntry>());
