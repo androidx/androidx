@@ -49,6 +49,11 @@ public class LoggingItemAnimator extends DefaultItemAnimator {
             if (log.viewHolder == viewHolder) {
                 return true;
             }
+            if (log instanceof AnimateChange) {
+                if (((AnimateChange) log).newHolder == viewHolder) {
+                    return true;
+                }
+            }
         }
         return false;
     }

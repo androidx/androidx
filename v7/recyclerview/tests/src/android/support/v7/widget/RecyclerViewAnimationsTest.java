@@ -16,6 +16,8 @@
 
 package android.support.v7.widget;
 
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -48,6 +50,94 @@ import static org.junit.Assert.*;
 public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
 
     final List<TestViewHolder> recycledVHs = new ArrayList<>();
+
+    @Test
+    public void changeAndDisappearDontReUseViewHolder() throws Throwable {
+        changeAndDisappearTest(false, false);
+    }
+
+    @Test
+    public void changeAndDisappearReUseViewHolder() throws Throwable {
+        changeAndDisappearTest(true, false);
+    }
+
+    @Test
+    public void changeAndDisappearReUseWithScrapViewHolder() throws Throwable {
+        changeAndDisappearTest(true, true);
+    }
+
+    public void changeAndDisappearTest(final boolean reUse, final boolean useScrap)
+            throws Throwable {
+        final List<RecyclerView.ViewHolder> mRecycled = new ArrayList<>();
+        final TestAdapter adapter = new TestAdapter(1) {
+            @Override
+            public void onViewRecycled(TestViewHolder holder) {
+                super.onViewRecycled(holder);
+                mRecycled.add(holder);
+            }
+        };
+        setupBasic(1, 0, 1, adapter);
+        RecyclerView.ViewHolder vh = mRecyclerView.getChildViewHolder(mRecyclerView.getChildAt(0));
+        LoggingItemAnimator animator = new LoggingItemAnimator() {
+            @Override
+            public boolean canReuseUpdatedViewHolder(@NonNull RecyclerView.ViewHolder viewHolder,
+                                                     @NonNull List<Object> payloads) {
+                return reUse;
+            }
+        };
+        mRecyclerView.setItemAnimator(animator);
+        mLayoutManager.expectLayouts(2);
+        final RecyclerView.ViewHolder[] updatedVH = new RecyclerView.ViewHolder[1];
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                adapter.notifyItemChanged(0);
+                mLayoutManager.mOnLayoutCallbacks = new OnLayoutCallbacks() {
+                    @Override
+                    void doLayout(RecyclerView.Recycler recycler, AnimationLayoutManager lm,
+                                  RecyclerView.State state) {
+                        if (state.isPreLayout()) {
+                            super.doLayout(recycler, lm, state);
+                        } else {
+                            lm.detachAndScrapAttachedViews(recycler);
+                            final View view;
+                            if (reUse && useScrap) {
+                                view = recycler.getScrapViewAt(0);
+                            } else {
+                                view = recycler.getViewForPosition(0);
+                            }
+                            updatedVH[0] = RecyclerView.getChildViewHolderInt(view);
+                            lm.addDisappearingView(view);
+                        }
+                    }
+                };
+            }
+        });
+        mLayoutManager.waitForLayout(2);
+
+        MatcherAssert.assertThat(animator.contains(vh, animator.mAnimateDisappearanceList),
+                CoreMatchers.is(false));
+        MatcherAssert.assertThat(animator.contains(vh, animator.mAnimateChangeList),
+                CoreMatchers.is(true));
+        MatcherAssert.assertThat(animator.contains(updatedVH[0], animator.mAnimateChangeList),
+                CoreMatchers.is(true));
+        MatcherAssert.assertThat(animator.contains(updatedVH[0],
+                animator.mAnimateDisappearanceList), CoreMatchers.is(false));
+        waitForAnimations(10);
+        MatcherAssert.assertThat(mRecyclerView.getChildCount(), CoreMatchers.is(0));
+        if (useScrap || !reUse) {
+            MatcherAssert.assertThat(mRecycled.contains(vh), CoreMatchers.is(true));
+        } else {
+            MatcherAssert.assertThat(mRecyclerView.mRecycler.mCachedViews.contains(vh),
+                    CoreMatchers.is(true));
+        }
+
+        if (!reUse) {
+            MatcherAssert.assertThat(mRecycled.contains(updatedVH[0]), CoreMatchers.is(false));
+            MatcherAssert.assertThat(mRecyclerView.mRecycler.mCachedViews.contains(updatedVH[0]),
+                    CoreMatchers.is(true));
+        }
+    }
 
     @Test
     public void detectStableIdError() throws Throwable {
