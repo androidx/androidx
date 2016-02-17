@@ -1231,7 +1231,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             }
 
             final int itemCount = mState.getItemCount();
-            if (measure && rowSize < 0 && itemCount > 0) {
+            if (!mBaseGridView.hasFixedSize() && measure && rowSize < 0 && itemCount > 0) {
                 if (scrapChildWidth < 0 && scrapChildHeight < 0) {
                     int position;
                     if (mFocusPosition == NO_POSITION) {
