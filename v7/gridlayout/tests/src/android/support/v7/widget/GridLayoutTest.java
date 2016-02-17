@@ -14,46 +14,60 @@
  * limitations under the License.
  */
 
-package android.support.v7.widget.test;
+package android.support.v7.widget;
 
 import android.app.Activity;
-import android.os.Debug;
-import android.support.v7.widget.GridLayout;
-import android.test.ActivityInstrumentationTestCase2;
-import android.test.suitebuilder.annotation.SmallTest;
+import android.app.Instrumentation;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.gridlayout.test.R;
-import android.test.UiThreadTest;
+import android.test.suitebuilder.annotation.SmallTest;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-/**
- * @hide
- */
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+@RunWith(AndroidJUnit4.class)
 @SmallTest
-public class GridLayoutTest extends ActivityInstrumentationTestCase2 {
+public class GridLayoutTest {
+    @Rule public final ActivityTestRule<GridLayoutTestActivity> mActivityTestRule;
+
+    private View mLeftView;
+    private View mRightView;
+    private View mGridView;
 
     public GridLayoutTest() {
-        super("android.support.v7.widget.test", GridLayoutTestActivity.class);
+        mActivityTestRule = new ActivityTestRule<>(GridLayoutTestActivity.class);
     }
 
-    private void setContentView(final int layoutId) throws Throwable {
-        final Activity activity = getActivity();
-        runTestOnUiThread(new Runnable() {
+    private void setContentView(final int layoutId) {
+        final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
+        instrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
+                final Activity activity = mActivityTestRule.getActivity();
                 activity.setContentView(layoutId);
+                // Now that we've set the content view, find the views we'll be testing
+                mLeftView = activity.findViewById(R.id.leftView);
+                mRightView = activity.findViewById(R.id.rightView);
+                mGridView = activity.findViewById(R.id.gridView);
             }
         });
+        instrumentation.waitForIdleSync();
     }
 
-    public void testUseDefaultMargin() throws Throwable {
+    @Test
+    public void testUseDefaultMargin() {
         setContentView(R.layout.use_default_margin_test);
-        getInstrumentation().waitForIdleSync();
-        int left = getActivity().findViewById(R.id.leftView).getWidth();
-        int right = getActivity().findViewById(R.id.rightView).getWidth();
-        int total = getActivity().findViewById(R.id.gridView).getWidth();
+        int left = mLeftView.getWidth();
+        int right = mRightView.getWidth();
+        int total = mGridView.getWidth();
         assertTrue("left item should get some width", left > 0);
         assertTrue("right item should get some width", right > 0);
         assertTrue("test sanity", total > 0);
@@ -61,12 +75,12 @@ public class GridLayoutTest extends ActivityInstrumentationTestCase2 {
                 Math.abs(right * 2 - left) < 2);
     }
 
-    public void testImplicitFillHorizontal() throws Throwable {
+    @Test
+    public void testImplicitFillHorizontal() {
         setContentView(R.layout.fill_horizontal_test);
-        getInstrumentation().waitForIdleSync();
-        int left = getActivity().findViewById(R.id.leftView).getWidth();
-        int right = getActivity().findViewById(R.id.rightView).getWidth();
-        int total = getActivity().findViewById(R.id.gridView).getWidth();
+        int left = mLeftView.getWidth();
+        int right = mRightView.getWidth();
+        int total = mGridView.getWidth();
         assertTrue("left item should get some width", left > 0);
         assertTrue("right item should get some width", right > 0);
         assertTrue("test sanity", total > 0);
@@ -74,42 +88,42 @@ public class GridLayoutTest extends ActivityInstrumentationTestCase2 {
                 Math.abs(right * 2 - left) < 2);
     }
 
-    public void testMakeViewGone() throws Throwable {
+    @Test
+    public void testMakeViewGone() {
         setContentView(R.layout.make_view_gone_test);
-        getInstrumentation().waitForIdleSync();
-        int left = getActivity().findViewById(R.id.leftView).getWidth();
-        final int right = getActivity().findViewById(R.id.rightView).getWidth();
-        int total = getActivity().findViewById(R.id.gridView).getWidth();
+        int left = mLeftView.getWidth();
+        int right = mRightView.getWidth();
+        int total = mGridView.getWidth();
         assertTrue("left item should get some width", left > 0);
         assertTrue("right item should get some width", right > 0);
         assertTrue("test sanity", total > 0);
         // set second view to gone
-        runTestOnUiThread(new Runnable() {
+        final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
+        instrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                final View rightView = getActivity().findViewById(R.id.rightView);
+                final View rightView = mActivityTestRule.getActivity().findViewById(R.id.rightView);
                 GridLayout.LayoutParams lp = (GridLayout.LayoutParams) rightView.getLayoutParams();
                 lp.setGravity(Gravity.NO_GRAVITY);
                 rightView.setVisibility(View.GONE);
             }
         });
-        getInstrumentation().waitForIdleSync();
-        left = getActivity().findViewById(R.id.leftView).getWidth();
+        instrumentation.waitForIdleSync();
+        left = mActivityTestRule.getActivity().findViewById(R.id.leftView).getWidth();
         assertEquals(total, left);
     }
-    public void testWrapContentInOtherDirection() throws Throwable {
+
+    @Test
+    public void testWrapContentInOtherDirection() {
         setContentView(R.layout.height_wrap_content_test);
-        getInstrumentation().waitForIdleSync();
-        int left = getActivity().findViewById(R.id.leftView).getHeight();
-        final int right = getActivity().findViewById(R.id.rightView).getHeight();
-        final View gridView = getActivity().findViewById(R.id.gridView);
-        int total = gridView.getHeight();
+        int left = mLeftView.getHeight();
+        int right = mRightView.getHeight();
+        int total = mGridView.getHeight();
         assertTrue("test sanity", left > 0);
         assertTrue("test sanity", right > 0);
         assertTrue("test sanity", total > 0);
         assertTrue("right should be taller than left", right > left);
         assertTrue("total height should be smaller than what it could be",
-                total < ((ViewGroup)gridView.getParent()).getHeight());
-
+                total < ((ViewGroup) mGridView.getParent()).getHeight());
     }
 }
