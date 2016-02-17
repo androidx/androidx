@@ -259,6 +259,13 @@ public class GridActivity extends Activity {
         return removed;
     }
 
+    void attachToNewAdapter(int[] items) {
+        mItemLengths = items;
+        mNumItems = items.length;
+        mGridView.setAdapter(new MyAdapter());
+    }
+
+
     void addItems(int index, int[] items) {
         int length = items.length;
         if (mItemLengths.length < mNumItems + length) {
