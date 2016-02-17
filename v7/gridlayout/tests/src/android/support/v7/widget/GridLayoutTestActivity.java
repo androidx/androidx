@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-package android.support.v7.widget.test;
+package android.support.v7.widget;
 
 import android.app.Activity;
 import android.os.Bundle;
 
-/**
- * @hide
- */
 public class GridLayoutTestActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
