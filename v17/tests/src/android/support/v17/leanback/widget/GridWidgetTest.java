@@ -1772,6 +1772,29 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         verifyMargin();
     }
 
+    public void testWrapContent() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_grid_wrap);
+        int[] items = new int[200];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 300;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mActivity.attachToNewAdapter(new int[0]);
+            }
+        });
+
+    }
+
 
     public void testZeroFixedSecondarySize() throws Throwable {
         mInstrumentation = getInstrumentation();
