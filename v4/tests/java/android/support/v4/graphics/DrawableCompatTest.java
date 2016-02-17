@@ -36,11 +36,13 @@ public class DrawableCompatTest extends AndroidTestCase {
     public void testDrawableChangeBoundsCopy() {
         final Rect bounds = new Rect(0, 0, 10, 10);
 
-        final Drawable original = new GradientDrawable();
-        original.setBounds(bounds);
+        final Drawable drawable = new GradientDrawable();
 
-        final Drawable wrapped = DrawableCompat.wrap(original);
-        assertEquals(bounds, wrapped.getBounds());
+        final Drawable wrapper = DrawableCompat.wrap(drawable);
+        wrapper.setBounds(bounds);
+
+        // Assert that the bounds were given to the original drawable
+        assertEquals(bounds, drawable.getBounds());
     }
 
     @SmallTest
