@@ -1541,7 +1541,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      *
      * @return The horizontal offset of the scrollbar's thumb
      * @see android.support.v7.widget.RecyclerView.LayoutManager#computeHorizontalScrollOffset
-     * (RecyclerView.Adapter)
+     * (RecyclerView.State)
      */
     @Override
     public int computeHorizontalScrollOffset() {
@@ -1606,7 +1606,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      *
      * @return The vertical offset of the scrollbar's thumb
      * @see android.support.v7.widget.RecyclerView.LayoutManager#computeVerticalScrollOffset
-     * (RecyclerView.Adapter)
+     * (RecyclerView.State)
      */
     @Override
     public int computeVerticalScrollOffset() {
