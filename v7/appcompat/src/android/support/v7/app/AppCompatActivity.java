@@ -18,6 +18,7 @@ package android.support.v7.app;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.LayoutRes;
@@ -29,6 +30,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.view.ActionMode;
+import android.support.v7.widget.TintResources;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -58,6 +60,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
     private AppCompatDelegate mDelegate;
     private int mThemeId = 0;
     private boolean mEatKeyUpEvent;
+    private Resources mResources;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -508,5 +511,13 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
             }
         }
         return super.dispatchKeyEvent(event);
+    }
+
+    @Override
+    public Resources getResources() {
+        if (mResources == null) {
+            mResources = new TintResources(this, super.getResources());
+        }
+        return mResources;
     }
 }
