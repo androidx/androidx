@@ -25,9 +25,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.os.Build;
 import android.support.annotation.ColorInt;
 import android.support.annotation.VisibleForTesting;
 import android.support.v17.leanback.R;
@@ -43,6 +43,7 @@ import java.util.List;
  */
 public class PagingIndicator extends View {
     // attribute
+    private boolean mIsLtr;
     private final int mDotDiameter;
     private final int mDotRadius;
     private final int mDotGap;
@@ -54,9 +55,9 @@ public class PagingIndicator extends View {
     // X position when the dot is selected.
     private int[] mDotSelectedX;
     // X position when the dot is located to the left of the selected dot.
-    private int[] mDotSelectedLeftX;
+    private int[] mDotSelectedPrevX;
     // X position when the dot is located to the right of the selected dot.
-    private int[] mDotSelectedRightX;
+    private int[] mDotSelectedNextX;
     private int mDotCenterY;
 
     // state
@@ -72,7 +73,7 @@ public class PagingIndicator extends View {
     private final Animator mShowAnimator;
     private final Animator mHideAnimator;
     private final AnimatorSet mAnimator = new AnimatorSet();
-    private final Bitmap mArrow;
+    private Bitmap mArrow;
     private final Rect mArrowRect;
     private final float mArrowToBgRatio;
 
@@ -87,6 +88,7 @@ public class PagingIndicator extends View {
     public PagingIndicator(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         Resources res = getResources();
+        mIsLtr = res.getConfiguration().getLayoutDirection() == View.LAYOUT_DIRECTION_LTR;
         mDotRadius = res.getDimensionPixelSize(R.dimen.lb_page_indicator_dot_radius);
         mDotDiameter = mDotRadius * 2;
         mDotGap = res.getDimensionPixelSize(R.dimen.lb_page_indicator_dot_gap);
@@ -102,20 +104,32 @@ public class PagingIndicator extends View {
         mFgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         int shadowOffset = res.getDimensionPixelSize(R.dimen.lb_page_indicator_arrow_shadow_offset);
         mFgPaint.setShadowLayer(mShadowRadius, shadowOffset, shadowOffset, shadowColor);
-        mArrow = BitmapFactory.decodeResource(res, R.drawable.lb_ic_nav_arrow);
+        mArrow = loadArrow();
         mArrowRect = new Rect(0, 0, mArrow.getWidth(), mArrow.getHeight());
         mArrowToBgRatio = (float) mArrow.getWidth() / (float) mArrowDiameter;
         // Initialize animations.
         List<Animator> animators = new ArrayList<>();
-        mShowAnimator = AnimatorInflater.loadAnimator(getContext(),
+        mShowAnimator = AnimatorInflater.loadAnimator(context,
                 R.animator.lb_page_indicator_dot_show);
-        mHideAnimator = AnimatorInflater.loadAnimator(getContext(),
+        mHideAnimator = AnimatorInflater.loadAnimator(context,
                 R.animator.lb_page_indicator_dot_hide);
         animators.add(mShowAnimator);
         animators.add(mHideAnimator);
         mAnimator.playTogether(animators);
         // Use software layer to show shadows.
         setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+    }
+
+    private Bitmap loadArrow() {
+        Bitmap arrow = BitmapFactory.decodeResource(getResources(), R.drawable.lb_ic_nav_arrow);
+        if (mIsLtr) {
+            return arrow;
+        } else {
+            Matrix matrix = new Matrix();
+            matrix.preScale(-1, 1);
+            return Bitmap.createBitmap(arrow, 0, 0, arrow.getWidth(), arrow.getHeight(), matrix,
+                    false);
+        }
     }
 
     /**
@@ -159,18 +173,31 @@ public class PagingIndicator extends View {
         int right = getWidth() - getPaddingRight();
         int requiredWidth = getRequiredWidth();
         int mid = (left + right) / 2;
-        int startLeft = mid - requiredWidth / 2;
         mDotSelectedX = new int[mPageCount];
-        mDotSelectedLeftX = new int[mPageCount];
-        mDotSelectedRightX = new int[mPageCount];
-        // mDotSelectedX[0] should be mDotSelectedLeftX[-1] + mArrowGap
-        mDotSelectedX[0] = startLeft + mDotRadius - mDotGap + mArrowGap;
-        mDotSelectedLeftX[0] = startLeft + mDotRadius;
-        mDotSelectedRightX[0] = 0;
-        for (int i = 1; i < mPageCount; i++) {
-            mDotSelectedX[i] = mDotSelectedLeftX[i - 1] + mArrowGap;
-            mDotSelectedLeftX[i] = mDotSelectedLeftX[i - 1] + mDotGap;
-            mDotSelectedRightX[i] = mDotSelectedX[i - 1] + mArrowGap;
+        mDotSelectedPrevX = new int[mPageCount];
+        mDotSelectedNextX = new int[mPageCount];
+        if (mIsLtr) {
+            int startLeft = mid - requiredWidth / 2;
+            // mDotSelectedX[0] should be mDotSelectedPrevX[-1] + mArrowGap
+            mDotSelectedX[0] = startLeft + mDotRadius - mDotGap + mArrowGap;
+            mDotSelectedPrevX[0] = startLeft + mDotRadius;
+            mDotSelectedNextX[0] = startLeft + mDotRadius - 2 * mDotGap + 2 * mArrowGap;
+            for (int i = 1; i < mPageCount; i++) {
+                mDotSelectedX[i] = mDotSelectedPrevX[i - 1] + mArrowGap;
+                mDotSelectedPrevX[i] = mDotSelectedPrevX[i - 1] + mDotGap;
+                mDotSelectedNextX[i] = mDotSelectedX[i - 1] + mArrowGap;
+            }
+        } else {
+            int startRight = mid + requiredWidth / 2;
+            // mDotSelectedX[0] should be mDotSelectedPrevX[-1] - mArrowGap
+            mDotSelectedX[0] = startRight - mDotRadius + mDotGap - mArrowGap;
+            mDotSelectedPrevX[0] = startRight - mDotRadius;
+            mDotSelectedNextX[0] = startRight - mDotRadius + 2 * mDotGap - 2 * mArrowGap;
+            for (int i = 1; i < mPageCount; i++) {
+                mDotSelectedX[i] = mDotSelectedPrevX[i - 1] - mArrowGap;
+                mDotSelectedPrevX[i] = mDotSelectedPrevX[i - 1] - mDotGap;
+                mDotSelectedNextX[i] = mDotSelectedX[i - 1] - mArrowGap;
+            }
         }
         mDotCenterY = top + mArrowRadius;
         adjustDotPosition();
@@ -188,12 +215,12 @@ public class PagingIndicator extends View {
 
     @VisibleForTesting
     int[] getDotSelectedLeftX() {
-        return mDotSelectedLeftX;
+        return mDotSelectedPrevX;
     }
 
     @VisibleForTesting
     int[] getDotSelectedRightX() {
-        return mDotSelectedRightX;
+        return mDotSelectedNextX;
     }
 
     @Override
@@ -267,7 +294,7 @@ public class PagingIndicator extends View {
         for (int i = 0; i < mCurrentPage; ++i) {
             mDots[i].deselect();
             mDots[i].mDirection = i == mPreviousPage ? Dot.LEFT : Dot.RIGHT;
-            mDots[i].mCenterX = mDotSelectedLeftX[i];
+            mDots[i].mCenterX = mDotSelectedPrevX[i];
         }
         mDots[mCurrentPage].select();
         mDots[mCurrentPage].mDirection = mPreviousPage < mCurrentPage ? Dot.LEFT : Dot.RIGHT;
@@ -275,17 +302,34 @@ public class PagingIndicator extends View {
         for (int i = mCurrentPage + 1; i < mPageCount; ++i) {
             mDots[i].deselect();
             mDots[i].mDirection = Dot.RIGHT;
-            mDots[i].mCenterX = mDotSelectedRightX[i];
+            mDots[i].mCenterX = mDotSelectedNextX[i];
+        }
+    }
+
+    @Override
+    public void onRtlPropertiesChanged(int layoutDirection) {
+        super.onRtlPropertiesChanged(layoutDirection);
+        boolean isLtr = layoutDirection == View.LAYOUT_DIRECTION_LTR;
+        if (mIsLtr != isLtr) {
+            mIsLtr = isLtr;
+            mArrow = loadArrow();
+            if (mDots != null) {
+                for (Dot dot : mDots) {
+                    dot.onRtlPropertiesChanged();
+                }
+            }
+            calculateDotPositions();
+            invalidate();
         }
     }
 
     public class Dot {
         static final float LEFT = -1;
         static final float RIGHT = 1;
+        static final float LTR = 1;
+        static final float RTL = -1;
 
         float mAlpha;
-        @ColorInt
-        int mBgColor;
         @ColorInt
         int mFgColor;
         float mTranslationX;
@@ -294,6 +338,7 @@ public class PagingIndicator extends View {
         float mRadius;
         float mArrowImageRadius;
         float mDirection = RIGHT;
+        float mLayoutDirection = mIsLtr ? LTR : RTL;
 
         void select() {
             mTranslationX = 0.0f;
@@ -338,7 +383,7 @@ public class PagingIndicator extends View {
         }
 
         public void setTranslationX(float translationX) {
-            this.mTranslationX = translationX * mDirection;
+            this.mTranslationX = translationX * mDirection * mLayoutDirection;
             invalidate();
         }
 
@@ -364,6 +409,10 @@ public class PagingIndicator extends View {
                         (int) (centerX + mArrowImageRadius),
                         (int) (mDotCenterY + mArrowImageRadius)), null);
             }
+        }
+
+        void onRtlPropertiesChanged() {
+            mLayoutDirection = mIsLtr ? LTR : RTL;
         }
     }
 }

@@ -25,7 +25,7 @@
     <objectAnimator
         android:propertyName="translationX"
         android:valueFrom="0dp"
-        android:valueTo="16dp"
+        android:valueTo="@dimen/lb_onboarding_start_button_translation_offset"
         android:duration="417"
         android:interpolator="@android:anim/decelerate_interpolator" />
 </set>

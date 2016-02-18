@@ -24,7 +24,7 @@
         android:interpolator="@android:anim/decelerate_interpolator" />
     <objectAnimator
         android:propertyName="translationX"
-        android:valueFrom="16dp"
+        android:valueFrom="@dimen/lb_onboarding_start_button_translation_offset"
         android:valueTo="0dp"
         android:duration="417"
         android:interpolator="@android:anim/decelerate_interpolator" />

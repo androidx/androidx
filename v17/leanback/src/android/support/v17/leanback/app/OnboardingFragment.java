@@ -137,6 +137,7 @@ abstract public class OnboardingFragment extends Fragment {
     private TextView mTitleView;
     private TextView mDescriptionView;
 
+    private boolean mIsLtr;
     // No need to save/restore the logo resource ID, because the logo animation will not appear when
     // the fragment is restored.
     private int mLogoResourceId;
@@ -155,8 +156,7 @@ abstract public class OnboardingFragment extends Fragment {
             if (mCurrentPageIndex == getPageCount() - 1) {
                 onFinishFragment();
             } else {
-                ++mCurrentPageIndex;
-                onPageChangedInternal(mCurrentPageIndex - 1);
+                moveToNextPage();
             }
         }
     };
@@ -176,17 +176,20 @@ abstract public class OnboardingFragment extends Fragment {
                     if (mCurrentPageIndex == 0) {
                         return false;
                     }
-                    // pass through
+                    moveToPreviousPage();
+                    return true;
                 case KeyEvent.KEYCODE_DPAD_LEFT:
-                    if (mCurrentPageIndex > 0) {
-                        --mCurrentPageIndex;
-                        onPageChangedInternal(mCurrentPageIndex + 1);
+                    if (mIsLtr) {
+                        moveToPreviousPage();
+                    } else {
+                        moveToNextPage();
                     }
                     return true;
                 case KeyEvent.KEYCODE_DPAD_RIGHT:
-                    if (mCurrentPageIndex < getPageCount() - 1) {
-                        ++mCurrentPageIndex;
-                        onPageChangedInternal(mCurrentPageIndex - 1);
+                    if (mIsLtr) {
+                        moveToNextPage();
+                    } else {
+                        moveToPreviousPage();
                     }
                     return true;
             }
@@ -194,12 +197,27 @@ abstract public class OnboardingFragment extends Fragment {
         }
     };
 
+    private void moveToPreviousPage() {
+        if (mCurrentPageIndex > 0) {
+            --mCurrentPageIndex;
+            onPageChangedInternal(mCurrentPageIndex + 1);
+        }
+    }
+    private void moveToNextPage() {
+        if (mCurrentPageIndex < getPageCount() - 1) {
+            ++mCurrentPageIndex;
+            onPageChangedInternal(mCurrentPageIndex - 1);
+        }
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
             Bundle savedInstanceState) {
         ViewGroup view = (ViewGroup) inflater.inflate(R.layout.lb_onboarding_fragment, container,
                 false);
+        mIsLtr = getResources().getConfiguration().getLayoutDirection()
+                == View.LAYOUT_DIRECTION_LTR;
         mPageIndicator = (PagingIndicator) view.findViewById(R.id.page_indicator);
         mPageIndicator.setOnClickListener(mOnClickListener);
         mPageIndicator.setOnKeyListener(mOnKeyListener);
