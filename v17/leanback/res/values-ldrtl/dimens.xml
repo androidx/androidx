@@ -15,4 +15,7 @@
      limitations under the License.
 -->
 <resources>
+    <!-- OnboardingFragment -->
+    <dimen name="lb_onboarding_start_button_translation_offset">-16dp</dimen>
+    <!-- end OnboardingFragment -->
 </resources>
