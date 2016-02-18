@@ -287,5 +287,6 @@
     <dimen name="lb_page_indicator_dot_diameter">10dp</dimen>
     <dimen name="lb_page_indicator_dot_radius">5dp</dimen>
     <dimen name="lb_page_indicator_dot_gap">16dp</dimen>
+    <dimen name="lb_onboarding_start_button_translation_offset">16dp</dimen>
 
 </resources>
