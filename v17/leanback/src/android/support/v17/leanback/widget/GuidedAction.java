@@ -115,18 +115,19 @@ public class GuidedAction extends Action {
         private CharSequence mDescription;
         private CharSequence mEditDescription;
         private Drawable mIcon;
-        private boolean mChecked;
-        private boolean mMultilineDescription;
-        private boolean mHasNext;
-        private boolean mInfoOnly;
+        /**
+         * The mActionFlags holds various action states such as whether title or description are
+         * editable, or the action is focusable.
+         *
+         */
+        private int mActionFlags;
+
         private int mEditable = EDITING_NONE;
         private int mInputType = InputType.TYPE_CLASS_TEXT;
         private int mDescriptionInputType = InputType.TYPE_CLASS_TEXT;
         private int mEditInputType = InputType.TYPE_CLASS_TEXT;
         private int mDescriptionEditInputType = InputType.TYPE_CLASS_TEXT;
         private int mCheckSetId = NO_CHECK_SET;
-        private boolean mEnabled = true;
-        private boolean mFocusable = true;
         private List<GuidedAction> mSubActions;
         private Intent mIntent;
 
@@ -136,6 +137,7 @@ public class GuidedAction extends Action {
          */
         public BuilderBase(Context context) {
             mContext = context;
+            mActionFlags = PF_ENABLED | PF_FOCUSABLE;
         }
 
         /**
@@ -144,6 +146,10 @@ public class GuidedAction extends Action {
          */
         public Context getContext() {
             return mContext;
+        }
+
+        private void setFlags(int flag, int mask) {
+            mActionFlags = (mActionFlags & ~mask) | (flag & mask);
         }
 
         /**
@@ -166,13 +172,8 @@ public class GuidedAction extends Action {
             action.mDescriptionInputType = mDescriptionInputType;
             action.mEditInputType = mEditInputType;
             action.mDescriptionEditInputType = mDescriptionEditInputType;
-            action.mChecked = mChecked;
+            action.mActionFlags = mActionFlags;
             action.mCheckSetId = mCheckSetId;
-            action.mMultilineDescription = mMultilineDescription;
-            action.mHasNext = mHasNext;
-            action.mInfoOnly = mInfoOnly;
-            action.mEnabled = mEnabled;
-            action.mFocusable = mFocusable;
             action.mSubActions = mSubActions;
         }
 
@@ -354,7 +355,7 @@ public class GuidedAction extends Action {
                 return (B) this;
             }
             mEditable = EDITING_TITLE;
-            if (mChecked || mCheckSetId != NO_CHECK_SET) {
+            if (isChecked() || mCheckSetId != NO_CHECK_SET) {
                 throw new IllegalArgumentException("Editable actions cannot also be checked");
             }
             return (B) this;
@@ -372,7 +373,7 @@ public class GuidedAction extends Action {
                 return (B) this;
             }
             mEditable = EDITING_DESCRIPTION;
-            if (mChecked || mCheckSetId != NO_CHECK_SET) {
+            if (isChecked() || mCheckSetId != NO_CHECK_SET) {
                 throw new IllegalArgumentException("Editable actions cannot also be checked");
             }
             return (B) this;
@@ -390,7 +391,7 @@ public class GuidedAction extends Action {
                 return (B) this;
             }
             mEditable = EDITING_ACTIVATOR_VIEW;
-            if (mChecked || mCheckSetId != NO_CHECK_SET) {
+            if (isChecked() || mCheckSetId != NO_CHECK_SET) {
                 throw new IllegalArgumentException("Editable actions cannot also be checked");
             }
             return (B) this;
@@ -438,12 +439,15 @@ public class GuidedAction extends Action {
         }
 
 
+        private boolean isChecked() {
+            return (mActionFlags & PF_CHECKED) == PF_CHECKED;
+        }
         /**
          * Indicates whether this action is initially checked.
          * @param checked Whether this action is checked.
          */
         public B checked(boolean checked) {
-            mChecked = checked;
+            setFlags(checked ? PF_CHECKED : 0, PF_CHECKED);
             if (mEditable != EDITING_NONE) {
                 throw new IllegalArgumentException("Editable actions cannot also be checked");
             }
@@ -471,7 +475,8 @@ public class GuidedAction extends Action {
          * @param multilineDescription Whether this action has a multiline description.
          */
         public B multilineDescription(boolean multilineDescription) {
-            mMultilineDescription = multilineDescription;
+            setFlags(multilineDescription ? PF_MULTI_lINE_DESCRIPTION : 0,
+                    PF_MULTI_lINE_DESCRIPTION);
             return (B) this;
         }
 
@@ -480,7 +485,7 @@ public class GuidedAction extends Action {
          * @param hasNext Whether this action has a next state.
          */
         public B hasNext(boolean hasNext) {
-            mHasNext = hasNext;
+            setFlags(hasNext ? PF_HAS_NEXT : 0, PF_HAS_NEXT);
             return (B) this;
         }
 
@@ -489,7 +494,7 @@ public class GuidedAction extends Action {
          * @param infoOnly Whether this action has a next state.
          */
         public B infoOnly(boolean infoOnly) {
-            mInfoOnly = infoOnly;
+            setFlags(infoOnly ? PF_INFO_ONLY : 0, PF_INFO_ONLY);
             return (B) this;
         }
 
@@ -498,7 +503,7 @@ public class GuidedAction extends Action {
          * @param enabled Whether the action is enabled.
          */
         public B enabled(boolean enabled) {
-            mEnabled = enabled;
+            setFlags(enabled ? PF_ENABLED : 0, PF_ENABLED);
             return (B) this;
         }
 
@@ -508,7 +513,7 @@ public class GuidedAction extends Action {
          * @return The same BuilderBase object.
          */
         public B focusable(boolean focusable) {
-            mFocusable = focusable;
+            setFlags(focusable ? PF_FOCUSABLE : 0, PF_FOCUSABLE);
             return (B) this;
         }
 
@@ -556,6 +561,14 @@ public class GuidedAction extends Action {
 
     }
 
+    private static final int PF_CHECKED = 0x00000001;
+    private static final int PF_MULTI_lINE_DESCRIPTION = 0x00000002;
+    private static final int PF_HAS_NEXT = 0x00000004;
+    private static final int PF_INFO_ONLY = 0x00000008;
+    private static final int PF_ENABLED = 0x00000010;
+    private static final int PF_FOCUSABLE = 0x00000020;
+    private int mActionFlags;
+
     private CharSequence mEditTitle;
     private CharSequence mEditDescription;
     private int mEditable;
@@ -563,19 +576,19 @@ public class GuidedAction extends Action {
     private int mDescriptionInputType;
     private int mEditInputType;
     private int mDescriptionEditInputType;
-    private boolean mMultilineDescription;
-    private boolean mHasNext;
-    private boolean mChecked;
-    private boolean mInfoOnly;
+
     private int mCheckSetId;
-    private boolean mEnabled;
-    private boolean mFocusable;
+
     private List<GuidedAction> mSubActions;
 
     private Intent mIntent;
 
     protected GuidedAction() {
         super(0);
+    }
+
+    private void setFlags(int flag, int mask) {
+        mActionFlags = (mActionFlags & ~mask) | (flag & mask);
     }
 
     /**
@@ -740,7 +753,7 @@ public class GuidedAction extends Action {
      * @return true if the action is currently checked, false otherwise.
      */
     public boolean isChecked() {
-        return mChecked;
+        return (mActionFlags & PF_CHECKED) == PF_CHECKED;
     }
 
     /**
@@ -748,7 +761,7 @@ public class GuidedAction extends Action {
      * @param checked Whether this action should be checked.
      */
     public void setChecked(boolean checked) {
-        mChecked = checked;
+        setFlags(checked ? PF_CHECKED : 0, PF_CHECKED);
     }
 
     /**
@@ -770,7 +783,7 @@ public class GuidedAction extends Action {
      * otherwise.
      */
     public boolean hasMultilineDescription() {
-        return mMultilineDescription;
+        return (mActionFlags & PF_MULTI_lINE_DESCRIPTION) == PF_MULTI_lINE_DESCRIPTION;
     }
 
     /**
@@ -778,7 +791,7 @@ public class GuidedAction extends Action {
      * @return true if the action is currently enabled, false otherwise.
      */
     public boolean isEnabled() {
-        return mEnabled;
+        return (mActionFlags & PF_ENABLED) == PF_ENABLED;
     }
 
     /**
@@ -786,7 +799,7 @@ public class GuidedAction extends Action {
      * @param enabled Whether this action should be enabled.
      */
     public void setEnabled(boolean enabled) {
-        mEnabled = enabled;
+        setFlags(enabled ? PF_ENABLED : 0, PF_ENABLED);
     }
 
     /**
@@ -794,7 +807,7 @@ public class GuidedAction extends Action {
      * @return true if the action is currently focusable, false otherwise.
      */
     public boolean isFocusable() {
-        return mFocusable;
+        return (mActionFlags & PF_FOCUSABLE) == PF_FOCUSABLE;
     }
 
     /**
@@ -802,7 +815,7 @@ public class GuidedAction extends Action {
      * @param focusable Whether this action should be focusable.
      */
     public void setFocusable(boolean focusable) {
-        mFocusable = focusable;
+        setFlags(focusable ? PF_FOCUSABLE : 0, PF_FOCUSABLE);
     }
 
     /**
@@ -811,7 +824,7 @@ public class GuidedAction extends Action {
      * @return true if the action will request further user input when selected, false otherwise.
      */
     public boolean hasNext() {
-        return mHasNext;
+        return (mActionFlags & PF_HAS_NEXT) == PF_HAS_NEXT;
     }
 
     /**
@@ -822,7 +835,7 @@ public class GuidedAction extends Action {
      * @return true if will only display information, false otherwise.
      */
     public boolean infoOnly() {
-        return mInfoOnly;
+        return (mActionFlags & PF_INFO_ONLY) == PF_INFO_ONLY;
     }
 
     /**
