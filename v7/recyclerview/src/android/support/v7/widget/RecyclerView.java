@@ -17,9 +17,6 @@
 
 package android.support.v7.widget;
 
-import static android.support.v7.widget.AdapterHelper.Callback;
-import static android.support.v7.widget.AdapterHelper.UpdateOp;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.database.Observable;
@@ -76,6 +73,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static android.support.v7.widget.AdapterHelper.Callback;
+import static android.support.v7.widget.AdapterHelper.UpdateOp;
 
 
 /**
@@ -553,7 +553,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 } catch (ClassNotFoundException e) {
                     throw new IllegalStateException(attrs.getPositionDescription()
                             + ": Unable to find LayoutManager " + className, e);
-                } catch (InvocationTargetException | InstantiationException e) {
+                } catch (InvocationTargetException e) {
+                    throw new IllegalStateException(attrs.getPositionDescription()
+                            + ": Could not instantiate the LayoutManager: " + className, e);
+                } catch (InstantiationException e) {
                     throw new IllegalStateException(attrs.getPositionDescription()
                             + ": Could not instantiate the LayoutManager: " + className, e);
                 } catch (IllegalAccessException e) {
@@ -759,13 +762,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     }
 
     /**
-     * RecyclerView can perform several optimizations if it can know in advance that RecyclerView's
-     * size is not affected by the adapter contents. RecyclerView can still change its size based
-     * on other factors (e.g. its parent's size) but this size calculation cannot depend on the
-     * size of its children or contents of its adapter (except the number of items in the adapter).
-     * <p>
-     * If your use of RecyclerView falls into this category, set this to {@code true}. It will allow
-     * RecyclerView to avoid invalidating the whole layout when its adapter contents change.
+     * RecyclerView can perform several optimizations if it can know in advance that changes in
+     * adapter content cannot change the size of the RecyclerView itself.
+     * If your use of RecyclerView falls into this category, set this to true.
      *
      * @param hasFixedSize true if adapter changes cannot affect the size of the RecyclerView.
      */
@@ -956,7 +955,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      */
     public void addOnChildAttachStateChangeListener(OnChildAttachStateChangeListener listener) {
         if (mOnChildAttachStateListeners == null) {
-            mOnChildAttachStateListeners = new ArrayList<>();
+            mOnChildAttachStateListeners = new ArrayList<OnChildAttachStateChangeListener>();
         }
         mOnChildAttachStateListeners.add(listener);
     }
@@ -1305,7 +1304,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      */
     public void addOnScrollListener(OnScrollListener listener) {
         if (mScrollListeners == null) {
-            mScrollListeners = new ArrayList<>();
+            mScrollListeners = new ArrayList<OnScrollListener>();
         }
         mScrollListeners.add(listener);
     }
@@ -1747,7 +1746,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         if (frozen != mLayoutFrozen) {
             assertNotInLayoutOrScroll("Do not setLayoutFrozen in layout or scroll");
             if (!frozen) {
-                mLayoutFrozen = false;
+                mLayoutFrozen = frozen;
                 if (mLayoutRequestEaten && mLayout != null && mAdapter != null) {
                     requestLayout();
                 }
@@ -1757,7 +1756,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 MotionEvent cancelEvent = MotionEvent.obtain(now, now,
                         MotionEvent.ACTION_CANCEL, 0.0f, 0.0f, 0);
                 onTouchEvent(cancelEvent);
-                mLayoutFrozen = true;
+                mLayoutFrozen = frozen;
                 mIgnoreMotionEventTillDown = true;
                 stopScroll();
             }
@@ -2569,6 +2568,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             } else {
                 return 0; //listPreferredItemHeight is not defined, no generic scrolling
             }
+
         }
         return mScrollFactor;
     }
@@ -2653,8 +2653,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         final int widthSize = MeasureSpec.getSize(widthSpec);
         final int heightSize = MeasureSpec.getSize(heightSpec);
 
-        int width;
-        int height;
+        int width = 0;
+        int height = 0;
 
         switch (widthMode) {
             case MeasureSpec.EXACTLY:
@@ -4384,7 +4384,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         private ArrayList<ViewHolder> getScrapHeapForType(int viewType) {
             ArrayList<ViewHolder> scrap = mScrap.get(viewType);
             if (scrap == null) {
-                scrap = new ArrayList<>();
+                scrap = new ArrayList<ViewHolder>();
                 mScrap.put(viewType, scrap);
                 if (mMaxScrap.indexOfKey(viewType) < 0) {
                     mMaxScrap.put(viewType, DEFAULT_MAX_SCRAP);
@@ -4408,7 +4408,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * may be repositioned by a LayoutManager without remeasurement.</p>
      */
     public final class Recycler {
-        final ArrayList<ViewHolder> mAttachedScrap = new ArrayList<>();
+        final ArrayList<ViewHolder> mAttachedScrap = new ArrayList<ViewHolder>();
         private ArrayList<ViewHolder> mChangedScrap = null;
 
         final ArrayList<ViewHolder> mCachedViews = new ArrayList<ViewHolder>();
@@ -8697,12 +8697,16 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
 
     /**
-     * An OnScrollListener can be added to a RecyclerView to receive messages when a scrolling event
-     * has occurred on that RecyclerView.
-     * <p>
-     * @see RecyclerView#addOnScrollListener(OnScrollListener)
-     * @see RecyclerView#clearOnChildAttachStateChangeListeners()
+     * An OnScrollListener can be set on a RecyclerView to receive messages
+     * when a scrolling event has occurred on that RecyclerView.
      *
+     * @see RecyclerView#setOnScrollListener(OnScrollListener) and
+     * RecyclerView#addOnScrollListener(OnScrollListener)
+     *
+     * If you are planning to have several listeners at the same time, use
+     * RecyclerView#addOnScrollListener. If there will be only one listener at the time and you
+     * want your components to be able to easily replace the listener use
+     * RecyclerView#setOnScrollListener.
      */
     public abstract static class OnScrollListener {
         /**
