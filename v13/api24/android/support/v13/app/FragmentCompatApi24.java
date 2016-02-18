@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
+
 package android.support.v13.app;
 
 import android.app.Fragment;
 
-class FragmentCompatICSMR1 {
+class FragmentCompatApi24 {
     public static void setUserVisibleHint(Fragment f, boolean isVisible) {
-        if (f.getFragmentManager() != null) {
-            f.setUserVisibleHint(isVisible);
-        }
+        f.setUserVisibleHint(isVisible);
     }
 }
