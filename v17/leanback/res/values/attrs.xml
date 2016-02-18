@@ -490,4 +490,37 @@
         <attr name="datePickerFormat" format="string"/>
     </declare-styleable>
 
+    <!-- @hide -->
+    <declare-styleable name="LeanbackOnboardingTheme">
+        <!-- Theme attribute for the overall theme used in the onboarding. The Leanback themes set
+             the default for this, but a custom theme that does not derive from a leanback theme can
+             set this to <code>@style/Theme.Leanback.Onboarding</code> in order to specify the
+             default OnboardingFragment styles. -->
+        <attr name="onboardingTheme" format="reference" />
+
+        <!-- Theme attribute for the style of the header in onboarding screen. Default is
+             {@link android.support.v17.leanback.R.style#Widget_Leanback_OnboardingHeaderStyle}.-->
+        <attr name="onboardingHeaderStyle" format="reference" />
+        <!-- Theme attribute for the style of the title text in onboarding screen. Default is
+             {@link android.support.v17.leanback.R.style#Widget_Leanback_OnboardingTitleStyle}.-->
+        <attr name="onboardingTitleStyle" format="reference" />
+        <!-- Theme attribute for the style of the description text in onboarding screen. Default is
+             {@link android.support.v17.leanback.R.style#Widget_Leanback_OnboardingDescriptionStyle}.-->
+        <attr name="onboardingDescriptionStyle" format="reference" />
+
+        <!-- Theme attribute for the style of the navigator container in onboarding screen. Default is
+             {@link android.support.v17.leanback.R.style#Widget_Leanback_OnboardingNavigatorContainerStyle}.-->
+        <attr name="onboardingNavigatorContainerStyle" format="reference" />
+        <!-- Theme attribute for the style of the page indicator in onboarding screen. Default is
+             {@link android.support.v17.leanback.R.style#Widget_Leanback_OnboardingPageNavigatorStyle}.-->
+        <attr name="onboardingPageIndicatorStyle" format="reference" />
+        <!-- Theme attribute for the style of the start button in onboarding screen. Default is
+             {@link android.support.v17.leanback.R.style#Widget_Leanback_OnboardingStartButtonStyle}.-->
+        <attr name="onboardingStartButtonStyle" format="reference" />
+
+        <!-- Theme attribute for the style of the logo in onboarding screen. Default is
+             {@link android.support.v17.leanback.R.style#Widget_Leanback_OnboardingLogoStyle}.-->
+        <attr name="onboardingLogoStyle" format="reference" />
+    </declare-styleable>
+
 </resources>
