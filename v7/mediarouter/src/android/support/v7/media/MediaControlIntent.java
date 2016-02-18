@@ -327,6 +327,7 @@ public final class MediaControlIntent {
     public static final String CATEGORY_REMOTE_PLAYBACK =
             "android.media.intent.category.REMOTE_PLAYBACK";
 
+    static final String CUSTOM_CATEGORY_PREFIX = "android.media.intent.category.CUSTOM.";
     /* Remote playback actions that affect individual items. */
 
     /**
@@ -765,6 +766,9 @@ public final class MediaControlIntent {
      * <li>{@link #EXTRA_SESSION_STATUS_UPDATE_RECEIVER} <em>(optional)</em>: Specifies a
      * {@link PendingIntent} for a broadcast receiver that will receive status updates
      * about the media session.
+     * <li>{@link #EXTRA_CUSTOM_MESSAGE_RECEIVER} <em>(optional)</em>: Specifies a
+     * {@link PendingIntent} for a broadcast receiver that will receive custom messages from
+     * the media session.
      * </ul>
      *
      * <h3>Result data</h3>
@@ -785,6 +789,15 @@ public final class MediaControlIntent {
      * queue is paused or resumed or when the session is terminated or invalidated.
      * </p><p>
      * Refer to {@link MediaSessionStatus} for details.
+     * </p>
+     *
+     * <h3>Custom messages</h3>
+     * <p>
+     * If the client supplies a {@link #EXTRA_CUSTOM_MESSAGE_RECEIVER custom message receiver}
+     * then the media route provider is responsible for sending messages to the receiver
+     * when the session has any messages to send.
+     * </p><p>
+     * Refer to {@link #EXTRA_CUSTOM_MESSAGE} for details.
      * </p>
      *
      * <h3>Errors</h3>
@@ -880,6 +893,33 @@ public final class MediaControlIntent {
      */
     public static final String ACTION_END_SESSION = "android.media.intent.action.END_SESSION";
 
+    /**
+     * Custom media control action: Send {link #EXTRA_CUSTOM_MESSAGE}.
+     * <p>
+     * Used with routes that are in {@link #buildCustomCategory custom} categories.
+     * </p><p>
+     * This action asks a route to handle a custom message described by EXTRA_CUSTOM_MESSAGE.
+     * </p>
+     *
+     * <h3>Request parameters</h3>
+     * <ul>
+     * <li>{@link #EXTRA_SESSION_ID} <em>(required)</em>: Specifies the session id of the session
+     * to which will handle this message.
+     * <li>{@link #EXTRA_CUSTOM_MESSAGE} <em>(required)</em>: Specifies the message to send.
+     * </ul>
+     *
+     * <h3>Result data</h3>
+     * Any custom messages defined by each media route provider.
+     *
+     * <h3>Errors</h3>
+     * Any custom error messages defined by each media route provider.
+     *
+     * @see MediaRouter.RouteInfo#sendControlRequest
+     * @see #buildCustomCategory(String)
+     */
+    public static final String ACTION_SEND_CUSTOM_MESSAGE =
+            "android.media.intent.action.SEND_CUSTOM_MESSAGE";
+
     /* Extras and related constants. */
 
     /**
@@ -944,7 +984,7 @@ public final class MediaControlIntent {
             "android.media.intent.extra.SESSION_STATUS";
 
     /**
-     * Bundle extra: Media item status update receiver.
+     * Bundle extra: Media session status update receiver.
      * <p>
      * Used with {@link #ACTION_START_SESSION} to specify a {@link PendingIntent} for a
      * broadcast receiver that will receive status updates about the media session.
@@ -968,6 +1008,32 @@ public final class MediaControlIntent {
      */
     public static final String EXTRA_SESSION_STATUS_UPDATE_RECEIVER =
             "android.media.intent.extra.SESSION_STATUS_UPDATE_RECEIVER";
+
+    /**
+     * Bundle extra: Media custom message receiver.
+     * <p>
+     * Used with {@link #ACTION_START_SESSION} to specify a {@link PendingIntent} for a
+     * broadcast receiver that will receive custom messages from the media session.
+     * </p><p>
+     * When the media session has a custom message to send, the media route provider will
+     * send a broadcast to the pending intent with extras that identify the session
+     * id and its message.
+     * </p><p>
+     * The value is a {@link PendingIntent}.
+     * </p>
+     *
+     * <h3>Broadcast extras</h3>
+     * <ul>
+     * <li>{@link #EXTRA_SESSION_ID} <em>(required)</em>: Specifies the session id of
+     * the session.
+     * <li>{@link #EXTRA_CUSTOM_MESSAGE} <em>(required)</em>: Specifies the message from
+     * the session as a bundle object.
+     * </ul>
+     *
+     * @see #ACTION_START_SESSION
+     */
+    public static final String EXTRA_CUSTOM_MESSAGE_RECEIVER =
+            "android.media.intent.extra.CUSTOM_MESSAGE_RECEIVER";
 
     /**
      * Bundle extra: Media item id.
@@ -1111,6 +1177,17 @@ public final class MediaControlIntent {
             "android.media.intent.extra.ITEM_STATUS_UPDATE_RECEIVER";
 
     /**
+     * Bundle extra: Custom message.
+     * <p>
+     * Used with {@link #ACTION_SEND_CUSTOM_MESSAGE}, and included in broadcast intents sent to
+     * {@link #EXTRA_CUSTOM_MESSAGE_RECEIVER custom message receivers} to describe
+     * a custom message between a session and a media route provider.
+     * </p><p>
+     */
+    public static final String EXTRA_CUSTOM_MESSAGE =
+            "android.media.intent.extra.CUSTOM_MESSAGE";
+
+    /**
      * Integer extra: Error code.
      * <p>
      * Used with all media control requests to describe the cause of an error.
@@ -1149,6 +1226,21 @@ public final class MediaControlIntent {
      * @see #EXTRA_ERROR_CODE
      */
     public static final int ERROR_INVALID_ITEM_ID = 3;
+
+    /**
+     * Builds a custom category string by adding a custom category prefix.
+     * <p></p>
+     * A route that is in a custom category could allow an application to send
+     * custom messages to supported destinations.
+     * </p>
+     * @param category The name of category.
+     * @return The custom category string built.
+     * @see #ACTION_SEND_CUSTOM_MESSAGE
+     * @see #EXTRA_CUSTOM_MESSAGE_RECEIVER
+     */
+    public static final String buildCustomCategory(String category) {
+        return CUSTOM_CATEGORY_PREFIX + category;
+    }
 
     private MediaControlIntent() {
     }
