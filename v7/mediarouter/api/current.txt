@@ -344,6 +344,7 @@ package android.support.v7.app {
 package android.support.v7.media {
 
   public final class MediaControlIntent {
+    method public static final java.lang.String buildCustomCategory(java.lang.String);
     field public static final java.lang.String ACTION_END_SESSION = "android.media.intent.action.END_SESSION";
     field public static final java.lang.String ACTION_ENQUEUE = "android.media.intent.action.ENQUEUE";
     field public static final java.lang.String ACTION_GET_SESSION_STATUS = "android.media.intent.action.GET_SESSION_STATUS";
@@ -353,6 +354,7 @@ package android.support.v7.media {
     field public static final java.lang.String ACTION_REMOVE = "android.media.intent.action.REMOVE";
     field public static final java.lang.String ACTION_RESUME = "android.media.intent.action.RESUME";
     field public static final java.lang.String ACTION_SEEK = "android.media.intent.action.SEEK";
+    field public static final java.lang.String ACTION_SEND_CUSTOM_MESSAGE = "android.media.intent.action.SEND_CUSTOM_MESSAGE";
     field public static final java.lang.String ACTION_START_SESSION = "android.media.intent.action.START_SESSION";
     field public static final java.lang.String ACTION_STOP = "android.media.intent.action.STOP";
     field public static final java.lang.String CATEGORY_LIVE_AUDIO = "android.media.intent.category.LIVE_AUDIO";
@@ -362,6 +364,8 @@ package android.support.v7.media {
     field public static final int ERROR_INVALID_SESSION_ID = 2; // 0x2
     field public static final int ERROR_UNKNOWN = 0; // 0x0
     field public static final int ERROR_UNSUPPORTED_OPERATION = 1; // 0x1
+    field public static final java.lang.String EXTRA_CUSTOM_MESSAGE = "android.media.intent.extra.CUSTOM_MESSAGE";
+    field public static final java.lang.String EXTRA_CUSTOM_MESSAGE_RECEIVER = "android.media.intent.extra.CUSTOM_MESSAGE_RECEIVER";
     field public static final java.lang.String EXTRA_ERROR_CODE = "android.media.intent.extra.ERROR_CODE";
     field public static final java.lang.String EXTRA_ITEM_CONTENT_POSITION = "android.media.intent.extra.ITEM_POSITION";
     field public static final java.lang.String EXTRA_ITEM_HTTP_HEADERS = "android.media.intent.extra.HTTP_HEADERS";
@@ -687,6 +691,7 @@ package android.support.v7.media {
     method public void getSessionStatus(android.os.Bundle, android.support.v7.media.RemotePlaybackClient.SessionActionCallback);
     method public void getStatus(java.lang.String, android.os.Bundle, android.support.v7.media.RemotePlaybackClient.ItemActionCallback);
     method public boolean hasSession();
+    method public boolean isCustomMessageSupported();
     method public boolean isQueuingSupported();
     method public boolean isRemotePlaybackSupported();
     method public boolean isSessionManagementSupported();
@@ -696,6 +701,8 @@ package android.support.v7.media {
     method public void remove(java.lang.String, android.os.Bundle, android.support.v7.media.RemotePlaybackClient.ItemActionCallback);
     method public void resume(android.os.Bundle, android.support.v7.media.RemotePlaybackClient.SessionActionCallback);
     method public void seek(java.lang.String, long, android.os.Bundle, android.support.v7.media.RemotePlaybackClient.ItemActionCallback);
+    method public void sendCustomMessage(android.os.Bundle, android.support.v7.media.RemotePlaybackClient.SessionActionCallback);
+    method public void setCustomMessageCallback(android.support.v7.media.RemotePlaybackClient.CustomMessageCallback);
     method public void setSessionId(java.lang.String);
     method public void setStatusCallback(android.support.v7.media.RemotePlaybackClient.StatusCallback);
     method public void startSession(android.os.Bundle, android.support.v7.media.RemotePlaybackClient.SessionActionCallback);
@@ -705,6 +712,11 @@ package android.support.v7.media {
   public static abstract class RemotePlaybackClient.ActionCallback {
     ctor public RemotePlaybackClient.ActionCallback();
     method public void onError(java.lang.String, int, android.os.Bundle);
+  }
+
+  public static abstract class RemotePlaybackClient.CustomMessageCallback {
+    ctor public RemotePlaybackClient.CustomMessageCallback();
+    method public void onMessageReceived(java.lang.String, android.os.Bundle);
   }
 
   public static abstract class RemotePlaybackClient.ItemActionCallback extends android.support.v7.media.RemotePlaybackClient.ActionCallback {
