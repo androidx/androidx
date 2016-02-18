@@ -18,15 +18,23 @@ package android.support.customtabs;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.test.AndroidTestCase;
+import android.os.Build;
+import android.support.annotation.ColorRes;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.SmallTest;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static org.junit.Assert.*;
 
 /**
  * Tests for CustomTabsIntent.
  */
+@RunWith(AndroidJUnit4.class)
 @SmallTest
-public class CustomTabsIntentTest extends AndroidTestCase {
-
+public class CustomTabsIntentTest {
+    @Test
     public void testBareboneCustomTabIntent() {
         CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder().build();
         Intent intent = customTabsIntent.intent;
@@ -35,10 +43,13 @@ public class CustomTabsIntentTest extends AndroidTestCase {
 
         assertEquals(Intent.ACTION_VIEW, intent.getAction());
         assertTrue(intent.hasExtra(CustomTabsIntent.EXTRA_SESSION));
-        assertNull(intent.getExtras().getBinder(CustomTabsIntent.EXTRA_SESSION));
+        if (Build.VERSION.SDK_INT >= 18) {
+            assertNull(intent.getExtras().getBinder(CustomTabsIntent.EXTRA_SESSION));
+        }
         assertNull(intent.getComponent());
     }
 
+    @Test
     public void testToolbarColor() {
         int color = Color.RED;
         Intent intent = new CustomTabsIntent.Builder().setToolbarColor(color).build().intent;
@@ -46,9 +57,10 @@ public class CustomTabsIntentTest extends AndroidTestCase {
         assertEquals(color, intent.getIntExtra(CustomTabsIntent.EXTRA_TOOLBAR_COLOR, 0));
     }
 
+    @Test
     public void testToolbarColorIsNotAResource() {
-        int colorId = android.R.color.background_dark;
-        int color = getContext().getResources().getColor(colorId);
+        @ColorRes int colorId = android.R.color.background_dark;
+        int color = InstrumentationRegistry.getContext().getResources().getColor(colorId);
         Intent intent = new CustomTabsIntent.Builder().setToolbarColor(colorId).build().intent;
         assertFalse("The color should not be a resource ID",
                 color == intent.getIntExtra(CustomTabsIntent.EXTRA_TOOLBAR_COLOR, 0));
