@@ -122,7 +122,6 @@ abstract public class LinearSmoothScroller extends RecyclerView.SmoothScroller {
             stop();
             return;
         }
-        //noinspection PointlessBooleanExpression
         if (DEBUG && mTargetVector != null
                 && ((mTargetVector.x * dx < 0 || mTargetVector.y * dy < 0))) {
             throw new IllegalStateException("Scroll happened in the opposite direction"
@@ -292,13 +291,13 @@ abstract public class LinearSmoothScroller extends RecyclerView.SmoothScroller {
      * @param view           The view which we want to make fully visible
      * @param snapPreference The edge which the view should snap to when entering the visible
      *                       area. One of {@link #SNAP_TO_START}, {@link #SNAP_TO_END} or
-     *                       {@link #SNAP_TO_ANY}.
+     *                       {@link #SNAP_TO_END}.
      * @return The vertical scroll amount necessary to make the view visible with the given
      * snap preference.
      */
     public int calculateDyToMakeVisible(View view, int snapPreference) {
         final RecyclerView.LayoutManager layoutManager = getLayoutManager();
-        if (layoutManager == null || !layoutManager.canScrollVertically()) {
+        if (!layoutManager.canScrollVertically()) {
             return 0;
         }
         final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams)
@@ -323,7 +322,7 @@ abstract public class LinearSmoothScroller extends RecyclerView.SmoothScroller {
      */
     public int calculateDxToMakeVisible(View view, int snapPreference) {
         final RecyclerView.LayoutManager layoutManager = getLayoutManager();
-        if (layoutManager == null || !layoutManager.canScrollHorizontally()) {
+        if (!layoutManager.canScrollHorizontally()) {
             return 0;
         }
         final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams)
