@@ -176,15 +176,4 @@
       <item name="android:windowIsTranslucent">true</item>
       <item name="android:windowBackground">@android:color/transparent</item>
     </style>
-
-    <!-- @hide -->
-    <style name="Theme.Leanback.Onboarding" parent="Theme.LeanbackBase">
-        <item name="onboardingHeaderStyle">@style/Widget.Leanback.OnboardingHeaderStyle</item>
-        <item name="onboardingTitleStyle">@style/Widget.Leanback.OnboardingTitleStyle</item>
-        <item name="onboardingDescriptionStyle">@style/Widget.Leanback.OnboardingDescriptionStyle</item>
-        <item name="onboardingNavigatorContainerStyle">@style/Widget.Leanback.OnboardingNavigatorContainerStyle</item>
-        <item name="onboardingPageIndicatorStyle">@style/Widget.Leanback.OnboardingPageIndicatorStyle</item>
-        <item name="onboardingStartButtonStyle">@style/Widget.Leanback.OnboardingStartButtonStyle</item>
-        <item name="onboardingLogoStyle">@style/Widget.Leanback.OnboardingLogoStyle</item>
-    </style>
 </resources>
