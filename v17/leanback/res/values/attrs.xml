@@ -512,7 +512,7 @@
              {@link android.support.v17.leanback.R.style#Widget_Leanback_OnboardingNavigatorContainerStyle}.-->
         <attr name="onboardingNavigatorContainerStyle" format="reference" />
         <!-- Theme attribute for the style of the page indicator in onboarding screen. Default is
-             {@link android.support.v17.leanback.R.style#Widget_Leanback_OnboardingPageNavigatorStyle}.-->
+             {@link android.support.v17.leanback.R.style#Widget_Leanback_OnboardingPageIndicatorStyle}.-->
         <attr name="onboardingPageIndicatorStyle" format="reference" />
         <!-- Theme attribute for the style of the start button in onboarding screen. Default is
              {@link android.support.v17.leanback.R.style#Widget_Leanback_OnboardingStartButtonStyle}.-->
