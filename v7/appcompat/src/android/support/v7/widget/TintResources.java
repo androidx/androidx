@@ -23,11 +23,13 @@ import android.support.annotation.NonNull;
 
 /**
  * This class allows us to intercept calls so that we can tint resources (if applicable).
+ *
+ * @hide
  */
-class TintResources extends Resources {
+public class TintResources extends Resources {
     private final Context mContext;
 
-    TintResources(@NonNull final Context context, @NonNull final Resources res) {
+    public TintResources(@NonNull final Context context, @NonNull final Resources res) {
         super(res.getAssets(), res.getDisplayMetrics(), res.getConfiguration());
         mContext = context;
     }
