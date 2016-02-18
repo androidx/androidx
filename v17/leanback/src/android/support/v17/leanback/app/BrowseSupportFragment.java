@@ -15,44 +15,36 @@
  */
 package android.support.v17.leanback.app;
 
+import static android.support.v7.widget.RecyclerView.NO_POSITION;
+
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentManager.BackStackEntry;
+import android.content.res.TypedArray;
+import android.graphics.Color;
+import android.graphics.Rect;
+import android.os.Bundle;
 import android.support.annotation.ColorInt;
 import android.support.v17.leanback.R;
-import android.support.v17.leanback.transition.LeanbackTransitionHelper;
 import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.transition.TransitionListener;
 import android.support.v17.leanback.widget.BrowseFrameLayout;
-import android.support.v17.leanback.widget.HorizontalGridView;
-import android.support.v17.leanback.widget.ItemBridgeAdapter;
+import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
+import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowHeaderPresenter;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.TitleView;
 import android.support.v17.leanback.widget.VerticalGridView;
-import android.support.v17.leanback.widget.Row;
-import android.support.v17.leanback.widget.ObjectAdapter;
-import android.support.v17.leanback.widget.SearchOrbView;
 import android.support.v4.view.ViewCompat;
 import android.util.Log;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentManager.BackStackEntry;
-import android.content.Context;
-import android.content.res.TypedArray;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
-import android.view.ViewTreeObserver;
-import android.graphics.Color;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
-import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 /**
  * A fragment for creating Leanback browse screens. It is composed of a
@@ -200,6 +192,88 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         }
     }
 
+    interface MainFragment {
+
+        /**
+         * Sets an item clicked listener on the fragment.
+         */
+        void setOnItemViewClickedListener(OnItemViewClickedListener listener);
+
+        /**
+         * Sets an item selection listener.
+         */
+        void setOnItemViewSelectedListener(OnItemViewSelectedListener listener);
+
+        /**
+         * Enables scaling of the content.
+         */
+        void setScalingEnabled(boolean enable);
+
+        /**
+         * Selects a Row and perform an optional task on the Row.
+         */
+        void setSelectedPosition(int rowPosition,
+                                 boolean smooth,
+                                 final Presenter.ViewHolderTask rowHolderTask);
+
+        /**
+         * Selects a Row.
+         */
+        void setSelectedPosition(int rowPosition, boolean smooth);
+
+        /**
+         * Returns the selected position.
+         */
+        int getSelectedPosition();
+
+        /**
+         * Returns whether its scrolling.
+         */
+        boolean isScrolling();
+
+        /**
+         * Set the visibility of titles/hovercard of browse rows.
+         */
+        void setExpand(boolean expand);
+
+        /**
+         * Set the visibility titles/hoverca of browse rows.
+         */
+        void setAdapter(ObjectAdapter adapter);
+
+        /**
+         * For rows that willing to participate entrance transition,  this function
+         * hide views if afterTransition is true,  show views if afterTransition is false.
+         */
+        void setEntranceTransitionState(boolean state);
+
+        /**
+         * Sets the window alignment and also the pivots for scale operation.
+         */
+        void setAlignment(int windowAlignOffsetFromTop);
+
+        /**
+         * Callback indicating start of expand transition.
+         */
+        void onExpandTransitionStart(boolean expand, final Runnable callback);
+
+        /**
+         * Callback indicating transition prepare start.
+         */
+        boolean onTransitionPrepare();
+
+        /**
+         * Callback indicating transition start.
+         */
+        void onTransitionStart();
+
+        /**
+         * Callback indicating transition end.
+         */
+        void onTransitionEnd();
+    }
+
+
     private static final String TAG = "BrowseSupportFragment";
 
     private static final String LB_HEADERS_BACKSTACK = "lbHeadersBackStack_";
@@ -215,7 +289,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     /** The headers fragment is disabled and will never be shown. */
     public static final int HEADERS_DISABLED = 3;
 
-    private RowsSupportFragment mRowsSupportFragment;
+    private MainFragment mMainFragment;
     private HeadersSupportFragment mHeadersSupportFragment;
 
     private ObjectAdapter mAdapter;
@@ -309,8 +383,8 @@ public class BrowseSupportFragment extends BaseSupportFragment {
      */
     public void setAdapter(ObjectAdapter adapter) {
         mAdapter = adapter;
-        if (mRowsSupportFragment != null) {
-            mRowsSupportFragment.setAdapter(adapter);
+        if (mMainFragment != null) {
+            mMainFragment.setAdapter(adapter);
             mHeadersSupportFragment.setAdapter(adapter);
         }
     }
@@ -341,7 +415,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
      * @return Currently bound RowsSupportFragment or null if BrowseSupportFragment has not been created yet.
      */
     public RowsSupportFragment getRowsSupportFragment() {
-        return mRowsSupportFragment;
+        return (RowsSupportFragment)mMainFragment;
     }
 
     /**
@@ -360,8 +434,8 @@ public class BrowseSupportFragment extends BaseSupportFragment {
      */
     public void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
         mOnItemViewClickedListener = listener;
-        if (mRowsSupportFragment != null) {
-            mRowsSupportFragment.setOnItemViewClickedListener(listener);
+        if (mMainFragment != null) {
+            mMainFragment.setOnItemViewClickedListener(listener);
         }
     }
 
@@ -424,8 +498,8 @@ public class BrowseSupportFragment extends BaseSupportFragment {
      */
     public void enableRowScaling(boolean enable) {
         mRowScaleEnabled = enable;
-        if (mRowsSupportFragment != null) {
-            mRowsSupportFragment.enableRowScaling(mRowScaleEnabled);
+        if (mMainFragment != null) {
+            mMainFragment.setScalingEnabled(mRowScaleEnabled);
         }
     }
 
@@ -434,7 +508,9 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             return;
         }
         mShowingHeaders = withHeaders;
-        mRowsSupportFragment.onExpandTransitionStart(!withHeaders, new Runnable() {
+        mMainFragment.onTransitionPrepare();
+        mMainFragment.onTransitionStart();
+        mMainFragment.onExpandTransitionStart(!withHeaders, new Runnable() {
             @Override
             public void run() {
                 mHeadersSupportFragment.onTransitionPrepare();
@@ -464,10 +540,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
 
     boolean isVerticalScrolling() {
         // don't run transition
-        return mHeadersSupportFragment.getVerticalGridView().getScrollState()
-                != HorizontalGridView.SCROLL_STATE_IDLE
-                || mRowsSupportFragment.getVerticalGridView().getScrollState()
-                != HorizontalGridView.SCROLL_STATE_IDLE;
+        return mHeadersSupportFragment.isScrolling() || (mMainFragment).isScrolling();
     }
 
 
@@ -489,7 +562,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
                     direction == View.FOCUS_DOWN) {
                 return mCanShowHeaders && mShowingHeaders ?
                         mHeadersSupportFragment.getVerticalGridView() :
-                        mRowsSupportFragment.getVerticalGridView();
+                        ((Fragment)mMainFragment).getView();
             }
 
             boolean isRtl = ViewCompat.getLayoutDirection(focused) == View.LAYOUT_DIRECTION_RTL;
@@ -504,7 +577,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
                 if (isVerticalScrolling()) {
                     return focused;
                 }
-                return mRowsSupportFragment.getVerticalGridView();
+                return ((Fragment)mMainFragment).getView();
             } else {
                 return null;
             }
@@ -526,8 +599,8 @@ public class BrowseSupportFragment extends BaseSupportFragment {
                     return true;
                 }
             }
-            if (mRowsSupportFragment != null && mRowsSupportFragment.getView() != null &&
-                    mRowsSupportFragment.getView().requestFocus(direction, previouslyFocusedRect)) {
+            if (mMainFragment != null && ((Fragment)mMainFragment).getView() != null &&
+                    ((Fragment)mMainFragment).getView().requestFocus(direction, previouslyFocusedRect)) {
                 return true;
             }
             if (getTitleView() != null &&
@@ -602,31 +675,30 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         if (getChildFragmentManager().findFragmentById(R.id.browse_container_dock) == null) {
-            mRowsSupportFragment = new RowsSupportFragment();
+            mMainFragment = new RowsSupportFragment();
             mHeadersSupportFragment = new HeadersSupportFragment();
             getChildFragmentManager().beginTransaction()
                     .replace(R.id.browse_headers_dock, mHeadersSupportFragment)
-                    .replace(R.id.browse_container_dock, mRowsSupportFragment).commit();
+                    .replace(R.id.browse_container_dock, (Fragment)mMainFragment).commit();
         } else {
             mHeadersSupportFragment = (HeadersSupportFragment) getChildFragmentManager()
                     .findFragmentById(R.id.browse_headers_dock);
-            mRowsSupportFragment = (RowsSupportFragment) getChildFragmentManager()
+            mMainFragment = (RowsSupportFragment) getChildFragmentManager()
                     .findFragmentById(R.id.browse_container_dock);
         }
 
         mHeadersSupportFragment.setHeadersGone(!mCanShowHeaders);
-
-        mRowsSupportFragment.setAdapter(mAdapter);
         if (mHeaderPresenterSelector != null) {
             mHeadersSupportFragment.setPresenterSelector(mHeaderPresenterSelector);
         }
         mHeadersSupportFragment.setAdapter(mAdapter);
-
-        mRowsSupportFragment.enableRowScaling(mRowScaleEnabled);
-        mRowsSupportFragment.setOnItemViewSelectedListener(mRowViewSelectedListener);
         mHeadersSupportFragment.setOnHeaderViewSelectedListener(mHeaderViewSelectedListener);
         mHeadersSupportFragment.setOnHeaderClickedListener(mHeaderClickedListener);
-        mRowsSupportFragment.setOnItemViewClickedListener(mOnItemViewClickedListener);
+
+        mMainFragment.setAdapter(mAdapter);
+        mMainFragment.setScalingEnabled(mRowScaleEnabled);
+        mMainFragment.setOnItemViewSelectedListener(mRowViewSelectedListener);
+        mMainFragment.setOnItemViewClickedListener(mOnItemViewClickedListener);
 
         View root = inflater.inflate(R.layout.lb_browse_fragment, container, false);
 
@@ -673,7 +745,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             @Override
             public void onTransitionEnd(Object transition) {
                 mHeadersTransition = null;
-                mRowsSupportFragment.onTransitionEnd();
+                mMainFragment.onTransitionEnd();
                 mHeadersSupportFragment.onTransitionEnd();
                 if (mShowingHeaders) {
                     VerticalGridView headerGridView = mHeadersSupportFragment.getVerticalGridView();
@@ -681,7 +753,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
                         headerGridView.requestFocus();
                     }
                 } else {
-                    VerticalGridView rowsGridView = mRowsSupportFragment.getVerticalGridView();
+                    View rowsGridView = ((Fragment)mMainFragment).getView();
                     if (rowsGridView != null && !rowsGridView.hasFocus()) {
                         rowsGridView.requestFocus();
                     }
@@ -709,7 +781,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     private void setRowsAlignedLeft(boolean alignLeft) {
         MarginLayoutParams lp;
         View containerList;
-        containerList = mRowsSupportFragment.getView();
+        containerList = ((Fragment)mMainFragment).getView();
         lp = (MarginLayoutParams) containerList.getLayoutParams();
         lp.setMarginStart(alignLeft ? 0 : mContainerListMarginStart);
         containerList.setLayoutParams(lp);
@@ -729,7 +801,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         mHeadersSupportFragment.setHeadersEnabled(show);
         setHeadersOnScreen(show);
         setRowsAlignedLeft(!show);
-        mRowsSupportFragment.setExpand(!show);
+        mMainFragment.setExpand(!show);
     }
 
     private HeadersSupportFragment.OnHeaderClickedListener mHeaderClickedListener =
@@ -740,7 +812,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
                     return;
                 }
                 startHeadersTransitionInternal(false);
-                mRowsSupportFragment.getVerticalGridView().requestFocus();
+                ((Fragment)mMainFragment).getView().requestFocus();
             }
         };
 
@@ -748,7 +820,8 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         @Override
         public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
                 RowPresenter.ViewHolder rowViewHolder, Row row) {
-            int position = mRowsSupportFragment.getVerticalGridView().getSelectedPosition();
+            int position = ((RowsSupportFragment)mMainFragment)
+                    .getVerticalGridView().getSelectedPosition();
             if (DEBUG) Log.v(TAG, "row selected position " + position);
             onRowSelected(position);
             if (mExternalOnItemViewSelectedListener != null) {
@@ -783,7 +856,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
 
     private void setSelection(int position, boolean smooth) {
         if (position != NO_POSITION) {
-            mRowsSupportFragment.setSelectedPosition(position, smooth);
+            mMainFragment.setSelectedPosition(position, smooth);
             mHeadersSupportFragment.setSelectedPosition(position, smooth);
         }
         mSelectedPosition = position;
@@ -826,30 +899,26 @@ public class BrowseSupportFragment extends BaseSupportFragment {
      */
     public void setSelectedPosition(int rowPosition, boolean smooth,
             final Presenter.ViewHolderTask rowHolderTask) {
-        if (mRowsSupportFragment == null) {
+        if (mMainFragment == null) {
             return;
         }
         if (rowHolderTask != null) {
             startHeadersTransition(false);
         }
-        mRowsSupportFragment.setSelectedPosition(rowPosition, smooth, rowHolderTask);
+        mMainFragment.setSelectedPosition(rowPosition, smooth, rowHolderTask);
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        mHeadersSupportFragment.setWindowAlignmentFromTop(mContainerListAlignTop);
-        mHeadersSupportFragment.setItemAlignment();
-        mRowsSupportFragment.setWindowAlignmentFromTop(mContainerListAlignTop);
-        mRowsSupportFragment.setItemAlignment();
-
-        mRowsSupportFragment.setScalePivots(0, mContainerListAlignTop);
+        mHeadersSupportFragment.setAlignment(mContainerListAlignTop);
+        mMainFragment.setAlignment(mContainerListAlignTop);
 
         if (mCanShowHeaders && mShowingHeaders && mHeadersSupportFragment.getView() != null) {
             mHeadersSupportFragment.getView().requestFocus();
         } else if ((!mCanShowHeaders || !mShowingHeaders)
-                && mRowsSupportFragment.getView() != null) {
-            mRowsSupportFragment.getView().requestFocus();
+                && ((Fragment)mMainFragment).getView() != null) {
+            ((Fragment)mMainFragment).getView().requestFocus();
         }
         if (mCanShowHeaders) {
             showHeaders(mShowingHeaders);
@@ -952,18 +1021,18 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     @Override
     protected void onEntranceTransitionPrepare() {
         mHeadersSupportFragment.onTransitionPrepare();
-        mRowsSupportFragment.onTransitionPrepare();
+        mMainFragment.onTransitionPrepare();
     }
 
     @Override
     protected void onEntranceTransitionStart() {
         mHeadersSupportFragment.onTransitionStart();
-        mRowsSupportFragment.onTransitionStart();
+        mMainFragment.onTransitionStart();
     }
 
     @Override
     protected void onEntranceTransitionEnd() {
-        mRowsSupportFragment.onTransitionEnd();
+        mMainFragment.onTransitionEnd();
         mHeadersSupportFragment.onTransitionEnd();
     }
 
@@ -977,13 +1046,13 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     void setEntranceTransitionStartState() {
         setHeadersOnScreen(false);
         setSearchOrbViewOnScreen(false);
-        mRowsSupportFragment.setEntranceTransitionState(false);
+        mMainFragment.setEntranceTransitionState(false);
     }
 
     void setEntranceTransitionEndState() {
         setHeadersOnScreen(mShowingHeaders);
         setSearchOrbViewOnScreen(true);
-        mRowsSupportFragment.setEntranceTransitionState(true);
+        mMainFragment.setEntranceTransitionState(true);
     }
 
 }
