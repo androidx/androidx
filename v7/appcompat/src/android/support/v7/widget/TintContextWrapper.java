@@ -35,7 +35,7 @@ public class TintContextWrapper extends ContextWrapper {
     private static final ArrayList<WeakReference<TintContextWrapper>> sCache = new ArrayList<>();
 
     public static Context wrap(@NonNull final Context context) {
-        if (!(context instanceof TintContextWrapper)) {
+        if (shouldWrap(context)) {
             // First check our instance cache
             for (int i = 0, count = sCache.size(); i < count; i++) {
                 final WeakReference<TintContextWrapper> ref = sCache.get(i);
@@ -52,6 +52,19 @@ public class TintContextWrapper extends ContextWrapper {
         }
 
         return context;
+    }
+
+    private static boolean shouldWrap(@NonNull final Context context) {
+        if (context instanceof TintContextWrapper) {
+            // If the Context is already a TintContextWrapper, no needed to wrap again
+            return false;
+        }
+        if (context.getResources() instanceof TintResources) {
+            // If the Context already has a TintResources impl, no needed to wrap again
+            return false;
+        }
+        // Else, we should wrap
+        return true;
     }
 
     private Resources mResources;
