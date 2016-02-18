@@ -22,11 +22,15 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
+import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.PagingIndicator;
+import android.util.Log;
+import android.util.TypedValue;
+import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -109,10 +113,43 @@ import java.util.List;
  * If the user finishes the onboarding screen after navigating all the pages,
  * {@link #onFinishFragment} is called. The inherited class can override this method to show another
  * fragment or activity, or just remove this fragment.
+ * <p>
+ * <h3>Theming</h3>
+ * <p>
+ * OnboardingFragment must have access to an appropriate theme. Specifically, the fragment must
+ * receive  {@link R.style#Theme_Leanback_Onboarding}, or a theme whose parent is set to that theme.
+ * Themes can be provided in one of three ways:
+ * <ul>
+ * <li>The simplest way is to set the theme for the host Activity to the Onboarding theme or a theme
+ * that derives from it.</li>
+ * <li>If the Activity already has a theme and setting its parent theme is inconvenient, the
+ * existing Activity theme can have an entry added for the attribute
+ * {@link R.styleable#LeanbackOnboardingTheme_onboardingTheme}. If present, this theme will be used
+ * by OnboardingFragment as an overlay to the Activity's theme.</li>
+ * <li>Finally, custom subclasses of OnboardingFragment may provide a theme through the
+ * {@link #onProvideTheme} method. This can be useful if a subclass is used across multiple
+ * Activities.</li>
+ * </ul>
+ * <p>
+ * If the theme is provided in multiple ways, the onProvideTheme override has priority, followed by
+ * the Activity's theme. (Themes whose parent theme is already set to the onboarding theme do not
+ * need to set the onboardingTheme attribute; if set, it will be ignored.)
+ *
+ * @attr ref R.styleable#LeanbackOnboardingTheme_onboardingTheme
+ * @attr ref R.styleable#LeanbackOnboardingTheme_onboardingHeaderStyle
+ * @attr ref R.styleable#LeanbackOnboardingTheme_onboardingTitleStyle
+ * @attr ref R.styleable#LeanbackOnboardingTheme_onboardingDescriptionStyle
+ * @attr ref R.styleable#LeanbackOnboardingTheme_onboardingNavigatorContainerStyle
+ * @attr ref R.styleable#LeanbackOnboardingTheme_onboardingPageIndicatorStyle
+ * @attr ref R.styleable#LeanbackOnboardingTheme_onboardingStartButtonStyle
+ * @attr ref R.styleable#LeanbackOnboardingTheme_onboardingLogoStyle
  *
  * @hide
  */
 abstract public class OnboardingFragment extends Fragment {
+    private static final String TAG = "OnboardingFragment";
+    private static final boolean DEBUG = false;
+
     private static final long LOGO_SPLASH_PAUSE_DURATION_MS = 1333;
     private static final long START_DELAY_TITLE_MS = 33;
     private static final long START_DELAY_DESCRIPTION_MS = 33;
@@ -131,6 +168,8 @@ abstract public class OnboardingFragment extends Fragment {
     // Keys used to save and restore the states.
     private static final String KEY_CURRENT_PAGE_INDEX = "leanback.onboarding.current_page_index";
 
+    private ContextThemeWrapper mThemeWrapper;
+
     private PagingIndicator mPageIndicator;
     private View mStartButton;
     private ImageView mLogoView;
@@ -138,6 +177,7 @@ abstract public class OnboardingFragment extends Fragment {
     private TextView mDescriptionView;
 
     private boolean mIsLtr;
+
     // No need to save/restore the logo resource ID, because the logo animation will not appear when
     // the fragment is restored.
     private int mLogoResourceId;
@@ -214,8 +254,10 @@ abstract public class OnboardingFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
             Bundle savedInstanceState) {
-        ViewGroup view = (ViewGroup) inflater.inflate(R.layout.lb_onboarding_fragment, container,
-                false);
+        resolveTheme();
+        LayoutInflater localInflater = getThemeInflater(inflater);
+        ViewGroup view = (ViewGroup) localInflater.inflate(R.layout.lb_onboarding_fragment,
+                container, false);
         mIsLtr = getResources().getConfiguration().getLayoutDirection()
                 == View.LAYOUT_DIRECTION_LTR;
         mPageIndicator = (PagingIndicator) view.findViewById(R.id.page_indicator);
@@ -258,6 +300,39 @@ abstract public class OnboardingFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(KEY_CURRENT_PAGE_INDEX, mCurrentPageIndex);
+    }
+
+    /**
+     * Returns the theme used for styling the fragment. The default returns -1, indicating that the
+     * host Activity's theme should be used.
+     *
+     * @return The theme resource ID of the theme to use in this fragment, or -1 to use the host
+     *         Activity's theme.
+     */
+    public int onProvideTheme() {
+        return -1;
+    }
+
+    private void resolveTheme() {
+        Activity activity = getActivity();
+        int theme = onProvideTheme();
+        if (theme == -1) {
+            // Look up the onboardingTheme in the activity's currently specified theme. If it
+            // exists, wrap the theme with its value.
+            int resId = R.attr.onboardingTheme;
+            TypedValue typedValue = new TypedValue();
+            boolean found = activity.getTheme().resolveAttribute(resId, typedValue, true);
+            if (DEBUG) Log.v(TAG, "Found onboarding theme reference? " + found);
+            if (found) {
+                mThemeWrapper = new ContextThemeWrapper(activity, typedValue.resourceId);
+            }
+        } else {
+            mThemeWrapper = new ContextThemeWrapper(activity, theme);
+        }
+    }
+
+    private LayoutInflater getThemeInflater(LayoutInflater inflater) {
+        return mThemeWrapper == null ? inflater : inflater.cloneInContext(mThemeWrapper);
     }
 
     /**
@@ -338,7 +413,7 @@ abstract public class OnboardingFragment extends Fragment {
     private void initializeViews(View container) {
         mLogoView.setVisibility(View.GONE);
         // Create custom views.
-        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        LayoutInflater inflater = getThemeInflater(LayoutInflater.from(getActivity()));
         ViewGroup backgroundContainer = (ViewGroup) container.findViewById(
                 R.id.background_container);
         View background = onCreateBackgroundView(inflater, backgroundContainer);
