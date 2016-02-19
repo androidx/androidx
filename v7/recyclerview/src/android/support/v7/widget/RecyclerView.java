@@ -3057,12 +3057,25 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 ViewHolder oldChangeViewHolder = mViewInfoStore.getFromOldChangeHolders(key);
                 if (oldChangeViewHolder != null && !oldChangeViewHolder.shouldIgnore()) {
                     // run a change animation
+
+                    // If an Item is CHANGED but the updated version is disappearing, it creates
+                    // a conflicting case.
+                    // Since a view that is marked as disappearing is likely to be going out of
+                    // bounds, we run a change animation. Both views will be cleaned automatically
+                    // once their animations finish.
+                    final boolean oldDisappearing = mViewInfoStore.isDisappearing(
+                            oldChangeViewHolder);
+                    final boolean newDisappearing = mViewInfoStore.isDisappearing(holder);
                     final ItemHolderInfo preInfo = mViewInfoStore.popFromPreLayout(
                             oldChangeViewHolder);
+                    // we add an remove so that any post info is merged.
+                    mViewInfoStore.addToPostLayout(holder, animationInfo);
+                    ItemHolderInfo postInfo = mViewInfoStore.popFromPostLayout(holder);
                     if (preInfo == null) {
                         handleMissingPreInfoForChangeError(key, holder, oldChangeViewHolder);
                     } else {
-                        animateChange(oldChangeViewHolder, holder, preInfo, animationInfo);
+                        animateChange(oldChangeViewHolder, holder, preInfo, postInfo,
+                                oldDisappearing, newDisappearing);
                     }
                 } else {
                     mViewInfoStore.addToPostLayout(holder, animationInfo);
@@ -3236,9 +3249,16 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     }
 
     private void animateChange(@NonNull ViewHolder oldHolder, @NonNull ViewHolder newHolder,
-            @NonNull ItemHolderInfo preInfo, @NonNull ItemHolderInfo postInfo) {
+            @NonNull ItemHolderInfo preInfo, @NonNull ItemHolderInfo postInfo,
+            boolean oldHolderDisappearing, boolean newHolderDisappearing) {
         oldHolder.setIsRecyclable(false);
+        if (oldHolderDisappearing) {
+            addAnimatingView(oldHolder);
+        }
         if (oldHolder != newHolder) {
+            if (newHolderDisappearing) {
+                addAnimatingView(newHolder);
+            }
             oldHolder.mShadowedHolder = newHolder;
             // old holder should disappear after animation ends
             addAnimatingView(oldHolder);
