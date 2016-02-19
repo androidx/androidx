@@ -49,7 +49,7 @@ package android.support.v13.view {
     method public void getTouchPosition(android.view.View, android.graphics.Point);
     method public boolean handleLongClick(android.view.View);
     method public boolean handleTouch(android.view.View, android.view.MotionEvent);
-    method protected abstract void onDragStart(android.view.View);
+    method protected abstract boolean onDragStart(android.view.View);
     method public boolean onLongClick(android.view.View);
     method public boolean onTouch(android.view.View, android.view.MotionEvent);
     method public void remove();

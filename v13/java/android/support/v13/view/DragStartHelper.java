@@ -115,8 +115,7 @@ public abstract class DragStartHelper implements View.OnLongClickListener, View.
         if (event.getAction() == MotionEvent.ACTION_MOVE &&
                 MotionEventCompat.isFromSource(event, InputDeviceCompat.SOURCE_MOUSE) &&
                 (MotionEventCompat.getButtonState(event) & MotionEventCompat.BUTTON_PRIMARY) != 0) {
-            onDragStart(v);
-            return true;
+            return onDragStart(v);
         }
         return false;
     }
@@ -127,8 +126,7 @@ public abstract class DragStartHelper implements View.OnLongClickListener, View.
      * @return true if the callback consumed the long click, false otherwise.
      */
     public boolean handleLongClick(View v) {
-        onDragStart(v);
-        return true;
+        return onDragStart(v);
     }
 
     /**
@@ -183,6 +181,6 @@ public abstract class DragStartHelper implements View.OnLongClickListener, View.
      * Called when the drag start gesture has been detected.
      * @param v A view on which the drag start gesture has been detected.
      */
-    protected abstract void onDragStart(View v);
+    protected abstract boolean onDragStart(View v);
 }
 
