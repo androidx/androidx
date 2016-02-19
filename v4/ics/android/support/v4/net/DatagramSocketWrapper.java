@@ -16,8 +16,7 @@
 
 package android.support.v4.net;
 
-import android.os.ParcelFileDescriptor;
-
+import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -30,18 +29,18 @@ import java.net.SocketImpl;
 
 /** {@hide} */
 class DatagramSocketWrapper extends Socket {
-    public DatagramSocketWrapper(DatagramSocket socket) throws SocketException {
-        super(new DatagramSocketImplWrapper(socket));
+    public DatagramSocketWrapper(DatagramSocket socket, FileDescriptor fd) throws SocketException {
+        super(new DatagramSocketImplWrapper(socket, fd));
     }
 
     /**
-     * Empty implementation which can expose a fd.
+     * Empty implementation which wires in the given {@link FileDescriptor}.
      */
     private static class DatagramSocketImplWrapper extends SocketImpl {
-        public DatagramSocketImplWrapper(DatagramSocket socket) throws SocketException {
+        public DatagramSocketImplWrapper(DatagramSocket socket, FileDescriptor fd) {
             super();
-            localport = socket.getLocalPort();
-            fd = ParcelFileDescriptor.fromDatagramSocket(socket).getFileDescriptor();
+            this.localport = socket.getLocalPort();
+            this.fd = fd;
         }
 
         @Override
