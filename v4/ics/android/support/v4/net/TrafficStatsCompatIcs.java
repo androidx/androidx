@@ -17,6 +17,7 @@
 package android.support.v4.net;
 
 import android.net.TrafficStats;
+import android.os.ParcelFileDescriptor;
 
 import java.net.DatagramSocket;
 import java.net.Socket;
@@ -55,10 +56,22 @@ class TrafficStatsCompatIcs {
     }
 
     public static void tagDatagramSocket(DatagramSocket socket) throws SocketException {
-        TrafficStats.tagSocket(new DatagramSocketWrapper(socket));
+        final ParcelFileDescriptor pfd = ParcelFileDescriptor.fromDatagramSocket(socket);
+        TrafficStats.tagSocket(new DatagramSocketWrapper(socket, pfd.getFileDescriptor()));
+        // The developer is still using the FD, so we need to detach it to
+        // prevent the PFD finalizer from closing it in their face. We had to
+        // wait until after the tagging call above, since detaching clears out
+        // the getFileDescriptor() result which tagging depends on.
+        pfd.detachFd();
     }
 
     public static void untagDatagramSocket(DatagramSocket socket) throws SocketException {
-        TrafficStats.untagSocket(new DatagramSocketWrapper(socket));
+        final ParcelFileDescriptor pfd = ParcelFileDescriptor.fromDatagramSocket(socket);
+        TrafficStats.untagSocket(new DatagramSocketWrapper(socket, pfd.getFileDescriptor()));
+        // The developer is still using the FD, so we need to detach it to
+        // prevent the PFD finalizer from closing it in their face. We had to
+        // wait until after the tagging call above, since detaching clears out
+        // the getFileDescriptor() result which tagging depends on.
+        pfd.detachFd();
     }
 }
