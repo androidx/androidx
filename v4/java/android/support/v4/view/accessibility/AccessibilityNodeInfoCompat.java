@@ -2790,7 +2790,7 @@ public class AccessibilityNodeInfoCompat {
      * made immutable before being delivered to an AccessibilityService.
      * </p>
      *
-     * @param checkable True if the node has an image.
+     * @param hasImage True if the node has an image.
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setHasImage(boolean hasImage) {
