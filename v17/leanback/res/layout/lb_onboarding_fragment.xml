@@ -53,7 +53,7 @@
         android:id="@+id/navigator_container"
         style="?attr/onboardingNavigatorContainerStyle">
         <!-- TODO: Customize dimensions of PagingIndicator -->
-        <com.google.android.tv.common.ui.setup.leanback.PagingIndicator
+        <android.support.v17.leanback.widget.PagingIndicator
             android:id="@id/page_indicator"
             style="?attr/onboardingPageIndicatorStyle"
             android:visibility="gone" />
