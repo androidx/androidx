@@ -74,22 +74,51 @@ class ViewInfoStore {
         record.flags |= FLAG_PRE;
     }
 
+    boolean isDisappearing(ViewHolder holder) {
+        final InfoRecord record = mLayoutHolderMap.get(holder);
+        return record != null && ((record.flags & FLAG_DISAPPEARED) != 0);
+    }
+
     /**
      * Finds the ItemHolderInfo for the given ViewHolder in preLayout list and removes it.
+     *
      * @param vh The ViewHolder whose information is being queried
      * @return The ItemHolderInfo for the given ViewHolder or null if it does not exist
      */
     @Nullable
     ItemHolderInfo popFromPreLayout(ViewHolder vh) {
+        return popFromLayoutStep(vh, FLAG_PRE);
+    }
+
+    /**
+     * Finds the ItemHolderInfo for the given ViewHolder in postLayout list and removes it.
+     *
+     * @param vh The ViewHolder whose information is being queried
+     * @return The ItemHolderInfo for the given ViewHolder or null if it does not exist
+     */
+    @Nullable
+    ItemHolderInfo popFromPostLayout(ViewHolder vh) {
+        return popFromLayoutStep(vh, FLAG_POST);
+    }
+
+    private ItemHolderInfo popFromLayoutStep(ViewHolder vh, int flag) {
         int index = mLayoutHolderMap.indexOfKey(vh);
         if (index < 0) {
             return null;
         }
         final InfoRecord record = mLayoutHolderMap.valueAt(index);
-        if (record != null && (record.flags & FLAG_PRE) != 0) {
-            record.flags &= ~FLAG_PRE;
-            final ItemHolderInfo info = record.preInfo;
-            if (record.flags == 0) {
+        if (record != null && (record.flags & flag) != 0) {
+            record.flags &= ~flag;
+            final ItemHolderInfo info;
+            if (flag == FLAG_PRE) {
+                info = record.preInfo;
+            } else if (flag == FLAG_POST) {
+                info = record.postInfo;
+            } else {
+                throw new IllegalArgumentException("Must provide flag PRE or POST");
+            }
+            // if not pre-post flag is left, clear.
+            if ((record.flags & (FLAG_PRE | FLAG_POST)) == 0) {
                 mLayoutHolderMap.removeAt(index);
                 InfoRecord.recycle(record);
             }
