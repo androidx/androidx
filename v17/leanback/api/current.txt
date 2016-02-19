@@ -20,7 +20,11 @@ package android.support.v17.leanback.app {
     method public final android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public final android.support.v17.leanback.widget.PresenterSelector getPresenterSelector();
     method public int getSelectedPosition();
+    method public void onTransitionEnd();
+    method public boolean onTransitionPrepare();
+    method public void onTransitionStart();
     method public final void setAdapter(android.support.v17.leanback.widget.ObjectAdapter);
+    method public void setAlignment(int);
     method public final void setPresenterSelector(android.support.v17.leanback.widget.PresenterSelector);
     method public void setSelectedPosition(int);
     method public void setSelectedPosition(int, boolean);
@@ -30,7 +34,11 @@ package android.support.v17.leanback.app {
     method public final android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public final android.support.v17.leanback.widget.PresenterSelector getPresenterSelector();
     method public int getSelectedPosition();
+    method public void onTransitionEnd();
+    method public boolean onTransitionPrepare();
+    method public void onTransitionStart();
     method public final void setAdapter(android.support.v17.leanback.widget.ObjectAdapter);
+    method public void setAlignment(int);
     method public final void setPresenterSelector(android.support.v17.leanback.widget.PresenterSelector);
     method public void setSelectedPosition(int);
     method public void setSelectedPosition(int, boolean);
@@ -326,6 +334,7 @@ package android.support.v17.leanback.app {
 
   public class HeadersFragment extends android.support.v17.leanback.app.BaseRowFragment {
     ctor public HeadersFragment();
+    method public boolean isScrolling();
     method public void setOnHeaderClickedListener(android.support.v17.leanback.app.HeadersFragment.OnHeaderClickedListener);
     method public void setOnHeaderViewSelectedListener(android.support.v17.leanback.app.HeadersFragment.OnHeaderViewSelectedListener);
   }
@@ -340,6 +349,7 @@ package android.support.v17.leanback.app {
 
   public class HeadersSupportFragment extends android.support.v17.leanback.app.BaseRowSupportFragment {
     ctor public HeadersSupportFragment();
+    method public boolean isScrolling();
     method public void setOnHeaderClickedListener(android.support.v17.leanback.app.HeadersSupportFragment.OnHeaderClickedListener);
     method public void setOnHeaderViewSelectedListener(android.support.v17.leanback.app.HeadersSupportFragment.OnHeaderViewSelectedListener);
   }
@@ -543,27 +553,35 @@ package android.support.v17.leanback.app {
 
   public class RowsFragment extends android.support.v17.leanback.app.BaseRowFragment {
     ctor public RowsFragment();
-    method public void enableRowScaling(boolean);
+    method public deprecated void enableRowScaling(boolean);
     method protected android.support.v17.leanback.widget.VerticalGridView findGridViewFromRoot(android.view.View);
     method public android.support.v17.leanback.widget.OnItemViewClickedListener getOnItemViewClickedListener();
     method public android.support.v17.leanback.widget.OnItemViewSelectedListener getOnItemViewSelectedListener();
     method public android.support.v17.leanback.widget.RowPresenter.ViewHolder getRowViewHolder(int);
+    method public boolean isScrolling();
+    method public void onExpandTransitionStart(boolean, java.lang.Runnable);
+    method public void setEntranceTransitionState(boolean);
     method public void setExpand(boolean);
     method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.OnItemViewClickedListener);
     method public void setOnItemViewSelectedListener(android.support.v17.leanback.widget.OnItemViewSelectedListener);
+    method public void setScalingEnabled(boolean);
     method public void setSelectedPosition(int, boolean, android.support.v17.leanback.widget.Presenter.ViewHolderTask);
   }
 
   public class RowsSupportFragment extends android.support.v17.leanback.app.BaseRowSupportFragment {
     ctor public RowsSupportFragment();
-    method public void enableRowScaling(boolean);
+    method public deprecated void enableRowScaling(boolean);
     method protected android.support.v17.leanback.widget.VerticalGridView findGridViewFromRoot(android.view.View);
     method public android.support.v17.leanback.widget.OnItemViewClickedListener getOnItemViewClickedListener();
     method public android.support.v17.leanback.widget.OnItemViewSelectedListener getOnItemViewSelectedListener();
     method public android.support.v17.leanback.widget.RowPresenter.ViewHolder getRowViewHolder(int);
+    method public boolean isScrolling();
+    method public void onExpandTransitionStart(boolean, java.lang.Runnable);
+    method public void setEntranceTransitionState(boolean);
     method public void setExpand(boolean);
     method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.OnItemViewClickedListener);
     method public void setOnItemViewSelectedListener(android.support.v17.leanback.widget.OnItemViewSelectedListener);
+    method public void setScalingEnabled(boolean);
     method public void setSelectedPosition(int, boolean, android.support.v17.leanback.widget.Presenter.ViewHolderTask);
   }
 
