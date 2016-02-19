@@ -15,13 +15,13 @@ package android.support.v17.leanback.app;
 
 import android.app.Fragment;
 import android.os.Bundle;
-import android.support.v17.leanback.widget.ObjectAdapter;
-import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
-import android.support.v17.leanback.widget.VerticalGridView;
-import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.ListRow;
+import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.OnChildViewHolderSelectedListener;
+import android.support.v17.leanback.widget.PresenterSelector;
+import android.support.v17.leanback.widget.Row;
+import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -183,7 +183,7 @@ abstract class BaseRowFragment extends Fragment {
         }
     }
 
-    boolean onTransitionPrepare() {
+    public boolean onTransitionPrepare() {
         if (mVerticalGridView != null) {
             mVerticalGridView.setAnimateChildLayout(false);
             mVerticalGridView.setScrollEnabled(false);
@@ -193,7 +193,7 @@ abstract class BaseRowFragment extends Fragment {
         return false;
     }
 
-    void onTransitionStart() {
+    public void onTransitionStart() {
         if (mVerticalGridView != null) {
             mVerticalGridView.setPruneChild(false);
             mVerticalGridView.setLayoutFrozen(true);
@@ -201,7 +201,7 @@ abstract class BaseRowFragment extends Fragment {
         }
     }
 
-    void onTransitionEnd() {
+    public void onTransitionEnd() {
         // be careful that fragment might be destroyed before header transition ends.
         if (mVerticalGridView != null) {
             mVerticalGridView.setLayoutFrozen(false);
@@ -212,19 +212,15 @@ abstract class BaseRowFragment extends Fragment {
         }
     }
 
-    void setItemAlignment() {
+    public void setAlignment(int windowAlignOffsetTop) {
         if (mVerticalGridView != null) {
             // align the top edge of item
             mVerticalGridView.setItemAlignmentOffset(0);
             mVerticalGridView.setItemAlignmentOffsetPercent(
                     VerticalGridView.ITEM_ALIGN_OFFSET_PERCENT_DISABLED);
-        }
-    }
 
-    void setWindowAlignmentFromTop(int alignedTop) {
-        if (mVerticalGridView != null) {
             // align to a fixed position from top
-            mVerticalGridView.setWindowAlignmentOffset(alignedTop);
+            mVerticalGridView.setWindowAlignmentOffset(windowAlignOffsetTop);
             mVerticalGridView.setWindowAlignmentOffsetPercent(
                     VerticalGridView.WINDOW_ALIGN_OFFSET_PERCENT_DISABLED);
             mVerticalGridView.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_NO_EDGE);

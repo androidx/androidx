@@ -13,23 +13,20 @@
  */
 package android.support.v17.leanback.app;
 
-import java.util.ArrayList;
-
 import android.animation.TimeAnimator;
 import android.animation.TimeAnimator.TimeListener;
 import android.os.Bundle;
 import android.support.v17.leanback.R;
+import android.support.v17.leanback.widget.HorizontalGridView;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
+import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
-import android.support.v17.leanback.widget.RowPresenter.ViewHolder;
+import android.support.v17.leanback.widget.Presenter;
+import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.ScaleFrameLayout;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v17.leanback.widget.ViewHolderTask;
-import android.support.v17.leanback.widget.HorizontalGridView;
-import android.support.v17.leanback.widget.RowPresenter;
-import android.support.v17.leanback.widget.ListRowPresenter;
-import android.support.v17.leanback.widget.Presenter;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -38,6 +35,8 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
+
+import java.util.ArrayList;
 
 /**
  * An ordered set of rows of leanback widgets.
@@ -48,7 +47,7 @@ import android.view.animation.Interpolator;
  * of {@link android.support.v17.leanback.widget.Row}.
  * </p>
  */
-public class RowsFragment extends BaseRowFragment {
+public class RowsFragment extends BaseRowFragment implements BrowseFragment.MainFragment {
 
     /**
      * Internal helper class that manages row select animation and apply a default
@@ -89,7 +88,7 @@ public class RowsFragment extends BaseRowFragment {
             if (mSelectAnimatorInterpolatorInUse != null) {
                 fraction = mSelectAnimatorInterpolatorInUse.getInterpolation(fraction);
             }
-            float level =  mSelectLevelAnimStart + fraction * mSelectLevelAnimDelta;
+            float level = mSelectLevelAnimStart + fraction * mSelectLevelAnimDelta;
             mRowPresenter.setSelectLevel(mRowViewHolder, level);
         }
 
@@ -205,12 +204,13 @@ public class RowsFragment extends BaseRowFragment {
     }
 
     /**
+     * @deprecated use {@link #setScalingEnabled(boolean)} instead.
      * Enables scaling of rows.
      *
      * @param enable true to enable row scaling
      */
     public void enableRowScaling(boolean enable) {
-        mRowScaleEnabled = enable;
+        setScalingEnabled(enable);
     }
 
     @Override
@@ -233,6 +233,7 @@ public class RowsFragment extends BaseRowFragment {
     /**
      * Get row ViewHolder at adapter position.  Returns null if the row object is not in adapter or
      * the row object has not been bound to a row view.
+     *
      * @param position Position of row in adapter.
      * @return Row ViewHolder at a given adapter position.
      */
@@ -286,14 +287,6 @@ public class RowsFragment extends BaseRowFragment {
         super.onDestroyView();
     }
 
-    @Override
-    void setItemAlignment() {
-        super.setItemAlignment();
-        if (getVerticalGridView() != null) {
-            getVerticalGridView().setItemAlignmentOffsetWithPadding(true);
-        }
-    }
-
     void setExternalAdapterListener(ItemBridgeAdapter.AdapterListener listener) {
         mExternalAdapterListener = listener;
     }
@@ -334,6 +327,7 @@ public class RowsFragment extends BaseRowFragment {
                 mExternalAdapterListener.onAddPresenter(presenter, type);
             }
         }
+
         @Override
         public void onCreate(ItemBridgeAdapter.ViewHolder vh) {
             VerticalGridView listView = getVerticalGridView();
@@ -352,6 +346,7 @@ public class RowsFragment extends BaseRowFragment {
                 mExternalAdapterListener.onCreate(vh);
             }
         }
+
         @Override
         public void onAttachedToWindow(ItemBridgeAdapter.ViewHolder vh) {
             if (DEBUG) Log.v(TAG, "onAttachToWindow");
@@ -370,6 +365,7 @@ public class RowsFragment extends BaseRowFragment {
                 mExternalAdapterListener.onAttachedToWindow(vh);
             }
         }
+
         @Override
         public void onDetachedFromWindow(ItemBridgeAdapter.ViewHolder vh) {
             if (mSelectedViewHolder == vh) {
@@ -380,12 +376,14 @@ public class RowsFragment extends BaseRowFragment {
                 mExternalAdapterListener.onDetachedFromWindow(vh);
             }
         }
+
         @Override
         public void onBind(ItemBridgeAdapter.ViewHolder vh) {
             if (mExternalAdapterListener != null) {
                 mExternalAdapterListener.onBind(vh);
             }
         }
+
         @Override
         public void onUnbind(ItemBridgeAdapter.ViewHolder vh) {
             setRowViewSelected(vh, false, true);
@@ -431,7 +429,7 @@ public class RowsFragment extends BaseRowFragment {
     }
 
     @Override
-    boolean onTransitionPrepare() {
+    public boolean onTransitionPrepare() {
         boolean prepared = super.onTransitionPrepare();
         if (prepared) {
             freezeRows(true);
@@ -478,9 +476,8 @@ public class RowsFragment extends BaseRowFragment {
         }
     }
 
-    void onExpandTransitionStart(boolean expand, final Runnable callback) {
-        onTransitionPrepare();
-        onTransitionStart();
+    @Override
+    public void onExpandTransitionStart(boolean expand, final Runnable callback) {
         if (expand) {
             callback.run();
             return;
@@ -511,20 +508,7 @@ public class RowsFragment extends BaseRowFragment {
     }
 
     @Override
-    void setWindowAlignmentFromTop(int alignedTop) {
-        mAlignedTop = alignedTop;
-        final VerticalGridView gridView = getVerticalGridView();
-        if (gridView != null) {
-            updateWindowAlignOffset();
-            // align to a fixed position from top
-            gridView.setWindowAlignmentOffsetPercent(
-                    VerticalGridView.WINDOW_ALIGN_OFFSET_PERCENT_DISABLED);
-            gridView.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_NO_EDGE);
-        }
-    }
-
-    @Override
-    void onTransitionEnd() {
+    public void onTransitionEnd() {
         super.onTransitionEnd();
         freezeRows(false);
     }
@@ -535,7 +519,7 @@ public class RowsFragment extends BaseRowFragment {
             final int count = verticalView.getChildCount();
             for (int i = 0; i < count; i++) {
                 ItemBridgeAdapter.ViewHolder ibvh = (ItemBridgeAdapter.ViewHolder)
-                    verticalView.getChildViewHolder(verticalView.getChildAt(i));
+                        verticalView.getChildViewHolder(verticalView.getChildAt(i));
                 RowPresenter rowPresenter = (RowPresenter) ibvh.getPresenter();
                 RowPresenter.ViewHolder vh = rowPresenter.getRowViewHolder(ibvh.getViewHolder());
                 rowPresenter.freeze(vh, freeze);
@@ -547,14 +531,15 @@ public class RowsFragment extends BaseRowFragment {
      * For rows that willing to participate entrance transition,  this function
      * hide views if afterTransition is true,  show views if afterTransition is false.
      */
-    void setEntranceTransitionState(boolean afterTransition) {
+    @Override
+    public void setEntranceTransitionState(boolean afterTransition) {
         mAfterEntranceTransition = afterTransition;
         VerticalGridView verticalView = getVerticalGridView();
         if (verticalView != null) {
             final int count = verticalView.getChildCount();
             for (int i = 0; i < count; i++) {
                 ItemBridgeAdapter.ViewHolder ibvh = (ItemBridgeAdapter.ViewHolder)
-                    verticalView.getChildViewHolder(verticalView.getChildAt(i));
+                        verticalView.getChildViewHolder(verticalView.getChildAt(i));
                 RowPresenter rowPresenter = (RowPresenter) ibvh.getPresenter();
                 RowPresenter.ViewHolder vh = rowPresenter.getRowViewHolder(ibvh.getViewHolder());
                 rowPresenter.setEntranceTransitionState(vh, mAfterEntranceTransition);
@@ -601,5 +586,33 @@ public class RowsFragment extends BaseRowFragment {
         }
         RowPresenter rowPresenter = (RowPresenter) ibvh.getPresenter();
         return rowPresenter.getRowViewHolder(ibvh.getViewHolder());
+    }
+
+    @Override
+    public void setScalingEnabled(boolean enable) {
+        mRowScaleEnabled = enable;
+    }
+
+    @Override
+    public boolean isScrolling() {
+        return getVerticalGridView().getScrollState() != HorizontalGridView.SCROLL_STATE_IDLE;
+    }
+
+    @Override
+    public void setAlignment(int windowAlignOffsetFromTop) {
+        mAlignedTop = windowAlignOffsetFromTop;
+        setScalePivots(0, windowAlignOffsetFromTop);
+        final VerticalGridView gridView = getVerticalGridView();
+        if (gridView != null) {
+            gridView.setItemAlignmentOffset(0);
+
+            gridView.setItemAlignmentOffsetWithPadding(true);
+
+            updateWindowAlignOffset();
+            // align to a fixed position from top
+            gridView.setWindowAlignmentOffsetPercent(
+                    VerticalGridView.WINDOW_ALIGN_OFFSET_PERCENT_DISABLED);
+            gridView.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_NO_EDGE);
+        }
     }
 }
