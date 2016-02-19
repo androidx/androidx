@@ -118,6 +118,17 @@ public class PagingIndicator extends View {
         mAnimator.playTogether(animators);
         // Use software layer to show shadows.
         setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+
+        // To guard the methods from the proguard, the methods which is called only by the
+        // reflection should be called explicitly just once.
+        // Without this calls, the animation will not work.
+        Dot dot = new Dot();
+        dot.setTranslationX(0.0f);
+        dot.setAlpha(0.0f);
+        dot.setDiameter(0.0f);
+        dot.getTranslationX();
+        dot.getAlpha();
+        dot.getDiameter();
     }
 
     private Bitmap loadArrow() {
