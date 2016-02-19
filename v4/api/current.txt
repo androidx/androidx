@@ -643,7 +643,6 @@ package android.support.v4.app {
     method public android.support.v4.app.NotificationCompat.Builder setSubText(java.lang.CharSequence);
     method public android.support.v4.app.NotificationCompat.Builder setTicker(java.lang.CharSequence);
     method public android.support.v4.app.NotificationCompat.Builder setTicker(java.lang.CharSequence, android.widget.RemoteViews);
-    method public android.support.v4.app.NotificationCompat.Builder setTopic(android.support.v4.app.NotificationCompat.Topic);
     method public android.support.v4.app.NotificationCompat.Builder setUsesChronometer(boolean);
     method public android.support.v4.app.NotificationCompat.Builder setVibrate(long[]);
     method public android.support.v4.app.NotificationCompat.Builder setVisibility(int);
@@ -698,12 +697,6 @@ package android.support.v4.app {
     ctor public NotificationCompat.Style();
     method public android.app.Notification build();
     method public void setBuilder(android.support.v4.app.NotificationCompat.Builder);
-  }
-
-  public static class NotificationCompat.Topic {
-    ctor public NotificationCompat.Topic(java.lang.String, java.lang.CharSequence);
-    method public java.lang.String getId();
-    method public java.lang.CharSequence getLabel();
   }
 
   public static final class NotificationCompat.WearableExtender implements android.support.v4.app.NotificationCompat.Extender {

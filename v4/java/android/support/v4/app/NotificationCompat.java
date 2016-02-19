@@ -459,7 +459,6 @@ public class NotificationCompat {
         NotificationCompatBase.UnreadConversation getUnreadConversationFromBundle(
                 Bundle b, NotificationCompatBase.UnreadConversation.Factory factory,
                 RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory);
-        public NotificationCompatBase.Topic getTopic(Notification n);
     }
 
     /**
@@ -539,11 +538,6 @@ public class NotificationCompat {
 
         @Override
         public Bundle getBundleForUnreadConversation(NotificationCompatBase.UnreadConversation uc) {
-            return null;
-        }
-
-        @Override
-        public NotificationCompatBase.Topic getTopic(Notification n) {
             return null;
         }
 
@@ -793,27 +787,6 @@ public class NotificationCompat {
         }
     }
 
-    static class NotificationCompatImplApi24 extends NotificationCompatImplApi21 {
-        @Override
-        public Notification build(Builder b, BuilderExtender extender) {
-            NotificationCompatApi24.Builder builder = new NotificationCompatApi24.Builder(
-                    b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
-                    b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
-                    b.mProgressMax, b.mProgress, b.mProgressIndeterminate, b.mShowWhen,
-                    b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mCategory,
-                    b.mPeople, b.mExtras, b.mColor, b.mVisibility, b.mPublicVersion,
-                    b.mGroupKey, b.mGroupSummary, b.mSortKey, b.mTopic);
-            addActionsToBuilder(builder, b.mActions);
-            addStyleToBuilderJellybean(builder, b.mStyle);
-            return extender.build(b, builder);
-        }
-
-        @Override
-        public NotificationCompatBase.Topic getTopic(Notification notification) {
-            return NotificationCompatApi24.getTopic(notification, Topic.FACTORY);
-        }
-    }
-
     private static void addActionsToBuilder(NotificationBuilderWithActions builder,
             ArrayList<Action> actions) {
         for (Action action : actions) {
@@ -852,9 +825,7 @@ public class NotificationCompat {
     }
 
     static {
-        if (Build.VERSION.SDK_INT >= 24) {
-            IMPL = new NotificationCompatImplApi24();
-        } else if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 21) {
             IMPL = new NotificationCompatImplApi21();
         } else if (Build.VERSION.SDK_INT >= 20) {
             IMPL = new NotificationCompatImplApi20();
@@ -943,7 +914,6 @@ public class NotificationCompat {
         int mColor = COLOR_DEFAULT;
         int mVisibility = VISIBILITY_PRIVATE;
         Notification mPublicVersion;
-        Topic mTopic;
 
         /** @hide */
         public Notification mNotification = new Notification();
@@ -1564,11 +1534,6 @@ public class NotificationCompat {
             return this;
         }
 
-        public Builder setTopic(Topic topic) {
-            mTopic = topic;
-            return this;
-        }
-
         /**
          * Apply an extender to this notification builder. Extenders may be used to add
          * metadata or change options on this builder.
@@ -1608,33 +1573,6 @@ public class NotificationCompat {
             }
             return cs;
         }
-    }
-
-    public static class Topic extends NotificationCompatBase.Topic {
-        private final String id;
-        private final CharSequence label;
-
-        public Topic(String id, CharSequence label) {
-            this.id = id;
-            this.label = label;
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public CharSequence getLabel() {
-            return label;
-        }
-
-        /** @hide */
-        public static final Factory FACTORY = new Factory() {
-            @Override
-            public Topic build(String id, CharSequence label) {
-                return new Topic(id, label);
-            }
-
-        };
     }
 
     /**
