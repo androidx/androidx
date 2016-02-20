@@ -151,10 +151,9 @@ endif
 
 LOCAL_REQUIRED_MODULES := libblasV8
 LOCAL_STATIC_LIBRARIES := libbnnmlowpV8
-LOCAL_LDFLAGS += -llog -ldl
-LOCAL_NDK_STL_VARIANT := stlport_static
+LOCAL_LDFLAGS += -llog -ldl -Wl,--exclude-libs,libc++_static.a
+LOCAL_NDK_STL_VARIANT := c++_static
 
-LOCAL_C_INCLUDES += frameworks/compile/libbcc/include
 LOCAL_C_INCLUDES += external/cblas/include
 LOCAL_C_INCLUDES += external/gemmlowp/eight_bit_int_gemm
 
