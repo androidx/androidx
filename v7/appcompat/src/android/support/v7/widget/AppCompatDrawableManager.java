@@ -27,11 +27,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Drawable.ConstantState;
-import android.graphics.drawable.DrawableContainer;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.InsetDrawable;
 import android.graphics.drawable.LayerDrawable;
-import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
@@ -117,6 +113,7 @@ public final class AppCompatDrawableManager {
     private static final int[] TINT_COLOR_CONTROL_NORMAL = {
             R.drawable.abc_ic_search_api_mtrl_alpha,
             R.drawable.abc_ic_commit_search_api_mtrl_alpha,
+            R.drawable.abc_seekbar_tick_mark_material
     };
 
     /**

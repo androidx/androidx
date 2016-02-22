@@ -72,4 +72,6 @@
     <dimen name="abc_seekbar_track_background_height_material">2dp</dimen>
     <dimen name="abc_seekbar_track_progress_height_material">2dp</dimen>
 
+    <dimen name="abc_progress_bar_height_material">4dp</dimen>
+
 </resources>

@@ -147,6 +147,7 @@
     <public type="style" name="Widget.AppCompat.SearchView"/>
     <public type="style" name="Widget.AppCompat.SearchView.ActionBar"/>
     <public type="style" name="Widget.AppCompat.SeekBar"/>
+    <public type="style" name="Widget.AppCompat.SeekBar.Discrete"/>
     <public type="style" name="Widget.AppCompat.Spinner"/>
     <public type="style" name="Widget.AppCompat.Spinner.DropDown"/>
     <public type="style" name="Widget.AppCompat.Spinner.DropDown.ActionBar"/>

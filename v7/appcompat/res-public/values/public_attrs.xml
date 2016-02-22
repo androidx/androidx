@@ -185,6 +185,9 @@
      <public type="attr" name="theme"/>
      <public type="attr" name="thickness"/>
      <public type="attr" name="thumbTextPadding"/>
+     <public type="attr" name="tickMark"/>
+     <public type="attr" name="tickMarkTint"/>
+     <public type="attr" name="tickMarkTintMode"/>
      <public type="attr" name="title"/>
      <public type="attr" name="titleMarginBottom"/>
      <public type="attr" name="titleMarginEnd"/>

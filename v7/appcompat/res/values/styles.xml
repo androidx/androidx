@@ -219,6 +219,8 @@
 
     <style name="Widget.AppCompat.SeekBar" parent="Base.Widget.AppCompat.SeekBar" />
 
+    <style name="Widget.AppCompat.SeekBar.Discrete" parent="Base.Widget.AppCompat.SeekBar.Discrete" />
+
     <!-- Toolbar -->
 
     <style name="Widget.AppCompat.Toolbar" parent="Base.Widget.AppCompat.Toolbar" />
