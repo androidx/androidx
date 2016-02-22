@@ -1751,6 +1751,26 @@ public class MediaSessionCompat {
             }
 
             @Override
+            public void prepare() throws RemoteException {
+                postToHandler(MessageHandler.MSG_PREPARE);
+            }
+
+            @Override
+            public void prepareFromMediaId(String mediaId, Bundle extras) throws RemoteException {
+                postToHandler(MessageHandler.MSG_PREPARE_MEDIA_ID, mediaId, extras);
+            }
+
+            @Override
+            public void prepareFromSearch(String query, Bundle extras) throws RemoteException {
+                postToHandler(MessageHandler.MSG_PREPARE_SEARCH, query, extras);
+            }
+
+            @Override
+            public void prepareFromUri(Uri uri, Bundle extras) throws RemoteException {
+                postToHandler(MessageHandler.MSG_PREPARE_URI, uri, extras);
+            }
+
+            @Override
             public void play() throws RemoteException {
                 postToHandler(MessageHandler.MSG_PLAY);
             }
@@ -1876,24 +1896,28 @@ public class MediaSessionCompat {
 
         private class MessageHandler extends Handler {
 
-            private static final int MSG_PLAY = 1;
-            private static final int MSG_PLAY_MEDIA_ID = 2;
-            private static final int MSG_PLAY_SEARCH = 3;
-            private static final int MSG_SKIP_TO_ITEM = 4;
-            private static final int MSG_PAUSE = 5;
-            private static final int MSG_STOP = 6;
-            private static final int MSG_NEXT = 7;
-            private static final int MSG_PREVIOUS = 8;
-            private static final int MSG_FAST_FORWARD = 9;
-            private static final int MSG_REWIND = 10;
-            private static final int MSG_SEEK_TO = 11;
-            private static final int MSG_RATE = 12;
-            private static final int MSG_CUSTOM_ACTION = 13;
-            private static final int MSG_MEDIA_BUTTON = 14;
-            private static final int MSG_COMMAND = 15;
-            private static final int MSG_ADJUST_VOLUME = 16;
-            private static final int MSG_SET_VOLUME = 17;
-            private static final int MSG_PLAY_URI = 18;
+            private static final int MSG_COMMAND = 1;
+            private static final int MSG_ADJUST_VOLUME = 2;
+            private static final int MSG_PREPARE = 3;
+            private static final int MSG_PREPARE_MEDIA_ID = 4;
+            private static final int MSG_PREPARE_SEARCH = 5;
+            private static final int MSG_PREPARE_URI = 6;
+            private static final int MSG_PLAY = 7;
+            private static final int MSG_PLAY_MEDIA_ID = 8;
+            private static final int MSG_PLAY_SEARCH = 9;
+            private static final int MSG_PLAY_URI = 10;
+            private static final int MSG_SKIP_TO_ITEM = 11;
+            private static final int MSG_PAUSE = 12;
+            private static final int MSG_STOP = 13;
+            private static final int MSG_NEXT = 14;
+            private static final int MSG_PREVIOUS = 15;
+            private static final int MSG_FAST_FORWARD = 16;
+            private static final int MSG_REWIND = 17;
+            private static final int MSG_SEEK_TO = 18;
+            private static final int MSG_RATE = 19;
+            private static final int MSG_CUSTOM_ACTION = 20;
+            private static final int MSG_MEDIA_BUTTON = 21;
+            private static final int MSG_SET_VOLUME = 22;
 
             // KeyEvent constants only available on API 11+
             private static final int KEYCODE_MEDIA_PAUSE = 127;
@@ -1928,6 +1952,31 @@ public class MediaSessionCompat {
                     return;
                 }
                 switch (msg.what) {
+                    case MSG_COMMAND:
+                        Command cmd = (Command) msg.obj;
+                        cb.onCommand(cmd.command, cmd.extras, cmd.stub);
+                        break;
+                    case MSG_MEDIA_BUTTON:
+                        KeyEvent keyEvent = (KeyEvent) msg.obj;
+                        Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+                        intent.putExtra(Intent.EXTRA_KEY_EVENT, keyEvent);
+                        // Let the Callback handle events first before using the default behavior
+                        if (!cb.onMediaButtonEvent(intent)) {
+                            onMediaButtonEvent(keyEvent, cb);
+                        }
+                        break;
+                    case MSG_PREPARE:
+                        cb.onPrepare();
+                        break;
+                    case MSG_PREPARE_MEDIA_ID:
+                        cb.onPrepareFromMediaId((String) msg.obj, msg.getData());
+                        break;
+                    case MSG_PREPARE_SEARCH:
+                        cb.onPrepareFromSearch((String) msg.obj, msg.getData());
+                        break;
+                    case MSG_PREPARE_URI:
+                        cb.onPrepareFromUri((Uri) msg.obj, msg.getData());
+                        break;
                     case MSG_PLAY:
                         cb.onPlay();
                         break;
@@ -1969,19 +2018,6 @@ public class MediaSessionCompat {
                         break;
                     case MSG_CUSTOM_ACTION:
                         cb.onCustomAction((String) msg.obj, msg.getData());
-                        break;
-                    case MSG_MEDIA_BUTTON:
-                        KeyEvent keyEvent = (KeyEvent) msg.obj;
-                        Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
-                        intent.putExtra(Intent.EXTRA_KEY_EVENT, keyEvent);
-                        // Let the Callback handle events first before using the default behavior
-                        if (!cb.onMediaButtonEvent(intent)) {
-                            onMediaButtonEvent(keyEvent, cb);
-                        }
-                        break;
-                    case MSG_COMMAND:
-                        Command cmd = (Command) msg.obj;
-                        cb.onCommand(cmd.command, cmd.extras, cmd.stub);
                         break;
                     case MSG_ADJUST_VOLUME:
                         adjustVolume((int) msg.obj, 0);

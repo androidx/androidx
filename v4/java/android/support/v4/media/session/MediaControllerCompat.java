@@ -1068,18 +1068,38 @@ public final class MediaControllerCompat {
 
         @Override
         public void prepare() {
+            try {
+                mBinder.prepare();
+            } catch (RemoteException e) {
+                Log.e(TAG, "Dead object in prepare. " + e);
+            }
         }
 
         @Override
         public void prepareFromMediaId(String mediaId, Bundle extras) {
+            try {
+                mBinder.prepareFromMediaId(mediaId, extras);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Dead object in prepareFromMediaId. " + e);
+            }
         }
 
         @Override
         public void prepareFromSearch(String query, Bundle extras) {
+            try {
+                mBinder.prepareFromSearch(query, extras);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Dead object in prepareFromSearch. " + e);
+            }
         }
 
         @Override
         public void prepareFromUri(Uri uri, Bundle extras) {
+            try {
+                mBinder.prepareFromUri(uri, extras);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Dead object in prepareFromUri. " + e);
+            }
         }
 
         @Override
