@@ -101,6 +101,7 @@
      <public type="attr" name="dividerVertical"/>
      <public type="attr" name="drawableSize"/>
      <public type="attr" name="drawerArrowStyle"/>
+     <public type="attr" name="dropDownListViewStyle"/>
      <public type="attr" name="editTextBackground"/>
      <public type="attr" name="editTextColor"/>
      <public type="attr" name="editTextStyle"/>
@@ -113,9 +114,9 @@
      <public type="attr" name="homeLayout"/>
      <public type="attr" name="icon"/>
      <public type="attr" name="iconifiedByDefault"/>
+     <public type="attr" name="imageButtonStyle"/>
      <public type="attr" name="indeterminateProgressStyle"/>
      <public type="attr" name="isLightTheme"/>
-     <public type="attr" name="imageButtonStyle"/>
      <public type="attr" name="itemPadding"/>
      <public type="attr" name="layout"/>
      <public type="attr" name="listChoiceBackgroundIndicator"/>
@@ -130,7 +131,6 @@
      <public type="attr" name="logoDescription"/>
      <public type="attr" name="maxButtonHeight" />
      <public type="attr" name="measureWithLargestChild"/>
-     <public type="attr" name="middleBarArrowSize"/>
      <public type="attr" name="navigationContentDescription"/>
      <public type="attr" name="navigationIcon"/>
      <public type="attr" name="navigationMode"/>
@@ -150,10 +150,10 @@
      <public type="attr" name="ratingBarStyle"/>
      <public type="attr" name="ratingBarStyleIndicator"/>
      <public type="attr" name="ratingBarStyleSmall"/>
-     <public type="attr" name="srcCompat"/>
      <public type="attr" name="searchHintIcon"/>
      <public type="attr" name="searchIcon"/>
      <public type="attr" name="searchViewStyle"/>
+     <public type="attr" name="seekBarStyle"/>
      <public type="attr" name="selectableItemBackground"/>
      <public type="attr" name="selectableItemBackgroundBorderless"/>
      <public type="attr" name="showAsAction"/>
@@ -163,6 +163,7 @@
      <public type="attr" name="spinnerDropDownItemStyle"/>
      <public type="attr" name="spinnerStyle"/>
      <public type="attr" name="splitTrack"/>
+     <public type="attr" name="srcCompat"/>
      <public type="attr" name="submitBackground"/>
      <public type="attr" name="subtitle"/>
      <public type="attr" name="subtitleTextAppearance"/>
