@@ -20,6 +20,7 @@ import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.os.Build;
+import android.support.annotation.Nullable;
 import android.support.v4.animation.AnimatorCompatHelper;
 import android.support.v4.animation.AnimatorListenerCompat;
 import android.support.v4.animation.AnimatorUpdateListenerCompat;
@@ -445,12 +446,14 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
 
     /**
      * Attaches the ItemTouchHelper to the provided RecyclerView. If TouchHelper is already
-     * attached
-     * to a RecyclerView, it will first detach from the previous one.
+     * attached to a RecyclerView, it will first detach from the previous one. You can call this
+     * method with {@code null} to detach it from the current RecyclerView.
      *
-     * @param recyclerView The RecyclerView instance to which you want to add this helper.
+     * @param recyclerView The RecyclerView instance to which you want to add this helper or
+     *                     {@code null} if you want to remove ItemTouchHelper from the current
+     *                     RecyclerView.
      */
-    public void attachToRecyclerView(RecyclerView recyclerView) {
+    public void attachToRecyclerView(@Nullable RecyclerView recyclerView) {
         if (mRecyclerView == recyclerView) {
             return; // nothing to do
         }
