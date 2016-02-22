@@ -19,6 +19,7 @@ package android.support.v7.app;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
 import android.support.v7.appcompat.R;
@@ -87,6 +88,12 @@ public class AppCompatDialog extends Dialog implements AppCompatCallback {
     @Override
     public void setContentView(View view, ViewGroup.LayoutParams params) {
         getDelegate().setContentView(view, params);
+    }
+
+    @Nullable
+    @Override
+    public View findViewById(@IdRes int id) {
+        return getDelegate().findViewById(id);
     }
 
     @Override
