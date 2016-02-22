@@ -108,26 +108,56 @@ public class MediaSessionCompat {
 
     /**
      * Custom action to invoke playFromUri() for the forward compatibility.
-     *
-     * @hide
      */
-    public static final String ACTION_PLAY_FROM_URI =
+    static final String ACTION_PLAY_FROM_URI =
             "android.support.v4.media.session.action.PLAY_FROM_URI";
 
     /**
-     * Argument for use with {@link #ACTION_PLAY_FROM_URI} indicating URI to play.
-     *
-     * @hide
+     * Custom action to invoke prepare() for the forward compatibility.
      */
-    public static final String ACTION_ARGUMENT_URI =
+    static final String ACTION_PREPARE = "android.support.v4.media.session.action.PREPARE";
+
+    /**
+     * Custom action to invoke prepareFromMediaId() for the forward compatibility.
+     */
+    static final String ACTION_PREPARE_FROM_MEDIA_ID =
+            "android.support.v4.media.session.action.PREPARE_FROM_MEDIA_ID";
+
+    /**
+     * Custom action to invoke prepareFromSearch() for the forward compatibility.
+     */
+    static final String ACTION_PREPARE_FROM_SEARCH =
+            "android.support.v4.media.session.action.PREPARE_FROM_SEARCH";
+
+    /**
+     * Custom action to invoke prepareFromUri() for the forward compatibility.
+     */
+    static final String ACTION_PREPARE_FROM_URI =
+            "android.support.v4.media.session.action.PREPARE_FROM_URI";
+
+    /**
+     * Argument for use with {@link #ACTION_PREPARE_FROM_MEDIA_ID} indicating media id to play.
+     */
+    static final String ACTION_ARGUMENT_MEDIA_ID =
+            "android.support.v4.media.session.action.ARGUMENT_MEDIA_ID";
+
+    /**
+     * Argument for use with {@link #ACTION_PREPARE_FROM_SEARCH} indicating search query.
+     */
+    static final String ACTION_ARGUMENT_QUERY =
+            "android.support.v4.media.session.action.ARGUMENT_QUERY";
+
+    /**
+     * Argument for use with {@link #ACTION_PREPARE_FROM_URI} and {@link #ACTION_PLAY_FROM_URI}
+     * indicating URI to play.
+     */
+    static final String ACTION_ARGUMENT_URI =
             "android.support.v4.media.session.action.ARGUMENT_URI";
 
     /**
-     * Argument for use with {@link #ACTION_PLAY_FROM_URI} indicating extra bundle.
-     *
-     * @hide
+     * Argument for use with various actions indicating extra bundle.
      */
-    public static final String ACTION_ARGUMENT_EXTRAS =
+    static final String ACTION_ARGUMENT_EXTRAS =
             "android.support.v4.media.session.action.ARGUMENT_EXTRAS";
 
     /**
@@ -785,9 +815,23 @@ public class MediaSessionCompat {
             @Override
             public void onCustomAction(String action, Bundle extras) {
                 if (action.equals(ACTION_PLAY_FROM_URI)) {
-                    Uri uri = (Uri) extras.getParcelable(ACTION_ARGUMENT_URI);
-                    Bundle bundle = (Bundle) extras.getParcelable(ACTION_ARGUMENT_EXTRAS);
+                    Uri uri = extras.getParcelable(ACTION_ARGUMENT_URI);
+                    Bundle bundle = extras.getParcelable(ACTION_ARGUMENT_EXTRAS);
                     Callback.this.onPlayFromUri(uri, bundle);
+                } else if (action.equals(ACTION_PREPARE)) {
+                    Callback.this.onPrepare();
+                } else if (action.equals(ACTION_PREPARE_FROM_MEDIA_ID)) {
+                    String mediaId = extras.getString(ACTION_ARGUMENT_MEDIA_ID);
+                    Bundle bundle = extras.getBundle(ACTION_ARGUMENT_EXTRAS);
+                    Callback.this.onPrepareFromMediaId(mediaId, bundle);
+                } else if (action.equals(ACTION_PREPARE_FROM_SEARCH)) {
+                    String query = extras.getString(ACTION_ARGUMENT_QUERY);
+                    Bundle bundle = extras.getBundle(ACTION_ARGUMENT_EXTRAS);
+                    Callback.this.onPrepareFromSearch(query, bundle);
+                } else if (action.equals(ACTION_PREPARE_FROM_URI)) {
+                    Uri uri = extras.getParcelable(ACTION_ARGUMENT_URI);
+                    Bundle bundle = extras.getBundle(ACTION_ARGUMENT_EXTRAS);
+                    Callback.this.onPrepareFromUri(uri, bundle);
                 } else {
                     Callback.this.onCustomAction(action, extras);
                 }

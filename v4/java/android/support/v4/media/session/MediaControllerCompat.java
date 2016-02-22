@@ -1367,18 +1367,31 @@ public final class MediaControllerCompat {
 
         @Override
         public void prepare() {
+            sendCustomAction(MediaSessionCompat.ACTION_PREPARE, null);
         }
 
         @Override
         public void prepareFromMediaId(String mediaId, Bundle extras) {
+            Bundle bundle = new Bundle();
+            bundle.putString(MediaSessionCompat.ACTION_ARGUMENT_MEDIA_ID, mediaId);
+            bundle.putBundle(MediaSessionCompat.ACTION_ARGUMENT_EXTRAS, extras);
+            sendCustomAction(MediaSessionCompat.ACTION_PREPARE_FROM_MEDIA_ID, bundle);
         }
 
         @Override
         public void prepareFromSearch(String query, Bundle extras) {
+            Bundle bundle = new Bundle();
+            bundle.putString(MediaSessionCompat.ACTION_ARGUMENT_QUERY, query);
+            bundle.putBundle(MediaSessionCompat.ACTION_ARGUMENT_EXTRAS, extras);
+            sendCustomAction(MediaSessionCompat.ACTION_PREPARE_FROM_SEARCH, bundle);
         }
 
         @Override
         public void prepareFromUri(Uri uri, Bundle extras) {
+            Bundle bundle = new Bundle();
+            bundle.putParcelable(MediaSessionCompat.ACTION_ARGUMENT_URI, uri);
+            bundle.putBundle(MediaSessionCompat.ACTION_ARGUMENT_EXTRAS, extras);
+            sendCustomAction(MediaSessionCompat.ACTION_PREPARE_FROM_URI, bundle);
         }
 
         @Override
