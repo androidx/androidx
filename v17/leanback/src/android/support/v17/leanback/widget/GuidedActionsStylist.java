@@ -610,6 +610,8 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             vh.mTitleView.setText(action.getTitle());
             vh.mTitleView.setAlpha(action.isEnabled() ? mEnabledTextAlpha : mDisabledTextAlpha);
             vh.mTitleView.setFocusable(false);
+            vh.mTitleView.setClickable(false);
+            vh.mTitleView.setLongClickable(false);
         }
         if (vh.mDescriptionView != null) {
             vh.mDescriptionView.setText(action.getDescription());
@@ -618,6 +620,8 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             vh.mDescriptionView.setAlpha(action.isEnabled() ? mEnabledDescriptionAlpha :
                 mDisabledDescriptionAlpha);
             vh.mDescriptionView.setFocusable(false);
+            vh.mDescriptionView.setClickable(false);
+            vh.mDescriptionView.setLongClickable(false);
         }
         // Clients might want the check mark view to be gone entirely, in which case, ignore it.
         if (vh.mCheckmarkView != null) {

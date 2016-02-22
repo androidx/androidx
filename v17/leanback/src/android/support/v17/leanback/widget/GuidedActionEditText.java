@@ -20,9 +20,10 @@ import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.widget.EditText;
 import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.widget.EditText;
+import android.widget.TextView;
 
 /**
  * A custom EditText that satisfies the IME key monitoring requirements of GuidedStepFragment.
@@ -97,10 +98,7 @@ public class GuidedActionEditText extends EditText implements ImeKeyMonitor {
     @Override
     public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
         super.onInitializeAccessibilityNodeInfo(info);
-        // Dont let the TextView gets accessibility focus if it's not focused.
-        if (!isFocused()) {
-            info.setVisibleToUser(false);
-        }
+        info.setClassName(isFocused() ? EditText.class.getName() : TextView.class.getName());
     }
 
     @Override
