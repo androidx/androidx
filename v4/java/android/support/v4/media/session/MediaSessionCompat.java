@@ -533,7 +533,9 @@ public class MediaSessionCompat {
         final Object mCallbackObj;
 
         public Callback() {
-            if (android.os.Build.VERSION.SDK_INT >= 23) {
+            if (android.os.Build.VERSION.SDK_INT >= 24) {
+                mCallbackObj = MediaSessionCompatApi24.createCallback(new StubApi24());
+            } else if (android.os.Build.VERSION.SDK_INT >= 23) {
                 mCallbackObj = MediaSessionCompatApi23.createCallback(new StubApi23());
             } else if (android.os.Build.VERSION.SDK_INT >= 21) {
                 mCallbackObj = MediaSessionCompatApi21.createCallback(new StubApi21());
@@ -562,6 +564,51 @@ public class MediaSessionCompat {
          */
         public boolean onMediaButtonEvent(Intent mediaButtonEvent) {
             return false;
+        }
+
+        /**
+         * Override to handle requests to prepare playback. During the preparation, a session
+         * should not hold audio focus in order to allow other session play seamlessly.
+         * The state of playback should be updated to {@link PlaybackStateCompat#STATE_PAUSED}
+         * after the preparation is done.
+         */
+        public void onPrepare() {
+        }
+
+        /**
+         * Override to handle requests to prepare for playing a specific mediaId that was provided
+         * by your app. During the preparation, a session should not hold audio focus in order to
+         * allow other session play seamlessly. The state of playback should be updated to
+         * {@link PlaybackStateCompat#STATE_PAUSED} after the preparation is done. The playback
+         * of the prepared content should start in the implementation of {@link #onPlay}. Override
+         * {@link #onPlayFromMediaId} to handle requests for starting playback without preparation.
+         */
+        public void onPrepareFromMediaId(String mediaId, Bundle extras) {
+        }
+
+        /**
+         * Override to handle requests to prepare playback from a search query. An
+         * empty query indicates that the app may prepare any music. The
+         * implementation should attempt to make a smart choice about what to
+         * play. During the preparation, a session should not hold audio focus in order to allow
+         * other session play seamlessly. The state of playback should be updated to
+         * {@link PlaybackStateCompat#STATE_PAUSED} after the preparation is done.
+         * The playback of the prepared content should start in the implementation of
+         * {@link #onPlay}. Override {@link #onPlayFromSearch} to handle requests for
+         * starting playback without preparation.
+         */
+        public void onPrepareFromSearch(String query, Bundle extras) {
+        }
+
+        /**
+         * Override to handle requests to prepare a specific media item represented by a URI.
+         * During the preparation, a session should not hold audio focus in order to allow other
+         * session play seamlessly. The state of playback should be updated to
+         * {@link PlaybackStateCompat#STATE_PAUSED} after the preparation is done. The playback of
+         * the prepared content should start in the implementation of {@link #onPlay}. Override
+         * {@link #onPlayFromUri} to handle requests for starting playback without preparation.
+         */
+        public void onPrepareFromUri(Uri uri, Bundle extras) {
         }
 
         /**
@@ -752,6 +799,29 @@ public class MediaSessionCompat {
             @Override
             public void onPlayFromUri(Uri uri, Bundle extras) {
                 Callback.this.onPlayFromUri(uri, extras);
+            }
+        }
+
+        private class StubApi24 extends StubApi23 implements MediaSessionCompatApi24.Callback {
+
+            @Override
+            public void onPrepare() {
+                Callback.this.onPrepare();
+            }
+
+            @Override
+            public void onPrepareFromMediaId(String mediaId, Bundle extras) {
+                Callback.this.onPrepareFromMediaId(mediaId, extras);
+            }
+
+            @Override
+            public void onPrepareFromSearch(String query, Bundle extras) {
+                Callback.this.onPrepareFromSearch(query, extras);
+            }
+
+            @Override
+            public void onPrepareFromUri(Uri uri, Bundle extras) {
+                Callback.this.onPrepareFromUri(uri, extras);
             }
         }
     }

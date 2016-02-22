@@ -69,7 +69,9 @@ public final class MediaControllerCompat {
         }
         mToken = session.getSessionToken();
 
-        if (android.os.Build.VERSION.SDK_INT >= 23) {
+        if (android.os.Build.VERSION.SDK_INT >= 24) {
+            mImpl = new MediaControllerImplApi24(context, session);
+        } else if (android.os.Build.VERSION.SDK_INT >= 23) {
             mImpl = new MediaControllerImplApi23(context, session);
         } else if (android.os.Build.VERSION.SDK_INT >= 21) {
             mImpl = new MediaControllerImplApi21(context, session);
@@ -92,7 +94,9 @@ public final class MediaControllerCompat {
         }
         mToken = sessionToken;
 
-        if (android.os.Build.VERSION.SDK_INT >= 23) {
+        if (android.os.Build.VERSION.SDK_INT >= 24) {
+            mImpl = new MediaControllerImplApi24(context, sessionToken);
+        } else if (android.os.Build.VERSION.SDK_INT >= 23) {
             mImpl = new MediaControllerImplApi23(context, sessionToken);
         } else if (android.os.Build.VERSION.SDK_INT >= 21) {
             mImpl = new MediaControllerImplApi21(context, sessionToken);
@@ -573,6 +577,62 @@ public final class MediaControllerCompat {
         }
 
         /**
+         * Request that the player prepare its playback without audio focus. In other words, other
+         * session can continue to play during the preparation of this session. This method can be
+         * used to speed up the start of the playback. Once the preparation is done, the session
+         * will change its playback state to {@link PlaybackStateCompat#STATE_PAUSED}. Afterwards,
+         * {@link #play} can be called to start playback. If the preparation is not needed,
+         * {@link #play} can be directly called without this method.
+         */
+        public abstract void prepare();
+
+        /**
+         * Request that the player prepare playback for a specific media id. In other words, other
+         * session can continue to play during the preparation of this session. This method can be
+         * used to speed up the start of the playback. Once the preparation is
+         * done, the session will change its playback state to
+         * {@link PlaybackStateCompat#STATE_PAUSED}. Afterwards, {@link #play} can be called to
+         * start playback. If the preparation is not needed, {@link #playFromMediaId} can
+         * be directly called without this method.
+         *
+         * @param mediaId The id of the requested media.
+         * @param extras Optional extras that can include extra information about the media item
+         *               to be prepared.
+         */
+        public abstract void prepareFromMediaId(String mediaId, Bundle extras);
+
+        /**
+         * Request that the player prepare playback for a specific search query.
+         * An empty or null query should be treated as a request to prepare any
+         * music. In other words, other session can continue to play during
+         * the preparation of this session. This method can be used to speed up the start of the
+         * playback. Once the preparation is done, the session will change its playback state to
+         * {@link PlaybackStateCompat#STATE_PAUSED}. Afterwards, {@link #play} can be called to
+         * start playback. If the preparation is not needed, {@link #playFromSearch} can be directly
+         * called without this method.
+         *
+         * @param query The search query.
+         * @param extras Optional extras that can include extra information
+         *               about the query.
+         */
+        public abstract void prepareFromSearch(String query, Bundle extras);
+
+        /**
+         * Request that the player prepare playback for a specific {@link Uri}.
+         * In other words, other session can continue to play during the preparation of this
+         * session. This method can be used to speed up the start of the playback.
+         * Once the preparation is done, the session will change its playback state to
+         * {@link PlaybackStateCompat#STATE_PAUSED}. Afterwards, {@link #play} can be called to
+         * start playback. If the preparation is not needed, {@link #playFromUri} can be directly
+         * called without this method.
+         *
+         * @param uri The URI of the requested media.
+         * @param extras Optional extras that can include extra information about the media item
+         *               to be prepared.
+         */
+        public abstract void prepareFromUri(Uri uri, Bundle extras);
+
+        /**
          * Request that the player start its playback at its current position.
          */
         public abstract void play();
@@ -1007,6 +1067,22 @@ public final class MediaControllerCompat {
         }
 
         @Override
+        public void prepare() {
+        }
+
+        @Override
+        public void prepareFromMediaId(String mediaId, Bundle extras) {
+        }
+
+        @Override
+        public void prepareFromSearch(String query, Bundle extras) {
+        }
+
+        @Override
+        public void prepareFromUri(Uri uri, Bundle extras) {
+        }
+
+        @Override
         public void play() {
             try {
                 mBinder.play();
@@ -1270,6 +1346,22 @@ public final class MediaControllerCompat {
         }
 
         @Override
+        public void prepare() {
+        }
+
+        @Override
+        public void prepareFromMediaId(String mediaId, Bundle extras) {
+        }
+
+        @Override
+        public void prepareFromSearch(String query, Bundle extras) {
+        }
+
+        @Override
+        public void prepareFromUri(Uri uri, Bundle extras) {
+        }
+
+        @Override
         public void play() {
             MediaControllerCompatApi21.TransportControls.play(mControlsObj);
         }
@@ -1387,4 +1479,52 @@ public final class MediaControllerCompat {
                     extras);
         }
     }
+
+    static class MediaControllerImplApi24 extends MediaControllerImplApi23 {
+
+        public MediaControllerImplApi24(Context context, MediaSessionCompat session) {
+            super(context, session);
+        }
+
+        public MediaControllerImplApi24(Context context, MediaSessionCompat.Token sessionToken)
+                throws RemoteException {
+            super(context, sessionToken);
+        }
+
+        @Override
+        public TransportControls getTransportControls() {
+            Object controlsObj = MediaControllerCompatApi21.getTransportControls(mControllerObj);
+            return controlsObj != null ? new TransportControlsApi24(controlsObj) : null;
+        }
+    }
+
+    static class TransportControlsApi24 extends TransportControlsApi23 {
+
+        public TransportControlsApi24(Object controlsObj) {
+            super(controlsObj);
+        }
+
+        @Override
+        public void prepare() {
+            MediaControllerCompatApi24.TransportControls.prepare(mControlsObj);
+        }
+
+        @Override
+        public void prepareFromMediaId(String mediaId, Bundle extras) {
+            MediaControllerCompatApi24.TransportControls.prepareFromMediaId(
+                    mControlsObj, mediaId, extras);
+        }
+
+        @Override
+        public void prepareFromSearch(String query, Bundle extras) {
+            MediaControllerCompatApi24.TransportControls.prepareFromSearch(
+                    mControlsObj, query, extras);
+        }
+
+        @Override
+        public void prepareFromUri(Uri uri, Bundle extras) {
+            MediaControllerCompatApi24.TransportControls.prepareFromUri(mControlsObj, uri, extras);
+        }
+    }
+
 }
