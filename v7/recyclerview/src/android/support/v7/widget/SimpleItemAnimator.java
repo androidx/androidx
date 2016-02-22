@@ -226,8 +226,12 @@ abstract public class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      * {@link Adapter#notifyItemRangeChanged(int, int)}.
      * <p>
      * Implementers can choose whether and how to animate changes, but must always call
-     * {@link #dispatchChangeFinished(ViewHolder, boolean)} for each non-null ViewHolder,
+     * {@link #dispatchChangeFinished(ViewHolder, boolean)} for each non-null distinct ViewHolder,
      * either immediately (if no animation will occur) or after the animation actually finishes.
+     * If the {@code oldHolder} is the same ViewHolder as the {@code newHolder}, you must call
+     * {@link #dispatchChangeFinished(ViewHolder, boolean)} once and only once. In that case, the
+     * second parameter of {@code dispatchChangeFinished} is ignored.
+     * <p>
      * The return value indicates whether an animation has been set up and whether the
      * ItemAnimator's {@link #runPendingAnimations()} method should be called at the
      * next opportunity. This mechanism allows ItemAnimator to set up individual animations
