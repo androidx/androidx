@@ -333,6 +333,9 @@
         <!-- The background used by framework controls. -->
         <attr name="controlBackground" format="reference" />
 
+        <!-- Default color of background imagery for floating components, ex. dialogs, popups, and cards. -->
+        <attr name="colorBackgroundFloating" format="color" />
+
         <!-- ============ -->
         <!-- Alert Dialog styles -->
         <!-- ============ -->

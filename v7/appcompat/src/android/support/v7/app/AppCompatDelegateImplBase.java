@@ -18,6 +18,7 @@ package android.support.v7.app;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.appcompat.R;
@@ -25,6 +26,7 @@ import android.support.v7.view.ActionMode;
 import android.support.v7.view.SupportMenuInflater;
 import android.support.v7.view.WindowCallbackWrapper;
 import android.support.v7.view.menu.MenuBuilder;
+import android.support.v7.widget.AppCompatDrawableManager;
 import android.support.v7.widget.TintTypedArray;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -33,6 +35,8 @@ import android.view.View;
 import android.view.Window;
 
 abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
+
+    private static final int[] sWindowBackgroundStyleable = {android.R.attr.windowBackground};
 
     final Context mContext;
     final Window mWindow;
@@ -73,6 +77,14 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
         mAppCompatWindowCallback = wrapWindowCallback(mOriginalWindowCallback);
         // Now install the new callback
         mWindow.setCallback(mAppCompatWindowCallback);
+
+        final TintTypedArray a = TintTypedArray.obtainStyledAttributes(
+                context, null, sWindowBackgroundStyleable);
+        final Drawable winBg = a.getDrawableIfKnown(0);
+        if (winBg != null) {
+            mWindow.setBackgroundDrawable(winBg);
+        }
+        a.recycle();
     }
 
     abstract void initWindowDecorActionBar();

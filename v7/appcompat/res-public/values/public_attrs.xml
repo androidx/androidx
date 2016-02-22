@@ -79,6 +79,7 @@
      <public type="attr" name="collapseIcon"/>
      <public type="attr" name="color"/>
      <public type="attr" name="colorAccent"/>
+     <public type="attr" name="colorBackgroundFloating"/>
      <public type="attr" name="colorButtonNormal"/>
      <public type="attr" name="colorControlActivated"/>
      <public type="attr" name="colorControlHighlight"/>
