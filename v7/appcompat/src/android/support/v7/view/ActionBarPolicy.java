@@ -21,6 +21,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.os.Build;
+import android.support.v4.content.res.ConfigurationHelper;
 import android.support.v4.view.ViewConfigurationCompat;
 import android.support.v7.appcompat.R;
 import android.util.DisplayMetrics;
@@ -50,27 +51,10 @@ public class ActionBarPolicy {
      * "always" items can override this.
      */
     public int getMaxActionButtons() {
-        final Configuration config = mContext.getResources().getConfiguration();
-        final int sdk = Build.VERSION.SDK_INT;
-
-        final int widthDp;
-        final int heightDp;
-        if (sdk >= Build.VERSION_CODES.HONEYCOMB_MR1) {
-            widthDp = config.screenWidthDp;
-            heightDp = config.screenHeightDp;
-        } else {
-            final DisplayMetrics metrics = mContext.getResources().getDisplayMetrics();
-            widthDp = (int) (metrics.widthPixels / metrics.density);
-            heightDp = (int) (metrics.heightPixels / metrics.density);
-        }
-
-        final int smallest;
-        if (sdk >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            smallest = config.smallestScreenWidthDp;
-        } else {
-            // Not quite perfect but close enough
-            smallest = Math.min(widthDp, heightDp);
-        }
+        final Resources res = mContext.getResources();
+        final int widthDp = ConfigurationHelper.getScreenWidthDp(res);
+        final int heightDp = ConfigurationHelper.getScreenHeightDp(res);
+        final int smallest = ConfigurationHelper.getSmallestScreenWidthDp(res);
 
         if (smallest > 600 || widthDp > 600 || (widthDp > 960 && heightDp > 720)
                 || (widthDp > 720 && heightDp > 960)) {
