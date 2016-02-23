@@ -40,7 +40,14 @@ final class MediaRouterJellybeanMr1 {
         }
 
         public static Display getPresentationDisplay(Object routeObj) {
-            return ((android.media.MediaRouter.RouteInfo)routeObj).getPresentationDisplay();
+            // android.media.MediaRouter.RouteInfo.getPresentationDisplay() was
+            // added in API 17. However, some factory releases of JB MR1 missed it.
+            try {
+                return ((android.media.MediaRouter.RouteInfo)routeObj).getPresentationDisplay();
+            } catch (NoSuchMethodError ex) {
+                Log.w(TAG, "Cannot get presentation display for the route.", ex);
+            }
+            return null;
         }
     }
 
