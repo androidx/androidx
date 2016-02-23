@@ -32,7 +32,7 @@ limitations under the License.
     <string name="lb_playback_controls_rewind_multiplier" msgid="1640629531440849942">"Derulați înapoi cu %1$dX"</string>
     <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"Ignoră articolul următor"</string>
     <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"Ignoră articolul anterior"</string>
-    <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"Mai multe acţiuni"</string>
+    <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"Mai multe acțiuni"</string>
     <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"Deselectează „Îmi place”"</string>
     <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"Selectează „Îmi place”"</string>
     <string name="lb_playback_controls_thumb_down" msgid="4498041193172964797">"Deselectează „Nu-mi place”"</string>
@@ -46,4 +46,6 @@ limitations under the License.
     <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"Dezactivează calitatea înaltă"</string>
     <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"Activează subtitrările"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"Dezactivează subtitrările"</string>
+    <string name="lb_guidedaction_finish_title" msgid="4015190340667946245">"Finalizați"</string>
+    <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"Continuați"</string>
 </resources>
