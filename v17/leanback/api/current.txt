@@ -72,6 +72,7 @@ package android.support.v17.leanback.app {
     method public void setHeaderPresenterSelector(android.support.v17.leanback.widget.PresenterSelector);
     method public void setHeadersState(int);
     method public final void setHeadersTransitionOnBackEnabled(boolean);
+    method public void setMainFragmentAdapterFactory(android.support.v17.leanback.app.BrowseFragment.MainFragmentAdapterFactory);
     method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.OnItemViewClickedListener);
     method public void setOnItemViewSelectedListener(android.support.v17.leanback.widget.OnItemViewSelectedListener);
     method public void setSelectedPosition(int);
@@ -83,10 +84,37 @@ package android.support.v17.leanback.app {
     field public static final int HEADERS_HIDDEN = 2; // 0x2
   }
 
+  public static abstract class BrowseFragment.AbstractMainFragmentAdapter {
+    ctor public BrowseFragment.AbstractMainFragmentAdapter();
+    method public abstract android.app.Fragment getFragment();
+    method public int getSelectedPosition();
+    method public boolean isScrolling();
+    method public void onExpandTransitionStart(boolean, java.lang.Runnable);
+    method public void onTransitionEnd();
+    method public boolean onTransitionPrepare();
+    method public void onTransitionStart();
+    method public void setAdapter(android.support.v17.leanback.widget.ObjectAdapter);
+    method public void setAlignment(int);
+    method public void setEntranceTransitionState(boolean);
+    method public void setExpand(boolean);
+    method public void setMarginStart(int);
+    method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.OnItemViewClickedListener);
+    method public void setOnItemViewSelectedListener(android.support.v17.leanback.widget.OnItemViewSelectedListener);
+    method public void setScalingEnabled(boolean);
+    method public void setSelectedPosition(int, boolean, android.support.v17.leanback.widget.Presenter.ViewHolderTask);
+    method public void setSelectedPosition(int, boolean);
+  }
+
   public static class BrowseFragment.BrowseTransitionListener {
     ctor public BrowseFragment.BrowseTransitionListener();
     method public void onHeadersTransitionStart(boolean);
     method public void onHeadersTransitionStop(boolean);
+  }
+
+  public static abstract class BrowseFragment.MainFragmentAdapterFactory {
+    ctor public BrowseFragment.MainFragmentAdapterFactory();
+    method public android.support.v17.leanback.app.BrowseFragment.AbstractMainFragmentAdapter getAdapter(android.support.v17.leanback.widget.ObjectAdapter, int);
+    method public abstract android.support.v17.leanback.app.BrowseFragment.AbstractMainFragmentAdapter getPageFragmentAdapter();
   }
 
   public class BrowseSupportFragment extends android.support.v17.leanback.app.BrandedSupportFragment {
@@ -117,6 +145,7 @@ package android.support.v17.leanback.app {
     method public void setHeaderPresenterSelector(android.support.v17.leanback.widget.PresenterSelector);
     method public void setHeadersState(int);
     method public final void setHeadersTransitionOnBackEnabled(boolean);
+    method public void setMainSupportFragmentAdapterFactory(android.support.v17.leanback.app.BrowseSupportFragment.MainSupportFragmentAdapterFactory);
     method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.OnItemViewClickedListener);
     method public void setOnItemViewSelectedListener(android.support.v17.leanback.widget.OnItemViewSelectedListener);
     method public void setSelectedPosition(int);
@@ -128,10 +157,37 @@ package android.support.v17.leanback.app {
     field public static final int HEADERS_HIDDEN = 2; // 0x2
   }
 
+  public static abstract class BrowseSupportFragment.AbstractMainFragmentAdapter {
+    ctor public BrowseSupportFragment.AbstractMainFragmentAdapter();
+    method public abstract android.support.v4.app.Fragment getFragment();
+    method public int getSelectedPosition();
+    method public boolean isScrolling();
+    method public void onExpandTransitionStart(boolean, java.lang.Runnable);
+    method public void onTransitionEnd();
+    method public boolean onTransitionPrepare();
+    method public void onTransitionStart();
+    method public void setAdapter(android.support.v17.leanback.widget.ObjectAdapter);
+    method public void setAlignment(int);
+    method public void setEntranceTransitionState(boolean);
+    method public void setExpand(boolean);
+    method public void setMarginStart(int);
+    method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.OnItemViewClickedListener);
+    method public void setOnItemViewSelectedListener(android.support.v17.leanback.widget.OnItemViewSelectedListener);
+    method public void setScalingEnabled(boolean);
+    method public void setSelectedPosition(int, boolean, android.support.v17.leanback.widget.Presenter.ViewHolderTask);
+    method public void setSelectedPosition(int, boolean);
+  }
+
   public static class BrowseSupportFragment.BrowseTransitionListener {
     ctor public BrowseSupportFragment.BrowseTransitionListener();
     method public void onHeadersTransitionStart(boolean);
     method public void onHeadersTransitionStop(boolean);
+  }
+
+  public static abstract class BrowseSupportFragment.MainSupportFragmentAdapterFactory {
+    ctor public BrowseSupportFragment.MainSupportFragmentAdapterFactory();
+    method public android.support.v17.leanback.app.BrowseSupportFragment.AbstractMainFragmentAdapter getAdapter(android.support.v17.leanback.widget.ObjectAdapter, int);
+    method public abstract android.support.v17.leanback.app.BrowseSupportFragment.AbstractMainFragmentAdapter getPageFragmentAdapter();
   }
 
   public class DetailsFragment extends android.support.v17.leanback.app.BrandedFragment {
@@ -562,10 +618,16 @@ package android.support.v17.leanback.app {
     method public void onExpandTransitionStart(boolean, java.lang.Runnable);
     method public void setEntranceTransitionState(boolean);
     method public void setExpand(boolean);
+    method public void setMarginStart(int);
     method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.OnItemViewClickedListener);
     method public void setOnItemViewSelectedListener(android.support.v17.leanback.widget.OnItemViewSelectedListener);
     method public void setScalingEnabled(boolean);
     method public void setSelectedPosition(int, boolean, android.support.v17.leanback.widget.Presenter.ViewHolderTask);
+  }
+
+  public class RowsFragmentAdapter extends android.support.v17.leanback.app.BrowseFragment.AbstractMainFragmentAdapter {
+    ctor public RowsFragmentAdapter();
+    method public android.app.Fragment getFragment();
   }
 
   public class RowsSupportFragment extends android.support.v17.leanback.app.BaseRowSupportFragment {
@@ -579,10 +641,16 @@ package android.support.v17.leanback.app {
     method public void onExpandTransitionStart(boolean, java.lang.Runnable);
     method public void setEntranceTransitionState(boolean);
     method public void setExpand(boolean);
+    method public void setMarginStart(int);
     method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.OnItemViewClickedListener);
     method public void setOnItemViewSelectedListener(android.support.v17.leanback.widget.OnItemViewSelectedListener);
     method public void setScalingEnabled(boolean);
     method public void setSelectedPosition(int, boolean, android.support.v17.leanback.widget.Presenter.ViewHolderTask);
+  }
+
+  public class RowsSupportFragmentAdapter extends android.support.v17.leanback.app.BrowseSupportFragment.AbstractMainFragmentAdapter {
+    ctor public RowsSupportFragmentAdapter();
+    method public android.support.v4.app.Fragment getFragment();
   }
 
   public class SearchFragment extends android.app.Fragment {
@@ -1491,6 +1559,10 @@ package android.support.v17.leanback.widget {
 
   public abstract interface OnItemViewSelectedListener {
     method public abstract void onItemSelected(android.support.v17.leanback.widget.Presenter.ViewHolder, java.lang.Object, android.support.v17.leanback.widget.RowPresenter.ViewHolder, android.support.v17.leanback.widget.Row);
+  }
+
+  public class PageRow extends android.support.v17.leanback.widget.Row {
+    ctor public PageRow(android.support.v17.leanback.widget.HeaderItem);
   }
 
   public class PlaybackControlsRow extends android.support.v17.leanback.widget.Row {

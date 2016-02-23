@@ -49,7 +49,7 @@ import java.util.ArrayList;
  * of {@link android.support.v17.leanback.widget.Row}.
  * </p>
  */
-public class RowsSupportFragment extends BaseRowSupportFragment implements BrowseSupportFragment.MainFragment {
+public class RowsSupportFragment extends BaseRowSupportFragment {
 
     /**
      * Internal helper class that manages row select animation and apply a default
@@ -122,6 +122,7 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements Brows
     private boolean mRowScaleEnabled;
     private ScaleFrameLayout mScaleFrameLayout;
     private boolean mAfterEntranceTransition = true;
+    private int marginStart;
 
     private OnItemViewSelectedListener mOnItemViewSelectedListener;
     private OnItemViewClickedListener mOnItemViewClickedListener;
@@ -175,7 +176,8 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements Brows
             if (DEBUG) Log.v(TAG, "setExpand " + expand + " count " + count);
             for (int i = 0; i < count; i++) {
                 View view = listView.getChildAt(i);
-                ItemBridgeAdapter.ViewHolder vh = (ItemBridgeAdapter.ViewHolder) listView.getChildViewHolder(view);
+                ItemBridgeAdapter.ViewHolder vh
+                        = (ItemBridgeAdapter.ViewHolder) listView.getChildViewHolder(view);
                 setRowViewExpanded(vh, mExpand);
             }
         }
@@ -279,6 +281,10 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements Brows
         getVerticalGridView().setItemAlignmentViewId(R.id.row_content);
         getVerticalGridView().setSaveChildrenPolicy(VerticalGridView.SAVE_LIMITED_CHILD);
 
+        applyStartMargin();
+        setExpand(mExpand);
+        setAlignment(mAlignedTop);
+
         mRecycledViewPool = null;
         mPresenterMapper = null;
     }
@@ -287,6 +293,21 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements Brows
     public void onDestroyView() {
         mViewsCreated = false;
         super.onDestroyView();
+    }
+
+    public void setMarginStart(int marginStart) {
+        this.marginStart = marginStart;
+        applyStartMargin();
+    }
+
+    private void applyStartMargin() {
+        ViewGroup.MarginLayoutParams lp;
+        View root = getView();
+        if (root != null) {
+            lp = (ViewGroup.MarginLayoutParams) root.getLayoutParams();
+            lp.setMarginStart(marginStart);
+            root.setLayoutParams(lp);
+        }
     }
 
     void setExternalAdapterListener(ItemBridgeAdapter.AdapterListener listener) {
@@ -306,8 +327,10 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements Brows
     void setScalePivots(float pivotX, float pivotY) {
         // set pivot on ScaleFrameLayout, it will be propagated to its child VerticalGridView
         // where we actually change scale.
-        mScaleFrameLayout.setPivotX(pivotX);
-        mScaleFrameLayout.setPivotY(pivotY);
+        if (mScaleFrameLayout != null) {
+            mScaleFrameLayout.setPivotX(pivotX);
+            mScaleFrameLayout.setPivotY(pivotY);
+        }
     }
 
     private static void setRowViewExpanded(ItemBridgeAdapter.ViewHolder vh, boolean expanded) {
@@ -478,7 +501,6 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements Brows
         }
     }
 
-    @Override
     public void onExpandTransitionStart(boolean expand, final Runnable callback) {
         if (expand) {
             callback.run();
@@ -533,7 +555,6 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements Brows
      * For rows that willing to participate entrance transition,  this function
      * hide views if afterTransition is true,  show views if afterTransition is false.
      */
-    @Override
     public void setEntranceTransitionState(boolean afterTransition) {
         mAfterEntranceTransition = afterTransition;
         VerticalGridView verticalView = getVerticalGridView();
@@ -590,12 +611,10 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements Brows
         return rowPresenter.getRowViewHolder(ibvh.getViewHolder());
     }
 
-    @Override
     public void setScalingEnabled(boolean enable) {
         mRowScaleEnabled = enable;
     }
 
-    @Override
     public boolean isScrolling() {
         return getVerticalGridView().getScrollState() != HorizontalGridView.SCROLL_STATE_IDLE;
     }
@@ -605,6 +624,7 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements Brows
         mAlignedTop = windowAlignOffsetFromTop;
         setScalePivots(0, windowAlignOffsetFromTop);
         final VerticalGridView gridView = getVerticalGridView();
+
         if (gridView != null) {
             gridView.setItemAlignmentOffset(0);
             gridView.setItemAlignmentOffsetPercent(
