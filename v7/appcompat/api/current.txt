@@ -530,6 +530,9 @@ package android.support.v7.appcompat {
     field public static int theme;
     field public static int thickness;
     field public static int thumbTextPadding;
+    field public static int tickMark;
+    field public static int tickMarkTint;
+    field public static int tickMarkTintMode;
     field public static int title;
     field public static int titleMargin;
     field public static int titleMarginBottom;
@@ -694,6 +697,7 @@ package android.support.v7.appcompat {
     field public static int abc_floating_window_z;
     field public static int abc_list_item_padding_horizontal_material;
     field public static int abc_panel_menu_list_width;
+    field public static int abc_progress_bar_height_material;
     field public static int abc_search_view_preferred_width;
     field public static int abc_seekbar_track_background_height_material;
     field public static int abc_seekbar_track_progress_height_material;
@@ -792,6 +796,7 @@ package android.support.v7.appcompat {
     field public static int abc_scrubber_primary_mtrl_alpha;
     field public static int abc_scrubber_track_mtrl_alpha;
     field public static int abc_seekbar_thumb_material;
+    field public static int abc_seekbar_tick_mark_material;
     field public static int abc_seekbar_track_material;
     field public static int abc_spinner_mtrl_am_alpha;
     field public static int abc_spinner_textfield_background_material;
@@ -826,6 +831,7 @@ package android.support.v7.appcompat {
     field public static int action_mode_bar_stub;
     field public static int action_mode_close_button;
     field public static int activity_chooser_view_content;
+    field public static int add;
     field public static int alertTitle;
     field public static int always;
     field public static int beginning;
@@ -1139,6 +1145,7 @@ package android.support.v7.appcompat {
     field public static int Base_Widget_AppCompat_SearchView;
     field public static int Base_Widget_AppCompat_SearchView_ActionBar;
     field public static int Base_Widget_AppCompat_SeekBar;
+    field public static int Base_Widget_AppCompat_SeekBar_Discrete;
     field public static int Base_Widget_AppCompat_Spinner;
     field public static int Base_Widget_AppCompat_Spinner_Underlined;
     field public static int Base_Widget_AppCompat_TextView_SpinnerItem;
@@ -1311,6 +1318,7 @@ package android.support.v7.appcompat {
     field public static int Widget_AppCompat_SearchView;
     field public static int Widget_AppCompat_SearchView_ActionBar;
     field public static int Widget_AppCompat_SeekBar;
+    field public static int Widget_AppCompat_SeekBar_Discrete;
     field public static int Widget_AppCompat_Spinner;
     field public static int Widget_AppCompat_Spinner_DropDown;
     field public static int Widget_AppCompat_Spinner_DropDown_ActionBar;
@@ -1375,6 +1383,11 @@ package android.support.v7.appcompat {
     field public static final int[] AppCompatImageView;
     field public static int AppCompatImageView_android_src;
     field public static int AppCompatImageView_srcCompat;
+    field public static final int[] AppCompatSeekBar;
+    field public static int AppCompatSeekBar_android_thumb;
+    field public static int AppCompatSeekBar_tickMark;
+    field public static int AppCompatSeekBar_tickMarkTint;
+    field public static int AppCompatSeekBar_tickMarkTintMode;
     field public static final int[] AppCompatTextView;
     field public static int AppCompatTextView_android_textAppearance;
     field public static int AppCompatTextView_textAllCaps;
