@@ -744,8 +744,6 @@ package android.support.v7.appcompat {
     field public static int abc_btn_radio_material;
     field public static int abc_btn_radio_off_mtrl;
     field public static int abc_btn_radio_on_mtrl;
-    field public static int abc_btn_rating_star_off_mtrl_alpha;
-    field public static int abc_btn_rating_star_on_mtrl_alpha;
     field public static int abc_btn_switch_to_on_mtrl_00001;
     field public static int abc_btn_switch_to_on_mtrl_00012;
     field public static int abc_cab_background_internal_bg;
@@ -766,11 +764,13 @@ package android.support.v7.appcompat {
     field public static int abc_ic_menu_paste_material;
     field public static int abc_ic_menu_selectall_material;
     field public static int abc_ic_menu_share_material;
-    field public static int abc_ic_search_api_mtrl_alpha;
+    field public static int abc_ic_search_api_material;
     field public static int abc_ic_star_black_16dp;
     field public static int abc_ic_star_black_36dp;
+    field public static int abc_ic_star_black_48dp;
     field public static int abc_ic_star_half_black_16dp;
     field public static int abc_ic_star_half_black_36dp;
+    field public static int abc_ic_star_half_black_48dp;
     field public static int abc_ic_voice_search_api_material;
     field public static int abc_item_background_holo_dark;
     field public static int abc_item_background_holo_light;
@@ -787,8 +787,8 @@ package android.support.v7.appcompat {
     field public static int abc_list_selector_holo_light;
     field public static int abc_menu_hardkey_panel_mtrl_mult;
     field public static int abc_popup_background_mtrl_mult;
-    field public static int abc_ratingbar_full_material;
     field public static int abc_ratingbar_indicator_material;
+    field public static int abc_ratingbar_material;
     field public static int abc_ratingbar_small_material;
     field public static int abc_scrubber_control_off_mtrl_alpha;
     field public static int abc_scrubber_control_to_pressed_mtrl_000;
