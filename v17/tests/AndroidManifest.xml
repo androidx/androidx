@@ -33,13 +33,18 @@
         <activity android:name="android.support.v17.leanback.widget.GridActivity"
             android:exported="true" />
 
+        <activity android:name=
+                          "android.support.v17.leanback.app.wizard.GuidedStepAttributesTestActivity"
+                  android:theme="@style/Theme.Leanback.GuidedStep"
+                  android:exported="true" />
+
         <activity android:name="android.support.v17.leanback.app.BrowseFragmentTestActivity"
-            android:theme="@style/Theme.Leanback.Browse"
-            android:exported="true" />
+                  android:theme="@style/Theme.Leanback.Browse"
+                  android:exported="true" />
 
         <activity android:name="android.support.v17.leanback.app.BrowseSupportFragmentTestActivity"
-            android:theme="@style/Theme.Leanback.Browse"
-            android:exported="true" />
+                  android:theme="@style/Theme.Leanback.Browse"
+                  android:exported="true" />
 
         </application>
 
