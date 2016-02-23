@@ -425,6 +425,11 @@
         <item name="android:paddingRight">16dip</item>
     </style>
 
+    <!-- A seek bar with tick marks at each progress value. -->
+    <style name="Base.Widget.AppCompat.SeekBar.Discrete">
+        <item name="tickMark">@drawable/abc_seekbar_tick_mark_material</item>
+    </style>
+
     <!-- Bordered ink button -->
     <style name="Base.Widget.AppCompat.Button" parent="android:Widget">
         <item name="android:background">@drawable/abc_btn_default_mtrl_shape</item>
