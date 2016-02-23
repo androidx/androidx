@@ -18,12 +18,17 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="5441529851481176817">"Sistema"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"Dispositivos"</string>
-    <string name="mr_button_content_description" msgid="8327680881775995150">"Transmitir"</string>
-    <string name="mr_chooser_title" msgid="7106830097177242655">"Conectar al dispositivo"</string>
-    <string name="mr_chooser_searching" msgid="7553005460920830010">"Buscando dispositivos…"</string>
-    <string name="mr_controller_disconnect" msgid="109793632378378069">"Desconectar"</string>
-    <string name="mr_controller_stop" msgid="5398645111664294430">"Detener transmisión"</string>
-    <string name="mr_media_route_controller_settings_description" msgid="379358765881274425">"Configuración de ruta"</string>
-    <string name="mr_controller_play" msgid="5214423499524760404">"Reproducir"</string>
-    <string name="mr_controller_pause" msgid="8315773974194466049">"Pausar"</string>
+    <string name="mr_button_content_description" msgid="3698378085901466129">"Botón para transmitir"</string>
+    <string name="mr_chooser_title" msgid="414301941546135990">"Transmitir a"</string>
+    <string name="mr_chooser_searching" msgid="6349900579507521956">"Buscando dispositivos"</string>
+    <string name="mr_controller_disconnect" msgid="1227264889412989580">"Desconectar"</string>
+    <string name="mr_controller_stop" msgid="4570331844078181931">"Detener la transmisión"</string>
+    <string name="mr_controller_close_description" msgid="7333862312480583260">"Cerrar"</string>
+    <string name="mr_controller_play" msgid="683634565969987458">"Reproducir"</string>
+    <string name="mr_controller_pause" msgid="5451884435510905406">"Pausar"</string>
+    <string name="mr_controller_expand_group" msgid="8062427022744266907">"Mostrar"</string>
+    <string name="mr_controller_collapse_group" msgid="7924809056904240926">"Ocultar"</string>
+    <string name="mr_controller_no_media_selected" msgid="6547130360349182381">"No se seleccionó ningún contenido multimedia"</string>
+    <string name="mr_controller_no_info_available" msgid="5585418471741142924">"Sin información disponible"</string>
+    <string name="mr_controller_casting_screen" msgid="4868457957151124867">"Transmitiendo pantalla"</string>
 </resources>
