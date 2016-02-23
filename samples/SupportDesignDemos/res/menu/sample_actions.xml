@@ -17,7 +17,7 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/action_search"
           android:title="@string/menu_search"
-          android:icon="@drawable/abc_ic_search_api_mtrl_alpha"
+          android:icon="@drawable/ic_search"
           app:showAsAction="ifRoom"/>
     <item android:id="@+id/action_settings"
           android:title="@string/menu_settings"
