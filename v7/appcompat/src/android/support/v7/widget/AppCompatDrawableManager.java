@@ -398,6 +398,9 @@ public final class AppCompatDrawableManager {
             colorAttr = android.R.attr.colorForeground;
             colorAttrSet = true;
             alpha = Math.round(0.16f * 255);
+        } else if (resId == R.drawable.abc_dialog_material_background) {
+            colorAttr = android.R.attr.colorBackground;
+            colorAttrSet = true;
         }
 
         if (colorAttrSet) {

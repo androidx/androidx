@@ -85,6 +85,8 @@
     <public type="style" name="ThemeOverlay.AppCompat.ActionBar"/>
     <public type="style" name="ThemeOverlay.AppCompat.Dark"/>
     <public type="style" name="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+    <public type="style" name="ThemeOverlay.AppCompat.Dialog"/>
+    <public type="style" name="ThemeOverlay.AppCompat.Dialog.Alert"/>
     <public type="style" name="ThemeOverlay.AppCompat.Light"/>
     <public type="style" name="Widget.AppCompat.ActionBar"/>
     <public type="style" name="Widget.AppCompat.ActionBar.Solid"/>
