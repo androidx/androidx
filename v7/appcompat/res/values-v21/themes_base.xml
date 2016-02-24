@@ -164,4 +164,10 @@
 
     <style name="Platform.ThemeOverlay.AppCompat.Light" />
 
+    <style name="Base.ThemeOverlay.AppCompat.Dialog" parent="Base.V21.ThemeOverlay.AppCompat.Dialog" />
+
+    <style name="Base.V21.ThemeOverlay.AppCompat.Dialog" parent="Base.V11.ThemeOverlay.AppCompat.Dialog">
+        <item name="android:windowElevation">@dimen/abc_floating_window_z</item>
+    </style>
+
 </resources>
