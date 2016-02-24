@@ -408,6 +408,7 @@ package android.support.v7.appcompat {
     field public static int collapseIcon;
     field public static int color;
     field public static int colorAccent;
+    field public static int colorBackgroundFloating;
     field public static int colorButtonNormal;
     field public static int colorControlActivated;
     field public static int colorControlHighlight;
@@ -752,8 +753,7 @@ package android.support.v7.appcompat {
     field public static int abc_cab_background_top_material;
     field public static int abc_cab_background_top_mtrl_alpha;
     field public static int abc_control_background_material;
-    field public static int abc_dialog_material_background_dark;
-    field public static int abc_dialog_material_background_light;
+    field public static int abc_dialog_material_background;
     field public static int abc_edit_text_material;
     field public static int abc_ic_ab_back_material;
     field public static int abc_ic_arrow_drop_right_black_24dp;
@@ -1061,6 +1061,8 @@ package android.support.v7.appcompat {
     field public static int Base_ThemeOverlay_AppCompat_ActionBar;
     field public static int Base_ThemeOverlay_AppCompat_Dark;
     field public static int Base_ThemeOverlay_AppCompat_Dark_ActionBar;
+    field public static int Base_ThemeOverlay_AppCompat_Dialog;
+    field public static int Base_ThemeOverlay_AppCompat_Dialog_Alert;
     field public static int Base_ThemeOverlay_AppCompat_Light;
     field public static int Base_Theme_AppCompat;
     field public static int Base_Theme_AppCompat_CompactMenu;
@@ -1076,10 +1078,12 @@ package android.support.v7.appcompat {
     field public static int Base_Theme_AppCompat_Light_Dialog_Alert;
     field public static int Base_Theme_AppCompat_Light_Dialog_FixedSize;
     field public static int Base_Theme_AppCompat_Light_Dialog_MinWidth;
+    field public static int Base_V11_ThemeOverlay_AppCompat_Dialog;
     field public static int Base_V11_Theme_AppCompat_Dialog;
     field public static int Base_V11_Theme_AppCompat_Light_Dialog;
     field public static int Base_V12_Widget_AppCompat_AutoCompleteTextView;
     field public static int Base_V12_Widget_AppCompat_EditText;
+    field public static int Base_V21_ThemeOverlay_AppCompat_Dialog;
     field public static int Base_V21_Theme_AppCompat;
     field public static int Base_V21_Theme_AppCompat_Dialog;
     field public static int Base_V21_Theme_AppCompat_Light;
@@ -1088,6 +1092,7 @@ package android.support.v7.appcompat {
     field public static int Base_V22_Theme_AppCompat_Light;
     field public static int Base_V23_Theme_AppCompat;
     field public static int Base_V23_Theme_AppCompat_Light;
+    field public static int Base_V7_ThemeOverlay_AppCompat_Dialog;
     field public static int Base_V7_Theme_AppCompat;
     field public static int Base_V7_Theme_AppCompat_Dialog;
     field public static int Base_V7_Theme_AppCompat_Light;
@@ -1232,6 +1237,8 @@ package android.support.v7.appcompat {
     field public static int ThemeOverlay_AppCompat_ActionBar;
     field public static int ThemeOverlay_AppCompat_Dark;
     field public static int ThemeOverlay_AppCompat_Dark_ActionBar;
+    field public static int ThemeOverlay_AppCompat_Dialog;
+    field public static int ThemeOverlay_AppCompat_Dialog_Alert;
     field public static int ThemeOverlay_AppCompat_Light;
     field public static int Theme_AppCompat;
     field public static int Theme_AppCompat_CompactMenu;
@@ -1441,6 +1448,7 @@ package android.support.v7.appcompat {
     field public static int AppCompatTheme_checkboxStyle;
     field public static int AppCompatTheme_checkedTextViewStyle;
     field public static int AppCompatTheme_colorAccent;
+    field public static int AppCompatTheme_colorBackgroundFloating;
     field public static int AppCompatTheme_colorButtonNormal;
     field public static int AppCompatTheme_colorControlActivated;
     field public static int AppCompatTheme_colorControlHighlight;
