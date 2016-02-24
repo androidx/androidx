@@ -108,26 +108,56 @@ public class MediaSessionCompat {
 
     /**
      * Custom action to invoke playFromUri() for the forward compatibility.
-     *
-     * @hide
      */
-    public static final String ACTION_PLAY_FROM_URI =
+    static final String ACTION_PLAY_FROM_URI =
             "android.support.v4.media.session.action.PLAY_FROM_URI";
 
     /**
-     * Argument for use with {@link #ACTION_PLAY_FROM_URI} indicating URI to play.
-     *
-     * @hide
+     * Custom action to invoke prepare() for the forward compatibility.
      */
-    public static final String ACTION_ARGUMENT_URI =
+    static final String ACTION_PREPARE = "android.support.v4.media.session.action.PREPARE";
+
+    /**
+     * Custom action to invoke prepareFromMediaId() for the forward compatibility.
+     */
+    static final String ACTION_PREPARE_FROM_MEDIA_ID =
+            "android.support.v4.media.session.action.PREPARE_FROM_MEDIA_ID";
+
+    /**
+     * Custom action to invoke prepareFromSearch() for the forward compatibility.
+     */
+    static final String ACTION_PREPARE_FROM_SEARCH =
+            "android.support.v4.media.session.action.PREPARE_FROM_SEARCH";
+
+    /**
+     * Custom action to invoke prepareFromUri() for the forward compatibility.
+     */
+    static final String ACTION_PREPARE_FROM_URI =
+            "android.support.v4.media.session.action.PREPARE_FROM_URI";
+
+    /**
+     * Argument for use with {@link #ACTION_PREPARE_FROM_MEDIA_ID} indicating media id to play.
+     */
+    static final String ACTION_ARGUMENT_MEDIA_ID =
+            "android.support.v4.media.session.action.ARGUMENT_MEDIA_ID";
+
+    /**
+     * Argument for use with {@link #ACTION_PREPARE_FROM_SEARCH} indicating search query.
+     */
+    static final String ACTION_ARGUMENT_QUERY =
+            "android.support.v4.media.session.action.ARGUMENT_QUERY";
+
+    /**
+     * Argument for use with {@link #ACTION_PREPARE_FROM_URI} and {@link #ACTION_PLAY_FROM_URI}
+     * indicating URI to play.
+     */
+    static final String ACTION_ARGUMENT_URI =
             "android.support.v4.media.session.action.ARGUMENT_URI";
 
     /**
-     * Argument for use with {@link #ACTION_PLAY_FROM_URI} indicating extra bundle.
-     *
-     * @hide
+     * Argument for use with various actions indicating extra bundle.
      */
-    public static final String ACTION_ARGUMENT_EXTRAS =
+    static final String ACTION_ARGUMENT_EXTRAS =
             "android.support.v4.media.session.action.ARGUMENT_EXTRAS";
 
     /**
@@ -533,7 +563,9 @@ public class MediaSessionCompat {
         final Object mCallbackObj;
 
         public Callback() {
-            if (android.os.Build.VERSION.SDK_INT >= 23) {
+            if (android.os.Build.VERSION.SDK_INT >= 24) {
+                mCallbackObj = MediaSessionCompatApi24.createCallback(new StubApi24());
+            } else if (android.os.Build.VERSION.SDK_INT >= 23) {
                 mCallbackObj = MediaSessionCompatApi23.createCallback(new StubApi23());
             } else if (android.os.Build.VERSION.SDK_INT >= 21) {
                 mCallbackObj = MediaSessionCompatApi21.createCallback(new StubApi21());
@@ -562,6 +594,51 @@ public class MediaSessionCompat {
          */
         public boolean onMediaButtonEvent(Intent mediaButtonEvent) {
             return false;
+        }
+
+        /**
+         * Override to handle requests to prepare playback. During the preparation, a session
+         * should not hold audio focus in order to allow other session play seamlessly.
+         * The state of playback should be updated to {@link PlaybackStateCompat#STATE_PAUSED}
+         * after the preparation is done.
+         */
+        public void onPrepare() {
+        }
+
+        /**
+         * Override to handle requests to prepare for playing a specific mediaId that was provided
+         * by your app. During the preparation, a session should not hold audio focus in order to
+         * allow other session play seamlessly. The state of playback should be updated to
+         * {@link PlaybackStateCompat#STATE_PAUSED} after the preparation is done. The playback
+         * of the prepared content should start in the implementation of {@link #onPlay}. Override
+         * {@link #onPlayFromMediaId} to handle requests for starting playback without preparation.
+         */
+        public void onPrepareFromMediaId(String mediaId, Bundle extras) {
+        }
+
+        /**
+         * Override to handle requests to prepare playback from a search query. An
+         * empty query indicates that the app may prepare any music. The
+         * implementation should attempt to make a smart choice about what to
+         * play. During the preparation, a session should not hold audio focus in order to allow
+         * other session play seamlessly. The state of playback should be updated to
+         * {@link PlaybackStateCompat#STATE_PAUSED} after the preparation is done.
+         * The playback of the prepared content should start in the implementation of
+         * {@link #onPlay}. Override {@link #onPlayFromSearch} to handle requests for
+         * starting playback without preparation.
+         */
+        public void onPrepareFromSearch(String query, Bundle extras) {
+        }
+
+        /**
+         * Override to handle requests to prepare a specific media item represented by a URI.
+         * During the preparation, a session should not hold audio focus in order to allow other
+         * session play seamlessly. The state of playback should be updated to
+         * {@link PlaybackStateCompat#STATE_PAUSED} after the preparation is done. The playback of
+         * the prepared content should start in the implementation of {@link #onPlay}. Override
+         * {@link #onPlayFromUri} to handle requests for starting playback without preparation.
+         */
+        public void onPrepareFromUri(Uri uri, Bundle extras) {
         }
 
         /**
@@ -738,9 +815,23 @@ public class MediaSessionCompat {
             @Override
             public void onCustomAction(String action, Bundle extras) {
                 if (action.equals(ACTION_PLAY_FROM_URI)) {
-                    Uri uri = (Uri) extras.getParcelable(ACTION_ARGUMENT_URI);
-                    Bundle bundle = (Bundle) extras.getParcelable(ACTION_ARGUMENT_EXTRAS);
+                    Uri uri = extras.getParcelable(ACTION_ARGUMENT_URI);
+                    Bundle bundle = extras.getParcelable(ACTION_ARGUMENT_EXTRAS);
                     Callback.this.onPlayFromUri(uri, bundle);
+                } else if (action.equals(ACTION_PREPARE)) {
+                    Callback.this.onPrepare();
+                } else if (action.equals(ACTION_PREPARE_FROM_MEDIA_ID)) {
+                    String mediaId = extras.getString(ACTION_ARGUMENT_MEDIA_ID);
+                    Bundle bundle = extras.getBundle(ACTION_ARGUMENT_EXTRAS);
+                    Callback.this.onPrepareFromMediaId(mediaId, bundle);
+                } else if (action.equals(ACTION_PREPARE_FROM_SEARCH)) {
+                    String query = extras.getString(ACTION_ARGUMENT_QUERY);
+                    Bundle bundle = extras.getBundle(ACTION_ARGUMENT_EXTRAS);
+                    Callback.this.onPrepareFromSearch(query, bundle);
+                } else if (action.equals(ACTION_PREPARE_FROM_URI)) {
+                    Uri uri = extras.getParcelable(ACTION_ARGUMENT_URI);
+                    Bundle bundle = extras.getBundle(ACTION_ARGUMENT_EXTRAS);
+                    Callback.this.onPrepareFromUri(uri, bundle);
                 } else {
                     Callback.this.onCustomAction(action, extras);
                 }
@@ -752,6 +843,29 @@ public class MediaSessionCompat {
             @Override
             public void onPlayFromUri(Uri uri, Bundle extras) {
                 Callback.this.onPlayFromUri(uri, extras);
+            }
+        }
+
+        private class StubApi24 extends StubApi23 implements MediaSessionCompatApi24.Callback {
+
+            @Override
+            public void onPrepare() {
+                Callback.this.onPrepare();
+            }
+
+            @Override
+            public void onPrepareFromMediaId(String mediaId, Bundle extras) {
+                Callback.this.onPrepareFromMediaId(mediaId, extras);
+            }
+
+            @Override
+            public void onPrepareFromSearch(String query, Bundle extras) {
+                Callback.this.onPrepareFromSearch(query, extras);
+            }
+
+            @Override
+            public void onPrepareFromUri(Uri uri, Bundle extras) {
+                Callback.this.onPrepareFromUri(uri, extras);
             }
         }
     }
@@ -1681,6 +1795,26 @@ public class MediaSessionCompat {
             }
 
             @Override
+            public void prepare() throws RemoteException {
+                postToHandler(MessageHandler.MSG_PREPARE);
+            }
+
+            @Override
+            public void prepareFromMediaId(String mediaId, Bundle extras) throws RemoteException {
+                postToHandler(MessageHandler.MSG_PREPARE_MEDIA_ID, mediaId, extras);
+            }
+
+            @Override
+            public void prepareFromSearch(String query, Bundle extras) throws RemoteException {
+                postToHandler(MessageHandler.MSG_PREPARE_SEARCH, query, extras);
+            }
+
+            @Override
+            public void prepareFromUri(Uri uri, Bundle extras) throws RemoteException {
+                postToHandler(MessageHandler.MSG_PREPARE_URI, uri, extras);
+            }
+
+            @Override
             public void play() throws RemoteException {
                 postToHandler(MessageHandler.MSG_PLAY);
             }
@@ -1806,24 +1940,28 @@ public class MediaSessionCompat {
 
         private class MessageHandler extends Handler {
 
-            private static final int MSG_PLAY = 1;
-            private static final int MSG_PLAY_MEDIA_ID = 2;
-            private static final int MSG_PLAY_SEARCH = 3;
-            private static final int MSG_SKIP_TO_ITEM = 4;
-            private static final int MSG_PAUSE = 5;
-            private static final int MSG_STOP = 6;
-            private static final int MSG_NEXT = 7;
-            private static final int MSG_PREVIOUS = 8;
-            private static final int MSG_FAST_FORWARD = 9;
-            private static final int MSG_REWIND = 10;
-            private static final int MSG_SEEK_TO = 11;
-            private static final int MSG_RATE = 12;
-            private static final int MSG_CUSTOM_ACTION = 13;
-            private static final int MSG_MEDIA_BUTTON = 14;
-            private static final int MSG_COMMAND = 15;
-            private static final int MSG_ADJUST_VOLUME = 16;
-            private static final int MSG_SET_VOLUME = 17;
-            private static final int MSG_PLAY_URI = 18;
+            private static final int MSG_COMMAND = 1;
+            private static final int MSG_ADJUST_VOLUME = 2;
+            private static final int MSG_PREPARE = 3;
+            private static final int MSG_PREPARE_MEDIA_ID = 4;
+            private static final int MSG_PREPARE_SEARCH = 5;
+            private static final int MSG_PREPARE_URI = 6;
+            private static final int MSG_PLAY = 7;
+            private static final int MSG_PLAY_MEDIA_ID = 8;
+            private static final int MSG_PLAY_SEARCH = 9;
+            private static final int MSG_PLAY_URI = 10;
+            private static final int MSG_SKIP_TO_ITEM = 11;
+            private static final int MSG_PAUSE = 12;
+            private static final int MSG_STOP = 13;
+            private static final int MSG_NEXT = 14;
+            private static final int MSG_PREVIOUS = 15;
+            private static final int MSG_FAST_FORWARD = 16;
+            private static final int MSG_REWIND = 17;
+            private static final int MSG_SEEK_TO = 18;
+            private static final int MSG_RATE = 19;
+            private static final int MSG_CUSTOM_ACTION = 20;
+            private static final int MSG_MEDIA_BUTTON = 21;
+            private static final int MSG_SET_VOLUME = 22;
 
             // KeyEvent constants only available on API 11+
             private static final int KEYCODE_MEDIA_PAUSE = 127;
@@ -1858,6 +1996,31 @@ public class MediaSessionCompat {
                     return;
                 }
                 switch (msg.what) {
+                    case MSG_COMMAND:
+                        Command cmd = (Command) msg.obj;
+                        cb.onCommand(cmd.command, cmd.extras, cmd.stub);
+                        break;
+                    case MSG_MEDIA_BUTTON:
+                        KeyEvent keyEvent = (KeyEvent) msg.obj;
+                        Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+                        intent.putExtra(Intent.EXTRA_KEY_EVENT, keyEvent);
+                        // Let the Callback handle events first before using the default behavior
+                        if (!cb.onMediaButtonEvent(intent)) {
+                            onMediaButtonEvent(keyEvent, cb);
+                        }
+                        break;
+                    case MSG_PREPARE:
+                        cb.onPrepare();
+                        break;
+                    case MSG_PREPARE_MEDIA_ID:
+                        cb.onPrepareFromMediaId((String) msg.obj, msg.getData());
+                        break;
+                    case MSG_PREPARE_SEARCH:
+                        cb.onPrepareFromSearch((String) msg.obj, msg.getData());
+                        break;
+                    case MSG_PREPARE_URI:
+                        cb.onPrepareFromUri((Uri) msg.obj, msg.getData());
+                        break;
                     case MSG_PLAY:
                         cb.onPlay();
                         break;
@@ -1899,19 +2062,6 @@ public class MediaSessionCompat {
                         break;
                     case MSG_CUSTOM_ACTION:
                         cb.onCustomAction((String) msg.obj, msg.getData());
-                        break;
-                    case MSG_MEDIA_BUTTON:
-                        KeyEvent keyEvent = (KeyEvent) msg.obj;
-                        Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
-                        intent.putExtra(Intent.EXTRA_KEY_EVENT, keyEvent);
-                        // Let the Callback handle events first before using the default behavior
-                        if (!cb.onMediaButtonEvent(intent)) {
-                            onMediaButtonEvent(keyEvent, cb);
-                        }
-                        break;
-                    case MSG_COMMAND:
-                        Command cmd = (Command) msg.obj;
-                        cb.onCommand(cmd.command, cmd.extras, cmd.stub);
                         break;
                     case MSG_ADJUST_VOLUME:
                         adjustVolume((int) msg.obj, 0);
