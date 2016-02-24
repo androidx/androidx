@@ -1567,6 +1567,10 @@ package android.support.v4.media.session {
     method public abstract void playFromMediaId(java.lang.String, android.os.Bundle);
     method public abstract void playFromSearch(java.lang.String, android.os.Bundle);
     method public abstract void playFromUri(android.net.Uri, android.os.Bundle);
+    method public abstract void prepare();
+    method public abstract void prepareFromMediaId(java.lang.String, android.os.Bundle);
+    method public abstract void prepareFromSearch(java.lang.String, android.os.Bundle);
+    method public abstract void prepareFromUri(android.net.Uri, android.os.Bundle);
     method public abstract void rewind();
     method public abstract void seekTo(long);
     method public abstract void sendCustomAction(android.support.v4.media.session.PlaybackStateCompat.CustomAction, android.os.Bundle);
@@ -1620,6 +1624,10 @@ package android.support.v4.media.session {
     method public void onPlayFromMediaId(java.lang.String, android.os.Bundle);
     method public void onPlayFromSearch(java.lang.String, android.os.Bundle);
     method public void onPlayFromUri(android.net.Uri, android.os.Bundle);
+    method public void onPrepare();
+    method public void onPrepareFromMediaId(java.lang.String, android.os.Bundle);
+    method public void onPrepareFromSearch(java.lang.String, android.os.Bundle);
+    method public void onPrepareFromUri(android.net.Uri, android.os.Bundle);
     method public void onRewind();
     method public void onSeekTo(long);
     method public void onSetRating(android.support.v4.media.RatingCompat);
@@ -1688,6 +1696,10 @@ package android.support.v4.media.session {
     field public static final long ACTION_PLAY_FROM_SEARCH = 2048L; // 0x800L
     field public static final long ACTION_PLAY_FROM_URI = 8192L; // 0x2000L
     field public static final long ACTION_PLAY_PAUSE = 512L; // 0x200L
+    field public static final long ACTION_PREPARE = 16384L; // 0x4000L
+    field public static final long ACTION_PREPARE_FROM_MEDIA_ID = 32768L; // 0x8000L
+    field public static final long ACTION_PREPARE_FROM_SEARCH = 65536L; // 0x10000L
+    field public static final long ACTION_PREPARE_FROM_URI = 131072L; // 0x20000L
     field public static final long ACTION_REWIND = 8L; // 0x8L
     field public static final long ACTION_SEEK_TO = 256L; // 0x100L
     field public static final long ACTION_SET_RATING = 128L; // 0x80L

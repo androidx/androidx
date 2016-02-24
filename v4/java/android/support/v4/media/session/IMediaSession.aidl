@@ -67,4 +67,8 @@ interface IMediaSession {
     CharSequence getQueueTitle();
     Bundle getExtras();
     int getRatingType();
+    void prepare();
+    void prepareFromMediaId(String uri, in Bundle extras);
+    void prepareFromSearch(String string, in Bundle extras);
+    void prepareFromUri(in Uri uri, in Bundle extras);
 }
