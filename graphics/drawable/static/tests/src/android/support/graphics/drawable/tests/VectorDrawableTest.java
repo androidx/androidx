@@ -52,8 +52,6 @@ public class VectorDrawableTest extends AndroidTestCase {
             R.drawable.vector_icon_repeated_a_2,
             R.drawable.vector_icon_clip_path_1,
             R.drawable.vector_icon_transformation_1,
-            R.drawable.vector_icon_transformation_2,
-            R.drawable.vector_icon_transformation_3,
             R.drawable.vector_icon_transformation_4,
             R.drawable.vector_icon_transformation_5,
             R.drawable.vector_icon_transformation_6,
@@ -63,7 +61,6 @@ public class VectorDrawableTest extends AndroidTestCase {
             R.drawable.vector_icon_stroke_2,
             R.drawable.vector_icon_stroke_3,
             R.drawable.vector_icon_scale_1,
-            R.drawable.vector_icon_scale_2,
     };
 
     private static final int[] GOLDEN_IMAGES = new int[]{
@@ -80,8 +77,6 @@ public class VectorDrawableTest extends AndroidTestCase {
             R.drawable.vector_icon_repeated_a_2_golden,
             R.drawable.vector_icon_clip_path_1_golden,
             R.drawable.vector_icon_transformation_1_golden,
-            R.drawable.vector_icon_transformation_2_golden,
-            R.drawable.vector_icon_transformation_3_golden,
             R.drawable.vector_icon_transformation_4_golden,
             R.drawable.vector_icon_transformation_5_golden,
             R.drawable.vector_icon_transformation_6_golden,
@@ -91,7 +86,6 @@ public class VectorDrawableTest extends AndroidTestCase {
             R.drawable.vector_icon_stroke_2_golden,
             R.drawable.vector_icon_stroke_3_golden,
             R.drawable.vector_icon_scale_1_golden,
-            R.drawable.vector_icon_scale_2_golden,
     };
 
     private static final int TEST_ICON = R.drawable.vector_icon_create;
@@ -103,7 +97,7 @@ public class VectorDrawableTest extends AndroidTestCase {
     // We can increase the threshold if the Skia is drawing with some variance
     // on different devices. So far, the tests show they are matching correctly.
     private static final float PIXEL_ERROR_THRESHOLD = 0.3f;
-    private static final float PIXEL_ERROR_COUNT_THRESHOLD = 0.1f;
+    private static final float PIXEL_DIFF_COUNT_THRESHOLD = 0.1f;
     private static final float PIXEL_DIFF_THRESHOLD = 0.025f;
 
     private static final boolean DBG_DUMP_PNG = false;
@@ -252,7 +246,7 @@ public class VectorDrawableTest extends AndroidTestCase {
                 }
             }
         }
-        if ((totalDiffPixelCount / totalPixelCount) >= PIXEL_ERROR_COUNT_THRESHOLD) {
+        if ((totalDiffPixelCount / totalPixelCount) >= PIXEL_DIFF_COUNT_THRESHOLD) {
             fail((filename + ": totalDiffPixelCount is " + totalDiffPixelCount));
         }
 
