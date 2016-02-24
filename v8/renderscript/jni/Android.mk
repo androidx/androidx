@@ -21,7 +21,8 @@ LOCAL_MODULE:= libRSSupportIO
 LOCAL_MODULE_TAGS := optional
 
 LOCAL_LDLIBS += -landroid
-LOCAL_NDK_STL_VARIANT := stlport_static
+LOCAL_LDFLAGS += -ldl -Wl,--exclude-libs,libc++_static.a
+LOCAL_NDK_STL_VARIANT := c++_static
 include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
@@ -36,7 +37,6 @@ LOCAL_SHARED_LIBRARIES := \
         libjnigraphics
 
 LOCAL_STATIC_LIBRARIES := \
-        libcutils \
         libRSDispatch
 
 LOCAL_C_INCLUDES += \
@@ -50,6 +50,7 @@ LOCAL_MODULE:= librsjni
 LOCAL_MODULE_TAGS := optional
 LOCAL_REQUIRED_MODULES := libRSSupport
 
-LOCAL_LDFLAGS += -ldl -llog
+LOCAL_LDFLAGS += -ldl -llog -Wl,--exclude-libs,libc++_static.a
+LOCAL_NDK_STL_VARIANT := c++_static
 
 include $(BUILD_SHARED_LIBRARY)
