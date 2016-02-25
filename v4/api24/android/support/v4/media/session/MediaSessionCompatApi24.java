@@ -16,13 +16,30 @@
 
 package android.support.v4.media.session;
 
+import android.media.session.MediaSession;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 class MediaSessionCompatApi24 {
+    private static final String TAG = "MediaSessionCompatApi24";
 
     public static Object createCallback(Callback callback) {
         return new CallbackProxy<Callback>(callback);
+    }
+
+    public static String getCallingPackage(Object sessionObj) {
+        MediaSession session = (MediaSession) sessionObj;
+        try {
+            Method getCallingPackageMethod = session.getClass().getMethod("getCallingPackage");
+            return (String) getCallingPackageMethod.invoke(session);
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            Log.e(TAG, "Cannot execute MediaSession.getCallingPackage()", e);
+        }
+        return null;
     }
 
     public interface Callback extends MediaSessionCompatApi23.Callback {
@@ -32,7 +49,8 @@ class MediaSessionCompatApi24 {
         public void onPrepareFromUri(Uri uri, Bundle extras);
     }
 
-    static class CallbackProxy<T extends Callback> extends MediaSessionCompatApi23.CallbackProxy<T> {
+    static class CallbackProxy<T extends Callback>
+            extends MediaSessionCompatApi23.CallbackProxy<T> {
         public CallbackProxy(T callback) {
             super(callback);
         }
