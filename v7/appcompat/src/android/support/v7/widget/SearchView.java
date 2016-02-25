@@ -38,6 +38,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.ResultReceiver;
 import android.speech.RecognizerIntent;
+import android.support.v4.content.res.ConfigurationHelper;
 import android.support.v4.view.KeyEventCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v7.appcompat.R;
@@ -1802,17 +1803,8 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
          */
         private int getSearchViewTextMinWidthDp() {
             final Configuration config = getResources().getConfiguration();
-
-            final int widthDp;
-            final int heightDp;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
-                widthDp = config.screenWidthDp;
-                heightDp = config.screenHeightDp;
-            } else {
-                final DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
-                widthDp = (int) (metrics.widthPixels / metrics.density);
-                heightDp = (int) (metrics.heightPixels / metrics.density);
-            }
+            final int widthDp = ConfigurationHelper.getScreenWidthDp(getResources());
+            final int heightDp = ConfigurationHelper.getScreenHeightDp(getResources());
 
             if (widthDp >= 960 && heightDp >= 720
                     && config.orientation == Configuration.ORIENTATION_LANDSCAPE) {
