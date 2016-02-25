@@ -46,4 +46,6 @@ limitations under the License.
     <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"Өндөр чанарыг идэвхгүйжүүлэх"</string>
     <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"Текст тайлбарыг идэвхжүүлэх"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"Текст тайлбарыг идэвхгүйжүүлэх"</string>
+    <string name="lb_guidedaction_finish_title" msgid="4015190340667946245">"Дуусгах"</string>
+    <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"Үргэлжлүүлэх"</string>
 </resources>
