@@ -29,7 +29,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NavUtils;
 import android.support.v4.os.ParcelableCompat;
 import android.support.v4.os.ParcelableCompatCreatorCallbacks;
@@ -218,6 +220,13 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
         }
 
         invalidateOptionsMenu();
+    }
+
+    @Nullable
+    @Override
+    public View findViewById(@IdRes int id) {
+        ensureSubDecor();
+        return mWindow.findViewById(id);
     }
 
     @Override

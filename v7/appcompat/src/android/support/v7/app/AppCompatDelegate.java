@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
 import android.support.annotation.IntDef;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
@@ -262,6 +263,15 @@ public abstract class AppCompatDelegate {
      * Should be called from {@link Activity#onPostResume()}
      */
     public abstract void onPostResume();
+
+    /**
+     * Finds a view that was identified by the id attribute from the XML that
+     * was processed in {@link #onCreate}.
+     *
+     * @return The view if found or null otherwise.
+     */
+    @Nullable
+    public abstract View findViewById(@IdRes int id);
 
     /**
      * Should be called instead of {@link Activity#setContentView(android.view.View)}}
