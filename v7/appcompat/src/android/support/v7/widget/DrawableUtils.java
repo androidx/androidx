@@ -119,30 +119,33 @@ class DrawableUtils {
      * there is a known issue in the given drawable's implementation.
      */
     static boolean canSafelyMutateDrawable(@NonNull Drawable drawable) {
-        if (drawable instanceof LayerDrawable) {
-            return Build.VERSION.SDK_INT >= 16;
-        } else if (drawable instanceof InsetDrawable) {
-            return Build.VERSION.SDK_INT >= 14;
-        } else if (drawable instanceof StateListDrawable) {
+        if (Build.VERSION.SDK_INT < 8 && drawable instanceof StateListDrawable) {
             // StateListDrawable has a bug in mutate() on API 7
-            return Build.VERSION.SDK_INT >= 8;
-        } else if (drawable instanceof GradientDrawable) {
+            return false;
+        } else if (Build.VERSION.SDK_INT < 15 && drawable instanceof InsetDrawable) {
+            return false;
+        }  else if (Build.VERSION.SDK_INT < 15 && drawable instanceof GradientDrawable) {
             // GradientDrawable has a bug pre-ICS which results in mutate() resulting
             // in loss of color
-            return Build.VERSION.SDK_INT >= 14;
-        } else if (drawable instanceof DrawableContainer) {
+            return false;
+        } else if (Build.VERSION.SDK_INT < 17 && drawable instanceof LayerDrawable) {
+            return false;
+        }
+
+        if (drawable instanceof DrawableContainer) {
             // If we have a DrawableContainer, let's traverse it's child array
             final Drawable.ConstantState state = drawable.getConstantState();
             if (state instanceof DrawableContainer.DrawableContainerState) {
                 final DrawableContainer.DrawableContainerState containerState =
                         (DrawableContainer.DrawableContainerState) state;
-                for (Drawable child : containerState.getChildren()) {
+                for (final Drawable child : containerState.getChildren()) {
                     if (!canSafelyMutateDrawable(child)) {
                         return false;
                     }
                 }
             }
         }
+
         return true;
     }
 
