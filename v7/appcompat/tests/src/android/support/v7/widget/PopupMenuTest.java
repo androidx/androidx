@@ -63,11 +63,11 @@ import static org.mockito.Mockito.*;
 public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity> {
     // Since PopupMenu doesn't expose any access to the underlying
     // implementation (like ListPopupWindow.getListView), we're relying on the
-    // class name of the list view from ListPopupWindow that is being used
+    // class name of the list view from MenuPopupWindow that is being used
     // in PopupMenu. This is not the cleanest, but it's not making any assumptions
     // on the platform-specific details of the popup windows.
     private static final String DROP_DOWN_CLASS_NAME =
-            "android.support.v7.widget.ListPopupWindow$DropDownListView";
+            "android.support.v7.widget.MenuPopupWindow$MenuDropDownListView";
     private FrameLayout mContainer;
 
     private Button mButton;
@@ -266,7 +266,7 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
         assertEquals("Anchoring X", anchorOnScreenXY[0] + popupInWindowXY[0],
                 popupOnScreenXY[0], 1);
         assertEquals("Anchoring Y", anchorOnScreenXY[1] + popupInWindowXY[1] + mButton.getHeight(),
-                popupOnScreenXY[1] + popupPadding.top, 1);
+                popupOnScreenXY[1], 1);
     }
 
     @Test
