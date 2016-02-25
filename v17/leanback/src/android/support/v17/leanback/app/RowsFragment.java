@@ -605,7 +605,8 @@ public class RowsFragment extends BaseRowFragment implements BrowseFragment.Main
         final VerticalGridView gridView = getVerticalGridView();
         if (gridView != null) {
             gridView.setItemAlignmentOffset(0);
-
+            gridView.setItemAlignmentOffsetPercent(
+                    VerticalGridView.ITEM_ALIGN_OFFSET_PERCENT_DISABLED);
             gridView.setItemAlignmentOffsetWithPadding(true);
 
             updateWindowAlignOffset();
