@@ -518,6 +518,17 @@ public class MediaSessionCompat {
     }
 
     /**
+     * Returns the name of the package that sent the last media button, transport control, or
+     * command from controllers and the system. This is only valid while in a request callback, such
+     * as {@link Callback#onPlay}. This method is not available and returns null on pre-N devices.
+     *
+     * @hide
+     */
+    public String getCallingPackage() {
+        return mImpl.getCallingPackage();
+    }
+
+    /**
      * Adds a listener to be notified when the active status of this session
      * changes. This is primarily used by the support library and should not be
      * needed by apps.
@@ -1140,6 +1151,8 @@ public class MediaSessionCompat {
         Object getMediaSession();
 
         Object getRemoteControlClient();
+
+        String getCallingPackage();
     }
 
     static class MediaSessionImplBase implements MediaSessionImpl {
@@ -1474,6 +1487,11 @@ public class MediaSessionCompat {
         @Override
         public Object getRemoteControlClient() {
             return mRccObj;
+        }
+
+        @Override
+        public String getCallingPackage() {
+            return null;
         }
 
         @Override
@@ -2259,6 +2277,15 @@ public class MediaSessionCompat {
         @Override
         public Object getRemoteControlClient() {
             return null;
+        }
+
+        @Override
+        public String getCallingPackage() {
+            if (android.os.Build.VERSION.SDK_INT < 24) {
+                return null;
+            } else {
+                return MediaSessionCompatApi24.getCallingPackage(mSessionObj);
+            }
         }
     }
 }
