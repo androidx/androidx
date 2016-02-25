@@ -14,29 +14,22 @@
 
 LOCAL_PATH := $(call my-dir)
 
-# Build the resources using the latest applicable SDK version.
-# We do this here because the final static library must be compiled with an older
-# SDK version than the resources.  The resources library and the R class that it
-# contains will not be linked into the final static library.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-percent-res
-LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
-LOCAL_SRC_FILES := $(call all-java-files-under, dummy)
-LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
-LOCAL_JAR_EXCLUDE_FILES := none
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
 # Here is the final static library that apps can link against.
-# The R class is automatically excluded from the generated library.
-# Applications that use this library must specify LOCAL_RESOURCE_DIR
-# in their makefiles to include the resources in their package.
+# Applications that use this library must include it with
+#
+#   LOCAL_STATIC_ANDROID_LIBRARIES := \
+#       android-support-percent \
+#       android-support-v4
+#
 include $(CLEAR_VARS)
+LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-percent
 LOCAL_SDK_VERSION := 8
+LOCAL_SDK_RES_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
-LOCAL_JAVA_LIBRARIES := android-support-percent-res \
-    android-support-v4
+LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
+LOCAL_SHARED_ANDROID_LIBRARIES := android-support-v4
+LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
