@@ -32,6 +32,7 @@ LOCAL_SRC_FILES := $(call all-java-files-under, static/src)
 
 LOCAL_JAVA_LIBRARIES := android-support-v4
 
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # Static API Check
@@ -62,6 +63,7 @@ LOCAL_SRC_FILES := $(call all-java-files-under, animated/src)
 LOCAL_JAVA_LIBRARIES := android-support-v4 android-support-vectordrawable
 
 LOCAL_AAPT_FLAGS := --no-version-vectors
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # Animated API Check

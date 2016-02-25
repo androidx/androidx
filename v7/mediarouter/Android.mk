@@ -28,6 +28,7 @@ LOCAL_AAPT_FLAGS := \
 	--auto-add-overlay \
 	--extra-packages android.support.v7.appcompat
 LOCAL_JAR_EXCLUDE_FILES := none
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files := $(LOCAL_SRC_FILES)
@@ -37,6 +38,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v7-mediarouter-jellybean
 LOCAL_SDK_VERSION := 16
 LOCAL_SRC_FILES := $(call all-java-files-under, jellybean)
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
@@ -47,6 +49,7 @@ LOCAL_MODULE := android-support-v7-mediarouter-jellybean-mr1
 LOCAL_SDK_VERSION := 17
 LOCAL_SRC_FILES := $(call all-java-files-under, jellybean-mr1)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-mediarouter-jellybean
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
@@ -57,6 +60,7 @@ LOCAL_MODULE := android-support-v7-mediarouter-jellybean-mr2
 LOCAL_SDK_VERSION := 18
 LOCAL_SRC_FILES := $(call all-java-files-under, jellybean-mr2)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-mediarouter-jellybean-mr1
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
@@ -67,6 +71,7 @@ LOCAL_MODULE := android-support-v7-mediarouter-api24
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := $(call all-java-files-under, api24)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-mediarouter-jellybean-mr2
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
@@ -83,6 +88,7 @@ LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-mediarouter-api24
 LOCAL_JAVA_LIBRARIES := android-support-v4 android-support-v7-mediarouter-res \
     android-support-v7-appcompat \
     android-support-v7-palette
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
