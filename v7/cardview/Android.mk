@@ -24,6 +24,7 @@ LOCAL_SDK_VERSION := current
 LOCAL_SRC_FILES := $(call all-java-files-under, dummy)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_JAR_EXCLUDE_FILES := none
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files := $(LOCAL_SRC_FILES)
@@ -34,6 +35,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v7-cardview-base
 LOCAL_SDK_VERSION := 7
 LOCAL_SRC_FILES := $(call all-java-files-under, base)
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
@@ -45,6 +47,7 @@ LOCAL_SDK_VERSION := 7
 LOCAL_SRC_FILES := $(call all-java-files-under, eclair-mr1)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-cardview-base
 LOCAL_JAVA_LIBRARIES := android-support-v7-cardview-res
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
@@ -56,6 +59,7 @@ LOCAL_SDK_VERSION := 17
 LOCAL_SRC_FILES := $(call all-java-files-under, jellybean-mr1)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-cardview-eclair-mr1
 LOCAL_JAVA_LIBRARIES := android-support-v7-cardview-res
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
@@ -68,6 +72,7 @@ LOCAL_SRC_FILES := $(call all-java-files-under, api21)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-cardview-base \
     android-support-v7-cardview-jellybean-mr1
 LOCAL_JAVA_LIBRARIES := android-support-v7-cardview-res
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
@@ -82,6 +87,7 @@ LOCAL_SDK_VERSION := 7
 LOCAL_SRC_FILES := $(call all-java-files-under,src)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-cardview-api21
 LOCAL_JAVA_LIBRARIES := android-support-v7-cardview-res
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)

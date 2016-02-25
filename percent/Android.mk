@@ -24,6 +24,7 @@ LOCAL_SDK_VERSION := current
 LOCAL_SRC_FILES := $(call all-java-files-under, dummy)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_JAR_EXCLUDE_FILES := none
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # Here is the final static library that apps can link against.
@@ -36,6 +37,7 @@ LOCAL_SDK_VERSION := 8
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 LOCAL_JAVA_LIBRARIES := android-support-percent-res \
     android-support-v4
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # API Check
