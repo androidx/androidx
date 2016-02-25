@@ -51,4 +51,16 @@ public class DrawableCompatTest extends AndroidTestCase {
         assertSame(wrappedDrawable, DrawableCompat.wrap(wrappedDrawable));
     }
 
+    @SmallTest
+    public void testWrapMutatedDrawableHasConstantState() {
+        // First create a Drawable, and mutated it so that it has a constant state
+        Drawable drawable = new GradientDrawable();
+        drawable = drawable.mutate();
+        assertNotNull(drawable.getConstantState());
+
+        // Now wrap and assert that the wrapper also returns a constant state
+        final Drawable wrapper = DrawableCompat.wrap(drawable);
+        assertNotNull(wrapper.getConstantState());
+    }
+
 }
