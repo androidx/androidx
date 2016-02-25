@@ -21,6 +21,7 @@ LOCAL_SDK_VERSION := 7
 LOCAL_SRC_FILES := $(call all-java-files-under, src/main)
 LOCAL_MANIFEST_FILE := $(LOCAL_PATH)/src/main/AndroidManifest.xml
 LOCAL_JAVA_LIBRARIES += android-support-v4
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # API Check
