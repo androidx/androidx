@@ -34,4 +34,6 @@
     <string name="abc_shareactionprovider_share_with_application" msgid="7165123711973476752">"%s ကို မျှဝေပါရန်"</string>
     <string name="abc_shareactionprovider_share_with" msgid="3421042268587513524">"မျှဝေဖို့ ရွေးပါ"</string>
     <string name="status_bar_notification_info_overflow" msgid="2869576371154716097">"၉၉၉+"</string>
+    <string name="abc_capital_on" msgid="3405795526292276155">"ဖွင့်"</string>
+    <string name="abc_capital_off" msgid="121134116657445385">"ပိတ်"</string>
 </resources>
