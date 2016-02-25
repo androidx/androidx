@@ -26,6 +26,7 @@ LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_AAPT_FLAGS := \
         --auto-add-overlay
 LOCAL_JAR_EXCLUDE_FILES := none
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files := $(LOCAL_SRC_FILES)
@@ -38,6 +39,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v17-leanback-common
 LOCAL_SDK_VERSION := 17
 LOCAL_SRC_FILES := $(call all-java-files-under, common)
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
@@ -50,6 +52,7 @@ LOCAL_MODULE := android-support-v17-leanback-api23
 LOCAL_SDK_VERSION := 23
 LOCAL_SRC_FILES := $(call all-java-files-under, api23)
 LOCAL_JAVA_LIBRARIES := android-support-v17-leanback-res android-support-v17-leanback-common
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
@@ -62,6 +65,7 @@ LOCAL_MODULE := android-support-v17-leanback-api21
 LOCAL_SDK_VERSION := 21
 LOCAL_SRC_FILES := $(call all-java-files-under, api21)
 LOCAL_JAVA_LIBRARIES := android-support-v17-leanback-res android-support-v17-leanback-common
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
@@ -74,6 +78,7 @@ LOCAL_MODULE := android-support-v17-leanback-kitkat
 LOCAL_SDK_VERSION := 19
 LOCAL_SRC_FILES := $(call all-java-files-under, kitkat)
 LOCAL_JAVA_LIBRARIES := android-support-v17-leanback-res android-support-v17-leanback-common
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
@@ -86,6 +91,7 @@ LOCAL_MODULE := android-support-v17-leanback-jbmr2
 LOCAL_SDK_VERSION := 18
 LOCAL_SRC_FILES := $(call all-java-files-under, jbmr2)
 LOCAL_JAVA_LIBRARIES := android-support-v17-leanback-res android-support-v17-leanback-common
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
@@ -107,6 +113,7 @@ LOCAL_JAVA_LIBRARIES := \
         android-support-v4 \
         android-support-v7-recyclerview \
         android-support-v17-leanback-res
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)

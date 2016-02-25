@@ -28,6 +28,7 @@ LOCAL_STATIC_JAVA_LIBRARIES := android-support-vectordrawable \
 LOCAL_JAVA_LIBRARIES := android-support-v4
 LOCAL_AAPT_FLAGS += --auto-add-overlay \
         --no-version-vectors
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # API Check
