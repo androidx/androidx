@@ -2649,36 +2649,15 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     /**
      * Used when onMeasure is called before layout manager is set
      */
-    private void defaultOnMeasure(int widthSpec, int heightSpec) {
-        final int widthMode = MeasureSpec.getMode(widthSpec);
-        final int heightMode = MeasureSpec.getMode(heightSpec);
-        final int widthSize = MeasureSpec.getSize(widthSpec);
-        final int heightSize = MeasureSpec.getSize(heightSpec);
-
-        int width;
-        int height;
-
-        switch (widthMode) {
-            case MeasureSpec.EXACTLY:
-            case MeasureSpec.AT_MOST:
-                width = widthSize;
-                break;
-            case MeasureSpec.UNSPECIFIED:
-            default:
-                width = ViewCompat.getMinimumWidth(this);
-                break;
-        }
-
-        switch (heightMode) {
-            case MeasureSpec.EXACTLY:
-            case MeasureSpec.AT_MOST:
-                height = heightSize;
-                break;
-            case MeasureSpec.UNSPECIFIED:
-            default:
-                height = ViewCompat.getMinimumHeight(this);
-                break;
-        }
+    void defaultOnMeasure(int widthSpec, int heightSpec) {
+        // calling LayoutManager here is not pretty but that API is already public and it is better
+        // than creating another method since this is internal.
+        final int width = LayoutManager.chooseSize(widthSpec,
+                getPaddingLeft() + getPaddingRight(),
+                ViewCompat.getMinimumWidth(this));
+        final int height = LayoutManager.chooseSize(heightSpec,
+                getPaddingTop() + getPaddingBottom(),
+                ViewCompat.getMinimumHeight(this));
 
         setMeasuredDimension(width, height);
     }
@@ -6126,8 +6105,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 case View.MeasureSpec.EXACTLY:
                     return size;
                 case View.MeasureSpec.AT_MOST:
-                    desired = Math.min(size, desired);
-                    // flow through
+                    return Math.min(size, Math.max(desired, min));
                 case View.MeasureSpec.UNSPECIFIED:
                 default:
                     return Math.max(desired, min);
