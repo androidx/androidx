@@ -26,6 +26,7 @@ import android.graphics.drawable.DrawableContainer;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.InsetDrawable;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 class DrawableWrapperLollipop extends DrawableWrapperKitKat {
@@ -106,6 +107,7 @@ class DrawableWrapperLollipop extends DrawableWrapperKitKat {
         return false;
     }
 
+    @NonNull
     @Override
     DrawableWrapperState mutateConstantState() {
         return new DrawableWrapperStateLollipop(mState, null);
