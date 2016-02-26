@@ -29,4 +29,5 @@ LOCAL_MODULE := android-support-previewsdk
 LOCAL_SDK_VERSION := current
 LOCAL_GENERATED_SOURCES := $(previewsdk_gen_java_files)
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)

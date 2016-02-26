@@ -12,6 +12,7 @@ LOCAL_JAVA_LIBRARIES := \
 
 LOCAL_MODULE := android-support-recommendation
 
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # ===========================================================

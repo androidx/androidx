@@ -34,4 +34,5 @@ LOCAL_AAPT_FLAGS += --auto-add-overlay \
         --extra-packages android.support.graphics.drawable \
         --no-version-vectors
 
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_PACKAGE)

@@ -30,6 +30,7 @@ LOCAL_AAPT_FLAGS := \
     --extra-packages android.support.v7.appcompat \
     --extra-packages android.support.v7.recyclerview
 LOCAL_JAR_EXCLUDE_FILES := none
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files := $(LOCAL_SRC_FILES)
@@ -44,6 +45,7 @@ LOCAL_JAVA_LIBRARIES := android-support-design-res \
     android-support-v4 \
     android-support-v7-appcompat \
     android-support-v7-recyclerview
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
@@ -58,6 +60,7 @@ LOCAL_JAVA_LIBRARIES := android-support-design-res \
     android-support-v4 \
     android-support-v7-appcompat \
     android-support-v7-recyclerview
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
@@ -72,6 +75,7 @@ LOCAL_JAVA_LIBRARIES := android-support-design-res \
     android-support-v4 \
     android-support-v7-appcompat \
     android-support-v7-recyclerview
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
@@ -86,6 +90,7 @@ LOCAL_JAVA_LIBRARIES := android-support-design-res \
     android-support-v4 \
     android-support-v7-appcompat \
     android-support-v7-recyclerview
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
@@ -100,6 +105,7 @@ LOCAL_JAVA_LIBRARIES := android-support-design-res \
     android-support-v4 \
     android-support-v7-appcompat \
     android-support-v7-recyclerview
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
@@ -114,6 +120,7 @@ LOCAL_JAVA_LIBRARIES := android-support-design-res \
     android-support-v4 \
     android-support-v7-appcompat \
     android-support-v7-recyclerview
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
@@ -131,6 +138,7 @@ LOCAL_JAVA_LIBRARIES := android-support-design-res \
     android-support-v4 \
     android-support-v7-appcompat \
     android-support-v7-recyclerview
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
