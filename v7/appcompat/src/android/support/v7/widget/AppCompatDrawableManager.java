@@ -111,7 +111,6 @@ public final class AppCompatDrawableManager {
      * {@link DrawableCompat}'s tinting functionality.
      */
     private static final int[] TINT_COLOR_CONTROL_NORMAL = {
-            R.drawable.abc_ic_search_api_mtrl_alpha,
             R.drawable.abc_ic_commit_search_api_mtrl_alpha,
             R.drawable.abc_seekbar_tick_mark_material
     };
@@ -143,8 +142,7 @@ public final class AppCompatDrawableManager {
      */
     private static final int[] TINT_COLOR_CONTROL_STATE_LIST = {
             R.drawable.abc_tab_indicator_material,
-            R.drawable.abc_textfield_search_material,
-            R.drawable.abc_ratingbar_full_material
+            R.drawable.abc_textfield_search_material
     };
 
     /**
@@ -217,7 +215,8 @@ public final class AppCompatDrawableManager {
                     getThemeAttrColor(context, R.attr.colorControlNormal), DEFAULT_MODE);
             setPorterDuffColorFilter(ld.findDrawableByLayerId(android.R.id.progress),
                     getThemeAttrColor(context, R.attr.colorControlActivated), DEFAULT_MODE);
-        } else if (resId == R.drawable.abc_ratingbar_indicator_material
+        } else if (resId == R.drawable.abc_ratingbar_material
+                || resId == R.drawable.abc_ratingbar_indicator_material
                 || resId == R.drawable.abc_ratingbar_small_material) {
             LayerDrawable ld = (LayerDrawable) drawable;
             setPorterDuffColorFilter(ld.findDrawableByLayerId(android.R.id.background),
