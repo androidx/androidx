@@ -1779,6 +1779,104 @@ nScriptReduce(JNIEnv *_env, jobject _this, jlong con, jlong script, jint slot,
     }
 }
 
+static void
+nScriptReduceNew(JNIEnv *_env, jobject _this, jlong con, jlong script, jint slot,
+                 jlongArray ains, jlong aout, jintArray limits)
+{
+    LOG_API("nScriptReduceNew, con(%p), s(%p), slot(%i) ains(%p) aout(%" PRId64 ")", (RsContext)con, (void *)script, slot, ains, aout);
+
+    if (ains == nullptr) {
+        LOG_ERR("At least one input required.");
+        // TODO (b/20758983): Report back to Java and throw an exception
+        return;
+    }
+    jint in_len = _env->GetArrayLength(ains);
+    if (in_len > (jint)RS_KERNEL_MAX_ARGUMENTS) {
+        LOG_ERR("Too many arguments in kernel launch.");
+        // TODO (b/20758983): Report back to Java and throw an exception
+        return;
+    }
+
+    jlong *in_ptr = _env->GetLongArrayElements(ains, nullptr);
+    if (in_ptr == nullptr) {
+        LOG_ERR("Failed to get Java array elements");
+        // TODO (b/20758983): Report back to Java and throw an exception
+        return;
+    }
+
+    RsAllocation *in_allocs = nullptr;
+    if (sizeof(RsAllocation) == sizeof(jlong)) {
+        in_allocs = (RsAllocation*)in_ptr;
+    } else {
+        // Convert from 64-bit jlong types to the native pointer type.
+
+        in_allocs = (RsAllocation*)alloca(in_len * sizeof(RsAllocation));
+        if (in_allocs == nullptr) {
+            LOG_ERR("Failed launching kernel for lack of memory.");
+            // TODO (b/20758983): Report back to Java and throw an exception
+            _env->ReleaseLongArrayElements(ains, in_ptr, JNI_ABORT);
+            return;
+        }
+
+        for (int index = in_len; --index >= 0;) {
+            in_allocs[index] = (RsAllocation)in_ptr[index];
+        }
+    }
+
+    RsScriptCall sc, *sca = nullptr;
+    uint32_t sc_size = 0;
+
+    jint  limit_len = 0;
+    jint *limit_ptr = nullptr;
+
+    if (limits != nullptr) {
+        limit_len = _env->GetArrayLength(limits);
+        limit_ptr = _env->GetIntArrayElements(limits, nullptr);
+        if (limit_ptr == nullptr) {
+            LOG_ERR("Failed to get Java array elements");
+            // TODO (b/20758983): Report back to Java and throw an exception
+            _env->ReleaseLongArrayElements(ains, in_ptr, JNI_ABORT);
+            return;
+        }
+
+        if (limit_len != 6) {
+            LOG_ERR("LaunchOptions cannot be recognized");
+            // TODO (b/20758983): Report back to Java and throw an exception
+            _env->ReleaseLongArrayElements(ains, in_ptr, JNI_ABORT);
+            return;
+        }
+
+        sc.xStart     = limit_ptr[0];
+        sc.xEnd       = limit_ptr[1];
+        sc.yStart     = limit_ptr[2];
+        sc.yEnd       = limit_ptr[3];
+        sc.zStart     = limit_ptr[4];
+        sc.zEnd       = limit_ptr[5];
+        sc.strategy   = RS_FOR_EACH_STRATEGY_DONT_CARE;
+        sc.arrayStart = 0;
+        sc.arrayEnd = 0;
+        sc.array2Start = 0;
+        sc.array2End = 0;
+        sc.array3Start = 0;
+        sc.array3End = 0;
+        sc.array4Start = 0;
+        sc.array4End = 0;
+
+        sca = &sc;
+        sc_size = sizeof(sc);
+    }
+
+    dispatchTab.ScriptReduceNew((RsContext)con, (RsScript)script, slot,
+                                in_allocs, in_len, (RsAllocation)aout,
+                                sca, sc_size);
+
+    _env->ReleaseLongArrayElements(ains, in_ptr, JNI_ABORT);
+
+    if (limits != nullptr) {
+        _env->ReleaseIntArrayElements(limits, limit_ptr, JNI_ABORT);
+    }
+}
+
 // -----------------------------------
 
 static jlong
@@ -2283,6 +2381,7 @@ static JNINativeMethod methods[] = {
 {"rsnScriptForEachClipped",          "(JJJIJJIIIIIIZ)V",                      (void*)nScriptForEachClipped },
 {"rsnScriptForEachClipped",          "(JJJIJJ[BIIIIIIZ)V",                    (void*)nScriptForEachClippedV },
 {"rsnScriptReduce",                  "(JJIJJ[I)V",                            (void*)nScriptReduce },
+{"rsnScriptReduceNew",               "(JJI[JJ[I)V",                           (void*)nScriptReduceNew },
 {"rsnScriptSetVarI",                 "(JJIIZ)V",                              (void*)nScriptSetVarI },
 {"rsnScriptSetVarJ",                 "(JJIJZ)V",                              (void*)nScriptSetVarJ },
 {"rsnScriptSetVarF",                 "(JJIFZ)V",                              (void*)nScriptSetVarF },
