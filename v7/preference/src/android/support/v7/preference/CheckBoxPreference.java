@@ -23,6 +23,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.Checkable;
+import android.widget.CompoundButton;
 
 /**
  * A {@link Preference} that provides checkbox widget
@@ -35,6 +36,20 @@ import android.widget.Checkable;
  * @attr ref android.R.styleable#CheckBoxPreference_disableDependentsState
  */
 public class CheckBoxPreference extends TwoStatePreference {
+    private final Listener mListener = new Listener();
+
+    private class Listener implements CompoundButton.OnCheckedChangeListener {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            if (!callChangeListener(isChecked)) {
+                // Listener didn't like it, change it back.
+                // CompoundButton will make sure we don't recurse.
+                buttonView.setChecked(!isChecked);
+                return;
+            }
+            CheckBoxPreference.this.setChecked(isChecked);
+        }
+    }
 
     public CheckBoxPreference(Context context, AttributeSet attrs, int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
@@ -104,8 +119,14 @@ public class CheckBoxPreference extends TwoStatePreference {
     }
 
     private void syncCheckboxView(View view) {
+        if (view instanceof CompoundButton) {
+            ((CompoundButton) view).setOnCheckedChangeListener(null);
+        }
         if (view instanceof Checkable) {
             ((Checkable) view).setChecked(mChecked);
+        }
+        if (view instanceof CompoundButton) {
+            ((CompoundButton) view).setOnCheckedChangeListener(mListener);
         }
     }
 }
