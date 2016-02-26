@@ -27,11 +27,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Drawable.ConstantState;
-import android.graphics.drawable.DrawableContainer;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.InsetDrawable;
 import android.graphics.drawable.LayerDrawable;
-import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
@@ -72,6 +68,8 @@ public final class AppCompatDrawableManager {
     private static final boolean DEBUG = false;
     private static final PorterDuff.Mode DEFAULT_MODE = PorterDuff.Mode.SRC_IN;
     private static final String SKIP_DRAWABLE_TAG = "appcompat_skip_skip";
+
+    private static final String PLATFORM_VD_CLAZZ = "android.graphics.drawable.VectorDrawable";
 
     private static AppCompatDrawableManager INSTANCE;
 
@@ -169,12 +167,16 @@ public final class AppCompatDrawableManager {
 
     private TypedValue mTypedValue;
 
+    private boolean mHasCheckedVectorDrawableSetup;
+
     public Drawable getDrawable(@NonNull Context context, @DrawableRes int resId) {
         return getDrawable(context, resId, false);
     }
 
     public Drawable getDrawable(@NonNull Context context, @DrawableRes int resId,
             boolean failIfNotKnown) {
+        checkVectorDrawableSetup(context);
+
         Drawable drawable = loadDrawableFromDelegates(context, resId);
         if (drawable == null) {
             drawable = ContextCompat.getDrawable(context, resId);
@@ -819,6 +821,28 @@ public final class AppCompatDrawableManager {
             d = d.mutate();
         }
         d.setColorFilter(getPorterDuffColorFilter(color, mode == null ? DEFAULT_MODE : mode));
+    }
+
+    private void checkVectorDrawableSetup(@NonNull Context context) {
+        if (!mHasCheckedVectorDrawableSetup) {
+            // We've already checked so return now...
+            return;
+        }
+        // Here we will check that a known Vector drawable resource inside AppCompat can be
+        // correctly decoded. We use one that will almost definitely be used in the future to
+        // negate any wasted work
+        final Drawable d = getDrawable(context, R.drawable.abc_ic_ab_back_material);
+        if (d != null && isVectorDrawable(d)) {
+            mHasCheckedVectorDrawableSetup = true;
+        } else {
+            throw new IllegalStateException("This app has been built with an incorrect "
+                    + "configuration. Please configure your build for VectorDrawableCompat.");
+        }
+    }
+
+    private static boolean isVectorDrawable(@NonNull Drawable d) {
+        return d instanceof VectorDrawableCompat
+                || PLATFORM_VD_CLAZZ.equals(d.getClass().getName());
     }
 
     private static class VdcInflateDelegate implements InflateDelegate {
