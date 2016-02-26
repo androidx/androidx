@@ -161,7 +161,7 @@
     <style name="TextAppearance.AppCompat.Widget.PopupMenu.Header" parent="Base.TextAppearance.AppCompat.Widget.PopupMenu.Header" />
 
     <style name="TextAppearance.AppCompat.SearchResult.Title"
-           parent="TextAppearance.AppCompat.SearchResult.Title">
+           parent="Base.TextAppearance.AppCompat.SearchResult.Title">
     </style>
 
     <style name="TextAppearance.AppCompat.SearchResult.Subtitle"
