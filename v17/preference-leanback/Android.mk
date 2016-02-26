@@ -32,6 +32,7 @@ LOCAL_RESOURCE_DIR := \
 LOCAL_AAPT_FLAGS := \
         --auto-add-overlay
 LOCAL_JAR_EXCLUDE_FILES := none
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files := $(LOCAL_SRC_FILES)
@@ -45,6 +46,7 @@ LOCAL_SDK_VERSION := 21
 LOCAL_SRC_FILES := $(call all-java-files-under, api21)
 LOCAL_JAVA_LIBRARIES := android-support-v17-preference-leanback-res \
         android-support-v17-leanback
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
@@ -68,6 +70,7 @@ LOCAL_JAVA_LIBRARIES := \
         android-support-v17-leanback \
         android-support-annotations \
         android-support-v17-preference-leanback-res
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)

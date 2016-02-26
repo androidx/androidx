@@ -26,6 +26,7 @@ LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_AAPT_FLAGS := \
 	--auto-add-overlay
 LOCAL_JAR_EXCLUDE_FILES := none
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # Here is the final static library that apps can link against.
@@ -41,6 +42,7 @@ LOCAL_JAVA_LIBRARIES := \
         android-support-v4 \
         android-support-annotations \
         android-support-v7-recyclerview-res
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # API Check

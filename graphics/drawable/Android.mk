@@ -24,6 +24,7 @@ LOCAL_JAVA_LIBRARIES := android-support-v4
 
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res \
 
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 #Animated vector drawable library
@@ -37,5 +38,5 @@ LOCAL_JAVA_LIBRARIES := android-support-v4
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res \
 
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-vectordrawable
-
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)

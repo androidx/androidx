@@ -32,4 +32,5 @@ LOCAL_STATIC_JAVA_LIBRARIES := android-support-v11-animatedvectordrawable androi
 
 LOCAL_AAPT_FLAGS += --auto-add-overlay --extra-packages android.support.graphics.drawable
 
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_PACKAGE)
