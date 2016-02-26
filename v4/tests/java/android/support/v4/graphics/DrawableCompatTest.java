@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 
 @RunWith(AndroidJUnit4.class)
@@ -56,5 +57,17 @@ public class DrawableCompatTest {
     public void testDrawableWrapOnlyWrapsOnce() {
         final Drawable wrappedDrawable = DrawableCompat.wrap(new GradientDrawable());
         assertSame(wrappedDrawable, DrawableCompat.wrap(wrappedDrawable));
+    }
+
+    @Test
+    public void testWrapMutatedDrawableHasConstantState() {
+        // First create a Drawable, and mutated it so that it has a constant state
+        Drawable drawable = new GradientDrawable();
+        drawable = drawable.mutate();
+        assertNotNull(drawable.getConstantState());
+
+        // Now wrap and assert that the wrapper also returns a constant state
+        final Drawable wrapper = DrawableCompat.wrap(drawable);
+        assertNotNull(wrapper.getConstantState());
     }
 }
