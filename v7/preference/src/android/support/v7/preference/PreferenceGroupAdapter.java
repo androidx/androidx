@@ -65,8 +65,6 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
 
     private PreferenceLayout mTempPreferenceLayout = new PreferenceLayout();
 
-    private volatile boolean mIsSyncing = false;
-
     private Handler mHandler = new Handler();
 
     private Runnable mSyncRunnable = new Runnable() {
@@ -128,32 +126,21 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
     }
 
     private void syncMyPreferences() {
-        synchronized(this) {
-            if (mIsSyncing) {
-                return;
-            }
+        final List<Preference> fullPreferenceList = new ArrayList<>(mPreferenceListInternal.size());
+        flattenPreferenceGroup(fullPreferenceList, mPreferenceGroup);
 
-            mIsSyncing = true;
-        }
-
-        List<Preference> newPreferenceList = new ArrayList<>(mPreferenceListInternal.size());
-        flattenPreferenceGroup(newPreferenceList, mPreferenceGroup);
-        mPreferenceListInternal = newPreferenceList;
-
-        mPreferenceList = new ArrayList<>(mPreferenceListInternal.size());
+        final List<Preference> visiblePreferenceList = new ArrayList<>(fullPreferenceList.size());
         // Copy only the visible preferences to the active list
-        for (final Preference preference : mPreferenceListInternal) {
+        for (final Preference preference : fullPreferenceList) {
             if (preference.isVisible()) {
-                mPreferenceList.add(preference);
+                visiblePreferenceList.add(preference);
             }
         }
+
+        mPreferenceList = visiblePreferenceList;
+        mPreferenceListInternal = fullPreferenceList;
 
         notifyDataSetChanged();
-
-        synchronized(this) {
-            mIsSyncing = false;
-            notifyAll();
-        }
     }
 
     private void flattenPreferenceGroup(List<Preference> preferences, PreferenceGroup group) {
