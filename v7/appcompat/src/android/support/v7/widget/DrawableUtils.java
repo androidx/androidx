@@ -144,6 +144,14 @@ class DrawableUtils {
                     }
                 }
             }
+        } else if (drawable instanceof android.support.v4.graphics.drawable.DrawableWrapper) {
+            return canSafelyMutateDrawable(
+                    ((android.support.v4.graphics.drawable.DrawableWrapper) drawable)
+                            .getWrappedDrawable());
+        } else if (drawable instanceof android.support.v7.graphics.drawable.DrawableWrapper) {
+            return canSafelyMutateDrawable(
+                    ((android.support.v7.graphics.drawable.DrawableWrapper) drawable)
+                            .getWrappedDrawable());
         }
 
         return true;
