@@ -18,6 +18,7 @@ package android.support.v7.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Build;
 import android.support.v7.cardview.R;
@@ -69,6 +70,7 @@ import android.widget.FrameLayout;
  */
 public class CardView extends FrameLayout implements CardViewDelegate {
 
+    private static final int[] COLOR_BACKGROUND_ATTR = {android.R.attr.colorBackground};
     private static final CardViewImpl IMPL;
 
     static {
@@ -210,8 +212,23 @@ public class CardView extends FrameLayout implements CardViewDelegate {
 
     private void initialize(Context context, AttributeSet attrs, int defStyleAttr) {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CardView, defStyleAttr,
-                R.style.CardView_Light);
-        int backgroundColor = a.getColor(R.styleable.CardView_cardBackgroundColor, 0);
+                R.style.CardView);
+        int backgroundColor;
+        if (a.hasValue(R.styleable.CardView_cardBackgroundColor)) {
+            backgroundColor = a.getColor(R.styleable.CardView_cardBackgroundColor, 0);
+        } else {
+            // There isn't one set, so we'll compute one based on the theme
+            final TypedArray aa = getContext().obtainStyledAttributes(COLOR_BACKGROUND_ATTR);
+            final int themeColorBackground = aa.getColor(0, 0);
+            aa.recycle();
+
+            // If the theme colorBackground is light, use our own light color, otherwise dark
+            final float[] hsv = new float[3];
+            Color.colorToHSV(themeColorBackground, hsv);
+            backgroundColor = hsv[2] > 0.5f
+                    ? getResources().getColor(R.color.cardview_light_background)
+                    : getResources().getColor(R.color.cardview_dark_background);
+        }
         float radius = a.getDimension(R.styleable.CardView_cardCornerRadius, 0);
         float elevation = a.getDimension(R.styleable.CardView_cardElevation, 0);
         float maxElevation = a.getDimension(R.styleable.CardView_cardMaxElevation, 0);
