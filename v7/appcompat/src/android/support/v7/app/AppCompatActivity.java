@@ -19,6 +19,7 @@ package android.support.v7.app;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.IdRes;
@@ -70,8 +71,15 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
         delegate.installViewFactory();
         delegate.onCreate(savedInstanceState);
         if (delegate.applyDayNight() && mThemeId != 0) {
-            // If day night has been applied, we need to re-set the theme for it to fully apply
-            setTheme(mThemeId);
+            // If DayNight has been applied, we need to re-apply the theme for
+            // the changes to take effect. On API 23+, we should bypass
+            // setTheme(), which will no-op if the theme ID is identical to the
+            // current theme ID.
+            if (Build.VERSION.SDK_INT >= 23) {
+                onApplyThemeResource(getTheme(), mThemeId, false);
+            } else {
+                setTheme(mThemeId);
+            }
         }
         super.onCreate(savedInstanceState);
     }
