@@ -22,17 +22,20 @@ import android.support.v7.appcompat.R;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
-class AppCompatImageHelper {
+/**
+ * @hide
+ */
+public class AppCompatImageHelper {
 
     private final ImageView mView;
     private final AppCompatDrawableManager mDrawableManager;
 
-    AppCompatImageHelper(ImageView view, AppCompatDrawableManager drawableManager) {
+    public AppCompatImageHelper(ImageView view, AppCompatDrawableManager drawableManager) {
         mView = view;
         mDrawableManager = drawableManager;
     }
 
-    void loadFromAttributes(AttributeSet attrs, int defStyleAttr) {
+    public void loadFromAttributes(AttributeSet attrs, int defStyleAttr) {
         TintTypedArray a = TintTypedArray.obtainStyledAttributes(mView.getContext(), attrs,
                 R.styleable.AppCompatImageView, defStyleAttr, 0);
         try {
@@ -58,7 +61,7 @@ class AppCompatImageHelper {
         }
     }
 
-    void setImageResource(int resId) {
+    public void setImageResource(int resId) {
         if (resId != 0) {
             final Drawable d = mDrawableManager != null
                     ? mDrawableManager.getDrawable(mView.getContext(), resId)
