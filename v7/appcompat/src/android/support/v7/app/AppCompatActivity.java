@@ -158,6 +158,9 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         getDelegate().onConfigurationChanged(newConfig);
+        if (mResources != null) {
+            mResources.updateConfiguration(newConfig, null);
+        }
     }
 
     @Override
