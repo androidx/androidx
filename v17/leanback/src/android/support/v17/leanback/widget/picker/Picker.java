@@ -217,7 +217,7 @@ public class Picker extends FrameLayout {
 
     /**
      * When column labels change or column range changes, call this function to re-populate the
-     * selection list.
+     * selection list.  Note this function cannot be called from RecyclerView layout/scroll pass.
      * @param columnIndex Index of column to update.
      * @param column New column to update.
      */
@@ -225,7 +225,7 @@ public class Picker extends FrameLayout {
         mColumns.set(columnIndex, column);
         VerticalGridView columnView = mColumnViews.get(columnIndex);
         PickerScrollArrayAdapter adapter = (PickerScrollArrayAdapter) columnView.getAdapter();
-        if (adapter != null && !columnView.isComputingLayout()) {
+        if (adapter != null) {
             adapter.notifyDataSetChanged();
         }
         columnView.setSelectedPosition(column.getCurrentValue() - column.getMinValue());
