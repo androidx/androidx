@@ -511,7 +511,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         // state.mChangingConfigurations |= Utils.getChangingConfigurations(a);
 
         final int mode = TypedArrayUtils.getNamedInt(a, parser, "tintMode",
-                AndroidResources.styleable_VectorDrawable_Mode, -1);
+                AndroidResources.styleable_VectorDrawable_tintMode, -1);
         state.mTintMode = parseTintModeCompat(mode, Mode.SRC_IN);
 
         final ColorStateList tint =
