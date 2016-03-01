@@ -27,6 +27,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.TintableBackgroundView;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
@@ -310,7 +311,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
     }
 
     public void setPopupBackgroundResource(@DrawableRes int resId) {
-        setPopupBackgroundDrawable(getPopupContext().getDrawable(resId));
+        setPopupBackgroundDrawable(ContextCompat.getDrawable(getPopupContext(), resId));
     }
 
     public Drawable getPopupBackground() {
