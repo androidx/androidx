@@ -16,8 +16,6 @@
 
 package android.support.v7.widget;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -26,7 +24,7 @@ import android.graphics.Rect;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.test.InstrumentationRegistry;
-import android.test.suitebuilder.annotation.MediumTest;
+import android.test.suitebuilder.annotation.LargeTest;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -36,6 +34,7 @@ import java.util.UUID;
 import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)
+@LargeTest
 public class LinearLayoutManagerSavedStateTest extends BaseLinearLayoutManagerTest {
     final Config mConfig;
     final boolean mWaitForLayout;
@@ -267,7 +266,6 @@ public class LinearLayoutManagerSavedStateTest extends BaseLinearLayoutManagerTe
     }
 
     @Test
-    @MediumTest
     public void savedStateTest()
             throws Throwable {
         if (DEBUG) {

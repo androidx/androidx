@@ -23,7 +23,7 @@ import org.junit.runners.Parameterized;
 import android.graphics.Rect;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.test.suitebuilder.annotation.MediumTest;
+import android.test.suitebuilder.annotation.LargeTest;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -32,10 +32,9 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 @RunWith(Parameterized.class)
-@MediumTest
+@LargeTest
 public class StaggeredGridLayoutManagerSavedStateTest extends BaseStaggeredGridLayoutManagerTest {
     private final Config mConfig;
     private final boolean mWaitForLayout;
