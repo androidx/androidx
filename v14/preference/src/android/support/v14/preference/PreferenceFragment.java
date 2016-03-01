@@ -662,11 +662,6 @@ public abstract class PreferenceFragment extends Fragment implements
             final int width = parent.getWidth();
             for (int childViewIndex = 0; childViewIndex < childCount; childViewIndex++) {
                 final View view = parent.getChildAt(childViewIndex);
-                if (shouldDrawDividerAbove(view, parent)) {
-                    int top = (int) ViewCompat.getY(view);
-                    mDivider.setBounds(0, top, width, top + mDividerHeight);
-                    mDivider.draw(c);
-                }
                 if (shouldDrawDividerBelow(view, parent)) {
                     int top = (int) ViewCompat.getY(view) + view.getHeight();
                     mDivider.setBounds(0, top, width, top + mDividerHeight);
@@ -678,18 +673,9 @@ public abstract class PreferenceFragment extends Fragment implements
         @Override
         public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
                 RecyclerView.State state) {
-            if (shouldDrawDividerAbove(view, parent)) {
-                outRect.top = mDividerHeight;
-            }
             if (shouldDrawDividerBelow(view, parent)) {
                 outRect.bottom = mDividerHeight;
             }
-        }
-
-        private boolean shouldDrawDividerAbove(View view, RecyclerView parent) {
-            final RecyclerView.ViewHolder holder = parent.getChildViewHolder(view);
-            return holder.getAdapterPosition() == 0 && holder instanceof PreferenceViewHolder &&
-                    ((PreferenceViewHolder) holder).isDividerAllowedAbove();
         }
 
         private boolean shouldDrawDividerBelow(View view, RecyclerView parent) {
