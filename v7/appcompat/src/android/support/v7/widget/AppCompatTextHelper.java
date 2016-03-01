@@ -81,12 +81,14 @@ class AppCompatTextHelper {
             // if we don't have a PasswordTransformationMethod currently...
 
             boolean allCaps = false;
+            boolean allCapsSet = false;
 
             // First check TextAppearance's textAllCaps value
             if (ap != -1) {
                 TypedArray appearance = context
                         .obtainStyledAttributes(ap, R.styleable.TextAppearance);
                 if (appearance.hasValue(R.styleable.TextAppearance_textAllCaps)) {
+                    allCapsSet = true;
                     allCaps = appearance.getBoolean(R.styleable.TextAppearance_textAllCaps, false);
                 }
                 appearance.recycle();
@@ -95,12 +97,13 @@ class AppCompatTextHelper {
             // Now read the style's value
             a = context.obtainStyledAttributes(attrs, TEXT_APPEARANCE_ATTRS, defStyleAttr, 0);
             if (a.hasValue(0)) {
+                allCapsSet = true;
                 allCaps = a.getBoolean(0, false);
             }
             a.recycle();
 
-            if (allCaps) {
-                setAllCaps(true);
+            if (allCapsSet) {
+                setAllCaps(allCaps);
             }
         }
     }
