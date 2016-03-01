@@ -255,6 +255,9 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
      * @param state Either {@link #STATE_COLLAPSED} or {@link #STATE_EXPANDED}.
      */
     public final void setState(@State int state) {
+        if (mViewRef == null) {
+            return;
+        }
         V child = mViewRef.get();
         if (child == null) {
             return;
