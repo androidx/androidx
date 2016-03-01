@@ -79,16 +79,16 @@ public abstract class AppCompatDelegate {
     static final String TAG = "AppCompatDelegate";
 
     /**
-     * Mode which means to not use night mode, and therefore not use {@code night} and
-     * {@code notnight} qualified resources, regardless of the time.
+     * Mode which means to not use night mode, and therefore prefer {@code notnight} qualified
+     * resources where available, regardless of the time.
      *
      * @see #setLocalNightMode(int)
      */
     public static final int MODE_NIGHT_NO = 1;
 
     /**
-     * Mode which means to always use night mode, and therefore use {@code night} and
-     * {@code notnight} qualified resources, regardless of the time.
+     * Mode which means to always use night mode, and therefore prefer {@code night} qualified
+     * resources where available, regardless of the time.
      *
      * @see #setLocalNightMode(int)
      */
