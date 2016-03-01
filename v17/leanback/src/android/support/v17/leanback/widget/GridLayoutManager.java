@@ -2759,44 +2759,89 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         // If this viewgroup has no focus and not using focus align, we want to
         // consider the child that does not overlap with padding area.
         if (recyclerView.hasFocus()) {
-            final int movement = getMovement(direction);
-            if (movement != PREV_ITEM && movement != NEXT_ITEM) {
-                // Move on secondary direction uses default addFocusables().
-                return false;
-            }
             if (mPendingMoveSmoothScroller != null) {
                 // don't find next focusable if has pending movement.
                 return true;
             }
+            final int movement = getMovement(direction);
             final View focused = recyclerView.findFocus();
-            final int focusedPos = getPositionByIndex(findImmediateChildIndex(focused));
+            final int focusedIndex = findImmediateChildIndex(focused);
+            final int focusedPos = getPositionByIndex(focusedIndex);
             // Add focusables of focused item.
             if (focusedPos != NO_POSITION) {
                 findViewByPosition(focusedPos).addFocusables(views,  direction, focusableMode);
             }
+            if (mGrid == null) {
+                // no grid information, bail out.
+                return true;
+            }
+            if ((movement == NEXT_ROW || movement == PREV_ROW) && mGrid.getNumRows() <= 1) {
+                // For single row, cannot navigate to previous/next row.
+                return true;
+            }
+            // Add focusables of neighbor depending on the focus search direction.
             final int focusedRow = mGrid != null && focusedPos != NO_POSITION ?
                     mGrid.getLocation(focusedPos).row : NO_POSITION;
-            // Add focusables of next neighbor of same row on the focus search direction.
-            if (mGrid != null) {
-                final int focusableCount = views.size();
-                for (int i = 0, count = getChildCount(); i < count; i++) {
-                    int index = movement == NEXT_ITEM ? i : count - 1 - i;
-                    final View child = getChildAt(index);
-                    if (child.getVisibility() != View.VISIBLE || !child.hasFocusable()) {
-                        continue;
+            final int focusableCount = views.size();
+            int inc = movement == NEXT_ITEM || movement == NEXT_ROW ? 1 : -1;
+            int loop_end = inc > 0 ? getChildCount() - 1 : 0;
+            int loop_start;
+            if (focusedIndex == NO_POSITION) {
+                loop_start = inc > 0 ? 0 : getChildCount() - 1;
+            } else {
+                loop_start = focusedIndex + inc;
+            }
+            for (int i = loop_start; inc > 0 ? i <= loop_end : i >= loop_end; i += inc) {
+                final View child = getChildAt(i);
+                if (child.getVisibility() != View.VISIBLE || !child.hasFocusable()) {
+                    continue;
+                }
+                // if there wasn't any focusing item,  add the very first focusable
+                // items and stop.
+                if (focusedPos == NO_POSITION) {
+                    child.addFocusables(views,  direction, focusableMode);
+                    if (views.size() > focusableCount) {
+                        break;
                     }
-                    int position = getPositionByIndex(index);
-                    Grid.Location loc = mGrid.getLocation(position);
-                    if (focusedRow == NO_POSITION || (loc != null && loc.row == focusedRow)) {
-                        if (focusedPos == NO_POSITION ||
-                                (movement == NEXT_ITEM && position > focusedPos)
-                                || (movement == PREV_ITEM && position < focusedPos)) {
-                            child.addFocusables(views,  direction, focusableMode);
-                            if (views.size() > focusableCount) {
-                                break;
-                            }
+                    continue;
+                }
+                int position = getPositionByIndex(i);
+                Grid.Location loc = mGrid.getLocation(position);
+                if (loc == null) {
+                    continue;
+                }
+                if (movement == NEXT_ITEM) {
+                    // Add first focusable item on the same row
+                    if (loc.row == focusedRow && position > focusedPos) {
+                        child.addFocusables(views,  direction, focusableMode);
+                        if (views.size() > focusableCount) {
+                            break;
                         }
                     }
+                } else if (movement == PREV_ITEM) {
+                    // Add first focusable item on the same row
+                    if (loc.row == focusedRow && position < focusedPos) {
+                        child.addFocusables(views,  direction, focusableMode);
+                        if (views.size() > focusableCount) {
+                            break;
+                        }
+                    }
+                } else if (movement == NEXT_ROW) {
+                    // Add all focusable items after this item whose row index is bigger
+                    if (loc.row == focusedRow) {
+                        continue;
+                    } else if (loc.row < focusedRow) {
+                        break;
+                    }
+                    child.addFocusables(views,  direction, focusableMode);
+                } else if (movement == PREV_ROW) {
+                    // Add all focusable items before this item whose row index is smaller
+                    if (loc.row == focusedRow) {
+                        continue;
+                    } else if (loc.row > focusedRow) {
+                        break;
+                    }
+                    child.addFocusables(views,  direction, focusableMode);
                 }
             }
         } else {

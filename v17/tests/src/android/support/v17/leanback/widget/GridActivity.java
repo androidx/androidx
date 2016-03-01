@@ -42,6 +42,10 @@ public class GridActivity extends Activity {
 
     private static final String TAG = "GridActivity";
 
+    interface AdapterListener {
+        void onBind(RecyclerView.ViewHolder vh, int position);
+    }
+
     public static final String EXTRA_LAYOUT_RESOURCE_ID = "layoutResourceId";
     public static final String EXTRA_NUM_ITEMS = "numItems";
     public static final String EXTRA_ITEMS = "items";
@@ -51,6 +55,8 @@ public class GridActivity extends Activity {
     public static final String EXTRA_REQUEST_FOCUS_ONLAYOUT = "requstFocusOnLayout";
     public static final String EXTRA_CHILD_LAYOUT_ID = "childLayoutId";
     public static final String EXTRA_SECONDARY_SIZE_ZERO = "secondarySizeZero";
+    public static final String EXTRA_UPDATE_SIZE = "updateSize";
+
     /**
      * Class that implements GridWidgetTest.ViewTypeProvider for creating different
      * view types for each position.
@@ -87,6 +93,8 @@ public class GridActivity extends Activity {
     GridWidgetTest.ViewTypeProvider mViewTypeProvider;
     GridWidgetTest.ItemAlignmentFacetProvider mAlignmentProvider;
     GridWidgetTest.ItemAlignmentFacetProvider mAlignmentViewTypeProvider;
+    AdapterListener mAdapterListener;
+    boolean mUpdateSize = true;
 
     int[] mGridViewLayoutSize;
     BaseGridView mGridView;
@@ -123,6 +131,7 @@ public class GridActivity extends Activity {
                 DEFAULT_REQUEST_LAYOUT_ONFOCUS);
         mRequestFocusOnLayout = intent.getBooleanExtra(EXTRA_REQUEST_FOCUS_ONLAYOUT,
                 DEFAULT_REQUEST_FOCUS_ONLAYOUT);
+        mUpdateSize = intent.getBooleanExtra(EXTRA_UPDATE_SIZE, true);
         mSecondarySizeZero = intent.getBooleanExtra(EXTRA_SECONDARY_SIZE_ZERO, false);
         mItemLengths = intent.getIntArrayExtra(EXTRA_ITEMS);
         mItemFocusables = intent.getBooleanArrayExtra(EXTRA_ITEMS_FOCUSABLE);
@@ -311,7 +320,7 @@ public class GridActivity extends Activity {
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             if (DEBUG) Log.v(TAG, "createViewHolder " + viewType);
             if (mChildLayout != -1) {
-                final View view = getLayoutInflater().inflate(mChildLayout, null, false);
+                final View view = getLayoutInflater().inflate(mChildLayout, parent, false);
                 ArrayList<View> focusables = new ArrayList<View>();
                 view.addFocusables(focusables, View.FOCUS_UP);
                 for (int i = 0; i < focusables.size(); i++) {
@@ -383,6 +392,9 @@ public class GridActivity extends Activity {
                 }
             }
             updateSize(holder.itemView, position);
+            if (mAdapterListener != null) {
+                mAdapterListener.onBind(baseHolder, position);
+            }
         }
 
         @Override
@@ -393,6 +405,9 @@ public class GridActivity extends Activity {
     }
 
     void updateSize(View view, int position) {
+        if (!mUpdateSize) {
+            return;
+        }
         ViewGroup.LayoutParams p = view.getLayoutParams();
         if (p == null) {
             p = new ViewGroup.LayoutParams(0, 0);
