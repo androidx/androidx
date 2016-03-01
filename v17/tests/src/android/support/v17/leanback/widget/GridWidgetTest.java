@@ -28,6 +28,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerViewAccessibilityDelegate;
 
 import android.app.Instrumentation;
@@ -2334,6 +2335,52 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         assertTrue(button.isFocused());
         sendKeys(KeyEvent.KEYCODE_DPAD_DOWN);
         assertTrue(secondChild.isFocused());
+    }
+
+    public void testBug27258366() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear_with_button_onleft);
+        intent.putExtra(GridActivity.EXTRA_CHILD_LAYOUT_ID, R.layout.horizontal_item);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 10);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        intent.putExtra(GridActivity.EXTRA_UPDATE_SIZE, false);
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        // move item1 500 pixels right, when focus is on item1, default focus finder will pick
+        // item0 and item2 for the best match of focusSearch(FOCUS_LEFT).  The grid widget
+        // must override default addFocusables(), not to add item0 or item2.
+        mActivity.mAdapterListener = new GridActivity.AdapterListener() {
+            public void onBind(RecyclerView.ViewHolder vh, int position) {
+                if (position == 1) {
+                    vh.itemView.setPaddingRelative(500, 0, 0, 0);
+                } else {
+                    vh.itemView.setPaddingRelative(0, 0, 0, 0);
+                }
+            }
+        };
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.getAdapter().notifyDataSetChanged();
+            }
+        });
+        Thread.sleep(100);
+
+        final ViewGroup secondChild = (ViewGroup) mGridView.getChildAt(1);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                secondChild.requestFocus();
+            }
+        });
+        sendKeys(KeyEvent.KEYCODE_DPAD_LEFT);
+        Thread.sleep(100);
+        final View button = mActivity.findViewById(R.id.button);
+        assertTrue(button.isFocused());
     }
 
     public void testAccessibility() throws Throwable {
