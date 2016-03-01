@@ -20,14 +20,14 @@ class AndroidResources {
     static final int[] styleable_VectorDrawableTypeArray = {
             android.R.attr.name, android.R.attr.tint, android.R.attr.height,
             android.R.attr.width, android.R.attr.alpha, android.R.attr.autoMirrored,
-            android.R.attr.mode, android.R.attr.viewportWidth, android.R.attr.viewportHeight
+            android.R.attr.tintMode, android.R.attr.viewportWidth, android.R.attr.viewportHeight
     };
     static final int styleable_VectorDrawable_alpha = 4;
     static final int styleable_VectorDrawable_autoMirrored = 5;
     static final int styleable_VectorDrawable_height = 2;
     static final int styleable_VectorDrawable_name = 0;
     static final int styleable_VectorDrawable_tint = 1;
-    static final int styleable_VectorDrawable_Mode = 6;
+    static final int styleable_VectorDrawable_tintMode = 6;
     static final int styleable_VectorDrawable_viewportHeight = 8;
     static final int styleable_VectorDrawable_viewportWidth = 7;
     static final int styleable_VectorDrawable_width = 3;
