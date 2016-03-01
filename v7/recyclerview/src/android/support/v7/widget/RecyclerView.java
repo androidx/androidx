@@ -3023,8 +3023,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         mState.mLayoutStep = State.STEP_START;
         if (mState.mRunSimpleAnimations) {
             // Step 3: Find out where things are now, and process change animations.
-            int count = mChildHelper.getChildCount();
-            for (int i = 0; i < count; ++i) {
+            // traverse list in reverse because we may call animateChange in the loop which may
+            // remove the target view holder.
+            for (int i = mChildHelper.getChildCount() - 1; i >= 0; i--) {
                 ViewHolder holder = getChildViewHolderInt(mChildHelper.getChildAt(i));
                 if (holder.shouldIgnore()) {
                     continue;
@@ -3041,19 +3042,27 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     // Since a view that is marked as disappearing is likely to be going out of
                     // bounds, we run a change animation. Both views will be cleaned automatically
                     // once their animations finish.
+                    // On the other hand, if it is the same view holder instance, we run a
+                    // disappearing animation instead because we are not going to rebind the updated
+                    // VH unless it is enforced by the layout manager.
                     final boolean oldDisappearing = mViewInfoStore.isDisappearing(
                             oldChangeViewHolder);
                     final boolean newDisappearing = mViewInfoStore.isDisappearing(holder);
-                    final ItemHolderInfo preInfo = mViewInfoStore.popFromPreLayout(
-                            oldChangeViewHolder);
-                    // we add an remove so that any post info is merged.
-                    mViewInfoStore.addToPostLayout(holder, animationInfo);
-                    ItemHolderInfo postInfo = mViewInfoStore.popFromPostLayout(holder);
-                    if (preInfo == null) {
-                        handleMissingPreInfoForChangeError(key, holder, oldChangeViewHolder);
+                    if (oldDisappearing && oldChangeViewHolder == holder) {
+                        // run disappear animation instead of change
+                        mViewInfoStore.addToPostLayout(holder, animationInfo);
                     } else {
-                        animateChange(oldChangeViewHolder, holder, preInfo, postInfo,
-                                oldDisappearing, newDisappearing);
+                        final ItemHolderInfo preInfo = mViewInfoStore.popFromPreLayout(
+                                oldChangeViewHolder);
+                        // we add and remove so that any post info is merged.
+                        mViewInfoStore.addToPostLayout(holder, animationInfo);
+                        ItemHolderInfo postInfo = mViewInfoStore.popFromPostLayout(holder);
+                        if (preInfo == null) {
+                            handleMissingPreInfoForChangeError(key, holder, oldChangeViewHolder);
+                        } else {
+                            animateChange(oldChangeViewHolder, holder, preInfo, postInfo,
+                                    oldDisappearing, newDisappearing);
+                        }
                     }
                 } else {
                     mViewInfoStore.addToPostLayout(holder, animationInfo);
@@ -10503,6 +10512,18 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * the change flags that were passed to
          * {@link #recordPreLayoutInformation(State, ViewHolder, int, List)}.
          * <p>
+         * Note that when a ViewHolder both changes and disappears in the same layout pass, the
+         * animation callback method which will be called by the RecyclerView depends on the
+         * ItemAnimator's decision whether to re-use the same ViewHolder or not, and also the
+         * LayoutManager's decision whether to layout the changed version of a disappearing
+         * ViewHolder or not. RecyclerView will call
+         * {@link #animateChange(ViewHolder, ViewHolder, ItemHolderInfo, ItemHolderInfo)
+         * animateChange} instead of {@code animateDisappearance} if and only if the ItemAnimator
+         * returns {@code false} from
+         * {@link #canReuseUpdatedViewHolder(ViewHolder) canReuseUpdatedViewHolder} and the
+         * LayoutManager lays out a new disappearing view that holds the updated information.
+         * Built-in LayoutManagers try to avoid laying out updated versions of disappearing views.
+         * <p>
          * If LayoutManager supports predictive animations, it might provide a target disappear
          * location for the View by laying it out in that location. When that happens,
          * RecyclerView will call {@link #recordPostLayoutInformation(State, ViewHolder)} and the
@@ -10620,6 +10641,18 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * <p>
          *  If oldHolder and newHolder are the same instance, you should call
          * {@link #dispatchAnimationFinished(ViewHolder)} <b>only once</b>.
+         * <p>
+         * Note that when a ViewHolder both changes and disappears in the same layout pass, the
+         * animation callback method which will be called by the RecyclerView depends on the
+         * ItemAnimator's decision whether to re-use the same ViewHolder or not, and also the
+         * LayoutManager's decision whether to layout the changed version of a disappearing
+         * ViewHolder or not. RecyclerView will call
+         * {@code animateChange} instead of
+         * {@link #animateDisappearance(ViewHolder, ItemHolderInfo, ItemHolderInfo)
+         * animateDisappearance} if and only if the ItemAnimator returns {@code false} from
+         * {@link #canReuseUpdatedViewHolder(ViewHolder) canReuseUpdatedViewHolder} and the
+         * LayoutManager lays out a new disappearing view that holds the updated information.
+         * Built-in LayoutManagers try to avoid laying out updated versions of disappearing views.
          *
          * @param oldHolder     The ViewHolder before the layout is started, might be the same
          *                      instance with newHolder.
