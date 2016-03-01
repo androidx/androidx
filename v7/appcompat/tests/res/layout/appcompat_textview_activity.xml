@@ -68,6 +68,14 @@
             android:layout_height="wrap_content"
             android:text="@string/sample_text2"
             android:background="@drawable/test_background_green" />
+
+        <Button
+            android:id="@+id/button_app_allcaps_false"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_text2"
+            app:textAllCaps="false"/>
+
     </LinearLayout>
 
 </ScrollView>
