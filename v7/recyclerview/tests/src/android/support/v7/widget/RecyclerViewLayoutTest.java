@@ -18,6 +18,7 @@
 package android.support.v7.widget;
 
 import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -384,6 +385,47 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         assertEquals("on scroll should NOT be called", 2, rvCounter.get());
         assertEquals("on scroll should NOT be called", 2, viewGroupCounter.get());
 
+    }
+
+    @Test
+    public void addItemOnScroll() throws Throwable {
+        RecyclerView recyclerView = new RecyclerView(getActivity());
+        final AtomicInteger start = new AtomicInteger(0);
+        TestLayoutManager tlm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                layoutRange(recycler, start.get(), start.get() + 10);
+                layoutLatch.countDown();
+            }
+        };
+        recyclerView.setLayoutManager(tlm);
+        final TestAdapter adapter = new TestAdapter(100);
+        recyclerView.setAdapter(adapter);
+        tlm.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        tlm.waitForLayout(1);
+        final Throwable[] error = new Throwable[1];
+        final AtomicBoolean calledOnScroll = new AtomicBoolean(false);
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                calledOnScroll.set(true);
+                try {
+                    adapter.addAndNotify(5, 20);
+                } catch (Throwable throwable) {
+                    error[0] = throwable;
+                }
+            }
+        });
+        start.set(4);
+        MatcherAssert.assertThat("test sanity", calledOnScroll.get(), CoreMatchers.is(false));
+        tlm.expectLayouts(1);
+        requestLayoutOnUIThread(recyclerView);
+        tlm.waitForLayout(2);
+        checkForMainThreadException();
+        MatcherAssert.assertThat("test sanity", calledOnScroll.get(), CoreMatchers.is(true));
+        MatcherAssert.assertThat(error[0], CoreMatchers.nullValue());
     }
 
     @Test
