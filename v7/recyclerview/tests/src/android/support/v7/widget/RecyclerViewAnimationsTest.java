@@ -116,13 +116,13 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         mLayoutManager.waitForLayout(2);
 
         MatcherAssert.assertThat(animator.contains(vh, animator.mAnimateDisappearanceList),
-                CoreMatchers.is(false));
+                CoreMatchers.is(reUse));
         MatcherAssert.assertThat(animator.contains(vh, animator.mAnimateChangeList),
-                CoreMatchers.is(true));
+                CoreMatchers.is(!reUse));
         MatcherAssert.assertThat(animator.contains(updatedVH[0], animator.mAnimateChangeList),
-                CoreMatchers.is(true));
+                CoreMatchers.is(!reUse));
         MatcherAssert.assertThat(animator.contains(updatedVH[0],
-                animator.mAnimateDisappearanceList), CoreMatchers.is(false));
+                animator.mAnimateDisappearanceList), CoreMatchers.is(reUse));
         waitForAnimations(10);
         MatcherAssert.assertThat(mRecyclerView.getChildCount(), CoreMatchers.is(0));
         if (useScrap || !reUse) {
