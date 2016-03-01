@@ -2875,7 +2875,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             return;
         }
         mState.mIsMeasuring = false;
-        onEnterLayoutOrScroll();
         if (mState.mLayoutStep == State.STEP_START) {
             dispatchLayoutStep1();
             mLayout.setExactMeasureSpecsFrom(this);
@@ -2891,7 +2890,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             mLayout.setExactMeasureSpecsFrom(this);
         }
         dispatchLayoutStep3();
-        onExitLayoutOrScroll();
     }
 
     /**
@@ -3021,6 +3019,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     private void dispatchLayoutStep3() {
         mState.assertLayoutStep(State.STEP_ANIMATIONS);
         eatRequestLayout();
+        onEnterLayoutOrScroll();
         mState.mLayoutStep = State.STEP_START;
         if (mState.mRunSimpleAnimations) {
             // Step 3: Find out where things are now, and process change animations.
@@ -3075,6 +3074,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         if (mRecycler.mChangedScrap != null) {
             mRecycler.mChangedScrap.clear();
         }
+        onExitLayoutOrScroll();
         resumeRequestLayout(false);
         mViewInfoStore.clear();
         if (didChildRangeChange(mMinMaxLayoutPositions[0], mMinMaxLayoutPositions[1])) {
