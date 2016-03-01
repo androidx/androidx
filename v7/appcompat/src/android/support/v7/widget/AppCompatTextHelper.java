@@ -85,11 +85,13 @@ class AppCompatTextHelper {
         final boolean hasPwdTm =
                 mView.getTransformationMethod() instanceof PasswordTransformationMethod;
         boolean allCaps = false;
+        boolean allCapsSet = false;
 
         // First check TextAppearance's textAllCaps value
         if (ap != -1) {
             a = TintTypedArray.obtainStyledAttributes(context, ap, R.styleable.TextAppearance);
             if (!hasPwdTm && a.hasValue(R.styleable.TextAppearance_textAllCaps)) {
+                allCapsSet = true;
                 allCaps = a.getBoolean(R.styleable.TextAppearance_textAllCaps, false);
             }
             if (Build.VERSION.SDK_INT < 23 && TypedValue.TYPE_STRING
@@ -109,6 +111,7 @@ class AppCompatTextHelper {
         a = TintTypedArray.obtainStyledAttributes(context, attrs, R.styleable.TextAppearance,
                 defStyleAttr, 0);
         if (!hasPwdTm && a.hasValue(R.styleable.TextAppearance_textAllCaps)) {
+            allCapsSet = true;
             allCaps = a.getBoolean(R.styleable.TextAppearance_textAllCaps, false);
         }
         if (Build.VERSION.SDK_INT < 23 && TypedValue.TYPE_STRING ==
@@ -123,8 +126,8 @@ class AppCompatTextHelper {
         }
         a.recycle();
 
-        if (!hasPwdTm && allCaps) {
-            setAllCaps(true);
+        if (!hasPwdTm && allCapsSet) {
+            setAllCaps(allCaps);
         }
     }
 
