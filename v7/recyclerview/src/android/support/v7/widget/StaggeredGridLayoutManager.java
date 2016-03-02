@@ -2166,7 +2166,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
             return null;
         }
 
-        View directChild = findContainingItemView(focused);
+        final View directChild = findContainingItemView(focused);
         if (directChild == null) {
             return null;
         }
@@ -2177,7 +2177,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         if (layoutDir == LayoutState.INVALID_LAYOUT) {
             return null;
         }
-        LayoutParams prevFocusLayoutParams = (LayoutParams) focused.getLayoutParams();
+        LayoutParams prevFocusLayoutParams = (LayoutParams) directChild.getLayoutParams();
         boolean prevFocusFullSpan = prevFocusLayoutParams.mFullSpan;
         final Span prevFocusSpan = prevFocusLayoutParams.mSpan;
         final int referenceChildPosition;
@@ -2197,7 +2197,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         mLastLayoutFromEnd = mShouldReverseLayout;
         if (!prevFocusFullSpan) {
             View view = prevFocusSpan.getFocusableViewAfter(referenceChildPosition, layoutDir);
-            if (view != null && view != focused) {
+            if (view != null && view != directChild) {
                 return view;
             }
         }
@@ -2206,14 +2206,14 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         if (preferLastSpan(layoutDir)) {
             for (int i = mSpanCount - 1; i >= 0; i --) {
                 View view = mSpans[i].getFocusableViewAfter(referenceChildPosition, layoutDir);
-                if (view != null && view != focused) {
+                if (view != null && view != directChild) {
                     return view;
                 }
             }
         } else {
             for (int i = 0; i < mSpanCount; i ++) {
                 View view = mSpans[i].getFocusableViewAfter(referenceChildPosition, layoutDir);
-                if (view != null && view != focused) {
+                if (view != null && view != directChild) {
                     return view;
                 }
             }
