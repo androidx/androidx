@@ -20,6 +20,10 @@ import android.support.v4.app.test.FragmentTestActivity;
 import android.support.v4.test.R;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.UiThreadTest;
+import android.test.suitebuilder.annotation.SmallTest;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -29,7 +33,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class FragmentTest extends
         ActivityInstrumentationTestCase2<FragmentTestActivity> {
     private FragmentTestActivity mActivity;
-    private static AtomicInteger sOrder = new AtomicInteger();
 
     public FragmentTest() {
         super(FragmentTestActivity.class);
@@ -41,6 +44,7 @@ public class FragmentTest extends
         mActivity = getActivity();
     }
 
+    @SmallTest
     @UiThreadTest
     public void testOnCreateOrder() throws Throwable {
         OrderFragment fragment1 = new OrderFragment();
@@ -54,7 +58,65 @@ public class FragmentTest extends
         assertEquals(1, fragment2.createOrder);
     }
 
+    @SmallTest
+    public void testChildFragmentManagerGone() throws Throwable {
+        final FragmentA fragmentA = new FragmentA();
+        final FragmentB fragmentB = new FragmentB();
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.getSupportFragmentManager().beginTransaction()
+                        .add(R.id.content, fragmentA)
+                        .commitNow();
+            }
+        });
+        getInstrumentation().waitForIdleSync();
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.getSupportFragmentManager().beginTransaction()
+                        .setCustomAnimations(R.anim.long_fade_in, R.anim.long_fade_out,
+                                R.anim.long_fade_in, R.anim.long_fade_out)
+                        .replace(R.id.content, fragmentB)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
+        // Wait for the middle of the animation
+        Thread.sleep(150);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.getSupportFragmentManager().beginTransaction()
+                        .setCustomAnimations(R.anim.long_fade_in, R.anim.long_fade_out,
+                                R.anim.long_fade_in, R.anim.long_fade_out)
+                        .replace(R.id.content, fragmentA)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
+        // Wait for the middle of the animation
+        Thread.sleep(150);
+        getInstrumentation().waitForIdleSync();
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.getSupportFragmentManager().popBackStack();
+            }
+        });
+        // Wait for the middle of the animation
+        Thread.sleep(150);
+        getInstrumentation().waitForIdleSync();
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.getSupportFragmentManager().popBackStack();
+            }
+        });
+    }
+
     public static class OrderFragment extends Fragment {
+        private static AtomicInteger sOrder = new AtomicInteger();
         public int createOrder = -1;
 
         public OrderFragment() {}
@@ -63,6 +125,22 @@ public class FragmentTest extends
         public void onCreate(Bundle savedInstanceState) {
             createOrder = sOrder.getAndIncrement();
             super.onCreate(savedInstanceState);
+        }
+    }
+
+    public static class FragmentA extends Fragment {
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                Bundle savedInstanceState) {
+            return inflater.inflate(R.layout.fragment_a, container, false);
+        }
+    }
+
+    public static class FragmentB extends Fragment {
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                Bundle savedInstanceState) {
+            return inflater.inflate(R.layout.fragment_b, container, false);
         }
     }
 }
