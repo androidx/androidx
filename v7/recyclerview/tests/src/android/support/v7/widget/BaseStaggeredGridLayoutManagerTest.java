@@ -480,12 +480,13 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
             layoutLatch = new CountDownLatch(count);
         }
 
-        public void waitForLayout(long timeout) throws InterruptedException {
+        public void waitForLayout(long timeout) throws Throwable {
             waitForLayout(timeout * (DEBUG ? 1000 : 1), TimeUnit.SECONDS);
         }
 
-        public void waitForLayout(long timeout, TimeUnit timeUnit) throws InterruptedException {
+        public void waitForLayout(long timeout, TimeUnit timeUnit) throws Throwable {
             layoutLatch.await(timeout, timeUnit);
+            checkForMainThreadException();
             assertEquals("all expected layouts should be executed at the expected time",
                     0, layoutLatch.getCount());
         }
