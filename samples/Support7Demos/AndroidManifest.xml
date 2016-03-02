@@ -436,7 +436,7 @@
 
         <activity android:name=".view.CardViewActivity"
                   android:label="@string/card_view"
-                  android:theme="@style/Theme.AppCompat">
+                  android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />

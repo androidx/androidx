@@ -15,10 +15,10 @@
  */
 package com.example.android.supportv7.view;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +28,7 @@ import android.widget.TextView;
 
 import com.example.android.supportv7.R;
 
-public class CardViewActivity extends Activity {
+public class CardViewActivity extends AppCompatActivity {
 
     CardView mCardView;
 
