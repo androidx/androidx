@@ -26,11 +26,11 @@ import android.support.annotation.NonNull;
  *
  * @hide
  */
-public class TintResources extends ResourcesWrapper {
+public class TintResources extends Resources {
     private final Context mContext;
 
     public TintResources(@NonNull final Context context, @NonNull final Resources res) {
-        super(res);
+        super(res.getAssets(), res.getDisplayMetrics(), res.getConfiguration());
         mContext = context;
     }
 
