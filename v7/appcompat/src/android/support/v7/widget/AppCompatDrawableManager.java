@@ -112,8 +112,18 @@ public final class AppCompatDrawableManager {
      * {@link DrawableCompat}'s tinting functionality.
      */
     private static final int[] TINT_COLOR_CONTROL_NORMAL = {
+            R.drawable.abc_ic_ab_back_mtrl_am_alpha,
+            R.drawable.abc_ic_go_search_api_mtrl_alpha,
             R.drawable.abc_ic_search_api_mtrl_alpha,
             R.drawable.abc_ic_commit_search_api_mtrl_alpha,
+            R.drawable.abc_ic_clear_mtrl_alpha,
+            R.drawable.abc_ic_menu_share_mtrl_alpha,
+            R.drawable.abc_ic_menu_copy_mtrl_am_alpha,
+            R.drawable.abc_ic_menu_cut_mtrl_alpha,
+            R.drawable.abc_ic_menu_selectall_mtrl_alpha,
+            R.drawable.abc_ic_menu_paste_mtrl_am_alpha,
+            R.drawable.abc_ic_menu_moreoverflow_mtrl_alpha,
+            R.drawable.abc_ic_voice_search_api_mtrl_alpha
     };
 
     /**
@@ -142,9 +152,16 @@ public final class AppCompatDrawableManager {
      * {@code R.attr.colorControlNormal} and {@code R.attr.colorControlActivated}
      */
     private static final int[] TINT_COLOR_CONTROL_STATE_LIST = {
+            R.drawable.abc_edit_text_material,
             R.drawable.abc_tab_indicator_material,
             R.drawable.abc_textfield_search_material,
-            R.drawable.abc_ratingbar_full_material
+            R.drawable.abc_spinner_mtrl_am_alpha,
+            R.drawable.abc_spinner_textfield_background_material,
+            R.drawable.abc_ratingbar_full_material,
+            R.drawable.abc_switch_track_mtrl_alpha,
+            R.drawable.abc_switch_thumb_material,
+            R.drawable.abc_btn_default_mtrl_shape,
+            R.drawable.abc_btn_borderless_material
     };
 
     /**
@@ -175,8 +192,6 @@ public final class AppCompatDrawableManager {
 
     public Drawable getDrawable(@NonNull Context context, @DrawableRes int resId,
             boolean failIfNotKnown) {
-        checkVectorDrawableSetup(context);
-
         Drawable drawable = loadDrawableFromDelegates(context, resId);
         if (drawable == null) {
             drawable = ContextCompat.getDrawable(context, resId);
@@ -821,23 +836,6 @@ public final class AppCompatDrawableManager {
             d = d.mutate();
         }
         d.setColorFilter(getPorterDuffColorFilter(color, mode == null ? DEFAULT_MODE : mode));
-    }
-
-    private void checkVectorDrawableSetup(@NonNull Context context) {
-        if (!mHasCheckedVectorDrawableSetup) {
-            // We've already checked so return now...
-            return;
-        }
-        // Here we will check that a known Vector drawable resource inside AppCompat can be
-        // correctly decoded. We use one that will almost definitely be used in the future to
-        // negate any wasted work
-        final Drawable d = getDrawable(context, R.drawable.abc_ic_ab_back_material);
-        if (d != null && isVectorDrawable(d)) {
-            mHasCheckedVectorDrawableSetup = true;
-        } else {
-            throw new IllegalStateException("This app has been built with an incorrect "
-                    + "configuration. Please configure your build for VectorDrawableCompat.");
-        }
     }
 
     private static boolean isVectorDrawable(@NonNull Drawable d) {

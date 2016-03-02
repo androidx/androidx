@@ -26,8 +26,7 @@ LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-vectordrawable \
         android-support-animatedvectordrawable
 LOCAL_JAVA_LIBRARIES := android-support-v4
-LOCAL_AAPT_FLAGS += --auto-add-overlay \
-        --no-version-vectors
+LOCAL_AAPT_FLAGS += --auto-add-overlay
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # API Check
