@@ -529,6 +529,7 @@ public class Preference implements Comparable<Preference> {
 
         final boolean selectable = isSelectable();
         holder.itemView.setFocusable(selectable);
+        holder.itemView.setClickable(selectable);
 
         holder.setDividerAllowedAbove(selectable);
         holder.setDividerAllowedBelow(selectable);
