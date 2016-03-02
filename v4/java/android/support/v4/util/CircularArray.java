@@ -41,27 +41,35 @@ public final class CircularArray<E> {
     }
 
     /**
-     * Create a CircularArray with default capacity.
+     * Creates a circular array with default capacity.
      */
     public CircularArray() {
         this(8);
     }
 
     /**
-     * Create a CircularArray with capacity for at least minCapacity elements.
+     * Creates a circular array with capacity for at least {@code minCapacity}
+     * elements.
      *
-     * @param minCapacity The minimum capacity required for the CircularArray.
+     * @param minCapacity the minimum capacity, between 1 and 2^29 inclusive
      */
     public CircularArray(int minCapacity) {
-        if (minCapacity <= 0) {
-            throw new IllegalArgumentException("capacity must be positive");
+        if (minCapacity < 1) {
+            throw new IllegalArgumentException("capacity must be >= 1");
         }
-        int arrayCapacity = minCapacity;
-        // If minCapacity isn't a power of 2, round up to the next highest power
-        // of 2.
+        if (minCapacity > (2 << 29)) {
+            throw new IllegalArgumentException("capacity must be <= 2^29");
+        }
+
+        // If minCapacity isn't a power of 2, round up to the next highest
+        // power of 2.
+        final int arrayCapacity;
         if (Integer.bitCount(minCapacity) != 1) {
-            arrayCapacity = 1 << (Integer.highestOneBit(minCapacity) + 1);
+            arrayCapacity = Integer.highestOneBit(minCapacity - 1) << 1;
+        } else {
+            arrayCapacity = minCapacity;
         }
+
         mCapacityBitmask = arrayCapacity - 1;
         mElements = (E[]) new Object[arrayCapacity];
     }
