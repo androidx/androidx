@@ -18,48 +18,46 @@
 package android.support.v7.widget;
 
 
-import org.junit.Before;
-import org.junit.Test;
+import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
+import static android.support.v7.widget.StaggeredGridLayoutManager
+        .GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS;
+import static android.support.v7.widget.StaggeredGridLayoutManager.GAP_HANDLING_NONE;
+import static android.support.v7.widget.StaggeredGridLayoutManager.HORIZONTAL;
+import static android.support.v7.widget.StaggeredGridLayoutManager.LayoutParams;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
-import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.Nullable;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityRecordCompat;
 import android.test.suitebuilder.annotation.MediumTest;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.StateSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
+import org.hamcrest.CoreMatchers;
+import org.junit.Test;
+
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static android.support.v7.widget.LayoutState.LAYOUT_END;
-import static android.support.v7.widget.LayoutState.LAYOUT_START;
-import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
-import static android.support.v7.widget.StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS;
-import static android.support.v7.widget.StaggeredGridLayoutManager.GAP_HANDLING_NONE;
-import static android.support.v7.widget.StaggeredGridLayoutManager.HORIZONTAL;
-import static android.support.v7.widget.StaggeredGridLayoutManager.LayoutParams;
-import static org.junit.Assert.*;
 
 
 @MediumTest
@@ -240,11 +238,55 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         focusSearchFailure(true);
     }
 
+    @Test
+    public void focusSearchFailureFromSubChild() throws Throwable {
+        setupByConfig(new Config(VERTICAL, false, 3, GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS),
+                new GridTestAdapter(1000, VERTICAL) {
+
+                    @Override
+                    public TestViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                        FrameLayout fl = new FrameLayout(parent.getContext());
+                        EditText editText = new EditText(parent.getContext());
+                        fl.addView(editText);
+                        editText.setEllipsize(TextUtils.TruncateAt.END);
+                        return new TestViewHolder(fl);
+                    }
+
+                    @Override
+                    public void onBindViewHolder(TestViewHolder holder, int position) {
+                        Item item = mItems.get(position);
+                        ((EditText) ((FrameLayout) holder.itemView).getChildAt(0)).setText(
+                                item.mText + " (" + item.mId + ")");
+                    }
+                });
+        waitFirstLayout();
+        ViewGroup lastChild = (ViewGroup) mRecyclerView.getChildAt(
+                mRecyclerView.getChildCount() - 1);
+        RecyclerView.ViewHolder lastViewHolder = mRecyclerView.getChildViewHolder(lastChild);
+        View subChildToFocus = lastChild.getChildAt(0);
+        requestFocus(subChildToFocus);
+        assertThat("test sanity", subChildToFocus.isFocused(), CoreMatchers.is(true));
+        focusSearch(subChildToFocus, View.FOCUS_FORWARD);
+        checkForMainThreadException();
+        View focusedChild = mRecyclerView.getFocusedChild();
+        if (focusedChild == subChildToFocus.getParent()) {
+            focusSearch(focusedChild, View.FOCUS_FORWARD);
+            focusedChild = mRecyclerView.getFocusedChild();
+        }
+        RecyclerView.ViewHolder containingViewHolder = mRecyclerView.findContainingViewHolder(
+                focusedChild);
+        assertTrue("new focused view should have a larger position "
+                        + lastViewHolder.getAdapterPosition() + " vs "
+                        + containingViewHolder.getAdapterPosition(),
+                lastViewHolder.getAdapterPosition() < containingViewHolder.getAdapterPosition());
+    }
+
     public void focusSearchFailure(boolean scrollDown) throws Throwable {
         int focusDir = scrollDown ? View.FOCUS_DOWN : View.FOCUS_UP;
         setupByConfig(new Config(VERTICAL, !scrollDown, 3, GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS)
                 , new GridTestAdapter(31, 1) {
                     RecyclerView mAttachedRv;
+
                     @Override
                     public TestViewHolder onCreateViewHolder(ViewGroup parent,
                             int viewType) {
