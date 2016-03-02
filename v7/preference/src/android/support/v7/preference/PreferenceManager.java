@@ -18,7 +18,9 @@ package android.support.v7.preference;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.SharedPreferencesCompat;
+import android.support.v4.os.BuildCompat;
 
 /**
  * Used to help create {@link Preference} hierarchies
@@ -75,6 +77,11 @@ public class PreferenceManager {
      * managed by this instance.
      */
     private int mSharedPreferencesMode;
+
+    private static final int STORAGE_DEFAULT = 0;
+    private static final int STORAGE_DEVICE_ENCRYPTED = 1;
+
+    private int mStorage = STORAGE_DEFAULT;
 
     /**
      * The {@link PreferenceScreen} at the root of the preference hierarchy.
@@ -185,6 +192,40 @@ public class PreferenceManager {
     }
 
     /**
+     * Sets the storage location used internally by this class to be the default
+     * provided by the hosting {@link Context}.
+     */
+    public void setStorageDefault() {
+        if (BuildCompat.isAtLeastN()) {
+            mStorage = STORAGE_DEFAULT;
+            mSharedPreferences = null;
+        }
+    }
+
+    /**
+     * Explicitly set the storage location used internally by this class to be
+     * device-encrypted storage.
+     * <p>
+     * Data stored in device-encrypted storage is typically encrypted with a key
+     * tied to the physical device, and it can be accessed when the device has
+     * booted successfully, both <em>before and after</em> the user has
+     * authenticated with their credentials (such as a lock pattern or PIN).
+     * Because device-encrypted data is available before user authentication,
+     * you should carefully consider what data you store using this mode.
+     * <p>
+     * Prior to {@link BuildCompat#isAtLeastN()} this method has no effect,
+     * since device-encrypted storage is not available.
+     *
+     * @see Context#createDeviceEncryptedStorageContext()
+     */
+    public void setStorageDeviceEncrypted() {
+        if (BuildCompat.isAtLeastN()) {
+            mStorage = STORAGE_DEVICE_ENCRYPTED;
+            mSharedPreferences = null;
+        }
+    }
+
+    /**
      * Gets a SharedPreferences instance that preferences managed by this will
      * use.
      *
@@ -193,7 +234,17 @@ public class PreferenceManager {
      */
     public SharedPreferences getSharedPreferences() {
         if (mSharedPreferences == null) {
-            mSharedPreferences = mContext.getSharedPreferences(mSharedPreferencesName,
+            final Context storageContext;
+            switch (mStorage) {
+                case STORAGE_DEVICE_ENCRYPTED:
+                    storageContext = ContextCompat.createDeviceEncryptedStorageContext(mContext);
+                    break;
+                default:
+                    storageContext = mContext;
+                    break;
+            }
+
+            mSharedPreferences = storageContext.getSharedPreferences(mSharedPreferencesName,
                     mSharedPreferencesMode);
         }
 

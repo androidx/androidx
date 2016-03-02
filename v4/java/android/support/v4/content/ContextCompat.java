@@ -473,9 +473,10 @@ public class ContextCompat {
      * Context objects are not shared, however common state (ClassLoader, other
      * Resources for the same configuration) may be so the Context itself can be
      * fairly lightweight.
+     * <p>
+     * Prior to {@link BuildCompat#isAtLeastN()} this method returns
+     * {@code null}, since device-encrypted storage is not available.
      *
-     * @return new Context or {@code null} if device-encrypted storage is not
-     *         supported or available on this device.
      * @see ContextCompat#isDeviceEncryptedStorage(Context)
      */
     public static Context createDeviceEncryptedStorageContext(Context context) {
