@@ -15,8 +15,6 @@
  */
 package android.support.v17.leanback.app;
 
-import static android.support.v7.widget.RecyclerView.NO_POSITION;
-
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentManager.BackStackEntry;
@@ -29,9 +27,11 @@ import android.support.v17.leanback.R;
 import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.transition.TransitionListener;
 import android.support.v17.leanback.widget.BrowseFrameLayout;
+import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
+import android.support.v17.leanback.widget.PageRow;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.Row;
@@ -45,6 +45,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
+
+import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 /**
  * A fragment for creating Leanback browse screens. It is composed of a
@@ -74,7 +76,6 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     static final String HEADER_STACK_INDEX = "headerStackIndex";
     // BUNDLE attribute for saving header show/hide status when backstack is not used:
     static final String HEADER_SHOW = "headerShow";
-
 
     final class BackStackListener implements FragmentManager.OnBackStackChangedListener {
         int mLastEntryCount;
@@ -192,87 +193,176 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         }
     }
 
-    interface MainFragment {
+    /**
+     * Interface that defines the interaction between {@link BrowseSupportFragment} and it's main
+     * content fragment. The key method is {@link AbstractMainFragmentAdapter#getFragment()},
+     * it will be used to get the fragment to be shown in the content section. Clients can
+     * provide any implementation of fragment and customize it's interaction with
+     * {@link BrowseSupportFragment} by overriding the necessary methods.
+     *
+     * <p>
+     * Clients are expected to provide
+     * an instance of {@link MainSupportFragmentAdapterFactory} which will be responsible for providing
+     * implementations of {@link AbstractMainFragmentAdapter} for given content types. Currently
+     * we support different types of content - {@link ListRow}, {@link PageRow} or any subtype
+     * of {@link Row}. We provide an out of the box adapter implementation for any rows other than
+     * {@link PageRow} - {@link RowsSupportFragmentAdapter}.
+     *
+     * <p>
+     * {@link PageRow} is intended to give full flexibility to developers in terms of Fragment
+     * design. Users will have to provide an implementation of {@link AbstractMainFragmentAdapter}
+     * and provide that through {@link MainSupportFragmentAdapterFactory}.
+     * {@link AbstractMainFragmentAdapter} implementation can supply any fragment and override
+     * just those interactions that makes sense.
+     */
+    public static abstract class AbstractMainFragmentAdapter {
+
+        public abstract Fragment getFragment();
 
         /**
          * Sets an item clicked listener on the fragment.
          */
-        void setOnItemViewClickedListener(OnItemViewClickedListener listener);
+        public void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
+        }
 
         /**
          * Sets an item selection listener.
          */
-        void setOnItemViewSelectedListener(OnItemViewSelectedListener listener);
+        public void setOnItemViewSelectedListener(OnItemViewSelectedListener listener) {
+        }
+
+        /**
+         * Sets the left margin.
+         */
+        public void setMarginStart(int margin) {
+        }
 
         /**
          * Enables scaling of the content.
          */
-        void setScalingEnabled(boolean enable);
+        public void setScalingEnabled(boolean enable) {
+        }
 
         /**
          * Selects a Row and perform an optional task on the Row.
          */
-        void setSelectedPosition(int rowPosition,
+        public void setSelectedPosition(int rowPosition,
                                  boolean smooth,
-                                 final Presenter.ViewHolderTask rowHolderTask);
+                                 final Presenter.ViewHolderTask rowHolderTask) {
+        }
 
         /**
          * Selects a Row.
          */
-        void setSelectedPosition(int rowPosition, boolean smooth);
+        public void setSelectedPosition(int rowPosition, boolean smooth) {
+        }
 
         /**
          * Returns the selected position.
          */
-        int getSelectedPosition();
+        public int getSelectedPosition() {
+            return 0;
+        }
 
         /**
          * Returns whether its scrolling.
          */
-        boolean isScrolling();
+        public boolean isScrolling() {
+            return false;
+        }
 
         /**
          * Set the visibility of titles/hovercard of browse rows.
          */
-        void setExpand(boolean expand);
+        public void setExpand(boolean expand) {
+        }
 
         /**
          * Set the visibility titles/hoverca of browse rows.
          */
-        void setAdapter(ObjectAdapter adapter);
+        public void setAdapter(ObjectAdapter adapter) {
+        }
 
         /**
          * For rows that willing to participate entrance transition,  this function
          * hide views if afterTransition is true,  show views if afterTransition is false.
          */
-        void setEntranceTransitionState(boolean state);
+        public void setEntranceTransitionState(boolean state) {
+        }
 
         /**
          * Sets the window alignment and also the pivots for scale operation.
          */
-        void setAlignment(int windowAlignOffsetFromTop);
+        public void setAlignment(int windowAlignOffsetFromTop) {
+        }
 
         /**
          * Callback indicating start of expand transition.
          */
-        void onExpandTransitionStart(boolean expand, final Runnable callback);
+        public void onExpandTransitionStart(boolean expand, final Runnable callback) {
+        }
 
         /**
          * Callback indicating transition prepare start.
          */
-        boolean onTransitionPrepare();
+        public boolean onTransitionPrepare() {
+            return false;
+        }
 
         /**
          * Callback indicating transition start.
          */
-        void onTransitionStart();
+        public void onTransitionStart() {
+        }
 
         /**
          * Callback indicating transition end.
          */
-        void onTransitionEnd();
+        public void onTransitionEnd() {
+        }
     }
 
+    /**
+     * Factory class for {@link BrowseSupportFragment.AbstractMainFragmentAdapter}. Developers can provide
+     * a custom implementation into {@link BrowseSupportFragment}. {@link BrowseSupportFragment} will use this
+     * factory to create fragments {@link BrowseSupportFragment.AbstractMainFragmentAdapter#getFragment()}
+     * to display on the main content section.
+     */
+    public static abstract class MainSupportFragmentAdapterFactory {
+        private BrowseSupportFragment.AbstractMainFragmentAdapter rowsFragmentAdapter;
+        private BrowseSupportFragment.AbstractMainFragmentAdapter pageFragmentAdapter;
+
+        public BrowseSupportFragment.AbstractMainFragmentAdapter getAdapter(
+                ObjectAdapter adapter, int position) {
+            if (adapter == null || adapter.size() == 0) {
+                return getRowsSupportFragmentAdapter();
+            }
+
+            if (position < 0 || position > adapter.size()) {
+                throw new IllegalArgumentException(
+                        String.format("Invalid position %d requested", position));
+            }
+
+            Object item = adapter.get(position);
+            if (item instanceof PageRow) {
+                if (pageFragmentAdapter == null) {
+                    pageFragmentAdapter = getPageFragmentAdapter();
+                }
+                return pageFragmentAdapter;
+            } else {
+                return getRowsSupportFragmentAdapter();
+            }
+        }
+
+        private BrowseSupportFragment.AbstractMainFragmentAdapter getRowsSupportFragmentAdapter() {
+            if (rowsFragmentAdapter == null) {
+                rowsFragmentAdapter = new RowsSupportFragmentAdapter();
+            }
+            return rowsFragmentAdapter;
+        }
+
+        public abstract BrowseSupportFragment.AbstractMainFragmentAdapter getPageFragmentAdapter();
+    }
 
     private static final String TAG = "BrowseSupportFragment";
 
@@ -289,7 +379,16 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     /** The headers fragment is disabled and will never be shown. */
     public static final int HEADERS_DISABLED = 3;
 
-    private MainFragment mMainFragment;
+    private MainSupportFragmentAdapterFactory mMainSupportFragmentAdapterFactory
+            = new MainSupportFragmentAdapterFactory() {
+        @Override
+        public BrowseSupportFragment.AbstractMainFragmentAdapter getPageFragmentAdapter() {
+            return null;
+        }
+    };
+
+    private AbstractMainFragmentAdapter mMainFragmentAdapter;
+    private Fragment mMainFragment;
     private HeadersSupportFragment mHeadersSupportFragment;
 
     private ObjectAdapter mAdapter;
@@ -308,7 +407,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     private boolean mRowScaleEnabled = true;
     private OnItemViewSelectedListener mExternalOnItemViewSelectedListener;
     private OnItemViewClickedListener mOnItemViewClickedListener;
-    private int mSelectedPosition = -1;
+    private int mSelectedPosition = 0;
 
     private PresenterSelector mHeaderPresenterSelector;
     private final SetSelectionRunnable mSetSelectionRunnable = new SetSelectionRunnable();
@@ -384,11 +483,14 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     public void setAdapter(ObjectAdapter adapter) {
         mAdapter = adapter;
         if (mMainFragment != null) {
-            mMainFragment.setAdapter(adapter);
+            mMainFragmentAdapter.setAdapter(adapter);
             mHeadersSupportFragment.setAdapter(adapter);
         }
     }
 
+    public void setMainSupportFragmentAdapterFactory(MainSupportFragmentAdapterFactory factory) {
+        this.mMainSupportFragmentAdapterFactory = factory;
+    }
     /**
      * Returns the adapter containing the rows for the fragment.
      */
@@ -411,11 +513,17 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     }
 
     /**
-     * Get currently bound RowsSupportFragment or null if BrowseSupportFragment has not been created yet.
-     * @return Currently bound RowsSupportFragment or null if BrowseSupportFragment has not been created yet.
+     * Get RowsSupportFragment if it's bound to BrowseSupportFragment or null if either BrowseSupportFragment has
+     * not been created yet or a different fragment is bound to it.
+     *
+     * @return RowsSupportFragment if it's bound to BrowseSupportFragment or null otherwise.
      */
     public RowsSupportFragment getRowsSupportFragment() {
-        return (RowsSupportFragment)mMainFragment;
+        if (mMainFragment instanceof RowsSupportFragment) {
+            return (RowsSupportFragment) mMainFragment;
+        }
+
+        return null;
     }
 
     /**
@@ -434,8 +542,8 @@ public class BrowseSupportFragment extends BaseSupportFragment {
      */
     public void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
         mOnItemViewClickedListener = listener;
-        if (mMainFragment != null) {
-            mMainFragment.setOnItemViewClickedListener(listener);
+        if (mMainFragmentAdapter != null) {
+            mMainFragmentAdapter.setOnItemViewClickedListener(listener);
         }
     }
 
@@ -498,8 +606,8 @@ public class BrowseSupportFragment extends BaseSupportFragment {
      */
     public void enableRowScaling(boolean enable) {
         mRowScaleEnabled = enable;
-        if (mMainFragment != null) {
-            mMainFragment.setScalingEnabled(mRowScaleEnabled);
+        if (mMainFragmentAdapter != null) {
+            mMainFragmentAdapter.setScalingEnabled(mRowScaleEnabled);
         }
     }
 
@@ -508,9 +616,9 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             return;
         }
         mShowingHeaders = withHeaders;
-        mMainFragment.onTransitionPrepare();
-        mMainFragment.onTransitionStart();
-        mMainFragment.onExpandTransitionStart(!withHeaders, new Runnable() {
+        mMainFragmentAdapter.onTransitionPrepare();
+        mMainFragmentAdapter.onTransitionStart();
+        mMainFragmentAdapter.onExpandTransitionStart(!withHeaders, new Runnable() {
             @Override
             public void run() {
                 mHeadersSupportFragment.onTransitionPrepare();
@@ -519,8 +627,8 @@ public class BrowseSupportFragment extends BaseSupportFragment {
                 if (mBrowseTransitionListener != null) {
                     mBrowseTransitionListener.onHeadersTransitionStart(withHeaders);
                 }
-                TransitionHelper.runTransition(withHeaders ? mSceneWithHeaders : mSceneWithoutHeaders,
-                        mHeadersTransition);
+                TransitionHelper.runTransition(
+                        withHeaders ? mSceneWithHeaders : mSceneWithoutHeaders, mHeadersTransition);
                 if (mHeadersBackStackEnabled) {
                     if (!withHeaders) {
                         getFragmentManager().beginTransaction()
@@ -540,7 +648,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
 
     boolean isVerticalScrolling() {
         // don't run transition
-        return mHeadersSupportFragment.isScrolling() || (mMainFragment).isScrolling();
+        return mHeadersSupportFragment.isScrolling() || mMainFragmentAdapter.isScrolling();
     }
 
 
@@ -561,8 +669,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             if (getTitleView() != null && getTitleView().hasFocus() &&
                     direction == View.FOCUS_DOWN) {
                 return mCanShowHeaders && mShowingHeaders ?
-                        mHeadersSupportFragment.getVerticalGridView() :
-                        ((Fragment)mMainFragment).getView();
+                        mHeadersSupportFragment.getVerticalGridView() : mMainFragment.getView();
             }
 
             boolean isRtl = ViewCompat.getLayoutDirection(focused) == View.LAYOUT_DIRECTION_RTL;
@@ -577,7 +684,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
                 if (isVerticalScrolling()) {
                     return focused;
                 }
-                return ((Fragment)mMainFragment).getView();
+                return mMainFragment.getView();
             } else {
                 return null;
             }
@@ -599,8 +706,8 @@ public class BrowseSupportFragment extends BaseSupportFragment {
                     return true;
                 }
             }
-            if (mMainFragment != null && ((Fragment)mMainFragment).getView() != null &&
-                    ((Fragment)mMainFragment).getView().requestFocus(direction, previouslyFocusedRect)) {
+            if (mMainFragment != null && mMainFragment.getView() != null &&
+                    mMainFragment.getView().requestFocus(direction, previouslyFocusedRect)) {
                 return true;
             }
             if (getTitleView() != null &&
@@ -608,7 +715,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
                 return true;
             }
             return false;
-        };
+        }
 
         @Override
         public void onRequestChildFocus(View child, View focused) {
@@ -675,15 +782,18 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         if (getChildFragmentManager().findFragmentById(R.id.browse_container_dock) == null) {
-            mMainFragment = new RowsSupportFragment();
             mHeadersSupportFragment = new HeadersSupportFragment();
+            mMainFragmentAdapter = mMainSupportFragmentAdapterFactory.getAdapter(
+                    mAdapter, mSelectedPosition);
+            mMainFragment = mMainFragmentAdapter.getFragment();
             getChildFragmentManager().beginTransaction()
                     .replace(R.id.browse_headers_dock, mHeadersSupportFragment)
-                    .replace(R.id.browse_container_dock, (Fragment)mMainFragment).commit();
+                    .replace(R.id.browse_container_dock, mMainFragment)
+                    .commit();
         } else {
             mHeadersSupportFragment = (HeadersSupportFragment) getChildFragmentManager()
                     .findFragmentById(R.id.browse_headers_dock);
-            mMainFragment = (RowsSupportFragment) getChildFragmentManager()
+            mMainFragment = getChildFragmentManager()
                     .findFragmentById(R.id.browse_container_dock);
         }
 
@@ -695,10 +805,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         mHeadersSupportFragment.setOnHeaderViewSelectedListener(mHeaderViewSelectedListener);
         mHeadersSupportFragment.setOnHeaderClickedListener(mHeaderClickedListener);
 
-        mMainFragment.setAdapter(mAdapter);
-        mMainFragment.setScalingEnabled(mRowScaleEnabled);
-        mMainFragment.setOnItemViewSelectedListener(mRowViewSelectedListener);
-        mMainFragment.setOnItemViewClickedListener(mOnItemViewClickedListener);
+        setupMainFragment();
 
         View root = inflater.inflate(R.layout.lb_browse_fragment, container, false);
 
@@ -733,6 +840,13 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         return root;
     }
 
+    private void setupMainFragment() {
+        mMainFragmentAdapter.setAdapter(mAdapter);
+        mMainFragmentAdapter.setScalingEnabled(mRowScaleEnabled);
+        mMainFragmentAdapter.setOnItemViewSelectedListener(mRowViewSelectedListener);
+        mMainFragmentAdapter.setOnItemViewClickedListener(mOnItemViewClickedListener);
+    }
+
     private void createHeadersTransition() {
         mHeadersTransition = TransitionHelper.loadTransition(getActivity(),
                 mShowingHeaders ?
@@ -745,7 +859,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             @Override
             public void onTransitionEnd(Object transition) {
                 mHeadersTransition = null;
-                mMainFragment.onTransitionEnd();
+                mMainFragmentAdapter.onTransitionEnd();
                 mHeadersSupportFragment.onTransitionEnd();
                 if (mShowingHeaders) {
                     VerticalGridView headerGridView = mHeadersSupportFragment.getVerticalGridView();
@@ -753,7 +867,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
                         headerGridView.requestFocus();
                     }
                 } else {
-                    View rowsGridView = ((Fragment)mMainFragment).getView();
+                    View rowsGridView = mMainFragment.getView();
                     if (rowsGridView != null && !rowsGridView.hasFocus()) {
                         rowsGridView.requestFocus();
                     }
@@ -778,15 +892,6 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         }
     }
 
-    private void setRowsAlignedLeft(boolean alignLeft) {
-        MarginLayoutParams lp;
-        View containerList;
-        containerList = ((Fragment)mMainFragment).getView();
-        lp = (MarginLayoutParams) containerList.getLayoutParams();
-        lp.setMarginStart(alignLeft ? 0 : mContainerListMarginStart);
-        containerList.setLayoutParams(lp);
-    }
-
     private void setHeadersOnScreen(boolean onScreen) {
         MarginLayoutParams lp;
         View containerList;
@@ -800,8 +905,9 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         if (DEBUG) Log.v(TAG, "showHeaders " + show);
         mHeadersSupportFragment.setHeadersEnabled(show);
         setHeadersOnScreen(show);
-        setRowsAlignedLeft(!show);
-        mMainFragment.setExpand(!show);
+        int marginStart = show ? mContainerListMarginStart : 0;
+        mMainFragmentAdapter.setMarginStart(marginStart);
+        mMainFragmentAdapter.setExpand(!show);
     }
 
     private HeadersSupportFragment.OnHeaderClickedListener mHeaderClickedListener =
@@ -812,7 +918,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
                     return;
                 }
                 startHeadersTransitionInternal(false);
-                ((Fragment)mMainFragment).getView().requestFocus();
+                mMainFragment.getView().requestFocus();
             }
         };
 
@@ -820,7 +926,11 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         @Override
         public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
                 RowPresenter.ViewHolder rowViewHolder, Row row) {
-            int position = ((RowsSupportFragment)mMainFragment)
+            if (mMainFragment == null) {
+                return;
+            }
+
+            int position = ((RowsSupportFragment) mMainFragment)
                     .getVerticalGridView().getSelectedPosition();
             if (DEBUG) Log.v(TAG, "row selected position " + position);
             onRowSelected(position);
@@ -855,11 +965,28 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     }
 
     private void setSelection(int position, boolean smooth) {
-        if (position != NO_POSITION) {
-            mMainFragment.setSelectedPosition(position, smooth);
-            mHeadersSupportFragment.setSelectedPosition(position, smooth);
+        if (position == NO_POSITION) {
+            return;
         }
+
+        mHeadersSupportFragment.setSelectedPosition(position, smooth);
+        AbstractMainFragmentAdapter newFragmentAdapter = mMainSupportFragmentAdapterFactory.getAdapter(
+                mAdapter, position);
+        if (mMainFragmentAdapter != newFragmentAdapter) {
+            mMainFragmentAdapter = newFragmentAdapter;
+            mMainFragment = mMainFragmentAdapter.getFragment();
+            swapBrowseContent(mMainFragment);
+            setupMainFragment();
+            showHeaders(true);
+            mMainFragmentAdapter.setAlignment(mContainerListAlignTop);
+        }
+        mMainFragmentAdapter.setSelectedPosition(position, smooth);
         mSelectedPosition = position;
+    }
+
+    private void swapBrowseContent(Fragment fragment) {
+        getChildFragmentManager().beginTransaction()
+                .replace(R.id.browse_container_dock, fragment).commit();
     }
 
     /**
@@ -899,30 +1026,32 @@ public class BrowseSupportFragment extends BaseSupportFragment {
      */
     public void setSelectedPosition(int rowPosition, boolean smooth,
             final Presenter.ViewHolderTask rowHolderTask) {
-        if (mMainFragment == null) {
+        if (mMainSupportFragmentAdapterFactory == null) {
             return;
         }
         if (rowHolderTask != null) {
             startHeadersTransition(false);
         }
-        mMainFragment.setSelectedPosition(rowPosition, smooth, rowHolderTask);
+        mMainFragmentAdapter.setSelectedPosition(rowPosition, smooth, rowHolderTask);
     }
 
     @Override
     public void onStart() {
         super.onStart();
         mHeadersSupportFragment.setAlignment(mContainerListAlignTop);
-        mMainFragment.setAlignment(mContainerListAlignTop);
+        mMainFragmentAdapter.setAlignment(mContainerListAlignTop);
 
         if (mCanShowHeaders && mShowingHeaders && mHeadersSupportFragment.getView() != null) {
             mHeadersSupportFragment.getView().requestFocus();
         } else if ((!mCanShowHeaders || !mShowingHeaders)
-                && ((Fragment)mMainFragment).getView() != null) {
-            ((Fragment)mMainFragment).getView().requestFocus();
+                && mMainFragment.getView() != null) {
+            mMainFragment.getView().requestFocus();
         }
+
         if (mCanShowHeaders) {
             showHeaders(mShowingHeaders);
         }
+
         if (isEntranceTransitionEnabled()) {
             setEntranceTransitionStartState();
         }
@@ -1021,18 +1150,18 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     @Override
     protected void onEntranceTransitionPrepare() {
         mHeadersSupportFragment.onTransitionPrepare();
-        mMainFragment.onTransitionPrepare();
+        mMainFragmentAdapter.onTransitionPrepare();
     }
 
     @Override
     protected void onEntranceTransitionStart() {
         mHeadersSupportFragment.onTransitionStart();
-        mMainFragment.onTransitionStart();
+        mMainFragmentAdapter.onTransitionStart();
     }
 
     @Override
     protected void onEntranceTransitionEnd() {
-        mMainFragment.onTransitionEnd();
+        mMainFragmentAdapter.onTransitionEnd();
         mHeadersSupportFragment.onTransitionEnd();
     }
 
@@ -1046,14 +1175,12 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     void setEntranceTransitionStartState() {
         setHeadersOnScreen(false);
         setSearchOrbViewOnScreen(false);
-        mMainFragment.setEntranceTransitionState(false);
+        mMainFragmentAdapter.setEntranceTransitionState(false);
     }
 
     void setEntranceTransitionEndState() {
         setHeadersOnScreen(mShowingHeaders);
         setSearchOrbViewOnScreen(true);
-        mMainFragment.setEntranceTransitionState(true);
+        mMainFragmentAdapter.setEntranceTransitionState(true);
     }
-
 }
-
