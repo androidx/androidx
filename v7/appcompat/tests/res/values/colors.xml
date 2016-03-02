@@ -20,6 +20,7 @@
     <color name="test_red">#FF6030</color>
     <color name="test_green">#50E080</color>
     <color name="test_blue">#3050CF</color>
+    <color name="test_magenta">#F050F0</color>
 
     <color name="lilac_default">#F080F0</color>
     <color name="lilac_disabled">#F0A0FF</color>

@@ -49,8 +49,20 @@
     <string name="alert_dialog_custom_text1">Dialog custom text</string>
     <string name="alert_dialog_custom_text2">Dialog more custom text</string>
 
+    <string name="app_compat_spinner_activity">AppCompat spinner</string>
     <string name="app_compat_text_view_activity">AppCompat text view</string>
     <string name="sample_text1">Sample text 1</string>
     <string name="sample_text2">Sample text 2</string>
     <string name="app_compat_image_view_activity">AppCompat image view</string>
+    <string-array name="planets_array">
+        <item>Mercury</item>
+        <item>Venus</item>
+        <item>Earth</item>
+        <item>Mars</item>
+        <item>Jupiter</item>
+        <item>Saturn</item>
+        <item>Uranus</item>
+        <item>Neptune</item>
+        <item>Pluto</item>
+    </string-array>
 </resources>
