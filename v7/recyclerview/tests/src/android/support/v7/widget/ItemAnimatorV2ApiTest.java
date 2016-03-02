@@ -15,24 +15,35 @@
  */
 package android.support.v7.widget;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static android.support.v7.widget.RecyclerView.ItemAnimator.FLAG_CHANGED;
+import static android.support.v7.widget.RecyclerView.ItemAnimator.FLAG_MOVED;
+import static android.support.v7.widget.RecyclerView.ItemAnimator.FLAG_REMOVED;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.MediumTest;
+import android.view.View;
+
+import org.hamcrest.CoreMatchers;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static android.support.v7.widget.RecyclerView.ItemAnimator.FLAG_CHANGED;
-import static android.support.v7.widget.RecyclerView.ItemAnimator.FLAG_MOVED;
-import static android.support.v7.widget.RecyclerView.ItemAnimator.FLAG_REMOVED;
-import static org.junit.Assert.*;
 
 /**
  * Includes tests for the new RecyclerView animations API (v2).
@@ -53,7 +64,7 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         mLayoutManager.mOnLayoutCallbacks.mLayoutItemCount = 9;
         mTestAdapter.changeAndNotify(9, 1);
         mLayoutManager.waitForLayout(2);
-        // changed item shold not be laid out and should just receive disappear
+        // changed item should not be laid out and should just receive disappear
         LoggingInfo pre = mAnimator.preLayoutInfoMap.get(target);
         assertNotNull("test sanity", pre);
         assertNull("test sanity", mAnimator.postLayoutInfoMap.get(target));
@@ -64,6 +75,108 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         // This is kind of problematic because layout manager will never layout the updated
         // version of this view since it went out of bounds and it won't show up in scrap.
         // I don't think we can do much better since other option is to bind a fresh view
+    }
+
+    @Test
+    public void changeMovedOutsideWithPredictiveAndTwoViewHolders() throws Throwable {
+        final RecyclerView.ViewHolder[] targets = new RecyclerView.ViewHolder[2];
+
+        setupBasic(10, 0, 10, new TestAdapter(10) {
+            @Override
+            public void onBindViewHolder(TestViewHolder holder,
+                    int position) {
+                super.onBindViewHolder(holder, position);
+                if (position == 0) {
+                    if (targets[0] == null) {
+                        targets[0] = holder;
+                    } else {
+                        assertThat(targets[1], CoreMatchers.nullValue());
+                        targets[1] = holder;
+                    }
+                }
+            }
+        });
+        final RecyclerView.ViewHolder singleItemTarget =
+                mRecyclerView.findViewHolderForAdapterPosition(1);
+        mAnimator.canReUseCallback = new CanReUseCallback() {
+            @Override
+            public boolean canReUse(RecyclerView.ViewHolder viewHolder, List<Object> payloads) {
+                return viewHolder == singleItemTarget;
+            }
+        };
+        mLayoutManager.expectLayouts(2);
+        mLayoutManager.mOnLayoutCallbacks = new OnLayoutCallbacks() {
+            @Override
+            void onLayoutChildren(RecyclerView.Recycler recycler,
+                    AnimationLayoutManager lm, RecyclerView.State state) {
+                super.onLayoutChildren(recycler, lm, state);
+                if (!state.isPreLayout()) {
+                    mLayoutManager.addDisappearingView(recycler.getViewForPosition(0));
+                    mLayoutManager.addDisappearingView(recycler.getScrapList().get(0).itemView);
+                }
+            }
+        };
+        mLayoutManager.mOnLayoutCallbacks.mLayoutItemCount = 8;
+        mLayoutManager.mOnLayoutCallbacks.mLayoutMin = 2;
+        mTestAdapter.changeAndNotify(0, 2);
+        mLayoutManager.waitForLayout(2);
+        checkForMainThreadException();
+        final RecyclerView.ViewHolder oldTarget = targets[0];
+        final RecyclerView.ViewHolder newTarget = targets[1];
+        assertNotNull("test sanity", targets[0]);
+        assertNotNull("test sanity", targets[1]);
+        // changed item should not be laid out and should just receive disappear
+        LoggingInfo pre = mAnimator.preLayoutInfoMap.get(oldTarget);
+        assertNotNull("test sanity", pre);
+        assertNull("test sanity", mAnimator.postLayoutInfoMap.get(oldTarget));
+
+        assertNull("test sanity", mAnimator.preLayoutInfoMap.get(newTarget));
+        LoggingInfo post = mAnimator.postLayoutInfoMap.get(newTarget);
+        assertNotNull("test sanity", post);
+        assertEquals(1, mAnimator.animateChangeList.size());
+        assertEquals(1, mAnimator.animateDisappearanceList.size());
+
+        assertEquals(new AnimateChange(oldTarget, newTarget, pre, post),
+                mAnimator.animateChangeList.get(0));
+
+        LoggingInfo singleItemPre = mAnimator.preLayoutInfoMap.get(singleItemTarget);
+        assertNotNull("test sanity", singleItemPre);
+        LoggingInfo singleItemPost = mAnimator.postLayoutInfoMap.get(singleItemTarget);
+        assertNotNull("test sanity", singleItemPost);
+
+        assertEquals(new AnimateDisappearance(singleItemTarget, singleItemPre, singleItemPost),
+                mAnimator.animateDisappearanceList.get(0));
+    }
+    @Test
+    public void changeMovedOutsideWithPredictive() throws Throwable {
+        setupBasic(10);
+        final RecyclerView.ViewHolder target = mRecyclerView.findViewHolderForAdapterPosition(0);
+        mLayoutManager.expectLayouts(2);
+        mLayoutManager.mOnLayoutCallbacks = new OnLayoutCallbacks() {
+            @Override
+            void onLayoutChildren(RecyclerView.Recycler recycler,
+                    AnimationLayoutManager lm, RecyclerView.State state) {
+                super.onLayoutChildren(recycler, lm, state);
+                List<RecyclerView.ViewHolder> scrapList = recycler.getScrapList();
+                assertThat(scrapList.size(), CoreMatchers.is(2));
+                mLayoutManager.addDisappearingView(scrapList.get(0).itemView);
+                mLayoutManager.addDisappearingView(scrapList.get(0).itemView);
+            }
+        };
+        mLayoutManager.mOnLayoutCallbacks.mLayoutItemCount = 8;
+        mLayoutManager.mOnLayoutCallbacks.mLayoutMin = 2;
+        mTestAdapter.changeAndNotify(0, 2);
+        mLayoutManager.waitForLayout(2);
+        checkForMainThreadException();
+        // changed item should not be laid out and should just receive disappear
+        LoggingInfo pre = mAnimator.preLayoutInfoMap.get(target);
+        assertNotNull("test sanity", pre);
+        LoggingInfo postInfo = mAnimator.postLayoutInfoMap.get(target);
+        assertNotNull("test sanity", postInfo);
+        assertTrue(mAnimator.animateChangeList.isEmpty());
+        assertEquals(2, mAnimator.animateDisappearanceList.size());
+        assertEquals(new AnimateDisappearance(target, pre, postInfo),
+                mAnimator.animateDisappearanceList.get(1));
     }
 
     @Test
@@ -249,6 +362,26 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         mLayoutManager.mOnLayoutCallbacks.mLayoutItemCount = 9;
         mLayoutManager.expectLayouts(2);
         mTestAdapter.changeAndNotify(9, 1);
+        mLayoutManager.waitForLayout(2);
+        assertEquals(1, mAnimator.animateDisappearanceList.size());
+        AnimateDisappearance log = mAnimator.animateDisappearanceList.get(0);
+        assertSame(vh, log.viewHolder);
+        assertFalse(mAnimator.postLayoutInfoMap.containsKey(vh));
+        assertEquals(FLAG_CHANGED, log.preInfo.changeFlags);
+        assertEquals(0, mAnimator.animateChangeList.size());
+        assertEquals(0, mAnimator.animateAppearanceList.size());
+        assertEquals(9, mAnimator.animatePersistenceList.size());
+        checkForMainThreadException();
+    }
+
+    @Test
+    public void changeToDisappearFromHead() throws Throwable {
+        setupBasic(10);
+        RecyclerView.ViewHolder vh = mRecyclerView.findViewHolderForAdapterPosition(0);
+        mLayoutManager.mOnLayoutCallbacks.mLayoutItemCount = 9;
+        mLayoutManager.mOnLayoutCallbacks.mLayoutMin = 1;
+        mLayoutManager.expectLayouts(2);
+        mTestAdapter.changeAndNotify(0, 1);
         mLayoutManager.waitForLayout(2);
         assertEquals(1, mAnimator.animateDisappearanceList.size());
         AnimateDisappearance log = mAnimator.animateDisappearanceList.get(0);
