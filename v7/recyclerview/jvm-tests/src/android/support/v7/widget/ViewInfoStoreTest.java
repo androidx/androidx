@@ -221,6 +221,19 @@ public class ViewInfoStoreTest extends TestCase {
         assertEquals(mCallback.persistent.get(vh), new Pair<>(pre, post));
     }
 
+    @Test
+    public void processAppearAndDisappearInPostLayout() {
+        ViewHolder vh = new MockViewHolder();
+        MockInfo info1 = new MockInfo();
+        mStore.addToPostLayout(vh, info1);
+        mStore.addToDisappearedInLayout(vh);
+        mStore.process(mCallback);
+        assertTrue(mCallback.disappeared.isEmpty());
+        assertTrue(mCallback.appeared.isEmpty());
+        assertTrue(mCallback.persistent.isEmpty());
+        assertSame(mCallback.unused.get(0), vh);
+    }
+
     static class MockViewHolder extends RecyclerView.ViewHolder {
         public MockViewHolder() {
             super(new View(null));
