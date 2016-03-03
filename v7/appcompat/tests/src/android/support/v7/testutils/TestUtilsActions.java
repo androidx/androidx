@@ -20,9 +20,13 @@ import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
 import android.support.v4.view.ViewCompat;
 import android.view.View;
+import android.widget.TextView;
 import org.hamcrest.Matcher;
 
+import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayingAtLeast;
+import static org.hamcrest.core.AllOf.allOf;
 
 public class TestUtilsActions {
     /**
@@ -45,6 +49,33 @@ public class TestUtilsActions {
                 uiController.loopMainThreadUntilIdle();
 
                 ViewCompat.setLayoutDirection(view, layoutDirection);
+
+                uiController.loopMainThreadUntilIdle();
+            }
+        };
+    }
+
+    /**
+     * Sets text appearance on {@code TextView}.
+     */
+    public static ViewAction setTextAppearance(final int resId) {
+        return new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return allOf(isDisplayingAtLeast(90), isAssignableFrom(TextView.class));
+            }
+
+            @Override
+            public String getDescription() {
+                return "TextView set text appearance";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                uiController.loopMainThreadUntilIdle();
+
+                TextView textView = (TextView) view;
+                textView.setTextAppearance(textView.getContext(), resId);
 
                 uiController.loopMainThreadUntilIdle();
             }
