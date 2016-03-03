@@ -29,7 +29,7 @@ import org.junit.Test;
 
 /**
  * In addition to all tinting-related tests done by the base class, this class provides
- * tests specific to <code>AppCompatTextView</code> class.
+ * tests specific to {@link AppCompatTextView} class.
  */
 @SmallTest
 public class AppCompatTextViewTest
@@ -39,7 +39,7 @@ public class AppCompatTextViewTest
     }
 
     @Test
-    public void testAllCaps() throws Throwable {
+    public void testAllCaps() {
         final String text1 = mResources.getString(R.string.sample_text1);
         final String text2 = mResources.getString(R.string.sample_text2);
 
@@ -71,7 +71,7 @@ public class AppCompatTextViewTest
     }
 
     @Test
-    public void testAppCompatAllCapsFalseOnButton() throws Throwable {
+    public void testAppCompatAllCapsFalseOnButton() {
         final String text = mResources.getString(R.string.sample_text2);
         final Button button = (Button) mContainer.findViewById(R.id.button_app_allcaps_false);
 

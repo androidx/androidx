@@ -34,7 +34,14 @@
     </style>
 
     <style name="MagentaThemeOverlay">
-        <item name="colorAccent">#FF00FF</item>
+        <item name="colorAccent">@color/test_magenta</item>
     </style>
 
+    <style name="MagentaSpinnerPopupTheme">
+        <item name="android:background">@color/test_magenta</item>
+    </style>
+
+    <style name="OceanSpinnerPopupTheme">
+        <item name="android:background">@color/ocean_default</item>
+    </style>
 </resources>
