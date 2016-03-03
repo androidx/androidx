@@ -163,6 +163,12 @@ public abstract class FragmentManager {
      * all callbacks and other related behavior will be done from within this
      * call, so be careful about where this is called from.
      *
+     * <p>If you are committing a single transaction that does not modify the
+     * fragment back stack, strongly consider using
+     * {@link FragmentTransaction#commitNow()} instead. This can help avoid
+     * unwanted side effects when other code in your app has pending committed
+     * transactions that expect different timing.</p>
+     *
      * @return Returns true if there were any pending transactions to be
      * executed.
      */
