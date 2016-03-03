@@ -15,13 +15,12 @@
  */
 package android.support.v7.widget;
 
-/**
- * In addition to all tinting-related tests done by the base class, this class provides
- * tests specific to {@link AppCompatImageView} class.
- */
-public class AppCompatImageViewTest
-        extends AppCompatBaseViewTest<AppCompatImageViewActivity, AppCompatImageView> {
-    public AppCompatImageViewTest() {
-        super(AppCompatImageViewActivity.class);
+import android.support.v7.appcompat.test.R;
+import android.support.v7.testutils.BaseTestActivity;
+
+public class AppCompatSpinnerActivity extends BaseTestActivity {
+    @Override
+    protected int getContentViewLayoutResId() {
+        return R.layout.appcompat_spinner_activity;
     }
 }
