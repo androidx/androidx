@@ -16,13 +16,15 @@
 package android.support.v7.widget;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.support.annotation.Nullable;
 import android.view.View;
 
 class CardViewApi21 implements CardViewImpl {
 
     @Override
-    public void initialize(CardViewDelegate cardView, Context context, int backgroundColor,
-            float radius, float elevation, float maxElevation) {
+    public void initialize(CardViewDelegate cardView, Context context,
+            ColorStateList backgroundColor, float radius, float elevation, float maxElevation) {
         final RoundRectDrawable backgroundDrawable = new RoundRectDrawable(backgroundColor, radius);
         cardView.setBackgroundDrawable(backgroundDrawable);
         View view = (View) cardView;
@@ -103,7 +105,7 @@ class CardViewApi21 implements CardViewImpl {
     }
 
     @Override
-    public void setBackgroundColor(CardViewDelegate cardView, int color) {
+    public void setBackgroundColor(CardViewDelegate cardView, @Nullable ColorStateList color) {
         ((RoundRectDrawable) (cardView.getBackground())).setColor(color);
     }
 }
