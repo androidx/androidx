@@ -416,8 +416,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     private final ViewInfoStore.ProcessCallback mViewInfoProcessCallback =
             new ViewInfoStore.ProcessCallback() {
         @Override
-        public void processDisappeared(ViewHolder viewHolder, ItemHolderInfo info,
-                ItemHolderInfo postInfo) {
+        public void processDisappeared(ViewHolder viewHolder, @NonNull ItemHolderInfo info,
+                @Nullable ItemHolderInfo postInfo) {
             mRecycler.unscrapView(viewHolder);
             animateDisappearance(viewHolder, info, postInfo);
         }
