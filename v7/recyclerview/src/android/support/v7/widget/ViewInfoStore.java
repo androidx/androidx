@@ -228,7 +228,13 @@ class ViewInfoStore {
                 callback.unused(viewHolder);
             } else if ((record.flags & FLAG_DISAPPEARED) != 0) {
                 // Set as "disappeared" by the LayoutManager (addDisappearingView)
-                callback.processDisappeared(viewHolder, record.preInfo, record.postInfo);
+                if (record.preInfo == null) {
+                    // similar to appear disappear but happened between different layout passes.
+                    // this can happen when the layout manager is using auto-measure
+                    callback.unused(viewHolder);
+                } else {
+                    callback.processDisappeared(viewHolder, record.preInfo, record.postInfo);
+                }
             } else if ((record.flags & FLAG_APPEAR_PRE_AND_POST) == FLAG_APPEAR_PRE_AND_POST) {
                 // Appeared in the layout but not in the adapter (e.g. entered the viewport)
                 callback.processAppeared(viewHolder, record.preInfo, record.postInfo);
@@ -276,7 +282,7 @@ class ViewInfoStore {
     }
 
     interface ProcessCallback {
-        void processDisappeared(ViewHolder viewHolder, ItemHolderInfo preInfo,
+        void processDisappeared(ViewHolder viewHolder, @NonNull ItemHolderInfo preInfo,
                 @Nullable ItemHolderInfo postInfo);
         void processAppeared(ViewHolder viewHolder, @Nullable ItemHolderInfo preInfo,
                 ItemHolderInfo postInfo);
