@@ -556,6 +556,63 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         verifyBeginAligned();
     }
 
+    public void testSetSelectedPositionDetached() throws Throwable {
+
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 50);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        final int focusToIndex = 49;
+        final ViewGroup parent = (ViewGroup) mGridView.getParent();
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                parent.removeView(mGridView);
+            }
+        });
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPositionSmooth(focusToIndex);
+            }
+        });
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                parent.addView(mGridView);
+                mGridView.requestFocus();
+            }
+        });
+        waitForTransientStateGone(null);
+        waitForScrollIdle();
+        assertEquals(mGridView.getSelectedPosition(), focusToIndex);
+        assertTrue(mGridView.getLayoutManager().findViewByPosition(focusToIndex).hasFocus());
+
+        final int focusToIndex2 = 0;
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                parent.removeView(mGridView);
+            }
+        });
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPosition(focusToIndex2);
+            }
+        });
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                parent.addView(mGridView);
+                mGridView.requestFocus();
+            }
+        });
+        assertEquals(mGridView.getSelectedPosition(), focusToIndex2);
+        waitForTransientStateGone(null);
+        waitForScrollIdle();
+        assertTrue(mGridView.getLayoutManager().findViewByPosition(focusToIndex2).hasFocus());
+    }
+
     public void testBug22209986() throws Throwable {
 
         mInstrumentation = getInstrumentation();
