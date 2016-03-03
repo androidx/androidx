@@ -2932,7 +2932,8 @@ public class ViewPager extends ViewGroup {
         public void onInitializeAccessibilityEvent(View host, AccessibilityEvent event) {
             super.onInitializeAccessibilityEvent(host, event);
             event.setClassName(ViewPager.class.getName());
-            final AccessibilityRecordCompat recordCompat = AccessibilityRecordCompat.obtain();
+            final AccessibilityRecordCompat recordCompat =
+                    AccessibilityEventCompat.asRecord(event);
             recordCompat.setScrollable(canScroll());
             if (event.getEventType() == AccessibilityEventCompat.TYPE_VIEW_SCROLLED
                     && mAdapter != null) {
