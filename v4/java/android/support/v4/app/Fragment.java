@@ -1212,6 +1212,22 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     public void onCreate(@Nullable Bundle savedInstanceState) {
         mCalled = true;
+        restoreChildFragmentState(savedInstanceState);
+    }
+
+    /**
+     * Restore the state of the child FragmentManager. Called by either
+     * {@link #onCreate(Bundle)} for non-retained instance fragments or by
+     * {@link FragmentManagerImpl#moveToState(Fragment, int, int, int, boolean)}
+     * for retained instance fragments.
+     *
+     * <p><strong>Postcondition:</strong> if there were child fragments to restore,
+     * the child FragmentManager will be instantiated and brought to the {@link #CREATED} state.
+     * </p>
+     *
+     * @param savedInstanceState the savedInstanceState potentially containing fragment info
+     */
+    void restoreChildFragmentState(@Nullable Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             Parcelable p = savedInstanceState.getParcelable(
                     FragmentActivity.FRAGMENTS_TAG);
@@ -1450,10 +1466,22 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     public void onDetach() {
         mCalled = true;
+
+        // Destroy the child FragmentManager if we still have it here.
+        // We won't unless we're retaining our instance and if we do,
+        // our child FragmentManager instance state will have already been saved.
+        if (mChildFragmentManager != null) {
+            if (!mRetaining) {
+                throw new IllegalStateException("Child FragmentManager of " + this + " was not "
+                        + " destroyed and this fragment is not retaining instance");
+            }
+            mChildFragmentManager.dispatchDestroy();
+            mChildFragmentManager = null;
+        }
     }
     
     /**
-     * Initialize the contents of the Activity's standard options menu.  You
+     * Initialize the contents of the Fragment host's standard options menu.  You
      * should place your menu items in to <var>menu</var>.  For this method
      * to be called, you must have first called {@link #setHasOptionsMenu}.  See
      * {@link Activity#onCreateOptionsMenu(Menu) Activity.onCreateOptionsMenu}
@@ -1469,7 +1497,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
-     * Prepare the Screen's standard options menu to be displayed.  This is
+     * Prepare the Fragment host's standard options menu to be displayed.  This is
      * called right before the menu is shown, every time it is shown.  You can
      * use this method to efficiently enable/disable items or otherwise
      * dynamically modify the contents.  See
@@ -2220,4 +2248,5 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }
         mChildFragmentManager = null;
     }
+
 }
