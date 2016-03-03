@@ -161,7 +161,7 @@ public class CardViewActivity extends AppCompatActivity {
                     @Override
                     public void onCheckedChanged(RadioGroup group, int checkedId) {
                         mCardView.setCardBackgroundColor(
-                                getResources().getColor(getColorId(checkedId)));
+                                getResources().getColorStateList(getColorId(checkedId)));
                     }
                 });
     }
