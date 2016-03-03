@@ -18,12 +18,12 @@ package android.support.v7.widget;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
+import static android.support.v7.testutils.TestUtilsActions.setTextAppearance;
 import static org.junit.Assert.assertEquals;
 
 import android.support.v7.appcompat.test.R;
-import android.support.v7.testutils.AppCompatTextViewActions;
+import android.support.v7.testutils.TestUtilsActions;
 import android.test.suitebuilder.annotation.SmallTest;
-import android.widget.Button;
 
 import org.junit.Test;
 
@@ -60,9 +60,9 @@ public class AppCompatTextViewTest
         // setting a style with textAllCaps=false on a AppCompatTextView with all-caps on
         // will have no effect.
         onView(withId(R.id.text_view_caps1)).perform(
-                AppCompatTextViewActions.setTextAppearance(R.style.TextStyleAllCapsOff));
+                setTextAppearance(R.style.TextStyleAllCapsOff));
         onView(withId(R.id.text_view_caps2)).perform(
-                AppCompatTextViewActions.setTextAppearance(R.style.TextStyleAllCapsOn));
+                setTextAppearance(R.style.TextStyleAllCapsOn));
 
         assertEquals("Text view is still in all caps on", text1.toUpperCase(),
                 textView1.getLayout().getText());
@@ -73,8 +73,9 @@ public class AppCompatTextViewTest
     @Test
     public void testAppCompatAllCapsFalseOnButton() {
         final String text = mResources.getString(R.string.sample_text2);
-        final Button button = (Button) mContainer.findViewById(R.id.button_app_allcaps_false);
+        final AppCompatTextView textView =
+                (AppCompatTextView) mContainer.findViewById(R.id.text_view_app_allcaps_false);
 
-        assertEquals("Button is not in all caps", text, button.getLayout().getText());
+        assertEquals("Text view is not in all caps", text, textView.getLayout().getText());
     }
 }
