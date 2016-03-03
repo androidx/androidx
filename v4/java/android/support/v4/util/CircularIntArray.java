@@ -52,14 +52,14 @@ public final class CircularIntArray
      * Creates a circular array with capacity for at least {@code minCapacity}
      * elements.
      *
-     * @param minCapacity the minimum capacity, between 1 and 2^29 inclusive
+     * @param minCapacity the minimum capacity, between 1 and 2^30 inclusive
      */
     public CircularIntArray(int minCapacity) {
         if (minCapacity < 1) {
             throw new IllegalArgumentException("capacity must be >= 1");
         }
         if (minCapacity > (2 << 29)) {
-            throw new IllegalArgumentException("capacity must be <= 2^29");
+            throw new IllegalArgumentException("capacity must be <= 2^30");
         }
 
         // If minCapacity isn't a power of 2, round up to the next highest
