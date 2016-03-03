@@ -345,7 +345,18 @@ public class DatePicker extends Picker {
         return false;
     }
 
-    private void updateSpinners(boolean animation) {
+    private void updateSpinners(final boolean animation) {
+        // update range in a post call.  The reason is that RV does not allow notifyDataSetChange()
+        // in scroll pass.  UpdateSpinner can be called in a scroll pass, UpdateSpinner() may
+        // notifyDataSetChange to update the range.
+        post(new Runnable() {
+            public void run() {
+                updateSpinnersImpl(animation);
+            }
+        });
+    }
+
+    private void updateSpinnersImpl(boolean animation) {
         // set the spinner ranges respecting the min and max dates
         boolean dayRangeChanged = false;
         boolean monthRangeChanged = false;
