@@ -62,6 +62,14 @@ public abstract class AppCompatBaseViewTest<A extends BaseTestActivity, T extend
         mResources = activity.getResources();
     }
 
+    /**
+     * Subclasses should override this method to return true if by default the matching
+     * view (such as, say, {@link AppCompatSpinner}) has background set it.
+     */
+    protected boolean hasBackgroundByDefault() {
+        return false;
+    }
+
     private void verifyBackgroundIsColoredAs(String description, @NonNull View view,
             @ColorInt int color, int allowedComponentVariance) {
         Drawable background = view.getBackground();
@@ -77,6 +85,10 @@ public abstract class AppCompatBaseViewTest<A extends BaseTestActivity, T extend
     @Test
     @SmallTest
     public void testBackgroundTintingWithNoBackground() {
+        if (hasBackgroundByDefault()) {
+            return;
+        }
+
         final @IdRes int viewId = R.id.view_tinted_no_background;
         final T view = (T) mContainer.findViewById(viewId);
 
@@ -280,7 +292,9 @@ public abstract class AppCompatBaseViewTest<A extends BaseTestActivity, T extend
         final @ColorInt int lilacDisabled = ResourcesCompat.getColor(
                 mResources, R.color.lilac_disabled, null);
 
-        assertNull("No background after XML loading", view.getBackground());
+        if (!hasBackgroundByDefault()) {
+            assertNull("No background after XML loading", view.getBackground());
+        }
 
         // Set background on our view
         onView(withId(viewId)).perform(AppCompatTintableViewActions.setBackgroundDrawable(
@@ -344,7 +358,9 @@ public abstract class AppCompatBaseViewTest<A extends BaseTestActivity, T extend
         final @ColorInt int backgroundColorRed = ResourcesCompat.getColor(
                 mResources, R.color.test_red, null);
 
-        assertNull("No background after XML loading", view.getBackground());
+        if (!hasBackgroundByDefault()) {
+            assertNull("No background after XML loading", view.getBackground());
+        }
 
         // Set src_over tint mode on our view. As the currently set tint list is using
         // translucent colors, we expect the actual background of the view to be different under
