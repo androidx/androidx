@@ -80,6 +80,11 @@
                 android:theme="@style/Theme.AppCompat.Light" />
 
         <activity
+                android:name="android.support.v7.widget.AppCompatButtonActivity"
+                android:label="@string/app_compat_button_activity"
+                android:theme="@style/Theme.AppCompat.Light" />
+
+        <activity
                 android:name="android.support.v7.app.LayoutInflaterFactoryTestActivity"/>
 
         <activity
