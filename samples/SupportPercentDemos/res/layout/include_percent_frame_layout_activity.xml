@@ -19,5 +19,5 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         >
-    <include layout="@layout/demo_include" />
+    <include layout="@layout/include_percent_frame_layout_content" />
 </android.support.percent.PercentFrameLayout>

@@ -36,5 +36,29 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".SimplePercentFrameLayoutActivity"
+                  android:label="@string/simple_percent_frame_demo">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="com.example.android.supportpercent.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".IncludePercentFrameLayoutActivity"
+                  android:label="@string/include_percent_frame_demo">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="com.example.android.supportpercent.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".SimplePercentRelativeLayoutActivity"
+                  android:label="@string/simple_percent_relative_demo">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="com.example.android.supportpercent.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
+
     </application>
 </manifest>

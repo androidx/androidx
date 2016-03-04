@@ -16,4 +16,8 @@
 
 <resources>
     <string name="activity_sample_code">Support Percent Demos</string>
+
+    <string name="simple_percent_frame_demo">Simple PercentFrameLayout demo</string>
+    <string name="include_percent_frame_demo">PercentFrameLayout with include demo</string>
+    <string name="simple_percent_relative_demo">Simple PercentRelativeLayout demo</string>
 </resources>

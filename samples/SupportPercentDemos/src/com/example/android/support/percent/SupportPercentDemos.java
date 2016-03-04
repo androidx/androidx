@@ -16,72 +16,136 @@
 
 package com.example.android.support.percent;
 
-import android.app.Activity;
-import android.app.Fragment;
+import android.app.ListActivity;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.os.Bundle;
-import android.app.FragmentManager;
-import android.support.v13.app.FragmentStatePagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
 
-public class SupportPercentDemos extends Activity {
-    private static final String LAYOUT_RESOURCE_ID = "layout_resource_id";
+import java.text.Collator;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-    private ViewPager mPager;
+public class SupportPercentDemos extends ListActivity {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.support_percent_demos);
-        mPager = (ViewPager) findViewById(R.id.pager);
-        mPager.setAdapter(new Adapter(getFragmentManager()));
-    }
 
-    public static class Adapter extends FragmentStatePagerAdapter {
-        public Adapter(FragmentManager fm) {
-            super(fm);
+        Intent intent = getIntent();
+        String path = intent.getStringExtra("com.example.android.apis.Path");
+
+        if (path == null) {
+            path = "";
         }
 
+        setListAdapter(new SimpleAdapter(this, getData(path),
+                android.R.layout.simple_list_item_1, new String[] { "title" },
+                new int[] { android.R.id.text1 }));
+        getListView().setTextFilterEnabled(true);
+    }
 
-        @Override
-        public Fragment getItem(int position) {
-            PercentFragment fragment = new PercentFragment();
-            Bundle args = new Bundle();
-            switch (position) {
-                case 0:
-                    args.putInt(LAYOUT_RESOURCE_ID, R.layout.demo_1);
-                    break;
-                case 1:
-                    args.putInt(LAYOUT_RESOURCE_ID, R.layout.demo_2);
-                    break;
-                case 2:
-                    args.putInt(LAYOUT_RESOURCE_ID, R.layout.demo_3);
-                    break;
-                default:
-                    break;
+    protected List<Map<String, Object>> getData(String prefix) {
+        List<Map<String, Object>> myData = new ArrayList<Map<String, Object>>();
+
+        Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
+        mainIntent.addCategory("com.example.android.supportpercent.SAMPLE_CODE");
+
+        PackageManager pm = getPackageManager();
+        List<ResolveInfo> list = pm.queryIntentActivities(mainIntent, 0);
+
+        if (null == list)
+            return myData;
+
+        String[] prefixPath;
+        String prefixWithSlash = prefix;
+
+        if (prefix.equals("")) {
+            prefixPath = null;
+        } else {
+            prefixPath = prefix.split("/");
+            prefixWithSlash = prefix + "/";
+        }
+
+        int len = list.size();
+
+        Map<String, Boolean> entries = new HashMap<String, Boolean>();
+
+        for (int i = 0; i < len; i++) {
+            ResolveInfo info = list.get(i);
+            CharSequence labelSeq = info.loadLabel(pm);
+            String label = labelSeq != null
+                    ? labelSeq.toString()
+                    : info.activityInfo.name;
+
+            if (prefixWithSlash.length() == 0 || label.startsWith(prefixWithSlash)) {
+
+                String[] labelPath = label.split("/");
+
+                String nextLabel = prefixPath == null ? labelPath[0] : labelPath[prefixPath.length];
+
+                if ((prefixPath != null ? prefixPath.length : 0) == labelPath.length - 1) {
+                    addItem(myData, nextLabel, activityIntent(
+                            info.activityInfo.applicationInfo.packageName,
+                            info.activityInfo.name));
+                } else {
+                    if (entries.get(nextLabel) == null) {
+                        addItem(myData, nextLabel, browseIntent(
+                                prefix.equals("") ? nextLabel : prefix + "/" + nextLabel));
+                        entries.put(nextLabel, true);
+                    }
+                }
             }
-            fragment.setArguments(args);
-            return fragment;
         }
 
-        @Override
-        public int getCount() {
-            return 3;
-        }
+        Collections.sort(myData, sDisplayNameComparator);
+
+        return myData;
     }
 
-    public static class PercentFragment extends Fragment {
-        public PercentFragment() {
-        }
+    private final static Comparator<Map<String, Object>> sDisplayNameComparator =
+            new Comparator<Map<String, Object>>() {
+                private final Collator collator = Collator.getInstance();
 
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            Bundle args = getArguments();
-            int layout = args.getInt(LAYOUT_RESOURCE_ID);
-            return inflater.inflate(layout, container, false);
-        }
+                @Override
+                public int compare(Map<String, Object> map1, Map<String, Object> map2) {
+                    return collator.compare(map1.get("title"), map2.get("title"));
+                }
+            };
+
+    protected Intent activityIntent(String pkg, String componentName) {
+        Intent result = new Intent();
+        result.setClassName(pkg, componentName);
+        return result;
+    }
+
+    protected Intent browseIntent(String path) {
+        Intent result = new Intent();
+        result.setClass(this, SupportPercentDemos.class);
+        result.putExtra("com.example.android.apis.Path", path);
+        return result;
+    }
+
+    protected void addItem(List<Map<String, Object>> data, String name, Intent intent) {
+        Map<String, Object> temp = new HashMap<String, Object>();
+        temp.put("title", name);
+        temp.put("intent", intent);
+        data.add(temp);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    protected void onListItemClick(ListView l, View v, int position, long id) {
+        Map<String, Object> map = (Map<String, Object>)l.getItemAtPosition(position);
+
+        Intent intent = (Intent) map.get("intent");
+        startActivity(intent);
     }
 }
