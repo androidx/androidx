@@ -35,6 +35,7 @@ import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowHeaderPresenter;
 import android.support.v17.leanback.widget.RowPresenter;
+import android.support.v17.leanback.widget.ScaleFrameLayout;
 import android.support.v17.leanback.widget.TitleView;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v4.view.ViewCompat;
@@ -43,6 +44,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
+import android.view.ViewTreeObserver;
 
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
@@ -230,18 +232,6 @@ public class BrowseFragment extends BaseFragment {
         }
 
         /**
-         * Sets the left margin.
-         */
-        public void setMarginStart(int margin) {
-        }
-
-        /**
-         * Enables scaling of the content.
-         */
-        public void setScalingEnabled(boolean enable) {
-        }
-
-        /**
          * Selects a Row and perform an optional task on the Row.
          */
         public void setSelectedPosition(int rowPosition,
@@ -292,12 +282,6 @@ public class BrowseFragment extends BaseFragment {
          * Sets the window alignment and also the pivots for scale operation.
          */
         public void setAlignment(int windowAlignOffsetFromTop) {
-        }
-
-        /**
-         * Callback indicating start of expand transition.
-         */
-        public void onExpandTransitionStart(boolean expand, final Runnable callback) {
         }
 
         /**
@@ -396,6 +380,7 @@ public class BrowseFragment extends BaseFragment {
     private boolean mBrandColorSet;
 
     private BrowseFrameLayout mBrowseFrame;
+    private ScaleFrameLayout mScaleFrameLayout;
     private boolean mHeadersBackStackEnabled = true;
     private String mWithHeadersBackStackName;
     private boolean mShowingHeaders = true;
@@ -406,6 +391,7 @@ public class BrowseFragment extends BaseFragment {
     private OnItemViewSelectedListener mExternalOnItemViewSelectedListener;
     private OnItemViewClickedListener mOnItemViewClickedListener;
     private int mSelectedPosition = 0;
+    private float mRowScaleFactor;
 
     private PresenterSelector mHeaderPresenterSelector;
     private final SetSelectionRunnable mSetSelectionRunnable = new SetSelectionRunnable();
@@ -604,9 +590,6 @@ public class BrowseFragment extends BaseFragment {
      */
     public void enableRowScaling(boolean enable) {
         mRowScaleEnabled = enable;
-        if (mMainFragmentAdapter != null) {
-            mMainFragmentAdapter.setScalingEnabled(mRowScaleEnabled);
-        }
     }
 
     private void startHeadersTransitionInternal(final boolean withHeaders) {
@@ -616,7 +599,7 @@ public class BrowseFragment extends BaseFragment {
         mShowingHeaders = withHeaders;
         mMainFragmentAdapter.onTransitionPrepare();
         mMainFragmentAdapter.onTransitionStart();
-        mMainFragmentAdapter.onExpandTransitionStart(!withHeaders, new Runnable() {
+        onExpandTransitionStart(!withHeaders, new Runnable() {
             @Override
             public void run() {
                 mHeadersFragment.onTransitionPrepare();
@@ -766,6 +749,8 @@ public class BrowseFragment extends BaseFragment {
                 }
             }
         }
+
+        mRowScaleFactor = getResources().getFraction(R.fraction.lb_browse_rows_scale, 1, 1);
     }
 
     @Override
@@ -779,18 +764,18 @@ public class BrowseFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        if (getChildFragmentManager().findFragmentById(R.id.browse_container_dock) == null) {
+        if (getChildFragmentManager().findFragmentById(R.id.scale_frame) == null) {
             mHeadersFragment = new HeadersFragment();
             mMainFragmentAdapter = mMainFragmentAdapterFactory.getAdapter(
                     mAdapter, mSelectedPosition);
             mMainFragment = mMainFragmentAdapter.getFragment();
             getChildFragmentManager().beginTransaction()
                     .replace(R.id.browse_headers_dock, mHeadersFragment)
-                    .replace(R.id.browse_container_dock, mMainFragment)
+                    .replace(R.id.scale_frame, mMainFragment)
                     .commit();
         } else {
             mHeadersFragment = (HeadersFragment) getChildFragmentManager()
-                    .findFragmentById(R.id.browse_headers_dock);
+                    .findFragmentById(R.id.scale_frame);
             mMainFragment = getChildFragmentManager()
                     .findFragmentById(R.id.browse_container_dock);
         }
@@ -803,8 +788,6 @@ public class BrowseFragment extends BaseFragment {
         mHeadersFragment.setOnHeaderViewSelectedListener(mHeaderViewSelectedListener);
         mHeadersFragment.setOnHeaderClickedListener(mHeaderClickedListener);
 
-        setupMainFragment();
-
         View root = inflater.inflate(R.layout.lb_browse_fragment, container, false);
 
         setTitleView((TitleView) root.findViewById(R.id.browse_title_group));
@@ -812,6 +795,12 @@ public class BrowseFragment extends BaseFragment {
         mBrowseFrame = (BrowseFrameLayout) root.findViewById(R.id.browse_frame);
         mBrowseFrame.setOnChildFocusListener(mOnChildFocusListener);
         mBrowseFrame.setOnFocusSearchListener(mOnFocusSearchListener);
+
+        mScaleFrameLayout = (ScaleFrameLayout) root.findViewById(R.id.scale_frame);
+        mScaleFrameLayout.setPivotX(0);
+        mScaleFrameLayout.setPivotY(mContainerListAlignTop);
+
+        setupMainFragment();
 
         if (mBrandColorSet) {
             mHeadersFragment.setBackgroundColor(mBrandColor);
@@ -840,7 +829,6 @@ public class BrowseFragment extends BaseFragment {
 
     private void setupMainFragment() {
         mMainFragmentAdapter.setAdapter(mAdapter);
-        mMainFragmentAdapter.setScalingEnabled(mRowScaleEnabled);
         mMainFragmentAdapter.setOnItemViewSelectedListener(mRowViewSelectedListener);
         mMainFragmentAdapter.setOnItemViewClickedListener(mOnItemViewClickedListener);
     }
@@ -903,9 +891,19 @@ public class BrowseFragment extends BaseFragment {
         if (DEBUG) Log.v(TAG, "showHeaders " + show);
         mHeadersFragment.setHeadersEnabled(show);
         setHeadersOnScreen(show);
-        int marginStart = show ? mContainerListMarginStart : 0;
-        mMainFragmentAdapter.setMarginStart(marginStart);
-        mMainFragmentAdapter.setExpand(!show);
+        expandMainFragment(!show);
+    }
+
+    private void expandMainFragment(boolean expand) {
+        MarginLayoutParams params = (MarginLayoutParams) mScaleFrameLayout.getLayoutParams();
+        params.leftMargin = !expand ? mContainerListMarginStart : 0;
+        mScaleFrameLayout.setLayoutParams(params);
+        mMainFragmentAdapter.setExpand(expand);
+
+        setMainFragmentAlignment();
+        final float scaleFactor = !expand ? mRowScaleFactor : 1;
+        mScaleFrameLayout.setLayoutScaleY(scaleFactor);
+        mScaleFrameLayout.setChildScale(scaleFactor);
     }
 
     private HeadersFragment.OnHeaderClickedListener mHeaderClickedListener =
@@ -974,8 +972,8 @@ public class BrowseFragment extends BaseFragment {
             mMainFragmentAdapter = newFragmentAdapter;
             mMainFragment = mMainFragmentAdapter.getFragment();
             swapBrowseContent(mMainFragment);
+            expandMainFragment(!(mCanShowHeaders && mShowingHeaders));
             setupMainFragment();
-            showHeaders(true);
             mMainFragmentAdapter.setAlignment(mContainerListAlignTop);
         }
         mMainFragmentAdapter.setSelectedPosition(position, smooth);
@@ -983,8 +981,7 @@ public class BrowseFragment extends BaseFragment {
     }
 
     private void swapBrowseContent(Fragment fragment) {
-        getChildFragmentManager().beginTransaction()
-                .replace(R.id.browse_container_dock, fragment).commit();
+        getChildFragmentManager().beginTransaction().replace(R.id.scale_frame, fragment).commit();
     }
 
     /**
@@ -1037,7 +1034,7 @@ public class BrowseFragment extends BaseFragment {
     public void onStart() {
         super.onStart();
         mHeadersFragment.setAlignment(mContainerListAlignTop);
-        mMainFragmentAdapter.setAlignment(mContainerListAlignTop);
+        setMainFragmentAlignment();
 
         if (mCanShowHeaders && mShowingHeaders && mHeadersFragment.getView() != null) {
             mHeadersFragment.getView().requestFocus();
@@ -1053,6 +1050,24 @@ public class BrowseFragment extends BaseFragment {
         if (isEntranceTransitionEnabled()) {
             setEntranceTransitionStartState();
         }
+    }
+
+    private void onExpandTransitionStart(boolean expand, final Runnable callback) {
+        if (expand) {
+            callback.run();
+            return;
+        }
+        // Run a "pre" layout when we go non-expand, in order to get the initial
+        // positions of added rows.
+        new ExpandPreLayout(callback, mMainFragmentAdapter).execute();
+    }
+
+    private void setMainFragmentAlignment() {
+        int alignOffset = mContainerListAlignTop;
+        if (mRowScaleEnabled && mShowingHeaders) {
+            alignOffset = (int) (alignOffset / mRowScaleFactor + 0.5f);
+        }
+        mMainFragmentAdapter.setAlignment(alignOffset);
     }
 
     /**
@@ -1180,5 +1195,46 @@ public class BrowseFragment extends BaseFragment {
         setHeadersOnScreen(mShowingHeaders);
         setSearchOrbViewOnScreen(true);
         mMainFragmentAdapter.setEntranceTransitionState(true);
+    }
+
+    private static class ExpandPreLayout implements ViewTreeObserver.OnPreDrawListener {
+
+        private final View mView;
+        private final Runnable mCallback;
+        private int mState;
+        private AbstractMainFragmentAdapter mainFragmentAdapter;
+
+        final static int STATE_INIT = 0;
+        final static int STATE_FIRST_DRAW = 1;
+        final static int STATE_SECOND_DRAW = 2;
+
+        ExpandPreLayout(Runnable callback, AbstractMainFragmentAdapter adapter) {
+            mView = adapter.getFragment().getView();
+            mCallback = callback;
+            mainFragmentAdapter = adapter;
+        }
+
+        void execute() {
+            mView.getViewTreeObserver().addOnPreDrawListener(this);
+            mainFragmentAdapter.setExpand(false);
+            mState = STATE_INIT;
+        }
+
+        @Override
+        public boolean onPreDraw() {
+            if (mView == null) {
+                mView.getViewTreeObserver().removeOnPreDrawListener(this);
+                return true;
+            }
+            if (mState == STATE_INIT) {
+                mainFragmentAdapter.setExpand(true);
+                mState = STATE_FIRST_DRAW;
+            } else if (mState == STATE_FIRST_DRAW) {
+                mCallback.run();
+                mView.getViewTreeObserver().removeOnPreDrawListener(this);
+                mState = STATE_SECOND_DRAW;
+            }
+            return false;
+        }
     }
 }

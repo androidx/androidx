@@ -45,16 +45,6 @@ public class RowsSupportFragmentAdapter extends BrowseSupportFragment.AbstractMa
     }
 
     @Override
-    public void setMarginStart(int margin) {
-        mFragment.setMarginStart(margin);
-    }
-
-    @Override
-    public void setScalingEnabled(boolean enable) {
-        mFragment.setScalingEnabled(enable);
-    }
-
-    @Override
     public void setSelectedPosition(
             int rowPosition, boolean smooth, Presenter.ViewHolderTask rowHolderTask) {
         mFragment.setSelectedPosition(rowPosition, smooth, rowHolderTask);
@@ -93,11 +83,6 @@ public class RowsSupportFragmentAdapter extends BrowseSupportFragment.AbstractMa
     @Override
     public void setAlignment(int windowAlignOffsetFromTop) {
         mFragment.setAlignment(windowAlignOffsetFromTop);
-    }
-
-    @Override
-    public void onExpandTransitionStart(boolean expand, Runnable callback) {
-        mFragment.onExpandTransitionStart(expand, callback);
     }
 
     @Override
