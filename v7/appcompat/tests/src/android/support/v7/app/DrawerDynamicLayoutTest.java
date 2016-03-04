@@ -16,6 +16,7 @@
 package android.support.v7.app;
 
 import android.support.test.InstrumentationRegistry;
+import android.support.v4.widget.DrawerLayout;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -35,11 +36,13 @@ import static android.support.test.espresso.assertion.ViewAssertions.doesNotExis
 import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static org.hamcrest.core.AllOf.allOf;
+import static org.mockito.Mockito.mock;
 
 /**
  * Test cases to verify that <code>DrawerLayout</code> only supports configurations
  * with at most one drawer child along each vertical (left / right) edge.
  */
+@SmallTest
 public class DrawerDynamicLayoutTest
         extends BaseInstrumentationTestCase<DrawerDynamicLayoutActivity> {
     public DrawerDynamicLayoutTest() {
@@ -105,7 +108,6 @@ public class DrawerDynamicLayoutTest
     }
 
     @Test
-    @SmallTest
     public void testSingleStartDrawer() {
         onView(withId(R.id.drawer_layout)).check(doesNotExist());
         onView(withId(R.id.drawer_stub)).perform(
@@ -113,7 +115,6 @@ public class DrawerDynamicLayoutTest
     }
 
     @Test(expected=IllegalStateException.class)
-    @SmallTest
     public void testDoubleStartDrawers() {
         onView(withId(R.id.drawer_layout)).check(doesNotExist());
         // Note the expected exception in the @Test annotation, as we expect the DrawerLayout
@@ -123,7 +124,6 @@ public class DrawerDynamicLayoutTest
     }
 
     @Test
-    @SmallTest
     public void testSingleEndDrawer() {
         onView(withId(R.id.drawer_layout)).check(doesNotExist());
         onView(withId(R.id.drawer_stub)).perform(
@@ -131,7 +131,6 @@ public class DrawerDynamicLayoutTest
     }
 
     @Test(expected=IllegalStateException.class)
-    @SmallTest
     public void testDoubleEndDrawers() {
         onView(withId(R.id.drawer_layout)).check(doesNotExist());
         // Note the expected exception in the @Test annotation, as we expect the DrawerLayout
@@ -141,7 +140,6 @@ public class DrawerDynamicLayoutTest
     }
 
     @Test
-    @SmallTest
     public void testSingleStartDrawerSingleEndDrawer() {
         onView(withId(R.id.drawer_layout)).check(doesNotExist());
         onView(withId(R.id.drawer_stub)).perform(
@@ -149,7 +147,6 @@ public class DrawerDynamicLayoutTest
     }
 
     @Test(expected=IllegalStateException.class)
-    @SmallTest
     public void testDoubleStartDrawersSingleEndDrawer() {
         onView(withId(R.id.drawer_layout)).check(doesNotExist());
         // Note the expected exception in the @Test annotation, as we expect the DrawerLayout
@@ -159,12 +156,26 @@ public class DrawerDynamicLayoutTest
     }
 
     @Test(expected=IllegalStateException.class)
-    @SmallTest
     public void testDoubleEndDrawersSingleStartDrawer() {
         onView(withId(R.id.drawer_layout)).check(doesNotExist());
         // Note the expected exception in the @Test annotation, as we expect the DrawerLayout
         // to throw exception during the measure pass as it detects two start drawers.
         onView(withId(R.id.drawer_stub)).perform(
                 inflateViewStub(R.layout.drawer_dynamic_content_double_end_single_start));
+    }
+
+    @Test
+    public void testRemoveUnregisteredListener() {
+        onView(withId(R.id.drawer_stub)).perform(
+                inflateViewStub(R.layout.drawer_dynamic_content_single_start));
+
+        // We do this test here and not in DrawerLayoutTest since we want to be sure that the
+        // call to DrawerLayout.removeDrawerLayout() didn't have any calls to addDrawerLayout()
+        // before it. DrawerLayoutTest and its DrawerLayoutActivity register listeners as part
+        // of their initial setup flow.
+        final DrawerLayout startDrawer =
+                (DrawerLayout) mActivityTestRule.getActivity().findViewById(R.id.drawer_layout);
+        DrawerLayout.DrawerListener mockedListener = mock(DrawerLayout.DrawerListener.class);
+        startDrawer.removeDrawerListener(mockedListener);
     }
 }
