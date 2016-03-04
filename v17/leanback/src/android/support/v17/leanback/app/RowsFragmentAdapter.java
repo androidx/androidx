@@ -27,6 +27,10 @@ import android.support.v17.leanback.widget.Presenter;
 public class RowsFragmentAdapter extends BrowseFragment.AbstractMainFragmentAdapter {
     private RowsFragment mFragment = new RowsFragment();
 
+    public RowsFragmentAdapter() {
+        setScalingEnabled(true);
+    }
+
     @Override
     public Fragment getFragment() {
         return mFragment;

@@ -216,7 +216,7 @@ public class BrowseFragment extends BaseFragment {
      * just those interactions that makes sense.
      */
     public static abstract class AbstractMainFragmentAdapter {
-
+        private boolean mScalingEnabled;
         public abstract Fragment getFragment();
 
         /**
@@ -301,6 +301,20 @@ public class BrowseFragment extends BaseFragment {
          * Callback indicating transition end.
          */
         public void onTransitionEnd() {
+        }
+
+        /**
+         * Returns whether row scaling is enabled.
+         */
+        public boolean isScalingEnabled() {
+            return mScalingEnabled;
+        }
+
+        /**
+         * Sets the row scaling property.
+         */
+        public void setScalingEnabled(boolean scalingEnabled) {
+            this.mScalingEnabled = scalingEnabled;
         }
     }
 
@@ -387,11 +401,11 @@ public class BrowseFragment extends BaseFragment {
     private boolean mCanShowHeaders = true;
     private int mContainerListMarginStart;
     private int mContainerListAlignTop;
-    private boolean mRowScaleEnabled = true;
+    private boolean mMainFragmentScaleEnabled = true;
     private OnItemViewSelectedListener mExternalOnItemViewSelectedListener;
     private OnItemViewClickedListener mOnItemViewClickedListener;
     private int mSelectedPosition = 0;
-    private float mRowScaleFactor;
+    private float mScaleFactor;
 
     private PresenterSelector mHeaderPresenterSelector;
     private final SetSelectionRunnable mSetSelectionRunnable = new SetSelectionRunnable();
@@ -583,13 +597,23 @@ public class BrowseFragment extends BaseFragment {
     }
 
     /**
-     * Enables scaling of rows when headers are present.
-     * By default enabled to increase density.
+     * @deprecated use {@link BrowseFragment#enableMainFragmentScaling(boolean)} instead.
      *
      * @param enable true to enable row scaling
      */
     public void enableRowScaling(boolean enable) {
-        mRowScaleEnabled = enable;
+        enableMainFragmentScaling(enable);
+    }
+
+    /**
+     * Enables scaling of main fragment when headers are present. For the page/row fragment,
+     * scaling is enabled only when both this method and
+     * {@link AbstractMainFragmentAdapter#isScalingEnabled()} are enabled.
+     *
+     * @param enable true to enable row scaling
+     */
+    public void enableMainFragmentScaling(boolean enable) {
+        mMainFragmentScaleEnabled = enable;
     }
 
     private void startHeadersTransitionInternal(final boolean withHeaders) {
@@ -750,7 +774,7 @@ public class BrowseFragment extends BaseFragment {
             }
         }
 
-        mRowScaleFactor = getResources().getFraction(R.fraction.lb_browse_rows_scale, 1, 1);
+        mScaleFactor = getResources().getFraction(R.fraction.lb_browse_rows_scale, 1, 1);
     }
 
     @Override
@@ -901,7 +925,9 @@ public class BrowseFragment extends BaseFragment {
         mMainFragmentAdapter.setExpand(expand);
 
         setMainFragmentAlignment();
-        final float scaleFactor = !expand ? mRowScaleFactor : 1;
+        final float scaleFactor = !expand
+                && mMainFragmentScaleEnabled && mMainFragmentAdapter.isScalingEnabled()
+                ? mScaleFactor : 1;
         mScaleFrameLayout.setLayoutScaleY(scaleFactor);
         mScaleFrameLayout.setChildScale(scaleFactor);
     }
@@ -1064,8 +1090,10 @@ public class BrowseFragment extends BaseFragment {
 
     private void setMainFragmentAlignment() {
         int alignOffset = mContainerListAlignTop;
-        if (mRowScaleEnabled && mShowingHeaders) {
-            alignOffset = (int) (alignOffset / mRowScaleFactor + 0.5f);
+        if (mMainFragmentScaleEnabled
+                && mMainFragmentAdapter.isScalingEnabled()
+                && mShowingHeaders) {
+            alignOffset = (int) (alignOffset / mScaleFactor + 0.5f);
         }
         mMainFragmentAdapter.setAlignment(alignOffset);
     }
