@@ -16,12 +16,15 @@
 package android.support.v7.widget;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.support.annotation.Nullable;
+
 /**
  * Interface for platform specific CardView implementations.
  */
 interface CardViewImpl {
-    void initialize(CardViewDelegate cardView, Context context, int backgroundColor, float radius,
-            float elevation, float maxElevation);
+    void initialize(CardViewDelegate cardView, Context context, ColorStateList backgroundColor,
+            float radius, float elevation, float maxElevation);
 
     void setRadius(CardViewDelegate cardView, float radius);
 
@@ -47,5 +50,5 @@ interface CardViewImpl {
 
     void onPreventCornerOverlapChanged(CardViewDelegate cardView);
 
-    void setBackgroundColor(CardViewDelegate cardView, int color);
+    void setBackgroundColor(CardViewDelegate cardView, @Nullable ColorStateList color);
 }

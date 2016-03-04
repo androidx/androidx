@@ -2,6 +2,10 @@ apply plugin: 'com.android.library'
 
 archivesBaseName = 'cardview-v7'
 
+dependencies {
+    compile project(':support-annotations')
+}
+
 android {
     // WARNING: should be 7
     compileSdkVersion project.ext.currentSdk
