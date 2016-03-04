@@ -27,12 +27,19 @@
         android:descendantFocusability="afterDescendants"
         android:id="@+id/browse_frame"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
+        android:layout_height="match_parent">
+
         <android.support.v17.leanback.widget.BrowseRowsFrameLayout
             android:id="@+id/browse_container_dock"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent">
+
+            <android.support.v17.leanback.widget.ScaleFrameLayout
+                android:id="@+id/scale_frame"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </android.support.v17.leanback.widget.BrowseRowsFrameLayout>
 
         <!-- Padding needed for shadow -->
         <FrameLayout

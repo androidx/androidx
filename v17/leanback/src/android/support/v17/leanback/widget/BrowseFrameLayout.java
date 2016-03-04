@@ -33,7 +33,7 @@ public class BrowseFrameLayout extends FrameLayout {
          * Returns the view where focus should be requested given the current focused view and
          * the direction of focus search.
          */
-        public View onFocusSearch(View focused, int direction);
+        View onFocusSearch(View focused, int direction);
     }
 
     /**
@@ -44,13 +44,13 @@ public class BrowseFrameLayout extends FrameLayout {
          * See {@link android.view.ViewGroup#onRequestFocusInDescendants(
          * int, android.graphics.Rect)}.
          */
-        public boolean onRequestFocusInDescendants(int direction,
+        boolean onRequestFocusInDescendants(int direction,
                 Rect previouslyFocusedRect);
         /**
          * See {@link android.view.ViewGroup#requestChildFocus(
          * android.view.View, android.view.View)}.
          */
-        public void onRequestChildFocus(View child, View focused);
+        void onRequestChildFocus(View child, View focused);
     }
 
     public BrowseFrameLayout(Context context) {
