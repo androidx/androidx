@@ -1106,10 +1106,20 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      * the GuidedActionStylist will collapse sub actions.
      */
     public void onUpdateExpandedViewHolder(ViewHolder avh) {
+
+        // Note about setting the prune child flag back & forth here: without this, the actions that
+        // go off the screen from the top or bottom become invisible forever. This is because once
+        // an action is expanded, it takes more space which in turn kicks out some other actions
+        // off of the screen. Once, this action is collapsed (after the second click) and the
+        // visibility flag is set back to true for all existing actions,
+        // the off-the-screen actions are pruned from the view, thus
+        // could not be accessed, had we not disabled pruning prior to this.
         if (avh == null) {
             mExpandedAction = null;
+            mActionsGridView.setPruneChild(true);
         } else if (avh.getAction() != mExpandedAction) {
             mExpandedAction = avh.getAction();
+            mActionsGridView.setPruneChild(false);
         }
         // In expanding mode, notifyItemChange on expanded item will reset the translationY by
         // the default ItemAnimator.  So disable ItemAnimation in expanding mode.
