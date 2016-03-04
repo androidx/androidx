@@ -26,7 +26,7 @@ public class SearchActivity extends Activity
     private static boolean DEBUG = true;
 
     /** If using internal speech recognizer, you must have RECORD_AUDIO permission */
-    private static boolean USE_INTERNAL_SPEECH_RECOGNIZER = false;
+    private static boolean USE_INTERNAL_SPEECH_RECOGNIZER = true;
     private static final int REQUEST_SPEECH = 1;
 
     private SearchFragment mFragment;
@@ -62,4 +62,5 @@ public class SearchActivity extends Activity
             mFragment.setSearchQuery(data, true);
         }
     }
+
 }
