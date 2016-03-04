@@ -43,7 +43,8 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 public class PlaybackOverlayFragment
-        extends android.support.v17.leanback.app.PlaybackOverlayFragment {
+        extends android.support.v17.leanback.app.PlaybackOverlayFragment
+        implements PlaybackOverlayActivity.PictureInPictureListener {
     private static final String TAG = "leanback.PlaybackControlsFragment";
 
     /**
@@ -170,11 +171,13 @@ public class PlaybackOverlayFragment
         super.onStart();
         mGlue.setFadingEnabled(true);
         mGlue.enableProgressUpdating(mGlue.hasValidMedia() && mGlue.isMediaPlaying());
+        ((PlaybackOverlayActivity) getActivity()).registerPictureInPictureListener(this);
     }
 
     @Override
     public void onStop() {
         mGlue.enableProgressUpdating(false);
+        ((PlaybackOverlayActivity) getActivity()).unregisterPictureInPictureListener(this);
         super.onStop();
     }
 
