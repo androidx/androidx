@@ -54,6 +54,7 @@
     <string name="sample_text1">Sample text 1</string>
     <string name="sample_text2">Sample text 2</string>
     <string name="app_compat_image_view_activity">AppCompat image view</string>
+    <string name="app_compat_button_activity">AppCompat button</string>
     <string-array name="planets_array">
         <item>Mercury</item>
         <item>Venus</item>

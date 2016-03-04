@@ -25,28 +25,28 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <android.support.v7.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatButton
             style="@style/TextStyleAllCapsOn"
-            android:id="@+id/text_view_caps1"
+            android:id="@+id/button_caps1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sample_text1" />
 
-        <android.support.v7.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatButton
             style="@style/TextStyleAllCapsOff"
-            android:id="@+id/text_view_caps2"
+            android:id="@+id/button_caps2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sample_text2" />
 
-        <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/text_view_app_allcaps_false"
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/button_app_allcaps_false"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sample_text2"
             app:textAllCaps="false"/>
 
-        <android.support.v7.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatButton
             android:id="@+id/view_tinted_no_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -63,18 +63,19 @@
             app:backgroundTint="@color/color_state_list_lilac"
             app:backgroundTintMode="src_in" />
 
-        <android.support.v7.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatButton
             android:id="@+id/view_untinted_no_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sample_text2" />
 
-        <android.support.v7.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatButton
             android:id="@+id/view_untinted_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sample_text2"
             android:background="@drawable/test_background_green" />
+
     </LinearLayout>
 
 </ScrollView>
