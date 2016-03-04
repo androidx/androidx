@@ -299,6 +299,7 @@ write_java_head(outfile, "PlaybackOverlayFragment")
 for line in file:
     line = line.replace('PlaybackOverlayFragment', 'PlaybackOverlaySupportFragment')
     line = line.replace('PlaybackControlHelper', 'PlaybackControlSupportHelper')
+    line = line.replace('PlaybackOverlayActivity', 'PlaybackOverlaySupportActivity')
     outfile.write(line)
 file.close()
 outfile.close()

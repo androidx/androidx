@@ -179,8 +179,7 @@ public class PlaybackOverlaySupportFragment
     @Override
     public void onStop() {
         mGlue.enableProgressUpdating(false);
-        ((PlaybackOverlaySupportActivity) getActivity()).unregisterPictureInPictureListener(
-                this);
+        ((PlaybackOverlaySupportActivity) getActivity()).unregisterPictureInPictureListener(this);
         super.onStop();
     }
 
