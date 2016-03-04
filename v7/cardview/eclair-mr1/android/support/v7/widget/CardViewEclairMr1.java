@@ -61,13 +61,14 @@ class CardViewEclairMr1 implements CardViewImpl {
                     canvas.drawRect(bounds.left + roundedCornerRadius - 1f, bounds.top,
                             bounds.right - roundedCornerRadius + 1f,
                             bounds.top + roundedCornerRadius, paint);
+
                     canvas.drawRect(bounds.left + roundedCornerRadius - 1f,
-                            bounds.bottom - roundedCornerRadius + 1f,
+                            bounds.bottom - roundedCornerRadius,
                             bounds.right - roundedCornerRadius + 1f, bounds.bottom, paint);
                 }
                 // center
-                canvas.drawRect(bounds.left, bounds.top + Math.max(0, cornerRadius - 1f),
-                        bounds.right, bounds.bottom - cornerRadius + 1f, paint);
+                canvas.drawRect(bounds.left, bounds.top + cornerRadius,
+                        bounds.right, bounds.bottom - cornerRadius , paint);
             }
         };
     }
