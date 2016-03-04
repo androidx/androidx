@@ -13,6 +13,7 @@
  */
 package android.support.v17.leanback.app;
 
+import android.Manifest;
 import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -41,6 +42,8 @@ import android.widget.FrameLayout;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+
 /**
  * A fragment to handle searches. An application will supply an implementation
  * of the {@link SearchResultProvider} interface to handle the search and return
@@ -50,8 +53,10 @@ import java.util.List;
  *
  * <p>If you do not supply a callback via
  * {@link #setSpeechRecognitionCallback(SpeechRecognitionCallback)}, an internal speech
- * recognizer will be used for which your application will need to request
- * android.permission.RECORD_AUDIO.
+ * recognizer will be used for which your application will need to declare
+ * android.permission.RECORD_AUDIO in AndroidManifest file. If app's target version is >= 23 and
+ * the device version is >= 23, a permission dialog will show first time using speech recognition.
+ * 0 will be used as requestCode in requestPermissions() call.
  * </p>
  * <p>
  * Speech recognition is automatically started when fragment is created, but
@@ -72,6 +77,8 @@ public class SearchFragment extends Fragment {
 
     private static final int RESULTS_CHANGED = 0x1;
     private static final int QUERY_COMPLETE = 0x2;
+
+    private static final int AUDIO_PERMISSION_REQUEST_CODE = 0;
 
     /**
      * Search API to be provided by the application.
@@ -213,6 +220,26 @@ public class SearchFragment extends Fragment {
     private int mStatus;
     private boolean mAutoStartRecognition = true;
 
+    private boolean mIsPaused;
+    private boolean mPendingStartRecognitionWhenPaused;
+    private SearchBar.SearchBarPermissionListener mPermissionListener
+            = new SearchBar.SearchBarPermissionListener() {
+        public void requestAudioPermission() {
+            PermissionHelper.requestPermissions(SearchFragment.this,
+                    new String[]{Manifest.permission.RECORD_AUDIO}, AUDIO_PERMISSION_REQUEST_CODE);
+        }
+    };
+
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                           int[] grantResults) {
+        if (requestCode == AUDIO_PERMISSION_REQUEST_CODE && permissions.length > 0) {
+            if (permissions[0].equals(Manifest.permission.RECORD_AUDIO)
+                    && grantResults[0] == PERMISSION_GRANTED) {
+                startRecognition();
+            }
+        }
+    }
+
     /**
      * @param args Bundle to use for the arguments, if null a new Bundle will be created.
      */
@@ -285,6 +312,7 @@ public class SearchFragment extends Fragment {
             }
         });
         mSearchBar.setSpeechRecognitionCallback(mSpeechRecognitionCallback);
+        mSearchBar.setPermissionListener(mPermissionListener);
         applyExternalQuery();
 
         readArguments(getArguments());
@@ -352,17 +380,24 @@ public class SearchFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        mIsPaused = false;
         if (mSpeechRecognitionCallback == null && null == mSpeechRecognizer) {
             mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(getActivity());
             mSearchBar.setSpeechRecognizer(mSpeechRecognizer);
         }
-        // Ensure search bar state consistency when using external recognizer
-        mSearchBar.stopRecognition();
+        if (mPendingStartRecognitionWhenPaused) {
+            mPendingStartRecognitionWhenPaused = false;
+            mSearchBar.startRecognition();
+        } else {
+            // Ensure search bar state consistency when using external recognizer
+            mSearchBar.stopRecognition();
+        }
     }
 
     @Override
     public void onPause() {
         releaseRecognizer();
+        mIsPaused = true;
         super.onPause();
     }
 
@@ -388,7 +423,11 @@ public class SearchFragment extends Fragment {
      * when fragment is created.
      */
     public void startRecognition() {
-        mSearchBar.startRecognition();
+        if (mIsPaused) {
+            mPendingStartRecognitionWhenPaused = true;
+        } else {
+            mSearchBar.startRecognition();
+        }
     }
 
     /**

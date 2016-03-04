@@ -1824,7 +1824,9 @@ package android.support.v17.leanback.widget {
     method public android.graphics.drawable.Drawable getBadgeDrawable();
     method public java.lang.CharSequence getHint();
     method public java.lang.String getTitle();
+    method public boolean isRecognizing();
     method public void setBadgeDrawable(android.graphics.drawable.Drawable);
+    method public void setPermissionListener(android.support.v17.leanback.widget.SearchBar.SearchBarPermissionListener);
     method public void setSearchBarListener(android.support.v17.leanback.widget.SearchBar.SearchBarListener);
     method public void setSearchQuery(java.lang.String);
     method public void setSpeechRecognitionCallback(android.support.v17.leanback.widget.SpeechRecognitionCallback);
@@ -1838,6 +1840,10 @@ package android.support.v17.leanback.widget {
     method public abstract void onKeyboardDismiss(java.lang.String);
     method public abstract void onSearchQueryChange(java.lang.String);
     method public abstract void onSearchQuerySubmit(java.lang.String);
+  }
+
+  public static abstract interface SearchBar.SearchBarPermissionListener {
+    method public abstract void requestAudioPermission();
   }
 
   public class SearchEditText extends android.support.v17.leanback.widget.StreamingTextView {
