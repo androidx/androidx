@@ -255,6 +255,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                     @Override
                     public void onBindViewHolder(TestViewHolder holder, int position) {
                         Item item = mItems.get(position);
+                        holder.mBoundItem = item;
                         ((EditText) ((FrameLayout) holder.itemView).getChildAt(0)).setText(
                                 item.mText + " (" + item.mId + ")");
                     }
