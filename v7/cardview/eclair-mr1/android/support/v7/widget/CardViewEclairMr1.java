@@ -16,10 +16,12 @@
 package android.support.v7.widget;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.support.annotation.Nullable;
 
 class CardViewEclairMr1 implements CardViewImpl {
 
@@ -74,8 +76,8 @@ class CardViewEclairMr1 implements CardViewImpl {
     }
 
     @Override
-    public void initialize(CardViewDelegate cardView, Context context, int backgroundColor,
-            float radius, float elevation, float maxElevation) {
+    public void initialize(CardViewDelegate cardView, Context context,
+            ColorStateList backgroundColor, float radius, float elevation, float maxElevation) {
         RoundRectDrawableWithShadow background = createBackground(context, backgroundColor, radius,
                 elevation, maxElevation);
         background.setAddPaddingForCorners(cardView.getPreventCornerOverlap());
@@ -83,7 +85,7 @@ class CardViewEclairMr1 implements CardViewImpl {
         updatePadding(cardView);
     }
 
-    RoundRectDrawableWithShadow createBackground(Context context, int backgroundColor,
+    RoundRectDrawableWithShadow createBackground(Context context, ColorStateList backgroundColor,
             float radius, float elevation, float maxElevation) {
         return new RoundRectDrawableWithShadow(context.getResources(), backgroundColor, radius,
                 elevation, maxElevation);
@@ -111,7 +113,7 @@ class CardViewEclairMr1 implements CardViewImpl {
     }
 
     @Override
-    public void setBackgroundColor(CardViewDelegate cardView, int color) {
+    public void setBackgroundColor(CardViewDelegate cardView, @Nullable ColorStateList color) {
         getShadowBackground(cardView).setColor(color);
     }
 

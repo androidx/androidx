@@ -35,6 +35,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v7-cardview-base
 LOCAL_SDK_VERSION := 7
 LOCAL_SRC_FILES := $(call all-java-files-under, base)
+LOCAL_JAVA_LIBRARIES := android-support-annotations
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
@@ -46,7 +47,8 @@ LOCAL_MODULE := android-support-v7-cardview-eclair-mr1
 LOCAL_SDK_VERSION := 7
 LOCAL_SRC_FILES := $(call all-java-files-under, eclair-mr1)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-cardview-base
-LOCAL_JAVA_LIBRARIES := android-support-v7-cardview-res
+LOCAL_JAVA_LIBRARIES := android-support-v7-cardview-res \
+    android-support-annotations
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
@@ -58,7 +60,8 @@ LOCAL_MODULE := android-support-v7-cardview-jellybean-mr1
 LOCAL_SDK_VERSION := 17
 LOCAL_SRC_FILES := $(call all-java-files-under, jellybean-mr1)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-cardview-eclair-mr1
-LOCAL_JAVA_LIBRARIES := android-support-v7-cardview-res
+LOCAL_JAVA_LIBRARIES := android-support-v7-cardview-res \
+    android-support-annotations
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
@@ -71,7 +74,8 @@ LOCAL_SDK_VERSION := 21
 LOCAL_SRC_FILES := $(call all-java-files-under, api21)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-cardview-base \
     android-support-v7-cardview-jellybean-mr1
-LOCAL_JAVA_LIBRARIES := android-support-v7-cardview-res
+LOCAL_JAVA_LIBRARIES := android-support-v7-cardview-res  \
+    android-support-annotations
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
@@ -86,7 +90,8 @@ LOCAL_MODULE := android-support-v7-cardview
 LOCAL_SDK_VERSION := 7
 LOCAL_SRC_FILES := $(call all-java-files-under,src)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-cardview-api21
-LOCAL_JAVA_LIBRARIES := android-support-v7-cardview-res
+LOCAL_JAVA_LIBRARIES := android-support-v7-cardview-res \
+    android-support-annotations
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 

@@ -17,10 +17,12 @@
 package android.support.v7.widget;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Build;
+import android.support.annotation.Nullable;
 import android.support.v7.cardview.R;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
@@ -213,9 +215,9 @@ public class CardView extends FrameLayout implements CardViewDelegate {
     private void initialize(Context context, AttributeSet attrs, int defStyleAttr) {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CardView, defStyleAttr,
                 R.style.CardView);
-        int backgroundColor;
+        ColorStateList backgroundColor;
         if (a.hasValue(R.styleable.CardView_cardBackgroundColor)) {
-            backgroundColor = a.getColor(R.styleable.CardView_cardBackgroundColor, 0);
+            backgroundColor = a.getColorStateList(R.styleable.CardView_cardBackgroundColor);
         } else {
             // There isn't one set, so we'll compute one based on the theme
             final TypedArray aa = getContext().obtainStyledAttributes(COLOR_BACKGROUND_ATTR);
@@ -225,9 +227,9 @@ public class CardView extends FrameLayout implements CardViewDelegate {
             // If the theme colorBackground is light, use our own light color, otherwise dark
             final float[] hsv = new float[3];
             Color.colorToHSV(themeColorBackground, hsv);
-            backgroundColor = hsv[2] > 0.5f
+            backgroundColor = ColorStateList.valueOf(hsv[2] > 0.5f
                     ? getResources().getColor(R.color.cardview_light_background)
-                    : getResources().getColor(R.color.cardview_dark_background);
+                    : getResources().getColor(R.color.cardview_dark_background));
         }
         float radius = a.getDimension(R.styleable.CardView_cardCornerRadius, 0);
         float elevation = a.getDimension(R.styleable.CardView_cardElevation, 0);
@@ -288,6 +290,16 @@ public class CardView extends FrameLayout implements CardViewDelegate {
      * @attr ref android.support.v7.cardview.R.styleable#CardView_cardBackgroundColor
      */
     public void setCardBackgroundColor(int color) {
+        IMPL.setBackgroundColor(this, ColorStateList.valueOf(color));
+    }
+
+    /**
+     * Updates the background ColorStateList of the CardView
+     *
+     * @param color The new ColorStateList to set for the card background
+     * @attr ref android.support.v7.cardview.R.styleable#CardView_cardBackgroundColor
+     */
+    public void setCardBackgroundColor(@Nullable ColorStateList color) {
         IMPL.setBackgroundColor(this, color);
     }
 
