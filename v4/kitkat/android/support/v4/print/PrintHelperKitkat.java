@@ -93,6 +93,12 @@ class PrintHelperKitkat {
      */
     protected boolean mPrintActivityRespectsOrientation;
 
+    /**
+     * Whether the print subsystem handles min margins correctly. If not the print helper needs to
+     * fake this.
+     */
+    protected boolean mIsMinMarginsHandlingCorrect;
+
     int mScaleMode = SCALE_MODE_FILL;
 
     int mColorMode = COLOR_MODE_COLOR;
@@ -101,6 +107,7 @@ class PrintHelperKitkat {
 
     PrintHelperKitkat(Context context) {
         mPrintActivityRespectsOrientation = true;
+        mIsMinMarginsHandlingCorrect = true;
 
         mContext = context;
     }
@@ -190,6 +197,21 @@ class PrintHelperKitkat {
     }
 
     /**
+     * Create a build with a copy from the other print attributes.
+     *
+     * @param other The other print attributes
+     *
+     * @return A builder that will build print attributes that match the other attributes
+     */
+    protected PrintAttributes.Builder copyAttributes(PrintAttributes other) {
+        return (new PrintAttributes.Builder())
+                .setMediaSize(other.getMediaSize())
+                .setResolution(other.getResolution())
+                .setColorMode(other.getColorMode())
+                .setMinMargins(other.getMinMargins());
+    }
+
+    /**
      * Prints a bitmap.
      *
      * @param jobName The print job name.
@@ -239,54 +261,8 @@ class PrintHelperKitkat {
                     public void onWrite(PageRange[] pageRanges, ParcelFileDescriptor fileDescriptor,
                                         CancellationSignal cancellationSignal,
                                         WriteResultCallback writeResultCallback) {
-                        PrintedPdfDocument pdfDocument = new PrintedPdfDocument(mContext,
-                                mAttributes);
-
-                        Bitmap maybeGrayscale = convertBitmapForColorMode(bitmap,
-                                mAttributes.getColorMode());
-                        try {
-                            Page page = pdfDocument.startPage(1);
-
-                            RectF content = new RectF(page.getInfo().getContentRect());
-
-                            Matrix matrix = getMatrix(
-                                    maybeGrayscale.getWidth(), maybeGrayscale.getHeight(),
-                                    content, fittingMode);
-
-                            // Draw the bitmap.
-                            page.getCanvas().drawBitmap(maybeGrayscale, matrix, null);
-
-                            // Finish the page.
-                            pdfDocument.finishPage(page);
-
-                            try {
-                                // Write the document.
-                                pdfDocument.writeTo(new FileOutputStream(
-                                        fileDescriptor.getFileDescriptor()));
-                                // Done.
-                                writeResultCallback.onWriteFinished(
-                                        new PageRange[]{PageRange.ALL_PAGES});
-                            } catch (IOException ioe) {
-                                // Failed.
-                                Log.e(LOG_TAG, "Error writing printed content", ioe);
-                                writeResultCallback.onWriteFailed(null);
-                            }
-                        } finally {
-                            if (pdfDocument != null) {
-                                pdfDocument.close();
-                            }
-                            if (fileDescriptor != null) {
-                                try {
-                                    fileDescriptor.close();
-                                } catch (IOException ioe) {
-                                    /* ignore */
-                                }
-                            }
-                            // If we created a new instance for grayscaling, then recycle it here.
-                            if (maybeGrayscale != bitmap) {
-                                maybeGrayscale.recycle();
-                            }
-                        }
+                        writeBitmap(mAttributes, fittingMode, bitmap, fileDescriptor,
+                                writeResultCallback);
                     }
 
                     @Override
@@ -326,6 +302,98 @@ class PrintHelperKitkat {
                 - imageHeight * scale) / 2;
         matrix.postTranslate(translateX, translateY);
         return matrix;
+    }
+
+    /**
+     * Write a bitmap for a PDF document.
+     *
+     * @param attributes          The print attributes
+     * @param fittingMode         How to fit the bitmap
+     * @param bitmap              The bitmap to write
+     * @param fileDescriptor      The file to write to
+     * @param writeResultCallback Callback to call once written
+     */
+    private void writeBitmap(PrintAttributes attributes, int fittingMode, Bitmap bitmap,
+            ParcelFileDescriptor fileDescriptor,
+            PrintDocumentAdapter.WriteResultCallback writeResultCallback) {
+        PrintAttributes pdfAttributes;
+        if (mIsMinMarginsHandlingCorrect) {
+            pdfAttributes = attributes;
+        } else {
+            // If the handling of any margin != 0 is broken, strip the margins and add them to the
+            // bitmap later
+            pdfAttributes = copyAttributes(attributes)
+                    .setMinMargins(new PrintAttributes.Margins(0,0,0,0)).build();
+        }
+
+        PrintedPdfDocument pdfDocument = new PrintedPdfDocument(mContext,
+                pdfAttributes);
+
+        Bitmap maybeGrayscale = convertBitmapForColorMode(bitmap,
+                pdfAttributes.getColorMode());
+        try {
+            Page page = pdfDocument.startPage(1);
+
+            RectF contentRect;
+            if (mIsMinMarginsHandlingCorrect) {
+                contentRect = new RectF(page.getInfo().getContentRect());
+            } else {
+                // Create dummy doc that has the margins to compute correctly sized content
+                // rectangle
+                PrintedPdfDocument dummyDocument = new PrintedPdfDocument(mContext,
+                        attributes);
+                Page dummyPage = dummyDocument.startPage(1);
+                contentRect = new RectF(dummyPage.getInfo().getContentRect());
+                dummyDocument.finishPage(dummyPage);
+                dummyDocument.close();
+            }
+
+            // Resize bitmap
+            Matrix matrix = getMatrix(
+                    maybeGrayscale.getWidth(), maybeGrayscale.getHeight(),
+                    contentRect, fittingMode);
+
+            if (mIsMinMarginsHandlingCorrect) {
+                // The pdfDocument takes care of the positioning and margins
+            } else {
+                // Move it to the correct position.
+                matrix.postTranslate(contentRect.left, contentRect.top);
+
+                // Cut off margins
+                page.getCanvas().clipRect(contentRect);
+            }
+
+            // Draw the bitmap.
+            page.getCanvas().drawBitmap(maybeGrayscale, matrix, null);
+
+            // Finish the page.
+            pdfDocument.finishPage(page);
+
+            try {
+                // Write the document.
+                pdfDocument.writeTo(new FileOutputStream(fileDescriptor.getFileDescriptor()));
+                // Done.
+                writeResultCallback.onWriteFinished(new PageRange[]{PageRange.ALL_PAGES});
+            } catch (IOException ioe) {
+                // Failed.
+                Log.e(LOG_TAG, "Error writing printed content", ioe);
+                writeResultCallback.onWriteFailed(null);
+            }
+        } finally {
+            pdfDocument.close();
+
+            if (fileDescriptor != null) {
+                try {
+                    fileDescriptor.close();
+                } catch (IOException ioe) {
+                    // ignore
+                }
+            }
+            // If we created a new instance for grayscaling, then recycle it here.
+            if (maybeGrayscale != bitmap) {
+                maybeGrayscale.recycle();
+            }
+        }
     }
 
     /**
@@ -476,53 +544,7 @@ class PrintHelperKitkat {
             public void onWrite(PageRange[] pageRanges, ParcelFileDescriptor fileDescriptor,
                                 CancellationSignal cancellationSignal,
                                 WriteResultCallback writeResultCallback) {
-                PrintedPdfDocument pdfDocument = new PrintedPdfDocument(mContext,
-                        mAttributes);
-                Bitmap maybeGrayscale = convertBitmapForColorMode(mBitmap,
-                        mAttributes.getColorMode());
-                try {
-
-                    Page page = pdfDocument.startPage(1);
-                    RectF content = new RectF(page.getInfo().getContentRect());
-
-                    // Compute and apply scale to fill the page.
-                    Matrix matrix = getMatrix(mBitmap.getWidth(), mBitmap.getHeight(),
-                            content, fittingMode);
-
-                    // Draw the bitmap.
-                    page.getCanvas().drawBitmap(maybeGrayscale, matrix, null);
-
-                    // Finish the page.
-                    pdfDocument.finishPage(page);
-
-                    try {
-                        // Write the document.
-                        pdfDocument.writeTo(new FileOutputStream(
-                                fileDescriptor.getFileDescriptor()));
-                        // Done.
-                        writeResultCallback.onWriteFinished(
-                                new PageRange[]{PageRange.ALL_PAGES});
-                    } catch (IOException ioe) {
-                        // Failed.
-                        Log.e(LOG_TAG, "Error writing printed content", ioe);
-                        writeResultCallback.onWriteFailed(null);
-                    }
-                } finally {
-                    if (pdfDocument != null) {
-                        pdfDocument.close();
-                    }
-                    if (fileDescriptor != null) {
-                        try {
-                            fileDescriptor.close();
-                        } catch (IOException ioe) {
-                            /* ignore */
-                        }
-                    }
-                    // If we created a new instance for grayscaling, then recycle it here.
-                    if (maybeGrayscale != mBitmap) {
-                        maybeGrayscale.recycle();
-                    }
-                }
+                writeBitmap(mAttributes, fittingMode, mBitmap, fileDescriptor, writeResultCallback);
             }
         };
 

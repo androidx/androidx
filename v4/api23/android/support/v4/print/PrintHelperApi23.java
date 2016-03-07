@@ -17,15 +17,20 @@
 package android.support.v4.print;
 
 import android.content.Context;
+import android.print.PrintAttributes;
 
 /**
- * Api24 specific PrintManager API implementation.
+ * Api23 specific PrintManager API implementation.
  */
-class PrintHelperApi24 extends PrintHelperApi23 {
-    PrintHelperApi24(Context context) {
+class PrintHelperApi23 extends PrintHelperApi20 {
+    @Override
+    protected PrintAttributes.Builder copyAttributes(PrintAttributes other) {
+        return super.copyAttributes(other).setDuplexMode(other.getDuplexMode());
+    }
+
+    PrintHelperApi23(Context context) {
         super(context);
 
-        mIsMinMarginsHandlingCorrect = true;
-        mPrintActivityRespectsOrientation = true;
+        mIsMinMarginsHandlingCorrect = false;
     }
 }
