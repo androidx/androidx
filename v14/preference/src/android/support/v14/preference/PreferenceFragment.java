@@ -535,7 +535,6 @@ public abstract class PreferenceFragment extends Fragment implements
         final PreferenceScreen preferenceScreen = getPreferenceScreen();
         if (preferenceScreen != null) {
             preferenceScreen.onDetached();
-            getListView().setAdapter(null);
         }
         onUnbindPreferences();
     }
