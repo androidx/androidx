@@ -233,13 +233,23 @@ public final class PrintHelper {
     }
 
     /**
-     * Implementation used on Api20 to Api23
+     * Implementation used on Api20 to Api22
      */
     private static final class PrintHelperApi20Impl extends PrintHelperImpl<PrintHelperApi20> {
         PrintHelperApi20Impl(Context context) {
             super(new PrintHelperApi20(context));
         }
     }
+
+    /**
+     * Implementation used on Api23
+     */
+    private static final class PrintHelperApi23Impl extends PrintHelperImpl<PrintHelperApi23> {
+        PrintHelperApi23Impl(Context context) {
+            super(new PrintHelperApi23(context));
+        }
+    }
+
 
     /**
      * Implementation used on Api24 and above
@@ -260,6 +270,8 @@ public final class PrintHelper {
         if (systemSupportsPrint()) {
             if (Build.VERSION.CODENAME.equals("N") ) {
                 mImpl = new PrintHelperApi24Impl(context);
+            } else if (Build.VERSION.SDK_INT >= 23) {
+                mImpl = new PrintHelperApi23Impl(context);
             } else if (Build.VERSION.SDK_INT >= 20) {
                 mImpl = new PrintHelperApi20Impl(context);
             } else {
