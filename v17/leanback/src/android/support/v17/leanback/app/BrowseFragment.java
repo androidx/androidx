@@ -994,13 +994,13 @@ public class BrowseFragment extends BaseFragment {
         mHeadersFragment.setSelectedPosition(position, smooth);
         AbstractMainFragmentAdapter newFragmentAdapter = mMainFragmentAdapterFactory.getAdapter(
                 mAdapter, position);
+
         if (mMainFragmentAdapter != newFragmentAdapter) {
             mMainFragmentAdapter = newFragmentAdapter;
             mMainFragment = mMainFragmentAdapter.getFragment();
             swapBrowseContent(mMainFragment);
             expandMainFragment(!(mCanShowHeaders && mShowingHeaders));
             setupMainFragment();
-            mMainFragmentAdapter.setAlignment(mContainerListAlignTop);
         }
         mMainFragmentAdapter.setSelectedPosition(position, smooth);
         mSelectedPosition = position;
