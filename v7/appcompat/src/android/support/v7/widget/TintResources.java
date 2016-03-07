@@ -21,17 +21,19 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 
+import java.lang.ref.WeakReference;
+
 /**
  * This class allows us to intercept calls so that we can tint resources (if applicable).
  *
  * @hide
  */
 public class TintResources extends Resources {
-    private final Context mContext;
+    private final WeakReference<Context> mContextRef;
 
     public TintResources(@NonNull final Context context, @NonNull final Resources res) {
         super(res.getAssets(), res.getDisplayMetrics(), res.getConfiguration());
-        mContext = context;
+        mContextRef = new WeakReference<>(context);
     }
 
     /**
@@ -41,7 +43,12 @@ public class TintResources extends Resources {
      */
     @Override
     public Drawable getDrawable(int id) throws NotFoundException {
-        return AppCompatDrawableManager.get().onDrawableLoadedFromResources(mContext, this, id);
+        final Context context = mContextRef.get();
+        if (context != null) {
+            return AppCompatDrawableManager.get().onDrawableLoadedFromResources(context, this, id);
+        } else {
+            return super.getDrawable(id);
+        }
     }
 
     final Drawable superGetDrawable(int id) {
