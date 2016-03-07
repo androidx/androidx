@@ -79,6 +79,17 @@ public class ScaleFrameLayout extends FrameLayout {
     }
 
     @Override
+    protected boolean addViewInLayout (View child, int index, ViewGroup.LayoutParams params,
+            boolean preventRequestLayout) {
+        boolean ret = super.addViewInLayout(child, index, params, preventRequestLayout);
+        if (ret) {
+            child.setScaleX(mChildScale);
+            child.setScaleY(mChildScale);
+        }
+        return ret;
+    }
+
+    @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         final int count = getChildCount();
 
