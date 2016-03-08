@@ -21,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -138,10 +139,14 @@ abstract public class BaseWrapContentTest extends BaseRecyclerViewInstrumentatio
         return result;
     }
 
+    protected WrappedRecyclerView createRecyclerView(Activity activity) {
+        return new WrappedRecyclerView(getActivity());
+    }
+
     void layoutAndCheck(TestedFrameLayout.FullControlLayoutParams lp,
             BaseWrapContentWithAspectRatioTest.WrapContentAdapter adapter, Rect[] expected,
             int width, int height) throws Throwable {
-        WrappedRecyclerView recyclerView = new WrappedRecyclerView(getActivity());
+        WrappedRecyclerView recyclerView = createRecyclerView(getActivity());
         recyclerView.setBackgroundColor(Color.rgb(0, 0, 255));
         recyclerView.setLayoutManager(createLayoutManager());
         recyclerView.setAdapter(adapter);
