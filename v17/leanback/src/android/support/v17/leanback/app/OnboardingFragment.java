@@ -79,7 +79,7 @@ import java.util.List;
  * </ul>
  * <p>
  * Note that the information is used in {@link #onCreateView}, so should be initialized before
- * calling {@code super.onCreateView} or in {@link Fragment#onAttach(android.app.Activity)}.
+ * calling {@code super.onCreateView}.
  * <p>
  * <h3>Animation</h3>
  * Onboarding screen has three kinds of animations:
@@ -135,7 +135,14 @@ import java.util.List;
  * the Activity's theme. (Themes whose parent theme is already set to the onboarding theme do not
  * need to set the onboardingTheme attribute; if set, it will be ignored.)
  *
- * @hide
+ * @attr ref R.styleable#LeanbackOnboardingTheme_onboardingTheme
+ * @attr ref R.styleable#LeanbackOnboardingTheme_onboardingHeaderStyle
+ * @attr ref R.styleable#LeanbackOnboardingTheme_onboardingTitleStyle
+ * @attr ref R.styleable#LeanbackOnboardingTheme_onboardingDescriptionStyle
+ * @attr ref R.styleable#LeanbackOnboardingTheme_onboardingNavigatorContainerStyle
+ * @attr ref R.styleable#LeanbackOnboardingTheme_onboardingPageIndicatorStyle
+ * @attr ref R.styleable#LeanbackOnboardingTheme_onboardingStartButtonStyle
+ * @attr ref R.styleable#LeanbackOnboardingTheme_onboardingLogoStyle
  */
 abstract public class OnboardingFragment extends Fragment {
     private static final String TAG = "OnboardingFragment";
@@ -492,7 +499,7 @@ abstract public class OnboardingFragment extends Fragment {
      *
      * @return The title of the page.
      */
-    abstract protected String getPageTitle(int pageIndex);
+    abstract protected CharSequence getPageTitle(int pageIndex);
 
     /**
      * Returns the description of the given page.
@@ -501,7 +508,7 @@ abstract public class OnboardingFragment extends Fragment {
      *
      * @return The description of the page.
      */
-    abstract protected String getPageDescription(int pageIndex);
+    abstract protected CharSequence getPageDescription(int pageIndex);
 
     /**
      * Returns the index of the current page.
