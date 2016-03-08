@@ -69,15 +69,15 @@ public class DefaultMeasureSpecTest extends AndroidTestCase {
     public static List<Object[]> param() {
         List<Object[]> params = Arrays.asList(
                 new Object[]{null, makeMeasureSpec(10, EXACTLY), makeMeasureSpec(20, EXACTLY), 10,
-                        20, null},
+                        20, new Rect(0, 0, 0, 0)},
                 new Object[]{null, makeMeasureSpec(10, EXACTLY), makeMeasureSpec(100, AT_MOST), 10,
-                        0, null},
+                        0, new Rect(0, 0, 0, 0)},
                 new Object[]{null, makeMeasureSpec(10, AT_MOST), makeMeasureSpec(100, EXACTLY), 0,
-                        100, null},
+                        100, new Rect(0, 0, 0, 0)},
                 new Object[]{null, makeMeasureSpec(10, EXACTLY), makeMeasureSpec(100, UNSPECIFIED),
-                        10, 0, null},
+                        10, 0, new Rect(0, 0, 0, 0)},
                 new Object[]{null, makeMeasureSpec(10, UNSPECIFIED), makeMeasureSpec(100, EXACTLY),
-                        0, 100, null},
+                        0, 100, new Rect(0, 0, 0, 0)},
                 new Object[]{null, makeMeasureSpec(10, EXACTLY), makeMeasureSpec(20, EXACTLY), 10,
                         20, new Rect(39, 50, 34, 23)},
                 new Object[]{null, makeMeasureSpec(10, EXACTLY), makeMeasureSpec(100, AT_MOST), 10,
@@ -96,9 +96,7 @@ public class DefaultMeasureSpecTest extends AndroidTestCase {
         );
         for (Object[] param : params) {
             param[0] = "width: " + log((Integer) param[1]) + ", height:" + log((Integer) param[2]);
-            if (param[5] != null) {
-                param[0] = param[0] + ", padding:" + param[5];
-            }
+            param[0] = param[0] + ", padding:" + param[5];
         }
         return params;
     }
