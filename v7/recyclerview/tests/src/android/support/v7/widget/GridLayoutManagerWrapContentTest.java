@@ -23,8 +23,10 @@ import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
+import android.app.Activity;
 import android.graphics.Rect;
 import android.view.Gravity;
+import android.view.View;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,6 +39,7 @@ import java.util.List;
 public class GridLayoutManagerWrapContentTest extends BaseWrapContentTest {
     private boolean mHorizontal = false;
     private int mSpanCount = 3;
+    private RecyclerView.ItemDecoration mItemDecoration;
     public GridLayoutManagerWrapContentTest(Rect padding) {
         super(new WrapContentConfig(false, false, padding));
     }
@@ -58,6 +61,55 @@ public class GridLayoutManagerWrapContentTest extends BaseWrapContentTest {
         GridLayoutManager lm = new GridLayoutManager(getActivity(), mSpanCount);
         lm.setOrientation(mHorizontal ? HORIZONTAL : VERTICAL);
         return lm;
+    }
+
+    @Override
+    protected WrappedRecyclerView createRecyclerView(Activity activity) {
+        WrappedRecyclerView recyclerView = super.createRecyclerView(activity);
+        if (mItemDecoration != null) {
+            recyclerView.addItemDecoration(mItemDecoration);
+        }
+        return recyclerView;
+    }
+
+    @Test
+    public void testVerticalWithItemDecors() throws Throwable {
+        mItemDecoration = new RecyclerView.ItemDecoration() {
+            @Override
+            public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
+                    RecyclerView.State state) {
+                outRect.set(0, 5, 0, 10);
+            }
+        };
+        TestedFrameLayout.FullControlLayoutParams lp =
+                mWrapContentConfig.toLayoutParams(WRAP_CONTENT, WRAP_CONTENT);
+        WrapContentAdapter adapter = new WrapContentAdapter(
+                new MeasureBehavior(10, 10, WRAP_CONTENT, MATCH_PARENT)
+        );
+        Rect[] expected = new Rect[] {
+                new Rect(0, 0, 10, 25)
+        };
+        layoutAndCheck(lp, adapter, expected, 30, 25);
+    }
+
+    @Test
+    public void testHorizontalWithItemDecors() throws Throwable {
+        mItemDecoration = new RecyclerView.ItemDecoration() {
+            @Override
+            public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
+                    RecyclerView.State state) {
+                outRect.set(5, 0, 10, 0);
+            }
+        };
+        TestedFrameLayout.FullControlLayoutParams lp =
+                mWrapContentConfig.toLayoutParams(WRAP_CONTENT, WRAP_CONTENT);
+        WrapContentAdapter adapter = new WrapContentAdapter(
+                new MeasureBehavior(10, 10, MATCH_PARENT, WRAP_CONTENT)
+        );
+        Rect[] expected = new Rect[] {
+                new Rect(0, 0, 25, 10)
+        };
+        layoutAndCheck(lp, adapter, expected, 75, 10);
     }
 
     @Test

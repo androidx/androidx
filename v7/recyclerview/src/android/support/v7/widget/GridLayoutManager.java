@@ -568,10 +568,15 @@ public class GridLayoutManager extends LinearLayoutManager {
             final int mainSpec = getChildMeasureSpec(mOrientationHelper.getTotalSpace(),
                     mOrientationHelper.getMode(), 0,
                     mOrientation == VERTICAL ? lp.height : lp.width, true);
+            // Unless the child has MATCH_PARENT, measure it from its specs before adding insets.
             if (mOrientation == VERTICAL) {
-                measureChildWithDecorationsAndMargin(view, spec, mainSpec, false, false);
+                @SuppressWarnings("deprecation")
+                final boolean applyInsets = lp.height == ViewGroup.LayoutParams.FILL_PARENT;
+                measureChildWithDecorationsAndMargin(view, spec, mainSpec, applyInsets, false);
             } else {
-                measureChildWithDecorationsAndMargin(view, mainSpec, spec, false, false);
+                //noinspection deprecation
+                final boolean applyInsets = lp.width == ViewGroup.LayoutParams.FILL_PARENT;
+                measureChildWithDecorationsAndMargin(view, mainSpec, spec, applyInsets, false);
             }
             final int size = mOrientationHelper.getDecoratedMeasurement(view);
             if (size > maxSize) {
@@ -728,7 +733,7 @@ public class GridLayoutManager extends LinearLayoutManager {
         final int mode = View.MeasureSpec.getMode(spec);
         if (mode == View.MeasureSpec.AT_MOST || mode == View.MeasureSpec.EXACTLY) {
             return View.MeasureSpec.makeMeasureSpec(
-                    View.MeasureSpec.getSize(spec) - startInset - endInset, mode);
+                    Math.max(0, View.MeasureSpec.getSize(spec) - startInset - endInset), mode);
         }
         return spec;
     }
