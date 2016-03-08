@@ -555,8 +555,7 @@
     <!-- deprecated style, do not use -->
     <style name="Widget.Leanback.GuidedActionsSelectorStyle"></style>
 
-    <!-- @hide
-         Style for the header in OnboardingFragment. -->
+    <!-- Style for the header in OnboardingFragment. -->
     <style name="Widget.Leanback.OnboardingHeaderStyle">
         <item name="android:layout_width">@dimen/lb_onboarding_content_width</item>
         <item name="android:layout_height">@dimen/lb_onboarding_header_height</item>
@@ -568,8 +567,7 @@
         <item name="android:orientation">vertical</item>
     </style>
 
-    <!-- @hide
-         Style for the header title in OnboardingFragment. -->
+    <!-- Style for the header title in OnboardingFragment. -->
     <style name="Widget.Leanback.OnboardingTitleStyle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">0dp</item>
@@ -582,8 +580,7 @@
         <item name="android:lineSpacingExtra">14sp</item>
     </style>
 
-    <!-- @hide
-         Style for the header description in OnboardingFragment. -->
+    <!-- Style for the header description in OnboardingFragment. -->
     <style name="Widget.Leanback.OnboardingDescriptionStyle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">0dp</item>
@@ -596,8 +593,7 @@
         <item name="android:lineSpacingExtra">10sp</item>
     </style>
 
-    <!-- @hide
-         Style for the container of page indicator and start button in OnboardingFragment. -->
+    <!-- Style for the container of page indicator and start button in OnboardingFragment. -->
     <style name="Widget.Leanback.OnboardingNavigatorContainerStyle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -606,8 +602,7 @@
         <item name="android:layout_alignParentBottom">true</item>
     </style>
 
-    <!-- @hide
-         Style for the page indicator in OnboardingFragment. -->
+    <!-- Style for the page indicator in OnboardingFragment. -->
     <style name="Widget.Leanback.OnboardingPageIndicatorStyle">
         <item name="android:layout_width">@dimen/lb_onboarding_content_width</item>
         <item name="android:layout_height">@dimen/lb_onboarding_navigation_height</item>
@@ -616,8 +611,7 @@
         <item name="android:contentDescription">@string/lb_onboarding_accessibility_next</item>
     </style>
 
-    <!-- @hide
-         Style for the start button in OnboardingFragment. -->
+    <!-- Style for the start button in OnboardingFragment. -->
     <style name="Widget.Leanback.OnboardingStartButtonStyle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">36dp</item>
@@ -636,8 +630,7 @@
         <item name="android:textSize">16sp</item>
     </style>
 
-    <!-- @hide
-         Style for the logo splash image in OnboardingFragment. -->
+    <!-- Style for the logo splash image in OnboardingFragment. -->
     <style name="Widget.Leanback.OnboardingLogoStyle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
