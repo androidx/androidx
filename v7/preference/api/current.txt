@@ -82,7 +82,7 @@ package android.support.v7.preference {
     method public void onDialogClosed(boolean);
   }
 
-  public class Preference {
+  public class Preference implements java.lang.Comparable {
     ctor public Preference(android.content.Context, android.util.AttributeSet, int, int);
     ctor public Preference(android.content.Context, android.util.AttributeSet, int);
     ctor public Preference(android.content.Context, android.util.AttributeSet);
