@@ -14,35 +14,34 @@
      limitations under the License.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:auto="http://schemas.android.com/apk/res-auto"
-        auto:height="64dp"
-        auto:width="64dp"
-        auto:viewportHeight="200"
-        auto:viewportWidth="200" >
+        android:height="64dp"
+        android:width="64dp"
+        android:viewportHeight="200"
+        android:viewportWidth="200" >
 
     <group>
         <path
-            auto:name="background1"
-            auto:pathData="M 0,0 l 100,0 l 0, 100 l -100, 0 z"
-            auto:fillColor="#FF000000"/>
+            android:name="background1"
+            android:pathData="M 0,0 l 100,0 l 0, 100 l -100, 0 z"
+            android:fillColor="#FF000000"/>
         <path
-            auto:name="background2"
-            auto:pathData="M 100,100 l 100,0 l 0, 100 l -100, 0 z"
-            auto:fillColor="#FF000000"/>
+            android:name="background2"
+            android:pathData="M 100,100 l 100,0 l 0, 100 l -100, 0 z"
+            android:fillColor="#FF000000"/>
     </group>
     <group
-        auto:pivotX="0"
-        auto:pivotY="0"
-        auto:rotation="90"
-        auto:scaleX="0.75"
-        auto:scaleY="0.5"
-        auto:translateX="100.0"
-        auto:translateY="100.0">
+        android:pivotX="0"
+        android:pivotY="0"
+        android:rotation="90"
+        android:scaleX="0.75"
+        android:scaleY="0.5"
+        android:translateX="100.0"
+        android:translateY="100.0">
         <path
-            auto:name="twoLines"
-            auto:pathData="M 100,10 v 90 M 10,100 h 90"
-            auto:strokeColor="#FF00FF00"
-            auto:strokeWidth="10" />
+            android:name="twoLines"
+            android:pathData="M 100,10 v 90 M 10,100 h 90"
+            android:strokeColor="#FF00FF00"
+            android:strokeWidth="10" />
     </group>
 
 </vector>

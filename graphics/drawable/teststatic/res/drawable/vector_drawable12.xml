@@ -14,79 +14,78 @@
      limitations under the License.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:auto="http://schemas.android.com/apk/res-auto"
-        auto:name="rootGroup"
-        auto:height="64dp"
-        auto:width="64dp"
-        auto:viewportHeight="600"
-        auto:viewportWidth="600"
-        auto:alpha="0.5" >
+        android:name="rootGroup"
+        android:height="64dp"
+        android:width="64dp"
+        android:viewportHeight="600"
+        android:viewportWidth="600"
+        android:alpha="0.5" >
 
     <group
-        auto:name="rotationGroup"
-        auto:pivotX="300.0"
-        auto:pivotY="300.0"
-        auto:rotation="45.0" >
+        android:name="rotationGroup"
+        android:pivotX="300.0"
+        android:pivotY="300.0"
+        android:rotation="45.0" >
         <path
-            auto:name="pie1"
-            auto:fillColor="#00000000"
-            auto:pathData="M300,70 a230,230 0 1,0 1,0 z"
-            auto:strokeColor="#FF777777"
-            auto:strokeWidth="70"
-            auto:trimPathEnd=".75"
-            auto:trimPathOffset="0"
-            auto:trimPathStart="0" />
+            android:name="pie1"
+            android:fillColor="#00000000"
+            android:pathData="M300,70 a230,230 0 1,0 1,0 z"
+            android:strokeColor="#FF777777"
+            android:strokeWidth="70"
+            android:trimPathEnd=".75"
+            android:trimPathOffset="0"
+            android:trimPathStart="0" />
         <path
-            auto:name="v"
-            auto:fillColor="#000000"
-            auto:pathData="M300,70 l 0,-70 70,70 0,0 -70,70z" />
+            android:name="v"
+            android:fillColor="#000000"
+            android:pathData="M300,70 l 0,-70 70,70 0,0 -70,70z" />
 
         <group
-            auto:name="translateToCenterGroup"
-            auto:rotation="0.0"
-            auto:translateX="200.0"
-            auto:translateY="200.0" >
+            android:name="translateToCenterGroup"
+            android:rotation="0.0"
+            android:translateX="200.0"
+            android:translateY="200.0" >
             <group
-                auto:name="rotationGroup2"
-                auto:pivotX="0.0"
-                auto:pivotY="0.0"
-                auto:rotation="-45.0" >
+                android:name="rotationGroup2"
+                android:pivotX="0.0"
+                android:pivotY="0.0"
+                android:rotation="-45.0" >
                 <path
-                    auto:name="twoLines1"
-                    auto:pathData="@string/twoLinePathData"
-                    auto:strokeColor="#FFFF0000"
-                    auto:strokeWidth="20" />
+                    android:name="twoLines1"
+                    android:pathData="@string/twoLinePathData"
+                    android:strokeColor="#FFFF0000"
+                    android:strokeWidth="20" />
 
                 <group
-                    auto:name="translateGroupHalf"
-                    auto:translateX="65.0"
-                    auto:translateY="80.0" >
+                    android:name="translateGroupHalf"
+                    android:translateX="65.0"
+                    android:translateY="80.0" >
                     <group
-                        auto:name="rotationGroup3"
-                        auto:pivotX="-65.0"
-                        auto:pivotY="-80.0"
-                        auto:rotation="-45.0" >
+                        android:name="rotationGroup3"
+                        android:pivotX="-65.0"
+                        android:pivotY="-80.0"
+                        android:rotation="-45.0" >
                         <path
-                            auto:name="twoLines2"
-                            auto:fillColor="#FF00FF00"
-                            auto:pathData="@string/twoLinePathData"
-                            auto:strokeColor="#FF00FF00"
-                            auto:strokeWidth="20" />
+                            android:name="twoLines2"
+                            android:fillColor="#FF00FF00"
+                            android:pathData="@string/twoLinePathData"
+                            android:strokeColor="#FF00FF00"
+                            android:strokeWidth="20" />
 
                         <group
-                            auto:name="translateGroup"
-                            auto:translateX="65.0"
-                            auto:translateY="80.0" >
+                            android:name="translateGroup"
+                            android:translateX="65.0"
+                            android:translateY="80.0" >
                             <group
-                                auto:name="rotationGroupBlue"
-                                auto:pivotX="-65.0"
-                                auto:pivotY="-80.0"
-                                auto:rotation="-45.0" >
+                                android:name="rotationGroupBlue"
+                                android:pivotX="-65.0"
+                                android:pivotY="-80.0"
+                                android:rotation="-45.0" >
                                 <path
-                                    auto:name="twoLines3"
-                                    auto:pathData="@string/twoLinePathData"
-                                    auto:strokeColor="#FF0000FF"
-                                    auto:strokeWidth="20" />
+                                    android:name="twoLines3"
+                                    android:pathData="@string/twoLinePathData"
+                                    android:strokeColor="#FF0000FF"
+                                    android:strokeWidth="20" />
                             </group>
                         </group>
                     </group>

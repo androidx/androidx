@@ -46,4 +46,6 @@ limitations under the License.
     <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"ਉੱਚ ਗੁਣਵੱਤਾ ਨੂੰ ਅਸਮਰੱਥ ਬਣਾਓ"</string>
     <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"ਬੰਦ ਕੈਪਸ਼ਨਿੰਗ ਸਮਰੱਥ ਬਣਾਓ"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"ਬੰਦ ਕੈਪਸ਼ਨਿੰਗ ਅਸਮਰੱਥ ਬਣਾਓ"</string>
+    <string name="lb_guidedaction_finish_title" msgid="4015190340667946245">"ਖ਼ਤਮ"</string>
+    <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"ਜਾਰੀ ਰੱਖੋ"</string>
 </resources>

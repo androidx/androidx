@@ -25,6 +25,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.DrawableContainer;
 import android.graphics.drawable.InsetDrawable;
 import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
@@ -621,23 +622,21 @@ public final class AppCompatDrawableManager {
             drawable.clearColorFilter();
         }
 
-        if (Build.VERSION.SDK_INT <= 10) {
-            // On Gingerbread, GradientDrawable does not invalidate itself when it's
-            // ColorFilter has changed, so we need to force an invalidation
+        if (Build.VERSION.SDK_INT <= 23) {
+            // Pre-v23 there is no guarantee that a state change will invoke an invalidation,
+            // so we force it ourselves
             drawable.invalidateSelf();
         }
     }
 
     private static boolean shouldMutateBackground(Drawable drawable) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            // For SDK 16+, we should be fine mutating the drawable
-            return true;
-        }
-
         if (drawable instanceof LayerDrawable) {
             return Build.VERSION.SDK_INT >= 16;
         } else if (drawable instanceof InsetDrawable) {
             return Build.VERSION.SDK_INT >= 14;
+        } else if (drawable instanceof StateListDrawable) {
+            // StateListDrawable has a bug in mutate() on API 7
+            return Build.VERSION.SDK_INT >= 8;
         } else if (drawable instanceof DrawableContainer) {
             // If we have a DrawableContainer, let's traverse it's child array
             final Drawable.ConstantState state = drawable.getConstantState();
@@ -663,7 +662,7 @@ public final class AppCompatDrawableManager {
         return getPorterDuffColorFilter(color, tintMode);
     }
 
-    private static PorterDuffColorFilter getPorterDuffColorFilter(int color, PorterDuff.Mode mode) {
+    public static PorterDuffColorFilter getPorterDuffColorFilter(int color, PorterDuff.Mode mode) {
         // First, lets see if the cache already contains the color filter
         PorterDuffColorFilter filter = COLOR_FILTER_CACHE.get(color, mode);
 

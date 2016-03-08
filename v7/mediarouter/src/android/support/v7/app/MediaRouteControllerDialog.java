@@ -16,8 +16,7 @@
 
 package android.support.v7.app;
 
-import static android.widget.SeekBar.OnSeekBarChangeListener;
-
+import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Resources;
@@ -36,7 +35,6 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v7.graphics.Palette;
-import android.support.v7.media.MediaControlIntent;
 import android.support.v7.media.MediaRouteSelector;
 import android.support.v7.media.MediaRouter;
 import android.support.v7.mediarouter.R;
@@ -65,7 +63,9 @@ import android.widget.TextView;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class implements the route controller dialog for {@link MediaRouter}.
@@ -82,9 +82,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
     // Time to wait before updating the volume when the user lets go of the seek bar
     // to allow the route provider time to propagate the change and publish a new
     // route descriptor.
-    private static final int VOLUME_UPDATE_DELAY_MILLIS = 250;
-    private static final int VOLUME_SLIDER_TAG_MASTER = 0;
-    private static final int VOLUME_SLIDER_TAG_GROUP_BASE = 100;
+    private static final int VOLUME_UPDATE_DELAY_MILLIS = 500;
 
     private static final int BUTTON_NEUTRAL_RES_ID = android.R.id.button3;
     private static final int BUTTON_DISCONNECT_RES_ID = android.R.id.button2;
@@ -120,18 +118,19 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private boolean mVolumeControlEnabled = true;
     // Layout for media controllers including play/pause button and the main volume slider.
     private LinearLayout mMediaMainControlLayout;
-    private RelativeLayout mPlaybackControl;
-    private LinearLayout mVolumeControl;
+    private RelativeLayout mPlaybackControlLayout;
+    private LinearLayout mVolumeControlLayout;
     private View mDividerView;
 
     private ListView mVolumeGroupList;
     private SeekBar mVolumeSlider;
     private VolumeChangeListener mVolumeChangeListener;
-    private boolean mVolumeSliderTouched;
+    private MediaRouter.RouteInfo mRouteInVolumeSliderTouched;
     private int mVolumeGroupListItemIconSize;
     private int mVolumeGroupListItemHeight;
     private int mVolumeGroupListMaxHeight;
     private final int mVolumeGroupListPaddingTop;
+    private Map<MediaRouter.RouteInfo, SeekBar> mVolumeSliderMap;
 
     private MediaControllerCompat mMediaController;
     private MediaControllerCallback mControllerCallback;
@@ -152,18 +151,18 @@ public class MediaRouteControllerDialog extends AlertDialog {
     }
 
     public MediaRouteControllerDialog(Context context, int theme) {
-        super(MediaRouterThemeHelper.createThemedContext(context), theme);
+        super(MediaRouterThemeHelper.createThemedContext(context, theme), theme);
         mContext = getContext();
 
         mControllerCallback = new MediaControllerCallback();
-        mRouter = MediaRouter.getInstance(context);
+        mRouter = MediaRouter.getInstance(mContext);
         mCallback = new MediaRouterCallback();
         mRoute = mRouter.getSelectedRoute();
         setMediaSession(mRouter.getMediaSessionToken());
-        mVolumeGroupListPaddingTop = context.getResources().getDimensionPixelSize(
+        mVolumeGroupListPaddingTop = mContext.getResources().getDimensionPixelSize(
                 R.dimen.mr_controller_volume_group_list_padding_top);
         mAccessibilityManager =
-                (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
+                (AccessibilityManager) mContext.getSystemService(Context.ACCESSIBILITY_SERVICE);
     }
 
     /**
@@ -211,7 +210,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         if (mVolumeControlEnabled != enable) {
             mVolumeControlEnabled = enable;
             if (mCreated) {
-                updateVolumeControl();
+                updateVolumeControlLayout();
             }
         }
     }
@@ -308,20 +307,41 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mCloseButton.setOnClickListener(listener);
         mCustomControlLayout = (FrameLayout) findViewById(R.id.mr_custom_control);
         mDefaultControlLayout = (FrameLayout) findViewById(R.id.mr_default_control);
+
+        // Start the session activity when a content item (album art, title or subtitle) is clicked.
+        View.OnClickListener onClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mMediaController != null) {
+                    PendingIntent pi = mMediaController.getSessionActivity();
+                    if (pi != null) {
+                        try {
+                            pi.send();
+                            dismiss();
+                        } catch (PendingIntent.CanceledException e) {
+                            Log.e(TAG, pi + " was not sent, it had been canceled.");
+                        }
+                    }
+                }
+            }
+        };
         mArtView = (ImageView) findViewById(R.id.mr_art);
+        mArtView.setOnClickListener(onClickListener);
+        findViewById(R.id.mr_control_title_container).setOnClickListener(onClickListener);
 
         mMediaMainControlLayout = (LinearLayout) findViewById(R.id.mr_media_main_control);
         mDividerView = findViewById(R.id.mr_control_divider);
 
-        mPlaybackControl = (RelativeLayout) findViewById(R.id.mr_playback_control);
+        mPlaybackControlLayout = (RelativeLayout) findViewById(R.id.mr_playback_control);
         mTitleView = (TextView) findViewById(R.id.mr_control_title);
         mSubtitleView = (TextView) findViewById(R.id.mr_control_subtitle);
         mPlayPauseButton = (ImageButton) findViewById(R.id.mr_control_play_pause);
         mPlayPauseButton.setOnClickListener(listener);
 
-        mVolumeControl = (LinearLayout) findViewById(R.id.mr_volume_control);
+        mVolumeControlLayout = (LinearLayout) findViewById(R.id.mr_volume_control);
+        mVolumeControlLayout.setVisibility(View.GONE);
         mVolumeSlider = (SeekBar) findViewById(R.id.mr_volume_slider);
-        mVolumeSlider.setTag(VOLUME_SLIDER_TAG_MASTER);
+        mVolumeSlider.setTag(mRoute);
         mVolumeChangeListener = new VolumeChangeListener();
         mVolumeSlider.setOnSeekBarChangeListener(mVolumeChangeListener);
 
@@ -330,6 +350,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 mMediaMainControlLayout, mVolumeGroupList, getGroup() != null);
         MediaRouterThemeHelper.setVolumeSliderColor(mContext,
                 (MediaRouteVolumeSlider) mVolumeSlider, mMediaMainControlLayout);
+        mVolumeSliderMap = new HashMap<>();
+        mVolumeSliderMap.put(mRoute, mVolumeSlider);
 
         mGroupExpandCollapseButton =
                 (MediaRouteExpandCollapseButton) findViewById(R.id.mr_group_expand_collapse);
@@ -441,19 +463,12 @@ public class MediaRouteControllerDialog extends AlertDialog {
             mFetchArtTask = new FetchArtTask();
             mFetchArtTask.execute();
         }
-        updateVolumeControl();
-        updatePlaybackControl();
+        updateVolumeControlLayout();
+        updatePlaybackControlLayout();
     }
 
-    private boolean isPlaybackControlLayoutNeeded() {
-        // If a route does not support remote playback, it means that the route is dedicated for
-        // audio or video mirroring such as A2DP speaker or headset. In this case, the route
-        // provider does not provide any playback information such as metadata or playback status.
-        // But, for live video, playback control layout shows a message that the screen is being
-        // mirrored, while it does not show anything for live audio.
-        return mCustomControlView == null && (mDescription != null || mState != null)
-                && (mRoute.supportsControlCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)
-                || mRoute.supportsControlCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO));
+    private boolean canShowPlaybackControlLayout() {
+        return mCustomControlView == null && (mDescription != null || mState != null);
     }
 
     /**
@@ -462,29 +477,29 @@ public class MediaRouteControllerDialog extends AlertDialog {
      */
     private int getMainControllerHeight(boolean showPlaybackControl) {
         int height = 0;
-        if (showPlaybackControl || mVolumeControl.getVisibility() == View.VISIBLE) {
+        if (showPlaybackControl || mVolumeControlLayout.getVisibility() == View.VISIBLE) {
             height += mMediaMainControlLayout.getPaddingTop()
                     + mMediaMainControlLayout.getPaddingBottom();
             if (showPlaybackControl) {
-                height +=  mPlaybackControl.getMeasuredHeight();
+                height +=  mPlaybackControlLayout.getMeasuredHeight();
             }
-            if (mVolumeControl.getVisibility() == View.VISIBLE) {
-                height += mVolumeControl.getMeasuredHeight();
+            if (mVolumeControlLayout.getVisibility() == View.VISIBLE) {
+                height += mVolumeControlLayout.getMeasuredHeight();
             }
-            if (showPlaybackControl && mVolumeControl.getVisibility() == View.VISIBLE) {
+            if (showPlaybackControl && mVolumeControlLayout.getVisibility() == View.VISIBLE) {
                 height += mDividerView.getMeasuredHeight();
             }
         }
         return height;
     }
 
-    private void updateMediaControlVisibility(boolean showPlaybackControl) {
+    private void updateMediaControlVisibility(boolean canShowPlaybackControlLayout) {
         // TODO: Update the top and bottom padding of the control layout according to the display
         // height.
-        mDividerView.setVisibility((mVolumeControl.getVisibility() == View.VISIBLE
-                && showPlaybackControl) ? View.VISIBLE : View.GONE);
-        mMediaMainControlLayout.setVisibility((mVolumeControl.getVisibility() == View.GONE
-                && !showPlaybackControl) ? View.GONE : View.VISIBLE);
+        mDividerView.setVisibility((mVolumeControlLayout.getVisibility() == View.VISIBLE
+                && canShowPlaybackControlLayout) ? View.VISIBLE : View.GONE);
+        mMediaMainControlLayout.setVisibility((mVolumeControlLayout.getVisibility() == View.GONE
+                && !canShowPlaybackControlLayout) ? View.GONE : View.VISIBLE);
     }
 
     private void updateLayoutHeight() {
@@ -508,7 +523,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         // Measure the size of widgets and get the height of main components.
         int oldHeight = getLayoutHeight(mMediaMainControlLayout);
         setLayoutHeight(mMediaMainControlLayout, ViewGroup.LayoutParams.FILL_PARENT);
-        updateMediaControlVisibility(isPlaybackControlLayoutNeeded());
+        updateMediaControlVisibility(canShowPlaybackControlLayout());
         View decorView = getWindow().getDecorView();
         decorView.measure(
                 MeasureSpec.makeMeasureSpec(getWindow().getAttributes().width, MeasureSpec.EXACTLY),
@@ -523,7 +538,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
                         ? ImageView.ScaleType.FIT_XY : ImageView.ScaleType.FIT_CENTER);
             }
         }
-        int mainControllerHeight = getMainControllerHeight(isPlaybackControlLayoutNeeded());
+        int mainControllerHeight = getMainControllerHeight(canShowPlaybackControlLayout());
         int volumeGroupListCount = mVolumeGroupList.getAdapter() != null
                 ? mVolumeGroupList.getAdapter().getCount() : 0;
         // Scale down volume group list items in landscape mode.
@@ -563,15 +578,15 @@ public class MediaRouteControllerDialog extends AlertDialog {
             desiredControlLayoutHeight = visibleGroupListHeight + mainControllerHeight;
         }
         // Show the playback control if it fits the screen.
-        if (isPlaybackControlLayoutNeeded()
+        if (canShowPlaybackControlLayout()
                 && desiredControlLayoutHeight <= maximumControlViewHeight) {
-            mPlaybackControl.setVisibility(View.VISIBLE);
+            mPlaybackControlLayout.setVisibility(View.VISIBLE);
         } else {
-            mPlaybackControl.setVisibility(View.GONE);
+            mPlaybackControlLayout.setVisibility(View.GONE);
         }
-        updateMediaControlVisibility(mPlaybackControl.getVisibility() == View.VISIBLE);
+        updateMediaControlVisibility(mPlaybackControlLayout.getVisibility() == View.VISIBLE);
         mainControllerHeight = getMainControllerHeight(
-                mPlaybackControl.getVisibility() == View.VISIBLE);
+                mPlaybackControlLayout.getVisibility() == View.VISIBLE);
         desiredControlLayoutHeight =
                 Math.max(artViewHeight, visibleGroupListHeight) + mainControllerHeight;
 
@@ -641,10 +656,10 @@ public class MediaRouteControllerDialog extends AlertDialog {
         view.startAnimation(anim);
     }
 
-    private void updateVolumeControl() {
-        if (!mVolumeSliderTouched) {
-            if (isVolumeControlAvailable(mRoute)) {
-                mVolumeControl.setVisibility(View.VISIBLE);
+    private void updateVolumeControlLayout() {
+        if (isVolumeControlAvailable(mRoute)) {
+            if (mVolumeControlLayout.getVisibility() == View.GONE) {
+                mVolumeControlLayout.setVisibility(View.VISIBLE);
                 mVolumeSlider.setMax(mRoute.getVolumeMax());
                 mVolumeSlider.setProgress(mRoute.getVolume());
                 if (getGroup() == null) {
@@ -654,35 +669,18 @@ public class MediaRouteControllerDialog extends AlertDialog {
                     VolumeGroupAdapter adapter =
                             (VolumeGroupAdapter) mVolumeGroupList.getAdapter();
                     if (adapter != null) {
-                       adapter.notifyDataSetChanged();
-                    }
-                }
-            } else {
-                mVolumeControl.setVisibility(View.GONE);
-            }
-            updateLayoutHeight();
-        } else if (mVolumeControl.getVisibility() == View.VISIBLE) {
-            mVolumeSlider.setProgress(mRoute.getVolume());
-            if (mIsGroupExpanded) {
-                for (int i = 0; i < mVolumeGroupList.getChildCount(); ++i) {
-                    SeekBar volumeSlider = (SeekBar) mVolumeGroupList.getChildAt(i)
-                            .findViewById(R.id.mr_volume_slider);
-                    int tag = (int) volumeSlider.getTag();
-                    int index = tag - VOLUME_SLIDER_TAG_GROUP_BASE;
-                    if (index < 0 || index >= getGroup().getRouteCount()) {
-                        continue;
-                    }
-                    MediaRouter.RouteInfo route = getGroup().getRouteAt(index);
-                    if (isVolumeControlAvailable(route)) {
-                        volumeSlider.setProgress(route.getVolume());
+                        adapter.notifyDataSetChanged();
                     }
                 }
             }
+        } else {
+            mVolumeControlLayout.setVisibility(View.GONE);
         }
+        updateLayoutHeight();
     }
 
-    private void updatePlaybackControl() {
-        if (isPlaybackControlLayoutNeeded()) {
+    private void updatePlaybackControlLayout() {
+        if (canShowPlaybackControlLayout()) {
             CharSequence title = mDescription == null ? null : mDescription.getTitle();
             boolean hasTitle = !TextUtils.isEmpty(title);
 
@@ -697,8 +695,12 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 mTitleView.setText(R.string.mr_controller_casting_screen);
                 showTitle = true;
             } else if (mState == null || mState.getState() == PlaybackStateCompat.STATE_NONE) {
-                mTitleView.setText(R.string.mr_controller_no_media_selected);
-                showTitle = true;
+                // Show "No media selected" as we don't yet know the playback state.
+                // (Only exception is bluetooth where we don't show anything.)
+                if (!mRoute.isDeviceTypeBluetooth()) {
+                    mTitleView.setText(R.string.mr_controller_no_media_selected);
+                    showTitle = true;
+                }
             } else if (!hasTitle && !hasSubtitle) {
                 mTitleView.setText(R.string.mr_controller_no_info_available);
                 showTitle = true;
@@ -757,16 +759,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
         view.setLayoutParams(lp);
     }
 
-    private static int getLayoutBottomMargin(View view) {
-        return ((ViewGroup.MarginLayoutParams) view.getLayoutParams()).bottomMargin;
-    }
-
-    private static void setLayoutBottomMargin(View view, int bottomMargin) {
-        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
-        params.bottomMargin = bottomMargin;
-        view.setLayoutParams(params);
-    }
-
     /**
      * Returns desired art height to fit into controller dialog.
      */
@@ -792,8 +784,9 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
         @Override
         public void onRouteVolumeChanged(MediaRouter router, MediaRouter.RouteInfo route) {
-            if (route == mRoute) {
-                updateVolumeControl();
+            SeekBar volumeSlider = mVolumeSliderMap.get(route);
+            if (volumeSlider != null && mRouteInVolumeSliderTouched != route) {
+                volumeSlider.setProgress(route.getVolume());
             }
         }
     }
@@ -857,24 +850,24 @@ public class MediaRouteControllerDialog extends AlertDialog {
         }
     }
 
-    private class VolumeChangeListener implements OnSeekBarChangeListener {
+    private class VolumeChangeListener implements SeekBar.OnSeekBarChangeListener {
         private final Runnable mStopTrackingTouch = new Runnable() {
             @Override
             public void run() {
-                if (mVolumeSliderTouched) {
-                    mVolumeSliderTouched = false;
-                    updateVolumeControl();
+                if (mRouteInVolumeSliderTouched != null) {
+                    SeekBar volumeSlider = mVolumeSliderMap.get(mRouteInVolumeSliderTouched);
+                    volumeSlider.setProgress(mRouteInVolumeSliderTouched.getVolume());
+                    mRouteInVolumeSliderTouched = null;
                 }
             }
         };
 
         @Override
         public void onStartTrackingTouch(SeekBar seekBar) {
-            if (mVolumeSliderTouched) {
+            if (mRouteInVolumeSliderTouched != null) {
                 mVolumeSlider.removeCallbacks(mStopTrackingTouch);
-            } else {
-                mVolumeSliderTouched = true;
             }
+            mRouteInVolumeSliderTouched = (MediaRouter.RouteInfo) seekBar.getTag();
         }
 
         @Override
@@ -888,14 +881,9 @@ public class MediaRouteControllerDialog extends AlertDialog {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             if (fromUser) {
-                int tag = (int) seekBar.getTag();
-                if (tag == VOLUME_SLIDER_TAG_MASTER) {
-                    mRoute.requestSetVolume(progress);
-                } else {
-                    int index = tag - VOLUME_SLIDER_TAG_GROUP_BASE;
-                    if (index >= 0 && index < getGroup().getRouteCount()) {
-                        getGroup().getRouteAt(index).requestSetVolume(progress);
-                    }
+                MediaRouter.RouteInfo route = (MediaRouter.RouteInfo) seekBar.getTag();
+                if (route.getVolume() != progress) {
+                    route.requestSetVolume(progress);
                 }
             }
         }
@@ -931,7 +919,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
                         (MediaRouteVolumeSlider) v.findViewById(R.id.mr_volume_slider);
                 MediaRouterThemeHelper.setVolumeSliderColor(
                         mContext, volumeSlider, mVolumeGroupList);
-                volumeSlider.setTag(VOLUME_SLIDER_TAG_GROUP_BASE + position);
+                volumeSlider.setTag(route);
+                mVolumeSliderMap.put(route, volumeSlider);
                 volumeSlider.setHideThumb(!isEnabled);
                 volumeSlider.setEnabled(isEnabled);
                 if (isEnabled) {

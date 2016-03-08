@@ -557,7 +557,9 @@ public final class MediaControllerCompat {
             }
 
             public void post(int what, Object obj, Bundle data) {
-                obtainMessage(what, obj).sendToTarget();
+                Message msg = obtainMessage(what, obj);
+                msg.setData(data);
+                msg.sendToTarget();
             }
         }
     }
@@ -1330,6 +1332,14 @@ public final class MediaControllerCompat {
 
         @Override
         public void playFromUri(Uri uri, Bundle extras) {
+            if (uri == null || Uri.EMPTY.equals(uri)) {
+                throw new IllegalArgumentException(
+                        "You must specify a non-empty Uri for playFromUri.");
+            }
+            Bundle bundle = new Bundle();
+            bundle.putParcelable(MediaSessionCompat.ACTION_ARGUMENT_URI, uri);
+            bundle.putParcelable(MediaSessionCompat.ACTION_ARGUMENT_EXTRAS, extras);
+            sendCustomAction(MediaSessionCompat.ACTION_PLAY_FROM_URI, bundle);
         }
 
         @Override

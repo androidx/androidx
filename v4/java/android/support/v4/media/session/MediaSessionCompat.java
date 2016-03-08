@@ -107,6 +107,30 @@ public class MediaSessionCompat {
     public static final int FLAG_HANDLES_TRANSPORT_CONTROLS = 1 << 1;
 
     /**
+     * Custom action to invoke playFromUri() for the forward compatibility.
+     *
+     * @hide
+     */
+    public static final String ACTION_PLAY_FROM_URI =
+            "android.support.v4.media.session.action.PLAY_FROM_URI";
+
+    /**
+     * Argument for use with {@link #ACTION_PLAY_FROM_URI} indicating URI to play.
+     *
+     * @hide
+     */
+    public static final String ACTION_ARGUMENT_URI =
+            "android.support.v4.media.session.action.ARGUMENT_URI";
+
+    /**
+     * Argument for use with {@link #ACTION_PLAY_FROM_URI} indicating extra bundle.
+     *
+     * @hide
+     */
+    public static final String ACTION_ARGUMENT_EXTRAS =
+            "android.support.v4.media.session.action.ARGUMENT_EXTRAS";
+
+    /**
      * Creates a new session using a media button receiver from your manifest.
      * Note that a media button receiver is required to support platform versions
      * earlier than {@link android.os.Build.VERSION_CODES#LOLLIPOP}.
@@ -288,8 +312,8 @@ public class MediaSessionCompat {
      * <p>
      * On platforms earlier than
      * {@link android.os.Build.VERSION_CODES#LOLLIPOP},
-     * {@link #setMediaButtonReceiver(PendingIntent)} must be called before
-     * setting this to true.
+     * a media button event receiver should be set via the constructor to
+     * receive media button events.
      *
      * @param active Whether this session is active or not.
      */
@@ -713,7 +737,13 @@ public class MediaSessionCompat {
 
             @Override
             public void onCustomAction(String action, Bundle extras) {
-                Callback.this.onCustomAction(action, extras);
+                if (action.equals(ACTION_PLAY_FROM_URI)) {
+                    Uri uri = (Uri) extras.getParcelable(ACTION_ARGUMENT_URI);
+                    Bundle bundle = (Bundle) extras.getParcelable(ACTION_ARGUMENT_EXTRAS);
+                    Callback.this.onPlayFromUri(uri, bundle);
+                } else {
+                    Callback.this.onCustomAction(action, extras);
+                }
             }
         }
 

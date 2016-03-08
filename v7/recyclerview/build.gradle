@@ -78,6 +78,17 @@ android.libraryVariants.all { variant ->
     artifacts.add('archives', sourcesJarTask);
 }
 
+// TODO make this generic for all projects
+afterEvaluate {
+    def originalTask = tasks['packageDebugAndroidTest']
+    tasks['assembleDebugAndroidTest'].doLast {
+        copy {
+            from(originalTask.outputFile)
+            into(rootProject.ext.testApkDistOut)
+        }
+    }
+}
+
 uploadArchives {
     repositories {
         mavenDeployer {

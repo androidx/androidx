@@ -18,8 +18,10 @@ package android.support.v4.media;
 
 import android.content.Intent;
 import android.content.pm.ParceledListSlice;
+import android.media.MediaDescription;
 import android.media.browse.MediaBrowser;
 import android.media.session.MediaSession;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
@@ -35,23 +37,22 @@ import java.util.List;
 class MediaBrowserServiceCompatApi21 {
 
     public static Object createService() {
-        return new MediaBrowserServiceAdaptor();
+        return new MediaBrowserServiceAdaptorApi21();
     }
 
-    public static void onCreate(Object serviceObj, ServiceImpl serviceImpl) {
-        ((MediaBrowserServiceAdaptor) serviceObj).onCreate(serviceImpl);
+    public static void onCreate(Object serviceObj, ServiceImplApi21 serviceImpl) {
+        ((MediaBrowserServiceAdaptorApi21) serviceObj).onCreate(serviceImpl);
     }
 
     public static IBinder onBind(Object serviceObj, Intent intent) {
-        return ((MediaBrowserServiceAdaptor) serviceObj).onBind(intent);
+        return ((MediaBrowserServiceAdaptorApi21) serviceObj).onBind(intent);
     }
 
-    public interface ServiceImpl {
+    public interface ServiceImplApi21 {
         void connect(final String pkg, final Bundle rootHints, final ServiceCallbacks callbacks);
         void disconnect(final ServiceCallbacks callbacks);
         void addSubscription(final String id, final ServiceCallbacks callbacks);
         void removeSubscription(final String id, final ServiceCallbacks callbacks);
-        void getMediaItem(final String mediaId, final ResultReceiver receiver);
     }
 
     public interface ServiceCallbacks {
@@ -62,6 +63,16 @@ class MediaBrowserServiceCompatApi21 {
     }
 
     public static class ServiceCallbacksApi21 implements ServiceCallbacks {
+        private static final ParceledListSlice sNullParceledListSlice;
+        static {
+            MediaDescription nullDescription = new MediaDescription.Builder().setMediaId(
+                    MediaBrowserCompatApi21.NULL_MEDIA_ITEM_ID).build();
+            MediaBrowser.MediaItem nullMediaItem = new MediaBrowser.MediaItem(nullDescription, 0);
+            List<MediaBrowser.MediaItem> nullMediaItemList = new ArrayList<>();
+            nullMediaItemList.add(nullMediaItem);
+            sNullParceledListSlice = new ParceledListSlice(nullMediaItemList);
+        }
+
         private final IMediaBrowserServiceCallbacks mCallbacks;
 
         ServiceCallbacksApi21(IMediaBrowserServiceCallbacks callbacks) {
@@ -90,16 +101,21 @@ class MediaBrowserServiceCompatApi21 {
                     parcel.recycle();
                 }
             }
-            final ParceledListSlice<MediaBrowser.MediaItem> pls = new ParceledListSlice(itemList);
+            ParceledListSlice<MediaBrowser.MediaItem> pls;
+            if (Build.VERSION.SDK_INT > 23) {
+                pls = itemList == null ? null : new ParceledListSlice(itemList);
+            } else {
+                pls = itemList == null ? sNullParceledListSlice : new ParceledListSlice(itemList);
+            }
             mCallbacks.onLoadChildren(mediaId, pls);
         }
     }
 
-    private static class MediaBrowserServiceAdaptor {
-        ServiceBinderProxy mBinder;
+    static class MediaBrowserServiceAdaptorApi21 {
+        ServiceBinderProxyApi21 mBinder;
 
-        public void onCreate(ServiceImpl serviceImpl) {
-            mBinder = new ServiceBinderProxy(serviceImpl);
+        public void onCreate(ServiceImplApi21 serviceImpl) {
+            mBinder = new ServiceBinderProxyApi21(serviceImpl);
         }
 
         public IBinder onBind(Intent intent) {
@@ -109,10 +125,10 @@ class MediaBrowserServiceCompatApi21 {
             return null;
         }
 
-        private static class ServiceBinderProxy extends IMediaBrowserService.Stub {
-            private final ServiceImpl mServiceImpl;
+        static class ServiceBinderProxyApi21 extends IMediaBrowserService.Stub {
+            final ServiceImplApi21 mServiceImpl;
 
-            ServiceBinderProxy(ServiceImpl serviceImpl) {
+            ServiceBinderProxyApi21(ServiceImplApi21 serviceImpl) {
                 mServiceImpl = serviceImpl;
             }
 
@@ -142,7 +158,7 @@ class MediaBrowserServiceCompatApi21 {
 
             @Override
             public void getMediaItem(final String mediaId, final ResultReceiver receiver) {
-                mServiceImpl.getMediaItem(mediaId, receiver);
+                // No operation since this method is added in API 23.
             }
         }
     }

@@ -30,6 +30,7 @@ import android.os.Parcel;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.BundleCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.os.ResultReceiver;
 import android.support.v4.util.ArrayMap;
@@ -41,6 +42,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+
+import static android.support.v4.media.MediaBrowserProtocol.*;
 
 /**
  * Base class for media browse services.
@@ -62,21 +65,10 @@ import java.util.List;
  *     &lt;/intent-filter>
  * &lt;/service>
  * </pre>
- * @hide
  */
 public abstract class MediaBrowserServiceCompat extends Service {
     private static final String TAG = "MediaBrowserServiceCompat";
     private static final boolean DBG = false;
-
-    public static final String DATA_MEDIA_SESSION_TOKEN = "data_media_session_token";
-    public static final String DATA_EXTRAS = "data_extras";
-    public static final String DATA_MEDIA_ITEM_LIST = "data_media_item_list";
-
-    public static final int MSG_CONNECT = 1;
-    public static final int MSG_DISCONNECT = 2;
-    public static final int MSG_ADD_SUBSCRIPTION = 3;
-    public static final int MSG_REMOVE_SUBSCRIPTION = 4;
-    public static final int MSG_GET_MEDIA_ITEM = 5;
 
     private MediaBrowserServiceImpl mImpl;
 
@@ -124,13 +116,27 @@ public abstract class MediaBrowserServiceCompat extends Service {
         @Override
         public void onCreate() {
             mServiceObj = MediaBrowserServiceCompatApi21.createService();
-            MediaBrowserServiceCompatApi21.onCreate(mServiceObj,
-                    new ServiceImplApi21(mHandler.getServiceImpl()));
+            MediaBrowserServiceCompatApi21.onCreate(mServiceObj, new ServiceImplApi21());
         }
 
         @Override
         public IBinder onBind(Intent intent) {
             return MediaBrowserServiceCompatApi21.onBind(mServiceObj, intent);
+        }
+    }
+
+    class MediaBrowserServiceImplApi23 implements MediaBrowserServiceImpl {
+        private Object mServiceObj;
+
+        @Override
+        public void onCreate() {
+            mServiceObj = MediaBrowserServiceCompatApi23.createService();
+            MediaBrowserServiceCompatApi23.onCreate(mServiceObj, new ServiceImplApi23());
+        }
+
+        @Override
+        public IBinder onBind(Intent intent) {
+            return MediaBrowserServiceCompatApi23.onBind(mServiceObj, intent);
         }
     }
 
@@ -140,27 +146,29 @@ public abstract class MediaBrowserServiceCompat extends Service {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case MSG_CONNECT:
+                case CLIENT_MSG_CONNECT:
                     mServiceImpl.connect((String) msg.obj, msg.getData(),
                             new ServiceCallbacksCompat(msg.replyTo));
                     break;
-                case MSG_DISCONNECT:
+                case CLIENT_MSG_DISCONNECT:
                     mServiceImpl.disconnect(new ServiceCallbacksCompat(msg.replyTo));
                     break;
-                case MSG_ADD_SUBSCRIPTION:
+                case CLIENT_MSG_ADD_SUBSCRIPTION:
                     mServiceImpl.addSubscription((String) msg.obj,
                             new ServiceCallbacksCompat(msg.replyTo));
                     break;
-                case MSG_REMOVE_SUBSCRIPTION:
+                case CLIENT_MSG_REMOVE_SUBSCRIPTION:
                     mServiceImpl.removeSubscription((String) msg.obj,
                             new ServiceCallbacksCompat(msg.replyTo));
                     break;
-                case MSG_GET_MEDIA_ITEM:
+                case CLIENT_MSG_GET_MEDIA_ITEM:
                     mServiceImpl.getMediaItem((String) msg.obj, (ResultReceiver) msg.getData()
-                            .getParcelable(MediaBrowserCompat.DATA_RESULT_RECEIVER));
+                            .getParcelable(SERVICE_DATA_RESULT_RECEIVER));
                     break;
                 default:
-                    super.handleMessage(msg);
+                    Log.w(TAG, "Unhandled message: " + msg
+                            + "\n  Service version: " + SERVICE_VERSION_CURRENT
+                            + "\n  Client version: " + msg.arg1);
             }
         }
 
@@ -371,11 +379,11 @@ public abstract class MediaBrowserServiceCompat extends Service {
         }
     }
 
-    private class ServiceImplApi21 implements MediaBrowserServiceCompatApi21.ServiceImpl {
+    private class ServiceImplApi21 implements MediaBrowserServiceCompatApi21.ServiceImplApi21 {
         final ServiceImpl mServiceImpl;
 
-        ServiceImplApi21(ServiceImpl serviceImpl) {
-            mServiceImpl = serviceImpl;
+        ServiceImplApi21() {
+            mServiceImpl = mHandler.getServiceImpl();
         }
 
         @Override
@@ -401,13 +409,23 @@ public abstract class MediaBrowserServiceCompat extends Service {
                 final MediaBrowserServiceCompatApi21.ServiceCallbacks callbacks) {
             mServiceImpl.removeSubscription(id, new ServiceCallbacksApi21(callbacks));
         }
+    }
 
+    private class ServiceImplApi23 extends ServiceImplApi21
+            implements MediaBrowserServiceCompatApi23.ServiceImplApi23 {
         @Override
-        public void getMediaItem(final String mediaId, final android.os.ResultReceiver receiver) {
+        public void getMediaItem(final String mediaId,
+                final MediaBrowserServiceCompatApi23.ItemCallback cb) {
             ResultReceiver receiverCompat = new ResultReceiver(mHandler) {
                 @Override
                 protected void onReceiveResult(int resultCode, Bundle resultData) {
-                    receiver.send(resultCode, resultData);
+                    MediaBrowserCompat.MediaItem item = resultData.getParcelable(KEY_MEDIA_ITEM);
+                    Parcel itemParcel = null;
+                    if (item != null) {
+                        itemParcel = Parcel.obtain();
+                        item.writeToParcel(itemParcel, 0);
+                    }
+                    cb.onItemLoaded(resultCode, resultData, itemParcel);
                 }
             };
             mServiceImpl.getMediaItem(mediaId, receiverCompat);
@@ -436,27 +454,36 @@ public abstract class MediaBrowserServiceCompat extends Service {
 
         public void onConnect(String root, MediaSessionCompat.Token session, Bundle extras)
                 throws RemoteException {
+            if (extras == null) {
+                extras = new Bundle();
+            }
+            extras.putInt(EXTRA_SERVICE_VERSION, SERVICE_VERSION_CURRENT);
             Bundle data = new Bundle();
-            data.putParcelable(DATA_MEDIA_SESSION_TOKEN, session);
-            data.putBundle(DATA_EXTRAS, extras);
-            sendRequest(MediaBrowserCompat.MSG_ON_CONNECT, root, data);
+            data.putParcelable(SERVICE_DATA_MEDIA_SESSION_TOKEN, session);
+            data.putBundle(SERVICE_DATA_EXTRAS, extras);
+            sendRequest(SERVICE_MSG_ON_CONNECT, root, data);
         }
 
         public void onConnectFailed() throws RemoteException {
-            sendRequest(MediaBrowserCompat.MSG_ON_CONNECT_FAILED, null, null);
+            sendRequest(SERVICE_MSG_ON_CONNECT_FAILED, null, null);
         }
 
         public void onLoadChildren(String mediaId, List<MediaBrowserCompat.MediaItem> list)
                 throws RemoteException {
-            Bundle data = new Bundle();
-            data.putParcelableArrayList(DATA_MEDIA_ITEM_LIST,
-                    list instanceof ArrayList ? (ArrayList) list : new ArrayList<>(list));
-            sendRequest(MediaBrowserCompat.MSG_ON_LOAD_CHILDREN, mediaId, data);
+            Bundle data = null;
+            if (list != null) {
+                data = new Bundle();
+                data.putParcelableArrayList(SERVICE_DATA_MEDIA_ITEM_LIST,
+                        list instanceof ArrayList ? (ArrayList) list : new ArrayList<>(list));
+            }
+            sendRequest(SERVICE_MSG_ON_LOAD_CHILDREN, mediaId, data);
         }
 
-        private void sendRequest(int what, Object obj, Bundle data) throws RemoteException {
+        private void sendRequest(int what, Object obj, Bundle data)
+                throws RemoteException {
             Message msg = Message.obtain();
             msg.what = what;
+            msg.arg1 = SERVICE_VERSION_CURRENT;
             msg.obj = obj;
             msg.setData(data);
             mCallbacks.send(msg);
@@ -465,6 +492,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
 
     private class ServiceCallbacksApi21 implements ServiceCallbacks {
         final MediaBrowserServiceCompatApi21.ServiceCallbacks mCallbacks;
+        Messenger mMessenger;
 
         ServiceCallbacksApi21(MediaBrowserServiceCompatApi21.ServiceCallbacks callbacks) {
             mCallbacks = callbacks;
@@ -476,6 +504,12 @@ public abstract class MediaBrowserServiceCompat extends Service {
 
         public void onConnect(String root, MediaSessionCompat.Token session, Bundle extras)
                 throws RemoteException {
+            if (extras == null) {
+                extras = new Bundle();
+            }
+            mMessenger = new Messenger(mHandler);
+            BundleCompat.putBinder(extras, EXTRA_MESSENGER_BINDER, mMessenger.getBinder());
+            extras.putInt(EXTRA_SERVICE_VERSION, SERVICE_VERSION_CURRENT);
             mCallbacks.onConnect(root, session.getToken(), extras);
         }
 
@@ -501,7 +535,9 @@ public abstract class MediaBrowserServiceCompat extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            mImpl = new MediaBrowserServiceImplApi23();
+        } else if (Build.VERSION.SDK_INT >= 21) {
             mImpl = new MediaBrowserServiceImplApi21();
         } else {
             mImpl = new MediaBrowserServiceImplBase();
@@ -683,10 +719,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
                 = new Result<List<MediaBrowserCompat.MediaItem>>(parentId) {
             @Override
             void onResultSent(List<MediaBrowserCompat.MediaItem> list) {
-                if (list == null) {
-                    throw new IllegalStateException("onLoadChildren sent null list for id "
-                            + parentId);
-                }
                 if (mConnections.get(connection.callbacks.asBinder()) != connection) {
                     if (DBG) {
                         Log.d(TAG, "Not sending onLoadChildren result for connection that has"

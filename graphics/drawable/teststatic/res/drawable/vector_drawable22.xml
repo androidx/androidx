@@ -14,53 +14,52 @@
      limitations under the License.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:auto="http://schemas.android.com/apk/res-auto"
-        auto:height="64dp"
-        auto:width="64dp"
-        auto:viewportHeight="400"
-        auto:viewportWidth="400" >
+        android:height="64dp"
+        android:width="64dp"
+        android:viewportHeight="400"
+        android:viewportWidth="400" >
 
-    <group auto:name="backgroundGroup" >
+    <group android:name="backgroundGroup" >
         <path
-            auto:name="background1"
-            auto:fillColor="#80000000"
-            auto:pathData="M 0,0 l 200,0 l 0, 200 l -200, 0 z" />
+            android:name="background1"
+            android:fillColor="#80000000"
+            android:pathData="M 0,0 l 200,0 l 0, 200 l -200, 0 z" />
         <path
-            auto:name="background2"
-            auto:fillColor="#80000000"
-            auto:pathData="M 200,200 l 200,0 l 0, 200 l -200, 0 z" />
+            android:name="background2"
+            android:fillColor="#80000000"
+            android:pathData="M 200,200 l 200,0 l 0, 200 l -200, 0 z" />
     </group>
     <group
-        auto:name="translateToCenterGroup"
-        auto:translateX="50.0"
-        auto:translateY="90.0" >
+        android:name="translateToCenterGroup"
+        android:translateX="50.0"
+        android:translateY="90.0" >
         <path
-            auto:name="twoLines"
-            auto:pathData="M 0,0 v 100 M 0,0 h 100"
-            auto:strokeColor="#FFFF0000"
-            auto:strokeWidth="20" />
+            android:name="twoLines"
+            android:pathData="M 0,0 v 100 M 0,0 h 100"
+            android:strokeColor="#FFFF0000"
+            android:strokeWidth="20" />
 
         <group
-            auto:name="rotationGroup"
-            auto:pivotX="0.0"
-            auto:pivotY="0.0"
-            auto:rotation="-45.0" >
+            android:name="rotationGroup"
+            android:pivotX="0.0"
+            android:pivotY="0.0"
+            android:rotation="-45.0" >
             <path
-                auto:name="twoLines1"
-                auto:pathData="M 0,0 v 100 M 0,0 h 100"
-                auto:strokeColor="#FF00FF00"
-                auto:strokeWidth="20" />
+                android:name="twoLines1"
+                android:pathData="M 0,0 v 100 M 0,0 h 100"
+                android:strokeColor="#FF00FF00"
+                android:strokeWidth="20" />
 
             <group
-                auto:name="translateGroup"
-                auto:translateX="130.0"
-                auto:translateY="160.0" >
-                <group auto:name="scaleGroup" >
+                android:name="translateGroup"
+                android:translateX="130.0"
+                android:translateY="160.0" >
+                <group android:name="scaleGroup" >
                     <path
-                        auto:name="twoLines2"
-                        auto:pathData="M 0,0 v 100 M 0,0 h 100"
-                        auto:strokeColor="#FF0000FF"
-                        auto:strokeWidth="20" />
+                        android:name="twoLines2"
+                        android:pathData="M 0,0 v 100 M 0,0 h 100"
+                        android:strokeColor="#FF0000FF"
+                        android:strokeWidth="20" />
                 </group>
             </group>
         </group>

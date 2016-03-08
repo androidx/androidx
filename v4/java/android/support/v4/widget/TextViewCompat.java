@@ -18,6 +18,7 @@ package android.support.v4.widget;
 
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.widget.TextView;
@@ -42,6 +43,7 @@ public class TextViewCompat {
                 int start, int top, int end, int bottom);
         int getMaxLines(TextView textView);
         int getMinLines(TextView textView);
+        void setTextAppearance(@NonNull TextView textView, @IdRes int resId);
     }
 
     static class BaseTextViewCompatImpl implements TextViewCompatImpl {
@@ -73,6 +75,11 @@ public class TextViewCompat {
         @Override
         public int getMinLines(TextView textView) {
             return TextViewCompatDonut.getMinLines(textView);
+        }
+
+        @Override
+        public void setTextAppearance(TextView textView, int resId) {
+            TextViewCompatDonut.setTextAppearance(textView, resId);
         }
     }
 
@@ -137,11 +144,20 @@ public class TextViewCompat {
         }
     }
 
+    static class Api23TextViewCompatImpl extends JbMr2TextViewCompatImpl {
+        @Override
+        public void setTextAppearance(@NonNull TextView textView, @IdRes int resId) {
+            TextViewCompatApi23.setTextAppearance(textView, resId);
+        }
+    }
+
     static final TextViewCompatImpl IMPL;
 
     static {
         final int version = Build.VERSION.SDK_INT;
-        if (version >= 18) {
+        if (version >= 23) {
+            IMPL = new Api23TextViewCompatImpl();
+        } else if (version >= 18) {
             IMPL = new JbMr2TextViewCompatImpl();
         } else if (version >= 17) {
             IMPL = new JbMr1TextViewCompatImpl();
@@ -230,5 +246,20 @@ public class TextViewCompat {
      */
     public static int getMinLines(@NonNull TextView textView) {
         return IMPL.getMinLines(textView);
+    }
+
+    /**
+     * Sets the text appearance from the specified style resource.
+     * <p>
+     * Use a framework-defined {@code TextAppearance} style like
+     * {@link android.R.style#TextAppearance_Material_Body1 @android:style/TextAppearance.Material.Body1}
+     * or see {@link android.R.styleable#TextAppearance TextAppearance} for the
+     * set of attributes that can be used in a custom style.
+     *
+     * @param textView The TextView against which to invoke the method.
+     * @param resId    The resource identifier of the style to apply.
+     */
+    public static void setTextAppearance(@NonNull TextView textView, @IdRes int resId) {
+        IMPL.setTextAppearance(textView, resId);
     }
 }

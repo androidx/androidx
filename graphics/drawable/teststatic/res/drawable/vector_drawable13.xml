@@ -14,25 +14,24 @@
      limitations under the License.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:auto="http://schemas.android.com/apk/res-auto"
-        auto:height="64dp"
-        auto:width="64dp"
-        auto:viewportHeight="400"
-        auto:viewportWidth="600" >
+        android:height="64dp"
+        android:width="64dp"
+        android:viewportHeight="400"
+        android:viewportWidth="600" >
 
     <group>
         <path
-            auto:name="pie1"
-            auto:fillColor="#ffffffff"
-            auto:pathData="M300,200 h-150 a150,150 0 1,0 150,-150 z"
-            auto:strokeColor="#FF00FF00"
-            auto:strokeWidth="1" />
+            android:name="pie1"
+            android:fillColor="#ffffffff"
+            android:pathData="M300,200 h-150 a150,150 0 1,0 150,-150 z"
+            android:strokeColor="#FF00FF00"
+            android:strokeWidth="1" />
         <path
-            auto:name="half"
-            auto:fillColor="#FFFF0000"
-            auto:pathData="M275,175 v-150 a150,150 0 0,0 -150,150 z"
-            auto:strokeColor="#FF0000FF"
-            auto:strokeWidth="5" />
+            android:name="half"
+            android:fillColor="#FFFF0000"
+            android:pathData="M275,175 v-150 a150,150 0 0,0 -150,150 z"
+            android:strokeColor="#FF0000FF"
+            android:strokeWidth="5" />
     </group>
 
 </vector>

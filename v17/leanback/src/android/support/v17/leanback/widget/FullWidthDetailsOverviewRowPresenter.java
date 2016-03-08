@@ -528,19 +528,6 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
         mListener = listener;
     }
 
-    private int getDefaultBackgroundColor(Context context) {
-        TypedValue outValue = new TypedValue();
-        if (context.getTheme().resolveAttribute(R.attr.defaultBrandColor, outValue, true)) {
-            return context.getResources().getColor(outValue.resourceId);
-        }
-        return context.getResources().getColor(R.color.lb_default_brand_color);
-    }
-
-    private int getDefaultActionsBackgroundColor(Context context) {
-        int c = getDefaultBackgroundColor(context);
-        return Color.argb(Color.alpha(c), Color.red(c) / 2, Color.green(c) / 2, Color.blue(c) / 2);
-    }
-
     /**
      * Get resource id to inflate the layout.  The layout must match {@link #STATE_HALF}
      */
@@ -558,13 +545,13 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
 
         vh.mActionBridgeAdapter = new ActionsItemBridgeAdapter(vh);
         final View overview = vh.mOverviewFrame;
-        final int bgColor = mBackgroundColorSet ? mBackgroundColor :
-                getDefaultBackgroundColor(overview.getContext());
-        overview.setBackgroundColor(bgColor);
-        final int actionBgColor = mActionsBackgroundColorSet ? mActionsBackgroundColor :
-                getDefaultActionsBackgroundColor(overview.getContext());
-        overview.findViewById(R.id.details_overview_actions_background)
-                .setBackgroundColor(actionBgColor);
+        if (mBackgroundColorSet) {
+            overview.setBackgroundColor(mBackgroundColor);
+        }
+        if (mActionsBackgroundColorSet) {
+            overview.findViewById(R.id.details_overview_actions_background)
+                    .setBackgroundColor(mActionsBackgroundColor);
+        }
         RoundedRectHelper.getInstance().setClipToRoundedOutline(overview, true);
 
         if (!getSelectEffectEnabled()) {

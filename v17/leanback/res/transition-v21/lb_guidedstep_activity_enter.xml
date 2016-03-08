@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-     Copyright (C) 2014 The Android Open Source Project
+     Copyright (C) 2015 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -16,10 +16,17 @@
 -->
 
 <transitionSet xmlns:android="http://schemas.android.com/apk/res/android" >
+  <fade
+      android:interpolator="@android:interpolator/fast_out_linear_in"
+      android:duration="@integer/lb_guidedstep_activity_background_fade_duration_ms">
+        <targets>
+            <target android:targetId="@id/guidedstep_background" />
+        </targets>
+  </fade>
   <slide
       android:interpolator="@android:interpolator/fast_out_linear_in"
       android:duration="350"
-      android:slideEdge="left">
+      android:slideEdge="@integer/slideEdgeStart">
         <targets>
             <target android:targetId="@id/guidance_icon" />
             <target android:targetId="@id/guidance_title" />
@@ -30,11 +37,17 @@
   <slide
       android:interpolator="@android:interpolator/fast_out_linear_in"
       android:duration="350"
-      android:slideEdge="right">
+      android:slideEdge="@integer/slideEdgeEnd">
         <targets>
-            <target android:targetId="@id/guidedactions_background" />
-            <target android:targetId="@id/guidedactions_selector" />
+            <target android:targetId="@id/action_fragment_background" />
+            <target android:targetId="@id/guidedactions_list_background" />
+            <target android:targetId="@id/guidedactions_content" />
             <target android:targetId="@id/guidedactions_list" />
+            <target android:targetId="@id/guidedactions_selector" />
+            <target android:targetId="@id/guidedactions_list_background2" />
+            <target android:targetId="@id/guidedactions_content2" />
+            <target android:targetId="@id/guidedactions_list2" />
+            <target android:targetId="@id/guidedactions_selector2" />
         </targets>
   </slide>
 </transitionSet>

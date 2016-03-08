@@ -94,6 +94,7 @@ public class FloatingActionButton extends VisibilityAwareImageButton {
     private int mImagePadding;
     private Rect mTouchArea;
 
+    private boolean mCompatPadding;
     private final Rect mShadowPadding;
 
     private final FloatingActionButtonImpl mImpl;
@@ -126,6 +127,7 @@ public class FloatingActionButton extends VisibilityAwareImageButton {
         final float elevation = a.getDimension(R.styleable.FloatingActionButton_elevation, 0f);
         final float pressedTranslationZ = a.getDimension(
                 R.styleable.FloatingActionButton_pressedTranslationZ, 0f);
+        mCompatPadding = a.getBoolean(R.styleable.FloatingActionButton_useCompatPadding, false);
         a.recycle();
 
         final ShadowViewDelegate delegate = new ShadowViewDelegate() {
@@ -137,7 +139,6 @@ public class FloatingActionButton extends VisibilityAwareImageButton {
             @Override
             public void setShadowPadding(int left, int top, int right, int bottom) {
                 mShadowPadding.set(left, top, right, bottom);
-
                 setPadding(left + mImagePadding, top + mImagePadding,
                         right + mImagePadding, bottom + mImagePadding);
             }
@@ -145,6 +146,11 @@ public class FloatingActionButton extends VisibilityAwareImageButton {
             @Override
             public void setBackgroundDrawable(Drawable background) {
                 FloatingActionButton.super.setBackgroundDrawable(background);
+            }
+
+            @Override
+            public boolean isCompatPaddingEnabled() {
+                return mCompatPadding;
             }
         };
 
@@ -164,6 +170,7 @@ public class FloatingActionButton extends VisibilityAwareImageButton {
                 mRippleColor, mBorderWidth);
         mImpl.setElevation(elevation);
         mImpl.setPressedTranslationZ(pressedTranslationZ);
+        mImpl.updatePadding();
     }
 
     @Override
@@ -189,6 +196,8 @@ public class FloatingActionButton extends VisibilityAwareImageButton {
      * When running on devices with KitKat or below, we draw a fill rather than a ripple.
      *
      * @param color ARGB color to use for the ripple.
+     *
+     * @attr ref android.support.design.R.styleable#FloatingActionButton_rippleColor
      */
     public void setRippleColor(@ColorInt int color) {
         if (mRippleColor != color) {
@@ -221,7 +230,6 @@ public class FloatingActionButton extends VisibilityAwareImageButton {
             mImpl.setBackgroundTintList(tint);
         }
     }
-
 
     /**
      * Return the blending mode used to apply the tint to the background
@@ -311,6 +319,36 @@ public class FloatingActionButton extends VisibilityAwareImageButton {
         mImpl.hide(wrapOnVisibilityChangedListener(listener), fromUser);
     }
 
+    /**
+     * Set whether FloatingActionButton should add inner padding on platforms Lollipop and after,
+     * to ensure consistent dimensions on all platforms.
+     *
+     * @param useCompatPadding true if FloatingActionButton is adding inner padding on platforms
+     *                         Lollipop and after, to ensure consistent dimensions on all platforms.
+     *
+     * @attr ref android.support.design.R.styleable#FloatingActionButton_useCompatPadding
+     * @see #getUseCompatPadding()
+     */
+    public void setUseCompatPadding(boolean useCompatPadding) {
+        if (mCompatPadding != useCompatPadding) {
+            mCompatPadding = useCompatPadding;
+            mImpl.onCompatShadowChanged();
+        }
+    }
+
+    /**
+     * Returns whether FloatingActionButton will add inner padding on platforms Lollipop and after.
+     *
+     * @return true if FloatingActionButton is adding inner padding on platforms Lollipop and after,
+     * to ensure consistent dimensions on all platforms.
+     *
+     * @attr ref android.support.design.R.styleable#FloatingActionButton_useCompatPadding
+     * @see #setUseCompatPadding(boolean)
+     */
+    public boolean getUseCompatPadding() {
+        return mCompatPadding;
+    }
+
     @Nullable
     private InternalVisibilityChangedListener wrapOnVisibilityChangedListener(
             @Nullable final OnVisibilityChangedListener listener) {
@@ -383,6 +421,14 @@ public class FloatingActionButton extends VisibilityAwareImageButton {
         } else {
             return false;
         }
+    }
+
+    /**
+     * Returns the FloatingActionButton's background, minus any compatible shadow implementation.
+     */
+    @NonNull
+    public Drawable getContentBackground() {
+        return mImpl.getContentBackground();
     }
 
     private static int resolveAdjustedSize(int desiredSize, int measureSpec) {
@@ -614,5 +660,28 @@ public class FloatingActionButton extends VisibilityAwareImageButton {
                 fab.offsetLeftAndRight(offsetLR);
             }
         }
+    }
+
+    /**
+     * Returns the backward compatible elevation of the FloatingActionButton.
+     *
+     * @return the backward compatible elevation in pixels.
+     * @attr ref android.support.design.R.styleable#FloatingActionButton_elevation
+     * @see #setFloatingActionButtonElevation(float)
+     */
+    public float getFloatingActionButtonElevation() {
+        return mImpl.getElevation();
+    }
+
+    /**
+     * Updates the backward compatible elevation of the FloatingActionButton.
+     *
+     * @param elevation The backward compatible elevation in pixels.
+     * @attr ref android.support.design.R.styleable#FloatingActionButton_elevation
+     * @see #getFloatingActionButtonElevation()
+     * @see #setUseCompatPadding(boolean)
+     */
+    public void setFloatingActionButtonElevation(float elevation) {
+        mImpl.setElevation(elevation);
     }
 }

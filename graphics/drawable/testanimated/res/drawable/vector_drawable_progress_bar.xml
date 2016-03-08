@@ -14,36 +14,35 @@
      limitations under the License.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:auto="http://schemas.android.com/apk/res-auto"
-        auto:height="64dp"
-        auto:width="64dp"
-        auto:viewportHeight="64"
-        auto:viewportWidth="64"
-        auto:name="root_bar" >
+        android:height="64dp"
+        android:width="64dp"
+        android:viewportHeight="64"
+        android:viewportWidth="64"
+        android:name="root_bar" >
 
     <group
-        auto:name="root"
-        auto:pivotX="0.0"
-        auto:pivotY="0.0"
-        auto:rotation="0"
-        auto:translateX="32.0"
-        auto:translateY="32.0" >
+        android:name="root"
+        android:pivotX="0.0"
+        android:pivotY="0.0"
+        android:rotation="0"
+        android:translateX="32.0"
+        android:translateY="32.0" >
         <group
-            auto:name="rotationGroup"
-            auto:pivotX="0.0"
-            auto:pivotY="0.0"
-            auto:rotation="0" >
+            android:name="rotationGroup"
+            android:pivotX="0.0"
+            android:pivotY="0.0"
+            android:rotation="0" >
             <path
-                auto:name="pie1"
-                auto:fillColor="#00000000"
-                auto:pathData="M0, 0 m 0, -9.5 a 9.5,9.5 0 1,1 0,19 a 9.5,9.5 0 1,1 0,-19"
-                auto:strokeColor="#FF00FFFF"
-                auto:strokeLineCap="round"
-                auto:strokeLineJoin="miter"
-                auto:strokeWidth="2"
-                auto:trimPathEnd="0.1"
-                auto:trimPathOffset="0"
-                auto:trimPathStart="0" />
+                android:name="pie1"
+                android:fillColor="#00000000"
+                android:pathData="M0, 0 m 0, -9.5 a 9.5,9.5 0 1,1 0,19 a 9.5,9.5 0 1,1 0,-19"
+                android:strokeColor="#FF00FFFF"
+                android:strokeLineCap="round"
+                android:strokeLineJoin="miter"
+                android:strokeWidth="2"
+                android:trimPathEnd="0.1"
+                android:trimPathOffset="0"
+                android:trimPathStart="0" />
         </group>
     </group>
 

@@ -37,46 +37,28 @@ class DrawableCompatLollipop {
     }
 
     public static void setTint(Drawable drawable, int tint) {
-        if (drawable instanceof DrawableWrapperLollipop) {
-            // GradientDrawable on Lollipop does not support tinting, so we'll use our compatible
-            // functionality instead
-            DrawableCompatBase.setTint(drawable, tint);
-        } else {
-            // Else, we'll use the framework API
-            drawable.setTint(tint);
-        }
+        drawable.setTint(tint);
     }
 
     public static void setTintList(Drawable drawable, ColorStateList tint) {
-        if (drawable instanceof DrawableWrapperLollipop) {
-            // GradientDrawable on Lollipop does not support tinting, so we'll use our compatible
-            // functionality instead
-            DrawableCompatBase.setTintList(drawable, tint);
-        } else {
-            // Else, we'll use the framework API
-            drawable.setTintList(tint);
-        }
+        drawable.setTintList(tint);
     }
 
     public static void setTintMode(Drawable drawable, PorterDuff.Mode tintMode) {
-        if (drawable instanceof DrawableWrapperLollipop) {
-            // GradientDrawable on Lollipop does not support tinting, so we'll use our compatible
-            // functionality instead
-            DrawableCompatBase.setTintMode(drawable, tintMode);
-        } else {
-            // Else, we'll use the framework API
-            drawable.setTintMode(tintMode);
-        }
+        drawable.setTintMode(tintMode);
     }
 
-    public static Drawable wrapForTinting(Drawable drawable) {
-        if (drawable instanceof GradientDrawable || drawable instanceof DrawableContainer) {
-            // GradientDrawable on Lollipop does not support tinting, so we'll use our compatible
-            // functionality instead. We also do the same for DrawableContainers since they may
-            // contain GradientDrawable instances.
-            return new DrawableWrapperLollipop(drawable);
+    public static Drawable wrapForTinting(final Drawable drawable) {
+        if (!(drawable instanceof DrawableWrapperLollipop)) {
+            return new DrawableWrapperLollipop(drawable, shouldForceCompatTinting(drawable));
         }
         return drawable;
     }
 
+    private static boolean shouldForceCompatTinting(Drawable drawable) {
+        // GradientDrawable on Lollipop does not support tinting, so we'll use our compatible
+        // functionality instead. We also do the same for DrawableContainers since they may
+        // contain GradientDrawable instances.
+        return drawable instanceof GradientDrawable || drawable instanceof DrawableContainer;
+    }
 }

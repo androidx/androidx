@@ -22,17 +22,21 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.VerticalGridView;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.animation.DecelerateInterpolator;
+import android.view.inputmethod.EditorInfo;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +44,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.ViewPropertyAnimator;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
+import android.widget.Checkable;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -91,7 +96,6 @@ import java.util.List;
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepImeDisappearingAnimation
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsSelectorShowAnimation
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsSelectorHideAnimation
- * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsContainerStyle
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsSelectorStyle
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsListStyle
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionItemContainerStyle
@@ -101,22 +105,28 @@ import java.util.List;
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionItemTitleStyle
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionItemDescriptionStyle
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionItemChevronStyle
- * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionCheckedAnimation
- * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionUncheckedAnimation
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionPressedAnimation
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionUnpressedAnimation
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionEnabledChevronAlpha
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionDisabledChevronAlpha
- * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionContentWidth
- * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionContentWidthNoIcon
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionTitleMinLines
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionTitleMaxLines
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionDescriptionMinLines
  * @attr ref android.support.v17.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionVerticalPadding
+ * @see android.R.styleable#Theme_listChoiceIndicatorSingle
+ * @see android.R.styleable#Theme_listChoiceIndicatorMultiple
  * @see android.support.v17.leanback.app.GuidedStepFragment
  * @see GuidedAction
  */
 public class GuidedActionsStylist implements FragmentAnimationProvider {
+
+    /**
+     * Default viewType that associated with default layout Id for the action item.
+     * @see #getItemViewType(GuidedAction)
+     * @see #onProvideItemLayoutId(int)
+     * @see #onCreateViewHolder(ViewGroup, int)
+     */
+    public static final int VIEW_TYPE_DEFAULT = 0;
 
     /**
      * ViewHolder caches information about the action item layouts' subviews. Subclasses of {@link
@@ -234,9 +244,14 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
 
     private static String TAG = "GuidedActionsStylist";
 
-    protected View mMainView;
-    protected VerticalGridView mActionsGridView;
-    protected View mSelectorView;
+    private ViewGroup mMainView;
+    private VerticalGridView mActionsGridView;
+    private View mBgView;
+    private View mSelectorView;
+    private View mContentView;
+    private boolean mButtonActions;
+
+    private Animator mSelectorAnimator;
 
     // Cached values from resources
     private float mEnabledTextAlpha;
@@ -245,8 +260,6 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     private float mDisabledDescriptionAlpha;
     private float mEnabledChevronAlpha;
     private float mDisabledChevronAlpha;
-    private int mContentWidth;
-    private int mContentWidthNoIcon;
     private int mTitleMinLines;
     private int mTitleMaxLines;
     private int mDescriptionMinLines;
@@ -265,8 +278,17 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      * @return The view to be added to the caller's view hierarchy.
      */
     public View onCreateView(LayoutInflater inflater, ViewGroup container) {
-        mMainView = inflater.inflate(onProvideLayoutId(), container, false);
+        mMainView = (ViewGroup) inflater.inflate(onProvideLayoutId(), container, false);
+        mContentView = mMainView.findViewById(R.id.guidedactions_content);
         mSelectorView = mMainView.findViewById(R.id.guidedactions_selector);
+        mSelectorView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom,
+                    int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                updateSelectorView(false);
+            }
+        });
+        mBgView = mMainView.findViewById(R.id.guidedactions_list_background);
         if (mMainView instanceof VerticalGridView) {
             mActionsGridView = (VerticalGridView) mMainView;
         } else {
@@ -278,32 +300,23 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             mActionsGridView.setWindowAlignmentOffsetPercent(50f);
             mActionsGridView.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_NO_EDGE);
             if (mSelectorView != null) {
-                mActionsGridView.setOnScrollListener(new
-                        SelectorAnimator(mSelectorView, mActionsGridView));
+                mActionsGridView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+                    @Override
+                    public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                        if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                            if (mSelectorView.getAlpha() != 1f) {
+                                updateSelectorView(true);
+                            }
+                        }
+                    }
+                });
             }
         }
-
-        mActionsGridView.requestFocusFromTouch();
 
         if (mSelectorView != null) {
             // ALlow focus to move to other views
             mActionsGridView.getViewTreeObserver().addOnGlobalFocusChangeListener(
-                    new ViewTreeObserver.OnGlobalFocusChangeListener() {
-                        private boolean mChildFocused;
-
-                        @Override
-                        public void onGlobalFocusChanged(View oldFocus, View newFocus) {
-                            View focusedChild = mActionsGridView.getFocusedChild();
-                            if (focusedChild == null) {
-                                mSelectorView.setVisibility(View.INVISIBLE);
-                                mChildFocused = false;
-                            } else if (!mChildFocused) {
-                                mChildFocused = true;
-                                mSelectorView.setVisibility(View.VISIBLE);
-                                updateSelectorView(focusedChild);
-                            }
-                        }
-                    });
+                    mGlobalFocusChangeListener);
         }
 
         // Cache widths, chevron alpha values, max and min text lines, etc
@@ -311,8 +324,6 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         TypedValue val = new TypedValue();
         mEnabledChevronAlpha = getFloat(ctx, val, R.attr.guidedActionEnabledChevronAlpha);
         mDisabledChevronAlpha = getFloat(ctx, val, R.attr.guidedActionDisabledChevronAlpha);
-        mContentWidth = getDimension(ctx, val, R.attr.guidedActionContentWidth);
-        mContentWidthNoIcon = getDimension(ctx, val, R.attr.guidedActionContentWidthNoIcon);
         mTitleMinLines = getInteger(ctx, val, R.attr.guidedActionTitleMinLines);
         mTitleMaxLines = getInteger(ctx, val, R.attr.guidedActionTitleMaxLines);
         mDescriptionMinLines = getInteger(ctx, val, R.attr.guidedActionDescriptionMinLines);
@@ -329,6 +340,67 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         mDisabledDescriptionAlpha = Float.valueOf(ctx.getResources().getString(R.string
                 .lb_guidedactions_item_disabled_description_text_alpha));
         return mMainView;
+    }
+
+    /**
+     * Default implementation turns on background for actions and applies different Ids to views so
+     * that GuidedStepFragment could run transitions against two action lists.  The method is called
+     * by GuidedStepFragment, app may override this function when replacing default layout file
+     * provided by {@link #onProvideLayoutId()}
+     */
+    public void setAsButtonActions() {
+        mButtonActions = true;
+        mMainView.setId(R.id.guidedactions_root2);
+        ViewCompat.setTransitionName(mMainView, "guidedactions_root2");
+        if (mActionsGridView != null) {
+            mActionsGridView.setId(R.id.guidedactions_list2);
+        }
+        if (mSelectorView != null) {
+            mSelectorView.setId(R.id.guidedactions_selector2);
+            ViewCompat.setTransitionName(mSelectorView, "guidedactions_selector2");
+        }
+        if (mContentView != null) {
+            mContentView.setId(R.id.guidedactions_content2);
+            ViewCompat.setTransitionName(mContentView, "guidedactions_content2");
+        }
+        if (mBgView != null) {
+            mBgView.setId(R.id.guidedactions_list_background2);
+            ViewCompat.setTransitionName(mBgView, "guidedactions_list_background2");
+            mBgView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    /**
+     * Returns true if {@link #setAsButtonActions()} was called, false otherwise.
+     * @return True if {@link #setAsButtonActions()} was called, false otherwise.
+     */
+    public boolean isButtonActions() {
+        return mButtonActions;
+    }
+
+    final ViewTreeObserver.OnGlobalFocusChangeListener mGlobalFocusChangeListener =
+            new ViewTreeObserver.OnGlobalFocusChangeListener() {
+
+        @Override
+        public void onGlobalFocusChanged(View oldFocus, View newFocus) {
+            updateSelectorView(false);
+        }
+    };
+
+    /**
+     * Called when destroy the View created by GuidedActionsStylist.
+     */
+    public void onDestroyView() {
+        if (mSelectorView != null) {
+            mActionsGridView.getViewTreeObserver().removeOnGlobalFocusChangeListener(
+                    mGlobalFocusChangeListener);
+        }
+        endSelectorAnimator();
+        mActionsGridView = null;
+        mSelectorView = null;
+        mContentView = null;
+        mBgView = null;
+        mMainView = null;
     }
 
     /**
@@ -353,6 +425,16 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     }
 
     /**
+     * Return view type of action, each different type can have differently associated layout Id.
+     * Default implementation returns {@link #VIEW_TYPE_DEFAULT}.
+     * @param action  The action object.
+     * @return View type that used in {@link #onProvideItemLayoutId(int)}.
+     */
+    public int getItemViewType(GuidedAction action) {
+        return VIEW_TYPE_DEFAULT;
+    }
+
+    /**
      * Provides the resource ID of the layout defining the view for an individual guided actions.
      * Subclasses may override to provide their own customized layouts. The base implementation
      * returns {@link android.support.v17.leanback.R.layout#lb_guidedactions_item}. If overridden,
@@ -360,7 +442,8 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      * the base class; this can be achieved by starting with a copy of the base layout file. Note
      * that in order for the item to support editing, the title view should both subclass {@link
      * android.widget.EditText} and implement {@link ImeKeyMonitor}; see {@link
-     * GuidedActionEditText}.
+     * GuidedActionEditText}.  To support different types of Layouts, override {@link
+     * #onProvideItemLayoutId(int)}.
      * @return The resource ID of the layout to be inflated to define the view to display an
      * individual GuidedAction.
      */
@@ -369,8 +452,31 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     }
 
     /**
+     * Provides the resource ID of the layout defining the view for an individual guided actions.
+     * Subclasses may override to provide their own customized layouts. The base implementation
+     * returns {@link android.support.v17.leanback.R.layout#lb_guidedactions_item}. If overridden,
+     * the substituted layout should contain matching IDs for any views that should be managed by
+     * the base class; this can be achieved by starting with a copy of the base layout file. Note
+     * that in order for the item to support editing, the title view should both subclass {@link
+     * android.widget.EditText} and implement {@link ImeKeyMonitor}; see {@link
+     * GuidedActionEditText}.
+     * @param viewType View type returned by {@link #getItemViewType(GuidedAction)}
+     * @return The resource ID of the layout to be inflated to define the view to display an
+     * individual GuidedAction.
+     */
+    public int onProvideItemLayoutId(int viewType) {
+        if (viewType == VIEW_TYPE_DEFAULT) {
+            return onProvideItemLayoutId();
+        } else {
+            throw new RuntimeException("ViewType " + viewType +
+                    " not supported in GuidedActionsStylist");
+        }
+    }
+
+    /**
      * Constructs a {@link ViewHolder} capable of representing {@link GuidedAction}s. Subclasses
-     * may choose to return a subclass of ViewHolder.
+     * may choose to return a subclass of ViewHolder.  To support different view types, override
+     * {@link #onCreateViewHolder(ViewGroup, int)}
      * <p>
      * <i>Note: Should not actually add the created view to the parent; the caller will do
      * this.</i>
@@ -380,6 +486,25 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     public ViewHolder onCreateViewHolder(ViewGroup parent) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View v = inflater.inflate(onProvideItemLayoutId(), parent, false);
+        return new ViewHolder(v);
+    }
+
+    /**
+     * Constructs a {@link ViewHolder} capable of representing {@link GuidedAction}s. Subclasses
+     * may choose to return a subclass of ViewHolder.
+     * <p>
+     * <i>Note: Should not actually add the created view to the parent; the caller will do
+     * this.</i>
+     * @param parent The view group to be used as the parent of the new view.
+     * @param viewType The viewType returned by {@link #getItemViewType(GuidedAction)}
+     * @return The view to be added to the caller's view hierarchy.
+     */
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        if (viewType == VIEW_TYPE_DEFAULT) {
+            return onCreateViewHolder(parent);
+        }
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        View v = inflater.inflate(onProvideItemLayoutId(viewType), parent, false);
         return new ViewHolder(v);
     }
 
@@ -394,6 +519,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         if (vh.mTitleView != null) {
             vh.mTitleView.setText(action.getTitle());
             vh.mTitleView.setAlpha(action.isEnabled() ? mEnabledTextAlpha : mDisabledTextAlpha);
+            vh.mTitleView.setFocusable(action.isEditable());
         }
         if (vh.mDescriptionView != null) {
             vh.mDescriptionView.setText(action.getDescription());
@@ -401,26 +527,15 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
                     View.GONE : View.VISIBLE);
             vh.mDescriptionView.setAlpha(action.isEnabled() ? mEnabledDescriptionAlpha :
                 mDisabledDescriptionAlpha);
+            vh.mDescriptionView.setFocusable(action.isDescriptionEditable());
         }
         // Clients might want the check mark view to be gone entirely, in which case, ignore it.
-        if (vh.mCheckmarkView != null && vh.mCheckmarkView.getVisibility() != View.GONE) {
-            vh.mCheckmarkView.setVisibility(action.isChecked() ? View.VISIBLE : View.INVISIBLE);
-        }
-
-        if (vh.mContentView != null) {
-            ViewGroup.LayoutParams contentLp = vh.mContentView.getLayoutParams();
-            if (setIcon(vh.mIconView, action)) {
-                contentLp.width = mContentWidth;
-            } else {
-                contentLp.width = mContentWidthNoIcon;
-            }
-            vh.mContentView.setLayoutParams(contentLp);
+        if (vh.mCheckmarkView != null) {
+            onBindCheckMarkView(vh, action);
         }
 
         if (vh.mChevronView != null) {
-            vh.mChevronView.setVisibility(action.hasNext() ? View.VISIBLE : View.INVISIBLE);
-            vh.mChevronView.setAlpha(action.isEnabled() ? mEnabledChevronAlpha :
-                    mDisabledChevronAlpha);
+            onBindChevronView(vh, action);
         }
 
         if (action.hasMultilineDescription()) {
@@ -440,6 +555,35 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             }
         }
         setEditingMode(vh, action, false);
+        if (action.isFocusable()) {
+            vh.view.setFocusable(true);
+            if (vh.view instanceof ViewGroup) {
+                ((ViewGroup) vh.view).setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
+            }
+        } else {
+            vh.view.setFocusable(false);
+            if (vh.view instanceof ViewGroup) {
+                ((ViewGroup) vh.view).setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+            }
+        }
+        setupImeOptions(vh, action);
+    }
+
+    /**
+     * Called by {@link #onBindViewHolder(ViewHolder, GuidedAction)} to setup IME options.  Default
+     * implementation assigns {@link EditorInfo#IME_ACTION_DONE}.  Subclass may override.
+     * @param vh The view holder to be associated with the given action.
+     * @param action The guided action to be displayed by the view holder's view.
+     */
+    protected void setupImeOptions(ViewHolder vh, GuidedAction action) {
+        setupNextImeOptions(vh.getEditableTitleView());
+        setupNextImeOptions(vh.getEditableDescriptionView());
+    }
+
+    private void setupNextImeOptions(EditText edit) {
+        if (edit != null) {
+            edit.setImeOptions(EditorInfo.IME_ACTION_NEXT);
+        }
     }
 
     public void setEditingMode(ViewHolder vh, GuidedAction action, boolean editing) {
@@ -519,29 +663,75 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     }
 
     /**
-     * Animates the view holder's view (or subviews thereof) when the action has had its check
-     * state changed.
+     * Resets the view holder's view to unpressed state.
+     * @param vh The view holder associated with the relevant action.
+     */
+    public void onAnimateItemPressedCancelled(ViewHolder vh) {
+        createAnimator(vh.view, R.attr.guidedActionUnpressedAnimation).end();
+    }
+
+    /**
+     * Animates the view holder's view (or subviews thereof) when the action has had its check state
+     * changed. Default implementation calls setChecked() if {@link ViewHolder#getCheckmarkView()}
+     * is instance of {@link Checkable}.
+     *
      * @param vh The view holder associated with the relevant action.
      * @param checked True if the action has become checked, false if it has become unchecked.
+     * @see #onBindCheckMarkView(ViewHolder, GuidedAction)
      */
     public void onAnimateItemChecked(ViewHolder vh, boolean checked) {
-        final View checkView = vh.mCheckmarkView;
-        if (checkView != null) {
-            if (checked) {
-                checkView.setVisibility(View.VISIBLE);
-                createAnimator(checkView, R.attr.guidedActionCheckedAnimation).start();
-            } else {
-                Animator animator = createAnimator(checkView,
-                        R.attr.guidedActionUncheckedAnimation);
-                animator.addListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        checkView.setVisibility(View.INVISIBLE);
-                    }
-                });
-                animator.start();
-            }
+        if (vh.mCheckmarkView instanceof Checkable) {
+            ((Checkable) vh.mCheckmarkView).setChecked(checked);
         }
+    }
+
+    /**
+     * Sets states of check mark view, called by {@link #onBindViewHolder(ViewHolder, GuidedAction)}
+     * when action's checkset Id is other than {@link GuidedAction#NO_CHECK_SET}. Default
+     * implementation assigns drawable loaded from theme attribute
+     * {@link android.R.attr#listChoiceIndicatorMultiple} for checkbox or
+     * {@link android.R.attr#listChoiceIndicatorSingle} for radio button. Subclass rarely needs
+     * override the method, instead app can provide its own drawable that supports transition
+     * animations, change theme attributes {@link android.R.attr#listChoiceIndicatorMultiple} and
+     * {@link android.R.attr#listChoiceIndicatorSingle} in {android.support.v17.leanback.R.
+     * styleable#LeanbackGuidedStepTheme}.
+     *
+     * @param vh The view holder associated with the relevant action.
+     * @param action The GuidedAction object to bind to.
+     * @see #onAnimateItemChecked(ViewHolder, boolean)
+     */
+    public void onBindCheckMarkView(ViewHolder vh, GuidedAction action) {
+        if (action.getCheckSetId() != GuidedAction.NO_CHECK_SET) {
+            vh.mCheckmarkView.setVisibility(View.VISIBLE);
+            int attrId = action.getCheckSetId() == GuidedAction.CHECKBOX_CHECK_SET_ID ?
+                    android.R.attr.listChoiceIndicatorMultiple :
+                    android.R.attr.listChoiceIndicatorSingle;
+            final Context context = vh.mCheckmarkView.getContext();
+            Drawable drawable = null;
+            TypedValue typedValue = new TypedValue();
+            if (context.getTheme().resolveAttribute(attrId, typedValue, true)) {
+                drawable = ContextCompat.getDrawable(context, typedValue.resourceId);
+            }
+            vh.mCheckmarkView.setImageDrawable(drawable);
+            if (vh.mCheckmarkView instanceof Checkable) {
+                ((Checkable) vh.mCheckmarkView).setChecked(action.isChecked());
+            }
+        } else {
+            vh.mCheckmarkView.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * Sets states of chevron view, called by {@link #onBindViewHolder(ViewHolder, GuidedAction)}.
+     * Subclass may override.
+     *
+     * @param vh The view holder associated with the relevant action.
+     * @param action The GuidedAction object to bind to.
+     */
+    public void onBindChevronView(ViewHolder vh, GuidedAction action) {
+        vh.mChevronView.setVisibility(action.hasNext() ? View.VISIBLE : View.GONE);
+        vh.mChevronView.setAlpha(action.isEnabled() ? mEnabledChevronAlpha :
+                mDisabledChevronAlpha);
     }
 
     /*
@@ -555,8 +745,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      */
     @Override
     public void onImeAppearing(@NonNull List<Animator> animators) {
-        animators.add(createAnimator(mActionsGridView, R.attr.guidedStepImeAppearingAnimation));
-        animators.add(createAnimator(mSelectorView, R.attr.guidedStepImeAppearingAnimation));
+        animators.add(createAnimator(mContentView, R.attr.guidedStepImeAppearingAnimation));
     }
 
     /**
@@ -564,8 +753,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      */
     @Override
     public void onImeDisappearing(@NonNull List<Animator> animators) {
-        animators.add(createAnimator(mActionsGridView, R.attr.guidedStepImeDisappearingAnimation));
-        animators.add(createAnimator(mSelectorView, R.attr.guidedStepImeDisappearingAnimation));
+        animators.add(createAnimator(mContentView, R.attr.guidedStepImeDisappearingAnimation));
     }
 
     /*
@@ -573,15 +761,6 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      * Private methods
      * ==========================================
      */
-
-    private void updateSelectorView(View focusedChild) {
-        // Display the selector view.
-        int height = focusedChild.getHeight();
-        LayoutParams lp = mSelectorView.getLayoutParams();
-        lp.height = height;
-        mSelectorView.setLayoutParams(lp);
-        mSelectorView.setAlpha(1f);
-    }
 
     private float getFloat(Context ctx, TypedValue typedValue, int attrId) {
         ctx.getTheme().resolveAttribute(attrId, typedValue, true);
@@ -636,96 +815,43 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         return (int)(mDisplayHeight - 2*mVerticalPadding - 2*mTitleMaxLines*title.getLineHeight());
     }
 
-    /**
-     * SelectorAnimator
-     * Controls animation for selected item backgrounds
-     * TODO: Move into focus animation override?
-     */
-    private static class SelectorAnimator extends RecyclerView.OnScrollListener {
-
-        private final View mSelectorView;
-        private final ViewGroup mParentView;
-        private volatile boolean mFadedOut = true;
-
-        SelectorAnimator(View selectorView, ViewGroup parentView) {
-            mSelectorView = selectorView;
-            mParentView = parentView;
+    private void endSelectorAnimator() {
+        if (mSelectorAnimator != null) {
+            mSelectorAnimator.end();
+            mSelectorAnimator = null;
         }
+    }
 
-        // We want to fade in the selector if we've stopped scrolling on it. If
-        // we're scrolling, we want to ensure to dim the selector if we haven't
-        // already. We dim the last highlighted view so that while a user is
-        // scrolling, nothing is highlighted.
-        @Override
-        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-            Animator animator = null;
-            boolean fadingOut = false;
-            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                // The selector starts with a height of 0. In order to scale up from
-                // 0, we first need the set the height to 1 and scale from there.
-                View focusedChild = mParentView.getFocusedChild();
-                if (focusedChild != null) {
-                    int selectorHeight = mSelectorView.getHeight();
-                    float scaleY = (float) focusedChild.getHeight() / selectorHeight;
-                    AnimatorSet animators = (AnimatorSet)createAnimator(mSelectorView,
-                            R.attr.guidedActionsSelectorShowAnimation);
-                    if (mFadedOut) {
-                        // selector is completely faded out, so we can just scale before fading in.
-                        mSelectorView.setScaleY(scaleY);
-                        animator = animators.getChildAnimations().get(0);
-                    } else {
-                        // selector is not faded out, so we must animate the scale as we fade in.
-                        ((ObjectAnimator)animators.getChildAnimations().get(1))
-                                .setFloatValues(scaleY);
-                        animator = animators;
-                    }
-                }
+    private void updateSelectorView(boolean animate) {
+        if (mActionsGridView == null || mSelectorView == null || mSelectorView.getHeight() <= 0) {
+            return;
+        }
+        final View focusedChild = mActionsGridView.getFocusedChild();
+        endSelectorAnimator();
+        if (focusedChild == null || !mActionsGridView.hasFocus()
+                || mActionsGridView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE) {
+            if (animate) {
+                mSelectorAnimator = createAnimator(mSelectorView,
+                        R.attr.guidedActionsSelectorHideAnimation);
+                mSelectorAnimator.start();
             } else {
-                animator = createAnimator(mSelectorView, R.attr.guidedActionsSelectorHideAnimation);
-                fadingOut = true;
+                mSelectorView.setAlpha(0f);
             }
-            if (animator != null) {
-                animator.addListener(new Listener(fadingOut));
-                animator.start();
-            }
-        }
-
-        /**
-         * Sets {@link BaseScrollAdapterFragment#mFadedOut}
-         * {@link BaseScrollAdapterFragment#mFadedOut} is true, iff
-         * {@link BaseScrollAdapterFragment#mSelectorView} has an alpha of 0
-         * (faded out). If false the view either has an alpha of 1 (visible) or
-         * is in the process of animating.
-         */
-        private class Listener implements Animator.AnimatorListener {
-            private boolean mFadingOut;
-            private boolean mCanceled;
-
-            public Listener(boolean fadingOut) {
-                mFadingOut = fadingOut;
-            }
-
-            @Override
-            public void onAnimationStart(Animator animation) {
-                if (!mFadingOut) {
-                    mFadedOut = false;
-                }
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                if (!mCanceled && mFadingOut) {
-                    mFadedOut = true;
-                }
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-                mCanceled = true;
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
+        } else {
+            final float scaleY = (float) focusedChild.getHeight() / mSelectorView.getHeight();
+            Rect r = new Rect(0, 0, focusedChild.getWidth(), focusedChild.getHeight());
+            mMainView.offsetDescendantRectToMyCoords(focusedChild, r);
+            mMainView.offsetRectIntoDescendantCoords(mSelectorView, r);
+            mSelectorView.setTranslationY(r.exactCenterY() - mSelectorView.getHeight() * 0.5f);
+            if (animate) {
+                mSelectorAnimator = createAnimator(mSelectorView,
+                        R.attr.guidedActionsSelectorShowAnimation);
+                ((ObjectAnimator) ((AnimatorSet) mSelectorAnimator).getChildAnimations().get(1))
+                        .setFloatValues(scaleY);
+                mSelectorAnimator.start();
+            } else {
+                mSelectorView.setAlpha(1f);
+                mSelectorView.setScaleY(scaleY);
             }
         }
     }
