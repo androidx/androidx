@@ -538,8 +538,7 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
      *
      * @param colors
      */
-    @ColorInt
-    public void setColorSchemeColors(int... colors) {
+    public void setColorSchemeColors(@ColorInt int... colors) {
         ensureTarget();
         mProgress.setColorSchemeColors(colors);
     }
