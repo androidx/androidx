@@ -462,8 +462,8 @@ package android.support.v17.leanback.app {
     method protected final int getCurrentPageIndex();
     method public final int getLogoResourceId();
     method protected abstract int getPageCount();
-    method protected abstract java.lang.String getPageDescription(int);
-    method protected abstract java.lang.String getPageTitle(int);
+    method protected abstract java.lang.CharSequence getPageDescription(int);
+    method protected abstract java.lang.CharSequence getPageTitle(int);
     method protected abstract android.view.View onCreateBackgroundView(android.view.LayoutInflater, android.view.ViewGroup);
     method protected abstract android.view.View onCreateContentView(android.view.LayoutInflater, android.view.ViewGroup);
     method protected android.animation.Animator onCreateEnterAnimation();
