@@ -486,6 +486,9 @@ public class RowsFragment extends BaseRowFragment {
     }
 
     public boolean isScrolling() {
+        if (getVerticalGridView() == null) {
+            return false;
+        }
         return getVerticalGridView().getScrollState() != HorizontalGridView.SCROLL_STATE_IDLE;
     }
 
