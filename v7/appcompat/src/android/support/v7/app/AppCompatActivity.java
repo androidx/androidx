@@ -31,6 +31,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.view.KeyEventCompat;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.TintResources;
 import android.support.v7.widget.Toolbar;
@@ -515,7 +516,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
         if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
             final int action = event.getAction();
             if (action == KeyEvent.ACTION_DOWN) {
-                if (event.hasModifiers(KeyEvent.META_ALT_ON)) {
+                if (KeyEventCompat.hasModifiers(event, KeyEvent.META_ALT_ON)) {
                     final ActionBar actionBar = getSupportActionBar();
                     if (actionBar != null && actionBar.isShowing() && actionBar.requestFocus()) {
                         mEatKeyUpEvent = true;
