@@ -29,6 +29,7 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
+import static org.mockito.Mockito.*;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
@@ -69,5 +70,22 @@ public class DrawableCompatTest {
         // Now wrap and assert that the wrapper also returns a constant state
         final Drawable wrapper = DrawableCompat.wrap(drawable);
         assertNotNull(wrapper.getConstantState());
+    }
+
+    @Test
+    public void testWrappedDrawableHasCallbackSet() {
+        // First create a Drawable
+        final Drawable drawable = new GradientDrawable();
+
+        // Now wrap it and set a mock as the wrapper's callback
+        final Drawable wrapper = DrawableCompat.wrap(drawable);
+        final Drawable.Callback mockCallback = mock(Drawable.Callback.class);
+        wrapper.setCallback(mockCallback);
+
+        // Now make the wrapped drawable invalidate itself
+        drawable.invalidateSelf();
+
+        // ...and verify that the wrapper calls to be invalidated
+        verify(mockCallback, times(1)).invalidateDrawable(wrapper);
     }
 }
