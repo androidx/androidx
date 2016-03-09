@@ -222,39 +222,6 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         public abstract Fragment getFragment();
 
         /**
-         * Sets an item clicked listener on the fragment.
-         */
-        public void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
-        }
-
-        /**
-         * Sets an item selection listener.
-         */
-        public void setOnItemViewSelectedListener(OnItemViewSelectedListener listener) {
-        }
-
-        /**
-         * Selects a Row and perform an optional task on the Row.
-         */
-        public void setSelectedPosition(int rowPosition,
-                                 boolean smooth,
-                                 final Presenter.ViewHolderTask rowHolderTask) {
-        }
-
-        /**
-         * Selects a Row.
-         */
-        public void setSelectedPosition(int rowPosition, boolean smooth) {
-        }
-
-        /**
-         * Returns the selected position.
-         */
-        public int getSelectedPosition() {
-            return 0;
-        }
-
-        /**
          * Returns whether its scrolling.
          */
         public boolean isScrolling() {
@@ -265,12 +232,6 @@ public class BrowseSupportFragment extends BaseSupportFragment {
          * Set the visibility of titles/hovercard of browse rows.
          */
         public void setExpand(boolean expand) {
-        }
-
-        /**
-         * Set the visibility titles/hoverca of browse rows.
-         */
-        public void setAdapter(ObjectAdapter adapter) {
         }
 
         /**
@@ -318,48 +279,113 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         public void setScalingEnabled(boolean scalingEnabled) {
             this.mScalingEnabled = scalingEnabled;
         }
+
+        /**
+         * Returns the object responsible for communicating with any fragment containing
+         * list of rows e.g. {@link RowsSupportFragment}.
+         * When this method returns null, some of the callbacks would be skipped.
+         * For {@link PageRow}, this should return null as it doesn't have a list of items.
+         */
+        public MainFragmentRowsAdapter getRowsAdapter() {
+            return null;
+        }
     }
 
     /**
-     * Factory class for {@link BrowseSupportFragment.AbstractMainFragmentAdapter}. Developers can provide
-     * a custom implementation into {@link BrowseSupportFragment}. {@link BrowseSupportFragment} will use this
-     * factory to create fragments {@link BrowseSupportFragment.AbstractMainFragmentAdapter#getFragment()}
-     * to display on the main content section.
+     * This is used to pass information to {@link RowsSupportFragment}. {@link RowsSupportFragmentAdapter}
+     * would return an instance to connect the callbacks from {@link BrowseSupportFragment} to
+     * {@link RowsSupportFragment}.
      */
-    public static abstract class MainSupportFragmentAdapterFactory {
-        private BrowseSupportFragment.AbstractMainFragmentAdapter rowsFragmentAdapter;
-        private BrowseSupportFragment.AbstractMainFragmentAdapter pageFragmentAdapter;
+    public static class MainFragmentRowsAdapter {
+        /**
+         * Set the visibility titles/hover of browse rows.
+         */
+        public void setAdapter(ObjectAdapter adapter) {
+        }
 
-        public BrowseSupportFragment.AbstractMainFragmentAdapter getAdapter(
-                ObjectAdapter adapter, int position) {
-            if (adapter == null || adapter.size() == 0) {
-                return getRowsSupportFragmentAdapter();
-            }
+        /**
+         * Sets an item clicked listener on the fragment.
+         */
+        public void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
+        }
 
+        /**
+         * Sets an item selection listener.
+         */
+        public void setOnItemViewSelectedListener(OnItemViewSelectedListener listener) {
+        }
+
+        /**
+         * Selects a Row and perform an optional task on the Row.
+         */
+        public void setSelectedPosition(int rowPosition,
+                                        boolean smooth,
+                                        final Presenter.ViewHolderTask rowHolderTask) {
+        }
+
+        /**
+         * Selects a Row.
+         */
+        public void setSelectedPosition(int rowPosition, boolean smooth) {
+        }
+
+        /**
+         * Returns the selected position.
+         */
+        public int getSelectedPosition() {
+            return 0;
+        }
+    }
+
+    private boolean createMainFragment(ObjectAdapter adapter, int position) {
+        Object item = null;
+        if (adapter == null || adapter.size() == 0) {
+        } else {
             if (position < 0 || position > adapter.size()) {
                 throw new IllegalArgumentException(
                         String.format("Invalid position %d requested", position));
             }
-
-            Object item = adapter.get(position);
-            if (item instanceof PageRow) {
-                if (pageFragmentAdapter == null) {
-                    pageFragmentAdapter = getPageFragmentAdapter();
-                }
-                return pageFragmentAdapter;
-            } else {
-                return getRowsSupportFragmentAdapter();
-            }
+            item = adapter.get(position);
         }
+        AbstractMainFragmentAdapter oldAdapter = mMainFragmentAdapter;
+        boolean isPageRow = item instanceof PageRow;
 
-        private BrowseSupportFragment.AbstractMainFragmentAdapter getRowsSupportFragmentAdapter() {
+        if (isPageRow) {
+            mMainFragmentAdapter = mMainSupportFragmentAdapterFactory.getPageFragmentAdapter(
+                    adapter, position);
+        } else {
+            mMainFragmentAdapter = mMainSupportFragmentAdapterFactory.getRowsSupportFragmentAdapter();
+        }
+        mainFragmentRowsAdapter = isPageRow ? null : mMainFragmentAdapter.getRowsAdapter();
+        mMainFragment = mMainFragmentAdapter.getFragment();
+        return oldAdapter != mMainFragmentAdapter;
+    }
+
+    /**
+     * Factory class for {@link BrowseSupportFragment.AbstractMainFragmentAdapter}. Developers can
+     * override {@link MainSupportFragmentAdapterFactory#getPageFragmentAdapter(ObjectAdapter, int)}
+     * method to provide their instance of {@link AbstractMainFragmentAdapter}.
+     * {@link BrowseSupportFragment} will use this factory to create fragments using
+     * {@link BrowseSupportFragment.AbstractMainFragmentAdapter#getFragment()} to display on
+     * the main content section.
+     */
+    public static class MainSupportFragmentAdapterFactory {
+        private RowsSupportFragmentAdapter rowsFragmentAdapter;
+
+        private final RowsSupportFragmentAdapter getRowsSupportFragmentAdapter() {
             if (rowsFragmentAdapter == null) {
                 rowsFragmentAdapter = new RowsSupportFragmentAdapter();
             }
             return rowsFragmentAdapter;
         }
 
-        public abstract BrowseSupportFragment.AbstractMainFragmentAdapter getPageFragmentAdapter();
+        /**
+         * Override this method to return an instance of {@link AbstractMainFragmentAdapter}.
+         */
+        public AbstractMainFragmentAdapter getPageFragmentAdapter(
+                ObjectAdapter adapter, int position) {
+            return null;
+        }
     }
 
     private static final String TAG = "BrowseSupportFragment";
@@ -378,16 +404,11 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     public static final int HEADERS_DISABLED = 3;
 
     private MainSupportFragmentAdapterFactory mMainSupportFragmentAdapterFactory
-            = new MainSupportFragmentAdapterFactory() {
-        @Override
-        public BrowseSupportFragment.AbstractMainFragmentAdapter getPageFragmentAdapter() {
-            return null;
-        }
-    };
-
+            = new MainSupportFragmentAdapterFactory();
     private AbstractMainFragmentAdapter mMainFragmentAdapter;
     private Fragment mMainFragment;
     private HeadersSupportFragment mHeadersSupportFragment;
+    private MainFragmentRowsAdapter mainFragmentRowsAdapter;
 
     private ObjectAdapter mAdapter;
 
@@ -483,7 +504,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     public void setAdapter(ObjectAdapter adapter) {
         mAdapter = adapter;
         if (mMainFragment != null) {
-            mMainFragmentAdapter.setAdapter(adapter);
+            mainFragmentRowsAdapter.setAdapter(adapter);
             mHeadersSupportFragment.setAdapter(adapter);
         }
     }
@@ -543,7 +564,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     public void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
         mOnItemViewClickedListener = listener;
         if (mMainFragmentAdapter != null) {
-            mMainFragmentAdapter.setOnItemViewClickedListener(listener);
+            mainFragmentRowsAdapter.setOnItemViewClickedListener(listener);
         }
     }
 
@@ -792,9 +813,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             Bundle savedInstanceState) {
         if (getChildFragmentManager().findFragmentById(R.id.scale_frame) == null) {
             mHeadersSupportFragment = new HeadersSupportFragment();
-            mMainFragmentAdapter = mMainSupportFragmentAdapterFactory.getAdapter(
-                    mAdapter, mSelectedPosition);
-            mMainFragment = mMainFragmentAdapter.getFragment();
+            createMainFragment(mAdapter, mSelectedPosition);
             getChildFragmentManager().beginTransaction()
                     .replace(R.id.browse_headers_dock, mHeadersSupportFragment)
                     .replace(R.id.scale_frame, mMainFragment)
@@ -854,9 +873,11 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     }
 
     private void setupMainFragment() {
-        mMainFragmentAdapter.setAdapter(mAdapter);
-        mMainFragmentAdapter.setOnItemViewSelectedListener(mRowViewSelectedListener);
-        mMainFragmentAdapter.setOnItemViewClickedListener(mOnItemViewClickedListener);
+        if (mainFragmentRowsAdapter != null) {
+            mainFragmentRowsAdapter.setAdapter(mAdapter);
+            mainFragmentRowsAdapter.setOnItemViewSelectedListener(mRowViewSelectedListener);
+            mainFragmentRowsAdapter.setOnItemViewClickedListener(mOnItemViewClickedListener);
+        }
     }
 
     private void createHeadersTransition() {
@@ -994,17 +1015,15 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         }
 
         mHeadersSupportFragment.setSelectedPosition(position, smooth);
-        AbstractMainFragmentAdapter newFragmentAdapter = mMainSupportFragmentAdapterFactory.getAdapter(
-                mAdapter, position);
 
-        if (mMainFragmentAdapter != newFragmentAdapter) {
-            mMainFragmentAdapter = newFragmentAdapter;
-            mMainFragment = mMainFragmentAdapter.getFragment();
+        if (createMainFragment(mAdapter, position)) {
             swapBrowseContent(mMainFragment);
             expandMainFragment(!(mCanShowHeaders && mShowingHeaders));
             setupMainFragment();
         }
-        mMainFragmentAdapter.setSelectedPosition(position, smooth);
+        if (mainFragmentRowsAdapter != null) {
+            mainFragmentRowsAdapter.setSelectedPosition(position, smooth);
+        }
         mSelectedPosition = position;
     }
 
@@ -1055,7 +1074,9 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         if (rowHolderTask != null) {
             startHeadersTransition(false);
         }
-        mMainFragmentAdapter.setSelectedPosition(rowPosition, smooth, rowHolderTask);
+        if (mainFragmentRowsAdapter != null) {
+            mainFragmentRowsAdapter.setSelectedPosition(rowPosition, smooth, rowHolderTask);
+        }
     }
 
     @Override
@@ -1252,7 +1273,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
 
         @Override
         public boolean onPreDraw() {
-            if (mView == null) {
+            if (mainFragmentAdapter.getFragment().getView() == null) {
                 mView.getViewTreeObserver().removeOnPreDrawListener(this);
                 return true;
             }

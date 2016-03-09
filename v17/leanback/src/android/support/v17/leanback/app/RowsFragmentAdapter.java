@@ -25,41 +25,23 @@ import android.support.v17.leanback.widget.Presenter;
  * render individual rows.
  */
 public class RowsFragmentAdapter extends BrowseFragment.AbstractMainFragmentAdapter {
-    private RowsFragment mFragment = new RowsFragment();
+    private RowsFragment mFragment;
 
     public RowsFragmentAdapter() {
         setScalingEnabled(true);
     }
 
+    protected Fragment createFragment() {
+        return new RowsFragment();
+    }
+
     @Override
     public Fragment getFragment() {
+        if (mFragment == null) {
+            mFragment = (RowsFragment) createFragment();
+        }
+
         return mFragment;
-    }
-
-    @Override
-    public void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
-        mFragment.setOnItemViewClickedListener(listener);
-    }
-
-    @Override
-    public void setOnItemViewSelectedListener(OnItemViewSelectedListener listener) {
-        mFragment.setOnItemViewSelectedListener(listener);
-    }
-
-    @Override
-    public void setSelectedPosition(
-            int rowPosition, boolean smooth, Presenter.ViewHolderTask rowHolderTask) {
-        mFragment.setSelectedPosition(rowPosition, smooth, rowHolderTask);
-    }
-
-    @Override
-    public void setSelectedPosition(int rowPosition, boolean smooth) {
-        mFragment.setSelectedPosition(rowPosition, smooth);
-    }
-
-    @Override
-    public int getSelectedPosition() {
-        return mFragment.getSelectedPosition();
     }
 
     @Override
@@ -70,11 +52,6 @@ public class RowsFragmentAdapter extends BrowseFragment.AbstractMainFragmentAdap
     @Override
     public void setExpand(boolean expand) {
         mFragment.setExpand(expand);
-    }
-
-    @Override
-    public void setAdapter(ObjectAdapter adapter) {
-        mFragment.setAdapter(adapter);
     }
 
     @Override
@@ -101,4 +78,42 @@ public class RowsFragmentAdapter extends BrowseFragment.AbstractMainFragmentAdap
     public void onTransitionEnd() {
         mFragment.onTransitionEnd();
     }
+
+    @Override
+    public BrowseFragment.MainFragmentRowsAdapter getRowsAdapter() {
+        return mMainFragmentRowsAdapter;
+    }
+
+    BrowseFragment.MainFragmentRowsAdapter mMainFragmentRowsAdapter
+            = new BrowseFragment.MainFragmentRowsAdapter() {
+        public void setAdapter(ObjectAdapter adapter) {
+            mFragment.setAdapter(adapter);
+        }
+
+        /**
+         * Sets an item clicked listener on the fragment.
+         */
+        public void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
+            mFragment.setOnItemViewClickedListener(listener);
+        }
+
+        public void setOnItemViewSelectedListener(OnItemViewSelectedListener listener) {
+            mFragment.setOnItemViewSelectedListener(listener);
+        }
+
+        public void setSelectedPosition(int rowPosition,
+                                        boolean smooth,
+                                        final Presenter.ViewHolderTask rowHolderTask) {
+            mFragment.setSelectedPosition(rowPosition, smooth, rowHolderTask);
+        }
+
+
+        public void setSelectedPosition(int rowPosition, boolean smooth) {
+            mFragment.setSelectedPosition(rowPosition, smooth);
+        }
+
+        public int getSelectedPosition() {
+            return mFragment.getSelectedPosition();
+        }
+    };
 }
