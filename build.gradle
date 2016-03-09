@@ -1,3 +1,6 @@
+import com.android.build.gradle.internal.coverage.JacocoReportTask
+import com.android.build.gradle.internal.tasks.DeviceProviderInstrumentTestTask
+
 buildscript {
     repositories {
         maven { url '../../prebuilts/gradle-plugin' }
@@ -183,6 +186,9 @@ subprojects {
     project.plugins.whenPluginAdded { plugin ->
         if ("com.android.build.gradle.LibraryPlugin".equals(plugin.class.name)) {
             project.android.buildToolsVersion = rootProject.buildToolsVersion
+            // enable code coverage for debug builds
+            // run createDebugCoverageReport to get the coverage
+            project.android.buildTypes.debug.testCoverageEnabled = true
         }
     }
 
@@ -199,6 +205,26 @@ subprojects {
                         into(rootProject.ext.testApkDistOut)
                     }
                 }
+            }
+        }
+    }
+
+    project.afterEvaluate { p ->
+        // remove dependency on the test so that we still get coverage even if some tests fail
+        p.tasks.findAll { it instanceof JacocoReportTask}.each { task ->
+            def toBeRemoved = new ArrayList()
+            def dependencyList = task.taskDependencies.values
+            dependencyList.each { dep ->
+                if (dep instanceof String) {
+                    def t = tasks.findByName(dep)
+                    if (t instanceof DeviceProviderInstrumentTestTask) {
+                        toBeRemoved.add(dep)
+                        task.mustRunAfter(t)
+                    }
+                }
+            }
+            toBeRemoved.each { dep ->
+                dependencyList.remove(dep)
             }
         }
     }
