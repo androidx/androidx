@@ -122,6 +122,13 @@ public class LayoutInflaterFactoryTestCase
 
     @Test
     @SmallTest
+    public void testRadioButtonInflationWithVectorButton() throws Throwable {
+        testAppCompatWidgetInflation(R.layout.layout_radiobutton_vector,
+                AppCompatRadioButton.class);
+    }
+
+    @Test
+    @SmallTest
     public void testCheckBoxInflation() throws Throwable {
         testAppCompatWidgetInflation(R.layout.layout_checkbox, AppCompatCheckBox.class);
     }
