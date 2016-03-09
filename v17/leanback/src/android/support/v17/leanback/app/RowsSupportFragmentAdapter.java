@@ -27,41 +27,23 @@ import android.support.v17.leanback.widget.Presenter;
  * render individual rows.
  */
 public class RowsSupportFragmentAdapter extends BrowseSupportFragment.AbstractMainFragmentAdapter {
-    private RowsSupportFragment mFragment = new RowsSupportFragment();
+    private RowsSupportFragment mFragment;
 
     public RowsSupportFragmentAdapter() {
         setScalingEnabled(true);
     }
 
+    protected Fragment createFragment() {
+        return new RowsSupportFragment();
+    }
+
     @Override
     public Fragment getFragment() {
+        if (mFragment == null) {
+            mFragment = (RowsSupportFragment) createFragment();
+        }
+
         return mFragment;
-    }
-
-    @Override
-    public void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
-        mFragment.setOnItemViewClickedListener(listener);
-    }
-
-    @Override
-    public void setOnItemViewSelectedListener(OnItemViewSelectedListener listener) {
-        mFragment.setOnItemViewSelectedListener(listener);
-    }
-
-    @Override
-    public void setSelectedPosition(
-            int rowPosition, boolean smooth, Presenter.ViewHolderTask rowHolderTask) {
-        mFragment.setSelectedPosition(rowPosition, smooth, rowHolderTask);
-    }
-
-    @Override
-    public void setSelectedPosition(int rowPosition, boolean smooth) {
-        mFragment.setSelectedPosition(rowPosition, smooth);
-    }
-
-    @Override
-    public int getSelectedPosition() {
-        return mFragment.getSelectedPosition();
     }
 
     @Override
@@ -72,11 +54,6 @@ public class RowsSupportFragmentAdapter extends BrowseSupportFragment.AbstractMa
     @Override
     public void setExpand(boolean expand) {
         mFragment.setExpand(expand);
-    }
-
-    @Override
-    public void setAdapter(ObjectAdapter adapter) {
-        mFragment.setAdapter(adapter);
     }
 
     @Override
@@ -103,4 +80,42 @@ public class RowsSupportFragmentAdapter extends BrowseSupportFragment.AbstractMa
     public void onTransitionEnd() {
         mFragment.onTransitionEnd();
     }
+
+    @Override
+    public BrowseSupportFragment.MainFragmentRowsAdapter getRowsAdapter() {
+        return mMainFragmentRowsAdapter;
+    }
+
+    BrowseSupportFragment.MainFragmentRowsAdapter mMainFragmentRowsAdapter
+            = new BrowseSupportFragment.MainFragmentRowsAdapter() {
+        public void setAdapter(ObjectAdapter adapter) {
+            mFragment.setAdapter(adapter);
+        }
+
+        /**
+         * Sets an item clicked listener on the fragment.
+         */
+        public void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
+            mFragment.setOnItemViewClickedListener(listener);
+        }
+
+        public void setOnItemViewSelectedListener(OnItemViewSelectedListener listener) {
+            mFragment.setOnItemViewSelectedListener(listener);
+        }
+
+        public void setSelectedPosition(int rowPosition,
+                                        boolean smooth,
+                                        final Presenter.ViewHolderTask rowHolderTask) {
+            mFragment.setSelectedPosition(rowPosition, smooth, rowHolderTask);
+        }
+
+
+        public void setSelectedPosition(int rowPosition, boolean smooth) {
+            mFragment.setSelectedPosition(rowPosition, smooth);
+        }
+
+        public int getSelectedPosition() {
+            return mFragment.getSelectedPosition();
+        }
+    };
 }
