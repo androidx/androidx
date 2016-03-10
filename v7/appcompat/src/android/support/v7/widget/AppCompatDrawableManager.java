@@ -29,6 +29,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Drawable.ConstantState;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
+import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -485,9 +486,10 @@ public final class AppCompatDrawableManager {
                 tint = createSwitchTrackColorStateList(context);
             } else if (resId == R.drawable.abc_switch_thumb_material) {
                 tint = createSwitchThumbColorStateList(context);
-            } else if (resId == R.drawable.abc_btn_default_mtrl_shape
-                    || resId == R.drawable.abc_btn_borderless_material) {
+            } else if (resId == R.drawable.abc_btn_default_mtrl_shape) {
                 tint = createDefaultButtonColorStateList(context);
+            } else if (resId == R.drawable.abc_btn_borderless_material) {
+                tint = createBorderlessButtonColorStateList(context);
             } else if (resId == R.drawable.abc_btn_colored_material) {
                 tint = createColoredButtonColorStateList(context);
             } else if (resId == R.drawable.abc_spinner_mtrl_am_alpha
@@ -690,19 +692,23 @@ public final class AppCompatDrawableManager {
     }
 
     private ColorStateList createDefaultButtonColorStateList(Context context) {
-        return createButtonColorStateList(context, R.attr.colorButtonNormal);
+        return createButtonColorStateList(context,
+                getThemeAttrColor(context, R.attr.colorButtonNormal));
+    }
+
+    private ColorStateList createBorderlessButtonColorStateList(Context context) {
+        return createButtonColorStateList(context, Color.TRANSPARENT);
     }
 
     private ColorStateList createColoredButtonColorStateList(Context context) {
-        return createButtonColorStateList(context, R.attr.colorAccent);
+        return createButtonColorStateList(context, getThemeAttrColor(context, R.attr.colorAccent));
     }
 
-    private ColorStateList createButtonColorStateList(Context context, int baseColorAttr) {
+    private ColorStateList createButtonColorStateList(Context context, @ColorInt int baseColor) {
         final int[][] states = new int[4][];
         final int[] colors = new int[4];
         int i = 0;
 
-        final int baseColor = getThemeAttrColor(context, baseColorAttr);
         final int colorControlHighlight = getThemeAttrColor(context, R.attr.colorControlHighlight);
 
         // Disabled state
