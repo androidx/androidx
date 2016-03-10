@@ -743,7 +743,7 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
 
     @Override
     public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {
-        return isEnabled() && canChildScrollUp() && !mReturningToStart && !mRefreshing
+        return isEnabled() && !mReturningToStart && !mRefreshing
                 && (nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0;
     }
 
@@ -768,7 +768,6 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
             } else {
                 mTotalUnconsumed -= dy;
                 consumed[1] = dy;
-
             }
             moveSpinner(mTotalUnconsumed);
         }
@@ -822,7 +821,7 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         // 'offset in window 'functionality to see if we have been moved from the event.
         // This is a decent indication of whether we should take over the event stream or not.
         final int dy = dyUnconsumed + mParentOffsetInWindow[1];
-        if (dy < 0) {
+        if (dy < 0 && !canChildScrollUp()) {
             mTotalUnconsumed += Math.abs(dy);
             moveSpinner(mTotalUnconsumed);
         }
