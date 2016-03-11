@@ -24,7 +24,7 @@
     <application>
         <uses-library android:name="android.test.runner"/>
         <activity android:name="android.support.v7.widget.test.RecyclerViewTestActivity"/>
-        <activity android:name="android.support.v7.widget.TestActivity"/>
+        <activity android:name="android.support.v7.widget.TestActivity" android:theme="@style/noAnimTheme"/>
     </application>
 
     <instrumentation android:name="android.test.InstrumentationTestRunner"

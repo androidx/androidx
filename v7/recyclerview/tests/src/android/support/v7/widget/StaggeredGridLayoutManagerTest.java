@@ -265,13 +265,15 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                 mRecyclerView.getChildCount() - 1);
         RecyclerView.ViewHolder lastViewHolder = mRecyclerView.getChildViewHolder(lastChild);
         View subChildToFocus = lastChild.getChildAt(0);
-        requestFocus(subChildToFocus);
+        requestFocus(subChildToFocus, true);
         assertThat("test sanity", subChildToFocus.isFocused(), CoreMatchers.is(true));
         focusSearch(subChildToFocus, View.FOCUS_FORWARD);
+        waitForIdleScroll(mRecyclerView);
         checkForMainThreadException();
         View focusedChild = mRecyclerView.getFocusedChild();
         if (focusedChild == subChildToFocus.getParent()) {
             focusSearch(focusedChild, View.FOCUS_FORWARD);
+            waitForIdleScroll(mRecyclerView);
             focusedChild = mRecyclerView.getFocusedChild();
         }
         RecyclerView.ViewHolder containingViewHolder = mRecyclerView.findContainingViewHolder(
@@ -336,8 +338,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         mAdapter.mFullSpanItems.add(23);
         waitFirstLayout();
         View viewToFocus = mRecyclerView.findViewHolderForAdapterPosition(1).itemView;
-        assertTrue(requestFocus(viewToFocus));
-        getInstrumentation().waitForIdleSync();
+        assertTrue(requestFocus(viewToFocus, true));
         assertSame(viewToFocus, mRecyclerView.getFocusedChild());
         int pos = 1;
         View focusedView = viewToFocus;
@@ -355,6 +356,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         }
         // now move right
         focusSearch(focusedView, View.FOCUS_RIGHT);
+        waitForIdleScroll(mRecyclerView);
         focusedView = mRecyclerView.getFocusedChild();
         assertEquals(25, mRecyclerView.getChildViewHolder(focusedView).getAdapterPosition());
         for (int i : new int[]{28, 30}) {
@@ -366,10 +368,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
 
     private void focusSearchAndWaitForScroll(View focused, int dir) throws Throwable {
         focusSearch(focused, dir);
-        getInstrumentation().waitForIdleSync();
-        while (mRecyclerView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE) {
-            Thread.sleep(100);
-        }
+        waitForIdleScroll(mRecyclerView);
     }
 
 

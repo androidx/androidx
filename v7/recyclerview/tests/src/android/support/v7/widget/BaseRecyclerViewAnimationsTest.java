@@ -35,7 +35,7 @@ import static org.junit.Assert.*;
  */
 public class BaseRecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentationTest {
 
-    protected static final boolean DEBUG = true;
+    protected static final boolean DEBUG = false;
 
     protected static final String TAG = "RecyclerViewAnimationsTest";
 

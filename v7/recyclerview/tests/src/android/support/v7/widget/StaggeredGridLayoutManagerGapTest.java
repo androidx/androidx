@@ -66,8 +66,6 @@ public class StaggeredGridLayoutManagerGapTest extends BaseStaggeredGridLayoutMa
         if (mConfig.mItemCount < 100) {
             mConfig.itemCount(100);
         }
-        final String logPrefix = mConfig + ", deletePos:" + mDeletePosition + ", deleteCount:"
-                + mDeleteCount;
         setupByConfig(mConfig);
         final RecyclerView.Adapter adapter = mAdapter;
         waitFirstLayout();
@@ -75,7 +73,7 @@ public class StaggeredGridLayoutManagerGapTest extends BaseStaggeredGridLayoutMa
         smoothScrollToPosition(mConfig.mItemCount / 2);
         checkForMainThreadException();
         // assert to be deleted child is not visible
-        assertNull(logPrefix + " test sanity, to be deleted child should be invisible",
+        assertNull(" test sanity, to be deleted child should be invisible",
                 mRecyclerView.findViewHolderForLayoutPosition(mDeletePosition));
         // delete the child and notify
         mAdapter.deleteAndNotify(mDeletePosition, mDeleteCount);
@@ -88,11 +86,11 @@ public class StaggeredGridLayoutManagerGapTest extends BaseStaggeredGridLayoutMa
         // smooth scrolling to stop. Triggering it twice more is a naive hack.
         // Until we have time to consider it as a bug, this is the only workaround.
         smoothScrollToPosition(0);
-        checkForMainThreadException();
-        Thread.sleep(300);
-        smoothScrollToPosition(0);
-        checkForMainThreadException();
         Thread.sleep(500);
+        checkForMainThreadException();
+        smoothScrollToPosition(0);
+        Thread.sleep(500);
+        checkForMainThreadException();
         // some animations should happen and we should recover layout
         final Map<Item, Rect> actualCoords = mLayoutManager.collectChildCoordinates();
 
@@ -102,7 +100,7 @@ public class StaggeredGridLayoutManagerGapTest extends BaseStaggeredGridLayoutMa
         mRecyclerView.setAdapter(adapter);// use same adapter so that items can be matched
         waitFirstLayout();
         final Map<Item, Rect> desiredCoords = mLayoutManager.collectChildCoordinates();
-        assertRectSetsEqual(logPrefix + " when an item from the start of the list is deleted, "
+        assertRectSetsEqual(" when an item from the start of the list is deleted, "
                         + "layout should recover the state once scrolling is stopped",
                 desiredCoords, actualCoords);
         checkForMainThreadException();

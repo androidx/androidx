@@ -175,8 +175,14 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         assertNotNull("test sanity", postInfo);
         assertTrue(mAnimator.animateChangeList.isEmpty());
         assertEquals(2, mAnimator.animateDisappearanceList.size());
-        assertEquals(new AnimateDisappearance(target, pre, postInfo),
-                mAnimator.animateDisappearanceList.get(1));
+        try {
+            assertEquals(new AnimateDisappearance(target, pre, postInfo),
+                    mAnimator.animateDisappearanceList.get(0));
+        } catch (Throwable t) {
+            assertEquals(new AnimateDisappearance(target, pre, postInfo),
+                    mAnimator.animateDisappearanceList.get(1));
+        }
+
     }
 
     @Test

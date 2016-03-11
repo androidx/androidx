@@ -211,12 +211,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
                 - mLayoutManager.findFirstVisibleItemPosition()) / 2;
         final RecyclerView.ViewHolder vh = mRecyclerView.findViewHolderForLayoutPosition(center);
         final int top = mLayoutManager.mOrientationHelper.getDecoratedStart(vh.itemView);
-        runTestOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                vh.itemView.requestFocus();
-            }
-        });
+        requestFocus(vh.itemView, true);
         assertTrue("view should have the focus", vh.itemView.hasFocus());
         // add a bunch of items right before that view, make sure it keeps its position
         mLayoutManager.expectLayouts(2);
@@ -280,16 +275,8 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
         int endMargin = helper.getEndAfterPadding() -
                 helper.getDecoratedEnd(vh.itemView);
         Log.d(TAG, "initial start margin " + startMargin + " , end margin:" + endMargin);
-        requestFocus(vh.itemView);
-        runTestOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                assertTrue("view should gain the focus", vh.itemView.hasFocus());
-            }
-        });
-        do {
-            Thread.sleep(100);
-        } while (mRecyclerView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE);
+        requestFocus(vh.itemView, true);
+        assertTrue("view should gain the focus", vh.itemView.hasFocus());
         // scroll enough to offset the child
         startMargin = helper.getDecoratedStart(vh.itemView) -
                 helper.getStartAfterPadding();
