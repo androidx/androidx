@@ -89,7 +89,7 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
 
     public ToolbarWidgetWrapper(Toolbar toolbar, boolean style) {
         this(toolbar, style, R.string.abc_action_bar_up_description,
-                R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+                R.drawable.abc_ic_ab_back_material);
     }
 
     public ToolbarWidgetWrapper(Toolbar toolbar, boolean style,

@@ -114,18 +114,6 @@ public final class AppCompatDrawableManager {
      */
     private static final int[] TINT_COLOR_CONTROL_NORMAL = {
             R.drawable.abc_ic_commit_search_api_mtrl_alpha,
-            R.drawable.abc_ic_ab_back_mtrl_am_alpha,
-            R.drawable.abc_ic_go_search_api_mtrl_alpha,
-            R.drawable.abc_ic_search_api_mtrl_alpha,
-            R.drawable.abc_ic_commit_search_api_mtrl_alpha,
-            R.drawable.abc_ic_clear_mtrl_alpha,
-            R.drawable.abc_ic_menu_share_mtrl_alpha,
-            R.drawable.abc_ic_menu_copy_mtrl_am_alpha,
-            R.drawable.abc_ic_menu_cut_mtrl_alpha,
-            R.drawable.abc_ic_menu_selectall_mtrl_alpha,
-            R.drawable.abc_ic_menu_paste_mtrl_am_alpha,
-            R.drawable.abc_ic_menu_moreoverflow_mtrl_alpha,
-            R.drawable.abc_ic_voice_search_api_mtrl_alpha,
             R.drawable.abc_seekbar_tick_mark_material
     };
 
@@ -187,6 +175,8 @@ public final class AppCompatDrawableManager {
 
     public Drawable getDrawable(@NonNull Context context, @DrawableRes int resId,
             boolean failIfNotKnown) {
+        checkVectorDrawableSetup(context);
+
         Drawable drawable = loadDrawableFromDelegates(context, resId);
         if (drawable == null) {
             drawable = ContextCompat.getDrawable(context, resId);
@@ -639,6 +629,23 @@ public final class AppCompatDrawableManager {
             d = d.mutate();
         }
         d.setColorFilter(getPorterDuffColorFilter(color, mode == null ? DEFAULT_MODE : mode));
+    }
+
+    private void checkVectorDrawableSetup(@NonNull Context context) {
+        if (!mHasCheckedVectorDrawableSetup) {
+            // We've already checked so return now...
+            return;
+        }
+        // Here we will check that a known Vector drawable resource inside AppCompat can be
+        // correctly decoded. We use one that will almost definitely be used in the future to
+        // negate any wasted work
+        final Drawable d = getDrawable(context, R.drawable.abc_ic_ab_back_material);
+        if (d != null && isVectorDrawable(d)) {
+            mHasCheckedVectorDrawableSetup = true;
+        } else {
+            throw new IllegalStateException("This app has been built with an incorrect "
+                    + "configuration. Please configure your build for VectorDrawableCompat.");
+        }
     }
 
     private static boolean isVectorDrawable(@NonNull Drawable d) {
