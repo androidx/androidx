@@ -28,7 +28,9 @@
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
     <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
 
-    <application android:supportsRtl="true">
+    <application
+            android:supportsRtl="true"
+            android:theme="@style/TestActivityTheme">
         <uses-library android:name="android.test.runner" />
         <activity android:name="android.support.v4.widget.TextViewTestActivity"/>
 

@@ -34,6 +34,8 @@ import static org.junit.Assert.assertTrue;
 @MediumTest
 public class ViewPropertyAnimatorCompatTest extends BaseInstrumentationTestCase<VpaActivity> {
 
+    private static final int WAIT_TIMEOUT_MS = 200;
+
     private View mView;
     private int mNumListenerCalls = 0;
 
@@ -80,9 +82,7 @@ public class ViewPropertyAnimatorCompatTest extends BaseInstrumentationTestCase<
             }
         });
         assertTrue(latch2.await(200, TimeUnit.MILLISECONDS));
-        // Now sleep to allow second listener callback to happen, if it will
-        Thread.sleep(200);
-        assertEquals(1, mNumListenerCalls);
+        waitAndCheckCallCount(1);
     }
 
     @Test
@@ -118,8 +118,15 @@ public class ViewPropertyAnimatorCompatTest extends BaseInstrumentationTestCase<
             }
         });
         assertTrue(latch2.await(200, TimeUnit.MILLISECONDS));
-        // Now sleep to allow second listener callback to happen, if it will
-        Thread.sleep(200);
-        assertEquals(1, mNumListenerCalls);
+        waitAndCheckCallCount(1);
+    }
+
+    void waitAndCheckCallCount(final int count) throws InterruptedException {
+        int timeLeft = WAIT_TIMEOUT_MS;
+        while (mNumListenerCalls != count) {
+            Thread.sleep(20);
+            timeLeft -= 20;
+            assertTrue(timeLeft > 0);
+        }
     }
 }
