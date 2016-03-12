@@ -28,7 +28,7 @@ include $(BUILD_SHARED_LIBRARY)
 include $(CLEAR_VARS)
 
 LOCAL_CLANG := true
-LOCAL_SDK_VERSION := 8
+LOCAL_SDK_VERSION := 9
 
 LOCAL_SRC_FILES:= \
     android_renderscript_RenderScript.cpp
