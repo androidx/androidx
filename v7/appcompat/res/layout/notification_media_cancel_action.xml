@@ -24,6 +24,6 @@
     android:layout_marginLeft="2dp"
     android:layout_marginRight="2dp"
     android:layout_weight="1"
-    android:src="@drawable/abc_ic_clear_mtrl_alpha"
+    android:src="@android:drawable/ic_menu_close_clear_cancel"
     android:gravity="center"
     android:visibility="gone"/>
