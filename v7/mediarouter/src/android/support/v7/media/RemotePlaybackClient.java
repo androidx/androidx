@@ -43,16 +43,16 @@ public class RemotePlaybackClient {
     private final ActionReceiver mActionReceiver;
     private final PendingIntent mItemStatusPendingIntent;
     private final PendingIntent mSessionStatusPendingIntent;
-    private final PendingIntent mCustomMessagePendingIntent;
+    private final PendingIntent mMessagePendingIntent;
 
     private boolean mRouteSupportsRemotePlayback;
     private boolean mRouteSupportsQueuing;
     private boolean mRouteSupportsSessionManagement;
-    private boolean mRouteSupportsCustomMessage;
+    private boolean mRouteSupportsMessaging;
 
     private String mSessionId;
     private StatusCallback mStatusCallback;
-    private CustomMessageCallback mCustomMessageCallback;
+    private MessageCallback mMessageCallback;
 
     /**
      * Creates a remote playback client for a route.
@@ -73,7 +73,7 @@ public class RemotePlaybackClient {
         IntentFilter actionFilter = new IntentFilter();
         actionFilter.addAction(ActionReceiver.ACTION_ITEM_STATUS_CHANGED);
         actionFilter.addAction(ActionReceiver.ACTION_SESSION_STATUS_CHANGED);
-        actionFilter.addAction(ActionReceiver.ACTION_CUSTOM_MESSAGE_RECEIVED);
+        actionFilter.addAction(ActionReceiver.ACTION_MESSAGE_RECEIVED);
         mActionReceiver = new ActionReceiver();
         context.registerReceiver(mActionReceiver, actionFilter);
 
@@ -87,10 +87,10 @@ public class RemotePlaybackClient {
         mSessionStatusPendingIntent = PendingIntent.getBroadcast(
                 context, 0, sessionStatusIntent, 0);
 
-        Intent customMessageIntent = new Intent(ActionReceiver.ACTION_CUSTOM_MESSAGE_RECEIVED);
-        customMessageIntent.setPackage(context.getPackageName());
-        mCustomMessagePendingIntent = PendingIntent.getBroadcast(
-                context, 0, customMessageIntent, 0);
+        Intent messageIntent = new Intent(ActionReceiver.ACTION_MESSAGE_RECEIVED);
+        messageIntent.setPackage(context.getPackageName());
+        mMessagePendingIntent = PendingIntent.getBroadcast(
+                context, 0, messageIntent, 0);
         detectFeatures();
     }
 
@@ -166,12 +166,12 @@ public class RemotePlaybackClient {
     }
 
     /**
-     * Returns true if the route supports custom messages.
+     * Returns true if the route supports messages.
      * <p>
      * This method returns true if the route supports all of the basic remote playback
      * actions and all of the following actions:
      * {@link MediaControlIntent#ACTION_START_SESSION start session},
-     * {@link MediaControlIntent#ACTION_SEND_CUSTOM_MESSAGE send custom message},
+     * {@link MediaControlIntent#ACTION_SEND_MESSAGE send message},
      * {@link MediaControlIntent#ACTION_END_SESSION end session}.
      * </p>
      *
@@ -180,8 +180,8 @@ public class RemotePlaybackClient {
      *
      * @see #isRemotePlaybackSupported
      */
-    public boolean isCustomMessageSupported() {
-        return mRouteSupportsCustomMessage;
+    public boolean isMessagingSupported() {
+        return mRouteSupportsMessaging;
     }
 
     /**
@@ -244,7 +244,7 @@ public class RemotePlaybackClient {
     }
 
     /**
-     * Sets a callback that should receive custom messages when a message is sent from
+     * Sets a callback that should receive messages when a message is sent from
      * media sessions created by this instance of the remote playback client changes.
      * <p>
      * The callback should be set before the session is created.
@@ -252,8 +252,8 @@ public class RemotePlaybackClient {
      *
      * @param callback The callback to set.  May be null to remove the previous callback.
      */
-    public void setCustomMessageCallback(CustomMessageCallback callback) {
-        mCustomMessageCallback = callback;
+    public void setMessageCallback(MessageCallback callback) {
+        mMessageCallback = callback;
     }
 
     /**
@@ -558,19 +558,18 @@ public class RemotePlaybackClient {
         Intent intent = new Intent(MediaControlIntent.ACTION_START_SESSION);
         intent.putExtra(MediaControlIntent.EXTRA_SESSION_STATUS_UPDATE_RECEIVER,
                 mSessionStatusPendingIntent);
-        if (mRouteSupportsCustomMessage) {
-            intent.putExtra(MediaControlIntent.EXTRA_CUSTOM_MESSAGE_RECEIVER,
-                    mCustomMessagePendingIntent);
+        if (mRouteSupportsMessaging) {
+            intent.putExtra(MediaControlIntent.EXTRA_MESSAGE_RECEIVER, mMessagePendingIntent);
         }
         performSessionAction(intent, null, extras, callback);
     }
 
     /**
-     * Sends a custom message.
+     * Sends a message.
      * <p>
      * The request is issued in the current session.
      * </p><p>
-     * Please refer to {@link MediaControlIntent#ACTION_SEND_CUSTOM_MESSAGE} for
+     * Please refer to {@link MediaControlIntent#ACTION_SEND_MESSAGE} for
      * more information about the semantics of this request.
      * </p>
      *
@@ -578,16 +577,16 @@ public class RemotePlaybackClient {
      * @param callback A callback to invoke when the request has been processed, or null if none.
      *
      * @throws IllegalStateException if there is no current session.
-     * @throws UnsupportedOperationException if the route does not support custom messages.
+     * @throws UnsupportedOperationException if the route does not support messages.
      *
-     * @see MediaControlIntent#ACTION_SEND_CUSTOM_MESSAGE
-     * @see #isCustomMessageSupported
+     * @see MediaControlIntent#ACTION_SEND_MESSAGE
+     * @see #isMessagingSupported
      */
-    public void sendCustomMessage(Bundle message, SessionActionCallback callback) {
+    public void sendMessage(Bundle message, SessionActionCallback callback) {
         throwIfNoCurrentSession();
-        throwIfCustomMessageNotSupported();
+        throwIfMessageNotSupported();
 
-        Intent intent = new Intent(MediaControlIntent.ACTION_SEND_CUSTOM_MESSAGE);
+        Intent intent = new Intent(MediaControlIntent.ACTION_SEND_MESSAGE);
         performSessionAction(intent, mSessionId, message, callback);
     }
 
@@ -794,25 +793,17 @@ public class RemotePlaybackClient {
                 && routeSupportsAction(MediaControlIntent.ACTION_START_SESSION)
                 && routeSupportsAction(MediaControlIntent.ACTION_GET_SESSION_STATUS)
                 && routeSupportsAction(MediaControlIntent.ACTION_END_SESSION);
-        mRouteSupportsCustomMessage = routeSupportsSendCustomMessage();
+        mRouteSupportsMessaging = doesRouteSupportMessaging();
     }
 
     private boolean routeSupportsAction(String action) {
         return mRoute.supportsControlAction(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK, action);
     }
 
-    private boolean routeSupportsSendCustomMessage() {
+    private boolean doesRouteSupportMessaging() {
         for (IntentFilter filter : mRoute.getControlFilters()) {
-            if (filter.hasAction(MediaControlIntent.ACTION_SEND_CUSTOM_MESSAGE)) {
-                Iterator<String> it = filter.categoriesIterator();
-                if (it == null) {
-                    continue;
-                }
-                while (it.hasNext()) {
-                    if (it.next().startsWith(MediaControlIntent.CUSTOM_CATEGORY_PREFIX)) {
-                        return true;
-                    }
-                }
+            if (filter.hasAction(MediaControlIntent.ACTION_SEND_MESSAGE)) {
+                return true;
             }
         }
         return false;
@@ -837,10 +828,9 @@ public class RemotePlaybackClient {
         }
     }
 
-    private void throwIfCustomMessageNotSupported() {
-        if (!mRouteSupportsCustomMessage) {
-            throw new UnsupportedOperationException("The route does not support "
-                    + "custom message.");
+    private void throwIfMessageNotSupported() {
+        if (!mRouteSupportsMessaging) {
+            throw new UnsupportedOperationException("The route does not support message.");
         }
     }
 
@@ -882,8 +872,8 @@ public class RemotePlaybackClient {
                 "android.support.v7.media.actions.ACTION_ITEM_STATUS_CHANGED";
         public static final String ACTION_SESSION_STATUS_CHANGED =
                 "android.support.v7.media.actions.ACTION_SESSION_STATUS_CHANGED";
-        public static final String ACTION_CUSTOM_MESSAGE_RECEIVED =
-                "android.support.v7.media.actions.ACTION_CUSTOM_MESSAGE_RECEIVED";
+        public static final String ACTION_MESSAGE_RECEIVED =
+                "android.support.v7.media.actions.ACTION_MESSAGE_RECEIVED";
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -938,14 +928,14 @@ public class RemotePlaybackClient {
                     mStatusCallback.onSessionStatusChanged(intent.getExtras(),
                             sessionId, sessionStatus);
                 }
-            } else if (action.equals(ACTION_CUSTOM_MESSAGE_RECEIVED)) {
+            } else if (action.equals(ACTION_MESSAGE_RECEIVED)) {
                 if (DEBUG) {
-                    Log.d(TAG, "Received custom message callback: sessionId=" + sessionId);
+                    Log.d(TAG, "Received message callback: sessionId=" + sessionId);
                 }
 
-                if (mCustomMessageCallback != null) {
-                    mCustomMessageCallback.onMessageReceived(sessionId,
-                            intent.getBundleExtra(MediaControlIntent.EXTRA_CUSTOM_MESSAGE));
+                if (mMessageCallback != null) {
+                    mMessageCallback.onMessageReceived(sessionId,
+                            intent.getBundleExtra(MediaControlIntent.EXTRA_MESSAGE));
                 }
             }
         }
@@ -989,12 +979,12 @@ public class RemotePlaybackClient {
         }
     }
 
-    public static abstract class CustomMessageCallback {
+    public static abstract class MessageCallback {
         /**
-         * Called when a custom message received.
+         * Called when a message received.
          *
          * @param sessionId The session id.
-         * @param message A bundle message denoting {@link MediaControlIntent#EXTRA_CUSTOM_MESSAGE}.
+         * @param message A bundle message denoting {@link MediaControlIntent#EXTRA_MESSAGE}.
          */
         public void onMessageReceived(String sessionId, Bundle message) {
         }
