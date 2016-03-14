@@ -360,6 +360,9 @@ public class DatePicker extends Picker {
         boolean allLargerDateFieldsHaveBeenEqualToMaxDate = true;
         for(int i = DATE_FIELDS.length - 1; i >= 0; i--) {
             boolean dateFieldChanged = false;
+            if (dateFieldIndices[i] < 0)
+                continue;
+
             int currField = DATE_FIELDS[i];
             PickerColumn currPickerColumn = getColumnAt(dateFieldIndices[i]);
 
