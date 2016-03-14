@@ -155,6 +155,9 @@ public class LeanbackListPreferenceDialogFragment extends LeanbackPreferenceDial
         @Override
         public void onItemClick(ViewHolder viewHolder) {
             final int index = viewHolder.getAdapterPosition();
+            if (index == RecyclerView.NO_POSITION) {
+                return;
+            }
             final CharSequence entry = mEntryValues[index];
             final ListPreference preference = (ListPreference) getPreference();
             if (index >= 0) {
@@ -207,6 +210,9 @@ public class LeanbackListPreferenceDialogFragment extends LeanbackPreferenceDial
         @Override
         public void onItemClick(ViewHolder viewHolder) {
             final int index = viewHolder.getAdapterPosition();
+            if (index == RecyclerView.NO_POSITION) {
+                return;
+            }
             final String entry = mEntryValues[index].toString();
             if (mSelections.contains(entry)) {
                 mSelections.remove(entry);
