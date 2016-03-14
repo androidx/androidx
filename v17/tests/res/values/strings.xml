@@ -26,6 +26,16 @@
         was focused</string>
     <string name="subaction_test_wrong_click_error_message">The wrong action or sub-action
         was clicked</string>
+    <string name="datepicker_test_wrong_day_value">The date picker day field shows incorrect value
+    </string>
+    <string name="datepicker_test_wrong_month_value">The date picker month field shows incorrect value
+    </string>
+    <string name="datepicker_test_wrong_year_value">The date picker year field shows incorrect value
+    </string>
+    <string name="datepicker_test_transition_error1">The last day for month %d is incorrect</string>
+    <string name="datepicker_test_transition_error2" formatted="false">
+        Day %d is outside the valid range for month %d</string>
+    <string name="datepicker_with_range_title" formatted="false">Date Picker\nMin: %s\nMax: %s</string>
     <string name="info_action_very_long_title">Super-long title%d: This is the beginning
         of one type of a very long
         title. Make sure that you set multilineDescription flag on for these actions.
