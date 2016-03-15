@@ -22,6 +22,7 @@ import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.HorizontalGridView;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.ListRowPresenter;
+import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.Presenter;
@@ -47,7 +48,20 @@ import java.util.ArrayList;
  * of {@link android.support.v17.leanback.widget.Row}.
  * </p>
  */
-public class RowsSupportFragment extends BaseRowSupportFragment {
+public class RowsSupportFragment extends BaseRowSupportFragment implements Adaptable {
+
+    final MainFragmentAdapter mMainFragmentAdapter = new MainFragmentAdapter(this);
+    final MainFragmentRowsAdapter mMainFragmentRowsAdapter = new MainFragmentRowsAdapter(this);
+
+    @Override
+    public Object getAdapter(Class clazz) {
+        if (clazz == BrowseSupportFragment.MainFragmentAdapter.class) {
+            return mMainFragmentAdapter;
+        } else if (clazz == BrowseSupportFragment.MainFragmentRowsAdapter.class) {
+            return mMainFragmentRowsAdapter;
+        }
+        return null;
+    }
 
     /**
      * Internal helper class that manages row select animation and apply a default
@@ -509,6 +523,93 @@ public class RowsSupportFragment extends BaseRowSupportFragment {
             gridView.setWindowAlignmentOffsetPercent(
                     VerticalGridView.WINDOW_ALIGN_OFFSET_PERCENT_DISABLED);
             gridView.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_NO_EDGE);
+        }
+    }
+
+    public static class MainFragmentAdapter extends BrowseSupportFragment.MainFragmentAdapter<RowsSupportFragment> {
+
+        public MainFragmentAdapter(RowsSupportFragment fragment) {
+            super(fragment);
+            setScalingEnabled(true);
+        }
+
+        @Override
+        public boolean isScrolling() {
+            return getFragment().isScrolling();
+        }
+
+        @Override
+        public void setExpand(boolean expand) {
+            getFragment().setExpand(expand);
+        }
+
+        @Override
+        public void setEntranceTransitionState(boolean state) {
+            getFragment().setEntranceTransitionState(state);
+        }
+
+        @Override
+        public void setAlignment(int windowAlignOffsetFromTop) {
+            getFragment().setAlignment(windowAlignOffsetFromTop);
+        }
+
+        @Override
+        public boolean onTransitionPrepare() {
+            return getFragment().onTransitionPrepare();
+        }
+
+        @Override
+        public void onTransitionStart() {
+            getFragment().onTransitionStart();
+        }
+
+        @Override
+        public void onTransitionEnd() {
+            getFragment().onTransitionEnd();
+        }
+
+    }
+
+    public static class MainFragmentRowsAdapter
+            extends BrowseSupportFragment.MainFragmentRowsAdapter<RowsSupportFragment> {
+
+        public MainFragmentRowsAdapter(RowsSupportFragment fragment) {
+            super(fragment);
+        }
+
+        @Override
+        public void setAdapter(ObjectAdapter adapter) {
+            getFragment().setAdapter(adapter);
+        }
+
+        /**
+         * Sets an item clicked listener on the fragment.
+         */
+        @Override
+        public void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
+            getFragment().setOnItemViewClickedListener(listener);
+        }
+
+        @Override
+        public void setOnItemViewSelectedListener(OnItemViewSelectedListener listener) {
+            getFragment().setOnItemViewSelectedListener(listener);
+        }
+
+        @Override
+        public void setSelectedPosition(int rowPosition,
+                                        boolean smooth,
+                                        final Presenter.ViewHolderTask rowHolderTask) {
+            getFragment().setSelectedPosition(rowPosition, smooth, rowHolderTask);
+        }
+
+        @Override
+        public void setSelectedPosition(int rowPosition, boolean smooth) {
+            getFragment().setSelectedPosition(rowPosition, smooth);
+        }
+
+        @Override
+        public int getSelectedPosition() {
+            return getFragment().getSelectedPosition();
         }
     }
 }
