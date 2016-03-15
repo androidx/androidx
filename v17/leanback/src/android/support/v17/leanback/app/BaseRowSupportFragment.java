@@ -33,7 +33,6 @@ import android.view.ViewGroup;
  * An internal base class for a fragment containing a list of rows.
  */
 abstract class BaseRowSupportFragment extends Fragment {
-    private static final String CURRENT_SELECTED_POSITION = "currentSelectedPosition";
     private ObjectAdapter mAdapter;
     private VerticalGridView mVerticalGridView;
     private PresenterSelector mPresenterSelector;
@@ -74,9 +73,6 @@ abstract class BaseRowSupportFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            mSelectedPosition = savedInstanceState.getInt(CURRENT_SELECTED_POSITION, -1);
-        }
         if (mBridgeAdapter != null) {
             mVerticalGridView.setAdapter(mBridgeAdapter);
             if (mSelectedPosition != -1) {
@@ -90,12 +86,6 @@ abstract class BaseRowSupportFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         mVerticalGridView = null;
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt(CURRENT_SELECTED_POSITION, mSelectedPosition);
     }
 
     /**
