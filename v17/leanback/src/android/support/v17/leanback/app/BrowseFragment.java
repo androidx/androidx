@@ -46,6 +46,9 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.view.ViewTreeObserver;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 /**
@@ -76,6 +79,8 @@ public class BrowseFragment extends BaseFragment {
     static final String HEADER_STACK_INDEX = "headerStackIndex";
     // BUNDLE attribute for saving header show/hide status when backstack is not used:
     static final String HEADER_SHOW = "headerShow";
+    private static final String IS_PAGE_ROW = "isPageRow";
+    private static final String CURRENT_SELECTED_POSITION = "currentSelectedPosition";
 
     final class BackStackListener implements FragmentManager.OnBackStackChangedListener {
         int mLastEntryCount;
@@ -195,29 +200,40 @@ public class BrowseFragment extends BaseFragment {
 
     /**
      * Interface that defines the interaction between {@link BrowseFragment} and it's main
-     * content fragment. The key method is {@link AbstractMainFragmentAdapter#getFragment()},
+     * content fragment. The key method is {@link MainFragmentAdapter#getFragment()},
      * it will be used to get the fragment to be shown in the content section. Clients can
      * provide any implementation of fragment and customize it's interaction with
      * {@link BrowseFragment} by overriding the necessary methods.
      *
      * <p>
      * Clients are expected to provide
-     * an instance of {@link MainFragmentAdapterFactory} which will be responsible for providing
-     * implementations of {@link AbstractMainFragmentAdapter} for given content types. Currently
+     * an instance of {@link MainFragmentAdapterRegistry} which will be responsible for providing
+     * implementations of {@link MainFragmentAdapter} for given content types. Currently
      * we support different types of content - {@link ListRow}, {@link PageRow} or any subtype
      * of {@link Row}. We provide an out of the box adapter implementation for any rows other than
-     * {@link PageRow} - {@link RowsFragmentAdapter}.
+     * {@link PageRow} - {@link android.support.v17.leanback.app.RowsFragment.MainFragmentAdapter}.
      *
      * <p>
      * {@link PageRow} is intended to give full flexibility to developers in terms of Fragment
-     * design. Users will have to provide an implementation of {@link AbstractMainFragmentAdapter}
-     * and provide that through {@link MainFragmentAdapterFactory}.
-     * {@link AbstractMainFragmentAdapter} implementation can supply any fragment and override
+     * design. Users will have to provide an implementation of {@link MainFragmentAdapter}
+     * and provide that through {@link MainFragmentAdapterRegistry}.
+     * {@link MainFragmentAdapter} implementation can supply any fragment and override
      * just those interactions that makes sense.
      */
-    public static abstract class AbstractMainFragmentAdapter {
+    public static class MainFragmentAdapter<T extends Fragment> {
         private boolean mScalingEnabled;
-        public abstract Fragment getFragment();
+        private final T mFragment;
+
+        public MainFragmentAdapter(T fragment) {
+            if (fragment == null) {
+                throw new IllegalArgumentException("Fragment can't be null");
+            }
+            this.mFragment = fragment;
+        }
+
+        public final T getFragment() {
+            return mFragment;
+        }
 
         /**
          * Returns whether its scrolling.
@@ -277,24 +293,27 @@ public class BrowseFragment extends BaseFragment {
         public void setScalingEnabled(boolean scalingEnabled) {
             this.mScalingEnabled = scalingEnabled;
         }
-
-        /**
-         * Returns the object responsible for communicating with any fragment containing
-         * list of rows e.g. {@link RowsFragment}.
-         * When this method returns null, some of the callbacks would be skipped.
-         * For {@link PageRow}, this should return null as it doesn't have a list of items.
-         */
-        public MainFragmentRowsAdapter getRowsAdapter() {
-            return null;
-        }
     }
 
     /**
-     * This is used to pass information to {@link RowsFragment}. {@link RowsFragmentAdapter}
+     * This is used to pass information to {@link RowsFragment}.
+     * {@link android.support.v17.leanback.app.RowsFragment.MainFragmentAdapter}
      * would return an instance to connect the callbacks from {@link BrowseFragment} to
      * {@link RowsFragment}.
      */
-    public static class MainFragmentRowsAdapter {
+    public static class MainFragmentRowsAdapter<T extends Fragment> {
+        private final T mFragment;
+
+        public MainFragmentRowsAdapter(T fragment) {
+            if (fragment == null) {
+                throw new IllegalArgumentException("Fragment can't be null");
+            }
+            this.mFragment = fragment;
+        }
+
+        public final T getFragment() {
+            return mFragment;
+        }
         /**
          * Set the visibility titles/hover of browse rows.
          */
@@ -338,6 +357,7 @@ public class BrowseFragment extends BaseFragment {
     private boolean createMainFragment(ObjectAdapter adapter, int position) {
         Object item = null;
         if (adapter == null || adapter.size() == 0) {
+            return false;
         } else {
             if (position < 0 || position > adapter.size()) {
                 throw new IllegalArgumentException(
@@ -345,44 +365,75 @@ public class BrowseFragment extends BaseFragment {
             }
             item = adapter.get(position);
         }
-        AbstractMainFragmentAdapter oldAdapter = mMainFragmentAdapter;
-        boolean isPageRow = item instanceof PageRow;
 
-        if (isPageRow) {
-            mMainFragmentAdapter = mMainFragmentAdapterFactory.getPageFragmentAdapter(
-                    adapter, position);
+        boolean oldIsPageRow = mIsPageRow;
+        mIsPageRow = item instanceof PageRow;
+        boolean swap;
+
+        if (mMainFragment == null) {
+            swap = true;
         } else {
-            mMainFragmentAdapter = mMainFragmentAdapterFactory.getRowsFragmentAdapter();
+            if (oldIsPageRow) {
+                swap = true;
+            } else {
+                swap = mIsPageRow;
+            }
         }
-        mainFragmentRowsAdapter = isPageRow ? null : mMainFragmentAdapter.getRowsAdapter();
-        mMainFragment = mMainFragmentAdapter.getFragment();
-        return oldAdapter != mMainFragmentAdapter;
+
+        if (swap) {
+            mMainFragment = mMainFragmentAdapterRegistry.createFragment(item);
+            mMainFragmentAdapter = (MainFragmentAdapter) ((Adaptable)mMainFragment)
+                    .getAdapter(MainFragmentAdapter.class);
+            if (!mIsPageRow) {
+                mMainFragmentRowsAdapter = (MainFragmentRowsAdapter) ((Adaptable)mMainFragment)
+                        .getAdapter(MainFragmentRowsAdapter.class);
+                mIsPageRow = mMainFragmentRowsAdapter == null;
+            } else {
+                mMainFragmentRowsAdapter = null;
+            }
+        }
+        return swap;
     }
 
     /**
-     * Factory class for {@link BrowseFragment.AbstractMainFragmentAdapter}. Developers can
-     * override {@link MainFragmentAdapterFactory#getPageFragmentAdapter(ObjectAdapter, int)}
-     * method to provide their instance of {@link AbstractMainFragmentAdapter}.
-     * {@link BrowseFragment} will use this factory to create fragments using
-     * {@link BrowseFragment.AbstractMainFragmentAdapter#getFragment()} to display on
-     * the main content section.
+     * Factory class responsible for creating fragment given the current item. {@link ListRow}
+     * should returns {@link RowsFragment} or it's subclass whereas {@link PageRow}
+     * can return any fragment class.
      */
-    public static class MainFragmentAdapterFactory {
-        private RowsFragmentAdapter rowsFragmentAdapter;
+    public abstract static class FragmentFactory<T extends Fragment> {
+        public abstract T createFragment(Object row);
+    }
 
-        private final RowsFragmentAdapter getRowsFragmentAdapter() {
-            if (rowsFragmentAdapter == null) {
-                rowsFragmentAdapter = new RowsFragmentAdapter();
-            }
-            return rowsFragmentAdapter;
+    /**
+     * FragmentFactory implementation for {@link ListRow}.
+     */
+    public static class ListRowFragmentFactory extends FragmentFactory<RowsFragment> {
+        @Override
+        public RowsFragment createFragment(Object row) {
+            return new RowsFragment();
+        }
+    }
+
+    /**
+     * Registry class maintaining the mapping of {@link Row} subclasses to {@link FragmentFactory}.
+     * BrowseRowFragment automatically registers {@link ListRowFragmentFactory} for
+     * handling {@link ListRow}. Developers can override that and also if they want to
+     * use custom fragment, they can register a custom {@link FragmentFactory}
+     * against {@link PageRow}.
+     */
+    public final static class MainFragmentAdapterRegistry {
+        private Map<Class, FragmentFactory> itemToFragmentFactoryMapping = new HashMap();
+
+        public void registerFragment(Class rowClass, FragmentFactory factory) {
+            itemToFragmentFactoryMapping.put(rowClass, factory);
         }
 
-        /**
-         * Override this method to return an instance of {@link AbstractMainFragmentAdapter}.
-         */
-        public AbstractMainFragmentAdapter getPageFragmentAdapter(
-                ObjectAdapter adapter, int position) {
-            return null;
+        public Fragment createFragment(Object item) {
+            if (item == null) {
+                throw new IllegalArgumentException("Item can't be null");
+            }
+
+            return itemToFragmentFactoryMapping.get(item.getClass()).createFragment(item);
         }
     }
 
@@ -401,12 +452,12 @@ public class BrowseFragment extends BaseFragment {
     /** The headers fragment is disabled and will never be shown. */
     public static final int HEADERS_DISABLED = 3;
 
-    private MainFragmentAdapterFactory mMainFragmentAdapterFactory
-            = new MainFragmentAdapterFactory();
-    private AbstractMainFragmentAdapter mMainFragmentAdapter;
+    private MainFragmentAdapterRegistry mMainFragmentAdapterRegistry
+            = new MainFragmentAdapterRegistry();
+    private MainFragmentAdapter mMainFragmentAdapter;
     private Fragment mMainFragment;
     private HeadersFragment mHeadersFragment;
-    private MainFragmentRowsAdapter mainFragmentRowsAdapter;
+    private MainFragmentRowsAdapter mMainFragmentRowsAdapter;
 
     private ObjectAdapter mAdapter;
 
@@ -427,6 +478,7 @@ public class BrowseFragment extends BaseFragment {
     private OnItemViewClickedListener mOnItemViewClickedListener;
     private int mSelectedPosition = 0;
     private float mScaleFactor;
+    private boolean mIsPageRow;
 
     private PresenterSelector mHeaderPresenterSelector;
     private final SetSelectionRunnable mSetSelectionRunnable = new SetSelectionRunnable();
@@ -502,14 +554,15 @@ public class BrowseFragment extends BaseFragment {
     public void setAdapter(ObjectAdapter adapter) {
         mAdapter = adapter;
         if (mMainFragment != null) {
-            mainFragmentRowsAdapter.setAdapter(adapter);
+            mMainFragmentRowsAdapter.setAdapter(adapter);
             mHeadersFragment.setAdapter(adapter);
         }
     }
 
-    public void setMainFragmentAdapterFactory(MainFragmentAdapterFactory factory) {
-        this.mMainFragmentAdapterFactory = factory;
+    public final MainFragmentAdapterRegistry getMainFragmentRegistry() {
+        return mMainFragmentAdapterRegistry;
     }
+
     /**
      * Returns the adapter containing the rows for the fragment.
      */
@@ -562,7 +615,7 @@ public class BrowseFragment extends BaseFragment {
     public void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
         mOnItemViewClickedListener = listener;
         if (mMainFragmentAdapter != null) {
-            mainFragmentRowsAdapter.setOnItemViewClickedListener(listener);
+            mMainFragmentRowsAdapter.setOnItemViewClickedListener(listener);
         }
     }
 
@@ -629,7 +682,7 @@ public class BrowseFragment extends BaseFragment {
     /**
      * Enables scaling of main fragment when headers are present. For the page/row fragment,
      * scaling is enabled only when both this method and
-     * {@link AbstractMainFragmentAdapter#isScalingEnabled()} are enabled.
+     * {@link MainFragmentAdapter#isScalingEnabled()} are enabled.
      *
      * @param enable true to enable row scaling
      */
@@ -761,6 +814,9 @@ public class BrowseFragment extends BaseFragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putInt(CURRENT_SELECTED_POSITION, mSelectedPosition);
+        outState.putBoolean(IS_PAGE_ROW, mIsPageRow);
+
         if (mBackStackChangedListener != null) {
             mBackStackChangedListener.save(outState);
         } else {
@@ -782,6 +838,8 @@ public class BrowseFragment extends BaseFragment {
 
         readArguments(getArguments());
 
+        mMainFragmentAdapterRegistry.registerFragment(ListRow.class, new ListRowFragmentFactory());
+
         if (mCanShowHeaders) {
             if (mHeadersBackStackEnabled) {
                 mWithHeadersBackStackName = LB_HEADERS_BACKSTACK + this;
@@ -796,6 +854,15 @@ public class BrowseFragment extends BaseFragment {
         }
 
         mScaleFactor = getResources().getFraction(R.fraction.lb_browse_rows_scale, 1, 1);
+    }
+
+    @Override
+    public void onDestroyView() {
+        mMainFragmentRowsAdapter = null;
+        mMainFragmentAdapter = null;
+        mMainFragment = null;
+        mHeadersFragment = null;
+        super.onDestroyView();
     }
 
     @Override
@@ -818,9 +885,22 @@ public class BrowseFragment extends BaseFragment {
                     .commit();
         } else {
             mHeadersFragment = (HeadersFragment) getChildFragmentManager()
-                    .findFragmentById(R.id.scale_frame);
-            mMainFragment = getChildFragmentManager()
-                    .findFragmentById(R.id.browse_container_dock);
+                    .findFragmentById(R.id.browse_headers_dock);
+            mMainFragment = getChildFragmentManager().findFragmentById(R.id.scale_frame);
+            mMainFragmentAdapter = (MainFragmentAdapter) ((Adaptable)mMainFragment)
+                    .getAdapter(MainFragmentAdapter.class);
+
+            mIsPageRow = savedInstanceState != null ?
+                    savedInstanceState.getBoolean(IS_PAGE_ROW, false) : false;
+
+            mSelectedPosition = savedInstanceState != null ?
+                    savedInstanceState.getInt(CURRENT_SELECTED_POSITION, 0) : 0;
+            if (!mIsPageRow) {
+                mMainFragmentRowsAdapter = (MainFragmentRowsAdapter) ((Adaptable) mMainFragment)
+                        .getAdapter(MainFragmentRowsAdapter.class);
+            } else {
+                mMainFragmentRowsAdapter = null;
+            }
         }
 
         mHeadersFragment.setHeadersGone(!mCanShowHeaders);
@@ -871,10 +951,10 @@ public class BrowseFragment extends BaseFragment {
     }
 
     private void setupMainFragment() {
-        if (mainFragmentRowsAdapter != null) {
-            mainFragmentRowsAdapter.setAdapter(mAdapter);
-            mainFragmentRowsAdapter.setOnItemViewSelectedListener(mRowViewSelectedListener);
-            mainFragmentRowsAdapter.setOnItemViewClickedListener(mOnItemViewClickedListener);
+        if (mMainFragmentRowsAdapter != null) {
+            mMainFragmentRowsAdapter.setAdapter(mAdapter);
+            mMainFragmentRowsAdapter.setOnItemViewSelectedListener(mRowViewSelectedListener);
+            mMainFragmentRowsAdapter.setOnItemViewClickedListener(mOnItemViewClickedListener);
         }
     }
 
@@ -1019,8 +1099,8 @@ public class BrowseFragment extends BaseFragment {
             expandMainFragment(!(mCanShowHeaders && mShowingHeaders));
             setupMainFragment();
         }
-        if (mainFragmentRowsAdapter != null) {
-            mainFragmentRowsAdapter.setSelectedPosition(position, smooth);
+        if (mMainFragmentRowsAdapter != null) {
+            mMainFragmentRowsAdapter.setSelectedPosition(position, smooth);
         }
         mSelectedPosition = position;
     }
@@ -1066,14 +1146,14 @@ public class BrowseFragment extends BaseFragment {
      */
     public void setSelectedPosition(int rowPosition, boolean smooth,
             final Presenter.ViewHolderTask rowHolderTask) {
-        if (mMainFragmentAdapterFactory == null) {
+        if (mMainFragmentAdapterRegistry == null) {
             return;
         }
         if (rowHolderTask != null) {
             startHeadersTransition(false);
         }
-        if (mainFragmentRowsAdapter != null) {
-            mainFragmentRowsAdapter.setSelectedPosition(rowPosition, smooth, rowHolderTask);
+        if (mMainFragmentRowsAdapter != null) {
+            mMainFragmentRowsAdapter.setSelectedPosition(rowPosition, smooth, rowHolderTask);
         }
     }
 
@@ -1106,7 +1186,7 @@ public class BrowseFragment extends BaseFragment {
         }
         // Run a "pre" layout when we go non-expand, in order to get the initial
         // positions of added rows.
-        new ExpandPreLayout(callback, mMainFragmentAdapter).execute();
+        new ExpandPreLayout(callback, mMainFragmentAdapter, getView()).execute();
     }
 
     private void setMainFragmentAlignment() {
@@ -1251,14 +1331,14 @@ public class BrowseFragment extends BaseFragment {
         private final View mView;
         private final Runnable mCallback;
         private int mState;
-        private AbstractMainFragmentAdapter mainFragmentAdapter;
+        private MainFragmentAdapter mainFragmentAdapter;
 
         final static int STATE_INIT = 0;
         final static int STATE_FIRST_DRAW = 1;
         final static int STATE_SECOND_DRAW = 2;
 
-        ExpandPreLayout(Runnable callback, AbstractMainFragmentAdapter adapter) {
-            mView = adapter.getFragment().getView();
+        ExpandPreLayout(Runnable callback, MainFragmentAdapter adapter, View view) {
+            mView = view;
             mCallback = callback;
             mainFragmentAdapter = adapter;
         }
@@ -1271,10 +1351,6 @@ public class BrowseFragment extends BaseFragment {
 
         @Override
         public boolean onPreDraw() {
-            if (mainFragmentAdapter.getFragment().getView() == null) {
-                mView.getViewTreeObserver().removeOnPreDrawListener(this);
-                return true;
-            }
             if (mState == STATE_INIT) {
                 mainFragmentAdapter.setExpand(true);
                 mState = STATE_FIRST_DRAW;

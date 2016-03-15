@@ -39,7 +39,6 @@ for w in cls:
         line = line.replace('activity.getFragmentManager()', 'activity.getSupportFragmentManager()')
         line = line.replace('Activity activity', 'FragmentActivity activity')
         line = line.replace('(Activity', '(FragmentActivity')
-        line = line.replace('MainFragmentAdapterFactory', 'MainSupportFragmentAdapterFactory');
         outfile.write(line)
     file.close()
     outfile.close()
@@ -50,25 +49,6 @@ outfile.write("/* This file is auto-generated from PlaybackControlGlue.java.  DO
 for line in file:
     line = line.replace('PlaybackControlGlue', 'PlaybackControlSupportGlue');
     line = line.replace('PlaybackOverlayFragment', 'PlaybackOverlaySupportFragment');
-    outfile.write(line)
-file.close()
-outfile.close()
-
-file = open('src/android/support/v17/leanback/app/RowsFragmentAdapter.java', 'r')
-outfile = open('src/android/support/v17/leanback/app/RowsSupportFragmentAdapter.java', 'w')
-
-outfile.write("/* This file is auto-generated from MainFragmentAdapterFactory.java.  DO NOT MODIFY. */\n\n")
-
-for line in file:
-    line = line.replace('RowsFragment', 'RowsSupportFragment')
-    line = line.replace('BrowseFragment', 'BrowseSupportFragment');
-    line = line.replace('RowsFragmentAdapter', 'RowsSupportFragmentAdapter');
-    line = line.replace('MainFragmentAdapterFactory', 'MainSupportFragmentAdapterFactory');
-    line = line.replace('android.app.Fragment', 'android.support.v4.app.Fragment')
-    line = line.replace('android.app.Activity', 'android.support.v4.app.FragmentActivity')
-    line = line.replace('activity.getFragmentManager()', 'activity.getSupportFragmentManager()')
-    line = line.replace('Activity activity', 'FragmentActivity activity')
-    line = line.replace('(Activity', '(FragmentActivity')
     outfile.write(line)
 file.close()
 outfile.close()
