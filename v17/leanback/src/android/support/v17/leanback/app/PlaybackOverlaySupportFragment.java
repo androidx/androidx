@@ -23,7 +23,6 @@ import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.PlaybackControlsRow;
-import android.support.v17.leanback.widget.Row;
 import android.view.InputEvent;
 import android.view.animation.AccelerateInterpolator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
@@ -35,12 +34,14 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.animation.LogAccelerateInterpolator;
 import android.support.v17.leanback.animation.LogDecelerateInterpolator;
-import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.ObjectAdapter.DataObserver;
-import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v17.leanback.widget.PlaybackControlsRowPresenter;
+import android.support.v17.leanback.widget.Presenter;
+import android.support.v17.leanback.widget.PresenterSelector;
+import android.support.v17.leanback.widget.RowPresenter;
+import android.support.v17.leanback.widget.VerticalGridView;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -54,8 +55,8 @@ import java.util.ArrayList;
  * A fragment for displaying playback controls and related content.
  * <p>
  * A PlaybackOverlaySupportFragment renders the elements of its {@link ObjectAdapter} as a set
- * of rows in a vertical list. The elements in this adapter must be subclasses
- * of {@link Row}.
+ * of rows in a vertical list.  The Adapter's {@link PresenterSelector} must maintain subclasses
+ * of {@link RowPresenter}.
  * </p>
  * <p>
  * An instance of {@link android.support.v17.leanback.widget.PlaybackControlsRow} is expected to be

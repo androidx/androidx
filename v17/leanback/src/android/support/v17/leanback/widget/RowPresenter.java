@@ -19,7 +19,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 /**
- * An abstract {@link Presenter} that renders a {@link Row}.
+ * An abstract {@link Presenter} that renders an Object in RowsFragment, the object can be
+ * subclass {@link Row} or a generic one.  When the object is not {@link Row} class,
+ * {@link ViewHolder#getRow()} returns null.
  *
  * <h3>Customize UI widgets</h3>
  * When a subclass of RowPresenter adds UI widgets, it should subclass
@@ -143,6 +145,7 @@ public abstract class RowPresenter extends Presenter {
         ContainerViewHolder mContainerViewHolder;
         RowHeaderPresenter.ViewHolder mHeaderViewHolder;
         Row mRow;
+        Object mRowObject;
         int mActivated = ACTIVATED_NOT_ASSIGNED;
         boolean mSelected;
         boolean mExpanded;
@@ -150,8 +153,8 @@ public abstract class RowPresenter extends Presenter {
         float mSelectLevel = 0f; // initially unselected
         protected final ColorOverlayDimmer mColorDimmer;
         private View.OnKeyListener mOnKeyListener;
-        private OnItemViewSelectedListener mOnItemViewSelectedListener;
-        private OnItemViewClickedListener mOnItemViewClickedListener;
+        private BaseOnItemViewSelectedListener mOnItemViewSelectedListener;
+        private BaseOnItemViewClickedListener mOnItemViewClickedListener;
 
         /**
          * Constructor for ViewHolder.
@@ -164,10 +167,21 @@ public abstract class RowPresenter extends Presenter {
         }
 
         /**
-         * Returns the Row bound to the View in this ViewHolder.
+         * Returns the row bound to this ViewHolder. Returns null if the row is not an instance of
+         * {@link Row}.
+         * @return The row bound to this ViewHolder. Returns null if the row is not an instance of
+         * {@link Row}.
          */
         public final Row getRow() {
             return mRow;
+        }
+
+        /**
+         * Returns the Row object bound to this ViewHolder.
+         * @return The row object bound to this ViewHolder.
+         */
+        public final Object getRowObject() {
+            return mRowObject;
         }
 
         /**
@@ -249,14 +263,14 @@ public abstract class RowPresenter extends Presenter {
          * event with null item.  A subclass of RowPresenter e.g. {@link ListRowPresenter} may
          * fire a selection event with selected item.
          */
-        public final void setOnItemViewSelectedListener(OnItemViewSelectedListener listener) {
+        public final void setOnItemViewSelectedListener(BaseOnItemViewSelectedListener listener) {
             mOnItemViewSelectedListener = listener;
         }
 
         /**
          * Returns the listener for item or row selection.
          */
-        public final OnItemViewSelectedListener getOnItemViewSelectedListener() {
+        public final BaseOnItemViewSelectedListener getOnItemViewSelectedListener() {
             return mOnItemViewSelectedListener;
         }
 
@@ -266,14 +280,14 @@ public abstract class RowPresenter extends Presenter {
          * OnItemViewClickedListener will override {@link View.OnClickListener} that
          * item presenter sets during {@link Presenter#onCreateViewHolder(ViewGroup)}.
          */
-        public final void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
+        public final void setOnItemViewClickedListener(BaseOnItemViewClickedListener listener) {
             mOnItemViewClickedListener = listener;
         }
 
         /**
          * Returns the listener for item click event.
          */
-        public final OnItemViewClickedListener getOnItemViewClickedListener() {
+        public final BaseOnItemViewClickedListener getOnItemViewClickedListener() {
             return mOnItemViewClickedListener;
         }
     }
@@ -467,7 +481,7 @@ public abstract class RowPresenter extends Presenter {
     protected void dispatchItemSelectedListener(ViewHolder vh, boolean selected) {
         if (selected) {
             if (vh.mOnItemViewSelectedListener != null) {
-                vh.mOnItemViewSelectedListener.onItemSelected(null, null, vh, vh.getRow());
+                vh.mOnItemViewSelectedListener.onItemSelected(null, null, vh, vh.getRowObject());
             }
         }
     }
@@ -574,8 +588,9 @@ public abstract class RowPresenter extends Presenter {
      * Binds the given row object to the given ViewHolder.
      */
     protected void onBindRowViewHolder(ViewHolder vh, Object item) {
-        vh.mRow = (Row) item;
-        if (vh.mHeaderViewHolder != null) {
+        vh.mRowObject = item;
+        vh.mRow = item instanceof Row ? (Row) item : null;
+        if (vh.mHeaderViewHolder != null && vh.getRow() != null) {
             mHeaderPresenter.onBindViewHolder(vh.mHeaderViewHolder, item);
         }
     }
@@ -593,6 +608,7 @@ public abstract class RowPresenter extends Presenter {
             mHeaderPresenter.onUnbindViewHolder(vh.mHeaderViewHolder);
         }
         vh.mRow = null;
+        vh.mRowObject = null;
     }
 
     @Override

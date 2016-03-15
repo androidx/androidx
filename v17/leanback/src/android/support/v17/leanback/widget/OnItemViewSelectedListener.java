@@ -17,32 +17,7 @@ package android.support.v17.leanback.widget;
  * Interface for receiving notification when a row or item becomes selected. The concept of
  * current selection is different than focus.  A row or item can be selected without having focus;
  * for example, when a row header view gains focus then the corresponding row view becomes selected.
+ * This interface expects row object to be sub class of {@link Row}.
  */
-public interface OnItemViewSelectedListener {
-    /**
-     * Called when the a row or a new item becomes selected.
-     * <p>
-     * For a non {@link ListRow} case, parameter item may be null.  Event is fired when
-     * selection changes between rows, regardless if row view has focus or not.
-     * <p>
-     * For a {@link ListRow} case, parameter item is null if the list row is empty.
-     * </p>
-     * <p>
-     * In the case of a grid, the row parameter is always null.
-     * </p>
-     * <li>
-     * Row has focus: event is fired when focus changes between children of the row.
-     * </li>
-     * <li>
-     * No row has focus: the event is fired with the currently selected row and last
-     * focused item in the row.
-     * </li>
-     *
-     * @param itemViewHolder The view holder of the item that is currently selected.
-     * @param item The item that is currently selected.
-     * @param rowViewHolder The view holder of the row that is currently selected.
-     * @param row The row that is currently selected.
-     */
-    public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
-            RowPresenter.ViewHolder rowViewHolder, Row row);
+public interface OnItemViewSelectedListener extends BaseOnItemViewSelectedListener<Row> {
 }

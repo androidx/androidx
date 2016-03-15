@@ -14,11 +14,9 @@
 package android.support.v17.leanback.widget;
 
 /**
- * Interface for receiving notification when a item view holder is clicked.
+ * Interface for receiving notification when a item view holder is clicked.  This interface expects
+ * row object to be sub class of {@link Row}.
  */
-public interface OnItemViewClickedListener {
-
-    public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
-            RowPresenter.ViewHolder rowViewHolder, Row row);
+public interface OnItemViewClickedListener extends BaseOnItemViewClickedListener<Row> {
 
 }

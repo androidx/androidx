@@ -23,9 +23,12 @@ import android.support.v17.leanback.widget.HorizontalGridView;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.ObjectAdapter;
+import android.support.v17.leanback.widget.BaseOnItemViewClickedListener;
+import android.support.v17.leanback.widget.BaseOnItemViewSelectedListener;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.Presenter;
+import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v17.leanback.widget.ViewHolderTask;
@@ -44,8 +47,8 @@ import java.util.ArrayList;
  * <p>
  * A RowsSupportFragment renders the elements of its
  * {@link android.support.v17.leanback.widget.ObjectAdapter} as a set
- * of rows in a vertical list. The elements in this adapter must be subclasses
- * of {@link android.support.v17.leanback.widget.Row}.
+ * of rows in a vertical list. The Adapter's {@link PresenterSelector} must maintain subclasses
+ * of {@link RowPresenter}.
  * </p>
  */
 public class RowsSupportFragment extends BaseRowSupportFragment implements Adaptable {
@@ -132,8 +135,8 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements Adapt
     private int mAlignedTop;
     private boolean mAfterEntranceTransition = true;
 
-    private OnItemViewSelectedListener mOnItemViewSelectedListener;
-    private OnItemViewClickedListener mOnItemViewClickedListener;
+    private BaseOnItemViewSelectedListener mOnItemViewSelectedListener;
+    private BaseOnItemViewClickedListener mOnItemViewClickedListener;
 
     // Select animation and interpolator are not intended to be
     // exposed at this moment. They might be synced with vertical scroll
@@ -157,7 +160,7 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements Adapt
      * item presenter sets during {@link Presenter#onCreateViewHolder(ViewGroup)}.
      * So in general, developer should choose one of the listeners but not both.
      */
-    public void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
+    public void setOnItemViewClickedListener(BaseOnItemViewClickedListener listener) {
         mOnItemViewClickedListener = listener;
         if (mViewsCreated) {
             throw new IllegalStateException(
@@ -168,7 +171,7 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements Adapt
     /**
      * Returns the item clicked listener.
      */
-    public OnItemViewClickedListener getOnItemViewClickedListener() {
+    public BaseOnItemViewClickedListener getOnItemViewClickedListener() {
         return mOnItemViewClickedListener;
     }
 
@@ -201,7 +204,7 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements Adapt
     /**
      * Sets an item selection listener.
      */
-    public void setOnItemViewSelectedListener(OnItemViewSelectedListener listener) {
+    public void setOnItemViewSelectedListener(BaseOnItemViewSelectedListener listener) {
         mOnItemViewSelectedListener = listener;
         VerticalGridView listView = getVerticalGridView();
         if (listView != null) {
@@ -218,7 +221,7 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements Adapt
     /**
      * Returns an item selection listener.
      */
-    public OnItemViewSelectedListener getOnItemViewSelectedListener() {
+    public BaseOnItemViewSelectedListener getOnItemViewSelectedListener() {
         return mOnItemViewSelectedListener;
     }
 
