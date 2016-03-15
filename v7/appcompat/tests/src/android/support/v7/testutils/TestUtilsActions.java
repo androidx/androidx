@@ -16,6 +16,8 @@
 
 package android.support.v7.testutils;
 
+import android.content.res.ColorStateList;
+import android.graphics.PorterDuff;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
 import android.support.v4.view.ViewCompat;
@@ -45,6 +47,60 @@ public class TestUtilsActions {
                 uiController.loopMainThreadUntilIdle();
 
                 ViewCompat.setLayoutDirection(view, layoutDirection);
+
+                uiController.loopMainThreadUntilIdle();
+            }
+        };
+    }
+
+    /**
+     * Sets the passed color state list as the background layer on a {@link View} with
+     * {@link ViewCompat#setBackgroundTintList(View, ColorStateList)} API.
+     */
+    public static ViewAction setBackgroundTintListViewCompat(final ColorStateList colorStateList) {
+        return new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return isDisplayed();
+            }
+
+            @Override
+            public String getDescription() {
+                return "set background tint list";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                uiController.loopMainThreadUntilIdle();
+
+                ViewCompat.setBackgroundTintList(view, colorStateList);
+
+                uiController.loopMainThreadUntilIdle();
+            }
+        };
+    }
+
+    /**
+     * Sets the passed mode as the background tint mode on a {@link View} with
+     * {@link ViewCompat#setBackgroundTintList(View, ColorStateList)} API.
+     */
+    public static ViewAction setBackgroundTintModeViewCompat(final PorterDuff.Mode tintMode) {
+        return new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return isDisplayed();
+            }
+
+            @Override
+            public String getDescription() {
+                return "set background tint mode";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                uiController.loopMainThreadUntilIdle();
+
+                ViewCompat.setBackgroundTintMode(view, tintMode);
 
                 uiController.loopMainThreadUntilIdle();
             }

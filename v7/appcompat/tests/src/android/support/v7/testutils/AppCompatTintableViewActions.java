@@ -23,11 +23,13 @@ import android.support.annotation.DrawableRes;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
 import android.support.v4.view.TintableBackgroundView;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.AppCompatTextView;
 import android.view.View;
 import org.hamcrest.Matcher;
 
 import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayingAtLeast;
 import static org.hamcrest.core.AllOf.allOf;
 
@@ -60,14 +62,14 @@ public class AppCompatTintableViewActions {
     }
 
     /**
-     * Sets the passed color state list as the background layer on a <code>View</code> that
-     * implements the <code>TintableBackgroundView</code> interface.
+     * Sets the passed color state list as the background layer on a {@link View} that
+     * implements the {@link TintableBackgroundView} interface.
      */
     public static ViewAction setBackgroundTintList(final ColorStateList colorStateList) {
         return new ViewAction() {
             @Override
             public Matcher<View> getConstraints() {
-                return allOf(isDisplayingAtLeast(90), TestUtilsMatchers.isTintableBackgroundView());
+                return allOf(isDisplayed(), TestUtilsMatchers.isTintableBackgroundView());
             }
 
             @Override
@@ -95,7 +97,7 @@ public class AppCompatTintableViewActions {
         return new ViewAction() {
             @Override
             public Matcher<View> getConstraints() {
-                return allOf(isDisplayingAtLeast(90), TestUtilsMatchers.isTintableBackgroundView());
+                return allOf(isDisplayed(), TestUtilsMatchers.isTintableBackgroundView());
             }
 
             @Override
