@@ -3183,17 +3183,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         if (count == 0) {
             return minPositionPreLayout != 0 || maxPositionPreLayout != 0;
         }
-        for (int i = 0; i < count; ++i) {
-            final ViewHolder holder = getChildViewHolderInt(mChildHelper.getChildAt(i));
-            if (holder.shouldIgnore()) {
-                continue;
-            }
-            final int pos = holder.getLayoutPosition();
-            if (pos < minPositionPreLayout || pos > maxPositionPreLayout) {
-                return true;
-            }
-        }
-        return false;
+        // get the new min max
+        findMinMaxChildLayoutPositions(mMinMaxLayoutPositions);
+        return mMinMaxLayoutPositions[0] != minPositionPreLayout ||
+                mMinMaxLayoutPositions[1] != maxPositionPreLayout;
     }
 
     @Override
