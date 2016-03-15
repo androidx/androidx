@@ -66,7 +66,6 @@ for line in file:
     line = line.replace('RowsActivity', 'RowsSupportActivity')
     line = line.replace('RowsFragment', 'RowsSupportFragment')
     line = line.replace('GuidedStepHalfScreenActivity', 'GuidedStepSupportHalfScreenActivity')
-    line = line.replace('MainFragmentAdapterFactory', 'MainSupportFragmentAdapterFactory')
     outfile.write(line)
 file.close()
 outfile.close()

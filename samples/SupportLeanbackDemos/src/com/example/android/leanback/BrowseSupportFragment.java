@@ -19,15 +19,14 @@ import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v17.leanback.app.Adaptable;
 import android.support.v17.leanback.app.GuidedStepSupportFragment;
 import android.support.v17.leanback.app.RowsSupportFragment;
-import android.support.v17.leanback.app.RowsSupportFragmentAdapter;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
-import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.PageRow;
@@ -46,7 +45,9 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
     private static final String TAG = "leanback.BrowseSupportFragment";
 
     private static final boolean TEST_ENTRANCE_TRANSITION = true;
-    private static final int NUM_ROWS = 4;
+    private static final int NUM_ROWS = 8;
+    private static final long HEADER_ID1 = 1001;
+    private static final long HEADER_ID2 = 1002;
 
     private ArrayObjectAdapter mRowsAdapter;
     private BackgroundHelper mBackgroundHelper = new BackgroundHelper();
@@ -57,7 +58,7 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
     final CardPresenter mCardPresenter2 = new CardPresenter(R.style.MyImageCardViewTheme);
 
     public BrowseSupportFragment() {
-        setMainSupportFragmentAdapterFactory(new MainFragmentFactorAdapterImpl());
+        getMainFragmentRegistry().registerFragment(PageRow.class, new PageRowFragmentFactory());
     }
 
     @Override
@@ -68,7 +69,7 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
         setBadgeDrawable(getActivity().getResources().getDrawable(R.drawable.ic_title));
         setTitle("Leanback Sample App");
         setHeadersState(HEADERS_ENABLED);
-
+        setupRows();
         setOnSearchClickedListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -77,7 +78,6 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
             }
         });
 
-        setupRows();
         setOnItemViewClickedListener(new ItemViewClickedListener());
         setOnItemViewSelectedListener(new OnItemViewSelectedListener() {
             @Override
@@ -99,6 +99,7 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
                 prepareEntranceTransition();
             }
         }
+
         // simulates in a real world use case  data being loaded two seconds later
         new Handler().postDelayed(new Runnable() {
             public void run() {
@@ -121,15 +122,16 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
 
     private void loadData() {
         int i = 0;
+
+        HeaderItem header = new HeaderItem(HEADER_ID1, "Page Row " + 0);
+        mRowsAdapter.add(new PageRow(header));
+
         for (; i < NUM_ROWS; ++i) {
-            HeaderItem header = new HeaderItem(i, "Row " + i);
+            header = new HeaderItem(i, "Row " + i);
             mRowsAdapter.add(new ListRow(header, createListRowAdapter(i)));
         }
 
-        HeaderItem header = new HeaderItem(NUM_ROWS, "Page Row " + 0);
-        mRowsAdapter.add(new PageRow(header));
-
-        header = new HeaderItem(NUM_ROWS, "Page Row " + 1);
+        header = new HeaderItem(HEADER_ID2, "Page Row " + 1);
         mRowsAdapter.add(new PageRow(header));
     }
 
@@ -204,60 +206,52 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
         }
     }
 
-    private static class MainFragmentFactorAdapterImpl extends MainSupportFragmentAdapterFactory {
-        private AbstractMainFragmentAdapter pageFragmentAdapter1 = new PageFragmentAdapterImpl();
-        private RowsSupportFragmentAdapter gridPageFragmentAdapter;
+    public static class PageRowFragmentFactory extends FragmentFactory {
 
         @Override
-        public AbstractMainFragmentAdapter getPageFragmentAdapter(
-                ObjectAdapter adapter, int position) {
-            if (position == 4) {
-                return pageFragmentAdapter1;
-            } else {
-                if (gridPageFragmentAdapter == null) {
-                    gridPageFragmentAdapter = new GridPageFragmentAdapterImpl();
-                }
-                return gridPageFragmentAdapter;
+        public Fragment createFragment(Object rowObj) {
+            Row row = (Row) rowObj;
+            if (row.getHeaderItem().getId() == HEADER_ID1) {
+                return new SampleFragment();
+            } else if (row.getHeaderItem().getId() == HEADER_ID2) {
+                return new SampleRowsSupportFragment();
             }
+
+            return null;
         }
     }
 
-    private static class PageFragmentAdapterImpl extends AbstractMainFragmentAdapter {
-        private Fragment mFragment;
+    public static class PageFragmentAdapterImpl extends MainFragmentAdapter<SampleFragment> {
 
-        PageFragmentAdapterImpl() {
+        public PageFragmentAdapterImpl(SampleFragment fragment) {
+            super(fragment);
             setScalingEnabled(true);
         }
-
-        @Override
-        public Fragment getFragment() {
-            if (mFragment == null) {
-                mFragment = new SampleFragment();
-            }
-            return mFragment;
-        }
     }
 
-    private static class GridPageFragmentAdapterImpl extends RowsSupportFragmentAdapter {
+    public static class SampleRowsSupportFragment extends RowsSupportFragment {
         final CardPresenter mCardPresenter = new CardPresenter();
         final CardPresenter mCardPresenter2 = new CardPresenter(R.style.MyImageCardViewTheme);
-        private RowsSupportFragment mFragment;
 
-        GridPageFragmentAdapterImpl() {
-            setScalingEnabled(true);
-        }
-
-        protected Fragment createFragment() {
-            if (mFragment == null) {
-                mFragment = new RowsSupportFragment();
-                ArrayObjectAdapter adapter = new ArrayObjectAdapter(new ListRowPresenter());
-                for (int i = 0; i < 4; i++) {
-                    ListRow row = new ListRow(new HeaderItem("Row " + i), createListRowAdapter(i));
-                    adapter.add(row);
-                }
-                mFragment.setAdapter(adapter);
+        public SampleRowsSupportFragment() {
+            ArrayObjectAdapter adapter = new ArrayObjectAdapter(new ListRowPresenter());
+            for (int i = 0; i < 4; i++) {
+                ListRow row = new ListRow(new HeaderItem("Row " + i), createListRowAdapter(i));
+                adapter.add(row);
             }
-            return mFragment;
+            setAdapter(adapter);
+
+            setOnItemViewClickedListener(new OnItemViewClickedListener() {
+                @Override
+                public void onItemClicked(
+                        Presenter.ViewHolder itemViewHolder,
+                        Object item,
+                        RowPresenter.ViewHolder rowViewHolder, Row row) {
+                    Intent intent = new Intent(
+                            itemViewHolder.view.getContext(), GuidedStepSupportActivity.class);
+                    startActivity(intent);
+                }
+            });
         }
 
         private ArrayObjectAdapter createListRowAdapter(int i) {
@@ -296,12 +290,31 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
         }
     }
 
-    private static class SampleFragment extends Fragment {
+    public static class SampleFragment extends Fragment implements Adaptable {
+
+        final PageFragmentAdapterImpl mMainFragmentAdapter = new PageFragmentAdapterImpl(this);
 
         @Override
         public View onCreateView(
-                LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            return inflater.inflate(R.layout.page_fragment, container, false);
+                final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            View view = inflater.inflate(R.layout.page_fragment, container, false);
+            view.findViewById(R.id.tv1).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(inflater.getContext(), GuidedStepSupportActivity.class);
+                    startActivity(intent);
+                }
+            });
+
+            return view;
+        }
+
+        @Override
+        public PageFragmentAdapterImpl getAdapter(Class clazz) {
+            if (clazz == MainFragmentAdapter.class) {
+                return mMainFragmentAdapter;
+            }
+            return null;
         }
     }
 
@@ -325,3 +338,4 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
         }
     }
 }
+
