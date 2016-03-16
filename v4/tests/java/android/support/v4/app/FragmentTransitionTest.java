@@ -15,9 +15,9 @@
  */
 package android.support.v4.app;
 
-import android.os.SystemClock;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.support.v4.app.test.FragmentTestActivity;
-import android.support.v4.app.test.FragmentTestActivity.OnTransitionListener;
 import android.support.v4.app.test.FragmentTestActivity.TestFragment;
 import android.support.v4.test.R;
 import android.support.v4.view.ViewCompat;
@@ -47,6 +47,9 @@ public class FragmentTransitionTest extends
     }
 
     public void testFragmentTransition() throws Throwable {
+        if (VERSION.SDK_INT < VERSION_CODES.LOLLIPOP) {
+            return;
+        }
         launchStartFragment();
         runTestOnUiThread(new Runnable() {
             @Override
@@ -82,6 +85,9 @@ public class FragmentTransitionTest extends
     }
 
     public void testFirstOutLastInTransition() throws Throwable {
+        if (VERSION.SDK_INT < VERSION_CODES.LOLLIPOP) {
+            return;
+        }
         launchStartFragment();
         runTestOnUiThread(new Runnable() {
             @Override
@@ -136,6 +142,9 @@ public class FragmentTransitionTest extends
     }
 
     public void testPopTwo() throws Throwable {
+        if (VERSION.SDK_INT < VERSION_CODES.LOLLIPOP) {
+            return;
+        }
         launchStartFragment();
         runTestOnUiThread(new Runnable() {
             @Override
@@ -204,6 +213,9 @@ public class FragmentTransitionTest extends
     }
 
     public void testNullTransition() throws Throwable {
+        if (VERSION.SDK_INT < VERSION_CODES.LOLLIPOP) {
+            return;
+        }
         getInstrumentation().waitForIdleSync();
         runTestOnUiThread(new Runnable() {
             @Override
@@ -271,6 +283,9 @@ public class FragmentTransitionTest extends
     }
 
     public void testRemoveAdded() throws Throwable {
+        if (VERSION.SDK_INT < VERSION_CODES.LOLLIPOP) {
+            return;
+        }
         launchStartFragment();
         runTestOnUiThread(new Runnable() {
             @Override
@@ -285,9 +300,7 @@ public class FragmentTransitionTest extends
                 mActivity.getSupportFragmentManager().executePendingTransactions();
             }
         });
-        waitForEnd(mEndFragment, TestFragment.ENTER);
-        assertTrue(mEndFragment.wasEndCalled(TestFragment.ENTER));
-        assertTrue(mStartFragment.wasEndCalled(TestFragment.EXIT));
+        assertTrue(waitForEnd(mEndFragment, TestFragment.ENTER));
         runTestOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -295,12 +308,13 @@ public class FragmentTransitionTest extends
                 mActivity.getSupportFragmentManager().executePendingTransactions();
             }
         });
-        waitForEnd(mStartFragment, TestFragment.REENTER);
-        assertTrue(mStartFragment.wasEndCalled(TestFragment.REENTER));
-        assertTrue(mEndFragment.wasEndCalled(TestFragment.RETURN));
+        assertTrue(waitForEnd(mStartFragment, TestFragment.REENTER));
     }
 
     public void testAddRemoved() throws Throwable {
+        if (VERSION.SDK_INT < VERSION_CODES.LOLLIPOP) {
+            return;
+        }
         launchStartFragment();
         runTestOnUiThread(new Runnable() {
             @Override
@@ -345,25 +359,12 @@ public class FragmentTransitionTest extends
                 mActivity.getSupportFragmentManager().executePendingTransactions();
             }
         });
-        waitForEnd(mStartFragment, TestFragment.ENTER);
-        assertTrue(mStartFragment.wasEndCalled(TestFragment.ENTER));
+        assertTrue(waitForEnd(mStartFragment, TestFragment.ENTER));
         mStartFragment.clearNotifications();
     }
 
     private boolean waitForStart(TestFragment fragment, int key) throws InterruptedException {
-        final boolean started;
-        WaitForTransition listener = new WaitForTransition(key, true);
-        fragment.setOnTransitionListener(listener);
-        final long endTime = SystemClock.uptimeMillis() + 100;
-        synchronized (listener) {
-            long waitTime;
-            while ((waitTime = endTime - SystemClock.uptimeMillis()) > 0 &&
-                    !listener.isDone()) {
-                listener.wait(waitTime);
-            }
-            started = listener.isDone();
-        }
-        fragment.setOnTransitionListener(null);
+        boolean started = fragment.waitForStart(key);
         getInstrumentation().waitForIdleSync();
         return started;
     }
@@ -372,52 +373,8 @@ public class FragmentTransitionTest extends
         if (!waitForStart(fragment, key)) {
             return false;
         }
-        final boolean ended;
-        WaitForTransition listener = new WaitForTransition(key, false);
-        fragment.setOnTransitionListener(listener);
-        final long endTime = SystemClock.uptimeMillis() + 400;
-        synchronized (listener) {
-            long waitTime;
-            while ((waitTime = endTime - SystemClock.uptimeMillis()) > 0 &&
-                    !listener.isDone()) {
-                listener.wait(waitTime);
-            }
-            ended = listener.isDone();
-        }
-        fragment.setOnTransitionListener(null);
+        final boolean ended = fragment.waitForEnd(key);
         getInstrumentation().waitForIdleSync();
         return ended;
     }
-
-    private static class WaitForTransition implements OnTransitionListener {
-        final int key;
-        final boolean isStart;
-        boolean isDone;
-
-        public WaitForTransition(int key, boolean isStart) {
-            this.key = key;
-            this.isStart = isStart;
-        }
-
-        protected boolean isComplete(TestFragment fragment) {
-            if (isStart) {
-                return fragment.wasStartCalled(key);
-            } else {
-                return fragment.wasEndCalled(key);
-            }
-        }
-
-        public synchronized boolean isDone() {
-            return isDone;
-        }
-
-        @Override
-        public synchronized void onTransition(TestFragment fragment) {
-            isDone = isComplete(fragment);
-            if (isDone) {
-                notifyAll();
-            }
-        }
-    }
-
 }

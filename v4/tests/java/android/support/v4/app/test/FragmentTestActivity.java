@@ -31,6 +31,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 /**
  * A simple activity used for Fragment Transitions and lifecycle event ordering
  */
@@ -54,20 +57,20 @@ public class FragmentTestActivity extends FragmentActivity {
         private static final String TRANSITION_KEY = "transition_";
         private int mLayoutId = R.layout.fragment_start;
         private final int[] mTransitionIds = new int[] {
-                android.R.transition.explode,
-                android.R.transition.explode,
-                android.R.transition.fade,
-                android.R.transition.fade,
-                android.R.transition.move,
-                android.R.transition.move,
+                R.transition.fade,
+                R.transition.fade,
+                R.transition.fade,
+                R.transition.fade,
+                R.transition.change_bounds,
+                R.transition.change_bounds,
         };
-        private final TransitionCalledListener[] mListeners =
-                new TransitionCalledListener[TRANSITION_COUNT];
-        private OnTransitionListener mOnTransitionListener;
+        private final Object[] mListeners = new Object[TRANSITION_COUNT];
 
         public TestFragment() {
-            for (int i = 0; i < TRANSITION_COUNT; i++) {
-                mListeners[i] = new TransitionCalledListener();
+            if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
+                for (int i = 0; i < TRANSITION_COUNT; i++) {
+                    mListeners[i] = new TransitionCalledListener();
+                }
             }
         }
 
@@ -85,8 +88,8 @@ public class FragmentTestActivity extends FragmentActivity {
 
         public void clearNotifications() {
             for (int i = 0; i < TRANSITION_COUNT; i++) {
-                mListeners[i].transitionStarted = false;
-                mListeners[i].transitionEnded = false;
+                ((TransitionCalledListener)mListeners[i]).startLatch = new CountDownLatch(1);
+                ((TransitionCalledListener)mListeners[i]).endLatch = new CountDownLatch(1);
             }
         }
 
@@ -132,16 +135,24 @@ public class FragmentTestActivity extends FragmentActivity {
             }
         }
 
-        public void setOnTransitionListener(OnTransitionListener listener) {
-            mOnTransitionListener = listener;
-        }
-
         public boolean wasStartCalled(int transitionKey) {
-            return mListeners[transitionKey].transitionStarted;
+            return ((TransitionCalledListener)mListeners[transitionKey]).startLatch.getCount() == 0;
         }
 
         public boolean wasEndCalled(int transitionKey) {
-            return mListeners[transitionKey].transitionEnded;
+            return ((TransitionCalledListener)mListeners[transitionKey]).endLatch.getCount() == 0;
+        }
+
+        public boolean waitForStart(int transitionKey)
+                throws InterruptedException {
+            TransitionCalledListener l = ((TransitionCalledListener)mListeners[transitionKey]);
+            return l.startLatch.await(500,TimeUnit.MILLISECONDS);
+        }
+
+        public boolean waitForEnd(int transitionKey)
+                throws InterruptedException {
+            TransitionCalledListener l = ((TransitionCalledListener)mListeners[transitionKey]);
+            return l.endLatch.await(500,TimeUnit.MILLISECONDS);
         }
 
         private Transition loadTransition(int key) {
@@ -150,33 +161,25 @@ public class FragmentTestActivity extends FragmentActivity {
                 return null;
             }
             Transition transition = TransitionInflater.from(getActivity()).inflateTransition(id);
-            transition.addListener(mListeners[key]);
+            transition.addListener(((TransitionCalledListener)mListeners[key]));
             return transition;
         }
 
-        private void notifyTransition() {
-            if (mOnTransitionListener != null) {
-                mOnTransitionListener.onTransition(this);
-            }
-        }
-
         private class TransitionCalledListener implements TransitionListener {
-            public boolean transitionStarted;
-            public boolean transitionEnded;
+            public CountDownLatch startLatch = new CountDownLatch(1);
+            public CountDownLatch endLatch = new CountDownLatch(1);
 
             public TransitionCalledListener() {
             }
 
             @Override
             public void onTransitionStart(Transition transition) {
-                transitionStarted = true;
-                notifyTransition();
+                startLatch.countDown();
             }
 
             @Override
             public void onTransitionEnd(Transition transition) {
-                transitionEnded = true;
-                notifyTransition();
+                endLatch.countDown();
             }
 
             @Override
@@ -191,10 +194,6 @@ public class FragmentTestActivity extends FragmentActivity {
             public void onTransitionResume(Transition transition) {
             }
         }
-    }
-
-    public interface OnTransitionListener {
-        void onTransition(TestFragment fragment);
     }
 
     public static class ParentFragment extends Fragment {
