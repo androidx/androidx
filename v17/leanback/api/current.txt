@@ -230,7 +230,7 @@ package android.support.v17.leanback.app {
     ctor public DetailsFragment();
     method protected java.lang.Object createEntranceTransition();
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
-    method public android.support.v17.leanback.widget.OnItemViewClickedListener getOnItemViewClickedListener();
+    method public android.support.v17.leanback.widget.BaseOnItemViewClickedListener getOnItemViewClickedListener();
     method public android.support.v17.leanback.app.RowsFragment getRowsFragment();
     method protected android.view.View inflateTitle(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
     method protected void onEntranceTransitionEnd();
@@ -241,8 +241,8 @@ package android.support.v17.leanback.app {
     method public void onStart();
     method protected void runEntranceTransition(java.lang.Object);
     method public void setAdapter(android.support.v17.leanback.widget.ObjectAdapter);
-    method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.OnItemViewClickedListener);
-    method public void setOnItemViewSelectedListener(android.support.v17.leanback.widget.OnItemViewSelectedListener);
+    method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.BaseOnItemViewClickedListener);
+    method public void setOnItemViewSelectedListener(android.support.v17.leanback.widget.BaseOnItemViewSelectedListener);
     method public void setSelectedPosition(int);
     method public void setSelectedPosition(int, boolean);
     method protected void setupDetailsOverviewRowPresenter(android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter);
@@ -253,7 +253,7 @@ package android.support.v17.leanback.app {
     ctor public DetailsSupportFragment();
     method protected java.lang.Object createEntranceTransition();
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
-    method public android.support.v17.leanback.widget.OnItemViewClickedListener getOnItemViewClickedListener();
+    method public android.support.v17.leanback.widget.BaseOnItemViewClickedListener getOnItemViewClickedListener();
     method public android.support.v17.leanback.app.RowsSupportFragment getRowsSupportFragment();
     method protected android.view.View inflateTitle(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
     method protected void onEntranceTransitionEnd();
@@ -264,8 +264,8 @@ package android.support.v17.leanback.app {
     method public void onStart();
     method protected void runEntranceTransition(java.lang.Object);
     method public void setAdapter(android.support.v17.leanback.widget.ObjectAdapter);
-    method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.OnItemViewClickedListener);
-    method public void setOnItemViewSelectedListener(android.support.v17.leanback.widget.OnItemViewSelectedListener);
+    method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.BaseOnItemViewClickedListener);
+    method public void setOnItemViewSelectedListener(android.support.v17.leanback.widget.BaseOnItemViewSelectedListener);
     method public void setSelectedPosition(int);
     method public void setSelectedPosition(int, boolean);
     method protected void setupDetailsOverviewRowPresenter(android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter);
@@ -684,14 +684,14 @@ package android.support.v17.leanback.app {
     method public deprecated void enableRowScaling(boolean);
     method protected android.support.v17.leanback.widget.VerticalGridView findGridViewFromRoot(android.view.View);
     method public java.lang.Object getAdapter(java.lang.Class);
-    method public android.support.v17.leanback.widget.OnItemViewClickedListener getOnItemViewClickedListener();
-    method public android.support.v17.leanback.widget.OnItemViewSelectedListener getOnItemViewSelectedListener();
+    method public android.support.v17.leanback.widget.BaseOnItemViewClickedListener getOnItemViewClickedListener();
+    method public android.support.v17.leanback.widget.BaseOnItemViewSelectedListener getOnItemViewSelectedListener();
     method public android.support.v17.leanback.widget.RowPresenter.ViewHolder getRowViewHolder(int);
     method public boolean isScrolling();
     method public void setEntranceTransitionState(boolean);
     method public void setExpand(boolean);
-    method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.OnItemViewClickedListener);
-    method public void setOnItemViewSelectedListener(android.support.v17.leanback.widget.OnItemViewSelectedListener);
+    method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.BaseOnItemViewClickedListener);
+    method public void setOnItemViewSelectedListener(android.support.v17.leanback.widget.BaseOnItemViewSelectedListener);
     method public void setSelectedPosition(int, boolean, android.support.v17.leanback.widget.Presenter.ViewHolderTask);
   }
 
@@ -708,14 +708,14 @@ package android.support.v17.leanback.app {
     method public deprecated void enableRowScaling(boolean);
     method protected android.support.v17.leanback.widget.VerticalGridView findGridViewFromRoot(android.view.View);
     method public java.lang.Object getAdapter(java.lang.Class);
-    method public android.support.v17.leanback.widget.OnItemViewClickedListener getOnItemViewClickedListener();
-    method public android.support.v17.leanback.widget.OnItemViewSelectedListener getOnItemViewSelectedListener();
+    method public android.support.v17.leanback.widget.BaseOnItemViewClickedListener getOnItemViewClickedListener();
+    method public android.support.v17.leanback.widget.BaseOnItemViewSelectedListener getOnItemViewSelectedListener();
     method public android.support.v17.leanback.widget.RowPresenter.ViewHolder getRowViewHolder(int);
     method public boolean isScrolling();
     method public void setEntranceTransitionState(boolean);
     method public void setExpand(boolean);
-    method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.OnItemViewClickedListener);
-    method public void setOnItemViewSelectedListener(android.support.v17.leanback.widget.OnItemViewSelectedListener);
+    method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.BaseOnItemViewClickedListener);
+    method public void setOnItemViewSelectedListener(android.support.v17.leanback.widget.BaseOnItemViewSelectedListener);
     method public void setSelectedPosition(int, boolean, android.support.v17.leanback.widget.Presenter.ViewHolderTask);
   }
 
@@ -952,6 +952,14 @@ package android.support.v17.leanback.widget {
     field public static final int VIEW_TYPE_INFO = 1; // 0x1
     field public static final int VIEW_TYPE_MAIN = 0; // 0x0
     field public int viewType;
+  }
+
+  public abstract interface BaseOnItemViewClickedListener {
+    method public abstract void onItemClicked(android.support.v17.leanback.widget.Presenter.ViewHolder, java.lang.Object, android.support.v17.leanback.widget.RowPresenter.ViewHolder, T);
+  }
+
+  public abstract interface BaseOnItemViewSelectedListener {
+    method public abstract void onItemSelected(android.support.v17.leanback.widget.Presenter.ViewHolder, java.lang.Object, android.support.v17.leanback.widget.RowPresenter.ViewHolder, T);
   }
 
   public class BrowseFrameLayout extends android.widget.FrameLayout {
@@ -1627,12 +1635,10 @@ package android.support.v17.leanback.widget {
     method public void onChildViewHolderSelected(android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.ViewHolder, int, int);
   }
 
-  public abstract interface OnItemViewClickedListener {
-    method public abstract void onItemClicked(android.support.v17.leanback.widget.Presenter.ViewHolder, java.lang.Object, android.support.v17.leanback.widget.RowPresenter.ViewHolder, android.support.v17.leanback.widget.Row);
+  public abstract interface OnItemViewClickedListener implements android.support.v17.leanback.widget.BaseOnItemViewClickedListener {
   }
 
-  public abstract interface OnItemViewSelectedListener {
-    method public abstract void onItemSelected(android.support.v17.leanback.widget.Presenter.ViewHolder, java.lang.Object, android.support.v17.leanback.widget.RowPresenter.ViewHolder, android.support.v17.leanback.widget.Row);
+  public abstract interface OnItemViewSelectedListener implements android.support.v17.leanback.widget.BaseOnItemViewSelectedListener {
   }
 
   public class PageRow extends android.support.v17.leanback.widget.Row {
@@ -1888,16 +1894,17 @@ package android.support.v17.leanback.widget {
   public static class RowPresenter.ViewHolder extends android.support.v17.leanback.widget.Presenter.ViewHolder {
     ctor public RowPresenter.ViewHolder(android.view.View);
     method public final android.support.v17.leanback.widget.RowHeaderPresenter.ViewHolder getHeaderViewHolder();
-    method public final android.support.v17.leanback.widget.OnItemViewClickedListener getOnItemViewClickedListener();
-    method public final android.support.v17.leanback.widget.OnItemViewSelectedListener getOnItemViewSelectedListener();
+    method public final android.support.v17.leanback.widget.BaseOnItemViewClickedListener getOnItemViewClickedListener();
+    method public final android.support.v17.leanback.widget.BaseOnItemViewSelectedListener getOnItemViewSelectedListener();
     method public android.view.View.OnKeyListener getOnKeyListener();
     method public final android.support.v17.leanback.widget.Row getRow();
+    method public final java.lang.Object getRowObject();
     method public final float getSelectLevel();
     method public final boolean isExpanded();
     method public final boolean isSelected();
     method public final void setActivated(boolean);
-    method public final void setOnItemViewClickedListener(android.support.v17.leanback.widget.OnItemViewClickedListener);
-    method public final void setOnItemViewSelectedListener(android.support.v17.leanback.widget.OnItemViewSelectedListener);
+    method public final void setOnItemViewClickedListener(android.support.v17.leanback.widget.BaseOnItemViewClickedListener);
+    method public final void setOnItemViewSelectedListener(android.support.v17.leanback.widget.BaseOnItemViewSelectedListener);
     method public void setOnKeyListener(android.view.View.OnKeyListener);
     method public final void syncActivatedStatus(android.view.View);
     field protected final android.support.v17.leanback.graphics.ColorOverlayDimmer mColorDimmer;
