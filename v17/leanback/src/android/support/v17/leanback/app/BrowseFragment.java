@@ -618,7 +618,7 @@ public class BrowseFragment extends BaseFragment {
      */
     public void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
         mOnItemViewClickedListener = listener;
-        if (mMainFragmentAdapter != null) {
+        if (mMainFragmentRowsAdapter != null) {
             mMainFragmentRowsAdapter.setOnItemViewClickedListener(listener);
         }
     }
