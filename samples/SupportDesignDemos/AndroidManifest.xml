@@ -82,6 +82,15 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".widget.TabLayoutCustomItemsUsage"
+                  android:label="@string/design_tabs_custom_items"
+                  android:theme="@style/Theme.Design">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.support.design.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".widget.TextInputLayoutUsage"
                   android:label="@string/design_text_input"
                   android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
