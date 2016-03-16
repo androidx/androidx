@@ -38,6 +38,7 @@ abstract class BaseRowFragment extends Fragment {
     private ItemBridgeAdapter mBridgeAdapter;
     private int mSelectedPosition = -1;
     private boolean mPendingTransitionPrepare;
+    private LateSelectionObserver mLateSelectionObserver = new LateSelectionObserver();
 
     abstract int getLayoutResourceId();
 
@@ -76,17 +77,61 @@ abstract class BaseRowFragment extends Fragment {
             mSelectedPosition = savedInstanceState.getInt(CURRENT_SELECTED_POSITION, -1);
         }
         if (mBridgeAdapter != null) {
-            mVerticalGridView.setAdapter(mBridgeAdapter);
-            if (mSelectedPosition != -1) {
+            setAdapterAndSelection();
+        }
+        mVerticalGridView.setOnChildViewHolderSelectedListener(mRowSelectedListener);
+    }
+
+    /**
+     * This class waits for the adapter to be updated before setting the selected
+     * row.
+     */
+    private class LateSelectionObserver extends RecyclerView.AdapterDataObserver {
+        boolean mIsLateSelection = false;
+
+        public void onChanged() {
+            performLateSelection();
+        }
+
+        public void onItemRangeInserted(int positionStart, int itemCount) {
+            performLateSelection();
+        }
+
+        void startLateSelection() {
+            mIsLateSelection = true;
+            mBridgeAdapter.registerAdapterDataObserver(this);
+        }
+
+        void performLateSelection() {
+            clear();
+            if (mVerticalGridView != null) {
                 mVerticalGridView.setSelectedPosition(mSelectedPosition);
             }
         }
-        mVerticalGridView.setOnChildViewHolderSelectedListener(mRowSelectedListener);
+
+        void clear() {
+            if (mIsLateSelection) {
+                mIsLateSelection = false;
+                mBridgeAdapter.unregisterAdapterDataObserver(this);
+            }
+        }
+    }
+
+    void setAdapterAndSelection() {
+        mVerticalGridView.setAdapter(mBridgeAdapter);
+        // We don't set the selected position unless we've data in the adapter.
+        boolean lateSelection = mBridgeAdapter.getItemCount() == 0 && mSelectedPosition >= 0;
+        if (lateSelection) {
+            mLateSelectionObserver.startLateSelection();
+        } else if (mSelectedPosition >= 0) {
+            mVerticalGridView.setSelectedPosition(mSelectedPosition);
+        }
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        mLateSelectionObserver.clear();
         mVerticalGridView = null;
     }
 
@@ -154,6 +199,9 @@ abstract class BaseRowFragment extends Fragment {
     public void setSelectedPosition(int position, boolean smooth) {
         mSelectedPosition = position;
         if(mVerticalGridView != null && mVerticalGridView.getAdapter() != null) {
+            if (mLateSelectionObserver.mIsLateSelection) {
+                return;
+            }
             if (smooth) {
                 mVerticalGridView.setSelectedPositionSmooth(position);
             } else {
@@ -169,6 +217,7 @@ abstract class BaseRowFragment extends Fragment {
     void updateAdapter() {
         if (mBridgeAdapter != null) {
             // detach observer from ObjectAdapter
+            mLateSelectionObserver.clear();
             mBridgeAdapter.clear();
             mBridgeAdapter = null;
         }
@@ -178,10 +227,7 @@ abstract class BaseRowFragment extends Fragment {
             mBridgeAdapter = new ItemBridgeAdapter(mAdapter, mPresenterSelector);
         }
         if (mVerticalGridView != null) {
-            mVerticalGridView.setAdapter(mBridgeAdapter);
-            if (mBridgeAdapter != null && mSelectedPosition != -1) {
-                mVerticalGridView.setSelectedPosition(mSelectedPosition);
-            }
+            setAdapterAndSelection();
         }
     }
 
