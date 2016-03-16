@@ -555,6 +555,9 @@ public class BrowseSupportFragment extends BaseSupportFragment {
      */
     public void setAdapter(ObjectAdapter adapter) {
         mAdapter = adapter;
+        if (getView() == null) {
+            return;
+        }
         replaceMainFragment(mSelectedPosition);
 
         if (adapter != null) {
