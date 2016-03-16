@@ -15,9 +15,12 @@
  */
 package android.support.v17.leanback.app;
 
+import static android.support.v7.widget.RecyclerView.NO_POSITION;
+
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentManager.BackStackEntry;
+import android.support.v4.app.FragmentTransaction;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -50,8 +53,6 @@ import android.view.ViewTreeObserver;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 /**
  * A fragment for creating Leanback browse screens. It is composed of a
@@ -227,9 +228,6 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         private final T mFragment;
 
         public MainFragmentAdapter(T fragment) {
-            if (fragment == null) {
-                throw new IllegalArgumentException("Fragment can't be null");
-            }
             this.mFragment = fragment;
         }
 
@@ -361,7 +359,9 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         if (adapter == null || adapter.size() == 0) {
             return false;
         } else {
-            if (position < 0 || position > adapter.size()) {
+            if (position < 0) {
+                position = 0;
+            } else if (position >= adapter.size()) {
                 throw new IllegalArgumentException(
                         String.format("Invalid position %d requested", position));
             }
@@ -478,7 +478,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     private boolean mMainFragmentScaleEnabled = true;
     private OnItemViewSelectedListener mExternalOnItemViewSelectedListener;
     private OnItemViewClickedListener mOnItemViewClickedListener;
-    private int mSelectedPosition = 0;
+    private int mSelectedPosition = -1;
     private float mScaleFactor;
     private boolean mIsPageRow;
 
@@ -555,8 +555,12 @@ public class BrowseSupportFragment extends BaseSupportFragment {
      */
     public void setAdapter(ObjectAdapter adapter) {
         mAdapter = adapter;
-        if (mMainFragment != null) {
-            mMainFragmentRowsAdapter.setAdapter(adapter);
+        replaceMainFragment(mSelectedPosition);
+
+        if (adapter != null) {
+            if (mMainFragmentRowsAdapter != null) {
+                mMainFragmentRowsAdapter.setAdapter(adapter);
+            }
             mHeadersSupportFragment.setAdapter(adapter);
         }
     }
@@ -880,11 +884,23 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             Bundle savedInstanceState) {
         if (getChildFragmentManager().findFragmentById(R.id.scale_frame) == null) {
             mHeadersSupportFragment = new HeadersSupportFragment();
+
             createMainFragment(mAdapter, mSelectedPosition);
-            getChildFragmentManager().beginTransaction()
-                    .replace(R.id.browse_headers_dock, mHeadersSupportFragment)
-                    .replace(R.id.scale_frame, mMainFragment)
-                    .commit();
+            FragmentTransaction ft = getChildFragmentManager().beginTransaction()
+                    .replace(R.id.browse_headers_dock, mHeadersSupportFragment);
+
+            if (mMainFragment != null) {
+                ft.replace(R.id.scale_frame, mMainFragment);
+            } else {
+                // Empty adapter used to guard against lazy adapter loading. When this
+                // fragment is instantiated, mAdapter might not have the data or might not
+                // have been set. In either of those cases mFragmentAdapter will be null.
+                // This way we can maintain the invariant that mMainFragmentAdapter is never
+                // null and it avoids doing null checks all over the code.
+                mMainFragmentAdapter = new MainFragmentAdapter(null);
+            }
+
+            ft.commit();
         } else {
             mHeadersSupportFragment = (HeadersSupportFragment) getChildFragmentManager()
                     .findFragmentById(R.id.browse_headers_dock);
@@ -1029,8 +1045,8 @@ public class BrowseSupportFragment extends BaseSupportFragment {
 
         setMainFragmentAlignment();
         final float scaleFactor = !expand
-                && mMainFragmentScaleEnabled && mMainFragmentAdapter.isScalingEnabled()
-                ? mScaleFactor : 1;
+                && mMainFragmentScaleEnabled
+                && mMainFragmentAdapter.isScalingEnabled() ? mScaleFactor : 1;
         mScaleFrameLayout.setLayoutScaleY(scaleFactor);
         mScaleFrameLayout.setChildScale(scaleFactor);
     }
@@ -1095,16 +1111,20 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         }
 
         mHeadersSupportFragment.setSelectedPosition(position, smooth);
+        replaceMainFragment(position);
 
+        if (mMainFragmentRowsAdapter != null) {
+            mMainFragmentRowsAdapter.setSelectedPosition(position, smooth);
+        }
+        mSelectedPosition = position;
+    }
+
+    private void replaceMainFragment(int position) {
         if (createMainFragment(mAdapter, position)) {
             swapBrowseContent(mMainFragment);
             expandMainFragment(!(mCanShowHeaders && mShowingHeaders));
             setupMainFragment();
         }
-        if (mMainFragmentRowsAdapter != null) {
-            mMainFragmentRowsAdapter.setSelectedPosition(position, smooth);
-        }
-        mSelectedPosition = position;
     }
 
     private void swapBrowseContent(Fragment fragment) {
