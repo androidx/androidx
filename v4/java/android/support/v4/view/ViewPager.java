@@ -2163,8 +2163,10 @@ public class ViewPager extends ViewGroup {
                     final int width = getClientWidth();
                     final int scrollX = getScrollX();
                     final ItemInfo ii = infoForCurrentScrollPosition();
+                    final float marginOffset = (float) mPageMargin / width;
                     final int currentPage = ii.position;
-                    final float pageOffset = (((float) scrollX / width) - ii.offset) / ii.widthFactor;
+                    final float pageOffset = (((float) scrollX / width) - ii.offset)
+                            / (ii.widthFactor + marginOffset);
                     final int activePointerIndex =
                             MotionEventCompat.findPointerIndex(ev, mActivePointerId);
                     final float x = MotionEventCompat.getX(ev, activePointerIndex);
