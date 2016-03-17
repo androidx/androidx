@@ -574,6 +574,10 @@ class ActionMenuPresenter extends BaseMenuPresenter
 
     @Override
     public void onRestoreInstanceState(Parcelable state) {
+        if (!(state instanceof SavedState)) {
+            return;
+        }
+
         SavedState saved = (SavedState) state;
         if (saved.openSubMenuId > 0) {
             MenuItem item = mMenu.findItem(saved.openSubMenuId);

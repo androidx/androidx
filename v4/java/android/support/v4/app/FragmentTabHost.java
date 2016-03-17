@@ -300,7 +300,11 @@ public class FragmentTabHost extends TabHost
 
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
-        SavedState ss = (SavedState)state;
+        if (!(state instanceof SavedState)) {
+            super.onRestoreInstanceState(state);
+            return;
+        }
+        SavedState ss = (SavedState) state;
         super.onRestoreInstanceState(ss.getSuperState());
         setCurrentTabByTag(ss.curTab);
     }
