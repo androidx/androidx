@@ -118,10 +118,6 @@ public abstract class AppCompatBaseViewTest<A extends BaseTestActivity, T extend
     @Test
     @SmallTest
     public void testBackgroundTintingViewCompatWithNoBackground() {
-        if (hasBackgroundByDefault()) {
-            return;
-        }
-
         final @IdRes int viewId = R.id.view_tinted_no_background;
         final T view = (T) mContainer.findViewById(viewId);
 
