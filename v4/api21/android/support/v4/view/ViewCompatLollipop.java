@@ -18,6 +18,8 @@ package android.support.v4.view;
 
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.view.View;
 import android.view.WindowInsets;
 
@@ -80,6 +82,20 @@ class ViewCompatLollipop {
 
     static void setBackgroundTintList(View view, ColorStateList tintList) {
         view.setBackgroundTintList(tintList);
+
+        if (Build.VERSION.SDK_INT == 21) {
+            // Work around a bug in L that did not update the state of the background
+            // after applying the tint
+            Drawable background = view.getBackground();
+            boolean hasTint = (view.getBackgroundTintList() != null)
+                    && (view.getBackgroundTintMode() != null);
+            if ((background != null) && hasTint) {
+                if (background.isStateful()) {
+                    background.setState(view.getDrawableState());
+                }
+                view.setBackground(background);
+            }
+        }
     }
 
     static PorterDuff.Mode getBackgroundTintMode(View view) {
@@ -88,6 +104,20 @@ class ViewCompatLollipop {
 
     static void setBackgroundTintMode(View view, PorterDuff.Mode mode) {
         view.setBackgroundTintMode(mode);
+
+        if (Build.VERSION.SDK_INT == 21) {
+            // Work around a bug in L that did not update the state of the background
+            // after applying the tint
+            Drawable background = view.getBackground();
+            boolean hasTint = (view.getBackgroundTintList() != null)
+                    && (view.getBackgroundTintMode() != null);
+            if ((background != null) && hasTint) {
+                if (background.isStateful()) {
+                    background.setState(view.getDrawableState());
+                }
+                view.setBackground(background);
+            }
+        }
     }
 
     public static WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
