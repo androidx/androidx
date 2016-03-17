@@ -477,27 +477,39 @@ public class ContextCompat {
      * Prior to {@link BuildCompat#isAtLeastN()} this method returns
      * {@code null}, since device-encrypted storage is not available.
      *
-     * @see ContextCompat#isDeviceEncryptedStorage(Context)
+     * @see ContextCompat#isDeviceProtectedStorage(Context)
      */
-    public static Context createDeviceEncryptedStorageContext(Context context) {
+    public static Context createDeviceProtectedStorageContext(Context context) {
         if (BuildCompat.isAtLeastN()) {
-            return ContextCompatApi24.createDeviceEncryptedStorageContext(context);
+            return ContextCompatApi24.createDeviceProtectedStorageContext(context);
         } else {
             return null;
         }
+    }
+
+    /** @removed */
+    @Deprecated
+    public static Context createDeviceEncryptedStorageContext(Context context) {
+        return createDeviceProtectedStorageContext(context);
     }
 
     /**
      * Indicates if the storage APIs of this Context are backed by
      * device-encrypted storage.
      *
-     * @see ContextCompat#createDeviceEncryptedStorageContext(Context)
+     * @see ContextCompat#createDeviceProtectedStorageContext(Context)
      */
-    public static boolean isDeviceEncryptedStorage(Context context) {
+    public static boolean isDeviceProtectedStorage(Context context) {
         if (BuildCompat.isAtLeastN()) {
-            return ContextCompatApi24.isDeviceEncryptedStorage(context);
+            return ContextCompatApi24.isDeviceProtectedStorage(context);
         } else {
             return false;
         }
+    }
+
+    /** @removed */
+    @Deprecated
+    public static boolean isDeviceEncryptedStorage(Context context) {
+        return isDeviceProtectedStorage(context);
     }
 }
