@@ -1042,6 +1042,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
+        if (!(state instanceof SavedState)) {
+            super.onRestoreInstanceState(state);
+            return;
+        }
+
         mPendingSavedState = (SavedState) state;
         super.onRestoreInstanceState(mPendingSavedState.getSuperState());
         if (mLayout != null && mPendingSavedState.mLayoutState != null) {
