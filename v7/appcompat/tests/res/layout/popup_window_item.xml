@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2015 The Android Open Source Project
+<!-- Copyright (C) 2016 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -13,10 +13,11 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<resources>
-    <dimen name="drawable_small_size">12dip</dimen>
-    <dimen name="drawable_medium_size">16dip</dimen>
-    <dimen name="drawable_large_size">20dip</dimen>
 
-    <dimen name="popup_row_height">48dip</dimen>
-</resources>
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/title"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/popup_row_height"
+    android:textAppearance="?attr/textAppearanceLargePopupMenu"
+    android:gravity="center_vertical" />
