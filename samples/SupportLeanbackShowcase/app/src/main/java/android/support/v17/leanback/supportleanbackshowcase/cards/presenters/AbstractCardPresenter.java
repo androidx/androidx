@@ -24,9 +24,9 @@ import android.view.ViewGroup;
  * ViewHolder and will provide typed Presenter callbacks such that you do not have to perform casts
  * on your own.
  *
- * @param <CardViewType> The cards' View Type.
+ * @param <T> View type for the card.
  */
-public abstract class AbstractCardPresenter<CardViewType extends BaseCardView> extends Presenter {
+public abstract class AbstractCardPresenter<T extends BaseCardView> extends Presenter {
 
     private static final String TAG = "AbstractCardPresenter";
     private final Context mContext;
@@ -43,20 +43,20 @@ public abstract class AbstractCardPresenter<CardViewType extends BaseCardView> e
     }
 
     @Override public final ViewHolder onCreateViewHolder(ViewGroup parent) {
-        CardViewType cardView = onCreateView();
+        T cardView = onCreateView();
         return new ViewHolder(cardView);
     }
 
     @Override public final void onBindViewHolder(ViewHolder viewHolder, Object item) {
         Card card = (Card) item;
-        onBindViewHolder(card, (CardViewType) viewHolder.view);
+        onBindViewHolder(card, (T) viewHolder.view);
     }
 
     @Override public final void onUnbindViewHolder(ViewHolder viewHolder) {
-        onUnbindViewHolder((CardViewType) viewHolder.view);
+        onUnbindViewHolder((T) viewHolder.view);
     }
 
-    public void onUnbindViewHolder(CardViewType cardView) {
+    public void onUnbindViewHolder(T cardView) {
         // Nothing to clean up. Override if necessary.
     }
 
@@ -65,7 +65,7 @@ public abstract class AbstractCardPresenter<CardViewType extends BaseCardView> e
      *
      * @return Returns the newly created view.
      */
-    protected abstract CardViewType onCreateView();
+    protected abstract T onCreateView();
 
     /**
      * Implement this method to update your card's view with the data bound to it.
@@ -74,6 +74,6 @@ public abstract class AbstractCardPresenter<CardViewType extends BaseCardView> e
      * @param cardView The view the card is bound to.
      * @see Presenter#onBindViewHolder(Presenter.ViewHolder, Object)
      */
-    public abstract void onBindViewHolder(Card card, CardViewType cardView);
+    public abstract void onBindViewHolder(Card card, T cardView);
 
 }
