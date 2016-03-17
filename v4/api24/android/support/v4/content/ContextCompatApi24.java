@@ -20,11 +20,11 @@ import android.content.Context;
 
 /** {@hide} */
 public class ContextCompatApi24 {
-    public static Context createDeviceEncryptedStorageContext(Context context) {
-        return context.createDeviceEncryptedStorageContext();
+    public static Context createDeviceProtectedStorageContext(Context context) {
+        return context.createDeviceProtectedStorageContext();
     }
 
-    public static boolean isDeviceEncryptedStorage(Context context) {
-        return context.isDeviceEncryptedStorage();
+    public static boolean isDeviceProtectedStorage(Context context) {
+        return context.isDeviceProtectedStorage();
     }
 }
