@@ -115,6 +115,30 @@ public class ContextCompat {
     }
 
     /**
+     * Returns the absolute path to the directory on the filesystem where all
+     * private files belonging to this app are stored. Apps should not use this
+     * path directly; they should instead use {@link Context#getFilesDir()},
+     * {@link Context#getCacheDir()}, {@link Context#getDir(String, int)}, or
+     * other storage APIs on {@link Context}.
+     * <p>
+     * The returned path may change over time if the calling app is moved to an
+     * adopted storage device, so only relative paths should be persisted.
+     * <p>
+     * No additional permissions are required for the calling app to read or
+     * write files under the returned path.
+     *
+     * @see ApplicationInfo#dataDir
+     */
+    public static File getDataDir(Context context) {
+        if (BuildCompat.isAtLeastN()) {
+            return ContextCompatApi24.getDataDir(context);
+        } else {
+            final String dataDir = context.getApplicationInfo().dataDir;
+            return dataDir != null ? new File(dataDir) : null;
+        }
+    }
+
+    /**
      * Returns absolute paths to application-specific directories on all
      * external storage devices where the application's OBB files (if there are
      * any) can be found. Note if the application does not have any OBB files,
@@ -455,19 +479,24 @@ public class ContextCompat {
 
     /**
      * Return a new Context object for the current Context but whose storage
-     * APIs are backed by device-encrypted storage.
+     * APIs are backed by device-protected storage.
      * <p>
-     * Data stored in device-encrypted storage is typically encrypted with a key
-     * tied to the physical device, and it can be accessed when the device has
-     * booted successfully, both <em>before and after</em> the user has
-     * authenticated with their credentials (such as a lock pattern or PIN).
-     * Because device-encrypted data is available before user authentication,
-     * you should carefully consider what data you store using this Context.
+     * On devices with direct boot, data stored in this location is encrypted
+     * with a key tied to the physical device, and it can be accessed
+     * immediately after the device has booted successfully, both
+     * <em>before and after</em> the user has authenticated with their
+     * credentials (such as a lock pattern or PIN).
+     * <p>
+     * Because device-protected data is available without user authentication,
+     * you should carefully limit the data you store using this Context. For
+     * example, storing sensitive authentication tokens or passwords in the
+     * device-protected area is strongly discouraged.
      * <p>
      * If the underlying device does not have the ability to store
-     * device-encrypted and credential-encrypted data using different keys, then
-     * both storage areas will become available at the same time. They remain
-     * two distinct storage areas, and only the window of availability changes.
+     * device-protected and credential-protected data using different keys, then
+     * both storage areas will become available at the same time. They remain as
+     * two distinct storage locations on disk, and only the window of
+     * availability changes.
      * <p>
      * Each call to this method returns a new instance of a Context object;
      * Context objects are not shared, however common state (ClassLoader, other
@@ -475,7 +504,7 @@ public class ContextCompat {
      * fairly lightweight.
      * <p>
      * Prior to {@link BuildCompat#isAtLeastN()} this method returns
-     * {@code null}, since device-encrypted storage is not available.
+     * {@code null}, since device-protected storage is not available.
      *
      * @see ContextCompat#isDeviceProtectedStorage(Context)
      */
