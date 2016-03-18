@@ -679,6 +679,18 @@ package android.support.v17.leanback.app {
     method public void onFadeOutComplete();
   }
 
+  public final class ProgressBarManager {
+    ctor public ProgressBarManager();
+    method public void disableProgressBar();
+    method public void enableProgressBar();
+    method public long getInitialDelay();
+    method public void hide();
+    method public void setInitialDelay(long);
+    method public void setProgressBarView(android.view.View);
+    method public void setRootView(android.view.ViewGroup);
+    method public void show();
+  }
+
   public class RowsFragment extends android.support.v17.leanback.app.BaseRowFragment implements android.support.v17.leanback.app.Adaptable {
     ctor public RowsFragment();
     method public deprecated void enableRowScaling(boolean);
