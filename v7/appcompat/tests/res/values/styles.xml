@@ -44,4 +44,6 @@
     <style name="OceanSpinnerPopupTheme">
         <item name="android:background">@color/ocean_default</item>
     </style>
+
+    <style name="PopupEmptyStyle" />
 </resources>
