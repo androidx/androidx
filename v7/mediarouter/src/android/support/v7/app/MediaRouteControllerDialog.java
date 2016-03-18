@@ -90,7 +90,9 @@ import java.util.concurrent.TimeUnit;
  * @see MediaRouteActionProvider
  */
 public class MediaRouteControllerDialog extends AlertDialog {
-    private static final String TAG = "MediaRouteControllerDialog";
+    // Tags should be less than 24 characters long (see docs for android.util.Log.isLoggable())
+    private static final String TAG = "MediaRouteCtrlDialog";
+    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     // Time to wait before updating the volume when the user lets go of the seek bar
     // to allow the route provider time to propagate the change and publish a new
@@ -1056,8 +1058,12 @@ public class MediaRouteControllerDialog extends AlertDialog {
         @Override
         public void onRouteVolumeChanged(MediaRouter router, MediaRouter.RouteInfo route) {
             SeekBar volumeSlider = mVolumeSliderMap.get(route);
+            int volume = route.getVolume();
+            if (DEBUG) {
+                Log.d(TAG, "onRouteVolumeChanged(), route.getVolume:" + volume);
+            }
             if (volumeSlider != null && mRouteInVolumeSliderTouched != route) {
-                volumeSlider.setProgress(route.getVolume());
+                volumeSlider.setProgress(volume);
             }
         }
     }
@@ -1126,8 +1132,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
             @Override
             public void run() {
                 if (mRouteInVolumeSliderTouched != null) {
-                    SeekBar volumeSlider = mVolumeSliderMap.get(mRouteInVolumeSliderTouched);
-                    volumeSlider.setProgress(mRouteInVolumeSliderTouched.getVolume());
                     mRouteInVolumeSliderTouched = null;
                 }
             }
@@ -1153,9 +1157,11 @@ public class MediaRouteControllerDialog extends AlertDialog {
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             if (fromUser) {
                 MediaRouter.RouteInfo route = (MediaRouter.RouteInfo) seekBar.getTag();
-                if (route.getVolume() != progress) {
-                    route.requestSetVolume(progress);
+                if (DEBUG) {
+                    Log.d(TAG, "onProgressChanged(): calling "
+                            + "MediaRouter.RouteInfo.requestSetVolume(" + progress + ")");
                 }
+                route.requestSetVolume(progress);
             }
         }
     }
