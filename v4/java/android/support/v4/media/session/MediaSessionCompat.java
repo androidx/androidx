@@ -84,8 +84,7 @@ public class MediaSessionCompat {
 
     private final MediaSessionImpl mImpl;
     private final MediaControllerCompat mController;
-    private final ArrayList<OnActiveChangeListener>
-            mActiveListeners = new ArrayList<OnActiveChangeListener>();
+    private final ArrayList<OnActiveChangeListener> mActiveListeners = new ArrayList<>();
 
     /**
      * @hide
@@ -161,11 +160,17 @@ public class MediaSessionCompat {
             "android.support.v4.media.session.action.ARGUMENT_EXTRAS";
 
     /**
-     * Creates a new session using a media button receiver from your manifest.
-     * Note that a media button receiver is required to support platform versions
-     * earlier than {@link android.os.Build.VERSION_CODES#LOLLIPOP}.
-     *
-     * @param context The context.
+     * Creates a new session. You must call {@link #release()} when finished with the session.
+     * <p>
+     * The session will automatically be registered with the system but will not be published
+     * until {@link #setActive(boolean) setActive(true)} is called.
+     * </p><p>
+     * For API 20 or earlier, note that a media button receiver is required for handling
+     * {@link Intent#ACTION_MEDIA_BUTTON}. This constructor will attempt to find an appropriate
+     * {@link BroadcastReceiver} from your manifest. See {@link MediaButtonReceiver} for more
+     * details.
+     * </p>
+     * @param context The context to use to create the session.
      * @param tag A short name for debugging purposes.
      */
     public MediaSessionCompat(Context context, String tag) {
@@ -173,22 +178,29 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Creates a new session.
-     *
-     * @param context The context.
+     * Creates a new session with a specified media button receiver (a component name and/or
+     * a pending intent). You must call {@link #release()} when finished with the session.
+     * <p>
+     * The session will automatically be registered with the system but will not be published
+     * until {@link #setActive(boolean) setActive(true)} is called. Note that {@code mbrComponent}
+     * and {@code mrbIntent} are only used for API 20 or earlier. If you  want to set a media button
+     * receiver in API 21 or later, call {@link #setMediaButtonReceiver}.
+     * </p><p>
+     * For API 20 or earlier, the new session will use the given {@code mbrComponent}.
+     * If null, this will attempt to find an appropriate {@link BroadcastReceiver} that handles
+     * {@link Intent#ACTION_MEDIA_BUTTON} from your manifest. See {@link MediaButtonReceiver} for
+     * more details.
+     * </p>
+     * @param context The context to use to create the session.
      * @param tag A short name for debugging purposes.
-     * @param mediaButtonEventReceiver The component name for your receiver.
-     *            If null, this will attempt to find an appropriate
-     *            {@link BroadcastReceiver} that handles
-     *            {@link Intent#ACTION_MEDIA_BUTTON} from your manifest.
-     *            A receiver is required to support platform versions earlier
-     *            than {@link android.os.Build.VERSION_CODES#LOLLIPOP}.
-     * @param mbrIntent The PendingIntent for your receiver component that
-     *            handles media button events. This is optional and will be used
-     *            on {@link android.os.Build.VERSION_CODES#JELLY_BEAN_MR2} and
-     *            later instead of the component name.
+     * @param mbrComponent The component name for your media button receiver.
+     * @param mbrIntent The PendingIntent for your receiver component that handles
+     *            media button events. This is optional and will be used on between
+     *            {@link android.os.Build.VERSION_CODES#JELLY_BEAN_MR2} and
+     *            {@link android.os.Build.VERSION_CODES#KITKAT_WATCH} instead of the
+     *            component name.
      */
-    public MediaSessionCompat(Context context, String tag, ComponentName mediaButtonEventReceiver,
+    public MediaSessionCompat(Context context, String tag, ComponentName mbrComponent,
             PendingIntent mbrIntent) {
         if (context == null) {
             throw new IllegalArgumentException("context must not be null");
@@ -197,37 +209,10 @@ public class MediaSessionCompat {
             throw new IllegalArgumentException("tag must not be null or empty");
         }
 
-        if (mediaButtonEventReceiver == null) {
-            Intent queryIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
-            queryIntent.setPackage(context.getPackageName());
-            PackageManager pm = context.getPackageManager();
-            List<ResolveInfo> resolveInfos = pm.queryBroadcastReceivers(queryIntent, 0);
-            // If none are found, assume we are running on a newer platform version that does
-            // not require a media button receiver ComponentName. Later code will double check
-            // this assumption and throw an error if needed
-            if (resolveInfos.size() == 1) {
-                ResolveInfo resolveInfo = resolveInfos.get(0);
-                mediaButtonEventReceiver = new ComponentName(resolveInfo.activityInfo.packageName,
-                    resolveInfo.activityInfo.name);
-            } else if (resolveInfos.size() > 1) {
-                Log.w(TAG, "More than one BroadcastReceiver that handles " +
-                        Intent.ACTION_MEDIA_BUTTON + " was found, using null. Provide a " +
-                        "specific ComponentName to use as this session's media button receiver");
-            }
-        }
-        if (mediaButtonEventReceiver != null && mbrIntent == null) {
-            // construct a PendingIntent for the media button
-            Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
-            // the associated intent will be handled by the component being registered
-            mediaButtonIntent.setComponent(mediaButtonEventReceiver);
-            mbrIntent = PendingIntent.getBroadcast(context,
-                    0/* requestCode, ignored */, mediaButtonIntent, 0/* flags */);
-        }
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             mImpl = new MediaSessionImplApi21(context, tag);
-            mImpl.setMediaButtonReceiver(mbrIntent);
         } else {
-            mImpl = new MediaSessionImplBase(context, tag, mediaButtonEventReceiver, mbrIntent);
+            mImpl = new MediaSessionImplBase(context, tag, mbrComponent, mbrIntent);
         }
         mController = new MediaControllerCompat(context, this);
     }
@@ -1060,19 +1045,19 @@ public class MediaSessionCompat {
             return new QueueItem(queueItem, description, id);
         }
 
-        public static final Creator<MediaSessionCompat.QueueItem>
-                CREATOR = new Creator<MediaSessionCompat.QueueItem>() {
+        public static final Creator<MediaSessionCompat.QueueItem> CREATOR
+                = new Creator<MediaSessionCompat.QueueItem>() {
 
-                        @Override
-                    public MediaSessionCompat.QueueItem createFromParcel(Parcel p) {
-                        return new MediaSessionCompat.QueueItem(p);
-                    }
+            @Override
+            public MediaSessionCompat.QueueItem createFromParcel(Parcel p) {
+                return new MediaSessionCompat.QueueItem(p);
+            }
 
-                        @Override
-                    public MediaSessionCompat.QueueItem[] newArray(int size) {
-                        return new MediaSessionCompat.QueueItem[size];
-                    }
-                };
+            @Override
+            public MediaSessionCompat.QueueItem[] newArray(int size) {
+                return new MediaSessionCompat.QueueItem[size];
+            }
+        };
 
         @Override
         public String toString() {
@@ -1157,8 +1142,8 @@ public class MediaSessionCompat {
 
     static class MediaSessionImplBase implements MediaSessionImpl {
         private final Context mContext;
-        private final ComponentName mComponentName;
-        private final PendingIntent mMediaButtonEventReceiver;
+        private final ComponentName mMediaButtonReceiverComponentName;
+        private final PendingIntent mMediaButtonReceiverIntent;
         private final Object mRccObj;
         private final MediaSessionStub mStub;
         private final Token mToken;
@@ -1168,7 +1153,7 @@ public class MediaSessionCompat {
 
         private final Object mLock = new Object();
         private final RemoteCallbackList<IMediaControllerCallback> mControllerCallbacks
-                = new RemoteCallbackList<IMediaControllerCallback>();
+                = new RemoteCallbackList<>();
 
         private MessageHandler mHandler;
         private boolean mDestroyed = false;
@@ -1206,7 +1191,34 @@ public class MediaSessionCompat {
         };
 
         public MediaSessionImplBase(Context context, String tag, ComponentName mbrComponent,
-                PendingIntent mbr) {
+                PendingIntent mbrIntent) {
+            if (mbrComponent == null) {
+                Intent queryIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+                queryIntent.setPackage(context.getPackageName());
+                PackageManager pm = context.getPackageManager();
+                List<ResolveInfo> resolveInfos = pm.queryBroadcastReceivers(queryIntent, 0);
+                // If none are found, assume we are running on a newer platform version that does
+                // not require a media button receiver ComponentName. Later code will double check
+                // this assumption and throw an error if needed
+                if (resolveInfos.size() == 1) {
+                    ResolveInfo resolveInfo = resolveInfos.get(0);
+                    mbrComponent = new ComponentName(resolveInfo.activityInfo.packageName,
+                            resolveInfo.activityInfo.name);
+                } else if (resolveInfos.size() > 1) {
+                    Log.w(TAG, "More than one BroadcastReceiver that handles "
+                            + Intent.ACTION_MEDIA_BUTTON + " was found, using null. Provide a "
+                            + "specific ComponentName to use as this session's media button "
+                            + "receiver");
+                }
+            }
+            if (mbrComponent != null && mbrIntent == null) {
+                // construct a PendingIntent for the media button
+                Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+                // the associated intent will be handled by the component being registered
+                mediaButtonIntent.setComponent(mbrComponent);
+                mbrIntent = PendingIntent.getBroadcast(context,
+                        0/* requestCode, ignored */, mediaButtonIntent, 0/* flags */);
+            }
             if (mbrComponent == null) {
                 throw new IllegalArgumentException(
                         "MediaButtonReceiver component may not be null.");
@@ -1215,8 +1227,8 @@ public class MediaSessionCompat {
             mPackageName = context.getPackageName();
             mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
             mTag = tag;
-            mComponentName = mbrComponent;
-            mMediaButtonEventReceiver = mbr;
+            mMediaButtonReceiverComponentName = mbrComponent;
+            mMediaButtonReceiverIntent = mbrIntent;
             mStub = new MediaSessionStub();
             mToken = new Token(mStub);
 
@@ -1224,7 +1236,7 @@ public class MediaSessionCompat {
             mVolumeType = MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_LOCAL;
             mLocalStream = AudioManager.STREAM_MUSIC;
             if (android.os.Build.VERSION.SDK_INT >= 14) {
-                mRccObj = MediaSessionCompatApi14.createRemoteControlClient(mbr);
+                mRccObj = MediaSessionCompatApi14.createRemoteControlClient(mbrIntent);
             } else {
                 mRccObj = null;
             }
@@ -1514,19 +1526,21 @@ public class MediaSessionCompat {
                     if (!mIsMbrRegistered && (mFlags & FLAG_HANDLES_MEDIA_BUTTONS) != 0) {
                         if (android.os.Build.VERSION.SDK_INT >= 18) {
                             MediaSessionCompatApi18.registerMediaButtonEventReceiver(mContext,
-                                    mMediaButtonEventReceiver, mComponentName);
+                                    mMediaButtonReceiverIntent,
+                                    mMediaButtonReceiverComponentName);
                         } else {
                             MediaSessionCompatApi8.registerMediaButtonEventReceiver(mContext,
-                                    mComponentName);
+                                    mMediaButtonReceiverComponentName);
                         }
                         mIsMbrRegistered = true;
                     } else if (mIsMbrRegistered && (mFlags & FLAG_HANDLES_MEDIA_BUTTONS) == 0) {
                         if (android.os.Build.VERSION.SDK_INT >= 18) {
                             MediaSessionCompatApi18.unregisterMediaButtonEventReceiver(mContext,
-                                    mMediaButtonEventReceiver, mComponentName);
+                                    mMediaButtonReceiverIntent,
+                                    mMediaButtonReceiverComponentName);
                         } else {
                             MediaSessionCompatApi8.unregisterMediaButtonEventReceiver(mContext,
-                                    mComponentName);
+                                    mMediaButtonReceiverComponentName);
                         }
                         mIsMbrRegistered = false;
                     }
@@ -1553,10 +1567,10 @@ public class MediaSessionCompat {
                 if (mIsMbrRegistered) {
                     if (android.os.Build.VERSION.SDK_INT >= 18) {
                         MediaSessionCompatApi18.unregisterMediaButtonEventReceiver(mContext,
-                                mMediaButtonEventReceiver, mComponentName);
+                                mMediaButtonReceiverIntent, mMediaButtonReceiverComponentName);
                     } else {
                         MediaSessionCompatApi8.unregisterMediaButtonEventReceiver(mContext,
-                                mComponentName);
+                                mMediaButtonReceiverComponentName);
                     }
                     mIsMbrRegistered = false;
                 }
@@ -2242,7 +2256,7 @@ public class MediaSessionCompat {
         public void setQueue(List<QueueItem> queue) {
             List<Object> queueObjs = null;
             if (queue != null) {
-                queueObjs = new ArrayList<Object>();
+                queueObjs = new ArrayList<>();
                 for (QueueItem item : queue) {
                     queueObjs.add(item.getQueueItem());
                 }
