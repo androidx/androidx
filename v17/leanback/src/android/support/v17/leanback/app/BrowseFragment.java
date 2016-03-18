@@ -422,10 +422,15 @@ public class BrowseFragment extends BaseFragment {
      * against {@link PageRow}.
      */
     public final static class MainFragmentAdapterRegistry {
-        private Map<Class, FragmentFactory> itemToFragmentFactoryMapping = new HashMap();
+        private final Map<Class, FragmentFactory> mItemToFragmentFactoryMapping = new HashMap();
+        private final static FragmentFactory sDefaultFragmentFactory = new ListRowFragmentFactory();
+
+        public MainFragmentAdapterRegistry() {
+            registerFragment(ListRow.class, sDefaultFragmentFactory);
+        }
 
         public void registerFragment(Class rowClass, FragmentFactory factory) {
-            itemToFragmentFactoryMapping.put(rowClass, factory);
+            mItemToFragmentFactoryMapping.put(rowClass, factory);
         }
 
         public Fragment createFragment(Object item) {
@@ -433,7 +438,12 @@ public class BrowseFragment extends BaseFragment {
                 throw new IllegalArgumentException("Item can't be null");
             }
 
-            return itemToFragmentFactoryMapping.get(item.getClass()).createFragment(item);
+            FragmentFactory fragmentFactory = mItemToFragmentFactoryMapping.get(item.getClass());
+            if (fragmentFactory == null && !(item instanceof PageRow)) {
+                fragmentFactory = sDefaultFragmentFactory;
+            }
+
+            return fragmentFactory.createFragment(item);
         }
     }
 
@@ -844,8 +854,6 @@ public class BrowseFragment extends BaseFragment {
         ta.recycle();
 
         readArguments(getArguments());
-
-        mMainFragmentAdapterRegistry.registerFragment(ListRow.class, new ListRowFragmentFactory());
 
         if (mCanShowHeaders) {
             if (mHeadersBackStackEnabled) {
