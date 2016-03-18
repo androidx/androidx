@@ -16,11 +16,13 @@
 package android.support.v7.widget;
 
 import android.app.Instrumentation;
+import android.content.Context;
 import android.graphics.Rect;
 import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
 import android.support.v7.app.BaseInstrumentationTestCase;
 import android.support.v7.appcompat.test.R;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -297,6 +299,99 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
     }
 
     /**
+     * Emulates a drag-down gestures by injecting ACTION events with {@link Instrumentation}.
+     */
+    private void emulateDragDownGesture(int emulatedX, int emulatedStartY, int swipeAmount) {
+        // The logic below uses Instrumentation to emulate a swipe / drag gesture to bring up
+        // the popup content. Note that we don't want to use Espresso's GeneralSwipeAction
+        // as that operates on the level of an individual view. Here we want to test correct
+        // forwarding of events that cross the boundary between the anchor and the popup menu.
+
+        final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
+
+        // Inject DOWN event
+        long downTime = SystemClock.uptimeMillis();
+        MotionEvent eventDown = MotionEvent.obtain(
+                downTime, downTime, MotionEvent.ACTION_DOWN, emulatedX, emulatedStartY, 1);
+        instrumentation.sendPointerSync(eventDown);
+
+        // Inject a sequence of MOVE events that emulate a "swipe down" gesture
+        for (int i = 0; i < 10; i++) {
+            long moveTime = SystemClock.uptimeMillis();
+            final int moveY = emulatedStartY + swipeAmount * i / 10;
+            MotionEvent eventMove = MotionEvent.obtain(
+                    moveTime, moveTime, MotionEvent.ACTION_MOVE, emulatedX, moveY, 1);
+            instrumentation.sendPointerSync(eventMove);
+            // sleep for a bit to emulate a 200ms swipe
+            SystemClock.sleep(20);
+        }
+
+        // Inject UP event
+        long upTime = SystemClock.uptimeMillis();
+        MotionEvent eventUp = MotionEvent.obtain(
+                upTime, upTime, MotionEvent.ACTION_UP, emulatedX, emulatedStartY + swipeAmount, 1);
+        instrumentation.sendPointerSync(eventUp);
+
+        // Wait for the system to process all events in the queue
+        instrumentation.waitForIdleSync();
+    }
+
+    @Test
+    @MediumTest
+    public void testCreateOnDragListener() throws Throwable {
+        // In this test we want precise control over the height of the popup content since
+        // we need to know by how much to swipe down to end the emulated gesture over the
+        // specific item in the popup. This is why we're using a popup style that removes
+        // all decoration around the popup content, as well as our own row layout with known
+        // height.
+        Builder popupBuilder = new Builder()
+                .withPopupStyleAttr(R.style.PopupEmptyStyle)
+                .withContentRowLayoutId(R.layout.popup_window_item)
+                .withItemClickListener().withDismissListener();
+
+        // Configure ListPopupWindow without showing it
+        popupBuilder.configure();
+
+        // Get the anchor view and configure it with ListPopupWindow's drag-to-open listener
+        final View anchor = mActivityTestRule.getActivity().findViewById(R.id.test_button);
+        View.OnTouchListener dragListener = mListPopupWindow.createDragToOpenListener(anchor);
+        anchor.setOnTouchListener(dragListener);
+        // And also configure it to show the popup window on click
+        anchor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mListPopupWindow.show();
+            }
+        });
+
+        // Get the height of a row item in our popup window
+        final int popupRowHeight = mActivityTestRule.getActivity().getResources()
+                .getDimensionPixelSize(R.dimen.popup_row_height);
+
+        final int[] anchorOnScreenXY = new int[2];
+        anchor.getLocationOnScreen(anchorOnScreenXY);
+
+        // Compute the start coordinates of a downward swipe and the amount of swipe. We'll
+        // be swiping by twice the row height. That, combined with the swipe originating in the
+        // center of the anchor should result in clicking the second row in the popup.
+        int emulatedX = anchorOnScreenXY[0] + anchor.getWidth() / 2;
+        int emulatedStartY = anchorOnScreenXY[1] + anchor.getHeight() / 2;
+        int swipeAmount = 2 * popupRowHeight;
+
+        // Emulate drag-down gesture with a sequence of motion events
+        emulateDragDownGesture(emulatedX, emulatedStartY, swipeAmount);
+
+        // We expect the swipe / drag gesture to result in clicking the second item in our list.
+        verify(popupBuilder.mOnItemClickListener, times(1)).onItemClick(
+                any(AdapterView.class), any(View.class), eq(1), eq(1L));
+        // Since our item click listener calls dismiss() on the popup, we expect the popup to not
+        // be showing
+        assertFalse(mListPopupWindow.isShowing());
+        // At this point our popup should have notified its dismiss listener
+        verify(popupBuilder.mOnDismissListener, times(1)).onDismiss();
+    }
+
+    /**
      * Inner helper class to configure an instance of <code>ListPopupWindow</code> for the
      * specific test. The main reason for its existence is that once a popup window is shown
      * with the show() method, most of its configuration APIs are no-ops. This means that
@@ -311,8 +406,24 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
         private AdapterView.OnItemClickListener mOnItemClickListener;
         private PopupWindow.OnDismissListener mOnDismissListener;
 
+        private int mContentRowLayoutId = R.layout.abc_popup_menu_item_layout;
+
+        private boolean mUseCustomPopupStyle;
+        private int mPopupStyleAttr;
+
         public Builder setModal(boolean isModal) {
             mIsModal = isModal;
+            return this;
+        }
+
+        public Builder withContentRowLayoutId(int contentRowLayoutId) {
+            mContentRowLayoutId = contentRowLayoutId;
+            return this;
+        }
+
+        public Builder withPopupStyleAttr(int popupStyleAttr) {
+            mUseCustomPopupStyle = true;
+            mPopupStyleAttr = popupStyleAttr;
             return this;
         }
 
@@ -326,8 +437,13 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
             return this;
         }
 
-        private void show() {
-            mListPopupWindow = new ListPopupWindow(mContainer.getContext());
+        private void configure() {
+            final Context context = mContainer.getContext();
+            if (mUseCustomPopupStyle) {
+                mListPopupWindow = new ListPopupWindow(context, null, mPopupStyleAttr, 0);
+            } else {
+                mListPopupWindow = new ListPopupWindow(context);
+            }
 
             final String[] POPUP_CONTENT =
                     new String[]{"Alice", "Bob", "Charlie", "Deirdre", "El"};
@@ -355,7 +471,7 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
                 public View getView(int position, View convertView, ViewGroup parent) {
                     if (convertView == null) {
                         convertView = LayoutInflater.from(parent.getContext()).inflate(
-                                R.layout.abc_popup_menu_item_layout, parent, false);
+                                mContentRowLayoutId, parent, false);
                         ViewHolder viewHolder = new ViewHolder();
                         viewHolder.title = (TextView) convertView.findViewById(R.id.title);
                         convertView.setTag(viewHolder);
@@ -390,6 +506,10 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
             }
 
             mListPopupWindow.setModal(mIsModal);
+        }
+
+        private void show() {
+            configure();
             mListPopupWindow.show();
         }
 
