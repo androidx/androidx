@@ -35,6 +35,7 @@ import android.support.v4.view.KeyEventCompat;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.TintResources;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -159,7 +160,10 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
         super.onConfigurationChanged(newConfig);
         getDelegate().onConfigurationChanged(newConfig);
         if (mResources != null) {
-            mResources.updateConfiguration(newConfig, null);
+            // The real (and thus managed) resources object was already updated
+            // by ResourcesManager, so pull the current metrics from there.
+            final DisplayMetrics newMetrics = super.getResources().getDisplayMetrics();
+            mResources.updateConfiguration(newConfig, newMetrics);
         }
     }
 
