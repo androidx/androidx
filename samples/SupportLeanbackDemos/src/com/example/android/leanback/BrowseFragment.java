@@ -225,6 +225,11 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
             super(fragment);
             setScalingEnabled(true);
         }
+
+        @Override
+        public void setEntranceTransitionState(boolean state) {
+            getFragment().setEntranceTransitionState(state);
+        }
     }
 
     public static class SampleRowsFragment extends RowsFragment {
@@ -292,6 +297,20 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
 
         final PageFragmentAdapterImpl mMainFragmentAdapter = new PageFragmentAdapterImpl(this);
 
+        boolean mEntranceTransitionState = true;
+
+        public void setEntranceTransitionState(boolean state) {
+            mEntranceTransitionState = state;
+            final View view = getView();
+            if (view == null) {
+                return;
+            }
+            int visibility = state ? View.VISIBLE : View.INVISIBLE;
+            view.findViewById(R.id.tv1).setVisibility(visibility);
+            view.findViewById(R.id.tv2).setVisibility(visibility);
+            view.findViewById(R.id.tv3).setVisibility(visibility);
+        }
+
         @Override
         public View onCreateView(
                 final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -305,6 +324,11 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
             });
 
             return view;
+        }
+
+        @Override
+        public void onViewCreated(View view, Bundle savedInstanceState) {
+            setEntranceTransitionState(mEntranceTransitionState);
         }
 
         @Override
