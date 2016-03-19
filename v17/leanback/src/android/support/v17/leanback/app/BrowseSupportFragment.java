@@ -368,6 +368,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             item = adapter.get(position);
         }
 
+        mSelectedPosition = position;
         boolean oldIsPageRow = mIsPageRow;
         mIsPageRow = item instanceof PageRow;
         boolean swap;
@@ -987,6 +988,27 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         }
     }
 
+    @Override
+    boolean isReadyForPrepareEntranceTransition() {
+        return mMainFragment != null;
+    }
+
+    @Override
+    boolean isReadyForStartEntranceTransition() {
+        return mMainFragment != null && mMainFragment.getView() != null;
+    }
+
+    void processingPendingEntranceTransition() {
+        // mMainFragment is not null at this point, it can perform prepare entrance transition.
+        performPendingStates();
+        // mMainFragment's view is going to be created in next cycle
+        getView().post(new Runnable() {
+            public void run() {
+                performPendingStates();
+            }
+        });
+    }
+
     private void createHeadersTransition() {
         mHeadersTransition = TransitionHelper.loadTransition(getActivity(),
                 mShowingHeaders ?
@@ -1135,6 +1157,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             swapBrowseContent(mMainFragment);
             expandMainFragment(!(mCanShowHeaders && mShowingHeaders));
             setupMainFragment();
+            processingPendingEntranceTransition();
         }
     }
 
@@ -1210,6 +1233,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         if (isEntranceTransitionEnabled()) {
             setEntranceTransitionStartState();
         }
+        processingPendingEntranceTransition();
     }
 
     private void onExpandTransitionStart(boolean expand, final Runnable callback) {
@@ -1325,6 +1349,9 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     @Override
     protected void onEntranceTransitionPrepare() {
         mHeadersSupportFragment.onTransitionPrepare();
+        // setEntranceTransitionStartState() might be called when mMainFragment is null,
+        // make sure it is called.
+        mMainFragmentAdapter.setEntranceTransitionState(false);
         mMainFragmentAdapter.onTransitionPrepare();
     }
 
