@@ -478,7 +478,7 @@ public class ListRowPresenter extends RowPresenter {
      */
     private void selectChildView(ViewHolder rowViewHolder, View view, boolean fireEvent) {
         if (view != null) {
-            if (rowViewHolder.mExpanded && rowViewHolder.mSelected) {
+            if (rowViewHolder.mSelected) {
                 ItemBridgeAdapter.ViewHolder ibh = (ItemBridgeAdapter.ViewHolder)
                         rowViewHolder.mGridView.getChildViewHolder(view);
 
