@@ -2297,7 +2297,7 @@ static jlong
 nAllocationGetStride(JNIEnv *_env, jobject _this, jlong con, jlong alloc)
 {
     LOG_API("nAllocationGetStride, con(%p), alloc(%p)", (RsContext)con, (RsAllocation)alloc);
-    size_t strideIn;
+    size_t strideIn = 0;
     void* ptr = NULL;
     if (alloc != 0 && dispatchTab.AllocationGetPointer != nullptr) {
         ptr = dispatchTab.AllocationGetPointer((RsContext)con, (RsAllocation)alloc, 0,
