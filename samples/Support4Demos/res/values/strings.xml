@@ -186,6 +186,28 @@
 
     <string name="sliding_pane_layout_summary">This activity illustrates the use of sliding panes. The content pane may be slid to one side on narrow devices to reveal the left pane used to select content. Sliding panes can be used to fit a UI intended for wider screens in a smaller space. Tapping the Action Bar\'s Up button at the left side of the bar will navigate up in the hierarchy, represented by the left pane. If you rotate the device to landscape mode, on most devices you will see that both panes fit together side by side with no sliding necessary.</string>
 
+    <!-- MediaBrowserCompat Sample -->
+
+    <string name="media_browser_support">Media/MediaBrowserCompat Sample</string>
+    <string name="favorite">Favorite</string>
+    <string name="error_no_metadata">Unable to retrieve metadata.</string>
+    <string name="browse_genres">Genres</string>
+    <string name="browse_genre_subtitle">Songs by genre</string>
+    <string name="browse_musics_by_genre_subtitle">%1$s songs</string>
+    <string name="random_queue_title">Random music</string>
+    <string name="error_cannot_skip">Cannot skip</string>
+    <string name="error_loading_media">Error Loading Media</string>
+    <string name="play_item">Play item</string>
+    <string name="skip_previous">Skip to previous</string>
+    <string name="play_pause">play or pause</string>
+    <string name="skip_next">Skip to next</string>
+    <string name="no_search_results">No search results.</string>
+    <string name="label_pause">Pause</string>
+    <string name="label_play">Play</string>
+    <string name="label_previous">Previous</string>
+    <string name="label_next">Next</string>
+    <string name="error_empty_metadata">Empty metadata!</string>
+
     <!-- ExploreByTouchHelper -->
 
     <string name="explore_by_touch_helper_support">Widget/Explore by Touch helper</string>

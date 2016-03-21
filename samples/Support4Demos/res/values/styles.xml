@@ -36,4 +36,27 @@
          in correctly laying out an activity as a dialog. -->
     <style name="ThemeDialogWhenLarge" parent="android:style/Theme">
     </style>
+
+    <style name="AppTheme" parent="android:Theme.Material">
+        <item name="android:colorPrimary">#ffff5722</item>
+        <item name="android:colorPrimaryDark">#ffbf360c</item>
+        <item name="android:colorAccent">#ffff5722</item>
+    </style>
+
+    <style name="CarTheme" parent="AppTheme">
+        <!-- colorPrimaryDark is currently used in Android Auto for:
+             - App background
+             - Drawer right side ("more" custom actions) background
+             - Notification icon badge tinting
+             - Overview “now playing” icon tinting
+         -->
+        <item name="android:colorPrimaryDark">#ffbf360c</item>
+
+        <!-- colorAccent is used in Android Auto for:
+             - Spinner
+             - progress bar
+             - floating action button background (Play/Pause in media apps)
+         -->
+        <item name="android:colorAccent">#ffff5722</item>
+    </style>
 </resources>
