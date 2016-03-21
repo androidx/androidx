@@ -118,13 +118,15 @@ public abstract class AppCompatDelegate {
     @NightMode
     private static int sDefaultNightMode = MODE_NIGHT_FOLLOW_SYSTEM;
 
-    @IntDef({MODE_NIGHT_NO, MODE_NIGHT_YES, MODE_NIGHT_AUTO, MODE_NIGHT_FOLLOW_SYSTEM})
+    /** @hide */
+    @IntDef({MODE_NIGHT_NO, MODE_NIGHT_YES, MODE_NIGHT_AUTO, MODE_NIGHT_FOLLOW_SYSTEM,
+            MODE_NIGHT_UNSPECIFIED})
     @Retention(RetentionPolicy.SOURCE)
-    @interface NightMode {}
+    public @interface NightMode {}
 
-    @IntDef({MODE_NIGHT_NO, MODE_NIGHT_YES})
+    @IntDef({MODE_NIGHT_NO, MODE_NIGHT_YES, MODE_NIGHT_FOLLOW_SYSTEM})
     @Retention(RetentionPolicy.SOURCE)
-    @interface BinaryNightMode {}
+    @interface ApplyableNightMode {}
 
     /**
      * Flag for enabling the support Action Bar.
