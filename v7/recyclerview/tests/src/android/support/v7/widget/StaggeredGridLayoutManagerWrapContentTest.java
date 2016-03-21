@@ -53,6 +53,11 @@ public class StaggeredGridLayoutManagerWrapContentTest extends BaseWrapContentTe
     }
 
     @Test
+    public void testUnspecifiedWithHint() throws Throwable {
+        unspecifiedWithHintTest(mOrientation == StaggeredGridLayoutManager.HORIZONTAL);
+    }
+
+    @Test
     public void testSimple() throws Throwable {
         TestedFrameLayout.FullControlLayoutParams lp =
                 mWrapContentConfig.toLayoutParams(WRAP_CONTENT, WRAP_CONTENT);

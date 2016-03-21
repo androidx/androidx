@@ -1407,7 +1407,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         }
         mLayoutState.mStopInFocusable = false;
         mLayoutState.mRecycle = true;
-        mLayoutState.mInfinite = mPrimaryOrientation.getMode() == View.MeasureSpec.UNSPECIFIED;
+        mLayoutState.mInfinite = mPrimaryOrientation.getMode() == View.MeasureSpec.UNSPECIFIED &&
+                mPrimaryOrientation.getEnd() == 0;
     }
 
     private void setLayoutStateDirection(int direction) {
