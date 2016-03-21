@@ -48,4 +48,15 @@
             android:layout_width="fill_parent"
             android:layout_height="100dp"
             app:layoutManager=".PrivateLayoutManager" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerView5"
+        android:layout_width="fill_parent"
+        android:layout_height="100dp" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerView6"
+        android:layout_width="fill_parent"
+        android:layout_height="100dp"
+        android:nestedScrollingEnabled="false" />
 </LinearLayout>
