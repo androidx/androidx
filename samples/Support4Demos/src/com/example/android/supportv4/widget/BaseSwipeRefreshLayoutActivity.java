@@ -16,32 +16,27 @@
 
 package com.example.android.supportv4.widget;
 
+import com.example.android.supportv4.R;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.LayoutRes;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
-import android.widget.Toast;
-
-import com.example.android.supportv4.R;
-import com.example.android.supportv4.Shakespeare;
-
-import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 
 /**
  * Example of using the SwipeRefreshLayout.
  */
-public class SwipeRefreshLayoutActivity extends Activity implements OnRefreshListener {
-    public static final String[] TITLES =
-    {
+abstract class BaseSwipeRefreshLayoutActivity extends Activity implements OnRefreshListener {
+
+    public static final String[] TITLES = {
             "Henry IV (1)",
             "Henry V",
             "Henry VIII",
@@ -75,40 +70,41 @@ public class SwipeRefreshLayoutActivity extends Activity implements OnRefreshLis
             "Othello",
             "King Lear"
     };
+
     // Try a SUPER quick refresh to make sure we don't get extra refreshes
     // while the user's finger is still down.
     private static final boolean SUPER_QUICK_REFRESH = false;
-    private View mContent;
-    private SwipeRefreshLayout mSwipeRefreshWidget;
-    private ListView mList;
-    private Handler mHandler = new Handler();
-    private final Runnable mRefreshDone = new Runnable() {
 
+    private SwipeRefreshLayout mSwipeRefreshWidget;
+
+    private final Handler mHandler = new Handler();
+
+    private final Runnable mRefreshDone = new Runnable() {
         @Override
         public void run() {
             mSwipeRefreshWidget.setRefreshing(false);
         }
 
     };
+
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        setContentView(R.layout.swipe_refresh_widget_sample);
+        setContentView(getLayoutId());
+
         mSwipeRefreshWidget = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_widget);
-        mSwipeRefreshWidget.setColorScheme(R.color.color1, R.color.color2, R.color.color3,
+        mSwipeRefreshWidget.setColorSchemeResources(R.color.color1, R.color.color2, R.color.color3,
                 R.color.color4);
-        mList = (ListView) findViewById(R.id.content);
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, android.R.id.text1, TITLES);
-        mList.setAdapter(arrayAdapter);
         mSwipeRefreshWidget.setOnRefreshListener(this);
     }
+
+    @LayoutRes
+    protected abstract int getLayoutId();
 
     @Override
     public void onRefresh() {
         refresh();
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

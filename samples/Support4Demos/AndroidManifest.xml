@@ -313,14 +313,33 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".widget.SwipeRefreshLayoutActivity"
-                  android:label="@string/swipe"
+        <activity android:name=".widget.SwipeRefreshLayoutActivityList"
+                  android:label="@string/swipe_list"
                   android:theme="@style/ThemeHoloLight">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".widget.SwipeRefreshLayoutActivityTextView"
+                  android:label="@string/swipe_text"
+                  android:theme="@style/ThemeHoloLight">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".widget.SwipeRefreshLayoutActivityNestedScrollView"
+                  android:label="@string/swipe_nested_sv"
+                  android:theme="@style/ThemeHoloLight">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
 
         <activity android:name=".widget.ContentLoadingProgressBarActivity"
                   android:label="@string/content_loading_progress_bar">
