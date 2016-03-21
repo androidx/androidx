@@ -1927,7 +1927,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
         // For fastRelayout, only dispatch event when focus position changes.
         if (mInFastRelayout && (mFocusPosition != savedFocusPos || mSubFocusPosition !=
-                savedFocusPos || findViewByPosition(mFocusPosition) != savedFocusView)) {
+                savedSubFocusPos || findViewByPosition(mFocusPosition) != savedFocusView)) {
             dispatchChildSelected();
         } else if (!mInFastRelayout && mInLayoutSearchFocus) {
             // For full layout we dispatchChildSelected() in createItem() unless searched all
