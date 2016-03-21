@@ -20,6 +20,7 @@ import android.support.v4.app.test.FragmentTestActivity;
 import android.support.v4.test.R;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.UiThreadTest;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -115,6 +116,25 @@ public class FragmentTest extends
         });
     }
 
+    @MediumTest
+    @UiThreadTest
+    public void testViewOrder() throws Throwable {
+        FragmentA fragmentA = new FragmentA();
+        FragmentB fragmentB = new FragmentB();
+        FragmentC fragmentC = new FragmentC();
+        mActivity.getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.content, fragmentA)
+                .add(R.id.content, fragmentB)
+                .add(R.id.content, fragmentC)
+                .commitNow();
+        ViewGroup content = (ViewGroup) mActivity.findViewById(R.id.content);
+        assertEquals(3, content.getChildCount());
+        assertNotNull(content.getChildAt(0).findViewById(R.id.textA));
+        assertNotNull(content.getChildAt(1).findViewById(R.id.textB));
+        assertNotNull(content.getChildAt(2).findViewById(R.id.textC));
+    }
+
     public static class OrderFragment extends Fragment {
         private static AtomicInteger sOrder = new AtomicInteger();
         public int createOrder = -1;
@@ -141,6 +161,14 @@ public class FragmentTest extends
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
             return inflater.inflate(R.layout.fragment_b, container, false);
+        }
+    }
+
+    public static class FragmentC extends Fragment {
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                Bundle savedInstanceState) {
+            return inflater.inflate(R.layout.fragment_c, container, false);
         }
     }
 }
