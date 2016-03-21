@@ -159,8 +159,14 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      */
     private static final boolean FORCE_INVALIDATE_DISPLAY_LIST = Build.VERSION.SDK_INT == 18
             || Build.VERSION.SDK_INT == 19 || Build.VERSION.SDK_INT == 20;
+    /**
+     * On M+, an unspecified measure spec may include a hint which we can use. On older platforms,
+     * this value might be garbage. To save LayoutManagers from it, RecyclerView sets the size to
+     * 0 when mode is unspecified.
+     */
+    static final boolean ALLOW_SIZE_IN_UNSPECIFIED_SPEC = Build.VERSION.SDK_INT >= 23;
 
-    private static final boolean DISPATCH_TEMP_DETACH = false;
+    static final boolean DISPATCH_TEMP_DETACH = false;
     public static final int HORIZONTAL = 0;
     public static final int VERTICAL = 1;
 
@@ -5981,28 +5987,43 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * onMeasure method OR fake measure specs created by the RecyclerView.
          * For example, when a layout is run, RecyclerView always sets these specs to be
          * EXACTLY because a LayoutManager cannot resize RecyclerView during a layout pass.
+         * <p>
+         * Also, to be able to use the hint in unspecified measure specs, RecyclerView checks the
+         * API level and sets the size to 0 pre-M to avoid any issue that might be caused by
+         * corrupt values. Older platforms have no responsibility to provide a size if they set
+         * mode to unspecified.
          */
-        private int mWidthSpec, mHeightSpec;
+        private int mWidthMode, mHeightMode;
+        private int mWidth, mHeight;
 
         void setRecyclerView(RecyclerView recyclerView) {
             if (recyclerView == null) {
                 mRecyclerView = null;
                 mChildHelper = null;
-                mWidthSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.EXACTLY);
-                mHeightSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.EXACTLY);
+                mWidth = 0;
+                mHeight = 0;
             } else {
                 mRecyclerView = recyclerView;
                 mChildHelper = recyclerView.mChildHelper;
-                mWidthSpec = MeasureSpec
-                        .makeMeasureSpec(recyclerView.getWidth(), MeasureSpec.EXACTLY);
-                mHeightSpec = MeasureSpec
-                        .makeMeasureSpec(recyclerView.getHeight(), MeasureSpec.EXACTLY);
+                mWidth = recyclerView.getWidth();
+                mHeight = recyclerView.getHeight();
             }
+            mWidthMode = MeasureSpec.EXACTLY;
+            mHeightMode = MeasureSpec.EXACTLY;
         }
 
         void setMeasureSpecs(int wSpec, int hSpec) {
-            mWidthSpec = wSpec;
-            mHeightSpec = hSpec;
+            mWidth = MeasureSpec.getSize(wSpec);
+            mWidthMode = MeasureSpec.getMode(wSpec);
+            if (mWidthMode == MeasureSpec.UNSPECIFIED && !ALLOW_SIZE_IN_UNSPECIFIED_SPEC) {
+                mWidth = 0;
+            }
+
+            mHeight = MeasureSpec.getSize(hSpec);
+            mHeightMode = MeasureSpec.getMode(hSpec);
+            if (mHeightMode == MeasureSpec.UNSPECIFIED && !ALLOW_SIZE_IN_UNSPECIFIED_SPEC) {
+                mHeight = 0;
+            }
         }
 
         /**
@@ -7045,7 +7066,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * @see View#onMeasure(int, int)
          */
         public int getWidthMode() {
-            return MeasureSpec.getMode(mWidthSpec);
+            return mWidthMode;
         }
 
         /**
@@ -7063,7 +7084,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * @see View#onMeasure(int, int)
          */
         public int getHeightMode() {
-            return MeasureSpec.getMode(mHeightSpec);
+            return mHeightMode;
         }
 
         /**
@@ -7072,7 +7093,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * @return Width in pixels
          */
         public int getWidth() {
-            return MeasureSpec.getSize(mWidthSpec);
+            return mWidth;
         }
 
         /**
@@ -7081,7 +7102,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * @return Height in pixels
          */
         public int getHeight() {
-            return MeasureSpec.getSize(mHeightSpec);
+            return mHeight;
         }
 
         /**
@@ -7558,6 +7579,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
                 }
             }
+            //noinspection WrongConstant
             return MeasureSpec.makeMeasureSpec(resultSize, resultMode);
         }
 

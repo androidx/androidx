@@ -73,6 +73,11 @@ public class GridLayoutManagerWrapContentTest extends BaseWrapContentTest {
     }
 
     @Test
+    public void testUnspecifiedWithHint() throws Throwable {
+        unspecifiedWithHintTest(mHorizontal);
+    }
+
+    @Test
     public void testVerticalWithItemDecors() throws Throwable {
         mItemDecoration = new RecyclerView.ItemDecoration() {
             @Override
