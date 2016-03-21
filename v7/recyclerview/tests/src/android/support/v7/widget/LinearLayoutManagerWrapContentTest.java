@@ -46,6 +46,11 @@ public class LinearLayoutManagerWrapContentTest extends BaseWrapContentTest {
     }
 
     @Test
+    public void testUnspecifiedWithHint() throws Throwable {
+        unspecifiedWithHintTest(mConfig.mOrientation == StaggeredGridLayoutManager.HORIZONTAL);
+    }
+
+    @Test
     public void deletion() throws Throwable {
         testScenerio(new Scenario(
                 new Step() {
