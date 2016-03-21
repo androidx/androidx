@@ -690,9 +690,13 @@ public class TextInputLayout extends LinearLayout {
     private void updateEditTextBackground() {
         ensureBackgroundDrawableStateWorkaround();
 
-        final Drawable editTextBackground = mEditText.getBackground();
+        Drawable editTextBackground = mEditText.getBackground();
         if (editTextBackground == null) {
             return;
+        }
+
+        if (android.support.v7.widget.DrawableUtils.canSafelyMutateDrawable(editTextBackground)) {
+            editTextBackground = editTextBackground.mutate();
         }
 
         if (mErrorShown && mErrorView != null) {

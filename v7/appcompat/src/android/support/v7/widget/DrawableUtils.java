@@ -32,7 +32,8 @@ import android.util.Log;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-class DrawableUtils {
+/** @hide */
+public class DrawableUtils {
 
     private static final String TAG = "DrawableUtils";
 
@@ -118,7 +119,7 @@ class DrawableUtils {
      * Some drawable implementations have problems with mutation. This method returns false if
      * there is a known issue in the given drawable's implementation.
      */
-    static boolean canSafelyMutateDrawable(@NonNull Drawable drawable) {
+    public static boolean canSafelyMutateDrawable(@NonNull Drawable drawable) {
         if (drawable instanceof LayerDrawable) {
             return Build.VERSION.SDK_INT >= 16;
         } else if (drawable instanceof InsetDrawable) {
