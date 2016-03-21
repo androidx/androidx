@@ -15,6 +15,8 @@
  */
 package android.support.v7.widget;
 
+import static android.support.v7.widget.StaggeredGridLayoutManager.HORIZONTAL;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -33,6 +35,9 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import org.hamcrest.CoreMatchers;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -63,6 +68,52 @@ abstract public class BaseWrapContentTest extends BaseRecyclerViewInstrumentatio
     }
 
     abstract RecyclerView.LayoutManager createLayoutManager();
+
+    void unspecifiedWithHintTest(boolean horizontal) throws Throwable {
+        final int itemHeight = 20;
+        final int itemWidth = 15;
+        RecyclerView.LayoutManager layoutManager = createLayoutManager();
+        WrappedRecyclerView rv = createRecyclerView(getActivity());
+        TestAdapter testAdapter = new TestAdapter(20) {
+            @Override
+            public void onBindViewHolder(TestViewHolder holder,
+                    int position) {
+                super.onBindViewHolder(holder, position);
+                holder.itemView.setLayoutParams(new ViewGroup.LayoutParams(itemWidth, itemHeight));
+            }
+        };
+        rv.setLayoutManager(layoutManager);
+        rv.setAdapter(testAdapter);
+        TestedFrameLayout.FullControlLayoutParams lp =
+                new TestedFrameLayout.FullControlLayoutParams(0, 0);
+        if (horizontal) {
+            lp.wSpec = View.MeasureSpec.makeMeasureSpec(25, View.MeasureSpec.UNSPECIFIED);
+            lp.hSpec = View.MeasureSpec.makeMeasureSpec(50, View.MeasureSpec.AT_MOST);
+        } else {
+            lp.hSpec = View.MeasureSpec.makeMeasureSpec(25, View.MeasureSpec.UNSPECIFIED);
+            lp.wSpec = View.MeasureSpec.makeMeasureSpec(50, View.MeasureSpec.AT_MOST);
+        }
+        rv.setLayoutParams(lp);
+        setRecyclerView(rv);
+        rv.waitUntilLayout();
+
+        // we don't assert against the given size hint because LM will still ask for more if it
+        // lays out more children. This is the correct behavior because the spec is not AT_MOST,
+        // it is UNSPECIFIED.
+        if (horizontal) {
+            int expectedWidth = rv.getPaddingLeft() + rv.getPaddingRight() + itemWidth;
+            while (expectedWidth < 25) {
+                expectedWidth += itemWidth;
+            }
+            assertThat(rv.getWidth(), CoreMatchers.is(expectedWidth));
+        } else {
+            int expectedHeight = rv.getPaddingTop() + rv.getPaddingBottom() + itemHeight;
+            while (expectedHeight < 25) {
+                expectedHeight += itemHeight;
+            }
+            assertThat(rv.getHeight(), CoreMatchers.is(expectedHeight));
+        }
+    }
 
     protected void testScenerio(Scenario scenario) throws Throwable {
         FullControlLayoutParams matchParent = new FullControlLayoutParams(
