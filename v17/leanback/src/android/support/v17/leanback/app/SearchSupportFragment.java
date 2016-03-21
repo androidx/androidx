@@ -144,6 +144,7 @@ public class SearchSupportFragment extends Fragment {
                     mRowsSupportFragment.setSelectedPosition(0);
                 }
             }
+            updateSearchBarVisiblity();
             mStatus |= RESULTS_CHANGED;
             if ((mStatus & QUERY_COMPLETE) != 0) {
                 updateFocus();
@@ -338,9 +339,11 @@ public class SearchSupportFragment extends Fragment {
             @Override
             public void onItemSelected(ViewHolder itemViewHolder, Object item,
                                        RowPresenter.ViewHolder rowViewHolder, Row row) {
-                int position = mRowsSupportFragment.getVerticalGridView().getSelectedPosition();
-                if (DEBUG) Log.v(TAG, String.format("onItemSelected %d", position));
-                mSearchBar.setVisibility(0 >= position ? View.VISIBLE : View.GONE);
+                if (DEBUG) {
+                    int position = mRowsSupportFragment.getSelectedPosition();
+                    Log.v(TAG, String.format("onItemSelected %d", position));
+                }
+                updateSearchBarVisiblity();
                 if (null != mOnItemViewSelectedListener) {
                     mOnItemViewSelectedListener.onItemSelected(itemViewHolder, item,
                             rowViewHolder, row);
@@ -629,6 +632,12 @@ public class SearchSupportFragment extends Fragment {
         if (DEBUG) Log.v(TAG, "queryComplete");
         mStatus |= QUERY_COMPLETE;
         focusOnResults();
+    }
+
+    private void updateSearchBarVisiblity() {
+        int position = mRowsSupportFragment != null ? mRowsSupportFragment.getSelectedPosition() : -1;
+        mSearchBar.setVisibility(position <=0 || mResultAdapter == null
+                || mResultAdapter.size() == 0 ? View.VISIBLE : View.GONE);
     }
 
     private void updateSearchBarNextFocusId() {

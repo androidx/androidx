@@ -1103,9 +1103,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             if (mMainFragment == null) {
                 return;
             }
-
-            int position = ((RowsSupportFragment) mMainFragment)
-                    .getVerticalGridView().getSelectedPosition();
+            int position = ((RowsSupportFragment) mMainFragment).getSelectedPosition();
             if (DEBUG) Log.v(TAG, "row selected position " + position);
             onRowSelected(position);
             if (mExternalOnItemViewSelectedListener != null) {
@@ -1119,7 +1117,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             new HeadersSupportFragment.OnHeaderViewSelectedListener() {
         @Override
         public void onHeaderSelected(RowHeaderPresenter.ViewHolder viewHolder, Row row) {
-            int position = mHeadersSupportFragment.getVerticalGridView().getSelectedPosition();
+            int position = mHeadersSupportFragment.getSelectedPosition();
             if (DEBUG) Log.v(TAG, "header selected position " + position);
             onRowSelected(position);
         }
