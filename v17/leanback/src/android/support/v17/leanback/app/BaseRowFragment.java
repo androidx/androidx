@@ -45,6 +45,7 @@ abstract class BaseRowFragment extends Fragment {
                 @Override
                 public void onChildViewHolderSelected(RecyclerView parent,
                         RecyclerView.ViewHolder view, int position, int subposition) {
+                    mSelectedPosition = position;
                     onRowSelected(parent, view, position, subposition);
                 }
             };
@@ -142,6 +143,9 @@ abstract class BaseRowFragment extends Fragment {
      * Sets the selected row position.
      */
     public void setSelectedPosition(int position, boolean smooth) {
+        if (mSelectedPosition == position) {
+            return;
+        }
         mSelectedPosition = position;
         if(mVerticalGridView != null && mVerticalGridView.getAdapter() != null) {
             if (smooth) {
