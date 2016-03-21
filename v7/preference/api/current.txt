@@ -271,7 +271,7 @@ package android.support.v7.preference {
     method public void setSharedPreferencesMode(int);
     method public void setSharedPreferencesName(java.lang.String);
     method public void setStorageDefault();
-    method public void setStorageDeviceEncrypted();
+    method public void setStorageDeviceProtected();
     method public void showDialog(android.support.v7.preference.Preference);
     field public static final java.lang.String KEY_HAS_SET_DEFAULT_VALUES = "_has_set_default_values";
   }

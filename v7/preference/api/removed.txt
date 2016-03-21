@@ -1,0 +1,8 @@
+package android.support.v7.preference {
+
+  public class PreferenceManager {
+    method public deprecated void setStorageDeviceEncrypted();
+  }
+
+}
+
