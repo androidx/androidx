@@ -1101,9 +1101,7 @@ public class BrowseFragment extends BaseFragment {
             if (mMainFragment == null) {
                 return;
             }
-
-            int position = ((RowsFragment) mMainFragment)
-                    .getVerticalGridView().getSelectedPosition();
+            int position = ((RowsFragment) mMainFragment).getSelectedPosition();
             if (DEBUG) Log.v(TAG, "row selected position " + position);
             onRowSelected(position);
             if (mExternalOnItemViewSelectedListener != null) {
@@ -1117,7 +1115,7 @@ public class BrowseFragment extends BaseFragment {
             new HeadersFragment.OnHeaderViewSelectedListener() {
         @Override
         public void onHeaderSelected(RowHeaderPresenter.ViewHolder viewHolder, Row row) {
-            int position = mHeadersFragment.getVerticalGridView().getSelectedPosition();
+            int position = mHeadersFragment.getSelectedPosition();
             if (DEBUG) Log.v(TAG, "header selected position " + position);
             onRowSelected(position);
         }
