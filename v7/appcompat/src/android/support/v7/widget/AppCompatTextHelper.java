@@ -86,6 +86,7 @@ class AppCompatTextHelper {
                 mView.getTransformationMethod() instanceof PasswordTransformationMethod;
         boolean allCaps = false;
         boolean allCapsSet = false;
+        ColorStateList textColor = null;
 
         // First check TextAppearance's textAllCaps value
         if (ap != -1) {
@@ -94,15 +95,11 @@ class AppCompatTextHelper {
                 allCapsSet = true;
                 allCaps = a.getBoolean(R.styleable.TextAppearance_textAllCaps, false);
             }
-            if (Build.VERSION.SDK_INT < 23 && TypedValue.TYPE_STRING
-                    == a.getType(R.styleable.TextAppearance_android_textColor)) {
-                // If we're running on < API 23, have a color set and it's a String reference,
-                // it may contain theme references so let's re-set using our own inflater
-                final ColorStateList textColor
-                        = a.getColorStateList(R.styleable.TextAppearance_android_textColor);
-                if (textColor != null) {
-                    mView.setTextColor(textColor);
-                }
+            if (Build.VERSION.SDK_INT < 23
+                    && a.hasValue(R.styleable.TextAppearance_android_textColor)) {
+                // If we're running on < API 23, the text color may contain theme references
+                // so let's re-set using our own inflater
+                textColor = a.getColorStateList(R.styleable.TextAppearance_android_textColor);
             }
             a.recycle();
         }
@@ -114,17 +111,17 @@ class AppCompatTextHelper {
             allCapsSet = true;
             allCaps = a.getBoolean(R.styleable.TextAppearance_textAllCaps, false);
         }
-        if (Build.VERSION.SDK_INT < 23 && TypedValue.TYPE_STRING ==
-                a.getType(R.styleable.TextAppearance_android_textColor)) {
-            // If we're running on < API 23, have a color set and it's a String reference, it may
-            // contain theme references so let's re-set using our own inflater
-            final ColorStateList textColor =
-                    a.getColorStateList(R.styleable.TextAppearance_android_textColor);
-            if (textColor != null) {
-                mView.setTextColor(textColor);
-            }
+        if (Build.VERSION.SDK_INT < 23
+                && a.hasValue(R.styleable.TextAppearance_android_textColor)) {
+            // If we're running on < API 23, the text color may contain theme references
+            // so let's re-set using our own inflater
+            textColor = a.getColorStateList(R.styleable.TextAppearance_android_textColor);
         }
         a.recycle();
+
+        if (textColor != null) {
+            mView.setTextColor(textColor);
+        }
 
         if (!hasPwdTm && allCapsSet) {
             setAllCaps(allCaps);
@@ -140,10 +137,10 @@ class AppCompatTextHelper {
             // the passed style has textAllCaps attribute set to true.
             setAllCaps(true);
         }
-        if (Build.VERSION.SDK_INT < 23 && TypedValue.TYPE_STRING
-                == a.getType(R.styleable.TextAppearance_android_textColor)) {
-            // If we're running on < API 23, have a color set and it's a String reference,
-            // it may contain theme references so let's re-set using our own inflater
+        if (Build.VERSION.SDK_INT < 23
+                && a.hasValue(R.styleable.TextAppearance_android_textColor)) {
+            // If we're running on < API 23, the text color may contain theme references
+            // so let's re-set using our own inflater
             final ColorStateList textColor
                     = a.getColorStateList(R.styleable.TextAppearance_android_textColor);
             if (textColor != null) {
