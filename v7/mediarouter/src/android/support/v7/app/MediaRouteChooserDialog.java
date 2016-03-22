@@ -218,7 +218,8 @@ public class MediaRouteChooserDialog extends Dialog {
                     // In API 4 ~ 10, AsyncTasks are running in parallel. Needs synchronization.
                     synchronized (MediaRouteChooserDialog.this) {
                         if (!isCancelled()) {
-                            RouteComparator.loadRouteUsageScores(getContext(), mNewRoutes);
+                            RouteComparator.getInstance(getContext())
+                                    .loadRouteUsageScores(mNewRoutes);
                         }
                     }
                     return null;
@@ -317,7 +318,8 @@ public class MediaRouteChooserDialog extends Dialog {
 
                     @Override
                     protected Void doInBackground(Void... params) {
-                        RouteComparator.storeRouteUsageScores(getContext(), route.getId());
+                        RouteComparator.getInstance(getContext())
+                                .storeRouteUsageScores(route.getId());
                         return null;
                     }
 
@@ -401,8 +403,21 @@ public class MediaRouteChooserDialog extends Dialog {
         private static final float MIN_USAGE_SCORE = 0.1f;
         private static final float USAGE_SCORE_DECAY_FACTOR = 0.95f;
 
-        public static final RouteComparator sInstance = new RouteComparator();
-        public static final HashMap<String, Float> sRouteUsageScoreMap = new HashMap();
+        private static RouteComparator sInstance;
+        private final HashMap<String, Float> mRouteUsageScoreMap;
+        private final SharedPreferences mPreferences;
+
+        public static RouteComparator getInstance(Context context) {
+            if (sInstance == null) {
+                sInstance = new RouteComparator(context);
+            }
+            return sInstance;
+        }
+
+        private RouteComparator(Context context) {
+            mRouteUsageScoreMap = new HashMap();
+            mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        }
 
         @Override
         public int compare(MediaRouter.RouteInfo lhs, MediaRouter.RouteInfo rhs) {
@@ -418,11 +433,11 @@ public class MediaRouteChooserDialog extends Dialog {
             } else if (rhs.isDeviceTypeBluetooth()) {
                 return -1;
             }
-            Float lhsUsageScore = sRouteUsageScoreMap.get(lhs.getId());
+            Float lhsUsageScore = mRouteUsageScoreMap.get(lhs.getId());
             if (lhsUsageScore == null) {
                 lhsUsageScore = 0f;
             }
-            Float rhsUsageScore = sRouteUsageScoreMap.get(rhs.getId());
+            Float rhsUsageScore = mRouteUsageScoreMap.get(rhs.getId());
             if (rhsUsageScore == null) {
                 rhsUsageScore = 0f;
             }
@@ -432,21 +447,19 @@ public class MediaRouteChooserDialog extends Dialog {
             return lhs.getName().compareTo(rhs.getName());
         }
 
-        private static void loadRouteUsageScores(
-                Context context, List<MediaRouter.RouteInfo> routes) {
-            sRouteUsageScoreMap.clear();
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        private void loadRouteUsageScores(List<MediaRouter.RouteInfo> routes) {
             for (MediaRouter.RouteInfo route : routes) {
-                sRouteUsageScoreMap.put(route.getId(),
-                        preferences.getFloat(PREF_USAGE_SCORE_PREFIX + route.getId(), 0f));
+                if (mRouteUsageScoreMap.get(route.getId()) == null) {
+                    mRouteUsageScoreMap.put(route.getId(),
+                            mPreferences.getFloat(PREF_USAGE_SCORE_PREFIX + route.getId(), 0f));
+                }
             }
         }
 
-        private static void storeRouteUsageScores(Context context, String selectedRouteId) {
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-            SharedPreferences.Editor prefEditor = preferences.edit();
-            List<String> routeIds = new ArrayList<String>(
-                    Arrays.asList(preferences.getString(PREF_ROUTE_IDS, "").split(",")));
+        private void storeRouteUsageScores(String selectedRouteId) {
+            SharedPreferences.Editor prefEditor = mPreferences.edit();
+            List<String> routeIds = new ArrayList<>(
+                    Arrays.asList(mPreferences.getString(PREF_ROUTE_IDS, "").split(",")));
             if (!routeIds.contains(selectedRouteId)) {
                 routeIds.add(selectedRouteId);
             }
@@ -457,14 +470,16 @@ public class MediaRouteChooserDialog extends Dialog {
                 // 2) 0, if usageScore * USAGE_SCORE_DECAY_FACTOR < MIN_USAGE_SCORE, or
                 // 3) usageScore * USAGE_SCORE_DECAY_FACTOR, otherwise,
                 String routeUsageScoreKey = PREF_USAGE_SCORE_PREFIX + routeId;
-                float newUsageScore = preferences.getFloat(routeUsageScoreKey, 0f)
+                float newUsageScore = mPreferences.getFloat(routeUsageScoreKey, 0f)
                         * USAGE_SCORE_DECAY_FACTOR;
                 if (selectedRouteId.equals(routeId)) {
                     newUsageScore += 1f;
                 }
                 if (newUsageScore < MIN_USAGE_SCORE) {
+                    mRouteUsageScoreMap.remove(routeId);
                     prefEditor.remove(routeId);
                 } else {
+                    mRouteUsageScoreMap.put(routeId, newUsageScore);
                     prefEditor.putFloat(routeUsageScoreKey, newUsageScore);
                     if (routeIdsBuilder.length() > 0) {
                         routeIdsBuilder.append(',');
