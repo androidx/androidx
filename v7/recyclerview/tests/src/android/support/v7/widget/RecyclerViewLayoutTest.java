@@ -384,7 +384,58 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         Thread.sleep(1000);
         assertEquals("on scroll should NOT be called", 2, rvCounter.get());
         assertEquals("on scroll should NOT be called", 2, viewGroupCounter.get());
+    }
 
+    @Test
+    public void scrollCalllbackOnVisibleRangeExpand() throws Throwable {
+        scrollCallbackOnVisibleRangeChange(10, new int[]{3, 5}, new int[]{3, 6});
+    }
+
+    @Test
+    public void scrollCalllbackOnVisibleRangeShrink() throws Throwable {
+        scrollCallbackOnVisibleRangeChange(10, new int[]{3, 6}, new int[]{3, 5});
+    }
+
+    @Test
+    public void scrollCalllbackOnVisibleRangeExpand2() throws Throwable {
+        scrollCallbackOnVisibleRangeChange(10, new int[]{3, 5}, new int[]{2, 5});
+    }
+
+    @Test
+    public void scrollCalllbackOnVisibleRangeShrink2() throws Throwable {
+        scrollCallbackOnVisibleRangeChange(10, new int[]{3, 6}, new int[]{2, 6});
+    }
+
+    private void scrollCallbackOnVisibleRangeChange(int itemCount, final int[] beforeRange,
+            final int[] afterRange) throws Throwable {
+        RecyclerView recyclerView = new RecyclerView(getActivity());
+        final AtomicBoolean beforeState = new AtomicBoolean(true);
+        TestLayoutManager tlm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                detachAndScrapAttachedViews(recycler);
+                int[] range = beforeState.get() ? beforeRange : afterRange;
+                layoutRange(recycler, range[0], range[1]);
+                layoutLatch.countDown();
+            }
+        };
+        recyclerView.setLayoutManager(tlm);
+        final TestAdapter adapter = new TestAdapter(itemCount);
+        recyclerView.setAdapter(adapter);
+        tlm.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        tlm.waitForLayout(1);
+
+        RecyclerView.OnScrollListener mockListener = mock(RecyclerView.OnScrollListener.class);
+        recyclerView.addOnScrollListener(mockListener);
+        verify(mockListener, never()).onScrolled(any(RecyclerView.class), anyInt(), anyInt());
+
+        tlm.expectLayouts(1);
+        beforeState.set(false);
+        requestLayoutOnUIThread(recyclerView);
+        tlm.waitForLayout(2);
+        checkForMainThreadException();
+        verify(mockListener).onScrolled(recyclerView, 0, 0);
     }
 
     @Test
