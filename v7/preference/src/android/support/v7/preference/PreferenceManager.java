@@ -206,7 +206,7 @@ public class PreferenceManager {
      * Explicitly set the storage location used internally by this class to be
      * device-protected storage.
      * <p>
-     * When a device is encrypted, data stored in this location is encrypted
+     * On devices with direct boot, data stored in this location is encrypted
      * with a key tied to the physical device, and it can be accessed
      * immediately after the device has booted successfully, both
      * <em>before and after</em> the user has authenticated with their
@@ -222,11 +222,17 @@ public class PreferenceManager {
      *
      * @see Context#createDeviceProtectedStorageContext()
      */
-    public void setStorageDeviceEncrypted() {
+    public void setStorageDeviceProtected() {
         if (BuildCompat.isAtLeastN()) {
             mStorage = STORAGE_DEVICE_PROTECTED;
             mSharedPreferences = null;
         }
+    }
+
+    /** @removed */
+    @Deprecated
+    public void setStorageDeviceEncrypted() {
+        setStorageDeviceProtected();
     }
 
     /**
