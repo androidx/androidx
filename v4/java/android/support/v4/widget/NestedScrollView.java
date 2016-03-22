@@ -285,7 +285,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
     @Override
     public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
-        // Do nothing
+        dispatchNestedPreScroll(dx, dy, consumed, null);
     }
 
     @Override
@@ -299,8 +299,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
     @Override
     public boolean onNestedPreFling(View target, float velocityX, float velocityY) {
-        // Do nothing
-        return false;
+        return dispatchNestedPreFling(velocityX, velocityY);
     }
 
     @Override
