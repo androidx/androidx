@@ -242,7 +242,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
 
         final Drawable divider = a.getDrawable(
                 R.styleable.PreferenceFragmentCompat_android_divider);
-        final int dividerHeight = a.getInt(
+        final int dividerHeight = a.getDimensionPixelSize(
                 R.styleable.PreferenceFragmentCompat_android_dividerHeight, -1);
 
         a.recycle();

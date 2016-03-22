@@ -248,8 +248,8 @@ public abstract class PreferenceFragment extends Fragment implements
         mLayoutResId = a.getResourceId(R.styleable.PreferenceFragment_android_layout, mLayoutResId);
 
         final Drawable divider = a.getDrawable(R.styleable.PreferenceFragment_android_divider);
-        final int dividerHeight = a.getInt(R.styleable.PreferenceFragment_android_dividerHeight,
-                -1);
+        final int dividerHeight = a.getDimensionPixelSize(
+                R.styleable.PreferenceFragment_android_dividerHeight, -1);
 
         a.recycle();
 
