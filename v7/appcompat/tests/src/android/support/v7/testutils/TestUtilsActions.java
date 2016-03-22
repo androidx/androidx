@@ -137,4 +137,27 @@ public class TestUtilsActions {
             }
         };
     }
+
+    public static ViewAction setEnabled(final boolean enabled) {
+        return new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return isDisplayed();
+            }
+
+            @Override
+            public String getDescription() {
+                return "set enabled";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                uiController.loopMainThreadUntilIdle();
+
+                view.setEnabled(enabled);
+
+                uiController.loopMainThreadUntilIdle();
+            }
+        };
+    }
 }

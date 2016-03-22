@@ -18,12 +18,18 @@ package android.support.v7.widget;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
+import static android.support.v7.testutils.TestUtilsActions.setEnabled;
 import static android.support.v7.testutils.TestUtilsActions.setTextAppearance;
 import static org.junit.Assert.assertEquals;
 
+import android.graphics.Color;
+import android.support.test.espresso.action.ViewActions;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.testutils.TestUtilsActions;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.widget.TextView;
 
 import org.junit.Test;
 
@@ -77,5 +83,44 @@ public class AppCompatTextViewTest
                 (AppCompatTextView) mContainer.findViewById(R.id.text_view_app_allcaps_false);
 
         assertEquals("Text view is not in all caps", text, textView.getLayout().getText());
+    }
+
+    @Test
+    public void testTextColorSetHex() {
+        final TextView textView = (TextView) mContainer.findViewById(R.id.view_text_color_hex);
+        assertEquals(Color.RED, textView.getCurrentTextColor());
+    }
+
+    @Test
+    public void testTextColorSetColorStateList() {
+        final TextView textView = (TextView) mContainer.findViewById(R.id.view_text_color_csl);
+
+        onView(withId(R.id.view_text_color_csl)).perform(setEnabled(true));
+        assertEquals(ContextCompat.getColor(textView.getContext(), R.color.ocean_default),
+                textView.getCurrentTextColor());
+
+        onView(withId(R.id.view_text_color_csl)).perform(setEnabled(false));
+        assertEquals(ContextCompat.getColor(textView.getContext(), R.color.ocean_disabled),
+                textView.getCurrentTextColor());
+    }
+
+    @Test
+    public void testTextColorSetThemeAttrHex() {
+        final TextView textView = (TextView) mContainer.findViewById(R.id.view_text_color_primary);
+        assertEquals(Color.BLUE, textView.getCurrentTextColor());
+    }
+
+    @Test
+    public void testTextColorSetThemeAttrColorStateList() {
+        final TextView textView = (TextView)
+                mContainer.findViewById(R.id.view_text_color_secondary);
+
+        onView(withId(R.id.view_text_color_secondary)).perform(setEnabled(true));
+        assertEquals(ContextCompat.getColor(textView.getContext(), R.color.sand_default),
+                textView.getCurrentTextColor());
+
+        onView(withId(R.id.view_text_color_secondary)).perform(setEnabled(false));
+        assertEquals(ContextCompat.getColor(textView.getContext(), R.color.sand_disabled),
+                textView.getCurrentTextColor());
     }
 }
