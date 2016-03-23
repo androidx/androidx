@@ -146,4 +146,8 @@ public class AppCompatImageView extends ImageView implements TintableBackgroundV
             mBackgroundTintHelper.applySupportBackgroundTint();
         }
     }
+
+    public boolean hasOverlappingRendering() {
+        return mImageHelper.hasOverlappingRendering() && super.hasOverlappingRendering();
+    }
 }
