@@ -34,10 +34,15 @@ class BaseFragment extends BrandedFragment {
      * Condition: {@link TransitionHelper#systemSupportsEntranceTransitions()} is true
      * Action: none
      */
-    private static final State STATE_ALLOWED = new State() {
+    private final State STATE_ALLOWED = new State() {
         @Override
         public boolean canRun() {
             return TransitionHelper.systemSupportsEntranceTransitions();
+        }
+
+        @Override
+        public void run() {
+            mProgressBarManager.show();
         }
     };
 
@@ -69,6 +74,7 @@ class BaseFragment extends BrandedFragment {
 
         @Override
         public void run() {
+            mProgressBarManager.hide();
             onExecuteEntranceTransition();
         }
     };
@@ -76,6 +82,7 @@ class BaseFragment extends BrandedFragment {
     final StateMachine mEnterTransitionStates;
 
     private Object mEntranceTransition;
+    private final ProgressBarManager mProgressBarManager = new ProgressBarManager();
 
     BaseFragment() {
         mEnterTransitionStates = new StateMachine();
@@ -239,5 +246,12 @@ class BaseFragment extends BrandedFragment {
                 mEnterTransitionStates.resetStatus();
             }
         });
+    }
+
+    /**
+     * Returns the {@link ProgressBarManager}.
+     */
+    public final ProgressBarManager getProgressBarManager() {
+        return mProgressBarManager;
     }
 }
