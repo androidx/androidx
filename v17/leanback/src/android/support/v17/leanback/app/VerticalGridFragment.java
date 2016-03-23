@@ -159,6 +159,7 @@ public class VerticalGridFragment extends BaseFragment {
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.lb_vertical_grid_fragment,
                 container, false);
         setTitleView((TitleView) root.findViewById(R.id.browse_title_group));
+        getProgressBarManager().setRootView(root);
         return root;
     }
 
