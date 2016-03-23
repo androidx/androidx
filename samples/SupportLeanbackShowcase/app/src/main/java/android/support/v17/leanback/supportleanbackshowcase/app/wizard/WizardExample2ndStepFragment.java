@@ -18,7 +18,6 @@ import android.app.FragmentManager;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.support.annotation.NonNull;
 import android.support.v17.leanback.app.GuidedStepFragment;
 import android.support.v17.leanback.supportleanbackshowcase.R;
@@ -40,7 +39,7 @@ public class WizardExample2ndStepFragment extends WizardExampleBaseStepFragment 
     private static final int ACTION_ID_PAYMENT_METHOD = ACTION_ID_CONFIRM + 1;
     private static final int ACTION_ID_NEW_PAYMENT = ACTION_ID_PAYMENT_METHOD + 1;
 
-    protected static ArrayList<String> sCards = new ArrayList<>();
+    protected static ArrayList<String> sCards = new ArrayList();
     protected static int sSelectedCard = -1;
 
     static {
@@ -80,7 +79,7 @@ public class WizardExample2ndStepFragment extends WizardExampleBaseStepFragment 
                 .build();
         action.setEnabled(false);
         actions.add(action);
-        List<GuidedAction> subActions = new ArrayList<>();
+        List<GuidedAction> subActions = new ArrayList();
         action = new GuidedAction.Builder(getActivity())
                 .id(ACTION_ID_PAYMENT_METHOD)
                 .title(R.string.wizard_example_payment_method)
