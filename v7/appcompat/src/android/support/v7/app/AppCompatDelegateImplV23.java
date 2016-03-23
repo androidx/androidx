@@ -16,14 +16,19 @@
 
 package android.support.v7.app;
 
+import android.app.UiModeManager;
 import android.content.Context;
 import android.view.ActionMode;
 import android.view.Window;
 
 class AppCompatDelegateImplV23 extends AppCompatDelegateImplV14 {
 
+    private final UiModeManager mUiModeManager;
+
     AppCompatDelegateImplV23(Context context, Window window, AppCompatCallback callback) {
         super(context, window, callback);
+
+        mUiModeManager = (UiModeManager) context.getSystemService(Context.UI_MODE_SERVICE);
     }
 
     @Override
@@ -31,6 +36,18 @@ class AppCompatDelegateImplV23 extends AppCompatDelegateImplV14 {
         // Override the window callback so that we can intercept onWindowStartingActionMode(type)
         // calls
         return new AppCompatWindowCallbackV23(callback);
+    }
+
+    @ApplyableNightMode
+    @Override
+    int mapNightMode(@NightMode final int mode) {
+        if (mode == MODE_NIGHT_AUTO
+                && mUiModeManager.getNightMode() == UiModeManager.MODE_NIGHT_AUTO) {
+            // If we're set to AUTO and the system's auto night mode is already enabled,
+            // we'll just let the system handle it by returning FOLLOW_SYSTEM
+            return MODE_NIGHT_FOLLOW_SYSTEM;
+        }
+        return super.mapNightMode(mode);
     }
 
     class AppCompatWindowCallbackV23 extends AppCompatWindowCallbackV14 {
