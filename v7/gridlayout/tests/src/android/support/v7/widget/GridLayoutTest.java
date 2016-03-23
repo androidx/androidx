@@ -18,11 +18,13 @@ package android.support.v7.widget;
 
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.gridlayout.test.R;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -125,5 +127,43 @@ public class GridLayoutTest {
         assertTrue("right should be taller than left", right > left);
         assertTrue("total height should be smaller than what it could be",
                 total < ((ViewGroup) mGridView.getParent()).getHeight());
+    }
+
+    @Test
+    public void testGenerateLayoutParamsFromMarginParams() {
+        MyGridLayout gridLayout = new MyGridLayout(mActivityTestRule.getActivity());
+        ViewGroup.MarginLayoutParams lp = new ViewGroup.MarginLayoutParams(3, 5);
+        lp.leftMargin = 1;
+        lp.topMargin = 2;
+        lp.rightMargin = 3;
+        lp.bottomMargin = 4;
+        GridLayout.LayoutParams generated = gridLayout.generateLayoutParams(lp);
+        assertEquals(3, generated.width);
+        assertEquals(5, generated.height);
+
+        assertEquals(1, generated.leftMargin);
+        assertEquals(2, generated.topMargin);
+        assertEquals(3, generated.rightMargin);
+        assertEquals(4, generated.bottomMargin);
+    }
+
+    private static class MyGridLayout extends GridLayout {
+
+        public MyGridLayout(Context context) {
+            super(context);
+        }
+
+        public MyGridLayout(Context context, AttributeSet attrs) {
+            super(context, attrs);
+        }
+
+        public MyGridLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+            super(context, attrs, defStyleAttr);
+        }
+
+        @Override
+        protected LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
+            return super.generateLayoutParams(p);
+        }
     }
 }
