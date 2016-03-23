@@ -21,6 +21,7 @@ import android.animation.AnimatorInflater;
 import android.animation.AnimatorSet;
 import android.content.Context;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -88,6 +89,14 @@ public class PagingIndicator extends View {
     public PagingIndicator(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         Resources res = getResources();
+        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.PagingIndicator,
+                defStyle, 0);
+        int bgColor = res.getColor(R.color.lb_page_indicator_dot);
+        try {
+            bgColor = typedArray.getColor(R.styleable.PagingIndicator_dotBgColor, bgColor);
+        } finally {
+            typedArray.recycle();
+        }
         mIsLtr = res.getConfiguration().getLayoutDirection() == View.LAYOUT_DIRECTION_LTR;
         mDotRadius = res.getDimensionPixelSize(R.dimen.lb_page_indicator_dot_radius);
         mDotDiameter = mDotRadius * 2;
@@ -97,7 +106,6 @@ public class PagingIndicator extends View {
         mArrowRadius = mArrowDiameter / 2;
         mBgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mDotFgSelectColor = res.getColor(R.color.lb_page_indicator_arrow_background);
-        int bgColor = res.getColor(R.color.lb_page_indicator_dot);
         int shadowColor = res.getColor(R.color.lb_page_indicator_arrow_shadow);
         mBgPaint.setColor(bgColor);
         mShadowRadius = res.getDimensionPixelSize(R.dimen.lb_page_indicator_arrow_shadow_radius);
