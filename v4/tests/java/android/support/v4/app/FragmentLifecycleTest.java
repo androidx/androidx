@@ -38,9 +38,7 @@ import org.junit.runner.RunWith;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNotSame;
+import static junit.framework.Assert.*;
 import static junit.framework.TestCase.*;
 import static org.junit.Assert.assertNotEquals;
 
@@ -362,6 +360,10 @@ public class FragmentLifecycleTest {
         fc2.dispatchStop();
         fc2.dispatchReallyStop();
         fc2.dispatchDestroy();
+
+        assertTrue("grandparent not destroyed", restoredGrandparent.mCalledOnDestroy);
+        assertTrue("parent not destroyed", restoredParent.mCalledOnDestroy);
+        assertTrue("child not destroyed", restoredChild.mCalledOnDestroy);
     }
 
     private void executePendingTransactions(final FragmentManager fm) throws Throwable {
