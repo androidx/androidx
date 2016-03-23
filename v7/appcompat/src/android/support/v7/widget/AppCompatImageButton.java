@@ -146,4 +146,8 @@ public class AppCompatImageButton extends ImageButton implements TintableBackgro
             mBackgroundTintHelper.applySupportBackgroundTint();
         }
     }
+
+    public boolean hasOverlappingRendering() {
+        return mImageHelper.hasOverlappingRendering() && super.hasOverlappingRendering();
+    }
 }
