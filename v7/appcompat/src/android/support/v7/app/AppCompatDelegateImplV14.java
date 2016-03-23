@@ -16,7 +16,6 @@
 
 package android.support.v7.app;
 
-import android.app.UiModeManager;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -74,7 +73,16 @@ class AppCompatDelegateImplV14 extends AppCompatDelegateImplV11 {
     @Override
     public boolean applyDayNight() {
         mApplyDayNightCalled = true;
-        return updateConfigurationForNightMode(getNightModeToApply());
+
+        final int modeToApply = mapNightMode(mLocalNightMode == MODE_NIGHT_UNSPECIFIED
+                ? getDefaultNightMode()
+                : mLocalNightMode);
+
+        if (modeToApply != MODE_NIGHT_FOLLOW_SYSTEM) {
+            // If we're not following the system, we many need to update the configuration
+            return updateConfigurationForNightMode(modeToApply);
+        }
+        return false;
     }
 
     @Override
@@ -99,28 +107,16 @@ class AppCompatDelegateImplV14 extends AppCompatDelegateImplV11 {
         }
     }
 
-    @BinaryNightMode
-    private int mapNightModeToYesNo(@NightMode final int mode) {
+    @ApplyableNightMode
+    int mapNightMode(@NightMode final int mode) {
         switch (mode) {
             case MODE_NIGHT_AUTO:
                 return getTwilightManager().isNight() ? MODE_NIGHT_YES : MODE_NIGHT_NO;
-            case MODE_NIGHT_FOLLOW_SYSTEM:
-                final UiModeManager uiModeManager = (UiModeManager)
-                        mContext.getSystemService(Context.UI_MODE_SERVICE);
-                switch (uiModeManager.getNightMode()) {
-                    case UiModeManager.MODE_NIGHT_YES:
-                        return MODE_NIGHT_YES;
-                    case UiModeManager.MODE_NIGHT_AUTO:
-                        return MODE_NIGHT_AUTO;
-                    case UiModeManager.MODE_NIGHT_NO:
-                    default:
-                        return MODE_NIGHT_NO;
-                }
-            case MODE_NIGHT_YES:
-                return MODE_NIGHT_YES;
-            case MODE_NIGHT_NO:
+            case MODE_NIGHT_UNSPECIFIED:
+                // If we don't have a mode specified, just let the system handle it
+                return MODE_NIGHT_FOLLOW_SYSTEM;
             default:
-                return MODE_NIGHT_NO;
+                return mode;
         }
     }
 
@@ -134,31 +130,18 @@ class AppCompatDelegateImplV14 extends AppCompatDelegateImplV11 {
         }
     }
 
-    @BinaryNightMode
-    private int getNightModeToApply() {
-        return mapNightModeToYesNo(mLocalNightMode == MODE_NIGHT_UNSPECIFIED
-                ? getDefaultNightMode()
-                : mLocalNightMode);
-    }
-
     /**
      * Updates the {@link Resources} configuration {@code uiMode} with the
      * chosen {@code UI_MODE_NIGHT} value.
      */
-    private boolean updateConfigurationForNightMode(@BinaryNightMode int mode) {
+    private boolean updateConfigurationForNightMode(@ApplyableNightMode final int mode) {
         final Resources res = mContext.getResources();
         final Configuration conf = res.getConfiguration();
         final int currentNightMode = conf.uiMode & Configuration.UI_MODE_NIGHT_MASK;
 
-        int newNightMode = Configuration.UI_MODE_NIGHT_UNDEFINED;
-        switch (mode) {
-            case MODE_NIGHT_NO:
-                newNightMode = Configuration.UI_MODE_NIGHT_NO;
-                break;
-            case MODE_NIGHT_YES:
-                newNightMode = Configuration.UI_MODE_NIGHT_YES;
-                break;
-        }
+        final int newNightMode = (mode == MODE_NIGHT_YES)
+                ? Configuration.UI_MODE_NIGHT_YES
+                : Configuration.UI_MODE_NIGHT_NO;
 
         if (currentNightMode != newNightMode) {
             conf.uiMode = (conf.uiMode & ~Configuration.UI_MODE_NIGHT_MASK) | newNightMode;
