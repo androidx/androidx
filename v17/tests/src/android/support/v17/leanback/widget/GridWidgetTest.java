@@ -2394,6 +2394,50 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         assertTrue(secondChild.isFocused());
     }
 
+    public void test27766012() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear_with_button_onleft);
+        intent.putExtra(GridActivity.EXTRA_CHILD_LAYOUT_ID, R.layout.horizontal_item);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 2);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        intent.putExtra(GridActivity.EXTRA_UPDATE_SIZE, false);
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        // set remove animator two seconds
+        mGridView.getItemAnimator().setRemoveDuration(2000);
+        final View view = mGridView.getChildAt(1);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                view.requestFocus();
+            }
+        });
+        assertTrue(view.hasFocus());
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.removeItems(0, 2);
+            }
+
+        });
+        // wait one second, removing second view is still attached to parent
+        Thread.sleep(1000);
+        assertSame(view.getParent(), mGridView);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // refocus to the removed item and do a focus search.
+                view.requestFocus();
+                view.focusSearch(View.FOCUS_UP);
+            }
+
+        });
+    }
+
     public void testBug27258366() throws Throwable {
         mInstrumentation = getInstrumentation();
         Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
