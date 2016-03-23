@@ -17,19 +17,35 @@
 
 package android.support.v4.app;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Debug;
+import android.os.Parcelable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.test.annotation.UiThreadTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.test.EmptyFragmentTestActivity;
 import android.test.suitebuilder.annotation.MediumTest;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
+
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNotSame;
 import static junit.framework.TestCase.*;
+import static org.junit.Assert.assertNotEquals;
 
 @RunWith(AndroidJUnit4.class)
+@MediumTest
 public class FragmentLifecycleTest {
 
     @Rule
@@ -37,7 +53,6 @@ public class FragmentLifecycleTest {
             new ActivityTestRule<EmptyFragmentTestActivity>(EmptyFragmentTestActivity.class);
 
     @Test
-    @MediumTest
     public void basicLifecycle() throws Throwable {
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
         final StrictFragment strictFragment = new StrictFragment();
@@ -65,7 +80,6 @@ public class FragmentLifecycleTest {
     }
 
     @Test
-    @MediumTest
     public void detachment() throws Throwable {
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
         final StrictFragment f1 = new StrictFragment();
@@ -105,7 +119,6 @@ public class FragmentLifecycleTest {
     }
 
     @Test
-    @MediumTest
     public void basicBackStack() throws Throwable {
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
         final StrictFragment f1 = new StrictFragment();
@@ -136,7 +149,6 @@ public class FragmentLifecycleTest {
     }
 
     @Test
-    @MediumTest
     public void attachBackStack() throws Throwable {
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
         final StrictFragment f1 = new StrictFragment();
@@ -158,7 +170,6 @@ public class FragmentLifecycleTest {
     }
 
     @Test
-    @MediumTest
     public void viewLifecycle() throws Throwable {
         // Test basic lifecycle when the fragment creates a view
 
@@ -183,7 +194,6 @@ public class FragmentLifecycleTest {
     }
 
     @Test
-    @MediumTest
     public void viewReplace() throws Throwable {
         // Replace one view with another, then reverse it with the back stack
 
@@ -223,6 +233,137 @@ public class FragmentLifecycleTest {
         assertTrue("fragment 1's view not attached", newView1.isAttachedToWindow());
     }
 
+    @Test
+    @UiThreadTest
+    public void restoreRetainedInstanceFragments() throws Throwable {
+        // Create a new FragmentManager in isolation, nest some assorted fragments
+        // and then restore them to a second new FragmentManager.
+
+        final FragmentController fc1 = FragmentController.createController(
+                new HostCallbacks(mActivityRule.getActivity()));
+
+        final FragmentManager fm1 = fc1.getSupportFragmentManager();
+
+        fc1.attachHost(null);
+        fc1.dispatchCreate();
+
+        // Configure fragments.
+
+        // Grandparent fragment will not retain instance
+        final StateSaveFragment grandparentFragment = new StateSaveFragment("Grandparent",
+                "UnsavedGrandparent");
+        assertNotNull("grandparent fragment saved state not initialized",
+                grandparentFragment.getSavedState());
+        assertNotNull("grandparent fragment unsaved state not initialized",
+                grandparentFragment.getUnsavedState());
+        fm1.beginTransaction().add(grandparentFragment, "tag:grandparent").commitNow();
+
+        // Parent fragment will retain instance
+        final StateSaveFragment parentFragment = new StateSaveFragment("Parent", "UnsavedParent");
+        assertNotNull("parent fragment saved state not initialized",
+                parentFragment.getSavedState());
+        assertNotNull("parent fragment unsaved state not initialized",
+                parentFragment.getUnsavedState());
+        parentFragment.setRetainInstance(true);
+        grandparentFragment.getChildFragmentManager().beginTransaction()
+                .add(parentFragment, "tag:parent").commitNow();
+        assertSame("parent fragment is not a child of grandparent",
+                grandparentFragment, parentFragment.getParentFragment());
+
+        // Child fragment will not retain instance
+        final StateSaveFragment childFragment = new StateSaveFragment("Child", "UnsavedChild");
+        assertNotNull("child fragment saved state not initialized",
+                childFragment.getSavedState());
+        assertNotNull("child fragment unsaved state not initialized",
+                childFragment.getUnsavedState());
+        parentFragment.getChildFragmentManager().beginTransaction()
+                .add(childFragment, "tag:child").commitNow();
+        assertSame("child fragment is not a child of grandpanret",
+                parentFragment, childFragment.getParentFragment());
+
+        // Saved for comparison later
+        final FragmentManager parentChildFragmentManager = parentFragment.getChildFragmentManager();
+
+        fc1.dispatchActivityCreated();
+        fc1.noteStateNotSaved();
+        fc1.execPendingActions();
+        fc1.doLoaderStart();
+        fc1.dispatchStart();
+        fc1.reportLoaderStart();
+        fc1.dispatchResume();
+        fc1.execPendingActions();
+
+        // Bring the state back down to destroyed, simulating an activity restart
+        fc1.dispatchPause();
+        final Parcelable savedState = fc1.saveAllState();
+        final FragmentManagerNonConfig nonconf = fc1.retainNestedNonConfig();
+        fc1.dispatchStop();
+        fc1.dispatchReallyStop();
+        fc1.dispatchDestroy();
+
+        // Create the new controller and restore state
+        final FragmentController fc2 = FragmentController.createController(
+                new HostCallbacks(mActivityRule.getActivity()));
+
+        final FragmentManager fm2 = fc2.getSupportFragmentManager();
+
+        fc2.attachHost(null);
+        fc2.restoreAllState(savedState, nonconf);
+        fc2.dispatchCreate();
+
+        // Confirm that the restored fragments are available and in the expected states
+        final StateSaveFragment restoredGrandparent = (StateSaveFragment) fm2.findFragmentByTag(
+                "tag:grandparent");
+        assertNotNull("grandparent fragment not restored", restoredGrandparent);
+
+        assertNotSame("grandparent fragment instance was saved",
+                grandparentFragment, restoredGrandparent);
+        assertEquals("grandparent fragment saved state was not equal",
+                grandparentFragment.getSavedState(), restoredGrandparent.getSavedState());
+        assertNotEquals("grandparent fragment unsaved state was unexpectedly preserved",
+                grandparentFragment.getUnsavedState(), restoredGrandparent.getUnsavedState());
+
+        final StateSaveFragment restoredParent = (StateSaveFragment) restoredGrandparent
+                .getChildFragmentManager().findFragmentByTag("tag:parent");
+        assertNotNull("parent fragment not restored", restoredParent);
+
+        assertSame("parent fragment instance was not saved", parentFragment, restoredParent);
+        assertEquals("parent fragment saved state was not equal",
+                parentFragment.getSavedState(), restoredParent.getSavedState());
+        assertEquals("parent fragment unsaved state was not equal",
+                parentFragment.getUnsavedState(), restoredParent.getUnsavedState());
+        assertNotSame("parent fragment has the same child FragmentManager",
+                parentChildFragmentManager, restoredParent.getChildFragmentManager());
+
+        final StateSaveFragment restoredChild = (StateSaveFragment) restoredParent
+                .getChildFragmentManager().findFragmentByTag("tag:child");
+        assertNotNull("child fragment not restored", restoredChild);
+
+        assertNotSame("child fragment instance state was saved", childFragment, restoredChild);
+        assertEquals("child fragment saved state was not equal",
+                childFragment.getSavedState(), restoredChild.getSavedState());
+        assertNotEquals("child fragment saved state was unexpectedly equal",
+                childFragment.getUnsavedState(), restoredChild.getUnsavedState());
+
+        fc2.dispatchActivityCreated();
+        fc2.noteStateNotSaved();
+        fc2.execPendingActions();
+        fc2.doLoaderStart();
+        fc2.dispatchStart();
+        fc2.reportLoaderStart();
+        fc2.dispatchResume();
+        fc2.execPendingActions();
+
+        // Test that the fragments are in the configuration we expect
+
+        // Bring the state back down to destroyed before we finish the test
+        fc2.dispatchPause();
+        fc2.saveAllState();
+        fc2.dispatchStop();
+        fc2.dispatchReallyStop();
+        fc2.dispatchDestroy();
+    }
+
     private void executePendingTransactions(final FragmentManager fm) throws Throwable {
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
@@ -230,5 +371,126 @@ public class FragmentLifecycleTest {
                 fm.executePendingTransactions();
             }
         });
+    }
+
+    public static class StateSaveFragment extends StrictFragment {
+        private static final String STATE_KEY = "state";
+
+        private String mSavedState;
+        private String mUnsavedState;
+
+        public StateSaveFragment() {
+        }
+
+        public StateSaveFragment(String savedState, String unsavedState) {
+            mSavedState = savedState;
+            mUnsavedState = unsavedState;
+        }
+
+        public String getSavedState() {
+            return mSavedState;
+        }
+
+        public String getUnsavedState() {
+            return mUnsavedState;
+        }
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            if (savedInstanceState != null) {
+                mSavedState = savedInstanceState.getString(STATE_KEY);
+            }
+        }
+
+        @Override
+        public void onSaveInstanceState(Bundle outState) {
+            super.onSaveInstanceState(outState);
+            outState.putString(STATE_KEY, mSavedState);
+        }
+    }
+
+    static class HostCallbacks extends FragmentHostCallback<FragmentActivity> {
+        private final FragmentActivity mActivity;
+
+        public HostCallbacks(FragmentActivity activity) {
+            super(activity);
+            mActivity = activity;
+        }
+
+        @Override
+        public void onDump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
+        }
+
+        @Override
+        public boolean onShouldSaveFragmentState(Fragment fragment) {
+            return !mActivity.isFinishing();
+        }
+
+        @Override
+        public LayoutInflater onGetLayoutInflater() {
+            return mActivity.getLayoutInflater().cloneInContext(mActivity);
+        }
+
+        @Override
+        public FragmentActivity onGetHost() {
+            return mActivity;
+        }
+
+        @Override
+        public void onSupportInvalidateOptionsMenu() {
+            mActivity.supportInvalidateOptionsMenu();
+        }
+
+        @Override
+        public void onStartActivityFromFragment(Fragment fragment, Intent intent, int requestCode) {
+            mActivity.startActivityFromFragment(fragment, intent, requestCode);
+        }
+
+        @Override
+        public void onStartActivityFromFragment(
+                Fragment fragment, Intent intent, int requestCode, @Nullable Bundle options) {
+            mActivity.startActivityFromFragment(fragment, intent, requestCode, options);
+        }
+
+        @Override
+        public void onRequestPermissionsFromFragment(@NonNull Fragment fragment,
+                @NonNull String[] permissions, int requestCode) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean onShouldShowRequestPermissionRationale(@NonNull String permission) {
+            return ActivityCompat.shouldShowRequestPermissionRationale(
+                    mActivity, permission);
+        }
+
+        @Override
+        public boolean onHasWindowAnimations() {
+            return mActivity.getWindow() != null;
+        }
+
+        @Override
+        public int onGetWindowAnimations() {
+            final Window w = mActivity.getWindow();
+            return (w == null) ? 0 : w.getAttributes().windowAnimations;
+        }
+
+        @Override
+        public void onAttachFragment(Fragment fragment) {
+            mActivity.onAttachFragment(fragment);
+        }
+
+        @Nullable
+        @Override
+        public View onFindViewById(int id) {
+            return mActivity.findViewById(id);
+        }
+
+        @Override
+        public boolean onHasView() {
+            final Window w = mActivity.getWindow();
+            return (w != null && w.peekDecorView() != null);
+        }
     }
 }
