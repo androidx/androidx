@@ -981,7 +981,8 @@ public class BrowseFragment extends BaseFragment {
     private void setupMainFragment() {
         if (mMainFragmentRowsAdapter != null) {
             mMainFragmentRowsAdapter.setAdapter(mAdapter);
-            mMainFragmentRowsAdapter.setOnItemViewSelectedListener(mRowViewSelectedListener);
+            mMainFragmentRowsAdapter.setOnItemViewSelectedListener(
+                    new MainFragmentItemViewSelectedListener(mMainFragmentRowsAdapter));
             mMainFragmentRowsAdapter.setOnItemViewClickedListener(mOnItemViewClickedListener);
         }
     }
@@ -1094,14 +1095,17 @@ public class BrowseFragment extends BaseFragment {
             }
         };
 
-    private OnItemViewSelectedListener mRowViewSelectedListener = new OnItemViewSelectedListener() {
+    class MainFragmentItemViewSelectedListener implements OnItemViewSelectedListener {
+        MainFragmentRowsAdapter mMainFragmentRowsAdapter;
+
+        public MainFragmentItemViewSelectedListener(MainFragmentRowsAdapter fragmentRowsAdapter) {
+            mMainFragmentRowsAdapter = fragmentRowsAdapter;
+        }
+
         @Override
         public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
                 RowPresenter.ViewHolder rowViewHolder, Row row) {
-            if (mMainFragment == null) {
-                return;
-            }
-            int position = ((RowsFragment) mMainFragment).getSelectedPosition();
+            int position = mMainFragmentRowsAdapter.getSelectedPosition();
             if (DEBUG) Log.v(TAG, "row selected position " + position);
             onRowSelected(position);
             if (mExternalOnItemViewSelectedListener != null) {
