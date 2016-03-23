@@ -23,6 +23,7 @@ import android.graphics.drawable.DrawableContainer;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.InsetDrawable;
 import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.ScaleDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -151,6 +152,8 @@ public class DrawableUtils {
             return canSafelyMutateDrawable(
                     ((android.support.v7.graphics.drawable.DrawableWrapper) drawable)
                             .getWrappedDrawable());
+        } else if (drawable instanceof ScaleDrawable) {
+            return canSafelyMutateDrawable(((ScaleDrawable) drawable).getDrawable());
         }
         return true;
     }
