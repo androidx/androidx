@@ -17,6 +17,7 @@
 package android.support.v7.widget;
 
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.appcompat.R;
 import android.util.AttributeSet;
@@ -73,5 +74,16 @@ public class AppCompatImageHelper {
         } else {
             mView.setImageDrawable(null);
         }
+    }
+
+    boolean hasOverlappingRendering() {
+        final Drawable background = mView.getBackground();
+        if (Build.VERSION.SDK_INT >= 21
+                && background instanceof android.graphics.drawable.RippleDrawable) {
+            // RippleDrawable has an issue on L+ when used with an alpha animation.
+            // This workaround should be disabled when the platform bug is fixed. See b/27715789
+            return false;
+        }
+        return true;
     }
 }
