@@ -941,6 +941,8 @@ public class BrowseFragment extends BaseFragment {
 
         View root = inflater.inflate(R.layout.lb_browse_fragment, container, false);
 
+        getProgressBarManager().setRootView((ViewGroup)root);
+
         setTitleView((TitleView) root.findViewById(R.id.browse_title_group));
 
         mBrowseFrame = (BrowseFrameLayout) root.findViewById(R.id.browse_frame);
