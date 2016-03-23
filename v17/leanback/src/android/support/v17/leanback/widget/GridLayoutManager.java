@@ -2683,12 +2683,15 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private int findImmediateChildIndex(View view) {
-        while (view != null && view != mBaseGridView) {
-            int index = mBaseGridView.indexOfChild(view);
-            if (index >= 0) {
-                return index;
+        if (mBaseGridView != null && view != mBaseGridView) {
+            view = findContainingItemView(view);
+            if (view != null) {
+                for (int i = 0, count = getChildCount(); i < count; i++) {
+                    if (getChildAt(i) == view) {
+                        return i;
+                    }
+                }
             }
-            view = (View) view.getParent();
         }
         return NO_POSITION;
     }
@@ -2771,8 +2774,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             if (focusedPos != NO_POSITION) {
                 findViewByPosition(focusedPos).addFocusables(views,  direction, focusableMode);
             }
-            if (mGrid == null) {
-                // no grid information, bail out.
+            if (mGrid == null || getChildCount() == 0) {
+                // no grid information, or no child, bail out.
                 return true;
             }
             if ((movement == NEXT_ROW || movement == PREV_ROW) && mGrid.getNumRows() <= 1) {
