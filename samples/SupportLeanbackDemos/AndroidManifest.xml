@@ -123,5 +123,13 @@
             android:theme="@style/Theme.Example.Leanback.GuidedStep"
             android:exported="true" />
 
+        <activity android:name=".OnboardingActivity"
+                  android:theme="@style/Theme.Example.Leanback.Onboarding"
+                  android:exported="true" />
+
+        <activity android:name=".OnboardingSupportActivity"
+                  android:theme="@style/Theme.Example.Leanback.Onboarding"
+                  android:exported="true" />
+
     </application>
 </manifest>

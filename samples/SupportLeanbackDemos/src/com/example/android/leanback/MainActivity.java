@@ -104,6 +104,12 @@ public class MainActivity extends Activity {
             addAction(actions, DetailsPresenterSelectionActivity.class,
                     R.string.detail_presenter_options,
                     R.string.detail_presenter_options_description);
+            addAction(actions, OnboardingActivity.class,
+                    R.string.onboarding,
+                    R.string.onboarding_description);
+            addAction(actions, OnboardingSupportActivity.class,
+                    R.string.onboarding_support,
+                    R.string.onboarding_description);
         }
 
         private void addAction(List<GuidedAction> actions, Class cls, int titleRes, int descRes) {

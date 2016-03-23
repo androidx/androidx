@@ -59,6 +59,9 @@
     <string name="detail_presenter_options_description">Choose Presenter for Details</string>
     <string name="legacydetails_off">Use New DetailsPresenter</string>
     <string name="legacydetails_on">Use Legacy DetailsPresenter</string>
+    <string name="onboarding">Onboarding</string>
+    <string name="onboarding_description">Show onboarding activity.</string>
+    <string name="onboarding_support">Onboarding(support version)</string>
 
     <!-- Strings related to guided sequence activity -->
     <string name="guidedstep_first_title">First</string>

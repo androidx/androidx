@@ -47,4 +47,8 @@
         <item name="imageCardViewTitleStyle">@style/MyImageCardViewTitleStyle</item>
     </style>
 
+    <style name="Widget.Example.Leanback.OnboardingLogoStyle" parent="Widget.Leanback.OnboardingLogoStyle">
+        <item name="android:layout_width">192dp</item>
+        <item name="android:layout_height">192dp</item>
+    </style>
 </resources>
