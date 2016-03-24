@@ -164,7 +164,8 @@ public class WindowCallbackWrapper implements Window.Callback {
     }
 
     @Override
-    public void onProvideKeyboardShortcuts(List<KeyboardShortcutGroup> data, Menu menu) {
-        mWrapped.onProvideKeyboardShortcuts(data, menu);
+    public void onProvideKeyboardShortcuts(
+            List<KeyboardShortcutGroup> data, Menu menu, int deviceId) {
+        mWrapped.onProvideKeyboardShortcuts(data, menu, deviceId);
     }
 }

@@ -40,15 +40,16 @@ class AppCompatDelegateImplN extends AppCompatDelegateImplV23 {
         }
 
         @Override
-        public void onProvideKeyboardShortcuts(List<KeyboardShortcutGroup> data, Menu menu) {
+        public void onProvideKeyboardShortcuts(
+                List<KeyboardShortcutGroup> data, Menu menu, int deviceId) {
             final PanelFeatureState panel = getPanelState(Window.FEATURE_OPTIONS_PANEL, true);
             if (panel != null && panel.menu != null) {
                 // The menu provided is one created by PhoneWindow which we don't actually use.
                 // Instead we'll pass through our own...
-                super.onProvideKeyboardShortcuts(data, panel.menu);
+                super.onProvideKeyboardShortcuts(data, panel.menu, deviceId);
             } else {
                 // If we don't have a menu, jump pass through the original instead
-                super.onProvideKeyboardShortcuts(data, menu);
+                super.onProvideKeyboardShortcuts(data, menu, deviceId);
             }
         }
     }
