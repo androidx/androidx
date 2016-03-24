@@ -62,16 +62,14 @@ public class AppCompatTextViewTest
         assertEquals("Text view starts in all caps off", text2,
                 textView2.getLayout().getText());
 
-        // Toggle all-caps mode on the two text views. Note that as with the core TextView,
-        // setting a style with textAllCaps=false on a AppCompatTextView with all-caps on
-        // will have no effect.
+        // Toggle all-caps mode on the two text views
         onView(withId(R.id.text_view_caps1)).perform(
                 setTextAppearance(R.style.TextStyleAllCapsOff));
+        assertEquals("Text view is still in all caps on", text1,
+                textView1.getLayout().getText());
+
         onView(withId(R.id.text_view_caps2)).perform(
                 setTextAppearance(R.style.TextStyleAllCapsOn));
-
-        assertEquals("Text view is still in all caps on", text1.toUpperCase(),
-                textView1.getLayout().getText());
         assertEquals("Text view is in all caps on", text2.toUpperCase(),
                 textView2.getLayout().getText());
     }
