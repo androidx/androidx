@@ -1390,7 +1390,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         mMainFragmentAdapter.setEntranceTransitionState(true);
     }
 
-    private static class ExpandPreLayout implements ViewTreeObserver.OnPreDrawListener {
+    private class ExpandPreLayout implements ViewTreeObserver.OnPreDrawListener {
 
         private final View mView;
         private final Runnable mCallback;
@@ -1415,6 +1415,10 @@ public class BrowseSupportFragment extends BaseSupportFragment {
 
         @Override
         public boolean onPreDraw() {
+            if (getView() == null || getActivity() == null) {
+                mView.getViewTreeObserver().removeOnPreDrawListener(this);
+                return true;
+            }
             if (mState == STATE_INIT) {
                 mainFragmentAdapter.setExpand(true);
                 mState = STATE_FIRST_DRAW;
