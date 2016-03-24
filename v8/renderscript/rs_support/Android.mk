@@ -82,6 +82,11 @@ LOCAL_GENERATED_SOURCES += $(GEN)
 
 LOCAL_SRC_FILES:= \
 	rsAllocation.cpp \
+	rsApiAllocation.cpp \
+	rsApiContext.cpp \
+	rsApiDevice.cpp \
+	rsApiElement.cpp \
+	rsApiType.cpp \
 	rsClosure.cpp \
 	rsCompatibilityLib.cpp \
 	rsComponent.cpp \
