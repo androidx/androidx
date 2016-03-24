@@ -702,7 +702,7 @@ package android.support.v7.media {
     method public void resume(android.os.Bundle, android.support.v7.media.RemotePlaybackClient.SessionActionCallback);
     method public void seek(java.lang.String, long, android.os.Bundle, android.support.v7.media.RemotePlaybackClient.ItemActionCallback);
     method public void sendMessage(android.os.Bundle, android.support.v7.media.RemotePlaybackClient.SessionActionCallback);
-    method public void setMessageCallback(android.support.v7.media.RemotePlaybackClient.MessageCallback);
+    method public void setOnMessageReceivedListener(android.support.v7.media.RemotePlaybackClient.OnMessageReceivedListener);
     method public void setSessionId(java.lang.String);
     method public void setStatusCallback(android.support.v7.media.RemotePlaybackClient.StatusCallback);
     method public void startSession(android.os.Bundle, android.support.v7.media.RemotePlaybackClient.SessionActionCallback);
@@ -719,9 +719,8 @@ package android.support.v7.media {
     method public void onResult(android.os.Bundle, java.lang.String, android.support.v7.media.MediaSessionStatus, java.lang.String, android.support.v7.media.MediaItemStatus);
   }
 
-  public static abstract class RemotePlaybackClient.MessageCallback {
-    ctor public RemotePlaybackClient.MessageCallback();
-    method public void onMessageReceived(java.lang.String, android.os.Bundle);
+  public static abstract interface RemotePlaybackClient.OnMessageReceivedListener {
+    method public abstract void onMessageReceived(java.lang.String, android.os.Bundle);
   }
 
   public static abstract class RemotePlaybackClient.SessionActionCallback extends android.support.v7.media.RemotePlaybackClient.ActionCallback {

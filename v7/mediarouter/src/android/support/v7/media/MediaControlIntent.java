@@ -893,7 +893,7 @@ public final class MediaControlIntent {
     public static final String ACTION_END_SESSION = "android.media.intent.action.END_SESSION";
 
     /**
-     * Custom media control action: Send {link #EXTRA_MESSAGE}.
+     * Custom media control action: Send {@link #EXTRA_MESSAGE}.
      * <p>
      * This action asks a route to handle a message described by EXTRA_MESSAGE.
      * </p>
@@ -1178,6 +1178,8 @@ public final class MediaControlIntent {
      * {@link #EXTRA_MESSAGE_RECEIVER message receivers} to describe a message between a
      * session and a media route provider.
      * </p><p>
+     * The value is a {@link android.os.Bundle}.
+     * </p>
      */
     public static final String EXTRA_MESSAGE = "android.media.intent.extra.MESSAGE";
 

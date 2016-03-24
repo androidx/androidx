@@ -52,7 +52,7 @@ public class RemotePlaybackClient {
 
     private String mSessionId;
     private StatusCallback mStatusCallback;
-    private MessageCallback mMessageCallback;
+    private OnMessageReceivedListener mOnMessageReceivedListener;
 
     /**
      * Creates a remote playback client for a route.
@@ -250,10 +250,10 @@ public class RemotePlaybackClient {
      * The callback should be set before the session is created.
      * </p>
      *
-     * @param callback The callback to set.  May be null to remove the previous callback.
+     * @param listener The callback to set.  May be null to remove the previous callback.
      */
-    public void setMessageCallback(MessageCallback callback) {
-        mMessageCallback = callback;
+    public void setOnMessageReceivedListener(OnMessageReceivedListener listener) {
+        mOnMessageReceivedListener = listener;
     }
 
     /**
@@ -573,7 +573,7 @@ public class RemotePlaybackClient {
      * more information about the semantics of this request.
      * </p>
      *
-     * @param message A bundle message denoting {link MediaControlIntent#EXTRA_SESSION_MESSAGE}.
+     * @param message A bundle message denoting {@link MediaControlIntent#EXTRA_MESSAGE}.
      * @param callback A callback to invoke when the request has been processed, or null if none.
      *
      * @throws IllegalStateException if there is no current session.
@@ -933,8 +933,8 @@ public class RemotePlaybackClient {
                     Log.d(TAG, "Received message callback: sessionId=" + sessionId);
                 }
 
-                if (mMessageCallback != null) {
-                    mMessageCallback.onMessageReceived(sessionId,
+                if (mOnMessageReceivedListener != null) {
+                    mOnMessageReceivedListener.onMessageReceived(sessionId,
                             intent.getBundleExtra(MediaControlIntent.EXTRA_MESSAGE));
                 }
             }
@@ -976,17 +976,6 @@ public class RemotePlaybackClient {
          * @param sessionId The new session id.
          */
         public void onSessionChanged(String sessionId) {
-        }
-    }
-
-    public static abstract class MessageCallback {
-        /**
-         * Called when a message received.
-         *
-         * @param sessionId The session id.
-         * @param message A bundle message denoting {@link MediaControlIntent#EXTRA_MESSAGE}.
-         */
-        public void onMessageReceived(String sessionId, Bundle message) {
         }
     }
 
@@ -1037,5 +1026,18 @@ public class RemotePlaybackClient {
          */
         public void onResult(Bundle data, String sessionId, MediaSessionStatus sessionStatus) {
         }
+    }
+
+    /**
+     * A callback that will receive messages from media sessions.
+     */
+    public interface OnMessageReceivedListener {
+        /**
+         * Called when a message received.
+         *
+         * @param sessionId The session id.
+         * @param message A bundle message denoting {@link MediaControlIntent#EXTRA_MESSAGE}.
+         */
+        void onMessageReceived(String sessionId, Bundle message);
     }
 }
