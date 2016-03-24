@@ -179,7 +179,6 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
         getDelegate().onPostResume();
     }
 
-    @Nullable
     public View findViewById(@IdRes int id) {
         return getDelegate().findViewById(id);
     }
