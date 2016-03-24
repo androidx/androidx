@@ -18,14 +18,12 @@ package android.support.v7.widget;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
-import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v7.appcompat.R;
 import android.support.v7.text.AllCapsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 import android.widget.TextView;
 
 class AppCompatTextHelper {
@@ -131,11 +129,12 @@ class AppCompatTextHelper {
     void onSetTextAppearance(Context context, int resId) {
         final TintTypedArray a = TintTypedArray.obtainStyledAttributes(context,
                 resId, R.styleable.TextAppearance);
-        if (a.getBoolean(R.styleable.TextAppearance_textAllCaps, false)) {
-            // This follows the logic in TextView.setTextAppearance that serves as an "overlay"
-            // on the current state of the TextView. Here we only allow turning all-caps on when
-            // the passed style has textAllCaps attribute set to true.
-            setAllCaps(true);
+        if (a.hasValue(R.styleable.TextAppearance_textAllCaps)) {
+            // This breaks away slightly from the logic in TextView.setTextAppearance that serves
+            // as an "overlay" on the current state of the TextView. Since android:textAllCaps
+            // may have been set to true in this text appearance, we need to make sure that
+            // app:textAllCaps has the chance to override it
+            setAllCaps(a.getBoolean(R.styleable.TextAppearance_textAllCaps, false));
         }
         if (Build.VERSION.SDK_INT < 23
                 && a.hasValue(R.styleable.TextAppearance_android_textColor)) {
