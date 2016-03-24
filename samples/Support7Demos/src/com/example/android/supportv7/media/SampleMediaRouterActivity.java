@@ -692,6 +692,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
             super(context);
         }
 
+        @Override
         public boolean isVisible() {
             return true;
         }
