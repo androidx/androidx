@@ -15,11 +15,20 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.app.Instrumentation;
+import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Rect;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Parcelable;
 import android.support.v17.leanback.tests.R;
+import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerViewAccessibilityDelegate;
 import android.test.ActivityInstrumentationTestCase2;
 import android.text.Selection;
 import android.text.Spannable;
-import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 import android.view.KeyEvent;
@@ -27,19 +36,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerViewAccessibilityDelegate;
-
-import android.app.Instrumentation;
-import android.content.Intent;
-import android.os.Parcelable;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 
 /**
  * @hide from javadoc
@@ -383,6 +383,105 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         scrollToBegin(mVerifyLayout);
 
         verifyBeginAligned();
+    }
+
+    static class DividerDecoration extends RecyclerView.ItemDecoration {
+
+        private ColorDrawable mTopDivider;
+        private ColorDrawable mBottomDivider;
+        private int mLeftOffset;
+        private int mRightOffset;
+        private int mTopOffset;
+        private int mBottomOffset;
+
+        DividerDecoration(int leftOffset, int topOffset, int rightOffset, int bottomOffset) {
+            mLeftOffset = leftOffset;
+            mTopOffset = topOffset;
+            mRightOffset = rightOffset;
+            mBottomOffset = bottomOffset;
+        }
+
+        @Override
+        public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
+            if (mTopDivider == null) {
+                mTopDivider = new ColorDrawable(Color.RED);
+            }
+            if (mBottomDivider == null) {
+                mBottomDivider = new ColorDrawable(Color.BLUE);
+            }
+            final int childCount = parent.getChildCount();
+            final int width = parent.getWidth();
+            for (int childViewIndex = 0; childViewIndex < childCount; childViewIndex++) {
+                final View view = parent.getChildAt(childViewIndex);
+                mTopDivider.setBounds(0, (int) view.getY() - mTopOffset, width, (int) view.getY());
+                mTopDivider.draw(c);
+                mBottomDivider.setBounds(0, (int) view.getY() + view.getHeight(), width,
+                        (int) view.getY() + view.getHeight() + mBottomOffset);
+                mBottomDivider.draw(c);
+            }
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
+                                   RecyclerView.State state) {
+            outRect.left = mLeftOffset;
+            outRect.top = mTopOffset;
+            outRect.right = mRightOffset;
+            outRect.bottom = mBottomOffset;
+        }
+    }
+
+    public void testItemDecorationAndMargins() throws Throwable {
+
+        final int leftMargin = 3;
+        final int topMargin = 4;
+        final int rightMargin = 7;
+        final int bottomMargin = 8;
+        final int itemHeight = 100;
+
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_ITEMS, new int[]{itemHeight, itemHeight, itemHeight});
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_MARGINS,
+                new int[]{leftMargin, topMargin, rightMargin, bottomMargin});
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        final int paddingLeft = mGridView.getPaddingLeft();
+        final int paddingTop = mGridView.getPaddingTop();
+        final int verticalSpace = mGridView.getVerticalMargin();
+        final int decorationLeft = 17;
+        final int decorationTop = 1;
+        final int decorationRight = 19;
+        final int decorationBottom = 2;
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.addItemDecoration(new DividerDecoration(decorationLeft, decorationTop,
+                        decorationRight, decorationBottom));
+            }
+        });
+        waitForScrollIdle();
+
+        View child0 = mGridView.getChildAt(0);
+        View child1 = mGridView.getChildAt(1);
+        View child2 = mGridView.getChildAt(2);
+
+        assertEquals(itemHeight, child0.getBottom() - child0.getTop());
+
+        // verify left margins
+        assertEquals(paddingLeft + leftMargin + decorationLeft, child0.getLeft());
+        assertEquals(paddingLeft + leftMargin + decorationLeft, child1.getLeft());
+        assertEquals(paddingLeft + leftMargin + decorationLeft, child2.getLeft());
+        // verify top bottom margins and decoration offset
+        assertEquals(paddingTop + topMargin + decorationTop, child0.getTop());
+        assertEquals(bottomMargin + decorationBottom + verticalSpace + decorationTop + topMargin,
+                child1.getTop() - child0.getBottom());
+        assertEquals(bottomMargin + decorationBottom + verticalSpace + decorationTop + topMargin,
+                child2.getTop() - child1.getBottom());
+
     }
 
     public void testThreeColumnVerticalBasic() throws Throwable {

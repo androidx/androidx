@@ -56,6 +56,7 @@ public class GridActivity extends Activity {
     public static final String EXTRA_CHILD_LAYOUT_ID = "childLayoutId";
     public static final String EXTRA_SECONDARY_SIZE_ZERO = "secondarySizeZero";
     public static final String EXTRA_UPDATE_SIZE = "updateSize";
+    public static final String EXTRA_LAYOUT_MARGINS = "layoutMargins";
 
     /**
      * Class that implements GridWidgetTest.ViewTypeProvider for creating different
@@ -100,6 +101,7 @@ public class GridActivity extends Activity {
     BaseGridView mGridView;
     int[] mItemLengths;
     boolean[] mItemFocusables;
+    int[] mLayoutMargins;
 
     private int mBoundCount;
 
@@ -135,6 +137,7 @@ public class GridActivity extends Activity {
         mSecondarySizeZero = intent.getBooleanExtra(EXTRA_SECONDARY_SIZE_ZERO, false);
         mItemLengths = intent.getIntArrayExtra(EXTRA_ITEMS);
         mItemFocusables = intent.getBooleanArrayExtra(EXTRA_ITEMS_FOCUSABLE);
+        mLayoutMargins = intent.getIntArrayExtra(EXTRA_LAYOUT_MARGINS);
         String alignmentClass = intent.getStringExtra(EXTRA_ITEMALIGNMENTPROVIDER_CLASS);
         String alignmentViewTypeClass =
                 intent.getStringExtra(EXTRA_ITEMALIGNMENTPROVIDER_VIEWTYPE_CLASS);
@@ -323,6 +326,7 @@ public class GridActivity extends Activity {
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             if (DEBUG) Log.v(TAG, "createViewHolder " + viewType);
+            View itemView;
             if (mChildLayout != -1) {
                 final View view = getLayoutInflater().inflate(mChildLayout, parent, false);
                 ArrayList<View> focusables = new ArrayList<View>();
@@ -349,24 +353,39 @@ public class GridActivity extends Activity {
                         }
                     });
                 }
-                ViewHolder holder = new ViewHolder(view);
-                return holder;
-            }
-            TextView textView = new TextView(parent.getContext()) {
-                @Override
-                protected void onLayout(boolean change, int left, int top, int right, int bottom) {
-                    super.onLayout(change, left, top, right, bottom);
-                    if (mRequestFocusOnLayout) {
-                        if (hasFocus()) {
-                            clearFocus();
-                            requestFocus();
+                itemView = view;
+            } else {
+                TextView textView = new TextView(parent.getContext()) {
+                    @Override
+                    protected void onLayout(boolean change, int left, int top, int right,
+                            int bottom) {
+                        super.onLayout(change, left, top, right, bottom);
+                        if (mRequestFocusOnLayout) {
+                            if (hasFocus()) {
+                                clearFocus();
+                                requestFocus();
+                            }
                         }
                     }
+                };
+                textView.setTextColor(Color.BLACK);
+                textView.setOnFocusChangeListener(mItemFocusChangeListener);
+                itemView = textView;
+            }
+            if (mLayoutMargins != null) {
+                ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)
+                        itemView.getLayoutParams();
+                if (lp == null) {
+                    lp = new ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT);
                 }
-            };
-            textView.setTextColor(Color.BLACK);
-            textView.setOnFocusChangeListener(mItemFocusChangeListener);
-            return new ViewHolder(textView);
+                lp.leftMargin = mLayoutMargins[0];
+                lp.topMargin = mLayoutMargins[1];
+                lp.rightMargin = mLayoutMargins[2];
+                lp.bottomMargin = mLayoutMargins[3];
+                itemView.setLayoutParams(lp);
+            }
+            return new ViewHolder(itemView);
         }
 
         @Override
