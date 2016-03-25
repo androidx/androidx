@@ -2394,6 +2394,40 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
         assertTrue(secondChild.isFocused());
     }
 
+    public void testRestoreIndexAndAddItems() throws Throwable {
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_CHILD_LAYOUT_ID, R.layout.horizontal_item);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 4);
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        assertEquals(mGridView.getSelectedPosition(), 0);
+        final SparseArray states = new SparseArray();
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.saveHierarchyState(states);
+                mGridView.setAdapter(null);
+            }
+
+        });
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.restoreHierarchyState(states);
+                mActivity.attachToNewAdapter(new int[0]);
+                mActivity.addItems(0, new int[]{100, 100, 100, 100});
+            }
+
+        });
+        waitForTransientStateGone(null);
+        assertEquals(mGridView.getSelectedPosition(), 0);
+    }
+
     public void test27766012() throws Throwable {
         mInstrumentation = getInstrumentation();
         Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);

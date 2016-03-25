@@ -2309,7 +2309,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     public void onItemsAdded(RecyclerView recyclerView, int positionStart, int itemCount) {
         if (DEBUG) Log.v(getTag(), "onItemsAdded positionStart "
                 + positionStart + " itemCount " + itemCount);
-        if (mFocusPosition != NO_POSITION && mFocusPositionOffset != Integer.MIN_VALUE) {
+        if (mFocusPosition != NO_POSITION && mGrid != null && mGrid.getFirstVisibleIndex() >= 0
+                && mFocusPositionOffset != Integer.MIN_VALUE) {
             int pos = mFocusPosition + mFocusPositionOffset;
             if (positionStart <= pos) {
                 mFocusPositionOffset += itemCount;
@@ -2329,7 +2330,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     public void onItemsRemoved(RecyclerView recyclerView, int positionStart, int itemCount) {
         if (DEBUG) Log.v(getTag(), "onItemsRemoved positionStart "
                 + positionStart + " itemCount " + itemCount);
-        if (mFocusPosition != NO_POSITION && mFocusPositionOffset != Integer.MIN_VALUE) {
+        if (mFocusPosition != NO_POSITION  && mGrid != null && mGrid.getFirstVisibleIndex() >= 0
+            && mFocusPositionOffset != Integer.MIN_VALUE) {
             int pos = mFocusPosition + mFocusPositionOffset;
             if (positionStart <= pos) {
                 if (positionStart + itemCount > pos) {
