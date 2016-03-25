@@ -37,6 +37,13 @@ import static android.support.v7.media.MediaRouteProviderProtocol.*;
 /**
  * Base class for media route provider services.
  * <p>
+ * A media router will bind to media route provider services when a callback is added via
+ * {@link MediaRouter#addCallback(MediaRouteSelector, MediaRouter.Callback, int)} with a discovery
+ * flag: {@link MediaRouter#CALLBACK_FLAG_REQUEST_DISCOVERY},
+ * {@link MediaRouter#CALLBACK_FLAG_FORCE_DISCOVERY}, or
+ * {@link MediaRouter#CALLBACK_FLAG_PERFORM_ACTIVE_SCAN}, and will unbind when the callback
+ * is removed via {@link MediaRouter#removeCallback(MediaRouter.Callback)}.
+ * </p><p>
  * To implement your own media route provider service, extend this class and
  * override the {@link #onCreateMediaRouteProvider} method to return an
  * instance of your {@link MediaRouteProvider}.
