@@ -512,16 +512,15 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        final int keyCode = event.getKeyCode();
-        if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+        if (KeyEventCompat.hasModifiers(event, KeyEvent.META_CTRL_ON) &&
+                event.getUnicodeChar(event.getMetaState() & ~KeyEvent.META_CTRL_MASK) == '<') {
+            // Capture the Control-< and send focus to the ActionBar
             final int action = event.getAction();
             if (action == KeyEvent.ACTION_DOWN) {
-                if (KeyEventCompat.hasModifiers(event, KeyEvent.META_ALT_ON)) {
-                    final ActionBar actionBar = getSupportActionBar();
-                    if (actionBar != null && actionBar.isShowing() && actionBar.requestFocus()) {
-                        mEatKeyUpEvent = true;
-                        return true;
-                    }
+                final ActionBar actionBar = getSupportActionBar();
+                if (actionBar != null && actionBar.isShowing() && actionBar.requestFocus()) {
+                    mEatKeyUpEvent = true;
+                    return true;
                 }
             } else if (action == KeyEvent.ACTION_UP && mEatKeyUpEvent) {
                 mEatKeyUpEvent = false;
