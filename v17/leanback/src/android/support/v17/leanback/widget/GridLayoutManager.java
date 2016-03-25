@@ -1218,7 +1218,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     if (view == null) {
                         continue;
                     }
-                    if (measure && view.isLayoutRequested()) {
+                    if (measure) {
                         measureChild(view);
                     }
                     final int secondarySize = mOrientation == HORIZONTAL ?
@@ -1628,17 +1628,21 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             right = startSecondary + sizeSecondary;
         }
         LayoutParams params = (LayoutParams) v.getLayoutParams();
-        layoutDecorated(v, left + params.leftMargin, top + params.topMargin,
-                right - params.rightMargin, bottom - params.bottomMargin);
-        updateChildOpticalInsets(v, left, top, right, bottom);
+        // layoutDecorated() doesn't handle margins, so we need exclude margin:
+        int decoratedLeftExcludeMargin = left + params.leftMargin;
+        int decoratedTopExcludeMargin = top + params.topMargin;
+        int decoratedRightExcludeMargin = right - params.rightMargin;
+        int decoratedBottomExcludeMargin = bottom - params.bottomMargin;
+        layoutDecorated(v, decoratedLeftExcludeMargin, decoratedTopExcludeMargin,
+                decoratedRightExcludeMargin, decoratedBottomExcludeMargin);
+        // Now v.getLeft() includes the extra space for optical bounds, subtracting it from value
+        // passed in layoutDecorated(), we can get the optical bounds insets.
+        params.setOpticalInsets(decoratedLeftExcludeMargin - getDecoratedLeft(v),
+                decoratedTopExcludeMargin - getDecoratedTop(v),
+                getDecoratedRight(v) - decoratedRightExcludeMargin,
+                getDecoratedBottom(v) - decoratedBottomExcludeMargin);
         updateChildAlignments(v);
         if (TRACE) TraceHelper.endSection();
-    }
-
-    private void updateChildOpticalInsets(View v, int left, int top, int right, int bottom) {
-        LayoutParams p = (LayoutParams) v.getLayoutParams();
-        p.setOpticalInsets(left - v.getLeft(), top - v.getTop(),
-                v.getRight() - right, v.getBottom() - bottom);
     }
 
     private void updateChildAlignments(View v) {
@@ -1742,9 +1746,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 addView(view, viewIndex);
             }
 
-            if (view.isLayoutRequested()) {
-                measureChild(view);
-            }
+            measureChild(view);
             if (mOrientation == HORIZONTAL) {
                 primarySize = getDecoratedMeasuredWidthWithMargin(view);
                 end = start + primarySize;
