@@ -264,7 +264,9 @@ public class GridActivity extends Activity {
         System.arraycopy(mItemLengths, index + length, mItemLengths, index,
                 mNumItems - index - length);
         mNumItems -= length;
-        mGridView.getAdapter().notifyItemRangeRemoved(index, length);
+        if (mGridView.getAdapter() != null) {
+            mGridView.getAdapter().notifyItemRangeRemoved(index, length);
+        }
         return removed;
     }
 
@@ -285,7 +287,9 @@ public class GridActivity extends Activity {
         System.arraycopy(mItemLengths, index, mItemLengths, index + length, mNumItems - index);
         System.arraycopy(items, 0, mItemLengths, index, length);
         mNumItems += length;
-        mGridView.getAdapter().notifyItemRangeInserted(index, length);
+        if (mGridView.getAdapter() != null) {
+            mGridView.getAdapter().notifyItemRangeInserted(index, length);
+        }
     }
 
     class MyAdapter extends RecyclerView.Adapter implements FacetProviderAdapter {
