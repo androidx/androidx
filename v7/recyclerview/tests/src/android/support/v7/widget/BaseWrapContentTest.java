@@ -39,9 +39,14 @@ import android.widget.TextView;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Class to test any generic wrap content behavior.
@@ -513,14 +518,19 @@ abstract public class BaseWrapContentTest extends BaseRecyclerViewInstrumentatio
             }
         }
 
-        public void waitUntilAnimations() {
-            while (mItemAnimator != null && mItemAnimator.isRunning()) {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        public void waitUntilAnimations() throws InterruptedException {
+            final CountDownLatch latch = new CountDownLatch(1);
+            if (mItemAnimator == null || !mItemAnimator.isRunning(
+                    new ItemAnimator.ItemAnimatorFinishedListener() {
+                        @Override
+                        public void onAnimationsFinished() {
+                            latch.countDown();
+                        }
+                    })) {
+                latch.countDown();
             }
+            MatcherAssert.assertThat("waiting too long for animations",
+                    latch.await(60, TimeUnit.SECONDS), CoreMatchers.is(true));
         }
 
         @Override

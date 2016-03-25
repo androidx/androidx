@@ -18,11 +18,24 @@ package android.support.v7.widget;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.support.test.runner.MonitoringInstrumentation;
 import android.view.WindowManager;
 
-public class TestActivity extends Activity {
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
-    TestedFrameLayout mContainer;
+public class TestActivity extends Activity {
+    // This is not great but the only way to do this until test runner adds support to not kill
+    // activities after tests.
+    private static final String TEST_RUNNER =
+            MonitoringInstrumentation.class.getCanonicalName() + "$" + MonitoringInstrumentation
+                    .ActivityFinisher.class.getSimpleName();
+    volatile TestedFrameLayout mContainer;
+    boolean mVisible;
+    boolean mAllowFinish;
+    private Handler mHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,15 +43,62 @@ public class TestActivity extends Activity {
         overridePendingTransition(0, 0);
 
         mContainer = new TestedFrameLayout(this);
+        mHandler = new Handler(Looper.getMainLooper());
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
         setContentView(mContainer);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
+    public void resetContent() throws InterruptedException {
+        final CountDownLatch done = new CountDownLatch(1);
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                mContainer = new TestedFrameLayout(TestActivity.this);
+                setContentView(mContainer);
+                done.countDown();
+            }
+        });
+        if (!done.await(5, TimeUnit.SECONDS)) {
+            throw new AssertionError("could not cleanup activity contents in 5 seconds");
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mVisible = false;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mVisible = true;
+    }
+
     @Override
     public void finish() {
+        if (!mAllowFinish) {
+            StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+            // this is terrible but easy workaround for selective finishing
+            for (StackTraceElement element : stackTrace) {
+
+                if (TEST_RUNNER.equals(element.getClassName())) {
+                    // don't allow activity finisher to finish this.
+                    return;
+                }
+            }
+        }
         super.finish();
-        overridePendingTransition(0, 0);
+    }
+
+    public void setAllowFinish(boolean allowFinish) {
+        mAllowFinish = allowFinish;
+    }
+
+    public boolean canBeReUsed() {
+        return getWindow() != null && mVisible && !mAllowFinish;
     }
 }

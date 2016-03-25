@@ -16,6 +16,9 @@
 
 package android.support.v7.widget;
 
+import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
+
+import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.junit.After;
 import org.junit.Before;
@@ -23,12 +26,14 @@ import org.junit.Rule;
 
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.recyclerview.test.SameActivityTestRule;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -45,6 +50,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import android.support.v7.recyclerview.test.R;
@@ -66,8 +72,12 @@ abstract public class BaseRecyclerViewInstrumentationTest {
     Thread mInstrumentationThread;
 
     @Rule
-    public ActivityTestRule<TestActivity> mActivityRule = new ActivityTestRule<>(
-            TestActivity.class);
+    public ActivityTestRule<TestActivity> mActivityRule = new SameActivityTestRule() {
+        @Override
+        public boolean canReUseActivity() {
+            return BaseRecyclerViewInstrumentationTest.this.canReUseActivity();
+        }
+    };
 
     public BaseRecyclerViewInstrumentationTest() {
         this(false);
@@ -103,6 +113,10 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         } catch (Throwable throwable) {
             Log.e(TAG, "", throwable);
         }
+    }
+
+    public boolean canReUseActivity() {
+        return true;
     }
 
     protected void enableAccessibility()
@@ -252,7 +266,31 @@ abstract public class BaseRecyclerViewInstrumentationTest {
                 latch.await(seconds, TimeUnit.SECONDS));
     }
 
-    public boolean requestFocus(final View view) {
+    public void waitForIdleScroll(final RecyclerView recyclerView) throws Throwable {
+        final CountDownLatch latch = new CountDownLatch(1);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                RecyclerView.OnScrollListener listener = new RecyclerView.OnScrollListener() {
+                    @Override
+                    public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                        if (newState == SCROLL_STATE_IDLE) {
+                            latch.countDown();
+                            recyclerView.removeOnScrollListener(this);
+                        }
+                    }
+                };
+                if (recyclerView.getScrollState() == SCROLL_STATE_IDLE) {
+                    latch.countDown();
+                } else {
+                    recyclerView.addOnScrollListener(listener);
+                }
+            }
+        });
+        assertTrue("should go idle in 10 seconds", latch.await(10, TimeUnit.SECONDS));
+    }
+
+    public boolean requestFocus(final View view, boolean waitForScroll) throws Throwable {
         final boolean[] result = new boolean[1];
         try {
             runTestOnUiThread(new Runnable() {
@@ -263,6 +301,9 @@ abstract public class BaseRecyclerViewInstrumentationTest {
             });
         } catch (Throwable throwable) {
             fail(throwable.getMessage());
+        }
+        if (waitForScroll && result[0]) {
+            waitForIdleScroll(mRecyclerView);
         }
         return result[0];
     }
@@ -368,11 +409,42 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         });
     }
 
-    void smoothScrollToPosition(final int position)
-            throws Throwable {
+    void smoothScrollToPosition(final int position) throws Throwable {
+        smoothScrollToPosition(position, true);
+    }
+
+    void smoothScrollToPosition(final int position, boolean assertArrival) throws Throwable {
         if (mDebug) {
             Log.d(TAG, "SMOOTH scrolling to " + position);
         }
+        final CountDownLatch viewAdded = new CountDownLatch(1);
+        final RecyclerView.OnChildAttachStateChangeListener listener =
+                new RecyclerView.OnChildAttachStateChangeListener() {
+                    @Override
+                    public void onChildViewAttachedToWindow(View view) {
+                        if (position == mRecyclerView.getChildAdapterPosition(view)) {
+                            viewAdded.countDown();
+                        }
+                    }
+                    @Override
+                    public void onChildViewDetachedFromWindow(View view) {
+                    }
+                };
+        final AtomicBoolean addedListener = new AtomicBoolean(false);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                RecyclerView.ViewHolder viewHolderForAdapterPosition =
+                        mRecyclerView.findViewHolderForAdapterPosition(position);
+                if (viewHolderForAdapterPosition != null) {
+                    viewAdded.countDown();
+                } else {
+                    mRecyclerView.addOnChildAttachStateChangeListener(listener);
+                    addedListener.set(true);
+                }
+
+            }
+        });
         runTestOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -380,16 +452,20 @@ abstract public class BaseRecyclerViewInstrumentationTest {
             }
         });
         getInstrumentation().waitForIdleSync();
-        Thread.sleep(200); //give scroller some time so start
-        while (mRecyclerView.getLayoutManager().isSmoothScrolling() ||
-                mRecyclerView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE) {
-            if (mDebug) {
-                Log.d(TAG, "SMOOTH scrolling step");
-            }
-            Thread.sleep(200);
-        }
+        assertThat("should be able to scroll in 10 seconds", !assertArrival ||
+                viewAdded.await(10, TimeUnit.SECONDS),
+                CoreMatchers.is(true));
+        waitForIdleScroll(mRecyclerView);
         if (mDebug) {
             Log.d(TAG, "SMOOTH scrolling done");
+        }
+        if (addedListener.get()) {
+            runTestOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mRecyclerView.removeOnChildAttachStateChangeListener(listener);
+                }
+            });
         }
         getInstrumentation().waitForIdleSync();
     }
@@ -663,7 +739,10 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         @Override
         public TestViewHolder onCreateViewHolder(ViewGroup parent,
                 int viewType) {
-            return new TestViewHolder(new TextView(parent.getContext()));
+            TextView itemView = new TextView(parent.getContext());
+            itemView.setFocusableInTouchMode(true);
+            itemView.setFocusable(true);
+            return new TestViewHolder(itemView);
         }
 
         @Override
@@ -738,6 +817,19 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         public void addAndNotify(final int count) throws Throwable {
             assertEquals(0, mItems.size());
             new AddRemoveRunnable(DEFAULT_ITEM_PREFIX, new int[]{0, count}).runOnMainThread();
+        }
+
+        public void resetItemsTo(final List<Item> testItems) throws Throwable {
+            if (!mItems.isEmpty()) {
+                deleteAndNotify(0, mItems.size());
+            }
+            mItems = testItems;
+            runTestOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    notifyItemRangeInserted(0, testItems.size());
+                }
+            });
         }
 
         public void addAndNotify(final int start, final int count) throws Throwable {
@@ -864,7 +956,6 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         public ViewAttachDetachCounter getCounter() {
             return mAttachmentCounter;
         }
-
 
         private class AddRemoveRunnable implements Runnable {
             final String mNewItemPrefix;

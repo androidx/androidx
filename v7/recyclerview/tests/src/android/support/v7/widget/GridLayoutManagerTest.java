@@ -150,17 +150,13 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         waitForFirstLayout(recyclerView);
 
         View viewToFocus = recyclerView.findViewHolderForAdapterPosition(1).itemView;
-        assertTrue(requestFocus(viewToFocus));
-        getInstrumentation().waitForIdleSync();
+        assertTrue(requestFocus(viewToFocus, true));
         assertSame(viewToFocus, recyclerView.getFocusedChild());
         int pos = 1;
         View focusedView = viewToFocus;
         while (pos < 31) {
             focusSearch(focusedView, scrollDown ? View.FOCUS_DOWN : View.FOCUS_UP);
-            getInstrumentation().waitForIdleSync();
-            while (recyclerView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE) {
-                Thread.sleep(100);
-            }
+            waitForIdleScroll(recyclerView);
             focusedView = recyclerView.getFocusedChild();
             assertEquals(Math.min(pos + 3, mAdapter.getItemCount() - 1),
                     recyclerView.getChildViewHolder(focusedView).getAdapterPosition());

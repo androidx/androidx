@@ -239,15 +239,9 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         tlm.expectLayouts(1);
         setRecyclerView(recyclerView);
         tlm.waitForLayout(2);
-
         final View c = recyclerView.getChildAt(recyclerView.getChildCount() - 1);
-        runTestOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                c.requestFocus();
-            }
-        });
-        assertTrue(c.hasFocus());
+        assertTrue("test sanity", requestFocus(c, true));
+        assertTrue("test sanity", c.hasFocus());
         freezeLayout(true);
         focusSearch(recyclerView, c, View.FOCUS_DOWN);
         assertEquals("onFocusSearchFailed should not be called when layout is frozen",
@@ -713,26 +707,30 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         if (!didStart.get()) {
             return false;
         }
-        // cannot set scroll listener in case it is subject to some test so instead doing a busy
-        // loop until state goes idle
-        while (mRecyclerView.getScrollState() != SCROLL_STATE_IDLE) {
-            getInstrumentation().waitForIdleSync();
-        }
+        waitForIdleScroll(mRecyclerView);
         return true;
     }
 
-    private void assertPendingUpdatesAndLayout(TestLayoutManager testLayoutManager,
-            final Runnable runnable) throws Throwable {
-        testLayoutManager.expectLayouts(1);
+    private void assertPendingUpdatesAndLayoutTest(final AdapterRunnable runnable) throws Throwable {
+        RecyclerView recyclerView = new RecyclerView(getActivity());
+        TestLayoutManager layoutManager = new DumbLayoutManager();
+        final TestAdapter testAdapter = new TestAdapter(10);
+        setupBasic(recyclerView, layoutManager, testAdapter, false);
+        layoutManager.expectLayouts(1);
         runTestOnUiThread(new Runnable() {
             @Override
             public void run() {
-                runnable.run();
+                try {
+                    runnable.run(testAdapter);
+                } catch (Throwable throwable) {
+                    fail("runnable has thrown an exception");
+                }
                 assertTrue(mRecyclerView.hasPendingAdapterUpdates());
             }
         });
-        testLayoutManager.waitForLayout(1);
+        layoutManager.waitForLayout(1);
         assertFalse(mRecyclerView.hasPendingAdapterUpdates());
+        checkForMainThreadException();
     }
 
     private void setupBasic(RecyclerView recyclerView, TestLayoutManager tlm,
@@ -767,42 +765,47 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     }
 
     @Test
-    public void hasPendingUpdatesWhenAdapterIsChanged() throws Throwable {
-        RecyclerView recyclerView = new RecyclerView(getActivity());
-        TestLayoutManager layoutManager = new DumbLayoutManager();
-        final TestAdapter testAdapter = new TestAdapter(10);
-        setupBasic(recyclerView, layoutManager, testAdapter, false);
-        assertPendingUpdatesAndLayout(layoutManager, new Runnable() {
+    public void hasPendingUpdatesAfterItemIsRemoved() throws Throwable {
+        assertPendingUpdatesAndLayoutTest(new AdapterRunnable() {
             @Override
-            public void run() {
-                testAdapter.notifyItemRemoved(1);
+            public void run(TestAdapter testAdapter) throws Throwable {
+                testAdapter.deleteAndNotify(1, 1);
             }
         });
-        assertPendingUpdatesAndLayout(layoutManager, new Runnable() {
+    }
+    @Test
+    public void hasPendingUpdatesAfterItemIsInserted() throws Throwable {
+        assertPendingUpdatesAndLayoutTest(new AdapterRunnable() {
             @Override
-            public void run() {
-                testAdapter.notifyItemInserted(2);
+            public void run(TestAdapter testAdapter) throws Throwable {
+                testAdapter.addAndNotify(2, 1);
             }
         });
-
-        assertPendingUpdatesAndLayout(layoutManager, new Runnable() {
+    }
+    @Test
+    public void hasPendingUpdatesAfterItemIsMoved() throws Throwable {
+        assertPendingUpdatesAndLayoutTest(new AdapterRunnable() {
             @Override
-            public void run() {
-                testAdapter.notifyItemMoved(2, 3);
+            public void run(TestAdapter testAdapter) throws Throwable {
+                testAdapter.moveItem(2, 3, true);
             }
         });
-
-        assertPendingUpdatesAndLayout(layoutManager, new Runnable() {
+    }
+    @Test
+    public void hasPendingUpdatesAfterItemIsChanged() throws Throwable {
+        assertPendingUpdatesAndLayoutTest(new AdapterRunnable() {
             @Override
-            public void run() {
-                testAdapter.notifyItemChanged(2);
+            public void run(TestAdapter testAdapter) throws Throwable {
+                testAdapter.changeAndNotify(2, 1);
             }
         });
-
-        assertPendingUpdatesAndLayout(layoutManager, new Runnable() {
+    }
+    @Test
+    public void hasPendingUpdatesAfterDataSetIsChanged() throws Throwable {
+        assertPendingUpdatesAndLayoutTest(new AdapterRunnable() {
             @Override
-            public void run() {
-                testAdapter.notifyDataSetChanged();
+            public void run(TestAdapter testAdapter) {
+                mRecyclerView.getAdapter().notifyDataSetChanged();
             }
         });
     }
@@ -2868,12 +2871,11 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
     @Test
     public void updateHiddenView() throws Throwable {
-        final RecyclerView.ViewHolder[] mTargetVH = new RecyclerView.ViewHolder[1];
         final RecyclerView recyclerView = new RecyclerView(getActivity());
         final int[] preLayoutRange = new int[]{0, 10};
         final int[] postLayoutRange = new int[]{0, 10};
         final AtomicBoolean enableGetViewTest = new AtomicBoolean(false);
-        final List<Integer> disappearingPositions = new ArrayList<Integer>();
+        final List<Integer> disappearingPositions = new ArrayList<>();
         final TestLayoutManager tlm = new TestLayoutManager() {
             @Override
             public boolean supportsPredictiveItemAnimations() {
@@ -2892,6 +2894,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                             // test sanity.
                             assertNull(findViewByPosition(position));
                             final View view = recycler.getViewForPosition(position);
+                            assertNotNull(view);
                             addDisappearingView(view);
                             measureChildWithMargins(view, 0, 0);
                             // position item out of bounds.
@@ -2905,18 +2908,15 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 layoutLatch.countDown();
             }
         };
-
-        recyclerView.getItemAnimator().setMoveDuration(2000);
-        recyclerView.getItemAnimator().setRemoveDuration(2000);
+        recyclerView.getItemAnimator().setMoveDuration(4000);
+        recyclerView.getItemAnimator().setRemoveDuration(4000);
         final TestAdapter adapter = new TestAdapter(100);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(tlm);
         tlm.expectLayouts(1);
         setRecyclerView(recyclerView);
-
         tlm.waitForLayout(1);
         checkForMainThreadException();
-        mTargetVH[0] = recyclerView.findViewHolderForAdapterPosition(0);
         // now, a child disappears
         disappearingPositions.add(0);
         // layout one shifted
@@ -2935,10 +2935,12 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
             @Override
             public void run() {
                 try {
+                    assertThat("test sanity, should still be animating",
+                            mRecyclerView.isAnimating(), CoreMatchers.is(true));
                     adapter.changeAndNotify(0, 1);
                     adapter.deleteAndNotify(0, 1);
                 } catch (Throwable throwable) {
-                    throwable.printStackTrace();
+                    fail(throwable.getMessage());
                 }
             }
         });
@@ -3076,8 +3078,8 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         setRecyclerView(rv);
         tlm.waitForLayout(2);
         View view = rv.getChildAt(0);
-        requestFocus(view);
-        Thread.sleep(1000);
+        assertTrue("test sanity", requestFocus(view, true));
+        assertTrue("test sanity", view.hasFocus());
         assertEquals(vDesiredDist.get(), vScrollDist.get());
         assertEquals(hDesiredDist.get(), hScrollDist.get());
         assertEquals(mRecyclerView.getPaddingTop(), view.getTop());
@@ -3218,8 +3220,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         tlm.waitForLayout(2);
 
         View view = rv.getChildAt(0);
-        requestFocus(view);
-        Thread.sleep(1000);
+        requestFocus(view, true);
         assertEquals(addItemDecors ? -30 : -20, scrollDist.get());
     }
 
@@ -3267,11 +3268,11 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         setRecyclerView(rv);
         tlm.waitForLayout(2);
         freezeLayout(true);
-        smoothScrollToPosition(35);
+        smoothScrollToPosition(35, false);
         assertEquals("smoothScrollToPosition should be ignored when frozen",
                 -1, receivedSmoothScrollToPosition.get());
         freezeLayout(false);
-        smoothScrollToPosition(35);
+        smoothScrollToPosition(35, false);
         assertTrue("both scrolls should be called", cbLatch.await(3, TimeUnit.SECONDS));
         checkForMainThreadException();
         assertEquals(35, receivedSmoothScrollToPosition.get());
