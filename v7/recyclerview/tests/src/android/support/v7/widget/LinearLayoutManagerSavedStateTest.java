@@ -291,10 +291,13 @@ public class LinearLayoutManagerSavedStateTest extends BaseLinearLayoutManagerTe
         parcel.setDataPosition(0);
         // re-create
         savedState = RecyclerView.SavedState.CREATOR.createFromParcel(parcel);
-        removeRecyclerView();
 
         final int itemCount = mTestAdapter.getItemCount();
+        List<Item> testItems = new ArrayList<>();
         if (mLoadDataAfterRestore) {
+            // we cannot delete and re-add since new items may have different sizes. We need the
+            // exact same adapter.
+            testItems.addAll(mTestAdapter.mItems);
             mTestAdapter.deleteAndNotify(0, itemCount);
         }
 
@@ -309,7 +312,8 @@ public class LinearLayoutManagerSavedStateTest extends BaseLinearLayoutManagerTe
         restored.onRestoreInstanceState(savedState);
 
         if (mLoadDataAfterRestore) {
-            mTestAdapter.addAndNotify(itemCount);
+            // add the same items back
+            mTestAdapter.resetItemsTo(testItems);
         }
 
         mPostRestoreOperation.onAfterRestore(mConfig);

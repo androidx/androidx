@@ -163,7 +163,7 @@ public class TouchUtils {
     }
 
     public static void dragViewToTop(Instrumentation inst, View v) {
-        dragViewToTop(inst, v, 4);
+        dragViewToTop(inst, v, calculateStepsForDistance(v.getTop()));
     }
 
     public static void dragViewToTop(Instrumentation inst, View v, int stepCount) {
@@ -226,7 +226,7 @@ public class TouchUtils {
         int deltaY = fromY - toY;
 
         int distance = (int) Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-        drag(inst, fromX, toX, fromY, toY, distance);
+        drag(inst, fromX, toX, fromY, toY, calculateStepsForDistance(distance));
 
         return distance;
     }
@@ -241,7 +241,7 @@ public class TouchUtils {
 
         int deltaX = fromX - toX;
 
-        drag(inst, fromX, toX, fromY, fromY, Math.max(10, Math.abs(deltaX) / 10));
+        drag(inst, fromX, toX, fromY, fromY, calculateStepsForDistance(deltaX));
 
         return deltaX;
     }
@@ -256,7 +256,7 @@ public class TouchUtils {
 
         int deltaY = fromY - toY;
 
-        drag(inst, fromX, fromX, fromY, toY, deltaY);
+        drag(inst, fromX, fromX, fromY, toY, calculateStepsForDistance(deltaY));
 
         return deltaY;
     }
@@ -288,5 +288,9 @@ public class TouchUtils {
         event = MotionEvent.obtain(downTime, eventTime, MotionEvent.ACTION_UP, x, y, 0);
         inst.sendPointerSync(event);
         inst.waitForIdleSync();
+    }
+
+    private static int calculateStepsForDistance(int distance) {
+        return 1 + Math.abs(distance) / 10;
     }
 }

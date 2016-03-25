@@ -161,8 +161,6 @@ public class StaggeredGridLayoutManagerSavedStateTest extends BaseStaggeredGridL
         waitFirstLayout();
         if (mWaitForLayout) {
             mPostLayoutOperations.run();
-            // ugly thread sleep but since post op is anything, we need to give it time to settle.
-            Thread.sleep(500);
         }
         getInstrumentation().waitForIdleSync();
         final int firstCompletelyVisiblePosition = mLayoutManager.findFirstVisibleItemPositionInt();
@@ -181,7 +179,9 @@ public class StaggeredGridLayoutManagerSavedStateTest extends BaseStaggeredGridL
         removeRecyclerView();
 
         final int itemCount = mAdapter.getItemCount();
+        List<Item> mItems = new ArrayList<>();
         if (mLoadDataAfterRestore) {
+            mItems.addAll(mAdapter.mItems);
             mAdapter.deleteAndNotify(0, itemCount);
         }
 
@@ -194,7 +194,7 @@ public class StaggeredGridLayoutManagerSavedStateTest extends BaseStaggeredGridL
         restored.onRestoreInstanceState(savedState);
 
         if (mLoadDataAfterRestore) {
-            mAdapter.addAndNotify(itemCount);
+            mAdapter.resetItemsTo(mItems);
         }
 
         assertEquals("Parcel reading should not go out of bounds", parcelSuffix,
