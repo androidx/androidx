@@ -995,7 +995,8 @@ package android.support.v17.leanback.widget {
 
   public final class ClassPresenterSelector extends android.support.v17.leanback.widget.PresenterSelector {
     ctor public ClassPresenterSelector();
-    method public void addClassPresenter(java.lang.Class<?>, android.support.v17.leanback.widget.Presenter);
+    method public android.support.v17.leanback.widget.ClassPresenterSelector addClassPresenter(java.lang.Class<?>, android.support.v17.leanback.widget.Presenter);
+    method public android.support.v17.leanback.widget.ClassPresenterSelector addClassPresenterSelector(java.lang.Class<?>, android.support.v17.leanback.widget.PresenterSelector);
     method public android.support.v17.leanback.widget.Presenter getPresenter(java.lang.Object);
   }
 
