@@ -236,6 +236,36 @@ public class PreferenceManager {
     }
 
     /**
+     * Indicates if the storage location used internally by this class is the
+     * default provided by the hosting {@link Context}.
+     *
+     * @see #setStorageDefault()
+     * @see #setStorageDeviceProtected()
+     */
+    public boolean isStorageDefault() {
+        if (BuildCompat.isAtLeastN()) {
+            return mStorage == STORAGE_DEFAULT;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * Indicates if the storage location used internally by this class is backed
+     * by device-protected storage.
+     *
+     * @see #setStorageDefault()
+     * @see #setStorageDeviceProtected()
+     */
+    public boolean isStorageDeviceProtected() {
+        if (BuildCompat.isAtLeastN()) {
+            return mStorage == STORAGE_DEVICE_PROTECTED;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * Gets a SharedPreferences instance that preferences managed by this will
      * use.
      *

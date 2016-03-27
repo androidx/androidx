@@ -1835,7 +1835,6 @@ package android.support.v4.os {
   }
 
   public class UserManagerCompat {
-    ctor public UserManagerCompat();
     method public static boolean isUserUnlocked(android.content.Context);
   }
 
