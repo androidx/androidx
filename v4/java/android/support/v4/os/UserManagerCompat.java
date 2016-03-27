@@ -23,6 +23,9 @@ import android.content.Context;
  * introduced after API level 4 in a backwards compatible fashion.
  */
 public class UserManagerCompat {
+    private UserManagerCompat() {
+    }
+
     /**
      * Return whether the calling user is running in a "locked" state. A user is
      * unlocked only after they've entered their credentials (such as a lock
