@@ -262,6 +262,8 @@ package android.support.v7.preference {
     method public android.content.SharedPreferences getSharedPreferences();
     method public int getSharedPreferencesMode();
     method public java.lang.String getSharedPreferencesName();
+    method public boolean isStorageDefault();
+    method public boolean isStorageDeviceProtected();
     method public static void setDefaultValues(android.content.Context, int, boolean);
     method public static void setDefaultValues(android.content.Context, java.lang.String, int, int, boolean);
     method public void setOnDisplayPreferenceDialogListener(android.support.v7.preference.PreferenceManager.OnDisplayPreferenceDialogListener);
