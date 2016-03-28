@@ -57,6 +57,7 @@ public class GridActivity extends Activity {
     public static final String EXTRA_SECONDARY_SIZE_ZERO = "secondarySizeZero";
     public static final String EXTRA_UPDATE_SIZE = "updateSize";
     public static final String EXTRA_LAYOUT_MARGINS = "layoutMargins";
+    public static final String EXTRA_NINEPATCH_SHADOW = "NINEPATCH_SHADOW";
 
     /**
      * Class that implements GridWidgetTest.ViewTypeProvider for creating different
@@ -102,6 +103,7 @@ public class GridActivity extends Activity {
     int[] mItemLengths;
     boolean[] mItemFocusables;
     int[] mLayoutMargins;
+    int mNinePatchShadow;
 
     private int mBoundCount;
 
@@ -119,6 +121,9 @@ public class GridActivity extends Activity {
                 if (DEBUG) Log.d(TAG, "onChildSelected position=" + position +  " id="+id);
             }
         });
+        if (mNinePatchShadow != 0) {
+            mGridView.setLayoutMode(ViewGroup.LAYOUT_MODE_OPTICAL_BOUNDS);
+        }
         return view;
     }
 
@@ -142,6 +147,7 @@ public class GridActivity extends Activity {
         String alignmentViewTypeClass =
                 intent.getStringExtra(EXTRA_ITEMALIGNMENTPROVIDER_VIEWTYPE_CLASS);
         String viewTypeClass = intent.getStringExtra(EXTRA_VIEWTYPEPROVIDER_CLASS);
+        mNinePatchShadow = intent.getIntExtra(EXTRA_NINEPATCH_SHADOW, 0);
         try {
             if (alignmentClass != null) {
                 mAlignmentProvider = (GridWidgetTest.ItemAlignmentFacetProvider)
@@ -384,6 +390,13 @@ public class GridActivity extends Activity {
                 lp.rightMargin = mLayoutMargins[2];
                 lp.bottomMargin = mLayoutMargins[3];
                 itemView.setLayoutParams(lp);
+            }
+            if (mNinePatchShadow != 0) {
+                ViewGroup viewGroup = (ViewGroup) itemView;
+                View shadow = new View(viewGroup.getContext());
+                shadow.setBackgroundResource(mNinePatchShadow);
+                viewGroup.addView(shadow);
+                viewGroup.setLayoutMode(ViewGroup.LAYOUT_MODE_OPTICAL_BOUNDS);
             }
             return new ViewHolder(itemView);
         }

@@ -484,6 +484,76 @@ public class GridWidgetTest extends ActivityInstrumentationTestCase2<GridActivit
 
     }
 
+    public void testItemDecorationAndMarginsAndOpticalBounds() throws Throwable {
+        final int leftMargin = 3;
+        final int topMargin = 4;
+        final int rightMargin = 7;
+        final int bottomMargin = 8;
+        final int itemHeight = 100;
+        final int ninePatchDrawableResourceId = R.drawable.lb_card_shadow_focused;
+
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent(mInstrumentation.getContext(), GridActivity.class);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_ITEMS, new int[]{itemHeight, itemHeight, itemHeight});
+        intent.putExtra(GridActivity.EXTRA_CHILD_LAYOUT_ID, R.layout.relative_layout);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_MARGINS,
+                new int[]{leftMargin, topMargin, rightMargin, bottomMargin});
+        intent.putExtra(GridActivity.EXTRA_NINEPATCH_SHADOW, ninePatchDrawableResourceId);
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        final int paddingLeft = mGridView.getPaddingLeft();
+        final int paddingTop = mGridView.getPaddingTop();
+        final int verticalSpace = mGridView.getVerticalMargin();
+        final int decorationLeft = 17;
+        final int decorationTop = 1;
+        final int decorationRight = 19;
+        final int decorationBottom = 2;
+
+        final Rect opticalPaddings = new Rect();
+        mGridView.getContext().getDrawable(ninePatchDrawableResourceId).getPadding(opticalPaddings);
+        final int opticalInsetsLeft = opticalPaddings.left;
+        final int opticalInsetsTop = opticalPaddings.top;
+        final int opticalInsetsRight = opticalPaddings.right;
+        final int opticalInsetsBottom = opticalPaddings.bottom;
+        assertTrue(opticalInsetsLeft > 0);
+        assertTrue(opticalInsetsTop > 0);
+        assertTrue(opticalInsetsRight > 0);
+        assertTrue(opticalInsetsBottom > 0);
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.addItemDecoration(new DividerDecoration(decorationLeft, decorationTop,
+                        decorationRight, decorationBottom));
+            }
+        });
+        waitForScrollIdle();
+
+        View child0 = mGridView.getChildAt(0);
+        View child1 = mGridView.getChildAt(1);
+        View child2 = mGridView.getChildAt(2);
+
+        assertEquals(itemHeight + opticalInsetsTop + opticalInsetsBottom,
+                child0.getBottom() - child0.getTop());
+
+        // verify left margins decoration and optical insets
+        assertEquals(paddingLeft + leftMargin + decorationLeft - opticalInsetsLeft,
+                child0.getLeft());
+        assertEquals(paddingLeft + leftMargin + decorationLeft - opticalInsetsLeft,
+                child1.getLeft());
+        assertEquals(paddingLeft + leftMargin + decorationLeft - opticalInsetsLeft,
+                child2.getLeft());
+        // verify top bottom margins decoration offset and optical insets
+        assertEquals(paddingTop + topMargin + decorationTop, child0.getTop() + opticalInsetsTop);
+        assertEquals(bottomMargin + decorationBottom + verticalSpace + decorationTop + topMargin,
+                (child1.getTop() + opticalInsetsTop) - (child0.getBottom() - opticalInsetsBottom));
+        assertEquals(bottomMargin + decorationBottom + verticalSpace + decorationTop + topMargin,
+                (child2.getTop() + opticalInsetsTop) - (child1.getBottom() - opticalInsetsBottom));
+
+    }
+
     public void testThreeColumnVerticalBasic() throws Throwable {
 
         mInstrumentation = getInstrumentation();
