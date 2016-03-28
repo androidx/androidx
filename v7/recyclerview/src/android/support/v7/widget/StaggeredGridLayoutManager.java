@@ -1751,18 +1751,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
-    private void layoutDecoratedWithMargins(View child, int left, int top, int right, int bottom) {
-        LayoutParams lp = (LayoutParams) child.getLayoutParams();
-        if (DEBUG) {
-            Log.d(TAG, "layout decorated pos: " + lp.getViewLayoutPosition() + ", span:"
-                    + lp.getSpanIndex() + ", fullspan:" + lp.mFullSpan
-                    + ". l:" + left + ",t:" + top
-                    + ", r:" + right + ", b:" + bottom);
-        }
-        layoutDecorated(child, left + lp.leftMargin, top + lp.topMargin, right - lp.rightMargin
-                , bottom - lp.bottomMargin);
-    }
-
     private void updateAllRemainingSpans(int layoutDir, int targetLine) {
         for (int i = 0; i < mSpanCount; i++) {
             if (mSpans[i].mViews.isEmpty()) {

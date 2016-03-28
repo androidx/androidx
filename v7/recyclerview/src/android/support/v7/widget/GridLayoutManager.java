@@ -669,8 +669,7 @@ public class GridLayoutManager extends LinearLayoutManager {
             }
             // We calculate everything with View's bounding box (which includes decor and margins)
             // To calculate correct layout position, we subtract margins.
-            layoutDecorated(view, left + params.leftMargin, top + params.topMargin,
-                    right - params.rightMargin, bottom - params.bottomMargin);
+            layoutDecoratedWithMargins(view, left, top, right, bottom);
             if (DEBUG) {
                 Log.d(TAG, "laid out child at position " + getPosition(view) + ", with l:"
                         + (left + params.leftMargin) + ", t:" + (top + params.topMargin) + ", r:"
