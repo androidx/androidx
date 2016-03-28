@@ -1024,17 +1024,22 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             @Override
             public void onTransitionEnd(Object transition) {
                 mHeadersTransition = null;
-                mMainFragmentAdapter.onTransitionEnd();
-                mHeadersSupportFragment.onTransitionEnd();
-                if (mShowingHeaders) {
-                    VerticalGridView headerGridView = mHeadersSupportFragment.getVerticalGridView();
-                    if (headerGridView != null && !headerGridView.hasFocus()) {
-                        headerGridView.requestFocus();
+                if (mMainFragmentAdapter != null) {
+                    mMainFragmentAdapter.onTransitionEnd();
+                    if (!mShowingHeaders && mMainFragment != null) {
+                        View mainFragmentView = mMainFragment.getView();
+                        if (mainFragmentView != null && !mainFragmentView.hasFocus()) {
+                            mainFragmentView.requestFocus();
+                        }
                     }
-                } else {
-                    View rowsGridView = mMainFragment.getView();
-                    if (rowsGridView != null && !rowsGridView.hasFocus()) {
-                        rowsGridView.requestFocus();
+                }
+                if (mHeadersSupportFragment != null) {
+                    mHeadersSupportFragment.onTransitionEnd();
+                    if (mShowingHeaders) {
+                        VerticalGridView headerGridView = mHeadersSupportFragment.getVerticalGridView();
+                        if (headerGridView != null && !headerGridView.hasFocus()) {
+                            headerGridView.requestFocus();
+                        }
                     }
                 }
                 if (mBrowseTransitionListener != null) {
