@@ -6046,21 +6046,19 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             for (int i = 0; i < count; i++) {
                 View child = getChildAt(i);
                 LayoutParams lp = (LayoutParams) child.getLayoutParams();
-                int left = getDecoratedLeft(child) - lp.leftMargin;
-                int right = getDecoratedRight(child) + lp.rightMargin;
-                int top = getDecoratedTop(child) - lp.topMargin;
-                int bottom = getDecoratedBottom(child) + lp.bottomMargin;
-                if (left < minX) {
-                    minX = left;
+                final Rect bounds = mRecyclerView.mTempRect;
+                getDecoratedBoundsWithMargins(child, bounds);
+                if (bounds.left < minX) {
+                    minX = bounds.left;
                 }
-                if (right > maxX) {
-                    maxX = right;
+                if (bounds.right > maxX) {
+                    maxX = bounds.right;
                 }
-                if (top < minY) {
-                    minY = top;
+                if (bounds.top < minY) {
+                    minY = bounds.top;
                 }
-                if (bottom > maxY) {
-                    maxY = bottom;
+                if (bounds.bottom > maxY) {
+                    maxY = bounds.bottom;
                 }
             }
             mRecyclerView.mTempRect.set(minX, minY, maxX, maxY);
@@ -7613,6 +7611,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * ignore decoration insets within measurement and layout code. See the following
          * methods:</p>
          * <ul>
+         *     <li>{@link #layoutDecoratedWithMargins(View, int, int, int, int)}</li>
+         *     <li>{@link #getDecoratedBoundsWithMargins(View, Rect)}</li>
          *     <li>{@link #measureChild(View, int, int)}</li>
          *     <li>{@link #measureChildWithMargins(View, int, int)}</li>
          *     <li>{@link #getDecoratedLeft(View)}</li>
@@ -7630,11 +7630,66 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * @param bottom Bottom edge, with item decoration insets included
          *
          * @see View#layout(int, int, int, int)
+         * @see #layoutDecoratedWithMargins(View, int, int, int, int)
          */
         public void layoutDecorated(View child, int left, int top, int right, int bottom) {
             final Rect insets = ((LayoutParams) child.getLayoutParams()).mDecorInsets;
             child.layout(left + insets.left, top + insets.top, right - insets.right,
                     bottom - insets.bottom);
+        }
+
+        /**
+         * Lay out the given child view within the RecyclerView using coordinates that
+         * include any current {@link ItemDecoration ItemDecorations} and margins.
+         *
+         * <p>LayoutManagers should prefer working in sizes and coordinates that include
+         * item decoration insets whenever possible. This allows the LayoutManager to effectively
+         * ignore decoration insets within measurement and layout code. See the following
+         * methods:</p>
+         * <ul>
+         *     <li>{@link #layoutDecorated(View, int, int, int, int)}</li>
+         *     <li>{@link #measureChild(View, int, int)}</li>
+         *     <li>{@link #measureChildWithMargins(View, int, int)}</li>
+         *     <li>{@link #getDecoratedLeft(View)}</li>
+         *     <li>{@link #getDecoratedTop(View)}</li>
+         *     <li>{@link #getDecoratedRight(View)}</li>
+         *     <li>{@link #getDecoratedBottom(View)}</li>
+         *     <li>{@link #getDecoratedMeasuredWidth(View)}</li>
+         *     <li>{@link #getDecoratedMeasuredHeight(View)}</li>
+         * </ul>
+         *
+         * @param child Child to lay out
+         * @param left Left edge, with item decoration insets and left margin included
+         * @param top Top edge, with item decoration insets and top margin included
+         * @param right Right edge, with item decoration insets and right margin included
+         * @param bottom Bottom edge, with item decoration insets and bottom margin included
+         *
+         * @see View#layout(int, int, int, int)
+         * @see #layoutDecorated(View, int, int, int, int)
+         */
+        public void layoutDecoratedWithMargins(View child, int left, int top, int right,
+                int bottom) {
+            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            final Rect insets = lp.mDecorInsets;
+            child.layout(left + insets.left + lp.leftMargin, top + insets.top + lp.topMargin,
+                    right - insets.right - lp.rightMargin,
+                    bottom - insets.bottom - lp.bottomMargin);
+        }
+
+        /**
+         * Returns the bounds of the view including its decoration and margins.
+         *
+         * @param view The view element to check
+         * @param outBounds A rect that will receive the bounds of the element including its
+         *                  decoration and margins.
+         */
+        public void getDecoratedBoundsWithMargins(View view, Rect outBounds) {
+            final LayoutParams lp = (LayoutParams) view.getLayoutParams();
+            final Rect insets = lp.mDecorInsets;
+            outBounds.set(view.getLeft() - insets.left - lp.leftMargin,
+                    view.getTop() - insets.top - lp.topMargin,
+                    view.getRight() + insets.right + lp.rightMargin,
+                    view.getBottom() + insets.bottom + lp.bottomMargin);
         }
 
         /**
