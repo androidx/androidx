@@ -845,17 +845,16 @@ public class FragmentActivity extends BaseFragmentActivityHoneycomb implements
 
     @Override
     public final void validateRequestPermissionsRequestCode(int requestCode) {
-        // We use 8 bits of the request code to encode the fragment id when
+        // We use 16 bits of the request code to encode the fragment id when
         // requesting permissions from a fragment. Hence, requestPermissions()
         // should validate the code against that but we cannot override it as
         // we can not then call super and also the ActivityCompat would call
         // back to this override. To handle this we use dependency inversion
         // where we are the validator of request codes when requesting
         // permissions in ActivityCompat.
-        if (mRequestedPermissionsFromFragment) {
-            mRequestedPermissionsFromFragment = false;
-        } else if ((requestCode & 0xffffff00) != 0) {
-            throw new IllegalArgumentException("Can only use lower 8 bits for requestCode");
+        if (!mRequestedPermissionsFromFragment
+                && requestCode != -1 && (requestCode & 0xffff0000) != 0) {
+            throw new IllegalArgumentException("Can only use lower 16 bits for requestCode");
         }
     }
 
@@ -878,23 +877,21 @@ public class FragmentActivity extends BaseFragmentActivityHoneycomb implements
      */
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
             @NonNull int[] grantResults) {
-        int index = (requestCode>>8)&0xff;
+        int index = (requestCode>>16)&0xffff;
         if (index != 0) {
             index--;
-            final int activeFragmentsCount = mFragments.getActiveFragmentsCount();
-            if (activeFragmentsCount == 0 || index < 0 || index >= activeFragmentsCount) {
-                Log.w(TAG, "Activity result fragment index out of range: 0x"
-                        + Integer.toHexString(requestCode));
+
+            String who = mPendingFragmentActivityResults.get(index);
+            mPendingFragmentActivityResults.remove(index);
+            if (who == null) {
+                Log.w(TAG, "Activity result delivered for unknown Fragment.");
                 return;
             }
-            final List<Fragment> activeFragments =
-                    mFragments.getActiveFragments(new ArrayList<Fragment>(activeFragmentsCount));
-            Fragment frag = activeFragments.get(index);
+            Fragment frag = mFragments.findFragmentByWho(who);
             if (frag == null) {
-                Log.w(TAG, "Activity result no fragment exists for index: 0x"
-                        + Integer.toHexString(requestCode));
+                Log.w(TAG, "Activity result no fragment exists for who: " + who);
             } else {
-                frag.onRequestPermissionsResult(requestCode&0xff, permissions, grantResults);
+                frag.onRequestPermissionsResult(requestCode&0xffff, permissions, grantResults);
             }
         }
     }
@@ -959,12 +956,17 @@ public class FragmentActivity extends BaseFragmentActivityHoneycomb implements
             ActivityCompat.requestPermissions(this, permissions, requestCode);
             return;
         }
-        if ((requestCode&0xffffff00) != 0) {
-            throw new IllegalArgumentException("Can only use lower 8 bits for requestCode");
+        if ((requestCode&0xffff0000) != 0) {
+            throw new IllegalArgumentException("Can only use lower 16 bits for requestCode");
         }
-        mRequestedPermissionsFromFragment = true;
-        ActivityCompat.requestPermissions(this, permissions,
-                ((fragment.mIndex + 1) << 8) + (requestCode & 0xff));
+        try {
+            mRequestedPermissionsFromFragment = true;
+            int requestIndex = allocateRequestIndex(fragment);
+            ActivityCompat.requestPermissions(this, permissions,
+                    ((requestIndex + 1) << 16) + (requestCode & 0xffff));
+        } finally {
+            mRequestedPermissionsFromFragment = false;
+        }
     }
 
     class HostCallbacks extends FragmentHostCallback<FragmentActivity> {
