@@ -89,9 +89,11 @@
      <public type="attr" name="colorSwitchThumbNormal"/>
      <public type="attr" name="commitIcon"/>
      <public type="attr" name="contentInsetEnd"/>
+     <public type="attr" name="contentInsetEndWithActions"/>
      <public type="attr" name="contentInsetLeft"/>
      <public type="attr" name="contentInsetRight"/>
      <public type="attr" name="contentInsetStart"/>
+     <public type="attr" name="contentInsetStartWithNavigation"/>
      <public type="attr" name="customNavigationLayout"/>
      <public type="attr" name="dialogPreferredPadding"/>
      <public type="attr" name="dialogTheme"/>
