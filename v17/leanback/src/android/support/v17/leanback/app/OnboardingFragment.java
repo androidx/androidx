@@ -254,7 +254,7 @@ abstract public class OnboardingFragment extends Fragment {
             Bundle savedInstanceState) {
         resolveTheme();
         LayoutInflater localInflater = getThemeInflater(inflater);
-        ViewGroup view = (ViewGroup) localInflater.inflate(R.layout.lb_onboarding_fragment,
+        final ViewGroup view = (ViewGroup) localInflater.inflate(R.layout.lb_onboarding_fragment,
                 container, false);
         mIsLtr = getResources().getConfiguration().getLayoutDirection()
                 == View.LAYOUT_DIRECTION_LTR;
@@ -275,10 +275,10 @@ abstract public class OnboardingFragment extends Fragment {
             mCurrentPageIndex = 0;
             mEnterTransitionFinished = false;
             mPageIndicator.onPageSelected(0, false);
-            container.getViewTreeObserver().addOnPreDrawListener(new OnPreDrawListener() {
+            view.getViewTreeObserver().addOnPreDrawListener(new OnPreDrawListener() {
                 @Override
                 public boolean onPreDraw() {
-                    container.getViewTreeObserver().removeOnPreDrawListener(this);
+                    view.getViewTreeObserver().removeOnPreDrawListener(this);
                     if (!startLogoAnimation()) {
                         startEnterAnimation();
                     }
