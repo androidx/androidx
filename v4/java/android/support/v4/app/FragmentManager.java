@@ -1145,7 +1145,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                             }
                             if (anim != null) {
                                 final Fragment fragment = f;
-                                final ViewGroup container = f.mContainer;
                                 f.mAnimatingAway = f.mView;
                                 f.mStateAfterAnimating = newState;
                                 final View viewToAnimate = f.mView;
@@ -1155,7 +1154,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                                     public void onAnimationEnd(Animation animation) {
                                         super.onAnimationEnd(animation);
                                         if (fragment.mAnimatingAway != null) {
-                                            container.removeView(fragment.mAnimatingAway);
                                             fragment.mAnimatingAway = null;
                                             moveToState(fragment, fragment.mStateAfterAnimating,
                                                     0, 0, false);
@@ -1163,9 +1161,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                                     }
                                 });
                                 f.mView.startAnimation(anim);
-                            } else {
-                                f.mContainer.removeView(f.mView);
                             }
+                            f.mContainer.removeView(f.mView);
                         }
                         f.mContainer = null;
                         f.mView = null;
