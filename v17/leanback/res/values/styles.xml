@@ -450,6 +450,8 @@
 
     <!-- Style for the vertical grid of actions in a GuidedActionsStylist's default layout. -->
     <style name="Widget.Leanback.GuidedActionsListStyle">
+        <item name="android:focusable">false</item>
+        <item name="android:focusableInTouchMode">false</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
         <item name="focusOutEnd">false</item>
