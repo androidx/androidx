@@ -312,6 +312,87 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     }
 
     @Test
+    public void noLayoutIf0ItemsAreChanged() throws Throwable {
+        unnecessaryNotifyEvents(new AdapterRunnable() {
+            @Override
+            public void run(TestAdapter adapter) throws Throwable {
+                adapter.notifyItemRangeChanged(3, 0);
+            }
+        });
+    }
+
+    @Test
+    public void noLayoutIf0ItemsAreChangedWithPayload() throws Throwable {
+        unnecessaryNotifyEvents(new AdapterRunnable() {
+            @Override
+            public void run(TestAdapter adapter) throws Throwable {
+                adapter.notifyItemRangeChanged(0, 0, new Object());
+            }
+        });
+    }
+
+    @Test
+    public void noLayoutIf0ItemsAreAdded() throws Throwable {
+        unnecessaryNotifyEvents(new AdapterRunnable() {
+            @Override
+            public void run(TestAdapter adapter) throws Throwable {
+                adapter.notifyItemRangeInserted(3, 0);
+            }
+        });
+    }
+
+    @Test
+    public void noLayoutIf0ItemsAreRemoved() throws Throwable {
+        unnecessaryNotifyEvents(new AdapterRunnable() {
+            @Override
+            public void run(TestAdapter adapter) throws Throwable {
+                adapter.notifyItemRangeRemoved(3, 0);
+            }
+        });
+    }
+
+    @Test
+    public void noLayoutIfItemMovedIntoItsOwnPlace() throws Throwable {
+        unnecessaryNotifyEvents(new AdapterRunnable() {
+            @Override
+            public void run(TestAdapter adapter) throws Throwable {
+                adapter.notifyItemMoved(3, 3);
+            }
+        });
+    }
+
+    public void unnecessaryNotifyEvents(final AdapterRunnable action) throws Throwable {
+        final RecyclerView recyclerView = new RecyclerView(getActivity());
+        final TestAdapter adapter = new TestAdapter(5);
+        TestLayoutManager tlm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                super.onLayoutChildren(recycler, state);
+                layoutLatch.countDown();
+            }
+        };
+        recyclerView.setLayoutManager(tlm);
+        recyclerView.setAdapter(adapter);
+        tlm.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        tlm.waitForLayout(1);
+        // ready
+        tlm.expectLayouts(1);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    action.run(adapter);
+                } catch (Throwable throwable) {
+                    postExceptionToInstrumentation(throwable);
+                }
+            }
+        });
+        tlm.assertNoLayout("dummy event should not trigger a layout", 1);
+        checkForMainThreadException();
+    }
+
+    @Test
     public void scrollToPositionCallback() throws Throwable {
         RecyclerView recyclerView = new RecyclerView(getActivity());
         TestLayoutManager tlm = new TestLayoutManager() {
