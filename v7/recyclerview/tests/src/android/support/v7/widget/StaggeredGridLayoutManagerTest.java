@@ -53,6 +53,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 
 import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -85,6 +86,15 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         mLayoutManager.waitForLayout(2);
         smoothScrollToPosition(0);
         assertFalse("all ends should not be the same", mLayoutManager.areAllEndsEqual());
+    }
+
+    @Test
+    public void getPositionsBeforeInitialization() throws Throwable {
+        setupByConfig(new Config(VERTICAL, false, 3, GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS));
+        int[] positions = mLayoutManager.findFirstCompletelyVisibleItemPositions(null);
+        MatcherAssert.assertThat(positions,
+                CoreMatchers.is(new int[]{RecyclerView.NO_POSITION, RecyclerView.NO_POSITION,
+                        RecyclerView.NO_POSITION}));
     }
 
     @Test
