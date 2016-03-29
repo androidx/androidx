@@ -419,9 +419,11 @@ package android.support.v7.appcompat {
     field public static int colorSwitchThumbNormal;
     field public static int commitIcon;
     field public static int contentInsetEnd;
+    field public static int contentInsetEndWithActions;
     field public static int contentInsetLeft;
     field public static int contentInsetRight;
     field public static int contentInsetStart;
+    field public static int contentInsetStartWithNavigation;
     field public static int controlBackground;
     field public static int customNavigationLayout;
     field public static int defaultQueryHint;
@@ -656,6 +658,7 @@ package android.support.v7.appcompat {
   public static final class R.dimen {
     ctor public R.dimen();
     field public static int abc_action_bar_content_inset_material;
+    field public static int abc_action_bar_content_inset_with_nav;
     field public static int abc_action_bar_default_height_material;
     field public static int abc_action_bar_default_padding_end_material;
     field public static int abc_action_bar_default_padding_start_material;
@@ -1345,9 +1348,11 @@ package android.support.v7.appcompat {
     field public static int ActionBar_backgroundSplit;
     field public static int ActionBar_backgroundStacked;
     field public static int ActionBar_contentInsetEnd;
+    field public static int ActionBar_contentInsetEndWithActions;
     field public static int ActionBar_contentInsetLeft;
     field public static int ActionBar_contentInsetRight;
     field public static int ActionBar_contentInsetStart;
+    field public static int ActionBar_contentInsetStartWithNavigation;
     field public static int ActionBar_customNavigationLayout;
     field public static int ActionBar_displayOptions;
     field public static int ActionBar_divider;
@@ -1643,9 +1648,11 @@ package android.support.v7.appcompat {
     field public static int Toolbar_collapseContentDescription;
     field public static int Toolbar_collapseIcon;
     field public static int Toolbar_contentInsetEnd;
+    field public static int Toolbar_contentInsetEndWithActions;
     field public static int Toolbar_contentInsetLeft;
     field public static int Toolbar_contentInsetRight;
     field public static int Toolbar_contentInsetStart;
+    field public static int Toolbar_contentInsetStartWithNavigation;
     field public static int Toolbar_logo;
     field public static int Toolbar_logoDescription;
     field public static int Toolbar_maxButtonHeight;
@@ -2111,9 +2118,15 @@ package android.support.v7.widget {
     method public void collapseActionView();
     method public void dismissPopupMenus();
     method public int getContentInsetEnd();
+    method public int getContentInsetEndWithActions();
     method public int getContentInsetLeft();
     method public int getContentInsetRight();
     method public int getContentInsetStart();
+    method public int getContentInsetStartWithNavigation();
+    method public int getCurrentContentInsetEnd();
+    method public int getCurrentContentInsetLeft();
+    method public int getCurrentContentInsetRight();
+    method public int getCurrentContentInsetStart();
     method public android.graphics.drawable.Drawable getLogo();
     method public java.lang.CharSequence getLogoDescription();
     method public android.view.Menu getMenu();
@@ -2132,6 +2145,8 @@ package android.support.v7.widget {
     method public void inflateMenu(int);
     method public boolean isOverflowMenuShowing();
     method protected void onLayout(boolean, int, int, int, int);
+    method public void setContentInsetEndWithActions(int);
+    method public void setContentInsetStartWithNavigation(int);
     method public void setContentInsetsAbsolute(int, int);
     method public void setContentInsetsRelative(int, int);
     method public void setLogo(int);
