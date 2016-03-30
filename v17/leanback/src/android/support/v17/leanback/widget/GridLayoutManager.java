@@ -21,9 +21,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.util.CircularIntArray;
 import android.support.v4.view.ViewCompat;
-import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
-import android.support.v4.view.accessibility.AccessibilityRecordCompat;
 import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Recycler;
@@ -37,10 +35,8 @@ import static android.support.v7.widget.RecyclerView.VERTICAL;
 
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.FocusFinder;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewParent;
 import android.view.View.MeasureSpec;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.view.ViewGroup;
@@ -48,7 +44,6 @@ import android.view.ViewGroup;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.List;
 
 final class GridLayoutManager extends RecyclerView.LayoutManager {
 
@@ -231,7 +226,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 if (getTargetPosition() >= 0) {
                     // if smooth scroller is stopped without target, immediately jumps
                     // to the target position.
-                    scrollToSelection(mBaseGridView, getTargetPosition(), 0, false, 0);
+                    scrollToSelection(getTargetPosition(), 0, false, 0);
                 }
                 super.onStop();
                 return;
@@ -2194,22 +2189,27 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
-    public void setSelection(RecyclerView parent, int position,
+    @Override
+    public void scrollToPosition(int position) {
+        setSelection(position, 0, false, 0);
+    }
+
+    public void setSelection(int position,
             int primaryScrollExtra) {
-        setSelection(parent, position, 0, false, primaryScrollExtra);
+        setSelection(position, 0, false, primaryScrollExtra);
     }
 
-    public void setSelectionSmooth(RecyclerView parent, int position) {
-        setSelection(parent, position, 0, true, 0);
+    public void setSelectionSmooth(int position) {
+        setSelection(position, 0, true, 0);
     }
 
-    public void setSelectionWithSub(RecyclerView parent, int position, int subposition,
+    public void setSelectionWithSub(int position, int subposition,
             int primaryScrollExtra) {
-        setSelection(parent, position, subposition, false, primaryScrollExtra);
+        setSelection(position, subposition, false, primaryScrollExtra);
     }
 
-    public void setSelectionSmoothWithSub(RecyclerView parent, int position, int subposition) {
-        setSelection(parent, position, subposition, true, 0);
+    public void setSelectionSmoothWithSub(int position, int subposition) {
+        setSelection(position, subposition, true, 0);
     }
 
     public int getSelection() {
@@ -2220,15 +2220,15 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return mSubFocusPosition;
     }
 
-    public void setSelection(RecyclerView parent, int position, int subposition, boolean smooth,
+    public void setSelection(int position, int subposition, boolean smooth,
             int primaryScrollExtra) {
         if (mFocusPosition != position && position != NO_POSITION
                 || subposition != mSubFocusPosition || primaryScrollExtra != mPrimaryScrollExtra) {
-            scrollToSelection(parent, position, subposition, smooth, primaryScrollExtra);
+            scrollToSelection(position, subposition, smooth, primaryScrollExtra);
         }
     }
 
-    private void scrollToSelection(RecyclerView parent, int position, int subposition,
+    private void scrollToSelection(int position, int subposition,
             boolean smooth, int primaryScrollExtra) {
         if (TRACE) TraceHelper.beginSection("scrollToSelection");
         mPrimaryScrollExtra = primaryScrollExtra;
@@ -2253,7 +2253,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 startPositionSmoothScroller(position);
             } else {
                 mForceFullLayout = true;
-                parent.requestLayout();
+                requestLayout();
             }
         }
         if (TRACE) TraceHelper.endSection();
@@ -2676,7 +2676,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             mScrollEnabled = scrollEnabled;
             if (mScrollEnabled && mFocusScrollStrategy == BaseGridView.FOCUS_SCROLL_ALIGNED
                     && mFocusPosition != NO_POSITION) {
-                scrollToSelection(mBaseGridView, mFocusPosition, mSubFocusPosition,
+                scrollToSelection(mFocusPosition, mSubFocusPosition,
                         true, mPrimaryScrollExtra);
             }
         }

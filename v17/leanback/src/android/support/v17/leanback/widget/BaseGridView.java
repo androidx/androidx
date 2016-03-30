@@ -525,14 +525,14 @@ abstract class BaseGridView extends RecyclerView {
      * Changes the selected item immediately without animation.
      */
     public void setSelectedPosition(int position) {
-        mLayoutManager.setSelection(this, position, 0);
+        mLayoutManager.setSelection(position, 0);
     }
 
     /**
      * Changes the selected item and/or subposition immediately without animation.
      */
     public void setSelectedPositionWithSub(int position, int subposition) {
-        mLayoutManager.setSelectionWithSub(this, position, subposition, 0);
+        mLayoutManager.setSelectionWithSub(position, subposition, 0);
     }
 
     /**
@@ -541,7 +541,7 @@ abstract class BaseGridView extends RecyclerView {
      * another {@link #setSelectedPosition} or {@link #setSelectedPositionSmooth} call.
      */
     public void setSelectedPosition(int position, int scrollExtra) {
-        mLayoutManager.setSelection(this, position, scrollExtra);
+        mLayoutManager.setSelection(position, scrollExtra);
     }
 
     /**
@@ -550,7 +550,7 @@ abstract class BaseGridView extends RecyclerView {
      * another {@link #setSelectedPosition} or {@link #setSelectedPositionSmooth} call.
      */
     public void setSelectedPositionWithSub(int position, int subposition, int scrollExtra) {
-        mLayoutManager.setSelectionWithSub(this, position, subposition, scrollExtra);
+        mLayoutManager.setSelectionWithSub(position, subposition, scrollExtra);
     }
 
     /**
@@ -558,7 +558,7 @@ abstract class BaseGridView extends RecyclerView {
      * position.
      */
     public void setSelectedPositionSmooth(int position) {
-        mLayoutManager.setSelectionSmooth(this, position);
+        mLayoutManager.setSelectionSmooth(position);
     }
 
     /**
@@ -566,7 +566,7 @@ abstract class BaseGridView extends RecyclerView {
      * position.
      */
     public void setSelectedPositionSmoothWithSub(int position, int subposition) {
-        mLayoutManager.setSelectionSmoothWithSub(this, position, subposition);
+        mLayoutManager.setSelectionSmoothWithSub(position, subposition);
     }
 
     /**
