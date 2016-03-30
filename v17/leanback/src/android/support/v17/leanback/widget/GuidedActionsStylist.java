@@ -417,6 +417,8 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
                         R.id.guidedactions_sub_list);
             }
         }
+        mActionsGridView.setFocusable(false);
+        mActionsGridView.setFocusableInTouchMode(false);
 
         // Cache widths, chevron alpha values, max and min text lines, etc
         Context ctx = mMainView.getContext();
