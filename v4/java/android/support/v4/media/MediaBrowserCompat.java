@@ -97,7 +97,7 @@ public final class MediaBrowserCompat {
         } else if (android.os.Build.VERSION.SDK_INT >= 21) {
             mImpl = new MediaBrowserImplApi21(context, serviceComponent, callback, rootHints);
         } else {
-            mImpl = new MediaBrowserServiceImplBase(context, serviceComponent, callback, rootHints);
+            mImpl = new MediaBrowserImplBase(context, serviceComponent, callback, rootHints);
         }
     }
 
@@ -692,7 +692,7 @@ public final class MediaBrowserCompat {
         void onLoadChildren(Messenger callback, String parentId, List list, Bundle options);
     }
 
-    static class MediaBrowserServiceImplBase
+    static class MediaBrowserImplBase
             implements MediaBrowserImpl, MediaBrowserServiceCallbackImpl {
         private static final boolean DBG = false;
 
@@ -716,7 +716,7 @@ public final class MediaBrowserCompat {
         private MediaSessionCompat.Token mMediaSessionToken;
         private Bundle mExtras;
 
-        public MediaBrowserServiceImplBase(Context context, ComponentName serviceComponent,
+        public MediaBrowserImplBase(Context context, ComponentName serviceComponent,
                 ConnectionCallback callback, Bundle rootHints) {
             if (context == null) {
                 throw new IllegalArgumentException("context must not be null");
@@ -832,6 +832,7 @@ public final class MediaBrowserCompat {
             mServiceConnection = null;
             mServiceBinderWrapper = null;
             mCallbacksMessenger = null;
+            mHandler.setCallbacksMessenger(null);
             mRootId = null;
             mMediaSessionToken = null;
         }
@@ -1242,6 +1243,13 @@ public final class MediaBrowserCompat {
 
         @Override
         public void disconnect() {
+            if (mServiceBinderWrapper != null && mCallbacksMessenger != null) {
+                try {
+                    mServiceBinderWrapper.unregisterCallbackMessenger(mCallbacksMessenger);
+                } catch (RemoteException e) {
+                    Log.i(TAG, "Remote error unregistering client messenger." );
+                }
+            }
             MediaBrowserCompatApi21.disconnect(mBrowserObj);
         }
 
@@ -1400,6 +1408,7 @@ public final class MediaBrowserCompat {
         public void onConnectionSuspended() {
             mServiceBinderWrapper = null;
             mCallbacksMessenger = null;
+            mHandler.setCallbacksMessenger(null);
         }
 
         @Override
@@ -1621,6 +1630,10 @@ public final class MediaBrowserCompat {
 
         void registerCallbackMessenger(Messenger callbackMessenger) throws RemoteException {
             sendRequest(CLIENT_MSG_REGISTER_CALLBACK_MESSENGER, null, callbackMessenger);
+        }
+
+        void unregisterCallbackMessenger(Messenger callbackMessenger) throws RemoteException {
+            sendRequest(CLIENT_MSG_UNREGISTER_CALLBACK_MESSENGER, null, callbackMessenger);
         }
 
         private void sendRequest(int what, Bundle data, Messenger cbMessenger)

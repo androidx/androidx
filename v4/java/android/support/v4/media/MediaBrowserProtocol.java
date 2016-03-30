@@ -143,4 +143,11 @@ class MediaBrowserProtocol {
      * - replyTo : Callback messenger
      */
     public static final int CLIENT_MSG_REGISTER_CALLBACK_MESSENGER = 6;
+
+    /** (client v1)
+     * Sent to unregister the client messenger
+     * - arg1 : The client version
+     * - replyTo : Callback messenger
+     */
+    public static final int CLIENT_MSG_UNREGISTER_CALLBACK_MESSENGER = 7;
 }
