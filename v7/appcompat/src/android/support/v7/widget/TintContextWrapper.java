@@ -19,6 +19,7 @@ package android.support.v7.widget;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.res.Resources;
+import android.os.Build;
 import android.support.annotation.NonNull;
 
 import java.lang.ref.WeakReference;
@@ -55,12 +56,12 @@ public class TintContextWrapper extends ContextWrapper {
     }
 
     private static boolean shouldWrap(@NonNull final Context context) {
-        if (context instanceof TintContextWrapper) {
-            // If the Context is already a TintContextWrapper, no needed to wrap again
-            return false;
-        }
-        if (context.getResources() instanceof TintResources) {
+        if (Build.VERSION.SDK_INT > TintResources.MAX_SDK_WHERE_REQUIRED
+                || context instanceof TintContextWrapper
+                || context.getResources() instanceof TintResources) {
+            // If we're running on API 21+, there's no need to wrap
             // If the Context already has a TintResources impl, no needed to wrap again
+            // If the Context is already a TintContextWrapper, no needed to wrap again
             return false;
         }
         // Else, we should wrap
