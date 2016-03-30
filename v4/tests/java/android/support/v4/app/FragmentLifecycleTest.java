@@ -19,7 +19,6 @@ package android.support.v4.app;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Debug;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -27,10 +26,14 @@ import android.support.test.annotation.UiThreadTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.test.EmptyFragmentTestActivity;
+import android.support.v4.test.R;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
+
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,8 +41,13 @@ import org.junit.runner.RunWith;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 
-import static junit.framework.Assert.*;
-import static junit.framework.TestCase.*;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNotSame;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertSame;
+import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertNotEquals;
 
 @RunWith(AndroidJUnit4.class)
@@ -366,6 +374,91 @@ public class FragmentLifecycleTest {
         assertTrue("child not destroyed", restoredChild.mCalledOnDestroy);
     }
 
+    @Test
+    @UiThreadTest
+    public void saveAnimationState() throws Throwable {
+        FragmentController fc = startupFragmentController(null);
+        FragmentManager fm = fc.getSupportFragmentManager();
+
+        fm.beginTransaction()
+                .setCustomAnimations(0, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out)
+                .add(android.R.id.content, SimpleFragment.create(R.layout.fragment_a))
+                .addToBackStack(null)
+                .commit();
+        fm.executePendingTransactions();
+
+        assertAnimationsMatch(fm, 0, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out);
+
+        // Causes save and restore of fragments and back stack
+        fc = restartFragmentController(fc);
+        fm = fc.getSupportFragmentManager();
+
+        assertAnimationsMatch(fm, 0, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out);
+
+        fm.beginTransaction()
+                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out, 0, 0)
+                .replace(android.R.id.content, SimpleFragment.create(R.layout.fragment_b))
+                .addToBackStack(null)
+                .commit();
+        fm.executePendingTransactions();
+
+        assertAnimationsMatch(fm, R.anim.fade_in, R.anim.fade_out, 0, 0);
+
+        // Causes save and restore of fragments and back stack
+        fc = restartFragmentController(fc);
+        fm = fc.getSupportFragmentManager();
+
+        assertAnimationsMatch(fm, R.anim.fade_in, R.anim.fade_out, 0, 0);
+
+        fm.popBackStackImmediate();
+
+        assertAnimationsMatch(fm, 0, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out);
+
+        shutdownFragmentController(fc);
+    }
+
+    private void assertAnimationsMatch(FragmentManager fm, int enter, int exit, int popEnter,
+            int popExit) {
+        FragmentManagerImpl fmImpl = (FragmentManagerImpl) fm;
+        BackStackRecord record = fmImpl.mBackStack.get(fmImpl.mBackStack.size() - 1);
+
+        Assert.assertEquals(enter, record.mEnterAnim);
+        Assert.assertEquals(exit, record.mExitAnim);
+        Assert.assertEquals(popEnter, record.mPopEnterAnim);
+        Assert.assertEquals(popExit, record.mPopExitAnim);
+    }
+
+    private FragmentController restartFragmentController(FragmentController fc) {
+        Parcelable savedState = shutdownFragmentController(fc);
+        return startupFragmentController(savedState);
+    }
+
+    private FragmentController startupFragmentController(Parcelable savedState) {
+        final FragmentController fc = FragmentController.createController(
+                new HostCallbacks(mActivityRule.getActivity()));
+        fc.attachHost(null);
+        fc.restoreAllState(savedState, (FragmentManagerNonConfig) null);
+        fc.dispatchCreate();
+        fc.dispatchActivityCreated();
+        fc.noteStateNotSaved();
+        fc.execPendingActions();
+        fc.doLoaderStart();
+        fc.dispatchStart();
+        fc.reportLoaderStart();
+        fc.dispatchResume();
+        fc.execPendingActions();
+        return fc;
+    }
+
+    private Parcelable shutdownFragmentController(FragmentController fc) {
+        fc.dispatchPause();
+        final Parcelable savedState = fc.saveAllState();
+        fc.dispatchStop();
+        fc.dispatchReallyStop();
+        fc.dispatchDestroy();
+        return savedState;
+    }
+
     private void executePendingTransactions(final FragmentManager fm) throws Throwable {
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
@@ -493,6 +586,37 @@ public class FragmentLifecycleTest {
         public boolean onHasView() {
             final Window w = mActivity.getWindow();
             return (w != null && w.peekDecorView() != null);
+        }
+    }
+
+    public static class SimpleFragment extends Fragment {
+        private int mLayoutId;
+        private static final String LAYOUT_ID = "layoutId";
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            if (savedInstanceState != null) {
+                mLayoutId = savedInstanceState.getInt(LAYOUT_ID, mLayoutId);
+            }
+        }
+
+        @Override
+        public void onSaveInstanceState(Bundle outState) {
+            super.onSaveInstanceState(outState);
+            outState.putInt(LAYOUT_ID, mLayoutId);
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                Bundle savedInstanceState) {
+            return inflater.inflate(mLayoutId, container, false);
+        }
+
+        public static SimpleFragment create(int layoutId) {
+            SimpleFragment fragment = new SimpleFragment();
+            fragment.mLayoutId = layoutId;
+            return fragment;
         }
     }
 }
