@@ -150,6 +150,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
     private static final boolean DEBUG = false;
 
+    private static final int[]  NESTED_SCROLLING_ATTRS
+            = {16843830 /* android.R.attr.nestedScrollingEnabled */};
+
     /**
      * On Kitkat and JB MR2, there is a bug which prevents DisplayList from being invalidated if
      * a View is two levels deep(wrt to ViewHolder.itemView). DisplayList can be invalidated by
@@ -394,7 +397,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     // preserved not to create a new one in each layout pass
     private final int[] mMinMaxLayoutPositions = new int[2];
 
-    private final NestedScrollingChildHelper mScrollingChildHelper;
+    private NestedScrollingChildHelper mScrollingChildHelper;
     private final int[] mScrollOffset = new int[2];
     private final int[] mScrollConsumed = new int[2];
     private final int[] mNestedOffsets = new int[2];
@@ -488,17 +491,28 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 .getSystemService(Context.ACCESSIBILITY_SERVICE);
         setAccessibilityDelegateCompat(new RecyclerViewAccessibilityDelegate(this));
         // Create the layoutManager if specified.
+
+        boolean nestedScrollingEnabled = true;
+
         if (attrs != null) {
             int defStyleRes = 0;
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.RecyclerView,
                     defStyle, defStyleRes);
             String layoutManagerName = a.getString(R.styleable.RecyclerView_layoutManager);
+
             a.recycle();
             createLayoutManager(context, layoutManagerName, attrs, defStyle, defStyleRes);
+
+            if (Build.VERSION.SDK_INT >= 21) {
+                a = context.obtainStyledAttributes(attrs, NESTED_SCROLLING_ATTRS,
+                        defStyle, defStyleRes);
+                nestedScrollingEnabled = a.getBoolean(0, true);
+                a.recycle();
+            }
         }
 
-        mScrollingChildHelper = new NestedScrollingChildHelper(this);
-        setNestedScrollingEnabled(true);
+        // Re-set whether nested scrolling is enabled so that it is set on all API levels
+        setNestedScrollingEnabled(nestedScrollingEnabled);
     }
 
     /**
@@ -9319,49 +9333,49 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
     @Override
     public void setNestedScrollingEnabled(boolean enabled) {
-        mScrollingChildHelper.setNestedScrollingEnabled(enabled);
+        getScrollingChildHelper().setNestedScrollingEnabled(enabled);
     }
 
     @Override
     public boolean isNestedScrollingEnabled() {
-        return mScrollingChildHelper.isNestedScrollingEnabled();
+        return getScrollingChildHelper().isNestedScrollingEnabled();
     }
 
     @Override
     public boolean startNestedScroll(int axes) {
-        return mScrollingChildHelper.startNestedScroll(axes);
+        return getScrollingChildHelper().startNestedScroll(axes);
     }
 
     @Override
     public void stopNestedScroll() {
-        mScrollingChildHelper.stopNestedScroll();
+        getScrollingChildHelper().stopNestedScroll();
     }
 
     @Override
     public boolean hasNestedScrollingParent() {
-        return mScrollingChildHelper.hasNestedScrollingParent();
+        return getScrollingChildHelper().hasNestedScrollingParent();
     }
 
     @Override
     public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed,
             int dyUnconsumed, int[] offsetInWindow) {
-        return mScrollingChildHelper.dispatchNestedScroll(dxConsumed, dyConsumed,
+        return getScrollingChildHelper().dispatchNestedScroll(dxConsumed, dyConsumed,
                 dxUnconsumed, dyUnconsumed, offsetInWindow);
     }
 
     @Override
     public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow) {
-        return mScrollingChildHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow);
+        return getScrollingChildHelper().dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow);
     }
 
     @Override
     public boolean dispatchNestedFling(float velocityX, float velocityY, boolean consumed) {
-        return mScrollingChildHelper.dispatchNestedFling(velocityX, velocityY, consumed);
+        return getScrollingChildHelper().dispatchNestedFling(velocityX, velocityY, consumed);
     }
 
     @Override
     public boolean dispatchNestedPreFling(float velocityX, float velocityY) {
-        return mScrollingChildHelper.dispatchNestedPreFling(velocityX, velocityY);
+        return getScrollingChildHelper().dispatchNestedPreFling(velocityX, velocityY);
     }
 
     /**
@@ -11064,5 +11078,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * @see RecyclerView#setChildDrawingOrderCallback(RecyclerView.ChildDrawingOrderCallback)
          */
         int onGetChildDrawingOrder(int childCount, int i);
+    }
+
+    private NestedScrollingChildHelper getScrollingChildHelper() {
+        if (mScrollingChildHelper == null) {
+            mScrollingChildHelper = new NestedScrollingChildHelper(this);
+        }
+        return mScrollingChildHelper;
     }
 }
