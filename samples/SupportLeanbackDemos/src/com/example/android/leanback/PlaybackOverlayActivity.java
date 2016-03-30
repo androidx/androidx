@@ -31,9 +31,9 @@ public class PlaybackOverlayActivity extends Activity {
     }
 
     @Override
-    public void onPictureInPictureChanged(boolean inPictureInPicture) {
+    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
         for (PictureInPictureListener listener : mListeners) {
-            listener.onPictureInPictureChanged(inPictureInPicture);
+            listener.onPictureInPictureModeChanged(isInPictureInPictureMode);
         }
     }
 
@@ -46,6 +46,6 @@ public class PlaybackOverlayActivity extends Activity {
     }
 
     public interface PictureInPictureListener {
-        void onPictureInPictureChanged(boolean inPictureInPicture);
+        void onPictureInPictureModeChanged(boolean isInPictureInPictureMode);
     }
 }
