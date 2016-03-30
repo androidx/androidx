@@ -42,21 +42,17 @@ package android.support.v13.app {
 
 package android.support.v13.view {
 
-  public abstract class DragStartHelper implements android.view.View.OnLongClickListener android.view.View.OnTouchListener {
-    ctor public DragStartHelper(android.view.View);
+  public class DragStartHelper {
+    ctor public DragStartHelper(android.view.View, android.support.v13.view.DragStartHelper.OnDragStartListener);
     method public void attach();
-    method public android.view.View.DragShadowBuilder getShadowBuilder(android.view.View);
-    method public void getTouchPosition(android.view.View, android.graphics.Point);
-    method public boolean handleLongClick(android.view.View);
-    method public boolean handleTouch(android.view.View, android.view.MotionEvent);
-    method protected abstract boolean onDragStart(android.view.View);
+    method public void detach();
+    method public void getTouchPosition(android.graphics.Point);
     method public boolean onLongClick(android.view.View);
     method public boolean onTouch(android.view.View, android.view.MotionEvent);
-    method public void remove();
   }
 
-  public class DragStartHelper.ShadowBuilder extends android.view.View.DragShadowBuilder {
-    ctor public DragStartHelper.ShadowBuilder(android.view.View);
+  public static abstract interface DragStartHelper.OnDragStartListener {
+    method public abstract boolean onDragStart(android.view.View, android.support.v13.view.DragStartHelper);
   }
 
   public final class DropPermissionsCompat {
