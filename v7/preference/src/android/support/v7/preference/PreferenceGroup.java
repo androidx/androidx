@@ -392,4 +392,30 @@ public abstract class PreferenceGroup extends Preference {
         }
     }
 
+    /**
+     * Interface for PreferenceGroup Adapters to implement so that
+     * {@link android.support.v14.preference.PreferenceFragment#scrollToPreference(String)} and
+     * {@link android.support.v14.preference.PreferenceFragment#scrollToPreference(Preference)} or
+     * {@link PreferenceFragmentCompat#scrollToPreference(String)} and
+     * {@link PreferenceFragmentCompat#scrollToPreference(Preference)}
+     * can determine the correct scroll position to request.
+     */
+    public interface PreferencePositionCallback {
+
+        /**
+         * Return the adapter position of the first {@link Preference} with the specified key
+         * @param key Key of {@link Preference} to find
+         * @return Adapter position of the {@link Preference} or
+         *         {@link android.support.v7.widget.RecyclerView#NO_POSITION} if not found
+         */
+        int getPreferenceAdapterPosition(String key);
+
+        /**
+         * Return the adapter position of the specified {@link Preference} object
+         * @param preference {@link Preference} object to find
+         * @return Adapter position of the {@link Preference} or
+         *         {@link android.support.v7.widget.RecyclerView#NO_POSITION} if not found
+         */
+        int getPreferenceAdapterPosition(Preference preference);
+    }
 }
