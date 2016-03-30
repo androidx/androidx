@@ -594,7 +594,23 @@ public class Script extends BaseObj {
 
 
     /**
-     * Class used to specify clipping for a kernel launch.
+     * Class for specifying the specifics about how a kernel will be
+     * launched.
+     *
+     * This class can specify a potential range of cells on which to
+     * run a kernel.  If no set is called for a dimension then this
+     * class will have no impact on that dimension when the kernel
+     * is executed.
+     *
+     * The forEach kernel launch will operate over the intersection of
+     * the dimensions.
+     *
+     * Example:
+     * LaunchOptions with setX(5, 15)
+     * Allocation with dimension X=10, Y=10
+     * The resulting forEach run would execute over:
+     * x = 5 to 9 (inclusive) and
+     * y = 0 to 9 (inclusive).
      *
      */
     public static final class LaunchOptions {
@@ -607,11 +623,11 @@ public class Script extends BaseObj {
         private int strategy;
 
         /**
-         * Set the X range.  If the end value is set to 0 the X dimension is not
-         * clipped.
+         * Set the X range. xstartArg is the lowest coordinate of the range,
+         * and xendArg-1 is the highest coordinate of the range.
          *
          * @param xstartArg Must be >= 0
-         * @param xendArg Must be >= xstartArg
+         * @param xendArg Must be > xstartArg
          *
          * @return LaunchOptions
          */
@@ -625,11 +641,11 @@ public class Script extends BaseObj {
         }
 
         /**
-         * Set the Y range.  If the end value is set to 0 the Y dimension is not
-         * clipped.
+         * Set the Y range. ystartArg is the lowest coordinate of the range,
+         * and yendArg-1 is the highest coordinate of the range.
          *
          * @param ystartArg Must be >= 0
-         * @param yendArg Must be >= ystartArg
+         * @param yendArg Must be > ystartArg
          *
          * @return LaunchOptions
          */
@@ -643,11 +659,11 @@ public class Script extends BaseObj {
         }
 
         /**
-         * Set the Z range.  If the end value is set to 0 the Z dimension is not
-         * clipped.
+         * Set the Z range. zstartArg is the lowest coordinate of the range,
+         * and zendArg-1 is the highest coordinate of the range.
          *
          * @param zstartArg Must be >= 0
-         * @param zendArg Must be >= zstartArg
+         * @param zendArg Must be > zstartArg
          *
          * @return LaunchOptions
          */
