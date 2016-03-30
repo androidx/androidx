@@ -429,10 +429,15 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
 
     @Override
     public boolean performClick() {
-        if (mPopup != null && !mPopup.isShowing()) {
-            mPopup.show();
+        if (mPopup != null) {
+            // If we have a popup, show it if needed, or just consume the click...
+            if (!mPopup.isShowing()) {
+                mPopup.show();
+            }
             return true;
         }
+
+        // Else let the platform handle the click
         return super.performClick();
     }
 
