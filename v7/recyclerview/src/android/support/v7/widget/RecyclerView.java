@@ -3716,6 +3716,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * next layout calculation. If there are pending adapter updates, the return value of this
      * method may not match your adapter contents. You can use
      * #{@link ViewHolder#getAdapterPosition()} to get the current adapter position of a ViewHolder.
+     * <p>
+     * When the ItemAnimator is running a change animation, there might be 2 ViewHolders
+     * with the same layout position representing the same Item. In this case, the updated
+     * ViewHolder will be returned.
      *
      * @param position The position of the item in the data set of the adapter
      * @return The ViewHolder at <code>position</code> or null if there is no such item
@@ -3734,6 +3738,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * <p>
      * This method checks only the children of RecyclerView. If the item at the given
      * <code>position</code> is not laid out, it <em>will not</em> create a new one.
+     * <p>
+     * When the ItemAnimator is running a change animation, there might be 2 ViewHolders
+     * representing the same Item. In this case, the updated ViewHolder will be returned.
      *
      * @param position The position of the item in the data set of the adapter
      * @return The ViewHolder at <code>position</code> or null if there is no such item
@@ -3743,25 +3750,37 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             return null;
         }
         final int childCount = mChildHelper.getUnfilteredChildCount();
+        // hidden VHs are not preferred but if that is the only one we find, we rather return it
+        ViewHolder hidden = null;
         for (int i = 0; i < childCount; i++) {
             final ViewHolder holder = getChildViewHolderInt(mChildHelper.getUnfilteredChildAt(i));
             if (holder != null && !holder.isRemoved() && getAdapterPositionFor(holder) == position) {
-                return holder;
+                if (mChildHelper.isHidden(holder.itemView)) {
+                    hidden = holder;
+                } else {
+                    return holder;
+                }
             }
         }
-        return null;
+        return hidden;
     }
 
     ViewHolder findViewHolderForPosition(int position, boolean checkNewPosition) {
         final int childCount = mChildHelper.getUnfilteredChildCount();
+        ViewHolder hidden = null;
         for (int i = 0; i < childCount; i++) {
             final ViewHolder holder = getChildViewHolderInt(mChildHelper.getUnfilteredChildAt(i));
             if (holder != null && !holder.isRemoved()) {
                 if (checkNewPosition) {
-                    if (holder.mPosition == position) {
-                        return holder;
+                    if (holder.mPosition != position) {
+                        continue;
                     }
-                } else if (holder.getLayoutPosition() == position) {
+                } else if (holder.getLayoutPosition() != position) {
+                    continue;
+                }
+                if (mChildHelper.isHidden(holder.itemView)) {
+                    hidden = holder;
+                } else {
                     return holder;
                 }
             }
@@ -3769,7 +3788,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         // This method should not query cached views. It creates a problem during adapter updates
         // when we are dealing with already laid out views. Also, for the public method, it is more
         // reasonable to return null if position is not laid out.
-        return null;
+        return hidden;
     }
 
     /**
@@ -3780,20 +3799,29 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * This method checks only the children of RecyclerView. If the item with the given
      * <code>id</code> is not laid out, it <em>will not</em> create a new one.
      *
+     * When the ItemAnimator is running a change animation, there might be 2 ViewHolders with the
+     * same id. In this case, the updated ViewHolder will be returned.
+     *
      * @param id The id for the requested item
      * @return The ViewHolder with the given <code>id</code> or null if there is no such item
      */
     public ViewHolder findViewHolderForItemId(long id) {
+        if (mAdapter == null || !mAdapter.hasStableIds()) {
+            return null;
+        }
         final int childCount = mChildHelper.getUnfilteredChildCount();
+        ViewHolder hidden = null;
         for (int i = 0; i < childCount; i++) {
             final ViewHolder holder = getChildViewHolderInt(mChildHelper.getUnfilteredChildAt(i));
-            if (holder != null && holder.getItemId() == id) {
-                return holder;
+            if (holder != null && !holder.isRemoved() && holder.getItemId() == id) {
+                if (mChildHelper.isHidden(holder.itemView)) {
+                    hidden = holder;
+                } else {
+                    return holder;
+                }
             }
         }
-        // this method should not query cached views. They are not children so they
-        // should not be returned in this public method
-        return null;
+        return hidden;
     }
 
     /**
