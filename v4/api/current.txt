@@ -98,6 +98,9 @@ package android.support.v4.app {
     field public static final int MODE_IGNORED = 1; // 0x1
   }
 
+   abstract class BaseFragmentActivityApi24 extends android.support.v4.app.BaseFragmentActivityHoneycomb {
+  }
+
    abstract class BaseFragmentActivityDonut extends android.app.Activity {
   }
 
@@ -191,9 +194,11 @@ package android.support.v4.app {
     method public void onInflate(android.content.Context, android.util.AttributeSet, android.os.Bundle);
     method public deprecated void onInflate(android.app.Activity, android.util.AttributeSet, android.os.Bundle);
     method public void onLowMemory();
+    method public void onMultiWindowModeChanged(boolean);
     method public boolean onOptionsItemSelected(android.view.MenuItem);
     method public void onOptionsMenuClosed(android.view.Menu);
     method public void onPause();
+    method public void onPictureInPictureModeChanged(boolean);
     method public void onPrepareOptionsMenu(android.view.Menu);
     method public void onRequestPermissionsResult(int, java.lang.String[], int[]);
     method public void onResume();
@@ -239,7 +244,7 @@ package android.support.v4.app {
     field public static final android.os.Parcelable.Creator<android.support.v4.app.Fragment.SavedState> CREATOR;
   }
 
-  public class FragmentActivity extends android.support.v4.app.BaseFragmentActivityHoneycomb implements android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback {
+  public class FragmentActivity extends android.support.v4.app.BaseFragmentActivityApi24 implements android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback {
     ctor public FragmentActivity();
     method public java.lang.Object getLastCustomNonConfigurationInstance();
     method public android.support.v4.app.FragmentManager getSupportFragmentManager();
@@ -278,9 +283,11 @@ package android.support.v4.app {
     method public void dispatchDestroy();
     method public void dispatchDestroyView();
     method public void dispatchLowMemory();
+    method public void dispatchMultiWindowModeChanged(boolean);
     method public boolean dispatchOptionsItemSelected(android.view.MenuItem);
     method public void dispatchOptionsMenuClosed(android.view.Menu);
     method public void dispatchPause();
+    method public void dispatchPictureInPictureModeChanged(boolean);
     method public boolean dispatchPrepareOptionsMenu(android.view.Menu);
     method public void dispatchReallyStop();
     method public void dispatchResume();
