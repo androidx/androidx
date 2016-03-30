@@ -30,15 +30,22 @@ import android.view.View;
  * click and drag for mouse).
  * <p>
  * It also keeps track of the screen location where the drag started, and helps determining
- * the hot spot position for drag shadow.
+ * the hot spot position for a drag shadow.
  * <p>
- * Implement {@link #onDragStart(View)} method to start the drag operation:
+ * Implement {@link DragStartHelper.OnDragStartListener} to start the drag operation:
  * <pre>
- * mDragStartHelper = new DragStartHelper(mDraggableView) {
- *     protected void onDragStart(View v) {
- *         v.startDrag(mClipData, getShadowBuilder(view), mLocalState, mDragFlags);
+ * DragStartHelper.OnDragStartListener listener = new DragStartHelper.OnDragStartListener {
+ *     protected void onDragStart(View view, DragStartHelper helper) {
+ *         View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view) {
+ *             public void onProvideShadowMetrics(Point shadowSize, Point shadowTouchPoint) {
+ *                 super.onProvideShadowMetrics(shadowSize, shadowTouchPoint);
+ *                 helper.getTouchPosition(shadowTouchPoint);
+ *             }
+ *         };
+ *         view.startDrag(mClipData, shadowBuilder, mLocalState, mDragFlags);
  *     }
  * };
+ * mDragStartHelper = new DragStartHelper(mDraggableView, listener);
  * </pre>
  * Once created, DragStartHelper can be attached to a view (this will replace existing long click
  * and touch listeners):
@@ -48,25 +55,48 @@ import android.view.View;
  * It may also be used in combination with existing listeners:
  * <pre>
  * public boolean onTouch(View view, MotionEvent event) {
- *     return mDragStartHelper.handleTouch(view, event) || handleTouchEvent(view, event);
+ *     if (mDragStartHelper.onTouch(view, event)) {
+ *         return true;
+ *     }
+ *     return handleTouchEvent(view, event);
  * }
  * public boolean onLongClick(View view) {
- *     return mDragStartHelper.handleLongClick(view) || handleLongClickEvent(view);
+ *     if (mDragStartHelper.onLongClick(view)) {
+ *         return true;
+ *     }
+ *     return handleLongClickEvent(view);
  * }
  * </pre>
  */
-public abstract class DragStartHelper implements View.OnLongClickListener, View.OnTouchListener {
+public class DragStartHelper {
     final private View mView;
-    private float mLastTouchRawX, mLastTouchRawY;
+    final private OnDragStartListener mListener;
+
+    private int mLastTouchX, mLastTouchY;
+
+    /**
+     * Interface definition for a callback to be invoked when a drag start gesture is detected.
+     */
+    public interface OnDragStartListener {
+        /**
+         * Called when a drag start gesture has been detected.
+         *
+         * @param v The view over which the drag start gesture has been detected.
+         * @param helper The DragStartHelper object which detected the gesture.
+         * @return True if the listener has consumed the event, false otherwise.
+         */
+        boolean onDragStart(View v, DragStartHelper helper);
+    }
 
     /**
      * Create a DragStartHelper associated with the specified view.
-     * The newly created helper is not initally attached to the view, {@link #attach} must be
+     * The newly created helper is not initially attached to the view, {@link #attach} must be
      * called explicitly.
      * @param view A View
      */
-    public DragStartHelper(View view) {
+    public DragStartHelper(View view, OnDragStartListener listener) {
         mView = view;
+        mListener = listener;
     }
 
     /**
@@ -75,8 +105,8 @@ public abstract class DragStartHelper implements View.OnLongClickListener, View.
      * This will replace previously existing touch and long click listeners.
      */
     public void attach() {
-        mView.setOnLongClickListener(this);
-        mView.setOnTouchListener(this);
+        mView.setOnLongClickListener(mLongClickListener);
+        mView.setOnTouchListener(mTouchListener);
     }
 
     /**
@@ -84,19 +114,9 @@ public abstract class DragStartHelper implements View.OnLongClickListener, View.
      * <p>
      * This will reset touch and long click listeners to {@code null}.
      */
-    public void remove() {
+    public void detach() {
         mView.setOnLongClickListener(null);
         mView.setOnTouchListener(null);
-    }
-
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        return handleTouch(v, event);
-    }
-
-    @Override
-    public boolean onLongClick(View v) {
-        return handleLongClick(v);
     }
 
     /**
@@ -106,16 +126,16 @@ public abstract class DragStartHelper implements View.OnLongClickListener, View.
      *        the event.
      * @return True if the listener has consumed the event, false otherwise.
      */
-    public boolean handleTouch(View v, MotionEvent event) {
+    public boolean onTouch(View v, MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN ||
                 event.getAction() == MotionEvent.ACTION_MOVE) {
-            mLastTouchRawX = event.getRawX();
-            mLastTouchRawY = event.getRawY();
+            mLastTouchX = (int) event.getX();
+            mLastTouchY = (int) event.getY();
         }
         if (event.getAction() == MotionEvent.ACTION_MOVE &&
                 MotionEventCompat.isFromSource(event, InputDeviceCompat.SOURCE_MOUSE) &&
                 (MotionEventCompat.getButtonState(event) & MotionEventCompat.BUTTON_PRIMARY) != 0) {
-            return onDragStart(v);
+            return mListener.onDragStart(v, this);
         }
         return false;
     }
@@ -125,62 +145,30 @@ public abstract class DragStartHelper implements View.OnLongClickListener, View.
      * @param v The view that was clicked and held.
      * @return true if the callback consumed the long click, false otherwise.
      */
-    public boolean handleLongClick(View v) {
-        return onDragStart(v);
+    public boolean onLongClick(View v) {
+        return mListener.onDragStart(v, this);
     }
 
     /**
      * Compute the position of the touch event that started the drag operation.
-     * @param v The view relative to which the position should be computed.
      * @param point The position of the touch event that started the drag operation.
      */
-    public void getTouchPosition(View v, Point point) {
-        int [] viewLocation = new int[2];
-        v.getLocationOnScreen(viewLocation);
-        point.set((int) mLastTouchRawX - viewLocation[0], (int) mLastTouchRawY - viewLocation[1]);
+    public void getTouchPosition(Point point) {
+        point.set(mLastTouchX, mLastTouchY);
     }
 
-    /**
-     * Create a {@link View.DragShadowBuilder} which will build a drag shadow with the same
-     * appearance and dimensions as the specified view and with the hot spot at the location of
-     * the touch event that started the drag operation.
-     * @param view A view
-     * @return  {@link View.DragShadowBuilder}
-     */
-    public View.DragShadowBuilder getShadowBuilder(View view) {
-        return new ShadowBuilder(view);
-    }
-
-    /**
-     * A utility class that builds a drag shadow with the same appearance and dimensions as the
-     * specified view and with the hot spot at the location of the touch event that started the
-     * drag operation.
-     * <p>
-     * At the start of the drag operation a drag shadow built this way will be positioned directly
-     * over the specified view.
-     */
-    public class ShadowBuilder extends View.DragShadowBuilder {
-        /**
-         * Constructs a shadow image builder based on a View. By default, the resulting drag
-         * shadow will have the same appearance and dimensions as the View, with the touch point
-         * at the location of the touch event that started the drag operation.
-         * @param view A view.
-         */
-        public ShadowBuilder(View view) {
-            super(view);
-        }
-
+    private final View.OnLongClickListener mLongClickListener = new View.OnLongClickListener() {
         @Override
-        public void onProvideShadowMetrics(Point shadowSize, Point shadowTouchPoint) {
-            super.onProvideShadowMetrics(shadowSize, shadowTouchPoint);
-            getTouchPosition(getView(), shadowTouchPoint);
+        public boolean onLongClick(View v) {
+            return DragStartHelper.this.onLongClick(v);
         }
-    }
+    };
 
-    /**
-     * Called when the drag start gesture has been detected.
-     * @param v A view on which the drag start gesture has been detected.
-     */
-    protected abstract boolean onDragStart(View v);
+    private final View.OnTouchListener mTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            return DragStartHelper.this.onTouch(v, event);
+        }
+    };
 }
 
