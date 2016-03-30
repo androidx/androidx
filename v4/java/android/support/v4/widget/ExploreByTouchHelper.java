@@ -63,6 +63,10 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
     /** Default class name used for virtual views. */
     private static final String DEFAULT_CLASS_NAME = View.class.getName();
 
+    /** Default bounds used to determine if the client didn't set any. */
+    private static final Rect INVALID_PARENT_BOUNDS = new Rect(
+            Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
+
     // Temporary, reusable data structures.
     private final Rect mTempScreenRect = new Rect();
     private final Rect mTempParentRect = new Rect();
@@ -386,6 +390,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
         // Ensure the client has good defaults.
         node.setEnabled(true);
         node.setClassName(DEFAULT_CLASS_NAME);
+        node.setBoundsInParent(INVALID_PARENT_BOUNDS);
 
         // Allow the client to populate the node.
         onPopulateNodeForVirtualView(virtualViewId, node);
@@ -397,7 +402,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
         }
 
         node.getBoundsInParent(mTempParentRect);
-        if (mTempParentRect.isEmpty()) {
+        if (mTempParentRect.equals(INVALID_PARENT_BOUNDS)) {
             throw new RuntimeException("Callbacks must set parent bounds in "
                     + "populateNodeForVirtualViewId()");
         }
