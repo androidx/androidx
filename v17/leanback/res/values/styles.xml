@@ -459,8 +459,8 @@
 
     <!-- Style for the vertical grid of sub actions in a GuidedActionsStylist's default layout. -->
     <style name="Widget.Leanback.GuidedSubActionsListStyle" parent="Widget.Leanback.GuidedActionsListStyle">
-        <item name="focusOutEnd">false</item>
-        <item name="focusOutFront">false</item>
+        <item name="android:focusable">true</item>
+        <item name="android:focusableInTouchMode">true</item>
         <item name="focusOutSideStart">false</item>
         <item name="focusOutSideEnd">false</item>
         <item name="android:layout_marginBottom">@dimen/lb_guidedactions_sublist_bottom_margin</item>

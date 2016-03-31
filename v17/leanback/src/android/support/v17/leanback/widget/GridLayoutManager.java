@@ -1299,6 +1299,27 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
      };
 
+    private final Runnable mAskFocusRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (hasFocus()) {
+                return;
+            }
+            View view = findViewByPosition(mFocusPosition);
+            if (view != null && view.hasFocusable()) {
+                mBaseGridView.focusableViewAvailable(view);
+                return;
+            }
+            for (int i = 0, count = getChildCount(); i < count; i++) {
+                view = getChildAt(i);
+                if (view != null && view.hasFocusable()) {
+                    mBaseGridView.focusableViewAvailable(view);
+                    break;
+                }
+            }
+        }
+    };
+
     @Override
     public void onMeasure(Recycler recycler, State state, int widthSpec, int heightSpec) {
         saveContext(recycler, state);
@@ -1939,6 +1960,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
         mInLayout = false;
         leaveContext();
+        if (!hadFocus && !mInFastRelayout && mBaseGridView.hasFocusable()) {
+            ViewCompat.postOnAnimation(mBaseGridView, mAskFocusRunnable);
+        }
         if (DEBUG) Log.v(getTag(), "layoutChildren end");
     }
 
