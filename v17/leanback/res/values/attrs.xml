@@ -267,18 +267,7 @@
         <attr name="detailsDescriptionBodyStyle" format="reference" />
         <attr name="detailsActionButtonStyle" format="reference" />
 
-        <!-- for playlist and playback controls styling -->
-        <attr name="playbackPaddingStart" format="dimension"/>
-        <attr name="playbackPaddingEnd" format="dimension"/>
-
-        <attr name="playbackMediaListHeaderStyle" format="reference"/>
-        <attr name="playbackMediaItemStyle" format="reference"/>
-
-        <attr name="playbackMediaListHeaderTitleStyle" format="reference"/>
-        <attr name="playbackMediaItemTrackNumberStyle" format="reference"/>
-        <attr name="playbackMediaItemTrackNameStyle" format="reference"/>
-        <attr name="playbackMediaItemTrackDurationStyle" format="reference"/>
-
+        <!-- for playback controls -->
         <attr name="playbackControlsButtonStyle" format="reference" />
         <attr name="playbackControlButtonLabelStyle" format="reference" />
         <attr name="playbackControlsTimeStyle" format="reference" />
