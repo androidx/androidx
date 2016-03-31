@@ -42,8 +42,6 @@ import android.view.Window;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Base class for activities that want to use the support-based
@@ -77,7 +75,7 @@ import java.util.List;
  * state, this may be a snapshot slightly before what the user last saw.</p>
  * </ul>
  */
-public class FragmentActivity extends BaseFragmentActivityHoneycomb implements
+public class FragmentActivity extends BaseFragmentActivityApi24 implements
         ActivityCompat.OnRequestPermissionsResultCallback,
         ActivityCompatApi23.RequestPermissionsRequestCodeValidator {
     private static final String TAG = "FragmentActivity";
@@ -276,6 +274,26 @@ public class FragmentActivity extends BaseFragmentActivityHoneycomb implements
      */
     public void supportStartPostponedEnterTransition() {
         ActivityCompat.startPostponedEnterTransition(this);
+    }
+
+    /**
+     * Dispatch multi-window mode change to all fragments.
+     *
+     * @see Activity#onMultiWindowModeChanged(boolean)
+     */
+    @Override
+    void dispatchFragmentsOnMultiWindowModeChanged(boolean isInMultiWindowMode) {
+        mFragments.dispatchMultiWindowModeChanged(isInMultiWindowMode);
+    }
+
+    /**
+     * Dispatch picture-in-picture mode change to all fragments.
+     *
+     * @see Activity#onPictureInPictureModeChanged(boolean)
+     */
+    @Override
+    void dispatchFragmentsOnPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
+        mFragments.dispatchPictureInPictureModeChanged(isInPictureInPictureMode);
     }
 
     /**

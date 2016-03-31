@@ -270,6 +270,28 @@ public class FragmentController {
     }
 
     /**
+     * Lets all Fragments managed by the controller's FragmentManager know the multi-window mode of
+     * the activity changed.
+     * <p>Call when the multi-window mode of the activity changed.
+     *
+     * @see Fragment#onMultiWindowModeChanged
+     */
+    public void dispatchMultiWindowModeChanged(boolean isInMultiWindowMode) {
+        mHost.mFragmentManager.dispatchMultiWindowModeChanged(isInMultiWindowMode);
+    }
+
+    /**
+     * Lets all Fragments managed by the controller's FragmentManager know the picture-in-picture
+     * mode of the activity changed.
+     * <p>Call when the picture-in-picture mode of the activity changed.
+     *
+     * @see Fragment#onPictureInPictureModeChanged
+     */
+    public void dispatchPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
+        mHost.mFragmentManager.dispatchPictureInPictureModeChanged(isInPictureInPictureMode);
+    }
+
+    /**
      * Lets all Fragments managed by the controller's FragmentManager
      * know a configuration change occurred.
      * <p>Call when there is a configuration change.
