@@ -18,12 +18,16 @@ package android.support.v4.view;
 
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.View;
+import android.view.ViewParent;
 import android.view.WindowInsets;
 
 class ViewCompatLollipop {
+
+    private static ThreadLocal<Rect> sThreadLocalRect;
 
     public static void setTransitionName(View view, String transitionName) {
         view.setTransitionName(transitionName);
@@ -192,5 +196,68 @@ class ViewCompatLollipop {
 
     public static float getZ(View view) {
         return view.getZ();
+    }
+
+    static void offsetTopAndBottom(final View view, final int offset) {
+        final Rect parentRect = getEmptyTempRect();
+        boolean needInvalidateWorkaround = false;
+
+        final ViewParent parent = view.getParent();
+        if (parent instanceof View) {
+            final View p = (View) parent;
+            parentRect.set(p.getLeft(), p.getTop(), p.getRight(), p.getBottom());
+            // If the view currently does not currently intersect the parent (and is therefore
+            // not displayed) we may need need to invalidate
+            needInvalidateWorkaround = !parentRect.intersects(view.getLeft(), view.getTop(),
+                    view.getRight(), view.getBottom());
+        }
+
+        // Now offset, invoking the API 11+ implementation (which contains it's own workarounds)
+        ViewCompatHC.offsetTopAndBottom(view, offset);
+
+        // The view has now been offset, so let's intersect the Rect and invalidate where
+        // the View is now displayed
+        if (needInvalidateWorkaround && parentRect.intersect(view.getLeft(), view.getTop(),
+                view.getRight(), view.getBottom())) {
+            ((View) parent).invalidate(parentRect);
+        }
+    }
+
+    static void offsetLeftAndRight(final View view, final int offset) {
+        final Rect parentRect = getEmptyTempRect();
+        boolean needInvalidateWorkaround = false;
+
+        final ViewParent parent = view.getParent();
+        if (parent instanceof View) {
+            final View p = (View) parent;
+            parentRect.set(p.getLeft(), p.getTop(), p.getRight(), p.getBottom());
+            // If the view currently does not currently intersect the parent (and is therefore
+            // not displayed) we may need need to invalidate
+            needInvalidateWorkaround = !parentRect.intersects(view.getLeft(), view.getTop(),
+                    view.getRight(), view.getBottom());
+        }
+
+        // Now offset, invoking the API 11+ implementation (which contains it's own workarounds)
+        ViewCompatHC.offsetLeftAndRight(view, offset);
+
+        // The view has now been offset, so let's intersect the Rect and invalidate where
+        // the View is now displayed
+        if (needInvalidateWorkaround && parentRect.intersect(view.getLeft(), view.getTop(),
+                view.getRight(), view.getBottom())) {
+            ((View) parent).invalidate(parentRect);
+        }
+    }
+
+    private static Rect getEmptyTempRect() {
+        if (sThreadLocalRect == null) {
+            sThreadLocalRect = new ThreadLocal<>();
+        }
+        Rect rect = sThreadLocalRect.get();
+        if (rect == null) {
+            rect = new Rect();
+            sThreadLocalRect.set(rect);
+        }
+        rect.setEmpty();
+        return rect;
     }
 }
