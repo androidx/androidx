@@ -23,6 +23,7 @@ import android.support.v4.util.CircularIntArray;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v7.widget.LinearSmoothScroller;
+import android.support.v7.widget.OrientationHelper;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Recycler;
 import android.support.v7.widget.RecyclerView.State;
@@ -121,32 +122,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
         int getOpticalHeight(View view) {
             return view.getHeight() - mTopInset - mBottomInset;
-        }
-
-        int getDecoratedOpticalLeftWithMargin(RecyclerView.LayoutManager lm, View view) {
-            return lm.getDecoratedLeft(view) + mLeftInset - leftMargin;
-        }
-
-        int getDecoratedOpticalTopWithMargin(RecyclerView.LayoutManager lm, View view) {
-            return lm.getDecoratedTop(view) + mTopInset - topMargin;
-        }
-
-        int getDecoratedOpticalRightWithMargin(RecyclerView.LayoutManager lm, View view) {
-            return lm.getDecoratedRight(view) - mRightInset + rightMargin;
-        }
-
-        int getDecoratedOpticalBottomWithMargin(RecyclerView.LayoutManager lm, View view) {
-            return lm.getDecoratedBottom(view) - mBottomInset + bottomMargin;
-        }
-
-        int getDecoratedOpticalWidthWithMargin(RecyclerView.LayoutManager lm, View view) {
-            return lm.getDecoratedRight(view) - lm.getDecoratedLeft(view)
-                    - mLeftInset - mRightInset + leftMargin + rightMargin;
-        }
-
-        int getDecoratedOpticalHeightWithMargin(RecyclerView.LayoutManager lm, View view) {
-            return lm.getDecoratedBottom(view) - lm.getDecoratedTop(view)
-                    - mTopInset - mBottomInset + topMargin + bottomMargin;
         }
 
         int getOpticalLeftInset() {
@@ -433,6 +408,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
      * The orientation of a "row".
      */
     private int mOrientation = HORIZONTAL;
+    private OrientationHelper mOrientationHelper = OrientationHelper.createHorizontalHelper(this);
 
     private RecyclerView.State mState;
     private RecyclerView.Recycler mRecycler;
@@ -670,6 +646,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
 
         mOrientation = orientation;
+        mOrientationHelper = OrientationHelper.createOrientationHelper(this, mOrientation);
         mWindowAlignment.setOrientation(orientation);
         mItemAlignment.setOrientation(orientation);
         mForceFullLayout = true;
@@ -1009,22 +986,49 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return ((LayoutParams) v.getLayoutParams()).getOpticalBottom(v);
     }
 
+    @Override
+    public int getDecoratedLeft(View child) {
+        return super.getDecoratedLeft(child) + ((LayoutParams) child.getLayoutParams()).mLeftInset;
+    }
+
+    @Override
+    public int getDecoratedTop(View child) {
+        return super.getDecoratedTop(child) + ((LayoutParams) child.getLayoutParams()).mTopInset;
+    }
+
+    @Override
+    public int getDecoratedRight(View child) {
+        return super.getDecoratedRight(child) -
+                ((LayoutParams) child.getLayoutParams()).mRightInset;
+    }
+
+    @Override
+    public int getDecoratedBottom(View child) {
+        return super.getDecoratedBottom(child) -
+                ((LayoutParams) child.getLayoutParams()).mBottomInset;
+    }
+
+    @Override
+    public void getDecoratedBoundsWithMargins(View view, Rect outBounds) {
+        super.getDecoratedBoundsWithMargins(view, outBounds);
+        LayoutParams params = ((LayoutParams) view.getLayoutParams());
+        outBounds.left += params.mLeftInset;
+        outBounds.top += params.mTopInset;
+        outBounds.right -= params.mRightInset;
+        outBounds.bottom -= params.mBottomInset;
+    }
+
     private int getViewMin(View v) {
-        LayoutParams lp = (LayoutParams) v.getLayoutParams();
-        return (mOrientation == HORIZONTAL) ? lp.getDecoratedOpticalLeftWithMargin(this, v)
-                : lp.getDecoratedOpticalTopWithMargin(this, v);
+        return mOrientationHelper.getDecoratedStart(v);
     }
 
     private int getViewMax(View v) {
-        LayoutParams lp = (LayoutParams) v.getLayoutParams();
-        return (mOrientation == HORIZONTAL) ? lp.getDecoratedOpticalRightWithMargin(this, v)
-                : lp.getDecoratedOpticalBottomWithMargin(this, v);
+        return mOrientationHelper.getDecoratedEnd(v);
     }
 
     private int getViewPrimarySize(View view) {
-        LayoutParams p = (LayoutParams) view.getLayoutParams();
-        return mOrientation == HORIZONTAL ? p.getDecoratedOpticalWidthWithMargin(this, view)
-                : p.getDecoratedOpticalHeightWithMargin(this, view);
+        getDecoratedBoundsWithMargins(view, sTempRect);
+        return mOrientation == HORIZONTAL ? sTempRect.width() : sTempRect.height();
     }
 
     private int getViewCenter(View view) {
@@ -1644,19 +1648,13 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             right = startSecondary + sizeSecondary;
         }
         LayoutParams params = (LayoutParams) v.getLayoutParams();
-        // layoutDecorated() doesn't handle margins, so we need exclude margin:
-        int decoratedLeftExcludeMargin = left + params.leftMargin;
-        int decoratedTopExcludeMargin = top + params.topMargin;
-        int decoratedRightExcludeMargin = right - params.rightMargin;
-        int decoratedBottomExcludeMargin = bottom - params.bottomMargin;
-        layoutDecorated(v, decoratedLeftExcludeMargin, decoratedTopExcludeMargin,
-                decoratedRightExcludeMargin, decoratedBottomExcludeMargin);
-        // Now v.getLeft() includes the extra space for optical bounds, subtracting it from value
-        // passed in layoutDecorated(), we can get the optical bounds insets.
-        params.setOpticalInsets(decoratedLeftExcludeMargin - getDecoratedLeft(v),
-                decoratedTopExcludeMargin - getDecoratedTop(v),
-                getDecoratedRight(v) - decoratedRightExcludeMargin,
-                getDecoratedBottom(v) - decoratedBottomExcludeMargin);
+        layoutDecoratedWithMargins(v, left, top, right, bottom);
+        // Now super.getDecoratedBoundsWithMargins() includes the extra space for optical bounds,
+        // subtracting it from value passed in layoutDecoratedWithMargins(), we can get the optical
+        // bounds insets.
+        super.getDecoratedBoundsWithMargins(v, sTempRect);
+        params.setOpticalInsets(left - sTempRect.left, top - sTempRect.top,
+                sTempRect.right - right, sTempRect.bottom - bottom);
         updateChildAlignments(v);
         if (TRACE) TraceHelper.endSection();
     }
