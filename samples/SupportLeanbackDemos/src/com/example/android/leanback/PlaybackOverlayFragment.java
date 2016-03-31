@@ -127,7 +127,7 @@ public class PlaybackOverlayFragment
             @Override
             public void onActionClicked(Action action) {
                 if (action.getId() == R.id.lb_control_picture_in_picture) {
-                    getActivity().enterPictureInPicture();
+                    getActivity().enterPictureInPictureMode();
                     return;
                 }
                 super.onActionClicked(action);
@@ -182,8 +182,8 @@ public class PlaybackOverlayFragment
     }
 
     @Override
-    public void onPictureInPictureChanged(boolean inPictureInPicture) {
-        if (inPictureInPicture) {
+    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
+        if (isInPictureInPictureMode) {
             // Hide the controls in picture-in-picture mode.
             setFadingEnabled(true);
             fadeOut();

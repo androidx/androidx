@@ -33,9 +33,9 @@ public class PlaybackOverlaySupportActivity extends FragmentActivity {
     }
 
     @Override
-    public void onPictureInPictureChanged(boolean inPictureInPicture) {
+    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
         for (PictureInPictureListener listener : mListeners) {
-            listener.onPictureInPictureChanged(inPictureInPicture);
+            listener.onPictureInPictureModeChanged(isInPictureInPictureMode);
         }
     }
 
@@ -48,6 +48,6 @@ public class PlaybackOverlaySupportActivity extends FragmentActivity {
     }
 
     public interface PictureInPictureListener {
-        void onPictureInPictureChanged(boolean inPictureInPicture);
+        void onPictureInPictureModeChanged(boolean isInPictureInPicture);
     }
 }
