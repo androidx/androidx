@@ -1686,6 +1686,16 @@ public class ViewCompat {
         public float getZ(View view) {
             return ViewCompatLollipop.getZ(view);
         }
+
+        @Override
+        public void offsetLeftAndRight(View view, int offset) {
+            ViewCompatLollipop.offsetLeftAndRight(view, offset);
+        }
+
+        @Override
+        public void offsetTopAndBottom(View view, int offset) {
+            ViewCompatLollipop.offsetTopAndBottom(view, offset);
+        }
     }
 
     static class MarshmallowViewCompatImpl extends LollipopViewCompatImpl {
