@@ -122,8 +122,7 @@ public class SwitchPreference extends TwoStatePreference {
      * @param attrs Style attributes that differ from the default
      */
     public SwitchPreference(Context context, AttributeSet attrs) {
-        this(context, attrs, TypedArrayUtils.getAttr(context,
-                android.support.v7.preference.R.attr.switchPreferenceStyle,
+        this(context, attrs, TypedArrayUtils.getAttr(context, R.attr.switchPreferenceStyle,
                 android.R.attr.switchPreferenceStyle));
     }
 
@@ -217,7 +216,7 @@ public class SwitchPreference extends TwoStatePreference {
             return;
         }
 
-        View switchView = view.findViewById(android.support.v7.preference.R.id.switchWidget);
+        View switchView = view.findViewById(R.id.switchWidget);
         syncSwitchView(switchView);
 
         View summaryView = view.findViewById(android.R.id.summary);
