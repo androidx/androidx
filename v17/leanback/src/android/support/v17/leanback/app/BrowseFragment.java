@@ -200,6 +200,34 @@ public class BrowseFragment extends BaseFragment {
     }
 
     /**
+     * Possible set of actions that {@link BrowseFragment} exposes to clients. Custom
+     * fragments can interact with {@link BrowseFragment} using this interface.
+     */
+    public interface FragmentHost {
+        /**
+         * Clients are required to invoke this callback once their view is created
+         * inside {@link Fragment#onStart} method. {@link BrowseFragment} starts the entrance
+         * animation only after receiving this callback. Failure to invoke this method
+         * will lead to fragment not showing up.
+         *
+         * @param fragmentAdapter {@link MainFragmentAdapter} used by the current fragment.
+         */
+        void notifyViewCreated(MainFragmentAdapter fragmentAdapter);
+    }
+
+    /**
+     * Default implementation of {@link FragmentHost} that is used only by
+     * {@link BrowseFragment}.
+     */
+    private final class FragmentHostImpl implements FragmentHost {
+
+        @Override
+        public void notifyViewCreated(MainFragmentAdapter fragmentAdapter) {
+            processingPendingEntranceTransition();
+        }
+    }
+
+    /**
      * Interface that defines the interaction between {@link BrowseFragment} and it's main
      * content fragment. The key method is {@link MainFragmentAdapter#getFragment()},
      * it will be used to get the fragment to be shown in the content section. Clients can
@@ -224,6 +252,7 @@ public class BrowseFragment extends BaseFragment {
     public static class MainFragmentAdapter<T extends Fragment> {
         private boolean mScalingEnabled;
         private final T mFragment;
+        private FragmentHost mFragmentHost;
 
         public MainFragmentAdapter(T fragment) {
             this.mFragment = fragment;
@@ -290,6 +319,14 @@ public class BrowseFragment extends BaseFragment {
          */
         public void setScalingEnabled(boolean scalingEnabled) {
             this.mScalingEnabled = scalingEnabled;
+        }
+
+        void setFragmentHost(FragmentHost fragmentHost) {
+            this.mFragmentHost = fragmentHost;
+        }
+
+        public final FragmentHost getFragmentHost() {
+            return mFragmentHost;
         }
     }
 
@@ -385,6 +422,7 @@ public class BrowseFragment extends BaseFragment {
             mMainFragment = mMainFragmentAdapterRegistry.createFragment(item);
             mMainFragmentAdapter = (MainFragmentAdapter) ((Adaptable)mMainFragment)
                     .getAdapter(MainFragmentAdapter.class);
+            mMainFragmentAdapter.setFragmentHost(new FragmentHostImpl());
             if (!mIsPageRow) {
                 mMainFragmentRowsAdapter = (MainFragmentRowsAdapter) ((Adaptable)mMainFragment)
                         .getAdapter(MainFragmentRowsAdapter.class);
@@ -628,7 +666,7 @@ public class BrowseFragment extends BaseFragment {
      * Sets an item clicked listener on the fragment.
      * OnItemViewClickedListener will override {@link View.OnClickListener} that
      * item presenter sets during {@link Presenter#onCreateViewHolder(ViewGroup)}.
-     * So in general,  developer should choose one of the listeners but not both.
+     * So in general, developer should choose one of the listeners but not both.
      */
     public void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
         mOnItemViewClickedListener = listener;
@@ -908,6 +946,7 @@ public class BrowseFragment extends BaseFragment {
                 // This way we can maintain the invariant that mMainFragmentAdapter is never
                 // null and it avoids doing null checks all over the code.
                 mMainFragmentAdapter = new MainFragmentAdapter(null);
+                mMainFragmentAdapter.setFragmentHost(new FragmentHostImpl());
             }
 
             ft.commit();
@@ -991,7 +1030,7 @@ public class BrowseFragment extends BaseFragment {
 
     @Override
     boolean isReadyForPrepareEntranceTransition() {
-        return mMainFragment != null;
+        return mMainFragment != null && mMainFragment.getView() != null;
     }
 
     @Override
@@ -1000,14 +1039,7 @@ public class BrowseFragment extends BaseFragment {
     }
 
     void processingPendingEntranceTransition() {
-        // mMainFragment is not null at this point, it can perform prepare entrance transition.
         performPendingStates();
-        // mMainFragment's view is going to be created in next cycle
-        getView().post(new Runnable() {
-            public void run() {
-                performPendingStates();
-            }
-        });
     }
 
     private void createHeadersTransition() {
@@ -1240,7 +1272,6 @@ public class BrowseFragment extends BaseFragment {
         if (isEntranceTransitionEnabled()) {
             setEntranceTransitionStartState();
         }
-        processingPendingEntranceTransition();
     }
 
     private void onExpandTransitionStart(boolean expand, final Runnable callback) {

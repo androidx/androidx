@@ -101,6 +101,10 @@ package android.support.v17.leanback.app {
     method public abstract T createFragment(java.lang.Object);
   }
 
+  public static abstract interface BrowseFragment.FragmentHost {
+    method public abstract void notifyViewCreated(android.support.v17.leanback.app.BrowseFragment.MainFragmentAdapter);
+  }
+
   public static class BrowseFragment.ListRowFragmentFactory extends android.support.v17.leanback.app.BrowseFragment.FragmentFactory {
     ctor public BrowseFragment.ListRowFragmentFactory();
     method public android.support.v17.leanback.app.RowsFragment createFragment(java.lang.Object);
@@ -109,6 +113,7 @@ package android.support.v17.leanback.app {
   public static class BrowseFragment.MainFragmentAdapter {
     ctor public BrowseFragment.MainFragmentAdapter(T);
     method public final T getFragment();
+    method public final android.support.v17.leanback.app.BrowseFragment.FragmentHost getFragmentHost();
     method public boolean isScalingEnabled();
     method public boolean isScrolling();
     method public void onTransitionEnd();
@@ -190,6 +195,10 @@ package android.support.v17.leanback.app {
     method public abstract T createFragment(java.lang.Object);
   }
 
+  public static abstract interface BrowseSupportFragment.FragmentHost {
+    method public abstract void notifyViewCreated(android.support.v17.leanback.app.BrowseSupportFragment.MainFragmentAdapter);
+  }
+
   public static class BrowseSupportFragment.ListRowFragmentFactory extends android.support.v17.leanback.app.BrowseSupportFragment.FragmentFactory {
     ctor public BrowseSupportFragment.ListRowFragmentFactory();
     method public android.support.v17.leanback.app.RowsSupportFragment createFragment(java.lang.Object);
@@ -198,6 +207,7 @@ package android.support.v17.leanback.app {
   public static class BrowseSupportFragment.MainFragmentAdapter {
     ctor public BrowseSupportFragment.MainFragmentAdapter(T);
     method public final T getFragment();
+    method public final android.support.v17.leanback.app.BrowseSupportFragment.FragmentHost getFragmentHost();
     method public boolean isScalingEnabled();
     method public boolean isScrolling();
     method public void onTransitionEnd();
