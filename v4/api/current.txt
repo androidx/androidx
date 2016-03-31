@@ -89,6 +89,11 @@ package android.support.v4.app {
     method public void update(android.support.v4.app.ActivityOptionsCompat);
   }
 
+  public class AppLaunchChecker {
+    ctor public AppLaunchChecker();
+    method public static boolean hasStartedFromLauncher(android.content.Context);
+  }
+
   public final class AppOpsManagerCompat {
     method public static int noteOp(android.content.Context, java.lang.String, int, java.lang.String);
     method public static int noteProxyOp(android.content.Context, java.lang.String, java.lang.String);
@@ -967,6 +972,7 @@ package android.support.v4.content {
     method public static android.content.Intent makeRestartActivityTask(android.content.ComponentName);
     field public static final java.lang.String ACTION_EXTERNAL_APPLICATIONS_AVAILABLE = "android.intent.action.EXTERNAL_APPLICATIONS_AVAILABLE";
     field public static final java.lang.String ACTION_EXTERNAL_APPLICATIONS_UNAVAILABLE = "android.intent.action.EXTERNAL_APPLICATIONS_UNAVAILABLE";
+    field public static final java.lang.String CATEGORY_LEANBACK_LAUNCHER = "android.intent.category.LEANBACK_LAUNCHER";
     field public static final java.lang.String EXTRA_CHANGED_PACKAGE_LIST = "android.intent.extra.changed_package_list";
     field public static final java.lang.String EXTRA_CHANGED_UID_LIST = "android.intent.extra.changed_uid_list";
     field public static final java.lang.String EXTRA_HTML_TEXT = "android.intent.extra.HTML_TEXT";
