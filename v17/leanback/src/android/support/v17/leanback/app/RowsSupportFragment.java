@@ -53,14 +53,20 @@ import java.util.ArrayList;
  */
 public class RowsSupportFragment extends BaseRowSupportFragment implements Adaptable {
 
-    final MainFragmentAdapter mMainFragmentAdapter = new MainFragmentAdapter(this);
-    final MainFragmentRowsAdapter mMainFragmentRowsAdapter = new MainFragmentRowsAdapter(this);
+    private MainFragmentAdapter mMainFragmentAdapter;
+    private MainFragmentRowsAdapter mMainFragmentRowsAdapter;
 
     @Override
     public Object getAdapter(Class clazz) {
         if (clazz == BrowseSupportFragment.MainFragmentAdapter.class) {
+            if (mMainFragmentAdapter == null) {
+                mMainFragmentAdapter = new MainFragmentAdapter(this);
+            }
             return mMainFragmentAdapter;
         } else if (clazz == BrowseSupportFragment.MainFragmentRowsAdapter.class) {
+            if (mMainFragmentRowsAdapter == null) {
+                mMainFragmentRowsAdapter = new MainFragmentRowsAdapter(this);
+            }
             return mMainFragmentRowsAdapter;
         }
         return null;
@@ -283,6 +289,9 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements Adapt
 
         mRecycledViewPool = null;
         mPresenterMapper = null;
+        if (mMainFragmentAdapter != null) {
+            mMainFragmentAdapter.getFragmentHost().notifyViewCreated(mMainFragmentAdapter);
+        }
     }
 
     @Override
