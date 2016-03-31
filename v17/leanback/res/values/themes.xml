@@ -64,27 +64,14 @@
 
         <item name="searchOrbViewStyle">@style/Widget.Leanback.SearchOrbViewStyle</item>
 
-
         <item name="detailsDescriptionTitleStyle">@style/Widget.Leanback.DetailsDescriptionTitleStyle</item>
         <item name="detailsDescriptionSubtitleStyle">@style/Widget.Leanback.DetailsDescriptionSubtitleStyle</item>
         <item name="detailsDescriptionBodyStyle">@style/Widget.Leanback.DetailsDescriptionBodyStyle</item>
         <item name="detailsActionButtonStyle">@style/Widget.Leanback.DetailsActionButtonStyle</item>
-        <!-- Attributes used for styling of a playback -->
-        <item name="playbackPaddingStart">@dimen/lb_playback_controls_margin_start</item>
-        <item name="playbackPaddingEnd">@dimen/lb_playback_controls_margin_end</item>
-
-        <item name="playbackMediaListHeaderStyle">@style/Widget.Leanback.PlaybackMediaListHeaderStyle</item>
-        <item name="playbackMediaItemStyle">@style/Widget.Leanback.PlaybackMediaItemStyle</item>
-        <item name="playbackMediaListHeaderTitleStyle">@style/Widget.Leanback.PlaybackMediaListHeaderTitleStyle</item>
-        <item name="playbackMediaItemTrackNumberStyle">@style/Widget.Leanback.PlaybackMediaItemTrackNumberStyle</item>
-        <item name="playbackMediaItemTrackNameStyle">@style/Widget.Leanback.PlaybackMediaItemTrackNameStyle</item>
-        <item name="playbackMediaItemTrackDurationStyle">@style/Widget.Leanback.PlaybackMediaItemTrackDurationStyle</item>
-
         <item name="playbackControlsButtonStyle">@style/Widget.Leanback.PlaybackControlsButtonStyle</item>
         <item name="playbackControlButtonLabelStyle">@style/Widget.Leanback.PlaybackControlLabelStyle</item>
         <item name="playbackControlsTimeStyle">@style/Widget.Leanback.PlaybackControlsTimeStyle</item>
         <item name="playbackControlsActionIcons">@style/Widget.Leanback.PlaybackControlsActionIconsStyle</item>
-
 
         <item name="errorMessageStyle">@style/Widget.Leanback.ErrorMessageStyle</item>
 
