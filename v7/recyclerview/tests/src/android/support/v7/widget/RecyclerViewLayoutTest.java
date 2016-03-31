@@ -25,6 +25,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
+import android.content.Context;
+import android.support.annotation.Nullable;
 import android.support.test.InstrumentationRegistry;
 import android.graphics.Color;
 import android.graphics.PointF;
@@ -35,6 +37,7 @@ import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.util.TouchUtils;
 import android.test.suitebuilder.annotation.MediumTest;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -1143,6 +1146,147 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         assertTrue(animationsLatch.await(2, TimeUnit.SECONDS));
         assertNull(vh.mOwnerRecyclerView);
         checkForMainThreadException();
+    }
+
+    @Test
+    public void duplicateAdapterPositionTest() throws Throwable {
+        final TestAdapter testAdapter = new TestAdapter(10);
+        final TestLayoutManager tlm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                detachAndScrapAttachedViews(recycler);
+                layoutRange(recycler, 0, state.getItemCount());
+                if (!state.isPreLayout()) {
+                    while (!recycler.getScrapList().isEmpty()) {
+                        RecyclerView.ViewHolder viewHolder = recycler.getScrapList().get(0);
+                        addDisappearingView(viewHolder.itemView, 0);
+                    }
+                }
+                layoutLatch.countDown();
+            }
+
+            @Override
+            public boolean supportsPredictiveItemAnimations() {
+                return true;
+            }
+        };
+        final DefaultItemAnimator animator = new DefaultItemAnimator();
+        animator.setSupportsChangeAnimations(true);
+        animator.setChangeDuration(10000);
+        testAdapter.setHasStableIds(true);
+        final TestRecyclerView recyclerView = new TestRecyclerView(getActivity());
+        recyclerView.setLayoutManager(tlm);
+        recyclerView.setAdapter(testAdapter);
+        recyclerView.setItemAnimator(animator);
+
+        tlm.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        tlm.waitForLayout(2);
+
+        tlm.expectLayouts(2);
+        testAdapter.mItems.get(2).mType += 2;
+        final int itemId = testAdapter.mItems.get(2).mId;
+        testAdapter.changeAndNotify(2, 1);
+        tlm.waitForLayout(2);
+
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                assertThat("test sanity", recyclerView.getChildCount(), CoreMatchers.is(11));
+                // now mangle the order and run the test
+                RecyclerView.ViewHolder hidden = null;
+                RecyclerView.ViewHolder updated = null;
+                for (int i = 0; i < recyclerView.getChildCount(); i ++) {
+                    View view = recyclerView.getChildAt(i);
+                    RecyclerView.ViewHolder vh = recyclerView.getChildViewHolder(view);
+                    if (vh.getAdapterPosition() == 2) {
+                        if (mRecyclerView.mChildHelper.isHidden(view)) {
+                            assertThat(hidden, CoreMatchers.nullValue());
+                            hidden = vh;
+                        } else {
+                            assertThat(updated, CoreMatchers.nullValue());
+                            updated = vh;
+                        }
+                    }
+                }
+                assertThat(hidden, CoreMatchers.notNullValue());
+                assertThat(updated, CoreMatchers.notNullValue());
+
+                mRecyclerView.eatRequestLayout();
+
+                // first put the hidden child back
+                int index1 = mRecyclerView.indexOfChild(hidden.itemView);
+                int index2 = mRecyclerView.indexOfChild(updated.itemView);
+                if (index1 < index2) {
+                    // swap views
+                    swapViewsAtIndices(recyclerView, index1, index2);
+                }
+                assertThat(tlm.findViewByPosition(2), CoreMatchers.sameInstance(updated.itemView));
+
+                assertThat(recyclerView.findViewHolderForAdapterPosition(2),
+                        CoreMatchers.sameInstance(updated));
+                assertThat(recyclerView.findViewHolderForLayoutPosition(2),
+                        CoreMatchers.sameInstance(updated));
+                assertThat(recyclerView.findViewHolderForItemId(itemId),
+                        CoreMatchers.sameInstance(updated));
+
+                // now swap back
+                swapViewsAtIndices(recyclerView, index1, index2);
+
+                assertThat(tlm.findViewByPosition(2), CoreMatchers.sameInstance(updated.itemView));
+                assertThat(recyclerView.findViewHolderForAdapterPosition(2),
+                        CoreMatchers.sameInstance(updated));
+                assertThat(recyclerView.findViewHolderForLayoutPosition(2),
+                        CoreMatchers.sameInstance(updated));
+                assertThat(recyclerView.findViewHolderForItemId(itemId),
+                        CoreMatchers.sameInstance(updated));
+
+                // now remove updated. re-assert fallback to the hidden one
+                tlm.removeView(updated.itemView);
+
+                assertThat(tlm.findViewByPosition(2), CoreMatchers.nullValue());
+                assertThat(recyclerView.findViewHolderForAdapterPosition(2),
+                        CoreMatchers.sameInstance(hidden));
+                assertThat(recyclerView.findViewHolderForLayoutPosition(2),
+                        CoreMatchers.sameInstance(hidden));
+                assertThat(recyclerView.findViewHolderForItemId(itemId),
+                        CoreMatchers.sameInstance(hidden));
+            }
+        });
+
+    }
+
+    private void swapViewsAtIndices(TestRecyclerView recyclerView, int index1, int index2) {
+        if (index1 == index2) {
+            return;
+        }
+        if (index2 < index1) {
+            int tmp = index1;
+            index1 = index2;
+            index2 = tmp;
+        }
+        final View v1 = recyclerView.getChildAt(index1);
+        final View v2 = recyclerView.getChildAt(index2);
+        boolean v1Hidden = recyclerView.mChildHelper.isHidden(v1);
+        boolean v2Hidden = recyclerView.mChildHelper.isHidden(v2);
+        // must unhide before swap otherwise bucket indices will become invalid.
+        if (v1Hidden) {
+            mRecyclerView.mChildHelper.unhide(v1);
+        }
+        if (v2Hidden) {
+            mRecyclerView.mChildHelper.unhide(v2);
+        }
+        recyclerView.detachViewFromParent(index2);
+        recyclerView.attachViewToParent(v2, index1, v2.getLayoutParams());
+        recyclerView.detachViewFromParent(index1 + 1);
+        recyclerView.attachViewToParent(v1, index2, v1.getLayoutParams());
+
+        if (v1Hidden) {
+            mRecyclerView.mChildHelper.hide(v1);
+        }
+        if (v2Hidden) {
+            mRecyclerView.mChildHelper.hide(v2);
+        }
     }
 
     public void adapterPositionsTest(final AdapterRunnable adapterChanges) throws Throwable {
@@ -3504,6 +3648,34 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
             layoutRange(recycler, 0, state.getItemCount());
             layoutLatch.countDown();
+        }
+    }
+
+    /**
+     * Proxy class to make protected methods public
+     */
+    public static class TestRecyclerView extends RecyclerView {
+
+        public TestRecyclerView(Context context) {
+            super(context);
+        }
+
+        public TestRecyclerView(Context context, @Nullable AttributeSet attrs) {
+            super(context, attrs);
+        }
+
+        public TestRecyclerView(Context context, @Nullable AttributeSet attrs, int defStyle) {
+            super(context, attrs, defStyle);
+        }
+
+        @Override
+        public void detachViewFromParent(int index) {
+            super.detachViewFromParent(index);
+        }
+
+        @Override
+        public void attachViewToParent(View child, int index, ViewGroup.LayoutParams params) {
+            super.attachViewToParent(child, index, params);
         }
     }
 }
