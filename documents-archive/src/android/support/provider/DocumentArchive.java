@@ -21,10 +21,13 @@ import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.graphics.Point;
+import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.OperationCanceledException;
 import android.os.ParcelFileDescriptor;
+import android.provider.DocumentsContract;
 import android.provider.DocumentsContract.Document;
 import android.provider.DocumentsProvider;
 import android.support.annotation.Nullable;
@@ -439,10 +442,37 @@ public class DocumentArchive implements Closeable {
         Preconditions.checkArgument(getDocumentType(documentId).startsWith("image/"),
                 "Thumbnails only supported for image/* MIME type.");
 
-        // TODO: Extract thumbnails from EXIF.
         final ZipEntry entry = mEntries.get(parsedId.mPath);
         if (entry == null) {
             throw new FileNotFoundException();
+        }
+
+        try {
+            final InputStream inputStream = mZipFile.getInputStream(entry);
+            final ExifInterface exif = new ExifInterface(inputStream);
+            if (exif.hasThumbnail()) {
+                Bundle extras = null;
+                switch (exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, -1)) {
+                    case ExifInterface.ORIENTATION_ROTATE_90:
+                        extras = new Bundle(1);
+                        extras.putInt(DocumentsContract.EXTRA_ORIENTATION, 90);
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_180:
+                        extras = new Bundle(1);
+                        extras.putInt(DocumentsContract.EXTRA_ORIENTATION, 180);
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_270:
+                        extras = new Bundle(1);
+                        extras.putInt(DocumentsContract.EXTRA_ORIENTATION, 270);
+                        break;
+                }
+                final long[] range = exif.getThumbnailRange();
+                return new AssetFileDescriptor(
+                        openDocument(documentId, "r", signal), range[0], range[1], extras);
+            }
+        } catch (IOException e) {
+            // Ignore the exception, as reading the EXIF may legally fail.
+            Log.e(TAG, "Failed to obtain thumbnail from EXIF.", e);
         }
 
         return new AssetFileDescriptor(
