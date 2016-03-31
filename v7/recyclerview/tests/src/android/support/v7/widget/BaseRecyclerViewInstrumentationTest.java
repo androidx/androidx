@@ -183,8 +183,10 @@ abstract public class BaseRecyclerViewInstrumentationTest {
                 .getLayoutManager() instanceof TestLayoutManager) {
             TestLayoutManager lm = (TestLayoutManager) mRecyclerView.getLayoutManager();
             // finish all layouts so that we get the correct exception
-            while (lm.layoutLatch.getCount() > 0) {
-                lm.layoutLatch.countDown();
+            if (lm.layoutLatch != null) {
+                while (lm.layoutLatch.getCount() > 0) {
+                    lm.layoutLatch.countDown();
+                }
             }
         }
     }
