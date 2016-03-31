@@ -18,15 +18,14 @@
 <!-- Note: clipChildren/clipToPadding false are needed to apply shadows to child
      views with no padding of their own. Also to allow for negative margin on description. -->
 
-<android.support.v17.leanback.widget.PlaybackControlsRowView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v17.leanback.widget.PlaybackControlsRowView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:clipChildren="false"
     android:clipToPadding="false"
-    android:paddingStart="?attr/playbackPaddingStart"
-    android:paddingEnd="?attr/playbackPaddingEnd" >
+    android:paddingStart="@dimen/lb_playback_controls_margin_start"
+    android:paddingEnd="@dimen/lb_playback_controls_margin_end" >
 
     <LinearLayout
         android:id="@+id/controls_card"

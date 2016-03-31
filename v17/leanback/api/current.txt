@@ -898,32 +898,6 @@ package android.support.v17.leanback.widget {
     method public android.widget.TextView getTitle();
   }
 
-  public abstract class AbstractMediaItemPresenter extends android.support.v17.leanback.widget.RowPresenter {
-    ctor public AbstractMediaItemPresenter(android.content.Context);
-    method protected android.support.v17.leanback.widget.AbstractMediaItemPresenter.ViewHolder createRowViewHolder(android.view.ViewGroup);
-    method protected abstract void onBindMediaViewHolder(android.support.v17.leanback.widget.AbstractMediaItemPresenter.ViewHolder, java.lang.Object);
-    method public void setBackgroundColor(int);
-  }
-
-  public static class AbstractMediaItemPresenter.ViewHolder extends android.support.v17.leanback.widget.RowPresenter.ViewHolder {
-    ctor public AbstractMediaItemPresenter.ViewHolder(android.view.View);
-    method public android.widget.TextView getTrackDurationView();
-    method public android.widget.TextView getTrackNameView();
-    method public android.widget.TextView getTrackNumberView();
-  }
-
-  public abstract class AbstractMediaListHeaderPresenter extends android.support.v17.leanback.widget.RowPresenter {
-    ctor public AbstractMediaListHeaderPresenter(android.content.Context);
-    method protected android.support.v17.leanback.widget.AbstractMediaListHeaderPresenter.ViewHolder createRowViewHolder(android.view.ViewGroup);
-    method protected abstract void onBindMediaListHeaderViewHolder(android.support.v17.leanback.widget.AbstractMediaListHeaderPresenter.ViewHolder, java.lang.Object);
-    method public void setBackgroundColor(int);
-  }
-
-  public static class AbstractMediaListHeaderPresenter.ViewHolder extends android.support.v17.leanback.widget.RowPresenter.ViewHolder {
-    ctor public AbstractMediaListHeaderPresenter.ViewHolder(android.view.View);
-    method public android.widget.TextView getHeaderView();
-  }
-
   public class Action {
     ctor public Action(long);
     ctor public Action(long, java.lang.CharSequence);
