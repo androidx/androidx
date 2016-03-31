@@ -181,6 +181,9 @@ public abstract class MediaBrowserServiceCompat extends Service {
                 case CLIENT_MSG_REGISTER_CALLBACK_MESSENGER:
                     mServiceImpl.registerCallbacks(new ServiceCallbacksCompat(msg.replyTo));
                     break;
+                case CLIENT_MSG_UNREGISTER_CALLBACK_MESSENGER:
+                    mServiceImpl.unregisterCallbacks(new ServiceCallbacksCompat(msg.replyTo));
+                    break;
                 default:
                     Log.w(TAG, "Unhandled message: " + msg
                             + "\n  Service version: " + SERVICE_VERSION_CURRENT
@@ -422,6 +425,17 @@ public abstract class MediaBrowserServiceCompat extends Service {
                     final ConnectionRecord connection = new ConnectionRecord();
                     connection.callbacks = callbacks;
                     mConnections.put(b, connection);
+                }
+            });
+        }
+
+        // Used when {@link MediaBrowserProtocol#EXTRA_MESSENGER_BINDER} is used.
+        public void unregisterCallbacks(final ServiceCallbacks callbacks) {
+            mHandler.postOrRun(new Runnable() {
+                @Override
+                public void run() {
+                    final IBinder b = callbacks.asBinder();
+                    mConnections.remove(b);
                 }
             });
         }
