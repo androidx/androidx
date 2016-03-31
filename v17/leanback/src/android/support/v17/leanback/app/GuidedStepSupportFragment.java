@@ -1107,16 +1107,6 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
         return root;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (mActionsStylist.isSubActionsExpanded()) {
-            mActionsStylist.getSubActionsGridView().requestFocus();
-        } else {
-            mActionsStylist.getActionsGridView().requestFocus();
-        }
-    }
-
     /**
      * {@inheritDoc}
      */
