@@ -29,6 +29,12 @@ import java.lang.ref.WeakReference;
  * @hide
  */
 public class TintResources extends Resources {
+
+    /**
+     * The maximum API level where this class is needed.
+     */
+    public static final int MAX_SDK_WHERE_REQUIRED = 20;
+
     private final WeakReference<Context> mContextRef;
 
     public TintResources(@NonNull final Context context, @NonNull final Resources res) {
