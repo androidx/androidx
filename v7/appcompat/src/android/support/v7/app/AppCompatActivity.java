@@ -535,9 +535,9 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
 
     @Override
     public Resources getResources() {
-        if (mResources == null) {
+        if (Build.VERSION.SDK_INT <= TintResources.MAX_SDK_WHERE_REQUIRED && mResources == null) {
             mResources = new TintResources(this, super.getResources());
         }
-        return mResources;
+        return mResources != null ? mResources : super.getResources();
     }
 }
