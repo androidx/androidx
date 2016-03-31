@@ -53,16 +53,16 @@ public class MultiSelectListPreference extends DialogPreference {
         super(context, attrs, defStyleAttr, defStyleRes);
 
         final TypedArray a = context.obtainStyledAttributes(attrs,
-                R.styleable.MultiSelectListPreference, defStyleAttr,
+                android.support.v7.preference.R.styleable.MultiSelectListPreference, defStyleAttr,
                 defStyleRes);
 
         mEntries = TypedArrayUtils.getTextArray(a,
-                R.styleable.MultiSelectListPreference_entries,
-                R.styleable.MultiSelectListPreference_android_entries);
+                android.support.v7.preference.R.styleable.MultiSelectListPreference_entries,
+                android.support.v7.preference.R.styleable.MultiSelectListPreference_android_entries);
 
         mEntryValues = TypedArrayUtils.getTextArray(a,
-                R.styleable.MultiSelectListPreference_entryValues,
-                R.styleable.MultiSelectListPreference_android_entryValues);
+                android.support.v7.preference.R.styleable.MultiSelectListPreference_entryValues,
+                android.support.v7.preference.R.styleable.MultiSelectListPreference_android_entryValues);
 
         a.recycle();
     }
@@ -72,7 +72,8 @@ public class MultiSelectListPreference extends DialogPreference {
     }
 
     public MultiSelectListPreference(Context context, AttributeSet attrs) {
-        this(context, attrs, TypedArrayUtils.getAttr(context, R.attr.dialogPreferenceStyle,
+        this(context, attrs, TypedArrayUtils.getAttr(context,
+                android.support.v7.preference.R.attr.dialogPreferenceStyle,
                 android.R.attr.dialogPreferenceStyle));
     }
 
