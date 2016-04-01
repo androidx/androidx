@@ -39,38 +39,46 @@ public class AppLaunchChecker {
 
     /**
      * Checks if this app has been launched by the user from their launcher or home screen
-     * since it was installed. Your app should call this method in your launcher activity's
-     * {@link Activity#onCreate(Bundle)} method to track this state.
+     * since it was installed.
      *
-     * <p>If the app targets API 23 (Android 6.0 Marshmallow) or later, this state will be
-     * eligible for full data backup and may be restored to the user's device automatically.</p>
+     * <p>To track this state properly you must call {@link #onActivityCreate(Activity)}
+     * in your launcher activity's {@link Activity#onCreate(Bundle)} method.</p>
      *
      * @param context Context to check
      * @return true if this app has been started by the user from the launcher at least once
      */
     public static boolean hasStartedFromLauncher(Context context) {
-        final SharedPreferences sp = context.getSharedPreferences(SHARED_PREFS_NAME, 0);
+        return context.getSharedPreferences(SHARED_PREFS_NAME, 0)
+                .getBoolean(KEY_STARTED_FROM_LAUNCHER, false);
+    }
+
+    /**
+     * Records the parameters of an activity's launch for later use by the other
+     * methods available on this class.
+     *
+     * <p>Your app should call this method in your launcher activity's
+     * {@link Activity#onCreate(Bundle)} method to track launch state.
+     * If the app targets API 23 (Android 6.0 Marshmallow) or later, this state will be
+     * eligible for full data backup and may be restored to the user's device automatically.</p>     *
+     *
+     * @param activity the Activity currently running onCreate
+     */
+    public static void onActivityCreate(Activity activity) {
+        final SharedPreferences sp = activity.getSharedPreferences(SHARED_PREFS_NAME, 0);
         if (sp.getBoolean(KEY_STARTED_FROM_LAUNCHER, false)) {
-            return true;
+            return;
         }
 
-        while (context instanceof ContextWrapper) {
-            if (context instanceof Activity) {
-                final Intent launchIntent = ((Activity) context).getIntent();
-                if (launchIntent == null) {
-                    break;
-                }
-
-                if (Intent.ACTION_MAIN.equals(launchIntent.getAction())
-                        && (launchIntent.hasCategory(Intent.CATEGORY_LAUNCHER)
-                        || launchIntent.hasCategory(IntentCompat.CATEGORY_LEANBACK_LAUNCHER))) {
-                    SharedPreferencesCompat.EditorCompat.getInstance().apply(
-                            sp.edit().putBoolean(KEY_STARTED_FROM_LAUNCHER, true));
-                    return true;
-                }
-            }
-            context = ((ContextWrapper) context).getBaseContext();
+        final Intent launchIntent = activity.getIntent();
+        if (launchIntent == null) {
+            return;
         }
-        return false;
+
+        if (Intent.ACTION_MAIN.equals(launchIntent.getAction())
+                && (launchIntent.hasCategory(Intent.CATEGORY_LAUNCHER)
+                || launchIntent.hasCategory(IntentCompat.CATEGORY_LEANBACK_LAUNCHER))) {
+            SharedPreferencesCompat.EditorCompat.getInstance().apply(
+                    sp.edit().putBoolean(KEY_STARTED_FROM_LAUNCHER, true));
+        }
     }
 }

@@ -92,6 +92,7 @@ package android.support.v4.app {
   public class AppLaunchChecker {
     ctor public AppLaunchChecker();
     method public static boolean hasStartedFromLauncher(android.content.Context);
+    method public static void onActivityCreate(android.app.Activity);
   }
 
   public final class AppOpsManagerCompat {
