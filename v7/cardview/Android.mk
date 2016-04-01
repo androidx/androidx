@@ -19,6 +19,7 @@ LOCAL_PATH := $(call my-dir)
 # SDK version than the resources.  The resources library and the R class that it
 # contains will not be linked into the final static library.
 include $(CLEAR_VARS)
+LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-v7-cardview-res
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := $(call all-java-files-under, dummy)
@@ -72,9 +73,8 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v7-cardview-api21
 LOCAL_SDK_VERSION := 21
 LOCAL_SRC_FILES := $(call all-java-files-under, api21)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-cardview-base \
-    android-support-v7-cardview-jellybean-mr1
-LOCAL_JAVA_LIBRARIES := android-support-v7-cardview-res  \
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-cardview-jellybean-mr1
+LOCAL_JAVA_LIBRARIES := android-support-v7-cardview-res \
     android-support-annotations
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
@@ -82,16 +82,21 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 support_module_src_files += $(LOCAL_SRC_FILES)
 
 # Here is the final static library that apps can link against.
-# The R class is automatically excluded from the generated library.
-# Applications that use this library must specify LOCAL_RESOURCE_DIR
+# Applications that use this library must specify
+#
+#   LOCAL_STATIC_ANDROID_LIBRARIES := android-support-v7-cardview
+#
 # in their makefiles to include the resources in their package.
 include $(CLEAR_VARS)
+LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-v7-cardview
 LOCAL_SDK_VERSION := 7
+LOCAL_SDK_RES_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := $(call all-java-files-under,src)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-cardview-api21
-LOCAL_JAVA_LIBRARIES := android-support-v7-cardview-res \
-    android-support-annotations
+LOCAL_JAVA_LIBRARIES := android-support-annotations
+LOCAL_STATIC_ANDROID_LIBRARIES := android-support-v7-cardview-res
+LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
