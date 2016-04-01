@@ -84,8 +84,7 @@ final class MediaRouterThemeHelper {
     }
 
     public static @ControllerColorType int getControllerColor(Context context, int style) {
-        int primaryColor = getThemeColor(context, style,
-                android.support.v7.appcompat.R.attr.colorPrimary);
+        int primaryColor = getThemeColor(context, style, R.attr.colorPrimary);
         if (ColorUtils.calculateContrast(COLOR_WHITE_ON_DARK_BACKGROUND, primaryColor)
                 >= MIN_CONTRAST) {
             return COLOR_WHITE_ON_DARK_BACKGROUND;
@@ -94,23 +93,20 @@ final class MediaRouterThemeHelper {
     }
 
     public static int getButtonTextColor(Context context) {
-        int primaryColor = getThemeColor(context, 0,
-                android.support.v7.appcompat.R.attr.colorPrimary);
+        int primaryColor = getThemeColor(context, 0, R.attr.colorPrimary);
         int backgroundColor = getThemeColor(context, 0, android.R.attr.colorBackground);
 
         if (ColorUtils.calculateContrast(primaryColor, backgroundColor) < MIN_CONTRAST) {
             // Default to colorAccent if the contrast ratio is low.
-            return getThemeColor(context, 0, android.support.v7.appcompat.R.attr.colorAccent);
+            return getThemeColor(context, 0, R.attr.colorAccent);
         }
         return primaryColor;
     }
 
     public static void setMediaControlsBackgroundColor(
             Context context, View mainControls, View groupControls, boolean hasGroup) {
-        int primaryColor = getThemeColor(context, 0,
-                android.support.v7.appcompat.R.attr.colorPrimary);
-        int primaryDarkColor = getThemeColor(context, 0,
-                android.support.v7.appcompat.R.attr.colorPrimaryDark);
+        int primaryColor = getThemeColor(context, 0, R.attr.colorPrimary);
+        int primaryDarkColor = getThemeColor(context, 0, R.attr.colorPrimaryDark);
         if (hasGroup && getControllerColor(context, 0) == COLOR_DARK_ON_LIGHT_BACKGROUND) {
             // Instead of showing dark controls in a possibly dark (i.e. the primary dark), model
             // the white dialog and use the primary color for the group controls.
@@ -139,8 +135,7 @@ final class MediaRouterThemeHelper {
 
     private static boolean isLightTheme(Context context) {
         TypedValue value = new TypedValue();
-        return context.getTheme().resolveAttribute(
-                android.support.v7.appcompat.R.attr.isLightTheme, value, true)
+        return context.getTheme().resolveAttribute(R.attr.isLightTheme, value, true)
                 && value.data != 0;
     }
 
