@@ -443,7 +443,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
      * than via XML.
      * @param fragmentManager The FragmentManager to be used in the transaction.
      * @param fragment The GuidedStepSupportFragment to be inserted into the fragment stack.
-     * @return The ID returned by the call FragmentTransaction.replace.
+     * @return The ID returned by the call FragmentTransaction.commit.
      */
     public static int add(FragmentManager fragmentManager, GuidedStepSupportFragment fragment) {
         return add(fragmentManager, fragment, android.R.id.content);
@@ -464,7 +464,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
      * @param fragmentManager The FragmentManager to be used in the transaction.
      * @param fragment The GuidedStepSupportFragment to be inserted into the fragment stack.
      * @param id The id of container to add GuidedStepSupportFragment, can be android.R.id.content.
-     * @return The ID returned by the call FragmentTransaction.replace.
+     * @return The ID returned by the call FragmentTransaction.commit.
      */
     public static int add(FragmentManager fragmentManager, GuidedStepSupportFragment fragment, int id) {
         GuidedStepSupportFragment current = getCurrentGuidedStepSupportFragment(fragmentManager);
@@ -592,7 +592,10 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
 
     /**
      * Adds the specified GuidedStepSupportFragment as content of Activity; no backstack entry is added so
-     * the activity will be dismissed when BACK key is pressed.
+     * the activity will be dismissed when BACK key is pressed.  The method is typically called in
+     * Activity.onCreate() when savedInstanceState is null.  When savedInstanceState is not null,
+     * the Activity is being restored,  do not call addAsRoot() to duplicate the Fragment restored
+     * by FragmentManager.
      * {@link #UI_STYLE_ACTIVITY_ROOT} is assigned.
      *
      * Note: currently fragments added using this method must be created programmatically rather
@@ -600,12 +603,18 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
      * @param activity The Activity to be used to insert GuidedstepFragment.
      * @param fragment The GuidedStepSupportFragment to be inserted into the fragment stack.
      * @param id The id of container to add GuidedStepSupportFragment, can be android.R.id.content.
-     * @return The ID returned by the call FragmentTransaction.replace.
+     * @return The ID returned by the call FragmentTransaction.commit, or -1 there is already
+     *         GuidedStepSupportFragment.
      */
     public static int addAsRoot(FragmentActivity activity, GuidedStepSupportFragment fragment, int id) {
         // Workaround b/23764120: call getDecorView() to force requestFeature of ActivityTransition.
         activity.getWindow().getDecorView();
         FragmentManager fragmentManager = activity.getSupportFragmentManager();
+        if (fragmentManager.findFragmentByTag(TAG_LEAN_BACK_ACTIONS_FRAGMENT) != null) {
+            Log.w(TAG, "Fragment is already exists, likely calling " +
+                    "addAsRoot() when savedInstanceState is not null in Activity.onCreate().");
+            return -1;
+        }
         FragmentTransaction ft = fragmentManager.beginTransaction();
         fragment.setUiStyle(UI_STYLE_ACTIVITY_ROOT);
         return ft.replace(id, fragment, TAG_LEAN_BACK_ACTIONS_FRAGMENT).commit();
