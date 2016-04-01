@@ -42,7 +42,7 @@ class MediaRouteVolumeSlider extends AppCompatSeekBar {
     }
 
     public MediaRouteVolumeSlider(Context context, AttributeSet attrs) {
-        this(context, attrs, android.support.v7.appcompat.R.attr.seekBarStyle);
+        this(context, attrs, R.attr.seekBarStyle);
     }
 
     public MediaRouteVolumeSlider(Context context, AttributeSet attrs, int defStyleAttr) {

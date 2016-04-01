@@ -19,11 +19,12 @@ LOCAL_PATH:= $(call my-dir)
 # SDK version than the resources.  The resources library and the R class that it
 # contains will not be linked into the final static library.
 include $(CLEAR_VARS)
-LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-v17-leanback-res
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := $(call all-java-files-under, dummy)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
+LOCAL_AAPT_FLAGS := \
+        --auto-add-overlay
 LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
@@ -98,32 +99,20 @@ support_module_src_files += $(LOCAL_SRC_FILES)
 # -----------------------------------------------------------------------
 
 # Here is the final static library that apps can link against.
-# Applications that use this library must specify
-#
-#   LOCAL_STATIC_ANDROID_LIBRARIES := \
-#       android-support-v17-leanback \
-#       android-support-v7-recyclerview \
-#       android-support-v4
-#
-# in their makefiles to include the resources and their dependencies in their package.
+# The R class is automatically excluded from the generated library.
+# Applications that use this library must specify LOCAL_RESOURCE_DIR
+# in their makefiles to include the resources in their package.
 include $(CLEAR_VARS)
-LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-v17-leanback
 LOCAL_SDK_VERSION := 17
-LOCAL_SDK_RES_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
-LOCAL_STATIC_JAVA_LIBRARIES := \
-    android-support-v17-leanback-kitkat \
-    android-support-v17-leanback-jbmr2 \
-    android-support-v17-leanback-api23 \
-    android-support-v17-leanback-api21 \
-    android-support-v17-leanback-common
-LOCAL_STATIC_ANDROID_LIBRARIES := \
-    android-support-v17-leanback-res
-LOCAL_SHARED_ANDROID_LIBRARIES := \
-    android-support-v7-recyclerview \
-    android-support-v4
-LOCAL_JAR_EXCLUDE_FILES := none
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-v17-leanback-kitkat android-support-v17-leanback-jbmr2 \
+        android-support-v17-leanback-api23 \
+        android-support-v17-leanback-api21 android-support-v17-leanback-common
+LOCAL_JAVA_LIBRARIES := \
+        android-support-v4 \
+        android-support-v7-recyclerview \
+        android-support-v17-leanback-res
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
