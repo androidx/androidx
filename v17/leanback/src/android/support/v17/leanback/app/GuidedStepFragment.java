@@ -1105,6 +1105,12 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
         return root;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        getView().findViewById(R.id.action_fragment).requestFocus();
+    }
+
     /**
      * {@inheritDoc}
      */
