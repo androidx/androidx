@@ -29,7 +29,9 @@ public class DialogExampleActivity extends Activity {
         super.onCreate(savedInstanceState);
         getWindow().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#21272A")));
 
-        GuidedStepFragment fragment = new DialogExampleFragment();
-        GuidedStepFragment.addAsRoot(this, fragment, android.R.id.content);
+        if (savedInstanceState == null) {
+            GuidedStepFragment fragment = new DialogExampleFragment();
+            GuidedStepFragment.addAsRoot(this, fragment, android.R.id.content);
+        }
     }
 }
