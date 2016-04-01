@@ -126,6 +126,54 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         });
     }
 
+    @Test
+    public void reattachAndScrollCrash() throws Throwable {
+        final RecyclerView recyclerView = new RecyclerView(getActivity());
+        final TestLayoutManager tlm = new TestLayoutManager() {
+
+            @Override
+            public boolean canScrollVertically() {
+                return true;
+            }
+
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                layoutRange(recycler, 0, Math.min(state.getItemCount(), 10));
+            }
+
+            @Override
+            public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler,
+                                          RecyclerView.State state) {
+                // Access views in the state (that might have been deleted).
+                for (int  i = 10; i < state.getItemCount(); i++) {
+                    recycler.getViewForPosition(i);
+                }
+                return dy;
+            }
+        };
+
+        final TestAdapter adapter = new TestAdapter(12);
+
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(tlm);
+
+        setRecyclerView(recyclerView);
+
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                getActivity().mContainer.removeView(recyclerView);
+                getActivity().mContainer.addView(recyclerView);
+                try {
+                    adapter.deleteAndNotify(1, adapter.getItemCount() - 1);
+                } catch (Throwable throwable) {
+                    postExceptionToInstrumentation(throwable);
+                }
+                recyclerView.scrollBy(0, 10);
+            }
+        });
+    }
+
     private void testScrollFrozen(boolean fling) throws Throwable {
         RecyclerView recyclerView = new RecyclerView(getActivity());
 
