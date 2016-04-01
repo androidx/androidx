@@ -70,7 +70,9 @@ public class GuidedStepSupportActivity extends FragmentActivity {
         Log.v(TAG, "onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.guided_step_activity);
-        GuidedStepSupportFragment.addAsRoot(this, new FirstStepFragment(), R.id.lb_guidedstep_host);
+        if (savedInstanceState == null) {
+            GuidedStepSupportFragment.addAsRoot(this, new FirstStepFragment(), R.id.lb_guidedstep_host);
+        }
     }
 
     @Override
