@@ -586,6 +586,9 @@ public abstract class RowPresenter extends Presenter {
 
     /**
      * Binds the given row object to the given ViewHolder.
+     * Derived classes of {@link RowPresenter} overriding
+     * {@link #onBindRowViewHolder(ViewHolder, Object)} must call through the super class's
+     * implementation of this method.
      */
     protected void onBindRowViewHolder(ViewHolder vh, Object item) {
         vh.mRowObject = item;
@@ -602,6 +605,8 @@ public abstract class RowPresenter extends Presenter {
 
     /**
      * Unbinds the given ViewHolder.
+     * Derived classes of {@link RowPresenter} overriding {@link #onUnbindRowViewHolder(ViewHolder)}
+     * must call through the super class's implementation of this method.
      */
     protected void onUnbindRowViewHolder(ViewHolder vh) {
         if (vh.mHeaderViewHolder != null) {
