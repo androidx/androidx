@@ -101,6 +101,7 @@ public class Preference implements Comparable<Preference> {
     private OnPreferenceClickListener mOnClickListener;
 
     private int mOrder = DEFAULT_ORDER;
+    private int mViewId = 0;
     private CharSequence mTitle;
     private CharSequence mSummary;
     /**
@@ -477,6 +478,7 @@ public class Preference implements Comparable<Preference> {
      */
     public void onBindViewHolder(PreferenceViewHolder holder) {
         holder.itemView.setOnClickListener(mClickListener);
+        holder.itemView.setId(mViewId);
 
         final TextView titleView = (TextView) holder.findViewById(android.R.id.title);
         if (titleView != null) {
@@ -580,6 +582,16 @@ public class Preference implements Comparable<Preference> {
      */
     public int getOrder() {
         return mOrder;
+    }
+
+    /**
+     * Set the ID that will be assigned to the overall View representing this
+     * preference, once bound.
+     *
+     * @see View#setId(int)
+     */
+    public void setViewId(int viewId) {
+        mViewId = viewId;
     }
 
     /**
