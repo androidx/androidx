@@ -159,6 +159,7 @@ package android.support.v7.preference {
     method public void setSummary(int);
     method public void setTitle(java.lang.CharSequence);
     method public void setTitle(int);
+    method public void setViewId(int);
     method public final void setVisible(boolean);
     method public void setWidgetLayoutResource(int);
     method public boolean shouldDisableDependents();
