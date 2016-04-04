@@ -15,6 +15,9 @@
  */
 package android.support.v4.content;
 
+import org.junit.Before;
+import org.junit.Test;
+
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
@@ -25,8 +28,7 @@ import android.support.v4.ThemedYellowActivity;
 import android.support.v4.test.R;
 import android.support.v4.testutils.TestUtils;
 import android.test.suitebuilder.annotation.SmallTest;
-import org.junit.Before;
-import org.junit.Test;
+import android.util.DisplayMetrics;
 
 import static org.junit.Assert.assertEquals;
 
@@ -101,6 +103,29 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
             TestUtils.assertAllPixelsOfColor("Themed yellow drawable load",
                     themedYellowDrawable, 0xFFF0B000);
         }
+    }
+
+    @Test
+    public void testDrawableConfigurationWorkaround() throws Throwable {
+        final int expectedWidth = scaleFromDensity(7, DisplayMetrics.DENSITY_LOW,
+                mContext.getResources().getDisplayMetrics().densityDpi);
+
+        // Ensure we retrieve the correct drawable configuration. Specifically,
+        // this tests a workaround for a bug in drawable configuration that
+        // exists on API < 16 for references to drawables.
+        Drawable referencedDrawable = ContextCompat.getDrawable(mContext,
+                R.drawable.aliased_drawable);
+        assertEquals("Drawable configuration does not match DisplayMetrics",
+                expectedWidth, referencedDrawable.getIntrinsicWidth());
+    }
+
+    private static int scaleFromDensity(int size, int sdensity, int tdensity) {
+        if (sdensity == tdensity) {
+            return size;
+        }
+
+        // Scale by tdensity / sdensity, rounding up.
+        return ((size * tdensity) + (sdensity >> 1)) / sdensity;
     }
 
     @Test(expected = IllegalArgumentException.class)
