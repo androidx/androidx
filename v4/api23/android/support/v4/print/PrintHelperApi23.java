@@ -25,7 +25,13 @@ import android.print.PrintAttributes;
 class PrintHelperApi23 extends PrintHelperApi20 {
     @Override
     protected PrintAttributes.Builder copyAttributes(PrintAttributes other) {
-        return super.copyAttributes(other).setDuplexMode(other.getDuplexMode());
+        PrintAttributes.Builder b = super.copyAttributes(other);
+
+        if (other.getDuplexMode() != 0) {
+            b.setDuplexMode(other.getDuplexMode());
+        }
+
+        return b;
     }
 
     PrintHelperApi23(Context context) {
