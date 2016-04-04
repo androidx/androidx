@@ -798,12 +798,10 @@ public class RenderScript {
                 }
                 mIncLoaded = true;
             }
-            if (mIncDev == 0) {
-                mIncDev = nIncDeviceCreate();
-            }
             if (mIncCon == 0) {
                 //Create a dummy compat context (synchronous).
-                mIncCon = nIncContextCreate(mIncDev, 0, 0, 0);
+                long device = nIncDeviceCreate();
+                mIncCon = nIncContextCreate(device, 0, 0, 0);
             }
             return rsnScriptIntrinsicCreate(mIncCon, id, eid, mUseInc);
         } else {
@@ -1046,10 +1044,8 @@ public class RenderScript {
         return rsnIncAllocationCreateTyped(mContext, mIncCon, alloc, type, xBytesSize);
     }
 
-    long     mDev;
     long     mContext;
     //Dummy device & context for Inc Support Lib
-    long     mIncDev;
     long     mIncCon;
     //indicator of whether inc support lib has been loaded or not.
     boolean  mIncLoaded;
@@ -1350,7 +1346,6 @@ public class RenderScript {
                 mNativeLibDir = mApplicationContext.getApplicationInfo().nativeLibraryDir;
             }
         }
-        mIncDev = 0;
         mIncCon = 0;
         mIncLoaded = false;
         mRWLock = new ReentrantReadWriteLock();
@@ -1481,8 +1476,8 @@ public class RenderScript {
             }
         }
 
-        rs.mDev = rs.nDeviceCreate();
-        rs.mContext = rs.nContextCreate(rs.mDev, 0, sdkVersion, ct.mID, rs.mNativeLibDir);
+        long device = rs.nDeviceCreate();
+        rs.mContext = rs.nContextCreate(device, 0, sdkVersion, ct.mID, rs.mNativeLibDir);
         rs.mContextType = ct;
         rs.mContextFlags = flags;
         rs.mContextSdkVersion = sdkVersion;
@@ -1703,12 +1698,6 @@ public class RenderScript {
         }
 
         nContextDestroy();
-        nDeviceDestroy(mDev);
-        if (mIncDev != 0) {
-            nIncDeviceDestroy(mIncDev);
-            mIncDev = 0;
-        }
-        mDev = 0;
     }
 
     boolean isAlive() {
