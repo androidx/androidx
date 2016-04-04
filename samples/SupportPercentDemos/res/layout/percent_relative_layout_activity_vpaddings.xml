@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-     Copyright (C) 2015 The Android Open Source Project
+     Copyright (C) 2016 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -18,18 +18,19 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:paddingTop="48dip"
+    android:paddingBottom="64dip">
     <View
-        android:id="@+id/left"
-        app:layout_widthPercent="25%"
+        android:id="@+id/child1"
+        android:layout_width="match_parent"
         app:layout_heightPercent="50%"
-        app:layout_marginLeftPercent="25%"
-        app:layout_marginTopPercent="25%"
-        android:background="#FF0000" />
+        android:layout_alignParentTop="true"
+        android:background="#80FF0000" />
     <View
-        app:layout_widthPercent="25%"
+        android:id="@+id/child2"
+        android:layout_width="match_parent"
         app:layout_heightPercent="50%"
-        app:layout_marginTopPercent="25%"
-        android:layout_toRightOf="@id/left"
-        android:background="#0000FF" />
+        android:layout_below="@id/child1"
+        android:background="#800000FF" />
 </android.support.percent.PercentRelativeLayout>

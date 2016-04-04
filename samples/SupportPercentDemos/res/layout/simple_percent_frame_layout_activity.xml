@@ -15,24 +15,21 @@
      limitations under the License.
 -->
 <android.support.percent.PercentFrameLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
     <View
         app:layout_widthPercent="50%"
         app:layout_heightPercent="50%"
         app:layout_marginTopPercent="25%"
         app:layout_marginLeftPercent="25%"
-        android:background="#FF0000"
-        />
+        android:background="#FF0000" />
     <View
         android:layout_gravity="bottom|right"
         app:layout_widthPercent="33.33%"
         app:layout_heightPercent="33.33%"
         app:layout_marginRightPercent="33.33%"
         app:layout_marginBottomPercent="33.33%"
-        android:background="#0000FF"
-        />
+        android:background="#0000FF" />
 </android.support.percent.PercentFrameLayout>

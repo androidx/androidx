@@ -52,8 +52,40 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".PercentFrameLayoutActivityHPaddings"
+                  android:label="@string/percent_frame_hpaddings_demo">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="com.example.android.supportpercent.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".PercentFrameLayoutActivityVPaddings"
+                  android:label="@string/percent_frame_vpaddings_demo">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="com.example.android.supportpercent.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
+
         <activity android:name=".SimplePercentRelativeLayoutActivity"
                   android:label="@string/simple_percent_relative_demo">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="com.example.android.supportpercent.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".PercentRelativeLayoutActivityHPaddings"
+                  android:label="@string/percent_relative_hpaddings_demo">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="com.example.android.supportpercent.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".PercentRelativeLayoutActivityVPaddings"
+                  android:label="@string/percent_relative_vpaddings_demo">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="com.example.android.supportpercent.SAMPLE_CODE"/>

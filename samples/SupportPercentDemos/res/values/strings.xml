@@ -17,7 +17,11 @@
 <resources>
     <string name="activity_sample_code">Support Percent Demos</string>
 
-    <string name="simple_percent_frame_demo">Simple PercentFrameLayout demo</string>
-    <string name="include_percent_frame_demo">PercentFrameLayout with include demo</string>
-    <string name="simple_percent_relative_demo">Simple PercentRelativeLayout demo</string>
+    <string name="simple_percent_frame_demo">PercentFrameLayout / Basic</string>
+    <string name="include_percent_frame_demo">PercentFrameLayout / With include</string>
+    <string name="percent_frame_vpaddings_demo">PercentFrameLayout / With vertical paddings</string>
+    <string name="percent_frame_hpaddings_demo">PercentFrameLayout / With horizontal paddings</string>
+    <string name="simple_percent_relative_demo">PercentRelativeLayout / Basic</string>
+    <string name="percent_relative_vpaddings_demo">PercentRelativeLayout / With vertical paddings</string>
+    <string name="percent_relative_hpaddings_demo">PercentRelativeLayout / With horizontal paddings</string>
 </resources>

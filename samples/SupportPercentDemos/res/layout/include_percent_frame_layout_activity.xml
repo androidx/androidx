@@ -15,9 +15,8 @@
      limitations under the License.
 -->
 <android.support.percent.PercentFrameLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
     <include layout="@layout/include_percent_frame_layout_content" />
 </android.support.percent.PercentFrameLayout>
