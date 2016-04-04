@@ -2582,6 +2582,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
     public void adapterChangeInMainThreadTest(String msg,
             final Runnable onLayoutRunnable) throws Throwable {
+        setIgnoreMainThreadException(true);
         final AtomicBoolean doneFirstLayout = new AtomicBoolean(false);
         TestAdapter testAdapter = new TestAdapter(10);
         TestLayoutManager lm = new TestLayoutManager() {
@@ -2613,8 +2614,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         lm.waitForLayout(2);
         removeRecyclerView();
         assertTrue("Invalid data updates should be caught:" + msg,
-                mainThreadException instanceof IllegalStateException);
-        mainThreadException = null;
+                getMainThreadException() instanceof IllegalStateException);
     }
 
     @Test
@@ -2652,6 +2652,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
     public void adapterChangeDuringScrollTest(String msg, final int orientation,
             final Runnable onScrollRunnable) throws Throwable {
+        setIgnoreMainThreadException(true);
         TestAdapter testAdapter = new TestAdapter(100);
         TestLayoutManager lm = new TestLayoutManager() {
             @Override
@@ -2710,8 +2711,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         lm.waitForLayout(2);
         removeRecyclerView();
         assertTrue("Invalid data updates should be caught:" + msg,
-                mainThreadException instanceof IllegalStateException);
-        mainThreadException = null;
+                getMainThreadException() instanceof IllegalStateException);
     }
 
     @Test
@@ -3231,7 +3231,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 getActivity().mContainer.addView(recyclerView);
             }
         });
-        testLayoutManager.waitForLayout(2, TimeUnit.SECONDS);
+        testLayoutManager.waitForLayout(2);
 
         assertEquals("item count in state should be correct", adapter.getItemCount()
                 , itemCount.get());

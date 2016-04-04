@@ -28,6 +28,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
+
 public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
 
     protected static final boolean DEBUG = false;
@@ -480,15 +485,17 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
             layoutLatch = new CountDownLatch(count);
         }
 
-        public void waitForLayout(long timeout) throws Throwable {
-            waitForLayout(timeout * (DEBUG ? 1000 : 1), TimeUnit.SECONDS);
-        }
-
-        public void waitForLayout(long timeout, TimeUnit timeUnit) throws Throwable {
-            layoutLatch.await(timeout, timeUnit);
+        public void waitForLayout(int seconds) throws Throwable {
+            layoutLatch.await(seconds * (DEBUG ? 100 : 1), SECONDS);
             checkForMainThreadException();
-            assertEquals("all expected layouts should be executed at the expected time",
-                    0, layoutLatch.getCount());
+            MatcherAssert.assertThat("all layouts should complete on time",
+                    layoutLatch.getCount(), CoreMatchers.is(0L));
+            // use a runnable to ensure RV layout is finished
+            getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                }
+            });
         }
 
         public void assertNoLayout(String msg, long timeout) throws Throwable {

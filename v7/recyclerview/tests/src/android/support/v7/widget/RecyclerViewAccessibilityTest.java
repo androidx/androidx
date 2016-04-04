@@ -261,14 +261,20 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
         });
         assertTrue("test sanity", info.isScrollable());
         final AccessibilityNodeInfoCompat info2 = AccessibilityNodeInfoCompat.obtain();
-        layoutManager.blockLayout();
-        layoutManager.expectLayouts(1);
-        adapter.deleteAndNotify(1, 1);
-        // we can run this here since we blocked layout.
-        delegateCompat.onInitializeAccessibilityNodeInfo(recyclerView, info2);
-        layoutManager.unblockLayout();
-        assertFalse("info should not be filled if data is out of date", info2.isScrollable());
-        layoutManager.waitForLayout(1);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    adapter.deleteAndNotify(1, 1);
+                } catch (Throwable throwable) {
+                    postExceptionToInstrumentation(throwable);
+                }
+                delegateCompat.onInitializeAccessibilityNodeInfo(recyclerView, info2);
+                assertFalse("info should not be filled if data is out of date",
+                        info2.isScrollable());
+            }
+        });
+        checkForMainThreadException();
     }
 
     boolean performAccessibilityAction(final AccessibilityDelegateCompat delegate,

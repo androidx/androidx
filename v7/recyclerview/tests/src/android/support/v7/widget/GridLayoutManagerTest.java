@@ -775,7 +775,6 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                 assertFalse(mGlm.supportsPredictiveItemAnimations());
             }
         });
-        checkForMainThreadException();
         mGlm.waitForLayout(2);
         mGlm.expectLayout(2);
         mAdapter.deleteAndNotify(3, 2);
