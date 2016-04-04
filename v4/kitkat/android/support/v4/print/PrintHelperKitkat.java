@@ -204,11 +204,16 @@ class PrintHelperKitkat {
      * @return A builder that will build print attributes that match the other attributes
      */
     protected PrintAttributes.Builder copyAttributes(PrintAttributes other) {
-        return (new PrintAttributes.Builder())
+        PrintAttributes.Builder b = (new PrintAttributes.Builder())
                 .setMediaSize(other.getMediaSize())
                 .setResolution(other.getResolution())
-                .setColorMode(other.getColorMode())
                 .setMinMargins(other.getMinMargins());
+
+        if (other.getColorMode() != 0) {
+            b.setColorMode(other.getColorMode());
+        }
+
+        return b;
     }
 
     /**
