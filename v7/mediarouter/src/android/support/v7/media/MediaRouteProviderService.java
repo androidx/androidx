@@ -134,6 +134,14 @@ public abstract class MediaRouteProviderService extends Service {
         return null;
     }
 
+    @Override
+    public boolean onUnbind(Intent intent) {
+        if (mProvider != null) {
+            mProvider.setCallback(null);
+        }
+        return super.onUnbind(intent);
+    }
+
     private boolean onRegisterClient(Messenger messenger, int requestId, int version) {
         if (version >= CLIENT_VERSION_1) {
             int index = findClient(messenger);
