@@ -30,6 +30,8 @@ import android.os.Parcelable;
 import android.os.SystemClock;
 import android.support.annotation.CallSuper;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.os.ParcelableCompat;
 import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
@@ -52,6 +54,10 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.Interpolator;
 import android.widget.Scroller;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -63,19 +69,31 @@ import java.util.List;
  * through pages of data.  You supply an implementation of a
  * {@link PagerAdapter} to generate the pages that the view shows.
  *
- * <p>Note this class is currently under early design and
- * development.  The API will likely change in later updates of
- * the compatibility library, requiring changes to the source code
- * of apps when they are compiled against the newer version.</p>
- *
  * <p>ViewPager is most often used in conjunction with {@link android.app.Fragment},
  * which is a convenient way to supply and manage the lifecycle of each page.
  * There are standard adapters implemented for using fragments with the ViewPager,
  * which cover the most common use cases.  These are
- * {@link android.support.v4.app.FragmentPagerAdapter} and 
+ * {@link android.support.v4.app.FragmentPagerAdapter} and
  * {@link android.support.v4.app.FragmentStatePagerAdapter}; each of these
  * classes have simple code showing how to build a full user interface
  * with them.
+ *
+ * <p>Views which are annotated with the {@link DecorView} annotation are treated as
+ * part of the view pagers 'decor'. Each decor view's position can be controlled via
+ * its {@code android:layout_gravity} attribute. For example:
+ *
+ * <pre>
+ * &lt;android.support.v4.view.ViewPager
+ *     android:layout_width=&quot;match_parent&quot;
+ *     android:layout_height=&quot;match_parent&quot;&gt;
+ *
+ *     &lt;android.support.v4.view.PagerTitleStrip
+ *         android:layout_width=&quot;match_parent&quot;
+ *         android:layout_height=&quot;wrap_content&quot;
+ *         android:layout_gravity=&quot;top&quot; /&gt;
+ *
+ * &lt;/android.support.v4.view.ViewPager&gt;
+ * </pre>
  *
  * <p>For more information about how to use ViewPager, read <a
  * href="{@docRoot}training/implementing-navigation/lateral.html">Creating Swipe Views with
@@ -221,7 +239,7 @@ public class ViewPager extends ViewGroup {
     private List<OnPageChangeListener> mOnPageChangeListeners;
     private OnPageChangeListener mOnPageChangeListener;
     private OnPageChangeListener mInternalPageChangeListener;
-    private OnAdapterChangeListener mAdapterChangeListener;
+    private List<OnAdapterChangeListener> mAdapterChangeListeners;
     private PageTransformer mPageTransformer;
     private Method mSetChildrenDrawingOrderEnabled;
 
@@ -338,17 +356,34 @@ public class ViewPager extends ViewGroup {
     }
 
     /**
-     * Used internally to monitor when adapters are switched.
+     * Callback interface for responding to adapter changes.
      */
-    interface OnAdapterChangeListener {
-        public void onAdapterChanged(PagerAdapter oldAdapter, PagerAdapter newAdapter);
+    public interface OnAdapterChangeListener {
+        /**
+         * Called when the adapter for the given view pager has changed.
+         *
+         * @param viewPager  ViewPager where the adapter change has happened
+         * @param oldAdapter the previously set adapter
+         * @param newAdapter the newly set adapter
+         */
+        void onAdapterChanged(@NonNull ViewPager viewPager,
+                @Nullable PagerAdapter oldAdapter, @Nullable PagerAdapter newAdapter);
     }
 
     /**
-     * Used internally to tag special types of child views that should be added as
-     * pager decorations by default.
+     * Annotation which allows marking of views to be decoration views when added to a view
+     * pager.
+     *
+     * <p>Views marked with this annotation can be added to the view pager with a layout resource.
+     * An example being {@link PagerTitleStrip}.</p>
+     *
+     * <p>You can also control whether a view is a decor view but setting
+     * {@link LayoutParams#isDecor} on the child's layout params.</p>
      */
-    interface Decor {}
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public @interface DecorView {
+    }
 
     public ViewPager(Context context) {
         super(context);
@@ -506,8 +541,11 @@ public class ViewPager extends ViewGroup {
             }
         }
 
-        if (mAdapterChangeListener != null && oldAdapter != adapter) {
-            mAdapterChangeListener.onAdapterChanged(oldAdapter, adapter);
+        // Dispatch the change to any listeners
+        if (mAdapterChangeListeners != null && !mAdapterChangeListeners.isEmpty()) {
+            for (int i = 0, count = mAdapterChangeListeners.size(); i < count; i++) {
+                mAdapterChangeListeners.get(i).onAdapterChanged(this, oldAdapter, adapter);
+            }
         }
     }
 
@@ -531,8 +569,28 @@ public class ViewPager extends ViewGroup {
         return mAdapter;
     }
 
-    void setOnAdapterChangeListener(OnAdapterChangeListener listener) {
-        mAdapterChangeListener = listener;
+    /**
+     * Add a listener that will be invoked whenever the adapter for this ViewPager changes.
+     *
+     * @param listener listener to add
+     */
+    public void addOnAdapterChangeListener(@NonNull OnAdapterChangeListener listener) {
+        if (mAdapterChangeListeners == null) {
+            mAdapterChangeListeners = new ArrayList<>();
+        }
+        mAdapterChangeListeners.add(listener);
+    }
+
+    /**
+     * Remove a listener that was previously added via
+     * {@link #addOnAdapterChangeListener(OnAdapterChangeListener)}.
+     *
+     * @param listener listener to remove
+     */
+    public void removeOnAdapterChangeListener(@NonNull OnAdapterChangeListener listener) {
+        if (mAdapterChangeListeners != null) {
+            mAdapterChangeListeners.remove(listener);
+        }
     }
 
     private int getClientWidth() {
@@ -1402,7 +1460,8 @@ public class ViewPager extends ViewGroup {
             params = generateLayoutParams(params);
         }
         final LayoutParams lp = (LayoutParams) params;
-        lp.isDecor |= child instanceof Decor;
+        // Any views added via inflation should be classed as part of the decor
+        lp.isDecor |= isDecorView(child);
         if (mInLayout) {
             if (lp != null && lp.isDecor) {
                 throw new IllegalStateException("Cannot add pager decor view during layout");
@@ -1420,6 +1479,11 @@ public class ViewPager extends ViewGroup {
                 child.setDrawingCacheEnabled(false);
             }
         }
+    }
+
+    private static boolean isDecorView(@NonNull View view) {
+        Class<?> clazz = view.getClass();
+        return clazz.getAnnotation(DecorView.class) != null;
     }
 
     @Override
