@@ -19,7 +19,6 @@ package android.support.v7.widget;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.res.Resources;
-import android.os.Build;
 import android.support.annotation.NonNull;
 
 import java.lang.ref.WeakReference;
@@ -28,15 +27,13 @@ import java.util.ArrayList;
 /**
  * A {@link android.content.ContextWrapper} which returns a tint-aware
  * {@link android.content.res.Resources} instance from {@link #getResources()}.
- *
- * @hide
  */
-public class TintContextWrapper extends ContextWrapper {
+class TintContextWrapper extends ContextWrapper {
 
     private static final ArrayList<WeakReference<TintContextWrapper>> sCache = new ArrayList<>();
 
     public static Context wrap(@NonNull final Context context) {
-        if (shouldWrap(context)) {
+        if (!(context instanceof TintContextWrapper)) {
             // First check our instance cache
             for (int i = 0, count = sCache.size(); i < count; i++) {
                 final WeakReference<TintContextWrapper> ref = sCache.get(i);
@@ -55,39 +52,10 @@ public class TintContextWrapper extends ContextWrapper {
         return context;
     }
 
-    private static boolean shouldWrap(@NonNull final Context context) {
-        if (Build.VERSION.SDK_INT > TintResources.MAX_SDK_WHERE_REQUIRED
-                || context instanceof TintContextWrapper
-                || context.getResources() instanceof TintResources) {
-            // If we're running on API 21+, there's no need to wrap
-            // If the Context already has a TintResources impl, no needed to wrap again
-            // If the Context is already a TintContextWrapper, no needed to wrap again
-            return false;
-        }
-        // Else, we should wrap
-        return true;
-    }
-
     private Resources mResources;
-    private final Resources.Theme mTheme;
 
-    private TintContextWrapper(@NonNull final Context base) {
+    private TintContextWrapper(Context base) {
         super(base);
-
-        // We need to create a copy of the Theme so that the Theme references our Resources
-        // instance
-        mTheme = getResources().newTheme();
-        mTheme.setTo(base.getTheme());
-    }
-
-    @Override
-    public Resources.Theme getTheme() {
-        return mTheme;
-    }
-
-    @Override
-    public void setTheme(int resid) {
-        mTheme.applyStyle(resid, true);
     }
 
     @Override

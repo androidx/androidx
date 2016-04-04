@@ -18,7 +18,6 @@ package android.support.v7.app;
 
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
@@ -33,9 +32,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.view.KeyEventCompat;
 import android.support.v7.view.ActionMode;
-import android.support.v7.widget.TintResources;
 import android.support.v7.widget.Toolbar;
-import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -64,7 +61,6 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
     private AppCompatDelegate mDelegate;
     private int mThemeId = 0;
     private boolean mEatKeyUpEvent;
-    private Resources mResources;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -159,12 +155,6 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         getDelegate().onConfigurationChanged(newConfig);
-        if (mResources != null) {
-            // The real (and thus managed) resources object was already updated
-            // by ResourcesManager, so pull the current metrics from there.
-            final DisplayMetrics newMetrics = super.getResources().getDisplayMetrics();
-            mResources.updateConfiguration(newConfig, newMetrics);
-        }
     }
 
     @Override
@@ -531,13 +521,5 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
             }
         }
         return super.dispatchKeyEvent(event);
-    }
-
-    @Override
-    public Resources getResources() {
-        if (Build.VERSION.SDK_INT <= TintResources.MAX_SDK_WHERE_REQUIRED && mResources == null) {
-            mResources = new TintResources(this, super.getResources());
-        }
-        return mResources != null ? mResources : super.getResources();
     }
 }
