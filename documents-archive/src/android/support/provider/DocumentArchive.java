@@ -447,8 +447,9 @@ public class DocumentArchive implements Closeable {
             throw new FileNotFoundException();
         }
 
+        InputStream inputStream = null;
         try {
-            final InputStream inputStream = mZipFile.getInputStream(entry);
+            inputStream = mZipFile.getInputStream(entry);
             final ExifInterface exif = new ExifInterface(inputStream);
             if (exif.hasThumbnail()) {
                 Bundle extras = null;
@@ -473,6 +474,8 @@ public class DocumentArchive implements Closeable {
         } catch (IOException e) {
             // Ignore the exception, as reading the EXIF may legally fail.
             Log.e(TAG, "Failed to obtain thumbnail from EXIF.", e);
+        } finally {
+            IoUtils.closeQuietly(inputStream);
         }
 
         return new AssetFileDescriptor(
