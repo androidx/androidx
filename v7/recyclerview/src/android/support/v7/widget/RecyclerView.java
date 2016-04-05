@@ -1447,11 +1447,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * This method consumes all deferred changes to avoid that case.
      */
     private void consumePendingUpdateOperations() {
-        if (!mFirstLayoutComplete) {
-            // a layout request will happen, we should not do layout here.
-            return;
-        }
-        if (mDataSetHasChangedAfterLayout) {
+        if (!mFirstLayoutComplete || mDataSetHasChangedAfterLayout) {
             TraceCompat.beginSection(TRACE_ON_DATA_SET_CHANGE_LAYOUT_TAG);
             dispatchLayout();
             TraceCompat.endSection();
