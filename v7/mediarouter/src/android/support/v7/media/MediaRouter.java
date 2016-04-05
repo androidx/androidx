@@ -408,7 +408,14 @@ public final class MediaRouter {
         }
         checkCallingThread();
 
-        sGlobal.selectRoute(getDefaultRoute(), reason);
+        // Choose the fallback route if it's not already selected.
+        // Otherwise, select the default route.
+        RouteInfo fallbackRoute = sGlobal.chooseFallbackRoute();
+        if (sGlobal.getSelectedRoute() != fallbackRoute) {
+            sGlobal.selectRoute(fallbackRoute, reason);
+        } else {
+            sGlobal.selectRoute(sGlobal.getDefaultRoute(), reason);
+        }
     }
 
     /**
@@ -2430,7 +2437,7 @@ public final class MediaRouter {
             }
         }
 
-        private RouteInfo chooseFallbackRoute() {
+        RouteInfo chooseFallbackRoute() {
             // When the current route is removed or no longer selectable,
             // we want to revert to a live audio route if there is
             // one (usually Bluetooth A2DP).  Failing that, use
