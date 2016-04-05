@@ -50,7 +50,6 @@ public class PercentFrameTest extends BaseInstrumentationTestCase<TestFrameActiv
     }
 
     @Test
-    @UiThreadTest
     public void testWidthHeight() {
         View childToTest = mPercentFrameLayout.findViewById(R.id.child_width_height);
 
@@ -64,7 +63,6 @@ public class PercentFrameTest extends BaseInstrumentationTestCase<TestFrameActiv
     }
 
     @Test
-    @UiThreadTest
     public void testWidthAspectRatio() {
         View childToTest = mPercentFrameLayout.findViewById(R.id.child_width_ratio);
 
@@ -78,7 +76,6 @@ public class PercentFrameTest extends BaseInstrumentationTestCase<TestFrameActiv
     }
 
     @Test
-    @UiThreadTest
     public void testHeightAspectRatio() {
         View childToTest = mPercentFrameLayout.findViewById(R.id.child_height_ratio);
 
@@ -92,7 +89,6 @@ public class PercentFrameTest extends BaseInstrumentationTestCase<TestFrameActiv
     }
 
     @Test
-    @UiThreadTest
     public void testMarginsSingle() {
         View childToTest = mPercentFrameLayout.findViewById(R.id.child_margins_single);
 
@@ -112,7 +108,6 @@ public class PercentFrameTest extends BaseInstrumentationTestCase<TestFrameActiv
     }
 
     @Test
-    @UiThreadTest
     public void testMarginsMultiple() {
         View childToTest = mPercentFrameLayout.findViewById(R.id.child_margins_multiple);
 
@@ -132,7 +127,6 @@ public class PercentFrameTest extends BaseInstrumentationTestCase<TestFrameActiv
     }
 
     @Test
-    @UiThreadTest
     public void testMarginsTopLeft() {
         View childToTest = mPercentFrameLayout.findViewById(R.id.child_margins_top_left);
 
@@ -152,7 +146,6 @@ public class PercentFrameTest extends BaseInstrumentationTestCase<TestFrameActiv
     }
 
     @Test
-    @UiThreadTest
     public void testMarginsBottomRight() {
         View childToTest = mPercentFrameLayout.findViewById(R.id.child_margins_bottom_right);
 
@@ -172,7 +165,6 @@ public class PercentFrameTest extends BaseInstrumentationTestCase<TestFrameActiv
     }
 
     @Test
-    @UiThreadTest
     public void testMarginStart() throws Throwable {
         View childToTest = mPercentFrameLayout.findViewById(R.id.child_margin_start);
 
@@ -183,7 +175,6 @@ public class PercentFrameTest extends BaseInstrumentationTestCase<TestFrameActiv
     }
 
     @Test
-    @UiThreadTest
     public void testMarginStartRtl() throws Throwable {
         View childToTest = mPercentFrameLayout.findViewById(R.id.child_margin_start);
 
@@ -216,7 +207,6 @@ public class PercentFrameTest extends BaseInstrumentationTestCase<TestFrameActiv
     }
 
     @Test
-    @UiThreadTest
     public void testMarginEnd() throws Throwable {
         View childToTest = mPercentFrameLayout.findViewById(R.id.child_margin_end);
 
@@ -227,7 +217,6 @@ public class PercentFrameTest extends BaseInstrumentationTestCase<TestFrameActiv
     }
 
     @Test
-    @UiThreadTest
     public void testMarginEndRtl() throws Throwable {
         View childToTest = mPercentFrameLayout.findViewById(R.id.child_margin_end);
 
