@@ -23,8 +23,6 @@ import org.junit.runner.RunWith;
 
 import android.graphics.Rect;
 import android.support.annotation.NonNull;
-import android.os.Debug;
-import android.support.annotation.NonNull;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.view.ViewCompat;
 import android.test.suitebuilder.annotation.MediumTest;
@@ -50,6 +48,38 @@ import static org.junit.Assert.*;
 public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
 
     final List<TestViewHolder> recycledVHs = new ArrayList<>();
+
+    @Test
+    public void keepFocusAfterChangeAnimation() throws Throwable {
+        setupBasic(10, 0, 5, new TestAdapter(10) {
+            @Override
+            public void onBindViewHolder(TestViewHolder holder,
+                    int position) {
+                super.onBindViewHolder(holder, position);
+                holder.itemView.setFocusableInTouchMode(true);
+            }
+        });
+        ((SimpleItemAnimator)(mRecyclerView.getItemAnimator())).setSupportsChangeAnimations(true);
+
+        final RecyclerView.ViewHolder oldVh = mRecyclerView.findViewHolderForAdapterPosition(3);
+        assertNotNull("test sanity", oldVh);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                oldVh.itemView.requestFocus();
+            }
+        });
+        assertTrue("test sanity", oldVh.itemView.hasFocus());
+        mLayoutManager.expectLayouts(2);
+        mTestAdapter.changeAndNotify(3, 1);
+        mLayoutManager.waitForLayout(2);
+
+        RecyclerView.ViewHolder newVh = mRecyclerView.findViewHolderForAdapterPosition(3);
+        assertNotNull("test sanity", newVh);
+        assertNotSame(oldVh, newVh);
+        assertFalse(oldVh.itemView.hasFocus());
+        assertTrue(newVh.itemView.hasFocus());
+    }
 
     @Test
     public void changeAndDisappearDontReUseViewHolder() throws Throwable {

@@ -285,6 +285,7 @@ package android.support.v7.widget {
     method public android.support.v7.widget.RecyclerView.LayoutManager getLayoutManager();
     method public int getMaxFlingVelocity();
     method public int getMinFlingVelocity();
+    method public boolean getPreserveFocusAfterLayout();
     method public android.support.v7.widget.RecyclerView.RecycledViewPool getRecycledViewPool();
     method public int getScrollState();
     method public boolean hasFixedSize();
@@ -315,6 +316,7 @@ package android.support.v7.widget {
     method public void setLayoutFrozen(boolean);
     method public void setLayoutManager(android.support.v7.widget.RecyclerView.LayoutManager);
     method public deprecated void setOnScrollListener(android.support.v7.widget.RecyclerView.OnScrollListener);
+    method public void setPreserveFocusAfterLayout(boolean);
     method public void setRecycledViewPool(android.support.v7.widget.RecyclerView.RecycledViewPool);
     method public void setRecyclerListener(android.support.v7.widget.RecyclerView.RecyclerListener);
     method public void setScrollingTouchSlop(int);
