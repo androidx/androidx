@@ -21,11 +21,57 @@ SUPPORT_API_CHECK := $(LOCAL_PATH)/apicheck.mk
 api_check_current_msg_file := $(LOCAL_PATH)/apicheck_msg_current.txt
 api_check_last_msg_file := $(LOCAL_PATH)/apicheck_msg_last.txt
 
+###########################################################
+# Find all of the files in the given subdirs that match the
+# specified pattern but do not match another pattern. This
+# function uses $(1) instead of LOCAL_PATH as the base.
+# $(1): the base dir, relative to the root of the source tree.
+# $(2): the file name pattern to match.
+# $(3): the file name pattern to exclude.
+# $(4): a list of subdirs of the base dir.
+# Returns: a list of paths relative to the base dir.
+###########################################################
+
+define find-files-in-subdirs-exclude
+$(sort $(patsubst ./%,%, \
+  $(shell cd $(1) ; \
+          find -L $(4) -name $(2) -and -not -name $(3) -and -not -name ".*") \
+ ))
+endef
+
+###########################################################
+## Find all of the files under the named directories where
+## the file name matches the specified pattern but does not
+## match another pattern. Meant to be used like:
+##    SRC_FILES := $(call all-named-files-under,.*\.h,src tests)
+###########################################################
+
+define all-named-files-under-exclude
+$(call find-files-in-subdirs-exclude,$(LOCAL_PATH),"$(1)","$(2)",$(3))
+endef
+
+###########################################################
+## Find all of the files under the current directory where
+## the file name matches the specified pattern but does not
+## match another pattern.
+###########################################################
+
+define all-subdir-named-files-exclude
+$(call all-named-files-under-exclude,$(1),$(2),.)
+endef
+
+
+# Pre-process support library AIDLs
+aidl_files := $(addprefix $(LOCAL_PATH)/, $(call all-subdir-named-files-exclude,*.aidl,I*.aidl))
+support-aidl := $(TARGET_OUT_COMMON_INTERMEDIATES)/support.aidl
+$(support-aidl): $(aidl_files) | $(AIDL)
+	$(AIDL) --preprocess $@ $(aidl_files)
+
 .PHONY: update-support-api
 .PHONY: check-support-api
 
 # Run the check-support-api task on a SDK build
-sdk: check-support-api
+sdk: check-support-api $(support-aidl)
 
 # Build all support libraries
 include $(call all-makefiles-under,$(LOCAL_PATH))
