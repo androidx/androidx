@@ -526,6 +526,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         int mScrollVerticallyAmount;
         int mScrollHorizontallyAmount;
         protected CountDownLatch layoutLatch;
+        private boolean mSupportsPredictive = false;
 
         public void expectLayouts(int count) {
             layoutLatch = new CountDownLatch(count);
@@ -539,6 +540,19 @@ abstract public class BaseRecyclerViewInstrumentationTest {
             if (waitForIdle) {
                 getInstrumentation().waitForIdleSync();
             }
+        }
+
+        public boolean isSupportsPredictive() {
+            return mSupportsPredictive;
+        }
+
+        public void setSupportsPredictive(boolean supportsPredictive) {
+            mSupportsPredictive = supportsPredictive;
+        }
+
+        @Override
+        public boolean supportsPredictiveItemAnimations() {
+            return mSupportsPredictive;
         }
 
         public void waitForLayout(long timeout, TimeUnit timeUnit)
