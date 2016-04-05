@@ -3514,6 +3514,48 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         jumpingJackSmoothScrollerTest(false);
     }
 
+    @Test
+    public void testScrollByBeforeFirstLayout() throws Throwable {
+        final RecyclerView recyclerView = new RecyclerView(getActivity());
+        TestAdapter adapter = new TestAdapter(10);
+        recyclerView.setLayoutManager(new TestLayoutManager() {
+            AtomicBoolean didLayout = new AtomicBoolean(false);
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                super.onLayoutChildren(recycler, state);
+                didLayout.set(true);
+            }
+
+            @Override
+            public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler,
+                    RecyclerView.State state) {
+                assertThat("should run layout before scroll",
+                        didLayout.get(), CoreMatchers.is(true));
+                return super.scrollVerticallyBy(dy, recycler, state);
+            }
+
+            @Override
+            public boolean canScrollVertically() {
+                return true;
+            }
+        });
+        recyclerView.setAdapter(adapter);
+
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    setRecyclerView(recyclerView);
+                    recyclerView.scrollBy(10, 19);
+                } catch (Throwable throwable) {
+                    postExceptionToInstrumentation(throwable);
+                }
+            }
+        });
+
+        checkForMainThreadException();
+    }
+
     private void jumpingJackSmoothScrollerTest(final boolean succeed) throws Throwable {
         final List<Integer> receivedScrollToPositions = new ArrayList<>();
         final TestAdapter testAdapter = new TestAdapter(200);
