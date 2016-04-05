@@ -73,7 +73,6 @@ public class PercentRelativeTest extends BaseInstrumentationTestCase<TestRelativ
     }
 
     @Test
-    @UiThreadTest
     public void testTopChild() {
         final View childToTest = mPercentRelativeLayout.findViewById(R.id.child_top);
 
@@ -95,7 +94,6 @@ public class PercentRelativeTest extends BaseInstrumentationTestCase<TestRelativ
     }
 
     @Test
-    @UiThreadTest
     public void testLeftChild() {
         final View childToTest = mPercentRelativeLayout.findViewById(R.id.child_left);
 
@@ -117,7 +115,6 @@ public class PercentRelativeTest extends BaseInstrumentationTestCase<TestRelativ
     }
 
     @Test
-    @UiThreadTest
     public void testBottomChild() {
         final View childToTest = mPercentRelativeLayout.findViewById(R.id.child_bottom);
 
@@ -139,7 +136,6 @@ public class PercentRelativeTest extends BaseInstrumentationTestCase<TestRelativ
     }
 
     @Test
-    @UiThreadTest
     public void testRightChild() {
         final View childToTest = mPercentRelativeLayout.findViewById(R.id.child_right);
 
@@ -161,7 +157,6 @@ public class PercentRelativeTest extends BaseInstrumentationTestCase<TestRelativ
     }
 
     @Test
-    @UiThreadTest
     public void testCenterChild() {
         final View childToTest = mPercentRelativeLayout.findViewById(R.id.child_center);
 

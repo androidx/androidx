@@ -18,6 +18,7 @@ package android.support.percent;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.support.annotation.NonNull;
 import android.support.v4.view.MarginLayoutParamsCompat;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
@@ -77,7 +78,10 @@ public class PercentLayoutHelper {
 
     private final ViewGroup mHost;
 
-    public PercentLayoutHelper(ViewGroup host) {
+    public PercentLayoutHelper(@NonNull ViewGroup host) {
+        if (host == null) {
+            throw new IllegalArgumentException("host must be non-null");
+        }
         mHost = host;
     }
 
@@ -105,8 +109,11 @@ public class PercentLayoutHelper {
                     + View.MeasureSpec.toString(heightMeasureSpec));
         }
 
-        int widthHint = View.MeasureSpec.getSize(widthMeasureSpec);
-        int heightHint = View.MeasureSpec.getSize(heightMeasureSpec);
+        // Calculate available space, accounting for host's paddings
+        int widthHint = View.MeasureSpec.getSize(widthMeasureSpec) - mHost.getPaddingLeft()
+                - mHost.getPaddingRight();
+        int heightHint = View.MeasureSpec.getSize(heightMeasureSpec) - mHost.getPaddingTop()
+                - mHost.getPaddingBottom();
         for (int i = 0, N = mHost.getChildCount(); i < N; i++) {
             View view = mHost.getChildAt(i);
             ViewGroup.LayoutParams params = view.getLayoutParams();
