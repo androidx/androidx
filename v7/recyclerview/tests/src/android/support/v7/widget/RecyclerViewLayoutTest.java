@@ -3638,7 +3638,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         }
     }
 
-    private static interface AdapterRunnable {
+    public interface AdapterRunnable {
 
         void run(TestAdapter adapter) throws Throwable;
     }

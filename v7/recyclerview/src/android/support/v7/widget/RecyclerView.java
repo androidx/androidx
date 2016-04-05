@@ -376,6 +376,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     private final int mMaxFlingVelocity;
     // This value is used when handling generic motion events.
     private float mScrollFactor = Float.MIN_VALUE;
+    private boolean mPreserveFocusAfterLayout = true;
 
     private final ViewFlinger mViewFlinger = new ViewFlinger();
 
@@ -2917,6 +2918,75 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         dispatchLayoutStep3();
     }
 
+    private void saveFocusInfo() {
+        View child = null;
+        if (mPreserveFocusAfterLayout && hasFocus() && mAdapter != null) {
+            child = getFocusedChild();
+        }
+
+        final ViewHolder focusedVh = child == null ? null : findContainingViewHolder(child);
+        if (focusedVh == null) {
+            resetFocusInfo();
+        } else {
+            mState.mFocusedItemId = mAdapter.hasStableIds() ? focusedVh.getItemId() : NO_ID;
+            mState.mFocusedItemPosition = mDataSetHasChangedAfterLayout ? NO_POSITION :
+                    focusedVh.getAdapterPosition();
+            mState.mFocusedSubChildId = getDeepestFocusedViewWithId(focusedVh.itemView);
+        }
+    }
+
+    private void resetFocusInfo() {
+        mState.mFocusedItemId = NO_ID;
+        mState.mFocusedItemPosition = NO_POSITION;
+        mState.mFocusedSubChildId = View.NO_ID;
+    }
+
+    private void recoverFocusFromState() {
+        if (!mPreserveFocusAfterLayout || mAdapter == null || !hasFocus()) {
+            return;
+        }
+        // only recover focus if RV itself has the focus or the focused view is hidden
+        if (!isFocused()) {
+            final View focusedChild = getFocusedChild();
+            if (focusedChild == null || !mChildHelper.isHidden(focusedChild)) {
+                return;
+            }
+        }
+        ViewHolder focusTarget = null;
+        if (mState.mFocusedItemPosition != NO_POSITION) {
+            focusTarget = findViewHolderForAdapterPosition(mState.mFocusedItemPosition);
+        }
+        if (focusTarget == null && mState.mFocusedItemId != NO_ID && mAdapter.hasStableIds()) {
+            focusTarget = findViewHolderForItemId(mState.mFocusedItemId);
+        }
+        if (focusTarget == null || focusTarget.itemView.hasFocus() ||
+                !focusTarget.itemView.hasFocusable()) {
+            return;
+        }
+        // looks like the focused item has been replaced with another view that represents the
+        // same item in the adapter. Request focus on that.
+        View viewToFocus = focusTarget.itemView;
+        if (mState.mFocusedSubChildId != NO_ID) {
+            View child = focusTarget.itemView.findViewById(mState.mFocusedSubChildId);
+            if (child != null && child.isFocusable()) {
+                viewToFocus = child;
+            }
+        }
+        viewToFocus.requestFocus();
+    }
+
+    private int getDeepestFocusedViewWithId(View view) {
+        int lastKnownId = view.getId();
+        while (!view.isFocused() && view instanceof ViewGroup && view.hasFocus()) {
+            view = ((ViewGroup) view).getFocusedChild();
+            final int id = view.getId();
+            if (id != View.NO_ID) {
+                lastKnownId = view.getId();
+            }
+        }
+        return lastKnownId;
+    }
+
     /**
      * The first step of a layout where we;
      * - process adapter updates
@@ -2930,7 +3000,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         eatRequestLayout();
         mViewInfoStore.clear();
         onEnterLayoutOrScroll();
-
+        saveFocusInfo();
         processAdapterUpdatesAndSetAnimationFlags();
         mState.mTrackOldChangeHolders = mState.mRunSimpleAnimations && mItemsChanged;
         mItemsAddedOrRemoved = mItemsChanged = false;
@@ -3114,6 +3184,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         if (didChildRangeChange(mMinMaxLayoutPositions[0], mMinMaxLayoutPositions[1])) {
             dispatchOnScrolled(0, 0);
         }
+        recoverFocusFromState();
+        resetFocusInfo();
     }
 
     /**
@@ -3599,6 +3671,39 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
         markItemDecorInsetsDirty();
         requestLayout();
+    }
+
+    /**
+     * Returns true if the RecyclerView should attempt to preserve currently focused Adapter Item's
+     * focus even if the View representing the Item is replaced during a layout calculation.
+     * <p>
+     * By default, this value is {@code true}.
+     *
+     * @return True if the RecyclerView will try to preserve focused Item after a layout if it loses
+     * focus.
+     *
+     * @see #setPreserveFocusAfterLayout(boolean)
+     */
+    public boolean getPreserveFocusAfterLayout() {
+        return mPreserveFocusAfterLayout;
+    }
+
+    /**
+     * Set whether the RecyclerView should try to keep the same Item focused after a layout
+     * calculation or not.
+     * <p>
+     * Usually, LayoutManagers keep focused views visible before and after layout but sometimes,
+     * views may lose focus during a layout calculation as their state changes or they are replaced
+     * with another view due to type change or animation. In these cases, RecyclerView can request
+     * focus on the new view automatically.
+     *
+     * @param preserveFocusAfterLayout Whether RecyclerView should preserve focused Item during a
+     *                                 layout calculations. Defaults to true.
+     *
+     * @see #getPreserveFocusAfterLayout()
+     */
+    public void setPreserveFocusAfterLayout(boolean preserveFocusAfterLayout) {
+        mPreserveFocusAfterLayout = preserveFocusAfterLayout;
     }
 
     /**
@@ -10179,6 +10284,17 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         private boolean mTrackOldChangeHolders = false;
 
         private boolean mIsMeasuring = false;
+
+        /**
+         * This data is saved before a layout calculation happens. After the layout is finished,
+         * if the previously focused view has been replaced with another view for the same item, we
+         * move the focus to the new item automatically.
+         */
+        int mFocusedItemPosition;
+        long mFocusedItemId;
+        // when a sub child has focus, record its id and see if we can directly request focus on
+        // that one instead
+        int mFocusedSubChildId;
 
         State reset() {
             mTargetPosition = RecyclerView.NO_POSITION;
