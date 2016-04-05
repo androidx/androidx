@@ -30,6 +30,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.os.BuildCompat;
 import android.support.v4.os.EnvironmentCompat;
 import android.util.Log;
+import android.util.TypedValue;
 
 import java.io.File;
 
@@ -45,6 +46,10 @@ public class ContextCompat {
     private static final String DIR_OBB = "obb";
     private static final String DIR_FILES = "files";
     private static final String DIR_CACHE = "cache";
+
+    private static final Object sLock = new Object();
+
+    private static TypedValue sTempValue;
 
     /**
      * Start a set of activities as a synthesized task stack, if able.
@@ -350,12 +355,17 @@ public class ContextCompat {
         } else {
             // Prior to JELLY_BEAN, Resources.getDrawable() would not correctly
             // retrieve the final configuration density when the resource ID
-            // is a reference another Drawable resource. As a workaround,
-            // obtain the drawable via TypedArray.
-            final TypedArray ta = context.obtainStyledAttributes(new int[] { id });
-            final Drawable dr = ta.getDrawable(0);
-            ta.recycle();
-            return dr;
+            // is a reference another Drawable resource. As a workaround, try
+            // to resolve the drawable reference manually.
+            final int resolvedId;
+            synchronized (sLock) {
+                if (sTempValue == null) {
+                    sTempValue = new TypedValue();
+                }
+                context.getResources().getValue(id, sTempValue, true);
+                resolvedId = sTempValue.resourceId;
+            }
+            return context.getResources().getDrawable(resolvedId);
         }
     }
 
