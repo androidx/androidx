@@ -28,6 +28,7 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Drawable.ConstantState;
 import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
@@ -162,9 +163,9 @@ public final class AppCompatDrawableManager {
     private ArrayMap<String, InflateDelegate> mDelegates;
     private SparseArray<String> mKnownDrawableIdTags;
 
-    private final Object mDelegateDrawableCacheLock = new Object();
+    private final Object mDrawableCacheLock = new Object();
     private final WeakHashMap<Context, LongSparseArray<WeakReference<Drawable.ConstantState>>>
-            mDelegateDrawableCaches = new WeakHashMap<>(0);
+            mDrawableCaches = new WeakHashMap<>(0);
 
     private TypedValue mTypedValue;
 
@@ -180,8 +181,12 @@ public final class AppCompatDrawableManager {
 
         Drawable drawable = loadDrawableFromDelegates(context, resId);
         if (drawable == null) {
+            drawable = createDrawableIfNeeded(context, resId);
+        }
+        if (drawable == null) {
             drawable = ContextCompat.getDrawable(context, resId);
         }
+
         if (drawable != null) {
             // Tint it if needed
             drawable = tintDrawable(context, resId, failIfNotKnown, drawable);
@@ -191,6 +196,56 @@ public final class AppCompatDrawableManager {
             DrawableUtils.fixDrawable(drawable);
         }
         return drawable;
+    }
+
+    private static long createCacheKey(TypedValue tv) {
+        return (((long) tv.assetCookie) << 32) | tv.data;
+    }
+
+    private Drawable createDrawableIfNeeded(@NonNull Context context,
+            @DrawableRes final int resId) {
+        if (mTypedValue == null) {
+            mTypedValue = new TypedValue();
+        }
+        final TypedValue tv = mTypedValue;
+        context.getResources().getValue(resId, tv, true);
+        final long key = createCacheKey(tv);
+
+        Drawable dr = getCachedDrawable(context, key);
+        if (dr != null) {
+            // If we got a cached drawable, return it
+            return dr;
+        }
+
+        // Else we need to try and create one...
+        if (resId == R.drawable.abc_cab_background_top_material) {
+            dr = new LayerDrawable(new Drawable[]{
+                    getDrawable(context, R.drawable.abc_cab_background_internal_bg),
+                    getDrawable(context, R.drawable.abc_cab_background_top_mtrl_alpha)
+            });
+        } else if (resId == R.drawable.abc_btn_check_material) {
+            final StateListDrawable sld = new StateListDrawable();
+            sld.addState(ThemeUtils.CHECKED_STATE_SET,
+                    getDrawable(context, R.drawable.abc_btn_checkbox_checked_mtrl));
+            sld.addState(ThemeUtils.EMPTY_STATE_SET,
+                    getDrawable(context, R.drawable.abc_btn_checkbox_unchecked_mtrl));
+            dr = sld;
+        } else if (resId == R.drawable.abc_btn_radio_material) {
+            final StateListDrawable sld = new StateListDrawable();
+            sld.addState(ThemeUtils.CHECKED_STATE_SET,
+                    getDrawable(context, R.drawable.abc_btn_radio_on_mtrl));
+            sld.addState(ThemeUtils.EMPTY_STATE_SET,
+                    getDrawable(context, R.drawable.abc_btn_radio_off_mtrl));
+            dr = sld;
+        }
+
+        if (dr != null) {
+            dr.setChangingConfigurations(tv.changingConfigurations);
+            // If we reached here then we created a new drawable, add it to the cache
+            addDrawableToCache(context, key, dr);
+        }
+
+        return dr;
     }
 
     private Drawable tintDrawable(@NonNull Context context, @DrawableRes int resId,
@@ -209,11 +264,6 @@ public final class AppCompatDrawableManager {
             if (tintMode != null) {
                 DrawableCompat.setTintMode(drawable, tintMode);
             }
-        } else if (resId == R.drawable.abc_cab_background_top_material) {
-            return new LayerDrawable(new Drawable[]{
-                    getDrawable(context, R.drawable.abc_cab_background_internal_bg),
-                    getDrawable(context, R.drawable.abc_cab_background_top_mtrl_alpha)
-            });
         } else if (resId == R.drawable.abc_seekbar_track_material) {
             LayerDrawable ld = (LayerDrawable) drawable;
             setPorterDuffColorFilter(ld.findDrawableByLayerId(android.R.id.background),
@@ -266,14 +316,13 @@ public final class AppCompatDrawableManager {
             if (mTypedValue == null) {
                 mTypedValue = new TypedValue();
             }
-
             final TypedValue tv = mTypedValue;
             final Resources res = context.getResources();
             res.getValue(resId, tv, true);
 
-            final long key = (((long) tv.assetCookie) << 32) | tv.data;
+            final long key = createCacheKey(tv);
 
-            Drawable dr = getCachedDelegateDrawable(context, key);
+            Drawable dr = getCachedDrawable(context, key);
             if (dr != null) {
                 if (DEBUG) {
                     Log.i(TAG, "[loadDrawableFromDelegates] Returning cached drawable: " +
@@ -310,7 +359,7 @@ public final class AppCompatDrawableManager {
                     if (dr != null) {
                         // Add it to the drawable cache
                         dr.setChangingConfigurations(tv.changingConfigurations);
-                        if (addCachedDelegateDrawable(context, key, dr) && DEBUG) {
+                        if (addDrawableToCache(context, key, dr) && DEBUG) {
                             Log.i(TAG, "[loadDrawableFromDelegates] Saved drawable to cache: " +
                                     context.getResources().getResourceName(resId));
                         }
@@ -330,10 +379,10 @@ public final class AppCompatDrawableManager {
         return null;
     }
 
-    private Drawable getCachedDelegateDrawable(@NonNull final Context context, final long key) {
-        synchronized (mDelegateDrawableCacheLock) {
+    private Drawable getCachedDrawable(@NonNull final Context context, final long key) {
+        synchronized (mDrawableCacheLock) {
             final LongSparseArray<WeakReference<ConstantState>> cache
-                    = mDelegateDrawableCaches.get(context);
+                    = mDrawableCaches.get(context);
             if (cache == null) {
                 return null;
             }
@@ -353,16 +402,15 @@ public final class AppCompatDrawableManager {
         return null;
     }
 
-    private boolean addCachedDelegateDrawable(@NonNull final Context context, final long key,
+    private boolean addDrawableToCache(@NonNull final Context context, final long key,
             @NonNull final Drawable drawable) {
         final ConstantState cs = drawable.getConstantState();
         if (cs != null) {
-            synchronized (mDelegateDrawableCacheLock) {
-                LongSparseArray<WeakReference<ConstantState>> cache
-                        = mDelegateDrawableCaches.get(context);
+            synchronized (mDrawableCacheLock) {
+                LongSparseArray<WeakReference<ConstantState>> cache = mDrawableCaches.get(context);
                 if (cache == null) {
                     cache = new LongSparseArray<>();
-                    mDelegateDrawableCaches.put(context, cache);
+                    mDrawableCaches.put(context, cache);
                 }
                 cache.put(key, new WeakReference<ConstantState>(cs));
             }
@@ -371,19 +419,7 @@ public final class AppCompatDrawableManager {
         return false;
     }
 
-    public final Drawable onDrawableLoadedFromResources(@NonNull Context context,
-            @NonNull TintResources resources, @DrawableRes final int resId) {
-        Drawable drawable = loadDrawableFromDelegates(context, resId);
-        if (drawable == null) {
-            drawable = resources.superGetDrawable(resId);
-        }
-        if (drawable != null) {
-            return tintDrawable(context, resId, false, drawable);
-        }
-        return null;
-    }
-
-    private static boolean tintDrawableUsingColorFilter(@NonNull Context context,
+    static boolean tintDrawableUsingColorFilter(@NonNull Context context,
             @DrawableRes final int resId, @NonNull Drawable drawable) {
         PorterDuff.Mode tintMode = DEFAULT_MODE;
         boolean colorAttrSet = false;

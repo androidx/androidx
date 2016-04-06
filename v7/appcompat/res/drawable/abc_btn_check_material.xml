@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_checked="true" android:drawable="@drawable/abc_btn_checkbox_checked_mtrl" />
-    <item android:drawable="@drawable/abc_btn_checkbox_unchecked_mtrl" />
-</selector>
+<!-- This is a dummy drawable so that we can refer to the drawable ID -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@android:color/white"/>
+</shape>
