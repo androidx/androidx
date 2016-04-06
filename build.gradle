@@ -114,6 +114,7 @@ Extra.Path=m2repository\n\
 Archive.Arch=ANY\n\
 Extra.NameDisplay=Android Support Repository\n\
 Archive.Os=ANY\n\
+Pkg.Desc=Local Maven repository for Support Libraries\n\
 Pkg.Revision=${project.ext.extraVersion}.0.0\n\
 Extra.VendorId=android"
 
