@@ -63,6 +63,7 @@ import static android.support.v7.widget.RecyclerView.SCROLL_STATE_SETTLING;
 import static android.support.v7.widget.RecyclerView.getChildViewHolderInt;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
+import static org.hamcrest.CoreMatchers.is;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
@@ -77,6 +78,147 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
     public RecyclerViewLayoutTest() {
         super(DEBUG);
+    }
+
+    @Test
+    public void boundingBoxNoTranslation() throws Throwable {
+        transformedBoundingBoxTest(new ViewRunnable() {
+            @Override
+            public void run(View view) throws RuntimeException {
+                view.layout(10, 10, 30, 50);
+                assertThat(getTransformedBoundingBox(view), is(new Rect(10, 10, 30, 50)));
+            }
+        });
+    }
+
+    @Test
+    public void boundingBoxTranslateX() throws Throwable {
+        transformedBoundingBoxTest(new ViewRunnable() {
+            @Override
+            public void run(View view) throws RuntimeException {
+                view.layout(10, 10, 30, 50);
+                ViewCompat.setTranslationX(view, 10);
+                assertThat(getTransformedBoundingBox(view), is(new Rect(20, 10, 40, 50)));
+            }
+        });
+    }
+
+    @Test
+    public void boundingBoxTranslateY() throws Throwable {
+        transformedBoundingBoxTest(new ViewRunnable() {
+            @Override
+            public void run(View view) throws RuntimeException {
+                view.layout(10, 10, 30, 50);
+                ViewCompat.setTranslationY(view, 10);
+                assertThat(getTransformedBoundingBox(view), is(new Rect(10, 20, 30, 60)));
+            }
+        });
+    }
+
+    @Test
+    public void boundingBoxScaleX() throws Throwable {
+        transformedBoundingBoxTest(new ViewRunnable() {
+            @Override
+            public void run(View view) throws RuntimeException {
+                view.layout(10, 10, 30, 50);
+                ViewCompat.setScaleX(view, 2);
+                assertThat(getTransformedBoundingBox(view), is(new Rect(0, 10, 40, 50)));
+            }
+        });
+    }
+
+    @Test
+    public void boundingBoxScaleY() throws Throwable {
+        transformedBoundingBoxTest(new ViewRunnable() {
+            @Override
+            public void run(View view) throws RuntimeException {
+                view.layout(10, 10, 30, 50);
+                ViewCompat.setScaleY(view, 2);
+                assertThat(getTransformedBoundingBox(view), is(new Rect(10, -10, 30, 70)));
+            }
+        });
+    }
+
+    @Test
+    public void boundingBoxRotated() throws Throwable {
+        transformedBoundingBoxTest(new ViewRunnable() {
+            @Override
+            public void run(View view) throws RuntimeException {
+                view.layout(10, 10, 30, 50);
+                ViewCompat.setRotation(view, 90);
+                assertThat(getTransformedBoundingBox(view), is(new Rect(0, 20, 40, 40)));
+            }
+        });
+    }
+
+    @Test
+    public void boundingBoxRotatedWithDecorOffsets() throws Throwable {
+        final RecyclerView recyclerView = new RecyclerView(getActivity());
+        final TestAdapter adapter = new TestAdapter(1);
+        recyclerView.setAdapter(adapter);
+        recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
+                    RecyclerView.State state) {
+                outRect.set(1, 2, 3, 4);
+            }
+        });
+        TestLayoutManager layoutManager = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                detachAndScrapAttachedViews(recycler);
+                View view = recycler.getViewForPosition(0);
+                addView(view);
+                view.measure(
+                        View.MeasureSpec.makeMeasureSpec(20, View.MeasureSpec.EXACTLY),
+                        View.MeasureSpec.makeMeasureSpec(40, View.MeasureSpec.EXACTLY)
+                );
+                // trigger decor offsets calculation
+                calculateItemDecorationsForChild(view, new Rect());
+                view.layout(10, 10, 30, 50);
+                ViewCompat.setRotation(view, 90);
+                assertThat(RecyclerViewLayoutTest.this.getTransformedBoundingBox(view),
+                        is(new Rect(-4, 19, 42, 43)));
+
+                layoutLatch.countDown();
+            }
+        };
+        recyclerView.setLayoutManager(layoutManager);
+        layoutManager.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        layoutManager.waitForLayout(2);
+        checkForMainThreadException();
+    }
+
+    private Rect getTransformedBoundingBox(View child) {
+        Rect rect = new Rect();
+        mRecyclerView.getLayoutManager().getTransformedBoundingBox(child, true, rect);
+        return rect;
+    }
+
+    public void transformedBoundingBoxTest(final ViewRunnable layout) throws Throwable {
+        final RecyclerView recyclerView = new RecyclerView(getActivity());
+        final TestAdapter adapter = new TestAdapter(1);
+        recyclerView.setAdapter(adapter);
+        TestLayoutManager layoutManager = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                detachAndScrapAttachedViews(recycler);
+                View view = recycler.getViewForPosition(0);
+                addView(view);
+                view.measure(
+                        View.MeasureSpec.makeMeasureSpec(20, View.MeasureSpec.EXACTLY),
+                        View.MeasureSpec.makeMeasureSpec(40, View.MeasureSpec.EXACTLY)
+                );
+                layout.run(view);
+                layoutLatch.countDown();
+            }
+        };
+        recyclerView.setLayoutManager(layoutManager);
+        layoutManager.expectLayouts(1);
+        setRecyclerView(recyclerView);
+        layoutManager.waitForLayout(2);
+        checkForMainThreadException();
     }
 
     @Test
@@ -3719,5 +3861,9 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         public void attachViewToParent(View child, int index, ViewGroup.LayoutParams params) {
             super.attachViewToParent(child, index, params);
         }
+    }
+
+    private static interface ViewRunnable {
+        void run(View view) throws RuntimeException;
     }
 }

@@ -1837,7 +1837,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
     private void recycleFromStart(RecyclerView.Recycler recycler, int line) {
         while (getChildCount() > 0) {
             View child = getChildAt(0);
-            if (mPrimaryOrientation.getDecoratedEnd(child) <= line) {
+            if (mPrimaryOrientation.getDecoratedEnd(child) <= line &&
+                    mPrimaryOrientation.getTransformedEndWithDecoration(child) <= line) {
                 LayoutParams lp = (LayoutParams) child.getLayoutParams();
                 // Don't recycle the last View in a span not to lose span's start/end lines
                 if (lp.mFullSpan) {
@@ -1867,7 +1868,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         int i;
         for (i = childCount - 1; i >= 0; i--) {
             View child = getChildAt(i);
-            if (mPrimaryOrientation.getDecoratedStart(child) >= line) {
+            if (mPrimaryOrientation.getDecoratedStart(child) >= line &&
+                    mPrimaryOrientation.getTransformedStartWithDecoration(child) >= line) {
                 LayoutParams lp = (LayoutParams) child.getLayoutParams();
                 // Don't recycle the last View in a span not to lose span's start/end lines
                 if (lp.mFullSpan) {

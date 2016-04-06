@@ -2527,6 +2527,7 @@ package android.support.v4.view {
     method public static int getLabelFor(android.view.View);
     method public static int getLayerType(android.view.View);
     method public static int getLayoutDirection(android.view.View);
+    method public static android.graphics.Matrix getMatrix(android.view.View);
     method public static int getMeasuredHeightAndState(android.view.View);
     method public static int getMeasuredState(android.view.View);
     method public static int getMeasuredWidthAndState(android.view.View);
