@@ -25,20 +25,13 @@ import java.lang.ref.WeakReference;
 
 /**
  * This class allows us to intercept calls so that we can tint resources (if applicable).
- *
- * @hide
  */
-public class TintResources extends Resources {
-
-    /**
-     * The maximum API level where this class is needed.
-     */
-    public static final int MAX_SDK_WHERE_REQUIRED = 20;
+class TintResources extends ResourcesWrapper {
 
     private final WeakReference<Context> mContextRef;
 
-    public TintResources(@NonNull final Context context, @NonNull final Resources res) {
-        super(res.getAssets(), res.getDisplayMetrics(), res.getConfiguration());
+    public TintResources(@NonNull Context context, @NonNull final Resources res) {
+        super(res);
         mContextRef = new WeakReference<>(context);
     }
 
@@ -49,15 +42,11 @@ public class TintResources extends Resources {
      */
     @Override
     public Drawable getDrawable(int id) throws NotFoundException {
-        final Context context = mContextRef.get();
-        if (context != null) {
-            return AppCompatDrawableManager.get().onDrawableLoadedFromResources(context, this, id);
-        } else {
-            return super.getDrawable(id);
+        Drawable d = super.getDrawable(id);
+        Context context = mContextRef.get();
+        if (d != null && context != null) {
+            AppCompatDrawableManager.get().tintDrawableUsingColorFilter(context, id, d);
         }
-    }
-
-    final Drawable superGetDrawable(int id) {
-        return super.getDrawable(id);
+        return d;
     }
 }
