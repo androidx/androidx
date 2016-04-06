@@ -1647,6 +1647,8 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
     @Override
     public void onAttachedToWindow() {
+        super.onAttachedToWindow();
+
         mIsLaidOut = false;
     }
 
