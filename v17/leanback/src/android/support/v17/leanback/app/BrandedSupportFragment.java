@@ -241,4 +241,8 @@ class BrandedSupportFragment extends Fragment {
             mTitleView.enableAnimation(true);
         }
     }
+
+    public final boolean isShowingTitle() {
+        return mShowingTitle;
+    }
 }
