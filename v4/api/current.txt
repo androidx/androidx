@@ -770,6 +770,7 @@ package android.support.v4.app {
     method public int getCustomSizePreset();
     method public android.app.PendingIntent getDisplayIntent();
     method public int getGravity();
+    method public boolean getHintAmbientBigPicture();
     method public boolean getHintAvoidBackgroundClipping();
     method public boolean getHintContentIntentLaunchesActivity();
     method public boolean getHintHideIcon();
@@ -786,6 +787,7 @@ package android.support.v4.app {
     method public android.support.v4.app.NotificationCompat.WearableExtender setCustomSizePreset(int);
     method public android.support.v4.app.NotificationCompat.WearableExtender setDisplayIntent(android.app.PendingIntent);
     method public android.support.v4.app.NotificationCompat.WearableExtender setGravity(int);
+    method public android.support.v4.app.NotificationCompat.WearableExtender setHintAmbientBigPicture(boolean);
     method public android.support.v4.app.NotificationCompat.WearableExtender setHintAvoidBackgroundClipping(boolean);
     method public android.support.v4.app.NotificationCompat.WearableExtender setHintContentIntentLaunchesActivity(boolean);
     method public android.support.v4.app.NotificationCompat.WearableExtender setHintHideIcon(boolean);
