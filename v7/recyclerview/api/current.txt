@@ -555,6 +555,7 @@ package android.support.v7.widget {
     method public void onItemsUpdated(android.support.v7.widget.RecyclerView, int, int);
     method public void onItemsUpdated(android.support.v7.widget.RecyclerView, int, int, java.lang.Object);
     method public void onLayoutChildren(android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State);
+    method public void onLayoutCompleted(android.support.v7.widget.RecyclerView.State);
     method public void onMeasure(android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State, int, int);
     method public deprecated boolean onRequestChildFocus(android.support.v7.widget.RecyclerView, android.view.View, android.view.View);
     method public boolean onRequestChildFocus(android.support.v7.widget.RecyclerView, android.support.v7.widget.RecyclerView.State, android.view.View, android.view.View);

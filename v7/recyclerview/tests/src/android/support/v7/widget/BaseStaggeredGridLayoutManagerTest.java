@@ -113,7 +113,7 @@ public class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstrume
     void waitFirstLayout() throws Throwable {
         mLayoutManager.expectLayouts(1);
         setRecyclerView(mRecyclerView);
-        mLayoutManager.waitForLayout(2);
+        mLayoutManager.waitForLayout(3);
         getInstrumentation().waitForIdleSync();
     }
 

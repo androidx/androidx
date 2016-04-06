@@ -172,9 +172,12 @@ public class GridLayoutManager extends LinearLayoutManager {
             validateChildOrder();
         }
         clearPreLayoutSpanMappingCache();
-        if (!state.isPreLayout()) {
-            mPendingSpanCountChange = false;
-        }
+    }
+
+    @Override
+    public void onLayoutCompleted(RecyclerView.State state) {
+        super.onLayoutCompleted(state);
+        mPendingSpanCountChange = false;
     }
 
     private void clearPreLayoutSpanMappingCache() {
