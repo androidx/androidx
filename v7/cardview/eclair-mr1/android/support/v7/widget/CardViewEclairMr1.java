@@ -78,11 +78,11 @@ class CardViewEclairMr1 implements CardViewImpl {
         RoundRectDrawableWithShadow background = createBackground(context, backgroundColor, radius,
                 elevation, maxElevation);
         background.setAddPaddingForCorners(cardView.getPreventCornerOverlap());
-        cardView.setBackgroundDrawable(background);
+        cardView.setCardBackground(background);
         updatePadding(cardView);
     }
 
-    RoundRectDrawableWithShadow createBackground(Context context, int backgroundColor,
+    private RoundRectDrawableWithShadow createBackground(Context context, int backgroundColor,
             float radius, float elevation, float maxElevation) {
         return new RoundRectDrawableWithShadow(context.getResources(), backgroundColor, radius,
                 elevation, maxElevation);
@@ -157,6 +157,6 @@ class CardViewEclairMr1 implements CardViewImpl {
     }
 
     private RoundRectDrawableWithShadow getShadowBackground(CardViewDelegate cardView) {
-        return ((RoundRectDrawableWithShadow) cardView.getBackground());
+        return ((RoundRectDrawableWithShadow) cardView.getCardBackground());
     }
 }
