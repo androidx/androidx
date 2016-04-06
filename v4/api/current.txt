@@ -782,6 +782,7 @@ package android.support.v4.app {
   }
 
   public final class NotificationManagerCompat {
+    method public boolean areNotificationsEnabled();
     method public void cancel(int);
     method public void cancel(java.lang.String, int);
     method public void cancelAll();
@@ -791,6 +792,16 @@ package android.support.v4.app {
     method public void notify(java.lang.String, int, android.app.Notification);
     field public static final java.lang.String ACTION_BIND_SIDE_CHANNEL = "android.support.BIND_NOTIFICATION_SIDE_CHANNEL";
     field public static final java.lang.String EXTRA_USE_SIDE_CHANNEL = "android.support.useSideChannel";
+  }
+
+  public class NotificationManagerCompatApi24 {
+    ctor public NotificationManagerCompatApi24();
+    method public static boolean areNotificationsEnabled(android.app.NotificationManager);
+  }
+
+  public class NotificationManagerCompatKitKat {
+    ctor public NotificationManagerCompatKitKat();
+    method public static boolean areNotificationsEnabled(android.content.Context);
   }
 
   public final class RemoteInput extends android.support.v4.app.RemoteInputCompatBase.RemoteInput {
