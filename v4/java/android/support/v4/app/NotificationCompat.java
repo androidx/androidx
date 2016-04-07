@@ -16,6 +16,7 @@
 
 package android.support.v4.app;
 
+import android.app.Activity;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -2001,6 +2002,7 @@ public class NotificationCompat {
 
             // Flags bitwise-ored to mFlags
             private static final int FLAG_AVAILABLE_OFFLINE = 0x1;
+            private static final int FLAG_HINT_LAUNCHES_ACTIVITY = 1 << 1;
 
             // Default value for flags integer
             private static final int DEFAULT_FLAGS = FLAG_AVAILABLE_OFFLINE;
@@ -2162,6 +2164,30 @@ public class NotificationCompat {
              */
             public CharSequence getCancelLabel() {
                 return mCancelLabel;
+            }
+
+            /**
+             * Set a hint that this Action will launch an {@link Activity} directly, telling the
+             * platform that it can generate the appropriate transitions.
+             * @param hintLaunchesActivity {@code true} if the content intent will launch
+             * an activity and transitions should be generated, false otherwise.
+             * @return this object for method chaining
+             */
+            public WearableExtender setHintContentIntentLaunchesActivity(
+                    boolean hintLaunchesActivity) {
+                setFlag(FLAG_HINT_LAUNCHES_ACTIVITY, hintLaunchesActivity);
+                return this;
+            }
+
+            /**
+             * Get a hint that this Action will launch an {@link Activity} directly, telling the
+             * platform that it can generate the appropriate transitions
+             * @return {@code true} if the content intent will launch an activity and transitions
+             * should be generated, false otherwise. The default value is {@code false} if this was
+             * never set.
+             */
+            public boolean getHintContentIntentLaunchesActivity() {
+                return (mFlags & FLAG_HINT_LAUNCHES_ACTIVITY) != 0;
             }
         }
 
@@ -2326,6 +2352,7 @@ public class NotificationCompat {
         private static final int FLAG_HINT_SHOW_BACKGROUND_ONLY = 1 << 2;
         private static final int FLAG_START_SCROLL_BOTTOM = 1 << 3;
         private static final int FLAG_HINT_AVOID_BACKGROUND_CLIPPING = 1 << 4;
+        private static final int FLAG_HINT_CONTENT_INTENT_LAUNCHES_ACTIVITY = 1 << 6;
 
         // Default value for flags integer
         private static final int DEFAULT_FLAGS = FLAG_CONTENT_INTENT_AVAILABLE_OFFLINE;
@@ -2895,6 +2922,29 @@ public class NotificationCompat {
          */
         public int getHintScreenTimeout() {
             return mHintScreenTimeout;
+        }
+
+        /**
+         * Set a hint that this notification's content intent will launch an {@link Activity}
+         * directly, telling the platform that it can generate the appropriate transitions.
+         * @param hintContentIntentLaunchesActivity {@code true} if the content intent will launch
+         * an activity and transitions should be generated, false otherwise.
+         * @return this object for method chaining
+         */
+        public WearableExtender setHintContentIntentLaunchesActivity(
+                boolean hintContentIntentLaunchesActivity) {
+            setFlag(FLAG_HINT_CONTENT_INTENT_LAUNCHES_ACTIVITY, hintContentIntentLaunchesActivity);
+            return this;
+        }
+
+        /**
+         * Get a hint that this notification's content intent will launch an {@link Activity}
+         * directly, telling the platform that it can generate the appropriate transitions
+         * @return {@code true} if the content intent will launch an activity and transitions should
+         * be generated, false otherwise. The default value is {@code false} if this was never set.
+         */
+        public boolean getHintContentIntentLaunchesActivity() {
+            return (mFlags & FLAG_HINT_CONTENT_INTENT_LAUNCHES_ACTIVITY) != 0;
         }
 
         private void setFlag(int mask, boolean value) {
