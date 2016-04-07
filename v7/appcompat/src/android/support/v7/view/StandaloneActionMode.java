@@ -129,7 +129,7 @@ public class StandaloneActionMode extends ActionMode implements MenuBuilder.Call
 
     @Override
     public MenuInflater getMenuInflater() {
-        return new MenuInflater(mContextView.getContext());
+        return new SupportMenuInflater(mContextView.getContext());
     }
 
     public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
