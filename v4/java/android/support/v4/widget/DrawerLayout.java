@@ -1583,6 +1583,16 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
      * @param drawerView Drawer view to open
      */
     public void openDrawer(View drawerView) {
+        openDrawer(drawerView, true);
+    }
+
+    /**
+     * Open the specified drawer view.
+     *
+     * @param drawerView Drawer view to open
+     * @param animate Whether opening of the drawer should be animated.
+     */
+    public void openDrawer(View drawerView, boolean animate) {
         if (!isDrawerView(drawerView)) {
             throw new IllegalArgumentException("View " + drawerView + " is not a sliding drawer");
         }
@@ -1593,7 +1603,7 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
             lp.openState = LayoutParams.FLAG_IS_OPENED;
 
             updateChildrenImportantForAccessibility(drawerView, true);
-        } else {
+        } else if (animate) {
             lp.openState |= LayoutParams.FLAG_IS_OPENING;
 
             if (checkDrawerViewAbsoluteGravity(drawerView, Gravity.LEFT)) {
@@ -1602,6 +1612,10 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
                 mRightDragger.smoothSlideViewTo(drawerView, getWidth() - drawerView.getWidth(),
                         drawerView.getTop());
             }
+        } else {
+            moveDrawerToOffset(drawerView, 1.f);
+            updateDrawerState(lp.gravity, STATE_IDLE, drawerView);
+            drawerView.setVisibility(VISIBLE);
         }
         invalidate();
     }
@@ -1613,12 +1627,23 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
      *                GravityCompat.START or GravityCompat.END may also be used.
      */
     public void openDrawer(@EdgeGravity int gravity) {
+        openDrawer(gravity, true);
+    }
+
+    /**
+     * Open the specified drawer.
+     *
+     * @param gravity Gravity.LEFT to move the left drawer or Gravity.RIGHT for the right.
+     *                GravityCompat.START or GravityCompat.END may also be used.
+     * @param animate Whether opening of the drawer should be animated.
+     */
+    public void openDrawer(@EdgeGravity int gravity, boolean animate) {
         final View drawerView = findDrawerWithGravity(gravity);
         if (drawerView == null) {
             throw new IllegalArgumentException("No drawer view found with gravity " +
                     gravityToString(gravity));
         }
-        openDrawer(drawerView);
+        openDrawer(drawerView, animate);
     }
 
     /**
@@ -1627,6 +1652,16 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
      * @param drawerView Drawer view to close
      */
     public void closeDrawer(View drawerView) {
+        closeDrawer(drawerView, true);
+    }
+
+    /**
+     * Close the specified drawer view.
+     *
+     * @param drawerView Drawer view to close
+     * @param animate Whether closing of the drawer should be animated.
+     */
+    public void closeDrawer(View drawerView, boolean animate) {
         if (!isDrawerView(drawerView)) {
             throw new IllegalArgumentException("View " + drawerView + " is not a sliding drawer");
         }
@@ -1635,7 +1670,7 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
         if (mFirstLayout) {
             lp.onScreen = 0.f;
             lp.openState = 0;
-        } else {
+        } else if (animate) {
             lp.openState |= LayoutParams.FLAG_IS_CLOSING;
 
             if (checkDrawerViewAbsoluteGravity(drawerView, Gravity.LEFT)) {
@@ -1644,6 +1679,10 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
             } else {
                 mRightDragger.smoothSlideViewTo(drawerView, getWidth(), drawerView.getTop());
             }
+        } else {
+            moveDrawerToOffset(drawerView, 0.f);
+            updateDrawerState(lp.gravity, STATE_IDLE, drawerView);
+            drawerView.setVisibility(INVISIBLE);
         }
         invalidate();
     }
@@ -1655,12 +1694,23 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
      *                GravityCompat.START or GravityCompat.END may also be used.
      */
     public void closeDrawer(@EdgeGravity int gravity) {
+        closeDrawer(gravity, true);
+    }
+
+    /**
+     * Close the specified drawer.
+     *
+     * @param gravity Gravity.LEFT to move the left drawer or Gravity.RIGHT for the right.
+     *                GravityCompat.START or GravityCompat.END may also be used.
+     * @param animate Whether closing of the drawer should be animated.
+     */
+    public void closeDrawer(@EdgeGravity int gravity, boolean animate) {
         final View drawerView = findDrawerWithGravity(gravity);
         if (drawerView == null) {
             throw new IllegalArgumentException("No drawer view found with gravity " +
                     gravityToString(gravity));
         }
-        closeDrawer(drawerView);
+        closeDrawer(drawerView, animate);
     }
 
     /**

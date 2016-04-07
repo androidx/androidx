@@ -80,6 +80,20 @@ public class DrawerLayoutTest extends BaseInstrumentationTestCase<DrawerLayoutAc
 
     @Test
     @MediumTest
+    public void testDrawerOpenCloseNoAnimationViaAPI() {
+        assertFalse("Initial state", mDrawerLayout.isDrawerOpen(GravityCompat.START));
+
+        for (int i = 0; i < 5; i++) {
+            onView(withId(R.id.drawer_layout)).perform(openDrawer(GravityCompat.START, false));
+            assertTrue("Opened drawer #" + i, mDrawerLayout.isDrawerOpen(GravityCompat.START));
+
+            onView(withId(R.id.drawer_layout)).perform(closeDrawer(GravityCompat.START, false));
+            assertFalse("Closed drawer #" + i, mDrawerLayout.isDrawerOpen(GravityCompat.START));
+        }
+    }
+
+    @Test
+    @MediumTest
     public void testDrawerOpenCloseWithRedundancyViaAPI() {
         assertFalse("Initial state", mDrawerLayout.isDrawerOpen(GravityCompat.START));
 
@@ -97,6 +111,30 @@ public class DrawerLayoutTest extends BaseInstrumentationTestCase<DrawerLayoutAc
 
             // Try closing the drawer when it's already closed
             onView(withId(R.id.drawer_layout)).perform(closeDrawer(GravityCompat.START));
+            assertFalse("Closed drawer is still closed #" + i,
+                    mDrawerLayout.isDrawerOpen(GravityCompat.START));
+        }
+    }
+
+    @Test
+    @MediumTest
+    public void testDrawerOpenCloseNoAnimationWithRedundancyViaAPI() {
+        assertFalse("Initial state", mDrawerLayout.isDrawerOpen(GravityCompat.START));
+
+        for (int i = 0; i < 5; i++) {
+            onView(withId(R.id.drawer_layout)).perform(openDrawer(GravityCompat.START, false));
+            assertTrue("Opened drawer #" + i, mDrawerLayout.isDrawerOpen(GravityCompat.START));
+
+            // Try opening the drawer when it's already opened
+            onView(withId(R.id.drawer_layout)).perform(openDrawer(GravityCompat.START, false));
+            assertTrue("Opened drawer is still opened #" + i,
+                    mDrawerLayout.isDrawerOpen(GravityCompat.START));
+
+            onView(withId(R.id.drawer_layout)).perform(closeDrawer(GravityCompat.START, false));
+            assertFalse("Closed drawer #" + i, mDrawerLayout.isDrawerOpen(GravityCompat.START));
+
+            // Try closing the drawer when it's already closed
+            onView(withId(R.id.drawer_layout)).perform(closeDrawer(GravityCompat.START, false));
             assertFalse("Closed drawer is still closed #" + i,
                     mDrawerLayout.isDrawerOpen(GravityCompat.START));
         }
@@ -239,6 +277,35 @@ public class DrawerLayoutTest extends BaseInstrumentationTestCase<DrawerLayoutAc
 
     @Test
     @SmallTest
+    public void testDrawerListenerCallbacksOnOpeningNoAnimationViaAPI() {
+        // Register a mock listener
+        DrawerLayout.DrawerListener mockedListener = mock(DrawerLayout.DrawerListener.class);
+        mDrawerLayout.addDrawerListener(mockedListener);
+
+        // Open the drawer so it becomes visible
+        onView(withId(R.id.drawer_layout)).perform(openDrawer(GravityCompat.START, false));
+
+        // We expect that our listener has been notified that the drawer has been opened
+        // with the reference to our drawer
+        verify(mockedListener, times(1)).onDrawerOpened(mStartDrawer);
+        // We expect that our listener has not been notified that the drawer has been closed
+        verify(mockedListener, never()).onDrawerClosed(any(View.class));
+
+        verify(mockedListener, times(1)).onDrawerSlide(any(View.class), eq(1f));
+
+        // Request to open the drawer again
+        onView(withId(R.id.drawer_layout)).perform(openDrawer(GravityCompat.START, false));
+
+        // We expect that our listener has not been notified again that the drawer has been opened
+        verify(mockedListener, times(1)).onDrawerOpened(mStartDrawer);
+        // We expect that our listener has not been notified that the drawer has been closed
+        verify(mockedListener, never()).onDrawerClosed(any(View.class));
+
+        mDrawerLayout.removeDrawerListener(mockedListener);
+    }
+
+    @Test
+    @SmallTest
     public void testDrawerListenerCallbacksOnClosingViaAPI() {
         // Open the drawer so it becomes visible
         onView(withId(R.id.drawer_layout)).perform(openDrawer(GravityCompat.START));
@@ -273,6 +340,38 @@ public class DrawerLayoutTest extends BaseInstrumentationTestCase<DrawerLayoutAc
         InOrder inOrder = inOrder(mockedListener);
         inOrder.verify(mockedListener).onDrawerStateChanged(DrawerLayout.STATE_SETTLING);
         inOrder.verify(mockedListener).onDrawerStateChanged(DrawerLayout.STATE_IDLE);
+
+        mDrawerLayout.removeDrawerListener(mockedListener);
+    }
+
+    @Test
+    @SmallTest
+    public void testDrawerListenerCallbacksOnClosingNoAnimationViaAPI() {
+        // Open the drawer so it becomes visible
+        onView(withId(R.id.drawer_layout)).perform(openDrawer(GravityCompat.START, false));
+
+        // Register a mock listener
+        DrawerLayout.DrawerListener mockedListener = mock(DrawerLayout.DrawerListener.class);
+        mDrawerLayout.addDrawerListener(mockedListener);
+
+        // Close the drawer
+        onView(withId(R.id.drawer_layout)).perform(closeDrawer(GravityCompat.START, false));
+
+        // We expect that our listener has not been notified that the drawer has been opened
+        verify(mockedListener, never()).onDrawerOpened(any(View.class));
+        // We expect that our listener has been notified that the drawer has been closed
+        // with the reference to our drawer
+        verify(mockedListener, times(1)).onDrawerClosed(mStartDrawer);
+
+        verify(mockedListener, times(1)).onDrawerSlide(any(View.class), eq(0f));
+
+        // Attempt to close the drawer again.
+        onView(withId(R.id.drawer_layout)).perform(closeDrawer(GravityCompat.START, false));
+
+        // We expect that our listener has not been notified that the drawer has been opened
+        verify(mockedListener, never()).onDrawerOpened(any(View.class));
+        // We expect that our listener has not been notified again that the drawer has been closed
+        verify(mockedListener, times(1)).onDrawerClosed(mStartDrawer);
 
         mDrawerLayout.removeDrawerListener(mockedListener);
     }
