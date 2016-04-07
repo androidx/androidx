@@ -46,4 +46,8 @@ class TextViewCompatJbMr1 {
                 bottom);
     }
 
+    static Drawable[] getCompoundDrawablesRelative(@NonNull TextView textView) {
+        return textView.getCompoundDrawablesRelative();
+    }
+
 }

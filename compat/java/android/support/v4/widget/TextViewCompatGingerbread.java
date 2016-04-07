@@ -16,6 +16,8 @@
 
 package android.support.v4.widget;
 
+import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -94,5 +96,9 @@ class TextViewCompatGingerbread {
 
     static void setTextAppearance(TextView textView, int resId) {
         textView.setTextAppearance(textView.getContext(), resId);
+    }
+
+    static Drawable[] getCompoundDrawablesRelative(@NonNull TextView textView) {
+        return textView.getCompoundDrawables();
     }
 }
