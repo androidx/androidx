@@ -34,6 +34,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
 import android.provider.Settings;
+import android.support.v4.os.BuildCompat;
 import android.util.Log;
 
 import java.util.HashMap;
@@ -118,6 +119,8 @@ public final class NotificationManagerCompat {
                 Notification notification);
 
         int getSideChannelBindFlags();
+
+        boolean areNotificationsEnabled(Context context, NotificationManager notificationManager);
     }
 
     static class ImplBase implements Impl {
@@ -136,6 +139,12 @@ public final class NotificationManagerCompat {
         @Override
         public int getSideChannelBindFlags() {
             return Service.BIND_AUTO_CREATE;
+        }
+
+        @Override
+        public boolean areNotificationsEnabled(Context context,
+                NotificationManager notificationManager) {
+            return true;
         }
     }
 
@@ -161,8 +170,28 @@ public final class NotificationManagerCompat {
         }
     }
 
+    static class ImplKitKat extends ImplIceCreamSandwich {
+        @Override
+        public boolean areNotificationsEnabled(Context context,
+                NotificationManager notificationManager) {
+            return NotificationManagerCompatKitKat.areNotificationsEnabled(context);
+        }
+    }
+
+    static class ImplApi24 extends ImplKitKat {
+        @Override
+        public boolean areNotificationsEnabled(Context context,
+                NotificationManager notificationManager) {
+            return NotificationManagerCompatApi24.areNotificationsEnabled(notificationManager);
+        }
+    }
+
     static {
-        if (Build.VERSION.SDK_INT >= 14) {
+        if (BuildCompat.isAtLeastN()) {
+            IMPL = new ImplApi24();
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            IMPL = new ImplKitKat();
+        }  else if (Build.VERSION.SDK_INT >= 14) {
             IMPL = new ImplIceCreamSandwich();
         } else if (Build.VERSION.SDK_INT >= 5) {
             IMPL = new ImplEclair();
@@ -224,6 +253,13 @@ public final class NotificationManagerCompat {
         } else {
             IMPL.postNotification(mNotificationManager, tag, id, notification);
         }
+    }
+
+    /**
+     * Returns whether notifications from the calling package are not blocked.
+     */
+    public boolean areNotificationsEnabled() {
+        return IMPL.areNotificationsEnabled(mContext, mNotificationManager);
     }
 
     /**
