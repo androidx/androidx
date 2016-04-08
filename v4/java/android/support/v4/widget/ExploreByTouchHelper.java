@@ -108,10 +108,6 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
     private final Rect mTempVisibleRect = new Rect();
     private final int[] mTempGlobalRect = new int[2];
 
-    /** Cache of accessibility nodes. This is populated on-demand. */
-    private final SparseArrayCompat<AccessibilityNodeInfoCompat> mCachedNodes =
-            new SparseArrayCompat<>();
-
     /** System accessibility manager, used to check state and send events. */
     private final AccessibilityManager mManager;
 
@@ -374,9 +370,11 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      *         by this helper, or {@code false} otherwise
      */
     private boolean moveFocus(@FocusDirection int direction, @Nullable Rect previouslyFocusedRect) {
+        final SparseArrayCompat<AccessibilityNodeInfoCompat> allNodes = getAllNodes();
+
         final int focusedNodeId = mKeyboardFocusedVirtualViewId;
         final AccessibilityNodeInfoCompat focusedNode =
-                focusedNodeId == INVALID_ID ? null : mCachedNodes.get(focusedNodeId);
+                focusedNodeId == INVALID_ID ? null : allNodes.get(focusedNodeId);
 
         final AccessibilityNodeInfoCompat nextFocusedNode;
         switch (direction) {
@@ -384,7 +382,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
             case View.FOCUS_BACKWARD:
                 final boolean isLayoutRtl =
                         ViewCompat.getLayoutDirection(mHost) == ViewCompat.LAYOUT_DIRECTION_RTL;
-                nextFocusedNode = FocusStrategy.findNextFocusInRelativeDirection(mCachedNodes,
+                nextFocusedNode = FocusStrategy.findNextFocusInRelativeDirection(allNodes,
                         SPARSE_VALUES_ADAPTER, NODE_ADAPTER, focusedNode, direction, isLayoutRtl,
                         false);
                 break;
@@ -406,7 +404,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
                     // when moving UP or DOWN).
                     guessPreviouslyFocusedRect(mHost, direction, selectedRect);
                 }
-                nextFocusedNode = FocusStrategy.findNextFocusInAbsoluteDirection(mCachedNodes,
+                nextFocusedNode = FocusStrategy.findNextFocusInAbsoluteDirection(allNodes,
                         SPARSE_VALUES_ADAPTER, NODE_ADAPTER, focusedNode, selectedRect, direction);
                 break;
             default:
@@ -419,11 +417,24 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
         if (nextFocusedNode == null) {
             nextFocusedNodeId = INVALID_ID;
         } else {
-            final int index = mCachedNodes.indexOfValue(nextFocusedNode);
-            nextFocusedNodeId = mCachedNodes.keyAt(index);
+            final int index = allNodes.indexOfValue(nextFocusedNode);
+            nextFocusedNodeId = allNodes.keyAt(index);
         }
 
         return requestKeyboardFocusForVirtualView(nextFocusedNodeId);
+    }
+
+    private SparseArrayCompat<AccessibilityNodeInfoCompat> getAllNodes() {
+        final List<Integer> virtualViewIds = new ArrayList<>();
+        getVisibleVirtualViews(virtualViewIds);
+
+        final SparseArrayCompat<AccessibilityNodeInfoCompat> allNodes = new SparseArrayCompat<>();
+        for (int virtualViewId = 0; virtualViewId < virtualViewIds.size(); virtualViewId++) {
+            final AccessibilityNodeInfoCompat virtualView = createNodeForChild(virtualViewId);
+            allNodes.put(virtualViewId, virtualView);
+        }
+
+        return allNodes;
     }
 
     /**
@@ -553,21 +564,6 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      *         </ul>
      */
     public final void invalidateVirtualView(int virtualViewId, int changeTypes) {
-        final SparseArrayCompat<AccessibilityNodeInfoCompat> cachedNodes = mCachedNodes;
-        if (virtualViewId == HOST_ID
-                && (changeTypes & AccessibilityEventCompat.CONTENT_CHANGE_TYPE_SUBTREE) != 0) {
-            for (int i = 0, count = cachedNodes.size(); i < count; i++) {
-                cachedNodes.valueAt(i).recycle();
-            }
-            cachedNodes.clear();
-        } else {
-            final int index = cachedNodes.indexOfKey(virtualViewId);
-            if (index >= 0) {
-                cachedNodes.valueAt(index).recycle();
-                cachedNodes.removeAt(index);
-            }
-        }
-
         if (virtualViewId != INVALID_ID && mManager.isEnabled()) {
             final ViewParent parent = mHost.getParent();
             if (parent != null) {
@@ -722,19 +718,11 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      */
     @NonNull
     private AccessibilityNodeInfoCompat obtainAccessibilityNodeInfo(int virtualViewId) {
-        final AccessibilityNodeInfoCompat node;
-        final int cacheIndex = mCachedNodes.indexOfKey(virtualViewId);
-        if (cacheIndex >= 0) {
-            node = mCachedNodes.valueAt(cacheIndex);
-        } else if (virtualViewId == HOST_ID) {
-            node = createNodeForHost();
-        } else {
-            node = createNodeForChild(virtualViewId);
+        if (virtualViewId == HOST_ID) {
+            return createNodeForHost();
         }
 
-        mCachedNodes.put(virtualViewId, node);
-
-        return node;
+        return createNodeForChild(virtualViewId);
     }
 
     /**
