@@ -198,6 +198,5 @@
         <item name="onboardingPageIndicatorStyle">@style/Widget.Leanback.OnboardingPageIndicatorStyle</item>
         <item name="onboardingStartButtonStyle">@style/Widget.Leanback.OnboardingStartButtonStyle</item>
         <item name="onboardingLogoStyle">@style/Widget.Leanback.OnboardingLogoStyle</item>
-        <item name="onboardingNavigatorDotBgColor">@color/lb_page_indicator_dot</item>
     </style>
 </resources>
