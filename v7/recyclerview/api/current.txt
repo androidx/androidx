@@ -240,6 +240,8 @@ package android.support.v7.widget {
     method public abstract int getStartAfterPadding();
     method public abstract int getTotalSpace();
     method public int getTotalSpaceChange();
+    method public abstract int getTransformedEndWithDecoration(android.view.View);
+    method public abstract int getTransformedStartWithDecoration(android.view.View);
     method public abstract void offsetChild(android.view.View, int);
     method public abstract void offsetChildren(int);
     method public void onLayoutComplete();
@@ -517,6 +519,7 @@ package android.support.v7.widget {
     method public int getRowCountForAccessibility(android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State);
     method public int getSelectionModeForAccessibility(android.support.v7.widget.RecyclerView.Recycler, android.support.v7.widget.RecyclerView.State);
     method public int getTopDecorationHeight(android.view.View);
+    method public void getTransformedBoundingBox(android.view.View, boolean, android.graphics.Rect);
     method public int getWidth();
     method public int getWidthMode();
     method public boolean hasFocus();

@@ -22,10 +22,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import android.graphics.Rect;
+import android.support.v4.view.ViewCompat;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +37,15 @@ import static android.support.v7.widget.LayoutState.LAYOUT_END;
 import static android.support.v7.widget.LayoutState.LAYOUT_START;
 import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
 import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
+
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 
@@ -44,6 +53,7 @@ import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
  * Tests that rely on the basic configuration and does not do any additions / removals
  */
 @RunWith(Parameterized.class)
+@MediumTest
 public class LinearLayoutManagerBaseConfigSetTest extends BaseLinearLayoutManagerTest {
 
     private final Config mConfig;
@@ -63,7 +73,6 @@ public class LinearLayoutManagerBaseConfigSetTest extends BaseLinearLayoutManage
     }
 
     @Test
-    @MediumTest
     public void scrollToPositionWithOffsetTest() throws Throwable {
         Config config = ((Config) mConfig.clone()).itemCount(300);
         setupByConfig(config, true);
@@ -148,7 +157,6 @@ public class LinearLayoutManagerBaseConfigSetTest extends BaseLinearLayoutManage
     }
 
     @Test
-    @MediumTest
     public void getFirstLastChildrenTest() throws Throwable {
         final Config config = ((Config) mConfig.clone()).itemCount(300);
         setupByConfig(config, true);
@@ -224,6 +232,73 @@ public class LinearLayoutManagerBaseConfigSetTest extends BaseLinearLayoutManage
         runTestOnUiThread(viewInBoundsTest);
     }
 
+    @Test
+    public void dontRecycleViewsTranslatedOutOfBoundsFromStart() throws Throwable {
+        final Config config = ((Config) mConfig.clone()).itemCount(1000);
+        setupByConfig(config, true);
+        mLayoutManager.expectLayouts(1);
+        scrollToPosition(500);
+        mLayoutManager.waitForLayout(2);
+        final RecyclerView.ViewHolder vh = mRecyclerView.findViewHolderForAdapterPosition(500);
+        OrientationHelper helper = mLayoutManager.mOrientationHelper;
+        int gap = helper.getDecoratedStart(vh.itemView);
+        scrollBy(gap);
+        gap = helper.getDecoratedStart(vh.itemView);
+        assertThat("test sanity", gap, is(0));
+
+        final int size = helper.getDecoratedMeasurement(vh.itemView);
+        AttachDetachCollector collector = new AttachDetachCollector(mRecyclerView);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mConfig.mOrientation == HORIZONTAL) {
+                    ViewCompat.setTranslationX(vh.itemView, size * 2);
+                } else {
+                    ViewCompat.setTranslationY(vh.itemView, size * 2);
+                }
+            }
+        });
+        scrollBy(size * 2);
+        assertThat(collector.getDetached(), not(hasItem(sameInstance(vh.itemView))));
+        assertThat(vh.itemView.getParent(), is((ViewParent) mRecyclerView));
+        assertThat(vh.getAdapterPosition(), is(500));
+        scrollBy(size * 2);
+        assertThat(collector.getDetached(), hasItem(sameInstance(vh.itemView)));
+    }
+
+    @Test
+    public void dontRecycleViewsTranslatedOutOfBoundsFromEnd() throws Throwable {
+        final Config config = ((Config) mConfig.clone()).itemCount(1000);
+        setupByConfig(config, true);
+        mLayoutManager.expectLayouts(1);
+        scrollToPosition(500);
+        mLayoutManager.waitForLayout(2);
+        final RecyclerView.ViewHolder vh = mRecyclerView.findViewHolderForAdapterPosition(500);
+        OrientationHelper helper = mLayoutManager.mOrientationHelper;
+        int gap = helper.getEnd() - helper.getDecoratedEnd(vh.itemView);
+        scrollBy(-gap);
+        gap = helper.getEnd() - helper.getDecoratedEnd(vh.itemView);
+        assertThat("test sanity", gap, is(0));
+
+        final int size = helper.getDecoratedMeasurement(vh.itemView);
+        AttachDetachCollector collector = new AttachDetachCollector(mRecyclerView);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mConfig.mOrientation == HORIZONTAL) {
+                    ViewCompat.setTranslationX(vh.itemView, -size * 2);
+                } else {
+                    ViewCompat.setTranslationY(vh.itemView, -size * 2);
+                }
+            }
+        });
+        scrollBy(-size * 2);
+        assertThat(collector.getDetached(), not(hasItem(sameInstance(vh.itemView))));
+        assertThat(vh.itemView.getParent(), is((ViewParent) mRecyclerView));
+        assertThat(vh.getAdapterPosition(), is(500));
+        scrollBy(-size * 2);
+        assertThat(collector.getDetached(), hasItem(sameInstance(vh.itemView)));
+    }
 
     private TargetTuple findInvisibleTarget(Config config) {
         int minPosition = Integer.MAX_VALUE, maxPosition = Integer.MIN_VALUE;

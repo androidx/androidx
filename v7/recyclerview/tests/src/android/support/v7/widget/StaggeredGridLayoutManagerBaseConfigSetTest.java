@@ -25,9 +25,11 @@ import android.graphics.Rect;
 import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.v4.view.ViewCompat;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewParent;
 
 import java.util.Arrays;
 import java.util.BitSet;
@@ -38,8 +40,14 @@ import java.util.UUID;
 import static android.support.v7.widget.LayoutState.LAYOUT_START;
 import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
 import static android.support.v7.widget.StaggeredGridLayoutManager.HORIZONTAL;
+
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(Parameterized.class)
@@ -729,6 +737,78 @@ public class StaggeredGridLayoutManagerBaseConfigSetTest
     @Test
     public void consistentRelayoutWithFullSpanFirstChild() throws Throwable {
         consistentRelayoutTest(mConfig, true);
+    }
+
+    @Test
+    public void dontRecycleViewsTranslatedOutOfBoundsFromStart() throws Throwable {
+        final Config config = ((Config) mConfig.clone()).itemCount(1000);
+        setupByConfig(config);
+        waitFirstLayout();
+        // pick position from child count so that it is not too far away
+        int pos = mRecyclerView.getChildCount() * 2;
+        smoothScrollToPosition(pos, true);
+        final RecyclerView.ViewHolder vh = mRecyclerView.findViewHolderForAdapterPosition(pos);
+        OrientationHelper helper = mLayoutManager.mPrimaryOrientation;
+        int gap = helper.getDecoratedStart(vh.itemView);
+        scrollBy(gap);
+        gap = helper.getDecoratedStart(vh.itemView);
+        assertThat("test sanity", gap, is(0));
+
+        final int size = helper.getDecoratedMeasurement(vh.itemView);
+        AttachDetachCollector collector = new AttachDetachCollector(mRecyclerView);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mConfig.mOrientation == HORIZONTAL) {
+                    ViewCompat.setTranslationX(vh.itemView, size * 2);
+                } else {
+                    ViewCompat.setTranslationY(vh.itemView, size * 2);
+                }
+            }
+        });
+        scrollBy(size * 2);
+        assertThat(collector.getDetached(), not(hasItem(sameInstance(vh.itemView))));
+        assertThat(vh.itemView.getParent(), is((ViewParent) mRecyclerView));
+        assertThat(vh.getAdapterPosition(), is(pos));
+        scrollBy(size * 2);
+        assertThat(collector.getDetached(), hasItem(sameInstance(vh.itemView)));
+    }
+
+    @Test
+    public void dontRecycleViewsTranslatedOutOfBoundsFromEnd() throws Throwable {
+        final Config config = ((Config) mConfig.clone()).itemCount(1000);
+        setupByConfig(config);
+        waitFirstLayout();
+        // pick position from child count so that it is not too far away
+        int pos = mRecyclerView.getChildCount() * 2;
+        mLayoutManager.expectLayouts(1);
+        scrollToPosition(pos);
+        mLayoutManager.waitForLayout(2);
+        final RecyclerView.ViewHolder vh = mRecyclerView.findViewHolderForAdapterPosition(pos);
+        OrientationHelper helper = mLayoutManager.mPrimaryOrientation;
+        int gap = helper.getEnd() - helper.getDecoratedEnd(vh.itemView);
+        scrollBy(-gap);
+        gap = helper.getEnd() - helper.getDecoratedEnd(vh.itemView);
+        assertThat("test sanity", gap, is(0));
+
+        final int size = helper.getDecoratedMeasurement(vh.itemView);
+        AttachDetachCollector collector = new AttachDetachCollector(mRecyclerView);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mConfig.mOrientation == HORIZONTAL) {
+                    ViewCompat.setTranslationX(vh.itemView, -size * 2);
+                } else {
+                    ViewCompat.setTranslationY(vh.itemView, -size * 2);
+                }
+            }
+        });
+        scrollBy(-size * 2);
+        assertThat(collector.getDetached(), not(hasItem(sameInstance(vh.itemView))));
+        assertThat(vh.itemView.getParent(), is((ViewParent) mRecyclerView));
+        assertThat(vh.getAdapterPosition(), is(pos));
+        scrollBy(-size * 2);
+        assertThat(collector.getDetached(), hasItem(sameInstance(vh.itemView)));
     }
 
     public void consistentRelayoutTest(Config config, boolean firstChildMultiSpan)
