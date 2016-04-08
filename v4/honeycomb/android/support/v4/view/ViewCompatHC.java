@@ -17,6 +17,7 @@
 package android.support.v4.view;
 
 import android.animation.ValueAnimator;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.view.View;
 import android.view.ViewParent;
@@ -96,6 +97,10 @@ class ViewCompatHC {
 
     public static void setTranslationY(View view, float value) {
         view.setTranslationY(value);
+    }
+
+    public static Matrix getMatrix(View view) {
+        return view.getMatrix();
     }
 
     public static void setAlpha(View view, float value) {

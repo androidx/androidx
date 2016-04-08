@@ -21,8 +21,10 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.database.Observable;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -296,6 +298,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     };
 
     private final Rect mTempRect = new Rect();
+    private final RectF mTempRectF = new RectF();
     private Adapter mAdapter;
     @VisibleForTesting LayoutManager mLayout;
     private RecyclerListener mRecyclerListener;
@@ -7817,6 +7820,43 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             child.layout(left + insets.left + lp.leftMargin, top + insets.top + lp.topMargin,
                     right - insets.right - lp.rightMargin,
                     bottom - insets.bottom - lp.bottomMargin);
+        }
+
+        /**
+         * Calculates the bounding box of the View while taking into account its matrix changes
+         * (translation, scale etc) wrt to the RecyclerView.
+         * <p>
+         * If {@code includeDecorInsets} is {@code true}, they are applied first before applying
+         * the View's matrix so that the decor offsets also go through the same transformation.
+         *
+         * @param child The ItemView whose bounding box should be calculated.
+         * @param includeDecorInsets True if the decor insets should be included in the bounding box
+         * @param out The rectangle into which the output will be written.
+         */
+        public void getTransformedBoundingBox(View child, boolean includeDecorInsets, Rect out) {
+            if (includeDecorInsets) {
+                Rect insets = ((LayoutParams) child.getLayoutParams()).mDecorInsets;
+                out.set(-insets.left, -insets.top,
+                        child.getWidth() + insets.right, child.getHeight() + insets.bottom);
+            } else {
+                out.set(0, 0, child.getWidth(), child.getHeight());
+            }
+
+            if (mRecyclerView != null) {
+                final Matrix childMatrix = ViewCompat.getMatrix(child);
+                if (childMatrix != null && !childMatrix.isIdentity()) {
+                    final RectF tempRectF = mRecyclerView.mTempRectF;
+                    tempRectF.set(out);
+                    childMatrix.mapRect(tempRectF);
+                    out.set(
+                            (int) Math.floor(tempRectF.left),
+                            (int) Math.floor(tempRectF.top),
+                            (int) Math.ceil(tempRectF.right),
+                            (int) Math.ceil(tempRectF.bottom)
+                    );
+                }
+            }
+            out.offset(child.getLeft(), child.getTop());
         }
 
         /**

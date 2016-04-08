@@ -17,6 +17,7 @@
 package android.support.v4.view;
 
 import android.content.res.ColorStateList;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
@@ -410,6 +411,7 @@ public class ViewCompat {
         float getScaleY(View view);
         float getTranslationX(View view);
         float getTranslationY(View view);
+        @Nullable Matrix getMatrix(View view);
         int getMinimumWidth(View view);
         int getMinimumHeight(View view);
         ViewPropertyAnimatorCompat animate(View view);
@@ -736,6 +738,11 @@ public class ViewCompat {
         @Override
         public float getScaleY(View view) {
             return 0;
+        }
+
+        @Override
+        public Matrix getMatrix(View view) {
+            return null;
         }
 
         @Override
@@ -1180,6 +1187,12 @@ public class ViewCompat {
         public float getTranslationY(View view) {
             return ViewCompatHC.getTranslationY(view);
         }
+
+        @Override
+        public Matrix getMatrix(View view) {
+            return ViewCompatHC.getMatrix(view);
+        }
+
         @Override
         public void setTranslationX(View view, float value) {
             ViewCompatHC.setTranslationX(view, value);
@@ -2514,6 +2527,26 @@ public class ViewCompat {
      */
     public static float getTranslationY(View view) {
         return IMPL.getTranslationY(view);
+    }
+
+    /**
+     * The transform matrix of this view, which is calculated based on the current
+     * rotation, scale, and pivot properties.
+     * <p>
+     * Prior to 11, this method will return {@code null}.
+     *
+     * @param view The view whose Matrix will be returned
+     * @return The current transform matrix for the view
+     *
+     * @see #getRotation(View)
+     * @see #getScaleX(View)
+     * @see #getScaleY(View)
+     * @see #getPivotX(View)
+     * @see #getPivotY(View)
+     */
+    @Nullable
+    public static Matrix getMatrix(View view) {
+        return IMPL.getMatrix(view);
     }
 
     /**

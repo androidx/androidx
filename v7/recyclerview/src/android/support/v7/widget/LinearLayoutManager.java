@@ -20,6 +20,7 @@ import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 import android.content.Context;
 import android.graphics.PointF;
+import android.graphics.Rect;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.view.ViewCompat;
@@ -1227,6 +1228,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
 
     /**
      * Recycles views that went out of bounds after scrolling towards the end of the layout.
+     * <p>
+     * Checks both layout position and visible position to guarantee that the view is not visible.
      *
      * @param recycler Recycler instance of {@link android.support.v7.widget.RecyclerView}
      * @param dt       This can be used to add additional padding to the visible area. This is used
@@ -1247,7 +1250,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         if (mShouldReverseLayout) {
             for (int i = childCount - 1; i >= 0; i--) {
                 View child = getChildAt(i);
-                if (mOrientationHelper.getDecoratedEnd(child) > limit) {// stop here
+                if (mOrientationHelper.getDecoratedEnd(child) > limit
+                        || mOrientationHelper.getTransformedEndWithDecoration(child) > limit) {
+                    // stop here
                     recycleChildren(recycler, childCount - 1, i);
                     return;
                 }
@@ -1255,7 +1260,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         } else {
             for (int i = 0; i < childCount; i++) {
                 View child = getChildAt(i);
-                if (mOrientationHelper.getDecoratedEnd(child) > limit) {// stop here
+                if (mOrientationHelper.getDecoratedEnd(child) > limit
+                        || mOrientationHelper.getTransformedEndWithDecoration(child) > limit) {
+                    // stop here
                     recycleChildren(recycler, 0, i);
                     return;
                 }
@@ -1266,6 +1273,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
 
     /**
      * Recycles views that went out of bounds after scrolling towards the start of the layout.
+     * <p>
+     * Checks both layout position and visible position to guarantee that the view is not visible.
      *
      * @param recycler Recycler instance of {@link android.support.v7.widget.RecyclerView}
      * @param dt       This can be used to add additional padding to the visible area. This is used
@@ -1285,7 +1294,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         if (mShouldReverseLayout) {
             for (int i = 0; i < childCount; i++) {
                 View child = getChildAt(i);
-                if (mOrientationHelper.getDecoratedStart(child) < limit) {// stop here
+                if (mOrientationHelper.getDecoratedStart(child) < limit
+                        || mOrientationHelper.getTransformedStartWithDecoration(child) < limit) {
+                    // stop here
                     recycleChildren(recycler, 0, i);
                     return;
                 }
@@ -1293,7 +1304,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         } else {
             for (int i = childCount - 1; i >= 0; i--) {
                 View child = getChildAt(i);
-                if (mOrientationHelper.getDecoratedStart(child) < limit) {// stop here
+                if (mOrientationHelper.getDecoratedStart(child) < limit
+                        || mOrientationHelper.getTransformedStartWithDecoration(child) < limit) {
+                    // stop here
                     recycleChildren(recycler, childCount - 1, i);
                     return;
                 }
