@@ -51,4 +51,8 @@
         <item name="android:layout_width">192dp</item>
         <item name="android:layout_height">192dp</item>
     </style>
+
+    <style name="Widget.Example.Leanback.OnboardingPageIndicatorStyle" parent="Widget.Leanback.OnboardingPageIndicatorStyle">
+        <item name="dotBgColor">@color/page_indicator_dot</item>
+    </style>
 </resources>

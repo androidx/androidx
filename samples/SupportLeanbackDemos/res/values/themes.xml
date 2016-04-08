@@ -39,6 +39,6 @@
     </style>
     <style name="Theme.Example.Leanback.Onboarding" parent="Theme.Leanback.Onboarding">
         <item name="onboardingLogoStyle">@style/Widget.Example.Leanback.OnboardingLogoStyle</item>
-        <item name="onboardingNavigatorDotBgColor">@color/page_indicator_dot</item>
+        <item name="onboardingPageIndicatorStyle">@style/Widget.Example.Leanback.OnboardingPageIndicatorStyle</item>
     </style>
 </resources>
