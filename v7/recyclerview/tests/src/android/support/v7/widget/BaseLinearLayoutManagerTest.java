@@ -35,6 +35,11 @@ import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static org.junit.Assert.*;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
+
 public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
 
     protected static final boolean DEBUG = false;
@@ -347,8 +352,17 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
             layoutLatch = new CountDownLatch(count);
         }
 
-        public void waitForLayout(long timeout) throws InterruptedException {
-            waitForLayout(timeout, TimeUnit.SECONDS);
+        public void waitForLayout(int seconds) throws Throwable {
+            layoutLatch.await(seconds * (DEBUG ? 100 : 1), SECONDS);
+            checkForMainThreadException();
+            MatcherAssert.assertThat("all layouts should complete on time",
+                    layoutLatch.getCount(), CoreMatchers.is(0L));
+            // use a runnable to ensure RV layout is finished
+            getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                }
+            });
         }
 
         @Override
@@ -381,13 +395,6 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
                 mSecondaryOrientation = OrientationHelper.createOrientationHelper(this,
                         1 - getOrientation());
             }
-        }
-
-        private void waitForLayout(long timeout, TimeUnit timeUnit) throws InterruptedException {
-            layoutLatch.await(timeout * (DEBUG ? 100 : 1), timeUnit);
-            assertEquals("all expected layouts should be executed at the expected time",
-                    0, layoutLatch.getCount());
-            getInstrumentation().waitForIdleSync();
         }
 
         @Override

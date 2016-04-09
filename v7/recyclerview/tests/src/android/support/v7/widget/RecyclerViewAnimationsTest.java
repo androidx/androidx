@@ -171,6 +171,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
 
     @Test
     public void detectStableIdError() throws Throwable {
+        setIgnoreMainThreadException(true);
         final AtomicBoolean useBadIds = new AtomicBoolean(false);
         TestAdapter adapter = new TestAdapter(10) {
             @Override
@@ -192,14 +193,13 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         useBadIds.set(true);
         adapter.changeAndNotify(4, 2);
         mLayoutManager.waitForLayout(2);
-        assertTrue(mainThreadException instanceof IllegalStateException);
-        assertTrue(mainThreadException.getMessage()
+        assertTrue(getMainThreadException() instanceof IllegalStateException);
+        assertTrue(getMainThreadException().getMessage()
                 .contains("Two different ViewHolders have the same stable ID."));
         // TODO don't use this after moving this class to Junit 4
         try {
             removeRecyclerView();
         } catch (Throwable t){}
-        mainThreadException = null;
     }
 
 
@@ -1398,7 +1398,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         // add 2 items
         setExpectedItemCounts(1, 3);
         mTestAdapter.addAndNotify(0, 2);
-        mLayoutManager.waitForLayout(2, false);
+        mLayoutManager.waitForLayout(2);
         checkForMainThreadException();
         // wait till "add animation" starts
         int limit = 200;

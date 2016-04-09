@@ -24,17 +24,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 
-import android.app.Activity;
 import android.app.Instrumentation;
-import android.content.Intent;
 import android.graphics.Rect;
-import android.os.Handler;
 import android.os.Looper;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.recyclerview.test.SameActivityTestRule;
-import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -57,6 +53,8 @@ import android.support.v7.recyclerview.test.R;
 
 import static org.junit.Assert.*;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 abstract public class BaseRecyclerViewInstrumentationTest {
 
     private static final String TAG = "RecyclerViewTest";
@@ -67,7 +65,9 @@ abstract public class BaseRecyclerViewInstrumentationTest {
 
     protected AdapterHelper mAdapterHelper;
 
-    Throwable mainThreadException;
+    private Throwable mMainThreadException;
+
+    private boolean mIgnoreMainThreadException = false;
 
     Thread mInstrumentationThread;
 
@@ -88,9 +88,17 @@ abstract public class BaseRecyclerViewInstrumentationTest {
     }
 
     void checkForMainThreadException() throws Throwable {
-        if (mainThreadException != null) {
-            throw mainThreadException;
+        if (!mIgnoreMainThreadException && mMainThreadException != null) {
+            throw mMainThreadException;
         }
+    }
+
+    public void setIgnoreMainThreadException(boolean ignoreMainThreadException) {
+        mIgnoreMainThreadException = ignoreMainThreadException;
+    }
+
+    public Throwable getMainThreadException() {
+        return mMainThreadException;
     }
 
     protected TestActivity getActivity() {
@@ -172,11 +180,11 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         if (mInstrumentationThread == Thread.currentThread()) {
             throw new RuntimeException(t);
         }
-        if (mainThreadException != null) {
+        if (mMainThreadException != null) {
             Log.e(TAG, "receiving another main thread exception. dropping.", t);
         } else {
             Log.e(TAG, "captured exception on main thread", t);
-            mainThreadException = t;
+            mMainThreadException = t;
         }
 
         if (mRecyclerView != null && mRecyclerView
@@ -235,10 +243,13 @@ abstract public class BaseRecyclerViewInstrumentationTest {
             @Override
             public void run() {
                 try {
-                    final RecyclerView.Adapter adapter = mRecyclerView.getAdapter();
-                    if (adapter instanceof AttachDetachCountingAdapter) {
-                        ((AttachDetachCountingAdapter) adapter).getCounter()
-                                .validateRemaining(mRecyclerView);
+                    // do not run validation if we already have an error
+                    if (mMainThreadException == null) {
+                        final RecyclerView.Adapter adapter = mRecyclerView.getAdapter();
+                        if (adapter instanceof AttachDetachCountingAdapter) {
+                            ((AttachDetachCountingAdapter) adapter).getCounter()
+                                    .validateRemaining(mRecyclerView);
+                        }
                     }
                     getActivity().mContainer.removeAllViews();
                 } catch (Throwable t) {
@@ -505,23 +516,13 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         }
     }
     class DumbLayoutManager extends TestLayoutManager {
-        ReentrantLock mLayoutLock = new ReentrantLock();
-        public void blockLayout() {
-            mLayoutLock.lock();
-        }
-
-        public void unblockLayout() {
-            mLayoutLock.unlock();
-        }
         @Override
         public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
-            mLayoutLock.lock();
             detachAndScrapAttachedViews(recycler);
             layoutRange(recycler, 0, state.getItemCount());
             if (layoutLatch != null) {
                 layoutLatch.countDown();
             }
-            mLayoutLock.unlock();
         }
     }
     public class TestLayoutManager extends RecyclerView.LayoutManager {
@@ -534,14 +535,17 @@ abstract public class BaseRecyclerViewInstrumentationTest {
             layoutLatch = new CountDownLatch(count);
         }
 
-        public void waitForLayout(long timeout, TimeUnit timeUnit, boolean waitForIdle)
-                throws Throwable {
-            layoutLatch.await(timeout * (mDebug ? 100 : 1), timeUnit);
-            assertEquals("all expected layouts should be executed at the expected time",
-                    0, layoutLatch.getCount());
-            if (waitForIdle) {
-                getInstrumentation().waitForIdleSync();
-            }
+        public void waitForLayout(int seconds) throws Throwable {
+            layoutLatch.await(seconds * (mDebug ? 1000 : 1), SECONDS);
+            checkForMainThreadException();
+            MatcherAssert.assertThat("all layouts should complete on time",
+                    layoutLatch.getCount(), CoreMatchers.is(0L));
+            // use a runnable to ensure RV layout is finished
+            getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                }
+            });
         }
 
         public boolean isSupportsPredictive() {
@@ -557,11 +561,6 @@ abstract public class BaseRecyclerViewInstrumentationTest {
             return mSupportsPredictive;
         }
 
-        public void waitForLayout(long timeout, TimeUnit timeUnit)
-                throws Throwable {
-            waitForLayout(timeout, timeUnit, true);
-        }
-
         public void assertLayoutCount(int count, String msg, long timeout) throws Throwable {
             layoutLatch.await(timeout, TimeUnit.SECONDS);
             assertEquals(msg, count, layoutLatch.getCount());
@@ -570,14 +569,6 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         public void assertNoLayout(String msg, long timeout) throws Throwable {
             layoutLatch.await(timeout, TimeUnit.SECONDS);
             assertFalse(msg, layoutLatch.getCount() == 0);
-        }
-
-        public void waitForLayout(long timeout) throws Throwable {
-            waitForLayout(timeout * (mDebug ? 10000 : 1), TimeUnit.SECONDS, true);
-        }
-
-        public void waitForLayout(long timeout, boolean waitForIdle) throws Throwable {
-            waitForLayout(timeout * (mDebug ? 10000 : 1), TimeUnit.SECONDS, waitForIdle);
         }
 
         @Override

@@ -800,6 +800,7 @@ public class GridLayoutManager extends LinearLayoutManager {
         }
         mSpanCount = spanCount;
         mSpanSizeLookup.invalidateSpanIndexCache();
+        requestLayout();
     }
 
     /**
