@@ -29,6 +29,9 @@ import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
 
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
+
 public class BaseGridLayoutManagerTest extends BaseRecyclerViewInstrumentationTest {
 
     static final String TAG = "GridLayoutManagerTest";
@@ -194,8 +197,17 @@ public class BaseGridLayoutManagerTest extends BaseRecyclerViewInstrumentationTe
             mLayoutLatch = new CountDownLatch(layoutCount);
         }
 
-        public void waitForLayout(int seconds) throws InterruptedException {
-            mLayoutLatch.await(seconds, SECONDS);
+        public void waitForLayout(int seconds) throws Throwable {
+            mLayoutLatch.await(seconds * (DEBUG ? 1000 : 1), SECONDS);
+            checkForMainThreadException();
+            MatcherAssert.assertThat("all layouts should complete on time",
+                    mLayoutLatch.getCount(), CoreMatchers.is(0L));
+            // use a runnable to ensure RV layout is finished
+            getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                }
+            });
         }
     }
 

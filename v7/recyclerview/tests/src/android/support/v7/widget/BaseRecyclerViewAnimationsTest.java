@@ -207,12 +207,6 @@ public class BaseRecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentat
         public void onPostDispatchLayout() {
             mOnLayoutCallbacks.postDispatchLayout();
         }
-
-        @Override
-        public void waitForLayout(long timeout, TimeUnit timeUnit) throws Throwable {
-            super.waitForLayout(timeout, timeUnit);
-            checkForMainThreadException();
-        }
     }
 
     abstract class OnLayoutCallbacks {
