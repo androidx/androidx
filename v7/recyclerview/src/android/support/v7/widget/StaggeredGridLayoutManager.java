@@ -614,7 +614,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
 
         updateAnchorInfoForLayout(state, anchorInfo);
 
-        if (mPendingSavedState == null) {
+        if (mPendingSavedState == null && mPendingScrollPosition == NO_POSITION) {
             if (anchorInfo.mLayoutFromEnd != mLastLayoutFromEnd ||
                     isLayoutRTL() != mLastLayoutRTL) {
                 mLazySpanLookup.clear();
@@ -683,15 +683,20 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
                     hasGaps = true;
                 }
             }
-            mPendingScrollPosition = NO_POSITION;
-            mPendingScrollPositionOffset = INVALID_OFFSET;
         }
         mLastLayoutFromEnd = anchorInfo.mLayoutFromEnd;
         mLastLayoutRTL = isLayoutRTL();
-        mPendingSavedState = null; // we don't need this anymore
         if (hasGaps) {
             onLayoutChildren(recycler, state, false);
         }
+    }
+
+    @Override
+    public void onLayoutCompleted(RecyclerView.State state) {
+        super.onLayoutCompleted(state);
+        mPendingScrollPosition = NO_POSITION;
+        mPendingScrollPositionOffset = INVALID_OFFSET;
+        mPendingSavedState = null; // we don't need this anymore
     }
 
     private void repositionToWrapContentIfNecessary() {
@@ -829,7 +834,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
                 // child
                 anchorInfo.mPosition = mShouldReverseLayout ? getLastChildPosition()
                         : getFirstChildPosition();
-
                 if (mPendingScrollPositionOffset != INVALID_OFFSET) {
                     if (anchorInfo.mLayoutFromEnd) {
                         final int target = mPrimaryOrientation.getEndAfterPadding() -

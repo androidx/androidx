@@ -620,15 +620,20 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         }
         layoutForPredictiveAnimations(recycler, state, startOffset, endOffset);
         if (!state.isPreLayout()) {
-            mPendingScrollPosition = NO_POSITION;
-            mPendingScrollPositionOffset = INVALID_OFFSET;
             mOrientationHelper.onLayoutComplete();
         }
         mLastStackFromEnd = mStackFromEnd;
-        mPendingSavedState = null; // we don't need this anymore
         if (DEBUG) {
             validateChildOrder();
         }
+    }
+
+    @Override
+    public void onLayoutCompleted(RecyclerView.State state) {
+        super.onLayoutCompleted(state);
+        mPendingSavedState = null; // we don't need this anymore
+        mPendingScrollPosition = NO_POSITION;
+        mPendingScrollPositionOffset = INVALID_OFFSET;
     }
 
     /**

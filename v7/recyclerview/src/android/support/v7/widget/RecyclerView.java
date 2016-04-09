@@ -60,7 +60,6 @@ import android.view.FocusFinder;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
-import android.view.View.MeasureSpec;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -3177,6 +3176,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         if (mRecycler.mChangedScrap != null) {
             mRecycler.mChangedScrap.clear();
         }
+        mLayout.onLayoutCompleted(mState);
         onExitLayoutOrScroll();
         resumeRequestLayout(false);
         mViewInfoStore.clear();
@@ -6561,6 +6561,20 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
 
         /**
+         * Called after a full layout calculation is finished. The layout calculation may include
+         * multiple {@link #onLayoutChildren(Recycler, State)} calls due to animations or
+         * layout measurement but it will include only one {@link #onLayoutCompleted(State)} call.
+         * This method will be called at the end of {@link View#layout(int, int, int, int)} call.
+         * <p>
+         * This is a good place for the LayoutManager to do some cleanup like pending scroll
+         * position, saved state etc.
+         *
+         * @param state Transient state of RecyclerView
+         */
+        public void onLayoutCompleted(State state) {
+        }
+
+        /**
          * Create a default <code>LayoutParams</code> object for a child of the RecyclerView.
          *
          * <p>LayoutManagers will often want to use a custom <code>LayoutParams</code> type
@@ -7195,11 +7209,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * {@link #setAutoMeasureEnabled(boolean)}.
          * <p>
          * When RecyclerView is running a layout, this value is always set to
-         * {@link MeasureSpec#EXACTLY} even if it was measured with a different spec mode.
+         * {@link View.MeasureSpec#EXACTLY} even if it was measured with a different spec mode.
          *
          * @return Width measure spec mode.
          *
-         * @see MeasureSpec#getMode(int)
+         * @see View.MeasureSpec#getMode(int)
          * @see View#onMeasure(int, int)
          */
         public int getWidthMode() {
@@ -7213,11 +7227,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * {@link #setAutoMeasureEnabled(boolean)}.
          * <p>
          * When RecyclerView is running a layout, this value is always set to
-         * {@link MeasureSpec#EXACTLY} even if it was measured with a different spec mode.
+         * {@link View.MeasureSpec#EXACTLY} even if it was measured with a different spec mode.
          *
          * @return Height measure spec mode.
          *
-         * @see MeasureSpec#getMode(int)
+         * @see View.MeasureSpec#getMode(int)
          * @see View#onMeasure(int, int)
          */
         public int getHeightMode() {
