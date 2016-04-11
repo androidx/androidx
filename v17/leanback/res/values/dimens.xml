@@ -277,14 +277,12 @@
     <dimen name="lb_onboarding_content_margin_top">164dp</dimen>
     <!-- This value should be lb_onboarding_start_button_height + lb_onboarding_start_button_margin_bottom -->
     <dimen name="lb_onboarding_content_margin_bottom">98dp</dimen>
-    <!-- This value should be lb_page_indicator_arrow_diameter + 2 * lb_page_indicator_arrow_shadow_radius -->
+    <!-- This value should be 2 * lb_page_indicator_arrow_radius + 2 * lb_page_indicator_arrow_shadow_radius -->
     <dimen name="lb_onboarding_navigation_height">40dp</dimen>
-    <dimen name="lb_page_indicator_arrow_diameter">36dp</dimen>
+    <dimen name="lb_page_indicator_arrow_radius">18dp</dimen>
     <dimen name="lb_page_indicator_arrow_shadow_radius">2dp</dimen>
     <dimen name="lb_page_indicator_arrow_shadow_offset">1dp</dimen>
     <dimen name="lb_page_indicator_arrow_gap">32dp</dimen>
-    <!-- This value must be twice lb_page_indicator_dot_radius -->
-    <dimen name="lb_page_indicator_dot_diameter">10dp</dimen>
     <dimen name="lb_page_indicator_dot_radius">5dp</dimen>
     <dimen name="lb_page_indicator_dot_gap">16dp</dimen>
     <dimen name="lb_onboarding_start_button_translation_offset">16dp</dimen>
