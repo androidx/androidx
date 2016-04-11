@@ -69,7 +69,7 @@ public class ScriptIntrinsicResize extends ScriptIntrinsic {
             !e.isCompatible(Element.F32_2(mRS)) &&
             !e.isCompatible(Element.F32_3(mRS)) &&
             !e.isCompatible(Element.F32_4(mRS))) {
-            throw new RSIllegalArgumentException("Unsuported element type.");
+            throw new RSIllegalArgumentException("Unsupported element type.");
         }
 
         mInput = ain;
