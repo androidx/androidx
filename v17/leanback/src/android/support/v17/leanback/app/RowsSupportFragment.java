@@ -289,7 +289,7 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements Adapt
 
         mRecycledViewPool = null;
         mPresenterMapper = null;
-        if (mMainFragmentAdapter != null) {
+        if (mMainFragmentAdapter != null && mMainFragmentAdapter.getFragmentHost() != null) {
             mMainFragmentAdapter.getFragmentHost().notifyViewCreated(mMainFragmentAdapter);
         }
     }
