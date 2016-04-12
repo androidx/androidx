@@ -239,4 +239,13 @@ class BrandedFragment extends Fragment {
             mTitleView.enableAnimation(true);
         }
     }
+
+    /**
+     * Returns true/false when it's showing/hiding the title respectively.
+     *
+     * @return boolean to indicate whether or not it's showing the title.
+     */
+    public final boolean isShowingTitle() {
+        return mShowingTitle;
+    }
 }
