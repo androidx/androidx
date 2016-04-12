@@ -20,9 +20,11 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v7.cardview.R;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.FrameLayout;
 
 /**
@@ -68,7 +70,7 @@ import android.widget.FrameLayout;
  * @attr ref android.support.v7.cardview.R.styleable#CardView_contentPaddingRight
  * @attr ref android.support.v7.cardview.R.styleable#CardView_contentPaddingBottom
  */
-public class CardView extends FrameLayout implements CardViewDelegate {
+public class CardView extends FrameLayout {
 
     private static final int[] COLOR_BACKGROUND_ATTR = {android.R.attr.colorBackground};
     private static final CardViewImpl IMPL;
@@ -101,7 +103,6 @@ public class CardView extends FrameLayout implements CardViewDelegate {
 
     private final Rect mShadowBounds = new Rect();
 
-
     public CardView(Context context) {
         super(context);
         initialize(context, null, 0);
@@ -132,7 +133,6 @@ public class CardView extends FrameLayout implements CardViewDelegate {
      * @return <code>true</code> if CardView adds inner padding on platforms Lollipop and after to
      * have same dimensions with platforms before Lollipop.
      */
-    @Override
     public boolean getUseCompatPadding() {
         return mCompatPadding;
     }
@@ -154,11 +154,10 @@ public class CardView extends FrameLayout implements CardViewDelegate {
      * @attr ref android.support.v7.cardview.R.styleable#CardView_cardUseCompatPadding
      */
     public void setUseCompatPadding(boolean useCompatPadding) {
-        if (mCompatPadding == useCompatPadding) {
-            return;
+        if (mCompatPadding != useCompatPadding) {
+            mCompatPadding = useCompatPadding;
+            IMPL.onCompatPaddingChanged(mCardViewDelegate);
         }
-        mCompatPadding = useCompatPadding;
-        IMPL.onCompatPaddingChanged(this);
     }
 
     /**
@@ -179,7 +178,7 @@ public class CardView extends FrameLayout implements CardViewDelegate {
      */
     public void setContentPadding(int left, int top, int right, int bottom) {
         mContentPadding.set(left, top, right, bottom);
-        IMPL.updatePadding(this);
+        IMPL.updatePadding(mCardViewDelegate);
     }
 
     @Override
@@ -189,7 +188,7 @@ public class CardView extends FrameLayout implements CardViewDelegate {
             switch (widthMode) {
                 case MeasureSpec.EXACTLY:
                 case MeasureSpec.AT_MOST:
-                    final int minWidth = (int) Math.ceil(IMPL.getMinWidth(this));
+                    final int minWidth = (int) Math.ceil(IMPL.getMinWidth(mCardViewDelegate));
                     widthMeasureSpec = MeasureSpec.makeMeasureSpec(Math.max(minWidth,
                             MeasureSpec.getSize(widthMeasureSpec)), widthMode);
                     break;
@@ -199,7 +198,7 @@ public class CardView extends FrameLayout implements CardViewDelegate {
             switch (heightMode) {
                 case MeasureSpec.EXACTLY:
                 case MeasureSpec.AT_MOST:
-                    final int minHeight = (int) Math.ceil(IMPL.getMinHeight(this));
+                    final int minHeight = (int) Math.ceil(IMPL.getMinHeight(mCardViewDelegate));
                     heightMeasureSpec = MeasureSpec.makeMeasureSpec(Math.max(minHeight,
                             MeasureSpec.getSize(heightMeasureSpec)), heightMode);
                     break;
@@ -250,7 +249,8 @@ public class CardView extends FrameLayout implements CardViewDelegate {
         mUserSetMinHeight = a.getDimensionPixelSize(R.styleable.CardView_android_minHeight, 0);
         a.recycle();
 
-        IMPL.initialize(this, context, backgroundColor, radius, elevation, maxElevation);
+        IMPL.initialize(mCardViewDelegate, context, backgroundColor, radius,
+                elevation, maxElevation);
     }
 
     @Override
@@ -266,29 +266,13 @@ public class CardView extends FrameLayout implements CardViewDelegate {
     }
 
     /**
-     * Internal method used by CardView implementations to set min width / height that is necessary
-     * to draw shadows on APIs older than 21.
-     *
-     * @hide
-     */
-    @Override
-    public void setMinWidthHeightInternal(int width, int height) {
-        if (width > mUserSetMinWidth) {
-            super.setMinimumWidth(width);
-        }
-        if (height > mUserSetMinHeight) {
-            super.setMinimumHeight(height);
-        }
-    }
-
-    /**
      * Updates the background color of the CardView
      *
      * @param color The new color to set for the card background
      * @attr ref android.support.v7.cardview.R.styleable#CardView_cardBackgroundColor
      */
     public void setCardBackgroundColor(int color) {
-        IMPL.setBackgroundColor(this, color);
+        IMPL.setBackgroundColor(mCardViewDelegate, color);
     }
 
     /**
@@ -335,7 +319,7 @@ public class CardView extends FrameLayout implements CardViewDelegate {
      * @see #setRadius(float)
      */
     public void setRadius(float radius) {
-        IMPL.setRadius(this, radius);
+        IMPL.setRadius(mCardViewDelegate, radius);
     }
 
     /**
@@ -345,19 +329,7 @@ public class CardView extends FrameLayout implements CardViewDelegate {
      * @see #getRadius()
      */
     public float getRadius() {
-        return IMPL.getRadius(this);
-    }
-
-    /**
-     * Internal method used by CardView implementations to update the padding.
-     *
-     * @hide
-     */
-    @Override
-    public void setShadowPadding(int left, int top, int right, int bottom) {
-        mShadowBounds.set(left, top, right, bottom);
-        super.setPadding(left + mContentPadding.left, top + mContentPadding.top,
-                right + mContentPadding.right, bottom + mContentPadding.bottom);
+        return IMPL.getRadius(mCardViewDelegate);
     }
 
     /**
@@ -369,7 +341,7 @@ public class CardView extends FrameLayout implements CardViewDelegate {
      * @see #setMaxCardElevation(float)
      */
     public void setCardElevation(float elevation) {
-        IMPL.setElevation(this, elevation);
+        IMPL.setElevation(mCardViewDelegate, elevation);
     }
 
     /**
@@ -380,7 +352,7 @@ public class CardView extends FrameLayout implements CardViewDelegate {
      * @see #getMaxCardElevation()
      */
     public float getCardElevation() {
-        return IMPL.getElevation(this);
+        return IMPL.getElevation(mCardViewDelegate);
     }
 
     /**
@@ -395,7 +367,7 @@ public class CardView extends FrameLayout implements CardViewDelegate {
      * @see #getMaxCardElevation()
      */
     public void setMaxCardElevation(float maxElevation) {
-        IMPL.setMaxElevation(this, maxElevation);
+        IMPL.setMaxElevation(mCardViewDelegate, maxElevation);
     }
 
     /**
@@ -406,7 +378,7 @@ public class CardView extends FrameLayout implements CardViewDelegate {
      * @see #getCardElevation()
      */
     public float getMaxCardElevation() {
-        return IMPL.getMaxElevation(this);
+        return IMPL.getMaxElevation(mCardViewDelegate);
     }
 
     /**
@@ -416,7 +388,6 @@ public class CardView extends FrameLayout implements CardViewDelegate {
      * @return True if CardView prevents overlaps with rounded corners on platforms before Lollipop.
      *         Default value is <code>true</code>.
      */
-    @Override
     public boolean getPreventCornerOverlap() {
         return mPreventCornerOverlap;
     }
@@ -435,10 +406,56 @@ public class CardView extends FrameLayout implements CardViewDelegate {
      * @see #setUseCompatPadding(boolean)
      */
     public void setPreventCornerOverlap(boolean preventCornerOverlap) {
-        if (preventCornerOverlap == mPreventCornerOverlap) {
-            return;
+        if (preventCornerOverlap != mPreventCornerOverlap) {
+            mPreventCornerOverlap = preventCornerOverlap;
+            IMPL.onPreventCornerOverlapChanged(mCardViewDelegate);
         }
-        mPreventCornerOverlap = preventCornerOverlap;
-        IMPL.onPreventCornerOverlapChanged(this);
     }
+
+    private final CardViewDelegate mCardViewDelegate = new CardViewDelegate() {
+        private Drawable mCardBackground;
+
+        @Override
+        public void setCardBackground(Drawable drawable) {
+            mCardBackground = drawable;
+            setBackgroundDrawable(drawable);
+        }
+
+        @Override
+        public boolean getUseCompatPadding() {
+            return CardView.this.getUseCompatPadding();
+        }
+
+        @Override
+        public boolean getPreventCornerOverlap() {
+            return CardView.this.getPreventCornerOverlap();
+        }
+
+        @Override
+        public void setShadowPadding(int left, int top, int right, int bottom) {
+            mShadowBounds.set(left, top, right, bottom);
+            CardView.super.setPadding(left + mContentPadding.left, top + mContentPadding.top,
+                    right + mContentPadding.right, bottom + mContentPadding.bottom);
+        }
+
+        @Override
+        public void setMinWidthHeightInternal(int width, int height) {
+            if (width > mUserSetMinWidth) {
+                CardView.super.setMinimumWidth(width);
+            }
+            if (height > mUserSetMinHeight) {
+                CardView.super.setMinimumHeight(height);
+            }
+        }
+
+        @Override
+        public Drawable getCardBackground() {
+            return mCardBackground;
+        }
+
+        @Override
+        public View getCardView() {
+            return CardView.this;
+        }
+    };
 }
