@@ -300,7 +300,6 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
 
         if (mActionBar != null) {
             mActionBar.onDestroy();
-            mActionBar = null;
         }
     }
 
