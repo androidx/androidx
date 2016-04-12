@@ -531,15 +531,20 @@
         <!-- Theme attribute for the style of the logo in onboarding screen. Default is
              {@link android.support.v17.leanback.R.style#Widget_Leanback_OnboardingLogoStyle}.-->
         <attr name="onboardingLogoStyle" format="reference" />
-
-        <!-- Theme attribute for the style of the background color of the dots in the navigator
-             of the onboarding screen. -->
-        <attr name="onboardingNavigatorDotBgColor" format="reference" />
-
     </declare-styleable>
 
     <declare-styleable name="PagingIndicator">
+        <!-- Attributes for the radius of the dot. -->
+        <attr name="dotRadius" format="reference" />
+        <!-- Attributes for the radius of the arrow. -->
+        <attr name="arrowRadius" format="reference" />
+        <!-- Attributes for the distance between the centers of the adjacent dots. -->
+        <attr name="dotToDotGap" format="reference" />
+        <!-- Attributes for the distance between the centers of the arrow circle and the adjacent dot. -->
+        <attr name="dotToArrowGap" format="reference" />
         <!-- Attribute for background color of the dots in PagingIndicator. -->
         <attr name="dotBgColor" format="reference" />
+        <!-- Attribute for background color of the arrow in PagingIndicator. -->
+        <attr name="arrowBgColor" format="reference" />
     </declare-styleable>
 </resources>
