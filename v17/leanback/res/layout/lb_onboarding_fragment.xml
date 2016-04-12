@@ -16,7 +16,6 @@
   -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:lb="http://schemas.android.com/apk/res-auto"
     android:id="@+id/onboarding_fragment_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -53,11 +52,9 @@
     <FrameLayout
         android:id="@id/navigator_container"
         style="?attr/onboardingNavigatorContainerStyle">
-        <!-- TODO: Customize dimensions of PagingIndicator -->
         <android.support.v17.leanback.widget.PagingIndicator
             android:id="@+id/page_indicator"
             style="?attr/onboardingPageIndicatorStyle"
-            lb:dotBgColor="?attr/onboardingNavigatorDotBgColor"
             android:visibility="gone" />
 
         <Button

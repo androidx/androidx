@@ -17,8 +17,9 @@
 package android.support.v17.leanback.widget;
 
 import android.animation.Animator;
-import android.animation.AnimatorInflater;
 import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.TimeInterpolator;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -33,16 +34,59 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.VisibleForTesting;
 import android.support.v17.leanback.R;
 import android.util.AttributeSet;
+import android.util.Property;
 import android.view.View;
-
-import java.util.ArrayList;
-import java.util.List;
+import android.view.animation.DecelerateInterpolator;
 
 /**
  * A page indicator with dots.
  * @hide
  */
 public class PagingIndicator extends View {
+    private static final long DURATION_ALPHA = 167;
+    private static final long DURATION_DIAMETER = 417;
+    private static final long DURATION_TRANSLATION_X = DURATION_DIAMETER;
+    private static final TimeInterpolator DECELERATE_INTERPOLATOR = new DecelerateInterpolator();
+
+    private static final Property<Dot, Float> DOT_ALPHA
+            = new Property<Dot, Float>(Float.class, "alpha") {
+        @Override
+        public Float get(Dot dot) {
+            return dot.getAlpha();
+        }
+
+        @Override
+        public void set(Dot dot, Float value) {
+            dot.setAlpha(value);
+        }
+    };
+
+    private static final Property<Dot, Float> DOT_DIAMETER
+            = new Property<Dot, Float>(Float.class, "diameter") {
+        @Override
+        public Float get(Dot dot) {
+            return dot.getDiameter();
+        }
+
+        @Override
+        public void set(Dot dot, Float value) {
+            dot.setDiameter(value);
+        }
+    };
+
+    private static final Property<Dot, Float> DOT_TRANSLATION_X
+            = new Property<Dot, Float>(Float.class, "translation_x") {
+        @Override
+        public Float get(Dot dot) {
+            return dot.getTranslationX();
+        }
+
+        @Override
+        public void set(Dot dot, Float value) {
+            dot.setTranslationX(value);
+        }
+    };
+
     // attribute
     private boolean mIsLtr;
     private final int mDotDiameter;
@@ -71,8 +115,8 @@ public class PagingIndicator extends View {
     private final int mDotFgSelectColor;
     private final Paint mBgPaint;
     private final Paint mFgPaint;
-    private final Animator mShowAnimator;
-    private final Animator mHideAnimator;
+    private final AnimatorSet mShowAnimator;
+    private final AnimatorSet mHideAnimator;
     private final AnimatorSet mAnimator = new AnimatorSet();
     private Bitmap mArrow;
     private final Rect mArrowRect;
@@ -91,23 +135,26 @@ public class PagingIndicator extends View {
         Resources res = getResources();
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.PagingIndicator,
                 defStyle, 0);
-        int bgColor = res.getColor(R.color.lb_page_indicator_dot);
-        try {
-            bgColor = typedArray.getColor(R.styleable.PagingIndicator_dotBgColor, bgColor);
-        } finally {
-            typedArray.recycle();
-        }
-        mIsLtr = res.getConfiguration().getLayoutDirection() == View.LAYOUT_DIRECTION_LTR;
-        mDotRadius = res.getDimensionPixelSize(R.dimen.lb_page_indicator_dot_radius);
+        mDotRadius = getDimensionFromTypedArray(typedArray, R.styleable.PagingIndicator_dotRadius,
+                R.dimen.lb_page_indicator_dot_radius);
         mDotDiameter = mDotRadius * 2;
-        mDotGap = res.getDimensionPixelSize(R.dimen.lb_page_indicator_dot_gap);
-        mArrowGap = res.getDimensionPixelSize(R.dimen.lb_page_indicator_arrow_gap);
-        mArrowDiameter = res.getDimensionPixelSize(R.dimen.lb_page_indicator_arrow_diameter);
-        mArrowRadius = mArrowDiameter / 2;
+        mArrowRadius = getDimensionFromTypedArray(typedArray,
+                R.styleable.PagingIndicator_arrowRadius, R.dimen.lb_page_indicator_arrow_radius);
+        mArrowDiameter = mArrowRadius * 2;
+        mDotGap = getDimensionFromTypedArray(typedArray, R.styleable.PagingIndicator_dotToDotGap,
+                R.dimen.lb_page_indicator_dot_gap);
+        mArrowGap = getDimensionFromTypedArray(typedArray,
+                R.styleable.PagingIndicator_dotToArrowGap, R.dimen.lb_page_indicator_arrow_gap);
+        int bgColor = getColorFromTypedArray(typedArray, R.styleable.PagingIndicator_dotBgColor,
+                R.color.lb_page_indicator_dot);
         mBgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mDotFgSelectColor = res.getColor(R.color.lb_page_indicator_arrow_background);
-        int shadowColor = res.getColor(R.color.lb_page_indicator_arrow_shadow);
         mBgPaint.setColor(bgColor);
+        mDotFgSelectColor = getColorFromTypedArray(typedArray,
+                R.styleable.PagingIndicator_arrowBgColor,
+                R.color.lb_page_indicator_arrow_background);
+        typedArray.recycle();
+        mIsLtr = res.getConfiguration().getLayoutDirection() == View.LAYOUT_DIRECTION_LTR;
+        int shadowColor = res.getColor(R.color.lb_page_indicator_arrow_shadow);
         mShadowRadius = res.getDimensionPixelSize(R.dimen.lb_page_indicator_arrow_shadow_radius);
         mFgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         int shadowOffset = res.getDimensionPixelSize(R.dimen.lb_page_indicator_arrow_shadow_offset);
@@ -116,27 +163,26 @@ public class PagingIndicator extends View {
         mArrowRect = new Rect(0, 0, mArrow.getWidth(), mArrow.getHeight());
         mArrowToBgRatio = (float) mArrow.getWidth() / (float) mArrowDiameter;
         // Initialize animations.
-        List<Animator> animators = new ArrayList<>();
-        mShowAnimator = AnimatorInflater.loadAnimator(context,
-                R.animator.lb_page_indicator_dot_show);
-        mHideAnimator = AnimatorInflater.loadAnimator(context,
-                R.animator.lb_page_indicator_dot_hide);
-        animators.add(mShowAnimator);
-        animators.add(mHideAnimator);
-        mAnimator.playTogether(animators);
+        mShowAnimator = new AnimatorSet();
+        mShowAnimator.playTogether(createDotAlphaAnimator(0.0f, 1.0f),
+                createDotDiameterAnimator(mDotRadius * 2, mArrowRadius * 2),
+                createDotTranslationXAnimator());
+        mHideAnimator = new AnimatorSet();
+        mHideAnimator.playTogether(createDotAlphaAnimator(1.0f, 0.0f),
+                createDotDiameterAnimator(mArrowRadius * 2, mDotRadius * 2),
+                createDotTranslationXAnimator());
+        mAnimator.playTogether(mShowAnimator, mHideAnimator);
         // Use software layer to show shadows.
         setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+    }
 
-        // To guard the methods from the proguard, the methods which is called only by the
-        // reflection should be called explicitly just once.
-        // Without this calls, the animation will not work.
-        Dot dot = new Dot();
-        dot.setTranslationX(0.0f);
-        dot.setAlpha(0.0f);
-        dot.setDiameter(0.0f);
-        dot.getTranslationX();
-        dot.getAlpha();
-        dot.getDiameter();
+    private int getDimensionFromTypedArray(TypedArray typedArray, int attr, int defaultId) {
+        return typedArray.getDimensionPixelOffset(attr,
+                getResources().getDimensionPixelOffset(defaultId));
+    }
+
+    private int getColorFromTypedArray(TypedArray typedArray, int attr, int defaultId) {
+        return typedArray.getColor(attr, getResources().getColor(defaultId));
     }
 
     private Bitmap loadArrow() {
@@ -149,6 +195,29 @@ public class PagingIndicator extends View {
             return Bitmap.createBitmap(arrow, 0, 0, arrow.getWidth(), arrow.getHeight(), matrix,
                     false);
         }
+    }
+
+    private Animator createDotAlphaAnimator(float from, float to) {
+        ObjectAnimator animator = ObjectAnimator.ofFloat(null, DOT_ALPHA, from, to);
+        animator.setDuration(DURATION_ALPHA);
+        animator.setInterpolator(DECELERATE_INTERPOLATOR);
+        return animator;
+    }
+
+    private Animator createDotDiameterAnimator(float from, float to) {
+        ObjectAnimator animator = ObjectAnimator.ofFloat(null, DOT_DIAMETER, from, to);
+        animator.setDuration(DURATION_DIAMETER);
+        animator.setInterpolator(DECELERATE_INTERPOLATOR);
+        return animator;
+    }
+
+    private Animator createDotTranslationXAnimator() {
+        // The direction is determined in the Dot.
+        ObjectAnimator animator = ObjectAnimator.ofFloat(null, DOT_TRANSLATION_X,
+                -mArrowGap + mDotGap, 0.0f);
+        animator.setDuration(DURATION_TRANSLATION_X);
+        animator.setInterpolator(DECELERATE_INTERPOLATOR);
+        return animator;
     }
 
     /**
