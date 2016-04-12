@@ -327,10 +327,13 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         }
 
         @Override
+        public void onStart() {
+            super.onStart();
+            mMainFragmentAdapter.getFragmentHost().notifyViewCreated(mMainFragmentAdapter);
+        }
+
+        @Override
         public void onViewCreated(View view, Bundle savedInstanceState) {
-            if (mMainFragmentAdapter.getFragmentHost() != null) {
-                mMainFragmentAdapter.getFragmentHost().notifyViewCreated(mMainFragmentAdapter);
-            }
             setEntranceTransitionState(mEntranceTransitionState);
         }
 

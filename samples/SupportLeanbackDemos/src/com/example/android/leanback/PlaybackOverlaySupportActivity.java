@@ -48,6 +48,6 @@ public class PlaybackOverlaySupportActivity extends FragmentActivity {
     }
 
     public interface PictureInPictureListener {
-        void onPictureInPictureModeChanged(boolean isInPictureInPictureMode);
+        void onPictureInPictureModeChanged(boolean isInPictureInPicture);
     }
 }
