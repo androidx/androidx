@@ -103,6 +103,7 @@ package android.support.v17.leanback.app {
 
   public static abstract interface BrowseFragment.FragmentHost {
     method public abstract void notifyViewCreated(android.support.v17.leanback.app.BrowseFragment.MainFragmentAdapter);
+    method public abstract void showTitleView(boolean);
   }
 
   public static class BrowseFragment.ListRowFragmentFactory extends android.support.v17.leanback.app.BrowseFragment.FragmentFactory {
@@ -197,6 +198,7 @@ package android.support.v17.leanback.app {
 
   public static abstract interface BrowseSupportFragment.FragmentHost {
     method public abstract void notifyViewCreated(android.support.v17.leanback.app.BrowseSupportFragment.MainFragmentAdapter);
+    method public abstract void showTitleView(boolean);
   }
 
   public static class BrowseSupportFragment.ListRowFragmentFactory extends android.support.v17.leanback.app.BrowseSupportFragment.FragmentFactory {

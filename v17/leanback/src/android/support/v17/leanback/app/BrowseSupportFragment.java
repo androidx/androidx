@@ -215,6 +215,15 @@ public class BrowseSupportFragment extends BaseSupportFragment {
          * @param fragmentAdapter {@link MainFragmentAdapter} used by the current fragment.
          */
         void notifyViewCreated(MainFragmentAdapter fragmentAdapter);
+
+        /**
+         * Slides in the title view from top in {@link BrowseSupportFragment}. This will only happen
+         * if either a. we are in fully expanded mode OR b. non expanded mode but on the first
+         * row.
+         *
+         * @param show Boolean indicating whether or not to show the title view.
+         */
+        void showTitleView(boolean show);
     }
 
     /**
@@ -226,6 +235,16 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         @Override
         public void notifyViewCreated(MainFragmentAdapter fragmentAdapter) {
             processingPendingEntranceTransition();
+        }
+
+        @Override
+        public void showTitleView(boolean show) {
+            if (mShowingHeaders && !isShowingTitle()) {
+                mPendingShowTitleView = true;
+            }
+            else if (!mShowingHeaders && !isShowingTitle()) {
+                showTitle(true);
+            }
         }
     }
 
@@ -521,6 +540,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     private boolean mHeadersBackStackEnabled = true;
     private String mWithHeadersBackStackName;
     private boolean mShowingHeaders = true;
+    private boolean mPendingShowTitleView;
     private boolean mCanShowHeaders = true;
     private int mContainerListMarginStart;
     private int mContainerListAlignTop;
@@ -1073,6 +1093,15 @@ public class BrowseSupportFragment extends BaseSupportFragment {
                             headerGridView.requestFocus();
                         }
                     }
+
+                    // Animate titleview once header animation is complete.
+                    if (!mShowingHeaders && mPendingShowTitleView) {
+                        mPendingShowTitleView = false;
+                        showTitle(true);
+                    } else if (mShowingHeaders && isShowingTitle() && mSelectedPosition != 0) {
+                        mPendingShowTitleView = true;
+                        showTitle(false);
+                    }
                 }
                 if (mBrowseTransitionListener != null) {
                     mBrowseTransitionListener.onHeadersTransitionStop(mShowingHeaders);
@@ -1184,6 +1213,10 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             return;
         }
 
+        if (position != mSelectedPosition) {
+            mPendingShowTitleView = false;
+        }
+
         mHeadersSupportFragment.setSelectedPosition(position, smooth);
         replaceMainFragment(position);
 
@@ -1274,6 +1307,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         if (isEntranceTransitionEnabled()) {
             setEntranceTransitionStartState();
         }
+        showTitle(false);
     }
 
     private void onExpandTransitionStart(boolean expand, final Runnable callback) {
