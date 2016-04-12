@@ -978,6 +978,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             mMainFragment = getChildFragmentManager().findFragmentById(R.id.scale_frame);
             mMainFragmentAdapter = (MainFragmentAdapter) ((Adaptable)mMainFragment)
                     .getAdapter(MainFragmentAdapter.class);
+            mMainFragmentAdapter.setFragmentHost(new FragmentHostImpl());
 
             mIsPageRow = savedInstanceState != null ?
                     savedInstanceState.getBoolean(IS_PAGE_ROW, false) : false;
