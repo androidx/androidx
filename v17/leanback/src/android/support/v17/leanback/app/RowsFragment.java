@@ -287,7 +287,7 @@ public class RowsFragment extends BaseRowFragment implements Adaptable {
 
         mRecycledViewPool = null;
         mPresenterMapper = null;
-        if (mMainFragmentAdapter != null && mMainFragmentAdapter.getFragmentHost() != null) {
+        if (mMainFragmentAdapter != null) {
             mMainFragmentAdapter.getFragmentHost().notifyViewCreated(mMainFragmentAdapter);
         }
     }
