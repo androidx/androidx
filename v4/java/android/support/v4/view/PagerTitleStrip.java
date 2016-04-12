@@ -44,7 +44,7 @@ import java.lang.ref.WeakReference;
  *
  * <p>For an interactive indicator, see {@link PagerTabStrip}.</p>
  */
-public class PagerTitleStrip extends ViewGroup {
+public class PagerTitleStrip extends ViewGroup implements ViewPager.Decor {
     private static final String TAG = "PagerTitleStrip";
 
     ViewPager mPager;
@@ -253,7 +253,7 @@ public class PagerTitleStrip extends ViewGroup {
         final PagerAdapter adapter = pager.getAdapter();
 
         pager.setInternalPageChangeListener(mPageListener);
-        pager.addOnAdapterChangeListener(mPageListener);
+        pager.setOnAdapterChangeListener(mPageListener);
         mPager = pager;
         updateAdapter(mWatchingAdapter != null ? mWatchingAdapter.get() : null, adapter);
     }
@@ -264,7 +264,7 @@ public class PagerTitleStrip extends ViewGroup {
         if (mPager != null) {
             updateAdapter(mPager.getAdapter(), null);
             mPager.setInternalPageChangeListener(null);
-            mPager.removeOnAdapterChangeListener(mPageListener);
+            mPager.setOnAdapterChangeListener(null);
             mPager = null;
         }
     }
@@ -503,8 +503,7 @@ public class PagerTitleStrip extends ViewGroup {
         }
 
         @Override
-        public void onAdapterChanged(ViewPager viewPager, PagerAdapter oldAdapter,
-                PagerAdapter newAdapter) {
+        public void onAdapterChanged(PagerAdapter oldAdapter, PagerAdapter newAdapter) {
             updateAdapter(oldAdapter, newAdapter);
         }
 
