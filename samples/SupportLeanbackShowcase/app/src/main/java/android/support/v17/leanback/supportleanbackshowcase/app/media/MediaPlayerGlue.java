@@ -24,6 +24,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.support.v17.leanback.app.PlaybackControlGlue;
 import android.support.v17.leanback.app.PlaybackOverlayFragment;
+import android.support.v17.leanback.supportleanbackshowcase.R;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.ControlButtonPresenterSelector;
@@ -66,7 +67,6 @@ public abstract class MediaPlayerGlue extends PlaybackControlGlue implements
     private PlaybackControlsRow mControlsRow;
     private Runnable mRunnable;
     private Handler mHandler = new Handler();
-    private boolean mPaused = false;
     private boolean mInitialized = false; // true when the MediaPlayer is prepared/initialized
     private OnMediaFileFinishedPlayingListener mMediaFileFinishedPlayingListener;
     private Action mSelectedAction; // the action which is currently selected by the user
@@ -87,10 +87,6 @@ public abstract class MediaPlayerGlue extends PlaybackControlGlue implements
         mThumbsDownAction.setIndex(PlaybackControlsRow.ThumbsAction.OUTLINE);
         mThumbsUpAction.setIndex(PlaybackControlsRow.ThumbsAction.OUTLINE);
 
-        // Setup controls and notify UI about change.
-        setFadingEnabled(false);
-        onStateChanged();
-
         // Register selected listener such that we know what action the user currently has focused.
         fragment.setOnItemViewSelectedListener(this);
     }
@@ -100,8 +96,8 @@ public abstract class MediaPlayerGlue extends PlaybackControlGlue implements
      * not required to call this method before playing the first file. However you have to call it
      * before playing a second one.
      */
-    public void reset() {
-        mPaused = mInitialized = false;
+    void reset() {
+        mInitialized = false;
         mPlayer.reset();
     }
 
@@ -137,8 +133,8 @@ public abstract class MediaPlayerGlue extends PlaybackControlGlue implements
      */
     public void setupControlsRowPresenter(PlaybackControlsRowPresenter presenter) {
         // TODO: hahnr@ move into resources
-        presenter.setProgressColor(Color.parseColor("#feab91"));
-        presenter.setBackgroundColor(Color.parseColor("#db2a0f"));
+        presenter.setProgressColor(getContext().getColor(R.color.player_progress_color));
+        presenter.setBackgroundColor(getContext().getColor(R.color.player_background_color));
     }
 
     @Override public PlaybackControlsRowPresenter createControlsRowAndPresenter() {
@@ -260,47 +256,12 @@ public abstract class MediaPlayerGlue extends PlaybackControlGlue implements
     }
 
     @Override protected void startPlayback(int speed) throws IllegalStateException {
-        if (mPaused) {
-            mPlayer.start();
-        } else if (!isMediaPlaying()) {
-            reset();
-            try {
-                if (mMediaSourceUri != null) mPlayer.setDataSource(getContext(), mMediaSourceUri);
-                else mPlayer.setDataSource(mMediaSourcePath);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override public void onPrepared(MediaPlayer mp) {
-                    mInitialized = true;
-                    mPaused = false;
-                    mPlayer.start();
-                    onMetadataChanged();
-                    onStateChanged();
-                    updateProgress();
-                }
-            });
-            mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override public void onCompletion(MediaPlayer mp) {
-                    if (mInitialized && mMediaFileFinishedPlayingListener != null)
-                        mMediaFileFinishedPlayingListener.onMediaFileFinishedPlaying(mMetaData);
-                }
-            });
-            mPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
-                @Override public void onBufferingUpdate(MediaPlayer mp, int percent) {
-                    mControlsRow.setBufferedProgress((int) (mp.getDuration() * (percent / 100f)));
-                }
-            });
-            mPlayer.prepareAsync();
-            onStateChanged();
-        }
+        mPlayer.start();
     }
 
     @Override protected void pausePlayback() {
         if (mPlayer.isPlaying()) {
             mPlayer.pause();
-            mPaused = true;
         }
     }
 
@@ -326,7 +287,40 @@ public abstract class MediaPlayerGlue extends PlaybackControlGlue implements
      * @see MediaPlayer#setDataSource(Context, Uri)
      */
     public void setMediaSource(Uri uri) {
+        if (mMediaSourceUri != null && mMediaSourceUri.equals(uri)) {
+            return;
+        }
         mMediaSourceUri = uri;
+        reset();
+        try {
+            if (mMediaSourceUri != null) mPlayer.setDataSource(getContext(), mMediaSourceUri);
+            else mPlayer.setDataSource(mMediaSourcePath);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override public void onPrepared(MediaPlayer mp) {
+                mInitialized = true;
+                mPlayer.start();
+                onMetadataChanged();
+                onStateChanged();
+                updateProgress();
+            }
+        });
+        mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override public void onCompletion(MediaPlayer mp) {
+                if (mInitialized && mMediaFileFinishedPlayingListener != null)
+                    mMediaFileFinishedPlayingListener.onMediaFileFinishedPlaying(mMetaData);
+            }
+        });
+        mPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
+            @Override public void onBufferingUpdate(MediaPlayer mp, int percent) {
+                mControlsRow.setBufferedProgress((int) (mp.getDuration() * (percent / 100f)));
+            }
+        });
+        mPlayer.prepareAsync();
+        onStateChanged();
     }
 
     /**
@@ -417,7 +411,6 @@ public abstract class MediaPlayerGlue extends PlaybackControlGlue implements
         private String mArtist;
         private Drawable mCover;
 
-
         public String getTitle() {
             return mTitle;
         }
@@ -441,6 +434,7 @@ public abstract class MediaPlayerGlue extends PlaybackControlGlue implements
         public void setCover(Drawable cover) {
             this.mCover = cover;
         }
+
     }
 
 }

@@ -31,6 +31,7 @@
     <color name="default_card_footer_background_color">#37474F</color>
     <color name="selected_card_footer_background_color">#F0F</color>
 
+    <color name="lb_default_brand_color">#FF455A64</color>
     <color name="card_primary_text">#EEEEEE</color>
     <color name="card_secondary_text">#99EEEEEE</color>
 
@@ -41,10 +42,15 @@
     <color name="detail_view_actionbar_background">#04549D</color>
     <color name="detail_view_background">#0374BF</color>
     <color name="detail_view_related_background">#022A4E</color>
+    <color name="song_row_favorite_color">#FF6E40</color>
 
     <color name="app_guidedstep_actions_background">#C03800</color>
     <color name="app_guidedstep_subactions_background">#C03800</color>
     <color name="app_guidedstep_dialog_actions_background">#263238</color>
     <color name="settings_card_background">#0277BD</color>
     <color name="settings_card_background_focussed">#01579B</color>
+
+    <color name="player_progress_color">#feab91</color>
+    <color name="player_background_color">#db2a0f</color>
+
 </resources>

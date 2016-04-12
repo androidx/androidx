@@ -44,19 +44,18 @@
     </style>
 
 
-    <style name="MovieCardSimpleStyle" parent="Widget.Leanback.ImageCardViewStyle">
+    <style name="MovieCardTitleOnlyStyle" parent="Widget.Leanback.ImageCardViewStyle">
         <item name="lbImageCardViewType">Title</item>
         <item name="cardBackground">@null</item>
     </style>
 
     <!-- Theme corresponding to the MovieCardSimpleStyle -->
     <style name="MovieCardSimpleTheme" parent="Theme.Leanback">
-        <item name="imageCardViewStyle"> @style/MovieCardSimpleStyle </item>
+        <item name="imageCardViewStyle"> @style/MovieCardTitleOnlyStyle </item>
         <item name="imageCardViewImageStyle">@style/MovieCardImageStyle</item>
     </style>
 
-    <style name="MovieCardCompleteStyle" parent="MovieCardSimpleStyle">
-
+    <style name="MovieCardCompleteStyle" parent="MovieCardTitleOnlyStyle">
         <item name="lbImageCardViewType">Title|Content|IconOnLeft</item>
     </style>
 
@@ -147,7 +146,7 @@
     </style>
 
     <style name="GameCardStyle" parent="DefaultCardStyle">
-        <item name="lbImageCardViewType">Title|Content|IconOnLeft</item>
+        <item name="lbImageCardViewType">Title|Content|IconOnRight</item>
     </style>
 
     <!-- Theme corresponding to the GameCardStyle -->
@@ -216,6 +215,57 @@
         <item name="imageCardViewTitleStyle">@style/IconCardTitleStyle</item>
         <item name="imageCardViewImageStyle">@style/IconCardImageStyle</item>
         <item name="imageCardViewInfoAreaStyle">@style/IconCardInfoAreaStyle</item>
+    </style>
+
+
+    <style name="MediaListHeaderStyle" parent="Widget.Leanback.PlaybackMediaListHeaderStyle">
+        <item name="android:background">#282248</item>
+    </style>
+
+    <style name="SharedMediaItemRowStyle" parent="Widget.Leanback.PlaybackMediaItemRowStyle">
+        <item name="android:background">#282248</item>
+    </style>
+
+    <style name="RegularMediaItemTextStyle" parent="TextAppearance.Leanback.PlaybackMediaItemNumber">
+        <item name="android:textColor">#FF6255</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
+
+    <style name="RegularMediaItemNumberStyle" parent="Widget.Leanback.PlaybackMediaItemNumberStyle">
+        <item name="android:visibility">visible</item>
+        <!--<item name="android:textAppearance">@style/OddMediaItemNumberTextStyle</item>-->
+    </style>
+
+    <style name="RegularMediaItemNameStyle" parent="Widget.Leanback.PlaybackMediaItemNameStyle">
+        <!--<item name="android:textAppearance">@style/OddMediaItemNumberTextStyle</item>-->
+    </style>
+
+    <style name="RegularMediaItemDurationStyle" parent="Widget.Leanback.PlaybackMediaItemDurationStyle">
+        <item name="android:visibility">visible</item>
+        <!--<item name="android:textAppearance">@style/OddMediaItemNumberTextStyle</item>-->
+    </style>
+
+
+    <style name="FavoriteMediaItemTextStyle" parent="TextAppearance.Leanback.PlaybackMediaItemNumber">
+        <item name="android:textColor">#FF6E40</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="FavoriteMediaItemNumberStyle" parent="Widget.Leanback.PlaybackMediaItemNumberStyle">
+        <item name="android:visibility">visible</item>
+        <item name="android:textAppearance">@style/FavoriteMediaItemTextStyle</item>
+    </style>
+
+    <style name="FavoriteMediaItemNameStyle" parent="Widget.Leanback.PlaybackMediaItemNameStyle">
+        <item name="android:textAppearance">@style/FavoriteMediaItemTextStyle</item>
+    </style>
+
+    <style name="FavoriteMediaItemDurationStyle" parent="Widget.Leanback.PlaybackMediaItemDurationStyle">
+        <item name="android:visibility">visible</item>
+        <item name="android:textAppearance">@style/FavoriteMediaItemTextStyle</item>
     </style>
 
 </resources>

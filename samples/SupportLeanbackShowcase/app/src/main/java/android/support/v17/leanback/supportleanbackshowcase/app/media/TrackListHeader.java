@@ -15,36 +15,7 @@
 
 package android.support.v17.leanback.supportleanbackshowcase.app.media;
 
-import android.content.Context;
-import android.support.v17.leanback.supportleanbackshowcase.R;
 import android.support.v17.leanback.widget.Row;
-import android.support.v17.leanback.widget.RowPresenter;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 public class TrackListHeader extends Row {
-
-    public static class Presenter extends RowPresenter {
-
-        private final Context mContext;
-
-        public Presenter(Context context) {
-            mContext = context;
-            setHeaderPresenter(null);
-        }
-
-        @Override public boolean isUsingDefaultSelectEffect() {
-            return false;
-        }
-
-        @Override protected ViewHolder createRowViewHolder(ViewGroup parent) {
-            View view = LayoutInflater.from(mContext).inflate(R.layout.row_track_list_header, parent, false);
-            view.setFocusable(false);
-            view.setFocusableInTouchMode(false);
-            return new ViewHolder(view);
-        }
-    }
-
-
 }

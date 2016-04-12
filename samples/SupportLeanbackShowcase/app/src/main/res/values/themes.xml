@@ -73,4 +73,22 @@
         <item name="android:windowBackground">@drawable/background_sax</item>
      </style>
 
+    <style name="Theme.Example.LeanbackMusic.RegularSongNumbers">
+        <!--<item name="playbackMediaItemRowStyle">@style/SharedMediaItemRowStyle</item>-->
+        <item name="playbackMediaItemNumberStyle">@style/RegularMediaItemNumberStyle</item>
+        <item name="playbackMediaItemNameStyle">@style/RegularMediaItemNameStyle</item>
+        <item name="playbackMediaItemDurationStyle">@style/RegularMediaItemDurationStyle</item>
+    </style>
+
+    <style name="Theme.Example.LeanbackMusic.FavoriteSongNumbers">
+        <!--<item name="playbackMediaItemRowStyle">@style/SharedMediaItemRowStyle</item>-->
+        <item name="playbackMediaItemNumberStyle">@style/FavoriteMediaItemNumberStyle</item>
+        <item name="playbackMediaItemNameStyle">@style/FavoriteMediaItemNameStyle</item>
+        <item name="playbackMediaItemDurationStyle">@style/FavoriteMediaItemDurationStyle</item>
+    </style>
+
+    <style name="Theme.Example.LeanbackMusic.TrackListHeader">
+        <item name="playbackMediaListHeaderStyle">@style/MediaListHeaderStyle</item>
+    </style>
+
 </resources>

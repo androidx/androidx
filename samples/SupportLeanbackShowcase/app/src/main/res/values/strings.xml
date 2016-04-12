@@ -46,7 +46,7 @@
     <string name="wizard_example_watch_sd">Watch in standard definition on the web and supported devices</string>
     <string name="wizard_example_rental_period">Rental period: start within 30 days,\nfinish within 24 hours</string>
     <string name="wizard_example_input_card">Enter credit card number</string>
-    <string name="wizard_example_expiration_date">Exp. date</string>
+    <string name="wizard_example_expiration_date">Exp Date</string>
     <string name="wizard_example_payment_method">Payment Method</string>
     <string name="wizard_example_toast_payment_method_clicked">\'Payment Method\' clicked.</string>
     <string name="wizard_example_rent">Rent</string>

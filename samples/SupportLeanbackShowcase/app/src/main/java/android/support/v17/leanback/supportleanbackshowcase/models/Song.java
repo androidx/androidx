@@ -16,17 +16,22 @@
 package android.support.v17.leanback.supportleanbackshowcase.models;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.support.v17.leanback.supportleanbackshowcase.R;
+import android.support.v17.leanback.widget.BaseOnItemViewSelectedListener;
+import android.support.v17.leanback.widget.MultiActionsProvider;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
-public class Song extends Row {
+public class Song implements MultiActionsProvider {
 
     @SerializedName("title") private String mTitle = "";
     @SerializedName("description") private String mDescription = "";
@@ -35,10 +40,25 @@ public class Song extends Row {
     @SerializedName("file") private String mFile = null;
     @SerializedName("duration") private String mDuration = null;
     @SerializedName("number") private int mNumber = 0;
+    @SerializedName("favorite") private boolean mFavorite = false;
 
+    private MultiAction[] mMediaRowActions;
+
+
+    public void setMediaRowActions(MultiAction[] mediaRowActions) {
+        mMediaRowActions = mediaRowActions;
+    }
+
+    public MultiAction[] getMediaRowActions() {
+        return mMediaRowActions;
+    }
 
     public String getDuration() {
         return mDuration;
+    }
+
+    public void setDuration(String duration) {
+        mDuration = duration;
     }
 
     public int getNumber() {
@@ -53,8 +73,24 @@ public class Song extends Row {
         return mDescription;
     }
 
+    public void setDescription(String description) {
+        mDescription = description;
+    }
+
     public String getTitle() {
         return mTitle;
+    }
+
+    public void setTitle(String title) {
+        mTitle = title;
+    }
+
+    public boolean isFavorite() {
+        return mFavorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        mFavorite = favorite;
     }
 
     public int getFileResource(Context context) {
@@ -67,50 +103,9 @@ public class Song extends Row {
                       .getIdentifier(mImage, "drawable", context.getPackageName());
     }
 
-    public interface OnSongRowClickListener {
-
-        void onSongRowClicked(Song song);
-
+    @Override
+    public MultiAction[] getActions() {
+        return mMediaRowActions;
     }
 
-    public static class Presenter extends RowPresenter implements View.OnClickListener {
-
-        private final Context mContext;
-        private OnSongRowClickListener mClickListener;
-
-
-        public Presenter(Context context) {
-            mContext = context;
-            setHeaderPresenter(null);
-        }
-
-        public void setOnClickListener(OnSongRowClickListener listener) {
-            mClickListener = listener;
-        }
-
-        @Override protected ViewHolder createRowViewHolder(ViewGroup parent) {
-            View view = LayoutInflater.from(mContext).inflate(R.layout.row_song, parent, false);
-            view.findViewById(R.id.rowContainer).setOnClickListener(this);
-            return new ViewHolder(view);
-        }
-
-        @Override public boolean isUsingDefaultSelectEffect() {
-            return false;
-        }
-
-        @Override protected void onBindRowViewHolder(ViewHolder vh, Object item) {
-            super.onBindRowViewHolder(vh, item);
-            Song song = (Song) item;
-            ((TextView) vh.view.findViewById(R.id.trackNumber)).setText("" + song.getNumber());
-            ((TextView) vh.view.findViewById(R.id.trackDuration)).setText(song.getDuration());
-            String text = song.getTitle() + " / " + song.getDescription();
-            ((TextView) vh.view.findViewById(R.id.trackName)).setText(text);
-            vh.view.findViewById(R.id.rowContainer).setTag(item);
-        }
-
-        @Override public void onClick(View v) {
-            if (mClickListener == null) return;
-            mClickListener.onSongRowClicked((Song) v.getTag());
-        }
-    }
 }
