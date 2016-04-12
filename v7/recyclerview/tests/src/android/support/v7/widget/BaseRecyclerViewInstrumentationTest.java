@@ -251,7 +251,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
                                     .validateRemaining(mRecyclerView);
                         }
                     }
-                    getActivity().mContainer.removeAllViews();
+                    getActivity().getContainer().removeAllViews();
                 } catch (Throwable t) {
                     postExceptionToInstrumentation(t);
                 }
@@ -373,13 +373,13 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         runTestOnUiThread(new Runnable() {
             @Override
             public void run() {
-                getActivity().mContainer.addView(recyclerView);
+                getActivity().getContainer().addView(recyclerView);
             }
         });
     }
 
     protected FrameLayout getRecyclerViewContainer() {
-        return getActivity().mContainer;
+        return getActivity().getContainer();
     }
 
     public void requestLayoutOnUIThread(final View view) {

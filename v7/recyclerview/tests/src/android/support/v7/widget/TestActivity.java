@@ -32,7 +32,7 @@ public class TestActivity extends Activity {
     private static final String TEST_RUNNER =
             MonitoringInstrumentation.class.getCanonicalName() + "$" + MonitoringInstrumentation
                     .ActivityFinisher.class.getSimpleName();
-    volatile TestedFrameLayout mContainer;
+    private volatile TestedFrameLayout mContainer;
     boolean mVisible;
     boolean mAllowFinish;
     private Handler mHandler;
@@ -49,6 +49,10 @@ public class TestActivity extends Activity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
         setContentView(mContainer);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    }
+
+    public TestedFrameLayout getContainer() {
+        return mContainer;
     }
 
     public void resetContent() throws InterruptedException {
