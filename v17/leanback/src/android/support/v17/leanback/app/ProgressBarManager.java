@@ -28,22 +28,22 @@ public final class ProgressBarManager {
     private Runnable runnable = new Runnable() {
         @Override
         public void run() {
-            if (!mEnableProgressBar || mIsShowing ||
-                    (!mUserProvidedProgressBar && rootView == null)) {
+            if (!mEnableProgressBar || (!mUserProvidedProgressBar && rootView == null)) {
                 return;
             }
 
-            mIsShowing = true;
-            if (mProgressBarView == null) {
-                mProgressBarView = new ProgressBar(
-                        rootView.getContext(), null, android.R.attr.progressBarStyleLarge);
-                FrameLayout.LayoutParams progressBarParams = new FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.WRAP_CONTENT,
-                        FrameLayout.LayoutParams.WRAP_CONTENT);
-                progressBarParams.gravity = Gravity.CENTER;
-                rootView.addView(mProgressBarView, progressBarParams);
-            } else if (mUserProvidedProgressBar) {
-                mProgressBarView.setVisibility(View.VISIBLE);
+            if (mIsShowing) {
+                if (mProgressBarView == null) {
+                    mProgressBarView = new ProgressBar(
+                            rootView.getContext(), null, android.R.attr.progressBarStyleLarge);
+                    FrameLayout.LayoutParams progressBarParams = new FrameLayout.LayoutParams(
+                            FrameLayout.LayoutParams.WRAP_CONTENT,
+                            FrameLayout.LayoutParams.WRAP_CONTENT);
+                    progressBarParams.gravity = Gravity.CENTER;
+                    rootView.addView(mProgressBarView, progressBarParams);
+                } else if (mUserProvidedProgressBar) {
+                    mProgressBarView.setVisibility(View.VISIBLE);
+                }
             }
         }
     };
@@ -64,6 +64,7 @@ public final class ProgressBarManager {
      */
     public void show() {
         if (mEnableProgressBar) {
+            mIsShowing = true;
             mHandler.postDelayed(runnable, mInitialDelay);
         }
     }
@@ -72,10 +73,6 @@ public final class ProgressBarManager {
      * Hides the progress bar.
      */
     public void hide() {
-        if (!mIsShowing) {
-            return;
-        }
-
         mIsShowing = false;
         if (mUserProvidedProgressBar) {
             mProgressBarView.setVisibility(View.INVISIBLE);
