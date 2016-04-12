@@ -37,7 +37,7 @@ class DrawableCompatJellybeanMr1 {
     private static Method sGetLayoutDirectionMethod;
     private static boolean sGetLayoutDirectionMethodFetched;
 
-    public static void setLayoutDirection(Drawable drawable, int layoutDirection) {
+    public static boolean setLayoutDirection(Drawable drawable, int layoutDirection) {
         if (!sSetLayoutDirectionMethodFetched) {
             try {
                 sSetLayoutDirectionMethod =
@@ -52,11 +52,13 @@ class DrawableCompatJellybeanMr1 {
         if (sSetLayoutDirectionMethod != null) {
             try {
                 sSetLayoutDirectionMethod.invoke(drawable, layoutDirection);
+                return true;
             } catch (Exception e) {
                 Log.i(TAG, "Failed to invoke setLayoutDirection(int) via reflection", e);
                 sSetLayoutDirectionMethod = null;
             }
         }
+        return false;
     }
 
     public static int getLayoutDirection(Drawable drawable) {
