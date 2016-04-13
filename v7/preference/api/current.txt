@@ -253,7 +253,7 @@ package android.support.v7.preference {
     method public void setOrderingAsAdded(boolean);
   }
 
-  public static abstract interface PreferenceGroup.GetPreferenceAdapterPosition {
+  public static abstract interface PreferenceGroup.PreferencePositionCallback {
     method public abstract int getPreferenceAdapterPosition(java.lang.String);
     method public abstract int getPreferenceAdapterPosition(android.support.v7.preference.Preference);
   }
