@@ -403,17 +403,18 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
     }
 
     /**
-     * Callback invoked when an action's title or description has been edited.
-     * Override {@link #onGuidedActionEditedAndProceed(GuidedAction)} instead of app wants to
-     * control the next action to focus on.
+     * Callback invoked when an action's title or description has been edited, this happens either
+     * when user clicks confirm button in IME or user closes IME window by BACK key.
+     * Override {@link #onGuidedActionEditedAndProceed(GuidedAction)} instead if app only wants to
+     * respond when confirm button of IME is clicked.
      */
     public void onGuidedActionEdited(GuidedAction action) {
     }
 
     /**
-     * Callback invoked when an action's title or description has been edited.  Default
-     * implementation calls {@link #onGuidedActionEdited(GuidedAction)} and returns
-     * {@link GuidedAction#ACTION_ID_NEXT}.
+     * Callback invoked when an action's title or description has been edited, this happens when
+     * user clicks confirm button in IME.  Default implementation calls
+     * {@link #onGuidedActionEdited(GuidedAction)} and returns {@link GuidedAction#ACTION_ID_NEXT}.
      *
      * @param action The action that has been edited.
      * @return ID of the action will be focused or {@link GuidedAction#ACTION_ID_NEXT},
@@ -1031,8 +1032,13 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
                 }
 
                 @Override
-                public long onGuidedActionEdited(GuidedAction action) {
+                public long onGuidedActionEditedAndProceed(GuidedAction action) {
                     return GuidedStepFragment.this.onGuidedActionEditedAndProceed(action);
+                }
+
+                @Override
+                public void onGuidedActionEdited(GuidedAction action) {
+                    GuidedStepFragment.this.onGuidedActionEdited(action);
                 }
         };
 
