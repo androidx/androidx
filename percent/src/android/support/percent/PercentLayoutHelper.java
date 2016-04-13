@@ -348,22 +348,31 @@ public class PercentLayoutHelper {
      * for {@code LayoutParams}.
      */
     public static class PercentLayoutInfo {
+        /** The decimal value of the percentage-based width. */
         public float widthPercent;
 
+        /** The decimal value of the percentage-based height. */
         public float heightPercent;
 
+        /** The decimal value of the percentage-based left margin. */
         public float leftMarginPercent;
 
+        /** The decimal value of the percentage-based top margin. */
         public float topMarginPercent;
 
+        /** The decimal value of the percentage-based right margin. */
         public float rightMarginPercent;
 
+        /** The decimal value of the percentage-based bottom margin. */
         public float bottomMarginPercent;
 
+        /** The decimal value of the percentage-based start margin. */
         public float startMarginPercent;
 
+        /** The decimal value of the percentage-based end margin. */
         public float endMarginPercent;
 
+        /** The decimal value of the percentage-based aspect ratio. */
         public float aspectRatio;
 
         /* package */ final PercentMarginLayoutParams mPreservedParams;
@@ -381,7 +390,9 @@ public class PercentLayoutHelper {
         }
 
         /**
-         * Fills {@code ViewGroup.LayoutParams} dimensions based on percentage values.
+         * Fills the {@link ViewGroup.LayoutParams#width} and {@link ViewGroup.LayoutParams#height}
+         * fields of the passed {@link ViewGroup.LayoutParams} object based on currently set
+         * percentage values.
          */
         public void fillLayoutParams(ViewGroup.LayoutParams params, int widthHint,
                 int heightHint) {
@@ -438,8 +449,9 @@ public class PercentLayoutHelper {
         }
 
         /**
-         * Fills {@code ViewGroup.MarginLayoutParams} dimensions and margins based on percentage
-         * values.
+         * Fills the margin fields of the passed {@link ViewGroup.MarginLayoutParams} object based
+         * on currently set percentage values and the current layout direction of the passed
+         * {@link View}.
          */
         public void fillMarginLayoutParams(View view, ViewGroup.MarginLayoutParams params,
                 int widthHint, int heightHint) {
@@ -500,9 +512,9 @@ public class PercentLayoutHelper {
         }
 
         /**
-         * Restores original dimensions and margins after they were changed for percentage based
-         * values. Calling this method only makes sense if you previously called
-         * {@link PercentLayoutHelper.PercentLayoutInfo#fillMarginLayoutParams}.
+         * Restores the original dimensions and margins after they were changed for percentage based
+         * values. You should call this method only if you previously called
+         * {@link PercentLayoutHelper.PercentLayoutInfo#fillMarginLayoutParams(View, ViewGroup.MarginLayoutParams, int, int)}.
          */
         public void restoreMarginLayoutParams(ViewGroup.MarginLayoutParams params) {
             restoreLayoutParams(params);
@@ -517,9 +529,9 @@ public class PercentLayoutHelper {
         }
 
         /**
-         * Restores original dimensions after they were changed for percentage based values. Calling
-         * this method only makes sense if you previously called
-         * {@link PercentLayoutHelper.PercentLayoutInfo#fillLayoutParams}.
+         * Restores original dimensions after they were changed for percentage based values.
+         * You should call this method only if you previously called
+         * {@link PercentLayoutHelper.PercentLayoutInfo#fillLayoutParams(ViewGroup.LayoutParams, int, int)}.
          */
         public void restoreLayoutParams(ViewGroup.LayoutParams params) {
             if (!mPreservedParams.mIsWidthComputedFromAspectRatio) {
