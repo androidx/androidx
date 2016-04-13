@@ -10,6 +10,13 @@
         "description": "Showcase of various card design and layouts"
       },
       {
+        "id": 1,
+        "type": "DEFAULT",
+        "title": "Page/Row fragment Examples",
+        "localImageResource": "thumbnail_example_cards",
+        "description": "Showcase usage of page/rows fragment"
+      },
+      {
         "id": 2,
         "type": "DEFAULT",
         "title": "Grid Examples",

@@ -29,6 +29,9 @@
     <string name="header_related">Related Items</string>
     <string name="header_recommended">Recommended</string>
 
+    <!-- Page/List Row -->
+    <string name="page_list_row_title">Page and List Row</string>
+
     <!-- Dialog example -->
     <string name="dialog_example_title">Use Google\'s location service?</string>
     <string name="dialog_example_description">Let Google help apps determine location. This means sending anonymous location data to Google, even when no apps are running.</string>
@@ -59,5 +62,5 @@
     <string name="wizard_example_visa">Visa-%s</string>
     <string name="wizard_example_master">Master-%s</string>
     <string name="wizard_example_input_credit_wrong">Error: invalid credit card number</string>
-    s<string name="wizard_example_just_a_second">Just a second...</string>
+    <string name="wizard_example_just_a_second">Just a second...</string>
 </resources>
