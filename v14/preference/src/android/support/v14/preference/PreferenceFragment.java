@@ -35,6 +35,7 @@ import android.support.v7.preference.DialogPreference;
 import android.support.v7.preference.EditTextPreference;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceGroup;
 import android.support.v7.preference.PreferenceGroupAdapter;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.preference.PreferenceScreen;
@@ -157,6 +158,8 @@ public abstract class PreferenceFragment extends Fragment implements
             mList.focusableViewAvailable(mList);
         }
     };
+
+    private Runnable mSelectPreferenceRunnable;
 
     /**
      * Interface that PreferenceFragment's containing activity should
@@ -293,6 +296,7 @@ public abstract class PreferenceFragment extends Fragment implements
 
         listContainer.addView(mList);
         mHandler.post(mRequestFocus);
+
         return view;
     }
 
@@ -326,6 +330,10 @@ public abstract class PreferenceFragment extends Fragment implements
 
         if (mHavePrefs) {
             bindPreferences();
+            if (mSelectPreferenceRunnable != null) {
+                mSelectPreferenceRunnable.run();
+                mSelectPreferenceRunnable = null;
+            }
         }
 
         mInitDone = true;
@@ -649,6 +657,113 @@ public abstract class PreferenceFragment extends Fragment implements
      */
     public Fragment getCallbackFragment() {
         return null;
+    }
+
+    public void scrollToPreference(final String key) {
+        scrollToPreferenceInternal(null, key);
+    }
+
+    public void scrollToPreference(final Preference preference) {
+        scrollToPreferenceInternal(preference, null);
+    }
+
+    private void scrollToPreferenceInternal(final Preference preference, final String key) {
+        final Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                final RecyclerView.Adapter adapter = mList.getAdapter();
+                if (!(adapter instanceof
+                        PreferenceGroup.PreferencePositionCallback)) {
+                    if (adapter != null) {
+                        throw new IllegalStateException("Adapter must implement "
+                                + "PreferencePositionCallback");
+                    } else {
+                        // Adapter was set to null, so don't scroll I guess?
+                        return;
+                    }
+                }
+                final int position;
+                if (preference != null) {
+                    position = ((PreferenceGroup.PreferencePositionCallback) adapter)
+                            .getPreferenceAdapterPosition(preference);
+                } else {
+                    position = ((PreferenceGroup.PreferencePositionCallback) adapter)
+                            .getPreferenceAdapterPosition(key);
+                }
+                if (position != RecyclerView.NO_POSITION) {
+                    mList.scrollToPosition(position);
+                } else {
+                    // Item not found, wait for an update and try again
+                    adapter.registerAdapterDataObserver(
+                            new ScrollToPreferenceObserver(adapter, mList, preference, key));
+                }
+            }
+        };
+        if (mList == null) {
+            mSelectPreferenceRunnable = r;
+        } else {
+            r.run();
+        }
+    }
+
+    private static class ScrollToPreferenceObserver extends RecyclerView.AdapterDataObserver {
+        private final RecyclerView.Adapter mAdapter;
+        private final RecyclerView mList;
+        private final Preference mPreference;
+        private final String mKey;
+
+        public ScrollToPreferenceObserver(RecyclerView.Adapter adapter, RecyclerView list,
+                Preference preference, String key) {
+            mAdapter = adapter;
+            mList = list;
+            mPreference = preference;
+            mKey = key;
+        }
+
+        private void scrollToPreference() {
+            mAdapter.unregisterAdapterDataObserver(this);
+            final int position;
+            if (mPreference != null) {
+                position = ((PreferenceGroup.PreferencePositionCallback) mAdapter)
+                        .getPreferenceAdapterPosition(mPreference);
+            } else {
+                position = ((PreferenceGroup.PreferencePositionCallback) mAdapter)
+                        .getPreferenceAdapterPosition(mKey);
+            }
+            if (position != RecyclerView.NO_POSITION) {
+                mList.scrollToPosition(position);
+            }
+        }
+
+        @Override
+        public void onChanged() {
+            scrollToPreference();
+        }
+
+        @Override
+        public void onItemRangeChanged(int positionStart, int itemCount) {
+            scrollToPreference();
+        }
+
+        @Override
+        public void onItemRangeChanged(int positionStart, int itemCount, Object payload) {
+            scrollToPreference();
+        }
+
+        @Override
+        public void onItemRangeInserted(int positionStart, int itemCount) {
+            scrollToPreference();
+        }
+
+        @Override
+        public void onItemRangeRemoved(int positionStart, int itemCount) {
+            scrollToPreference();
+        }
+
+        @Override
+        public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
+            scrollToPreference();
+        }
     }
 
     private class DividerDecoration extends RecyclerView.ItemDecoration {
