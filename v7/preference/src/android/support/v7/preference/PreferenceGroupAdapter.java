@@ -35,7 +35,8 @@ import java.util.List;
  * @hide
  */
 public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewHolder>
-        implements Preference.OnPreferenceChangeInternalListener {
+        implements Preference.OnPreferenceChangeInternalListener,
+        PreferenceGroup.PreferencePositionCallback {
 
     private static final String TAG = "PreferenceGroupAdapter";
 
@@ -294,5 +295,29 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
     public void onBindViewHolder(PreferenceViewHolder holder, int position) {
         final Preference preference = getItem(position);
         preference.onBindViewHolder(holder);
+    }
+
+    @Override
+    public int getPreferenceAdapterPosition(String key) {
+        final int size = mPreferenceList.size();
+        for (int i = 0; i < size; i++) {
+            final Preference candidate = mPreferenceList.get(i);
+            if (TextUtils.equals(key, candidate.getKey())) {
+                return i;
+            }
+        }
+        return RecyclerView.NO_POSITION;
+    }
+
+    @Override
+    public int getPreferenceAdapterPosition(Preference preference) {
+        final int size = mPreferenceList.size();
+        for (int i = 0; i < size; i++) {
+            final Preference canidate = mPreferenceList.get(i);
+            if (canidate != null && canidate.equals(preference)) {
+                return i;
+            }
+        }
+        return RecyclerView.NO_POSITION;
     }
 }
