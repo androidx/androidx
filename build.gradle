@@ -74,6 +74,8 @@ unzipRepo.doFirst {
 task(prepareRepo) << {
 }
 
+
+import android.support.build.ApiModule
 import com.google.common.io.Files
 import com.google.common.base.Charsets
 
@@ -134,11 +136,73 @@ def getSha1(File inputFile) {
     return hashCode.toString()
 }
 
+def createApiSourceSets(Project subProject, List<ApiModule> apiModules) {
+    subProject.ext._apiModules = apiModules
+    subProject.ext.allSS = []
+    if (gradle.ext.studioCompat.enableApiModules) {
+        // nothing to do, they are all modules
+        return
+    }
+    // create a jar task for the api specific internal implementations
+    def internalJar = subProject.tasks.create(name: "internalJar", type: Jar) {
+        baseName "internal_impl"
+    }
+    apiModules.each { ApiModule apiModule ->
+        apiModule.sourceSet = createApiSourceset(subProject, apiModule.folderName, apiModule.folderName,
+                apiModule.apiForSourceSet.toString(), apiModule.prev == null ? null : apiModule.prev.sourceSet)
+        subProject.ext.allSS.add(apiModule.sourceSet)
+    }
+    subProject.android.libraryVariants.all { variant ->
+        variant.javaCompile.dependsOn internalJar
+    }
+}
+
+def createApiSourceset(Project subProject, String name, String folder, String apiLevel,
+                       SourceSet previousSource) {
+    def sourceSet = subProject.sourceSets.create(name)
+    sourceSet.java.srcDirs = [folder]
+
+    def configName = sourceSet.getCompileConfigurationName()
+
+    subProject.getDependencies().add(configName, getAndroidPrebuilt(apiLevel))
+    if (previousSource != null) {
+        setupDependencies(subProject, configName, previousSource)
+    }
+    subProject.ext.allSS.add(sourceSet)
+    subProject.tasks.internalJar.from sourceSet.output
+    return sourceSet
+}
+
+def setApiModuleDependencies(Project subProject, DependencyHandler handler, List extraDeps) {
+    if (gradle.ext.studioCompat.enableApiModules) {
+        subProject.android.enforceUniquePackageName=false
+        // add dependency on the latest module
+        handler.compile(project(subProject.ext._apiModules.last().moduleName))
+    } else {
+        handler.compile(files(subProject.tasks.internalJar.archivePath))
+        def firstModule = subProject.ext._apiModules[0]
+        extraDeps.each { dep ->
+            handler."${firstModule.folderName}Compile"(project(dep))
+            handler.compile(project(dep))
+        }
+
+    }
+}
+
+def setupDependencies(Project subProject, String configName, SourceSet previousSourceSet) {
+    subProject.getDependencies().add(configName, previousSourceSet.output)
+    subProject.getDependencies().add(configName, previousSourceSet.compileClasspath)
+}
+
 subprojects {
     // Change buildDir first so that all plugins pick up the new value.
     project.buildDir = project.file("$project.parent.buildDir/../$project.name/build")
-    project.ext.currentSdk = 'current'
+    // current SDK is set in studioCompat.gradle
+    project.ext.currentSdk = gradle.ext.currentSdk
     apply plugin: 'maven'
+    project.ext.createApiSourceSets = this.&createApiSourceset
+    project.ext.setApiModuleDependencies = this.&setApiModuleDependencies
+
 
     version = rootProject.ext.supportVersion
     group = 'com.android.support'

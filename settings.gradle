@@ -1,3 +1,4 @@
+apply from:'buildSrc/studioCompat.gradle'
 include ':support-annotations'
 project(':support-annotations').projectDir = new File(rootDir, 'annotations')
 

@@ -1,70 +1,9 @@
 apply plugin: 'com.android.library'
 archivesBaseName = 'support-v4'
 
-// create a jar task for the code internal implementation
-tasks.create(name: "internalJar", type: Jar) {
-    baseName "internal_impl"
-}
 
-// --------------------------
-// TO ADD NEW PLATFORM SPECIFIC CODE, UPDATE THIS:
-// create and configure the sourcesets/dependencies for platform-specific code.
-// values are: sourceset name, source folder name, api level, previous sourceset.
-
-ext.allSS = []
-
-def baseSS         = createApiSourceset('donut',         'donut',          '4',       null)
-def eclairSS       = createApiSourceset('eclair',       'eclair',        '5',       baseSS)
-def eclairMr1SS    = createApiSourceset('eclairmr1',    'eclair-mr1',    '7',       eclairSS)
-def froyoSS        = createApiSourceset('froyo',        'froyo',         '8',       eclairMr1SS)
-def gingerbreadSS  = createApiSourceset('gingerbread',  'gingerbread',   '9',       froyoSS)
-def honeycombSS    = createApiSourceset('honeycomb',    'honeycomb',     '11',      gingerbreadSS)
-def honeycombMr1SS = createApiSourceset('honeycombmr1', 'honeycomb_mr1', '12',      honeycombSS)
-def honeycombMr2SS = createApiSourceset('honeycombmr2', 'honeycomb_mr2', '13',      honeycombMr1SS)
-def icsSS          = createApiSourceset('ics',          'ics',           '14',      honeycombMr2SS)
-def icsMr1SS       = createApiSourceset('icsmr1',       'ics-mr1',       '15',      icsSS)
-def jbSS           = createApiSourceset('jellybean',    'jellybean',     '16',      icsMr1SS)
-def jbMr1SS        = createApiSourceset('jellybeanmr1', 'jellybean-mr1', '17',      jbSS)
-def jbMr2SS        = createApiSourceset('jellybeanmr2', 'jellybean-mr2', '18',      jbMr1SS)
-def kitkatSS       = createApiSourceset('kitkat',       'kitkat',        '19',      jbMr2SS)
-def api20SS        = createApiSourceset('api20',        'api20',         '20',      kitkatSS)
-def api21SS        = createApiSourceset('api21',        'api21',         '21',      api20SS)
-def api22SS        = createApiSourceset('api22',        'api22',         '22',      api21SS)
-def api23SS        = createApiSourceset('api23',        'api23',         '23',      api22SS)
-def api24SS        = createApiSourceset('api24',        'api24',         'current', api23SS)
-
-def createApiSourceset(String name, String folder, String apiLevel, SourceSet previousSource) {
-    def sourceSet = sourceSets.create(name)
-    sourceSet.java.srcDirs = [folder]
-
-    def configName = sourceSet.getCompileConfigurationName()
-
-    project.getDependencies().add(configName, getAndroidPrebuilt(apiLevel))
-    if (previousSource != null) {
-        setupDependencies(configName, previousSource)
-    }
-    ext.allSS.add(sourceSet)
-
-    internalJar.from sourceSet.output
-
-    return sourceSet
-}
-
-def setupDependencies(String configName, SourceSet previousSourceSet) {
-    project.getDependencies().add(configName, previousSourceSet.output)
-    project.getDependencies().add(configName, previousSourceSet.compileClasspath)
-}
-
+createApiSourceSets(project, gradle.ext.studioCompat.modules.v4.apiTargets)
 dependencies {
-    compile project(':support-annotations')
-    donutCompile project(':support-annotations')
-
-    // add the internal implementation as a dependency.
-    // this is not enough to make the regular compileJava task
-    // depend on the generation of this jar. This is done below
-    // when manipulating the libraryVariants.
-    compile files(internalJar.archivePath)
-
     androidTestCompile ('com.android.support.test:runner:0.4.1') {
         exclude module: 'support-annotations'
     }
@@ -79,6 +18,7 @@ dependencies {
 
 sourceCompatibility = JavaVersion.VERSION_1_7
 targetCompatibility = JavaVersion.VERSION_1_7
+setApiModuleDependencies(project, dependencies, gradle.ext.studioCompat.modules.v4.dependencies)
 
 android {
     compileSdkVersion 4
@@ -119,8 +59,6 @@ android {
 }
 
 android.libraryVariants.all { variant ->
-    variant.javaCompile.dependsOn internalJar
-
     def name = variant.buildType.name
 
     if (name.equals(com.android.builder.core.BuilderConstants.DEBUG)) {
