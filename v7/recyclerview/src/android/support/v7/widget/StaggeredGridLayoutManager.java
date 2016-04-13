@@ -314,6 +314,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         for (int i = 0; i < mSpanCount; i++) {
             mSpans[i].clear();
         }
+        // SGLM will require fresh layout call to recover state after detach
+        view.requestLayout();
     }
 
     /**

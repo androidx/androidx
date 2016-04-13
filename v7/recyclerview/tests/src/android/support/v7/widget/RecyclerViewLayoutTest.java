@@ -45,6 +45,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -78,6 +79,98 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
     public RecyclerViewLayoutTest() {
         super(DEBUG);
+    }
+
+    @Test
+    public void detachAttachGetReadyWithoutChanges() throws Throwable {
+        detachAttachGetReady(false, false, false);
+    }
+
+    @Test
+    public void detachAttachGetReadyRequireLayout() throws Throwable {
+        detachAttachGetReady(true, false, false);
+    }
+
+    @Test
+    public void detachAttachGetReadyRemoveAdapter() throws Throwable {
+        detachAttachGetReady(false, true, false);
+    }
+
+    @Test
+    public void detachAttachGetReadyRemoveLayoutManager() throws Throwable {
+        detachAttachGetReady(false, false, true);
+    }
+
+    private void detachAttachGetReady(final boolean requestLayoutOnDetach,
+            final boolean removeAdapter, final boolean removeLayoutManager) throws Throwable {
+        final LinearLayout ll1 = new LinearLayout(getActivity());
+        final LinearLayout ll2 = new LinearLayout(getActivity());
+        final LinearLayout ll3 = new LinearLayout(getActivity());
+
+        final RecyclerView rv = new RecyclerView(getActivity());
+        ll1.addView(ll2);
+        ll2.addView(ll3);
+        ll3.addView(rv);
+        TestLayoutManager layoutManager = new TestLayoutManager() {
+            @Override
+            public void onLayoutCompleted(RecyclerView.State state) {
+                super.onLayoutCompleted(state);
+                layoutLatch.countDown();
+            }
+
+            @Override
+            public void onDetachedFromWindow(RecyclerView view, RecyclerView.Recycler recycler) {
+                super.onDetachedFromWindow(view, recycler);
+                if (requestLayoutOnDetach) {
+                    view.requestLayout();
+                }
+            }
+        };
+        rv.setLayoutManager(layoutManager);
+        rv.setAdapter(new TestAdapter(10));
+        layoutManager.expectLayouts(1);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                getActivity().getContainer().addView(ll1);
+            }
+        });
+        layoutManager.waitForLayout(2);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ll1.removeView(ll2);
+            }
+        });
+        getInstrumentation().waitForIdleSync();
+        if (removeLayoutManager) {
+            rv.setLayoutManager(null);
+            rv.setLayoutManager(layoutManager);
+        }
+        if (removeAdapter) {
+            rv.setAdapter(null);
+            rv.setAdapter(new TestAdapter(10));
+        }
+        final boolean requireLayout = requestLayoutOnDetach || removeAdapter || removeLayoutManager;
+        layoutManager.expectLayouts(1);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ll1.addView(ll2);
+                if (requireLayout) {
+                    assertTrue(rv.hasPendingAdapterUpdates());
+                    assertFalse(rv.mFirstLayoutComplete);
+                } else {
+                    assertFalse(rv.hasPendingAdapterUpdates());
+                    assertTrue(rv.mFirstLayoutComplete);
+                }
+            }
+        });
+        if (requireLayout) {
+            layoutManager.waitForLayout(2);
+        } else {
+            layoutManager.assertNoLayout("nothing is invalid, layout should not happen", 2);
+        }
     }
 
     @Test
@@ -304,8 +397,8 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         runTestOnUiThread(new Runnable() {
             @Override
             public void run() {
-                getActivity().mContainer.removeView(recyclerView);
-                getActivity().mContainer.addView(recyclerView);
+                getActivity().getContainer().removeView(recyclerView);
+                getActivity().getContainer().addView(recyclerView);
                 try {
                     adapter.deleteAndNotify(1, adapter.getItemCount() - 1);
                 } catch (Throwable throwable) {
@@ -875,7 +968,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
     @Test
     public void nestedDragVertical() throws Throwable {
-        TestedFrameLayout tfl = getActivity().mContainer;
+        TestedFrameLayout tfl = getActivity().getContainer();
         tfl.setNestedScrollMode(TestedFrameLayout.TEST_NESTED_SCROLL_MODE_CONSUME);
         tfl.setNestedFlingMode(TestedFrameLayout.TEST_NESTED_SCROLL_MODE_CONSUME);
         scrollInOtherOrientationTest(FLAG_VERTICAL, 0);
@@ -883,7 +976,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
     @Test
     public void nestedDragHorizontal() throws Throwable {
-        TestedFrameLayout tfl = getActivity().mContainer;
+        TestedFrameLayout tfl = getActivity().getContainer();
         tfl.setNestedScrollMode(TestedFrameLayout.TEST_NESTED_SCROLL_MODE_CONSUME);
         tfl.setNestedFlingMode(TestedFrameLayout.TEST_NESTED_SCROLL_MODE_CONSUME);
         scrollInOtherOrientationTest(FLAG_HORIZONTAL, 0);
@@ -891,7 +984,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
     @Test
     public void nestedDragHorizontalCallsStopNestedScroll() throws Throwable {
-        TestedFrameLayout tfl = getActivity().mContainer;
+        TestedFrameLayout tfl = getActivity().getContainer();
         tfl.setNestedScrollMode(TestedFrameLayout.TEST_NESTED_SCROLL_MODE_CONSUME);
         tfl.setNestedFlingMode(TestedFrameLayout.TEST_NESTED_SCROLL_MODE_CONSUME);
         scrollInOtherOrientationTest(FLAG_HORIZONTAL, 0);
@@ -900,7 +993,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
     @Test
     public void nestedDragVerticalCallsStopNestedScroll() throws Throwable {
-        TestedFrameLayout tfl = getActivity().mContainer;
+        TestedFrameLayout tfl = getActivity().getContainer();
         tfl.setNestedScrollMode(TestedFrameLayout.TEST_NESTED_SCROLL_MODE_CONSUME);
         tfl.setNestedFlingMode(TestedFrameLayout.TEST_NESTED_SCROLL_MODE_CONSUME);
         scrollInOtherOrientationTest(FLAG_VERTICAL, 0);
@@ -3228,7 +3321,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         runTestOnUiThread(new Runnable() {
             @Override
             public void run() {
-                getActivity().mContainer.addView(recyclerView);
+                getActivity().getContainer().addView(recyclerView);
             }
         });
         testLayoutManager.waitForLayout(2);
