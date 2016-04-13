@@ -25,6 +25,10 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
+/**
+ * A version of {@link ListPreference} that presents the options in a
+ * drop down menu rather than a dialog.
+ */
 public class DropDownPreference extends ListPreference {
 
     private final Context mContext;
