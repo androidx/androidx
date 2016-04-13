@@ -144,6 +144,31 @@ public class DrawerLayoutActions {
     /**
      * Opens the drawer at the specified edge gravity.
      */
+    public static ViewAction openDrawer(final int drawerEdgeGravity, final boolean animate) {
+        return wrap(new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return isAssignableFrom(DrawerLayout.class);
+            }
+
+            @Override
+            public String getDescription() {
+                return "Opens the drawer";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                uiController.loopMainThreadUntilIdle();
+
+                DrawerLayout drawerLayout = (DrawerLayout) view;
+                drawerLayout.openDrawer(drawerEdgeGravity, animate);
+            }
+        });
+    }
+
+    /**
+     * Opens the drawer at the specified edge gravity.
+     */
     public static ViewAction openDrawer(final int drawerEdgeGravity) {
         return wrap(new ViewAction() {
             @Override
@@ -212,6 +237,31 @@ public class DrawerLayoutActions {
 
                 DrawerLayout drawerLayout = (DrawerLayout) view;
                 drawerLayout.closeDrawer(drawerEdgeGravity);
+            }
+        });
+    }
+
+    /**
+     * Closes the drawer at the specified edge gravity.
+     */
+    public static ViewAction closeDrawer(final int drawerEdgeGravity, final boolean animate) {
+        return wrap(new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return isAssignableFrom(DrawerLayout.class);
+            }
+
+            @Override
+            public String getDescription() {
+                return "Closes the drawer";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                uiController.loopMainThreadUntilIdle();
+
+                DrawerLayout drawerLayout = (DrawerLayout) view;
+                drawerLayout.closeDrawer(drawerEdgeGravity, animate);
             }
         });
     }
