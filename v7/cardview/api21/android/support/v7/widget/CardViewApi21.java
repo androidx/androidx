@@ -24,10 +24,11 @@ class CardViewApi21 implements CardViewImpl {
 
     @Override
     public void initialize(CardViewDelegate cardView, Context context,
-            ColorStateList backgroundColor, float radius, float elevation, float maxElevation) {
-        final RoundRectDrawable backgroundDrawable = new RoundRectDrawable(backgroundColor, radius);
-        cardView.setBackgroundDrawable(backgroundDrawable);
-        View view = (View) cardView;
+                ColorStateList backgroundColor, float radius, float elevation, float maxElevation) {
+        final RoundRectDrawable background = new RoundRectDrawable(backgroundColor, radius);
+        cardView.setCardBackground(background);
+
+        View view = cardView.getCardView();
         view.setClipToOutline(true);
         view.setElevation(elevation);
         setMaxElevation(cardView, maxElevation);
@@ -35,7 +36,7 @@ class CardViewApi21 implements CardViewImpl {
 
     @Override
     public void setRadius(CardViewDelegate cardView, float radius) {
-        ((RoundRectDrawable) (cardView.getBackground())).setRadius(radius);
+        getCardBackground(cardView).setRadius(radius);
     }
 
     @Override
@@ -44,14 +45,14 @@ class CardViewApi21 implements CardViewImpl {
 
     @Override
     public void setMaxElevation(CardViewDelegate cardView, float maxElevation) {
-        ((RoundRectDrawable) (cardView.getBackground())).setPadding(maxElevation,
+        getCardBackground(cardView).setPadding(maxElevation,
                 cardView.getUseCompatPadding(), cardView.getPreventCornerOverlap());
         updatePadding(cardView);
     }
 
     @Override
     public float getMaxElevation(CardViewDelegate cardView) {
-        return ((RoundRectDrawable) (cardView.getBackground())).getPadding();
+        return getCardBackground(cardView).getPadding();
     }
 
     @Override
@@ -66,17 +67,17 @@ class CardViewApi21 implements CardViewImpl {
 
     @Override
     public float getRadius(CardViewDelegate cardView) {
-        return ((RoundRectDrawable) (cardView.getBackground())).getRadius();
+        return getCardBackground(cardView).getRadius();
     }
 
     @Override
     public void setElevation(CardViewDelegate cardView, float elevation) {
-        ((View) cardView).setElevation(elevation);
+        cardView.getCardView().setElevation(elevation);
     }
 
     @Override
     public float getElevation(CardViewDelegate cardView) {
-        return ((View) cardView).getElevation();
+        return cardView.getCardView().getElevation();
     }
 
     @Override
@@ -106,6 +107,10 @@ class CardViewApi21 implements CardViewImpl {
 
     @Override
     public void setBackgroundColor(CardViewDelegate cardView, @Nullable ColorStateList color) {
-        ((RoundRectDrawable) (cardView.getBackground())).setColor(color);
+        getCardBackground(cardView).setColor(color);
+    }
+
+    private RoundRectDrawable getCardBackground(CardViewDelegate cardView) {
+        return ((RoundRectDrawable) cardView.getCardBackground());
     }
 }
