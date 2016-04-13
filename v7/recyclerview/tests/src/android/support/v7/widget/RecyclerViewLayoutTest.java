@@ -62,6 +62,8 @@ import static android.support.v7.widget.RecyclerView.SCROLL_STATE_DRAGGING;
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_SETTLING;
 import static android.support.v7.widget.RecyclerView.getChildViewHolderInt;
+
+import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.hamcrest.CoreMatchers.is;
@@ -171,6 +173,75 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         } else {
             layoutManager.assertNoLayout("nothing is invalid, layout should not happen", 2);
         }
+    }
+
+    @Test
+    public void focusSearchWithOtherFocusables() throws Throwable {
+        final LinearLayout container = new LinearLayout(getActivity());
+        container.setOrientation(LinearLayout.VERTICAL);
+        RecyclerView rv = new RecyclerView(getActivity());
+        mRecyclerView = rv;
+        rv.setAdapter(new TestAdapter(10) {
+            @Override
+            public void onBindViewHolder(TestViewHolder holder,
+                    int position) {
+                super.onBindViewHolder(holder, position);
+                holder.itemView.setFocusableInTouchMode(true);
+                holder.itemView.setLayoutParams(
+                        new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT));
+            }
+        });
+        TestLayoutManager tlm = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                detachAndScrapAttachedViews(recycler);
+                layoutRange(recycler, 0, 1);
+                layoutLatch.countDown();
+            }
+
+            @Nullable
+            @Override
+            public View onFocusSearchFailed(View focused, int direction,
+                    RecyclerView.Recycler recycler,
+                    RecyclerView.State state) {
+                assertEquals(View.FOCUS_FORWARD, direction);
+                assertEquals(1, getChildCount());
+                View child0 = getChildAt(0);
+                View view = recycler.getViewForPosition(1);
+                addView(view);
+                measureChild(view, 0, 0);
+                layoutDecorated(view, 0, child0.getBottom(), getDecoratedMeasuredWidth(view),
+                        child0.getBottom() + getDecoratedMeasuredHeight(view));
+                return view;
+            }
+        };
+        tlm.setAutoMeasureEnabled(true);
+        rv.setLayoutManager(tlm);
+        TextView viewAbove = new TextView(getActivity());
+        viewAbove.setText("view above");
+        viewAbove.setFocusableInTouchMode(true);
+        container.addView(viewAbove);
+        container.addView(rv);
+        TextView viewBelow = new TextView(getActivity());
+        viewBelow.setText("view below");
+        viewBelow.setFocusableInTouchMode(true);
+        container.addView(viewBelow);
+        tlm.expectLayouts(1);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                getActivity().getContainer().addView(container);
+            }
+        });
+
+        tlm.waitForLayout(2);
+        requestFocus(viewAbove, true);
+        assertTrue(viewAbove.hasFocus());
+        View newFocused = focusSearch(viewAbove, View.FOCUS_FORWARD);
+        assertThat(newFocused, sameInstance(rv.getChildAt(0)));
+        newFocused = focusSearch(rv.getChildAt(0), View.FOCUS_FORWARD);
+        assertThat(newFocused, sameInstance(rv.getChildAt(1)));
     }
 
     @Test
@@ -533,19 +604,21 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         assertEquals("onFocusSearchFailed should not be called when layout is frozen",
                 0, focusSearchCalled.get());
         freezeLayout(false);
-        focusSearch(recyclerView, c, View.FOCUS_DOWN);
+        focusSearch(c, View.FOCUS_DOWN);
         assertTrue(focusLatch.await(2, TimeUnit.SECONDS));
         assertEquals(1, focusSearchCalled.get());
     }
 
-    public void focusSearch(final ViewGroup parent, final View focused, final int direction)
+    public View focusSearch(final ViewGroup parent, final View focused, final int direction)
             throws Throwable {
+        final View[] result = new View[1];
         runTestOnUiThread(new Runnable() {
             @Override
             public void run() {
-                parent.focusSearch(focused, direction);
+                result[0] = parent.focusSearch(focused, direction);
             }
         });
+        return result[0];
     }
 
     @Test

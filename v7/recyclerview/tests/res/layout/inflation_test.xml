@@ -59,4 +59,25 @@
         android:layout_width="fill_parent"
         android:layout_height="100dp"
         android:nestedScrollingEnabled="false" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/focusability_undefined"
+        android:layout_width="fill_parent"
+        android:layout_height="100dp"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/focusability_after"
+        android:layout_width="fill_parent"
+        android:layout_height="100dp"
+        android:descendantFocusability="afterDescendants"/>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/focusability_before"
+        android:layout_width="fill_parent"
+        android:layout_height="100dp"
+        android:descendantFocusability="beforeDescendants"/>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/focusability_block"
+        android:layout_width="fill_parent"
+        android:layout_height="100dp"
+        android:descendantFocusability="blocksDescendants"/>
 </LinearLayout>

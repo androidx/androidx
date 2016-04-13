@@ -27,6 +27,7 @@ package android.support.v7.recyclerview {
   public static final class R.styleable {
     ctor public R.styleable();
     field public static final int[] RecyclerView;
+    field public static int RecyclerView_android_descendantFocusability;
     field public static int RecyclerView_android_orientation;
     field public static int RecyclerView_layoutManager;
     field public static int RecyclerView_reverseLayout;
