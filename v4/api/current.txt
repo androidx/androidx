@@ -1181,7 +1181,7 @@ package android.support.v4.graphics.drawable {
     method public static void setAutoMirrored(android.graphics.drawable.Drawable, boolean);
     method public static void setHotspot(android.graphics.drawable.Drawable, float, float);
     method public static void setHotspotBounds(android.graphics.drawable.Drawable, int, int, int, int);
-    method public static void setLayoutDirection(android.graphics.drawable.Drawable, int);
+    method public static boolean setLayoutDirection(android.graphics.drawable.Drawable, int);
     method public static void setTint(android.graphics.drawable.Drawable, int);
     method public static void setTintList(android.graphics.drawable.Drawable, android.content.res.ColorStateList);
     method public static void setTintMode(android.graphics.drawable.Drawable, android.graphics.PorterDuff.Mode);
