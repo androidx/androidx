@@ -90,12 +90,14 @@ public class RowHeaderPresenter extends Presenter {
         HeaderItem headerItem = item == null ? null : ((Row) item).getHeaderItem();
         if (headerItem == null) {
             ((RowHeaderView) viewHolder.view).setText(null);
+            viewHolder.view.setContentDescription(null);
             if (mNullItemVisibilityGone) {
                 viewHolder.view.setVisibility(View.GONE);
             }
         } else {
             viewHolder.view.setVisibility(View.VISIBLE);
             ((RowHeaderView) viewHolder.view).setText(headerItem.getName());
+            viewHolder.view.setContentDescription(headerItem.getContentDescription());
         }
     }
 
