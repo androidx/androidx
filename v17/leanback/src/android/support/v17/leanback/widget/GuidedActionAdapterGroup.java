@@ -148,16 +148,11 @@ public class GuidedActionAdapterGroup {
         }
     }
 
-    private long finishEditing(GuidedActionAdapter adapter, GuidedActionsStylist.ViewHolder avh) {
-        long nextActionId = mEditListener.onGuidedActionEdited(avh.getAction());
-        adapter.getGuidedActionsStylist().setEditingMode(avh, avh.getAction(), false);
-        return nextActionId;
-    }
-
     public void fillAndStay(GuidedActionAdapter adapter, TextView v) {
         GuidedActionsStylist.ViewHolder avh = adapter.findSubChildViewHolder(v);
         updateTextIntoAction(avh, v);
-        finishEditing(adapter, avh);
+        mEditListener.onGuidedActionEdited(avh.getAction());
+        adapter.getGuidedActionsStylist().setEditingMode(avh, avh.getAction(), false);
         closeIme(v);
         avh.itemView.requestFocus();
     }
@@ -167,7 +162,8 @@ public class GuidedActionAdapterGroup {
         GuidedActionsStylist.ViewHolder avh = adapter.findSubChildViewHolder(v);
         updateTextIntoAction(avh, v);
         adapter.performOnActionClick(avh);
-        long nextActionId = finishEditing(adapter, avh);
+        long nextActionId = mEditListener.onGuidedActionEditedAndProceed(avh.getAction());
+        adapter.getGuidedActionsStylist().setEditingMode(avh, avh.getAction(), false);
         if (nextActionId != GuidedAction.ACTION_ID_CURRENT
                 && nextActionId != avh.getAction().getId()) {
             handled = focusToNextAction(adapter, avh.getAction(), nextActionId);
