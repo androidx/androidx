@@ -14,6 +14,7 @@
 package android.support.v17.leanback.widget;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.support.v17.leanback.widget.picker.DatePicker;
 
 import java.util.Calendar;
@@ -174,5 +175,15 @@ public class GuidedDatePickerAction extends GuidedAction {
      */
     public long getMaxDate() {
         return mMaxDate;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle bundle, String key) {
+        bundle.putLong(key, getDate());
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle bundle, String key) {
+        setDate(bundle.getLong(key, getDate()));
     }
 }
