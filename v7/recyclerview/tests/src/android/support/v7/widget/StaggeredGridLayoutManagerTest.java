@@ -63,7 +63,19 @@ import java.util.UUID;
 
 @MediumTest
 public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManagerTest {
-
+    @Test
+    public void forceLayoutOnDetach() throws Throwable {
+        setupByConfig(new Config(VERTICAL, false, 3, GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS));
+        waitFirstLayout();
+        assertFalse("test sanity", mRecyclerView.isLayoutRequested());
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mLayoutManager.onDetachedFromWindow(mRecyclerView, mRecyclerView.mRecycler);
+            }
+        });
+        assertTrue(mRecyclerView.isLayoutRequested());
+    }
     @Test
     public void areAllStartsTheSame() throws Throwable {
         setupByConfig(new Config(VERTICAL, false, 3, GAP_HANDLING_NONE).itemCount(300));

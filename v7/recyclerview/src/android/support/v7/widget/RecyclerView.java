@@ -288,6 +288,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 // a layout request will happen, we should not do layout here.
                 return;
             }
+            if (!mIsAttached) {
+                requestLayout();
+                // if we are not attached yet, mark us as requiring layout and skip
+                return;
+            }
             if (mLayoutFrozen) {
                 mLayoutRequestEaten = true;
                 return; //we'll process updates when ice age ends.
@@ -307,7 +312,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     private OnItemTouchListener mActiveOnItemTouchListener;
     private boolean mIsAttached;
     private boolean mHasFixedSize;
-    private boolean mFirstLayoutComplete;
+    @VisibleForTesting boolean mFirstLayoutComplete;
 
     // Counting lock to control whether we should ignore requestLayout calls from children or not.
     private int mEatRequestLayout = 0;
@@ -2122,7 +2127,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         super.onAttachedToWindow();
         mLayoutOrScrollCounter = 0;
         mIsAttached = true;
-        mFirstLayoutComplete = false;
+        mFirstLayoutComplete = mFirstLayoutComplete && !isLayoutRequested();
         if (mLayout != null) {
             mLayout.dispatchAttachedToWindow(this);
         }
@@ -2135,8 +2140,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         if (mItemAnimator != null) {
             mItemAnimator.endAnimations();
         }
-        mFirstLayoutComplete = false;
-
         stopScroll();
         mIsAttached = false;
         if (mLayout != null) {
@@ -6461,11 +6464,16 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         /**
          * Called when this LayoutManager is both attached to a RecyclerView and that RecyclerView
          * is attached to a window.
-         *
-         * <p>Subclass implementations should always call through to the superclass implementation.
-         * </p>
+         * <p>
+         * If the RecyclerView is re-attached with the same LayoutManager and Adapter, it may not
+         * call {@link #onLayoutChildren(Recycler, State)} if nothing has changed and a layout was
+         * not requested on the RecyclerView while it was detached.
+         * <p>
+         * Subclass implementations should always call through to the superclass implementation.
          *
          * @param view The RecyclerView this LayoutManager is bound to
+         *
+         * @see #onDetachedFromWindow(RecyclerView, Recycler)
          */
         @CallSuper
         public void onAttachedToWindow(RecyclerView view) {
@@ -6483,13 +6491,25 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         /**
          * Called when this LayoutManager is detached from its parent RecyclerView or when
          * its parent RecyclerView is detached from its window.
-         *
-         * <p>Subclass implementations should always call through to the superclass implementation.
-         * </p>
+         * <p>
+         * LayoutManager should clear all of its View references as another LayoutManager might be
+         * assigned to the RecyclerView.
+         * <p>
+         * If the RecyclerView is re-attached with the same LayoutManager and Adapter, it may not
+         * call {@link #onLayoutChildren(Recycler, State)} if nothing has changed and a layout was
+         * not requested on the RecyclerView while it was detached.
+         * <p>
+         * If your LayoutManager has View references that it cleans in on-detach, it should also
+         * call {@link RecyclerView#requestLayout()} to ensure that it is re-laid out when
+         * RecyclerView is re-attached.
+         * <p>
+         * Subclass implementations should always call through to the superclass implementation.
          *
          * @param view The RecyclerView this LayoutManager is bound to
          * @param recycler The recycler to use if you prefer to recycle your children instead of
          *                 keeping them around.
+         *
+         * @see #onAttachedToWindow(RecyclerView)
          */
         @CallSuper
         public void onDetachedFromWindow(RecyclerView view, Recycler recycler) {

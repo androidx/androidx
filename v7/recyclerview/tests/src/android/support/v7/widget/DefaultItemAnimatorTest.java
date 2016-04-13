@@ -110,7 +110,7 @@ public class DefaultItemAnimatorTest extends BaseRecyclerViewInstrumentationTest
             }
         };
         mAdapter = new Adapter(20);
-        mDummyParent = getActivity().mContainer;
+        mDummyParent = getActivity().getContainer();
     }
 
     void checkForMainThreadException() throws Throwable {
