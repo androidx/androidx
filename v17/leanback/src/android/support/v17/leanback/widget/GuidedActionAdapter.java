@@ -81,7 +81,12 @@ public class GuidedActionAdapter extends RecyclerView.Adapter {
         /**
          * Called when the user exits edit mode on an action.
          */
-        public long onGuidedActionEdited(GuidedAction action);
+        public void onGuidedActionEdited(GuidedAction action);
+
+        /**
+         * Called when the user exits edit mode on an action and process confirm button in IME.
+         */
+        public long onGuidedActionEditedAndProceed(GuidedAction action);
 
         /**
          * Called when Ime Open
