@@ -954,6 +954,7 @@ package android.support.v17.leanback.widget {
     method public final void setId(long);
     method public final void setLabel1(java.lang.CharSequence);
     method public final void setLabel2(java.lang.CharSequence);
+    field public static final long NO_ID = -1L; // 0xffffffffffffffffL
   }
 
   public class ArrayObjectAdapter extends android.support.v17.leanback.widget.ObjectAdapter {
@@ -1259,12 +1260,15 @@ package android.support.v17.leanback.widget {
     method public boolean hasSubActions();
     method public boolean hasTextEditable();
     method public boolean infoOnly();
+    method public final boolean isAutoSaveRestoreEnabled();
     method public boolean isChecked();
     method public boolean isDescriptionEditable();
     method public boolean isEditTitleUsed();
     method public boolean isEditable();
     method public boolean isEnabled();
     method public boolean isFocusable();
+    method public void onRestoreInstanceState(android.os.Bundle, java.lang.String);
+    method public void onSaveInstanceState(android.os.Bundle, java.lang.String);
     method public void setChecked(boolean);
     method public void setDescription(java.lang.CharSequence);
     method public void setEditDescription(java.lang.CharSequence);
@@ -1296,6 +1300,7 @@ package android.support.v17.leanback.widget {
   public static abstract class GuidedAction.BuilderBase {
     ctor public GuidedAction.BuilderBase(android.content.Context);
     method protected final void applyValues(android.support.v17.leanback.widget.GuidedAction);
+    method public B autoSaveRestoreEnabled(boolean);
     method public B checkSetId(int);
     method public B checked(boolean);
     method public B clickAction(long);
