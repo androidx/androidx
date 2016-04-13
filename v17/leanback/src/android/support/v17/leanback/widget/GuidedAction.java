@@ -13,6 +13,7 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.os.Bundle;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.StringRes;
 import android.support.v17.leanback.R;
@@ -137,7 +138,7 @@ public class GuidedAction extends Action {
          */
         public BuilderBase(Context context) {
             mContext = context;
-            mActionFlags = PF_ENABLED | PF_FOCUSABLE;
+            mActionFlags = PF_ENABLED | PF_FOCUSABLE | PF_AUTORESTORE;
         }
 
         /**
@@ -526,6 +527,19 @@ public class GuidedAction extends Action {
             mSubActions = subActions;
             return (B) this;
         }
+
+        /**
+         * Explicitly sets auto restore feature on the GuidedAction.  It's by default true.
+         * @param autoSaveRestoreEnanbled True if turn on auto save/restore of GuidedAction content,
+         *                                false otherwise.
+         * @return The same BuilderBase object.
+         * @see GuidedAction#isAutoSaveRestoreEnabled()
+         */
+        public B autoSaveRestoreEnabled(boolean autoSaveRestoreEnanbled) {
+            setFlags(autoSaveRestoreEnanbled ? PF_AUTORESTORE : 0, PF_AUTORESTORE);
+            return (B) this;
+        }
+
     }
 
     /**
@@ -567,6 +581,7 @@ public class GuidedAction extends Action {
     private static final int PF_INFO_ONLY = 0x00000008;
     private static final int PF_ENABLED = 0x00000010;
     private static final int PF_FOCUSABLE = 0x00000020;
+    private static final int PF_AUTORESTORE = 0x00000040;
     private int mActionFlags;
 
     private CharSequence mEditTitle;
@@ -858,6 +873,83 @@ public class GuidedAction extends Action {
      */
     public boolean hasSubActions() {
         return mSubActions != null;
+    }
+
+    /**
+     * Returns true if Action will be saved to instanceState and restored later, false otherwise.
+     * The default value is true.  When isAutoSaveRestoreEnabled() is true and {@link #getId()} is
+     * not {@link #NO_ID}:
+     * <li>{@link #isEditable()} is true: save text of {@link #getTitle()}</li>
+     * <li>{@link #isDescriptionEditable()} is true: save text of {@link #getDescription()}</li>
+     * <li>{@link #getCheckSetId()} is not {@link #NO_CHECK_SET}: save {@link #isChecked()}}</li>
+     * <li>{@link GuidedDatePickerAction} will be saved</li>
+     * App may explicitly disable auto restore and handle by itself. App should override Fragment
+     * onSaveInstanceState() and onCreateActions()
+     * @return True if Action will be saved to instanceState and restored later, false otherwise.
+     */
+    public final boolean isAutoSaveRestoreEnabled() {
+        return (mActionFlags & PF_AUTORESTORE) == PF_AUTORESTORE;
+    }
+
+    /**
+     * Save action into a bundle using a given key. When isAutoRestoreEna() is true:
+     * <li>{@link #isEditable()} is true: save text of {@link #getTitle()}</li>
+     * <li>{@link #isDescriptionEditable()} is true: save text of {@link #getDescription()}</li>
+     * <li>{@link #getCheckSetId()} is not {@link #NO_CHECK_SET}: save {@link #isChecked()}}</li>
+     * <li>{@link GuidedDatePickerAction} will be saved</li>
+     * Subclass may override this method.
+     * @param bundle  Bundle to save the Action.
+     * @param key Key used to save the Action.
+     */
+    public void onSaveInstanceState(Bundle bundle, String key) {
+        if (needAutoSaveTitle() && getTitle() != null) {
+            bundle.putString(key, getTitle().toString());
+        } else if (needAutoSaveDescription() && getDescription() != null) {
+            bundle.putString(key, getDescription().toString());
+        } else if (getCheckSetId() != NO_CHECK_SET) {
+            bundle.putBoolean(key, isChecked());
+        }
+    }
+
+    /**
+     * Restore action from a bundle using a given key. When isAutoRestore() is true:
+     * <li>{@link #isEditable()} is true: save text of {@link #getTitle()}</li>
+     * <li>{@link #isDescriptionEditable()} is true: save text of {@link #getDescription()}</li>
+     * <li>{@link #getCheckSetId()} is not {@link #NO_CHECK_SET}: save {@link #isChecked()}}</li>
+     * <li>{@link GuidedDatePickerAction} will be saved</li>
+     * Subclass may override this method.
+     * @param bundle  Bundle to restore the Action from.
+     * @param key Key used to restore the Action.
+     */
+    public void onRestoreInstanceState(Bundle bundle, String key) {
+        if (needAutoSaveTitle()) {
+            String title = bundle.getString(key);
+            if (title != null) {
+                setTitle(title);
+            }
+        } else if (needAutoSaveDescription()) {
+            String description = bundle.getString(key);
+            if (description != null) {
+                setDescription(description);
+            }
+        } else if (getCheckSetId() != NO_CHECK_SET) {
+            setChecked(bundle.getBoolean(key, isChecked()));
+        }
+    }
+
+    final static boolean isPasswordVariant(int inputType) {
+        final int variantion = inputType & InputType.TYPE_MASK_VARIATION;
+        return variantion == InputType.TYPE_TEXT_VARIATION_PASSWORD
+                || variantion == InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                || variantion == InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD;
+    }
+
+    final boolean needAutoSaveTitle() {
+        return isEditable() && !isPasswordVariant(getEditInputType());
+    }
+
+    final boolean needAutoSaveDescription() {
+        return isDescriptionEditable() && !isPasswordVariant(getDescriptionEditInputType());
     }
 
 }

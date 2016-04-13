@@ -23,7 +23,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentManager.BackStackEntry;
 import android.support.v4.app.FragmentTransaction;
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -35,11 +34,9 @@ import android.support.v17.leanback.widget.GuidedAction;
 import android.support.v17.leanback.widget.GuidedActionAdapter;
 import android.support.v17.leanback.widget.GuidedActionAdapterGroup;
 import android.support.v17.leanback.widget.GuidedActionsStylist;
-import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v17.leanback.widget.ViewHolderTask;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
@@ -47,14 +44,10 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -148,6 +141,8 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
 
     private static final String TAG_LEAN_BACK_ACTIONS_FRAGMENT = "leanBackGuidedStepSupportFragment";
     private static final String EXTRA_ACTION_SELECTED_INDEX = "selectedIndex";
+    private static final String EXTRA_ACTION_PREFIX = "action_";
+    private static final String EXTRA_BUTTON_ACTION_PREFIX = "buttonaction_";
 
     private static final String ENTRY_NAME_REPLACE = "GuidedStepDefault";
 
@@ -968,9 +963,15 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
         }
         ArrayList<GuidedAction> actions = new ArrayList<GuidedAction>();
         onCreateActions(actions, savedInstanceState);
+        if (savedInstanceState != null) {
+            onRestoreActions(actions, savedInstanceState);
+        }
         setActions(actions);
         ArrayList<GuidedAction> buttonActions = new ArrayList<GuidedAction>();
         onCreateButtonActions(buttonActions, savedInstanceState);
+        if (savedInstanceState != null) {
+            onRestoreButtonActions(buttonActions, savedInstanceState);
+        }
         setButtonActions(buttonActions);
     }
 
@@ -1123,11 +1124,71 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
     }
 
     /**
+     * Get the key will be used to save GuidedAction with Fragment.
+     * @param action GuidedAction to get key.
+     * @return Key to save the GuidedAction.
+     */
+    final String getAutoRestoreKey(GuidedAction action) {
+        return EXTRA_ACTION_PREFIX + action.getId();
+    }
+
+    /**
+     * Get the key will be used to save GuidedAction with Fragment.
+     * @param action GuidedAction to get key.
+     * @return Key to save the GuidedAction.
+     */
+    final String getButtonAutoRestoreKey(GuidedAction action) {
+        return EXTRA_BUTTON_ACTION_PREFIX + action.getId();
+    }
+
+    final static boolean isSaveEnabled(GuidedAction action) {
+        return action.isAutoSaveRestoreEnabled() && action.getId() != GuidedAction.NO_ID;
+    }
+
+    final void onRestoreActions(List<GuidedAction> actions, Bundle savedInstanceState) {
+        for (int i = 0, size = actions.size(); i < size; i++) {
+            GuidedAction action = actions.get(i);
+            if (isSaveEnabled(action)) {
+                action.onRestoreInstanceState(savedInstanceState, getAutoRestoreKey(action));
+            }
+        }
+    }
+
+    final void onRestoreButtonActions(List<GuidedAction> actions, Bundle savedInstanceState) {
+        for (int i = 0, size = actions.size(); i < size; i++) {
+            GuidedAction action = actions.get(i);
+            if (isSaveEnabled(action)) {
+                action.onRestoreInstanceState(savedInstanceState, getButtonAutoRestoreKey(action));
+            }
+        }
+    }
+
+    final void onSaveActions(List<GuidedAction> actions, Bundle outState) {
+        for (int i = 0, size = actions.size(); i < size; i++) {
+            GuidedAction action = actions.get(i);
+            if (isSaveEnabled(action)) {
+                action.onSaveInstanceState(outState, getAutoRestoreKey(action));
+            }
+        }
+    }
+
+    final void onSaveButtonActions(List<GuidedAction> actions, Bundle outState) {
+        for (int i = 0, size = actions.size(); i < size; i++) {
+            GuidedAction action = actions.get(i);
+            if (isSaveEnabled(action)) {
+                action.onSaveInstanceState(outState, getButtonAutoRestoreKey(action));
+            }
+        }
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        onSaveActions(mActions, outState);
+        onSaveButtonActions(mButtonActions, outState);
         outState.putInt(EXTRA_ACTION_SELECTED_INDEX,
                 (mActionsStylist.getActionsGridView() != null) ?
                         getSelectedActionPosition() : mSelectedIndex);
