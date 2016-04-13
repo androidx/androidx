@@ -213,6 +213,8 @@ package android.support.v7.preference {
     method public void onDisplayPreferenceDialog(android.support.v7.preference.Preference);
     method public void onNavigateToScreen(android.support.v7.preference.PreferenceScreen);
     method public boolean onPreferenceTreeClick(android.support.v7.preference.Preference);
+    method public void scrollToPreference(java.lang.String);
+    method public void scrollToPreference(android.support.v7.preference.Preference);
     method public void setDivider(android.graphics.drawable.Drawable);
     method public void setDividerHeight(int);
     method public void setPreferenceScreen(android.support.v7.preference.PreferenceScreen);
@@ -249,6 +251,11 @@ package android.support.v7.preference {
     method public void removeAll();
     method public boolean removePreference(android.support.v7.preference.Preference);
     method public void setOrderingAsAdded(boolean);
+  }
+
+  public static abstract interface PreferenceGroup.GetPreferenceAdapterPosition {
+    method public abstract int getPreferenceAdapterPosition(java.lang.String);
+    method public abstract int getPreferenceAdapterPosition(android.support.v7.preference.Preference);
   }
 
   public class PreferenceManager {
