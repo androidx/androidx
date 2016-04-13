@@ -22,8 +22,8 @@ import android.graphics.drawable.Drawable;
  * Implementation of drawable compatibility that can call M APIs.
  */
 class DrawableCompatApi23 {
-    public static void setLayoutDirection(Drawable drawable, int layoutDirection) {
-        drawable.setLayoutDirection(layoutDirection);
+    public static boolean setLayoutDirection(Drawable drawable, int layoutDirection) {
+        return drawable.setLayoutDirection(layoutDirection);
     }
 
     public static int getLayoutDirection(Drawable drawable) {

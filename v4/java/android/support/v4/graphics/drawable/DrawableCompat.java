@@ -49,7 +49,7 @@ public final class DrawableCompat {
         void setTintList(Drawable drawable, ColorStateList tint);
         void setTintMode(Drawable drawable, PorterDuff.Mode tintMode);
         Drawable wrap(Drawable drawable);
-        void setLayoutDirection(Drawable drawable, int layoutDirection);
+        boolean setLayoutDirection(Drawable drawable, int layoutDirection);
         int getLayoutDirection(Drawable drawable);
         int getAlpha(Drawable drawable);
         void applyTheme(Drawable drawable, Resources.Theme t);
@@ -105,8 +105,9 @@ public final class DrawableCompat {
         }
 
         @Override
-        public void setLayoutDirection(Drawable drawable, int layoutDirection) {
+        public boolean setLayoutDirection(Drawable drawable, int layoutDirection) {
             // No op for API < 23
+            return false;
         }
 
         @Override
@@ -168,8 +169,8 @@ public final class DrawableCompat {
 
     static class JellybeanMr1DrawableImpl extends HoneycombDrawableImpl {
         @Override
-        public void setLayoutDirection(Drawable drawable, int layoutDirection) {
-            DrawableCompatJellybeanMr1.setLayoutDirection(drawable, layoutDirection);
+        public boolean setLayoutDirection(Drawable drawable, int layoutDirection) {
+            return DrawableCompatJellybeanMr1.setLayoutDirection(drawable, layoutDirection);
         }
 
         @Override
@@ -266,8 +267,8 @@ public final class DrawableCompat {
      */
     static class MDrawableImpl extends LollipopDrawableImpl {
         @Override
-        public void setLayoutDirection(Drawable drawable, int layoutDirection) {
-            DrawableCompatApi23.setLayoutDirection(drawable, layoutDirection);
+        public boolean setLayoutDirection(Drawable drawable, int layoutDirection) {
+            return DrawableCompatApi23.setLayoutDirection(drawable, layoutDirection);
         }
 
         @Override
@@ -493,10 +494,13 @@ public final class DrawableCompat {
      * @param layoutDirection the resolved layout direction for the drawable,
      *                        either {@link ViewCompat#LAYOUT_DIRECTION_LTR}
      *                        or {@link ViewCompat#LAYOUT_DIRECTION_RTL}
+     * @return {@code true} if the layout direction change has caused the
+     *         appearance of the drawable to change such that it needs to be
+     *         re-drawn, {@code false} otherwise
      * @see #getLayoutDirection(Drawable)
      */
-    public static void setLayoutDirection(@NonNull Drawable drawable, int layoutDirection) {
-        IMPL.setLayoutDirection(drawable, layoutDirection);
+    public static boolean setLayoutDirection(@NonNull Drawable drawable, int layoutDirection) {
+        return IMPL.setLayoutDirection(drawable, layoutDirection);
     }
 
     /**
