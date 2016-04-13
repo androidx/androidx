@@ -50,7 +50,7 @@ class RoundRectDrawable extends Drawable {
     private ColorStateList mBackground;
     private PorterDuffColorFilter mTintFilter;
     private ColorStateList mTint;
-    private PorterDuff.Mode mTintMode;
+    private PorterDuff.Mode mTintMode = PorterDuff.Mode.SRC_IN;
 
     public RoundRectDrawable(ColorStateList backgroundColor, float radius) {
         mRadius = radius;
