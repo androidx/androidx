@@ -29,6 +29,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.ColorInt;
 import android.support.v4.view.GravityCompat;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.widget.RemoteViews;
 
@@ -339,6 +340,34 @@ public class NotificationCompat {
     public static final String EXTRA_COMPACT_ACTIONS = "android.compactActions";
 
     /**
+     * Notification key: the username to be displayed for all messages sent by the user
+     * including
+     * direct replies
+     * {@link MessagingStyle} notification.
+     */
+    public static final String EXTRA_SELF_DISPLAY_NAME = "android.selfDisplayName";
+
+    /**
+     * Notification key: a boolean describing whether the platform should automatically
+     * generate possible replies to
+     * {@link MessagingStyle.Message} objects provided by a
+     * {@link MessagingStyle} notification.
+     */
+    public static final String EXTRA_ALLOW_GENERATED_REPLIES = "android.allowGeneratedReplies";
+
+    /**
+     * Notification key: a {@link String} to be displayed as the title to a conversation
+     * represented by a {@link MessagingStyle}
+     */
+    public static final String EXTRA_CONVERSATION_TITLE = "android.conversationTitle";
+
+    /**
+     * Notification key: an array of {@link Bundle} objects representing
+     * {@link MessagingStyle.Message} objects for a {@link MessagingStyle} notification.
+     */
+    public static final String EXTRA_MESSAGES = "android.messages";
+
+    /**
      * Value of {@link Notification#color} equal to 0 (also known as
      * {@link android.graphics.Color#TRANSPARENT Color.TRANSPARENT}),
      * telling the system not to decorate this notification with any special color but instead use
@@ -578,9 +607,9 @@ public class NotificationCompat {
         public Notification build(Builder b, BuilderExtender extender) {
             NotificationCompatIceCreamSandwich.Builder builder =
                     new NotificationCompatIceCreamSandwich.Builder(
-                    b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
-                    b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
-                    b.mProgressMax, b.mProgress, b.mProgressIndeterminate);
+                            b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
+                            b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
+                            b.mProgressMax, b.mProgress, b.mProgressIndeterminate);
             return extender.build(b, builder);
         }
     }
@@ -596,7 +625,11 @@ public class NotificationCompat {
                     b.mGroupKey, b.mGroupSummary, b.mSortKey);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderJellybean(builder, b.mStyle);
-            return extender.build(b, builder);
+            Notification notification = extender.build(b, builder);
+            if (b.mStyle != null) {
+                b.mStyle.addCompatExtras(getExtras(notification));
+            }
+            return notification;
         }
 
         @Override
@@ -711,7 +744,11 @@ public class NotificationCompat {
                     b.mGroupKey, b.mGroupSummary, b.mSortKey);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderJellybean(builder, b.mStyle);
-            return extender.build(b, builder);
+            Notification notification = extender.build(b, builder);
+            if (b.mStyle != null) {
+                b.mStyle.addCompatExtras(getExtras(notification));
+            }
+            return notification;
         }
 
         @Override
@@ -766,7 +803,11 @@ public class NotificationCompat {
                     b.mGroupKey, b.mGroupSummary, b.mSortKey);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderJellybean(builder, b.mStyle);
-            return extender.build(b, builder);
+            Notification notification = extender.build(b, builder);
+            if (b.mStyle != null) {
+                b.mStyle.addCompatExtras(getExtras(notification));
+            }
+            return notification;
         }
 
         @Override
@@ -785,6 +826,27 @@ public class NotificationCompat {
                 RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
             return NotificationCompatApi21.getUnreadConversationFromBundle(
                     b, factory, remoteInputFactory);
+        }
+    }
+
+    static class NotificationCompatImplApi24 extends NotificationCompatImplApi21 {
+        @Override
+        public Notification build(Builder b,
+                BuilderExtender extender) {
+            NotificationCompatApi24.Builder builder = new NotificationCompatApi24.Builder(
+                    b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
+                    b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
+                    b.mProgressMax, b.mProgress, b.mProgressIndeterminate, b.mShowWhen,
+                    b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mCategory,
+                    b.mPeople, b.mExtras, b.mColor, b.mVisibility, b.mPublicVersion,
+                    b.mGroupKey, b.mGroupSummary, b.mSortKey);
+            addActionsToBuilder(builder, b.mActions);
+            addStyleToBuilderApi24(builder, b.mStyle);
+            Notification notification = extender.build(b, builder);
+            if (b.mStyle != null) {
+                b.mStyle.addCompatExtras(getExtras(notification));
+            }
+            return notification;
         }
     }
 
@@ -821,12 +883,43 @@ public class NotificationCompat {
                         bigPictureStyle.mPicture,
                         bigPictureStyle.mBigLargeIcon,
                         bigPictureStyle.mBigLargeIconSet);
+            } else if (style instanceof MessagingStyle) {
+                // TODO implement BigText fallback
+            }
+        }
+    }
+
+    private static void addStyleToBuilderApi24(NotificationBuilderWithBuilderAccessor builder,
+            Style style) {
+        if (style != null) {
+            if (style instanceof MessagingStyle) {
+                MessagingStyle messagingStyle = (MessagingStyle) style;
+                List<CharSequence> texts = new ArrayList<>();
+                List<Long> timestamps = new ArrayList<>();
+                List<CharSequence> senders = new ArrayList<>();
+                List<String> dataMimeTypes = new ArrayList<>();
+                List<Uri> dataUris = new ArrayList<>();
+
+                for (MessagingStyle.Message message : messagingStyle.mMessages) {
+                    texts.add(message.getText());
+                    timestamps.add(message.getTimestamp());
+                    senders.add(message.getSender());
+                    dataMimeTypes.add(message.getDataMimeType());
+                    dataUris.add(message.getDataUri());
+                }
+                NotificationCompatApi24.addMessagingStyle(builder, messagingStyle.mUserDisplayName,
+                        messagingStyle.mAllowGeneratedReplies, messagingStyle.mConversationTitle,
+                        texts, timestamps, senders, dataMimeTypes, dataUris);
+            } else {
+                addStyleToBuilderJellybean(builder, style);
             }
         }
     }
 
     static {
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 24) {
+            IMPL = new NotificationCompatImplApi24();
+        } else if (Build.VERSION.SDK_INT >= 21) {
             IMPL = new NotificationCompatImplApi21();
         } else if (Build.VERSION.SDK_INT >= 20) {
             IMPL = new NotificationCompatImplApi20();
@@ -1605,6 +1698,20 @@ public class NotificationCompat {
             }
             return notification;
         }
+
+        /**
+         * @hide
+         */
+        // TODO: implement for all styles
+        public void addCompatExtras(Bundle extras) {
+        }
+
+        /**
+         * @hide
+         */
+        // TODO: implement for all styles
+        protected void restoreFromCompatExtras(Bundle extras) {
+        }
     }
 
     /**
@@ -1731,6 +1838,338 @@ public class NotificationCompat {
         public BigTextStyle bigText(CharSequence cs) {
             mBigText = Builder.limitCharSequenceLength(cs);
             return this;
+        }
+    }
+
+    /**
+     * Helper class for generating large-format notifications that include multiple back-and-forth
+     * messages of varying types between any number of people.
+     *
+     * <br>
+     * If the platform does not provide large-format notifications, this method has no effect. The
+     * user will always see the normal notification view.
+     * <br>
+     * This class is a "rebuilder": It attaches to a Builder object and modifies its behavior, like
+     * so:
+     * <pre class="prettyprint">
+     *
+     * Notification noti = new Notification.Builder()
+     *     .setContentTitle(&quot;2 new messages wtih &quot; + sender.toString())
+     *     .setContentText(subject)
+     *     .setSmallIcon(R.drawable.new_message)
+     *     .setLargeIcon(aBitmap)
+     *     .setStyle(new Notification.MessagingStyle(resources.getString(R.string.reply_name))
+     *         .addMessage(messages[0].getText(), messages[0].getTime(), messages[0].getSender())
+     *         .addMessage(messages[1].getText(), messages[1].getTime(), messages[1].getSender()))
+     *     .build();
+     * </pre>
+     */
+    public static class MessagingStyle extends Style {
+
+        /**
+         * The maximum number of messages that will be retained in the Notification itself (the
+         * number displayed is up to the platform).
+         */
+        public static final int MAXIMUM_RETAINED_MESSAGES = 25;
+
+        CharSequence mUserDisplayName;
+        CharSequence mConversationTitle;
+        boolean mAllowGeneratedReplies = true;
+        List<Message> mMessages = new ArrayList<>();
+
+        MessagingStyle() {
+        }
+
+        /**
+         * @param userDisplayName the name to be displayed for any replies sent by the user before the
+         * posting app reposts the notification with those messages after they've been actually
+         * sent and in previous messages sent by the user added in
+         * {@link #addMessage(Message)}
+         */
+        public MessagingStyle(CharSequence userDisplayName) {
+            mUserDisplayName = userDisplayName;
+        }
+
+        /**
+         * Returns the name to be displayed for any replies sent by the user
+         */
+        public CharSequence getUserDisplayName() {
+            return mUserDisplayName;
+        }
+
+        /**
+         * Set whether the platform should automatically generate possible replies from messages.
+         * @param allowGeneratedReplies {@code true} to allow generated replies, {@code false}
+         * otherwise
+         * @return this object for method chaining
+         * The default value is {@code true}
+         */
+        public MessagingStyle setAllowGeneratedReplies(boolean allowGeneratedReplies) {
+            mAllowGeneratedReplies = allowGeneratedReplies;
+            return this;
+        }
+
+        /**
+         * Return whether the platform should automatically generate possible replies from messages.
+         */
+        public boolean getAllowGeneratedReplies() {
+            return mAllowGeneratedReplies;
+        }
+
+        /**
+         * Sets the title to be displayed on this conversation. This should only be used for
+         * group messaging and left unset for one-on-one conversations.
+         * @param conversationTitle
+         * @return this object for method chaining.
+         */
+        public MessagingStyle setConversationTitle(CharSequence conversationTitle) {
+            mConversationTitle = conversationTitle;
+            return this;
+        }
+
+        /**
+         * Return the title to be displayed on this conversation. Can be <code>null</code> and
+         * should be for one-on-one conversations
+         */
+        public CharSequence getConversationTitle() {
+            return mConversationTitle;
+        }
+
+        /**
+         * Adds a message for display by this notification. Convenience call for a simple
+         * {@link Message} in {@link #addMessage(Message)}
+         * @param text A {@link CharSequence} to be displayed as the message content
+         * @param timestamp Time at which the message arrived
+         * @param sender A {@link CharSequence} to be used for displaying the name of the
+         * sender. Should be <code>null</code> for messages by the current user, in which case
+         * the platform will insert {@link #getUserDisplayName()}.
+         * Should be unique amongst all individuals in the conversation, and should be
+         * consistent during re-posts of the notification.
+         *
+         * @see Message#Message(CharSequence, long, CharSequence)
+         *
+         * @return this object for method chaining
+         */
+        public MessagingStyle addMessage(CharSequence text, long timestamp, CharSequence sender) {
+            mMessages.add(new Message(text, timestamp, sender));
+            if (mMessages.size() > MAXIMUM_RETAINED_MESSAGES) {
+                mMessages.remove(0);
+            }
+            return this;
+        }
+
+        /**
+         * Adds a {@link Message} for display in this notification.
+         * @param message The {@link Message} to be displayed
+         * @return this object for method chaining
+         */
+        public MessagingStyle addMessage(Message message) {
+            mMessages.add(message);
+            if (mMessages.size() > MAXIMUM_RETAINED_MESSAGES) {
+                mMessages.remove(0);
+            }
+            return this;
+        }
+
+        /**
+         * Gets the list of {@code Message} objects that represent the notification
+         */
+        public List<Message> getMessages() {
+            return mMessages;
+        }
+
+        @Override
+        public void addCompatExtras(Bundle extras) {
+            super.addCompatExtras(extras);
+            if (mUserDisplayName != null) {
+                extras.putCharSequence(EXTRA_SELF_DISPLAY_NAME, mUserDisplayName);
+            }
+            if (mConversationTitle != null) {
+                extras.putCharSequence(EXTRA_CONVERSATION_TITLE, mConversationTitle);
+            }
+            extras.putBoolean(EXTRA_ALLOW_GENERATED_REPLIES, mAllowGeneratedReplies);
+            if (!mMessages.isEmpty()) { extras.putParcelableArray(EXTRA_MESSAGES,
+                    Message.getBundleArrayForMessages(mMessages));
+            }
+        }
+
+        /**
+         * @hide
+         */
+        @Override
+        protected void restoreFromCompatExtras(Bundle extras) {
+            mMessages.clear();
+            mUserDisplayName = extras.getString(EXTRA_SELF_DISPLAY_NAME);
+            mConversationTitle = extras.getString(EXTRA_CONVERSATION_TITLE);
+            mAllowGeneratedReplies = extras.getBoolean(EXTRA_ALLOW_GENERATED_REPLIES,
+                    mAllowGeneratedReplies);
+            Parcelable[] parcelables = extras.getParcelableArray(EXTRA_MESSAGES);
+            if (parcelables != null) {
+                mMessages = Message.getMessagesFromBundleArray((Bundle[]) parcelables);
+            }
+        }
+
+        public static final class Message {
+
+            public static final String KEY_TEXT = "text";
+            public static final String KEY_TIMESTAMP = "time";
+            public static final String KEY_SENDER = "sender";
+            public static final String KEY_DATA_MIME_TYPE = "type";
+            public static final String KEY_DATA_URI= "uri";
+
+            private final CharSequence mText;
+            private final long mTimestamp;
+            private final CharSequence mSender;
+
+            private String mDataMimeType;
+            private Uri mDataUri;
+
+            /**
+             * Constructor
+             * @param text A {@link CharSequence} to be displayed as the message content
+             * @param timestamp Time at which the message arrived
+             * @param sender A {@link CharSequence} to be used for displaying the name of the
+             * sender. Should be <code>null</code> for messages by the current user, in which case
+             * the platform will insert {@link MessagingStyle#getUserDisplayName()}.
+             * Should be unique amongst all individuals in the conversation, and should be
+             * consistent during re-posts of the notification.
+             */
+            public Message(CharSequence text, long timestamp, CharSequence sender){
+                mText = text;
+                mTimestamp = timestamp;
+                mSender = sender;
+            }
+
+            /**
+             * Reconstructs a message from a {@link Bundle} created by {@link #toBundle()}.
+             */
+            public Message(Bundle bundle) {
+                if (bundle.containsKey(KEY_TEXT)) {
+                    mText = bundle.getCharSequence(KEY_TEXT);
+                } else {
+                    mText = null;
+                }
+                mTimestamp = bundle.getLong(KEY_TIMESTAMP);
+                if (bundle.containsKey(KEY_SENDER)) {
+                    mSender = bundle.getString(KEY_SENDER);
+                } else {
+                    mSender = null;
+                }
+
+                if (bundle.containsKey(KEY_DATA_MIME_TYPE)) {
+                    mDataMimeType = bundle.getString(KEY_DATA_MIME_TYPE);
+                }
+                if (bundle.containsKey(KEY_DATA_URI)) {
+                    mDataUri = bundle.getParcelable(KEY_DATA_URI);
+                }
+            }
+
+            /**
+             * Sets a binary blob of data and an associated MIME type for a message. In the case
+             * where the platform doesn't support the MIME type, the original text provided in the
+             * constructor will be used.
+             * @param dataMimeType The MIME type of the content. See
+             * <a href="{@docRoot}notifications/messaging.html"> for the list of supported MIME
+             * types on Android and Android Wear.
+             * @param dataUri The uri containing the content whose type is given by the MIME type.
+             * <p class="note">
+             * <ol>
+             *   <li>Notification Listeners including the System UI need permission to access the
+             *       data the Uri points to. The recommended ways to do this are:</li>
+             *   <li>Store the data in your own ContentProvider, making sure that other apps have
+             *       the correct permission to access your provider. The preferred mechanism for
+             *       providing access is to use per-URI permissions which are temporary and only
+             *       grant access to the receiving application. An easy way to create a
+             *       ContentProvider like this is to use the FileProvider helper class.</li>
+             *   <li>Use the system MediaStore. The MediaStore is primarily aimed at video, audio
+             *       and image MIME types, however beginning with Android 3.0 (API level 11) it can
+             *       also store non-media types (see MediaStore.Files for more info). Files can be
+             *       inserted into the MediaStore using scanFile() after which a content:// style
+             *       Uri suitable for sharing is passed to the provided onScanCompleted() callback.
+             *       Note that once added to the system MediaStore the content is accessible to any
+             *       app on the device.</li>
+             * </ol>
+             * @return this object for method chaining
+             */
+            public Message setData(String dataMimeType, Uri dataUri) {
+                mDataMimeType = dataMimeType;
+                mDataUri = dataUri;
+                return this;
+            }
+
+            /**
+             * Get the text to be used for this message, or the fallback text if a type and content
+             * Uri have been set
+             */
+            public CharSequence getText() {
+                return mText;
+            }
+
+            /**
+             * Get the time at which this message arrived
+             */
+            public long getTimestamp() {
+                return mTimestamp;
+            }
+
+            /**
+             * Get the text used to display the contact's name in the messaging experience
+             */
+            public CharSequence getSender() {
+                return mSender;
+            }
+
+            /**
+             * Get the MIME type of the data pointed to by the Uri
+             */
+            public String getDataMimeType() {
+                return mDataMimeType;
+            }
+
+            /**
+             * Get the the Uri pointing to the content of the message. Can be null, in which case
+             * {@see #getText()} is used.
+             */
+            public Uri getDataUri() {
+                return mDataUri;
+            }
+
+            /**
+             * Gets a {@link Bundle} representation of this {@link Message}.
+             */
+            public Bundle toBundle() {
+                Bundle bundle = new Bundle();
+                if (mText != null) {
+                    bundle.putCharSequence(KEY_TEXT, mText);
+                }
+                bundle.putLong(KEY_TIMESTAMP, mTimestamp);
+                if (mSender != null) {
+                    bundle.putCharSequence(KEY_SENDER, mSender);
+                }
+                if (mDataMimeType != null) {
+                    bundle.putString(KEY_DATA_MIME_TYPE, mDataMimeType);
+                }
+                if (mDataUri != null) {
+                    bundle.putParcelable(KEY_DATA_URI, mDataUri);
+                }
+                return bundle;
+            }
+
+            static Bundle[] getBundleArrayForMessages(List<Message> messages) {
+                Bundle[] bundles = new Bundle[messages.size()];
+                for (int i = 0; i < messages.size(); i++) {
+                    bundles[i] = messages.get(i).toBundle();
+                }
+                return bundles;
+            }
+
+            static List<Message> getMessagesFromBundleArray(Bundle[] bundles) {
+                List<Message> messages = new ArrayList<>(bundles.length);
+                for (int i = 0; i < bundles.length; i++) {
+                    messages.add(new Message(bundles[i]));
+                }
+                return messages;
+            }
         }
     }
 
@@ -3357,10 +3796,10 @@ public class NotificationCompat {
     }
 
     /**
-    * Get the category of this notification in a backwards compatible
-    * manner.
-    * @param notif The notification to inspect.
-    */
+     * Get the category of this notification in a backwards compatible
+     * manner.
+     * @param notif The notification to inspect.
+     */
     public static String getCategory(Notification notif) {
         return IMPL.getCategory(notif);
     }
