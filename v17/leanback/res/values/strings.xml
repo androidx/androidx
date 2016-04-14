@@ -15,6 +15,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <!-- contentDescription that will be announced when go inside navigation menu of BrowseFragment-->
+    <string name="lb_navigation_menu_contentDescription">Navigation menu</string>
+
     <!-- Image description for the call to search action visible when browsing content [CHAR LIMIT=40] -->
     <string name="orb_search_action">Search Action</string>
     <!-- Hint showing in the empty search bar [CHAR LIMIT=40] -->

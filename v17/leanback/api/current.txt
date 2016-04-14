@@ -1426,8 +1426,10 @@ package android.support.v17.leanback.widget {
   public class HeaderItem {
     ctor public HeaderItem(long, java.lang.String);
     ctor public HeaderItem(java.lang.String);
+    method public java.lang.CharSequence getContentDescription();
     method public final long getId();
     method public final java.lang.String getName();
+    method public void setContentDescription(java.lang.CharSequence);
   }
 
   public class HorizontalGridView extends android.support.v7.widget.RecyclerView {
@@ -1577,6 +1579,8 @@ package android.support.v17.leanback.widget {
     ctor public ListRow(long, android.support.v17.leanback.widget.HeaderItem, android.support.v17.leanback.widget.ObjectAdapter);
     ctor public ListRow(android.support.v17.leanback.widget.ObjectAdapter);
     method public final android.support.v17.leanback.widget.ObjectAdapter getAdapter();
+    method public java.lang.CharSequence getContentDescription();
+    method public void setContentDescription(java.lang.CharSequence);
   }
 
   public final class ListRowHoverCardView extends android.widget.LinearLayout {
