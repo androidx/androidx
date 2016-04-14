@@ -638,6 +638,7 @@ public class ListRowPresenter extends RowPresenter {
         ListRow rowItem = (ListRow) item;
         vh.mItemBridgeAdapter.setAdapter(rowItem.getAdapter());
         vh.mGridView.setAdapter(vh.mItemBridgeAdapter);
+        vh.mGridView.setContentDescription(rowItem.getContentDescription());
     }
 
     @Override

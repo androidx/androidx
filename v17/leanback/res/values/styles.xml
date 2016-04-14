@@ -209,6 +209,7 @@
         <item name="verticalMargin">@dimen/lb_browse_headers_vertical_margin</item>
         <item name="android:focusable">true</item>
         <item name="android:focusableInTouchMode">true</item>
+        <item name="android:contentDescription">@string/lb_navigation_menu_contentDescription</item>
     </style>
 
     <style name="Widget.Leanback.Header" >
