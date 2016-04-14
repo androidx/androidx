@@ -19,6 +19,7 @@ package android.support.v4.app;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Matrix;
 import android.graphics.RectF;
@@ -162,6 +163,44 @@ public class ActivityCompat extends ContextCompat {
             ActivityCompatJB.startActivityForResult(activity, intent, requestCode, options);
         } else {
             activity.startActivityForResult(intent, requestCode);
+        }
+    }
+
+    /**
+     * Start new IntentSender with options, if able, for which you would like a
+     * result when it finished.
+     *
+     * <p>In Android 4.1+ additional options were introduced to allow for more
+     * control on activity launch animations. Applications can use this method
+     * along with {@link ActivityOptionsCompat} to use these animations when
+     * available. When run on versions of the platform where this feature does
+     * not exist the activity will be launched normally.</p>
+     *
+     * @param activity Origin activity to launch from.
+     * @param intent The IntentSender to launch.
+     * @param requestCode If >= 0, this code will be returned in
+     *                   onActivityResult() when the activity exits.
+     * @param fillInIntent If non-null, this will be provided as the
+     *                     intent parameter to {@link IntentSender#sendIntent}.
+     * @param flagsMask Intent flags in the original IntentSender that you
+     *                  would like to change.
+     * @param flagsValues Desired values for any bits set in <var>flagsMask</var>
+     * @param extraFlags Always set to 0.
+     * @param options Additional options for how the Activity should be started.
+     *                May be null if there are no options. See
+     *                {@link ActivityOptionsCompat} for how to build the Bundle
+     *                supplied here; there are no supported definitions for
+     *                building it manually.
+     */
+    public static void startIntentSenderForResult(Activity activity, IntentSender intent,
+            int requestCode, Intent fillInIntent, int flagsMask, int flagsValues,
+            int extraFlags, @Nullable Bundle options) throws IntentSender.SendIntentException {
+        if (Build.VERSION.SDK_INT >= 16) {
+            ActivityCompatJB.startIntentSenderForResult(activity, intent, requestCode, fillInIntent,
+                    flagsMask, flagsValues, extraFlags, options);
+        } else if (Build.VERSION.SDK_INT >= 5) {
+            ActivityCompatEclair.startIntentSenderForResult(activity, intent, requestCode,
+                    fillInIntent, flagsMask, flagsValues, extraFlags);
         }
     }
 
