@@ -20,10 +20,9 @@ import android.content.ContentResolver;
 import android.content.UriPermission;
 import android.net.Uri;
 import android.os.Environment;
-import android.os.FileUtils;
 import android.os.SystemClock;
-import android.support.v4.provider.DocumentFile;
 import android.test.AndroidTestCase;
+import android.util.Log;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -79,16 +78,32 @@ public class DocumentFileTest extends AndroidTestCase {
 
     private void resetRoot() throws Exception {
         final File tmp = new File(root, "bark.pdf");
-        FileUtils.deleteContents(tmp);
+        deleteContents(tmp);
         tmp.delete();
 
-        FileUtils.deleteContents(rootMeow);
+        deleteContents(rootMeow);
         rootMeow.mkdir();
         rootMeowBar.mkdir();
 
         writeInt(rootFoo, 12);
         writeInt(rootMeowCat, 24);
         writeInt(rootMeowDog, 48);
+    }
+
+    public static boolean deleteContents(File dir) {
+        File[] files = dir.listFiles();
+        boolean success = true;
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    success &= deleteContents(file);
+                }
+                if (!file.delete()) {
+                    success = false;
+                }
+            }
+        }
+        return success;
     }
 
     private interface DocumentTest {
