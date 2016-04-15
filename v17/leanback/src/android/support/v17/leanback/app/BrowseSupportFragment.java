@@ -128,6 +128,13 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             } else if (count < mLastEntryCount) {
                 // if popped "headers" backstack, initiate the show header transition if needed
                 if (mIndexOfHeadersBackStack >= count) {
+                    if (!isHeadersDataReady()) {
+                        // if main fragment was restored first before BrowseSupportFragment's adapater gets
+                        // restored: dont start header transition, but add the entry back.
+                        getFragmentManager().beginTransaction()
+                                .addToBackStack(mWithHeadersBackStackName).commit();
+                        return;
+                    }
                     mIndexOfHeadersBackStack = -1;
                     if (!mShowingHeaders) {
                         startHeadersTransitionInternal(true);
@@ -783,6 +790,9 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         if (getFragmentManager().isDestroyed()) {
             return;
         }
+        if (!isHeadersDataReady()) {
+            return;
+        }
         mShowingHeaders = withHeaders;
         mMainFragmentAdapter.onTransitionPrepare();
         mMainFragmentAdapter.onTransitionStart();
@@ -844,7 +854,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             int towardStart = isRtl ? View.FOCUS_RIGHT : View.FOCUS_LEFT;
             int towardEnd = isRtl ? View.FOCUS_LEFT : View.FOCUS_RIGHT;
             if (mCanShowHeaders && direction == towardStart) {
-                if (isVerticalScrolling() || mShowingHeaders) {
+                if (isVerticalScrolling() || mShowingHeaders || !isHeadersDataReady()) {
                     return focused;
                 }
                 return mHeadersSupportFragment.getVerticalGridView();
@@ -858,6 +868,10 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             }
         }
     };
+
+    private final boolean isHeadersDataReady() {
+        return mAdapter != null && mAdapter.size() != 0;
+    }
 
     private final BrowseFrameLayout.OnChildFocusListener mOnChildFocusListener =
             new BrowseFrameLayout.OnChildFocusListener() {
