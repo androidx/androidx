@@ -33,6 +33,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import static org.junit.Assert.assertFalse;
@@ -116,6 +117,18 @@ public class RecyclerViewTest {
             assertFalse("Incorrect explicit nested scrolling value",
                     view.isNestedScrollingEnabled());
         }
+
+        view = (RecyclerView) getActivity().findViewById(R.id.focusability_undefined);
+        assertEquals(ViewGroup.FOCUS_AFTER_DESCENDANTS, view.getDescendantFocusability());
+
+        view = (RecyclerView) getActivity().findViewById(R.id.focusability_after);
+        assertEquals(ViewGroup.FOCUS_AFTER_DESCENDANTS, view.getDescendantFocusability());
+
+        view = (RecyclerView) getActivity().findViewById(R.id.focusability_before);
+        assertEquals(ViewGroup.FOCUS_BEFORE_DESCENDANTS, view.getDescendantFocusability());
+
+        view = (RecyclerView) getActivity().findViewById(R.id.focusability_block);
+        assertEquals(ViewGroup.FOCUS_BLOCK_DESCENDANTS, view.getDescendantFocusability());
     }
 
     private Activity getActivity() {
