@@ -806,6 +806,13 @@ public class FragmentActivity extends BaseFragmentActivityApi24 implements
             mRetaining = retaining;
             mHandler.removeMessages(MSG_REALLY_STOPPED);
             onReallyStop();
+        } else if (retaining) {
+            // We're already really stopped, but we've been asked to retain.
+            // Our fragments are taken care of but we need to mark the loaders for retention.
+            // In order to do this correctly we need to restart the loaders first before
+            // handing them off to the next activity.
+            mFragments.doLoaderStart();
+            mFragments.doLoaderStop(true);
         }
     }
 
