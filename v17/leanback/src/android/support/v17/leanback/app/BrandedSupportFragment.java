@@ -222,7 +222,7 @@ class BrandedSupportFragment extends Fragment {
     public void onStart() {
         super.onStart();
         if (mTitleView != null) {
-            mTitleView.setVisibility(mShowingTitle ? View.VISIBLE : View.INVISIBLE);
+            showTitle(mShowingTitle);
         }
     }
 
@@ -243,7 +243,7 @@ class BrandedSupportFragment extends Fragment {
     }
 
     /**
-     * Returns true/false when it's showing/hiding the title respectively.
+     * Returns true/false to indicate the visibility of TitleView.
      *
      * @return boolean to indicate whether or not it's showing the title.
      */
