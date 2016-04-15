@@ -229,6 +229,7 @@ public class BrowseFragment extends BaseFragment {
      * {@link BrowseFragment}.
      */
     private final class FragmentHostImpl implements FragmentHost {
+        private boolean mShowTitleViewForPageRow = true;
 
         @Override
         public void notifyViewCreated(MainFragmentAdapter fragmentAdapter) {
@@ -237,11 +238,23 @@ public class BrowseFragment extends BaseFragment {
 
         @Override
         public void showTitleView(boolean show) {
-            if (mShowingHeaders && !isShowingTitle()) {
-                mPendingShowTitleView = true;
+            mShowTitleViewForPageRow = show;
+
+            // If fragment host is not the currently active fragment (in BrowseFragment), then
+            // ignore the request.
+            if (mMainFragmentAdapter == null || mMainFragmentAdapter.getFragmentHost() != this) {
+                return;
             }
-            else if (!mShowingHeaders && !isShowingTitle()) {
-                showTitle(true);
+
+            // We only honor showTitle request for PageRows.
+            if (!mIsPageRow) {
+                return;
+            }
+
+            // We will execute this request right away if the fast lane is hidden/disabled.
+            // Otherwise, we wait for header transition to complete before showing/hiding title.
+            if (!mShowingHeaders) {
+                showTitle(show);
             }
         }
     }
@@ -271,7 +284,7 @@ public class BrowseFragment extends BaseFragment {
     public static class MainFragmentAdapter<T extends Fragment> {
         private boolean mScalingEnabled;
         private final T mFragment;
-        private FragmentHost mFragmentHost;
+        private FragmentHostImpl mFragmentHost;
 
         public MainFragmentAdapter(T fragment) {
             this.mFragment = fragment;
@@ -340,7 +353,7 @@ public class BrowseFragment extends BaseFragment {
             this.mScalingEnabled = scalingEnabled;
         }
 
-        void setFragmentHost(FragmentHost fragmentHost) {
+        void setFragmentHost(FragmentHostImpl fragmentHost) {
             this.mFragmentHost = fragmentHost;
         }
 
@@ -538,7 +551,6 @@ public class BrowseFragment extends BaseFragment {
     private boolean mHeadersBackStackEnabled = true;
     private String mWithHeadersBackStackName;
     private boolean mShowingHeaders = true;
-    private boolean mPendingShowTitleView;
     private boolean mCanShowHeaders = true;
     private int mContainerListMarginStart;
     private int mContainerListAlignTop;
@@ -561,7 +573,6 @@ public class BrowseFragment extends BaseFragment {
     private BrowseTransitionListener mBrowseTransitionListener;
 
     private static final String ARG_TITLE = BrowseFragment.class.getCanonicalName() + ".title";
-    private static final String ARG_BADGE_URI = BrowseFragment.class.getCanonicalName() + ".badge";
     private static final String ARG_HEADERS_STATE =
         BrowseFragment.class.getCanonicalName() + ".headersState";
 
@@ -1037,6 +1048,7 @@ public class BrowseFragment extends BaseFragment {
                 setEntranceTransitionEndState();
             }
         });
+
         return root;
     }
 
@@ -1092,16 +1104,17 @@ public class BrowseFragment extends BaseFragment {
                             headerGridView.requestFocus();
                         }
                     }
-
-                    // Animate titleview once header animation is complete.
-                    if (!mShowingHeaders && mPendingShowTitleView) {
-                        mPendingShowTitleView = false;
-                        showTitle(true);
-                    } else if (mShowingHeaders && isShowingTitle() && mSelectedPosition != 0) {
-                        mPendingShowTitleView = true;
-                        showTitle(false);
-                    }
                 }
+
+                // Animate titleview once header animation is complete.
+                if (!mShowingHeaders) {
+                    if (mIsPageRow && mMainFragmentAdapter != null) {
+                        showTitle(mMainFragmentAdapter.mFragmentHost.mShowTitleViewForPageRow);
+                    }
+                } else {
+                    showTitle(mSelectedPosition == 0);
+                }
+
                 if (mBrowseTransitionListener != null) {
                     mBrowseTransitionListener.onHeadersTransitionStop(mShowingHeaders);
                 }
@@ -1212,10 +1225,6 @@ public class BrowseFragment extends BaseFragment {
             return;
         }
 
-        if (position != mSelectedPosition) {
-            mPendingShowTitleView = false;
-        }
-
         mHeadersFragment.setSelectedPosition(position, smooth);
         replaceMainFragment(position);
 
@@ -1306,7 +1315,6 @@ public class BrowseFragment extends BaseFragment {
         if (isEntranceTransitionEnabled()) {
             setEntranceTransitionStartState();
         }
-        showTitle(false);
     }
 
     private void onExpandTransitionStart(boolean expand, final Runnable callback) {
