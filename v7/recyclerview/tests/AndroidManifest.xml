@@ -17,13 +17,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           package="android.support.v7.recyclerview.test">
-    <uses-sdk android:minSdkVersion="7" tools:overrideLibrary="android.support.test,
+    <uses-sdk android:minSdkVersion="7"
+              android:targetSdkVersion="23"
+              tools:overrideLibrary="android.support.test,
                       android.app, android.support.test.rule, android.support.test.espresso,
                       android.support.test.espresso.idling"/>
 
-    <application>
+    <application android:supportsRtl="true">
         <uses-library android:name="android.test.runner"/>
-        <activity android:name="android.support.v7.widget.test.RecyclerViewTestActivity"/>
+        <activity android:name="android.support.v7.widget.test.RecyclerViewTestActivity"
+                  android:theme="@style/noAnimTheme"/>
         <activity android:name="android.support.v7.widget.TestActivity" android:theme="@style/noAnimTheme"/>
     </application>
 

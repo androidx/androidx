@@ -507,7 +507,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.RecyclerView,
                     defStyle, defStyleRes);
             String layoutManagerName = a.getString(R.styleable.RecyclerView_layoutManager);
-
+            int descendantFocusability = a.getInt(
+                    R.styleable.RecyclerView_android_descendantFocusability, -1);
+            if (descendantFocusability == -1) {
+                setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+            }
             a.recycle();
             createLayoutManager(context, layoutManagerName, attrs, defStyle, defStyleRes);
 
@@ -517,6 +521,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 nestedScrollingEnabled = a.getBoolean(0, true);
                 a.recycle();
             }
+        } else {
+            setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         }
 
         // Re-set whether nested scrolling is enabled so that it is set on all API levels
@@ -2063,23 +2069,139 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         mLeftGlow = mRightGlow = mTopGlow = mBottomGlow = null;
     }
 
-    // Focus handling
-
+    /**
+     * Since RecyclerView is a collection ViewGroup that includes virtual children (items that are
+     * in the Adapter but not visible in the UI), it employs a more involved focus search strategy
+     * that differs from other ViewGroups.
+     * <p>
+     * It first does a focus search within the RecyclerView. If this search finds a View that is in
+     * the focus direction with respect to the currently focused View, RecyclerView returns that
+     * child as the next focus target. When it cannot find such child, it calls
+     * {@link LayoutManager#onFocusSearchFailed(View, int, Recycler, State)} to layout more Views
+     * in the focus search direction. If LayoutManager adds a View that matches the
+     * focus search criteria, it will be returned as the focus search result. Otherwise,
+     * RecyclerView will call parent to handle the focus search like a regular ViewGroup.
+     * <p>
+     * When the direction is {@link View#FOCUS_FORWARD} or {@link View#FOCUS_BACKWARD}, a View that
+     * is not in the focus direction is still valid focus target which may not be the desired
+     * behavior if the Adapter has more children in the focus direction. To handle this case,
+     * RecyclerView converts the focus direction to an absolute direction and makes a preliminary
+     * focus search in that direction. If there are no Views to gain focus, it will call
+     * {@link LayoutManager#onFocusSearchFailed(View, int, Recycler, State)} before running a
+     * focus search with the original (relative) direction. This allows RecyclerView to provide
+     * better candidates to the focus search while still allowing the view system to take focus from
+     * the RecyclerView and give it to a more suitable child if such child exists.
+     *
+     * @param focused The view that currently has focus
+     * @param direction One of {@link View#FOCUS_UP}, {@link View#FOCUS_DOWN},
+     * {@link View#FOCUS_LEFT}, {@link View#FOCUS_RIGHT}, {@link View#FOCUS_FORWARD},
+     * {@link View#FOCUS_BACKWARD} or 0 for not applicable.
+     *
+     * @return A new View that can be the next focus after the focused View
+     */
     @Override
     public View focusSearch(View focused, int direction) {
         View result = mLayout.onInterceptFocusSearch(focused, direction);
         if (result != null) {
             return result;
         }
+        final boolean canRunFocusFailure = mAdapter != null && mLayout != null
+                && !isComputingLayout() && !mLayoutFrozen;
+
         final FocusFinder ff = FocusFinder.getInstance();
-        result = ff.findNextFocus(this, focused, direction);
-        if (result == null && mAdapter != null && mLayout != null && !isComputingLayout()
-                && !mLayoutFrozen) {
-            eatRequestLayout();
-            result = mLayout.onFocusSearchFailed(focused, direction, mRecycler, mState);
-            resumeRequestLayout(false);
+        if (canRunFocusFailure
+                && (direction == View.FOCUS_FORWARD || direction == View.FOCUS_BACKWARD)) {
+            // convert direction to absolute direction and see if we have a view there and if not
+            // tell LayoutManager to add if it can.
+            boolean needsFocusFailureLayout = false;
+            if (mLayout.canScrollVertically()) {
+                final int absDir =
+                        direction == View.FOCUS_FORWARD ? View.FOCUS_DOWN : View.FOCUS_UP;
+                final View found = ff.findNextFocus(this, focused, absDir);
+                needsFocusFailureLayout = found == null;
+            }
+            if (!needsFocusFailureLayout && mLayout.canScrollHorizontally()) {
+                boolean rtl = mLayout.getLayoutDirection() == ViewCompat.LAYOUT_DIRECTION_RTL;
+                final int absDir = (direction == View.FOCUS_FORWARD) ^ rtl
+                        ? View.FOCUS_RIGHT : View.FOCUS_LEFT;
+                final View found = ff.findNextFocus(this, focused, absDir);
+                needsFocusFailureLayout = found == null;
+            }
+            if (needsFocusFailureLayout) {
+                eatRequestLayout();
+                mLayout.onFocusSearchFailed(focused, direction, mRecycler, mState);
+                resumeRequestLayout(false);
+            }
+            result = ff.findNextFocus(this, focused, direction);
+        } else {
+            result = ff.findNextFocus(this, focused, direction);
+            if (result == null && canRunFocusFailure) {
+                eatRequestLayout();
+                result = mLayout.onFocusSearchFailed(focused, direction, mRecycler, mState);
+                resumeRequestLayout(false);
+            }
         }
-        return result != null ? result : super.focusSearch(focused, direction);
+        return isPreferredNextFocus(focused, result, direction)
+                ? result : super.focusSearch(focused, direction);
+    }
+
+    /**
+     * Checks if the new focus candidate is a good enough candidate such that RecyclerView will
+     * assign it as the next focus View instead of letting view hierarchy decide.
+     * A good candidate means a View that is aligned in the focus direction wrt the focused View
+     * and is not the RecyclerView itself.
+     * When this method returns false, RecyclerView will let the parent make the decision so the
+     * same View may still get the focus as a result of that search.
+     */
+    private boolean isPreferredNextFocus(View focused, View next, int direction) {
+        if (next == null || next == this) {
+            return false;
+        }
+        if (focused == null) {
+            return true;
+        }
+
+        if(direction == View.FOCUS_FORWARD || direction == View.FOCUS_BACKWARD) {
+            final boolean rtl = mLayout.getLayoutDirection() == ViewCompat.LAYOUT_DIRECTION_RTL;
+            final int absHorizontal = (direction == View.FOCUS_FORWARD) ^ rtl
+                    ? View.FOCUS_RIGHT : View.FOCUS_LEFT;
+            if (isPreferredNextFocusAbsolute(focused, next, absHorizontal)) {
+                return true;
+            }
+            if (direction == View.FOCUS_FORWARD) {
+                return isPreferredNextFocusAbsolute(focused, next, View.FOCUS_DOWN);
+            } else {
+                return isPreferredNextFocusAbsolute(focused, next, View.FOCUS_UP);
+            }
+        } else {
+            return isPreferredNextFocusAbsolute(focused, next, direction);
+        }
+
+    }
+
+    /**
+     * Logic taken from FocusSarch#isCandidate
+     */
+    private boolean isPreferredNextFocusAbsolute(View focused, View next, int direction) {
+        switch (direction) {
+            case View.FOCUS_LEFT:
+                return (focused.getRight() > next.getRight()
+                        || focused.getLeft() >= next.getRight())
+                        && focused.getLeft() > next.getLeft();
+            case View.FOCUS_RIGHT:
+                return (focused.getLeft() < next.getLeft()
+                        || focused.getRight() <= next.getLeft())
+                        && focused.getRight() < next.getRight();
+            case View.FOCUS_UP:
+                return (focused.getBottom() > next.getBottom()
+                        || focused.getTop() >= next.getBottom())
+                        && focused.getTop() > next.getTop();
+            case View.FOCUS_DOWN:
+                return (focused.getTop() < next.getTop()
+                        || focused.getBottom() <= next.getTop())
+                        && focused.getBottom() < next.getBottom();
+        }
+        throw new IllegalArgumentException("direction must be absolute. received:" + direction);
     }
 
     @Override
@@ -2120,6 +2242,16 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         if (mLayout == null || !mLayout.onAddFocusables(this, views, direction, focusableMode)) {
             super.addFocusables(views, direction, focusableMode);
         }
+    }
+
+    @Override
+    protected boolean onRequestFocusInDescendants(int direction, Rect previouslyFocusedRect) {
+        if (isComputingLayout()) {
+            // if we are in the middle of a layout calculation, don't let any child take focus.
+            // RV will handle it after layout calculation is finished.
+            return false;
+        }
+        return super.onRequestFocusInDescendants(direction, previouslyFocusedRect);
     }
 
     @Override
@@ -7858,7 +7990,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
         /**
          * Calculates the bounding box of the View while taking into account its matrix changes
-         * (translation, scale etc) wrt to the RecyclerView.
+         * (translation, scale etc) with respect to the RecyclerView.
          * <p>
          * If {@code includeDecorInsets} is {@code true}, they are applied first before applying
          * the View's matrix so that the decor offsets also go through the same transformation.

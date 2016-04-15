@@ -1496,9 +1496,21 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     int convertFocusDirectionToLayoutDirection(int focusDirection) {
         switch (focusDirection) {
             case View.FOCUS_BACKWARD:
-                return LayoutState.LAYOUT_START;
+                if (mOrientation == VERTICAL) {
+                    return LayoutState.LAYOUT_START;
+                } else if (isLayoutRTL()) {
+                    return LayoutState.LAYOUT_END;
+                } else {
+                    return LayoutState.LAYOUT_START;
+                }
             case View.FOCUS_FORWARD:
-                return LayoutState.LAYOUT_END;
+                if (mOrientation == VERTICAL) {
+                    return LayoutState.LAYOUT_END;
+                } else if (isLayoutRTL()) {
+                    return LayoutState.LAYOUT_START;
+                } else {
+                    return LayoutState.LAYOUT_END;
+                }
             case View.FOCUS_UP:
                 return mOrientation == VERTICAL ? LayoutState.LAYOUT_START
                         : LayoutState.INVALID_LAYOUT;
