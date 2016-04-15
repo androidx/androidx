@@ -19,6 +19,8 @@ package com.example.android.supportv4.app;
 import com.example.android.supportv4.app.SendResult;
 import com.example.android.supportv4.R;
 
+import android.app.PendingIntent;
+import android.content.IntentSender;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
@@ -55,8 +57,9 @@ public class FragmentReceiveResultSupport extends FragmentActivity {
     }
 
     public static class ReceiveResultFragment extends Fragment {
-        // Definition of the one requestCode we use for receiving resuls.
+        // Definition of the one requestCode we use for receiving results.
         static final private int GET_CODE = 0;
+        static final private int GET_INTENT_SENDER_CODE = 1;
 
         private TextView mResults;
 
@@ -66,6 +69,25 @@ public class FragmentReceiveResultSupport extends FragmentActivity {
                 // result will come back with request code GET_CODE.
                 Intent intent = new Intent(getActivity(), SendResult.class);
                 startActivityForResult(intent, GET_CODE);
+            }
+        };
+
+        private OnClickListener mIntentSenderListener = new OnClickListener() {
+            public void onClick(View v) {
+                // Start the intent sender whose result we want to retrieve.  The
+                // result will come back with request code GET_INTENT_SENDER_CODE.
+                Intent intent = new Intent(getActivity(), SendResult.class);
+                PendingIntent pendingIntent = PendingIntent.getActivity(getContext(),
+                        GET_INTENT_SENDER_CODE, intent, 0);
+                try {
+                    startIntentSenderForResult(pendingIntent.getIntentSender(),
+                            GET_INTENT_SENDER_CODE, null, 0, 0, 0, null);
+                } catch (IntentSender.SendIntentException e) {
+                    // We will be adding to our text.
+                    Editable text = (Editable)mResults.getText();
+                    text.append(e.getMessage());
+                    text.append("\n");
+                }
             }
         };
 
@@ -93,6 +115,8 @@ public class FragmentReceiveResultSupport extends FragmentActivity {
             // Watch for button clicks.
             Button getButton = (Button)v.findViewById(R.id.get);
             getButton.setOnClickListener(mGetListener);
+            Button intentSenderButton = (Button) v.findViewById(R.id.get_intentsender);
+            intentSenderButton.setOnClickListener(mIntentSenderListener);
 
             return v;
         }
@@ -106,10 +130,12 @@ public class FragmentReceiveResultSupport extends FragmentActivity {
             // You can use the requestCode to select between multiple child
             // activities you may have started.  Here there is only one thing
             // we launch.
-            if (requestCode == GET_CODE) {
+            if (requestCode == GET_CODE || requestCode == GET_INTENT_SENDER_CODE) {
 
                 // We will be adding to our text.
                 Editable text = (Editable)mResults.getText();
+
+                text.append((requestCode == GET_CODE) ? "Activity " : "IntentSender ");
 
                 // This is a standard resultCode that is sent back if the
                 // activity doesn't supply an explicit result.  It will also
