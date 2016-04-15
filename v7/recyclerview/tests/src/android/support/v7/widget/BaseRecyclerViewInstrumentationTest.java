@@ -142,8 +142,9 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         });
     }
 
-    public void focusSearch(final View focused, final int direction)
+    public View focusSearch(final View focused, final int direction)
             throws Throwable {
+        final View[] result = new View[1];
         runTestOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -151,8 +152,10 @@ abstract public class BaseRecyclerViewInstrumentationTest {
                 if (view != null && view != focused) {
                     view.requestFocus();
                 }
+                result[0] = view;
             }
         });
+        return result[0];
     }
 
     protected WrappedRecyclerView inflateWrappedRV() {

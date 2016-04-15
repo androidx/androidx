@@ -251,9 +251,9 @@ subprojects {
     project.plugins.whenPluginAdded { plugin ->
         if ("com.android.build.gradle.LibraryPlugin".equals(plugin.class.name)) {
             project.android.buildToolsVersion = rootProject.buildToolsVersion
-            // enable code coverage for debug builds
-            // run createDebugCoverageReport to get the coverage
-            project.android.buildTypes.debug.testCoverageEnabled = true
+            // enable code coverage for debug builds only if we are not running inside the IDE
+            // enabling coverage reports breaks the method parameter resolution in the IDE debugger
+            project.android.buildTypes.debug.testCoverageEnabled = !hasProperty('android.injected.invoked.from.ide')
         }
     }
 
