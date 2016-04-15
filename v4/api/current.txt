@@ -1358,6 +1358,7 @@ package android.support.v4.media {
   public abstract class MediaBrowserServiceCompat extends android.app.Service {
     ctor public MediaBrowserServiceCompat();
     method public void dump(java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
+    method public final android.os.Bundle getBrowserRootHints();
     method public android.support.v4.media.session.MediaSessionCompat.Token getSessionToken();
     method public void notifyChildrenChanged(java.lang.String);
     method public void notifyChildrenChanged(java.lang.String, android.os.Bundle);
