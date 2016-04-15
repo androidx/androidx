@@ -1438,8 +1438,13 @@ public class BrowseSupportFragment extends BaseSupportFragment {
 
     @Override
     protected void onEntranceTransitionEnd() {
-        mMainFragmentAdapter.onTransitionEnd();
-        mHeadersSupportFragment.onTransitionEnd();
+        if (mMainFragmentAdapter != null) {
+            mMainFragmentAdapter.onTransitionEnd();
+        }
+
+        if (mHeadersSupportFragment != null) {
+            mHeadersSupportFragment.onTransitionEnd();
+        }
     }
 
     void setSearchOrbViewOnScreen(boolean onScreen) {
