@@ -244,11 +244,6 @@ public class RowsFragment extends BaseRowFragment implements Adaptable {
                 setRowViewSelected(mSelectedViewHolder, true, false);
             }
         }
-        // When RowsFragment is embedded inside a page fragment, we want to show
-        // the title view only when we're on the first row or there is no data.
-        if (mMainFragmentAdapter != null) {
-            mMainFragmentAdapter.getFragmentHost().showTitleView(position <= 0);
-        }
     }
 
     /**
@@ -295,7 +290,6 @@ public class RowsFragment extends BaseRowFragment implements Adaptable {
         if (mMainFragmentAdapter != null) {
             mMainFragmentAdapter.getFragmentHost().notifyViewCreated(mMainFragmentAdapter);
         }
-
     }
 
     @Override

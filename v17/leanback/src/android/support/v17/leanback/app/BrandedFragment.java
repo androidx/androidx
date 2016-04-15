@@ -220,21 +220,28 @@ class BrandedFragment extends Fragment {
     public void onStart() {
         super.onStart();
         if (mTitleView != null) {
-            mTitleView.enableAnimation(true);
-            showTitle(mShowingTitle);
+            mTitleView.setVisibility(mShowingTitle ? View.VISIBLE : View.INVISIBLE);
         }
     }
 
     @Override
-    public void onStop() {
+    public void onPause() {
         if (mTitleView != null) {
             mTitleView.enableAnimation(false);
         }
-        super.onStop();
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mTitleView != null) {
+            mTitleView.enableAnimation(true);
+        }
     }
 
     /**
-     * Returns true/false to indicate the visibility of TitleView.
+     * Returns true/false when it's showing/hiding the title respectively.
      *
      * @return boolean to indicate whether or not it's showing the title.
      */
