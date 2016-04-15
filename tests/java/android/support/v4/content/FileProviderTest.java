@@ -28,12 +28,11 @@ import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.Suppress;
 
-import libcore.io.IoUtils;
-import libcore.io.Streams;
-
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -246,7 +245,7 @@ public class FileProviderTest extends AndroidTestCase {
         try {
             out.write(TEST_DATA_ALT);
         } finally {
-            IoUtils.closeQuietly(out);
+            closeQuietly(out);
         }
 
         assertContentsEquals(TEST_DATA_ALT, uri);
@@ -266,7 +265,7 @@ public class FileProviderTest extends AndroidTestCase {
         try {
             out.write(TEST_DATA_ALT);
         } finally {
-            IoUtils.closeQuietly(out);
+            closeQuietly(out);
         }
 
         assertContentsEquals(TEST_DATA_ALT, uri);
@@ -319,9 +318,9 @@ public class FileProviderTest extends AndroidTestCase {
     private void assertContentsEquals(byte[] expected, Uri actual) throws Exception {
         final InputStream in = mResolver.openInputStream(actual);
         try {
-            MoreAsserts.assertEquals(expected, Streams.readFully(in));
+            MoreAsserts.assertEquals(expected, readFully(in));
         } finally {
-            IoUtils.closeQuietly(in);
+            closeQuietly(in);
         }
     }
 
@@ -349,5 +348,43 @@ public class FileProviderTest extends AndroidTestCase {
             }
         }
         return cur;
+    }
+
+    /**
+     * Closes 'closeable', ignoring any checked exceptions. Does nothing if 'closeable' is null.
+     */
+    private static void closeQuietly(AutoCloseable closeable) {
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (RuntimeException rethrown) {
+                throw rethrown;
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    /**
+     * Returns a byte[] containing the remainder of 'in', closing it when done.
+     */
+    private static byte[] readFully(InputStream in) throws IOException {
+        try {
+            return readFullyNoClose(in);
+        } finally {
+            in.close();
+        }
+    }
+
+    /**
+     * Returns a byte[] containing the remainder of 'in'.
+     */
+    private static byte[] readFullyNoClose(InputStream in) throws IOException {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int count;
+        while ((count = in.read(buffer)) != -1) {
+            bytes.write(buffer, 0, count);
+        }
+        return bytes.toByteArray();
     }
 }
