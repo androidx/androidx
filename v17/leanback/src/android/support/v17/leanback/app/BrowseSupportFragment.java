@@ -30,6 +30,7 @@ import android.support.v17.leanback.R;
 import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.transition.TransitionListener;
 import android.support.v17.leanback.widget.BrowseFrameLayout;
+import android.support.v17.leanback.widget.InvisibleRowPresenter;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
@@ -261,14 +262,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
                 return;
             }
 
-            // We will execute this request only when the fast lane is hidden/disabled.
-            if (!mShowingHeaders) {
-                if (show) {
-                    showTitle(TitleView.FULL_VIEW_VISIBLE);
-                } else {
-                    showTitle(false);
-                }
-            }
+            updateTitleViewVisibility();
         }
     }
 
@@ -558,6 +552,8 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     private MainFragmentRowsAdapter mMainFragmentRowsAdapter;
 
     private ObjectAdapter mAdapter;
+    private PresenterSelector mAdapterPresenter;
+    private PresenterSelector mWrappingPresenterSelector;
 
     private int mHeadersState = HEADERS_ENABLED;
     private int mBrandColor = Color.TRANSPARENT;
@@ -639,6 +635,43 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     }
 
     /**
+     * Wrapping app provided PresenterSelector to support InvisibleRowPresenter for SectionRow
+     * DividerRow and PageRow.
+     */
+    private void createAndSetWrapperPresenter() {
+        final PresenterSelector adapterPresenter = mAdapter.getPresenterSelector();
+        if (adapterPresenter == null) {
+            throw new IllegalArgumentException("Adapter.getPresenterSelector() is null");
+        }
+        if (adapterPresenter == mAdapterPresenter) {
+            return;
+        }
+        mAdapterPresenter = adapterPresenter;
+
+        Presenter[] presenters = adapterPresenter.getPresenters();
+        final Presenter invisibleRowPresenter = new InvisibleRowPresenter();
+        final Presenter[] allPresenters = new Presenter[presenters.length + 1];
+        System.arraycopy(allPresenters, 0, presenters, 0, presenters.length);
+        allPresenters[allPresenters.length - 1] = invisibleRowPresenter;
+        mAdapter.setPresenterSelector(new PresenterSelector() {
+            @Override
+            public Presenter getPresenter(Object item) {
+                Row row = (Row) item;
+                if (row.isRenderedAsRowView()) {
+                    return adapterPresenter.getPresenter(item);
+                } else {
+                    return invisibleRowPresenter;
+                }
+            }
+
+            @Override
+            public Presenter[] getPresenters() {
+                return allPresenters;
+            }
+        });
+    }
+
+    /**
      * Sets the adapter containing the rows for the fragment.
      *
      * <p>The items referenced by the adapter must be be derived from
@@ -650,6 +683,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
      */
     public void setAdapter(ObjectAdapter adapter) {
         mAdapter = adapter;
+        createAndSetWrapperPresenter();
         if (getView() == null) {
             return;
         }
@@ -871,6 +905,9 @@ public class BrowseSupportFragment extends BaseSupportFragment {
                     return focused;
                 }
                 return mMainFragment.getView();
+            } else if (direction == View.FOCUS_DOWN && mShowingHeaders) {
+                // disable focus_down moving into PageFragment.
+                return focused;
             } else {
                 return null;
             }
@@ -1133,37 +1170,75 @@ public class BrowseSupportFragment extends BaseSupportFragment {
                 }
 
                 // Animate TitleView once header animation is complete.
-                if (!mShowingHeaders) {
-                    if (mMainFragmentAdapter != null) {
-                        if (((FragmentHostImpl)mMainFragmentAdapter.getFragmentHost())
-                                .mShowTitleView) {
-                            showTitle(TitleView.FULL_VIEW_VISIBLE);
-                        } else {
-                            showTitle(false);
-                        }
-                    }
-                } else {
-                    if (mSelectedPosition == 0) {
-                        showTitle(TitleView.FULL_VIEW_VISIBLE);
-                    } else {
-                        if (mIsPageRow && mMainFragmentAdapter != null) {
-                            if (((FragmentHostImpl)mMainFragmentAdapter.getFragmentHost())
-                                    .mShowTitleView) {
-                                showTitle(TitleView.BRANDING_VIEW_VISIBLE);
-                            } else {
-                                showTitle(false);
-                            }
-                        } else {
-                            showTitle(false);
-                        }
-                    }
-                }
+                updateTitleViewVisibility();
 
                 if (mBrowseTransitionListener != null) {
                     mBrowseTransitionListener.onHeadersTransitionStop(mShowingHeaders);
                 }
             }
         });
+    }
+
+    void updateTitleViewVisibility() {
+        if (!mShowingHeaders) {
+            boolean showTitleView;
+            if (mIsPageRow && mMainFragmentAdapter != null) {
+                // page fragment case:
+                showTitleView = mMainFragmentAdapter.mFragmentHost.mShowTitleView;
+            } else {
+                // regular row view case:
+                showTitleView = isFirstRowWithContent(mSelectedPosition);
+            }
+            if (showTitleView) {
+                showTitle(TitleView.FULL_VIEW_VISIBLE);
+            } else {
+                showTitle(false);
+            }
+        } else {
+            // when HeaderFragment is showing,  showBranding and showSearch are slightly different
+            boolean showBranding;
+            boolean showSearch;
+            if (mIsPageRow && mMainFragmentAdapter != null) {
+                showBranding = mMainFragmentAdapter.mFragmentHost.mShowTitleView;
+            } else {
+                showBranding = isFirstRowWithContent(mSelectedPosition);
+            }
+            showSearch = isFirstRowWithContentOrPageRow(mSelectedPosition);
+            int flags = 0;
+            if (showBranding) flags |= TitleView.BRANDING_VIEW_VISIBLE;
+            if (showSearch) flags |= TitleView.SEARCH_VIEW_VISIBLE;
+            if (flags != 0) {
+                showTitle(flags);
+            } else {
+                showTitle(false);
+            }
+        }
+    }
+
+    boolean isFirstRowWithContentOrPageRow(int rowPosition) {
+        if (mAdapter == null || mAdapter.size() == 0) {
+            return true;
+        }
+        for (int i = 0; i < mAdapter.size(); i++) {
+            final Row row = (Row) mAdapter.get(i);
+            if (row.isRenderedAsRowView() || row instanceof PageRow) {
+                return rowPosition == i;
+            }
+        }
+        return true;
+    }
+
+    boolean isFirstRowWithContent(int rowPosition) {
+        if (mAdapter == null || mAdapter.size() == 0) {
+            return true;
+        }
+        for (int i = 0; i < mAdapter.size(); i++) {
+            final Row row = (Row) mAdapter.get(i);
+            if (row.isRenderedAsRowView()) {
+                return rowPosition == i;
+            }
+        }
+        return true;
     }
 
     /**
@@ -1271,16 +1346,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         }
         mSelectedPosition = position;
 
-        if (getAdapter() == null || getAdapter().size() == 0 || position == 0) {
-            showTitle(TitleView.FULL_VIEW_VISIBLE);
-        } else {
-            if (mIsPageRow) {
-                showTitle(TitleView.BRANDING_VIEW_VISIBLE);
-            }
-            else {
-                showTitle(false);
-            }
-        }
+        updateTitleViewVisibility();
     }
 
     private void replaceMainFragment(int position) {
