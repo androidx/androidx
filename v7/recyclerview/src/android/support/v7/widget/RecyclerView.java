@@ -302,6 +302,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     };
 
     private final Rect mTempRect = new Rect();
+    private final Rect mTempRect2 = new Rect();
     private final RectF mTempRectF = new RectF();
     private Adapter mAdapter;
     @VisibleForTesting LayoutManager mLayout;
@@ -2183,23 +2184,27 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * Logic taken from FocusSarch#isCandidate
      */
     private boolean isPreferredNextFocusAbsolute(View focused, View next, int direction) {
+        mTempRect.set(0, 0, focused.getWidth(), focused.getHeight());
+        mTempRect2.set(0, 0, next.getWidth(), next.getHeight());
+        offsetDescendantRectToMyCoords(focused, mTempRect);
+        offsetDescendantRectToMyCoords(next, mTempRect2);
         switch (direction) {
             case View.FOCUS_LEFT:
-                return (focused.getRight() > next.getRight()
-                        || focused.getLeft() >= next.getRight())
-                        && focused.getLeft() > next.getLeft();
+                return (mTempRect.right > mTempRect2.right
+                        || mTempRect.left >= mTempRect2.right)
+                        && mTempRect.left > mTempRect2.left;
             case View.FOCUS_RIGHT:
-                return (focused.getLeft() < next.getLeft()
-                        || focused.getRight() <= next.getLeft())
-                        && focused.getRight() < next.getRight();
+                return (mTempRect.left < mTempRect2.left
+                        || mTempRect.right <= mTempRect2.left)
+                        && mTempRect.right < mTempRect2.right;
             case View.FOCUS_UP:
-                return (focused.getBottom() > next.getBottom()
-                        || focused.getTop() >= next.getBottom())
-                        && focused.getTop() > next.getTop();
+                return (mTempRect.bottom > mTempRect2.bottom
+                        || mTempRect.top >= mTempRect2.bottom)
+                        && mTempRect.top > mTempRect2.top;
             case View.FOCUS_DOWN:
-                return (focused.getTop() < next.getTop()
-                        || focused.getBottom() <= next.getTop())
-                        && focused.getBottom() < next.getBottom();
+                return (mTempRect.top < mTempRect2.top
+                        || mTempRect.bottom <= mTempRect2.top)
+                        && mTempRect.bottom < mTempRect2.bottom;
         }
         throw new IllegalArgumentException("direction must be absolute. received:" + direction);
     }
