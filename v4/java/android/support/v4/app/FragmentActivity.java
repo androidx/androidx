@@ -42,7 +42,6 @@ import android.view.Window;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -187,7 +186,7 @@ public class FragmentActivity extends BaseFragmentActivityHoneycomb implements
      */
     public void onBackPressed() {
         if (!mFragments.getSupportFragmentManager().popBackStackImmediate()) {
-            supportFinishAfterTransition();
+            onBackPressedNotHandled();
         }
     }
 
