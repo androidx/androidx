@@ -459,6 +459,11 @@ public class NotificationCompat {
     public static final String CATEGORY_SERVICE = NotificationCompatApi21.CATEGORY_SERVICE;
 
     /**
+     * Notification category: user-scheduled reminder.
+     */
+    public static final String CATEGORY_REMINDER = NotificationCompatApi23.CATEGORY_REMINDER;
+
+    /**
      * Notification category: a specific, timely recommendation for a single thing.
      * For example, a news app might want to recommend a news story it believes the user will
      * want to read next.
