@@ -55,8 +55,11 @@ public class GuidedStepActivity extends Activity {
     private static final int NEW_PAYMENT = 7;
     private static final int PAYMENT_EXPIRE = 8;
 
-    private static final int OPTION_CHECK_SET_ID = 10;
-    private static final int DEFAULT_OPTION = 0;
+    private static final long RADIO_ID_BASE = 0;
+    private static final long CHECKBOX_ID_BASE = 100;
+
+    private static final long DEFAULT_OPTION = RADIO_ID_BASE;
+
     private static final String[] OPTION_NAMES = { "Option A", "Option B", "Option C" };
     private static final String[] OPTION_DESCRIPTIONS = { "Here's one thing you can do",
             "Here's another thing you can do", "Here's one more thing you can do" };
@@ -164,9 +167,10 @@ public class GuidedStepActivity extends Activity {
                 .build());
     }
 
-    private static void addCheckedAction(List<GuidedAction> actions, Context context,
+    private static void addCheckedAction(List<GuidedAction> actions, long id, Context context,
             String title, String desc, int checkSetId) {
         actions.add(new GuidedAction.Builder()
+                .id(id)
                 .title(title)
                 .description(desc)
                 .checkSetId(checkSetId)
@@ -406,7 +410,7 @@ public class GuidedStepActivity extends Activity {
             GuidedAction payments = findActionById(PAYMENT);
             payments.getSubActions().clear();
             for (int i = 0; i < sCards.size(); i++) {
-                addCheckedAction(payments.getSubActions(), getActivity(), sCards.get(i), "",
+                addCheckedAction(payments.getSubActions(), -1, getActivity(), sCards.get(i), "",
                         GuidedAction.DEFAULT_CHECK_SET_ID);
                 if (i == sSelectedCard) {
                     payments.getSubActions().get(i).setChecked(true);
@@ -441,7 +445,7 @@ public class GuidedStepActivity extends Activity {
 
     public static class ThirdStepFragment extends GuidedStepFragment {
 
-        private int mSelectedOption = DEFAULT_OPTION;
+        private long mSelectedOption = DEFAULT_OPTION;
 
         @Override
         public Guidance onCreateGuidance(Bundle savedInstanceState) {
@@ -464,8 +468,8 @@ public class GuidedStepActivity extends Activity {
 
         @Override
         public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
-            String desc = "The description can be quite long as well.  ";
-            desc += "Just be sure to set multilineDescription to true in the GuidedAction.";
+            String desc = "The description can be quite long as well.  " +
+                    "Just be sure to set multilineDescription to true in the GuidedAction.";
             actions.add(new GuidedAction.Builder()
                     .title("Note that Guided Actions can have titles that are quite long.")
                     .description(desc)
@@ -475,14 +479,14 @@ public class GuidedStepActivity extends Activity {
                     .focusable(false)
                     .build());
             for (int i = 0; i < OPTION_NAMES.length; i++) {
-                addCheckedAction(actions, getActivity(), OPTION_NAMES[i],
+                addCheckedAction(actions, RADIO_ID_BASE + i, getActivity(), OPTION_NAMES[i],
                         OPTION_DESCRIPTIONS[i], GuidedAction.DEFAULT_CHECK_SET_ID);
                 if (i == DEFAULT_OPTION) {
                     actions.get(actions.size() -1).setChecked(true);
                 }
             }
             for (int i = 0; i < OPTION_NAMES.length; i++) {
-                addCheckedAction(actions, getActivity(), OPTION_NAMES[i],
+                addCheckedAction(actions, CHECKBOX_ID_BASE + i, getActivity(), OPTION_NAMES[i],
                         OPTION_DESCRIPTIONS[i], GuidedAction.CHECKBOX_CHECK_SET_ID);
             }
         }
@@ -500,11 +504,11 @@ public class GuidedStepActivity extends Activity {
                 FragmentManager fm = getFragmentManager();
                 FourthStepFragment f = new FourthStepFragment();
                 Bundle arguments = new Bundle();
-                arguments.putInt(FourthStepFragment.EXTRA_OPTION, mSelectedOption);
+                arguments.putLong(FourthStepFragment.EXTRA_OPTION, mSelectedOption);
                 f.setArguments(arguments);
                 GuidedStepFragment.add(fm, f, R.id.lb_guidedstep_host);
             } else if (action.getCheckSetId() == GuidedAction.DEFAULT_CHECK_SET_ID) {
-                mSelectedOption = getSelectedActionPosition()-1;
+                mSelectedOption = action.getId();
             }
         }
 
@@ -516,17 +520,17 @@ public class GuidedStepActivity extends Activity {
         public FourthStepFragment() {
         }
 
-        public int getOption() {
+        public long getOption() {
             Bundle b = getArguments();
             if (b == null) return 0;
-            return b.getInt(EXTRA_OPTION, 0);
+            return b.getLong(EXTRA_OPTION, 0);
         }
 
         @Override
         public Guidance onCreateGuidance(Bundle savedInstanceState) {
             String title = getString(R.string.guidedstep_fourth_title);
             String breadcrumb = getString(R.string.guidedstep_fourth_breadcrumb);
-            String description = "You chose: " + OPTION_NAMES[getOption()];
+            String description = "You chose: " + OPTION_NAMES[(int) getOption()];
             Drawable icon = getActivity().getResources().getDrawable(R.drawable.ic_main_icon);
             return new Guidance(title, description, breadcrumb, icon);
         }
