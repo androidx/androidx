@@ -241,6 +241,9 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
                 ab.onConfigurationChanged(newConfig);
             }
         }
+
+        // Re-apply Day/Night to the new configuration
+        applyDayNight();
     }
 
     @Override
