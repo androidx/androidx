@@ -47,11 +47,8 @@
     <LinearLayout
             android:id="@+id/search_edit_frame"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:layout_gravity="center_vertical"
-            android:layout_marginTop="4dip"
-            android:layout_marginBottom="4dip"
             android:layout_marginLeft="8dip"
             android:layout_marginRight="8dip"
             android:orientation="horizontal"
@@ -70,7 +67,7 @@
         <LinearLayout
                 android:id="@+id/search_plate"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:layout_gravity="center_vertical"
                 android:orientation="horizontal">
@@ -80,7 +77,7 @@
                   android:layout_height="36dip"
                   android:layout_width="0dp"
                   android:layout_weight="1"
-                  android:layout_gravity="bottom"
+                  android:layout_gravity="center_vertical"
                   android:paddingLeft="@dimen/abc_dropdownitem_text_padding_left"
                   android:paddingRight="@dimen/abc_dropdownitem_text_padding_right"
                   android:singleLine="true"

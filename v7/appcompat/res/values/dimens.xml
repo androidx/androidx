@@ -29,6 +29,7 @@
 
     <!-- Preferred width of the search view. -->
     <dimen name="abc_search_view_preferred_width">320dip</dimen>
+    <dimen name="abc_search_view_preferred_height">48dip</dimen>
 
     <!-- Text padding for dropdown items -->
     <dimen name="abc_dropdownitem_text_padding_left">8dip</dimen>
