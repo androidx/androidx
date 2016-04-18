@@ -19,7 +19,10 @@ package android.support.v7.widget;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.res.Resources;
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatDelegate;
+import android.support.v7.widget.VectorEnabledTintResources;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -27,13 +30,15 @@ import java.util.ArrayList;
 /**
  * A {@link android.content.ContextWrapper} which returns a tint-aware
  * {@link android.content.res.Resources} instance from {@link #getResources()}.
+ *
+ * @hide
  */
-class TintContextWrapper extends ContextWrapper {
+public class TintContextWrapper extends ContextWrapper {
 
     private static final ArrayList<WeakReference<TintContextWrapper>> sCache = new ArrayList<>();
 
     public static Context wrap(@NonNull final Context context) {
-        if (!(context instanceof TintContextWrapper)) {
+        if (shouldWrap(context)) {
             // First check our instance cache
             for (int i = 0, count = sCache.size(); i < count; i++) {
                 final WeakReference<TintContextWrapper> ref = sCache.get(i);
@@ -52,16 +57,60 @@ class TintContextWrapper extends ContextWrapper {
         return context;
     }
 
-    private Resources mResources;
+    private static boolean shouldWrap(@NonNull final Context context) {
+        if (context instanceof TintContextWrapper
+                || context.getResources() instanceof TintResources
+                || context.getResources() instanceof VectorEnabledTintResources) {
+            // If the Context already has a TintResources[Experimental] impl, no need to wrap again
+            // If the Context is already a TintContextWrapper, no need to wrap again
+            return false;
+        }
+        if (AppCompatDelegate.isCompatVectorFromResourcesEnabled()
+                && Build.VERSION.SDK_INT > VectorEnabledTintResources.MAX_SDK_WHERE_REQUIRED) {
+            // If we're running on API 21+ and have the vector resources enabled, there's
+            // no need to wrap
+            return false;
+        }
+        // Else, we should wrap
+        return true;
+    }
 
-    private TintContextWrapper(Context base) {
+    private Resources mResources;
+    private final Resources.Theme mTheme;
+
+    private TintContextWrapper(@NonNull final Context base) {
         super(base);
+
+        if (VectorEnabledTintResources.shouldBeUsed()) {
+            // We need to create a copy of the Theme so that the Theme references our Resources
+            // instance
+            mTheme = getResources().newTheme();
+            mTheme.setTo(base.getTheme());
+        } else {
+            mTheme = null;
+        }
+    }
+
+    @Override
+    public Resources.Theme getTheme() {
+        return mTheme == null ? super.getTheme() : mTheme;
+    }
+
+    @Override
+    public void setTheme(int resid) {
+        if (mTheme == null) {
+            super.setTheme(resid);
+        } else {
+            mTheme.applyStyle(resid, true);
+        }
     }
 
     @Override
     public Resources getResources() {
         if (mResources == null) {
-            mResources = new TintResources(this, super.getResources());
+            mResources = (mTheme == null)
+                    ? new TintResources(this, super.getResources())
+                    : new VectorEnabledTintResources(this, super.getResources());
         }
         return mResources;
     }

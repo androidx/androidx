@@ -59,6 +59,7 @@ import android.support.v7.widget.ContentFrameLayout;
 import android.support.v7.widget.DecorContentParent;
 import android.support.v7.widget.FitWindowsViewGroup;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.VectorEnabledTintResources;
 import android.support.v7.widget.ViewStubCompat;
 import android.support.v7.widget.ViewUtils;
 import android.text.TextUtils;
@@ -970,7 +971,8 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
 
         return mAppCompatViewInflater.createView(parent, name, context, attrs, inheritContext,
                 isPre21, /* Only read android:theme pre-L (L+ handles this anyway) */
-                true /* Read read app:theme as a fallback at all times for legacy reasons */
+                true, /* Read read app:theme as a fallback at all times for legacy reasons */
+                VectorEnabledTintResources.shouldBeUsed() /* Only tint wrap the context if enabled */
         );
     }
 
