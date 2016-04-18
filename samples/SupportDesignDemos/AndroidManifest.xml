@@ -73,6 +73,15 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".widget.TabLayoutPreselectedUsage"
+                  android:label="@string/design_tabs_preselected_viewpager"
+                  android:theme="@style/Theme.Design">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.support.design.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".widget.TabLayoutLayoutItemsUsage"
                   android:label="@string/design_tabs_layout_items"
                   android:theme="@style/Theme.Design">

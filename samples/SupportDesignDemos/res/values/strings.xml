@@ -21,6 +21,7 @@
     <string name="design_navigation">NavigationView/Usage</string>
     <string name="design_navigation_without_drawer">NavigationView/Without drawer</string>
     <string name="design_tabs_viewpager">TabLayout/Items from ViewPager</string>
+    <string name="design_tabs_preselected_viewpager">TabLayout/Items with preselection from ViewPager</string>
     <string name="design_tabs_layout_items">TabLayout/Items from layout</string>
     <string name="design_tabs_custom_items">TabLayout/Custom items</string>
     <string name="design_text_input">Text Input</string>
