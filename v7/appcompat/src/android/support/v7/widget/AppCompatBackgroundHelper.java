@@ -20,7 +20,6 @@ import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewCompat;
@@ -111,14 +110,20 @@ class AppCompatBackgroundHelper {
     void applySupportBackgroundTint() {
         final Drawable background = mView.getBackground();
         if (background != null) {
+            if (Build.VERSION.SDK_INT == 21 && applyFrameworkTintUsingColorFilter(background)) {
+                // GradientDrawable doesn't implement setTintList on API 21, and since there is
+                // no nice way to unwrap DrawableContainers we have to blanket apply this
+                // on API 21. This needs to be called before the internal tints below so it takes
+                // effect on any widgets using the compat tint on API 21 (EditText)
+                return;
+            }
+
             if (mBackgroundTint != null) {
-                AppCompatDrawableManager
-                        .tintDrawable(background, mBackgroundTint, mView.getDrawableState());
+                AppCompatDrawableManager.tintDrawable(background, mBackgroundTint,
+                        mView.getDrawableState());
             } else if (mInternalBackgroundTint != null) {
                 AppCompatDrawableManager.tintDrawable(background, mInternalBackgroundTint,
                         mView.getDrawableState());
-            } else if (shouldCompatTintUsingFrameworkTint(background)) {
-                compatTintDrawableUsingFrameworkTint(background);
             }
         }
     }
@@ -136,12 +141,12 @@ class AppCompatBackgroundHelper {
         applySupportBackgroundTint();
     }
 
-    private boolean shouldCompatTintUsingFrameworkTint(@NonNull Drawable background) {
-        // GradientDrawable doesn't implement setTintList on API 21
-        return (Build.VERSION.SDK_INT == 21 && background instanceof GradientDrawable);
-    }
-
-    private void compatTintDrawableUsingFrameworkTint(@NonNull Drawable background) {
+    /**
+     * Applies the framework background tint to a view, but using the compat method (ColorFilter)
+     *
+     * @return true if a tint was applied
+     */
+    private boolean applyFrameworkTintUsingColorFilter(@NonNull Drawable background) {
         if (mTmpInfo == null) {
             mTmpInfo = new TintInfo();
         }
@@ -161,6 +166,9 @@ class AppCompatBackgroundHelper {
 
         if (info.mHasTintList || info.mHasTintMode) {
             AppCompatDrawableManager.tintDrawable(background, info, mView.getDrawableState());
+            return true;
         }
+
+        return false;
     }
 }
