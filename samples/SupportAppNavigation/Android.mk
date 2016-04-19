@@ -11,6 +11,8 @@ LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4
 
 LOCAL_SDK_VERSION := current
 
+LOCAL_DEX_PREOPT := false
+
 include $(BUILD_PACKAGE)
 
 LOCAL_PROGUARD_FLAG_FILES := proguard.flags
