@@ -1736,6 +1736,11 @@ public class ViewPager extends ViewGroup {
 
     private boolean pageScrolled(int xpos) {
         if (mItems.size() == 0) {
+            if (mFirstLayout) {
+                // If we haven't been laid out yet, we probably just haven't been populated yet.
+                // Let's skip this call since it doesn't make sense in this state
+                return false;
+            }
             mCalledSuper = false;
             onPageScrolled(0, 0, 0);
             if (!mCalledSuper) {
