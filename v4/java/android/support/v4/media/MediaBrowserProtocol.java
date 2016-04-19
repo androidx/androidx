@@ -15,12 +15,13 @@
  */
 package android.support.v4.media;
 
-/***
+/**
  * Defines the communication protocol for media browsers and media browser services.
  * @hide
  */
 class MediaBrowserProtocol {
 
+    public static final String DATA_CALLBACK_TOKEN = "data_callback_token";
     public static final String DATA_CALLING_UID = "data_calling_uid";
     public static final String DATA_MEDIA_ITEM_ID = "data_media_item_id";
     public static final String DATA_MEDIA_ITEM_LIST = "data_media_item_list";
@@ -30,6 +31,7 @@ class MediaBrowserProtocol {
     public static final String DATA_RESULT_RECEIVER = "data_result_receiver";
     public static final String DATA_ROOT_HINTS = "data_root_hints";
 
+    public static final String EXTRA_CLIENT_VERSION = "extra_client_version";
     public static final String EXTRA_SERVICE_VERSION = "extra_service_version";
     public static final String EXTRA_MESSENGER_BINDER = "extra_messenger";
 
@@ -111,8 +113,10 @@ class MediaBrowserProtocol {
      * - arg1 : The client version
      * - data
      *     DATA_MEDIA_ITEM_ID : A string for a media item id
-     *     DATA_OPTIONS : A bundle of service-specific arguments sent from the media browse to
+     *     DATA_OPTIONS : A bundle of service-specific arguments sent from the media browser to
      *                    the media browser service
+     *     DATA_CALLBACK_TOKEN : An IBinder of service-specific arguments sent from the media
+     *                           browser to the media browser service
      * - replyTo : Callback messenger
      */
     public static final int CLIENT_MSG_ADD_SUBSCRIPTION = 3;
@@ -122,8 +126,8 @@ class MediaBrowserProtocol {
      * - arg1 : The client version
      * - data
      *     DATA_MEDIA_ITEM_ID : A string for a media item id
-     *     DATA_OPTIONS : A bundle of service-specific arguments sent from the media browse to
-     *                    the media browser service
+     *     DATA_CALLBACK_TOKEN : An IBinder of service-specific arguments sent from the media
+     *                           browser to the media browser service
      * - replyTo : Callback messenger
      */
     public static final int CLIENT_MSG_REMOVE_SUBSCRIPTION = 4;
