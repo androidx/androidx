@@ -224,7 +224,8 @@ public class BrowseFragment extends BaseFragment {
         /**
          * Slides in the title view from top in {@link BrowseFragment}. This will only happen
          * if either a. we are in fully expanded mode OR b. non expanded mode but on the first
-         * row.
+         * row. If we make this request in non expanded mode, it will remember that request and
+         * show/hide the {@link TitleView} when we move into expanded mode.
          *
          * @param show Boolean indicating whether or not to show the title view.
          */
@@ -236,7 +237,7 @@ public class BrowseFragment extends BaseFragment {
      * {@link BrowseFragment}.
      */
     private final class FragmentHostImpl implements FragmentHost {
-        private boolean mShowTitleViewForPageRow = true;
+        boolean mShowTitleView = true;
 
         @Override
         public void notifyViewCreated(MainFragmentAdapter fragmentAdapter) {
@@ -245,7 +246,7 @@ public class BrowseFragment extends BaseFragment {
 
         @Override
         public void showTitleView(boolean show) {
-            mShowTitleViewForPageRow = show;
+            mShowTitleView = show;
 
             // If fragment host is not the currently active fragment (in BrowseFragment), then
             // ignore the request.
@@ -258,10 +259,13 @@ public class BrowseFragment extends BaseFragment {
                 return;
             }
 
-            // We will execute this request right away if the fast lane is hidden/disabled.
-            // Otherwise, we wait for header transition to complete before showing/hiding title.
+            // We will execute this request only when the fast lane is hidden/disabled.
             if (!mShowingHeaders) {
-                showTitle(show);
+                if (show) {
+                    showTitle(TitleView.FULL_VIEW_VISIBLE);
+                } else {
+                    showTitle(false);
+                }
             }
         }
     }
@@ -360,12 +364,16 @@ public class BrowseFragment extends BaseFragment {
             this.mScalingEnabled = scalingEnabled;
         }
 
-        void setFragmentHost(FragmentHostImpl fragmentHost) {
-            this.mFragmentHost = fragmentHost;
-        }
-
+        /**
+         * Returns the current host interface so that main fragment can interact with
+         * {@link BrowseFragment}.
+         */
         public final FragmentHost getFragmentHost() {
             return mFragmentHost;
+        }
+
+        void setFragmentHost(FragmentHostImpl fragmentHost) {
+            this.mFragmentHost = fragmentHost;
         }
     }
 
@@ -975,6 +983,7 @@ public class BrowseFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
+
         if (getChildFragmentManager().findFragmentById(R.id.scale_frame) == null) {
             mHeadersFragment = new HeadersFragment();
 
@@ -1008,6 +1017,7 @@ public class BrowseFragment extends BaseFragment {
 
             mSelectedPosition = savedInstanceState != null ?
                     savedInstanceState.getInt(CURRENT_SELECTED_POSITION, 0) : 0;
+
             if (!mIsPageRow) {
                 mMainFragmentRowsAdapter = (MainFragmentRowsAdapter) ((Adaptable) mMainFragment)
                         .getAdapter(MainFragmentRowsAdapter.class);
@@ -1120,13 +1130,31 @@ public class BrowseFragment extends BaseFragment {
                     }
                 }
 
-                // Animate titleview once header animation is complete.
+                // Animate TitleView once header animation is complete.
                 if (!mShowingHeaders) {
-                    if (mIsPageRow && mMainFragmentAdapter != null) {
-                        showTitle(mMainFragmentAdapter.mFragmentHost.mShowTitleViewForPageRow);
+                    if (mMainFragmentAdapter != null) {
+                        if (((FragmentHostImpl)mMainFragmentAdapter.getFragmentHost())
+                                .mShowTitleView) {
+                            showTitle(TitleView.FULL_VIEW_VISIBLE);
+                        } else {
+                            showTitle(false);
+                        }
                     }
                 } else {
-                    showTitle(mSelectedPosition == 0);
+                    if (mSelectedPosition == 0) {
+                        showTitle(TitleView.FULL_VIEW_VISIBLE);
+                    } else {
+                        if (mIsPageRow && mMainFragmentAdapter != null) {
+                            if (((FragmentHostImpl)mMainFragmentAdapter.getFragmentHost())
+                                    .mShowTitleView) {
+                                showTitle(TitleView.BRANDING_VIEW_VISIBLE);
+                            } else {
+                                showTitle(false);
+                            }
+                        } else {
+                            showTitle(false);
+                        }
+                    }
                 }
 
                 if (mBrowseTransitionListener != null) {
@@ -1225,12 +1253,6 @@ public class BrowseFragment extends BaseFragment {
         if (position != mSelectedPosition) {
             mSetSelectionRunnable.post(
                     position, SetSelectionRunnable.TYPE_INTERNAL_SYNC, true);
-
-            if (getAdapter() == null || getAdapter().size() == 0 || position == 0) {
-                showTitle(true);
-            } else {
-                showTitle(false);
-            }
         }
     }
 
@@ -1246,6 +1268,17 @@ public class BrowseFragment extends BaseFragment {
             mMainFragmentRowsAdapter.setSelectedPosition(position, smooth);
         }
         mSelectedPosition = position;
+
+        if (getAdapter() == null || getAdapter().size() == 0 || position == 0) {
+            showTitle(TitleView.FULL_VIEW_VISIBLE);
+        } else {
+            if (mIsPageRow) {
+                showTitle(TitleView.BRANDING_VIEW_VISIBLE);
+            }
+            else {
+                showTitle(false);
+            }
+        }
     }
 
     private void replaceMainFragment(int position) {
