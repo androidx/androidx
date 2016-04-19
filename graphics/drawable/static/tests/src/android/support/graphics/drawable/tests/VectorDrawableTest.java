@@ -22,6 +22,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.graphics.drawable.test.R;
@@ -318,5 +319,22 @@ public class VectorDrawableTest extends AndroidTestCase {
         assertEquals(0x20, d3.getAlpha());
 
         d2.setAlpha(originalAlpha);
+    }
+
+    @Test
+    public void testBounds() {
+        VectorDrawableCompat vectorDrawable =
+                VectorDrawableCompat.create(mResources, R.drawable.vector_icon_delete, mTheme);
+        Rect expectedRect = new Rect(0, 0, 100, 100);
+        vectorDrawable.setBounds(0, 0, 100, 100);
+        Rect rect = vectorDrawable.getBounds();
+        assertEquals("Bounds should be same value for setBound(int ...)", rect, expectedRect);
+
+        vectorDrawable.setBounds(expectedRect);
+        rect = vectorDrawable.getBounds();
+        assertEquals("Bounds should be same value for setBound(Rect)", rect, expectedRect);
+
+        vectorDrawable.copyBounds(rect);
+        assertEquals("Bounds should be same value for copyBounds", rect, expectedRect);
     }
 }
