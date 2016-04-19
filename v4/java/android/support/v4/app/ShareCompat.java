@@ -487,7 +487,7 @@ public final class ShareCompat {
          */
         public IntentBuilder addStream(Uri streamUri) {
             Uri currentStream = mIntent.getParcelableExtra(Intent.EXTRA_STREAM);
-            if (currentStream == null) {
+            if (mStreams == null && currentStream == null) {
                 return setStream(streamUri);
             }
             if (mStreams == null) {
