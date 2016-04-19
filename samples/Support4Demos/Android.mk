@@ -11,6 +11,7 @@ LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4
 LOCAL_PACKAGE_NAME := Support4Demos
 
 LOCAL_SDK_VERSION := current
+LOCAL_MIN_SDK_VERSION := 4
 
 include $(BUILD_PACKAGE)
 
