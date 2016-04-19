@@ -703,6 +703,7 @@ package android.support.v7.appcompat {
     field public static int abc_list_item_padding_horizontal_material;
     field public static int abc_panel_menu_list_width;
     field public static int abc_progress_bar_height_material;
+    field public static int abc_search_view_preferred_height;
     field public static int abc_search_view_preferred_width;
     field public static int abc_seekbar_track_background_height_material;
     field public static int abc_seekbar_track_progress_height_material;
