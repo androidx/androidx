@@ -73,22 +73,4 @@ public class MediaBrowserCompatUtils {
         }
         return false;
     }
-
-    public static List<MediaBrowserCompat.MediaItem> applyOptions(
-            List<MediaBrowserCompat.MediaItem> list, final Bundle options) {
-        int page = options.getInt(MediaBrowserCompat.EXTRA_PAGE, -1);
-        int pageSize = options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, -1);
-        if (page == -1 && pageSize == -1) {
-            return list;
-        }
-        int fromIndex = pageSize * (page - 1);
-        int toIndex = fromIndex + pageSize;
-        if (page < 1 || pageSize < 1 || fromIndex >= list.size()) {
-            return null;
-        }
-        if (toIndex > list.size()) {
-            toIndex = list.size();
-        }
-        return list.subList(fromIndex, toIndex);
-    }
 }
