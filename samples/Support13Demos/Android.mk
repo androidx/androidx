@@ -12,6 +12,8 @@ LOCAL_PACKAGE_NAME := Support13Demos
 
 LOCAL_SDK_VERSION := current
 
+LOCAL_DEX_PREOPT := false
+
 include $(BUILD_PACKAGE)
 
 # Use the folloing include to make our test apk.
