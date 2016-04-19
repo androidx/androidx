@@ -797,6 +797,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
         node.setFocusable(true);
         node.setClassName(DEFAULT_CLASS_NAME);
         node.setBoundsInParent(INVALID_PARENT_BOUNDS);
+        node.setBoundsInScreen(INVALID_PARENT_BOUNDS);
 
         // Allow the client to populate the node.
         onPopulateNodeForVirtualView(virtualViewId, node);
@@ -852,13 +853,16 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
             node.setBoundsInParent(mTempParentRect);
         }
 
-        // Calculate screen-relative bound.
-        mHost.getLocationOnScreen(mTempGlobalRect);
-        final int offsetX = mTempGlobalRect[0];
-        final int offsetY = mTempGlobalRect[1];
-        mTempScreenRect.set(mTempParentRect);
-        mTempScreenRect.offset(offsetX, offsetY);
-        node.setBoundsInScreen(mTempScreenRect);
+        // If not explicitly specified, calculate screen-relative bounds and
+        // offset for scroll position based on bounds in parent.
+        node.getBoundsInScreen(mTempScreenRect);
+        if (mTempScreenRect.equals(INVALID_PARENT_BOUNDS)) {
+            mHost.getLocationOnScreen(mTempGlobalRect);
+            node.getBoundsInParent(mTempScreenRect);
+            mTempScreenRect.offset(mTempGlobalRect[0] - mHost.getScrollX(),
+                    mTempGlobalRect[1] - mHost.getScrollY());
+            node.setBoundsInScreen(mTempScreenRect);
+        }
 
         return node;
     }
