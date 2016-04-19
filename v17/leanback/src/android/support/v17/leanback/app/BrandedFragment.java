@@ -115,6 +115,11 @@ class BrandedFragment extends Fragment {
         }
     }
 
+    void showTitle(int flags) {
+        mTitleView.updateLayout(flags);
+        showTitle(true);
+    }
+
     /**
      * Sets the drawable displayed in the browse fragment title.
      *
@@ -221,6 +226,7 @@ class BrandedFragment extends Fragment {
         super.onStart();
         if (mTitleView != null) {
             showTitle(mShowingTitle);
+            mTitleView.enableAnimation(true);
         }
     }
 
