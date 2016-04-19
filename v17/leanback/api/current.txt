@@ -2168,6 +2168,10 @@ package android.support.v17.leanback.widget {
     method public void setOnSearchClickedListener(android.view.View.OnClickListener);
     method public void setSearchAffordanceColors(android.support.v17.leanback.widget.SearchOrbView.Colors);
     method public void setTitle(java.lang.String);
+    method public final void updateLayout(int);
+    field public static final int BRANDING_VIEW_VISIBLE = 2; // 0x2
+    field public static final int FULL_VIEW_VISIBLE = 6; // 0x6
+    field public static final int SEARCH_VIEW_VISIBLE = 4; // 0x4
   }
 
   public class VerticalGridPresenter extends android.support.v17.leanback.widget.Presenter {

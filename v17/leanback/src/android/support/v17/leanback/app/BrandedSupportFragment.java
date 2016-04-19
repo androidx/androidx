@@ -117,6 +117,11 @@ class BrandedSupportFragment extends Fragment {
         }
     }
 
+    void showTitle(int flags) {
+        mTitleView.updateLayout(flags);
+        showTitle(true);
+    }
+
     /**
      * Sets the drawable displayed in the browse fragment title.
      *
@@ -222,17 +227,25 @@ class BrandedSupportFragment extends Fragment {
     public void onStart() {
         super.onStart();
         if (mTitleView != null) {
-            mTitleView.enableAnimation(true);
             showTitle(mShowingTitle);
+            mTitleView.enableAnimation(true);
         }
     }
 
     @Override
-    public void onStop() {
+    public void onPause() {
         if (mTitleView != null) {
             mTitleView.enableAnimation(false);
         }
-        super.onStop();
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mTitleView != null) {
+            mTitleView.enableAnimation(true);
+        }
     }
 
     /**

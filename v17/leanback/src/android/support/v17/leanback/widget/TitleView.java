@@ -27,10 +27,14 @@ import android.widget.TextView;
  * Title view for a leanback fragment.
  */
 public class TitleView extends FrameLayout {
+    public static final int BRANDING_VIEW_VISIBLE = 0x02;
+    public static final int SEARCH_VIEW_VISIBLE = 0x04;
+    public static final int FULL_VIEW_VISIBLE = BRANDING_VIEW_VISIBLE | SEARCH_VIEW_VISIBLE;
 
     private ImageView mBadgeView;
     private TextView mTextView;
     private SearchOrbView mSearchOrbView;
+    private int flags = FULL_VIEW_VISIBLE;
 
     public TitleView(Context context) {
         this(context, null);
@@ -59,6 +63,7 @@ public class TitleView extends FrameLayout {
      */
     public void setTitle(String titleText) {
         mTextView.setText(titleText);
+        updateBadgeVisibility();
     }
 
     /**
@@ -74,13 +79,7 @@ public class TitleView extends FrameLayout {
      */
     public void setBadgeDrawable(Drawable drawable) {
         mBadgeView.setImageDrawable(drawable);
-        if (drawable != null) {
-            mBadgeView.setVisibility(View.VISIBLE);
-            mTextView.setVisibility(View.GONE);
-        } else {
-            mBadgeView.setVisibility(View.GONE);
-            mTextView.setVisibility(View.VISIBLE);
-        }
+        updateBadgeVisibility();
     }
 
     /**
@@ -123,5 +122,37 @@ public class TitleView extends FrameLayout {
      */
     public void enableAnimation(boolean enable) {
         mSearchOrbView.enableOrbColorAnimation(enable && mSearchOrbView.hasFocus());
+    }
+
+    /**
+     * Based on the flag, it updates the visibility of the individual components -
+     * BadgeView, TextView and SearchView.
+     *
+     * @param flags integer representing the visibility of TitleView components.
+     */
+    public final void updateLayout(int flags) {
+        this.flags = flags;
+
+        if ((flags & BRANDING_VIEW_VISIBLE) == BRANDING_VIEW_VISIBLE) {
+            updateBadgeVisibility();
+        } else {
+            mBadgeView.setVisibility(View.GONE);
+            mTextView.setVisibility(View.GONE);
+        }
+
+        int visibility = (flags & SEARCH_VIEW_VISIBLE) == SEARCH_VIEW_VISIBLE
+                ? View.VISIBLE : View.INVISIBLE;
+        mSearchOrbView.setVisibility(visibility);
+    }
+
+    private void updateBadgeVisibility() {
+        Drawable drawable = mBadgeView.getDrawable();
+        if (drawable != null) {
+            mBadgeView.setVisibility(View.VISIBLE);
+            mTextView.setVisibility(View.GONE);
+        } else {
+            mBadgeView.setVisibility(View.GONE);
+            mTextView.setVisibility(View.VISIBLE);
+        }
     }
 }
