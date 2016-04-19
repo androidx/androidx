@@ -27,7 +27,7 @@ import org.junit.Test;
 import static android.support.percent.LayoutDirectionActions.setLayoutDirection;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
-
+import static org.junit.Assume.*;
 /**
  * The arrangement of child views in the layout class in the default LTR (left-to-right) direction
  * is as follows:
@@ -86,6 +86,13 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
  * testing the same assertions as <code>PercentRelativeTest</code>. Under RTL direction (on v17+
  * devices with Espresso-powered direction switch) we are testing the reverse assertions along the
  * X axis for all child views.
+ *
+ * Note that due to a bug in the core {@link RelativeLayout} (base class of
+ * {@link PercentRelativeLayout}) in how it treats end margin of child views on v17 devices, we are
+ * skipping all tests in this class for v17 devices. This is in line with the overall contract
+ * of percent-based layouts provided by the support library - we do not work around / fix bugs in
+ * the core classes, but rather just provide a translation layer between percentage-based values
+ * and pixel-based ones.
  */
 @SmallTest
 public class PercentRelativeRtlTest extends BaseInstrumentationTestCase<TestRelativeRtlActivity> {
@@ -99,6 +106,8 @@ public class PercentRelativeRtlTest extends BaseInstrumentationTestCase<TestRela
 
     @Before
     public void setUp() throws Exception {
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
         final TestRelativeRtlActivity activity = mActivityTestRule.getActivity();
         mPercentRelativeLayout = (PercentRelativeLayout) activity.findViewById(R.id.container);
         mContainerWidth = mPercentRelativeLayout.getWidth();
