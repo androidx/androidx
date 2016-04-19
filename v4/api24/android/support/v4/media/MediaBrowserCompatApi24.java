@@ -26,39 +26,20 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 class MediaBrowserCompatApi24 {
-    // TODO: Remove reflections once N released.
-    private static Method sSubscribeMethod;
-    private static Method sUnsubscribeMethod;
-    static {
-        try {
-            sSubscribeMethod = MediaBrowser.class.getMethod("subscribe", new Class[] {
-                    String.class, Bundle.class, MediaBrowser.SubscriptionCallback.class});
-            sUnsubscribeMethod = MediaBrowser.class.getMethod("unsubscribe",
-                    new Class[] {String.class, Bundle.class});
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-    }
-
     public static Object createSubscriptionCallback(SubscriptionCallback callback) {
         return new SubscriptionCallbackProxy<>(callback);
     }
 
-    public static void subscribe(
-            Object browserObj, String parentId, Bundle options, Object subscriptionCallbackObj) {
-        try {
-            sSubscribeMethod.invoke(browserObj, parentId, options, subscriptionCallbackObj);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-        }
+    public static void subscribe(Object browserObj, String parentId, Bundle options,
+            Object subscriptionCallbackObj) {
+        ((MediaBrowser) browserObj).subscribe(parentId, options,
+                (MediaBrowser.SubscriptionCallback) subscriptionCallbackObj);
     }
 
-    public static void unsubscribe(Object browserObj, String parentId, Bundle options) {
-        try {
-            sUnsubscribeMethod.invoke(browserObj, parentId, options);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-        }
+    public static void unsubscribe(Object browserObj, String parentId,
+            Object subscriptionCallbackObj) {
+        ((MediaBrowser) browserObj).unsubscribe(parentId,
+                (MediaBrowser.SubscriptionCallback) subscriptionCallbackObj);
     }
 
     interface SubscriptionCallback extends MediaBrowserCompatApi21.SubscriptionCallback {
@@ -73,12 +54,14 @@ class MediaBrowserCompatApi24 {
             super(callback);
         }
 
+        @Override
         public void onChildrenLoaded(@NonNull String parentId,
                 List<MediaBrowser.MediaItem> children, @NonNull Bundle options) {
             mSubscriptionCallback.onChildrenLoaded(
                     parentId, itemListToParcelList(children), options);
         }
 
+        @Override
         public void onError(@NonNull String parentId, @NonNull Bundle options) {
             mSubscriptionCallback.onError(parentId, options);
         }

@@ -16,117 +16,101 @@
 
 package android.support.v4.media;
 
+import android.content.Context;
 import android.content.Intent;
-import android.media.MediaDescription;
 import android.media.browse.MediaBrowser;
-import android.os.Binder;
-import android.os.Build;
+import android.media.session.MediaSession;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
-import android.os.RemoteException;
 import android.service.media.MediaBrowserService;
 
 import java.util.ArrayList;
 import java.util.List;
 
 class MediaBrowserServiceCompatApi21 {
-    private static Object sNullParceledListSliceObj;
-    static {
-        MediaDescription nullDescription = new MediaDescription.Builder().setMediaId(
-                MediaBrowserCompatApi21.NULL_MEDIA_ITEM_ID).build();
-        MediaBrowser.MediaItem nullMediaItem = new MediaBrowser.MediaItem(nullDescription, 0);
-        List<MediaBrowser.MediaItem> nullMediaItemList = new ArrayList<>();
-        nullMediaItemList.add(nullMediaItem);
-        sNullParceledListSliceObj = ParceledListSliceAdapterApi21.newInstance(nullMediaItemList);
+
+    public static Object createService(Context context, ServiceCompatProxy serviceProxy) {
+        return new MediaBrowserServiceAdaptor(context, serviceProxy);
     }
 
-    public static Object createService() {
-        return new MediaBrowserServiceAdaptorApi21();
-    }
-
-    public static void onCreate(Object serviceObj, ServiceImplApi21 serviceImpl) {
-        ((MediaBrowserServiceAdaptorApi21) serviceObj).onCreate(serviceImpl);
+    public static void onCreate(Object serviceObj) {
+        ((MediaBrowserServiceAdaptor) serviceObj).onCreate();
     }
 
     public static IBinder onBind(Object serviceObj, Intent intent) {
-        return ((MediaBrowserServiceAdaptorApi21) serviceObj).onBind(intent);
+        return ((MediaBrowserServiceAdaptor) serviceObj).onBind(intent);
     }
 
-    public static Object parcelListToParceledListSliceObject(List<Parcel> list) {
-        if (list == null) {
-            if (Build.VERSION.SDK_INT <= 23) {
-                return sNullParceledListSliceObj;
+    public static void setSessionToken(Object serviceObj, Object token) {
+        ((MediaBrowserServiceAdaptor) serviceObj).setSessionToken((MediaSession.Token) token);
+    }
+
+    public interface ServiceCompatProxy {
+        BrowserRoot onGetRoot(String clientPackageName, int clientUid, Bundle rootHints);
+        void onLoadChildren(String parentId, ResultWrapper result);
+    }
+
+    static class ResultWrapper {
+        MediaBrowserService.Result mResultObj;
+
+        ResultWrapper(MediaBrowserService.Result result) {
+            mResultObj = result;
+        }
+
+        public void sendResult(List<Parcel> result) {
+            mResultObj.sendResult(parcelListToItemList(result));
+        }
+
+        public void detach() {
+            mResultObj.detach();
+        }
+
+        List<MediaBrowser.MediaItem> parcelListToItemList(
+                List<Parcel> parcelList) {
+            if (parcelList == null) {
+                return null;
             }
-            return null;
-        }
-        List<MediaBrowser.MediaItem> itemList = new ArrayList<>();
-        for (Parcel parcel : list) {
-            parcel.setDataPosition(0);
-            itemList.add(MediaBrowser.MediaItem.CREATOR.createFromParcel(parcel));
-            parcel.recycle();
-        }
-        return ParceledListSliceAdapterApi21.newInstance(itemList);
-    }
-
-    public interface ServiceImplApi21 {
-        void connect(String pkg, Bundle rootHints, ServiceCallbacksApi21 callbacks);
-        void disconnect(ServiceCallbacksApi21 callbacks);
-        void addSubscription(String id, ServiceCallbacksApi21 callbacks);
-        void removeSubscription(String id, ServiceCallbacksApi21 callbacks);
-    }
-
-    public interface ServiceCallbacksApi21 {
-        IBinder asBinder();
-        void onConnect(String root, Object session, Bundle extras) throws RemoteException;
-        void onConnectFailed() throws RemoteException;
-        void onLoadChildren(String mediaId, List<Parcel> list) throws RemoteException;
-    }
-
-    public static class ServiceCallbacksImplApi21 implements ServiceCallbacksApi21 {
-        final ServiceCallbacksAdapterApi21 mCallbacks;
-
-        ServiceCallbacksImplApi21(Object callbacksObj) {
-            mCallbacks = createCallbacks(callbacksObj);
-        }
-
-        public IBinder asBinder() {
-            return mCallbacks.asBinder();
-        }
-
-        public void onConnect(String root, Object session, Bundle extras) throws RemoteException {
-            mCallbacks.onConnect(root, session, extras);
-        }
-
-        public void onConnectFailed() throws RemoteException {
-            mCallbacks.onConnectFailed();
-        }
-
-        public void onLoadChildren(String mediaId, List<Parcel> list) throws RemoteException {
-            mCallbacks.onLoadChildren(mediaId, parcelListToParceledListSliceObject(list));
-        }
-
-        ServiceCallbacksAdapterApi21 createCallbacks(Object callbacksObj) {
-            return new ServiceCallbacksAdapterApi21(callbacksObj);
-        }
-    }
-
-    static class MediaBrowserServiceAdaptorApi21 {
-        Binder mBinder;
-
-        public void onCreate(ServiceImplApi21 serviceImpl) {
-            mBinder = createServiceBinder(serviceImpl);
-        }
-
-        public IBinder onBind(Intent intent) {
-            if (MediaBrowserService.SERVICE_INTERFACE.equals(intent.getAction())) {
-                return mBinder;
+            List<MediaBrowser.MediaItem> items = new ArrayList<>();
+            for (Parcel parcel : parcelList) {
+                parcel.setDataPosition(0);
+                items.add(MediaBrowser.MediaItem.CREATOR.createFromParcel(parcel));
+                parcel.recycle();
             }
-            return null;
+            return items;
+        }
+    }
+
+    static class BrowserRoot {
+        final String mRootId;
+        final Bundle mExtras;
+
+        BrowserRoot(String rootId, Bundle extras) {
+            mRootId = rootId;
+            mExtras = extras;
+        }
+    }
+
+    static class MediaBrowserServiceAdaptor extends MediaBrowserService {
+        final ServiceCompatProxy mServiceProxy;
+
+        MediaBrowserServiceAdaptor(Context context, ServiceCompatProxy serviceWrapper) {
+            attachBaseContext(context);
+            mServiceProxy = serviceWrapper;
         }
 
-        protected Binder createServiceBinder(ServiceImplApi21 serviceImpl) {
-            return new ServiceBinderAdapterApi21(serviceImpl);
+        @Override
+        public MediaBrowserService.BrowserRoot onGetRoot(String clientPackageName, int clientUid,
+                Bundle rootHints) {
+            MediaBrowserServiceCompatApi21.BrowserRoot browseRoot = mServiceProxy.onGetRoot(
+                    clientPackageName, clientUid, rootHints);
+            return new MediaBrowserService.BrowserRoot(browseRoot.mRootId, browseRoot.mExtras);
+        }
+
+        @Override
+        public void onLoadChildren(String parentId,
+                Result<List<MediaBrowser.MediaItem>> result) {
+            mServiceProxy.onLoadChildren(parentId, new ResultWrapper(result));
         }
     }
 }
