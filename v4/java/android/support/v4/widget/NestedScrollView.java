@@ -429,7 +429,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
      *
      * @return True if the content fills the viewport, false otherwise.
      *
-     * @attr ref android.R.styleable#ScrollView_fillViewport
+     * @attr name android:fillViewport
      */
     public boolean isFillViewport() {
         return mFillViewport;
@@ -442,7 +442,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
      * @param fillViewport True to stretch the content's height to the viewport's
      *        boundaries, false otherwise.
      *
-     * @attr ref android.R.styleable#ScrollView_fillViewport
+     * @attr name android:fillViewport
      */
     public void setFillViewport(boolean fillViewport) {
         if (fillViewport != mFillViewport) {
