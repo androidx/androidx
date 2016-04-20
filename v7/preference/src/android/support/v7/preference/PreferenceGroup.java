@@ -41,7 +41,7 @@ import java.util.List;
  * guide.</p>
  * </div>
  *
- * @attr ref android.R.styleable#PreferenceGroup_orderingFromXml
+ * @attr name android:orderingFromXml
  */
 public abstract class PreferenceGroup extends Preference {
     /**

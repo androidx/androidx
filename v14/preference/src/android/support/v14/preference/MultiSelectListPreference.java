@@ -40,8 +40,8 @@ import java.util.Set;
  * This set will contain one or more values from the
  * {@link #setEntryValues(CharSequence[])} array.
  *
- * @attr ref android.R.styleable#MultiSelectListPreference_entries
- * @attr ref android.R.styleable#MultiSelectListPreference_entryValues
+ * @attr name android:entries
+ * @attr name android:entryValues
  */
 public class MultiSelectListPreference extends DialogPreference {
     private CharSequence[] mEntries;

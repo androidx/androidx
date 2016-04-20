@@ -71,7 +71,7 @@ public final class ViewStubCompat extends View {
      *         {@link #NO_ID} if the inflated view should keep its id.
      *
      * @see #setInflatedId(int)
-     * @attr ref android.R.styleable#ViewStub_inflatedId
+     * @attr name android:inflatedId
      */
     public int getInflatedId() {
         return mInflatedId;
@@ -85,7 +85,7 @@ public final class ViewStubCompat extends View {
      *                   {@link #NO_ID} if the inflated view should keep its id.
      *
      * @see #getInflatedId()
-     * @attr ref android.R.styleable#ViewStub_inflatedId
+     * @attr name android:inflatedId
      */
     public void setInflatedId(int inflatedId) {
         mInflatedId = inflatedId;
@@ -101,7 +101,7 @@ public final class ViewStubCompat extends View {
      * @see #setLayoutResource(int)
      * @see #setVisibility(int)
      * @see #inflate()
-     * @attr ref android.R.styleable#ViewStub_layout
+     * @attr name android:layout
      */
     public int getLayoutResource() {
         return mLayoutResource;
@@ -117,7 +117,7 @@ public final class ViewStubCompat extends View {
      * @see #getLayoutResource()
      * @see #setVisibility(int)
      * @see #inflate()
-     * @attr ref android.R.styleable#ViewStub_layout
+     * @attr name android:layout
      */
     public void setLayoutResource(int layoutResource) {
         mLayoutResource = layoutResource;

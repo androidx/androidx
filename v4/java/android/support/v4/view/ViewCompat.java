@@ -2607,7 +2607,7 @@ public class ViewCompat {
      * @param value The vertical position of this view relative to its top position,
      * in pixels.
      *
-     * @attr ref android.R.styleable#View_translationY
+     * @attr name android:translationY
      */
     public static void setTranslationY(View view, float value) {
         IMPL.setTranslationY(view, value);
