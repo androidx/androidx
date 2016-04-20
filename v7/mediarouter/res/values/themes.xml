@@ -30,7 +30,6 @@
         <item name="mediaRouteCastDrawable">@drawable/mr_ic_cast_dark</item>
         <item name="mediaRouteAudioTrackDrawable">@drawable/ic_audiotrack</item>
         <item name="mediaRouteDefaultIconDrawable">@drawable/ic_cast_white</item>
-        <item name="mediaRouteBluetoothIconDrawable">@drawable/ic_bluetooth_white</item>
         <item name="mediaRouteTvIconDrawable">@drawable/ic_tv_dark</item>
         <item name="mediaRouteSpeakerIconDrawable">@drawable/ic_speaker_dark</item>
         <item name="mediaRouteSpeakerGroupIconDrawable">@drawable/ic_speaker_group_dark</item>
@@ -63,7 +62,6 @@
         <item name="mediaRouteCastDrawable">@drawable/mr_ic_cast_light</item>
         <item name="mediaRouteAudioTrackDrawable">@drawable/mr_ic_audiotrack_light</item>
         <item name="mediaRouteDefaultIconDrawable">@drawable/ic_cast_grey</item>
-        <item name="mediaRouteBluetoothIconDrawable">@drawable/ic_bluetooth_grey</item>
         <item name="mediaRouteTvIconDrawable">@drawable/ic_tv_light</item>
         <item name="mediaRouteSpeakerIconDrawable">@drawable/ic_speaker_light</item>
         <item name="mediaRouteSpeakerGroupIconDrawable">@drawable/ic_speaker_group_light</item>
