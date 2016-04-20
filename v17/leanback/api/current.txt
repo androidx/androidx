@@ -1131,6 +1131,18 @@ package android.support.v17.leanback.widget {
     field public final android.support.v17.leanback.widget.Presenter.ViewHolder mDetailsDescriptionViewHolder;
   }
 
+  public class DividerPresenter extends android.support.v17.leanback.widget.Presenter {
+    ctor public DividerPresenter();
+    method public void onBindViewHolder(android.support.v17.leanback.widget.Presenter.ViewHolder, java.lang.Object);
+    method public android.support.v17.leanback.widget.Presenter.ViewHolder onCreateViewHolder(android.view.ViewGroup);
+    method public void onUnbindViewHolder(android.support.v17.leanback.widget.Presenter.ViewHolder);
+  }
+
+  public class DividerRow extends android.support.v17.leanback.widget.Row {
+    ctor public DividerRow();
+    method public final boolean isRenderedAsRowView();
+  }
+
   public abstract interface FacetProvider {
     method public abstract java.lang.Object getFacet(java.lang.Class<?>);
   }
@@ -1705,6 +1717,7 @@ package android.support.v17.leanback.widget {
 
   public class PageRow extends android.support.v17.leanback.widget.Row {
     ctor public PageRow(android.support.v17.leanback.widget.HeaderItem);
+    method public final boolean isRenderedAsRowView();
   }
 
   public class PlaybackControlsRow extends android.support.v17.leanback.widget.Row {
@@ -1887,6 +1900,7 @@ package android.support.v17.leanback.widget {
     ctor public Row();
     method public final android.support.v17.leanback.widget.HeaderItem getHeaderItem();
     method public final long getId();
+    method public boolean isRenderedAsRowView();
     method public final void setHeaderItem(android.support.v17.leanback.widget.HeaderItem);
     method public final void setId(long);
   }
@@ -2038,6 +2052,13 @@ package android.support.v17.leanback.widget {
     field public int brightColor;
     field public int color;
     field public int iconColor;
+  }
+
+  public class SectionRow extends android.support.v17.leanback.widget.Row {
+    ctor public SectionRow(android.support.v17.leanback.widget.HeaderItem);
+    ctor public SectionRow(long, java.lang.String);
+    ctor public SectionRow(java.lang.String);
+    method public final boolean isRenderedAsRowView();
   }
 
   public class ShadowOverlayContainer extends android.widget.FrameLayout {

@@ -13,17 +13,23 @@
  */
 package android.support.v17.leanback.widget;
 
-/**
- * Used to represent content spanning full page.
- */
-public class PageRow extends Row {
+import android.view.ViewGroup;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
-    public PageRow(HeaderItem headerItem) {
-        super(headerItem);
+/**
+ * @hide
+ */
+public class InvisibleRowPresenter extends RowPresenter {
+
+    public InvisibleRowPresenter() {
+        setHeaderPresenter(null);
     }
 
     @Override
-    final public boolean isRenderedAsRowView() {
-        return false;
+    protected ViewHolder createRowViewHolder(ViewGroup parent) {
+        RelativeLayout root = new RelativeLayout(parent.getContext());
+        root.setLayoutParams(new RelativeLayout.LayoutParams(0, 0));
+        return new ViewHolder(root);
     }
 }
