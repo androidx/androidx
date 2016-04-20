@@ -184,10 +184,10 @@ public final class TextViewCompat {
      * {@link TextView#setCompoundDrawables} or related methods.
      *
      * @param textView The TextView against which to invoke the method.
-     * @attr ref android.R.styleable#TextView_drawableStart
-     * @attr ref android.R.styleable#TextView_drawableTop
-     * @attr ref android.R.styleable#TextView_drawableEnd
-     * @attr ref android.R.styleable#TextView_drawableBottom
+     * @attr name android:drawableStart
+     * @attr name android:drawableTop
+     * @attr name android:drawableEnd
+     * @attr name android:drawableBottom
      */
     public static void setCompoundDrawablesRelative(@NonNull TextView textView,
             @Nullable Drawable start, @Nullable Drawable top, @Nullable Drawable end,
@@ -204,10 +204,10 @@ public final class TextViewCompat {
      * {@link TextView#setCompoundDrawables} or related methods.
      *
      * @param textView The TextView against which to invoke the method.
-     * @attr ref android.R.styleable#TextView_drawableStart
-     * @attr ref android.R.styleable#TextView_drawableTop
-     * @attr ref android.R.styleable#TextView_drawableEnd
-     * @attr ref android.R.styleable#TextView_drawableBottom
+     * @attr name android:drawableStart
+     * @attr name android:drawableTop
+     * @attr name android:drawableEnd
+     * @attr name android:drawableBottom
      */
     public static void setCompoundDrawablesRelativeWithIntrinsicBounds(@NonNull TextView textView,
             @Nullable Drawable start, @Nullable Drawable top, @Nullable Drawable end,
@@ -228,10 +228,10 @@ public final class TextViewCompat {
      * @param top      Resource identifier of the top Drawable.
      * @param end      Resource identifier of the end Drawable.
      * @param bottom   Resource identifier of the bottom Drawable.
-     * @attr ref android.R.styleable#TextView_drawableStart
-     * @attr ref android.R.styleable#TextView_drawableTop
-     * @attr ref android.R.styleable#TextView_drawableEnd
-     * @attr ref android.R.styleable#TextView_drawableBottom
+     * @attr name android:drawableStart
+     * @attr name android:drawableTop
+     * @attr name android:drawableEnd
+     * @attr name android:drawableBottom
      */
     public static void setCompoundDrawablesRelativeWithIntrinsicBounds(@NonNull TextView textView,
             @DrawableRes int start, @DrawableRes int top, @DrawableRes int end,
