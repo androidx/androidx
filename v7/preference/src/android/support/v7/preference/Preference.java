@@ -61,20 +61,20 @@ import java.util.List;
  * guide.</p>
  * </div>
  *
- * @attr ref android.R.styleable#Preference_icon
- * @attr ref android.R.styleable#Preference_key
- * @attr ref android.R.styleable#Preference_title
- * @attr ref android.R.styleable#Preference_summary
- * @attr ref android.R.styleable#Preference_order
- * @attr ref android.R.styleable#Preference_fragment
- * @attr ref android.R.styleable#Preference_layout
- * @attr ref android.R.styleable#Preference_widgetLayout
- * @attr ref android.R.styleable#Preference_enabled
- * @attr ref android.R.styleable#Preference_selectable
- * @attr ref android.R.styleable#Preference_dependency
- * @attr ref android.R.styleable#Preference_persistent
- * @attr ref android.R.styleable#Preference_defaultValue
- * @attr ref android.R.styleable#Preference_shouldDisableView
+ * @attr name android:icon
+ * @attr name android:key
+ * @attr name android:title
+ * @attr name android:summary
+ * @attr name android:order
+ * @attr name android:fragment
+ * @attr name android:layout
+ * @attr name android:widgetLayout
+ * @attr name android:enabled
+ * @attr name android:selectable
+ * @attr name android:dependency
+ * @attr name android:persistent
+ * @attr name android:defaultValue
+ * @attr name android:shouldDisableView
  */
 public class Preference implements Comparable<Preference> {
     /**

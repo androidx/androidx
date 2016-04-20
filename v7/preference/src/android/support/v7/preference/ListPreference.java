@@ -33,8 +33,8 @@ import android.util.AttributeSet;
  * This preference will store a string into the SharedPreferences. This string will be the value
  * from the {@link #setEntryValues(CharSequence[])} array.
  *
- * @attr ref android.R.styleable#ListPreference_entries
- * @attr ref android.R.styleable#ListPreference_entryValues
+ * @attr name android:entries
+ * @attr name android:entryValues
  */
 public class ListPreference extends DialogPreference {
     private CharSequence[] mEntries;

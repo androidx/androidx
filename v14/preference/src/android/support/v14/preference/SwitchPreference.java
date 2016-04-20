@@ -34,11 +34,11 @@ import android.widget.Switch;
  * <p>
  * This preference will store a boolean into the SharedPreferences.
  *
- * @attr ref android.R.styleable#SwitchPreference_summaryOff
- * @attr ref android.R.styleable#SwitchPreference_summaryOn
- * @attr ref android.R.styleable#SwitchPreference_switchTextOff
- * @attr ref android.R.styleable#SwitchPreference_switchTextOn
- * @attr ref android.R.styleable#SwitchPreference_disableDependentsState
+ * @attr name android:summaryOff
+ * @attr name android:summaryOn
+ * @attr name android:switchTextOff
+ * @attr name android:switchTextOn
+ * @attr name android:disableDependentsState
  */
 public class SwitchPreference extends TwoStatePreference {
     private final Listener mListener = new Listener();
