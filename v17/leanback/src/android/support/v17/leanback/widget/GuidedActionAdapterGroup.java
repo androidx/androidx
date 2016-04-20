@@ -151,7 +151,7 @@ public class GuidedActionAdapterGroup {
     public void fillAndStay(GuidedActionAdapter adapter, TextView v) {
         GuidedActionsStylist.ViewHolder avh = adapter.findSubChildViewHolder(v);
         updateTextIntoAction(avh, v);
-        mEditListener.onGuidedActionEdited(avh.getAction());
+        mEditListener.onGuidedActionEditCanceled(avh.getAction());
         adapter.getGuidedActionsStylist().setEditingMode(avh, avh.getAction(), false);
         closeIme(v);
         avh.itemView.requestFocus();
