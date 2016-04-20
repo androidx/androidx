@@ -136,7 +136,6 @@ leanback.docs.src_files := \
     $(call all-java-files-under, src) \
     $(call all-html-files-under, src)
 leanback.docs.java_libraries := \
-    framework \
     android-support-v4 \
     android-support-v7-recyclerview \
     android-support-v17-leanback-res \
@@ -155,7 +154,7 @@ gen_res_src_dirs := $(call intermediates-dir-for,JAVA_LIBRARIES,android-support-
 LOCAL_SRC_FILES := $(leanback.docs.src_files)
 LOCAL_ADDITIONAL_JAVA_DIR := $(gen_res_src_dirs)
 
-LOCAL_SDK_VERSION := 19
+LOCAL_SDK_VERSION := 21
 LOCAL_IS_HOST_MODULE := false
 LOCAL_DROIDDOC_CUSTOM_TEMPLATE_DIR := build/tools/droiddoc/templates-sdk
 
