@@ -150,7 +150,8 @@ public class MediaRouteChooserDialog extends Dialog {
      * @return True if the route should be included in the chooser dialog.
      */
     public boolean onFilterRoute(@NonNull MediaRouter.RouteInfo route) {
-        return !route.isDefault() && route.isEnabled() && route.matchesSelector(mSelector);
+        return !route.isDefaultOrBluetooth() && route.isEnabled()
+                && route.matchesSelector(mSelector);
     }
 
     @Override
@@ -241,7 +242,6 @@ public class MediaRouteChooserDialog extends Dialog {
             implements ListView.OnItemClickListener {
         private final LayoutInflater mInflater;
         private final Drawable mDefaultIcon;
-        private final Drawable mBluetoothIcon;
         private final Drawable mTvIcon;
         private final Drawable mSpeakerIcon;
         private final Drawable mSpeakerGroupIcon;
@@ -251,15 +251,13 @@ public class MediaRouteChooserDialog extends Dialog {
             mInflater = LayoutInflater.from(context);
             TypedArray styledAttributes = getContext().obtainStyledAttributes(new int[] {
                     R.attr.mediaRouteDefaultIconDrawable,
-                    R.attr.mediaRouteBluetoothIconDrawable,
                     R.attr.mediaRouteTvIconDrawable,
                     R.attr.mediaRouteSpeakerIconDrawable,
                     R.attr.mediaRouteSpeakerGroupIconDrawable});
             mDefaultIcon = styledAttributes.getDrawable(0);
-            mBluetoothIcon = styledAttributes.getDrawable(1);
-            mTvIcon = styledAttributes.getDrawable(2);
-            mSpeakerIcon = styledAttributes.getDrawable(3);
-            mSpeakerGroupIcon = styledAttributes.getDrawable(4);
+            mTvIcon = styledAttributes.getDrawable(1);
+            mSpeakerIcon = styledAttributes.getDrawable(2);
+            mSpeakerGroupIcon = styledAttributes.getDrawable(3);
             styledAttributes.recycle();
         }
 
@@ -352,8 +350,6 @@ public class MediaRouteChooserDialog extends Dialog {
         private Drawable getDefaultIconDrawable(MediaRouter.RouteInfo route) {
             // If the type of the receiver device is specified, use it.
             switch (route.getDeviceType()) {
-                case MediaRouter.RouteInfo.DEVICE_TYPE_BLUETOOTH:
-                    return mBluetoothIcon;
                 case  MediaRouter.RouteInfo.DEVICE_TYPE_TV:
                     return mTvIcon;
                 case MediaRouter.RouteInfo.DEVICE_TYPE_SPEAKER:
@@ -364,9 +360,6 @@ public class MediaRouteChooserDialog extends Dialog {
             if (route instanceof MediaRouter.RouteGroup) {
                 // Only speakers can be grouped for now.
                 return mSpeakerGroupIcon;
-            }
-            if (route.isDeviceTypeBluetooth()) {
-                return mBluetoothIcon;
             }
             return mDefaultIcon;
         }
@@ -425,13 +418,6 @@ public class MediaRouteChooserDialog extends Dialog {
                 return rhs == null ? 0 : -1;
             } else if (rhs == null) {
                 return 1;
-            }
-            if (lhs.isDeviceTypeBluetooth()) {
-                if (!rhs.isDeviceTypeBluetooth()) {
-                    return 1;
-                }
-            } else if (rhs.isDeviceTypeBluetooth()) {
-                return -1;
             }
             Float lhsUsageScore = mRouteUsageScoreMap.get(lhs.getId());
             if (lhsUsageScore == null) {
