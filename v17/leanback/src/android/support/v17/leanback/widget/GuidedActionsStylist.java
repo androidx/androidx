@@ -901,7 +901,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         } else {
             if (onUpdateActivatorView(vh, action)) {
                 if (mEditListener != null) {
-                    mEditListener.onGuidedActionEdited(action);
+                    mEditListener.onGuidedActionEditedAndProceed(action);
                 }
             }
             vh.itemView.setFocusable(true);

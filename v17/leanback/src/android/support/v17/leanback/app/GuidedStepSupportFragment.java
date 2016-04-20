@@ -407,15 +407,26 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
     /**
      * Callback invoked when an action's title or description has been edited, this happens either
      * when user clicks confirm button in IME or user closes IME window by BACK key.
-     * Override {@link #onGuidedActionEditedAndProceed(GuidedAction)} instead if app only wants to
-     * respond when confirm button of IME is clicked.
+     * @deprecated Override {@link #onGuidedActionEditedAndProceed(GuidedAction)} and/or
+     *             {@link #onGuidedActionEditCanceled(GuidedAction)}.
      */
+    @Deprecated
     public void onGuidedActionEdited(GuidedAction action) {
     }
 
     /**
-     * Callback invoked when an action's title or description has been edited, this happens when
-     * user clicks confirm button in IME.  Default implementation calls
+     * Callback invoked when an action has been canceled editing, for example when user closes
+     * IME window by BACK key.  Default implementation calls deprecated method
+     * {@link #onGuidedActionEdited(GuidedAction)}.
+     * @param action The action which has been canceled editing.
+     */
+    public void onGuidedActionEditCanceled(GuidedAction action) {
+        onGuidedActionEdited(action);
+    }
+
+    /**
+     * Callback invoked when an action has been edited, for example when user clicks confirm button
+     * in IME window.  Default implementation calls deprecated method
      * {@link #onGuidedActionEdited(GuidedAction)} and returns {@link GuidedAction#ACTION_ID_NEXT}.
      *
      * @param action The action that has been edited.
@@ -1039,8 +1050,8 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
                 }
 
                 @Override
-                public void onGuidedActionEdited(GuidedAction action) {
-                    GuidedStepSupportFragment.this.onGuidedActionEdited(action);
+                public void onGuidedActionEditCanceled(GuidedAction action) {
+                    GuidedStepSupportFragment.this.onGuidedActionEditCanceled(action);
                 }
         };
 
