@@ -343,7 +343,8 @@ public final class MediaRouter {
 
     /**
      * Returns the selected route if it matches the specified selector, otherwise
-     * selects the default route and returns it.
+     * selects the default route and returns it. If there is one live audio route
+     * (usually Bluetooth A2DP), it will be selected instead of default route.
      *
      * @param selector The selector to match.
      * @return The previously selected route if it matched the selector, otherwise the
@@ -351,7 +352,6 @@ public final class MediaRouter {
      *
      * @see MediaRouteSelector
      * @see RouteInfo#matchesSelector
-     * @see RouteInfo#isDefault
      */
     @NonNull
     public RouteInfo updateSelectedRoute(@NonNull MediaRouteSelector selector) {
@@ -364,8 +364,8 @@ public final class MediaRouter {
             Log.d(TAG, "updateSelectedRoute: " + selector);
         }
         RouteInfo route = sGlobal.getSelectedRoute();
-        if (!route.isDefault() && !route.matchesSelector(selector)) {
-            route = sGlobal.getDefaultRoute();
+        if (!route.isDefaultOrBluetooth() && !route.matchesSelector(selector)) {
+            route = sGlobal.chooseFallbackRoute();
             sGlobal.selectRoute(route);
         }
         return route;
@@ -1242,21 +1242,14 @@ public final class MediaRouter {
 
 
         /**
-         * Gets whether the type of the receiver device associated with this route is
-         * {@link #DEVICE_TYPE_BLUETOOTH}.
-         * <p>
-         * This is a workaround for platform version 23 or below where the system route provider
-         * doesn't specify device type for bluetooth media routes.
-         * </p>
-         *
-         * @return True if the receiver device type can be assumed to be
-         *         {@link #DEVICE_TYPE_BLUETOOTH}, false otherwise.
          * @hide
          */
-        public boolean isDeviceTypeBluetooth() {
-            if (mDeviceType == DEVICE_TYPE_BLUETOOTH) {
+        public boolean isDefaultOrBluetooth() {
+            if (isDefault() || mDeviceType == DEVICE_TYPE_BLUETOOTH) {
                 return true;
             }
+            // This is a workaround for platform version 23 or below where the system route
+            // provider doesn't specify device type for bluetooth media routes.
             return isSystemMediaRouteProvider(this)
                     && supportsControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
                     && !supportsControlCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO);
@@ -2081,7 +2074,7 @@ public final class MediaRouter {
             for (int i = 0; i < routeCount; i++) {
                 RouteInfo route = mRoutes.get(i);
                 if ((flags & AVAILABILITY_FLAG_IGNORE_DEFAULT_ROUTE) != 0
-                        && route.isDefault()) {
+                        && route.isDefaultOrBluetooth()) {
                     continue;
                 }
                 if (route.matchesSelector(selector)) {

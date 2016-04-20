@@ -231,7 +231,7 @@ public class MediaRouteButton extends View {
         }
 
         MediaRouter.RouteInfo route = mRouter.getSelectedRoute();
-        if (route.isDefault() || !route.matchesSelector(mSelector)) {
+        if (route.isDefaultOrBluetooth() || !route.matchesSelector(mSelector)) {
             if (fm.findFragmentByTag(CHOOSER_FRAGMENT_TAG) != null) {
                 Log.w(TAG, "showDialog(): Route chooser dialog already showing!");
                 return false;
@@ -492,7 +492,8 @@ public class MediaRouteButton extends View {
     private void refreshRoute() {
         if (mAttachedToWindow) {
             final MediaRouter.RouteInfo route = mRouter.getSelectedRoute();
-            final boolean isRemote = !route.isDefault() && route.matchesSelector(mSelector);
+            final boolean isRemote = !route.isDefaultOrBluetooth()
+                    && route.matchesSelector(mSelector);
             final boolean isConnecting = isRemote && route.isConnecting();
 
             boolean needsRefresh = false;

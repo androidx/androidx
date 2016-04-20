@@ -494,7 +494,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
     }
 
     private void update(boolean animate) {
-        if (!mRoute.isSelected() || mRoute.isDefault()) {
+        if (!mRoute.isSelected() || mRoute.isDefaultOrBluetooth()) {
             dismiss();
             return;
         }
@@ -961,11 +961,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 showTitle = true;
             } else if (mState == null || mState.getState() == PlaybackStateCompat.STATE_NONE) {
                 // Show "No media selected" as we don't yet know the playback state.
-                // (Only exception is bluetooth where we don't show anything.)
-                if (!mRoute.isDeviceTypeBluetooth()) {
-                    mTitleView.setText(R.string.mr_controller_no_media_selected);
-                    showTitle = true;
-                }
+                mTitleView.setText(R.string.mr_controller_no_media_selected);
+                showTitle = true;
             } else if (!hasTitle && !hasSubtitle) {
                 mTitleView.setText(R.string.mr_controller_no_info_available);
                 showTitle = true;
