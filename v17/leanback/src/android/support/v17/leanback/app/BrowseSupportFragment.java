@@ -42,7 +42,7 @@ import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowHeaderPresenter;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.ScaleFrameLayout;
-import android.support.v17.leanback.widget.TitleView;
+import android.support.v17.leanback.widget.TitleViewAdapter;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v4.view.ViewCompat;
 import android.util.Log;
@@ -225,10 +225,12 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         void notifyViewCreated(MainFragmentAdapter fragmentAdapter);
 
         /**
-         * Slides in the title view from top in {@link BrowseSupportFragment}. This will only happen
-         * if either a. we are in fully expanded mode OR b. non expanded mode but on the first
-         * row. If we make this request in non expanded mode, it will remember that request and
-         * show/hide the {@link TitleView} when we move into expanded mode.
+         * Show or hide title view in {@link BrowseSupportFragment} for fragments mapped to
+         * {@link PageRow}.  Otherwise the request is ignored, in that case BrowseSupportFragment is fully
+         * in control of showing/hiding title view.
+         * <p>
+         * When HeadersSupportFragment is visible, BrowseSupportFragment will hide search affordance view if
+         * there are other focusable rows above currently focused row.
          *
          * @param show Boolean indicating whether or not to show the title view.
          */
@@ -1077,11 +1079,11 @@ public class BrowseSupportFragment extends BaseSupportFragment {
 
         getProgressBarManager().setRootView((ViewGroup)root);
 
-        setTitleView((TitleView) root.findViewById(R.id.browse_title_group));
-
         mBrowseFrame = (BrowseFrameLayout) root.findViewById(R.id.browse_frame);
         mBrowseFrame.setOnChildFocusListener(mOnChildFocusListener);
         mBrowseFrame.setOnFocusSearchListener(mOnFocusSearchListener);
+
+        installTitleView(inflater, mBrowseFrame, savedInstanceState);
 
         mScaleFrameLayout = (ScaleFrameLayout) root.findViewById(R.id.scale_frame);
         mScaleFrameLayout.setPivotX(0);
@@ -1190,7 +1192,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
                 showTitleView = isFirstRowWithContent(mSelectedPosition);
             }
             if (showTitleView) {
-                showTitle(TitleView.FULL_VIEW_VISIBLE);
+                showTitle(TitleViewAdapter.FULL_VIEW_VISIBLE);
             } else {
                 showTitle(false);
             }
@@ -1205,8 +1207,8 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             }
             showSearch = isFirstRowWithContentOrPageRow(mSelectedPosition);
             int flags = 0;
-            if (showBranding) flags |= TitleView.BRANDING_VIEW_VISIBLE;
-            if (showSearch) flags |= TitleView.SEARCH_VIEW_VISIBLE;
+            if (showBranding) flags |= TitleViewAdapter.BRANDING_VIEW_VISIBLE;
+            if (showSearch) flags |= TitleViewAdapter.SEARCH_VIEW_VISIBLE;
             if (flags != 0) {
                 showTitle(flags);
             } else {
@@ -1569,7 +1571,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     }
 
     void setSearchOrbViewOnScreen(boolean onScreen) {
-        View searchOrbView = getTitleView().getSearchAffordanceView();
+        View searchOrbView = getTitleViewAdapter().getSearchAffordanceView();
         MarginLayoutParams lp = (MarginLayoutParams) searchOrbView.getLayoutParams();
         lp.setMarginStart(onScreen ? 0 : -mContainerListMarginStart);
         searchOrbView.setLayoutParams(lp);
