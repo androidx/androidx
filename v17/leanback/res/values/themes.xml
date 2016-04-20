@@ -48,6 +48,7 @@
 
         <item name="headersVerticalGridStyle">@style/Widget.Leanback.Headers.VerticalGridView</item>
         <item name="headerStyle">@style/Widget.Leanback.Header</item>
+        <item name="sectionHeaderStyle">@style/Widget.Leanback.Header.Section</item>
 
         <item name="rowsVerticalGridStyle">@style/Widget.Leanback.Rows.VerticalGridView</item>
         <item name="rowHorizontalGridStyle">@style/Widget.Leanback.Row.HorizontalGridView</item>
