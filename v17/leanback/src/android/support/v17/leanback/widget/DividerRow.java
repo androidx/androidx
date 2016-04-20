@@ -13,23 +13,16 @@
  */
 package android.support.v17.leanback.widget;
 
-import android.view.ViewGroup;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-
 /**
- * @hide
+ * Used to represent divider in HeadersFragment.
  */
-public class PageRowPresenter extends RowPresenter {
+public class DividerRow extends Row {
 
-    public PageRowPresenter() {
-        setHeaderPresenter(null);
+    public DividerRow() {
     }
 
     @Override
-    protected ViewHolder createRowViewHolder(ViewGroup parent) {
-        RelativeLayout root = new RelativeLayout(parent.getContext());
-        root.setLayoutParams(new RelativeLayout.LayoutParams(0, 0));
-        return new ViewHolder(root);
+    final public boolean isRenderedAsRowView() {
+        return false;
     }
 }

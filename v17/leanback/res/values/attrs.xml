@@ -236,6 +236,8 @@
         <attr name="headersVerticalGridStyle" format="reference" />
         <!-- header style inside HeadersFragment -->
         <attr name="headerStyle" format="reference" />
+        <!-- Non selectable header style inside HeadersFragment -->
+        <attr name="sectionHeaderStyle" format="reference" />
 
         <!-- vertical grid style inside RowsFragment -->
         <attr name="rowsVerticalGridStyle" format="reference" />
