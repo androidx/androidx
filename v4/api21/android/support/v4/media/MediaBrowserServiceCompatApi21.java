@@ -35,15 +35,19 @@ class MediaBrowserServiceCompatApi21 {
     }
 
     public static void onCreate(Object serviceObj) {
-        ((MediaBrowserServiceAdaptor) serviceObj).onCreate();
+        ((MediaBrowserService) serviceObj).onCreate();
     }
 
     public static IBinder onBind(Object serviceObj, Intent intent) {
-        return ((MediaBrowserServiceAdaptor) serviceObj).onBind(intent);
+        return ((MediaBrowserService) serviceObj).onBind(intent);
     }
 
     public static void setSessionToken(Object serviceObj, Object token) {
-        ((MediaBrowserServiceAdaptor) serviceObj).setSessionToken((MediaSession.Token) token);
+        ((MediaBrowserService) serviceObj).setSessionToken((MediaSession.Token) token);
+    }
+
+    public static void notifyChildrenChanged(Object serviceObj, String parentId) {
+        ((MediaBrowserService) serviceObj).notifyChildrenChanged(parentId);
     }
 
     public interface ServiceCompatProxy {
@@ -102,14 +106,14 @@ class MediaBrowserServiceCompatApi21 {
         @Override
         public MediaBrowserService.BrowserRoot onGetRoot(String clientPackageName, int clientUid,
                 Bundle rootHints) {
-            MediaBrowserServiceCompatApi21.BrowserRoot browseRoot = mServiceProxy.onGetRoot(
+            MediaBrowserServiceCompatApi21.BrowserRoot browserRoot = mServiceProxy.onGetRoot(
                     clientPackageName, clientUid, rootHints);
-            return new MediaBrowserService.BrowserRoot(browseRoot.mRootId, browseRoot.mExtras);
+            return browserRoot == null ? null : new MediaBrowserService.BrowserRoot(
+                    browserRoot.mRootId, browserRoot.mExtras);
         }
 
         @Override
-        public void onLoadChildren(String parentId,
-                Result<List<MediaBrowser.MediaItem>> result) {
+        public void onLoadChildren(String parentId, Result<List<MediaBrowser.MediaItem>> result) {
             mServiceProxy.onLoadChildren(parentId, new ResultWrapper(result));
         }
     }

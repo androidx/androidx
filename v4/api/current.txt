@@ -1360,9 +1360,11 @@ package android.support.v4.media {
     method public void dump(java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
     method public android.support.v4.media.session.MediaSessionCompat.Token getSessionToken();
     method public void notifyChildrenChanged(java.lang.String);
+    method public void notifyChildrenChanged(java.lang.String, android.os.Bundle);
     method public android.os.IBinder onBind(android.content.Intent);
     method public abstract android.support.v4.media.MediaBrowserServiceCompat.BrowserRoot onGetRoot(java.lang.String, int, android.os.Bundle);
     method public abstract void onLoadChildren(java.lang.String, android.support.v4.media.MediaBrowserServiceCompat.Result<java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem>>);
+    method public void onLoadChildren(java.lang.String, android.support.v4.media.MediaBrowserServiceCompat.Result<java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem>>, android.os.Bundle);
     method public void onLoadItem(java.lang.String, android.support.v4.media.MediaBrowserServiceCompat.Result<android.support.v4.media.MediaBrowserCompat.MediaItem>);
     method public void setSessionToken(android.support.v4.media.session.MediaSessionCompat.Token);
     field public static final java.lang.String SERVICE_INTERFACE = "android.media.browse.MediaBrowserService";
