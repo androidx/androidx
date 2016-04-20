@@ -104,6 +104,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
         void onCreate();
         IBinder onBind(Intent intent);
         void setSessionToken(MediaSessionCompat.Token token);
+        void notifyChildrenChanged(final String parentId, final Bundle options);
     }
 
     class MediaBrowserServiceImplBase implements MediaBrowserServiceImpl {
@@ -140,12 +141,34 @@ public abstract class MediaBrowserServiceCompat extends Service {
                 }
             });
         }
+
+        @Override
+        public void notifyChildrenChanged(@NonNull final String parentId, final Bundle options) {
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    for (IBinder binder : mConnections.keySet()) {
+                        ConnectionRecord connection = mConnections.get(binder);
+                        List<Pair<IBinder, Bundle>> callbackList =
+                                connection.subscriptions.get(parentId);
+                        if (callbackList != null) {
+                            for (Pair<IBinder, Bundle> callback : callbackList) {
+                                if (MediaBrowserCompatUtils.hasDuplicatedItems(
+                                        options, callback.second)) {
+                                    performLoadChildren(parentId, connection, callback.second);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
     }
 
     class MediaBrowserServiceImplApi21 implements MediaBrowserServiceImpl,
             MediaBrowserServiceCompatApi21.ServiceCompatProxy {
-        private Object mServiceObj;
-        private Messenger mMessenger;
+        Object mServiceObj;
+        Messenger mMessenger;
 
         @Override
         public void onCreate() {
@@ -162,6 +185,33 @@ public abstract class MediaBrowserServiceCompat extends Service {
         @Override
         public void setSessionToken(MediaSessionCompat.Token token) {
             MediaBrowserServiceCompatApi21.setSessionToken(mServiceObj, token.getToken());
+        }
+
+        @Override
+        public void notifyChildrenChanged(final String parentId, final Bundle options) {
+            if (mMessenger == null) {
+                // TODO: Support notifyChildrenChanged with options.
+                MediaBrowserServiceCompatApi21.notifyChildrenChanged(mServiceObj, parentId);
+            } else {
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        for (IBinder binder : mConnections.keySet()) {
+                            ConnectionRecord connection = mConnections.get(binder);
+                            List<Pair<IBinder, Bundle>> callbackList =
+                                    connection.subscriptions.get(parentId);
+                            if (callbackList != null) {
+                                for (Pair<IBinder, Bundle> callback : callbackList) {
+                                    if (MediaBrowserCompatUtils.hasDuplicatedItems(
+                                            options, callback.second)) {
+                                        performLoadChildren(parentId, connection, callback.second);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
         }
 
         @Override
@@ -192,11 +242,10 @@ public abstract class MediaBrowserServiceCompat extends Service {
         @Override
         public void onLoadChildren(String parentId,
                 final MediaBrowserServiceCompatApi21.ResultWrapper resultWrapper) {
-
             final Result<List<MediaBrowserCompat.MediaItem>> result
                     = new Result<List<MediaBrowserCompat.MediaItem>>(parentId) {
                 @Override
-                void onResultSent(List<MediaBrowserCompat.MediaItem> list, @ResultFlags int flag) {
+                void onResultSent(List<MediaBrowserCompat.MediaItem> list, @ResultFlags int flags) {
                     List<Parcel> parcelList = null;
                     if (list != null) {
                         parcelList = new ArrayList<>();
@@ -215,6 +264,53 @@ public abstract class MediaBrowserServiceCompat extends Service {
                 }
             };
             MediaBrowserServiceCompat.this.onLoadChildren(parentId, result);
+        }
+    }
+
+    class MediaBrowserServiceImplApi24 extends MediaBrowserServiceImplApi21 implements
+            MediaBrowserServiceCompatApi24.ServiceCompatProxy {
+        @Override
+        public void onCreate() {
+            mServiceObj = MediaBrowserServiceCompatApi24.createService(
+                    MediaBrowserServiceCompat.this, this);
+            MediaBrowserServiceCompatApi21.onCreate(mServiceObj);
+        }
+
+        @Override
+        public void notifyChildrenChanged(final String parentId, final Bundle options) {
+            if (options == null) {
+                MediaBrowserServiceCompatApi21.notifyChildrenChanged(mServiceObj, parentId);
+            } else {
+                MediaBrowserServiceCompatApi24.notifyChildrenChanged(mServiceObj, parentId,
+                        options);
+            }
+        }
+
+        @Override
+        public void onLoadChildren(String parentId,
+                final MediaBrowserServiceCompatApi24.ResultWrapper resultWrapper, Bundle options) {
+            final Result<List<MediaBrowserCompat.MediaItem>> result
+                    = new Result<List<MediaBrowserCompat.MediaItem>>(parentId) {
+                @Override
+                void onResultSent(List<MediaBrowserCompat.MediaItem> list, @ResultFlags int flags) {
+                    List<Parcel> parcelList = null;
+                    if (list != null) {
+                        parcelList = new ArrayList<>();
+                        for (MediaBrowserCompat.MediaItem item : list) {
+                            Parcel parcel = Parcel.obtain();
+                            item.writeToParcel(parcel, 0);
+                            parcelList.add(parcel);
+                        }
+                    }
+                    resultWrapper.sendResult(parcelList, flags);
+                }
+
+                @Override
+                public void detach() {
+                    resultWrapper.detach();
+                }
+            };
+            MediaBrowserServiceCompat.this.onLoadChildren(parentId, result, options);
         }
     }
 
@@ -572,7 +668,9 @@ public abstract class MediaBrowserServiceCompat extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 24) {
+            mImpl = new MediaBrowserServiceImplApi24();
+        } else if (Build.VERSION.SDK_INT >= 21) {
             mImpl = new MediaBrowserServiceImplApi21();
         } else {
             mImpl = new MediaBrowserServiceImplBase();
@@ -649,7 +747,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
      * @param options A bundle of service-specific arguments sent from the media
      *            browse. The information returned through the result should be
      *            affected by the contents of this bundle.
-     * {@hide}
      */
     public void onLoadChildren(@NonNull String parentId,
             @NonNull Result<List<MediaBrowserCompat.MediaItem>> result, @NonNull Bundle options) {
@@ -716,7 +813,10 @@ public abstract class MediaBrowserServiceCompat extends Service {
      * children changed.
      */
     public void notifyChildrenChanged(@NonNull String parentId) {
-        notifyChildrenChangedInternal(parentId, null);
+        if (parentId == null) {
+            throw new IllegalArgumentException("parentId cannot be null in notifyChildrenChanged");
+        }
+        mImpl.notifyChildrenChanged(parentId, null);
     }
 
     /**
@@ -729,37 +829,15 @@ public abstract class MediaBrowserServiceCompat extends Service {
      * @param options A bundle of service-specific arguments to send
      *            to the media browse. The contents of this bundle may
      *            contain the information about the change.
-     * {@hide}
      */
     public void notifyChildrenChanged(@NonNull String parentId, @NonNull Bundle options) {
-        if (options == null) {
-            throw new IllegalArgumentException("options cannot be null in notifyChildrenChanged");
-        }
-        notifyChildrenChangedInternal(parentId, options);
-    }
-
-    private void notifyChildrenChangedInternal(final String parentId, final Bundle options) {
         if (parentId == null) {
             throw new IllegalArgumentException("parentId cannot be null in notifyChildrenChanged");
         }
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                for (IBinder binder : mConnections.keySet()) {
-                    ConnectionRecord connection = mConnections.get(binder);
-                    List<Pair<IBinder, Bundle>> callbackList =
-                            connection.subscriptions.get(parentId);
-                    if (callbackList != null) {
-                        for (Pair<IBinder, Bundle> callback : callbackList) {
-                            if (MediaBrowserCompatUtils.hasDuplicatedItems(
-                                    options, callback.second)) {
-                                performLoadChildren(parentId, connection, callback.second);
-                            }
-                        }
-                    }
-                }
-            }
-        });
+        if (options == null) {
+            throw new IllegalArgumentException("options cannot be null in notifyChildrenChanged");
+        }
+        mImpl.notifyChildrenChanged(parentId, options);
     }
 
     /**
@@ -835,7 +913,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
         final Result<List<MediaBrowserCompat.MediaItem>> result
                 = new Result<List<MediaBrowserCompat.MediaItem>>(parentId) {
             @Override
-            void onResultSent(List<MediaBrowserCompat.MediaItem> list, @ResultFlags int flag) {
+            void onResultSent(List<MediaBrowserCompat.MediaItem> list, @ResultFlags int flags) {
                 if (mConnections.get(connection.callbacks.asBinder()) != connection) {
                     if (DEBUG) {
                         Log.d(TAG, "Not sending onLoadChildren result for connection that has"
@@ -845,7 +923,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
                 }
 
                 List<MediaBrowserCompat.MediaItem> filteredList =
-                        (flag & RESULT_FLAG_OPTION_NOT_HANDLED) != 0
+                        (flags & RESULT_FLAG_OPTION_NOT_HANDLED) != 0
                                 ? applyOptions(list, options) : list;
                 try {
                     connection.callbacks.onLoadChildren(parentId, filteredList, options);
@@ -894,7 +972,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
         final Result<MediaBrowserCompat.MediaItem> result =
                 new Result<MediaBrowserCompat.MediaItem>(itemId) {
                     @Override
-                    void onResultSent(MediaBrowserCompat.MediaItem item, @ResultFlags int flag) {
+                    void onResultSent(MediaBrowserCompat.MediaItem item, @ResultFlags int flags) {
                         Bundle bundle = new Bundle();
                         bundle.putParcelable(KEY_MEDIA_ITEM, item);
                         receiver.send(0, bundle);
