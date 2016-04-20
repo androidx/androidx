@@ -30,6 +30,7 @@ public class RowHeaderPresenter extends Presenter {
     private final int mLayoutResourceId;
     private final Paint mFontMeasurePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private boolean mNullItemVisibilityGone;
+    private final boolean mAnimateSelect;
 
     public RowHeaderPresenter() {
         this(R.layout.lb_row_header);
@@ -39,7 +40,15 @@ public class RowHeaderPresenter extends Presenter {
      * @hide
      */
     public RowHeaderPresenter(int layoutResourceId) {
+        this(layoutResourceId, true);
+    }
+
+    /**
+     * @hide
+     */
+    public RowHeaderPresenter(int layoutResourceId, boolean animateSelect) {
         mLayoutResourceId = layoutResourceId;
+        mAnimateSelect = animateSelect;
     }
 
     /**
@@ -81,7 +90,9 @@ public class RowHeaderPresenter extends Presenter {
         viewHolder.mOriginalTextColor = headerView.getCurrentTextColor();
         viewHolder.mUnselectAlpha = parent.getResources().getFraction(
                 R.fraction.lb_browse_header_unselect_alpha, 1, 1);
-        setSelectLevel(viewHolder, 0);
+        if (mAnimateSelect) {
+            setSelectLevel(viewHolder, 0);
+        }
         return viewHolder;
     }
 
@@ -104,7 +115,9 @@ public class RowHeaderPresenter extends Presenter {
     @Override
     public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
         ((RowHeaderView) viewHolder.view).setText(null);
-        setSelectLevel((ViewHolder) viewHolder, 0);
+        if (mAnimateSelect) {
+            setSelectLevel((ViewHolder) viewHolder, 0);
+        }
     }
 
     /**
@@ -119,8 +132,10 @@ public class RowHeaderPresenter extends Presenter {
      * Called when the select level changes.  The default implementation sets the alpha on the view.
      */
     protected void onSelectLevelChanged(ViewHolder holder) {
-        holder.view.setAlpha(holder.mUnselectAlpha + holder.mSelectLevel *
-                (1f - holder.mUnselectAlpha));
+        if (mAnimateSelect) {
+            holder.view.setAlpha(holder.mUnselectAlpha + holder.mSelectLevel *
+                    (1f - holder.mUnselectAlpha));
+        }
     }
 
     /**

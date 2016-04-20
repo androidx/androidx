@@ -23,13 +23,16 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.v17.leanback.R;
+import android.support.v17.leanback.widget.ClassPresenterSelector;
+import android.support.v17.leanback.widget.DividerPresenter;
+import android.support.v17.leanback.widget.DividerRow;
 import android.support.v17.leanback.widget.FocusHighlightHelper;
 import android.support.v17.leanback.widget.HorizontalGridView;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowHeaderPresenter;
-import android.support.v17.leanback.widget.SinglePresenterSelector;
+import android.support.v17.leanback.widget.SectionRow;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -75,8 +78,11 @@ public class HeadersSupportFragment extends BaseRowSupportFragment {
     private int mBackgroundColor;
     private boolean mBackgroundColorSet;
 
-    private static final PresenterSelector sHeaderPresenter = new SinglePresenterSelector(
-            new RowHeaderPresenter(R.layout.lb_header));
+    private static final PresenterSelector sHeaderPresenter = new ClassPresenterSelector()
+            .addClassPresenter(DividerRow.class, new DividerPresenter())
+            .addClassPresenter(SectionRow.class,
+                    new RowHeaderPresenter(R.layout.lb_section_header, false))
+            .addClassPresenter(Row.class, new RowHeaderPresenter(R.layout.lb_header));
 
     public HeadersSupportFragment() {
         setPresenterSelector(sHeaderPresenter);
@@ -124,8 +130,6 @@ public class HeadersSupportFragment extends BaseRowSupportFragment {
                     }
                 }
             });
-            headerView.setFocusable(true);
-            headerView.setFocusableInTouchMode(true);
             if (mWrapper != null) {
                 viewHolder.itemView.addOnLayoutChangeListener(sLayoutChangeListener);
             } else {
