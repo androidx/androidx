@@ -156,7 +156,7 @@ public final class CompoundButtonCompat {
 
     /**
      * @return the blending mode used to apply the tint to the button drawable
-     * @attr ref android.R.styleable#CompoundButton_buttonTintMode
+     * @attr name android:buttonTintMode
      * @see #setButtonTintMode(PorterDuff.Mode)
      */
     @Nullable
