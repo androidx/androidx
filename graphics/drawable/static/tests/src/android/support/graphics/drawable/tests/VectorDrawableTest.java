@@ -321,7 +321,6 @@ public class VectorDrawableTest extends AndroidTestCase {
         d2.setAlpha(originalAlpha);
     }
 
-    @Test
     public void testBounds() {
         VectorDrawableCompat vectorDrawable =
                 VectorDrawableCompat.create(mResources, R.drawable.vector_icon_delete, mTheme);
