@@ -34,6 +34,10 @@
         <item name="android:textColor">@color/lb_browse_header_color</item>
     </style>
 
+    <style name="TextAppearance.Leanback.Header.Section">
+        <item name="android:textSize">@dimen/lb_browse_section_header_text_size</item>
+    </style>
+
     <style name="TextAppearance.Leanback.Row.Header" parent="TextAppearance.Leanback.Header">
     </style>
 
@@ -217,8 +221,14 @@
         <item name="android:minWidth">1dp</item>
         <item name="android:textAppearance">@style/TextAppearance.Leanback.Header</item>
         <item name="android:textAlignment">viewStart</item>
-        <item name="android:singleLine">true</item>
+        <item name="android:singleLine">false</item>
+        <item name="android:maxLines">2</item>
         <item name="android:ellipsize">none</item>
+    </style>
+
+    <style name="Widget.Leanback.Header.Section" >
+        <item name="android:textAppearance">@style/TextAppearance.Leanback.Header.Section</item>
+        <item name="android:singleLine">true</item>
     </style>
 
     <style name="Widget.Leanback.Rows.VerticalGridView" >

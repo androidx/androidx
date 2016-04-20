@@ -14,12 +14,20 @@
 package android.support.v17.leanback.widget;
 
 /**
- * Used to represent content spanning full page.
+ * Used to represent section item in HeadersFragment.  Unlike a normal Row, it's not focusable.
  */
-public class PageRow extends Row {
+public class SectionRow extends Row {
 
-    public PageRow(HeaderItem headerItem) {
+    public SectionRow(HeaderItem headerItem) {
         super(headerItem);
+    }
+
+    public SectionRow(long id, String name) {
+        super(new HeaderItem(id, name));
+    }
+
+    public SectionRow(String name) {
+        super(new HeaderItem(name));
     }
 
     @Override

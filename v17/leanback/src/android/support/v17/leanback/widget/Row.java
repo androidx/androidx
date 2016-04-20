@@ -116,4 +116,14 @@ public class Row {
     final int getFlags() {
         return mFlags;
     }
+
+    /**
+     * Returns true if this Row can be rendered in a visible row view, false otherwise.  For example
+     * {@link ListRow} is rendered by {@link ListRowPresenter}.  {@link PageRow},
+     * {@link SectionRow}, {@link DividerRow} are rendered as invisible row views.
+     * @return True if this Row can be rendered in a visible row view, false otherwise.
+     */
+    public boolean isRenderedAsRowView() {
+        return true;
+    }
 }
