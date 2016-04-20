@@ -25,12 +25,13 @@ import android.support.v17.leanback.app.RowsSupportFragment;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ImageCardView;
+import android.support.v17.leanback.widget.DividerRow;
+import android.support.v17.leanback.widget.SectionRow;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.PageRow;
-import android.support.v17.leanback.widget.PageRowPresenter;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.Row;
@@ -116,23 +117,23 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
     }
 
     private void setupRows() {
-        mRowsAdapter = new ArrayObjectAdapter(new MyPresenterSelector());
+        mRowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
         setAdapter(mRowsAdapter);
     }
 
     private void loadData() {
         int i = 0;
 
-        HeaderItem header = new HeaderItem(HEADER_ID1, "Page Row " + 0);
-        mRowsAdapter.add(new PageRow(header));
+        mRowsAdapter.add(new PageRow(new HeaderItem(HEADER_ID1, "Page Row 0")));
+        mRowsAdapter.add(new DividerRow());
 
+        mRowsAdapter.add(new SectionRow(new HeaderItem("section 0")));
         for (; i < NUM_ROWS; ++i) {
-            header = new HeaderItem(i, "Row " + i);
-            mRowsAdapter.add(new ListRow(header, createListRowAdapter(i)));
+            mRowsAdapter.add(new ListRow(new HeaderItem(i, "Row " + i), createListRowAdapter(i)));
         }
 
-        header = new HeaderItem(HEADER_ID2, "Page Row " + 1);
-        mRowsAdapter.add(new PageRow(header));
+        mRowsAdapter.add(new DividerRow());
+        mRowsAdapter.add(new PageRow(new HeaderItem(HEADER_ID2, "Page Row 1")));
     }
 
     private ArrayObjectAdapter createListRowAdapter(int i) {
@@ -348,24 +349,5 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
         }
     }
 
-    private static class MyPresenterSelector extends PresenterSelector {
-        private Presenter[] presenters = {
-                new ListRowPresenter(),
-                new PageRowPresenter()
-        };
-
-        @Override
-        public Presenter getPresenter(Object item) {
-            if (item instanceof PageRow) {
-                return presenters[1];
-            }
-            return presenters[0];
-        }
-
-        @Override
-        public Presenter[] getPresenters() {
-            return presenters;
-        }
-    }
 }
 
