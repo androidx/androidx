@@ -19,6 +19,7 @@ package android.support.v4.app;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -130,6 +131,21 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
                     "Starting activity with a requestCode requires a FragmentActivity host");
         }
         mContext.startActivity(intent);
+    }
+
+    /**
+     * Starts a new {@link IntentSender} from the given fragment.
+     * See {@link Activity#startIntentSender(IntentSender, Intent, int, int, int, Bundle)}.
+     */
+    public void onStartIntentSenderFromFragment(Fragment fragment, IntentSender intent,
+            int requestCode, @Nullable Intent fillInIntent, int flagsMask, int flagsValues,
+            int extraFlags, Bundle options) throws IntentSender.SendIntentException {
+        if (requestCode != -1) {
+            throw new IllegalStateException(
+                    "Starting intent sender with a requestCode requires a FragmentActivity host");
+        }
+        ActivityCompat.startIntentSenderForResult(mActivity, intent, requestCode, fillInIntent,
+                flagsMask, flagsValues, extraFlags, options);
     }
 
     /**

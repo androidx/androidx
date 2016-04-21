@@ -19,6 +19,7 @@ package android.support.v4.app;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -127,12 +128,6 @@ public class FragmentActivity extends BaseFragmentActivityApi24 implements
     // Fragment.startActivityForResult(...) calls. This allows us to dispatch onActivityResult(...)
     // to the appropriate Fragment. Request indicies are allocated by allocateRequestIndex(...).
     int mNextCandidateRequestIndex;
-    // We need to keep track of whether startActivityForResult originated from a Fragment, so we
-    // can conditionally check whether the requestCode collides with our reserved ID space for the
-    // request index (see above). Unfortunately we can't just call
-    // super.startActivityForResult(...) to bypass the check when the call didn't come from a
-    // fragment, since we need to use the ActivityCompat version for backward compatibility.
-    boolean mStartedActivityFromFragment;
     // A map from request index to Fragment "who" (i.e. a Fragment's unique identifier). Used to
     // keep track of the originating Fragment for Fragment.startActivityForResult(...) calls, so we
     // can dispatch the onActivityResult(...) to the appropriate Fragment. Will only contain entries
@@ -171,7 +166,7 @@ public class FragmentActivity extends BaseFragmentActivityApi24 implements
             if (targetFragment == null) {
                 Log.w(TAG, "Activity result no fragment exists for who: " + who);
             } else {
-                targetFragment.onActivityResult(requestCode&0xffff, resultCode, data);
+                targetFragment.onActivityResult(requestCode & 0xffff, resultCode, data);
             }
             return;
         }
@@ -861,8 +856,8 @@ public class FragmentActivity extends BaseFragmentActivityApi24 implements
         // If this was started from a Fragment we've already checked the upper 16 bits were not in
         // use, and then repurposed them for the Fragment's index.
         if (!mStartedActivityFromFragment) {
-            if (requestCode != -1 && (requestCode&0xffff0000) != 0) {
-                throw new IllegalArgumentException("Can only use lower 16 bits for requestCode");
+            if (requestCode != -1) {
+                checkForValidRequestCode(requestCode);
             }
         }
         super.startActivityForResult(intent, requestCode);
@@ -878,8 +873,8 @@ public class FragmentActivity extends BaseFragmentActivityApi24 implements
         // where we are the validator of request codes when requesting
         // permissions in ActivityCompat.
         if (!mRequestedPermissionsFromFragment
-                && requestCode != -1 && (requestCode & 0xffff0000) != 0) {
-            throw new IllegalArgumentException("Can only use lower 16 bits for requestCode");
+                && requestCode != -1) {
+            checkForValidRequestCode(requestCode);
         }
     }
 
@@ -902,7 +897,7 @@ public class FragmentActivity extends BaseFragmentActivityApi24 implements
      */
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
             @NonNull int[] grantResults) {
-        int index = (requestCode>>16)&0xffff;
+        int index = (requestCode >> 16) & 0xffff;
         if (index != 0) {
             index--;
 
@@ -916,7 +911,7 @@ public class FragmentActivity extends BaseFragmentActivityApi24 implements
             if (frag == null) {
                 Log.w(TAG, "Activity result no fragment exists for who: " + who);
             } else {
-                frag.onRequestPermissionsResult(requestCode&0xffff, permissions, grantResults);
+                frag.onRequestPermissionsResult(requestCode & 0xffff, permissions, grantResults);
             }
         }
     }
@@ -940,14 +935,35 @@ public class FragmentActivity extends BaseFragmentActivityApi24 implements
                 ActivityCompat.startActivityForResult(this, intent, -1, options);
                 return;
             }
-            if ((requestCode&0xffff0000) != 0) {
-                throw new IllegalArgumentException("Can only use lower 16 bits for requestCode");
-            }
+            checkForValidRequestCode(requestCode);
             int requestIndex = allocateRequestIndex(fragment);
             ActivityCompat.startActivityForResult(
-                this, intent, ((requestIndex+1)<<16) + (requestCode&0xffff), options);
+                    this, intent, ((requestIndex + 1) << 16) + (requestCode & 0xffff), options);
         } finally {
             mStartedActivityFromFragment = false;
+        }
+    }
+
+    /**
+     * Called by Fragment.startIntentSenderForResult() to implement its behavior.
+     */
+    public void startIntentSenderFromFragment(Fragment fragment, IntentSender intent,
+            int requestCode, @Nullable Intent fillInIntent, int flagsMask, int flagsValues,
+            int extraFlags, Bundle options) throws IntentSender.SendIntentException {
+        mStartedIntentSenderFromFragment = true;
+        try {
+            if (requestCode == -1) {
+                ActivityCompat.startIntentSenderForResult(this, intent, requestCode, fillInIntent,
+                        flagsMask, flagsValues, extraFlags, options);
+                return;
+            }
+            checkForValidRequestCode(requestCode);
+            int requestIndex = allocateRequestIndex(fragment);
+            ActivityCompat.startIntentSenderForResult(this, intent,
+                    ((requestIndex + 1) << 16) + (requestCode & 0xffff), fillInIntent,
+                    flagsMask, flagsValues, extraFlags, options);
+        } finally {
+            mStartedIntentSenderFromFragment = false;
         }
     }
 
@@ -981,9 +997,7 @@ public class FragmentActivity extends BaseFragmentActivityApi24 implements
             ActivityCompat.requestPermissions(this, permissions, requestCode);
             return;
         }
-        if ((requestCode&0xffff0000) != 0) {
-            throw new IllegalArgumentException("Can only use lower 16 bits for requestCode");
-        }
+        checkForValidRequestCode(requestCode);
         try {
             mRequestedPermissionsFromFragment = true;
             int requestIndex = allocateRequestIndex(fragment);
@@ -1033,6 +1047,14 @@ public class FragmentActivity extends BaseFragmentActivityApi24 implements
         public void onStartActivityFromFragment(
                 Fragment fragment, Intent intent, int requestCode, @Nullable Bundle options) {
             FragmentActivity.this.startActivityFromFragment(fragment, intent, requestCode, options);
+        }
+
+        @Override
+        public void onStartIntentSenderFromFragment(Fragment fragment, IntentSender intent,
+                int requestCode, @Nullable Intent fillInIntent, int flagsMask, int flagsValues,
+                int extraFlags, Bundle options) throws IntentSender.SendIntentException {
+            FragmentActivity.this.startIntentSenderFromFragment(fragment, intent, requestCode,
+                    fillInIntent, flagsMask, flagsValues, extraFlags, options);
         }
 
         @Override
