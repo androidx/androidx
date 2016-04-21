@@ -26,6 +26,7 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
@@ -1160,6 +1161,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param savedInstanceState If the fragment is being re-created from
      * a previous saved state, this is the state.
      */
+    @CallSuper
     public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
         mCalled = true;
         final Activity hostActivity = mHost == null ? null : mHost.getActivity();
@@ -1175,6 +1177,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * <p>Deprecated. See {@link #onInflate(Context, AttributeSet, Bundle)}.
      */
     @Deprecated
+    @CallSuper
     public void onInflate(Activity activity, AttributeSet attrs, Bundle savedInstanceState) {
         mCalled = true;
     }
@@ -1183,6 +1186,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * Called when a fragment is first attached to its context.
      * {@link #onCreate(Bundle)} will be called after this.
      */
+    @CallSuper
     public void onAttach(Context context) {
         mCalled = true;
         final Activity hostActivity = mHost == null ? null : mHost.getActivity();
@@ -1198,6 +1202,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * <p>Deprecated. See {@link #onAttach(Context)}.
      */
     @Deprecated
+    @CallSuper
     public void onAttach(Activity activity) {
         mCalled = true;
     }
@@ -1226,6 +1231,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param savedInstanceState If the fragment is being re-created from
      * a previous saved state, this is the state.
      */
+    @CallSuper
     public void onCreate(@Nullable Bundle savedInstanceState) {
         mCalled = true;
         restoreChildFragmentState(savedInstanceState);
@@ -1320,6 +1326,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param savedInstanceState If the fragment is being re-created from
      * a previous saved state, this is the state.
      */
+    @CallSuper
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         mCalled = true;
     }
@@ -1335,6 +1342,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param savedInstanceState If the fragment is being re-created from
      * a previous saved state, this is the state.
      */
+    @CallSuper
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         mCalled = true;
     }
@@ -1344,6 +1352,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * tied to {@link Activity#onStart() Activity.onStart} of the containing
      * Activity's lifecycle.
      */
+    @CallSuper
     public void onStart() {
         mCalled = true;
 
@@ -1365,6 +1374,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * tied to {@link Activity#onResume() Activity.onResume} of the containing
      * Activity's lifecycle.
      */
+    @CallSuper
     public void onResume() {
         mCalled = true;
     }
@@ -1410,6 +1420,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
     }
 
+    @CallSuper
     public void onConfigurationChanged(Configuration newConfig) {
         mCalled = true;
     }
@@ -1419,6 +1430,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * tied to {@link Activity#onPause() Activity.onPause} of the containing
      * Activity's lifecycle.
      */
+    @CallSuper
     public void onPause() {
         mCalled = true;
     }
@@ -1428,10 +1440,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * tied to {@link Activity#onStop() Activity.onStop} of the containing
      * Activity's lifecycle.
      */
+    @CallSuper
     public void onStop() {
         mCalled = true;
     }
-    
+
+    @CallSuper
     public void onLowMemory() {
         mCalled = true;
     }
@@ -1445,6 +1459,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * non-null view.  Internally it is called after the view's state has
      * been saved but before it has been removed from its parent.
      */
+    @CallSuper
     public void onDestroyView() {
         mCalled = true;
     }
@@ -1453,6 +1468,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * Called when the fragment is no longer in use.  This is called
      * after {@link #onStop()} and before {@link #onDetach()}.
      */
+    @CallSuper
     public void onDestroy() {
         mCalled = true;
         //Log.v("foo", "onDestroy: mCheckedForLoaderManager=" + mCheckedForLoaderManager
@@ -1499,20 +1515,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * Called when the fragment is no longer attached to its activity.  This
      * is called after {@link #onDestroy()}.
      */
+    @CallSuper
     public void onDetach() {
         mCalled = true;
-
-        // Destroy the child FragmentManager if we still have it here.
-        // We won't unless we're retaining our instance and if we do,
-        // our child FragmentManager instance state will have already been saved.
-        if (mChildFragmentManager != null) {
-            if (!mRetaining) {
-                throw new IllegalStateException("Child FragmentManager of " + this + " was not "
-                        + " destroyed and this fragment is not retaining instance");
-            }
-            mChildFragmentManager.dispatchDestroy();
-            mChildFragmentManager = null;
-        }
     }
     
     /**
@@ -2296,6 +2301,27 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                     + " did not call through to super.onDestroy()");
         }
         mChildFragmentManager = null;
+    }
+
+    void performDetach() {
+        mCalled = false;
+        onDetach();
+        if (!mCalled) {
+            throw new SuperNotCalledException("Fragment " + this
+                    + " did not call through to super.onDetach()");
+        }
+
+        // Destroy the child FragmentManager if we still have it here.
+        // We won't unless we're retaining our instance and if we do,
+        // our child FragmentManager instance state will have already been saved.
+        if (mChildFragmentManager != null) {
+            if (!mRetaining) {
+                throw new IllegalStateException("Child FragmentManager of " + this + " was not "
+                        + " destroyed and this fragment is not retaining instance");
+            }
+            mChildFragmentManager.dispatchDestroy();
+            mChildFragmentManager = null;
+        }
     }
 
 }
