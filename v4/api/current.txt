@@ -2625,7 +2625,9 @@ package android.support.v4.view {
     method public static boolean hasPointerCapture(android.view.View);
     method public static boolean hasTransientState(android.view.View);
     method public static boolean isAttachedToWindow(android.view.View);
+    method public static boolean isInLayout(android.view.View);
     method public static boolean isLaidOut(android.view.View);
+    method public static boolean isLayoutDirectionResolved(android.view.View);
     method public static boolean isNestedScrollingEnabled(android.view.View);
     method public static boolean isOpaque(android.view.View);
     method public static boolean isPaddingRelative(android.view.View);
@@ -2682,6 +2684,7 @@ package android.support.v4.view {
     method public static void setTranslationZ(android.view.View, float);
     method public static void setX(android.view.View, float);
     method public static void setY(android.view.View, float);
+    method public static void setZ(android.view.View, float);
     method public static boolean startNestedScroll(android.view.View, int);
     method public static void stopNestedScroll(android.view.View);
     field public static final int ACCESSIBILITY_LIVE_REGION_ASSERTIVE = 2; // 0x2
