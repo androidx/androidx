@@ -71,7 +71,6 @@ public class MenuBuilder implements SupportMenu {
 
     private final Context mContext;
     private final Resources mResources;
-    private final boolean mShowCascadingMenus;
 
     /**
      * Whether the shortcuts should be qwerty-accessible. Use isQwertyMode() instead of accessing
@@ -215,9 +214,6 @@ public class MenuBuilder implements SupportMenu {
     public MenuBuilder(Context context) {
         mContext = context;
         mResources = context.getResources();
-        mShowCascadingMenus = context.getResources().getBoolean(
-                R.bool.abc_config_enableCascadingSubmenus);
-
         mItems = new ArrayList<>();
 
         mVisibleItems = new ArrayList<>();
@@ -968,10 +964,6 @@ public class MenuBuilder implements SupportMenu {
                 close(true /* closeAllMenus */);
             }
         } else if (itemImpl.hasSubMenu() || providerHasSubMenu) {
-            if (!mShowCascadingMenus) {
-                close(false /* closeAllMenus */);
-            }
-
             if (!itemImpl.hasSubMenu()) {
                 itemImpl.setSubMenu(new SubMenuBuilder(getContext(), this, itemImpl));
             }
