@@ -728,6 +728,7 @@ package android.support.v4.app {
     method public void addCompatExtras(android.os.Bundle);
     method public android.support.v4.app.NotificationCompat.MessagingStyle addMessage(java.lang.CharSequence, long, java.lang.CharSequence);
     method public android.support.v4.app.NotificationCompat.MessagingStyle addMessage(android.support.v4.app.NotificationCompat.MessagingStyle.Message);
+    method public static android.support.v4.app.NotificationCompat.MessagingStyle extractMessagingStyleFromNotification(android.app.Notification);
     method public boolean getAllowGeneratedReplies();
     method public java.lang.CharSequence getConversationTitle();
     method public java.util.List<android.support.v4.app.NotificationCompat.MessagingStyle.Message> getMessages();
@@ -739,19 +740,12 @@ package android.support.v4.app {
 
   public static final class NotificationCompat.MessagingStyle.Message {
     ctor public NotificationCompat.MessagingStyle.Message(java.lang.CharSequence, long, java.lang.CharSequence);
-    ctor public NotificationCompat.MessagingStyle.Message(android.os.Bundle);
     method public java.lang.String getDataMimeType();
     method public android.net.Uri getDataUri();
     method public java.lang.CharSequence getSender();
     method public java.lang.CharSequence getText();
     method public long getTimestamp();
     method public android.support.v4.app.NotificationCompat.MessagingStyle.Message setData(java.lang.String, android.net.Uri);
-    method public android.os.Bundle toBundle();
-    field public static final java.lang.String KEY_DATA_MIME_TYPE = "type";
-    field public static final java.lang.String KEY_DATA_URI = "uri";
-    field public static final java.lang.String KEY_SENDER = "sender";
-    field public static final java.lang.String KEY_TEXT = "text";
-    field public static final java.lang.String KEY_TIMESTAMP = "time";
   }
 
   public static abstract class NotificationCompat.Style {
