@@ -29,12 +29,12 @@ import android.view.View;
  * dialog-based. These preferences will, when clicked, open a dialog showing the
  * actual preference controls.
  *
- * @attr ref android.R.styleable#DialogPreference_dialogTitle
- * @attr ref android.R.styleable#DialogPreference_dialogMessage
- * @attr ref android.R.styleable#DialogPreference_dialogIcon
- * @attr ref android.R.styleable#DialogPreference_dialogLayout
- * @attr ref android.R.styleable#DialogPreference_positiveButtonText
- * @attr ref android.R.styleable#DialogPreference_negativeButtonText
+ * @attr name android:dialogTitle
+ * @attr name android:dialogMessage
+ * @attr name android:dialogIcon
+ * @attr name android:dialogLayout
+ * @attr name android:positiveButtonText
+ * @attr name android:negativeButtonText
  */
 public abstract class DialogPreference extends Preference {
 
