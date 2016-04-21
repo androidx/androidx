@@ -554,6 +554,9 @@ public class TextInputLayout extends LinearLayout {
         final boolean animate = ViewCompat.isLaidOut(this);
         mErrorShown = !TextUtils.isEmpty(error);
 
+        // Cancel any on-going animation
+        ViewCompat.animate(mErrorView).cancel();
+
         if (mErrorShown) {
             mErrorView.setText(error);
             mErrorView.setVisibility(VISIBLE);
