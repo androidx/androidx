@@ -52,6 +52,9 @@
     <!-- Content description for accessibility (not shown on the screen): group collapse button. Pressing button hides group members of a selected route group. [CHAR LIMIT=NONE] -->
     <string name="mr_controller_collapse_group">Collapse</string>
 
+    <!-- Content description for accessibility (not shown on the screen): album art button. Clicking on the album art takes user to a predefined activity per media app. [CHAR LIMIT=50] -->
+    <string name="mr_controller_album_art">Album art</string>
+
     <!-- Placeholder text to show when no media have been selected for playback. [CHAR LIMIT=50] -->
     <string name="mr_controller_no_media_selected">No media selected</string>
 
