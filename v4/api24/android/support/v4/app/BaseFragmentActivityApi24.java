@@ -22,7 +22,7 @@ import android.support.v4.os.BuildCompat;
 /**
  * Base class for {@code FragmentActivity} to be able to use v24 APIs.
  */
-abstract class BaseFragmentActivityApi24 extends BaseFragmentActivityHoneycomb {
+abstract class BaseFragmentActivityApi24 extends BaseFragmentActivityJB {
 
     @Override
     @CallSuper
