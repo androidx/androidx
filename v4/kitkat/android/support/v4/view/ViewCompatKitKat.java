@@ -37,4 +37,8 @@ class ViewCompatKitKat {
     public static boolean isAttachedToWindow(View view) {
         return view.isAttachedToWindow();
     }
+
+    public static boolean isLayoutDirectionResolved(View view) {
+        return view.isLayoutDirectionResolved();
+    }
 }

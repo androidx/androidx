@@ -465,9 +465,12 @@ public class ViewCompat {
                 int[] offsetInWindow);
         boolean dispatchNestedFling(View view, float velocityX, float velocityY, boolean consumed);
         boolean dispatchNestedPreFling(View view, float velocityX, float velocityY);
+        boolean isInLayout(View view);
         boolean isLaidOut(View view);
+        boolean isLayoutDirectionResolved(View view);
         int combineMeasuredStates(int curState, int newState);
         float getZ(View view);
+        void setZ(View view, float z);
         boolean isAttachedToWindow(View view);
         boolean hasOnClickListeners(View view);
         void setScrollIndicators(View view, int indicators);
@@ -1045,8 +1048,18 @@ public class ViewCompat {
         }
 
         @Override
+        public boolean isInLayout(View view) {
+            return false;
+        }
+
+        @Override
         public boolean isLaidOut(View view) {
             return ViewCompatBase.isLaidOut(view);
+        }
+
+        @Override
+        public boolean isLayoutDirectionResolved(View view) {
+            return false;
         }
 
         @Override
@@ -1057,6 +1070,10 @@ public class ViewCompat {
         @Override
         public float getZ(View view) {
             return getTranslationZ(view) + getElevation(view);
+        }
+
+        public void setZ(View view, float z) {
+            // no-op
         }
 
         @Override
@@ -1540,6 +1557,11 @@ public class ViewCompat {
         public Rect getClipBounds(View view) {
             return ViewCompatJellybeanMr2.getClipBounds(view);
         }
+
+        @Override
+        public boolean isInLayout(View view) {
+            return ViewCompatJellybeanMr2.isInLayout(view);
+        }
     }
 
     static class KitKatViewCompatImpl extends JbMr2ViewCompatImpl {
@@ -1561,6 +1583,11 @@ public class ViewCompat {
         @Override
         public boolean isLaidOut(View view) {
             return ViewCompatKitKat.isLaidOut(view);
+        }
+
+        @Override
+        public boolean isLayoutDirectionResolved(View view) {
+            return ViewCompatKitKat.isLayoutDirectionResolved(view);
         }
 
         @Override
@@ -1701,6 +1728,11 @@ public class ViewCompat {
         }
 
         @Override
+        public void setZ(View view, float z) {
+            ViewCompatLollipop.setZ(view, z);
+        }
+
+        @Override
         public void offsetLeftAndRight(View view, int offset) {
             ViewCompatLollipop.offsetLeftAndRight(view, offset);
         }
@@ -1772,6 +1804,8 @@ public class ViewCompat {
             IMPL = new LollipopViewCompatImpl();
         } else if (version >= 19) {
             IMPL = new KitKatViewCompatImpl();
+        } else if (version >= 18) {
+            IMPL = new JbMr2ViewCompatImpl();
         } else if (version >= 17) {
             IMPL = new JbMr1ViewCompatImpl();
         } else if (version >= 16) {
@@ -3263,11 +3297,41 @@ public class ViewCompat {
     }
 
     /**
+     * Returns whether the view hierarchy is currently undergoing a layout pass. This
+     * information is useful to avoid situations such as calling {@link View#requestLayout()}
+     * during a layout pass.
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>API < 18: Always returns {@code false}</li>
+     * </ul>
+     *
+     * @return whether the view hierarchy is currently undergoing a layout pass
+     */
+    public static boolean isInLayout(View view) {
+        return IMPL.isInLayout(view);
+    }
+
+    /**
      * Returns true if {@code view} has been through at least one layout since it
      * was last attached to or detached from a window.
      */
     public static boolean isLaidOut(View view) {
         return IMPL.isLaidOut(view);
+    }
+
+    /**
+     * Returns whether layout direction has been resolved.
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>API < 19: Always returns {@code false}</li>
+     * </ul>
+     *
+     * @return true if layout direction has been resolved.
+     */
+    public static boolean isLayoutDirectionResolved(View view) {
+        return IMPL.isLayoutDirectionResolved(view);
     }
 
     /**
@@ -3279,6 +3343,22 @@ public class ViewCompat {
      */
     public static float getZ(View view) {
         return IMPL.getZ(view);
+    }
+
+    /**
+     * Sets the visual z position of this view, in pixels. This is equivalent to setting the
+     * {@link #setTranslationZ(View, float) translationZ} property to be the difference between
+     * the x value passed in and the current {@link #getElevation(View) elevation} property.
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>API < 21: No-op
+     * </ul>
+     *
+     * @param z The visual z position of this view, in pixels.
+     */
+    public static void setZ(View view, float z) {
+        IMPL.setZ(view, z);
     }
 
     /**
