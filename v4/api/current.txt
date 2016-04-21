@@ -67,6 +67,7 @@ package android.support.v4.app {
     method public static boolean shouldShowRequestPermissionRationale(android.app.Activity, java.lang.String);
     method public static void startActivity(android.app.Activity, android.content.Intent, android.os.Bundle);
     method public static void startActivityForResult(android.app.Activity, android.content.Intent, int, android.os.Bundle);
+    method public static void startIntentSenderForResult(android.app.Activity, android.content.IntentSender, int, android.content.Intent, int, int, int, android.os.Bundle) throws android.content.IntentSender.SendIntentException;
     method public static void startPostponedEnterTransition(android.app.Activity);
   }
 
@@ -104,13 +105,19 @@ package android.support.v4.app {
     field public static final int MODE_IGNORED = 1; // 0x1
   }
 
-   abstract class BaseFragmentActivityApi24 extends android.support.v4.app.BaseFragmentActivityHoneycomb {
+   abstract class BaseFragmentActivityApi24 extends android.support.v4.app.BaseFragmentActivityJB {
   }
 
    abstract class BaseFragmentActivityDonut extends android.app.Activity {
   }
 
-   abstract class BaseFragmentActivityHoneycomb extends android.support.v4.app.BaseFragmentActivityDonut {
+   abstract class BaseFragmentActivityEclair extends android.support.v4.app.BaseFragmentActivityDonut {
+  }
+
+   abstract class BaseFragmentActivityHoneycomb extends android.support.v4.app.BaseFragmentActivityEclair {
+  }
+
+   abstract class BaseFragmentActivityJB extends android.support.v4.app.BaseFragmentActivityHoneycomb {
   }
 
   public final class BundleCompat {
@@ -237,6 +244,7 @@ package android.support.v4.app {
     method public void startActivity(android.content.Intent, android.os.Bundle);
     method public void startActivityForResult(android.content.Intent, int);
     method public void startActivityForResult(android.content.Intent, int, android.os.Bundle);
+    method public void startIntentSenderForResult(android.content.IntentSender, int, android.content.Intent, int, int, int, android.os.Bundle) throws android.content.IntentSender.SendIntentException;
     method public void unregisterForContextMenu(android.view.View);
   }
 
@@ -265,6 +273,7 @@ package android.support.v4.app {
     method public final void setSupportMediaController(android.support.v4.media.session.MediaControllerCompat);
     method public void startActivityFromFragment(android.support.v4.app.Fragment, android.content.Intent, int);
     method public void startActivityFromFragment(android.support.v4.app.Fragment, android.content.Intent, int, android.os.Bundle);
+    method public void startIntentSenderFromFragment(android.support.v4.app.Fragment, android.content.IntentSender, int, android.content.Intent, int, int, int, android.os.Bundle) throws android.content.IntentSender.SendIntentException;
     method public void supportFinishAfterTransition();
     method public void supportInvalidateOptionsMenu();
     method public void supportPostponeEnterTransition();
@@ -335,6 +344,7 @@ package android.support.v4.app {
     method public boolean onShouldShowRequestPermissionRationale(java.lang.String);
     method public void onStartActivityFromFragment(android.support.v4.app.Fragment, android.content.Intent, int);
     method public void onStartActivityFromFragment(android.support.v4.app.Fragment, android.content.Intent, int, android.os.Bundle);
+    method public void onStartIntentSenderFromFragment(android.support.v4.app.Fragment, android.content.IntentSender, int, android.content.Intent, int, int, int, android.os.Bundle) throws android.content.IntentSender.SendIntentException;
     method public void onSupportInvalidateOptionsMenu();
   }
 
