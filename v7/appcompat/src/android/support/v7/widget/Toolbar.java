@@ -1327,7 +1327,7 @@ public class Toolbar extends ViewGroup {
      * @see #getContentInsetEndWithActions()
      */
     public int getCurrentContentInsetLeft() {
-        return getLayoutDirection() == LAYOUT_DIRECTION_RTL
+        return ViewCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL
                 ? getCurrentContentInsetEnd()
                 : getCurrentContentInsetStart();
     }
@@ -1342,7 +1342,7 @@ public class Toolbar extends ViewGroup {
      * @see #getContentInsetEndWithActions()
      */
     public int getCurrentContentInsetRight() {
-        return getLayoutDirection() == LAYOUT_DIRECTION_RTL
+        return ViewCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL
                 ? getCurrentContentInsetStart()
                 : getCurrentContentInsetEnd();
     }
