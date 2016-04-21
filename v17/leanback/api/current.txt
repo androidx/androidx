@@ -361,7 +361,8 @@ package android.support.v17.leanback.app {
     method public android.support.v17.leanback.widget.GuidanceStylist.Guidance onCreateGuidance(android.os.Bundle);
     method public android.support.v17.leanback.widget.GuidanceStylist onCreateGuidanceStylist();
     method public void onGuidedActionClicked(android.support.v17.leanback.widget.GuidedAction);
-    method public void onGuidedActionEdited(android.support.v17.leanback.widget.GuidedAction);
+    method public void onGuidedActionEditCanceled(android.support.v17.leanback.widget.GuidedAction);
+    method public deprecated void onGuidedActionEdited(android.support.v17.leanback.widget.GuidedAction);
     method public long onGuidedActionEditedAndProceed(android.support.v17.leanback.widget.GuidedAction);
     method public void onGuidedActionFocused(android.support.v17.leanback.widget.GuidedAction);
     method protected void onProvideFragmentTransitions();
@@ -417,7 +418,8 @@ package android.support.v17.leanback.app {
     method public android.support.v17.leanback.widget.GuidanceStylist.Guidance onCreateGuidance(android.os.Bundle);
     method public android.support.v17.leanback.widget.GuidanceStylist onCreateGuidanceStylist();
     method public void onGuidedActionClicked(android.support.v17.leanback.widget.GuidedAction);
-    method public void onGuidedActionEdited(android.support.v17.leanback.widget.GuidedAction);
+    method public void onGuidedActionEditCanceled(android.support.v17.leanback.widget.GuidedAction);
+    method public deprecated void onGuidedActionEdited(android.support.v17.leanback.widget.GuidedAction);
     method public long onGuidedActionEditedAndProceed(android.support.v17.leanback.widget.GuidedAction);
     method public void onGuidedActionFocused(android.support.v17.leanback.widget.GuidedAction);
     method protected void onProvideFragmentTransitions();
