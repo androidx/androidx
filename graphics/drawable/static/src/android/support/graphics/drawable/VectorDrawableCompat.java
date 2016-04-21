@@ -664,21 +664,10 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
 
     // Extra override functions for delegation for SDK >= 7.
     @Override
-    public void setBounds(int left, int top, int right, int bottom) {
+    protected void onBoundsChange(Rect bounds) {
         if (mDelegateDrawable != null) {
-            mDelegateDrawable.setBounds(left, top, right, bottom);
-            return;
+            mDelegateDrawable.setBounds(bounds);
         }
-        super.setBounds(left, top, right, bottom);
-    }
-
-    @Override
-    public void setBounds(Rect rect) {
-        if (mDelegateDrawable != null) {
-            mDelegateDrawable.setBounds(rect);
-            return;
-        }
-        super.setBounds(rect);
     }
 
     @Override
