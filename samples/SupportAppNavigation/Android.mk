@@ -11,6 +11,8 @@ LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4
 
 LOCAL_SDK_VERSION := current
 
+LOCAL_MIN_SDK_VERSION := 8
+
 LOCAL_DEX_PREOPT := false
 
 include $(BUILD_PACKAGE)
