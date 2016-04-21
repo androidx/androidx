@@ -32,4 +32,7 @@ class ViewCompatJellybeanMr2 {
         view.setClipBounds(clipBounds);
     }
 
+    public static boolean isInLayout(View view) {
+        return view.isInLayout();
+    }
 }
