@@ -61,6 +61,7 @@
                        android:scaleType="fitXY"
                        android:background="?attr/colorPrimary"
                        android:layout_gravity="top"
+                       android:contentDescription="@string/mr_controller_album_art"
                        android:visibility="gone" />
             <LinearLayout android:layout_width="fill_parent"
                           android:layout_height="wrap_content"
