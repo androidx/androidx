@@ -32,10 +32,12 @@ public class NotificationCompatBase {
         public abstract PendingIntent getActionIntent();
         public abstract Bundle getExtras();
         public abstract RemoteInputCompatBase.RemoteInput[] getRemoteInputs();
+        public abstract boolean getAllowGeneratedReplies();
 
         public interface Factory {
             Action build(int icon, CharSequence title, PendingIntent actionIntent,
-                    Bundle extras, RemoteInputCompatBase.RemoteInput[] remoteInputs);
+                    Bundle extras, RemoteInputCompatBase.RemoteInput[] remoteInputs,
+                    boolean allowGeneratedReplies);
             public Action[] newArray(int length);
         }
     }
