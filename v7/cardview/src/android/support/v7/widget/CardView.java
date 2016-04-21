@@ -289,6 +289,15 @@ public class CardView extends FrameLayout {
     }
 
     /**
+     * Returns the background color state list of the CardView.
+     *
+     * @return The background color state list of the CardView.
+     */
+    public ColorStateList getCardBackgroundColor() {
+        return IMPL.getBackgroundColor(mCardViewDelegate);
+    }
+
+    /**
      * Returns the inner padding after the Card's left edge
      *
      * @return the inner padding after the Card's left edge
