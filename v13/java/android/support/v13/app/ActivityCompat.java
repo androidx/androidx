@@ -17,7 +17,7 @@
 package android.support.v13.app;
 
 import android.app.Activity;
-import android.support.v13.view.DropPermissionsCompat;
+import android.support.v13.view.DragAndDropPermissionsCompat;
 import android.view.DragEvent;
 
 /**
@@ -27,16 +27,16 @@ import android.view.DragEvent;
 public class ActivityCompat extends android.support.v4.app.ActivityCompat {
 
     /**
-     * Create {@link DropPermissionsCompat} object bound to this activity and controlling
+     * Create {@link DragAndDropPermissionsCompat} object bound to this activity and controlling
      * the access permissions for content URIs associated with the {@link android.view.DragEvent}.
      * @param dragEvent Drag event to request permission for
-     * @return The {@link DropPermissionsCompat} object used to control access to the content URIs.
-     * {@code null} if no content URIs are associated with the event or if permissions could not be
-     * granted.
+     * @return The {@link DragAndDropPermissionsCompat} object used to control access to the content
+     * URIs. {@code null} if no content URIs are associated with the event or if permissions could
+     * not be granted.
      */
-    public static DropPermissionsCompat requestDropPermissions(Activity activity,
-                                                               DragEvent dragEvent) {
-        return DropPermissionsCompat.request(activity, dragEvent);
+    public static DragAndDropPermissionsCompat requestDragAndDropPermissions(Activity activity,
+                                                                             DragEvent dragEvent) {
+        return DragAndDropPermissionsCompat.request(activity, dragEvent);
     }
 
     private ActivityCompat() {}
