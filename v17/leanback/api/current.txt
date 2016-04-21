@@ -1379,7 +1379,7 @@ package android.support.v17.leanback.widget {
     field public static final int VIEW_TYPE_DEFAULT = 0; // 0x0
   }
 
-  public static class GuidedActionsStylist.ViewHolder extends android.support.v7.widget.RecyclerView.ViewHolder {
+  public static class GuidedActionsStylist.ViewHolder extends android.support.v7.widget.RecyclerView.ViewHolder implements android.support.v17.leanback.widget.FacetProvider {
     ctor public GuidedActionsStylist.ViewHolder(android.view.View);
     ctor public GuidedActionsStylist.ViewHolder(android.view.View, boolean);
     method public android.support.v17.leanback.widget.GuidedAction getAction();
@@ -1390,6 +1390,7 @@ package android.support.v17.leanback.widget {
     method public android.widget.EditText getEditableDescriptionView();
     method public android.widget.EditText getEditableTitleView();
     method public android.view.View getEditingView();
+    method public java.lang.Object getFacet(java.lang.Class<?>);
     method public android.widget.ImageView getIconView();
     method public android.widget.TextView getTitleView();
     method public boolean isInEditing();
@@ -1509,7 +1510,9 @@ package android.support.v17.leanback.widget {
     method public final int getItemAlignmentOffset();
     method public final float getItemAlignmentOffsetPercent();
     method public final int getItemAlignmentViewId();
+    method public boolean isAlignedToTextViewBaseLine();
     method public final boolean isItemAlignmentOffsetWithPadding();
+    method public final void setAlignedToTextViewBaseline(boolean);
     method public final void setItemAlignmentFocusViewId(int);
     method public final void setItemAlignmentOffset(int);
     method public final void setItemAlignmentOffsetPercent(float);

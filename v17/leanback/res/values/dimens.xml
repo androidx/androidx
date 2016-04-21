@@ -240,6 +240,7 @@
     <item name="lb_guidedactions_item_unselected_description_text_alpha" format="float" type="string">0.50</item>
     <item name="lb_guidedactions_item_enabled_chevron_alpha" format="float" type="string">1.00</item>
     <item name="lb_guidedactions_item_disabled_chevron_alpha" format="float" type="string">0.50</item>
+    <item name="lb_guidedstep_keyline" format="float" type="string">40.0</item>
 
     <dimen name="lb_guidedactions_item_text_width">248dp</dimen>
     <dimen name="lb_guidedactions_item_text_width_no_icon">284dp</dimen>

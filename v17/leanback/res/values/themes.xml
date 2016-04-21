@@ -181,6 +181,7 @@
         <item name="guidedActionTitleMaxLines">@integer/lb_guidedactions_item_title_max_lines</item>
         <item name="guidedActionDescriptionMinLines">@integer/lb_guidedactions_item_description_min_lines</item>
         <item name="guidedActionVerticalPadding">@dimen/lb_guidedactions_vertical_padding</item>
+        <item name="guidedStepKeyline">@string/lb_guidedstep_keyline</item>
     </style>
 
     <style name="Theme.Leanback.GuidedStep.Half" parent="Theme.Leanback.GuidedStep">
