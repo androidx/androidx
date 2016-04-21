@@ -41,6 +41,7 @@ class NotificationCompatJellybean {
     static final String EXTRA_GROUP_SUMMARY = "android.support.isGroupSummary";
     static final String EXTRA_SORT_KEY = "android.support.sortKey";
     static final String EXTRA_USE_SIDE_CHANNEL = "android.support.useSideChannel";
+    static final String EXTRA_ALLOW_GENERATED_REPLIES = "android.support.allowGeneratedReplies";
 
     // Bundle keys for storing action fields in a bundle
     private static final String KEY_ICON = "icon";
@@ -48,6 +49,7 @@ class NotificationCompatJellybean {
     private static final String KEY_ACTION_INTENT = "actionIntent";
     private static final String KEY_EXTRAS = "extras";
     private static final String KEY_REMOTE_INPUTS = "remoteInputs";
+    private static final String KEY_ALLOW_GENERATED_REPLIES = "allowGeneratedReplies";
 
     private static final Object sExtrasLock = new Object();
     private static Field sExtrasField;
@@ -245,12 +247,15 @@ class NotificationCompatJellybean {
             RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory, int icon,
             CharSequence title, PendingIntent actionIntent, Bundle extras) {
         RemoteInputCompatBase.RemoteInput[] remoteInputs = null;
+        boolean allowGeneratedReplies = false;
         if (extras != null) {
             remoteInputs = RemoteInputCompatJellybean.fromBundleArray(
                     BundleUtil.getBundleArrayFromBundle(extras, EXTRA_REMOTE_INPUTS),
                     remoteInputFactory);
+            allowGeneratedReplies = extras.getBoolean(EXTRA_ALLOW_GENERATED_REPLIES);
         }
-        return factory.build(icon, title, actionIntent, extras, remoteInputs);
+        return factory.build(icon, title, actionIntent, extras, remoteInputs,
+                allowGeneratedReplies);
     }
 
     public static Bundle writeActionAndGetExtras(
@@ -261,6 +266,8 @@ class NotificationCompatJellybean {
             actionExtras.putParcelableArray(EXTRA_REMOTE_INPUTS,
                     RemoteInputCompatJellybean.toBundleArray(action.getRemoteInputs()));
         }
+        actionExtras.putBoolean(EXTRA_ALLOW_GENERATED_REPLIES,
+                action.getAllowGeneratedReplies());
         return actionExtras;
     }
 
@@ -362,7 +369,7 @@ class NotificationCompatJellybean {
                 bundle.getBundle(KEY_EXTRAS),
                 RemoteInputCompatJellybean.fromBundleArray(
                         BundleUtil.getBundleArrayFromBundle(bundle, KEY_REMOTE_INPUTS),
-                        remoteInputFactory));
+                        remoteInputFactory), bundle.getBoolean(KEY_ALLOW_GENERATED_REPLIES));
     }
 
     public static ArrayList<Parcelable> getParcelableArrayListForActions(

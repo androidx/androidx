@@ -18,6 +18,7 @@ package android.support.v4.app;
 
 import android.app.Notification;
 import android.app.PendingIntent;
+import android.app.RemoteInput;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -99,7 +100,19 @@ class NotificationCompatApi24 {
 
         @Override
         public void addAction(NotificationCompatBase.Action action) {
-            NotificationCompatApi20.addAction(b, action);
+            Notification.Action.Builder actionBuilder = new Notification.Action.Builder(
+                    action.getIcon(), action.getTitle(), action.getActionIntent());
+            if (action.getRemoteInputs() != null) {
+                for (RemoteInput remoteInput : RemoteInputCompatApi20.fromCompat(
+                        action.getRemoteInputs())) {
+                    actionBuilder.addRemoteInput(remoteInput);
+                }
+            }
+            if (action.getExtras() != null) {
+                actionBuilder.addExtras(action.getExtras());
+            }
+            actionBuilder.setAllowGeneratedReplies(action.getAllowGeneratedReplies());
+            b.addAction(actionBuilder.build());
         }
 
         @Override
@@ -114,9 +127,9 @@ class NotificationCompatApi24 {
     }
 
     public static void addMessagingStyle(NotificationBuilderWithBuilderAccessor b,
-            CharSequence userDisplayName, boolean allowGeneratedReplies,
-            CharSequence conversationTitle, List<CharSequence> texts, List<Long> timestamps,
-            List<CharSequence> senders, List<String> dataMimeTypes, List<Uri> dataUris) {
+            CharSequence userDisplayName, CharSequence conversationTitle, List<CharSequence> texts,
+            List<Long> timestamps, List<CharSequence> senders, List<String> dataMimeTypes,
+            List<Uri> dataUris) {
         Notification.MessagingStyle style = new Notification.MessagingStyle(userDisplayName)
                 .setConversationTitle(conversationTitle);
         for (int i = 0; i < texts.size(); i++) {
