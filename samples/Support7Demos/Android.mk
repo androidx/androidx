@@ -20,6 +20,7 @@ LOCAL_USE_AAPT2 := true
 LOCAL_PACKAGE_NAME := Support7Demos
 LOCAL_MODULE_TAGS := samples tests
 LOCAL_SDK_VERSION := current
+LOCAL_MIN_SDK_VERSION := 7
 LOCAL_DEX_PREOPT := false
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 LOCAL_STATIC_ANDROID_LIBRARIES := \
