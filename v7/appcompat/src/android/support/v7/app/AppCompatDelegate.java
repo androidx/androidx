@@ -118,6 +118,8 @@ public abstract class AppCompatDelegate {
     @NightMode
     private static int sDefaultNightMode = MODE_NIGHT_FOLLOW_SYSTEM;
 
+    private static boolean sCompatVectorFromResourcesEnabled = false;
+
     /** @hide */
     @IntDef({MODE_NIGHT_NO, MODE_NIGHT_YES, MODE_NIGHT_AUTO, MODE_NIGHT_FOLLOW_SYSTEM,
             MODE_NIGHT_UNSPECIFIED})
@@ -464,5 +466,52 @@ public abstract class AppCompatDelegate {
     @NightMode
     public static int getDefaultNightMode() {
         return sDefaultNightMode;
+    }
+
+    /**
+     * Sets whether vector drawables on older platforms (< API 21) can be used within
+     * {@link android.graphics.drawable.DrawableContainer} resources.
+     *
+     * <p>When enabled, AppCompat can intercept some drawable inflation from the framework, which
+     * enables implicit inflation of vector drawables within
+     * {@link android.graphics.drawable.DrawableContainer} resources. You can then use those
+     * drawables in places such as {@code android:src} on {@link android.widget.ImageView},
+     * or {@code android:drawableLeft} on {@link android.widget.TextView}. Example usage:</p>
+     *
+     * <pre>
+     * &lt;selector xmlns:android=&quot;...&quot;&gt;
+     *     &lt;item android:state_checked=&quot;true&quot;
+     *           android:drawable=&quot;@drawable/vector_checked_icon&quot; /&gt;
+     *     &lt;item android:drawable=&quot;@drawable/vector_icon&quot; /&gt;
+     * &lt;/selector&gt;
+     *
+     * &lt;TextView
+     *         ...
+     *         android:drawableLeft=&quot;@drawable/vector_state_list_icon&quot; /&gt;
+     * </pre>
+     *
+     * <p>This feature defaults to disabled, since enabling it can cause issues with memory usage,
+     * and problems updating {@link Configuration} instances. If you update the configuration
+     * manually, then you probably do not want to enable this. You have been warned.</p>
+     *
+     * <p>Even with this disabled, you can still use vector resources through
+     * {@link android.support.v7.widget.AppCompatImageView#setImageResource(int)} and it's
+     * {@code app:srcCompat} attribute. They can also be used in anything which AppComapt inflates
+     * for you, such as menu resources.</p>
+     *
+     * <p>Please note: this only takes effect in Activities created after this call.</p>
+     */
+    public static void setCompatVectorFromResourcesEnabled(boolean enabled) {
+        sCompatVectorFromResourcesEnabled = enabled;
+    }
+
+    /**
+     * Returns whether vector drawables on older platforms (< API 21) can be accessed from within
+     * resources.
+     *
+     * @see #setCompatVectorFromResourcesEnabled(boolean)
+     */
+    public static boolean isCompatVectorFromResourcesEnabled() {
+        return sCompatVectorFromResourcesEnabled;
     }
 }

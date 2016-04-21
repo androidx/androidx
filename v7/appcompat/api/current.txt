@@ -256,6 +256,7 @@ package android.support.v7.app {
     method public abstract boolean hasWindowFeature(int);
     method public abstract void installViewFactory();
     method public abstract void invalidateOptionsMenu();
+    method public static boolean isCompatVectorFromResourcesEnabled();
     method public abstract boolean isHandleNativeActionModesEnabled();
     method public abstract void onConfigurationChanged(android.content.res.Configuration);
     method public abstract void onCreate(android.os.Bundle);
@@ -265,6 +266,7 @@ package android.support.v7.app {
     method public abstract void onSaveInstanceState(android.os.Bundle);
     method public abstract void onStop();
     method public abstract boolean requestWindowFeature(int);
+    method public static void setCompatVectorFromResourcesEnabled(boolean);
     method public abstract void setContentView(android.view.View);
     method public abstract void setContentView(int);
     method public abstract void setContentView(android.view.View, android.view.ViewGroup.LayoutParams);
