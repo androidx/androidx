@@ -20,6 +20,8 @@ LOCAL_MODULE_TAGS := tests
 
 LOCAL_SDK_VERSION := current
 
+LOCAL_MIN_SDK_VERSION := 11
+
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
 LOCAL_PACKAGE_NAME := SupportAnimatedVectorDrawable

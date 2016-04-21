@@ -11,6 +11,8 @@ LOCAL_STATIC_JAVA_LIBRARIES := android-support-vectordrawable android-support-v4
 
 LOCAL_SDK_VERSION := current
 
+LOCAL_MIN_SDK_VERSION := 7
+
 LOCAL_AAPT_FLAGS += --auto-add-overlay \
         --extra-packages android.support.graphics.drawable \
         --no-version-vectors
