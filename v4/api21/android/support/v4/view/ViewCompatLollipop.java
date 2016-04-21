@@ -198,6 +198,10 @@ class ViewCompatLollipop {
         return view.getZ();
     }
 
+    public static void setZ(View view, float z) {
+        view.setZ(z);
+    }
+
     static void offsetTopAndBottom(final View view, final int offset) {
         final Rect parentRect = getEmptyTempRect();
         boolean needInvalidateWorkaround = false;
