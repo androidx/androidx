@@ -32,25 +32,25 @@ import java.io.IOException;
 class DrawableCompatBase {
 
     public static void setTint(Drawable drawable, int tint) {
-        if (drawable instanceof DrawableWrapper) {
-            ((DrawableWrapper) drawable).setCompatTint(tint);
+        if (drawable instanceof TintAwareDrawable) {
+            ((TintAwareDrawable) drawable).setTint(tint);
         }
     }
 
     public static void setTintList(Drawable drawable, ColorStateList tint) {
-        if (drawable instanceof DrawableWrapper) {
-            ((DrawableWrapper) drawable).setCompatTintList(tint);
+        if (drawable instanceof TintAwareDrawable) {
+            ((TintAwareDrawable) drawable).setTintList(tint);
         }
     }
 
     public static void setTintMode(Drawable drawable, PorterDuff.Mode tintMode) {
-        if (drawable instanceof DrawableWrapper) {
-            ((DrawableWrapper) drawable).setCompatTintMode(tintMode);
+        if (drawable instanceof TintAwareDrawable) {
+            ((TintAwareDrawable) drawable).setTintMode(tintMode);
         }
     }
 
     public static Drawable wrapForTinting(Drawable drawable) {
-        if (!(drawable instanceof DrawableWrapperDonut)) {
+        if (!(drawable instanceof TintAwareDrawable)) {
             return new DrawableWrapperDonut(drawable);
         }
         return drawable;
