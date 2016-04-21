@@ -12,6 +12,8 @@ LOCAL_PACKAGE_NAME := Support13Demos
 
 LOCAL_SDK_VERSION := current
 
+LOCAL_MIN_SDK_VERSION := 13
+
 LOCAL_DEX_PREOPT := false
 
 include $(BUILD_PACKAGE)
