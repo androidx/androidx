@@ -43,6 +43,7 @@ import android.support.v4.util.ArrayMap;
 import android.support.v4.util.LongSparseArray;
 import android.support.v4.util.LruCache;
 import android.support.v7.appcompat.R;
+import android.support.v7.widget.VectorEnabledTintResources;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
@@ -417,6 +418,18 @@ public final class AppCompatDrawableManager {
             return true;
         }
         return false;
+    }
+
+    public final Drawable onDrawableLoadedFromResources(@NonNull Context context,
+            @NonNull VectorEnabledTintResources resources, @DrawableRes final int resId) {
+        Drawable drawable = loadDrawableFromDelegates(context, resId);
+        if (drawable == null) {
+            drawable = resources.superGetDrawable(resId);
+        }
+        if (drawable != null) {
+            return tintDrawable(context, resId, false, drawable);
+        }
+        return null;
     }
 
     static boolean tintDrawableUsingColorFilter(@NonNull Context context,
