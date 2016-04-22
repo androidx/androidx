@@ -78,6 +78,9 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
             super(context);
         }
 
+        /**
+         * @hide
+         */
         @Override
         protected BuilderExtender getExtender() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
