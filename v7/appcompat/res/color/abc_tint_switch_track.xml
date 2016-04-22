@@ -16,9 +16,7 @@
 -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:state_enabled="false" android:color="?android:attr/colorForeground"
-          android:alpha="0.1" app:alpha="0.1"/>
-    <item android:state_checked="true" android:color="?attr/colorControlActivated"
-          android:alpha="0.3" app:alpha="0.3"/>
-    <item android:color="?android:attr/colorForeground" android:alpha="0.3" app:alpha="0.3"/>
+    <item android:state_enabled="false" android:color="?android:attr/colorForeground" app:alpha="0.1"/>
+    <item android:state_checked="true" android:color="?attr/colorControlActivated" app:alpha="0.3"/>
+    <item android:color="?android:attr/colorForeground" app:alpha="0.3"/>
 </selector>
