@@ -1319,7 +1319,7 @@ public class ViewPager extends ViewGroup {
      * state, in which case it should implement a subclass of this which
      * contains that state.
      */
-    public static class SavedState extends BaseSavedState {
+    public static class SavedState extends AbsSavedState {
         int position;
         Parcelable adapterState;
         ClassLoader loader;
@@ -1355,7 +1355,7 @@ public class ViewPager extends ViewGroup {
                 });
 
         SavedState(Parcel in, ClassLoader loader) {
-            super(in);
+            super(in, loader);
             if (loader == null) {
                 loader = getClass().getClassLoader();
             }
