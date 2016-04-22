@@ -30,7 +30,7 @@ import android.view.ViewGroup;
 public class TitleHelper {
 
     private ViewGroup mSceneRoot;
-    private TitleView mTitleView;
+    private View mTitleView;
     private Object mTitleUpTransition;
     private Object mTitleDownTransition;
     private Object mSceneWithTitle;
@@ -55,7 +55,7 @@ public class TitleHelper {
         }
     };
 
-    public TitleHelper(ViewGroup sceneRoot, TitleView titleView) {
+    public TitleHelper(ViewGroup sceneRoot, View titleView) {
         if (sceneRoot == null || titleView == null) {
             throw new IllegalArgumentException("Views may not be null");
         }
@@ -104,7 +104,7 @@ public class TitleHelper {
     /**
      * Returns the {@link TitleView}
      */
-    public TitleView getTitleView() {
+    public View getTitleView() {
         return mTitleView;
     }
 
