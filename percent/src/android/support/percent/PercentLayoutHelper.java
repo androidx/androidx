@@ -438,7 +438,7 @@ public class PercentLayoutHelper {
         }
 
         /**
-         * This method is deprecated. Use
+         * @deprecated Use
          * {@link #fillMarginLayoutParams(View, ViewGroup.MarginLayoutParams, int, int)}
          * for proper RTL support.
          */

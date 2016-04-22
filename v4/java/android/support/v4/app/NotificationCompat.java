@@ -141,6 +141,7 @@ public class NotificationCompat {
      *
      * @deprecated Use {@link NotificationCompat.Builder#setPriority(int)} with a positive value.
      */
+    @Deprecated
     public static final int FLAG_HIGH_PRIORITY      = 0x00000080;
 
     /**

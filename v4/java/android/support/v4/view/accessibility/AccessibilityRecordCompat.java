@@ -525,6 +525,7 @@ public class AccessibilityRecordCompat {
      * {@link AccessibilityEventCompat#asRecord(AccessibilityEvent)}. This method will be removed
      * in a subsequent release of the support library.
      */
+    @Deprecated
     public AccessibilityRecordCompat(Object record) {
         mRecord = record;
     }
@@ -535,6 +536,7 @@ public class AccessibilityRecordCompat {
      * @deprecated This method will be removed in a subsequent release of
      * the support library.
      */
+    @Deprecated
     public Object getImpl() {
         return mRecord;
     }
