@@ -15,46 +15,29 @@ package android.support.v17.leanback.widget;
 
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.content.res.TypedArray;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Build.VERSION;
 import android.support.annotation.NonNull;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.transition.TransitionListener;
 import android.support.v17.leanback.widget.GuidedActionAdapter.EditListener;
-import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v17.leanback.widget.picker.DatePicker;
-import android.support.v17.leanback.widget.picker.Picker;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.TypedValue;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.LinearInterpolator;
-import android.view.inputmethod.EditorInfo;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.AccessibilityDelegate;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.view.ViewPropertyAnimator;
-import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Checkable;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -64,10 +47,10 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
+import static android.support.v17.leanback.widget.GuidedAction.EDITING_ACTIVATOR_VIEW;
+import static android.support.v17.leanback.widget.GuidedAction.EDITING_DESCRIPTION;
 import static android.support.v17.leanback.widget.GuidedAction.EDITING_NONE;
 import static android.support.v17.leanback.widget.GuidedAction.EDITING_TITLE;
-import static android.support.v17.leanback.widget.GuidedAction.EDITING_DESCRIPTION;
-import static android.support.v17.leanback.widget.GuidedAction.EDITING_ACTIVATOR_VIEW;
 
 /**
  * GuidedActionsStylist is used within a {@link android.support.v17.leanback.app.GuidedStepFragment}
@@ -161,12 +144,24 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      */
     public static final int VIEW_TYPE_DATE_PICKER = 1;
 
+    final static ItemAlignmentFacet sGuidedActionItemAlignFacet;
+    static {
+        sGuidedActionItemAlignFacet = new ItemAlignmentFacet();
+        ItemAlignmentFacet.ItemAlignmentDef alignedDef = new ItemAlignmentFacet.ItemAlignmentDef();
+        alignedDef.setItemAlignmentViewId(R.id.guidedactions_item_title);
+        alignedDef.setAlignedToTextViewBaseline(true);
+        alignedDef.setItemAlignmentOffset(0);
+        alignedDef.setItemAlignmentOffsetWithPadding(true);
+        alignedDef.setItemAlignmentOffsetPercent(0);
+        sGuidedActionItemAlignFacet.setAlignmentDefs(new ItemAlignmentFacet.ItemAlignmentDef[]{alignedDef});
+    }
+
     /**
      * ViewHolder caches information about the action item layouts' subviews. Subclasses of {@link
      * GuidedActionsStylist} may also wish to subclass this in order to add fields.
      * @see GuidedAction
      */
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder implements FacetProvider {
 
         private GuidedAction mAction;
         private View mContentView;
@@ -355,6 +350,14 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
                 ((GuidedActionItemContainer) itemView).setFocusOutAllowed(!activated);
             }
         }
+
+        @Override
+        public Object getFacet(Class<?> facetClass) {
+            if (facetClass == ItemAlignmentFacet.class) {
+                return sGuidedActionItemAlignFacet;
+            }
+            return null;
+        }
     }
 
     private static String TAG = "GuidedActionsStylist";
@@ -395,7 +398,11 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      * <code>LayoutInflater.inflate</code>.
      * @return The view to be added to the caller's view hierarchy.
      */
-    public View onCreateView(LayoutInflater inflater, ViewGroup container) {
+    public View onCreateView(LayoutInflater inflater, final ViewGroup container) {
+        TypedArray ta = inflater.getContext().getTheme().obtainStyledAttributes(
+                R.styleable.LeanbackGuidedStepTheme);
+        float keylinePercent = ta.getFloat(R.styleable.LeanbackGuidedStepTheme_guidedStepKeyline,
+                40);
         mMainView = (ViewGroup) inflater.inflate(onProvideLayoutId(), container, false);
         mContentView = mMainView.findViewById(mButtonActions ? R.id.guidedactions_content2 :
                 R.id.guidedactions_content);
@@ -409,8 +416,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             if (mActionsGridView == null) {
                 throw new IllegalStateException("No ListView exists.");
             }
-            mActionsGridView.setWindowAlignmentOffset(0);
-            mActionsGridView.setWindowAlignmentOffsetPercent(50f);
+            mActionsGridView.setWindowAlignmentOffsetPercent(keylinePercent);
             mActionsGridView.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_NO_EDGE);
             if (!mButtonActions) {
                 mSubActionsGridView = (VerticalGridView) mMainView.findViewById(
