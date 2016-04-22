@@ -33,7 +33,7 @@ public class AppCompatDialogFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        return new AppCompatDialog(getActivity(), getTheme());
+        return new AppCompatDialog(getContext(), getTheme());
     }
 
     /** @hide */

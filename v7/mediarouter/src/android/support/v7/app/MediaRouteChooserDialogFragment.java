@@ -110,7 +110,7 @@ public class MediaRouteChooserDialogFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        mDialog = onCreateChooserDialog(getActivity(), savedInstanceState);
+        mDialog = onCreateChooserDialog(getContext(), savedInstanceState);
         mDialog.setRouteSelector(getRouteSelector());
         return mDialog;
     }
