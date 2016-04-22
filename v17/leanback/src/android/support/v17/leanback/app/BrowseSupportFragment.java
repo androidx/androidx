@@ -45,6 +45,7 @@ import android.support.v17.leanback.widget.ScaleFrameLayout;
 import android.support.v17.leanback.widget.TitleViewAdapter;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -1354,15 +1355,38 @@ public class BrowseSupportFragment extends BaseSupportFragment {
 
     private void replaceMainFragment(int position) {
         if (createMainFragment(mAdapter, position)) {
-            swapBrowseContent(mMainFragment);
+            swapToMainFragment();
             expandMainFragment(!(mCanShowHeaders && mShowingHeaders));
             setupMainFragment();
             processingPendingEntranceTransition();
         }
     }
 
-    private void swapBrowseContent(Fragment fragment) {
-        getChildFragmentManager().beginTransaction().replace(R.id.scale_frame, fragment).commit();
+    private void swapToMainFragment() {
+        final VerticalGridView gridView = mHeadersSupportFragment.getVerticalGridView();
+        if (isShowingHeaders() && gridView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE) {
+            // if user is scrolling HeadersSupportFragment,  swap to empty fragment and wait scrolling
+            // finishes.
+            getChildFragmentManager().beginTransaction()
+                    .replace(R.id.scale_frame, new Fragment()).commit();
+            gridView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        gridView.removeOnScrollListener(this);
+                        FragmentManager fm = getChildFragmentManager();
+                        Fragment currentFragment = fm.findFragmentById(R.id.scale_frame);
+                        if (currentFragment != mMainFragment) {
+                            fm.beginTransaction().replace(R.id.scale_frame, mMainFragment).commit();
+                        }
+                    }
+                }
+            });
+        } else {
+            // Otherwise swap immediately
+            getChildFragmentManager().beginTransaction()
+                    .replace(R.id.scale_frame, mMainFragment).commit();
+        }
     }
 
     /**
