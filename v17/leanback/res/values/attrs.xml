@@ -341,6 +341,10 @@
              in half screen mode, this attribute should be set to 1.0 -->
         <attr name="guidedStepHeightWeight" format="float" />
 
+        <!-- Y offset to the bottom of the TitleView(font baseline) used to align the
+             first action text on the right. -->
+        <attr name="guidedStepKeyline" format="float" />
+
         <!-- @hide
              Theme attribute used to inspect theme inheritance. -->
         <attr name="guidedStepThemeFlag" format="boolean" />

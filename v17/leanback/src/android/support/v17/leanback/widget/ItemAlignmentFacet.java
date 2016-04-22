@@ -52,6 +52,7 @@ public final class ItemAlignmentFacet {
         int mOffset = 0;
         float mOffsetPercent = 50f;
         boolean mOffsetWithPadding = false;
+        private boolean mAlignToBaseline;
 
         /**
          * Sets number of pixels to offset. Can be negative for alignment from the high edge, or
@@ -139,6 +140,22 @@ public final class ItemAlignmentFacet {
          */
         public final int getItemAlignmentFocusViewId() {
             return mFocusViewId != View.NO_ID ? mFocusViewId : mViewId;
+        }
+
+        /**
+         * Align to baseline if {@link #getItemAlignmentViewId()} is a TextView and
+         * alignToBaseline is true.
+         * @param alignToBaseline Boolean indicating whether to align the text to baseline.
+         */
+        public final void setAlignedToTextViewBaseline(boolean alignToBaseline) {
+            this.mAlignToBaseline = alignToBaseline;
+        }
+
+        /**
+         * Returns true when TextView should be aligned to the baseline.
+         */
+        public boolean isAlignedToTextViewBaseLine() {
+            return mAlignToBaseline;
         }
     }
 
