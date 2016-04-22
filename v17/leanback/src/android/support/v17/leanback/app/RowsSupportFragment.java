@@ -51,25 +51,27 @@ import java.util.ArrayList;
  * of {@link RowPresenter}.
  * </p>
  */
-public class RowsSupportFragment extends BaseRowSupportFragment implements Adaptable {
+public class RowsSupportFragment extends BaseRowSupportFragment implements
+        BrowseSupportFragment.MainFragmentRowsAdapterProvider,
+        BrowseSupportFragment.MainFragmentAdapterProvider {
 
     private MainFragmentAdapter mMainFragmentAdapter;
     private MainFragmentRowsAdapter mMainFragmentRowsAdapter;
 
     @Override
-    public Object getAdapter(Class clazz) {
-        if (clazz == BrowseSupportFragment.MainFragmentAdapter.class) {
-            if (mMainFragmentAdapter == null) {
-                mMainFragmentAdapter = new MainFragmentAdapter(this);
-            }
-            return mMainFragmentAdapter;
-        } else if (clazz == BrowseSupportFragment.MainFragmentRowsAdapter.class) {
-            if (mMainFragmentRowsAdapter == null) {
-                mMainFragmentRowsAdapter = new MainFragmentRowsAdapter(this);
-            }
-            return mMainFragmentRowsAdapter;
+    public BrowseSupportFragment.MainFragmentAdapter getMainFragmentAdapter() {
+        if (mMainFragmentAdapter == null) {
+            mMainFragmentAdapter = new MainFragmentAdapter(this);
         }
-        return null;
+        return mMainFragmentAdapter;
+    }
+
+    @Override
+    public BrowseSupportFragment.MainFragmentRowsAdapter getMainFragmentRowsAdapter() {
+        if (mMainFragmentRowsAdapter == null) {
+            mMainFragmentRowsAdapter = new MainFragmentRowsAdapter(this);
+        }
+        return mMainFragmentRowsAdapter;
     }
 
     /**

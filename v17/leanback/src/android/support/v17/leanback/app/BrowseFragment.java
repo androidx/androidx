@@ -374,10 +374,34 @@ public class BrowseFragment extends BaseFragment {
     }
 
     /**
-     * This is used to pass information to {@link RowsFragment}.
-     * {@link android.support.v17.leanback.app.RowsFragment.MainFragmentAdapter}
-     * would return an instance to connect the callbacks from {@link BrowseFragment} to
-     * {@link RowsFragment}.
+     * Interface to be implemented by all fragments for providing an instance of
+     * {@link MainFragmentAdapter}. Both {@link RowsFragment} and custom fragment provided
+     * against {@link PageRow} will need to implement this interface.
+     */
+    public interface MainFragmentAdapterProvider {
+        /**
+         * Returns an instance of {@link MainFragmentAdapter} that {@link BrowseFragment}
+         * would use to communicate with the target fragment.
+         */
+        MainFragmentAdapter getMainFragmentAdapter();
+    }
+
+    /**
+     * Interface to be implemented by {@link RowsFragment} and it's subclasses for providing
+     * an instance of {@link MainFragmentRowsAdapter}.
+     */
+    public interface MainFragmentRowsAdapterProvider {
+        /**
+         * Returns an instance of {@link MainFragmentRowsAdapter} that {@link BrowseFragment}
+         * would use to communicate with the target fragment.
+         */
+        MainFragmentRowsAdapter getMainFragmentRowsAdapter();
+    }
+
+    /**
+     * This is used to pass information to {@link RowsFragment} or its subclasses.
+     * {@link BrowseFragment} uses this interface to pass row based interaction events to
+     * the target fragment.
      */
     public static class MainFragmentRowsAdapter<T extends Fragment> {
         private final T mFragment;
@@ -463,17 +487,27 @@ public class BrowseFragment extends BaseFragment {
 
         if (swap) {
             mMainFragment = mMainFragmentAdapterRegistry.createFragment(item);
-            mMainFragmentAdapter = (MainFragmentAdapter) ((Adaptable)mMainFragment)
-                    .getAdapter(MainFragmentAdapter.class);
+            if (!(mMainFragment instanceof MainFragmentAdapterProvider)) {
+                throw new IllegalArgumentException(
+                        "Fragment must implement MainFragmentAdapterProvider");
+            }
+
+            mMainFragmentAdapter = ((MainFragmentAdapterProvider)mMainFragment)
+                    .getMainFragmentAdapter();
             mMainFragmentAdapter.setFragmentHost(new FragmentHostImpl());
             if (!mIsPageRow) {
-                mMainFragmentRowsAdapter = (MainFragmentRowsAdapter) ((Adaptable)mMainFragment)
-                        .getAdapter(MainFragmentRowsAdapter.class);
+                if (mMainFragment instanceof MainFragmentRowsAdapterProvider) {
+                    mMainFragmentRowsAdapter = ((MainFragmentRowsAdapterProvider)mMainFragment)
+                            .getMainFragmentRowsAdapter();
+                } else {
+                    mMainFragmentRowsAdapter = null;
+                }
                 mIsPageRow = mMainFragmentRowsAdapter == null;
             } else {
                 mMainFragmentRowsAdapter = null;
             }
         }
+
         return swap;
     }
 
@@ -1048,8 +1082,8 @@ public class BrowseFragment extends BaseFragment {
             mHeadersFragment = (HeadersFragment) getChildFragmentManager()
                     .findFragmentById(R.id.browse_headers_dock);
             mMainFragment = getChildFragmentManager().findFragmentById(R.id.scale_frame);
-            mMainFragmentAdapter = (MainFragmentAdapter) ((Adaptable)mMainFragment)
-                    .getAdapter(MainFragmentAdapter.class);
+            mMainFragmentAdapter = ((MainFragmentAdapterProvider)mMainFragment)
+                    .getMainFragmentAdapter();
             mMainFragmentAdapter.setFragmentHost(new FragmentHostImpl());
 
             mIsPageRow = savedInstanceState != null ?
@@ -1059,8 +1093,12 @@ public class BrowseFragment extends BaseFragment {
                     savedInstanceState.getInt(CURRENT_SELECTED_POSITION, 0) : 0;
 
             if (!mIsPageRow) {
-                mMainFragmentRowsAdapter = (MainFragmentRowsAdapter) ((Adaptable) mMainFragment)
-                        .getAdapter(MainFragmentRowsAdapter.class);
+                if (mMainFragment instanceof MainFragmentRowsAdapterProvider) {
+                    mMainFragmentRowsAdapter = ((MainFragmentRowsAdapterProvider) mMainFragment)
+                            .getMainFragmentRowsAdapter();
+                } else {
+                    mMainFragmentRowsAdapter = null;
+                }
             } else {
                 mMainFragmentRowsAdapter = null;
             }
