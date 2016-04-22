@@ -359,6 +359,9 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
         mIsFloating = a.getBoolean(R.styleable.AppCompatTheme_android_windowIsFloating, false);
         a.recycle();
 
+        // Now let's make sure that the Window has installed its decor by retrieving it
+        mWindow.getDecorView();
+
         final LayoutInflater inflater = LayoutInflater.from(mContext);
         ViewGroup subDecor = null;
 
@@ -469,33 +472,35 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
         // Make the decor optionally fit system windows, like the window's decor
         ViewUtils.makeOptionalFitsSystemWindows(subDecor);
 
-        final ViewGroup decorContent = (ViewGroup) mWindow.findViewById(android.R.id.content);
-        final ContentFrameLayout abcContent = (ContentFrameLayout) subDecor.findViewById(
+        final ContentFrameLayout contentView = (ContentFrameLayout) subDecor.findViewById(
                 R.id.action_bar_activity_content);
 
-        // There might be Views already added to the Window's content view so we need to
-        // migrate them to our content view
-        while (decorContent.getChildCount() > 0) {
-            final View child = decorContent.getChildAt(0);
-            decorContent.removeViewAt(0);
-            abcContent.addView(child);
+        final ViewGroup windowContentView = (ViewGroup) mWindow.findViewById(android.R.id.content);
+        if (windowContentView != null) {
+            // There might be Views already added to the Window's content view so we need to
+            // migrate them to our content view
+            while (windowContentView.getChildCount() > 0) {
+                final View child = windowContentView.getChildAt(0);
+                windowContentView.removeViewAt(0);
+                contentView.addView(child);
+            }
+
+            // Change our content FrameLayout to use the android.R.id.content id.
+            // Useful for fragments.
+            windowContentView.setId(View.NO_ID);
+            contentView.setId(android.R.id.content);
+
+            // The decorContent may have a foreground drawable set (windowContentOverlay).
+            // Remove this as we handle it ourselves
+            if (windowContentView instanceof FrameLayout) {
+                ((FrameLayout) windowContentView).setForeground(null);
+            }
         }
 
         // Now set the Window's content view with the decor
         mWindow.setContentView(subDecor);
 
-        // Change our content FrameLayout to use the android.R.id.content id.
-        // Useful for fragments.
-        decorContent.setId(View.NO_ID);
-        abcContent.setId(android.R.id.content);
-
-        // The decorContent may have a foreground drawable set (windowContentOverlay).
-        // Remove this as we handle it ourselves
-        if (decorContent instanceof FrameLayout) {
-            ((FrameLayout) decorContent).setForeground(null);
-        }
-
-        abcContent.setAttachListener(new ContentFrameLayout.OnAttachListener() {
+        contentView.setAttachListener(new ContentFrameLayout.OnAttachListener() {
             @Override
             public void onAttachedFromWindow() {}
 
