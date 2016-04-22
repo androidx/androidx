@@ -3507,7 +3507,7 @@ package android.support.v4.widget {
 
   public abstract class ResourceCursorAdapter extends android.support.v4.widget.CursorAdapter {
     ctor public deprecated ResourceCursorAdapter(android.content.Context, int, android.database.Cursor);
-    ctor public ResourceCursorAdapter(android.content.Context, int, android.database.Cursor, boolean);
+    ctor public deprecated ResourceCursorAdapter(android.content.Context, int, android.database.Cursor, boolean);
     ctor public ResourceCursorAdapter(android.content.Context, int, android.database.Cursor, int);
     method public android.view.View newView(android.content.Context, android.database.Cursor, android.view.ViewGroup);
     method public void setDropDownViewResource(int);
