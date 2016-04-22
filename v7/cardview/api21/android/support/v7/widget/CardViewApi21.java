@@ -110,6 +110,11 @@ class CardViewApi21 implements CardViewImpl {
         getCardBackground(cardView).setColor(color);
     }
 
+    @Override
+    public ColorStateList getBackgroundColor(CardViewDelegate cardView) {
+        return getCardBackground(cardView).getColor();
+    }
+
     private RoundRectDrawable getCardBackground(CardViewDelegate cardView) {
         return ((RoundRectDrawable) cardView.getCardBackground());
     }

@@ -21,6 +21,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 
 class CardViewEclairMr1 implements CardViewImpl {
@@ -116,6 +117,10 @@ class CardViewEclairMr1 implements CardViewImpl {
     @Override
     public void setBackgroundColor(CardViewDelegate cardView, @Nullable ColorStateList color) {
         getShadowBackground(cardView).setColor(color);
+    }
+
+    public ColorStateList getBackgroundColor(CardViewDelegate cardView) {
+        return getShadowBackground(cardView).getColor();
     }
 
     @Override
