@@ -478,72 +478,69 @@
     <style name="Widget.Leanback.GuidanceContainerStyle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="android:paddingStart">48dp</item>
-        <item name="android:paddingEnd">16dp</item>
+        <item name="android:paddingStart">56dp</item>
+        <item name="android:paddingEnd">32dp</item>
         <item name="android:clipToPadding">false</item>
     </style>
 
     <!-- Style for the title view in a GuidanceStylist's default layout. -->
     <style name="Widget.Leanback.GuidanceTitleStyle">
         <item name="android:importantForAccessibility">no</item>
-        <item name="android:layout_toStartOf">@id/guidance_icon</item>
+        <item name="android:layout_below">@id/guidance_breadcrumb</item>
+        <item name="android:layout_toEndOf">@id/guidance_icon</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_alignWithParentIfMissing">true</item>
         <item name="android:layout_centerVertical">true</item>
         <item name="android:ellipsize">end</item>
         <item name="android:fontFamily">sans-serif-light</item>
-        <item name="android:gravity">end</item>
+        <item name="android:gravity">start</item>
         <item name="android:maxLines">2</item>
-        <item name="android:paddingBottom">4dp</item>
-        <item name="android:paddingTop">2dp</item>
         <item name="android:textColor">#FFF1F1F1</item>
         <item name="android:textSize">36sp</item>
-        <item name="android:textAlignment">viewEnd</item>
+        <item name="android:textAlignment">viewStart</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:paddingTop">2dp</item>
     </style>
 
     <!-- Style for the description view in a GuidanceStylist's default layout. -->
     <style name="Widget.Leanback.GuidanceDescriptionStyle">
         <item name="android:importantForAccessibility">no</item>
         <item name="android:layout_below">@id/guidance_title</item>
-        <item name="android:layout_toStartOf">@id/guidance_icon</item>
+        <item name="android:layout_toEndOf">@id/guidance_icon</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_alignWithParentIfMissing">true</item>
         <item name="android:ellipsize">end</item>
         <item name="android:fontFamily">sans-serif</item>
-        <item name="android:gravity">end</item>
+        <item name="android:gravity">start</item>
         <item name="android:maxLines">6</item>
         <item name="android:textColor">#88F1F1F1</item>
         <item name="android:textSize">14sp</item>
         <item name="android:lineSpacingExtra">3dp</item>
-        <item name="android:textAlignment">viewEnd</item>
+        <item name="android:textAlignment">viewStart</item>
     </style>
 
     <!-- Style for the breadcrumb view in a GuidanceStylist's default layout. -->
     <style name="Widget.Leanback.GuidanceBreadcrumbStyle">
         <item name="android:importantForAccessibility">no</item>
-        <item name="android:layout_above">@id/guidance_title</item>
-        <item name="android:layout_toStartOf">@id/guidance_icon</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_alignWithParentIfMissing">true</item>
+        <item name="android:layout_toEndOf">@id/guidance_icon</item>
         <item name="android:ellipsize">end</item>
         <item name="android:fontFamily">sans-serif-condensed</item>
         <item name="android:singleLine">true</item>
         <item name="android:textColor">#88F1F1F1</item>
         <item name="android:textSize">18sp</item>
-        <item name="android:gravity">end</item>
-        <item name="android:textAlignment">viewEnd</item>
+        <item name="android:gravity">start</item>
+        <item name="android:textAlignment">viewStart</item>
     </style>
 
     <!-- Style for the icon view in a GuidanceStylist's default layout. -->
     <style name="Widget.Leanback.GuidanceIconStyle">
         <item name="android:layout_width">140dp</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_alignParentEnd">true</item>
-        <item name="android:layout_centerVertical">true</item>
-        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:layout_alignParentStart">true</item>
+        <item name="android:layout_marginEnd">24dp</item>
         <item name="android:maxHeight">280dp</item>
         <item name="android:scaleType">fitCenter</item>
     </style>
