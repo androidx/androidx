@@ -51,4 +51,6 @@ interface CardViewImpl {
     void onPreventCornerOverlapChanged(CardViewDelegate cardView);
 
     void setBackgroundColor(CardViewDelegate cardView, @Nullable ColorStateList color);
+
+    ColorStateList getBackgroundColor(CardViewDelegate cardView);
 }
