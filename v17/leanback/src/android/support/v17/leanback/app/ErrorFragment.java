@@ -34,12 +34,9 @@ import android.graphics.drawable.Drawable;
 /**
  * A fragment for displaying an error indication.
  */
-public class ErrorFragment extends Fragment {
+public class ErrorFragment extends BrandedFragment {
 
-    private View mErrorFrame;
-    private String mTitle;
-    private Drawable mBadgeDrawable;
-    private TitleView mTitleView;
+    private ViewGroup mErrorFrame;
     private ImageView mImageView;
     private TextView mTextView;
     private Button mButton;
@@ -49,40 +46,6 @@ public class ErrorFragment extends Fragment {
     private View.OnClickListener mButtonClickListener;
     private Drawable mBackgroundDrawable;
     private boolean mIsBackgroundTranslucent = true;
-
-    /**
-     * Sets the drawable displayed in the browse fragment title.
-     *
-     * @param drawable The drawable to display in the browse fragment title.
-     */
-    public void setBadgeDrawable(Drawable drawable) {
-        mBadgeDrawable = drawable;
-        updateTitle();
-    }
-
-    /**
-     * Returns the badge drawable used in the fragment title.
-     */
-    public Drawable getBadgeDrawable() {
-        return mBadgeDrawable;
-    }
-
-    /**
-     * Sets a title for the browse fragment.
-     *
-     * @param title The title of the browse fragment.
-     */
-    public void setTitle(String title) {
-        mTitle = title;
-        updateTitle();
-    }
-
-    /**
-     * Returns the title for the browse fragment.
-     */
-    public String getTitle() {
-        return mTitle;
-    }
 
     /**
      * Sets the default background.
@@ -199,8 +162,10 @@ public class ErrorFragment extends Fragment {
             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.lb_error_fragment, container, false);
 
-        mErrorFrame = root.findViewById(R.id.error_frame);
+        mErrorFrame = (ViewGroup) root.findViewById(R.id.error_frame);
         updateBackground();
+
+        installTitleView(inflater, mErrorFrame, savedInstanceState);
 
         mImageView = (ImageView) root.findViewById(R.id.image);
         updateImageDrawable();
@@ -210,9 +175,6 @@ public class ErrorFragment extends Fragment {
 
         mButton = (Button) root.findViewById(R.id.button);
         updateButton();
-
-        mTitleView = (TitleView) root.findViewById(R.id.browse_title_group);
-        updateTitle();
 
         FontMetricsInt metrics = getFontMetricsInt(mTextView);
         int underImageBaselineMargin = container.getResources().getDimensionPixelSize(
@@ -236,13 +198,6 @@ public class ErrorFragment extends Fragment {
                         R.color.lb_error_background_color_translucent :
                         R.color.lb_error_background_color_opaque));
             }
-        }
-    }
-
-    private void updateTitle() {
-        if (mTitleView != null) {
-            mTitleView.setTitle(mTitle);
-            mTitleView.setBadgeDrawable(mBadgeDrawable);
         }
     }
 
@@ -287,4 +242,5 @@ public class ErrorFragment extends Fragment {
         lp.topMargin = topMargin;
         textView.setLayoutParams(lp);
     }
+
 }

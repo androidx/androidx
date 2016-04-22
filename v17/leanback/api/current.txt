@@ -48,6 +48,48 @@ package android.support.v17.leanback.app {
     method public void setSelectedPosition(int, boolean);
   }
 
+  public class BrandedFragment extends android.app.Fragment {
+    ctor public BrandedFragment();
+    method public android.graphics.drawable.Drawable getBadgeDrawable();
+    method public int getSearchAffordanceColor();
+    method public android.support.v17.leanback.widget.SearchOrbView.Colors getSearchAffordanceColors();
+    method public java.lang.CharSequence getTitle();
+    method public android.view.View getTitleView();
+    method public android.support.v17.leanback.widget.TitleViewAdapter getTitleViewAdapter();
+    method public void installTitleView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
+    method public final boolean isShowingTitle();
+    method public android.view.View onInflateTitleView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
+    method public void setBadgeDrawable(android.graphics.drawable.Drawable);
+    method public void setOnSearchClickedListener(android.view.View.OnClickListener);
+    method public void setSearchAffordanceColor(int);
+    method public void setSearchAffordanceColors(android.support.v17.leanback.widget.SearchOrbView.Colors);
+    method public void setTitle(java.lang.CharSequence);
+    method public void setTitleView(android.view.View);
+    method public void showTitle(boolean);
+    method public void showTitle(int);
+  }
+
+  public class BrandedSupportFragment extends android.support.v4.app.Fragment {
+    ctor public BrandedSupportFragment();
+    method public android.graphics.drawable.Drawable getBadgeDrawable();
+    method public int getSearchAffordanceColor();
+    method public android.support.v17.leanback.widget.SearchOrbView.Colors getSearchAffordanceColors();
+    method public java.lang.CharSequence getTitle();
+    method public android.view.View getTitleView();
+    method public android.support.v17.leanback.widget.TitleViewAdapter getTitleViewAdapter();
+    method public void installTitleView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
+    method public final boolean isShowingTitle();
+    method public android.view.View onInflateTitleView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
+    method public void setBadgeDrawable(android.graphics.drawable.Drawable);
+    method public void setOnSearchClickedListener(android.view.View.OnClickListener);
+    method public void setSearchAffordanceColor(int);
+    method public void setSearchAffordanceColors(android.support.v17.leanback.widget.SearchOrbView.Colors);
+    method public void setTitle(java.lang.CharSequence);
+    method public void setTitleView(android.view.View);
+    method public void showTitle(boolean);
+    method public void showTitle(int);
+  }
+
   public class BrowseFragment extends android.support.v17.leanback.app.BrandedFragment {
     ctor public BrowseFragment();
     method public static android.os.Bundle createArgs(android.os.Bundle, java.lang.String, int);
@@ -66,12 +108,9 @@ package android.support.v17.leanback.app {
     method public final boolean isHeadersTransitionOnBackEnabled();
     method public boolean isInHeadersTransition();
     method public boolean isShowingHeaders();
-    method public void onDestroyView();
     method protected void onEntranceTransitionEnd();
     method protected void onEntranceTransitionPrepare();
     method protected void onEntranceTransitionStart();
-    method public void onSaveInstanceState(android.os.Bundle);
-    method public void onStart();
     method protected void runEntranceTransition(java.lang.Object);
     method public void setAdapter(android.support.v17.leanback.widget.ObjectAdapter);
     method public void setBrandColor(int);
@@ -161,12 +200,9 @@ package android.support.v17.leanback.app {
     method public final boolean isHeadersTransitionOnBackEnabled();
     method public boolean isInHeadersTransition();
     method public boolean isShowingHeaders();
-    method public void onDestroyView();
     method protected void onEntranceTransitionEnd();
     method protected void onEntranceTransitionPrepare();
     method protected void onEntranceTransitionStart();
-    method public void onSaveInstanceState(android.os.Bundle);
-    method public void onStart();
     method protected void runEntranceTransition(java.lang.Object);
     method public void setAdapter(android.support.v17.leanback.widget.ObjectAdapter);
     method public void setBrandColor(int);
@@ -244,13 +280,12 @@ package android.support.v17.leanback.app {
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public android.support.v17.leanback.widget.BaseOnItemViewClickedListener getOnItemViewClickedListener();
     method public android.support.v17.leanback.app.RowsFragment getRowsFragment();
-    method protected android.view.View inflateTitle(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
+    method protected deprecated android.view.View inflateTitle(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
     method protected void onEntranceTransitionEnd();
     method protected void onEntranceTransitionPrepare();
     method protected void onEntranceTransitionStart();
     method protected void onSetDetailsOverviewRowStatus(android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter, android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder, int, int, int);
     method protected void onSetRowStatus(android.support.v17.leanback.widget.RowPresenter, android.support.v17.leanback.widget.RowPresenter.ViewHolder, int, int, int);
-    method public void onStart();
     method protected void runEntranceTransition(java.lang.Object);
     method public void setAdapter(android.support.v17.leanback.widget.ObjectAdapter);
     method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.BaseOnItemViewClickedListener);
@@ -267,13 +302,12 @@ package android.support.v17.leanback.app {
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public android.support.v17.leanback.widget.BaseOnItemViewClickedListener getOnItemViewClickedListener();
     method public android.support.v17.leanback.app.RowsSupportFragment getRowsSupportFragment();
-    method protected android.view.View inflateTitle(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
+    method protected deprecated android.view.View inflateTitle(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
     method protected void onEntranceTransitionEnd();
     method protected void onEntranceTransitionPrepare();
     method protected void onEntranceTransitionStart();
     method protected void onSetDetailsOverviewRowStatus(android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter, android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder, int, int, int);
     method protected void onSetRowStatus(android.support.v17.leanback.widget.RowPresenter, android.support.v17.leanback.widget.RowPresenter.ViewHolder, int, int, int);
-    method public void onStart();
     method protected void runEntranceTransition(java.lang.Object);
     method public void setAdapter(android.support.v17.leanback.widget.ObjectAdapter);
     method public void setOnItemViewClickedListener(android.support.v17.leanback.widget.BaseOnItemViewClickedListener);
@@ -284,44 +318,36 @@ package android.support.v17.leanback.app {
     method protected void setupPresenter(android.support.v17.leanback.widget.Presenter);
   }
 
-  public class ErrorFragment extends android.app.Fragment {
+  public class ErrorFragment extends android.support.v17.leanback.app.BrandedFragment {
     ctor public ErrorFragment();
     method public android.graphics.drawable.Drawable getBackgroundDrawable();
-    method public android.graphics.drawable.Drawable getBadgeDrawable();
     method public android.view.View.OnClickListener getButtonClickListener();
     method public java.lang.String getButtonText();
     method public android.graphics.drawable.Drawable getImageDrawable();
     method public java.lang.CharSequence getMessage();
-    method public java.lang.String getTitle();
     method public boolean isBackgroundTranslucent();
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable);
-    method public void setBadgeDrawable(android.graphics.drawable.Drawable);
     method public void setButtonClickListener(android.view.View.OnClickListener);
     method public void setButtonText(java.lang.String);
     method public void setDefaultBackground(boolean);
     method public void setImageDrawable(android.graphics.drawable.Drawable);
     method public void setMessage(java.lang.CharSequence);
-    method public void setTitle(java.lang.String);
   }
 
-  public class ErrorSupportFragment extends android.support.v4.app.Fragment {
+  public class ErrorSupportFragment extends android.support.v17.leanback.app.BrandedSupportFragment {
     ctor public ErrorSupportFragment();
     method public android.graphics.drawable.Drawable getBackgroundDrawable();
-    method public android.graphics.drawable.Drawable getBadgeDrawable();
     method public android.view.View.OnClickListener getButtonClickListener();
     method public java.lang.String getButtonText();
     method public android.graphics.drawable.Drawable getImageDrawable();
     method public java.lang.CharSequence getMessage();
-    method public java.lang.String getTitle();
     method public boolean isBackgroundTranslucent();
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable);
-    method public void setBadgeDrawable(android.graphics.drawable.Drawable);
     method public void setButtonClickListener(android.view.View.OnClickListener);
     method public void setButtonText(java.lang.String);
     method public void setDefaultBackground(boolean);
     method public void setImageDrawable(android.graphics.drawable.Drawable);
     method public void setMessage(java.lang.CharSequence);
-    method public void setTitle(java.lang.String);
   }
 
   public class GuidedStepFragment extends android.app.Fragment {
@@ -642,8 +668,6 @@ package android.support.v17.leanback.app {
     method public android.support.v17.leanback.app.PlaybackOverlayFragment.OnFadeCompleteListener getFadeCompleteListener();
     method public final android.support.v17.leanback.app.PlaybackOverlayFragment.InputEventHandler getInputEventHandler();
     method public boolean isFadingEnabled();
-    method public void onDestroyView();
-    method public void onResume();
     method public void setBackgroundType(int);
     method public void setFadeCompleteListener(android.support.v17.leanback.app.PlaybackOverlayFragment.OnFadeCompleteListener);
     method public void setFadingEnabled(boolean);
@@ -671,8 +695,6 @@ package android.support.v17.leanback.app {
     method public android.support.v17.leanback.app.PlaybackOverlaySupportFragment.OnFadeCompleteListener getFadeCompleteListener();
     method public final android.support.v17.leanback.app.PlaybackOverlaySupportFragment.InputEventHandler getInputEventHandler();
     method public boolean isFadingEnabled();
-    method public void onDestroyView();
-    method public void onResume();
     method public void setBackgroundType(int);
     method public void setFadeCompleteListener(android.support.v17.leanback.app.PlaybackOverlaySupportFragment.OnFadeCompleteListener);
     method public void setFadingEnabled(boolean);
@@ -813,8 +835,6 @@ package android.support.v17.leanback.app {
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public android.support.v17.leanback.widget.VerticalGridPresenter getGridPresenter();
     method public android.support.v17.leanback.widget.OnItemViewClickedListener getOnItemViewClickedListener();
-    method public void onDestroyView();
-    method public void onStart();
     method public void onViewCreated(android.view.View, android.os.Bundle);
     method protected void runEntranceTransition(java.lang.Object);
     method public void setAdapter(android.support.v17.leanback.widget.ObjectAdapter);
@@ -830,8 +850,6 @@ package android.support.v17.leanback.app {
     method public android.support.v17.leanback.widget.ObjectAdapter getAdapter();
     method public android.support.v17.leanback.widget.VerticalGridPresenter getGridPresenter();
     method public android.support.v17.leanback.widget.OnItemViewClickedListener getOnItemViewClickedListener();
-    method public void onDestroyView();
-    method public void onStart();
     method public void onViewCreated(android.view.View, android.os.Bundle);
     method protected void runEntranceTransition(java.lang.Object);
     method public void setAdapter(android.support.v17.leanback.widget.ObjectAdapter);
@@ -2171,14 +2189,14 @@ package android.support.v17.leanback.widget {
   }
 
   public class TitleHelper {
-    ctor public TitleHelper(android.view.ViewGroup, android.support.v17.leanback.widget.TitleView);
+    ctor public TitleHelper(android.view.ViewGroup, android.view.View);
     method public android.support.v17.leanback.widget.BrowseFrameLayout.OnFocusSearchListener getOnFocusSearchListener();
     method public android.view.ViewGroup getSceneRoot();
-    method public android.support.v17.leanback.widget.TitleView getTitleView();
+    method public android.view.View getTitleView();
     method public void showTitle(boolean);
   }
 
-  public class TitleView extends android.widget.FrameLayout {
+  public class TitleView extends android.widget.FrameLayout implements android.support.v17.leanback.widget.TitleViewAdapter.Provider {
     ctor public TitleView(android.content.Context);
     ctor public TitleView(android.content.Context, android.util.AttributeSet);
     ctor public TitleView(android.content.Context, android.util.AttributeSet, int);
@@ -2187,14 +2205,33 @@ package android.support.v17.leanback.widget {
     method public android.support.v17.leanback.widget.SearchOrbView.Colors getSearchAffordanceColors();
     method public android.view.View getSearchAffordanceView();
     method public java.lang.CharSequence getTitle();
+    method public android.support.v17.leanback.widget.TitleViewAdapter getTitleViewAdapter();
     method public void setBadgeDrawable(android.graphics.drawable.Drawable);
     method public void setOnSearchClickedListener(android.view.View.OnClickListener);
     method public void setSearchAffordanceColors(android.support.v17.leanback.widget.SearchOrbView.Colors);
-    method public void setTitle(java.lang.String);
-    method public final void updateLayout(int);
+    method public void setTitle(java.lang.CharSequence);
+    method public void updateComponentsVisibility(int);
+  }
+
+  public abstract class TitleViewAdapter {
+    ctor public TitleViewAdapter();
+    method public android.graphics.drawable.Drawable getBadgeDrawable();
+    method public android.support.v17.leanback.widget.SearchOrbView.Colors getSearchAffordanceColors();
+    method public abstract android.view.View getSearchAffordanceView();
+    method public java.lang.CharSequence getTitle();
+    method public void setAnimationEnabled(boolean);
+    method public void setBadgeDrawable(android.graphics.drawable.Drawable);
+    method public void setOnSearchClickedListener(android.view.View.OnClickListener);
+    method public void setSearchAffordanceColors(android.support.v17.leanback.widget.SearchOrbView.Colors);
+    method public void setTitle(java.lang.CharSequence);
+    method public void updateComponentsVisibility(int);
     field public static final int BRANDING_VIEW_VISIBLE = 2; // 0x2
     field public static final int FULL_VIEW_VISIBLE = 6; // 0x6
     field public static final int SEARCH_VIEW_VISIBLE = 4; // 0x4
+  }
+
+  public static abstract interface TitleViewAdapter.Provider {
+    method public abstract android.support.v17.leanback.widget.TitleViewAdapter getTitleViewAdapter();
   }
 
   public class VerticalGridPresenter extends android.support.v17.leanback.widget.Presenter {
