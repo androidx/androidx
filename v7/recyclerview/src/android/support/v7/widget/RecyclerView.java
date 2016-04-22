@@ -9853,6 +9853,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         /**
          * @deprecated use {@link #getViewLayoutPosition()} or {@link #getViewAdapterPosition()}
          */
+        @Deprecated
         public int getViewPosition() {
             return mViewHolder.getPosition();
         }

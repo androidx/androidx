@@ -476,6 +476,7 @@ public final class ScriptGroup extends BaseObj {
      *          connected.
      * @param a The allocation to connect.
      */
+    @Deprecated
     public void setInput(Script.KernelID s, Allocation a) {
         for (int ct=0; ct < mInputs.length; ct++) {
             if (mInputs[ct].mKID == s) {
@@ -500,6 +501,7 @@ public final class ScriptGroup extends BaseObj {
      *          connected.
      * @param a The allocation to connect.
      */
+    @Deprecated
     public void setOutput(Script.KernelID s, Allocation a) {
         for (int ct=0; ct < mOutputs.length; ct++) {
             if (mOutputs[ct].mKID == s) {
@@ -524,6 +526,7 @@ public final class ScriptGroup extends BaseObj {
      *
      * @deprecated Use {@link #execute} instead.
      */
+    @Deprecated
     public void execute() {
         if (!mUseIncSupp) {
             mRS.nScriptGroupExecute(getID(mRS));
@@ -611,6 +614,7 @@ public final class ScriptGroup extends BaseObj {
      * @deprecated Use {@link Builder2} instead.
      *
      */
+    @Deprecated
     public static final class Builder {
         private RenderScript mRS;
         private ArrayList<Node> mNodes = new ArrayList<Node>();

@@ -142,6 +142,7 @@ public class FragmentController {
      *
      * @deprecated use {@link #restoreAllState(Parcelable, FragmentManagerNonConfig)}
      */
+    @Deprecated
     public void restoreAllState(Parcelable state, List<Fragment> nonConfigList) {
         mHost.mFragmentManager.restoreAllState(state,
                 new FragmentManagerNonConfig(nonConfigList, null));
@@ -164,6 +165,7 @@ public class FragmentController {
      * @deprecated use {@link #retainNestedNonConfig()} to also track retained
      *             nested child fragments
      */
+    @Deprecated
     public List<Fragment> retainNonConfig() {
         FragmentManagerNonConfig nonconf = mHost.mFragmentManager.retainNonConfig();
         return nonconf != null ? nonconf.getFragments() : null;
