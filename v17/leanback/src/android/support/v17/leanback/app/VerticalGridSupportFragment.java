@@ -24,7 +24,6 @@ import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
-import android.support.v17.leanback.widget.TitleView;
 import android.support.v17.leanback.widget.VerticalGridPresenter;
 import android.support.v17.leanback.widget.ObjectAdapter;
 import android.os.Bundle;
@@ -160,7 +159,8 @@ public class VerticalGridSupportFragment extends BaseSupportFragment {
             Bundle savedInstanceState) {
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.lb_vertical_grid_fragment,
                 container, false);
-        setTitleView((TitleView) root.findViewById(R.id.browse_title_group));
+        ViewGroup gridFrame = (ViewGroup) root.findViewById(R.id.grid_frame);
+        installTitleView(inflater, gridFrame, savedInstanceState);
         getProgressBarManager().setRootView(root);
         return root;
     }
