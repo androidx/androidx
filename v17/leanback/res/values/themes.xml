@@ -54,6 +54,7 @@
         <item name="rowHorizontalGridStyle">@style/Widget.Leanback.Row.HorizontalGridView</item>
         <item name="itemsVerticalGridStyle">@style/Widget.Leanback.GridItems.VerticalGridView</item>
 
+        <item name="browseTitleViewLayout">@layout/lb_browse_title</item>
         <item name="browseTitleTextStyle">@style/Widget.Leanback.Title.Text</item>
         <item name="browseTitleIconStyle">@style/Widget.Leanback.Title.Icon</item>
         <item name="browseTitleViewStyle">@style/Widget.Leanback.TitleView</item>

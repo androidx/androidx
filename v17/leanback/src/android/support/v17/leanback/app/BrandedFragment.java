@@ -19,44 +19,93 @@ import android.os.Bundle;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.SearchOrbView;
 import android.support.v17.leanback.widget.TitleHelper;
-import android.support.v17.leanback.widget.TitleView;
+import android.support.v17.leanback.widget.TitleViewAdapter;
+import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 /**
- * Fragment support for managing branding on a
- * {@link android.support.v17.leanback.widget.TitleView}.
- * @hide
+ * Fragment class for managing search and branding using a view that implements
+ * {@link TitleViewAdapter.Provider}.
  */
-class BrandedFragment extends Fragment {
+public class BrandedFragment extends Fragment {
 
     // BUNDLE attribute for title is showing
     private static final String TITLE_SHOW = "titleShow";
 
     private boolean mShowingTitle = true;
-    private String mTitle;
+    private CharSequence mTitle;
     private Drawable mBadgeDrawable;
-    private TitleView mTitleView;
+    private View mTitleView;
+    private TitleViewAdapter mTitleViewAdapter;
     private SearchOrbView.Colors mSearchAffordanceColors;
     private boolean mSearchAffordanceColorSet;
     private View.OnClickListener mExternalOnSearchClickedListener;
     private TitleHelper mTitleHelper;
 
     /**
-     * Sets the {@link TitleView}.
+     * Called by {@link #installTitleView(LayoutInflater, ViewGroup, Bundle)} to inflate
+     * title view.  Default implementation uses layout file lb_browse_title.
+     * Subclass may override and use its own layout, the layout must have a descendant with id
+     * browse_title_group that implements {@link TitleViewAdapter.Provider}. Subclass may return
+     * null if no title is needed.
+     *
+     * @param inflater           The LayoutInflater object that can be used to inflate
+     *                           any views in the fragment,
+     * @param parent             Parent of title view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     *                           from a previous saved state as given here.
+     * @return Title view which must have a descendant with id browse_title_group that implements
+     *         {@link TitleViewAdapter.Provider}, or null for no title view.
      */
-    void setTitleView(TitleView titleView) {
+    public View onInflateTitleView(LayoutInflater inflater, ViewGroup parent,
+                                Bundle savedInstanceState) {
+        TypedValue typedValue = new TypedValue();
+        boolean found = parent.getContext().getTheme().resolveAttribute(
+                R.attr.browseTitleViewLayout, typedValue, true);
+        return inflater.inflate(found ? typedValue.resourceId : R.layout.lb_browse_title,
+                parent, false);
+    }
+
+    /**
+     * Inflate title view and add to parent.  This method should be called in
+     * {@link Fragment#onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param parent Parent of title view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     */
+    public void installTitleView(LayoutInflater inflater, ViewGroup parent,
+                            Bundle savedInstanceState) {
+        View titleLayoutRoot = onInflateTitleView(inflater, parent, savedInstanceState);
+        if (titleLayoutRoot != null) {
+            parent.addView(titleLayoutRoot);
+            setTitleView(titleLayoutRoot.findViewById(R.id.browse_title_group));
+        } else {
+            setTitleView(null);
+        }
+    }
+
+    /**
+     * Sets the view that implemented {@link TitleViewAdapter}.
+     * @param titleView The view that implemented {@link TitleViewAdapter.Provider}.
+     */
+    public void setTitleView(View titleView) {
         mTitleView = titleView;
         if (mTitleView == null) {
+            mTitleViewAdapter = null;
             mTitleHelper = null;
         } else {
-            mTitleView.setTitle(mTitle);
-            mTitleView.setBadgeDrawable(mBadgeDrawable);
+            mTitleViewAdapter = ((TitleViewAdapter.Provider) mTitleView).getTitleViewAdapter();
+            mTitleViewAdapter.setTitle(mTitle);
+            mTitleViewAdapter.setBadgeDrawable(mBadgeDrawable);
             if (mSearchAffordanceColorSet) {
-                mTitleView.setSearchAffordanceColors(mSearchAffordanceColors);
+                mTitleViewAdapter.setSearchAffordanceColors(mSearchAffordanceColors);
             }
             if (mExternalOnSearchClickedListener != null) {
-                mTitleView.setOnSearchClickedListener(mExternalOnSearchClickedListener);
+                setOnSearchClickedListener(mExternalOnSearchClickedListener);
             }
             if (getView() instanceof ViewGroup) {
                 mTitleHelper = new TitleHelper((ViewGroup) getView(), mTitleView);
@@ -65,10 +114,19 @@ class BrandedFragment extends Fragment {
     }
 
     /**
-     * Returns the {@link TitleView}.
+     * Returns the view that implements {@link TitleViewAdapter.Provider}.
+     * @return The view that implements {@link TitleViewAdapter.Provider}.
      */
-    TitleView getTitleView() {
+    public View getTitleView() {
         return mTitleView;
+    }
+
+    /**
+     * Returns the {@link TitleViewAdapter} implemented by title view.
+     * @return The {@link TitleViewAdapter} implemented by title view.
+     */
+    public TitleViewAdapter getTitleViewAdapter() {
+        return mTitleViewAdapter;
     }
 
     /**
@@ -102,9 +160,10 @@ class BrandedFragment extends Fragment {
     }
 
     /**
-     * Shows or hides the {@link android.support.v17.leanback.widget.TitleView}.
+     * Shows or hides the title view.
+     * @param show True to show title view, false to hide title view.
      */
-    void showTitle(boolean show) {
+    public void showTitle(boolean show) {
         // TODO: handle interruptions?
         if (show == mShowingTitle) {
             return;
@@ -115,48 +174,60 @@ class BrandedFragment extends Fragment {
         }
     }
 
-    void showTitle(int flags) {
-        mTitleView.updateLayout(flags);
+    /**
+     * Changes title view's components visibility and shows title.
+     * @param flags Flags representing the visibility of components inside title view.
+     * @see TitleViewAdapter#SEARCH_VIEW_VISIBLE
+     * @see TitleViewAdapter#BRANDING_VIEW_VISIBLE
+     * @see TitleViewAdapter#FULL_VIEW_VISIBLE
+     * @see TitleViewAdapter#updateComponentsVisibility(int)
+     */
+    public void showTitle(int flags) {
+        if (mTitleViewAdapter != null) {
+            mTitleViewAdapter.updateComponentsVisibility(flags);
+        }
         showTitle(true);
     }
 
     /**
-     * Sets the drawable displayed in the browse fragment title.
+     * Sets the drawable displayed in the fragment title.
      *
-     * @param drawable The Drawable to display in the browse fragment title.
+     * @param drawable The Drawable to display in the fragment title.
      */
     public void setBadgeDrawable(Drawable drawable) {
         if (mBadgeDrawable != drawable) {
             mBadgeDrawable = drawable;
-            if (mTitleView != null) {
-                mTitleView.setBadgeDrawable(drawable);
+            if (mTitleViewAdapter != null) {
+                mTitleViewAdapter.setBadgeDrawable(drawable);
             }
         }
     }
 
     /**
      * Returns the badge drawable used in the fragment title.
+     * @return The badge drawable used in the fragment title.
      */
     public Drawable getBadgeDrawable() {
         return mBadgeDrawable;
     }
 
     /**
-     * Sets a title for the browse fragment.
+     * Sets title text for the fragment.
      *
-     * @param title The title of the browse fragment.
+     * @param title The title text of the fragment.
      */
-    public void setTitle(String title) {
+    public void setTitle(CharSequence title) {
         mTitle = title;
-        if (mTitleView != null) {
-            mTitleView.setTitle(title);
+        if (mTitleViewAdapter != null) {
+            mTitleViewAdapter.setTitle(title);
         }
     }
 
     /**
-     * Returns the title for the browse fragment.
+     * Returns the title text for the fragment.
+     * @return Title text for the fragment.
      */
-    public String getTitle() {
+    public CharSequence getTitle() {
         return mTitle;
     }
 
@@ -174,19 +245,22 @@ class BrandedFragment extends Fragment {
      */
     public void setOnSearchClickedListener(View.OnClickListener listener) {
         mExternalOnSearchClickedListener = listener;
-        if (mTitleView != null) {
-            mTitleView.setOnSearchClickedListener(listener);
+        if (mTitleViewAdapter != null) {
+            mTitleViewAdapter.setOnSearchClickedListener(listener);
         }
     }
 
     /**
-     * Sets the {@link android.support.v17.leanback.widget.SearchOrbView.Colors} used to draw the search affordance.
+     * Sets the {@link android.support.v17.leanback.widget.SearchOrbView.Colors} used to draw the
+     * search affordance.
+     *
+     * @param colors Colors used to draw search affordance.
      */
     public void setSearchAffordanceColors(SearchOrbView.Colors colors) {
         mSearchAffordanceColors = colors;
         mSearchAffordanceColorSet = true;
-        if (mTitleView != null) {
-            mTitleView.setSearchAffordanceColors(mSearchAffordanceColors);
+        if (mTitleViewAdapter != null) {
+            mTitleViewAdapter.setSearchAffordanceColors(mSearchAffordanceColors);
         }
     }
 
@@ -198,10 +272,10 @@ class BrandedFragment extends Fragment {
         if (mSearchAffordanceColorSet) {
             return mSearchAffordanceColors;
         }
-        if (mTitleView == null) {
+        if (mTitleViewAdapter == null) {
             throw new IllegalStateException("Fragment views not yet created");
         }
-        return mTitleView.getSearchAffordanceColors();
+        return mTitleViewAdapter.getSearchAffordanceColors();
     }
 
     /**
@@ -224,16 +298,16 @@ class BrandedFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        if (mTitleView != null) {
+        if (mTitleViewAdapter != null) {
             showTitle(mShowingTitle);
-            mTitleView.enableAnimation(true);
+            mTitleViewAdapter.setAnimationEnabled(true);
         }
     }
 
     @Override
     public void onPause() {
-        if (mTitleView != null) {
-            mTitleView.enableAnimation(false);
+        if (mTitleViewAdapter != null) {
+            mTitleViewAdapter.setAnimationEnabled(false);
         }
         super.onPause();
     }
@@ -241,8 +315,8 @@ class BrandedFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (mTitleView != null) {
-            mTitleView.enableAnimation(true);
+        if (mTitleViewAdapter != null) {
+            mTitleViewAdapter.setAnimationEnabled(true);
         }
     }
 
@@ -254,4 +328,5 @@ class BrandedFragment extends Fragment {
     public final boolean isShowingTitle() {
         return mShowingTitle;
     }
+
 }
