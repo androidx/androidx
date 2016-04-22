@@ -267,6 +267,7 @@ public class DetailsOverviewRow extends Row {
      * @param action The Action to add.
      * @deprecated Use {@link #setActionsAdapter(ObjectAdapter)} and {@link #getActionsAdapter()}
      */
+    @Deprecated
     public final void addAction(Action action) {
         getArrayObjectAdapter().add(action);
     }
@@ -280,6 +281,7 @@ public class DetailsOverviewRow extends Row {
      * @param action The Action to add.
      * @deprecated Use {@link #setActionsAdapter(ObjectAdapter)} and {@link #getActionsAdapter()}
      */
+    @Deprecated
     public final void addAction(int pos, Action action) {
         getArrayObjectAdapter().add(pos, action);
     }
@@ -292,6 +294,7 @@ public class DetailsOverviewRow extends Row {
      * @return true if the overview contained the specified Action.
      * @deprecated Use {@link #setActionsAdapter(ObjectAdapter)} and {@link #getActionsAdapter()}
      */
+    @Deprecated
     public final boolean removeAction(Action action) {
         return getArrayObjectAdapter().remove(action);
     }
@@ -304,6 +307,7 @@ public class DetailsOverviewRow extends Row {
      * @return An unmodifiable view of the list of Actions.
      * @deprecated Use {@link #setActionsAdapter(ObjectAdapter)} and {@link #getActionsAdapter()}
      */
+    @Deprecated
     public final List<Action> getActions() {
         return getArrayObjectAdapter().unmodifiableList();
     }

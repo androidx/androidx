@@ -186,6 +186,7 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements Adapt
      *
      * @param enable true to enable row scaling
      */
+    @Deprecated
     public void enableRowScaling(boolean enable) {
     }
 
