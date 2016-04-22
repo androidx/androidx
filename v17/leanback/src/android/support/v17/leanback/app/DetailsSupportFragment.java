@@ -18,7 +18,6 @@ package android.support.v17.leanback.app;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.widget.BrowseFrameLayout;
-import android.support.v17.leanback.widget.DetailsOverviewRow;
 import android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter;
 import android.support.v17.leanback.widget.ItemAlignmentFacet;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
@@ -29,10 +28,10 @@ import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.TitleHelper;
-import android.support.v17.leanback.widget.TitleView;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -180,10 +179,7 @@ public class DetailsSupportFragment extends BaseSupportFragment {
             Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.lb_details_fragment, container, false);
         ViewGroup fragment_root = (ViewGroup) view.findViewById(R.id.details_fragment_root);
-        View titleView = inflateTitle(inflater, fragment_root, savedInstanceState);
-        if (titleView != null) {
-            fragment_root.addView(titleView);
-        }
+        installTitleView(inflater, fragment_root, savedInstanceState);
         mRowsSupportFragment = (RowsSupportFragment) getChildFragmentManager().findFragmentById(
                 R.id.details_rows_dock);
         if (mRowsSupportFragment == null) {
@@ -194,15 +190,6 @@ public class DetailsSupportFragment extends BaseSupportFragment {
         mRowsSupportFragment.setAdapter(mAdapter);
         mRowsSupportFragment.setOnItemViewSelectedListener(mOnItemViewSelectedListener);
         mRowsSupportFragment.setOnItemViewClickedListener(mOnItemViewClickedListener);
-
-        if (titleView != null) {
-            View titleGroup = titleView.findViewById(R.id.browse_title_group);
-            if (titleGroup instanceof TitleView) {
-                setTitleView((TitleView) titleGroup);
-            } else {
-                setTitleView(null);
-            }
-        }
 
         mSceneAfterEntranceTransition = TransitionHelper.createScene(
                 (ViewGroup) view, new Runnable() {
@@ -215,13 +202,18 @@ public class DetailsSupportFragment extends BaseSupportFragment {
     }
 
     /**
-     * Called by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)} to inflate
-     * TitleView.  Default implementation uses layout file lb_browse_title.
-     * Subclass may override and use its own layout or return null if no title is needed.
+     * @deprecated override {@link #onInflateTitleView(LayoutInflater,ViewGroup,Bundle)} instead.
      */
+    @Deprecated
     protected View inflateTitle(LayoutInflater inflater, ViewGroup parent,
             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.lb_browse_title, parent, false);
+        return super.onInflateTitleView(inflater, parent, savedInstanceState);
+    }
+
+    @Override
+    public View onInflateTitleView(LayoutInflater inflater, ViewGroup parent,
+                                   Bundle savedInstanceState) {
+        return inflateTitle(inflater, parent, savedInstanceState);
     }
 
     void setVerticalGridViewLayout(VerticalGridView listview) {
