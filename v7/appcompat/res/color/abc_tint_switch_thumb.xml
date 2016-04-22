@@ -16,8 +16,7 @@
 -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:state_enabled="false" android:color="?attr/colorSwitchThumbNormal"
-          android:alpha="?android:attr/disabledAlpha" app:alpha="?android:attr/disabledAlpha"/>
+    <item android:state_enabled="false" android:color="?attr/colorSwitchThumbNormal" app:alpha="?android:attr/disabledAlpha"/>
     <item android:state_checked="true" android:color="?attr/colorControlActivated"/>
     <item android:color="?attr/colorSwitchThumbNormal"/>
 </selector>
