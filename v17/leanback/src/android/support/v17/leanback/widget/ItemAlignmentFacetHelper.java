@@ -16,10 +16,12 @@ package android.support.v17.leanback.widget;
 import static android.support.v17.leanback.widget.ItemAlignmentFacet.ITEM_ALIGN_OFFSET_PERCENT_DISABLED;
 import static android.support.v7.widget.RecyclerView.HORIZONTAL;
 
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.support.v17.leanback.widget.GridLayoutManager.LayoutParams;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 /**
  * Helper class to handle ItemAlignmentFacet in a grid view.
@@ -79,6 +81,11 @@ class ItemAlignmentFacetHelper {
                 sRect.top = alignPos;
                 ((ViewGroup) itemView).offsetDescendantRectToMyCoords(view, sRect);
                 alignPos = sRect.top - p.getOpticalTopInset();
+            }
+            if (view instanceof TextView && facet.isAlignedToTextViewBaseLine()) {
+                Paint textPaint = ((TextView)view).getPaint();
+                int titleViewTextHeight = -textPaint.getFontMetricsInt().top;
+                alignPos += titleViewTextHeight;
             }
         }
         return alignPos;
