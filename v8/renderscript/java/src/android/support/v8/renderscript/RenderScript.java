@@ -1045,6 +1045,7 @@ public class RenderScript {
     }
 
     long     mContext;
+    private boolean mDestroyed = false;
     //Dummy device & context for Inc Support Lib
     long     mIncCon;
     //indicator of whether inc support lib has been loaded or not.
@@ -1657,6 +1658,54 @@ public class RenderScript {
         nContextFinish();
     }
 
+    private void helpDestroy() {
+        boolean shouldDestroy = false;
+        synchronized(this) {
+            if (!mDestroyed) {
+                shouldDestroy = true;
+                mDestroyed = true;
+            }
+        }
+
+        if (shouldDestroy) {
+            nContextFinish();
+            if (mIncCon != 0) {
+                nIncContextFinish();
+                nIncContextDestroy();
+                mIncCon = 0;
+            }
+            nContextDeinitToClient(mContext);
+            mMessageThread.mRun = false;
+            // Interrupt mMessageThread so it gets to see immediately that mRun is false
+            // and exit rightaway.
+            mMessageThread.interrupt();
+
+            // Wait for mMessageThread to join.  Try in a loop, in case this thread gets interrupted
+            // during the wait.  If interrupted, set the "interrupted" status of the current thread.
+            boolean hasJoined = false, interrupted = false;
+            while (!hasJoined) {
+                try {
+                    mMessageThread.join();
+                    hasJoined = true;
+                } catch (InterruptedException e) {
+                    interrupted = true;
+                }
+            }
+            if (interrupted) {
+                Log.v(LOG_TAG, "Interrupted during wait for MessageThread to join");
+                Thread.currentThread().interrupt();
+            }
+
+            nContextDestroy();
+        }
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        helpDestroy();
+        super.finalize();
+    }
+
     /**
      * Destroys this RenderScript context.  Once this function is called,
      * using this context or any objects belonging to this context is
@@ -1672,32 +1721,7 @@ public class RenderScript {
             return;
         }
         validate();
-        nContextFinish();
-        if (mIncCon != 0) {
-            nIncContextFinish();
-            nIncContextDestroy();
-            mIncCon = 0;
-        }
-        nContextDeinitToClient(mContext);
-        mMessageThread.mRun = false;
-
-        // Wait for mMessageThread to join.  Try in a loop, in case this thread gets interrupted
-        // during the wait.  If interrupted, set the "interrupted" status of the current thread.
-        boolean hasJoined = false, interrupted = false;
-        while (!hasJoined) {
-            try {
-                mMessageThread.join();
-                hasJoined = true;
-            } catch (InterruptedException e) {
-                interrupted = true;
-            }
-        }
-        if (interrupted) {
-            Log.v(LOG_TAG, "Interrupted during wait for MessageThread to join");
-            Thread.currentThread().interrupt();
-        }
-
-        nContextDestroy();
+        helpDestroy();
     }
 
     boolean isAlive() {
