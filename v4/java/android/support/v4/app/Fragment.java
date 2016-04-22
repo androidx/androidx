@@ -1157,7 +1157,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     /**
      * Called when a fragment is being created as part of a view layout
      * inflation, typically from setting the content view of an activity.
-     * <p>Deprecated. See {@link #onInflate(Context, AttributeSet, Bundle)}.
+     *
+     * @deprecated See {@link #onInflate(Context, AttributeSet, Bundle)}.
      */
     @Deprecated
     public void onInflate(Activity activity, AttributeSet attrs, Bundle savedInstanceState) {
@@ -1180,7 +1181,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     /**
      * Called when a fragment is first attached to its activity.
      * {@link #onCreate(Bundle)} will be called after this.
-     * <p>Deprecated. See {@link #onAttach(Context)}.
+     *
+     * @deprecated See {@link #onAttach(Context)}.
      */
     @Deprecated
     public void onAttach(Activity activity) {

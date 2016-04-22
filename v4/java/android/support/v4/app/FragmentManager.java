@@ -148,7 +148,10 @@ public abstract class FragmentManager {
      */
     public abstract FragmentTransaction beginTransaction();
 
-    /** @hide -- remove once prebuilts are in. */
+    /**
+     * @hide -- remove once prebuilts are in.
+     * @deprecated
+     */
     @Deprecated
     public FragmentTransaction openTransaction() {
         return beginTransaction();

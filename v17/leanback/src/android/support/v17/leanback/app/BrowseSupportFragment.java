@@ -779,6 +779,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
      *
      * @param enable true to enable row scaling
      */
+    @Deprecated
     public void enableRowScaling(boolean enable) {
         enableMainFragmentScaling(enable);
     }

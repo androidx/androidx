@@ -375,6 +375,7 @@ public abstract class PlaybackControlSupportGlue implements OnActionClickedListe
      * @deprecated Don't call this.  Instead set the listener on the fragment yourself,
      * and call {@link #onActionClicked} to handle clicks.
      */
+    @Deprecated
     public void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
         mExternalOnItemViewClickedListener = listener;
         if (mFragment != null) {
