@@ -19,23 +19,21 @@ import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v17.leanback.app.Adaptable;
 import android.support.v17.leanback.app.GuidedStepSupportFragment;
 import android.support.v17.leanback.app.RowsSupportFragment;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
+import android.support.v17.leanback.widget.DividerRow;
 import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ImageCardView;
-import android.support.v17.leanback.widget.DividerRow;
-import android.support.v17.leanback.widget.SectionRow;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.PageRow;
 import android.support.v17.leanback.widget.Presenter;
-import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
+import android.support.v17.leanback.widget.SectionRow;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -49,6 +47,7 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
     private static final int NUM_ROWS = 8;
     private static final long HEADER_ID1 = 1001;
     private static final long HEADER_ID2 = 1002;
+    private static final long HEADER_ID3 = 1003;
 
     private ArrayObjectAdapter mRowsAdapter;
     private BackgroundHelper mBackgroundHelper = new BackgroundHelper();
@@ -134,6 +133,8 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
 
         mRowsAdapter.add(new DividerRow());
         mRowsAdapter.add(new PageRow(new HeaderItem(HEADER_ID2, "Page Row 1")));
+
+        mRowsAdapter.add(new PageRow(new HeaderItem(HEADER_ID3, "Page Row 2")));
     }
 
     private ArrayObjectAdapter createListRowAdapter(int i) {
@@ -164,6 +165,14 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
                 "Android TV",
                 "open RowsSupportActivity",
                 R.drawable.gallery_photo_7));
+        listRowAdapter.add(new PhotoItem(
+                "Leanback",
+                "open BrowseSupportActivity",
+                R.drawable.gallery_photo_8));
+        listRowAdapter.add(new PhotoItem(
+                "Leanback",
+                "open BrowseSupportActivity",
+                R.drawable.gallery_photo_8));
         listRowAdapter.add(new PhotoItem(
                 "Leanback",
                 "open BrowseSupportActivity",
@@ -216,6 +225,8 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
                 return new SampleFragment();
             } else if (row.getHeaderItem().getId() == HEADER_ID2) {
                 return new SampleRowsSupportFragment();
+            } else if (row.getHeaderItem().getId() == HEADER_ID3) {
+                return new SampleFragment();
             }
 
             return null;
@@ -249,13 +260,35 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
 
             setOnItemViewClickedListener(new OnItemViewClickedListener() {
                 @Override
-                public void onItemClicked(
-                        Presenter.ViewHolder itemViewHolder,
-                        Object item,
-                        RowPresenter.ViewHolder rowViewHolder, Row row) {
-                    Intent intent = new Intent(
-                            itemViewHolder.view.getContext(), GuidedStepSupportActivity.class);
-                    startActivity(intent);
+                public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item, RowPresenter.ViewHolder rowViewHolder, Row row) {
+                    Intent intent;
+                    Bundle bundle;
+                    if (((PhotoItem) item).getImageResourceId() == R.drawable.gallery_photo_6) {
+                        GuidedStepSupportFragment.add(getFragmentManager(),
+                                new GuidedStepSupportHalfScreenActivity.FirstStepFragment(),
+                                R.id.lb_guidedstep_host);
+                        return;
+                    } else if (((PhotoItem) item).getImageResourceId() == R.drawable.gallery_photo_5) {
+                        GuidedStepSupportFragment.add(getFragmentManager(),
+                                new GuidedStepSupportActivity.FirstStepFragment(), R.id.lb_guidedstep_host);
+                        return;
+                    } else if (((PhotoItem) item).getImageResourceId() == R.drawable.gallery_photo_8) {
+                        intent = new Intent(getActivity(), BrowseSupportActivity.class);
+                        bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity())
+                                .toBundle();
+                    } else if (((PhotoItem) item).getImageResourceId() == R.drawable.gallery_photo_7) {
+                        intent = new Intent(getActivity(), RowsSupportActivity.class);
+                        bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity())
+                                .toBundle();
+                    } else {
+                        intent = new Intent(getActivity(), DetailsSupportActivity.class);
+                        intent.putExtra(DetailsSupportActivity.EXTRA_ITEM, (PhotoItem) item);
+                        bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                                getActivity(),
+                                ((ImageCardView) itemViewHolder.view).getMainImageView(),
+                                DetailsSupportActivity.SHARED_ELEMENT_NAME).toBundle();
+                    }
+                    getActivity().startActivity(intent, bundle);
                 }
             });
         }
@@ -296,7 +329,7 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
         }
     }
 
-    public static class SampleFragment extends Fragment implements Adaptable {
+    public static class SampleFragment extends Fragment implements MainFragmentAdapterProvider {
 
         final PageFragmentAdapterImpl mMainFragmentAdapter = new PageFragmentAdapterImpl(this);
 
@@ -341,13 +374,8 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
         }
 
         @Override
-        public PageFragmentAdapterImpl getAdapter(Class clazz) {
-            if (clazz == MainFragmentAdapter.class) {
-                return mMainFragmentAdapter;
-            }
-            return null;
+        public MainFragmentAdapter getMainFragmentAdapter() {
+            return mMainFragmentAdapter;
         }
     }
-
 }
-
