@@ -60,15 +60,15 @@ public class AppCompatButtonTest
         assertEquals("Button starts in all caps off", text2,
                 button2.getLayout().getText());
 
-        // Toggle all-caps mode on the two buttons. Note that as with the core Button,
-        // setting a style with textAllCaps=false on a AppCompatButton with all-caps on
-        // will have no effect.
-        onView(withId(R.id.button_caps1)).perform(setTextAppearance(R.style.TextStyleAllCapsOff));
-        onView(withId(R.id.button_caps2)).perform(setTextAppearance(R.style.TextStyleAllCapsOn));
-
-        assertEquals("Button is still in all caps on", text1.toUpperCase(),
+        // Toggle all-caps mode on the two buttons
+        onView(withId(R.id.button_caps1)).perform(
+                setTextAppearance(R.style.TextStyleAllCapsOff));
+        assertEquals("Button is now in all caps off", text1,
                 button1.getLayout().getText());
-        assertEquals("Button is in all caps on", text2.toUpperCase(),
+
+        onView(withId(R.id.button_caps2)).perform(
+                setTextAppearance(R.style.TextStyleAllCapsOn));
+        assertEquals("Button is now in all caps on", text2.toUpperCase(),
                 button2.getLayout().getText());
     }
 
