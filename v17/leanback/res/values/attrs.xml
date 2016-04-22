@@ -223,14 +223,17 @@
         <!-- fading edge length of start of browse row when HeadersFragment is visible -->
         <attr name="browseRowsFadingEdgeLength" format="dimension" />
 
-        <!-- BrowseFragment Title text style -->
+        <!-- fragment title text style -->
         <attr name="browseTitleTextStyle" format="reference" />
 
-        <!-- BrowseFragment Title icon style -->
+        <!-- fragment title icon style -->
         <attr name="browseTitleIconStyle" format="reference" />
 
-        <!-- BrowseFragment TitleView style -->
+        <!-- fragment title view style -->
         <attr name="browseTitleViewStyle" format="reference" />
+
+        <!-- customize title view layout file, it must have title view with id browse_title_group -->
+        <attr name="browseTitleViewLayout" format="reference" />
 
         <!-- vertical grid style inside HeadersFragment -->
         <attr name="headersVerticalGridStyle" format="reference" />
