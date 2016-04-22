@@ -146,6 +146,7 @@ public final class TaskStackBuilder implements Iterable<Intent> {
      *
      * @deprecated use {@link #create(Context)} instead
      */
+    @Deprecated
     public static TaskStackBuilder from(Context context) {
         return create(context);
     }
@@ -266,6 +267,7 @@ public final class TaskStackBuilder implements Iterable<Intent> {
      *
      * @deprecated Renamed to editIntentAt to better reflect intended usage
      */
+    @Deprecated
     public Intent getIntent(int index) {
         return editIntentAt(index);
     }
@@ -285,6 +287,7 @@ public final class TaskStackBuilder implements Iterable<Intent> {
     /**
      * @deprecated Use editIntentAt instead
      */
+    @Deprecated
     public Iterator<Intent> iterator() {
         return mIntents.iterator();
     }

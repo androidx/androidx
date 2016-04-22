@@ -133,6 +133,7 @@ public final class MediaRouteDescriptor {
      * Gets whether the route is connecting.
      * @deprecated Use {@link #getConnectionState} instead
      */
+    @Deprecated
     public boolean isConnecting() {
         return mBundle.getBoolean(KEY_CONNECTING, false);
     }
@@ -481,6 +482,7 @@ public final class MediaRouteDescriptor {
          * ready for use.
          * @deprecated Use {@link #setConnectionState} instead.
          */
+        @Deprecated
         public Builder setConnecting(boolean connecting) {
             mBundle.putBoolean(KEY_CONNECTING, connecting);
             return this;

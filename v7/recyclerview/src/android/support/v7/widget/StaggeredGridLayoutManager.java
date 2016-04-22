@@ -67,6 +67,9 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
      */
     public static final int GAP_HANDLING_NONE = 0;
 
+    /**
+     * @deprecated No longer supported.
+     */
     @SuppressWarnings("unused")
     @Deprecated
     public static final int GAP_HANDLING_LAZY = 1;

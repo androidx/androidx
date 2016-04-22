@@ -229,7 +229,10 @@ public class PreferenceManager {
         }
     }
 
-    /** @removed */
+    /**
+     * @removed
+     * @deprecated
+     */
     @Deprecated
     public void setStorageDeviceEncrypted() {
         setStorageDeviceProtected();

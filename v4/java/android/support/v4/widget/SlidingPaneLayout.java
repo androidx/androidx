@@ -1123,6 +1123,9 @@ public class SlidingPaneLayout extends ViewGroup {
      * during opening/closing.
      *
      * @param resId Resource ID of a drawable to use
+     * @deprecated Renamed to {@link #setShadowResourceLeft(int)} to support LTR (left to
+     * right language) and {@link #setShadowResourceRight(int)} to support RTL (right to left
+     * language) during opening/closing.
      */
     @Deprecated
     public void setShadowResource(@DrawableRes int resId) {
