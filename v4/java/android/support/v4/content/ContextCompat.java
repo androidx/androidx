@@ -536,7 +536,10 @@ public class ContextCompat {
         }
     }
 
-    /** @removed */
+    /**
+     * @removed
+     * @deprecated Removed. Do not use.
+     */
     @Deprecated
     public static Context createDeviceEncryptedStorageContext(Context context) {
         return createDeviceProtectedStorageContext(context);
@@ -556,7 +559,10 @@ public class ContextCompat {
         }
     }
 
-    /** @removed */
+    /**
+     * @removed
+     * @deprecated Removed. Do not use.
+     */
     @Deprecated
     public static boolean isDeviceEncryptedStorage(Context context) {
         return isDeviceProtectedStorage(context);

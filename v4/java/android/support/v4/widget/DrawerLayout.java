@@ -208,7 +208,7 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
     private boolean mDisallowInterceptRequested;
     private boolean mChildrenCanceledTouch;
 
-    private @Deprecated @Nullable DrawerListener mListener;
+    private @Nullable DrawerListener mListener;
     private List<DrawerListener> mListeners;
 
     private float mInitialMotionX;
@@ -515,6 +515,7 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
      * {@link #removeDrawerListener(DrawerListener)} to remove a registered listener.
      *
      * @param listener Listener to notify when drawer events occur
+     * @deprecated Use {@link #addDrawerListener(DrawerListener)}
      * @see DrawerListener
      * @see #addDrawerListener(DrawerListener)
      * @see #removeDrawerListener(DrawerListener)

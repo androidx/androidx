@@ -191,6 +191,7 @@ public final class EdgeEffectCompat {
      * @return true if the host view should call invalidate, false if it should not.
      * @deprecated use {@link #onPull(float, float)}
      */
+    @Deprecated
     public boolean onPull(float deltaDistance) {
         return IMPL.onPull(mEdgeEffect, deltaDistance);
     }
