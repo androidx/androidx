@@ -53,11 +53,6 @@ import java.io.PrintWriter;
  * and {@link #getSupportLoaderManager()} methods respectively to access
  * those features.
  *
- * <p class="note"><strong>Note:</strong> If you want to implement an activity that includes
- * an <a href="{@docRoot}guide/topics/ui/actionbar.html">action bar</a>, you should instead use
- * the {@link android.support.v7.app.ActionBarActivity} class, which is a subclass of this one,
- * so allows you to use {@link android.support.v4.app.Fragment} APIs on API level 7 and higher.</p>
- *
  * <p>Known limitations:</p>
  * <ul>
  * <li> <p>When using the <code>&lt;fragment></code> tag, this implementation can not
