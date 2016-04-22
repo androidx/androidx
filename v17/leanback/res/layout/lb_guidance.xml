@@ -17,7 +17,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent">
 
     <RelativeLayout
         android:id="@+id/guidance_container"
@@ -26,19 +26,19 @@
         <ImageView
             android:id="@+id/guidance_icon"
             style="?attr/guidanceIconStyle"
-            tools:ignore="ContentDescription" />
-
-        <TextView
-            android:id="@+id/guidance_title"
-            style="?attr/guidanceTitleStyle" />
+            tools:ignore="ContentDescription"/>
 
         <TextView
             android:id="@+id/guidance_breadcrumb"
-            style="?attr/guidanceBreadcrumbStyle" />
+            style="?attr/guidanceBreadcrumbStyle"/>
+
+        <TextView
+            android:id="@+id/guidance_title"
+            style="?attr/guidanceTitleStyle"/>
 
         <TextView
             android:id="@+id/guidance_description"
-            style="?attr/guidanceDescriptionStyle" />
+            style="?attr/guidanceDescriptionStyle"/>
 
     </RelativeLayout>
 

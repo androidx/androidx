@@ -17,15 +17,21 @@ import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v17.leanback.R;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.List;
@@ -66,6 +72,43 @@ import java.util.List;
  * @see GuidanceStylist.Guidance
  */
 public class GuidanceStylist implements FragmentAnimationProvider {
+
+    private View mGuidanceContainer;
+    private int mTitleKeylinePixels;
+    private float mTitleKeylinePercent;
+    private ViewTreeObserver.OnPreDrawListener mParentPreDrawListener
+            = new ViewTreeObserver.OnPreDrawListener() {
+
+        @Override
+        public boolean onPreDraw() {
+            mGuidanceContainer.getViewTreeObserver().removeOnPreDrawListener(this);
+            mTitleKeylinePixels = (int) (mGuidanceContainer.getHeight() * mTitleKeylinePercent/100);
+
+            if (mTitleView != null) {
+                Paint textPaint = mTitleView.getPaint();
+                int titleViewTextHeight = -textPaint.getFontMetricsInt().top;
+                int mBreadcrumbViewHeight = mBreadcrumbView.getHeight();
+                int guidanceTextContainerTop = mTitleKeylinePixels
+                        - titleViewTextHeight - mBreadcrumbViewHeight - mTitleView.getPaddingTop();
+                ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)
+                        mBreadcrumbView.getLayoutParams();
+                lp.topMargin = guidanceTextContainerTop;
+                mBreadcrumbView.setLayoutParams(lp);
+            }
+
+            if (mIconView != null) {
+                Drawable drawable = mIconView.getDrawable();
+                if (drawable != null) {
+                    ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)
+                            mIconView.getLayoutParams();
+                    lp.topMargin = (mTitleKeylinePixels - mIconView.getHeight() / 2);
+                    mIconView.setLayoutParams(lp);
+                }
+            }
+
+            return true;
+        }
+    };
 
     /**
      * A data class representing contextual information for a {@link
@@ -149,38 +192,57 @@ public class GuidanceStylist implements FragmentAnimationProvider {
      * @param guidance The guidance data for the view.
      * @return The view to be added to the caller's view hierarchy.
      */
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Guidance guidance) {
+    public View onCreateView(final LayoutInflater inflater, ViewGroup container, Guidance guidance) {
+
+        TypedArray ta = inflater.getContext().getTheme().obtainStyledAttributes(
+                R.styleable.LeanbackGuidedStepTheme);
+
+        mTitleKeylinePercent = ta.getFloat(R.styleable.LeanbackGuidedStepTheme_guidedStepKeyline,
+                40);
+        ta.recycle();
+
         View guidanceView = inflater.inflate(onProvideLayoutId(), container, false);
         mTitleView = (TextView) guidanceView.findViewById(R.id.guidance_title);
         mBreadcrumbView = (TextView) guidanceView.findViewById(R.id.guidance_breadcrumb);
         mDescriptionView = (TextView) guidanceView.findViewById(R.id.guidance_description);
         mIconView = (ImageView) guidanceView.findViewById(R.id.guidance_icon);
-        View guidanceContainer = guidanceView.findViewById(R.id.guidance_container);
+        mGuidanceContainer = guidanceView.findViewById(R.id.guidance_container);
 
         // We allow any of the cached subviews to be null, so that subclasses can choose not to
         // display a particular piece of information.
         if (mTitleView != null) {
             mTitleView.setText(guidance.getTitle());
         }
+
         if (mBreadcrumbView != null) {
             mBreadcrumbView.setText(guidance.getBreadcrumb());
         }
+
         if (mDescriptionView != null) {
             mDescriptionView.setText(guidance.getDescription());
         }
+
         if (mIconView != null) {
-            mIconView.setImageDrawable(guidance.getIconDrawable());
+            if (guidance.getIconDrawable() != null) {
+                mIconView.setImageDrawable(guidance.getIconDrawable());
+            } else {
+                mIconView.setVisibility(View.GONE);
+            }
         }
-        if (guidanceContainer != null) {
-            CharSequence contentDescription = guidanceContainer.getContentDescription();
+
+        if (mGuidanceContainer != null) {
+            CharSequence contentDescription = mGuidanceContainer.getContentDescription();
             if (TextUtils.isEmpty(contentDescription)) {
-                guidanceContainer.setContentDescription(new StringBuilder()
+                mGuidanceContainer.setContentDescription(new StringBuilder()
                         .append(guidance.getBreadcrumb()).append('\n')
                         .append(guidance.getTitle()).append('\n')
                         .append(guidance.getDescription())
                         .toString());
             }
+
+            container.getViewTreeObserver().addOnPreDrawListener(mParentPreDrawListener);
         }
+
         return guidanceView;
     }
 
@@ -192,6 +254,7 @@ public class GuidanceStylist implements FragmentAnimationProvider {
         mDescriptionView = null;
         mIconView = null;
         mTitleView = null;
+        mGuidanceContainer.getViewTreeObserver().removeOnPreDrawListener(mParentPreDrawListener);
     }
 
     /**
@@ -270,5 +333,4 @@ public class GuidanceStylist implements FragmentAnimationProvider {
             animators.add(animator);
         }
     }
-
 }
