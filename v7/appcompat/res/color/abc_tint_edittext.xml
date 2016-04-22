@@ -17,7 +17,7 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:state_enabled="false" android:color="?attr/colorControlNormal"
-          android:alpha="?android:attr/disabledAlpha" app:alpha="?android:attr/disabledAlpha"/>
+          app:alpha="?android:disabledAlpha"/>
     <item android:state_pressed="false" android:state_focused="false"
           android:color="?attr/colorControlNormal"/>
     <item android:color="?attr/colorControlActivated"/>
