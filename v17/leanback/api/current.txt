@@ -1,9 +1,5 @@
 package android.support.v17.leanback.app {
 
-  public abstract interface Adaptable {
-    method public abstract java.lang.Object getAdapter(java.lang.Class);
-  }
-
   public final class BackgroundManager {
     method public void attach(android.view.Window);
     method public final int getColor();
@@ -165,6 +161,10 @@ package android.support.v17.leanback.app {
     method public void setScalingEnabled(boolean);
   }
 
+  public static abstract interface BrowseFragment.MainFragmentAdapterProvider {
+    method public abstract android.support.v17.leanback.app.BrowseFragment.MainFragmentAdapter getMainFragmentAdapter();
+  }
+
   public static final class BrowseFragment.MainFragmentAdapterRegistry {
     ctor public BrowseFragment.MainFragmentAdapterRegistry();
     method public android.app.Fragment createFragment(java.lang.Object);
@@ -180,6 +180,10 @@ package android.support.v17.leanback.app {
     method public void setOnItemViewSelectedListener(android.support.v17.leanback.widget.OnItemViewSelectedListener);
     method public void setSelectedPosition(int, boolean, android.support.v17.leanback.widget.Presenter.ViewHolderTask);
     method public void setSelectedPosition(int, boolean);
+  }
+
+  public static abstract interface BrowseFragment.MainFragmentRowsAdapterProvider {
+    method public abstract android.support.v17.leanback.app.BrowseFragment.MainFragmentRowsAdapter getMainFragmentRowsAdapter();
   }
 
   public class BrowseSupportFragment extends android.support.v17.leanback.app.BrandedSupportFragment {
@@ -257,6 +261,10 @@ package android.support.v17.leanback.app {
     method public void setScalingEnabled(boolean);
   }
 
+  public static abstract interface BrowseSupportFragment.MainFragmentAdapterProvider {
+    method public abstract android.support.v17.leanback.app.BrowseSupportFragment.MainFragmentAdapter getMainFragmentAdapter();
+  }
+
   public static final class BrowseSupportFragment.MainFragmentAdapterRegistry {
     ctor public BrowseSupportFragment.MainFragmentAdapterRegistry();
     method public android.support.v4.app.Fragment createFragment(java.lang.Object);
@@ -272,6 +280,10 @@ package android.support.v17.leanback.app {
     method public void setOnItemViewSelectedListener(android.support.v17.leanback.widget.OnItemViewSelectedListener);
     method public void setSelectedPosition(int, boolean, android.support.v17.leanback.widget.Presenter.ViewHolderTask);
     method public void setSelectedPosition(int, boolean);
+  }
+
+  public static abstract interface BrowseSupportFragment.MainFragmentRowsAdapterProvider {
+    method public abstract android.support.v17.leanback.app.BrowseSupportFragment.MainFragmentRowsAdapter getMainFragmentRowsAdapter();
   }
 
   public class DetailsFragment extends android.support.v17.leanback.app.BrandedFragment {
@@ -727,11 +739,12 @@ package android.support.v17.leanback.app {
     method public void show();
   }
 
-  public class RowsFragment extends android.support.v17.leanback.app.BaseRowFragment implements android.support.v17.leanback.app.Adaptable {
+  public class RowsFragment extends android.support.v17.leanback.app.BaseRowFragment implements android.support.v17.leanback.app.BrowseFragment.MainFragmentAdapterProvider android.support.v17.leanback.app.BrowseFragment.MainFragmentRowsAdapterProvider {
     ctor public RowsFragment();
     method public deprecated void enableRowScaling(boolean);
     method protected android.support.v17.leanback.widget.VerticalGridView findGridViewFromRoot(android.view.View);
-    method public java.lang.Object getAdapter(java.lang.Class);
+    method public android.support.v17.leanback.app.BrowseFragment.MainFragmentAdapter getMainFragmentAdapter();
+    method public android.support.v17.leanback.app.BrowseFragment.MainFragmentRowsAdapter getMainFragmentRowsAdapter();
     method public android.support.v17.leanback.widget.BaseOnItemViewClickedListener getOnItemViewClickedListener();
     method public android.support.v17.leanback.widget.BaseOnItemViewSelectedListener getOnItemViewSelectedListener();
     method public android.support.v17.leanback.widget.RowPresenter.ViewHolder getRowViewHolder(int);
@@ -751,11 +764,12 @@ package android.support.v17.leanback.app {
     ctor public RowsFragment.MainFragmentRowsAdapter(android.support.v17.leanback.app.RowsFragment);
   }
 
-  public class RowsSupportFragment extends android.support.v17.leanback.app.BaseRowSupportFragment implements android.support.v17.leanback.app.Adaptable {
+  public class RowsSupportFragment extends android.support.v17.leanback.app.BaseRowSupportFragment implements android.support.v17.leanback.app.BrowseSupportFragment.MainFragmentAdapterProvider android.support.v17.leanback.app.BrowseSupportFragment.MainFragmentRowsAdapterProvider {
     ctor public RowsSupportFragment();
     method public deprecated void enableRowScaling(boolean);
     method protected android.support.v17.leanback.widget.VerticalGridView findGridViewFromRoot(android.view.View);
-    method public java.lang.Object getAdapter(java.lang.Class);
+    method public android.support.v17.leanback.app.BrowseSupportFragment.MainFragmentAdapter getMainFragmentAdapter();
+    method public android.support.v17.leanback.app.BrowseSupportFragment.MainFragmentRowsAdapter getMainFragmentRowsAdapter();
     method public android.support.v17.leanback.widget.BaseOnItemViewClickedListener getOnItemViewClickedListener();
     method public android.support.v17.leanback.widget.BaseOnItemViewSelectedListener getOnItemViewSelectedListener();
     method public android.support.v17.leanback.widget.RowPresenter.ViewHolder getRowViewHolder(int);
