@@ -33,6 +33,7 @@ public class UserManagerCompat {
      * available.
      *
      * @removed
+     * @deprecated Removed. Do not use.
      */
     @Deprecated
     public static boolean isUserRunningAndLocked(Context context) {
@@ -46,6 +47,7 @@ public class UserManagerCompat {
      * available.
      *
      * @removed
+     * @deprecated Removed. Do not use.
      */
     @Deprecated
     public static boolean isUserRunningAndUnlocked(Context context) {

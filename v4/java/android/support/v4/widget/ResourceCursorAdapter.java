@@ -63,6 +63,11 @@ public abstract class ResourceCursorAdapter extends CursorAdapter {
      * When using this constructor, {@link #FLAG_REGISTER_CONTENT_OBSERVER}
      * will always be set.
      *
+     * @deprecated This option is discouraged, as it results in Cursor queries
+     * being performed on the application's UI thread and thus can cause poor
+     * responsiveness or even Application Not Responding errors.  As an alternative,
+     * use {@link android.app.LoaderManager} with a {@link android.content.CursorLoader}.
+     *
      * @param context The context where the ListView associated with this adapter is running
      * @param layout resource identifier of a layout file that defines the views
      *            for this list item.  Unless you override them later, this will
@@ -72,6 +77,7 @@ public abstract class ResourceCursorAdapter extends CursorAdapter {
      *                    cursor whenever it changes so the most recent
      *                    data is always displayed.  Using true here is discouraged.
      */
+    @Deprecated
     public ResourceCursorAdapter(Context context, int layout, Cursor c, boolean autoRequery) {
         super(context, c, autoRequery);
         mLayout = mDropDownLayout = layout;

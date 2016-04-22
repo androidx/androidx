@@ -145,7 +145,7 @@ public class SortedList<T> {
      * </p>
      * @param items Array of items to be added into the list.
      * @param mayModifyInput If true, SortedList is allowed to modify the input.
-     * @see {@link SortedList#addAll(T[] items)}.
+     * @see {@link SortedList#addAll(Object[] items)}.
      */
     public void addAll(T[] items, boolean mayModifyInput) {
         throwIfMerging();
