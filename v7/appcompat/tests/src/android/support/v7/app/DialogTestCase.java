@@ -46,7 +46,7 @@ public class DialogTestCase extends BaseInstrumentationTestCase<WindowDecorActio
     public static class TestDialogFragment extends AppCompatDialogFragment {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            return new AlertDialog.Builder(getActivity())
+            return new AlertDialog.Builder(getContext())
                     .setTitle("Test")
                     .setMessage("Message")
                     .setPositiveButton("Button", null)
