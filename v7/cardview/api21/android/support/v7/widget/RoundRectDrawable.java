@@ -160,6 +160,10 @@ class RoundRectDrawable extends Drawable {
         invalidateSelf();
     }
 
+    public ColorStateList getColor() {
+        return mBackground;
+    }
+
     @Override
     public void setTintList(ColorStateList tint) {
         mTint = tint;
