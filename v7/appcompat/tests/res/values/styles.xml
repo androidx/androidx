@@ -43,11 +43,11 @@
     </style>
 
     <style name="MagentaSpinnerPopupTheme">
-        <item name="android:background">@color/test_magenta</item>
+        <item name="android:colorBackground">@color/test_magenta</item>
     </style>
 
     <style name="OceanSpinnerPopupTheme">
-        <item name="android:background">@color/ocean_default</item>
+        <item name="android:colorBackground">@color/ocean_default</item>
     </style>
 
     <style name="PopupEmptyStyle" />
