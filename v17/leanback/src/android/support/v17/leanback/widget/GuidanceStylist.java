@@ -240,7 +240,7 @@ public class GuidanceStylist implements FragmentAnimationProvider {
                         .toString());
             }
 
-            container.getViewTreeObserver().addOnPreDrawListener(mParentPreDrawListener);
+            mGuidanceContainer.getViewTreeObserver().addOnPreDrawListener(mParentPreDrawListener);
         }
 
         return guidanceView;
@@ -254,7 +254,10 @@ public class GuidanceStylist implements FragmentAnimationProvider {
         mDescriptionView = null;
         mIconView = null;
         mTitleView = null;
-        mGuidanceContainer.getViewTreeObserver().removeOnPreDrawListener(mParentPreDrawListener);
+        if (mGuidanceContainer != null) {
+            mGuidanceContainer.getViewTreeObserver().removeOnPreDrawListener(
+                    mParentPreDrawListener);
+        }
     }
 
     /**
