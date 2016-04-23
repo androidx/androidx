@@ -49,25 +49,27 @@ import java.util.ArrayList;
  * of {@link RowPresenter}.
  * </p>
  */
-public class RowsFragment extends BaseRowFragment implements Adaptable {
+public class RowsFragment extends BaseRowFragment implements
+        BrowseFragment.MainFragmentRowsAdapterProvider,
+        BrowseFragment.MainFragmentAdapterProvider {
 
     private MainFragmentAdapter mMainFragmentAdapter;
     private MainFragmentRowsAdapter mMainFragmentRowsAdapter;
 
     @Override
-    public Object getAdapter(Class clazz) {
-        if (clazz == BrowseFragment.MainFragmentAdapter.class) {
-            if (mMainFragmentAdapter == null) {
-                mMainFragmentAdapter = new MainFragmentAdapter(this);
-            }
-            return mMainFragmentAdapter;
-        } else if (clazz == BrowseFragment.MainFragmentRowsAdapter.class) {
-            if (mMainFragmentRowsAdapter == null) {
-                mMainFragmentRowsAdapter = new MainFragmentRowsAdapter(this);
-            }
-            return mMainFragmentRowsAdapter;
+    public BrowseFragment.MainFragmentAdapter getMainFragmentAdapter() {
+        if (mMainFragmentAdapter == null) {
+            mMainFragmentAdapter = new MainFragmentAdapter(this);
         }
-        return null;
+        return mMainFragmentAdapter;
+    }
+
+    @Override
+    public BrowseFragment.MainFragmentRowsAdapter getMainFragmentRowsAdapter() {
+        if (mMainFragmentRowsAdapter == null) {
+            mMainFragmentRowsAdapter = new MainFragmentRowsAdapter(this);
+        }
+        return mMainFragmentRowsAdapter;
     }
 
     /**
