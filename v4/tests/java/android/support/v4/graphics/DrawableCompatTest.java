@@ -16,16 +16,34 @@
 
 package android.support.v4.graphics;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
-import static org.mockito.Mockito.*;
-
 public class DrawableCompatTest extends AndroidTestCase {
+
+    @SmallTest
+    public void testDrawableWrap() {
+        final Drawable original = new GradientDrawable();
+        final Drawable wrappedDrawable = DrawableCompat.wrap(original);
+
+        if (Build.VERSION.SDK_INT < 23) {
+            assertNotSame(original, wrappedDrawable);
+        } else {
+            assertSame(original, wrappedDrawable);
+        }
+    }
 
     @SmallTest
     public void testDrawableUnwrap() {
@@ -80,6 +98,30 @@ public class DrawableCompatTest extends AndroidTestCase {
 
         // ...and verify that the wrapper calls to be invalidated
         verify(mockCallback, times(1)).invalidateDrawable(wrapper);
+    }
+
+    @SmallTest
+    public void testDoesNotWrapTintAwareDrawable() {
+        final TestTintAwareDrawable tintAwareDrawable = new TestTintAwareDrawable();
+        final Drawable wrapped = DrawableCompat.wrap(tintAwareDrawable);
+        // Assert that the tint aware drawable was not wrapped
+        assertSame(tintAwareDrawable, wrapped);
+    }
+
+    @SmallTest
+    public void testTintAwareDrawableGetsTintCallsDirectly() {
+        final TestTintAwareDrawable d = mock(TestTintAwareDrawable.class);
+
+        final ColorStateList tint = ColorStateList.valueOf(Color.BLACK);
+        final PorterDuff.Mode tintMode = PorterDuff.Mode.DST;
+
+        // Now set the tint list and mode using DrawableCompat
+        DrawableCompat.setTintList(d, tint);
+        DrawableCompat.setTintMode(d, tintMode);
+
+        // Verify that the calls were directly on to the TintAwareDrawable
+        verify(d).setTintList(tint);
+        verify(d).setTintMode(tintMode);
     }
 
 }

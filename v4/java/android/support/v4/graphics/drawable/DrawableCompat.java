@@ -452,9 +452,22 @@ public final class DrawableCompat {
     /**
      * Potentially wrap {@code drawable} so that it may be used for tinting across the
      * different API levels, via the tinting methods in this class.
-     * <p>
-     * If you need to get hold of the original {@link android.graphics.drawable.Drawable} again,
-     * you can use the value returned from {@link #unwrap(Drawable)}.
+     *
+     * <p>You must use the result of this call. If the given drawable is being used by a view
+     * (as it's background for instance), you must replace the original drawable with
+     * the result of this call:</p>
+     *
+     * <pre>
+     * Drawable bg = DrawableCompat.wrap(view.getBackground());
+     * // Need to set the background with the wrapped drawable
+     * view.setBackground(bg);
+     *
+     * // You can now tint the drawable
+     * DrawableCompat.setTint(bg, ...);
+     * </pre>
+     *
+     * <p>If you need to get hold of the original {@link android.graphics.drawable.Drawable} again,
+     * you can use the value returned from {@link #unwrap(Drawable)}.</p>
      *
      * @param drawable The Drawable to process
      * @return A drawable capable of being tinted across all API levels.
