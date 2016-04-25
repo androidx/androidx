@@ -62,7 +62,7 @@ class DrawableWrapperLollipop extends DrawableWrapperKitKat {
     @Override
     public void setTintList(ColorStateList tint) {
         if (isCompatTintEnabled()) {
-            setCompatTintList(tint);
+            super.setTintList(tint);
         } else {
             mDrawable.setTintList(tint);
         }
@@ -71,7 +71,7 @@ class DrawableWrapperLollipop extends DrawableWrapperKitKat {
     @Override
     public void setTint(int tintColor) {
         if (isCompatTintEnabled()) {
-            setCompatTint(tintColor);
+            super.setTint(tintColor);
         } else {
             mDrawable.setTint(tintColor);
         }
@@ -80,7 +80,7 @@ class DrawableWrapperLollipop extends DrawableWrapperKitKat {
     @Override
     public void setTintMode(PorterDuff.Mode tintMode) {
         if (isCompatTintEnabled()) {
-            setCompatTintMode(tintMode);
+            super.setTintMode(tintMode);
         } else {
             mDrawable.setTintMode(tintMode);
         }
