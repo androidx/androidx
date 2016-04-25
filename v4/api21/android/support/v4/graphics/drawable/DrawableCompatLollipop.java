@@ -54,7 +54,7 @@ class DrawableCompatLollipop {
     }
 
     public static Drawable wrapForTinting(final Drawable drawable) {
-        if (!(drawable instanceof DrawableWrapperLollipop)) {
+        if (!(drawable instanceof TintAwareDrawable)) {
             return new DrawableWrapperLollipop(drawable);
         }
         return drawable;

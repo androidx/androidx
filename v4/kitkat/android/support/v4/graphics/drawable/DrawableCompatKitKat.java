@@ -33,7 +33,7 @@ class DrawableCompatKitKat {
     }
 
     public static Drawable wrapForTinting(Drawable drawable) {
-        if (!(drawable instanceof DrawableWrapperKitKat)) {
+        if (!(drawable instanceof TintAwareDrawable)) {
             return new DrawableWrapperKitKat(drawable);
         }
         return drawable;
