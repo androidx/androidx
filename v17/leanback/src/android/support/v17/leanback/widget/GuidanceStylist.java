@@ -309,10 +309,6 @@ public class GuidanceStylist implements FragmentAnimationProvider {
      */
     @Override
     public void onImeAppearing(@NonNull List<Animator> animators) {
-        addAnimator(animators, mTitleView, R.attr.guidedStepImeAppearingAnimation);
-        addAnimator(animators, mBreadcrumbView, R.attr.guidedStepImeAppearingAnimation);
-        addAnimator(animators, mDescriptionView, R.attr.guidedStepImeAppearingAnimation);
-        addAnimator(animators, mIconView, R.attr.guidedStepImeAppearingAnimation);
     }
 
     /**
@@ -320,20 +316,6 @@ public class GuidanceStylist implements FragmentAnimationProvider {
      */
     @Override
     public void onImeDisappearing(@NonNull List<Animator> animators) {
-        addAnimator(animators, mTitleView, R.attr.guidedStepImeDisappearingAnimation);
-        addAnimator(animators, mBreadcrumbView, R.attr.guidedStepImeDisappearingAnimation);
-        addAnimator(animators, mDescriptionView, R.attr.guidedStepImeDisappearingAnimation);
-        addAnimator(animators, mIconView, R.attr.guidedStepImeDisappearingAnimation);
     }
 
-    private void addAnimator(List<Animator> animators, View v, int attrId) {
-        if (v != null) {
-            Context ctx = v.getContext();
-            TypedValue typedValue = new TypedValue();
-            ctx.getTheme().resolveAttribute(attrId, typedValue, true);
-            Animator animator = AnimatorInflater.loadAnimator(ctx, typedValue.resourceId);
-            animator.setTarget(v);
-            animators.add(animator);
-        }
-    }
 }
