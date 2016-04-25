@@ -16,8 +16,11 @@
 
 package android.support.v7.graphics;
 
+import static org.junit.Assert.assertEquals;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.support.test.InstrumentationRegistry;
 import android.support.v7.palette.test.R;
 
@@ -27,6 +30,12 @@ class TestUtils {
         return BitmapFactory.decodeResource(
                 InstrumentationRegistry.getContext().getResources(),
                 R.drawable.photo);
+    }
+
+    static void assertCloseColors(int expected, int actual) {
+        assertEquals(Color.red(expected), Color.red(actual), 2);
+        assertEquals(Color.green(expected), Color.green(actual), 2);
+        assertEquals(Color.blue(expected), Color.blue(actual), 2);
     }
 
 }
