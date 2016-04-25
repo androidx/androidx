@@ -56,7 +56,7 @@ class MediaBrowserProtocol {
      * - data
      *     DATA_MEDIA_ITEM_ID : A string for the root media item id
      *     DATA_MEDIA_SESSION_TOKEN : Media session token
-     *     DATA_ROOT_HINTS : An extras bundle which contains EXTRA_SERVICE_VERSION
+     *     DATA_ROOT_HINTS : An optional root hints bundle of service-specific arguments
      */
     public static final int SERVICE_MSG_ON_CONNECT = 1;
 
@@ -138,12 +138,15 @@ class MediaBrowserProtocol {
      * - data
      *     DATA_MEDIA_ITEM_ID : A string for a media item id
      *     DATA_RESULT_RECEIVER : Result receiver to get the result
+     * - replyTo : Callback messenger
      */
     public static final int CLIENT_MSG_GET_MEDIA_ITEM = 5;
 
     /** (client v1)
      * Sent to register the client messenger
      * - arg1 : The client version
+     * - data
+     *     DATA_ROOT_HINTS : An optional root hints bundle of service-specific arguments
      * - replyTo : Callback messenger
      */
     public static final int CLIENT_MSG_REGISTER_CALLBACK_MESSENGER = 6;

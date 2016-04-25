@@ -48,6 +48,10 @@ class MediaBrowserServiceCompatApi24 {
         ((MediaBrowserService) serviceObj).notifyChildrenChanged(parentId, options);
     }
 
+    public static Bundle getBrowserRootHints(Object serviceObj) {
+        return ((MediaBrowserService) serviceObj).getBrowserRootHints();
+    }
+
     public interface ServiceCompatProxy extends MediaBrowserServiceCompatApi21.ServiceCompatProxy {
         void onLoadChildren(String parentId, ResultWrapper result, Bundle options);
     }
