@@ -23,7 +23,7 @@ import android.graphics.drawable.Drawable;
  */
 class DrawableCompatEclair {
     public static Drawable wrapForTinting(Drawable drawable) {
-        if (!(drawable instanceof DrawableWrapperEclair)) {
+        if (!(drawable instanceof TintAwareDrawable)) {
             return new DrawableWrapperEclair(drawable);
         }
         return drawable;

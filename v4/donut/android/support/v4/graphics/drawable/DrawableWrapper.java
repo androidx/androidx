@@ -16,26 +16,15 @@
 
 package android.support.v4.graphics.drawable;
 
-import android.content.res.ColorStateList;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 
 /**
- * Interface which allows a {@link android.graphics.drawable.Drawable} to receive tinting calls from
- * {@code DrawableCompat}.
+ * Interface which allows a {@link android.graphics.drawable.Drawable} to get/set wrapped
+ * drawables from {@code DrawableCompat}.
  *
  * @hide
  */
 public interface DrawableWrapper {
-
-    void setCompatTint(int tint);
-
-    void setCompatTintList(ColorStateList tint);
-
-    void setCompatTintMode(PorterDuff.Mode tintMode);
-
     Drawable getWrappedDrawable();
-
     void setWrappedDrawable(Drawable drawable);
-
 }

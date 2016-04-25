@@ -33,7 +33,8 @@ import android.support.annotation.Nullable;
  * Also allows backward compatible tinting via a color or {@link ColorStateList}.
  * This functionality is accessed via static methods in {@code DrawableCompat}.
  */
-class DrawableWrapperDonut extends Drawable implements Drawable.Callback, DrawableWrapper {
+class DrawableWrapperDonut extends Drawable
+        implements Drawable.Callback, DrawableWrapper, TintAwareDrawable {
 
     static final PorterDuff.Mode DEFAULT_TINT_MODE = PorterDuff.Mode.SRC_IN;
 
@@ -256,18 +257,18 @@ class DrawableWrapperDonut extends Drawable implements Drawable.Callback, Drawab
     }
 
     @Override
-    public void setCompatTint(int tint) {
-        setCompatTintList(ColorStateList.valueOf(tint));
+    public void setTint(int tint) {
+        setTintList(ColorStateList.valueOf(tint));
     }
 
     @Override
-    public void setCompatTintList(ColorStateList tint) {
+    public void setTintList(ColorStateList tint) {
         mState.mTint = tint;
         updateTint(getState());
     }
 
     @Override
-    public void setCompatTintMode(PorterDuff.Mode tintMode) {
+    public void setTintMode(PorterDuff.Mode tintMode) {
         mState.mTintMode = tintMode;
         updateTint(getState());
     }
