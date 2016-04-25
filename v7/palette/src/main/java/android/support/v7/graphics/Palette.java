@@ -850,21 +850,18 @@ public final class Palette {
             final int bitmapWidth = bitmap.getWidth();
             final int bitmapHeight = bitmap.getHeight();
             final int[] pixels = new int[bitmapWidth * bitmapHeight];
+            bitmap.getPixels(pixels, 0, bitmapWidth, 0, 0, bitmapWidth, bitmapHeight);
 
             if (mRegion == null) {
                 // If we don't have a region, return all of the pixels
-                bitmap.getPixels(pixels, 0, bitmapWidth, 0, 0, bitmapWidth, bitmapHeight);
                 return pixels;
             } else {
                 // If we do have a region, lets create a subset array containing only the region's
                 // pixels
                 final int regionWidth = mRegion.width();
                 final int regionHeight = mRegion.height();
-                // First read the pixels within the region
-                bitmap.getPixels(pixels, 0, bitmapWidth, mRegion.left, mRegion.top,
-                        regionWidth, regionHeight);
-                // pixels now contains all of the pixels, but not packed together. We need to
-                // iterate through each row and copy them into a new smaller array
+                // pixels contains all of the pixels, so we need to iterate through each row and
+                // copy the regions pixels into a new smaller array
                 final int[] subsetPixels = new int[regionWidth * regionHeight];
                 for (int row = 0; row < regionHeight; row++) {
                     System.arraycopy(pixels, ((row + mRegion.top) * bitmapWidth) + mRegion.left,
