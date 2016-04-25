@@ -16,19 +16,22 @@
 
 package android.support.v7.graphics;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static android.support.v7.graphics.TestUtils.assertCloseColors;
+import static android.support.v7.graphics.TestUtils.loadSampleBitmap;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.SmallTest;
 
-import java.util.ArrayList;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-import static android.support.v7.graphics.TestUtils.loadSampleBitmap;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import java.util.ArrayList;
 
 @RunWith(AndroidJUnit4.class)
 public class BucketTests {
@@ -110,4 +113,37 @@ public class BucketTests {
         Palette.Builder b = new Palette.Builder(bitmap);
         b.generate();
     }
+
+    @Test
+    @SmallTest
+    public void testBlueBitmapReturnsBlueSwatch() {
+        final Bitmap bitmap = Bitmap.createBitmap(300, 300, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        canvas.drawColor(Color.BLUE);
+
+        final Palette palette = Palette.from(bitmap).generate();
+
+        assertEquals(1, palette.getSwatches().size());
+
+        final Palette.Swatch swatch = palette.getSwatches().get(0);
+        assertCloseColors(Color.BLUE, swatch.getRgb());
+    }
+
+    @Test
+    @SmallTest
+    public void testBlueBitmapWithRegionReturnsBlueSwatch() {
+        final Bitmap bitmap = Bitmap.createBitmap(300, 300, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        canvas.drawColor(Color.BLUE);
+
+        final Palette palette = Palette.from(bitmap)
+                .setRegion(0, bitmap.getHeight() / 2, bitmap.getWidth(), bitmap.getHeight())
+                .generate();
+
+        assertEquals(1, palette.getSwatches().size());
+
+        final Palette.Swatch swatch = palette.getSwatches().get(0);
+        assertCloseColors(Color.BLUE, swatch.getRgb());
+    }
+
 }
