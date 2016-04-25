@@ -144,8 +144,9 @@ class AppCompatDelegateImplV14 extends AppCompatDelegateImplV11 {
                 : Configuration.UI_MODE_NIGHT_NO;
 
         if (currentNightMode != newNightMode) {
-            conf.uiMode = (conf.uiMode & ~Configuration.UI_MODE_NIGHT_MASK) | newNightMode;
-            res.updateConfiguration(conf, null);
+            final Configuration newConf = new Configuration(conf);
+            newConf.uiMode = (newConf.uiMode & ~Configuration.UI_MODE_NIGHT_MASK) | newNightMode;
+            res.updateConfiguration(newConf, null);
             return true;
         }
         return false;
