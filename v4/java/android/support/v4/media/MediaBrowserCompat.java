@@ -710,7 +710,7 @@ public final class MediaBrowserCompat {
             mContext = context;
             mServiceComponent = serviceComponent;
             mCallback = callback;
-            mRootHints = rootHints;
+            mRootHints = rootHints == null ? null : new Bundle(rootHints);
         }
 
         @Override
@@ -944,7 +944,7 @@ public final class MediaBrowserCompat {
             }
             ResultReceiver receiver = new ItemReceiver(mediaId, cb, mHandler);
             try {
-                mServiceBinderWrapper.getMediaItem(mediaId, receiver);
+                mServiceBinderWrapper.getMediaItem(mediaId, receiver, mCallbacksMessenger);
             } catch (RemoteException e) {
                 Log.i(TAG, "Remote error getting media item.");
                 mHandler.post(new Runnable() {
@@ -1127,7 +1127,7 @@ public final class MediaBrowserCompat {
                         }
 
                         // Save their binder
-                        mServiceBinderWrapper = new ServiceBinderWrapper(binder);
+                        mServiceBinderWrapper = new ServiceBinderWrapper(binder, mRootHints);
 
                         // We make a new mServiceCallbacks each time we connect so that we can drop
                         // responses from previous connections.
@@ -1143,8 +1143,7 @@ public final class MediaBrowserCompat {
                                 Log.d(TAG, "ServiceCallbacks.onConnect...");
                                 dump();
                             }
-                            mServiceBinderWrapper.connect(
-                                    mContext, mRootHints, mCallbacksMessenger);
+                            mServiceBinderWrapper.connect(mContext, mCallbacksMessenger);
                         } catch (RemoteException ex) {
                             // Connect failed, which isn't good. But the auto-reconnect on the
                             // service will take over and we will come back. We will also get the
@@ -1217,7 +1216,8 @@ public final class MediaBrowserCompat {
 
     static class MediaBrowserImplApi21 implements MediaBrowserImpl, MediaBrowserServiceCallbackImpl,
             ConnectionCallback.ConnectionCallbackInternal {
-        protected Object mBrowserObj;
+        protected final Object mBrowserObj;
+        protected final Bundle mRootHints;
 
         private final CallbackHandler mHandler = new CallbackHandler(this);
         private final ArrayMap<String, Subscription> mSubscriptions = new ArrayMap<>();
@@ -1227,15 +1227,14 @@ public final class MediaBrowserCompat {
 
         public MediaBrowserImplApi21(Context context, ComponentName serviceComponent,
                 ConnectionCallback callback, Bundle rootHints) {
-            if (Build.VERSION.SDK_INT >= 21) {
-                if (rootHints == null) {
-                    rootHints = new Bundle();
-                }
-                rootHints.putInt(EXTRA_CLIENT_VERSION, CLIENT_VERSION_CURRENT);
+            if (rootHints == null) {
+                rootHints = new Bundle();
             }
+            rootHints.putInt(EXTRA_CLIENT_VERSION, CLIENT_VERSION_CURRENT);
+            mRootHints = new Bundle(rootHints);
             callback.setInternalConnectionCallback(this);
             mBrowserObj = MediaBrowserCompatApi21.createBrowser(context, serviceComponent,
-                    callback.mConnectionCallbackObj, rootHints);
+                    callback.mConnectionCallbackObj, mRootHints);
         }
 
         @Override
@@ -1394,7 +1393,7 @@ public final class MediaBrowserCompat {
             }
             ResultReceiver receiver = new ItemReceiver(mediaId, cb, mHandler);
             try {
-                mServiceBinderWrapper.getMediaItem(mediaId, receiver);
+                mServiceBinderWrapper.getMediaItem(mediaId, receiver, mCallbacksMessenger);
             } catch (RemoteException e) {
                 Log.i(TAG, "Remote error getting media item: " + mediaId);
                 mHandler.post(new Runnable() {
@@ -1414,7 +1413,7 @@ public final class MediaBrowserCompat {
             }
             IBinder serviceBinder = BundleCompat.getBinder(extras, EXTRA_MESSENGER_BINDER);
             if (serviceBinder != null) {
-                mServiceBinderWrapper = new ServiceBinderWrapper(serviceBinder);
+                mServiceBinderWrapper = new ServiceBinderWrapper(serviceBinder, mRootHints);
                 mCallbacksMessenger = new Messenger(mHandler);
                 mHandler.setCallbacksMessenger(mCallbacksMessenger);
                 try {
@@ -1602,16 +1601,18 @@ public final class MediaBrowserCompat {
 
     private static class ServiceBinderWrapper {
         private Messenger mMessenger;
+        private Bundle mRootHints;
 
-        public ServiceBinderWrapper(IBinder target) {
+        public ServiceBinderWrapper(IBinder target, Bundle rootHints) {
             mMessenger = new Messenger(target);
+            mRootHints = rootHints;
         }
 
-        void connect(Context context, Bundle rootHint, Messenger callbacksMessenger)
+        void connect(Context context, Messenger callbacksMessenger)
                 throws RemoteException {
             Bundle data = new Bundle();
             data.putString(DATA_PACKAGE_NAME, context.getPackageName());
-            data.putBundle(DATA_ROOT_HINTS, rootHint);
+            data.putBundle(DATA_ROOT_HINTS, mRootHints);
             sendRequest(CLIENT_MSG_CONNECT, data, callbacksMessenger);
         }
 
@@ -1638,15 +1639,18 @@ public final class MediaBrowserCompat {
             sendRequest(CLIENT_MSG_REMOVE_SUBSCRIPTION, data, callbacksMessenger);
         }
 
-        void getMediaItem(String mediaId, ResultReceiver receiver) throws RemoteException {
+        void getMediaItem(String mediaId, ResultReceiver receiver, Messenger callbacksMessenger)
+                throws RemoteException {
             Bundle data = new Bundle();
             data.putString(DATA_MEDIA_ITEM_ID, mediaId);
             data.putParcelable(DATA_RESULT_RECEIVER, receiver);
-            sendRequest(CLIENT_MSG_GET_MEDIA_ITEM, data, null);
+            sendRequest(CLIENT_MSG_GET_MEDIA_ITEM, data, callbacksMessenger);
         }
 
         void registerCallbackMessenger(Messenger callbackMessenger) throws RemoteException {
-            sendRequest(CLIENT_MSG_REGISTER_CALLBACK_MESSENGER, null, callbackMessenger);
+            Bundle data = new Bundle();
+            data.putBundle(DATA_ROOT_HINTS, mRootHints);
+            sendRequest(CLIENT_MSG_REGISTER_CALLBACK_MESSENGER, data, callbackMessenger);
         }
 
         void unregisterCallbackMessenger(Messenger callbackMessenger) throws RemoteException {
