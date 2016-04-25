@@ -25,6 +25,7 @@ import android.graphics.Region;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v4.graphics.drawable.TintAwareDrawable;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -32,7 +33,7 @@ import android.view.View;
  * Internal common delegation shared by VectorDrawableCompat and AnimatedVectorDrawableCompat
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-abstract class VectorDrawableCommon extends Drawable {
+abstract class VectorDrawableCommon extends Drawable implements TintAwareDrawable {
     /**
      * Obtains styled attributes from the theme, if available, or unstyled
      * resources if the theme is null.
