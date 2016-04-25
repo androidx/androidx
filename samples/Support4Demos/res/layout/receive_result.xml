@@ -21,17 +21,20 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical" android:padding="4dip"
     android:gravity="center_horizontal"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <TextView
-        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_weight="0"
         android:paddingBottom="4dip"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="@string/receive_result_instructions"/>
 
     <TextView android:id="@+id/results"
-        android:layout_width="match_parent" android:layout_height="10dip"
+        android:layout_width="match_parent"
+        android:layout_height="10dip"
         android:layout_weight="1"
         android:paddingBottom="4dip"
         android:textAppearance="?android:attr/textAppearanceMedium"
@@ -40,10 +43,18 @@
     </TextView>
 
     <Button android:id="@+id/get"
-        android:layout_width="wrap_content" android:layout_height="wrap_content" 
-        android:layout_weight="0"
-        android:text="@string/receive_result_result">
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:text="@string/receive_result_result">
         <requestFocus />
+    </Button>
+
+    <Button android:id="@+id/get_intentsender"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:text="@string/receive_result_intentsender">
     </Button>
 
 </LinearLayout>
