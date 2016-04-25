@@ -17,8 +17,7 @@ limitations under the License.
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for lb_navigation_menu_contentDescription (6215811486591629025) -->
-    <skip />
+    <string name="lb_navigation_menu_contentDescription" msgid="6215811486591629025">"Menu de navegação"</string>
     <string name="orb_search_action" msgid="5651268540267663887">"Ação de pesquisa"</string>
     <string name="lb_search_bar_hint" msgid="8325490927970116252">"Pesquisar"</string>
     <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"Fale para pesquisar"</string>
