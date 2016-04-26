@@ -2034,8 +2034,8 @@ public class NotificationCompat {
             mAllowGeneratedReplies = extras.getBoolean(EXTRA_ALLOW_GENERATED_REPLIES,
                     mAllowGeneratedReplies);
             Parcelable[] parcelables = extras.getParcelableArray(EXTRA_MESSAGES);
-            if (parcelables != null && parcelables instanceof Bundle[]) {
-                mMessages = Message.getMessagesFromBundleArray((Bundle[]) parcelables);
+            if (parcelables != null) {
+                mMessages = Message.getMessagesFromBundleArray(parcelables);
             }
         }
 
@@ -2167,12 +2167,14 @@ public class NotificationCompat {
                 return bundles;
             }
 
-            static List<Message> getMessagesFromBundleArray(Bundle[] bundles) {
+            static List<Message> getMessagesFromBundleArray(Parcelable[] bundles) {
                 List<Message> messages = new ArrayList<>(bundles.length);
                 for (int i = 0; i < bundles.length; i++) {
-                    Message message = getMessageFromBundle(bundles[i]);
-                    if (message != null) {
-                        messages.add(message);
+                    if (bundles[i] instanceof Bundle) {
+                        Message message = getMessageFromBundle((Bundle)bundles[i]);
+                        if (message != null) {
+                            messages.add(message);
+                        }
                     }
                 }
                 return messages;
