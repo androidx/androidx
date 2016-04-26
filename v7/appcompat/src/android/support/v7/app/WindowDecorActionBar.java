@@ -505,11 +505,13 @@ public class WindowDecorActionBar extends ActionBar implements
         mContextView.killMode();
         ActionModeImpl mode = new ActionModeImpl(mContextView.getContext(), callback);
         if (mode.dispatchOnCreate()) {
+            // This needs to be set before invalidate() so that it calls
+            // onPrepareActionMode()
+            mActionMode = mode;
             mode.invalidate();
             mContextView.initForMode(mode);
             animateToMode(true);
             mContextView.sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
-            mActionMode = mode;
             return mode;
         }
         return null;
