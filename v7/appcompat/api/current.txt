@@ -2195,8 +2195,9 @@ package android.support.v7.widget {
     method public abstract boolean onMenuItemClick(android.view.MenuItem);
   }
 
-  public static class Toolbar.SavedState extends android.view.View.BaseSavedState {
+  public static class Toolbar.SavedState extends android.support.v4.view.AbsSavedState {
     ctor public Toolbar.SavedState(android.os.Parcel);
+    ctor public Toolbar.SavedState(android.os.Parcel, java.lang.ClassLoader);
     ctor public Toolbar.SavedState(android.os.Parcelable);
     field public static final android.os.Parcelable.Creator<android.support.v7.widget.Toolbar.SavedState> CREATOR;
   }

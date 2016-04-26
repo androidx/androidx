@@ -28,6 +28,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.annotation.StyleRes;
+import android.support.v4.os.ParcelableCompat;
+import android.support.v4.os.ParcelableCompatCreatorCallbacks;
+import android.support.v4.view.AbsSavedState;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MarginLayoutParamsCompat;
 import android.support.v4.view.MenuItemCompat;
@@ -2230,12 +2233,16 @@ public class Toolbar extends ViewGroup {
         }
     }
 
-    public static class SavedState extends BaseSavedState {
+    public static class SavedState extends AbsSavedState {
         int expandedMenuItemId;
         boolean isOverflowOpen;
 
         public SavedState(Parcel source) {
-            super(source);
+            this(source, null);
+        }
+
+        public SavedState(Parcel source, ClassLoader loader) {
+            super(source, loader);
             expandedMenuItemId = source.readInt();
             isOverflowOpen = source.readInt() != 0;
         }
@@ -2251,17 +2258,18 @@ public class Toolbar extends ViewGroup {
             out.writeInt(isOverflowOpen ? 1 : 0);
         }
 
-        public static final Creator<SavedState> CREATOR = new Creator<SavedState>() {
-            @Override
-            public SavedState createFromParcel(Parcel source) {
-                return new SavedState(source);
-            }
+        public static final Creator<SavedState> CREATOR = ParcelableCompat.newCreator(
+                new ParcelableCompatCreatorCallbacks<SavedState>() {
+                    @Override
+                    public SavedState createFromParcel(Parcel in, ClassLoader loader) {
+                        return new SavedState(in, loader);
+                    }
 
-            @Override
-            public SavedState[] newArray(int size) {
-                return new SavedState[size];
-            }
-        };
+                    @Override
+                    public SavedState[] newArray(int size) {
+                        return new SavedState[size];
+                    }
+                });
     }
 
     private class ExpandedActionViewMenuPresenter implements MenuPresenter {

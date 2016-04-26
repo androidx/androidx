@@ -2206,6 +2206,17 @@ package android.support.v4.util {
 
 package android.support.v4.view {
 
+  public abstract class AbsSavedState implements android.os.Parcelable {
+    ctor protected AbsSavedState(android.os.Parcelable);
+    ctor protected AbsSavedState(android.os.Parcel);
+    ctor protected AbsSavedState(android.os.Parcel, java.lang.ClassLoader);
+    method public int describeContents();
+    method public final android.os.Parcelable getSuperState();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<android.support.v4.view.AbsSavedState> CREATOR;
+    field public static final android.support.v4.view.AbsSavedState EMPTY_STATE;
+  }
+
   public class AccessibilityDelegateCompat {
     ctor public AccessibilityDelegateCompat();
     method public boolean dispatchPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent);
@@ -2791,7 +2802,7 @@ package android.support.v4.view {
     method public abstract void transformPage(android.view.View, float);
   }
 
-  public static class ViewPager.SavedState extends android.view.View.BaseSavedState {
+  public static class ViewPager.SavedState extends android.support.v4.view.AbsSavedState {
     ctor public ViewPager.SavedState(android.os.Parcelable);
     field public static final android.os.Parcelable.Creator<android.support.v4.view.ViewPager.SavedState> CREATOR;
   }
@@ -3402,8 +3413,8 @@ package android.support.v4.widget {
     field public int gravity;
   }
 
-  protected static class DrawerLayout.SavedState extends android.view.View.BaseSavedState {
-    ctor public DrawerLayout.SavedState(android.os.Parcel);
+  protected static class DrawerLayout.SavedState extends android.support.v4.view.AbsSavedState {
+    ctor public DrawerLayout.SavedState(android.os.Parcel, java.lang.ClassLoader);
     ctor public DrawerLayout.SavedState(android.os.Parcelable);
     field public static final android.os.Parcelable.Creator<android.support.v4.widget.DrawerLayout.SavedState> CREATOR;
   }
