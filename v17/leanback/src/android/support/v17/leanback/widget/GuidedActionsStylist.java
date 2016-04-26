@@ -1200,7 +1200,6 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      */
     @Override
     public void onImeAppearing(@NonNull List<Animator> animators) {
-        animators.add(createAnimator(mContentView, R.attr.guidedStepImeAppearingAnimation));
     }
 
     /**
@@ -1208,7 +1207,6 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      */
     @Override
     public void onImeDisappearing(@NonNull List<Animator> animators) {
-        animators.add(createAnimator(mContentView, R.attr.guidedStepImeDisappearingAnimation));
     }
 
     /*
