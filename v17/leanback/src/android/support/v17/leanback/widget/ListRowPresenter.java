@@ -15,7 +15,6 @@ package android.support.v17.leanback.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.os.Build;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.system.Settings;
 import android.support.v17.leanback.transition.TransitionHelper;
@@ -24,7 +23,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 
 import java.util.HashMap;
 
@@ -271,6 +269,7 @@ public class ListRowPresenter extends RowPresenter {
         }
     }
 
+    private int mNumRows = 1;
     private int mRowHeight;
     private int mExpandedRowHeight;
     private PresenterSelector mHoverCardPresenterSelector;
@@ -391,6 +390,14 @@ public class ListRowPresenter extends RowPresenter {
         return mUseFocusDimmer;
     }
 
+    /**
+     * Sets the numbers of rows for rendering the list of items. By default, it is
+     * set to 1.
+     */
+    public void setNumRows(int numRows) {
+        this.mNumRows = numRows;
+    }
+
     @Override
     protected void initializeRowViewHolder(RowPresenter.ViewHolder holder) {
         super.initializeRowViewHolder(holder);
@@ -438,6 +445,7 @@ public class ListRowPresenter extends RowPresenter {
                 return false;
             }
         });
+        rowViewHolder.mGridView.setNumRows(mNumRows);
     }
 
     final boolean needsDefaultListSelectEffect() {
