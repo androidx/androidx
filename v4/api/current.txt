@@ -107,7 +107,10 @@ package android.support.v4.app {
    abstract class BaseFragmentActivityDonut extends android.app.Activity {
   }
 
-   abstract class BaseFragmentActivityHoneycomb extends android.support.v4.app.BaseFragmentActivityDonut {
+   abstract class BaseFragmentActivityEclair extends android.support.v4.app.BaseFragmentActivityDonut {
+  }
+
+   abstract class BaseFragmentActivityHoneycomb extends android.support.v4.app.BaseFragmentActivityEclair {
   }
 
   public final class BundleCompat {
