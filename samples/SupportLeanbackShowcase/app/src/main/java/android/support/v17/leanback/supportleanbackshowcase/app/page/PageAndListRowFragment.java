@@ -3,7 +3,6 @@ package android.support.v17.leanback.supportleanbackshowcase.app.page;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v17.leanback.app.Adaptable;
 import android.support.v17.leanback.app.BrowseFragment;
 import android.support.v17.leanback.app.RowsFragment;
 import android.support.v17.leanback.supportleanbackshowcase.R;
@@ -130,7 +129,7 @@ public class PageAndListRowFragment extends BrowseFragment {
     /**
      * Simple page fragment implementation.
      */
-    public static class SampleFragmentA extends Fragment implements Adaptable {
+    public static class SampleFragmentA extends Fragment implements MainFragmentAdapterProvider {
         private final MainFragmentAdapter mMainFragmentAdapter =
                 new PageAndListRowFragment.PageFragmentAdapterImpl(this);
         private boolean mEntranceTransitionState = true;
@@ -139,14 +138,6 @@ public class PageAndListRowFragment extends BrowseFragment {
         public View onCreateView(
                 LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             return inflater.inflate(R.layout.page_fragment, container, false);
-        }
-
-        @Override
-        public MainFragmentAdapter getAdapter(Class clazz) {
-            if (clazz == MainFragmentAdapter.class) {
-                return mMainFragmentAdapter;
-            }
-            return null;
         }
 
         public void setEntranceTransitionState(boolean state) {
@@ -167,6 +158,11 @@ public class PageAndListRowFragment extends BrowseFragment {
             super.onViewCreated(view, savedInstanceState);
             setEntranceTransitionState(mEntranceTransitionState);
             mMainFragmentAdapter.getFragmentHost().notifyViewCreated(mMainFragmentAdapter);
+        }
+
+        @Override
+        public MainFragmentAdapter getMainFragmentAdapter() {
+            return mMainFragmentAdapter;
         }
     }
 
@@ -201,11 +197,13 @@ public class PageAndListRowFragment extends BrowseFragment {
         }
 
         private void createRows() {
-            String json = Utils.inputStreamToString(getResources().openRawResource(
-                    R.raw.cards_example));
-            CardRow[] rows = new Gson().fromJson(json, CardRow[].class);
-            for(CardRow row : rows) {
-                mRowsAdapter.add(createCardRow(row));
+            if (isAdded()) {
+                String json = Utils.inputStreamToString(getResources().openRawResource(
+                        R.raw.cards_example));
+                CardRow[] rows = new Gson().fromJson(json, CardRow[].class);
+                for (CardRow row : rows) {
+                    mRowsAdapter.add(createCardRow(row));
+                }
             }
         }
 
