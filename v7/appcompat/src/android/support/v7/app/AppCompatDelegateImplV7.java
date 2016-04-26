@@ -672,7 +672,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
     }
 
     @Override
-    public ActionMode startSupportActionMode(ActionMode.Callback callback) {
+    public ActionMode startSupportActionMode(@NonNull final ActionMode.Callback callback) {
         if (callback == null) {
             throw new IllegalArgumentException("ActionMode callback can not be null.");
         }
@@ -708,17 +708,21 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
     }
 
     @Override
-    ActionMode startSupportActionModeFromWindow(ActionMode.Callback callback) {
+    ActionMode startSupportActionModeFromWindow(@NonNull ActionMode.Callback callback) {
         endOnGoingFadeAnimation();
         if (mActionMode != null) {
             mActionMode.finish();
         }
 
-        final ActionMode.Callback wrappedCallback = new ActionModeCallbackWrapperV7(callback);
+        if (!(callback instanceof ActionModeCallbackWrapperV7)) {
+            // If the callback hasn't been wrapped yet, wrap it
+            callback = new ActionModeCallbackWrapperV7(callback);
+        }
+
         ActionMode mode = null;
         if (mAppCompatCallback != null && !isDestroyed()) {
             try {
-                mode = mAppCompatCallback.onWindowStartingSupportActionMode(wrappedCallback);
+                mode = mAppCompatCallback.onWindowStartingSupportActionMode(callback);
             } catch (AbstractMethodError ame) {
                 // Older apps might not implement this callback method.
             }
@@ -798,7 +802,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
                 endOnGoingFadeAnimation();
                 mActionModeView.killMode();
                 mode = new StandaloneActionMode(mActionModeView.getContext(), mActionModeView,
-                        wrappedCallback, mActionModePopup == null);
+                        callback, mActionModePopup == null);
                 if (callback.onCreateActionMode(mode, mode.getMenu())) {
                     mode.invalidate();
                     mActionModeView.initForMode(mode);
