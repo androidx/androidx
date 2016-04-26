@@ -19,7 +19,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <RelativeLayout
+    <android.support.v17.leanback.widget.GuidanceStylingRelativeLayout
         android:id="@+id/guidance_container"
         style="?attr/guidanceContainerStyle" >
 
@@ -40,6 +40,6 @@
             android:id="@+id/guidance_description"
             style="?attr/guidanceDescriptionStyle"/>
 
-    </RelativeLayout>
+    </android.support.v17.leanback.widget.GuidanceStylingRelativeLayout>
 
 </FrameLayout>
