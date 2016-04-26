@@ -28,6 +28,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.ColorInt;
+import android.support.v4.os.BuildCompat;
 import android.support.v4.view.GravityCompat;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -923,7 +924,7 @@ public class NotificationCompat {
     }
 
     static {
-        if (Build.VERSION.SDK_INT >= 24) {
+        if (BuildCompat.isAtLeastN()) {
             IMPL = new NotificationCompatImplApi24();
         } else if (Build.VERSION.SDK_INT >= 21) {
             IMPL = new NotificationCompatImplApi21();
