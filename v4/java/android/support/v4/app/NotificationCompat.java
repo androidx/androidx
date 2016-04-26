@@ -1985,6 +1985,29 @@ public class NotificationCompat {
             return mMessages;
         }
 
+        /**
+         * Retrieves a {@link MessagingStyle} from a {@link Notification}, enabling an application
+         * that has set a {@link MessagingStyle} using {@link NotificationCompat} or
+         * {@link android.app.Notification.Builder} to send messaging information to another
+         * application using {@link NotificationCompat}, regardless of the API level of the system.
+         * Returns {@code null} if there is no {@link MessagingStyle} set.
+         */
+        public static MessagingStyle extractMessagingStyleFromNotification(Notification notif) {
+            MessagingStyle style;
+            Bundle extras = IMPL.getExtras(notif);
+            if (!extras.containsKey(EXTRA_SELF_DISPLAY_NAME)) {
+                style = null;
+            } else {
+                try {
+                    style = new MessagingStyle();
+                    style.restoreFromCompatExtras(extras);
+                } catch (ClassCastException e) {
+                    style = null;
+                }
+            }
+            return style;
+        }
+
         @Override
         public void addCompatExtras(Bundle extras) {
             super.addCompatExtras(extras);
@@ -2011,18 +2034,18 @@ public class NotificationCompat {
             mAllowGeneratedReplies = extras.getBoolean(EXTRA_ALLOW_GENERATED_REPLIES,
                     mAllowGeneratedReplies);
             Parcelable[] parcelables = extras.getParcelableArray(EXTRA_MESSAGES);
-            if (parcelables != null) {
+            if (parcelables != null && parcelables instanceof Bundle[]) {
                 mMessages = Message.getMessagesFromBundleArray((Bundle[]) parcelables);
             }
         }
 
         public static final class Message {
 
-            public static final String KEY_TEXT = "text";
-            public static final String KEY_TIMESTAMP = "time";
-            public static final String KEY_SENDER = "sender";
-            public static final String KEY_DATA_MIME_TYPE = "type";
-            public static final String KEY_DATA_URI= "uri";
+            static final String KEY_TEXT = "text";
+            static final String KEY_TIMESTAMP = "time";
+            static final String KEY_SENDER = "sender";
+            static final String KEY_DATA_MIME_TYPE = "type";
+            static final String KEY_DATA_URI= "uri";
 
             private final CharSequence mText;
             private final long mTimestamp;
@@ -2045,30 +2068,6 @@ public class NotificationCompat {
                 mText = text;
                 mTimestamp = timestamp;
                 mSender = sender;
-            }
-
-            /**
-             * Reconstructs a message from a {@link Bundle} created by {@link #toBundle()}.
-             */
-            public Message(Bundle bundle) {
-                if (bundle.containsKey(KEY_TEXT)) {
-                    mText = bundle.getCharSequence(KEY_TEXT);
-                } else {
-                    mText = null;
-                }
-                mTimestamp = bundle.getLong(KEY_TIMESTAMP);
-                if (bundle.containsKey(KEY_SENDER)) {
-                    mSender = bundle.getString(KEY_SENDER);
-                } else {
-                    mSender = null;
-                }
-
-                if (bundle.containsKey(KEY_DATA_MIME_TYPE)) {
-                    mDataMimeType = bundle.getString(KEY_DATA_MIME_TYPE);
-                }
-                if (bundle.containsKey(KEY_DATA_URI)) {
-                    mDataUri = bundle.getParcelable(KEY_DATA_URI);
-                }
             }
 
             /**
@@ -2141,10 +2140,7 @@ public class NotificationCompat {
                 return mDataUri;
             }
 
-            /**
-             * Gets a {@link Bundle} representation of this {@link Message}.
-             */
-            public Bundle toBundle() {
+            private Bundle toBundle() {
                 Bundle bundle = new Bundle();
                 if (mText != null) {
                     bundle.putCharSequence(KEY_TEXT, mText);
@@ -2164,7 +2160,8 @@ public class NotificationCompat {
 
             static Bundle[] getBundleArrayForMessages(List<Message> messages) {
                 Bundle[] bundles = new Bundle[messages.size()];
-                for (int i = 0; i < messages.size(); i++) {
+                final int N = messages.size();
+                for (int i = 0; i < N; i++) {
                     bundles[i] = messages.get(i).toBundle();
                 }
                 return bundles;
@@ -2173,9 +2170,33 @@ public class NotificationCompat {
             static List<Message> getMessagesFromBundleArray(Bundle[] bundles) {
                 List<Message> messages = new ArrayList<>(bundles.length);
                 for (int i = 0; i < bundles.length; i++) {
-                    messages.add(new Message(bundles[i]));
+                    Message message = getMessageFromBundle(bundles[i]);
+                    if (message != null) {
+                        messages.add(message);
+                    }
                 }
                 return messages;
+            }
+
+            static Message getMessageFromBundle(Bundle bundle) {
+                try {
+                    if (!bundle.containsKey(KEY_TEXT) || !bundle.containsKey(KEY_TIMESTAMP) ||
+                            !bundle.containsKey(KEY_SENDER)) {
+                        return null;
+                    } else {
+                        Message message = new Message(bundle.getCharSequence(KEY_TEXT),
+                                bundle.getLong(KEY_TIMESTAMP), bundle.getCharSequence(KEY_SENDER));
+                        if (bundle.containsKey(KEY_DATA_MIME_TYPE) &&
+                                bundle.containsKey(KEY_DATA_URI)) {
+
+                            message.setData(bundle.getString(KEY_DATA_MIME_TYPE),
+                                    (Uri) bundle.getParcelable(KEY_DATA_URI));
+                        }
+                        return message;
+                    }
+                } catch (ClassCastException e) {
+                    return null;
+                }
             }
         }
     }
