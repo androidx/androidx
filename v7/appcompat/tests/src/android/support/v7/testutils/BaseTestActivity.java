@@ -17,9 +17,13 @@
 package android.support.v7.testutils;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatCallback;
 import android.support.v7.appcompat.test.R;
+import android.support.v7.view.ActionMode;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -42,6 +46,8 @@ public abstract class BaseTestActivity extends AppCompatActivity {
 
     private boolean mOnBackPressedCalled;
     private boolean mDestroyed;
+
+    private AppCompatCallback mAppCompatCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -191,5 +197,32 @@ public abstract class BaseTestActivity extends AppCompatActivity {
     @Override
     public boolean isDestroyed() {
         return mDestroyed;
+    }
+
+    @Override
+    public void onSupportActionModeStarted(@NonNull ActionMode mode) {
+        if (mAppCompatCallback != null) {
+            mAppCompatCallback.onSupportActionModeStarted(mode);
+        }
+    }
+
+    @Override
+    public void onSupportActionModeFinished(@NonNull ActionMode mode) {
+        if (mAppCompatCallback != null) {
+            mAppCompatCallback.onSupportActionModeFinished(mode);
+        }
+    }
+
+    @Nullable
+    @Override
+    public ActionMode onWindowStartingSupportActionMode(@NonNull ActionMode.Callback callback) {
+        if (mAppCompatCallback != null) {
+            return mAppCompatCallback.onWindowStartingSupportActionMode(callback);
+        }
+        return super.onWindowStartingSupportActionMode(callback);
+    }
+
+    public void setAppCompatCallback(AppCompatCallback callback) {
+        mAppCompatCallback = callback;
     }
 }
