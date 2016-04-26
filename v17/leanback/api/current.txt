@@ -1666,6 +1666,7 @@ package android.support.v17.leanback.widget {
     method public void setExpandedRowHeight(int);
     method public final void setHoverCardPresenterSelector(android.support.v17.leanback.widget.PresenterSelector);
     method public final void setKeepChildForeground(boolean);
+    method public void setNumRows(int);
     method public void setRecycledPoolSize(android.support.v17.leanback.widget.Presenter, int);
     method public void setRowHeight(int);
     method public final void setShadowEnabled(boolean);
