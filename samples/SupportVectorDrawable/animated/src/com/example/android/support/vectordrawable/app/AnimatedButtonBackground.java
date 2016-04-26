@@ -37,6 +37,7 @@ public class AnimatedButtonBackground extends Activity implements View.OnClickLi
     protected int[] icon = {
         R.drawable.animation_vector_drawable_grouping_1,
         R.drawable.animation_vector_progress_bar,
+        R.drawable.btn_radio_on_to_off_bundle,
     };
 
 
