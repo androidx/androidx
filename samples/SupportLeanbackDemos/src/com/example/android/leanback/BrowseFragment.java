@@ -114,7 +114,9 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
     }
 
     private void setupRows() {
-        mRowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
+        ListRowPresenter listRowPresenter = new ListRowPresenter();
+        listRowPresenter.setNumRows(2);
+        mRowsAdapter = new ArrayObjectAdapter(listRowPresenter);
         setAdapter(mRowsAdapter);
     }
 
@@ -168,13 +170,19 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                 "open BrowseActivity",
                 R.drawable.gallery_photo_8));
         listRowAdapter.add(new PhotoItem(
-                "Leanback",
-                "open BrowseActivity",
-                R.drawable.gallery_photo_8));
+                "Hello world",
+                R.drawable.gallery_photo_1));
+        listRowAdapter.add(new PhotoItem(
+                "This is a test",
+                "Only a test",
+                R.drawable.gallery_photo_2));
+        listRowAdapter.add(new PhotoItem(
+                "Android TV",
+                "by Google",
+                R.drawable.gallery_photo_3));
         listRowAdapter.add(new PhotoItem(
                 "Leanback",
-                "open BrowseActivity",
-                R.drawable.gallery_photo_8));
+                R.drawable.gallery_photo_4));
         return listRowAdapter;
     }
 
@@ -258,7 +266,11 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
 
             setOnItemViewClickedListener(new OnItemViewClickedListener() {
                 @Override
-                public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item, RowPresenter.ViewHolder rowViewHolder, Row row) {
+                public void onItemClicked(
+                        Presenter.ViewHolder itemViewHolder,
+                        Object item,
+                        RowPresenter.ViewHolder rowViewHolder,
+                        Row row) {
                     Intent intent;
                     Bundle bundle;
                     if (((PhotoItem) item).getImageResourceId() == R.drawable.gallery_photo_6) {
