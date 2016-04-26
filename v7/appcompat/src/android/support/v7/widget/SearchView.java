@@ -41,6 +41,9 @@ import android.os.Parcelable;
 import android.os.ResultReceiver;
 import android.speech.RecognizerIntent;
 import android.support.v4.content.res.ConfigurationHelper;
+import android.support.v4.os.ParcelableCompat;
+import android.support.v4.os.ParcelableCompatCreatorCallbacks;
+import android.support.v4.view.AbsSavedState;
 import android.support.v4.view.KeyEventCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v7.appcompat.R;
@@ -1324,15 +1327,15 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
         setIconified(false);
     }
 
-    static class SavedState extends BaseSavedState {
+    static class SavedState extends AbsSavedState {
         boolean isIconified;
 
         SavedState(Parcelable superState) {
             super(superState);
         }
 
-        public SavedState(Parcel source) {
-            super(source);
+        public SavedState(Parcel source, ClassLoader loader) {
+            super(source, loader);
             isIconified = (Boolean) source.readValue(null);
         }
 
@@ -1349,16 +1352,18 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
                     + " isIconified=" + isIconified + "}";
         }
 
-        public static final Parcelable.Creator<SavedState> CREATOR =
-                new Parcelable.Creator<SavedState>() {
-                    public SavedState createFromParcel(Parcel in) {
-                        return new SavedState(in);
+        public static final Parcelable.Creator<SavedState> CREATOR = ParcelableCompat.newCreator(
+                new ParcelableCompatCreatorCallbacks<SavedState>() {
+                    @Override
+                    public SavedState createFromParcel(Parcel in, ClassLoader loader) {
+                        return new SavedState(in, loader);
                     }
 
+                    @Override
                     public SavedState[] newArray(int size) {
                         return new SavedState[size];
                     }
-                };
+                });
     }
 
     @Override

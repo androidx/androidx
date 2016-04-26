@@ -31,6 +31,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
+import android.support.v4.os.ParcelableCompat;
+import android.support.v4.os.ParcelableCompatCreatorCallbacks;
+import android.support.v4.view.AbsSavedState;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
@@ -1454,15 +1457,15 @@ public class SlidingPaneLayout extends ViewGroup {
 
     }
 
-    static class SavedState extends BaseSavedState {
+    static class SavedState extends AbsSavedState {
         boolean isOpen;
 
         SavedState(Parcelable superState) {
             super(superState);
         }
 
-        private SavedState(Parcel in) {
-            super(in);
+        private SavedState(Parcel in, ClassLoader loader) {
+            super(in, loader);
             isOpen = in.readInt() != 0;
         }
 
@@ -1472,16 +1475,18 @@ public class SlidingPaneLayout extends ViewGroup {
             out.writeInt(isOpen ? 1 : 0);
         }
 
-        public static final Parcelable.Creator<SavedState> CREATOR =
-                new Parcelable.Creator<SavedState>() {
-            public SavedState createFromParcel(Parcel in) {
-                return new SavedState(in);
-            }
+        public static final Creator<SavedState> CREATOR = ParcelableCompat.newCreator(
+                new ParcelableCompatCreatorCallbacks<SavedState>() {
+                    @Override
+                    public SavedState createFromParcel(Parcel in, ClassLoader loader) {
+                        return new SavedState(in, loader);
+                    }
 
-            public SavedState[] newArray(int size) {
-                return new SavedState[size];
-            }
-        };
+                    @Override
+                    public SavedState[] newArray(int size) {
+                        return new SavedState[size];
+                    }
+                });
     }
 
     interface SlidingPanelLayoutImpl {

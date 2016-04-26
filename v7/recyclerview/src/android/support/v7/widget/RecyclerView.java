@@ -35,7 +35,10 @@ import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
+import android.support.v4.os.ParcelableCompat;
+import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 import android.support.v4.os.TraceCompat;
+import android.support.v4.view.AbsSavedState;
 import android.support.v4.view.InputDeviceCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.NestedScrollingChild;
@@ -10387,16 +10390,17 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * This is public so that the CREATOR can be access on cold launch.
      * @hide
      */
-    public static class SavedState extends android.view.View.BaseSavedState {
+    public static class SavedState extends AbsSavedState {
 
         Parcelable mLayoutState;
 
         /**
          * called by CREATOR
          */
-        SavedState(Parcel in) {
-            super(in);
-            mLayoutState = in.readParcelable(LayoutManager.class.getClassLoader());
+        SavedState(Parcel in, ClassLoader loader) {
+            super(in, loader);
+            mLayoutState = in.readParcelable(
+                    loader != null ? loader : LayoutManager.class.getClassLoader());
         }
 
         /**
@@ -10416,18 +10420,18 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             mLayoutState = other.mLayoutState;
         }
 
-        public static final Parcelable.Creator<SavedState> CREATOR
-                = new Parcelable.Creator<SavedState>() {
-            @Override
-            public SavedState createFromParcel(Parcel in) {
-                return new SavedState(in);
-            }
+        public static final Creator<SavedState> CREATOR = ParcelableCompat.newCreator(
+                new ParcelableCompatCreatorCallbacks<SavedState>() {
+                    @Override
+                    public SavedState createFromParcel(Parcel in, ClassLoader loader) {
+                        return new SavedState(in, loader);
+                    }
 
-            @Override
-            public SavedState[] newArray(int size) {
-                return new SavedState[size];
-            }
-        };
+                    @Override
+                    public SavedState[] newArray(int size) {
+                        return new SavedState[size];
+                    }
+                });
     }
     /**
      * <p>Contains useful information about the current RecyclerView state like target scroll
