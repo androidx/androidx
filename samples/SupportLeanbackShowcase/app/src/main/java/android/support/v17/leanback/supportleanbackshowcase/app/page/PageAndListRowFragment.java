@@ -10,6 +10,7 @@ import android.support.v17.leanback.supportleanbackshowcase.app.details.ShadowRo
 import android.support.v17.leanback.supportleanbackshowcase.cards.presenters.CardPresenterSelector;
 import android.support.v17.leanback.supportleanbackshowcase.models.Card;
 import android.support.v17.leanback.supportleanbackshowcase.models.CardRow;
+import android.support.v17.leanback.supportleanbackshowcase.utils.CardListRow;
 import android.support.v17.leanback.supportleanbackshowcase.utils.Utils;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
@@ -180,7 +181,7 @@ public class PageAndListRowFragment extends BrowseFragment {
                 public void run() {
                     createRows();
                 }
-            }, 500);
+            }, 200);
 
             setAdapter(mRowsAdapter);
             setOnItemViewClickedListener(new OnItemViewClickedListener() {
@@ -215,7 +216,7 @@ public class PageAndListRowFragment extends BrowseFragment {
             }
 
             HeaderItem headerItem = new HeaderItem(cardRow.getTitle());
-            return new ListRow(headerItem, adapter);
+            return new CardListRow(headerItem, adapter, cardRow);
         }
     }
 }

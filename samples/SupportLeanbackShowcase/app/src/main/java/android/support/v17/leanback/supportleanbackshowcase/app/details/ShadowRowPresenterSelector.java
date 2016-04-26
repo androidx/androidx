@@ -41,4 +41,12 @@ public class ShadowRowPresenterSelector extends PresenterSelector {
         if (row.useShadow()) return mShadowEnabledRowPresenter;
         return mShadowDisabledRowPresenter;
     }
+
+    @Override
+    public Presenter[] getPresenters() {
+        return new Presenter [] {
+                mShadowDisabledRowPresenter,
+                mShadowEnabledRowPresenter
+        };
+    }
 }
