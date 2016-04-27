@@ -4,55 +4,55 @@
     "cards": [
       {
         "type": "MOVIE",
-        "title": "The Amazing Spider-Man",
+        "title": "Deep Into The Deep Sleep",
         "description": "$3.99",
         "localImageResource": "card_image_movie_01"
       },
       {
         "type": "MOVIE",
-        "title": "American Psycho",
+        "title": "We",
         "description": "$3.99",
         "localImageResource": "card_image_movie_02"
       },
       {
         "type": "MOVIE",
-        "title": "Big Hero 6",
+        "title": "The Fairy Story Of A Legend",
         "description": "$3.99",
         "localImageResource": "card_image_movie_03"
       },
       {
         "type": "MOVIE",
-        "title": "Edge of Tomorrow",
+        "title": "Cursed",
         "description": "$3.99",
         "localImageResource": "card_image_movie_04"
       },
       {
         "type": "MOVIE",
-        "title": "The Hobbit: The Desolation of Smaug",
+        "title": "My Crazy One",
         "description": "$3.99",
         "localImageResource": "card_image_movie_05"
       },
       {
         "type": "MOVIE",
-        "title": "Interstellar",
+        "title": "Gone",
         "description": "$3.99",
         "localImageResource": "card_image_movie_06"
       },
       {
         "type": "MOVIE",
-        "title": "Jurassic Park",
+        "title": "A Cold Night To Stay",
         "description": "$3.99",
         "localImageResource": "card_image_movie_07"
       },
       {
         "type": "MOVIE",
-        "title": "The Hunger Games: Mockingjay Part I",
+        "title": "The Silence",
         "description": "$3.99",
         "localImageResource": "card_image_movie_08"
       },
       {
         "type": "MOVIE",
-        "title": "Planes",
+        "title": "Hear The Roar",
         "description": "$3.99",
         "localImageResource": "card_image_movie_09"
       }
@@ -63,47 +63,56 @@
     "cards": [
       {
         "type": "MOVIE_BASE",
-        "title": "The Amazing Spider-Man",
+        "title": "Deep Into The Deep Sleep",
+        "description": "$3.99",
         "localImageResource": "card_image_movie_01"
       },
       {
         "type": "MOVIE_BASE",
-        "title": "American Psycho",
+        "title": "We",
+        "description": "$3.99",
         "localImageResource": "card_image_movie_02"
       },
       {
         "type": "MOVIE_BASE",
-        "title": "Big Hero 6",
+        "title": "The Fairy Story Of A Legend",
+        "description": "$3.99",
         "localImageResource": "card_image_movie_03"
       },
       {
         "type": "MOVIE_BASE",
-        "title": "Edge of Tomorrow",
+        "title": "Cursed",
+        "description": "$3.99",
         "localImageResource": "card_image_movie_04"
       },
       {
         "type": "MOVIE_BASE",
-        "title": "The Hobbit: The Desolation of Smaug",
+        "title": "My Crazy One",
+        "description": "$3.99",
         "localImageResource": "card_image_movie_05"
       },
       {
         "type": "MOVIE_BASE",
-        "title": "Interstellar",
+        "title": "Gone",
+        "description": "$3.99",
         "localImageResource": "card_image_movie_06"
       },
       {
         "type": "MOVIE_BASE",
-        "title": "Jurassic Park",
+        "title": "A Cold Night To Stay",
+        "description": "$3.99",
         "localImageResource": "card_image_movie_07"
       },
       {
         "type": "MOVIE_BASE",
-        "title": "The Hunger Games: Mockingjay Part I",
+        "title": "The Silence",
+        "description": "$3.99",
         "localImageResource": "card_image_movie_08"
       },
       {
         "type": "MOVIE_BASE",
-        "title": "Planes",
+        "title": "Hear The Roar",
+        "description": "$3.99",
         "localImageResource": "card_image_movie_09"
       }
     ]
@@ -114,48 +123,48 @@
       {
         "type": "MOVIE_COMPLETE",
         "description": "$3.99",
-        "title": "The Amazing Spider-Man",
+        "title": "Deep Into The Deep Sleep",
         "footerIconLocalImageResource": "stars_red",
         "localImageResource": "card_image_movie_01"
       },
       {
         "type": "MOVIE_COMPLETE",
-        "title": "American Psycho",
+        "title": "We",
         "description": "$3.99",
         "footerIconLocalImageResource": "stars_red",
         "localImageResource": "card_image_movie_02"
       },
       {
         "type": "MOVIE_COMPLETE",
-        "title": "Big Hero 6",
+        "title": "The Fairy",
         "description": "$3.99",
         "footerIconLocalImageResource": "stars_red",
         "localImageResource": "card_image_movie_03"
       },
       {
         "type": "MOVIE_COMPLETE",
-        "title": "Edge of Tomorrow",
+        "title": "Cursed",
         "description": "$3.99",
         "footerIconLocalImageResource": "stars_red",
         "localImageResource": "card_image_movie_04"
       },
       {
         "type": "MOVIE_COMPLETE",
-        "title": "The Hobbit: The Desolation of Smaug",
+        "title": "My Crazy One",
         "description": "$3.99",
         "footerIconLocalImageResource": "stars_red",
         "localImageResource": "card_image_movie_05"
       },
       {
         "type": "MOVIE_COMPLETE",
-        "title": "Interstellar",
+        "title": "Gone",
         "description": "$3.99",
         "footerIconLocalImageResource": "stars_red",
         "localImageResource": "card_image_movie_06"
       },
       {
         "type": "MOVIE_COMPLETE",
-        "title": "Jurassic Park",
+        "title": "A Cold Night To Stay",
         "description": "$3.99",
         "footerIconLocalImageResource": "stars_red",
         "localImageResource": "card_image_movie_07"
@@ -163,13 +172,13 @@
       {
         "type": "MOVIE_COMPLETE",
         "description": "$3.99",
-        "title": "The Hunger Games: Mockingjay Part I",
+        "title": "The Silence",
         "footerIconLocalImageResource": "stars_red",
         "localImageResource": "card_image_movie_08"
       },
       {
         "type": "MOVIE_COMPLETE",
-        "title": "Planes",
+        "title": "Hear The Roar",
         "description": "$3.99",
         "footerIconLocalImageResource": "stars_red",
         "localImageResource": "card_image_movie_09"
@@ -191,14 +200,14 @@
         "title": "Blue in Green",
         "description": "Miles Davis",
         "footerColor": "#b93221",
-        "localImageResource": "card_image_music_13"
+        "localImageResource": "card_image_music_03"
       },
       {
         "type": "SQUARE_BIG",
         "title": "Blue in Green",
         "description": "Miles Davis",
         "footerColor": "#311b92",
-        "localImageResource": "card_image_music_08"
+        "localImageResource": "card_image_music_04"
       },
       {
         "type": "SQUARE_BIG",
@@ -219,14 +228,14 @@
         "title": "Blue in Green",
         "description": "Miles Davis",
         "footerColor": "#3e2723",
-        "localImageResource": "card_image_music_09"
+        "localImageResource": "card_image_music_08"
       },
       {
         "type": "SQUARE_BIG",
         "title": "Blue in Green",
         "description": "Miles Davis",
         "footerColor": "#01579B",
-        "localImageResource": "card_image_music_11"
+        "localImageResource": "card_image_music_09"
       }
     ]
   },
@@ -245,14 +254,14 @@
         "title": "The Life Aquatic",
         "description": "Seu Jorge",
         "extraText": "Bacon ipsum dolor amet bresaola kevin tenderloin swine shoulder strip steak t-bone picanha turducken beef. Ribeye turkey t-bone pastrami meatball corned beef. Pork belly landjaeger short ribs ground round cupim, brisket ham tri-tip. Pig pork loin hamburger picanha ribeye, pork belly meatball chicken ham boudin sirloin corned beef frankfurter ham hock.",
-        "localImageResource": "card_image_music_13"
+        "localImageResource": "card_image_music_03"
       },
       {
         "type": "SIDE_INFO",
         "title": "The Life Aquatic",
         "description": "Seu Jorge",
         "extraText": "Bacon ipsum dolor amet bresaola kevin tenderloin swine shoulder strip steak t-bone picanha turducken beef. Ribeye turkey t-bone pastrami meatball corned beef. Pork belly landjaeger short ribs ground round cupim, brisket ham tri-tip. Pig pork loin hamburger picanha ribeye, pork belly meatball chicken ham boudin sirloin corned beef frankfurter ham hock.",
-        "localImageResource": "card_image_music_08"
+        "localImageResource": "card_image_music_04"
       },
       {
         "type": "SIDE_INFO",
@@ -273,14 +282,14 @@
         "title": "The Life Aquatic",
         "description": "Seu Jorge",
         "extraText": "Bacon ipsum dolor amet bresaola kevin tenderloin swine shoulder strip steak t-bone picanha turducken beef. Ribeye turkey t-bone pastrami meatball corned beef. Pork belly landjaeger short ribs ground round cupim, brisket ham tri-tip. Pig pork loin hamburger picanha ribeye, pork belly meatball chicken ham boudin sirloin corned beef frankfurter ham hock.",
-        "localImageResource": "card_image_music_09"
+        "localImageResource": "card_image_music_07"
       },
       {
         "type": "SIDE_INFO",
         "title": "The Life Aquatic",
         "description": "Seu Jorge",
         "extraText": "Bacon ipsum dolor amet bresaola kevin tenderloin swine shoulder strip steak t-bone picanha turducken beef. Ribeye turkey t-bone pastrami meatball corned beef. Pork belly landjaeger short ribs ground round cupim, brisket ham tri-tip. Pig pork loin hamburger picanha ribeye, pork belly meatball chicken ham boudin sirloin corned beef frankfurter ham hock.",
-        "localImageResource": "card_image_music_11"
+        "localImageResource": "card_image_music_08"
       }
     ]
   },
@@ -289,37 +298,37 @@
     "cards": [
       {
         "type": "GAME",
-        "title": "Angry Birds",
+        "title": "Crazy One",
         "description": "Purchased",
-        "localImageResource": "game_angry_bird_w",
+        "localImageResource": "game_crazy_one",
         "footerIconLocalImageResource": "ic_installed"
       },
       {
         "type": "GAME",
-        "title": "Badland",
+        "title": "Cursed",
         "description": "Purchased",
-        "localImageResource": "game_badland_w",
+        "localImageResource": "game_cursed",
         "footerIconLocalImageResource": "ic_installed"
       },
       {
         "type": "GAME",
-        "title": "Leo's Fortune",
+        "title": "fairy",
         "description": "Purchased",
-        "localImageResource": "game_leos_fortune_w",
+        "localImageResource": "game_fairy",
         "footerIconLocalImageResource": "ic_installed"
       },
       {
         "type": "GAME",
-        "title": "Minion Rush",
+        "title": "Hear The Roar",
         "description": "Purchased",
-        "localImageResource": "game_minion_rush_w",
+        "localImageResource": "game_hear_the_roar",
         "footerIconLocalImageResource": "ic_installed"
       },
       {
         "type": "GAME",
-        "title": "Monument Valley",
+        "title": "Silence",
         "description": "Purchased",
-        "localImageResource": "game_monument_valley_w",
+        "localImageResource": "game_silence",
         "footerIconLocalImageResource": "ic_installed"
       }
     ]
