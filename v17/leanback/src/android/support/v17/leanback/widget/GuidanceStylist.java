@@ -16,22 +16,15 @@ package android.support.v17.leanback.widget;
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.content.Context;
-import android.content.res.TypedArray;
-import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v17.leanback.R;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.List;
@@ -72,43 +65,6 @@ import java.util.List;
  * @see GuidanceStylist.Guidance
  */
 public class GuidanceStylist implements FragmentAnimationProvider {
-
-    private View mGuidanceContainer;
-    private int mTitleKeylinePixels;
-    private float mTitleKeylinePercent;
-    private ViewTreeObserver.OnPreDrawListener mParentPreDrawListener
-            = new ViewTreeObserver.OnPreDrawListener() {
-
-        @Override
-        public boolean onPreDraw() {
-            mGuidanceContainer.getViewTreeObserver().removeOnPreDrawListener(this);
-            mTitleKeylinePixels = (int) (mGuidanceContainer.getHeight() * mTitleKeylinePercent/100);
-
-            if (mTitleView != null) {
-                Paint textPaint = mTitleView.getPaint();
-                int titleViewTextHeight = -textPaint.getFontMetricsInt().top;
-                int mBreadcrumbViewHeight = mBreadcrumbView.getHeight();
-                int guidanceTextContainerTop = mTitleKeylinePixels
-                        - titleViewTextHeight - mBreadcrumbViewHeight - mTitleView.getPaddingTop();
-                ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)
-                        mBreadcrumbView.getLayoutParams();
-                lp.topMargin = guidanceTextContainerTop;
-                mBreadcrumbView.setLayoutParams(lp);
-            }
-
-            if (mIconView != null) {
-                Drawable drawable = mIconView.getDrawable();
-                if (drawable != null) {
-                    ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)
-                            mIconView.getLayoutParams();
-                    lp.topMargin = (mTitleKeylinePixels - mIconView.getHeight() / 2);
-                    mIconView.setLayoutParams(lp);
-                }
-            }
-
-            return true;
-        }
-    };
 
     /**
      * A data class representing contextual information for a {@link
@@ -179,6 +135,7 @@ public class GuidanceStylist implements FragmentAnimationProvider {
     private TextView mDescriptionView;
     private TextView mBreadcrumbView;
     private ImageView mIconView;
+    private View mGuidanceContainer;
 
     /**
      * Creates an appropriately configured view for the given Guidance, using the provided
@@ -192,14 +149,8 @@ public class GuidanceStylist implements FragmentAnimationProvider {
      * @param guidance The guidance data for the view.
      * @return The view to be added to the caller's view hierarchy.
      */
-    public View onCreateView(final LayoutInflater inflater, ViewGroup container, Guidance guidance) {
-
-        TypedArray ta = inflater.getContext().getTheme().obtainStyledAttributes(
-                R.styleable.LeanbackGuidedStepTheme);
-
-        mTitleKeylinePercent = ta.getFloat(R.styleable.LeanbackGuidedStepTheme_guidedStepKeyline,
-                40);
-        ta.recycle();
+    public View onCreateView(
+            final LayoutInflater inflater, ViewGroup container, Guidance guidance) {
 
         View guidanceView = inflater.inflate(onProvideLayoutId(), container, false);
         mTitleView = (TextView) guidanceView.findViewById(R.id.guidance_title);
@@ -239,8 +190,6 @@ public class GuidanceStylist implements FragmentAnimationProvider {
                         .append(guidance.getDescription())
                         .toString());
             }
-
-            mGuidanceContainer.getViewTreeObserver().addOnPreDrawListener(mParentPreDrawListener);
         }
 
         return guidanceView;
@@ -254,10 +203,6 @@ public class GuidanceStylist implements FragmentAnimationProvider {
         mDescriptionView = null;
         mIconView = null;
         mTitleView = null;
-        if (mGuidanceContainer != null) {
-            mGuidanceContainer.getViewTreeObserver().removeOnPreDrawListener(
-                    mParentPreDrawListener);
-        }
     }
 
     /**
