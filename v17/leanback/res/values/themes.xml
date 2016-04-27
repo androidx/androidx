@@ -90,10 +90,12 @@
 
         <item name="errorMessageStyle">@style/Widget.Leanback.ErrorMessageStyle</item>
 
-        <!-- TODO should be null, and set programatically to avoid dependence on leanback theme -->
-        <item name="defaultSearchColor">@null</item>
-        <item name="defaultSearchBrightColor">@null</item>
-        <item name="defaultSearchIcon">@null</item>
+        <item name="defaultSearchColor">@color/lb_default_search_color</item>
+        <item name="defaultSearchIconColor">@color/lb_default_search_icon_color</item>
+        <item name="defaultSearchBrightColor">?attr/defaultSearchColor</item>
+        <item name="defaultSearchIcon">@drawable/lb_ic_in_app_search</item>
+
+        <item name="defaultSectionHeaderColor">?attr/defaultSearchColor</item>
 
         <!-- android:windowSharedElementEnterTransition is kept for backward compatibility for apps still refer
         to Theme.Leanback, app should use Theme.Leanback.Details instead -->
