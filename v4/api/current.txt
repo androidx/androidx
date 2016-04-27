@@ -2747,6 +2747,7 @@ package android.support.v4.view {
   public class ViewPager extends android.view.ViewGroup {
     ctor public ViewPager(android.content.Context);
     ctor public ViewPager(android.content.Context, android.util.AttributeSet);
+    method public void addOnAdapterChangeListener(android.support.v4.view.ViewPager.OnAdapterChangeListener);
     method public void addOnPageChangeListener(android.support.v4.view.ViewPager.OnPageChangeListener);
     method public boolean arrowScroll(int);
     method public boolean beginFakeDrag();
@@ -2764,6 +2765,7 @@ package android.support.v4.view {
     method protected void onPageScrolled(int, float, int);
     method public void onRestoreInstanceState(android.os.Parcelable);
     method public android.os.Parcelable onSaveInstanceState();
+    method public void removeOnAdapterChangeListener(android.support.v4.view.ViewPager.OnAdapterChangeListener);
     method public void removeOnPageChangeListener(android.support.v4.view.ViewPager.OnPageChangeListener);
     method public void setAdapter(android.support.v4.view.PagerAdapter);
     method public void setCurrentItem(int);
@@ -2779,11 +2781,18 @@ package android.support.v4.view {
     field public static final int SCROLL_STATE_SETTLING = 2; // 0x2
   }
 
+  public static abstract class ViewPager.DecorView implements java.lang.annotation.Annotation {
+  }
+
   public static class ViewPager.LayoutParams extends android.view.ViewGroup.LayoutParams {
     ctor public ViewPager.LayoutParams();
     ctor public ViewPager.LayoutParams(android.content.Context, android.util.AttributeSet);
     field public int gravity;
     field public boolean isDecor;
+  }
+
+  public static abstract interface ViewPager.OnAdapterChangeListener {
+    method public abstract void onAdapterChanged(android.support.v4.view.ViewPager, android.support.v4.view.PagerAdapter, android.support.v4.view.PagerAdapter);
   }
 
   public static abstract interface ViewPager.OnPageChangeListener {
