@@ -2,8 +2,14 @@ apply from:'buildSrc/studioCompat.gradle'
 include ':support-annotations'
 project(':support-annotations').projectDir = new File(rootDir, 'annotations')
 
+include ':support-compat'
+project(':support-compat').projectDir = new File(rootDir, 'compat')
+
+include ':support-core'
+project(':support-core').projectDir = new File(rootDir, 'v4')
+
 include ':support-v4'
-project(':support-v4').projectDir = new File(rootDir, 'v4')
+project(':support-v4').projectDir = new File(rootDir, 'core-combined')
 
 include ':support-appcompat-v7'
 project(':support-appcompat-v7').projectDir = new File(rootDir, 'v7/appcompat')

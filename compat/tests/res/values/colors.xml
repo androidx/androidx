@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <color name="text_color">#FF8090</color>
+
+    <color name="selector_color_default">#70A0C0</color>
+    <color name="selector_color_focused">#70B0F0</color>
+    <color name="selector_color_pressed">#6080B0</color>
+
+    <color name="theme_color_yellow_default">#F0B000</color>
+    <color name="theme_color_yellow_focused">#F0A020</color>
+    <color name="theme_color_yellow_pressed">#E0A040</color>
+    <color name="theme_color_yellow_selected">#E8A848</color>
+
+    <color name="theme_color_lilac_default">#F080F0</color>
+    <color name="theme_color_lilac_focused">#F070D0</color>
+    <color name="theme_color_lilac_pressed">#E070A0</color>
+    <color name="theme_color_lilac_selected">#E878A8</color>
+
+    <color name="test_red">#FF6030</color>
+    <color name="test_green">#50E080</color>
+    <color name="test_blue">#3050CF</color>
+    <color name="test_yellow">#F0F000</color>
+</resources>

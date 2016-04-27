@@ -31,7 +31,8 @@ import android.view.ViewGroup;
  * for nested scrolling.</p>
  *
  * <p>Views invoking nested scrolling functionality should always do so from the relevant
- * {@link ViewCompat}, {@link ViewGroupCompat} or {@link ViewParentCompat} compatibility
+ * {@link android.support.v4.view.ViewCompat}, {@link android.support.v4.view.ViewGroupCompat} or
+ * {@link android.support.v4.view.ViewParentCompat} compatibility
  * shim static methods. This ensures interoperability with nested scrolling views on Android
  * 5.0 Lollipop and newer.</p>
  */
@@ -51,8 +52,8 @@ public class NestedScrollingParentHelper {
      * by this ViewGroup.
      *
      * <p>This is a delegate method. Call it from your {@link android.view.ViewGroup ViewGroup}
-     * subclass method/{@link NestedScrollingParent} interface method with the same signature
-     * to implement the standard policy.</p>
+     * subclass method/{@link android.support.v4.view.NestedScrollingParent} interface method with
+     * the same signature to implement the standard policy.</p>
      */
     public void onNestedScrollAccepted(View child, View target, int axes) {
         mNestedScrollAxes = axes;
@@ -62,8 +63,8 @@ public class NestedScrollingParentHelper {
      * Return the current axes of nested scrolling for this ViewGroup.
      *
      * <p>This is a delegate method. Call it from your {@link android.view.ViewGroup ViewGroup}
-     * subclass method/{@link NestedScrollingParent} interface method with the same signature
-     * to implement the standard policy.</p>
+     * subclass method/{@link android.support.v4.view.NestedScrollingParent} interface method with
+     * the same signature to implement the standard policy.</p>
      */
     public int getNestedScrollAxes() {
         return mNestedScrollAxes;
@@ -73,8 +74,8 @@ public class NestedScrollingParentHelper {
      * React to a nested scroll operation ending.
      *
      * <p>This is a delegate method. Call it from your {@link android.view.ViewGroup ViewGroup}
-     * subclass method/{@link NestedScrollingParent} interface method with the same signature
-     * to implement the standard policy.</p>
+     * subclass method/{@link android.support.v4.view.NestedScrollingParent} interface method with
+     * the same signature to implement the standard policy.</p>
      *
      * @param target View that initiated the nested scroll
      */

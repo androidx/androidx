@@ -1,0 +1,29 @@
+apply plugin: 'com.android.library'
+
+archivesBaseName = 'support-v4'
+dependencies {
+    compile project(':support-compat')
+    compile project(':support-core')
+}
+
+android {
+    compileSdkVersion project.ext.currentSdk
+
+    defaultConfig {
+        minSdkVersion 4
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        // This disables the builds tools automatic vector -> PNG generation
+        generatedDensities = []
+    }
+
+    sourceSets {
+        main.manifest.srcFile 'AndroidManifest.xml'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+}
+
+

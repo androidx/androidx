@@ -19,12 +19,12 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v4-donut
 LOCAL_SDK_VERSION := 4
 LOCAL_SRC_FILES := $(call all-java-files-under, donut)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-annotations
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-annotations android-support-compat
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files := $(LOCAL_SRC_FILES)
-support_module_java_libraries := android-support-annotations
+support_module_java_libraries := android-support-annotations android-support-compat
 
 # -----------------------------------------------------------------------
 
@@ -265,23 +265,31 @@ support_module_src_files += $(LOCAL_SRC_FILES)
 # Here is the final static library that apps can link against.
 include $(CLEAR_VARS)
 LOCAL_USE_AAPT2 := true
-LOCAL_MODULE := android-support-v4
+LOCAL_MODULE := android-support-core
 LOCAL_SDK_VERSION := 4
 LOCAL_AIDL_INCLUDES := frameworks/support/v4/java
 LOCAL_SRC_FILES := $(call all-java-files-under, java) \
     $(call all-Iaidl-files-under, java)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4-api24
+LOCAL_SHARED_ANDROID_LIBRARIES := \
+    android-support-compat \
+    android-support-annotations
 LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
+support_module_src_files += $(call all-java-files-under, ../compat/java)
+support_module_src_files += $(call all-java-files-under, ../compat/donut)
+support_module_src_files += $(call all-java-files-under, ../compat/honeycomb_mr2)
+support_module_src_files += $(call all-java-files-under, ../compat/ics)
 support_module_aidl_includes := $(LOCAL_AIDL_INCLUDES)
 
 # API Check
 # ---------------------------------------------
 support_module := $(LOCAL_MODULE)
 support_module_api_dir := $(LOCAL_PATH)/api
+support_module_java_libraries := $(LOCAL_JAVA_LIBRARIES)
 support_module_java_packages := android.support.v4.*
 include $(SUPPORT_API_CHECK)

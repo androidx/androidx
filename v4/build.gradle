@@ -1,9 +1,10 @@
 apply plugin: 'com.android.library'
-archivesBaseName = 'support-v4'
+archivesBaseName = 'support-core'
 
 
 createApiSourceSets(project, gradle.ext.studioCompat.modules.v4.apiTargets)
 dependencies {
+    compile project(':support-compat')
     androidTestCompile ('com.android.support.test:runner:0.4.1') {
         exclude module: 'support-annotations'
     }

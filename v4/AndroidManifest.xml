@@ -15,7 +15,7 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
-          package="android.support.v4">
-    <uses-sdk android:minSdkVersion="4" tools:overrideLibrary="android.support.v4"/>
+          package="android.support.core">
+    <uses-sdk android:minSdkVersion="4" tools:overrideLibrary="android.support.core"/>
     <application />
 </manifest>

@@ -1,0 +1,1604 @@
+package android.support.v4.accessibilityservice {
+
+  public final class AccessibilityServiceInfoCompat {
+    method public static java.lang.String capabilityToString(int);
+    method public static java.lang.String feedbackTypeToString(int);
+    method public static java.lang.String flagToString(int);
+    method public static boolean getCanRetrieveWindowContent(android.accessibilityservice.AccessibilityServiceInfo);
+    method public static int getCapabilities(android.accessibilityservice.AccessibilityServiceInfo);
+    method public static java.lang.String getDescription(android.accessibilityservice.AccessibilityServiceInfo);
+    method public static java.lang.String getId(android.accessibilityservice.AccessibilityServiceInfo);
+    method public static android.content.pm.ResolveInfo getResolveInfo(android.accessibilityservice.AccessibilityServiceInfo);
+    method public static java.lang.String getSettingsActivityName(android.accessibilityservice.AccessibilityServiceInfo);
+    field public static final int CAPABILITY_CAN_FILTER_KEY_EVENTS = 8; // 0x8
+    field public static final int CAPABILITY_CAN_REQUEST_ENHANCED_WEB_ACCESSIBILITY = 4; // 0x4
+    field public static final int CAPABILITY_CAN_REQUEST_TOUCH_EXPLORATION = 2; // 0x2
+    field public static final int CAPABILITY_CAN_RETRIEVE_WINDOW_CONTENT = 1; // 0x1
+    field public static final int DEFAULT = 1; // 0x1
+    field public static final int FEEDBACK_ALL_MASK = -1; // 0xffffffff
+    field public static final int FEEDBACK_BRAILLE = 32; // 0x20
+    field public static final int FLAG_INCLUDE_NOT_IMPORTANT_VIEWS = 2; // 0x2
+    field public static final int FLAG_REPORT_VIEW_IDS = 16; // 0x10
+    field public static final int FLAG_REQUEST_ENHANCED_WEB_ACCESSIBILITY = 8; // 0x8
+    field public static final int FLAG_REQUEST_FILTER_KEY_EVENTS = 32; // 0x20
+    field public static final int FLAG_REQUEST_TOUCH_EXPLORATION_MODE = 4; // 0x4
+  }
+
+}
+
+package android.support.v4.app {
+
+  public class ActivityCompat extends android.support.v4.content.ContextCompat {
+    ctor public ActivityCompat();
+    method public static void finishAffinity(android.app.Activity);
+    method public static void finishAfterTransition(android.app.Activity);
+    method public android.net.Uri getReferrer(android.app.Activity);
+    method public static boolean invalidateOptionsMenu(android.app.Activity);
+    method public static void postponeEnterTransition(android.app.Activity);
+    method public static void requestPermissions(android.app.Activity, java.lang.String[], int);
+    method public static void setEnterSharedElementCallback(android.app.Activity, android.support.v4.app.SharedElementCallback);
+    method public static void setExitSharedElementCallback(android.app.Activity, android.support.v4.app.SharedElementCallback);
+    method public static boolean shouldShowRequestPermissionRationale(android.app.Activity, java.lang.String);
+    method public static void startActivity(android.app.Activity, android.content.Intent, android.os.Bundle);
+    method public static void startActivityForResult(android.app.Activity, android.content.Intent, int, android.os.Bundle);
+    method public static void startIntentSenderForResult(android.app.Activity, android.content.IntentSender, int, android.content.Intent, int, int, int, android.os.Bundle) throws android.content.IntentSender.SendIntentException;
+    method public static void startPostponedEnterTransition(android.app.Activity);
+  }
+
+  public static abstract interface ActivityCompat.OnRequestPermissionsResultCallback {
+    method public abstract void onRequestPermissionsResult(int, java.lang.String[], int[]);
+  }
+
+  public final class ActivityManagerCompat {
+    method public static boolean isLowRamDevice(android.app.ActivityManager);
+  }
+
+  public class ActivityOptionsCompat {
+    ctor protected ActivityOptionsCompat();
+    method public static android.support.v4.app.ActivityOptionsCompat makeCustomAnimation(android.content.Context, int, int);
+    method public static android.support.v4.app.ActivityOptionsCompat makeScaleUpAnimation(android.view.View, int, int, int, int);
+    method public static android.support.v4.app.ActivityOptionsCompat makeSceneTransitionAnimation(android.app.Activity, android.view.View, java.lang.String);
+    method public static android.support.v4.app.ActivityOptionsCompat makeSceneTransitionAnimation(android.app.Activity, android.support.v4.util.Pair<android.view.View, java.lang.String>...);
+    method public static android.support.v4.app.ActivityOptionsCompat makeThumbnailScaleUpAnimation(android.view.View, android.graphics.Bitmap, int, int);
+    method public android.os.Bundle toBundle();
+    method public void update(android.support.v4.app.ActivityOptionsCompat);
+  }
+
+  public final class AppOpsManagerCompat {
+    method public static int noteOp(android.content.Context, java.lang.String, int, java.lang.String);
+    method public static int noteProxyOp(android.content.Context, java.lang.String, java.lang.String);
+    method public static java.lang.String permissionToOp(java.lang.String);
+    field public static final int MODE_ALLOWED = 0; // 0x0
+    field public static final int MODE_DEFAULT = 3; // 0x3
+    field public static final int MODE_IGNORED = 1; // 0x1
+  }
+
+  public final class BundleCompat {
+    method public static android.os.IBinder getBinder(android.os.Bundle, java.lang.String);
+    method public static void putBinder(android.os.Bundle, java.lang.String, android.os.IBinder);
+  }
+
+  public final class ServiceCompat {
+    field public static final int START_STICKY = 1; // 0x1
+  }
+
+  public final class ShareCompat {
+    method public static void configureMenuItem(android.view.MenuItem, android.support.v4.app.ShareCompat.IntentBuilder);
+    method public static void configureMenuItem(android.view.Menu, int, android.support.v4.app.ShareCompat.IntentBuilder);
+    method public static android.content.ComponentName getCallingActivity(android.app.Activity);
+    method public static java.lang.String getCallingPackage(android.app.Activity);
+    field public static final java.lang.String EXTRA_CALLING_ACTIVITY = "android.support.v4.app.EXTRA_CALLING_ACTIVITY";
+    field public static final java.lang.String EXTRA_CALLING_PACKAGE = "android.support.v4.app.EXTRA_CALLING_PACKAGE";
+  }
+
+  public static class ShareCompat.IntentBuilder {
+    method public android.support.v4.app.ShareCompat.IntentBuilder addEmailBcc(java.lang.String);
+    method public android.support.v4.app.ShareCompat.IntentBuilder addEmailBcc(java.lang.String[]);
+    method public android.support.v4.app.ShareCompat.IntentBuilder addEmailCc(java.lang.String);
+    method public android.support.v4.app.ShareCompat.IntentBuilder addEmailCc(java.lang.String[]);
+    method public android.support.v4.app.ShareCompat.IntentBuilder addEmailTo(java.lang.String);
+    method public android.support.v4.app.ShareCompat.IntentBuilder addEmailTo(java.lang.String[]);
+    method public android.support.v4.app.ShareCompat.IntentBuilder addStream(android.net.Uri);
+    method public android.content.Intent createChooserIntent();
+    method public static android.support.v4.app.ShareCompat.IntentBuilder from(android.app.Activity);
+    method public android.content.Intent getIntent();
+    method public android.support.v4.app.ShareCompat.IntentBuilder setChooserTitle(java.lang.CharSequence);
+    method public android.support.v4.app.ShareCompat.IntentBuilder setChooserTitle(int);
+    method public android.support.v4.app.ShareCompat.IntentBuilder setEmailBcc(java.lang.String[]);
+    method public android.support.v4.app.ShareCompat.IntentBuilder setEmailCc(java.lang.String[]);
+    method public android.support.v4.app.ShareCompat.IntentBuilder setEmailTo(java.lang.String[]);
+    method public android.support.v4.app.ShareCompat.IntentBuilder setHtmlText(java.lang.String);
+    method public android.support.v4.app.ShareCompat.IntentBuilder setStream(android.net.Uri);
+    method public android.support.v4.app.ShareCompat.IntentBuilder setSubject(java.lang.String);
+    method public android.support.v4.app.ShareCompat.IntentBuilder setText(java.lang.CharSequence);
+    method public android.support.v4.app.ShareCompat.IntentBuilder setType(java.lang.String);
+    method public void startChooser();
+  }
+
+  public static class ShareCompat.IntentReader {
+    method public static android.support.v4.app.ShareCompat.IntentReader from(android.app.Activity);
+    method public android.content.ComponentName getCallingActivity();
+    method public android.graphics.drawable.Drawable getCallingActivityIcon();
+    method public android.graphics.drawable.Drawable getCallingApplicationIcon();
+    method public java.lang.CharSequence getCallingApplicationLabel();
+    method public java.lang.String getCallingPackage();
+    method public java.lang.String[] getEmailBcc();
+    method public java.lang.String[] getEmailCc();
+    method public java.lang.String[] getEmailTo();
+    method public java.lang.String getHtmlText();
+    method public android.net.Uri getStream();
+    method public android.net.Uri getStream(int);
+    method public int getStreamCount();
+    method public java.lang.String getSubject();
+    method public java.lang.CharSequence getText();
+    method public java.lang.String getType();
+    method public boolean isMultipleShare();
+    method public boolean isShareIntent();
+    method public boolean isSingleShare();
+  }
+
+  public abstract class SharedElementCallback {
+    ctor public SharedElementCallback();
+    method public android.os.Parcelable onCaptureSharedElementSnapshot(android.view.View, android.graphics.Matrix, android.graphics.RectF);
+    method public android.view.View onCreateSnapshotView(android.content.Context, android.os.Parcelable);
+    method public void onMapSharedElements(java.util.List<java.lang.String>, java.util.Map<java.lang.String, android.view.View>);
+    method public void onRejectSharedElements(java.util.List<android.view.View>);
+    method public void onSharedElementEnd(java.util.List<java.lang.String>, java.util.List<android.view.View>, java.util.List<android.view.View>);
+    method public void onSharedElementStart(java.util.List<java.lang.String>, java.util.List<android.view.View>, java.util.List<android.view.View>);
+  }
+
+}
+
+package android.support.v4.content {
+
+  public final class ContentResolverCompat {
+    method public static android.database.Cursor query(android.content.ContentResolver, android.net.Uri, java.lang.String[], java.lang.String, java.lang.String[], java.lang.String, android.support.v4.os.CancellationSignal);
+  }
+
+  public class ContextCompat {
+    ctor public ContextCompat();
+    method public static int checkSelfPermission(android.content.Context, java.lang.String);
+    method public static android.content.Context createDeviceProtectedStorageContext(android.content.Context);
+    method public static java.io.File getCodeCacheDir(android.content.Context);
+    method public static final int getColor(android.content.Context, int);
+    method public static final android.content.res.ColorStateList getColorStateList(android.content.Context, int);
+    method public static java.io.File getDataDir(android.content.Context);
+    method public static final android.graphics.drawable.Drawable getDrawable(android.content.Context, int);
+    method public static java.io.File[] getExternalCacheDirs(android.content.Context);
+    method public static java.io.File[] getExternalFilesDirs(android.content.Context, java.lang.String);
+    method public final java.io.File getNoBackupFilesDir(android.content.Context);
+    method public static java.io.File[] getObbDirs(android.content.Context);
+    method public static boolean isDeviceProtectedStorage(android.content.Context);
+    method public static boolean startActivities(android.content.Context, android.content.Intent[]);
+    method public static boolean startActivities(android.content.Context, android.content.Intent[], android.os.Bundle);
+  }
+
+  public final class IntentCompat {
+    method public static android.content.Intent makeMainActivity(android.content.ComponentName);
+    method public static android.content.Intent makeMainSelectorActivity(java.lang.String, java.lang.String);
+    method public static android.content.Intent makeRestartActivityTask(android.content.ComponentName);
+    field public static final java.lang.String ACTION_EXTERNAL_APPLICATIONS_AVAILABLE = "android.intent.action.EXTERNAL_APPLICATIONS_AVAILABLE";
+    field public static final java.lang.String ACTION_EXTERNAL_APPLICATIONS_UNAVAILABLE = "android.intent.action.EXTERNAL_APPLICATIONS_UNAVAILABLE";
+    field public static final java.lang.String CATEGORY_LEANBACK_LAUNCHER = "android.intent.category.LEANBACK_LAUNCHER";
+    field public static final java.lang.String EXTRA_CHANGED_PACKAGE_LIST = "android.intent.extra.changed_package_list";
+    field public static final java.lang.String EXTRA_CHANGED_UID_LIST = "android.intent.extra.changed_uid_list";
+    field public static final java.lang.String EXTRA_HTML_TEXT = "android.intent.extra.HTML_TEXT";
+    field public static final int FLAG_ACTIVITY_CLEAR_TASK = 32768; // 0x8000
+    field public static final int FLAG_ACTIVITY_TASK_ON_HOME = 16384; // 0x4000
+  }
+
+  public final class ParallelExecutorCompat {
+    method public static java.util.concurrent.Executor getParallelExecutor();
+  }
+
+  public final class SharedPreferencesCompat {
+  }
+
+  public static final class SharedPreferencesCompat.EditorCompat {
+    method public void apply(android.content.SharedPreferences.Editor);
+    method public static android.support.v4.content.SharedPreferencesCompat.EditorCompat getInstance();
+  }
+
+}
+
+package android.support.v4.content.pm {
+
+  public final class ActivityInfoCompat {
+    field public static final int CONFIG_UI_MODE = 512; // 0x200
+  }
+
+}
+
+package android.support.v4.content.res {
+
+  public final class ConfigurationHelper {
+    method public static int getDensityDpi(android.content.res.Resources);
+    method public static int getScreenHeightDp(android.content.res.Resources);
+    method public static int getScreenWidthDp(android.content.res.Resources);
+    method public static int getSmallestScreenWidthDp(android.content.res.Resources);
+  }
+
+  public final class ResourcesCompat {
+    method public static int getColor(android.content.res.Resources, int, android.content.res.Resources.Theme) throws android.content.res.Resources.NotFoundException;
+    method public static android.content.res.ColorStateList getColorStateList(android.content.res.Resources, int, android.content.res.Resources.Theme) throws android.content.res.Resources.NotFoundException;
+    method public static android.graphics.drawable.Drawable getDrawable(android.content.res.Resources, int, android.content.res.Resources.Theme) throws android.content.res.Resources.NotFoundException;
+    method public static android.graphics.drawable.Drawable getDrawableForDensity(android.content.res.Resources, int, int, android.content.res.Resources.Theme) throws android.content.res.Resources.NotFoundException;
+  }
+
+}
+
+package android.support.v4.database {
+
+  public final class DatabaseUtilsCompat {
+    method public static java.lang.String[] appendSelectionArgs(java.lang.String[], java.lang.String[]);
+    method public static java.lang.String concatenateWhere(java.lang.String, java.lang.String);
+  }
+
+}
+
+package android.support.v4.graphics {
+
+  public final class BitmapCompat {
+    method public static int getAllocationByteCount(android.graphics.Bitmap);
+    method public static boolean hasMipMap(android.graphics.Bitmap);
+    method public static void setHasMipMap(android.graphics.Bitmap, boolean);
+  }
+
+}
+
+package android.support.v4.graphics.drawable {
+
+  public final class DrawableCompat {
+    method public static void applyTheme(android.graphics.drawable.Drawable, android.content.res.Resources.Theme);
+    method public static boolean canApplyTheme(android.graphics.drawable.Drawable);
+    method public static int getAlpha(android.graphics.drawable.Drawable);
+    method public static android.graphics.ColorFilter getColorFilter(android.graphics.drawable.Drawable);
+    method public static int getLayoutDirection(android.graphics.drawable.Drawable);
+    method public static void inflate(android.graphics.drawable.Drawable, android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+    method public static boolean isAutoMirrored(android.graphics.drawable.Drawable);
+    method public static void jumpToCurrentState(android.graphics.drawable.Drawable);
+    method public static void setAutoMirrored(android.graphics.drawable.Drawable, boolean);
+    method public static void setHotspot(android.graphics.drawable.Drawable, float, float);
+    method public static void setHotspotBounds(android.graphics.drawable.Drawable, int, int, int, int);
+    method public static boolean setLayoutDirection(android.graphics.drawable.Drawable, int);
+    method public static void setTint(android.graphics.drawable.Drawable, int);
+    method public static void setTintList(android.graphics.drawable.Drawable, android.content.res.ColorStateList);
+    method public static void setTintMode(android.graphics.drawable.Drawable, android.graphics.PorterDuff.Mode);
+    method public static T unwrap(android.graphics.drawable.Drawable);
+    method public static android.graphics.drawable.Drawable wrap(android.graphics.drawable.Drawable);
+  }
+
+}
+
+package android.support.v4.hardware.display {
+
+  public abstract class DisplayManagerCompat {
+    method public abstract android.view.Display getDisplay(int);
+    method public abstract android.view.Display[] getDisplays();
+    method public abstract android.view.Display[] getDisplays(java.lang.String);
+    method public static android.support.v4.hardware.display.DisplayManagerCompat getInstance(android.content.Context);
+    field public static final java.lang.String DISPLAY_CATEGORY_PRESENTATION = "android.hardware.display.category.PRESENTATION";
+  }
+
+}
+
+package android.support.v4.hardware.fingerprint {
+
+  public final class FingerprintManagerCompat {
+    method public void authenticate(android.support.v4.hardware.fingerprint.FingerprintManagerCompat.CryptoObject, int, android.support.v4.os.CancellationSignal, android.support.v4.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback, android.os.Handler);
+    method public static android.support.v4.hardware.fingerprint.FingerprintManagerCompat from(android.content.Context);
+    method public boolean hasEnrolledFingerprints();
+    method public boolean isHardwareDetected();
+  }
+
+  public static abstract class FingerprintManagerCompat.AuthenticationCallback {
+    ctor public FingerprintManagerCompat.AuthenticationCallback();
+    method public void onAuthenticationError(int, java.lang.CharSequence);
+    method public void onAuthenticationFailed();
+    method public void onAuthenticationHelp(int, java.lang.CharSequence);
+    method public void onAuthenticationSucceeded(android.support.v4.hardware.fingerprint.FingerprintManagerCompat.AuthenticationResult);
+  }
+
+  public static final class FingerprintManagerCompat.AuthenticationResult {
+    ctor public FingerprintManagerCompat.AuthenticationResult(android.support.v4.hardware.fingerprint.FingerprintManagerCompat.CryptoObject);
+    method public android.support.v4.hardware.fingerprint.FingerprintManagerCompat.CryptoObject getCryptoObject();
+  }
+
+  public static class FingerprintManagerCompat.CryptoObject {
+    ctor public FingerprintManagerCompat.CryptoObject(java.security.Signature);
+    ctor public FingerprintManagerCompat.CryptoObject(javax.crypto.Cipher);
+    ctor public FingerprintManagerCompat.CryptoObject(javax.crypto.Mac);
+    method public javax.crypto.Cipher getCipher();
+    method public javax.crypto.Mac getMac();
+    method public java.security.Signature getSignature();
+  }
+
+}
+
+package android.support.v4.net {
+
+  public final class ConnectivityManagerCompat {
+    method public static android.net.NetworkInfo getNetworkInfoFromBroadcast(android.net.ConnectivityManager, android.content.Intent);
+    method public static boolean isActiveNetworkMetered(android.net.ConnectivityManager);
+  }
+
+  public final class TrafficStatsCompat {
+    method public static void clearThreadStatsTag();
+    method public static int getThreadStatsTag();
+    method public static void incrementOperationCount(int);
+    method public static void incrementOperationCount(int, int);
+    method public static void setThreadStatsTag(int);
+    method public static void tagDatagramSocket(java.net.DatagramSocket) throws java.net.SocketException;
+    method public static void tagSocket(java.net.Socket) throws java.net.SocketException;
+    method public static void untagDatagramSocket(java.net.DatagramSocket) throws java.net.SocketException;
+    method public static void untagSocket(java.net.Socket) throws java.net.SocketException;
+  }
+
+}
+
+package android.support.v4.os {
+
+  public final class AsyncTaskCompat {
+    method public static android.os.AsyncTask<Params, Progress, Result> executeParallel(android.os.AsyncTask<Params, Progress, Result>, Params...);
+  }
+
+  public class BuildCompat {
+    method public static boolean isAtLeastN();
+  }
+
+  public final class CancellationSignal {
+    ctor public CancellationSignal();
+    method public void cancel();
+    method public java.lang.Object getCancellationSignalObject();
+    method public boolean isCanceled();
+    method public void setOnCancelListener(android.support.v4.os.CancellationSignal.OnCancelListener);
+    method public void throwIfCanceled();
+  }
+
+  public static abstract interface CancellationSignal.OnCancelListener {
+    method public abstract void onCancel();
+  }
+
+  public final class EnvironmentCompat {
+    method public static java.lang.String getStorageState(java.io.File);
+    field public static final java.lang.String MEDIA_UNKNOWN = "unknown";
+  }
+
+  public class OperationCanceledException extends java.lang.RuntimeException {
+    ctor public OperationCanceledException();
+    ctor public OperationCanceledException(java.lang.String);
+  }
+
+  public final class ParcelableCompat {
+    method public static android.os.Parcelable.Creator<T> newCreator(android.support.v4.os.ParcelableCompatCreatorCallbacks<T>);
+  }
+
+  public abstract interface ParcelableCompatCreatorCallbacks {
+    method public abstract T createFromParcel(android.os.Parcel, java.lang.ClassLoader);
+    method public abstract T[] newArray(int);
+  }
+
+  public final class TraceCompat {
+    method public static void beginSection(java.lang.String);
+    method public static void endSection();
+  }
+
+  public class UserManagerCompat {
+    method public static boolean isUserUnlocked(android.content.Context);
+  }
+
+}
+
+package android.support.v4.text {
+
+  public final class ICUCompat {
+    method public static java.lang.String maximizeAndGetScript(java.util.Locale);
+  }
+
+  public abstract interface TextDirectionHeuristicCompat {
+    method public abstract boolean isRtl(char[], int, int);
+    method public abstract boolean isRtl(java.lang.CharSequence, int, int);
+  }
+
+  public final class TextDirectionHeuristicsCompat {
+    field public static final android.support.v4.text.TextDirectionHeuristicCompat ANYRTL_LTR;
+    field public static final android.support.v4.text.TextDirectionHeuristicCompat FIRSTSTRONG_LTR;
+    field public static final android.support.v4.text.TextDirectionHeuristicCompat FIRSTSTRONG_RTL;
+    field public static final android.support.v4.text.TextDirectionHeuristicCompat LOCALE;
+    field public static final android.support.v4.text.TextDirectionHeuristicCompat LTR;
+    field public static final android.support.v4.text.TextDirectionHeuristicCompat RTL;
+  }
+
+  public final class TextUtilsCompat {
+    method public static int getLayoutDirectionFromLocale(java.util.Locale);
+    method public static java.lang.String htmlEncode(java.lang.String);
+    field public static final java.util.Locale ROOT;
+  }
+
+}
+
+package android.support.v4.util {
+
+  public class ArrayMap extends android.support.v4.util.SimpleArrayMap implements java.util.Map {
+    ctor public ArrayMap();
+    ctor public ArrayMap(int);
+    ctor public ArrayMap(android.support.v4.util.SimpleArrayMap);
+    method public boolean containsAll(java.util.Collection<?>);
+    method public java.util.Set<java.util.Map.Entry<K, V>> entrySet();
+    method public java.util.Set<K> keySet();
+    method public void putAll(java.util.Map<? extends K, ? extends V>);
+    method public boolean removeAll(java.util.Collection<?>);
+    method public boolean retainAll(java.util.Collection<?>);
+    method public java.util.Collection<V> values();
+  }
+
+  public class AtomicFile {
+    ctor public AtomicFile(java.io.File);
+    method public void delete();
+    method public void failWrite(java.io.FileOutputStream);
+    method public void finishWrite(java.io.FileOutputStream);
+    method public java.io.File getBaseFile();
+    method public java.io.FileInputStream openRead() throws java.io.FileNotFoundException;
+    method public byte[] readFully() throws java.io.IOException;
+    method public java.io.FileOutputStream startWrite() throws java.io.IOException;
+  }
+
+  public final class CircularArray {
+    ctor public CircularArray();
+    ctor public CircularArray(int);
+    method public void addFirst(E);
+    method public void addLast(E);
+    method public void clear();
+    method public E get(int);
+    method public E getFirst();
+    method public E getLast();
+    method public boolean isEmpty();
+    method public E popFirst();
+    method public E popLast();
+    method public void removeFromEnd(int);
+    method public void removeFromStart(int);
+    method public int size();
+  }
+
+  public final class CircularIntArray {
+    ctor public CircularIntArray();
+    ctor public CircularIntArray(int);
+    method public void addFirst(int);
+    method public void addLast(int);
+    method public void clear();
+    method public int get(int);
+    method public int getFirst();
+    method public int getLast();
+    method public boolean isEmpty();
+    method public int popFirst();
+    method public int popLast();
+    method public void removeFromEnd(int);
+    method public void removeFromStart(int);
+    method public int size();
+  }
+
+  public class LongSparseArray {
+    ctor public LongSparseArray();
+    ctor public LongSparseArray(int);
+    method public void append(long, E);
+    method public void clear();
+    method public android.support.v4.util.LongSparseArray<E> clone();
+    method public void delete(long);
+    method public E get(long);
+    method public E get(long, E);
+    method public int indexOfKey(long);
+    method public int indexOfValue(E);
+    method public long keyAt(int);
+    method public void put(long, E);
+    method public void remove(long);
+    method public void removeAt(int);
+    method public void setValueAt(int, E);
+    method public int size();
+    method public E valueAt(int);
+  }
+
+  public class LruCache {
+    ctor public LruCache(int);
+    method protected V create(K);
+    method public final synchronized int createCount();
+    method protected void entryRemoved(boolean, K, V, V);
+    method public final void evictAll();
+    method public final synchronized int evictionCount();
+    method public final V get(K);
+    method public final synchronized int hitCount();
+    method public final synchronized int maxSize();
+    method public final synchronized int missCount();
+    method public final V put(K, V);
+    method public final synchronized int putCount();
+    method public final V remove(K);
+    method public void resize(int);
+    method public final synchronized int size();
+    method protected int sizeOf(K, V);
+    method public final synchronized java.util.Map<K, V> snapshot();
+    method public final synchronized java.lang.String toString();
+    method public void trimToSize(int);
+  }
+
+  public class Pair {
+    ctor public Pair(F, S);
+    method public static android.support.v4.util.Pair<A, B> create(A, B);
+    field public final F first;
+    field public final S second;
+  }
+
+  public final class Pools {
+  }
+
+  public static abstract interface Pools.Pool {
+    method public abstract T acquire();
+    method public abstract boolean release(T);
+  }
+
+  public static class Pools.SimplePool implements android.support.v4.util.Pools.Pool {
+    ctor public Pools.SimplePool(int);
+    method public T acquire();
+    method public boolean release(T);
+  }
+
+  public static class Pools.SynchronizedPool extends android.support.v4.util.Pools.SimplePool {
+    ctor public Pools.SynchronizedPool(int);
+  }
+
+  public class SimpleArrayMap {
+    ctor public SimpleArrayMap();
+    ctor public SimpleArrayMap(int);
+    ctor public SimpleArrayMap(android.support.v4.util.SimpleArrayMap);
+    method public void clear();
+    method public boolean containsKey(java.lang.Object);
+    method public boolean containsValue(java.lang.Object);
+    method public void ensureCapacity(int);
+    method public V get(java.lang.Object);
+    method public int indexOfKey(java.lang.Object);
+    method public boolean isEmpty();
+    method public K keyAt(int);
+    method public V put(K, V);
+    method public void putAll(android.support.v4.util.SimpleArrayMap<? extends K, ? extends V>);
+    method public V remove(java.lang.Object);
+    method public V removeAt(int);
+    method public V setValueAt(int, V);
+    method public int size();
+    method public V valueAt(int);
+  }
+
+  public class SparseArrayCompat {
+    ctor public SparseArrayCompat();
+    ctor public SparseArrayCompat(int);
+    method public void append(int, E);
+    method public void clear();
+    method public android.support.v4.util.SparseArrayCompat<E> clone();
+    method public void delete(int);
+    method public E get(int);
+    method public E get(int, E);
+    method public int indexOfKey(int);
+    method public int indexOfValue(E);
+    method public int keyAt(int);
+    method public void put(int, E);
+    method public void remove(int);
+    method public void removeAt(int);
+    method public void removeAtRange(int, int);
+    method public void setValueAt(int, E);
+    method public int size();
+    method public E valueAt(int);
+  }
+
+}
+
+package android.support.v4.view {
+
+  public class AccessibilityDelegateCompat {
+    ctor public AccessibilityDelegateCompat();
+    method public boolean dispatchPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent);
+    method public android.support.v4.view.accessibility.AccessibilityNodeProviderCompat getAccessibilityNodeProvider(android.view.View);
+    method public void onInitializeAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent);
+    method public void onInitializeAccessibilityNodeInfo(android.view.View, android.support.v4.view.accessibility.AccessibilityNodeInfoCompat);
+    method public void onPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent);
+    method public boolean onRequestSendAccessibilityEvent(android.view.ViewGroup, android.view.View, android.view.accessibility.AccessibilityEvent);
+    method public boolean performAccessibilityAction(android.view.View, int, android.os.Bundle);
+    method public void sendAccessibilityEvent(android.view.View, int);
+    method public void sendAccessibilityEventUnchecked(android.view.View, android.view.accessibility.AccessibilityEvent);
+  }
+
+  public abstract class ActionProvider {
+    ctor public ActionProvider(android.content.Context);
+    method public android.content.Context getContext();
+    method public boolean hasSubMenu();
+    method public boolean isVisible();
+    method public abstract android.view.View onCreateActionView();
+    method public android.view.View onCreateActionView(android.view.MenuItem);
+    method public boolean onPerformDefaultAction();
+    method public void onPrepareSubMenu(android.view.SubMenu);
+    method public boolean overridesItemVisibility();
+    method public void refreshVisibility();
+    method public void setVisibilityListener(android.support.v4.view.ActionProvider.VisibilityListener);
+  }
+
+  public static abstract interface ActionProvider.VisibilityListener {
+    method public abstract void onActionProviderVisibilityChanged(boolean);
+  }
+
+  public final class GestureDetectorCompat {
+    ctor public GestureDetectorCompat(android.content.Context, android.view.GestureDetector.OnGestureListener);
+    ctor public GestureDetectorCompat(android.content.Context, android.view.GestureDetector.OnGestureListener, android.os.Handler);
+    method public boolean isLongpressEnabled();
+    method public boolean onTouchEvent(android.view.MotionEvent);
+    method public void setIsLongpressEnabled(boolean);
+    method public void setOnDoubleTapListener(android.view.GestureDetector.OnDoubleTapListener);
+  }
+
+  public final class GravityCompat {
+    method public static void apply(int, int, int, android.graphics.Rect, android.graphics.Rect, int);
+    method public static void apply(int, int, int, android.graphics.Rect, int, int, android.graphics.Rect, int);
+    method public static void applyDisplay(int, android.graphics.Rect, android.graphics.Rect, int);
+    method public static int getAbsoluteGravity(int, int);
+    field public static final int END = 8388613; // 0x800005
+    field public static final int RELATIVE_HORIZONTAL_GRAVITY_MASK = 8388615; // 0x800007
+    field public static final int RELATIVE_LAYOUT_DIRECTION = 8388608; // 0x800000
+    field public static final int START = 8388611; // 0x800003
+  }
+
+  public final class InputDeviceCompat {
+    field public static final int SOURCE_ANY = -256; // 0xffffff00
+    field public static final int SOURCE_CLASS_BUTTON = 1; // 0x1
+    field public static final int SOURCE_CLASS_JOYSTICK = 16; // 0x10
+    field public static final int SOURCE_CLASS_MASK = 255; // 0xff
+    field public static final int SOURCE_CLASS_NONE = 0; // 0x0
+    field public static final int SOURCE_CLASS_POINTER = 2; // 0x2
+    field public static final int SOURCE_CLASS_POSITION = 8; // 0x8
+    field public static final int SOURCE_CLASS_TRACKBALL = 4; // 0x4
+    field public static final int SOURCE_DPAD = 513; // 0x201
+    field public static final int SOURCE_GAMEPAD = 1025; // 0x401
+    field public static final int SOURCE_HDMI = 33554433; // 0x2000001
+    field public static final int SOURCE_JOYSTICK = 16777232; // 0x1000010
+    field public static final int SOURCE_KEYBOARD = 257; // 0x101
+    field public static final int SOURCE_MOUSE = 8194; // 0x2002
+    field public static final int SOURCE_STYLUS = 16386; // 0x4002
+    field public static final int SOURCE_TOUCHPAD = 1048584; // 0x100008
+    field public static final int SOURCE_TOUCHSCREEN = 4098; // 0x1002
+    field public static final int SOURCE_TOUCH_NAVIGATION = 2097152; // 0x200000
+    field public static final int SOURCE_TRACKBALL = 65540; // 0x10004
+    field public static final int SOURCE_UNKNOWN = 0; // 0x0
+  }
+
+  public final class KeyEventCompat {
+    method public static boolean dispatch(android.view.KeyEvent, android.view.KeyEvent.Callback, java.lang.Object, java.lang.Object);
+    method public static java.lang.Object getKeyDispatcherState(android.view.View);
+    method public static boolean hasModifiers(android.view.KeyEvent, int);
+    method public static boolean hasNoModifiers(android.view.KeyEvent);
+    method public static boolean isCtrlPressed(android.view.KeyEvent);
+    method public static boolean isTracking(android.view.KeyEvent);
+    method public static boolean metaStateHasModifiers(int, int);
+    method public static boolean metaStateHasNoModifiers(int);
+    method public static int normalizeMetaState(int);
+    method public static void startTracking(android.view.KeyEvent);
+  }
+
+  public final class LayoutInflaterCompat {
+    method public static android.support.v4.view.LayoutInflaterFactory getFactory(android.view.LayoutInflater);
+    method public static void setFactory(android.view.LayoutInflater, android.support.v4.view.LayoutInflaterFactory);
+  }
+
+  public abstract interface LayoutInflaterFactory {
+    method public abstract android.view.View onCreateView(android.view.View, java.lang.String, android.content.Context, android.util.AttributeSet);
+  }
+
+  public final class MarginLayoutParamsCompat {
+    method public static int getLayoutDirection(android.view.ViewGroup.MarginLayoutParams);
+    method public static int getMarginEnd(android.view.ViewGroup.MarginLayoutParams);
+    method public static int getMarginStart(android.view.ViewGroup.MarginLayoutParams);
+    method public static boolean isMarginRelative(android.view.ViewGroup.MarginLayoutParams);
+    method public static void resolveLayoutDirection(android.view.ViewGroup.MarginLayoutParams, int);
+    method public static void setLayoutDirection(android.view.ViewGroup.MarginLayoutParams, int);
+    method public static void setMarginEnd(android.view.ViewGroup.MarginLayoutParams, int);
+    method public static void setMarginStart(android.view.ViewGroup.MarginLayoutParams, int);
+  }
+
+  public final class MenuCompat {
+    method public static deprecated void setShowAsAction(android.view.MenuItem, int);
+  }
+
+  public final class MenuItemCompat {
+    method public static boolean collapseActionView(android.view.MenuItem);
+    method public static boolean expandActionView(android.view.MenuItem);
+    method public static android.support.v4.view.ActionProvider getActionProvider(android.view.MenuItem);
+    method public static android.view.View getActionView(android.view.MenuItem);
+    method public static boolean isActionViewExpanded(android.view.MenuItem);
+    method public static android.view.MenuItem setActionProvider(android.view.MenuItem, android.support.v4.view.ActionProvider);
+    method public static android.view.MenuItem setActionView(android.view.MenuItem, android.view.View);
+    method public static android.view.MenuItem setActionView(android.view.MenuItem, int);
+    method public static android.view.MenuItem setOnActionExpandListener(android.view.MenuItem, android.support.v4.view.MenuItemCompat.OnActionExpandListener);
+    method public static void setShowAsAction(android.view.MenuItem, int);
+    field public static final int SHOW_AS_ACTION_ALWAYS = 2; // 0x2
+    field public static final int SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW = 8; // 0x8
+    field public static final int SHOW_AS_ACTION_IF_ROOM = 1; // 0x1
+    field public static final int SHOW_AS_ACTION_NEVER = 0; // 0x0
+    field public static final int SHOW_AS_ACTION_WITH_TEXT = 4; // 0x4
+  }
+
+  public static abstract interface MenuItemCompat.OnActionExpandListener {
+    method public abstract boolean onMenuItemActionCollapse(android.view.MenuItem);
+    method public abstract boolean onMenuItemActionExpand(android.view.MenuItem);
+  }
+
+  public final class MotionEventCompat {
+    method public static int findPointerIndex(android.view.MotionEvent, int);
+    method public static int getActionIndex(android.view.MotionEvent);
+    method public static int getActionMasked(android.view.MotionEvent);
+    method public static float getAxisValue(android.view.MotionEvent, int);
+    method public static float getAxisValue(android.view.MotionEvent, int, int);
+    method public static int getButtonState(android.view.MotionEvent);
+    method public static int getPointerCount(android.view.MotionEvent);
+    method public static int getPointerId(android.view.MotionEvent, int);
+    method public static int getSource(android.view.MotionEvent);
+    method public static float getX(android.view.MotionEvent, int);
+    method public static float getY(android.view.MotionEvent, int);
+    method public static boolean isFromSource(android.view.MotionEvent, int);
+    field public static final int ACTION_HOVER_ENTER = 9; // 0x9
+    field public static final int ACTION_HOVER_EXIT = 10; // 0xa
+    field public static final int ACTION_HOVER_MOVE = 7; // 0x7
+    field public static final int ACTION_MASK = 255; // 0xff
+    field public static final int ACTION_POINTER_DOWN = 5; // 0x5
+    field public static final int ACTION_POINTER_INDEX_MASK = 65280; // 0xff00
+    field public static final int ACTION_POINTER_INDEX_SHIFT = 8; // 0x8
+    field public static final int ACTION_POINTER_UP = 6; // 0x6
+    field public static final int ACTION_SCROLL = 8; // 0x8
+    field public static final int AXIS_BRAKE = 23; // 0x17
+    field public static final int AXIS_DISTANCE = 24; // 0x18
+    field public static final int AXIS_GAS = 22; // 0x16
+    field public static final int AXIS_GENERIC_1 = 32; // 0x20
+    field public static final int AXIS_GENERIC_10 = 41; // 0x29
+    field public static final int AXIS_GENERIC_11 = 42; // 0x2a
+    field public static final int AXIS_GENERIC_12 = 43; // 0x2b
+    field public static final int AXIS_GENERIC_13 = 44; // 0x2c
+    field public static final int AXIS_GENERIC_14 = 45; // 0x2d
+    field public static final int AXIS_GENERIC_15 = 46; // 0x2e
+    field public static final int AXIS_GENERIC_16 = 47; // 0x2f
+    field public static final int AXIS_GENERIC_2 = 33; // 0x21
+    field public static final int AXIS_GENERIC_3 = 34; // 0x22
+    field public static final int AXIS_GENERIC_4 = 35; // 0x23
+    field public static final int AXIS_GENERIC_5 = 36; // 0x24
+    field public static final int AXIS_GENERIC_6 = 37; // 0x25
+    field public static final int AXIS_GENERIC_7 = 38; // 0x26
+    field public static final int AXIS_GENERIC_8 = 39; // 0x27
+    field public static final int AXIS_GENERIC_9 = 40; // 0x28
+    field public static final int AXIS_HAT_X = 15; // 0xf
+    field public static final int AXIS_HAT_Y = 16; // 0x10
+    field public static final int AXIS_HSCROLL = 10; // 0xa
+    field public static final int AXIS_LTRIGGER = 17; // 0x11
+    field public static final int AXIS_ORIENTATION = 8; // 0x8
+    field public static final int AXIS_PRESSURE = 2; // 0x2
+    field public static final int AXIS_RELATIVE_X = 27; // 0x1b
+    field public static final int AXIS_RELATIVE_Y = 28; // 0x1c
+    field public static final int AXIS_RTRIGGER = 18; // 0x12
+    field public static final int AXIS_RUDDER = 20; // 0x14
+    field public static final int AXIS_RX = 12; // 0xc
+    field public static final int AXIS_RY = 13; // 0xd
+    field public static final int AXIS_RZ = 14; // 0xe
+    field public static final int AXIS_SIZE = 3; // 0x3
+    field public static final int AXIS_THROTTLE = 19; // 0x13
+    field public static final int AXIS_TILT = 25; // 0x19
+    field public static final int AXIS_TOOL_MAJOR = 6; // 0x6
+    field public static final int AXIS_TOOL_MINOR = 7; // 0x7
+    field public static final int AXIS_TOUCH_MAJOR = 4; // 0x4
+    field public static final int AXIS_TOUCH_MINOR = 5; // 0x5
+    field public static final int AXIS_VSCROLL = 9; // 0x9
+    field public static final int AXIS_WHEEL = 21; // 0x15
+    field public static final int AXIS_X = 0; // 0x0
+    field public static final int AXIS_Y = 1; // 0x1
+    field public static final int AXIS_Z = 11; // 0xb
+    field public static final int BUTTON_PRIMARY = 1; // 0x1
+  }
+
+  public abstract interface NestedScrollingChild {
+    method public abstract boolean dispatchNestedFling(float, float, boolean);
+    method public abstract boolean dispatchNestedPreFling(float, float);
+    method public abstract boolean dispatchNestedPreScroll(int, int, int[], int[]);
+    method public abstract boolean dispatchNestedScroll(int, int, int, int, int[]);
+    method public abstract boolean hasNestedScrollingParent();
+    method public abstract boolean isNestedScrollingEnabled();
+    method public abstract void setNestedScrollingEnabled(boolean);
+    method public abstract boolean startNestedScroll(int);
+    method public abstract void stopNestedScroll();
+  }
+
+  public abstract interface NestedScrollingParent {
+    method public abstract int getNestedScrollAxes();
+    method public abstract boolean onNestedFling(android.view.View, float, float, boolean);
+    method public abstract boolean onNestedPreFling(android.view.View, float, float);
+    method public abstract void onNestedPreScroll(android.view.View, int, int, int[]);
+    method public abstract void onNestedScroll(android.view.View, int, int, int, int);
+    method public abstract void onNestedScrollAccepted(android.view.View, android.view.View, int);
+    method public abstract boolean onStartNestedScroll(android.view.View, android.view.View, int);
+    method public abstract void onStopNestedScroll(android.view.View);
+  }
+
+  public abstract interface OnApplyWindowInsetsListener {
+    method public abstract android.support.v4.view.WindowInsetsCompat onApplyWindowInsets(android.view.View, android.support.v4.view.WindowInsetsCompat);
+  }
+
+  public final class PointerIconCompat {
+    method public static android.support.v4.view.PointerIconCompat createCustomIcon(android.graphics.Bitmap, float, float);
+    method public static android.support.v4.view.PointerIconCompat getSystemIcon(android.content.Context, int);
+    method public static android.support.v4.view.PointerIconCompat loadCustomIcon(android.content.res.Resources, int);
+    field public static final int STYLE_ALIAS = 1010; // 0x3f2
+    field public static final int STYLE_ALL_SCROLL = 1013; // 0x3f5
+    field public static final int STYLE_ARROW = 1000; // 0x3e8
+    field public static final int STYLE_CELL = 1006; // 0x3ee
+    field public static final int STYLE_CONTEXT_MENU = 1001; // 0x3e9
+    field public static final int STYLE_COPY = 1011; // 0x3f3
+    field public static final int STYLE_CROSSHAIR = 1007; // 0x3ef
+    field public static final int STYLE_DEFAULT = 1000; // 0x3e8
+    field public static final int STYLE_GRAB = 1020; // 0x3fc
+    field public static final int STYLE_GRABBING = 1021; // 0x3fd
+    field public static final int STYLE_HAND = 1002; // 0x3ea
+    field public static final int STYLE_HELP = 1003; // 0x3eb
+    field public static final int STYLE_HORIZONTAL_DOUBLE_ARROW = 1014; // 0x3f6
+    field public static final int STYLE_NO_DROP = 1012; // 0x3f4
+    field public static final int STYLE_NULL = 0; // 0x0
+    field public static final int STYLE_TEXT = 1008; // 0x3f0
+    field public static final int STYLE_TOP_LEFT_DIAGONAL_DOUBLE_ARROW = 1017; // 0x3f9
+    field public static final int STYLE_TOP_RIGHT_DIAGONAL_DOUBLE_ARROW = 1016; // 0x3f8
+    field public static final int STYLE_VERTICAL_DOUBLE_ARROW = 1015; // 0x3f7
+    field public static final int STYLE_VERTICAL_TEXT = 1009; // 0x3f1
+    field public static final int STYLE_WAIT = 1004; // 0x3ec
+    field public static final int STYLE_ZOOM_IN = 1018; // 0x3fa
+    field public static final int STYLE_ZOOM_OUT = 1019; // 0x3fb
+  }
+
+  public final class ScaleGestureDetectorCompat {
+    method public static boolean isQuickScaleEnabled(java.lang.Object);
+    method public static void setQuickScaleEnabled(java.lang.Object, boolean);
+  }
+
+  public abstract interface ScrollingView {
+    method public abstract int computeHorizontalScrollExtent();
+    method public abstract int computeHorizontalScrollOffset();
+    method public abstract int computeHorizontalScrollRange();
+    method public abstract int computeVerticalScrollExtent();
+    method public abstract int computeVerticalScrollOffset();
+    method public abstract int computeVerticalScrollRange();
+  }
+
+  public abstract interface TintableBackgroundView {
+    method public abstract android.content.res.ColorStateList getSupportBackgroundTintList();
+    method public abstract android.graphics.PorterDuff.Mode getSupportBackgroundTintMode();
+    method public abstract void setSupportBackgroundTintList(android.content.res.ColorStateList);
+    method public abstract void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode);
+  }
+
+  public final class VelocityTrackerCompat {
+    method public static float getXVelocity(android.view.VelocityTracker, int);
+    method public static float getYVelocity(android.view.VelocityTracker, int);
+  }
+
+  public class ViewCompat {
+    ctor protected ViewCompat();
+    method public static android.support.v4.view.ViewPropertyAnimatorCompat animate(android.view.View);
+    method public static boolean canScrollHorizontally(android.view.View, int);
+    method public static boolean canScrollVertically(android.view.View, int);
+    method public static int combineMeasuredStates(int, int);
+    method public static android.support.v4.view.WindowInsetsCompat dispatchApplyWindowInsets(android.view.View, android.support.v4.view.WindowInsetsCompat);
+    method public static void dispatchFinishTemporaryDetach(android.view.View);
+    method public static boolean dispatchNestedFling(android.view.View, float, float, boolean);
+    method public static boolean dispatchNestedPreFling(android.view.View, float, float);
+    method public static boolean dispatchNestedPreScroll(android.view.View, int, int, int[], int[]);
+    method public static boolean dispatchNestedScroll(android.view.View, int, int, int, int, int[]);
+    method public static void dispatchStartTemporaryDetach(android.view.View);
+    method public static int getAccessibilityLiveRegion(android.view.View);
+    method public static android.support.v4.view.accessibility.AccessibilityNodeProviderCompat getAccessibilityNodeProvider(android.view.View);
+    method public static float getAlpha(android.view.View);
+    method public static android.content.res.ColorStateList getBackgroundTintList(android.view.View);
+    method public static android.graphics.PorterDuff.Mode getBackgroundTintMode(android.view.View);
+    method public static android.graphics.Rect getClipBounds(android.view.View);
+    method public static float getElevation(android.view.View);
+    method public static boolean getFitsSystemWindows(android.view.View);
+    method public static int getImportantForAccessibility(android.view.View);
+    method public static int getLabelFor(android.view.View);
+    method public static int getLayerType(android.view.View);
+    method public static int getLayoutDirection(android.view.View);
+    method public static android.graphics.Matrix getMatrix(android.view.View);
+    method public static int getMeasuredHeightAndState(android.view.View);
+    method public static int getMeasuredState(android.view.View);
+    method public static int getMeasuredWidthAndState(android.view.View);
+    method public static int getMinimumHeight(android.view.View);
+    method public static int getMinimumWidth(android.view.View);
+    method public static int getOverScrollMode(android.view.View);
+    method public static int getPaddingEnd(android.view.View);
+    method public static int getPaddingStart(android.view.View);
+    method public static android.view.ViewParent getParentForAccessibility(android.view.View);
+    method public static float getPivotX(android.view.View);
+    method public static float getPivotY(android.view.View);
+    method public static float getRotation(android.view.View);
+    method public static float getRotationX(android.view.View);
+    method public static float getRotationY(android.view.View);
+    method public static float getScaleX(android.view.View);
+    method public static float getScaleY(android.view.View);
+    method public static int getScrollIndicators(android.view.View);
+    method public static java.lang.String getTransitionName(android.view.View);
+    method public static float getTranslationX(android.view.View);
+    method public static float getTranslationY(android.view.View);
+    method public static float getTranslationZ(android.view.View);
+    method public static int getWindowSystemUiVisibility(android.view.View);
+    method public static float getX(android.view.View);
+    method public static float getY(android.view.View);
+    method public static float getZ(android.view.View);
+    method public static boolean hasAccessibilityDelegate(android.view.View);
+    method public static boolean hasNestedScrollingParent(android.view.View);
+    method public static boolean hasOnClickListeners(android.view.View);
+    method public static boolean hasOverlappingRendering(android.view.View);
+    method public static boolean hasPointerCapture(android.view.View);
+    method public static boolean hasTransientState(android.view.View);
+    method public static boolean isAttachedToWindow(android.view.View);
+    method public static boolean isInLayout(android.view.View);
+    method public static boolean isLaidOut(android.view.View);
+    method public static boolean isLayoutDirectionResolved(android.view.View);
+    method public static boolean isNestedScrollingEnabled(android.view.View);
+    method public static boolean isOpaque(android.view.View);
+    method public static boolean isPaddingRelative(android.view.View);
+    method public static void jumpDrawablesToCurrentState(android.view.View);
+    method public static void offsetLeftAndRight(android.view.View, int);
+    method public static void offsetTopAndBottom(android.view.View, int);
+    method public static android.support.v4.view.WindowInsetsCompat onApplyWindowInsets(android.view.View, android.support.v4.view.WindowInsetsCompat);
+    method public static void onInitializeAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent);
+    method public static void onInitializeAccessibilityNodeInfo(android.view.View, android.support.v4.view.accessibility.AccessibilityNodeInfoCompat);
+    method public static void onPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent);
+    method public static boolean performAccessibilityAction(android.view.View, int, android.os.Bundle);
+    method public static void postInvalidateOnAnimation(android.view.View);
+    method public static void postInvalidateOnAnimation(android.view.View, int, int, int, int);
+    method public static void postOnAnimation(android.view.View, java.lang.Runnable);
+    method public static void postOnAnimationDelayed(android.view.View, java.lang.Runnable, long);
+    method public static void releasePointerCapture(android.view.View);
+    method public static void requestApplyInsets(android.view.View);
+    method public static int resolveSizeAndState(int, int, int);
+    method public static void setAccessibilityDelegate(android.view.View, android.support.v4.view.AccessibilityDelegateCompat);
+    method public static void setAccessibilityLiveRegion(android.view.View, int);
+    method public static void setActivated(android.view.View, boolean);
+    method public static void setAlpha(android.view.View, float);
+    method public static void setBackgroundTintList(android.view.View, android.content.res.ColorStateList);
+    method public static void setBackgroundTintMode(android.view.View, android.graphics.PorterDuff.Mode);
+    method public static void setChildrenDrawingOrderEnabled(android.view.ViewGroup, boolean);
+    method public static void setClipBounds(android.view.View, android.graphics.Rect);
+    method public static void setElevation(android.view.View, float);
+    method public static void setFitsSystemWindows(android.view.View, boolean);
+    method public static void setHasTransientState(android.view.View, boolean);
+    method public static void setImportantForAccessibility(android.view.View, int);
+    method public static void setLabelFor(android.view.View, int);
+    method public static void setLayerPaint(android.view.View, android.graphics.Paint);
+    method public static void setLayerType(android.view.View, int, android.graphics.Paint);
+    method public static void setLayoutDirection(android.view.View, int);
+    method public static void setNestedScrollingEnabled(android.view.View, boolean);
+    method public static void setOnApplyWindowInsetsListener(android.view.View, android.support.v4.view.OnApplyWindowInsetsListener);
+    method public static void setOverScrollMode(android.view.View, int);
+    method public static void setPaddingRelative(android.view.View, int, int, int, int);
+    method public static void setPivotX(android.view.View, float);
+    method public static void setPivotY(android.view.View, float);
+    method public static void setPointerCapture(android.view.View);
+    method public static void setPointerIcon(android.view.View, android.support.v4.view.PointerIconCompat);
+    method public static void setRotation(android.view.View, float);
+    method public static void setRotationX(android.view.View, float);
+    method public static void setRotationY(android.view.View, float);
+    method public static void setSaveFromParentEnabled(android.view.View, boolean);
+    method public static void setScaleX(android.view.View, float);
+    method public static void setScaleY(android.view.View, float);
+    method public static void setScrollIndicators(android.view.View, int);
+    method public static void setScrollIndicators(android.view.View, int, int);
+    method public static void setTransitionName(android.view.View, java.lang.String);
+    method public static void setTranslationX(android.view.View, float);
+    method public static void setTranslationY(android.view.View, float);
+    method public static void setTranslationZ(android.view.View, float);
+    method public static void setX(android.view.View, float);
+    method public static void setY(android.view.View, float);
+    method public static void setZ(android.view.View, float);
+    method public static boolean startNestedScroll(android.view.View, int);
+    method public static void stopNestedScroll(android.view.View);
+    field public static final int ACCESSIBILITY_LIVE_REGION_ASSERTIVE = 2; // 0x2
+    field public static final int ACCESSIBILITY_LIVE_REGION_NONE = 0; // 0x0
+    field public static final int ACCESSIBILITY_LIVE_REGION_POLITE = 1; // 0x1
+    field public static final int IMPORTANT_FOR_ACCESSIBILITY_AUTO = 0; // 0x0
+    field public static final int IMPORTANT_FOR_ACCESSIBILITY_NO = 2; // 0x2
+    field public static final int IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS = 4; // 0x4
+    field public static final int IMPORTANT_FOR_ACCESSIBILITY_YES = 1; // 0x1
+    field public static final int LAYER_TYPE_HARDWARE = 2; // 0x2
+    field public static final int LAYER_TYPE_NONE = 0; // 0x0
+    field public static final int LAYER_TYPE_SOFTWARE = 1; // 0x1
+    field public static final int LAYOUT_DIRECTION_INHERIT = 2; // 0x2
+    field public static final int LAYOUT_DIRECTION_LOCALE = 3; // 0x3
+    field public static final int LAYOUT_DIRECTION_LTR = 0; // 0x0
+    field public static final int LAYOUT_DIRECTION_RTL = 1; // 0x1
+    field public static final int MEASURED_HEIGHT_STATE_SHIFT = 16; // 0x10
+    field public static final int MEASURED_SIZE_MASK = 16777215; // 0xffffff
+    field public static final int MEASURED_STATE_MASK = -16777216; // 0xff000000
+    field public static final int MEASURED_STATE_TOO_SMALL = 16777216; // 0x1000000
+    field public static final int OVER_SCROLL_ALWAYS = 0; // 0x0
+    field public static final int OVER_SCROLL_IF_CONTENT_SCROLLS = 1; // 0x1
+    field public static final int OVER_SCROLL_NEVER = 2; // 0x2
+    field public static final int SCROLL_AXIS_HORIZONTAL = 1; // 0x1
+    field public static final int SCROLL_AXIS_NONE = 0; // 0x0
+    field public static final int SCROLL_AXIS_VERTICAL = 2; // 0x2
+    field public static final int SCROLL_INDICATOR_BOTTOM = 2; // 0x2
+    field public static final int SCROLL_INDICATOR_END = 32; // 0x20
+    field public static final int SCROLL_INDICATOR_LEFT = 4; // 0x4
+    field public static final int SCROLL_INDICATOR_RIGHT = 8; // 0x8
+    field public static final int SCROLL_INDICATOR_START = 16; // 0x10
+    field public static final int SCROLL_INDICATOR_TOP = 1; // 0x1
+  }
+
+  public final class ViewConfigurationCompat {
+    method public static int getScaledPagingTouchSlop(android.view.ViewConfiguration);
+    method public static boolean hasPermanentMenuKey(android.view.ViewConfiguration);
+  }
+
+  public final class ViewGroupCompat {
+    method public static int getLayoutMode(android.view.ViewGroup);
+    method public static int getNestedScrollAxes(android.view.ViewGroup);
+    method public static boolean isTransitionGroup(android.view.ViewGroup);
+    method public static boolean onRequestSendAccessibilityEvent(android.view.ViewGroup, android.view.View, android.view.accessibility.AccessibilityEvent);
+    method public static void setLayoutMode(android.view.ViewGroup, int);
+    method public static void setMotionEventSplittingEnabled(android.view.ViewGroup, boolean);
+    method public static void setTransitionGroup(android.view.ViewGroup, boolean);
+    field public static final int LAYOUT_MODE_CLIP_BOUNDS = 0; // 0x0
+    field public static final int LAYOUT_MODE_OPTICAL_BOUNDS = 1; // 0x1
+  }
+
+  public final class ViewParentCompat {
+    method public static void notifySubtreeAccessibilityStateChanged(android.view.ViewParent, android.view.View, android.view.View, int);
+    method public static boolean onNestedFling(android.view.ViewParent, android.view.View, float, float, boolean);
+    method public static boolean onNestedPreFling(android.view.ViewParent, android.view.View, float, float);
+    method public static void onNestedPreScroll(android.view.ViewParent, android.view.View, int, int, int[]);
+    method public static void onNestedScroll(android.view.ViewParent, android.view.View, int, int, int, int);
+    method public static void onNestedScrollAccepted(android.view.ViewParent, android.view.View, android.view.View, int);
+    method public static boolean onStartNestedScroll(android.view.ViewParent, android.view.View, android.view.View, int);
+    method public static void onStopNestedScroll(android.view.ViewParent, android.view.View);
+    method public static boolean requestSendAccessibilityEvent(android.view.ViewParent, android.view.View, android.view.accessibility.AccessibilityEvent);
+  }
+
+  public final class ViewPropertyAnimatorCompat {
+    method public android.support.v4.view.ViewPropertyAnimatorCompat alpha(float);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat alphaBy(float);
+    method public void cancel();
+    method public long getDuration();
+    method public android.view.animation.Interpolator getInterpolator();
+    method public long getStartDelay();
+    method public android.support.v4.view.ViewPropertyAnimatorCompat rotation(float);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat rotationBy(float);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat rotationX(float);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat rotationXBy(float);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat rotationY(float);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat rotationYBy(float);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat scaleX(float);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat scaleXBy(float);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat scaleY(float);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat scaleYBy(float);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat setDuration(long);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat setInterpolator(android.view.animation.Interpolator);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat setListener(android.support.v4.view.ViewPropertyAnimatorListener);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat setStartDelay(long);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat setUpdateListener(android.support.v4.view.ViewPropertyAnimatorUpdateListener);
+    method public void start();
+    method public android.support.v4.view.ViewPropertyAnimatorCompat translationX(float);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat translationXBy(float);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat translationY(float);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat translationYBy(float);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat translationZ(float);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat translationZBy(float);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat withEndAction(java.lang.Runnable);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat withLayer();
+    method public android.support.v4.view.ViewPropertyAnimatorCompat withStartAction(java.lang.Runnable);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat x(float);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat xBy(float);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat y(float);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat yBy(float);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat z(float);
+    method public android.support.v4.view.ViewPropertyAnimatorCompat zBy(float);
+  }
+
+  public abstract interface ViewPropertyAnimatorListener {
+    method public abstract void onAnimationCancel(android.view.View);
+    method public abstract void onAnimationEnd(android.view.View);
+    method public abstract void onAnimationStart(android.view.View);
+  }
+
+  public class ViewPropertyAnimatorListenerAdapter implements android.support.v4.view.ViewPropertyAnimatorListener {
+    ctor public ViewPropertyAnimatorListenerAdapter();
+    method public void onAnimationCancel(android.view.View);
+    method public void onAnimationEnd(android.view.View);
+    method public void onAnimationStart(android.view.View);
+  }
+
+  public abstract interface ViewPropertyAnimatorUpdateListener {
+    method public abstract void onAnimationUpdate(android.view.View);
+  }
+
+  public final class WindowCompat {
+    field public static final int FEATURE_ACTION_BAR = 8; // 0x8
+    field public static final int FEATURE_ACTION_BAR_OVERLAY = 9; // 0x9
+    field public static final int FEATURE_ACTION_MODE_OVERLAY = 10; // 0xa
+  }
+
+  public class WindowInsetsCompat {
+    method public android.support.v4.view.WindowInsetsCompat consumeStableInsets();
+    method public android.support.v4.view.WindowInsetsCompat consumeSystemWindowInsets();
+    method public int getStableInsetBottom();
+    method public int getStableInsetLeft();
+    method public int getStableInsetRight();
+    method public int getStableInsetTop();
+    method public int getSystemWindowInsetBottom();
+    method public int getSystemWindowInsetLeft();
+    method public int getSystemWindowInsetRight();
+    method public int getSystemWindowInsetTop();
+    method public boolean hasInsets();
+    method public boolean hasStableInsets();
+    method public boolean hasSystemWindowInsets();
+    method public boolean isConsumed();
+    method public boolean isRound();
+    method public android.support.v4.view.WindowInsetsCompat replaceSystemWindowInsets(int, int, int, int);
+    method public android.support.v4.view.WindowInsetsCompat replaceSystemWindowInsets(android.graphics.Rect);
+  }
+
+}
+
+package android.support.v4.view.accessibility {
+
+  public final class AccessibilityEventCompat {
+    method public static void appendRecord(android.view.accessibility.AccessibilityEvent, android.support.v4.view.accessibility.AccessibilityRecordCompat);
+    method public static android.support.v4.view.accessibility.AccessibilityRecordCompat asRecord(android.view.accessibility.AccessibilityEvent);
+    method public static int getContentChangeTypes(android.view.accessibility.AccessibilityEvent);
+    method public static android.support.v4.view.accessibility.AccessibilityRecordCompat getRecord(android.view.accessibility.AccessibilityEvent, int);
+    method public static int getRecordCount(android.view.accessibility.AccessibilityEvent);
+    method public static void setContentChangeTypes(android.view.accessibility.AccessibilityEvent, int);
+    field public static final int CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION = 4; // 0x4
+    field public static final int CONTENT_CHANGE_TYPE_SUBTREE = 1; // 0x1
+    field public static final int CONTENT_CHANGE_TYPE_TEXT = 2; // 0x2
+    field public static final int CONTENT_CHANGE_TYPE_UNDEFINED = 0; // 0x0
+    field public static final int TYPES_ALL_MASK = -1; // 0xffffffff
+    field public static final int TYPE_ANNOUNCEMENT = 16384; // 0x4000
+    field public static final int TYPE_GESTURE_DETECTION_END = 524288; // 0x80000
+    field public static final int TYPE_GESTURE_DETECTION_START = 262144; // 0x40000
+    field public static final int TYPE_TOUCH_EXPLORATION_GESTURE_END = 1024; // 0x400
+    field public static final int TYPE_TOUCH_EXPLORATION_GESTURE_START = 512; // 0x200
+    field public static final int TYPE_TOUCH_INTERACTION_END = 2097152; // 0x200000
+    field public static final int TYPE_TOUCH_INTERACTION_START = 1048576; // 0x100000
+    field public static final int TYPE_VIEW_ACCESSIBILITY_FOCUSED = 32768; // 0x8000
+    field public static final int TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED = 65536; // 0x10000
+    field public static final int TYPE_VIEW_HOVER_ENTER = 128; // 0x80
+    field public static final int TYPE_VIEW_HOVER_EXIT = 256; // 0x100
+    field public static final int TYPE_VIEW_SCROLLED = 4096; // 0x1000
+    field public static final int TYPE_VIEW_TEXT_SELECTION_CHANGED = 8192; // 0x2000
+    field public static final int TYPE_VIEW_TEXT_TRAVERSED_AT_MOVEMENT_GRANULARITY = 131072; // 0x20000
+    field public static final int TYPE_WINDOW_CONTENT_CHANGED = 2048; // 0x800
+  }
+
+  public final class AccessibilityManagerCompat {
+    method public static boolean addAccessibilityStateChangeListener(android.view.accessibility.AccessibilityManager, android.support.v4.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListenerCompat);
+    method public static java.util.List<android.accessibilityservice.AccessibilityServiceInfo> getEnabledAccessibilityServiceList(android.view.accessibility.AccessibilityManager, int);
+    method public static java.util.List<android.accessibilityservice.AccessibilityServiceInfo> getInstalledAccessibilityServiceList(android.view.accessibility.AccessibilityManager);
+    method public static boolean isTouchExplorationEnabled(android.view.accessibility.AccessibilityManager);
+    method public static boolean removeAccessibilityStateChangeListener(android.view.accessibility.AccessibilityManager, android.support.v4.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListenerCompat);
+  }
+
+  public static abstract class AccessibilityManagerCompat.AccessibilityStateChangeListenerCompat {
+    ctor public AccessibilityManagerCompat.AccessibilityStateChangeListenerCompat();
+    method public abstract void onAccessibilityStateChanged(boolean);
+  }
+
+  public class AccessibilityNodeInfoCompat {
+    ctor public AccessibilityNodeInfoCompat(java.lang.Object);
+    method public void addAction(int);
+    method public void addAction(android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat);
+    method public void addChild(android.view.View);
+    method public void addChild(android.view.View, int);
+    method public boolean canOpenPopup();
+    method public java.util.List<android.support.v4.view.accessibility.AccessibilityNodeInfoCompat> findAccessibilityNodeInfosByText(java.lang.String);
+    method public java.util.List<android.support.v4.view.accessibility.AccessibilityNodeInfoCompat> findAccessibilityNodeInfosByViewId(java.lang.String);
+    method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat findFocus(int);
+    method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat focusSearch(int);
+    method public java.util.List<android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat> getActionList();
+    method public int getActions();
+    method public void getBoundsInParent(android.graphics.Rect);
+    method public void getBoundsInScreen(android.graphics.Rect);
+    method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat getChild(int);
+    method public int getChildCount();
+    method public java.lang.CharSequence getClassName();
+    method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.CollectionInfoCompat getCollectionInfo();
+    method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat getCollectionItemInfo();
+    method public java.lang.CharSequence getContentDescription();
+    method public java.lang.CharSequence getError();
+    method public android.os.Bundle getExtras();
+    method public java.lang.Object getInfo();
+    method public int getInputType();
+    method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat getLabelFor();
+    method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat getLabeledBy();
+    method public int getLiveRegion();
+    method public int getMaxTextLength();
+    method public int getMovementGranularities();
+    method public java.lang.CharSequence getPackageName();
+    method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat getParent();
+    method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.RangeInfoCompat getRangeInfo();
+    method public java.lang.CharSequence getRoleDescription();
+    method public java.lang.CharSequence getText();
+    method public int getTextSelectionEnd();
+    method public int getTextSelectionStart();
+    method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat getTraversalAfter();
+    method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat getTraversalBefore();
+    method public java.lang.String getViewIdResourceName();
+    method public android.support.v4.view.accessibility.AccessibilityWindowInfoCompat getWindow();
+    method public int getWindowId();
+    method public boolean hasImage();
+    method public boolean isAccessibilityFocused();
+    method public boolean isCheckable();
+    method public boolean isChecked();
+    method public boolean isClickable();
+    method public boolean isContentInvalid();
+    method public boolean isDismissable();
+    method public boolean isEditable();
+    method public boolean isEnabled();
+    method public boolean isFocusable();
+    method public boolean isFocused();
+    method public boolean isLongClickable();
+    method public boolean isMultiLine();
+    method public boolean isPassword();
+    method public boolean isScrollable();
+    method public boolean isSelected();
+    method public boolean isVisibleToUser();
+    method public static android.support.v4.view.accessibility.AccessibilityNodeInfoCompat obtain(android.view.View);
+    method public static android.support.v4.view.accessibility.AccessibilityNodeInfoCompat obtain(android.view.View, int);
+    method public static android.support.v4.view.accessibility.AccessibilityNodeInfoCompat obtain();
+    method public static android.support.v4.view.accessibility.AccessibilityNodeInfoCompat obtain(android.support.v4.view.accessibility.AccessibilityNodeInfoCompat);
+    method public boolean performAction(int);
+    method public boolean performAction(int, android.os.Bundle);
+    method public void recycle();
+    method public boolean refresh();
+    method public boolean removeAction(android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat);
+    method public boolean removeChild(android.view.View);
+    method public boolean removeChild(android.view.View, int);
+    method public void setAccessibilityFocused(boolean);
+    method public void setBoundsInParent(android.graphics.Rect);
+    method public void setBoundsInScreen(android.graphics.Rect);
+    method public void setCanOpenPopup(boolean);
+    method public void setCheckable(boolean);
+    method public void setChecked(boolean);
+    method public void setClassName(java.lang.CharSequence);
+    method public void setClickable(boolean);
+    method public void setCollectionInfo(java.lang.Object);
+    method public void setCollectionItemInfo(java.lang.Object);
+    method public void setContentDescription(java.lang.CharSequence);
+    method public void setContentInvalid(boolean);
+    method public void setDismissable(boolean);
+    method public void setEditable(boolean);
+    method public void setEnabled(boolean);
+    method public void setError(java.lang.CharSequence);
+    method public void setFocusable(boolean);
+    method public void setFocused(boolean);
+    method public void setHasImage(boolean);
+    method public void setInputType(int);
+    method public void setLabelFor(android.view.View);
+    method public void setLabelFor(android.view.View, int);
+    method public void setLabeledBy(android.view.View);
+    method public void setLabeledBy(android.view.View, int);
+    method public void setLiveRegion(int);
+    method public void setLongClickable(boolean);
+    method public void setMaxTextLength(int);
+    method public void setMovementGranularities(int);
+    method public void setMultiLine(boolean);
+    method public void setPackageName(java.lang.CharSequence);
+    method public void setParent(android.view.View);
+    method public void setParent(android.view.View, int);
+    method public void setPassword(boolean);
+    method public void setRangeInfo(android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.RangeInfoCompat);
+    method public void setRoleDescription(java.lang.CharSequence);
+    method public void setScrollable(boolean);
+    method public void setSelected(boolean);
+    method public void setSource(android.view.View);
+    method public void setSource(android.view.View, int);
+    method public void setText(java.lang.CharSequence);
+    method public void setTextSelection(int, int);
+    method public void setTraversalAfter(android.view.View);
+    method public void setTraversalAfter(android.view.View, int);
+    method public void setTraversalBefore(android.view.View);
+    method public void setTraversalBefore(android.view.View, int);
+    method public void setViewIdResourceName(java.lang.String);
+    method public void setVisibleToUser(boolean);
+    field public static final int ACTION_ACCESSIBILITY_FOCUS = 64; // 0x40
+    field public static final java.lang.String ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN = "ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN";
+    field public static final java.lang.String ACTION_ARGUMENT_HTML_ELEMENT_STRING = "ACTION_ARGUMENT_HTML_ELEMENT_STRING";
+    field public static final java.lang.String ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT = "ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT";
+    field public static final java.lang.String ACTION_ARGUMENT_SELECTION_END_INT = "ACTION_ARGUMENT_SELECTION_END_INT";
+    field public static final java.lang.String ACTION_ARGUMENT_SELECTION_START_INT = "ACTION_ARGUMENT_SELECTION_START_INT";
+    field public static final java.lang.String ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE = "ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE";
+    field public static final int ACTION_CLEAR_ACCESSIBILITY_FOCUS = 128; // 0x80
+    field public static final int ACTION_CLEAR_FOCUS = 2; // 0x2
+    field public static final int ACTION_CLEAR_SELECTION = 8; // 0x8
+    field public static final int ACTION_CLICK = 16; // 0x10
+    field public static final int ACTION_COLLAPSE = 524288; // 0x80000
+    field public static final int ACTION_COPY = 16384; // 0x4000
+    field public static final int ACTION_CUT = 65536; // 0x10000
+    field public static final int ACTION_DISMISS = 1048576; // 0x100000
+    field public static final int ACTION_EXPAND = 262144; // 0x40000
+    field public static final int ACTION_FOCUS = 1; // 0x1
+    field public static final int ACTION_LONG_CLICK = 32; // 0x20
+    field public static final int ACTION_NEXT_AT_MOVEMENT_GRANULARITY = 256; // 0x100
+    field public static final int ACTION_NEXT_HTML_ELEMENT = 1024; // 0x400
+    field public static final int ACTION_PASTE = 32768; // 0x8000
+    field public static final int ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY = 512; // 0x200
+    field public static final int ACTION_PREVIOUS_HTML_ELEMENT = 2048; // 0x800
+    field public static final int ACTION_SCROLL_BACKWARD = 8192; // 0x2000
+    field public static final int ACTION_SCROLL_FORWARD = 4096; // 0x1000
+    field public static final int ACTION_SELECT = 4; // 0x4
+    field public static final int ACTION_SET_SELECTION = 131072; // 0x20000
+    field public static final int ACTION_SET_TEXT = 2097152; // 0x200000
+    field public static final int FOCUS_ACCESSIBILITY = 2; // 0x2
+    field public static final int FOCUS_INPUT = 1; // 0x1
+    field public static final int MOVEMENT_GRANULARITY_CHARACTER = 1; // 0x1
+    field public static final int MOVEMENT_GRANULARITY_LINE = 4; // 0x4
+    field public static final int MOVEMENT_GRANULARITY_PAGE = 16; // 0x10
+    field public static final int MOVEMENT_GRANULARITY_PARAGRAPH = 8; // 0x8
+    field public static final int MOVEMENT_GRANULARITY_WORD = 2; // 0x2
+  }
+
+  public static class AccessibilityNodeInfoCompat.AccessibilityActionCompat {
+    ctor public AccessibilityNodeInfoCompat.AccessibilityActionCompat(int, java.lang.CharSequence);
+    method public int getId();
+    method public java.lang.CharSequence getLabel();
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_ACCESSIBILITY_FOCUS;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_CLEAR_ACCESSIBILITY_FOCUS;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_CLEAR_FOCUS;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_CLEAR_SELECTION;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_CLICK;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_COLLAPSE;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_COPY;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_CUT;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_DISMISS;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_EXPAND;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_FOCUS;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_LONG_CLICK;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_NEXT_AT_MOVEMENT_GRANULARITY;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_NEXT_HTML_ELEMENT;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_PASTE;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_PREVIOUS_HTML_ELEMENT;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SCROLL_BACKWARD;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SCROLL_FORWARD;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SELECT;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SET_SELECTION;
+    field public static final android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SET_TEXT;
+  }
+
+  public static class AccessibilityNodeInfoCompat.CollectionInfoCompat {
+    method public int getColumnCount();
+    method public int getRowCount();
+    method public boolean isHierarchical();
+    method public static android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.CollectionInfoCompat obtain(int, int, boolean, int);
+    field public static final int SELECTION_MODE_MULTIPLE = 2; // 0x2
+    field public static final int SELECTION_MODE_NONE = 0; // 0x0
+    field public static final int SELECTION_MODE_SINGLE = 1; // 0x1
+  }
+
+  public static class AccessibilityNodeInfoCompat.CollectionItemInfoCompat {
+    method public int getColumnIndex();
+    method public int getColumnSpan();
+    method public int getRowIndex();
+    method public int getRowSpan();
+    method public boolean isHeading();
+    method public boolean isSelected();
+    method public static android.support.v4.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat obtain(int, int, int, int, boolean, boolean);
+  }
+
+  public static class AccessibilityNodeInfoCompat.RangeInfoCompat {
+    method public float getCurrent();
+    method public float getMax();
+    method public float getMin();
+    method public int getType();
+    field public static final int RANGE_TYPE_FLOAT = 1; // 0x1
+    field public static final int RANGE_TYPE_INT = 0; // 0x0
+    field public static final int RANGE_TYPE_PERCENT = 2; // 0x2
+  }
+
+  public class AccessibilityNodeProviderCompat {
+    ctor public AccessibilityNodeProviderCompat();
+    ctor public AccessibilityNodeProviderCompat(java.lang.Object);
+    method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat createAccessibilityNodeInfo(int);
+    method public java.util.List<android.support.v4.view.accessibility.AccessibilityNodeInfoCompat> findAccessibilityNodeInfosByText(java.lang.String, int);
+    method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat findFocus(int);
+    method public java.lang.Object getProvider();
+    method public boolean performAction(int, int, android.os.Bundle);
+  }
+
+  public class AccessibilityRecordCompat {
+    ctor public deprecated AccessibilityRecordCompat(java.lang.Object);
+    method public int getAddedCount();
+    method public java.lang.CharSequence getBeforeText();
+    method public java.lang.CharSequence getClassName();
+    method public java.lang.CharSequence getContentDescription();
+    method public int getCurrentItemIndex();
+    method public int getFromIndex();
+    method public deprecated java.lang.Object getImpl();
+    method public int getItemCount();
+    method public int getMaxScrollX();
+    method public int getMaxScrollY();
+    method public android.os.Parcelable getParcelableData();
+    method public int getRemovedCount();
+    method public int getScrollX();
+    method public int getScrollY();
+    method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat getSource();
+    method public java.util.List<java.lang.CharSequence> getText();
+    method public int getToIndex();
+    method public int getWindowId();
+    method public boolean isChecked();
+    method public boolean isEnabled();
+    method public boolean isFullScreen();
+    method public boolean isPassword();
+    method public boolean isScrollable();
+    method public static android.support.v4.view.accessibility.AccessibilityRecordCompat obtain(android.support.v4.view.accessibility.AccessibilityRecordCompat);
+    method public static android.support.v4.view.accessibility.AccessibilityRecordCompat obtain();
+    method public void recycle();
+    method public void setAddedCount(int);
+    method public void setBeforeText(java.lang.CharSequence);
+    method public void setChecked(boolean);
+    method public void setClassName(java.lang.CharSequence);
+    method public void setContentDescription(java.lang.CharSequence);
+    method public void setCurrentItemIndex(int);
+    method public void setEnabled(boolean);
+    method public void setFromIndex(int);
+    method public void setFullScreen(boolean);
+    method public void setItemCount(int);
+    method public void setMaxScrollX(int);
+    method public void setMaxScrollY(int);
+    method public void setParcelableData(android.os.Parcelable);
+    method public void setPassword(boolean);
+    method public void setRemovedCount(int);
+    method public void setScrollX(int);
+    method public void setScrollY(int);
+    method public void setScrollable(boolean);
+    method public void setSource(android.view.View);
+    method public void setSource(android.view.View, int);
+    method public void setToIndex(int);
+  }
+
+  public class AccessibilityWindowInfoCompat {
+    method public void getBoundsInScreen(android.graphics.Rect);
+    method public android.support.v4.view.accessibility.AccessibilityWindowInfoCompat getChild(int);
+    method public int getChildCount();
+    method public int getId();
+    method public int getLayer();
+    method public android.support.v4.view.accessibility.AccessibilityWindowInfoCompat getParent();
+    method public android.support.v4.view.accessibility.AccessibilityNodeInfoCompat getRoot();
+    method public int getType();
+    method public boolean isAccessibilityFocused();
+    method public boolean isActive();
+    method public boolean isFocused();
+    method public static android.support.v4.view.accessibility.AccessibilityWindowInfoCompat obtain();
+    method public static android.support.v4.view.accessibility.AccessibilityWindowInfoCompat obtain(android.support.v4.view.accessibility.AccessibilityWindowInfoCompat);
+    method public void recycle();
+    field public static final int TYPE_ACCESSIBILITY_OVERLAY = 4; // 0x4
+    field public static final int TYPE_APPLICATION = 1; // 0x1
+    field public static final int TYPE_INPUT_METHOD = 2; // 0x2
+    field public static final int TYPE_SYSTEM = 3; // 0x3
+  }
+
+}
+
+package android.support.v4.view.animation {
+
+  public final class PathInterpolatorCompat {
+    method public static android.view.animation.Interpolator create(android.graphics.Path);
+    method public static android.view.animation.Interpolator create(float, float);
+    method public static android.view.animation.Interpolator create(float, float, float, float);
+  }
+
+}
+
+package android.support.v4.widget {
+
+  public final class CompoundButtonCompat {
+    method public static android.graphics.drawable.Drawable getButtonDrawable(android.widget.CompoundButton);
+    method public static android.content.res.ColorStateList getButtonTintList(android.widget.CompoundButton);
+    method public static android.graphics.PorterDuff.Mode getButtonTintMode(android.widget.CompoundButton);
+    method public static void setButtonTintList(android.widget.CompoundButton, android.content.res.ColorStateList);
+    method public static void setButtonTintMode(android.widget.CompoundButton, android.graphics.PorterDuff.Mode);
+  }
+
+  public final class EdgeEffectCompat {
+    ctor public EdgeEffectCompat(android.content.Context);
+    method public boolean draw(android.graphics.Canvas);
+    method public void finish();
+    method public boolean isFinished();
+    method public boolean onAbsorb(int);
+    method public deprecated boolean onPull(float);
+    method public boolean onPull(float, float);
+    method public boolean onRelease();
+    method public void setSize(int, int);
+  }
+
+  public final class ListPopupWindowCompat {
+    method public static android.view.View.OnTouchListener createDragToOpenListener(java.lang.Object, android.view.View);
+  }
+
+  public final class ListViewCompat {
+    method public static void scrollListBy(android.widget.ListView, int);
+  }
+
+  public final class PopupMenuCompat {
+    method public static android.view.View.OnTouchListener getDragToOpenListener(java.lang.Object);
+  }
+
+  public final class PopupWindowCompat {
+    method public static boolean getOverlapAnchor(android.widget.PopupWindow);
+    method public static int getWindowLayoutType(android.widget.PopupWindow);
+    method public static void setOverlapAnchor(android.widget.PopupWindow, boolean);
+    method public static void setWindowLayoutType(android.widget.PopupWindow, int);
+    method public static void showAsDropDown(android.widget.PopupWindow, android.view.View, int, int, int);
+  }
+
+  public final class ScrollerCompat {
+    method public void abortAnimation();
+    method public boolean computeScrollOffset();
+    method public static android.support.v4.widget.ScrollerCompat create(android.content.Context);
+    method public static android.support.v4.widget.ScrollerCompat create(android.content.Context, android.view.animation.Interpolator);
+    method public void fling(int, int, int, int, int, int, int, int);
+    method public void fling(int, int, int, int, int, int, int, int, int, int);
+    method public float getCurrVelocity();
+    method public int getCurrX();
+    method public int getCurrY();
+    method public int getFinalX();
+    method public int getFinalY();
+    method public boolean isFinished();
+    method public boolean isOverScrolled();
+    method public void notifyHorizontalEdgeReached(int, int, int);
+    method public void notifyVerticalEdgeReached(int, int, int);
+    method public boolean springBack(int, int, int, int, int, int);
+    method public void startScroll(int, int, int, int);
+    method public void startScroll(int, int, int, int, int);
+  }
+
+  public final class SearchViewCompat {
+    method public static java.lang.CharSequence getQuery(android.view.View);
+    method public static boolean isIconified(android.view.View);
+    method public static boolean isQueryRefinementEnabled(android.view.View);
+    method public static boolean isSubmitButtonEnabled(android.view.View);
+    method public static android.view.View newSearchView(android.content.Context);
+    method public static void setIconified(android.view.View, boolean);
+    method public static void setImeOptions(android.view.View, int);
+    method public static void setInputType(android.view.View, int);
+    method public static void setMaxWidth(android.view.View, int);
+    method public static void setOnCloseListener(android.view.View, android.support.v4.widget.SearchViewCompat.OnCloseListenerCompat);
+    method public static void setOnQueryTextListener(android.view.View, android.support.v4.widget.SearchViewCompat.OnQueryTextListenerCompat);
+    method public static void setQuery(android.view.View, java.lang.CharSequence, boolean);
+    method public static void setQueryHint(android.view.View, java.lang.CharSequence);
+    method public static void setQueryRefinementEnabled(android.view.View, boolean);
+    method public static void setSearchableInfo(android.view.View, android.content.ComponentName);
+    method public static void setSubmitButtonEnabled(android.view.View, boolean);
+  }
+
+  public static abstract class SearchViewCompat.OnCloseListenerCompat {
+    ctor public SearchViewCompat.OnCloseListenerCompat();
+    method public boolean onClose();
+  }
+
+  public static abstract class SearchViewCompat.OnQueryTextListenerCompat {
+    ctor public SearchViewCompat.OnQueryTextListenerCompat();
+    method public boolean onQueryTextChange(java.lang.String);
+    method public boolean onQueryTextSubmit(java.lang.String);
+  }
+
+  public final class TextViewCompat {
+    method public static int getMaxLines(android.widget.TextView);
+    method public static int getMinLines(android.widget.TextView);
+    method public static void setCompoundDrawablesRelative(android.widget.TextView, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable);
+    method public static void setCompoundDrawablesRelativeWithIntrinsicBounds(android.widget.TextView, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable);
+    method public static void setCompoundDrawablesRelativeWithIntrinsicBounds(android.widget.TextView, int, int, int, int);
+    method public static void setTextAppearance(android.widget.TextView, int);
+  }
+
+  public abstract interface TintableCompoundButton {
+    method public abstract android.content.res.ColorStateList getSupportButtonTintList();
+    method public abstract android.graphics.PorterDuff.Mode getSupportButtonTintMode();
+    method public abstract void setSupportButtonTintList(android.content.res.ColorStateList);
+    method public abstract void setSupportButtonTintMode(android.graphics.PorterDuff.Mode);
+  }
+
+}
+
