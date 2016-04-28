@@ -35,6 +35,7 @@
     </style>
 
     <style name="TextAppearance.Leanback.Header.Section">
+        <item name="android:textColor">?defaultSectionHeaderColor</item>
         <item name="android:textSize">@dimen/lb_browse_section_header_text_size</item>
     </style>
 
@@ -452,6 +453,7 @@
     <style name="Widget.Leanback.SearchOrbViewStyle">
         <item name="searchOrbIcon">?attr/defaultSearchIcon</item>
         <item name="searchOrbColor">?attr/defaultSearchColor</item>
+        <item name="searchOrbIconColor">?attr/defaultSearchIconColor</item>
         <item name="searchOrbBrightColor">?attr/defaultSearchBrightColor</item>
     </style>
 

@@ -307,10 +307,14 @@
          -->
         <attr name="defaultBrandColorDark" format="reference|color" />
 
-        <!-- Default colors -->
+        <!-- Default background color for Search Icon -->
         <attr name="defaultSearchColor" format="reference|color" />
+        <!-- Default icon color for Search Icon -->
+        <attr name="defaultSearchIconColor" format="reference|color" />
         <!-- Default color that search orb pulses to.  If not set, this color is determined programatically based on the defaultSearchColor -->
         <attr name="defaultSearchBrightColor" format="reference|color" />
+        <!-- Default color for SectionHeader, by default same as defaultSearchColor -->
+        <attr name="defaultSectionHeaderColor" format="reference|color" />
 
         <!-- Style for searchOrb -->
         <attr name="searchOrbViewStyle" format="reference"/>
