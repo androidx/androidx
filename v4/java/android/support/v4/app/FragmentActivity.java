@@ -175,7 +175,7 @@ public class FragmentActivity extends BaseFragmentActivityApi24 implements
      */
     public void onBackPressed() {
         if (!mFragments.getSupportFragmentManager().popBackStackImmediate()) {
-            supportFinishAfterTransition();
+            onBackPressedNotHandled();
         }
     }
 

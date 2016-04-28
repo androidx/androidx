@@ -15,11 +15,14 @@
  */
 package android.support.v4.app;
 
+import android.app.Fragment;
+import android.support.test.filters.SdkSuppress;
 import android.support.v4.app.test.FragmentTestActivity;
 import android.support.v4.app.test.FragmentTestActivity.TestFragment;
 import android.support.v4.test.R;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.UiThreadTest;
+import android.view.KeyEvent;
 
 /**
  * Test to prevent regressions in SupportFragmentManager fragment replace method. See b/24693644
@@ -68,5 +71,20 @@ public class FragmentReplaceTest extends
         assertNull(mActivity.findViewById(R.id.textA));
         assertNull(mActivity.findViewById(R.id.textB));
         assertNotNull(mActivity.findViewById(R.id.textC));
+    }
+
+    @SdkSuppress(minSdkVersion = 11)
+    @UiThreadTest
+    public void testBackPressWithFrameworkFragment() throws Throwable {
+        mActivity.getFragmentManager().beginTransaction()
+                .add(R.id.content, new Fragment())
+                .addToBackStack(null)
+                .commit();
+        mActivity.getFragmentManager().executePendingTransactions();
+        assertEquals(1, mActivity.getFragmentManager().getBackStackEntryCount());
+
+        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
+
+        assertEquals(0, mActivity.getFragmentManager().getBackStackEntryCount());
     }
 }
