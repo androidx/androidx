@@ -28,6 +28,10 @@
 
     <style name="Theme.Example.LeanbackBrowse" parent="Theme.Leanback.Browse">
         <item name="android:windowBackground">@color/card_examples_background</item>
+        <item name="defaultBrandColor">@color/fastlane_background</item>
+        <item name="defaultSearchColor">@color/search_color</item>
+        <item name="defaultSearchIconColor">@color/search_icon_color</item>
+        <item name="defaultSearchBrightColor">@color/search_bright_color</item>
     </style>
 
     <style name="Theme.Example.LeanbackVerticalGrid" parent="Theme.Leanback.VerticalGrid">

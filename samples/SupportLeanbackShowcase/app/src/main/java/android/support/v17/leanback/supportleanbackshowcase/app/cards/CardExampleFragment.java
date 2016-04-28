@@ -30,6 +30,8 @@ import android.support.v17.leanback.supportleanbackshowcase.utils.Utils;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ImageCardView;
+import android.support.v17.leanback.widget.DividerRow;
+import android.support.v17.leanback.widget.SectionRow;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.Presenter;
@@ -61,11 +63,6 @@ public class CardExampleFragment extends BrowseFragment {
     private void setupUi() {
         setHeadersState(HEADERS_ENABLED);
         setHeadersTransitionOnBackEnabled(true);
-        setSearchAffordanceColors(
-                new SearchOrbView.Colors(getResources().getColor(R.color.search_color),
-                        getResources().getColor(R.color.search_bright_color),
-                        getResources().getColor(R.color.search_icon_color)));
-        setBrandColor(getResources().getColor(R.color.fastlane_background));
         setTitle(getString(R.string.card_examples_title));
         setOnSearchClickedListener(new View.OnClickListener() {
             @Override
@@ -118,15 +115,22 @@ public class CardExampleFragment extends BrowseFragment {
         }
     }
 
-    private ListRow createCardRow(final CardRow cardRow) {
-        // Build main row using the ImageCardViewPresenter.
-        PresenterSelector presenterSelector = new CardPresenterSelector(getActivity());
-        ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(presenterSelector);
-        for (Card card : cardRow.getCards()) {
-            listRowAdapter.add(card);
+    private Row createCardRow(final CardRow cardRow) {
+        switch (cardRow.getType()) {
+            case CardRow.TYPE_SECTION_HEADER:
+                return new SectionRow(new HeaderItem(cardRow.getTitle()));
+            case CardRow.TYPE_DIVIDER:
+                return new DividerRow();
+            case CardRow.TYPE_DEFAULT:
+            default:
+                // Build main row using the ImageCardViewPresenter.
+                PresenterSelector presenterSelector = new CardPresenterSelector(getActivity());
+                ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(presenterSelector);
+                for (Card card : cardRow.getCards()) {
+                    listRowAdapter.add(card);
+                }
+                return new CardListRow(new HeaderItem(cardRow.getTitle()), listRowAdapter, cardRow);
         }
-        HeaderItem header = new HeaderItem(cardRow.getTitle());
-        return new CardListRow(header, listRowAdapter, cardRow);
     }
 
 }

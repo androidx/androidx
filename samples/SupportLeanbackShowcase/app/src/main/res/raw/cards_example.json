@@ -1,6 +1,10 @@
 [
   {
-    "title": "Standard",
+    "type" : 1,
+    "title": "ImageCardView Examples"
+  },
+  {
+    "title": "One Line Title",
     "cards": [
       {
         "type": "MOVIE",
@@ -186,7 +190,7 @@
     ]
   },
   {
-    "title": "Standard Square",
+    "title": "Title + Description",
     "cards": [
       {
         "type": "SQUARE_BIG",
@@ -240,7 +244,107 @@
     ]
   },
   {
-    "title": "Side Info",
+    "title": "Title + Description + Icon",
+    "cards": [
+      {
+        "type": "GAME",
+        "title": "Crazy One",
+        "description": "Purchased",
+        "localImageResource": "game_crazy_one",
+        "footerIconLocalImageResource": "ic_installed"
+      },
+      {
+        "type": "GAME",
+        "title": "Cursed",
+        "description": "Purchased",
+        "localImageResource": "game_cursed",
+        "footerIconLocalImageResource": "ic_installed"
+      },
+      {
+        "type": "GAME",
+        "title": "fairy",
+        "description": "Purchased",
+        "localImageResource": "game_fairy",
+        "footerIconLocalImageResource": "ic_installed"
+      },
+      {
+        "type": "GAME",
+        "title": "Hear The Roar",
+        "description": "Purchased",
+        "localImageResource": "game_hear_the_roar",
+        "footerIconLocalImageResource": "ic_installed"
+      },
+      {
+        "type": "GAME",
+        "title": "Silence",
+        "description": "Purchased",
+        "localImageResource": "game_silence",
+        "footerIconLocalImageResource": "ic_installed"
+      }
+    ]
+  },
+  {
+    "title": "Title + Description (Wide)",
+    "cards": [
+      {
+        "type": "DEFAULT",
+        "title": "Marseille sea food tour",
+        "description": "9,089 views   3 years ago   by ADELAIDE",
+        "localImageResource": "coffee_and_tea_01"
+      },
+      {
+        "type": "DEFAULT",
+        "title": "Marseille sea food tour",
+        "description": "9,089 views   3 years ago   by ADELAIDE",
+        "localImageResource": "coffee_and_tea_02"
+      },
+      {
+        "type": "DEFAULT",
+        "title": "Marseille sea food tour",
+        "description": "9,089 views   3 years ago   by ADELAIDE",
+        "localImageResource": "coffee_and_tea_03"
+      },
+      {
+        "type": "DEFAULT",
+        "title": "Marseille sea food tour",
+        "description": "9,089 views   3 years ago   by ADELAIDE",
+        "localImageResource": "coffee_and_tea_04"
+      },
+      {
+        "type": "DEFAULT",
+        "title": "Marseille sea food tour",
+        "description": "9,089 views   3 years ago   by ADELAIDE",
+        "localImageResource": "coffee_and_tea_05"
+      },
+      {
+        "type": "DEFAULT",
+        "title": "Marseille sea food tour",
+        "description": "9,089 views   3 years ago   by ADELAIDE",
+        "localImageResource": "coffee_and_tea_06"
+      },
+      {
+        "type": "DEFAULT",
+        "title": "Marseille sea food tour",
+        "description": "9,089 views   3 years ago   by ADELAIDE",
+        "localImageResource": "coffee_and_tea_07"
+      },
+      {
+        "type": "DEFAULT",
+        "title": "Marseille sea food tour",
+        "description": "9,089 views   3 years ago   by ADELAIDE",
+        "localImageResource": "coffee_and_tea_08"
+      }
+    ]
+  },
+  {
+    "type" : 2
+  },
+  {
+    "type" : 1,
+    "title": "Advanced Examples"
+  },
+  {
+    "title": "BaseCardView Info On The Right",
     "cards": [
       {
         "type": "SIDE_INFO",
@@ -294,100 +398,7 @@
     ]
   },
   {
-    "title": "Wide (Games)",
-    "cards": [
-      {
-        "type": "GAME",
-        "title": "Crazy One",
-        "description": "Purchased",
-        "localImageResource": "game_crazy_one",
-        "footerIconLocalImageResource": "ic_installed"
-      },
-      {
-        "type": "GAME",
-        "title": "Cursed",
-        "description": "Purchased",
-        "localImageResource": "game_cursed",
-        "footerIconLocalImageResource": "ic_installed"
-      },
-      {
-        "type": "GAME",
-        "title": "fairy",
-        "description": "Purchased",
-        "localImageResource": "game_fairy",
-        "footerIconLocalImageResource": "ic_installed"
-      },
-      {
-        "type": "GAME",
-        "title": "Hear The Roar",
-        "description": "Purchased",
-        "localImageResource": "game_hear_the_roar",
-        "footerIconLocalImageResource": "ic_installed"
-      },
-      {
-        "type": "GAME",
-        "title": "Silence",
-        "description": "Purchased",
-        "localImageResource": "game_silence",
-        "footerIconLocalImageResource": "ic_installed"
-      }
-    ]
-  },
-  {
-    "title": "Wide (Videos)",
-    "cards": [
-      {
-        "type": "DEFAULT",
-        "title": "Marseille sea food tour",
-        "description": "9,089 views   3 years ago   by ADELAIDE",
-        "localImageResource": "coffee_and_tea_01"
-      },
-      {
-        "type": "DEFAULT",
-        "title": "Marseille sea food tour",
-        "description": "9,089 views   3 years ago   by ADELAIDE",
-        "localImageResource": "coffee_and_tea_02"
-      },
-      {
-        "type": "DEFAULT",
-        "title": "Marseille sea food tour",
-        "description": "9,089 views   3 years ago   by ADELAIDE",
-        "localImageResource": "coffee_and_tea_03"
-      },
-      {
-        "type": "DEFAULT",
-        "title": "Marseille sea food tour",
-        "description": "9,089 views   3 years ago   by ADELAIDE",
-        "localImageResource": "coffee_and_tea_04"
-      },
-      {
-        "type": "DEFAULT",
-        "title": "Marseille sea food tour",
-        "description": "9,089 views   3 years ago   by ADELAIDE",
-        "localImageResource": "coffee_and_tea_05"
-      },
-      {
-        "type": "DEFAULT",
-        "title": "Marseille sea food tour",
-        "description": "9,089 views   3 years ago   by ADELAIDE",
-        "localImageResource": "coffee_and_tea_06"
-      },
-      {
-        "type": "DEFAULT",
-        "title": "Marseille sea food tour",
-        "description": "9,089 views   3 years ago   by ADELAIDE",
-        "localImageResource": "coffee_and_tea_07"
-      },
-      {
-        "type": "DEFAULT",
-        "title": "Marseille sea food tour",
-        "description": "9,089 views   3 years ago   by ADELAIDE",
-        "localImageResource": "coffee_and_tea_08"
-      }
-    ]
-  },
-  {
-    "title": "Text",
+    "title": "BaseCardView using TextView",
     "cards": [
       {
         "type": "TEXT",
@@ -440,7 +451,7 @@
     ]
   },
   {
-    "title": "Single Line",
+    "title": "ImageCardView Customize Style",
     "cards": [
       {
         "type": "SINGLE_LINE",
@@ -487,7 +498,7 @@
     ]
   },
   {
-    "title": "Icon",
+    "title": "ImageCardView with onFocusChange listener",
     "shadow": false,
     "cards": [
       {
