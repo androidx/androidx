@@ -20,6 +20,8 @@ import android.support.v17.leanback.supportleanbackshowcase.models.Card;
 import android.support.v17.leanback.widget.ImageCardView;
 import android.view.ContextThemeWrapper;
 
+import android.view.View;
+import android.widget.Toast;
 import com.squareup.picasso.Picasso;
 
 /**
@@ -39,7 +41,14 @@ public class ImageCardViewPresenter extends AbstractCardPresenter<ImageCardView>
 
     @Override
     protected ImageCardView onCreateView() {
-        return new ImageCardView(getContext());
+        ImageCardView imageCardView = new ImageCardView(getContext());
+        imageCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getContext(), "Clicked on ImageCardView", Toast.LENGTH_SHORT).show();
+            }
+        });
+        return imageCardView;
     }
 
     @Override
