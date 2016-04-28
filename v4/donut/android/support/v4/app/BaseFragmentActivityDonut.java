@@ -51,4 +51,12 @@ abstract class BaseFragmentActivityDonut extends Activity {
     abstract View dispatchFragmentsOnCreateView(View parent, String name,
             Context context, AttributeSet attrs);
 
+    /**
+     * Called when the back button has been pressed.and not handled by the support fragment manager.
+     */
+    void onBackPressedNotHandled() {
+        // on v4, just call finish manually
+        finish();
+    }
+
 }
