@@ -30,6 +30,7 @@ import android.os.Parcelable;
 import android.support.annotation.ColorInt;
 import android.support.v4.os.BuildCompat;
 import android.support.v4.view.GravityCompat;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.widget.RemoteViews;
 
@@ -347,6 +348,14 @@ public class NotificationCompat {
      * {@link MessagingStyle} notification.
      */
     public static final String EXTRA_SELF_DISPLAY_NAME = "android.selfDisplayName";
+
+    /**
+     * Notification key: a boolean describing whether the platform should automatically
+     * generate possible replies to
+     * {@link MessagingStyle.Message} objects provided by a
+     * {@link MessagingStyle} notification.
+     */
+    public static final String EXTRA_ALLOW_GENERATED_REPLIES = "android.allowGeneratedReplies";
 
     /**
      * Notification key: a {@link String} to be displayed as the title to a conversation
@@ -906,8 +915,8 @@ public class NotificationCompat {
                     dataUris.add(message.getDataUri());
                 }
                 NotificationCompatApi24.addMessagingStyle(builder, messagingStyle.mUserDisplayName,
-                        messagingStyle.mConversationTitle, texts, timestamps, senders,
-                        dataMimeTypes, dataUris);
+                        messagingStyle.mAllowGeneratedReplies, messagingStyle.mConversationTitle,
+                        texts, timestamps, senders, dataMimeTypes, dataUris);
             } else {
                 addStyleToBuilderJellybean(builder, style);
             }
@@ -1872,6 +1881,7 @@ public class NotificationCompat {
 
         CharSequence mUserDisplayName;
         CharSequence mConversationTitle;
+        boolean mAllowGeneratedReplies = true;
         List<Message> mMessages = new ArrayList<>();
 
         MessagingStyle() {
@@ -1892,6 +1902,25 @@ public class NotificationCompat {
          */
         public CharSequence getUserDisplayName() {
             return mUserDisplayName;
+        }
+
+        /**
+         * Set whether the platform should automatically generate possible replies from messages.
+         * @param allowGeneratedReplies {@code true} to allow generated replies, {@code false}
+         * otherwise
+         * @return this object for method chaining
+         * The default value is {@code true}
+         */
+        public MessagingStyle setAllowGeneratedReplies(boolean allowGeneratedReplies) {
+            mAllowGeneratedReplies = allowGeneratedReplies;
+            return this;
+        }
+
+        /**
+         * Return whether the platform should automatically generate possible replies from messages.
+         */
+        public boolean getAllowGeneratedReplies() {
+            return mAllowGeneratedReplies;
         }
 
         /**
@@ -1988,6 +2017,7 @@ public class NotificationCompat {
             if (mConversationTitle != null) {
                 extras.putCharSequence(EXTRA_CONVERSATION_TITLE, mConversationTitle);
             }
+            extras.putBoolean(EXTRA_ALLOW_GENERATED_REPLIES, mAllowGeneratedReplies);
             if (!mMessages.isEmpty()) { extras.putParcelableArray(EXTRA_MESSAGES,
                     Message.getBundleArrayForMessages(mMessages));
             }
@@ -2001,6 +2031,8 @@ public class NotificationCompat {
             mMessages.clear();
             mUserDisplayName = extras.getString(EXTRA_SELF_DISPLAY_NAME);
             mConversationTitle = extras.getString(EXTRA_CONVERSATION_TITLE);
+            mAllowGeneratedReplies = extras.getBoolean(EXTRA_ALLOW_GENERATED_REPLIES,
+                    mAllowGeneratedReplies);
             Parcelable[] parcelables = extras.getParcelableArray(EXTRA_MESSAGES);
             if (parcelables != null && parcelables instanceof Bundle[]) {
                 mMessages = Message.getMessagesFromBundleArray((Bundle[]) parcelables);
@@ -2242,7 +2274,6 @@ public class NotificationCompat {
     public static class Action extends NotificationCompatBase.Action {
         private final Bundle mExtras;
         private final RemoteInput[] mRemoteInputs;
-        private boolean mAllowGeneratedReplies = false;
 
         /**
          * Small icon representing the action.
@@ -2258,19 +2289,17 @@ public class NotificationCompat {
          */
         public PendingIntent actionIntent;
 
-
         public Action(int icon, CharSequence title, PendingIntent intent) {
-            this(icon, title, intent, new Bundle(), null, false);
+            this(icon, title, intent, new Bundle(), null);
         }
 
         private Action(int icon, CharSequence title, PendingIntent intent, Bundle extras,
-                RemoteInput[] remoteInputs, boolean allowGeneratedReplies) {
+                RemoteInput[] remoteInputs) {
             this.icon = icon;
             this.title = NotificationCompat.Builder.limitCharSequenceLength(title);
             this.actionIntent = intent;
             this.mExtras = extras != null ? extras : new Bundle();
             this.mRemoteInputs = remoteInputs;
-            this.mAllowGeneratedReplies = allowGeneratedReplies;
         }
 
         @Override
@@ -2297,15 +2326,6 @@ public class NotificationCompat {
         }
 
         /**
-         * Return whether the platform should automatically generate possible replies for this
-         * {@link Action}
-         */
-        @Override
-        public boolean getAllowGeneratedReplies() {
-            return mAllowGeneratedReplies;
-        }
-
-        /**
          * Get the list of inputs to be collected from the user when this action is sent.
          * May return null if no remote inputs were added.
          */
@@ -2321,7 +2341,6 @@ public class NotificationCompat {
             private final int mIcon;
             private final CharSequence mTitle;
             private final PendingIntent mIntent;
-            private boolean mAllowGeneratedReplies;
             private final Bundle mExtras;
             private ArrayList<RemoteInput> mRemoteInputs;
 
@@ -2390,20 +2409,6 @@ public class NotificationCompat {
             }
 
             /**
-             * Set whether the platform should automatically generate possible replies to add to
-             * {@link RemoteInput#getChoices()}. If the {@link Action} doesn't have a
-             * {@link RemoteInput}, this has no effect.
-             * @param allowGeneratedReplies {@code true} to allow generated replies, {@code false}
-             * otherwise
-             * @return this object for method chaining
-             * The default value is {@code false}
-             */
-            public Builder setAllowGeneratedReplies(boolean allowGeneratedReplies) {
-                mAllowGeneratedReplies = allowGeneratedReplies;
-                return this;
-            }
-
-            /**
              * Apply an extender to this action builder. Extenders may be used to add
              * metadata or change options on this builder.
              */
@@ -2420,8 +2425,7 @@ public class NotificationCompat {
             public Action build() {
                 RemoteInput[] remoteInputs = mRemoteInputs != null
                         ? mRemoteInputs.toArray(new RemoteInput[mRemoteInputs.size()]) : null;
-                return new Action(mIcon, mTitle, mIntent, mExtras, remoteInputs,
-                        mAllowGeneratedReplies);
+                return new Action(mIcon, mTitle, mIntent, mExtras, remoteInputs);
             }
         }
 
@@ -2657,12 +2661,11 @@ public class NotificationCompat {
         /** @hide */
         public static final Factory FACTORY = new Factory() {
             @Override
-            public NotificationCompatBase.Action build(int icon, CharSequence title,
+            public Action build(int icon, CharSequence title,
                     PendingIntent actionIntent, Bundle extras,
-                    RemoteInputCompatBase.RemoteInput[] remoteInputs,
-                    boolean allowGeneratedReplies) {
+                    RemoteInputCompatBase.RemoteInput[] remoteInputs) {
                 return new Action(icon, title, actionIntent, extras,
-                        (RemoteInput[]) remoteInputs, allowGeneratedReplies);
+                        (RemoteInput[]) remoteInputs);
             }
 
             @Override
