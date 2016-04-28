@@ -118,7 +118,6 @@ class NotificationCompatApi24 {
             CharSequence conversationTitle, List<CharSequence> texts, List<Long> timestamps,
             List<CharSequence> senders, List<String> dataMimeTypes, List<Uri> dataUris) {
         Notification.MessagingStyle style = new Notification.MessagingStyle(userDisplayName)
-                .setAllowGeneratedReplies(allowGeneratedReplies)
                 .setConversationTitle(conversationTitle);
         for (int i = 0; i < texts.size(); i++) {
             Notification.MessagingStyle.Message message = new Notification.MessagingStyle.Message(
