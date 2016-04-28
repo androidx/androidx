@@ -55,6 +55,7 @@
     <color name="lb_default_brand_color_dark">#FF222D32</color>
     <color name="lb_default_search_color">#FFFFAA3F</color>
 
+    <color name="lb_media_background_color">#FF384248</color>
     <color name="lb_control_button_color">#66EEEEEE</color>
     <color name="lb_control_button_text">#EEEEEE</color>
     <color name="lb_playback_progress_color_no_theme">#ff40c4ff</color>
@@ -64,6 +65,8 @@
     <color name="lb_playback_controls_background_light">#80000000</color>
     <color name="lb_playback_controls_background_dark">#c0000000</color>
     <color name="lb_playback_controls_time_text_color">#B2EEEEEE</color>
+    <color name="lb_playback_media_row_highlight_color">#1AFFFFFF</color>
+    <color name="lb_playback_media_row_separator_highlight_color">#1AFFFFFF</color>
 
     <color name="lb_search_plate_hint_text_color">#FFCCCCCC</color>
 

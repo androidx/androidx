@@ -270,14 +270,17 @@
         <!-- for playlist and playback controls styling -->
         <attr name="playbackPaddingStart" format="dimension"/>
         <attr name="playbackPaddingEnd" format="dimension"/>
+        <attr name="playbackMediaItemPaddingStart" format="dimension"/>
 
         <attr name="playbackMediaListHeaderStyle" format="reference"/>
-        <attr name="playbackMediaItemStyle" format="reference"/>
+        <attr name="playbackMediaItemRowStyle" format="reference"/>
+        <attr name="playbackMediaItemSeparatorStyle" format="reference"/>
 
         <attr name="playbackMediaListHeaderTitleStyle" format="reference"/>
-        <attr name="playbackMediaItemTrackNumberStyle" format="reference"/>
-        <attr name="playbackMediaItemTrackNameStyle" format="reference"/>
-        <attr name="playbackMediaItemTrackDurationStyle" format="reference"/>
+        <attr name="playbackMediaItemDetailsStyle" format="reference"/>
+        <attr name="playbackMediaItemNumberStyle" format="reference"/>
+        <attr name="playbackMediaItemNameStyle" format="reference"/>
+        <attr name="playbackMediaItemDurationStyle" format="reference"/>
 
         <attr name="playbackControlsButtonStyle" format="reference" />
         <attr name="playbackControlButtonLabelStyle" format="reference" />

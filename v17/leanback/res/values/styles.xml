@@ -290,26 +290,40 @@
     <style name="Widget.Leanback.PlaybackRow">
         <item name="android:layout_marginStart">?attr/playbackPaddingStart</item>
         <item name="android:layout_marginEnd">?attr/playbackPaddingEnd</item>
-        <item name="android:clipChildren">false</item>
-        <item name="android:clipToPadding">false</item>
+        <item name="android:clipChildren">true</item>
+        <item name="android:clipToPadding">true</item>
         <item name="android:foreground">@null</item>
-        <item name="android:background">?attr/defaultBrandColor</item>
+        <item name="android:background">#384248</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">48dp</item>
     </style>
 
-    <style name="Widget.Leanback.PlaybackMediaItemStyle" parent="Widget.Leanback.PlaybackRow">
-        <item name="android:focusable">true</item>
-        <item name="android:focusableInTouchMode">true</item>
-        <item name="android:foreground">?android:attr/selectableItemBackground</item>
-    </style>
-
-    <style name="Widget.Leanback.PlaybackMediaListHeaderStyle"
-           parent="Widget.Leanback.PlaybackRow">
+    <style name="Widget.Leanback.PlaybackMediaItemRowStyle" parent="Widget.Leanback.PlaybackRow">
         <item name="android:focusable">false</item>
         <item name="android:focusableInTouchMode">false</item>
     </style>
 
+    <style name="Widget.Leanback.PlaybackMediaItemSeparatorStyle" parent="Widget.Leanback.PlaybackRow">
+        <item name="android:background">@color/lb_media_background_color</item>
+        <item name="android:src">@color/lb_playback_media_row_separator_highlight_color</item>
+        <item name="android:layout_height">@dimen/lb_playback_media_row_separator_height</item>"
+    </style>
+
+    <style name="Widget.Leanback.PlaybackMediaListHeaderStyle"
+           parent="Widget.Leanback.PlaybackRow">
+        <item name="android:background">#263238</item>
+        <item name="android:focusable">false</item>
+        <item name="android:focusableInTouchMode">false</item>
+    </style>
+
+    <style name="Widget.Leanback.PlaybackMediaItemDetailsStyle">
+        <item name="android:paddingStart">?attr/playbackMediaItemPaddingStart</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:focusable">true</item>
+        <item name="android:focusableInTouchMode">true</item>
+    </style>
 
     <style name="TextAppearance.Leanback.PlaybackMediaListHeaderTitle">
         <item name="android:textColor">#80EEEEEE</item>
@@ -323,56 +337,53 @@
         <item name="android:layout_alignParentStart">true</item>
         <item name="android:layout_alignParentTop">true</item>
         <item name="android:gravity">center_vertical</item>"
-        <item name="android:paddingLeft">32dp</item>
+        <item name="android:paddingLeft">?attr/playbackMediaItemPaddingStart</item>
         <item name="android:textAppearance">@style/TextAppearance.Leanback.PlaybackMediaListHeaderTitle</item>
     </style>
 
-    <style name="TextAppearance.Leanback.PlaybackMediaItemTrackNumber">
+    <style name="TextAppearance.Leanback.PlaybackMediaItemNumber">
         <item name="android:textColor">#FFFFFF</item>
         <item name="android:textSize">18sp</item>
         <item name="android:fontFamily">sans-serif-regular</item>
     </style>
 
-    <style name="Widget.Leanback.PlaybackMediaItemTrackNumberStyle">
+    <style name="Widget.Leanback.PlaybackMediaItemNumberStyle">
         <item name="android:layout_width">56dp</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_marginLeft">32dp</item>
-        <item name="android:gravity">center_vertical</item>"
-        <item name="android:textAppearance">@style/TextAppearance.Leanback.PlaybackMediaItemTrackNumber</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:visibility">gone</item>
+        <item name="android:textAppearance">@style/TextAppearance.Leanback.PlaybackMediaItemNumber</item>
     </style>
 
-    <style name="TextAppearance.Leanback.PlaybackMediaItemTrackName">
+    <style name="TextAppearance.Leanback.PlaybackMediaItemName">
         <item name="android:textColor">#FFFFFF</item>
         <item name="android:textSize">18sp</item>
         <item name="android:fontFamily">sans-serif-regular</item>
     </style>
 
-    <style name="Widget.Leanback.PlaybackMediaItemTrackNameStyle">
-        <item name="android:layout_width">wrap_content</item>
+    <style name="Widget.Leanback.PlaybackMediaItemNameStyle">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_alignParentTop">true</item>
         <item name="android:singleLine">true</item>
         <item name="android:gravity">center_vertical</item>"
-        <item name="android:textAppearance">@style/TextAppearance.Leanback.PlaybackMediaItemTrackName</item>
+        <item name="android:textAppearance">@style/TextAppearance.Leanback.PlaybackMediaItemName</item>
     </style>
 
-    <style name="TextAppearance.Leanback.PlaybackMediaItemTrackDuration">
+    <style name="TextAppearance.Leanback.PlaybackMediaItemDuration">
         <item name="android:textColor">#80FFFFFF</item>
         <item name="android:textSize">18sp</item>
         <item name="android:fontFamily">sans-serif-regular</item>
     </style>
 
-    <style name="Widget.Leanback.PlaybackMediaItemTrackDurationStyle">
-        <item name="android:layout_width">66dp</item>
+    <style name="Widget.Leanback.PlaybackMediaItemDurationStyle">
+        <item name="android:layout_width">56dp</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_alignParentEnd">true</item>
-        <item name="android:layout_alignParentTop">true</item>
-        <item name="android:layout_marginRight">32dp</item>
         <item name="android:singleLine">true</item>
         <item name="android:gravity">center_vertical|right</item>
-        <item name="android:textAppearance">@style/TextAppearance.Leanback.PlaybackMediaItemTrackDuration</item>
+        <item name="android:visibility">gone</item>
+        <item name="android:textAppearance">@style/TextAppearance.Leanback.PlaybackMediaItemDuration</item>
     </style>
-
 
     <style name="Widget.Leanback.DetailsDescriptionTitleStyle">
         <item name="android:textAlignment">viewStart</item>

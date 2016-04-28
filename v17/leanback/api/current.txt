@@ -909,18 +909,34 @@ package android.support.v17.leanback.widget {
   }
 
   public abstract class AbstractMediaItemPresenter extends android.support.v17.leanback.widget.RowPresenter {
-    ctor public AbstractMediaItemPresenter(android.content.Context, int);
     ctor public AbstractMediaItemPresenter();
+    ctor public AbstractMediaItemPresenter(int);
     method protected android.support.v17.leanback.widget.RowPresenter.ViewHolder createRowViewHolder(android.view.ViewGroup);
-    method protected abstract void onBindMediaViewHolder(android.support.v17.leanback.widget.AbstractMediaItemPresenter.ViewHolder, java.lang.Object);
+    method public android.support.v17.leanback.widget.Presenter getActionPresenter();
+    method public int getThemeId();
+    method public boolean hasMediaRowSeparator();
+    method protected abstract void onBindMediaDetails(android.support.v17.leanback.widget.AbstractMediaItemPresenter.ViewHolder, java.lang.Object);
+    method protected void onBindRowActions(android.support.v17.leanback.widget.AbstractMediaItemPresenter.ViewHolder);
+    method protected void onUnbindMediaDetails(android.support.v17.leanback.widget.AbstractMediaItemPresenter.ViewHolder);
+    method public void setActionPresenter(android.support.v17.leanback.widget.Presenter);
     method public void setBackgroundColor(int);
+    method public void setHasMediaRowSeparator(boolean);
+    method public void setThemeId(int);
   }
 
   public static class AbstractMediaItemPresenter.ViewHolder extends android.support.v17.leanback.widget.RowPresenter.ViewHolder {
     ctor public AbstractMediaItemPresenter.ViewHolder(android.view.View);
-    method public android.widget.TextView getTrackDurationView();
-    method public android.widget.TextView getTrackNameView();
-    method public android.widget.TextView getTrackNumberView();
+    method public android.view.ViewGroup getMediaItemActionsContainer();
+    method public android.view.View getMediaItemDetailsView();
+    method public android.widget.TextView getMediaItemDurationView();
+    method public android.widget.TextView getMediaItemNameView();
+    method public android.widget.TextView getMediaItemNumberView();
+    method public android.support.v17.leanback.widget.MultiActionsProvider.MultiAction[] getMediaItemRowActions();
+    method public android.view.View getMediaItemRowSeparator();
+    method public android.view.View getSelectorView();
+    method public void notifyActionChanged(android.support.v17.leanback.widget.MultiActionsProvider.MultiAction);
+    method public void notifyDetailsChanged();
+    method public void onBindRowActions();
   }
 
   public abstract class AbstractMediaListHeaderPresenter extends android.support.v17.leanback.widget.RowPresenter {
@@ -1635,6 +1651,21 @@ package android.support.v17.leanback.widget {
     ctor public ListRowView(android.content.Context, android.util.AttributeSet);
     ctor public ListRowView(android.content.Context, android.util.AttributeSet, int);
     method public android.support.v17.leanback.widget.HorizontalGridView getGridView();
+  }
+
+  public abstract interface MultiActionsProvider {
+    method public abstract android.support.v17.leanback.widget.MultiActionsProvider.MultiAction[] getActions();
+  }
+
+  public static class MultiActionsProvider.MultiAction {
+    ctor public MultiActionsProvider.MultiAction(long);
+    method public android.graphics.drawable.Drawable getCurrentDrawable();
+    method public android.graphics.drawable.Drawable[] getDrawables();
+    method public long getId();
+    method public int getIndex();
+    method public void incrementIndex();
+    method public void setDrawables(android.graphics.drawable.Drawable[]);
+    method public void setIndex(int);
   }
 
   public abstract class ObjectAdapter {

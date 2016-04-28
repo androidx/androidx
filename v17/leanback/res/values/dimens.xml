@@ -123,6 +123,7 @@
     <dimen name="lb_action_button_corner_radius">2dp</dimen>
 
     <dimen name="lb_playback_controls_align_bottom">58dp</dimen>
+    <dimen name="lb_playback_controls_padding_top">216dp</dimen>
     <dimen name="lb_playback_controls_padding_bottom">28dp</dimen>
     <dimen name="lb_playback_major_fade_translate_y">200dp</dimen>
     <dimen name="lb_playback_minor_fade_translate_y">16dp</dimen>
@@ -140,6 +141,13 @@
     <dimen name="lb_playback_controls_child_margin_default">48dp</dimen>
     <dimen name="lb_playback_controls_child_margin_bigger">64dp</dimen>
     <dimen name="lb_playback_controls_child_margin_biggest">88dp</dimen>
+    <dimen name="lb_playback_media_radio_width_with_padding">88dp</dimen>
+    <dimen name="lb_playback_media_item_radio_icon_size">24dp</dimen>
+    <dimen name="lb_playback_media_row_horizontal_padding">32dp</dimen>
+    <dimen name="lb_playback_media_row_details_selector_width">668dp</dimen>
+    <dimen name="lb_playback_media_row_radio_selector_width">72dp</dimen>
+    <dimen name="lb_playback_media_row_selector_round_rect_radius">36dp</dimen>
+    <dimen name="lb_playback_media_row_separator_height">1dp</dimen>
 
     <dimen name="lb_control_button_diameter">90dp</dimen>
     <dimen name="lb_control_button_height">64dp</dimen>
