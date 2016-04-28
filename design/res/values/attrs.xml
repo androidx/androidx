@@ -397,5 +397,12 @@
         <attr name="textColorError" format="color" />
     </declare-styleable>
 
-</resources>
+    <declare-styleable name="BottomNavigationView">
+        <!-- The menu resource to inflate and populate items from. -->
+        <attr name="menu"/>
+        <attr name="itemIconTint"/>
+        <attr name="itemTextColor"/>
+        <attr name="itemBackground"/>
+    </declare-styleable>
 
+</resources>

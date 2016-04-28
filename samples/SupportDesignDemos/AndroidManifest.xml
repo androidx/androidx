@@ -307,5 +307,14 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".widget.BottomNavigationViewUsage"
+                  android:label="@string/design_bottom_navigation_view"
+                  android:theme="@style/Theme.Design">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.support.design.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
     </application>
 </manifest>
