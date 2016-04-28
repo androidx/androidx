@@ -14,7 +14,10 @@ package android.support.customtabs {
 
   public class CustomTabsClient {
     method public static boolean bindCustomTabsService(android.content.Context, java.lang.String, android.support.customtabs.CustomTabsServiceConnection);
+    method public static boolean connectAndInitialize(android.content.Context, java.lang.String);
     method public android.os.Bundle extraCommand(java.lang.String, android.os.Bundle);
+    method public static java.lang.String getPackageName(android.content.Context, java.util.List<java.lang.String>);
+    method public static java.lang.String getPackageName(android.content.Context, java.util.List<java.lang.String>, boolean);
     method public android.support.customtabs.CustomTabsSession newSession(android.support.customtabs.CustomTabsCallback);
     method public boolean warmup(long);
   }
