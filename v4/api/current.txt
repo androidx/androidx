@@ -522,7 +522,6 @@ package android.support.v4.app {
     field public static final int DEFAULT_LIGHTS = 4; // 0x4
     field public static final int DEFAULT_SOUND = 1; // 0x1
     field public static final int DEFAULT_VIBRATE = 2; // 0x2
-    field public static final java.lang.String EXTRA_ALLOW_GENERATED_REPLIES = "android.allowGeneratedReplies";
     field public static final java.lang.String EXTRA_BACKGROUND_IMAGE_URI = "android.backgroundImageUri";
     field public static final java.lang.String EXTRA_BIG_TEXT = "android.bigText";
     field public static final java.lang.String EXTRA_COMPACT_ACTIONS = "android.compactActions";
@@ -572,6 +571,7 @@ package android.support.v4.app {
   public static class NotificationCompat.Action {
     ctor public NotificationCompat.Action(int, java.lang.CharSequence, android.app.PendingIntent);
     method public android.app.PendingIntent getActionIntent();
+    method public boolean getAllowGeneratedReplies();
     method public android.os.Bundle getExtras();
     method public int getIcon();
     method public android.support.v4.app.RemoteInput[] getRemoteInputs();
@@ -589,6 +589,7 @@ package android.support.v4.app {
     method public android.support.v4.app.NotificationCompat.Action build();
     method public android.support.v4.app.NotificationCompat.Action.Builder extend(android.support.v4.app.NotificationCompat.Action.Extender);
     method public android.os.Bundle getExtras();
+    method public android.support.v4.app.NotificationCompat.Action.Builder setAllowGeneratedReplies(boolean);
   }
 
   public static abstract interface NotificationCompat.Action.Extender {
@@ -729,11 +730,9 @@ package android.support.v4.app {
     method public android.support.v4.app.NotificationCompat.MessagingStyle addMessage(java.lang.CharSequence, long, java.lang.CharSequence);
     method public android.support.v4.app.NotificationCompat.MessagingStyle addMessage(android.support.v4.app.NotificationCompat.MessagingStyle.Message);
     method public static android.support.v4.app.NotificationCompat.MessagingStyle extractMessagingStyleFromNotification(android.app.Notification);
-    method public boolean getAllowGeneratedReplies();
     method public java.lang.CharSequence getConversationTitle();
     method public java.util.List<android.support.v4.app.NotificationCompat.MessagingStyle.Message> getMessages();
     method public java.lang.CharSequence getUserDisplayName();
-    method public android.support.v4.app.NotificationCompat.MessagingStyle setAllowGeneratedReplies(boolean);
     method public android.support.v4.app.NotificationCompat.MessagingStyle setConversationTitle(java.lang.CharSequence);
     field public static final int MAXIMUM_RETAINED_MESSAGES = 25; // 0x19
   }
