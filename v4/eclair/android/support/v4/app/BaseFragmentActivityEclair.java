@@ -47,6 +47,12 @@ abstract class BaseFragmentActivityEclair extends BaseFragmentActivityDonut {
                 extraFlags);
     }
 
+    @Override
+    void onBackPressedNotHandled() {
+        // On v5+, delegate to the framework impl of onBackPressed()
+        super.onBackPressed();
+    }
+
     /**
      * Checks whether the given request code is a valid code by masking it with 0xffff0000. Throws
      * an {@link IllegalArgumentException} if the code is not valid.
