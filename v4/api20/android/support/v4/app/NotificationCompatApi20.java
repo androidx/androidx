@@ -107,9 +107,15 @@ class NotificationCompatApi20 {
                 actionBuilder.addRemoteInput(remoteInput);
             }
         }
+        Bundle actionExtras;
         if (action.getExtras() != null) {
-            actionBuilder.addExtras(action.getExtras());
+            actionExtras = new Bundle(action.getExtras());
+        } else {
+            actionExtras = new Bundle();
         }
+        actionExtras.putBoolean(NotificationCompatJellybean.EXTRA_ALLOW_GENERATED_REPLIES,
+                action.getAllowGeneratedReplies());
+        actionBuilder.addExtras(action.getExtras());
         b.addAction(actionBuilder.build());
     }
 
@@ -124,8 +130,10 @@ class NotificationCompatApi20 {
             RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
         RemoteInputCompatBase.RemoteInput[] remoteInputs = RemoteInputCompatApi20.toCompat(
                 action.getRemoteInputs(), remoteInputFactory);
+        boolean allowGeneratedReplies = action.getExtras().getBoolean(
+                NotificationCompatJellybean.EXTRA_ALLOW_GENERATED_REPLIES);
         return actionFactory.build(action.icon, action.title, action.actionIntent,
-                action.getExtras(), remoteInputs);
+                action.getExtras(), remoteInputs, allowGeneratedReplies);
     }
 
     private static Notification.Action getActionFromActionCompat(
