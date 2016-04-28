@@ -55,6 +55,7 @@ class NotificationCompatApi21 {
     public static class Builder implements NotificationBuilderWithBuilderAccessor,
             NotificationBuilderWithActions {
         private Notification.Builder b;
+        private Bundle mExtras;
 
         public Builder(Context context, Notification n,
                 CharSequence contentTitle, CharSequence contentText, CharSequence contentInfo,
@@ -92,7 +93,6 @@ class NotificationCompatApi21 {
                     .setPriority(priority)
                     .setProgress(progressMax, progress, progressIndeterminate)
                     .setLocalOnly(localOnly)
-                    .setExtras(extras)
                     .setGroup(groupKey)
                     .setGroupSummary(groupSummary)
                     .setSortKey(sortKey)
@@ -100,6 +100,10 @@ class NotificationCompatApi21 {
                     .setColor(color)
                     .setVisibility(visibility)
                     .setPublicVersion(publicVersion);
+            mExtras = new Bundle();
+            if (extras != null) {
+                mExtras.putAll(extras);
+            }
             for (String person: people) {
                 b.addPerson(person);
             }
@@ -117,6 +121,7 @@ class NotificationCompatApi21 {
 
         @Override
         public Notification build() {
+            b.setExtras(mExtras);
             return b.build();
         }
     }
