@@ -466,7 +466,7 @@ public class Loader<D> {
      */
     public void rollbackContentChanged() {
         if (mProcessingChange) {
-            mContentChanged = true;
+            onContentChanged();
         }
     }
 
