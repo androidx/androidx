@@ -1635,9 +1635,11 @@ public class BrowseSupportFragment extends BaseSupportFragment {
 
     void setSearchOrbViewOnScreen(boolean onScreen) {
         View searchOrbView = getTitleViewAdapter().getSearchAffordanceView();
-        MarginLayoutParams lp = (MarginLayoutParams) searchOrbView.getLayoutParams();
-        lp.setMarginStart(onScreen ? 0 : -mContainerListMarginStart);
-        searchOrbView.setLayoutParams(lp);
+        if (searchOrbView != null) {
+            MarginLayoutParams lp = (MarginLayoutParams) searchOrbView.getLayoutParams();
+            lp.setMarginStart(onScreen ? 0 : -mContainerListMarginStart);
+            searchOrbView.setLayoutParams(lp);
+        }
     }
 
     void setEntranceTransitionStartState() {
