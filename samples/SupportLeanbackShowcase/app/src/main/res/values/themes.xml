@@ -34,6 +34,11 @@
         <item name="defaultSearchBrightColor">@color/search_bright_color</item>
     </style>
 
+    <style name="Theme.Example.Leanback.CustomTitle" parent="Theme.Example.LeanbackBrowse">
+        <item name="browseTitleViewLayout">@layout/titleview</item>
+        <item name="browseRowsMarginTop">120dp</item>
+    </style>
+
     <style name="Theme.Example.LeanbackVerticalGrid" parent="Theme.Leanback.VerticalGrid">
         <item name="android:windowBackground">@drawable/background_food</item>
     </style>

@@ -34,7 +34,7 @@
         <activity
                 android:name=".app.page.PageAndListRowActivity"
                 android:exported="true"
-                android:theme="@style/Theme.Example.LeanbackBrowse"/>
+                android:theme="@style/Theme.Example.Leanback.CustomTitle"/>
         <activity
             android:name=".app.wizard.WizardExampleActivity"
             android:exported="true"
