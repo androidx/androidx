@@ -1453,8 +1453,7 @@ public final class MediaBrowserCompat {
         }
 
         @Override
-        public void onLoadChildren(Messenger callback, String parentId, List list,
-                @NonNull Bundle options) {
+        public void onLoadChildren(Messenger callback, String parentId, List list, Bundle options) {
             if (mCallbacksMessenger != callback) {
                 return;
             }
@@ -1471,7 +1470,11 @@ public final class MediaBrowserCompat {
             // Tell the app.
             SubscriptionCallback subscriptionCallback = subscription.getCallback(options);
             if (subscriptionCallback != null) {
-                subscriptionCallback.onChildrenLoaded(parentId, list, options);
+                if (options == null) {
+                    subscriptionCallback.onChildrenLoaded(parentId, list);
+                } else {
+                    subscriptionCallback.onChildrenLoaded(parentId, list, options);
+                }
             }
         }
     }
