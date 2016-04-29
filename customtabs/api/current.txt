@@ -28,6 +28,10 @@ package android.support.customtabs {
     field public static final java.lang.String EXTRA_ENABLE_URLBAR_HIDING = "android.support.customtabs.extra.ENABLE_URLBAR_HIDING";
     field public static final java.lang.String EXTRA_EXIT_ANIMATION_BUNDLE = "android.support.customtabs.extra.EXIT_ANIMATION_BUNDLE";
     field public static final java.lang.String EXTRA_MENU_ITEMS = "android.support.customtabs.extra.MENU_ITEMS";
+    field public static final java.lang.String EXTRA_REMOTEVIEWS = "android.support.customtabs.extra.EXTRA_REMOTEVIEWS";
+    field public static final java.lang.String EXTRA_REMOTEVIEWS_CLICKED_ID = "android.support.customtabs.extra.EXTRA_REMOTEVIEWS_CLICKED_ID";
+    field public static final java.lang.String EXTRA_REMOTEVIEWS_PENDINGINTENT = "android.support.customtabs.extra.EXTRA_REMOTEVIEWS_PENDINGINTENT";
+    field public static final java.lang.String EXTRA_REMOTEVIEWS_VIEW_IDS = "android.support.customtabs.extra.EXTRA_REMOTEVIEWS_VIEW_IDS";
     field public static final java.lang.String EXTRA_SECONDARY_TOOLBAR_COLOR = "android.support.customtabs.extra.SECONDARY_TOOLBAR_COLOR";
     field public static final java.lang.String EXTRA_SESSION = "android.support.customtabs.extra.SESSION";
     field public static final java.lang.String EXTRA_TINT_ACTION_BUTTON = "android.support.customtabs.extra.TINT_ACTION_BUTTON";
@@ -51,14 +55,15 @@ package android.support.customtabs {
     ctor public CustomTabsIntent.Builder(android.support.customtabs.CustomTabsSession);
     method public android.support.customtabs.CustomTabsIntent.Builder addDefaultShareMenuItem();
     method public android.support.customtabs.CustomTabsIntent.Builder addMenuItem(java.lang.String, android.app.PendingIntent);
-    method public android.support.customtabs.CustomTabsIntent.Builder addToolbarItem(int, android.graphics.Bitmap, java.lang.String, android.app.PendingIntent) throws java.lang.IllegalStateException;
+    method public deprecated android.support.customtabs.CustomTabsIntent.Builder addToolbarItem(int, android.graphics.Bitmap, java.lang.String, android.app.PendingIntent) throws java.lang.IllegalStateException;
     method public android.support.customtabs.CustomTabsIntent build();
     method public android.support.customtabs.CustomTabsIntent.Builder enableUrlBarHiding();
     method public android.support.customtabs.CustomTabsIntent.Builder setActionButton(android.graphics.Bitmap, java.lang.String, android.app.PendingIntent, boolean);
     method public android.support.customtabs.CustomTabsIntent.Builder setActionButton(android.graphics.Bitmap, java.lang.String, android.app.PendingIntent);
     method public android.support.customtabs.CustomTabsIntent.Builder setCloseButtonIcon(android.graphics.Bitmap);
     method public android.support.customtabs.CustomTabsIntent.Builder setExitAnimations(android.content.Context, int, int);
-    method public android.support.customtabs.CustomTabsIntent.Builder setSecondaryToolbarColor(int);
+    method public deprecated android.support.customtabs.CustomTabsIntent.Builder setSecondaryToolbarColor(int);
+    method public android.support.customtabs.CustomTabsIntent.Builder setSecondaryToolbarViews(android.widget.RemoteViews, int[], android.app.PendingIntent);
     method public android.support.customtabs.CustomTabsIntent.Builder setShowTitle(boolean);
     method public android.support.customtabs.CustomTabsIntent.Builder setStartAnimations(android.content.Context, int, int);
     method public android.support.customtabs.CustomTabsIntent.Builder setToolbarColor(int);
