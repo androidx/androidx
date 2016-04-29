@@ -20,7 +20,6 @@ import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 import android.content.Context;
 import android.graphics.PointF;
-import android.graphics.Rect;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.view.ViewCompat;
@@ -479,10 +478,14 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         // resolve layout direction
         resolveShouldLayoutReverse();
 
-        mAnchorInfo.reset();
-        mAnchorInfo.mLayoutFromEnd = mShouldReverseLayout ^ mStackFromEnd;
-        // calculate anchor position and coordinate
-        updateAnchorInfoForLayout(recycler, state, mAnchorInfo);
+        if (!mAnchorInfo.mValid || mPendingScrollPosition != NO_POSITION ||
+                mPendingSavedState != null) {
+            mAnchorInfo.reset();
+            mAnchorInfo.mLayoutFromEnd = mShouldReverseLayout ^ mStackFromEnd;
+            // calculate anchor position and coordinate
+            updateAnchorInfoForLayout(recycler, state, mAnchorInfo);
+            mAnchorInfo.mValid = true;
+        }
         if (DEBUG) {
             Log.d(TAG, "Anchor info:" + mAnchorInfo);
         }
@@ -621,6 +624,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         layoutForPredictiveAnimations(recycler, state, startOffset, endOffset);
         if (!state.isPreLayout()) {
             mOrientationHelper.onLayoutComplete();
+        } else {
+            mAnchorInfo.reset();
         }
         mLastStackFromEnd = mStackFromEnd;
         if (DEBUG) {
@@ -634,6 +639,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         mPendingSavedState = null; // we don't need this anymore
         mPendingScrollPosition = NO_POSITION;
         mPendingScrollPositionOffset = INVALID_OFFSET;
+        mAnchorInfo.reset();
     }
 
     /**
@@ -2165,10 +2171,17 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         int mPosition;
         int mCoordinate;
         boolean mLayoutFromEnd;
+        boolean mValid;
+
+        AnchorInfo() {
+            reset();
+        }
+
         void reset() {
             mPosition = NO_POSITION;
             mCoordinate = INVALID_OFFSET;
             mLayoutFromEnd = false;
+            mValid = false;
         }
 
         /**
@@ -2187,6 +2200,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
                     "mPosition=" + mPosition +
                     ", mCoordinate=" + mCoordinate +
                     ", mLayoutFromEnd=" + mLayoutFromEnd +
+                    ", mValid=" + mValid +
                     '}';
         }
 
