@@ -601,24 +601,27 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
     private void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state,
             boolean shouldCheckForGaps) {
         final AnchorInfo anchorInfo = mAnchorInfo;
-        anchorInfo.reset();
-
         if (mPendingSavedState != null || mPendingScrollPosition != NO_POSITION) {
             if (state.getItemCount() == 0) {
                 removeAndRecycleAllViews(recycler);
+                anchorInfo.reset();
                 return;
             }
         }
 
-        if (mPendingSavedState != null) {
-            applyPendingSavedState(anchorInfo);
-        } else {
-            resolveShouldLayoutReverse();
-            anchorInfo.mLayoutFromEnd = mShouldReverseLayout;
+        if (!anchorInfo.mValid || mPendingScrollPosition != NO_POSITION ||
+                mPendingSavedState != null) {
+            anchorInfo.reset();
+            if (mPendingSavedState != null) {
+                applyPendingSavedState(anchorInfo);
+            } else {
+                resolveShouldLayoutReverse();
+                anchorInfo.mLayoutFromEnd = mShouldReverseLayout;
+            }
+
+            updateAnchorInfoForLayout(state, anchorInfo);
+            anchorInfo.mValid = true;
         }
-
-        updateAnchorInfoForLayout(state, anchorInfo);
-
         if (mPendingSavedState == null && mPendingScrollPosition == NO_POSITION) {
             if (anchorInfo.mLayoutFromEnd != mLastLayoutFromEnd ||
                     isLayoutRTL() != mLastLayoutRTL) {
@@ -689,9 +692,13 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
                 }
             }
         }
+        if (state.isPreLayout()) {
+            mAnchorInfo.reset();
+        }
         mLastLayoutFromEnd = anchorInfo.mLayoutFromEnd;
         mLastLayoutRTL = isLayoutRTL();
         if (hasGaps) {
+            mAnchorInfo.reset();
             onLayoutChildren(recycler, state, false);
         }
     }
@@ -702,6 +709,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
         mPendingScrollPosition = NO_POSITION;
         mPendingScrollPositionOffset = INVALID_OFFSET;
         mPendingSavedState = null; // we don't need this anymore
+        mAnchorInfo.reset();
     }
 
     private void repositionToWrapContentIfNecessary() {
@@ -3021,18 +3029,24 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager {
     /**
      * Data class to hold the information about an anchor position which is used in onLayout call.
      */
-    private class AnchorInfo {
+    class AnchorInfo {
 
         int mPosition;
         int mOffset;
         boolean mLayoutFromEnd;
         boolean mInvalidateOffsets;
+        boolean mValid;
+
+        public AnchorInfo() {
+            reset();
+        }
 
         void reset() {
             mPosition = NO_POSITION;
             mOffset = INVALID_OFFSET;
             mLayoutFromEnd = false;
             mInvalidateOffsets = false;
+            mValid = false;
         }
 
         void assignCoordinateFromPadding() {

@@ -96,7 +96,7 @@ public class ScrollToPositionWithAutoMeasure extends BaseRecyclerViewInstrumenta
                 Rect viewBounds = new Rect();
                 llm.getDecoratedBoundsWithMargins(viewHolder.itemView, viewBounds);
                 Rect rvBounds = new Rect(0, 0, llm.getWidth(), llm.getHeight());
-                assertThat(rvBounds.contains(viewBounds), is(true));
+                assertThat(rvBounds + " vs " + viewBounds, rvBounds.contains(viewBounds), is(true));
             }
         });
     }
