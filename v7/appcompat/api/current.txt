@@ -1692,6 +1692,14 @@ package android.support.v7.appcompat {
 
 }
 
+package android.support.v7.content.res {
+
+  public final class AppCompatResources {
+    method public static android.content.res.ColorStateList getColorStateList(android.content.Context, int);
+  }
+
+}
+
 package android.support.v7.graphics.drawable {
 
   public class DrawerArrowDrawable extends android.graphics.drawable.Drawable {
