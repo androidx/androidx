@@ -653,7 +653,7 @@ final class BackStackRecord extends FragmentTransaction implements
         TransitionState state = null;
         SparseArray<Fragment> firstOutFragments = null;
         SparseArray<Fragment> lastInFragments = null;
-        if (SUPPORTS_TRANSITIONS && mManager.mCurState >= Fragment.CREATED) {
+        if (SUPPORTS_TRANSITIONS) {
             firstOutFragments = new SparseArray<Fragment>();
             lastInFragments = new SparseArray<Fragment>();
 
@@ -773,10 +773,6 @@ final class BackStackRecord extends FragmentTransaction implements
                 if (firstOutFragments.get(containerId) == fragment) {
                     firstOutFragments.remove(containerId);
                 }
-            }
-            if (fragment.mState < Fragment.CREATED && mManager.mCurState >= Fragment.CREATED) {
-                mManager.makeActive(fragment);
-                mManager.moveToState(fragment, Fragment.CREATED, 0, 0, false);
             }
         }
     }
@@ -898,7 +894,7 @@ final class BackStackRecord extends FragmentTransaction implements
             dump("  ", null, pw, null);
         }
 
-        if (SUPPORTS_TRANSITIONS && mManager.mCurState >= Fragment.CREATED) {
+        if (SUPPORTS_TRANSITIONS) {
             if (state == null) {
                 if (firstOutFragments.size() != 0 || lastInFragments.size() != 0) {
                     state = beginTransition(firstOutFragments, lastInFragments, true);
@@ -1037,6 +1033,7 @@ final class BackStackRecord extends FragmentTransaction implements
      */
     private TransitionState beginTransition(SparseArray<Fragment> firstOutFragments,
             SparseArray<Fragment> lastInFragments, boolean isBack) {
+        ensureFragmentsAreInitialized(lastInFragments);
         TransitionState state = new TransitionState();
 
         // Adding a non-existent target view makes sure that the transitions don't target
@@ -1069,6 +1066,21 @@ final class BackStackRecord extends FragmentTransaction implements
         }
 
         return state;
+    }
+
+    /**
+     * Ensure that fragments that are entering are at least at the CREATED state
+     * so that they may load Transitions using TransitionInflater.
+     */
+    private void ensureFragmentsAreInitialized(SparseArray<Fragment> lastInFragments) {
+        final int count = lastInFragments.size();
+        for (int i = 0; i < count; i++) {
+            final Fragment fragment = lastInFragments.valueAt(i);
+            if (fragment.mState < Fragment.CREATED) {
+                mManager.makeActive(fragment);
+                mManager.moveToState(fragment, Fragment.CREATED, 0, 0, false);
+            }
+        }
     }
 
     private static Object getEnterTransition(Fragment inFragment, boolean isBack) {
