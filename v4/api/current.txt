@@ -536,6 +536,7 @@ package android.support.v4.app {
     field public static final java.lang.String EXTRA_PROGRESS = "android.progress";
     field public static final java.lang.String EXTRA_PROGRESS_INDETERMINATE = "android.progressIndeterminate";
     field public static final java.lang.String EXTRA_PROGRESS_MAX = "android.progressMax";
+    field public static final java.lang.String EXTRA_REMOTE_INPUT_HISTORY = "android.remoteInputHistory";
     field public static final java.lang.String EXTRA_SELF_DISPLAY_NAME = "android.selfDisplayName";
     field public static final java.lang.String EXTRA_SHOW_CHRONOMETER = "android.showChronometer";
     field public static final java.lang.String EXTRA_SHOW_WHEN = "android.showWhen";
@@ -664,6 +665,7 @@ package android.support.v4.app {
     method public android.support.v4.app.NotificationCompat.Builder setPriority(int);
     method public android.support.v4.app.NotificationCompat.Builder setProgress(int, int, boolean);
     method public android.support.v4.app.NotificationCompat.Builder setPublicVersion(android.app.Notification);
+    method public android.support.v4.app.NotificationCompat.Builder setRemoteInputHistory(java.lang.CharSequence[]);
     method public android.support.v4.app.NotificationCompat.Builder setShowWhen(boolean);
     method public android.support.v4.app.NotificationCompat.Builder setSmallIcon(int);
     method public android.support.v4.app.NotificationCompat.Builder setSmallIcon(int, int);
