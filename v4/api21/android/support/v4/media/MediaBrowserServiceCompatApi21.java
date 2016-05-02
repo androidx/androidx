@@ -52,26 +52,30 @@ class MediaBrowserServiceCompatApi21 {
 
     public interface ServiceCompatProxy {
         BrowserRoot onGetRoot(String clientPackageName, int clientUid, Bundle rootHints);
-        void onLoadChildren(String parentId, ResultWrapper result);
+        void onLoadChildren(String parentId, ResultWrapper<List<Parcel>> result);
     }
 
-    static class ResultWrapper {
+    static class ResultWrapper<T> {
         MediaBrowserService.Result mResultObj;
 
         ResultWrapper(MediaBrowserService.Result result) {
             mResultObj = result;
         }
 
-        public void sendResult(List<Parcel> result) {
-            mResultObj.sendResult(parcelListToItemList(result));
+        public void sendResult(T result) {
+            if (result instanceof List) {
+                mResultObj.sendResult(parcelListToItemList((List<Parcel>)result));
+            } else if (result instanceof Parcel) {
+                mResultObj.sendResult(
+                        MediaBrowser.MediaItem.CREATOR.createFromParcel((Parcel) result));
+            }
         }
 
         public void detach() {
             mResultObj.detach();
         }
 
-        List<MediaBrowser.MediaItem> parcelListToItemList(
-                List<Parcel> parcelList) {
+        List<MediaBrowser.MediaItem> parcelListToItemList(List<Parcel> parcelList) {
             if (parcelList == null) {
                 return null;
             }
@@ -114,7 +118,7 @@ class MediaBrowserServiceCompatApi21 {
 
         @Override
         public void onLoadChildren(String parentId, Result<List<MediaBrowser.MediaItem>> result) {
-            mServiceProxy.onLoadChildren(parentId, new ResultWrapper(result));
+            mServiceProxy.onLoadChildren(parentId, new ResultWrapper<List<Parcel>>(result));
         }
     }
 }

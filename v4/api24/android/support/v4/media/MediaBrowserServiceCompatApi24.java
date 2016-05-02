@@ -52,7 +52,7 @@ class MediaBrowserServiceCompatApi24 {
         return ((MediaBrowserService) serviceObj).getBrowserRootHints();
     }
 
-    public interface ServiceCompatProxy extends MediaBrowserServiceCompatApi21.ServiceCompatProxy {
+    public interface ServiceCompatProxy extends MediaBrowserServiceCompatApi23.ServiceCompatProxy {
         void onLoadChildren(String parentId, ResultWrapper result, Bundle options);
     }
 
@@ -91,7 +91,7 @@ class MediaBrowserServiceCompatApi24 {
     }
 
     static class MediaBrowserServiceAdaptor extends
-            MediaBrowserServiceCompatApi21.MediaBrowserServiceAdaptor {
+            MediaBrowserServiceCompatApi23.MediaBrowserServiceAdaptor {
         MediaBrowserServiceAdaptor(Context context, ServiceCompatProxy serviceWrapper) {
             super(context, serviceWrapper);
         }
