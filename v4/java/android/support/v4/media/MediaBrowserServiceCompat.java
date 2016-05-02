@@ -265,7 +265,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
 
         @Override
         public void onLoadChildren(String parentId,
-                final MediaBrowserServiceCompatApi21.ResultWrapper resultWrapper) {
+                final MediaBrowserServiceCompatApi21.ResultWrapper<List<Parcel>> resultWrapper) {
             final Result<List<MediaBrowserCompat.MediaItem>> result
                     = new Result<List<MediaBrowserCompat.MediaItem>>(parentId) {
                 @Override
@@ -291,7 +291,37 @@ public abstract class MediaBrowserServiceCompat extends Service {
         }
     }
 
-    class MediaBrowserServiceImplApi24 extends MediaBrowserServiceImplApi21 implements
+    class MediaBrowserServiceImplApi23 extends MediaBrowserServiceImplApi21 implements
+            MediaBrowserServiceCompatApi23.ServiceCompatProxy {
+        @Override
+        public void onCreate() {
+            mServiceObj = MediaBrowserServiceCompatApi23.createService(
+                    MediaBrowserServiceCompat.this, this);
+            MediaBrowserServiceCompatApi21.onCreate(mServiceObj);
+        }
+
+        @Override
+        public void onLoadItem(String itemId,
+                final MediaBrowserServiceCompatApi21.ResultWrapper<Parcel> resultWrapper) {
+            final Result<MediaBrowserCompat.MediaItem> result
+                    = new Result<MediaBrowserCompat.MediaItem>(itemId) {
+                @Override
+                void onResultSent(MediaBrowserCompat.MediaItem item, @ResultFlags int flags) {
+                    Parcel parcelItem = Parcel.obtain();
+                    item.writeToParcel(parcelItem, 0);
+                    resultWrapper.sendResult(parcelItem);
+                }
+
+                @Override
+                public void detach() {
+                    resultWrapper.detach();
+                }
+            };
+            MediaBrowserServiceCompat.this.onLoadItem(itemId, result);
+        }
+    }
+
+    class MediaBrowserServiceImplApi24 extends MediaBrowserServiceImplApi23 implements
             MediaBrowserServiceCompatApi24.ServiceCompatProxy {
         @Override
         public void onCreate() {
@@ -404,10 +434,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
             } else {
                 post(r);
             }
-        }
-
-        public ServiceBinderImpl getServiceBinderImpl() {
-            return mServiceBinderImpl;
         }
     }
 
@@ -710,6 +736,8 @@ public abstract class MediaBrowserServiceCompat extends Service {
         super.onCreate();
         if (Build.VERSION.SDK_INT >= 24) {
             mImpl = new MediaBrowserServiceImplApi24();
+        } else if (Build.VERSION.SDK_INT >= 23) {
+            mImpl = new MediaBrowserServiceImplApi23();
         } else if (Build.VERSION.SDK_INT >= 21) {
             mImpl = new MediaBrowserServiceImplApi21();
         } else {

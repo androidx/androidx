@@ -1218,20 +1218,25 @@ public final class MediaBrowserCompat {
             ConnectionCallback.ConnectionCallbackInternal {
         protected final Object mBrowserObj;
         protected final Bundle mRootHints;
-
-        private final CallbackHandler mHandler = new CallbackHandler(this);
+        protected final CallbackHandler mHandler = new CallbackHandler(this);
         private final ArrayMap<String, Subscription> mSubscriptions = new ArrayMap<>();
 
-        private ServiceBinderWrapper mServiceBinderWrapper;
-        private Messenger mCallbacksMessenger;
+        protected ServiceBinderWrapper mServiceBinderWrapper;
+        protected Messenger mCallbacksMessenger;
 
         public MediaBrowserImplApi21(Context context, ComponentName serviceComponent,
                 ConnectionCallback callback, Bundle rootHints) {
-            if (rootHints == null) {
-                rootHints = new Bundle();
+            // Do not send the client version for API 24 and higher, since we don't need to use
+            // EXTRA_MESSENGER_BINDER for API 24 and higher.
+            if (Build.VERSION.SDK_INT < 24) {
+                if (rootHints == null) {
+                    rootHints = new Bundle();
+                }
+                rootHints.putInt(EXTRA_CLIENT_VERSION, CLIENT_VERSION_CURRENT);
+                mRootHints = new Bundle(rootHints);
+            } else {
+                mRootHints = rootHints == null ? null : new Bundle(rootHints);
             }
-            rootHints.putInt(EXTRA_CLIENT_VERSION, CLIENT_VERSION_CURRENT);
-            mRootHints = new Bundle(rootHints);
             callback.setInternalConnectionCallback(this);
             mBrowserObj = MediaBrowserCompatApi21.createBrowser(context, serviceComponent,
                     callback.mConnectionCallbackObj, mRootHints);
@@ -1448,8 +1453,7 @@ public final class MediaBrowserCompat {
         }
 
         @Override
-        public void onLoadChildren(Messenger callback, String parentId, List list,
-                @NonNull Bundle options) {
+        public void onLoadChildren(Messenger callback, String parentId, List list, Bundle options) {
             if (mCallbacksMessenger != callback) {
                 return;
             }
@@ -1466,7 +1470,11 @@ public final class MediaBrowserCompat {
             // Tell the app.
             SubscriptionCallback subscriptionCallback = subscription.getCallback(options);
             if (subscriptionCallback != null) {
-                subscriptionCallback.onChildrenLoaded(parentId, list, options);
+                if (options == null) {
+                    subscriptionCallback.onChildrenLoaded(parentId, list);
+                } else {
+                    subscriptionCallback.onChildrenLoaded(parentId, list, options);
+                }
             }
         }
     }
@@ -1478,8 +1486,12 @@ public final class MediaBrowserCompat {
         }
 
         @Override
-        public void getItem(@NonNull String mediaId, @NonNull ItemCallback cb) {
-            MediaBrowserCompatApi23.getItem(mBrowserObj, mediaId, cb.mItemCallbackObj);
+        public void getItem(@NonNull final String mediaId, @NonNull final ItemCallback cb) {
+            if (mServiceBinderWrapper == null) {
+                MediaBrowserCompatApi23.getItem(mBrowserObj, mediaId, cb.mItemCallbackObj);
+            } else {
+                super.getItem(mediaId, cb);
+            }
         }
     }
 
@@ -1509,6 +1521,11 @@ public final class MediaBrowserCompat {
                 MediaBrowserCompatApi24.unsubscribe(mBrowserObj, parentId,
                         callback.mSubscriptionCallbackObj);
             }
+        }
+
+        @Override
+        public void getItem(@NonNull final String mediaId, @NonNull final ItemCallback cb) {
+            MediaBrowserCompatApi23.getItem(mBrowserObj, mediaId, cb.mItemCallbackObj);
         }
     }
 
