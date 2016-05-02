@@ -21,8 +21,6 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.List;
 
 class MediaBrowserCompatApi24 {
