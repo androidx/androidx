@@ -3,49 +3,14 @@ apply plugin: 'com.android.library'
 archivesBaseName = 'mediarouter-v7'
 
 
-dependencies {
-    compile project(':support-appcompat-v7')
-    compile project(':support-palette-v7')
-}
-
 // some of the source requires compiling against a newer API.
 // Right now, use normal Java source sets to compile those into a jar and 
 // package it as a local dependencies inside the library aar.
 
-sourceSets {
-    jellybean.java.srcDir 'jellybean'
-    jellybeanmr1.java.srcDir 'jellybean-mr1'
-    jellybeanmr2.java.srcDir 'jellybean-mr2'
-    api24.java.srcDir 'api24'
-}
-
-// create a jar task for the code above
-tasks.create(name: "jar", type: Jar) {
-    from sourceSets.jellybean.output
-    from sourceSets.jellybeanmr1.output
-    from sourceSets.jellybeanmr2.output
-    from sourceSets.api24.output
-    baseName "internal_impl"
-}
-
-
-dependencies {
-    jellybeanCompile getAndroidPrebuilt('16')
-
-    jellybeanmr1Compile getAndroidPrebuilt('17')
-    jellybeanmr1Compile sourceSets.jellybean.output
-
-    jellybeanmr2Compile getAndroidPrebuilt('18')
-    jellybeanmr2Compile sourceSets.jellybean.output
-    jellybeanmr2Compile sourceSets.jellybeanmr1.output
-
-    api24Compile getAndroidPrebuilt('current')
-    api24Compile sourceSets.jellybean.output
-    api24Compile sourceSets.jellybeanmr1.output
-    api24Compile sourceSets.jellybeanmr2.output
-
-    compile files(jar.archivePath)
-}
+createApiSourceSets(project, gradle.ext.studioCompat.modules.mediaRouter.apiTargets)
+sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility = JavaVersion.VERSION_1_7
+setApiModuleDependencies(project, dependencies, gradle.ext.studioCompat.modules.mediaRouter.dependencies)
 
 android {
     compileSdkVersion project.ext.currentSdk
@@ -76,8 +41,6 @@ android {
 }
 
 android.libraryVariants.all { variant ->
-    variant.javaCompile.dependsOn jar
-
     def name = variant.buildType.name
 
     if (name.equals(com.android.builder.core.BuilderConstants.DEBUG)) {
@@ -106,14 +69,10 @@ android.libraryVariants.all { variant ->
         from android.sourceSets.main.java.srcDirs
     }
 
-    javadocTask.source  project.sourceSets.jellybean.java
-    sourcesJarTask.from project.sourceSets.jellybean.java.srcDirs
-    javadocTask.source  project.sourceSets.jellybeanmr1.java
-    sourcesJarTask.from project.sourceSets.jellybeanmr1.java.srcDirs
-    javadocTask.source  project.sourceSets.jellybeanmr2.java
-    sourcesJarTask.from project.sourceSets.jellybeanmr2.java.srcDirs
-    javadocTask.source  project.sourceSets.api24.java
-    sourcesJarTask.from project.sourceSets.api24.java.srcDirs
+    project.ext.allSS.each { ss ->
+        javadocTask.source ss.java
+        sourcesJarTask.from ss.java.srcDirs
+    }
 
     artifacts.add('archives', javadocJarTask);
     artifacts.add('archives', sourcesJarTask);
