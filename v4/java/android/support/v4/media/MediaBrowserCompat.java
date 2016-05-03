@@ -35,6 +35,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.BundleCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.os.BuildCompat;
 import android.support.v4.os.ResultReceiver;
 import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
@@ -44,6 +45,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -96,7 +98,7 @@ public final class MediaBrowserCompat {
      */
     public MediaBrowserCompat(Context context, ComponentName serviceComponent,
             ConnectionCallback callback, Bundle rootHints) {
-        if (Build.VERSION.SDK_INT >= 24) {
+        if (Build.VERSION.SDK_INT >= 24 || BuildCompat.isAtLeastN()) {
             mImpl = new MediaBrowserImplApi24(context, serviceComponent, callback, rootHints);
         } else if (Build.VERSION.SDK_INT >= 23) {
             mImpl = new MediaBrowserImplApi23(context, serviceComponent, callback, rootHints);
@@ -498,9 +500,10 @@ public final class MediaBrowserCompat {
     public static abstract class SubscriptionCallback {
         private final Object mSubscriptionCallbackObj;
         private final IBinder mToken;
+        private WeakReference<Subscription> mSubscriptionRef;
 
         public SubscriptionCallback() {
-            if (Build.VERSION.SDK_INT >= 24) {
+            if (Build.VERSION.SDK_INT >= 24 || BuildCompat.isAtLeastN()) {
                 mSubscriptionCallbackObj =
                         MediaBrowserCompatApi24.createSubscriptionCallback(new StubApi24());
                 mToken = null;
@@ -563,12 +566,31 @@ public final class MediaBrowserCompat {
         public void onError(@NonNull String parentId, @NonNull Bundle options) {
         }
 
+        private void setSubscription(Subscription subscription) {
+            mSubscriptionRef = new WeakReference(subscription);
+        }
+
         private class StubApi21 implements MediaBrowserCompatApi21.SubscriptionCallback {
             @Override
             public void onChildrenLoaded(@NonNull String parentId, List<Parcel> children) {
-                // TODO: Support Pagination API when connected to a framework MediaBrowserService.
-                SubscriptionCallback.this.onChildrenLoaded(
-                        parentId, parcelListToItemList(children));
+                Subscription sub = mSubscriptionRef.get();
+                if (sub == null) {
+                    SubscriptionCallback.this.onChildrenLoaded(
+                            parentId, parcelListToItemList(children));
+                } else {
+                    List<MediaBrowserCompat.MediaItem> itemList = parcelListToItemList(children);
+                    final List<SubscriptionCallback> callbacks = sub.getCallbacks();
+                    final List<Bundle> optionsList = sub.getOptionsList();
+                    for (int i = 0; i < callbacks.size(); ++i) {
+                        Bundle options = optionsList.get(i);
+                        if (options == null) {
+                            SubscriptionCallback.this.onChildrenLoaded(parentId, itemList);
+                        } else {
+                            SubscriptionCallback.this.onChildrenLoaded(
+                                    parentId, applyOptions(itemList, options), options);
+                        }
+                    }
+                }
             }
 
             @Override
@@ -589,6 +611,28 @@ public final class MediaBrowserCompat {
                 }
                 return items;
             }
+
+            List<MediaBrowserCompat.MediaItem> applyOptions(List<MediaBrowserCompat.MediaItem> list,
+                    final Bundle options) {
+                if (list == null) {
+                    return null;
+                }
+                int page = options.getInt(MediaBrowserCompat.EXTRA_PAGE, -1);
+                int pageSize = options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, -1);
+                if (page == -1 && pageSize == -1) {
+                    return list;
+                }
+                int fromIndex = pageSize * page;
+                int toIndex = fromIndex + pageSize;
+                if (page < 0 || pageSize < 1 || fromIndex >= list.size()) {
+                    return Collections.EMPTY_LIST;
+                }
+                if (toIndex > list.size()) {
+                    toIndex = list.size();
+                }
+                return list.subList(fromIndex, toIndex);
+            }
+
         }
 
         private class StubApi24 extends StubApi21
@@ -1228,7 +1272,7 @@ public final class MediaBrowserCompat {
                 ConnectionCallback callback, Bundle rootHints) {
             // Do not send the client version for API 24 and higher, since we don't need to use
             // EXTRA_MESSENGER_BINDER for API 24 and higher.
-            if (Build.VERSION.SDK_INT < 24) {
+            if (Build.VERSION.SDK_INT < 24 && !BuildCompat.isAtLeastN()) {
                 if (rootHints == null) {
                     rootHints = new Bundle();
                 }
@@ -1297,6 +1341,7 @@ public final class MediaBrowserCompat {
                 sub = new Subscription();
                 mSubscriptions.put(parentId, sub);
             }
+            callback.setSubscription(sub);
             sub.putCallback(options, callback);
 
             if (mServiceBinderWrapper == null) {
