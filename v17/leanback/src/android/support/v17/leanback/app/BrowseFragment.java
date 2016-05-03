@@ -214,14 +214,23 @@ public class BrowseFragment extends BaseFragment {
      */
     public interface FragmentHost {
         /**
-         * Clients are required to invoke this callback once their view is created
-         * inside {@link Fragment#onStart} method. {@link BrowseFragment} starts the entrance
+         * Fragments are required to invoke this callback once their view is created
+         * inside {@link Fragment#onViewCreated} method. {@link BrowseFragment} starts the entrance
          * animation only after receiving this callback. Failure to invoke this method
          * will lead to fragment not showing up.
          *
          * @param fragmentAdapter {@link MainFragmentAdapter} used by the current fragment.
          */
         void notifyViewCreated(MainFragmentAdapter fragmentAdapter);
+
+        /**
+         * Fragments mapped to {@link PageRow} are required to invoke this callback once their data
+         * is created for transition, the entrance animation only after receiving this callback.
+         * Failure to invoke this method will lead to fragment not showing up.
+         *
+         * @param fragmentAdapter {@link MainFragmentAdapter} used by the current fragment.
+         */
+        void notifyDataReady(MainFragmentAdapter fragmentAdapter);
 
         /**
          * Show or hide title view in {@link BrowseFragment} for fragments mapped to
@@ -242,10 +251,29 @@ public class BrowseFragment extends BaseFragment {
      */
     private final class FragmentHostImpl implements FragmentHost {
         boolean mShowTitleView = true;
+        boolean mDataReady = false;
 
         @Override
         public void notifyViewCreated(MainFragmentAdapter fragmentAdapter) {
-            processingPendingEntranceTransition();
+            performPendingStates();
+        }
+
+        @Override
+        public void notifyDataReady(MainFragmentAdapter fragmentAdapter) {
+            mDataReady = true;
+
+            // If fragment host is not the currently active fragment (in BrowseFragment), then
+            // ignore the request.
+            if (mMainFragmentAdapter == null || mMainFragmentAdapter.getFragmentHost() != this) {
+                return;
+            }
+
+            // We only honor showTitle request for PageRows.
+            if (!mIsPageRow) {
+                return;
+            }
+
+            performPendingStates();
         }
 
         @Override
@@ -1171,11 +1199,8 @@ public class BrowseFragment extends BaseFragment {
 
     @Override
     boolean isReadyForStartEntranceTransition() {
-        return mMainFragment != null && mMainFragment.getView() != null;
-    }
-
-    void processingPendingEntranceTransition() {
-        performPendingStates();
+        return mMainFragment != null && mMainFragment.getView() != null
+                && (!mIsPageRow || mMainFragmentAdapter.mFragmentHost.mDataReady);
     }
 
     private void createHeadersTransition() {
@@ -1394,7 +1419,7 @@ public class BrowseFragment extends BaseFragment {
             swapToMainFragment();
             expandMainFragment(!(mCanShowHeaders && mShowingHeaders));
             setupMainFragment();
-            processingPendingEntranceTransition();
+            performPendingStates();
         }
     }
 
