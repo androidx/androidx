@@ -20,6 +20,7 @@ import android.app.Fragment;
 import android.os.Bundle;
 import android.support.v14.preference.PreferenceFragment;
 import android.support.v17.leanback.widget.VerticalGridView;
+import android.support.v7.preference.PreferenceRecyclerViewAccessibilityDelegate;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -37,6 +38,8 @@ public abstract class BaseLeanbackPreferenceFragment extends PreferenceFragment 
                 .inflate(R.layout.leanback_preferences_list, parent, false);
         verticalGridView.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_BOTH_EDGE);
         verticalGridView.setFocusScrollStrategy(VerticalGridView.FOCUS_SCROLL_ALIGNED);
+        verticalGridView.setAccessibilityDelegateCompat(
+                new PreferenceRecyclerViewAccessibilityDelegate(verticalGridView));
         return verticalGridView;
     }
 
