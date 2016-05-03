@@ -38,6 +38,7 @@ import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceGroup;
 import android.support.v7.preference.PreferenceGroupAdapter;
 import android.support.v7.preference.PreferenceManager;
+import android.support.v7.preference.PreferenceRecyclerViewAccessibilityDelegate;
 import android.support.v7.preference.PreferenceScreen;
 import android.support.v7.preference.PreferenceViewHolder;
 import android.support.v7.widget.LinearLayoutManager;
@@ -582,6 +583,8 @@ public abstract class PreferenceFragment extends Fragment implements
                         parent, false);
 
         recyclerView.setLayoutManager(onCreateLayoutManager());
+        recyclerView.setAccessibilityDelegateCompat(
+                new PreferenceRecyclerViewAccessibilityDelegate(recyclerView));
 
         return recyclerView;
     }
