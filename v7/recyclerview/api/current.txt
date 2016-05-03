@@ -732,6 +732,7 @@ package android.support.v7.widget {
 
   public class RecyclerViewAccessibilityDelegate extends android.support.v4.view.AccessibilityDelegateCompat {
     ctor public RecyclerViewAccessibilityDelegate(android.support.v7.widget.RecyclerView);
+    method public android.support.v4.view.AccessibilityDelegateCompat getItemDelegate();
   }
 
   public abstract class SimpleItemAnimator extends android.support.v7.widget.RecyclerView.ItemAnimator {
