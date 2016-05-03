@@ -24,10 +24,12 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.SharedPreferencesCompat;
 import android.support.v4.content.res.TypedArrayUtils;
+import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.AbsSavedState;
@@ -1715,6 +1717,14 @@ public class Preference implements Comparable<Preference> {
         if (state != BaseSavedState.EMPTY_STATE && state != null) {
             throw new IllegalArgumentException("Wrong state class -- expecting Preference State");
         }
+    }
+
+    /**
+     * Initializes an {@link android.view.accessibility.AccessibilityNodeInfo} with information
+     * about the View for this Preference.
+     */
+    @CallSuper
+    public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfoCompat info) {
     }
 
     /**

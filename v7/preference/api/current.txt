@@ -127,6 +127,7 @@ package android.support.v7.preference {
     method public void onDependencyChanged(android.support.v7.preference.Preference, boolean);
     method public void onDetached();
     method protected java.lang.Object onGetDefaultValue(android.content.res.TypedArray, int);
+    method public void onInitializeAccessibilityNodeInfo(android.support.v4.view.accessibility.AccessibilityNodeInfoCompat);
     method public void onParentChanged(android.support.v7.preference.Preference, boolean);
     method protected void onPrepareForRemoval();
     method protected void onRestoreInstanceState(android.os.Parcelable);
