@@ -852,6 +852,40 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
         }
 
         /**
+         * Set a custom view to be the contents of the Dialog, specifying the
+         * spacing to appear around that view. If the supplied view is an
+         * instance of a {@link ListView} the light background will be used.
+         *
+         * @param view              The view to use as the contents of the Dialog.
+         * @param viewSpacingLeft   Spacing between the left edge of the view and
+         *                          the dialog frame
+         * @param viewSpacingTop    Spacing between the top edge of the view and
+         *                          the dialog frame
+         * @param viewSpacingRight  Spacing between the right edge of the view
+         *                          and the dialog frame
+         * @param viewSpacingBottom Spacing between the bottom edge of the view
+         *                          and the dialog frame
+         * @return This Builder object to allow for chaining of calls to set
+         * methods
+         *
+         *
+         * This is currently hidden because it seems like people should just
+         * be able to put padding around the view.
+         * @hide
+         */
+        public Builder setView(View view, int viewSpacingLeft, int viewSpacingTop,
+                int viewSpacingRight, int viewSpacingBottom) {
+            P.mView = view;
+            P.mViewLayoutResId = 0;
+            P.mViewSpacingSpecified = true;
+            P.mViewSpacingLeft = viewSpacingLeft;
+            P.mViewSpacingTop = viewSpacingTop;
+            P.mViewSpacingRight = viewSpacingRight;
+            P.mViewSpacingBottom = viewSpacingBottom;
+            return this;
+        }
+
+        /**
          * Sets the Dialog to use the inverse background, regardless of what the
          * contents is.
          *
