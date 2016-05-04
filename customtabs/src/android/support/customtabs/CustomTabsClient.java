@@ -20,11 +20,15 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -62,7 +66,95 @@ public class CustomTabsClient {
     }
 
     /**
+     * Returns the preferred package to use for Custom Tabs, preferring the default VIEW handler.
+     *
+     * @see {@link #getPackageName(Context, List<String>, boolean)}.
+     */
+    public static String getPackageName(Context context, @Nullable List<String> packages) {
+        return getPackageName(context, packages, false);
+    }
+
+    /**
+     * Returns the preferred package to use for Custom Tabs.
+     *
+     * Unless <code>ignoreDefault</code> is true, if the default VIEW handler supports Custom Tabs,
+     * its package name will be returned, irrespective of the content of <code>packages</code>.
+     *
+     * @param context       {@link Context} to use for querying the packages.
+     * @param packages      Ordered list of packages to test for Custom Tabs support, in
+     *                      decreasing order of priority.
+     * @param ignoreDefault If set, don't systematically prefer the default VIEW handler.
+     * @return The preferred package name for handling Custom Tabs, or <code>null</code>.
+     */
+    public static String getPackageName(
+        Context context, @Nullable List<String> packages, boolean ignoreDefault) {
+        PackageManager pm = context.getPackageManager();
+
+        List<String> packageNames = packages == null ? new ArrayList<String>() : packages;
+        Intent activityIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://"));
+
+        if (!ignoreDefault) {
+            ResolveInfo defaultViewHandlerInfo = pm.resolveActivity(activityIntent, 0);
+            if (defaultViewHandlerInfo != null) {
+                String packageName = defaultViewHandlerInfo.activityInfo.packageName;
+                packageNames = new ArrayList<String>(packageNames.size() + 1);
+                packageNames.add(packageName);
+                if (packages != null) packageNames.addAll(packages);
+            }
+        }
+
+        Intent serviceIntent = new Intent(CustomTabsService.ACTION_CUSTOM_TABS_CONNECTION);
+        for (String packageName : packageNames) {
+            serviceIntent.setPackage(packageName);
+            if (pm.resolveService(serviceIntent, 0) != null) return packageName;
+        }
+        return null;
+    }
+
+    /**
+     * Connects to the Custom Tabs warmup service, and initializes the browser.
+     *
+     * This convenience method connects to the service, and immediately warms up the Custom Tabs
+     * implementation. Since service connection is asynchronous, the return code is not the return
+     * code of warmup.
+     * This call is optional, and clients are encouraged to connect to the service, call
+     * <code>warmup()</code> and create a session. In this case, calling this method is not
+     * necessary.
+     *
+     * @param context     {@link Context} to use to connect to the remote service.
+     * @param packageName Package name of the target implamentation.
+     * @return Whether the binding was successful.
+     */
+    public static boolean connectAndInitialize(Context context, String packageName) {
+        if (packageName == null) return false;
+        final Context applicationContext = context.getApplicationContext();
+        CustomTabsServiceConnection connection = new CustomTabsServiceConnection() {
+            @Override
+            public final void onCustomTabsServiceConnected(
+                    ComponentName name, CustomTabsClient client) {
+                client.warmup(0);
+                // Unbinding immediately makes the target process "Empty", provided that it is
+                // not used by anyone else, and doesn't contain any Activity. This makes it
+                // likely to get killed, but is preferable to keeping the connection around.
+                applicationContext.unbindService(this);
+            }
+
+           @Override
+           public final void onServiceDisconnected(ComponentName componentName) { }
+        };
+        try {
+            return bindCustomTabsService(applicationContext, packageName, connection);
+        } catch (SecurityException e) {
+            return false;
+        }
+    }
+
+    /**
      * Warm up the browser process.
+     *
+     * Allows the browser application to pre-initialize itself in the background. Significantly
+     * speeds up URL opening in the browser. This is asynchronous and can be called several times.
+     *
      * @param flags Reserved for future use.
      * @return      Whether the warmup was successful.
      */
