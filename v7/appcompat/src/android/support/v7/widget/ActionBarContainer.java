@@ -224,15 +224,17 @@ public class ActionBarContainer extends FrameLayout {
         return mTabContainer;
     }
 
-    //@Override
-    public ActionMode startActionModeForChild(View child, ActionMode.Callback callback) {
+    public android.view.ActionMode startActionModeForChild(View child,
+            android.view.ActionMode.Callback callback) {
         // No starting an action mode for an action bar child! (Where would it go?)
         return null;
     }
 
-    @Override
-    public android.view.ActionMode startActionModeForChild(View originalView,
-            android.view.ActionMode.Callback callback) {
+    public android.view.ActionMode startActionModeForChild(View child,
+            android.view.ActionMode.Callback callback, int type) {
+        if (type != android.view.ActionMode.TYPE_PRIMARY) {
+            return super.startActionModeForChild(child, callback, type);
+        }
         return null;
     }
 

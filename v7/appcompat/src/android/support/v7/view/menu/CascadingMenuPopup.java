@@ -178,8 +178,10 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
     private View mAnchorView;
     private View mShownAnchorView;
     private int mLastPosition;
-    private int mInitXOffset;
-    private int mInitYOffset;
+    private boolean mHasXOffset;
+    private boolean mHasYOffset;
+    private int mXOffset;
+    private int mYOffset;
     private boolean mForceShowIcon;
     private boolean mShowTitle;
     private Callback mPresenterCallback;
@@ -342,7 +344,19 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
     private void showMenu(@NonNull MenuBuilder menu) {
         final LayoutInflater inflater = LayoutInflater.from(mContext);
         final MenuAdapter adapter = new MenuAdapter(menu, inflater, mOverflowOnly);
-        adapter.setForceShowIcon(mForceShowIcon);
+
+        // Apply "force show icon" setting. There are 3 cases:
+        // (1) This is the top level menu and icon spacing is forced. Add spacing.
+        // (2) This is a submenu. Add spacing if any of the visible menu items has an icon.
+        // (3) This is the top level menu and icon spacing isn't forced. Do not add spacing.
+        if (!isShowing() && mForceShowIcon) {
+          // Case 1
+          adapter.setForceShowIcon(true);
+        } else if (isShowing()) {
+          // Case 2
+          adapter.setForceShowIcon(MenuPopup.shouldPreserveIconSpacing(menu));
+        }
+        // Case 3: Else, don't allow spacing for icons (default behavior; do nothing).
 
         final int menuWidth = measureIndividualMenuWidth(adapter, null, mContext, mMenuMaxWidth);
         final MenuPopupWindow popupWindow = createPopupWindow();
@@ -360,9 +374,6 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
             parentView = null;
         }
 
-        final int x;
-        final int y;
-        final Rect epicenterBounds;
         if (parentView != null) {
             // This menu is a cascading submenu anchored to a parent view.
             popupWindow.setTouchModal(false);
@@ -382,6 +393,7 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
 
             // By now, mDropDownGravity is the resolved absolute gravity, so
             // this should work in both LTR and RTL.
+            final int x;
             if ((mDropDownGravity & Gravity.RIGHT) == Gravity.RIGHT) {
                 if (showOnRight) {
                     x = parentOffsetLeft + menuWidth;
@@ -396,17 +408,20 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
                 }
             }
 
-            y = parentOffsetTop;
-            epicenterBounds = null;
-        } else {
-            x = mInitXOffset;
-            y = mInitYOffset;
-            epicenterBounds = getEpicenterBounds();
-        }
+            popupWindow.setHorizontalOffset(x);
 
-        popupWindow.setHorizontalOffset(x);
-        popupWindow.setVerticalOffset(y);
-        popupWindow.setEpicenterBounds(epicenterBounds);
+            final int y = parentOffsetTop;
+            popupWindow.setVerticalOffset(y);
+        } else {
+            if (mHasXOffset) {
+                popupWindow.setHorizontalOffset(mXOffset);
+            }
+            if (mHasYOffset) {
+                popupWindow.setVerticalOffset(mYOffset);
+            }
+            final Rect epicenterBounds = getEpicenterBounds();
+            popupWindow.setEpicenterBounds(epicenterBounds);
+        }
 
         final CascadingMenuInfo menuInfo = new CascadingMenuInfo(popupWindow, menu, mLastPosition);
         mShowingMenus.add(menuInfo);
@@ -695,12 +710,14 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
 
     @Override
     public void setHorizontalOffset(int x) {
-        mInitXOffset = x;
+        mHasXOffset = true;
+        mXOffset = x;
     }
 
     @Override
     public void setVerticalOffset(int y) {
-        mInitYOffset = y;
+        mHasYOffset = true;
+        mYOffset = y;
     }
 
     @Override
