@@ -41,25 +41,12 @@ support_module_src_files += $(LOCAL_SRC_FILES)
 
 # -----------------------------------------------------------------------
 
-# A helper sub-library that makes direct use of Eclair MR1 APIs.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-v4-eclair-mr1
-LOCAL_SDK_VERSION := 7
-LOCAL_SRC_FILES := $(call all-java-files-under, eclair-mr1)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-eclair
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-support_module_src_files += $(LOCAL_SRC_FILES)
-
-# -----------------------------------------------------------------------
-
 # A helper sub-library that makes direct use of Froyo APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v4-froyo
 LOCAL_SDK_VERSION := 8
 LOCAL_SRC_FILES := $(call all-java-files-under, froyo)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-eclair-mr1
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-eclair
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
@@ -93,51 +80,12 @@ support_module_src_files += $(LOCAL_SRC_FILES)
 
 # -----------------------------------------------------------------------
 
-# A helper sub-library that makes direct use of Honeycomb MR1 APIs.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-v4-honeycomb-mr1
-LOCAL_SDK_VERSION := 12
-LOCAL_SRC_FILES := $(call all-java-files-under, honeycomb_mr1)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-honeycomb
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-support_module_src_files += $(LOCAL_SRC_FILES)
-
-# -----------------------------------------------------------------------
-
-# A helper sub-library that makes direct use of Honeycomb MR2 APIs.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-v4-honeycomb-mr2
-LOCAL_SDK_VERSION := 13
-LOCAL_SRC_FILES := $(call all-java-files-under, honeycomb_mr2)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-honeycomb-mr1
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-support_module_src_files += $(LOCAL_SRC_FILES)
-
-# -----------------------------------------------------------------------
-
 # A helper sub-library that makes direct use of Ice Cream Sandwich APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v4-ics
 LOCAL_SDK_VERSION := 14
 LOCAL_SRC_FILES := $(call all-java-files-under, ics)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-honeycomb-mr2
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-support_module_src_files += $(LOCAL_SRC_FILES)
-
-# -----------------------------------------------------------------------
-
-# A helper sub-library that makes direct use of Ice Cream Sandwich MR1 APIs.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-v4-ics-mr1
-LOCAL_SDK_VERSION := 15
-LOCAL_SRC_FILES := $(call all-java-files-under, ics-mr1)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-ics
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-honeycomb
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
@@ -150,20 +98,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v4-jellybean
 LOCAL_SDK_VERSION := 16
 LOCAL_SRC_FILES := $(call all-java-files-under, jellybean)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-ics-mr1
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-support_module_src_files += $(LOCAL_SRC_FILES)
-
-# -----------------------------------------------------------------------
-
-# A helper sub-library that makes direct use of JellyBean MR1 APIs.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-v4-jellybean-mr1
-LOCAL_SDK_VERSION := 17
-LOCAL_SRC_FILES := $(call all-java-files-under, jellybean-mr1)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-jellybean
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-ics
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
@@ -176,7 +111,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v4-jellybean-mr2
 LOCAL_SDK_VERSION := 18
 LOCAL_SRC_FILES := $(call all-java-files-under, jellybean-mr2)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-jellybean-mr1
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-jellybean
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
