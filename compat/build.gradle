@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 archivesBaseName = 'support-compat'
 
 
-createApiSourceSets(project, gradle.ext.studioCompat.modules.v4.apiTargets)
+createApiSourceSets(project, gradle.ext.studioCompat.modules.compat.apiTargets)
 dependencies {
     androidTestCompile ('com.android.support.test:runner:0.4.1') {
         exclude module: 'support-annotations'
@@ -18,7 +18,7 @@ dependencies {
 
 sourceCompatibility = JavaVersion.VERSION_1_7
 targetCompatibility = JavaVersion.VERSION_1_7
-setApiModuleDependencies(project, dependencies, gradle.ext.studioCompat.modules.v4.dependencies)
+setApiModuleDependencies(project, dependencies, gradle.ext.studioCompat.modules.compat.dependencies)
 
 android {
     compileSdkVersion 4

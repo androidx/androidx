@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 archivesBaseName = 'support-core'
 
 
-createApiSourceSets(project, gradle.ext.studioCompat.modules.v4.apiTargets)
+createApiSourceSets(project, gradle.ext.studioCompat.modules.core.apiTargets)
 dependencies {
     compile project(':support-compat')
     androidTestCompile ('com.android.support.test:runner:0.4.1') {
@@ -19,7 +19,7 @@ dependencies {
 
 sourceCompatibility = JavaVersion.VERSION_1_7
 targetCompatibility = JavaVersion.VERSION_1_7
-setApiModuleDependencies(project, dependencies, gradle.ext.studioCompat.modules.v4.dependencies)
+setApiModuleDependencies(project, dependencies, gradle.ext.studioCompat.modules.core.dependencies)
 
 android {
     compileSdkVersion 4
