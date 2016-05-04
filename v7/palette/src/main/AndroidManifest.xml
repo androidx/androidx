@@ -15,7 +15,7 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="android.support.v7.palette">
-    <uses-sdk android:minSdkVersion="7"/>
+    <uses-sdk android:minSdkVersion="9"/>
     <application>
     </application>
 </manifest>

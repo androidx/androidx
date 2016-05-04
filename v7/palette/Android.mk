@@ -25,7 +25,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-v7-palette
-LOCAL_SDK_VERSION := 7
+LOCAL_SDK_VERSION := 9
 LOCAL_SRC_FILES := $(call all-java-files-under, src/main)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_MANIFEST_FILE := src/main/AndroidManifest.xml
