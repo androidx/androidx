@@ -220,6 +220,22 @@ public class NotificationCompat {
     public static final String EXTRA_SUB_TEXT = "android.subText";
 
     /**
+     * Notification extras key: this is the remote input history, as supplied to
+     * {@link Builder#setRemoteInputHistory(CharSequence[])}.
+     *
+     * Apps can fill this through {@link Builder#setRemoteInputHistory(CharSequence[])}
+     * with the most recent inputs that have been sent through a {@link RemoteInput} of this
+     * Notification and are expected to clear it once the it is no longer relevant (e.g. for chat
+     * notifications once the other party has responded).
+     *
+     * The extra with this key is of type CharSequence[] and contains the most recent entry at
+     * the 0 index, the second most recent at the 1 index, etc.
+     *
+     * @see Builder#setRemoteInputHistory(CharSequence[])
+     */
+    public static final String EXTRA_REMOTE_INPUT_HISTORY = "android.remoteInputHistory";
+
+    /**
      * Notification extras key: this is a small piece of additional text as supplied to
      * {@link Builder#setContentInfo(CharSequence)}.
      */
@@ -837,7 +853,7 @@ public class NotificationCompat {
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate, b.mShowWhen,
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mCategory,
                     b.mPeople, b.mExtras, b.mColor, b.mVisibility, b.mPublicVersion,
-                    b.mGroupKey, b.mGroupSummary, b.mSortKey);
+                    b.mGroupKey, b.mGroupSummary, b.mSortKey, b.mRemoteInputHistory);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderApi24(builder, b.mStyle);
             Notification notification = extender.build(b, builder);
@@ -992,6 +1008,8 @@ public class NotificationCompat {
         public Style mStyle;
         /** @hide */
         public CharSequence mSubText;
+        /** @hide */
+        public CharSequence[] mRemoteInputHistory;
         int mProgressMax;
         int mProgress;
         boolean mProgressIndeterminate;
@@ -1121,6 +1139,25 @@ public class NotificationCompat {
          */
         public Builder setSubText(CharSequence text) {
             mSubText = limitCharSequenceLength(text);
+            return this;
+        }
+
+        /**
+         * Set the remote input history.
+         *
+         * This should be set to the most recent inputs that have been sent
+         * through a {@link RemoteInput} of this Notification and cleared once the it is no
+         * longer relevant (e.g. for chat notifications once the other party has responded).
+         *
+         * The most recent input must be stored at the 0 index, the second most recent at the
+         * 1 index, etc. Note that the system will limit both how far back the inputs will be shown
+         * and how much of each individual input is shown.
+         *
+         * <p>Note: The reply text will only be shown on notifications that have least one action
+         * with a {@code RemoteInput}.</p>
+         */
+        public Builder setRemoteInputHistory(CharSequence[] text) {
+            mRemoteInputHistory = text;
             return this;
         }
 
