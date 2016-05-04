@@ -189,7 +189,7 @@ public final class CustomTabsIntent {
 
     /**
      * Extra that specifies the {@link PendingIntent} to be sent when the user clicks on the
-     * {@link View}s that is listed by {@link #EXTRA_REMOTEVIEWS_CLICKED_ID}.
+     * {@link View}s that is listed by {@link #EXTRA_REMOTEVIEWS_VIEW_IDS}.
      * <p>
      * Note when this {@link PendingIntent} is triggered, it will have the current url as data
      * field, also the id of the clicked {@link View}, specified by
