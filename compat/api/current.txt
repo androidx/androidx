@@ -166,7 +166,7 @@ package android.support.v4.content {
     method public static final android.graphics.drawable.Drawable getDrawable(android.content.Context, int);
     method public static java.io.File[] getExternalCacheDirs(android.content.Context);
     method public static java.io.File[] getExternalFilesDirs(android.content.Context, java.lang.String);
-    method public final java.io.File getNoBackupFilesDir(android.content.Context);
+    method public static final java.io.File getNoBackupFilesDir(android.content.Context);
     method public static java.io.File[] getObbDirs(android.content.Context);
     method public static boolean isDeviceProtectedStorage(android.content.Context);
     method public static boolean startActivities(android.content.Context, android.content.Intent[]);
