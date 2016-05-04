@@ -49,6 +49,7 @@ public class OnboardingDemoFragment extends OnboardingFragment {
         super.onAttach(activity);
         mTitles = getResources().getStringArray(R.array.onboarding_page_titles);
         mDescriptions = getResources().getStringArray(R.array.onboarding_page_descriptions);
+        setLogoResourceId(R.drawable.ic_launcher);
     }
 
     @Override
