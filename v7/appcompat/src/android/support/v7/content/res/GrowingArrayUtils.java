@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.v7.widget;
+package android.support.v7.content.res;
 
 import java.lang.reflect.Array;
 
@@ -26,7 +26,7 @@ import java.lang.reflect.Array;
  * NOT the number of elements in the array. The current size of the array is always passed in as a
  * parameter.
  */
-class GrowingArrayUtils {
+final class GrowingArrayUtils {
 
     /**
      * Appends an element to the end of the array, growing the array if there is no more room.
