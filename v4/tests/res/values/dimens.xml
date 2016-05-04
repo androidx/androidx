@@ -15,8 +15,4 @@
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <dimen name="text_medium_size">20sp</dimen>
-
-    <dimen name="drawable_small_size">12dip</dimen>
-    <dimen name="drawable_medium_size">16dip</dimen>
-    <dimen name="drawable_large_size">20dip</dimen>
 </resources>

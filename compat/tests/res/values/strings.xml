@@ -20,5 +20,4 @@
     <string name="test_text_medium">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam dui neque, suscipit quis rhoncus vitae, rhoncus hendrerit neque.</string>
     <!-- Long text for testing. -->
     <string name="test_text_long">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam dui neque, suscipit quis rhoncus vitae, rhoncus hendrerit neque. Proin ac mauris cursus nulla aliquam viverra. Vivamus pharetra luctus magna, lacinia imperdiet leo mollis eget. Fusce a diam ipsum. Etiam sit amet nisl et velit aliquam dignissim eget nec nisi. Duis bibendum euismod tortor non pulvinar. Nunc quis neque ultricies nulla luctus aliquet. Sed consectetur, orci ac vehicula consectetur, metus sem pellentesque turpis, sed venenatis nisi lorem vitae ante.</string>
-    <string name="hello">Hello World</string>
 </resources>

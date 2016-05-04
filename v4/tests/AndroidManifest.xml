@@ -32,8 +32,6 @@
             android:supportsRtl="true"
             android:theme="@style/TestActivityTheme">
         <uses-library android:name="android.test.runner" />
-        <activity android:name="android.support.v4.widget.TextViewTestActivity"/>
-
         <activity android:name="android.support.v4.widget.SwipeRefreshLayoutActivity"/>
 
         <activity android:name="android.support.v4.widget.ExploreByTouchHelperTestActivity"/>
@@ -42,11 +40,6 @@
 
         <activity android:name="android.support.v4.view.ViewPagerWithTabStripActivity"/>
 
-        <activity android:name="android.support.v4.view.VpaActivity"/>
-
-        <activity
-            android:name="android.support.v4.ThemedYellowActivity"
-            android:theme="@style/YellowTheme" />
         <activity android:name="android.support.v4.app.test.FragmentTestActivity"/>
 
         <activity android:name="android.support.v4.app.test.EmptyFragmentTestActivity" />
