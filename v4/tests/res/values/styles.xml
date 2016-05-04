@@ -22,16 +22,4 @@
         <item name="android:textColor">@color/text_color</item>
         <item name="android:textStyle">italic</item>
     </style>
-
-    <style name="YellowTheme" parent="@android:style/Theme.Light">
-        <item name="theme_color_default">@color/theme_color_yellow_default</item>
-        <item name="theme_color_focused">@color/theme_color_yellow_focused</item>
-        <item name="theme_color_pressed">@color/theme_color_yellow_pressed</item>
-    </style>
-
-    <style name="LilacTheme" parent="@android:style/Theme.Light">
-        <item name="theme_color_default">@color/theme_color_lilac_default</item>
-        <item name="theme_color_focused">@color/theme_color_lilac_focused</item>
-        <item name="theme_color_pressed">@color/theme_color_lilac_pressed</item>
-    </style>
 </resources>

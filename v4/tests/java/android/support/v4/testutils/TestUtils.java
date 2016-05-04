@@ -17,9 +17,6 @@
 
 package android.support.v4.testutils;
 
-import java.lang.IllegalArgumentException;
-import java.lang.RuntimeException;
-
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -27,40 +24,9 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
-import android.util.DisplayMetrics;
-import android.util.TypedValue;
-
 import junit.framework.Assert;
 
 public class TestUtils {
-    /**
-     * Converts the specified value from dips to pixels for use as view size.
-     */
-    public static int convertSizeDipsToPixels(DisplayMetrics displayMetrics, int dipValue) {
-        // Round to the nearest int value. This follows the logic in
-        // TypedValue.complexToDimensionPixelSize
-        final int res = (int) (dipValue * displayMetrics.density + 0.5f);
-        if (res != 0) {
-            return res;
-        }
-        if (dipValue == 0) {
-            return 0;
-        }
-        if (dipValue > 0) {
-            return 1;
-        }
-        return -1;
-    }
-
-    /**
-     * Converts the specified value from dips to pixels for use as view offset.
-     */
-    public static int convertOffsetDipsToPixels(DisplayMetrics displayMetrics, int dipValue) {
-        // Round to the nearest int value.
-        return (int) (dipValue * displayMetrics.density);
-    }
-
-
     /**
      * Checks whether all the pixels in the specified drawable are of the same specified color.
      * If the passed <code>Drawable</code> does not have positive intrinsic dimensions set, this
