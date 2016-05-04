@@ -16,11 +16,6 @@
 
 package android.support.v4.widget;
 
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.Interpolator;
-import android.view.animation.Animation;
-import android.view.animation.LinearInterpolator;
-import android.view.animation.Transformation;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
@@ -32,13 +27,17 @@ import android.graphics.Path;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Animatable;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.Transformation;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -54,7 +53,7 @@ class MaterialProgressDrawable extends Drawable implements Animatable {
     private static final Interpolator MATERIAL_INTERPOLATOR = new FastOutSlowInInterpolator();
 
     private static final float FULL_ROTATION = 1080.0f;
-    @Retention(RetentionPolicy.CLASS)
+    @Retention(RetentionPolicy.SOURCE)
     @IntDef({LARGE, DEFAULT})
     public @interface ProgressDrawableSize {}
     // Maps to ProgressBar.Large style
