@@ -99,11 +99,10 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
         mSubtitle = toolbar.getSubtitle();
         mTitleSet = mTitle != null;
         mNavIcon = toolbar.getNavigationIcon();
-
-        if (style) {
-            final TintTypedArray a = TintTypedArray.obtainStyledAttributes(toolbar.getContext(),
+        final TintTypedArray a = TintTypedArray.obtainStyledAttributes(toolbar.getContext(),
                     null, R.styleable.ActionBar, R.attr.actionBarStyle, 0);
-
+        mDefaultNavigationIcon = a.getDrawable(R.styleable.ActionBar_homeAsUpIndicator);
+        if (style) {
             final CharSequence title = a.getText(R.styleable.ActionBar_title);
             if (!TextUtils.isEmpty(title)) {
                 setTitle(title);
@@ -120,15 +119,12 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
             }
 
             final Drawable icon = a.getDrawable(R.styleable.ActionBar_icon);
-            if (mNavIcon == null && icon != null) {
+            if (icon != null) {
                 setIcon(icon);
             }
-
-            final Drawable navIcon = a.getDrawable(R.styleable.ActionBar_homeAsUpIndicator);
-            if (navIcon != null) {
-                setNavigationIcon(navIcon);
+            if (mNavIcon == null && mDefaultNavigationIcon != null) {
+                setNavigationIcon(mDefaultNavigationIcon);
             }
-
             setDisplayOptions(a.getInt(R.styleable.ActionBar_displayOptions, 0));
 
             final int customNavId = a.getResourceId(
@@ -170,18 +166,15 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
             if (popupTheme != 0) {
                 mToolbar.setPopupTheme(popupTheme);
             }
-
-            a.recycle();
         } else {
             mDisplayOpts = detectDisplayOptions();
         }
+        a.recycle();
 
         mDrawableManager = AppCompatDrawableManager.get();
 
         setDefaultNavigationContentDescription(defaultNavigationContentDescription);
         mHomeDescription = mToolbar.getNavigationContentDescription();
-
-        setDefaultNavigationIcon(mDrawableManager.getDrawable(getContext(), defaultNavigationIcon));
 
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             final ActionMenuItem mNavItem = new ActionMenuItem(mToolbar.getContext(),
@@ -195,15 +188,6 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
         });
     }
 
-    /**
-     * Sets the default content description for the navigation button.
-     * <p>
-     * It changes the current content description if and only if the provided resource id is
-     * different than the current default resource id and the current content description is empty.
-     *
-     * @param defaultNavigationContentDescription The resource id for the default content
-     *                                            description
-     */
     @Override
     public void setDefaultNavigationContentDescription(int defaultNavigationContentDescription) {
         if (defaultNavigationContentDescription == mDefaultNavigationContentDescription) {
@@ -215,19 +199,12 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
         }
     }
 
-    @Override
-    public void setDefaultNavigationIcon(Drawable defaultNavigationIcon) {
-        if (mDefaultNavigationIcon != defaultNavigationIcon) {
-            mDefaultNavigationIcon = defaultNavigationIcon;
-            updateNavigationIcon();
-        }
-    }
-
     private int detectDisplayOptions() {
         int opts = ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_HOME |
                 ActionBar.DISPLAY_USE_LOGO;
         if (mToolbar.getNavigationIcon() != null) {
             opts |= ActionBar.DISPLAY_HOME_AS_UP;
+            mDefaultNavigationIcon = mToolbar.getNavigationIcon();
         }
         return opts;
     }
@@ -408,11 +385,9 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
         if (changed != 0) {
             if ((changed & ActionBar.DISPLAY_HOME_AS_UP) != 0) {
                 if ((newOpts & ActionBar.DISPLAY_HOME_AS_UP) != 0) {
-                    updateNavigationIcon();
                     updateHomeAccessibility();
-                } else {
-                    mToolbar.setNavigationIcon(null);
                 }
+                updateNavigationIcon();
             }
 
             if ((changed & AFFECTS_LOGO_MASK) != 0) {
@@ -618,8 +593,23 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
 
     @Override
     public void setNavigationIcon(int resId) {
-        setNavigationIcon(resId != 0
-                ? AppCompatDrawableManager.get().getDrawable(getContext(), resId) : null);
+        setNavigationIcon(resId != 0 ? mDrawableManager.getDrawable(getContext(), resId) : null);
+    }
+
+    @Override
+    public void setDefaultNavigationIcon(Drawable defaultNavigationIcon) {
+        if (mDefaultNavigationIcon != defaultNavigationIcon) {
+            mDefaultNavigationIcon = defaultNavigationIcon;
+            updateNavigationIcon();
+        }
+    }
+
+    private void updateNavigationIcon() {
+        if ((mDisplayOpts & ActionBar.DISPLAY_HOME_AS_UP) != 0) {
+            mToolbar.setNavigationIcon(mNavIcon != null ? mNavIcon : mDefaultNavigationIcon);
+        } else {
+            mToolbar.setNavigationIcon(null);
+        }
     }
 
     @Override
@@ -640,12 +630,6 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
             } else {
                 mToolbar.setNavigationContentDescription(mHomeDescription);
             }
-        }
-    }
-
-    private void updateNavigationIcon() {
-        if ((mDisplayOpts & ActionBar.DISPLAY_HOME_AS_UP) != 0) {
-            mToolbar.setNavigationIcon(mNavIcon != null ? mNavIcon : mDefaultNavigationIcon);
         }
     }
 
