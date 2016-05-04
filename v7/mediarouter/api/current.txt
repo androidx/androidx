@@ -178,7 +178,7 @@ package android.support.v7.app {
     method public android.support.v7.app.AlertDialog.Builder setIcon(int);
     method public android.support.v7.app.AlertDialog.Builder setIcon(android.graphics.drawable.Drawable);
     method public android.support.v7.app.AlertDialog.Builder setIconAttribute(int);
-    method public android.support.v7.app.AlertDialog.Builder setInverseBackgroundForced(boolean);
+    method public deprecated android.support.v7.app.AlertDialog.Builder setInverseBackgroundForced(boolean);
     method public android.support.v7.app.AlertDialog.Builder setItems(int, android.content.DialogInterface.OnClickListener);
     method public android.support.v7.app.AlertDialog.Builder setItems(java.lang.CharSequence[], android.content.DialogInterface.OnClickListener);
     method public android.support.v7.app.AlertDialog.Builder setMessage(int);

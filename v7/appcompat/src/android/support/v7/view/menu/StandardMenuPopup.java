@@ -58,11 +58,14 @@ final class StandardMenuPopup extends MenuPopup implements OnDismissListener, On
     private final OnGlobalLayoutListener mGlobalLayoutListener = new OnGlobalLayoutListener() {
         @Override
         public void onGlobalLayout() {
-            if (isShowing()) {
+            // Only move the popup if it's showing and non-modal. We don't want
+            // to be moving around the only interactive window, since there's a
+            // good chance the user is interacting with it.
+            if (isShowing() && !mPopup.isModal()) {
                 final View anchor = mShownAnchorView;
                 if (anchor == null || !anchor.isShown()) {
                     dismiss();
-                } else if (isShowing()) {
+                } else {
                     // Recompute window size and position
                     mPopup.show();
                 }
@@ -88,8 +91,6 @@ final class StandardMenuPopup extends MenuPopup implements OnDismissListener, On
 
     private int mDropDownGravity = Gravity.NO_GRAVITY;
 
-    private int mXOffset;
-    private int mYOffset;
     private boolean mShowTitle;
 
     public StandardMenuPopup(Context context, MenuBuilder menu, View anchorView, int popupStyleAttr,
@@ -155,8 +156,6 @@ final class StandardMenuPopup extends MenuPopup implements OnDismissListener, On
 
         mPopup.setContentWidth(mContentWidth);
         mPopup.setInputMethodMode(PopupWindow.INPUT_METHOD_NOT_NEEDED);
-        mPopup.setHorizontalOffset(mXOffset);
-        mPopup.setVerticalOffset(mYOffset);
         mPopup.setEpicenterBounds(getEpicenterBounds());
         mPopup.show();
 
@@ -186,7 +185,7 @@ final class StandardMenuPopup extends MenuPopup implements OnDismissListener, On
     @Override
     public void show() {
         if (!tryShow()) {
-            throw new IllegalStateException("MenuPopupHelper cannot be used without an anchor");
+            throw new IllegalStateException("StandardMenuPopup cannot be used without an anchor");
         }
     }
 
@@ -217,7 +216,9 @@ final class StandardMenuPopup extends MenuPopup implements OnDismissListener, On
             mTreeObserver.removeGlobalOnLayoutListener(mGlobalLayoutListener);
             mTreeObserver = null;
         }
-        mOnDismissListener.onDismiss();
+        if (mOnDismissListener != null) {
+            mOnDismissListener.onDismiss();
+        }
     }
 
     @Override
@@ -240,10 +241,19 @@ final class StandardMenuPopup extends MenuPopup implements OnDismissListener, On
             final MenuPopupHelper subPopup = new MenuPopupHelper(mContext, subMenu,
                     mShownAnchorView, mOverflowOnly, mPopupStyleAttr, mPopupStyleRes);
             subPopup.setPresenterCallback(mPresenterCallback);
-            subPopup.setForceShowIcon(mAdapter.getForceShowIcon());
+            subPopup.setForceShowIcon(MenuPopup.shouldPreserveIconSpacing(subMenu));
+
+            // Pass responsibility for handling onDismiss to the submenu.
+            subPopup.setOnDismissListener(mOnDismissListener);
+            mOnDismissListener = null;
+
+            // Close this menu popup to make room for the submenu popup.
+            mMenu.close(false /* closeAllMenus */);
 
             // Show the new sub-menu popup at the same location as this popup.
-            if (subPopup.tryShow(mXOffset, mYOffset)) {
+            final int horizontalOffset = mPopup.getHorizontalOffset();
+            final int verticalOffset = mPopup.getVerticalOffset();
+            if (subPopup.tryShow(horizontalOffset, verticalOffset)) {
                 if (mPresenterCallback != null) {
                     mPresenterCallback.onOpenSubMenu(subMenu);
                 }
@@ -305,12 +315,12 @@ final class StandardMenuPopup extends MenuPopup implements OnDismissListener, On
 
     @Override
     public void setHorizontalOffset(int x) {
-        mXOffset = x;
+        mPopup.setHorizontalOffset(x);
     }
 
     @Override
     public void setVerticalOffset(int y) {
-        mYOffset = y;
+        mPopup.setVerticalOffset(y);
     }
 
     @Override
