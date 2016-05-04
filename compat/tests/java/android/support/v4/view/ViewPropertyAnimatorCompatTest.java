@@ -17,9 +17,9 @@
 package android.support.v4.view;
 
 import android.app.Activity;
+import android.support.compat.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.v4.BaseInstrumentationTestCase;
-import android.support.v4.test.R;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.view.View;
 

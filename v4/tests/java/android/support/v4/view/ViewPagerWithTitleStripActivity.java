@@ -18,7 +18,7 @@ package android.support.v4.view;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.v4.test.R;
+import android.support.core.test.R;
 import android.view.WindowManager;
 
 public class ViewPagerWithTitleStripActivity extends Activity {

@@ -15,7 +15,7 @@
  */
 package android.support.v4.view;
 
-import android.support.v4.test.R;
+import android.support.core.test.R;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;

@@ -16,8 +16,8 @@
 
 package android.support.v4.widget;
 
+import android.support.compat.test.R;
 import android.support.v4.BaseTestActivity;
-import android.support.v4.test.R;
 
 public class TextViewTestActivity extends BaseTestActivity {
     @Override

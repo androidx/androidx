@@ -17,9 +17,9 @@ package android.support.v4.view;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.support.core.test.R;
 import android.support.test.espresso.ViewAction;
 import android.support.v4.BaseInstrumentationTestCase;
-import android.support.v4.test.R;
 import android.support.v4.testutils.TestUtilsMatchers;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;

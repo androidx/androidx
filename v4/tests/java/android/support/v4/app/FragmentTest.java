@@ -16,8 +16,8 @@
 package android.support.v4.app;
 
 import android.os.Bundle;
+import android.support.core.test.R;
 import android.support.v4.app.test.FragmentTestActivity;
-import android.support.v4.test.R;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.UiThreadTest;
 import android.test.suitebuilder.annotation.MediumTest;
