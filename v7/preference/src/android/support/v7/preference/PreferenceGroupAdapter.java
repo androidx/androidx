@@ -204,7 +204,12 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
     }
 
     public void onPreferenceChange(Preference preference) {
-        notifyDataSetChanged();
+        final int index = mPreferenceList.indexOf(preference);
+        // If we don't find the preference, we don't need to notify anyone
+        if (index != -1) {
+            // Send the pref object as a placeholder to ensure the view holder is recycled in place
+            notifyItemChanged(index, preference);
+        }
     }
 
     public void onPreferenceHierarchyChange(Preference preference) {
