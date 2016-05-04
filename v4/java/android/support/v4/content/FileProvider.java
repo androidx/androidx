@@ -139,9 +139,10 @@ import java.util.Map;
  *</pre>
  *     </dt>
  *     <dd>
- *     Represents files in the root of your app's external storage area. The path
- *     {@link Context#getExternalFilesDir(String) Context.getExternalFilesDir()} returns the
- *     <code>files/</code> subdirectory of this this root.
+ *     Represents the root of the external storage. The root path of this subdirectory
+ *     is the same that {@link
+ *     Environment#getExternalStorageDirectory() Environment.getExternalStorageDirectory()}
+ *     returns.
  *     </dd>
  *     <dt>
  * <pre>
