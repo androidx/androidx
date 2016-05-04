@@ -22,6 +22,7 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.v7.content.res.AppCompatResources;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 
@@ -128,7 +129,7 @@ public class TintTypedArray {
             final int resourceId = mWrapped.getResourceId(index, 0);
             if (resourceId != 0) {
                 final ColorStateList value =
-                        ColorStateListUtils.getColorStateList(mContext, resourceId);
+                        AppCompatResources.getColorStateList(mContext, resourceId);
                 if (value != null) {
                     return value;
                 }
