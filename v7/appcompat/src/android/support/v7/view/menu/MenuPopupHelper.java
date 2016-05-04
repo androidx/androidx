@@ -17,7 +17,9 @@
 package android.support.v7.view.menu;
 
 import android.content.Context;
+import android.graphics.Point;
 import android.graphics.Rect;
+import android.os.Build;
 import android.support.annotation.AttrRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -25,8 +27,10 @@ import android.support.annotation.StyleRes;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.PopupWindow.OnDismissListener;
 
 /**
@@ -106,6 +110,9 @@ public class MenuPopupHelper implements MenuHelper {
      */
     public void setForceShowIcon(boolean forceShowIcon) {
         mForceShowIcon = forceShowIcon;
+        if (mPopup != null) {
+            mPopup.setForceShowIcon(forceShowIcon);
+        }
     }
 
     /**
@@ -208,8 +215,23 @@ public class MenuPopupHelper implements MenuHelper {
      */
     @NonNull
     private MenuPopup createPopup() {
-        final boolean enableCascadingSubmenus = mContext.getResources().getBoolean(
-                R.bool.abc_config_enableCascadingSubmenus);
+        final WindowManager windowManager = (WindowManager) mContext.getSystemService(
+                Context.WINDOW_SERVICE);
+        final Display display = windowManager.getDefaultDisplay();
+        final Point displaySize = new Point();
+
+        if (Build.VERSION.SDK_INT >= 17) {
+            display.getRealSize(displaySize);
+        } else if (Build.VERSION.SDK_INT >= 13) {
+            display.getSize(displaySize);
+        } else {
+            displaySize.set(display.getWidth(), display.getHeight());
+        }
+
+        final int smallestWidth = Math.min(displaySize.x, displaySize.y);
+        final int minSmallestWidthCascading = mContext.getResources().getDimensionPixelSize(
+                R.dimen.abc_cascading_menus_min_smallest_width);
+        final boolean enableCascadingSubmenus = smallestWidth >= minSmallestWidthCascading;
 
         final MenuPopup popup;
         if (enableCascadingSubmenus) {

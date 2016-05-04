@@ -33,10 +33,6 @@
 
     <bool name="abc_config_closeDialogWhenTouchOutside">true</bool>
 
-    <!-- Whether to open UI submenus side by side with the top menu (as opposed to
-         replacing the top menu). -->
-    <bool name="abc_config_enableCascadingSubmenus">false</bool>
-
     <!-- Maximum numerical value that will be shown in a status bar
          notification icon or in the notification itself. Will be replaced
          with @string/status_bar_notification_info_overflow when shown in the
