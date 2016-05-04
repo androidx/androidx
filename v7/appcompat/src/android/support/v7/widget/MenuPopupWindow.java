@@ -134,7 +134,10 @@ public class MenuPopupWindow extends ListPopupWindow implements MenuItemHoverLis
         public MenuDropDownListView(Context context, boolean hijackFocus) {
             super(context, hijackFocus);
 
-            if (ViewCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL) {
+            final Resources res = context.getResources();
+            final Configuration config = res.getConfiguration();
+            if (Build.VERSION.SDK_INT >= 17
+                    && ViewCompat.LAYOUT_DIRECTION_RTL == config.getLayoutDirection()) {
                 mAdvanceKey = KeyEvent.KEYCODE_DPAD_LEFT;
                 mRetreatKey = KeyEvent.KEYCODE_DPAD_RIGHT;
             } else {

@@ -76,7 +76,7 @@ public class SubMenuBuilder extends MenuBuilder implements SubMenu {
 
     @Override
     public MenuBuilder getRootMenu() {
-        return mParentMenu;
+        return mParentMenu.getRootMenu();
     }
 
     @Override
@@ -96,28 +96,23 @@ public class SubMenuBuilder extends MenuBuilder implements SubMenu {
     }
 
     public SubMenu setHeaderIcon(Drawable icon) {
-        super.setHeaderIconInt(icon);
-        return this;
+        return (SubMenu) super.setHeaderIconInt(icon);
     }
 
     public SubMenu setHeaderIcon(int iconRes) {
-        super.setHeaderIconInt(ContextCompat.getDrawable(getContext(), iconRes));
-        return this;
+        return (SubMenu) super.setHeaderIconInt(iconRes);
     }
 
     public SubMenu setHeaderTitle(CharSequence title) {
-        super.setHeaderTitleInt(title);
-        return this;
+        return (SubMenu) super.setHeaderTitleInt(title);
     }
 
     public SubMenu setHeaderTitle(int titleRes) {
-        super.setHeaderTitleInt(getContext().getResources().getString(titleRes));
-        return this;
+        return (SubMenu) super.setHeaderTitleInt(titleRes);
     }
 
     public SubMenu setHeaderView(View view) {
-        super.setHeaderViewInt(view);
-        return this;
+        return (SubMenu) super.setHeaderViewInt(view);
     }
 
     @Override
