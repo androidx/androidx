@@ -182,7 +182,7 @@ package android.support.v7.app {
     method public android.support.v7.app.AlertDialog.Builder setIcon(int);
     method public android.support.v7.app.AlertDialog.Builder setIcon(android.graphics.drawable.Drawable);
     method public android.support.v7.app.AlertDialog.Builder setIconAttribute(int);
-    method public android.support.v7.app.AlertDialog.Builder setInverseBackgroundForced(boolean);
+    method public deprecated android.support.v7.app.AlertDialog.Builder setInverseBackgroundForced(boolean);
     method public android.support.v7.app.AlertDialog.Builder setItems(int, android.content.DialogInterface.OnClickListener);
     method public android.support.v7.app.AlertDialog.Builder setItems(java.lang.CharSequence[], android.content.DialogInterface.OnClickListener);
     method public android.support.v7.app.AlertDialog.Builder setMessage(int);
@@ -536,6 +536,8 @@ package android.support.v7.appcompat {
     field public static int theme;
     field public static int thickness;
     field public static int thumbTextPadding;
+    field public static int thumbTint;
+    field public static int thumbTintMode;
     field public static int tickMark;
     field public static int tickMarkTint;
     field public static int tickMarkTintMode;
@@ -552,6 +554,8 @@ package android.support.v7.appcompat {
     field public static int toolbarNavigationButtonStyle;
     field public static int toolbarStyle;
     field public static int track;
+    field public static int trackTint;
+    field public static int trackTintMode;
     field public static int voiceIcon;
     field public static int windowActionBar;
     field public static int windowActionBarOverlay;
@@ -571,7 +575,6 @@ package android.support.v7.appcompat {
     field public static int abc_allow_stacked_button_bar;
     field public static int abc_config_actionMenuItemAllCaps;
     field public static int abc_config_closeDialogWhenTouchOutside;
-    field public static int abc_config_enableCascadingSubmenus;
     field public static int abc_config_showMenuShortcutsWhenKeyboardPresent;
   }
 
@@ -680,6 +683,7 @@ package android.support.v7.appcompat {
     field public static int abc_button_inset_vertical_material;
     field public static int abc_button_padding_horizontal_material;
     field public static int abc_button_padding_vertical_material;
+    field public static int abc_cascading_menus_min_smallest_width;
     field public static int abc_config_prefDialogWidth;
     field public static int abc_control_corner_material;
     field public static int abc_control_inset_material;
@@ -1633,7 +1637,11 @@ package android.support.v7.appcompat {
     field public static int SwitchCompat_switchPadding;
     field public static int SwitchCompat_switchTextAppearance;
     field public static int SwitchCompat_thumbTextPadding;
+    field public static int SwitchCompat_thumbTint;
+    field public static int SwitchCompat_thumbTintMode;
     field public static int SwitchCompat_track;
+    field public static int SwitchCompat_trackTint;
+    field public static int SwitchCompat_trackTintMode;
     field public static final int[] TextAppearance;
     field public static int TextAppearance_android_shadowColor;
     field public static int TextAppearance_android_shadowDx;
@@ -2092,7 +2100,11 @@ package android.support.v7.widget {
     method public java.lang.CharSequence getTextOn();
     method public android.graphics.drawable.Drawable getThumbDrawable();
     method public int getThumbTextPadding();
+    method public android.content.res.ColorStateList getThumbTintList();
+    method public android.graphics.PorterDuff.Mode getThumbTintMode();
     method public android.graphics.drawable.Drawable getTrackDrawable();
+    method public android.content.res.ColorStateList getTrackTintList();
+    method public android.graphics.PorterDuff.Mode getTrackTintMode();
     method public void onMeasure(int, int);
     method public void setShowText(boolean);
     method public void setSplitTrack(boolean);
@@ -2106,8 +2118,12 @@ package android.support.v7.widget {
     method public void setThumbDrawable(android.graphics.drawable.Drawable);
     method public void setThumbResource(int);
     method public void setThumbTextPadding(int);
+    method public void setThumbTintList(android.content.res.ColorStateList);
+    method public void setThumbTintMode(android.graphics.PorterDuff.Mode);
     method public void setTrackDrawable(android.graphics.drawable.Drawable);
     method public void setTrackResource(int);
+    method public void setTrackTintList(android.content.res.ColorStateList);
+    method public void setTrackTintMode(android.graphics.PorterDuff.Mode);
   }
 
   public abstract interface ThemedSpinnerAdapter implements android.widget.SpinnerAdapter {

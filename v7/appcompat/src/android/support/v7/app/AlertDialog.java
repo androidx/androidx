@@ -23,6 +23,10 @@ import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Message;
+import android.support.annotation.ArrayRes;
+import android.support.annotation.AttrRes;
+import android.support.annotation.DrawableRes;
+import android.support.annotation.StringRes;
 import android.support.v7.appcompat.R;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
@@ -220,11 +224,9 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
     }
 
     /**
-     * Set the resource id of the {@link Drawable} to be used in the title. Set resId to 0 if you
-     * don't want an icon.
-     *
+     * Set resId to 0 if you don't want an icon.
      * @param resId the resourceId of the drawable to use as the icon or 0
-     *              if you don't want an icon.
+     * if you don't want an icon.
      */
     public void setIcon(int resId) {
         mAlert.setIcon(resId);
@@ -273,34 +275,55 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
     }
 
     public static class Builder {
-
         private final AlertController.AlertParams P;
 
-        private int mTheme;
-
         /**
-         * Constructor using a context for this builder and the {@link AlertDialog} it creates.
+         * Creates a builder for an alert dialog that uses the default alert
+         * dialog theme.
+         * <p>
+         * The default alert dialog theme is defined by
+         * {@link android.R.attr#alertDialogTheme} within the parent
+         * {@code context}'s theme.
+         *
+         * @param context the parent context
          */
         public Builder(Context context) {
             this(context, resolveDialogTheme(context, 0));
         }
 
         /**
-         * Constructor using a context and theme for this builder and
-         * the {@link AlertDialog} it creates.  The actual theme
-         * that an AlertDialog uses is a private implementation, however you can
-         * here supply either the name of an attribute in the theme from which
-         * to get the dialog's style (such as {@link android.R.attr#alertDialogTheme}.
+         * Creates a builder for an alert dialog that uses an explicit theme
+         * resource.
+         * <p>
+         * The specified theme resource ({@code themeResId}) is applied on top
+         * of the parent {@code context}'s theme. It may be specified as a
+         * style resource containing a fully-populated theme, such as
+         * {@link R.style#Theme_AppCompat_Dialog}, to replace all
+         * attributes in the parent {@code context}'s theme including primary
+         * and accent colors.
+         * <p>
+         * To preserve attributes such as primary and accent colors, the
+         * {@code themeResId} may instead be specified as an overlay theme such
+         * as {@link R.style#ThemeOverlay_AppCompat_Dialog}. This will
+         * override only the window attributes necessary to style the alert
+         * window as a dialog.
+         * <p>
+         * Alternatively, the {@code themeResId} may be specified as {@code 0}
+         * to use the parent {@code context}'s resolved value for
+         * {@link android.R.attr#alertDialogTheme}.
+         *
+         * @param context the parent context
+         * @param themeResId the resource ID of the theme against which to inflate
+         *                   this dialog, or {@code 0} to use the parent
+         *                   {@code context}'s default alert dialog theme
          */
-        public Builder(Context context, int theme) {
+        public Builder(Context context, int themeResId) {
             P = new AlertController.AlertParams(new ContextThemeWrapper(
-                    context, resolveDialogTheme(context, theme)));
-            mTheme = theme;
+                    context, resolveDialogTheme(context, themeResId)));
         }
 
         /**
-         * Returns a {@link Context} with the appropriate theme for dialogs created by this
-         * Builder.
+         * Returns a {@link Context} with the appropriate theme for dialogs created by this Builder.
          * Applications should use this Context for obtaining LayoutInflaters for inflating views
          * that will be used in the resulting dialogs, as it will cause views to be inflated with
          * the correct theme.
@@ -316,7 +339,7 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
          *
          * @return This Builder object to allow for chaining of calls to set methods
          */
-        public Builder setTitle(int titleId) {
+        public Builder setTitle(@StringRes int titleId) {
             P.mTitle = P.mContext.getText(titleId);
             return this;
         }
@@ -332,14 +355,20 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
         }
 
         /**
-         * Set the title using the custom view {@code customTitleView}. The
-         * methods {@link #setTitle(int)} and {@link #setIcon(int)} should be
-         * sufficient for most titles, but this is provided if the title needs
-         * more customization. Using this will replace the title and icon set
-         * via the other methods.
+         * Set the title using the custom view {@code customTitleView}.
+         * <p>
+         * The methods {@link #setTitle(int)} and {@link #setIcon(int)} should
+         * be sufficient for most titles, but this is provided if the title
+         * needs more customization. Using this will replace the title and icon
+         * set via the other methods.
+         * <p>
+         * <strong>Note:</strong> To ensure consistent styling, the custom view
+         * should be inflated or constructed using the alert dialog's themed
+         * context obtained via {@link #getContext()}.
          *
-         * @param customTitleView The custom view to use as the title.
-         * @return This Builder object to allow for chaining of calls to set methods
+         * @param customTitleView the custom view to use as the title
+         * @return this Builder object to allow for chaining of calls to set
+         *         methods
          */
         public Builder setCustomTitle(View customTitleView) {
             P.mCustomTitleView = customTitleView;
@@ -351,7 +380,7 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
          *
          * @return This Builder object to allow for chaining of calls to set methods
          */
-        public Builder setMessage(int messageId) {
+        public Builder setMessage(@StringRes int messageId) {
             P.mMessage = P.mContext.getText(messageId);
             return this;
         }
@@ -373,15 +402,20 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
          *
          * @return This Builder object to allow for chaining of calls to set methods
          */
-        public Builder setIcon(int iconId) {
+        public Builder setIcon(@DrawableRes int iconId) {
             P.mIconId = iconId;
             return this;
         }
 
         /**
          * Set the {@link Drawable} to be used in the title.
+         * <p>
+         * <strong>Note:</strong> To ensure consistent styling, the drawable
+         * should be inflated or constructed using the alert dialog's themed
+         * context obtained via {@link #getContext()}.
          *
-         * @return This Builder object to allow for chaining of calls to set methods
+         * @return this Builder object to allow for chaining of calls to set
+         *         methods
          */
         public Builder setIcon(Drawable icon) {
             P.mIcon = icon;
@@ -397,7 +431,7 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
          *
          * @param attrId ID of a theme attribute that points to a drawable resource.
          */
-        public Builder setIconAttribute(int attrId) {
+        public Builder setIconAttribute(@AttrRes int attrId) {
             TypedValue out = new TypedValue();
             P.mContext.getTheme().resolveAttribute(attrId, out, true);
             P.mIconId = out.resourceId;
@@ -406,12 +440,12 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
 
         /**
          * Set a listener to be invoked when the positive button of the dialog is pressed.
-         *
-         * @param textId   The resource id of the text to display in the positive button
+         * @param textId The resource id of the text to display in the positive button
          * @param listener The {@link DialogInterface.OnClickListener} to use.
+         *
          * @return This Builder object to allow for chaining of calls to set methods
          */
-        public Builder setPositiveButton(int textId, final OnClickListener listener) {
+        public Builder setPositiveButton(@StringRes int textId, final OnClickListener listener) {
             P.mPositiveButtonText = P.mContext.getText(textId);
             P.mPositiveButtonListener = listener;
             return this;
@@ -419,9 +453,9 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
 
         /**
          * Set a listener to be invoked when the positive button of the dialog is pressed.
-         *
-         * @param text     The text to display in the positive button
+         * @param text The text to display in the positive button
          * @param listener The {@link DialogInterface.OnClickListener} to use.
+         *
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setPositiveButton(CharSequence text, final OnClickListener listener) {
@@ -432,12 +466,12 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
 
         /**
          * Set a listener to be invoked when the negative button of the dialog is pressed.
-         *
-         * @param textId   The resource id of the text to display in the negative button
+         * @param textId The resource id of the text to display in the negative button
          * @param listener The {@link DialogInterface.OnClickListener} to use.
+         *
          * @return This Builder object to allow for chaining of calls to set methods
          */
-        public Builder setNegativeButton(int textId, final OnClickListener listener) {
+        public Builder setNegativeButton(@StringRes int textId, final OnClickListener listener) {
             P.mNegativeButtonText = P.mContext.getText(textId);
             P.mNegativeButtonListener = listener;
             return this;
@@ -445,9 +479,9 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
 
         /**
          * Set a listener to be invoked when the negative button of the dialog is pressed.
-         *
-         * @param text     The text to display in the negative button
+         * @param text The text to display in the negative button
          * @param listener The {@link DialogInterface.OnClickListener} to use.
+         *
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setNegativeButton(CharSequence text, final OnClickListener listener) {
@@ -458,12 +492,12 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
 
         /**
          * Set a listener to be invoked when the neutral button of the dialog is pressed.
-         *
-         * @param textId   The resource id of the text to display in the neutral button
+         * @param textId The resource id of the text to display in the neutral button
          * @param listener The {@link DialogInterface.OnClickListener} to use.
+         *
          * @return This Builder object to allow for chaining of calls to set methods
          */
-        public Builder setNeutralButton(int textId, final OnClickListener listener) {
+        public Builder setNeutralButton(@StringRes int textId, final OnClickListener listener) {
             P.mNeutralButtonText = P.mContext.getText(textId);
             P.mNeutralButtonListener = listener;
             return this;
@@ -471,9 +505,9 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
 
         /**
          * Set a listener to be invoked when the neutral button of the dialog is pressed.
-         *
-         * @param text     The text to display in the neutral button
+         * @param text The text to display in the neutral button
          * @param listener The {@link DialogInterface.OnClickListener} to use.
+         *
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setNeutralButton(CharSequence text, final OnClickListener listener) {
@@ -505,6 +539,8 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
          * @return This Builder object to allow for chaining of calls to set methods
          * @see #setCancelable(boolean)
          * @see #setOnDismissListener(android.content.DialogInterface.OnDismissListener)
+         *
+         * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setOnCancelListener(OnCancelListener onCancelListener) {
             P.mOnCancelListener = onCancelListener;
@@ -532,21 +568,19 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
         }
 
         /**
-         * Set a list of items to be displayed in the dialog as the content, you will be notified of
-         * the
+         * Set a list of items to be displayed in the dialog as the content, you will be notified of the
          * selected item via the supplied listener. This should be an array type i.e. R.array.foo
          *
          * @return This Builder object to allow for chaining of calls to set methods
          */
-        public Builder setItems(int itemsId, final OnClickListener listener) {
+        public Builder setItems(@ArrayRes int itemsId, final OnClickListener listener) {
             P.mItems = P.mContext.getResources().getTextArray(itemsId);
             P.mOnClickListener = listener;
             return this;
         }
 
         /**
-         * Set a list of items to be displayed in the dialog as the content, you will be notified of
-         * the
+         * Set a list of items to be displayed in the dialog as the content, you will be notified of the
          * selected item via the supplied listener.
          *
          * @return This Builder object to allow for chaining of calls to set methods
@@ -562,8 +596,9 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
          * displayed in the dialog as the content, you will be notified of the
          * selected item via the supplied listener.
          *
-         * @param adapter  The {@link ListAdapter} to supply the list of items
+         * @param adapter The {@link ListAdapter} to supply the list of items
          * @param listener The listener that will be called when an item is clicked.
+         *
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setAdapter(final ListAdapter adapter, final OnClickListener listener) {
@@ -577,10 +612,11 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
          * displayed in the dialog as the content, you will be notified of the
          * selected item via the supplied listener.
          *
-         * @param cursor      The {@link Cursor} to supply the list of items
-         * @param listener    The listener that will be called when an item is clicked.
+         * @param cursor The {@link Cursor} to supply the list of items
+         * @param listener The listener that will be called when an item is clicked.
          * @param labelColumn The column name on the cursor containing the string to display
-         *                    in the label.
+         *          in the label.
+         *
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setCursor(final Cursor cursor, final OnClickListener listener,
@@ -599,20 +635,17 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
          * item. Clicking on an item in the list will not dismiss the dialog.
          * Clicking on a button will dismiss the dialog.
          *
-         * @param itemsId      the resource id of an array i.e. R.array.foo
-         * @param checkedItems specifies which items are checked. It should be null in which case
-         *                     no
-         *                     items are checked. If non null it must be exactly the same length as
-         *                     the array of
-         *                     items.
-         * @param listener     notified when an item on the list is clicked. The dialog will not be
-         *                     dismissed when an item is clicked. It will only be dismissed if
-         *                     clicked on a
-         *                     button, if no buttons are supplied it's up to the user to dismiss the
-         *                     dialog.
+         * @param itemsId the resource id of an array i.e. R.array.foo
+         * @param checkedItems specifies which items are checked. It should be null in which case no
+         *        items are checked. If non null it must be exactly the same length as the array of
+         *        items.
+         * @param listener notified when an item on the list is clicked. The dialog will not be
+         *        dismissed when an item is clicked. It will only be dismissed if clicked on a
+         *        button, if no buttons are supplied it's up to the user to dismiss the dialog.
+         *
          * @return This Builder object to allow for chaining of calls to set methods
          */
-        public Builder setMultiChoiceItems(int itemsId, boolean[] checkedItems,
+        public Builder setMultiChoiceItems(@ArrayRes int itemsId, boolean[] checkedItems,
                 final OnMultiChoiceClickListener listener) {
             P.mItems = P.mContext.getResources().getTextArray(itemsId);
             P.mOnCheckboxClickListener = listener;
@@ -628,17 +661,14 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
          * for each checked item. Clicking on an item in the list will not
          * dismiss the dialog. Clicking on a button will dismiss the dialog.
          *
-         * @param items        the text of the items to be displayed in the list.
-         * @param checkedItems specifies which items are checked. It should be null in which case
-         *                     no
-         *                     items are checked. If non null it must be exactly the same length as
-         *                     the array of
-         *                     items.
-         * @param listener     notified when an item on the list is clicked. The dialog will not be
-         *                     dismissed when an item is clicked. It will only be dismissed if
-         *                     clicked on a
-         *                     button, if no buttons are supplied it's up to the user to dismiss the
-         *                     dialog.
+         * @param items the text of the items to be displayed in the list.
+         * @param checkedItems specifies which items are checked. It should be null in which case no
+         *        items are checked. If non null it must be exactly the same length as the array of
+         *        items.
+         * @param listener notified when an item on the list is clicked. The dialog will not be
+         *        dismissed when an item is clicked. It will only be dismissed if clicked on a
+         *        button, if no buttons are supplied it's up to the user to dismiss the dialog.
+         *
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setMultiChoiceItems(CharSequence[] items, boolean[] checkedItems,
@@ -657,24 +687,19 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
          * for each checked item. Clicking on an item in the list will not
          * dismiss the dialog. Clicking on a button will dismiss the dialog.
          *
-         * @param cursor          the cursor used to provide the items.
+         * @param cursor the cursor used to provide the items.
          * @param isCheckedColumn specifies the column name on the cursor to use to determine
-         *                        whether a checkbox is checked or not. It must return an integer
-         *                        value where 1
-         *                        means checked and 0 means unchecked.
-         * @param labelColumn     The column name on the cursor containing the string to display in
-         *                        the
-         *                        label.
-         * @param listener        notified when an item on the list is clicked. The dialog will not
-         *                        be
-         *                        dismissed when an item is clicked. It will only be dismissed if
-         *                        clicked on a
-         *                        button, if no buttons are supplied it's up to the user to dismiss
-         *                        the dialog.
+         *        whether a checkbox is checked or not. It must return an integer value where 1
+         *        means checked and 0 means unchecked.
+         * @param labelColumn The column name on the cursor containing the string to display in the
+         *        label.
+         * @param listener notified when an item on the list is clicked. The dialog will not be
+         *        dismissed when an item is clicked. It will only be dismissed if clicked on a
+         *        button, if no buttons are supplied it's up to the user to dismiss the dialog.
+         *
          * @return This Builder object to allow for chaining of calls to set methods
          */
-        public Builder setMultiChoiceItems(Cursor cursor, String isCheckedColumn,
-                String labelColumn,
+        public Builder setMultiChoiceItems(Cursor cursor, String isCheckedColumn, String labelColumn,
                 final OnMultiChoiceClickListener listener) {
             P.mCursor = cursor;
             P.mOnCheckboxClickListener = listener;
@@ -685,23 +710,21 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
         }
 
         /**
-         * Set a list of items to be displayed in the dialog as the content, you will be notified
-         * of
+         * Set a list of items to be displayed in the dialog as the content, you will be notified of
          * the selected item via the supplied listener. This should be an array type i.e.
          * R.array.foo The list will have a check mark displayed to the right of the text for the
          * checked item. Clicking on an item in the list will not dismiss the dialog. Clicking on a
          * button will dismiss the dialog.
          *
-         * @param itemsId     the resource id of an array i.e. R.array.foo
+         * @param itemsId the resource id of an array i.e. R.array.foo
          * @param checkedItem specifies which item is checked. If -1 no items are checked.
-         * @param listener    notified when an item on the list is clicked. The dialog will not be
-         *                    dismissed when an item is clicked. It will only be dismissed if
-         *                    clicked on a
-         *                    button, if no buttons are supplied it's up to the user to dismiss the
-         *                    dialog.
+         * @param listener notified when an item on the list is clicked. The dialog will not be
+         *        dismissed when an item is clicked. It will only be dismissed if clicked on a
+         *        button, if no buttons are supplied it's up to the user to dismiss the dialog.
+         *
          * @return This Builder object to allow for chaining of calls to set methods
          */
-        public Builder setSingleChoiceItems(int itemsId, int checkedItem,
+        public Builder setSingleChoiceItems(@ArrayRes int itemsId, int checkedItem,
                 final OnClickListener listener) {
             P.mItems = P.mContext.getResources().getTextArray(itemsId);
             P.mOnClickListener = listener;
@@ -711,22 +734,19 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
         }
 
         /**
-         * Set a list of items to be displayed in the dialog as the content, you will be notified
-         * of
-         * the selected item via the supplied listener. The list will have a check mark displayed
-         * to
+         * Set a list of items to be displayed in the dialog as the content, you will be notified of
+         * the selected item via the supplied listener. The list will have a check mark displayed to
          * the right of the text for the checked item. Clicking on an item in the list will not
          * dismiss the dialog. Clicking on a button will dismiss the dialog.
          *
-         * @param cursor      the cursor to retrieve the items from.
+         * @param cursor the cursor to retrieve the items from.
          * @param checkedItem specifies which item is checked. If -1 no items are checked.
          * @param labelColumn The column name on the cursor containing the string to display in the
-         *                    label.
-         * @param listener    notified when an item on the list is clicked. The dialog will not be
-         *                    dismissed when an item is clicked. It will only be dismissed if
-         *                    clicked on a
-         *                    button, if no buttons are supplied it's up to the user to dismiss the
-         *                    dialog.
+         *        label.
+         * @param listener notified when an item on the list is clicked. The dialog will not be
+         *        dismissed when an item is clicked. It will only be dismissed if clicked on a
+         *        button, if no buttons are supplied it's up to the user to dismiss the dialog.
+         *
          * @return This Builder object to allow for chaining of calls to set methods
          */
         public Builder setSingleChoiceItems(Cursor cursor, int checkedItem, String labelColumn,
@@ -740,24 +760,20 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
         }
 
         /**
-         * Set a list of items to be displayed in the dialog as the content, you will be notified
-         * of
-         * the selected item via the supplied listener. The list will have a check mark displayed
-         * to
+         * Set a list of items to be displayed in the dialog as the content, you will be notified of
+         * the selected item via the supplied listener. The list will have a check mark displayed to
          * the right of the text for the checked item. Clicking on an item in the list will not
          * dismiss the dialog. Clicking on a button will dismiss the dialog.
          *
-         * @param items       the items to be displayed.
+         * @param items the items to be displayed.
          * @param checkedItem specifies which item is checked. If -1 no items are checked.
-         * @param listener    notified when an item on the list is clicked. The dialog will not be
-         *                    dismissed when an item is clicked. It will only be dismissed if
-         *                    clicked on a
-         *                    button, if no buttons are supplied it's up to the user to dismiss the
-         *                    dialog.
+         * @param listener notified when an item on the list is clicked. The dialog will not be
+         *        dismissed when an item is clicked. It will only be dismissed if clicked on a
+         *        button, if no buttons are supplied it's up to the user to dismiss the dialog.
+         *
          * @return This Builder object to allow for chaining of calls to set methods
          */
-        public Builder setSingleChoiceItems(CharSequence[] items, int checkedItem,
-                final OnClickListener listener) {
+        public Builder setSingleChoiceItems(CharSequence[] items, int checkedItem, final OnClickListener listener) {
             P.mItems = items;
             P.mOnClickListener = listener;
             P.mCheckedItem = checkedItem;
@@ -766,24 +782,20 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
         }
 
         /**
-         * Set a list of items to be displayed in the dialog as the content, you will be notified
-         * of
-         * the selected item via the supplied listener. The list will have a check mark displayed
-         * to
+         * Set a list of items to be displayed in the dialog as the content, you will be notified of
+         * the selected item via the supplied listener. The list will have a check mark displayed to
          * the right of the text for the checked item. Clicking on an item in the list will not
          * dismiss the dialog. Clicking on a button will dismiss the dialog.
          *
-         * @param adapter     The {@link ListAdapter} to supply the list of items
+         * @param adapter The {@link ListAdapter} to supply the list of items
          * @param checkedItem specifies which item is checked. If -1 no items are checked.
-         * @param listener    notified when an item on the list is clicked. The dialog will not be
-         *                    dismissed when an item is clicked. It will only be dismissed if
-         *                    clicked on a
-         *                    button, if no buttons are supplied it's up to the user to dismiss the
-         *                    dialog.
+         * @param listener notified when an item on the list is clicked. The dialog will not be
+         *        dismissed when an item is clicked. It will only be dismissed if clicked on a
+         *        button, if no buttons are supplied it's up to the user to dismiss the dialog.
+         *
          * @return This Builder object to allow for chaining of calls to set methods
          */
-        public Builder setSingleChoiceItems(ListAdapter adapter, int checkedItem,
-                final OnClickListener listener) {
+        public Builder setSingleChoiceItems(ListAdapter adapter, int checkedItem, final OnClickListener listener) {
             P.mAdapter = adapter;
             P.mOnClickListener = listener;
             P.mCheckedItem = checkedItem;
@@ -794,12 +806,11 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
         /**
          * Sets a listener to be invoked when an item in the list is selected.
          *
-         * @param listener The listener to be invoked.
-         * @return This Builder object to allow for chaining of calls to set methods
+         * @param listener the listener to be invoked
+         * @return this Builder object to allow for chaining of calls to set methods
          * @see AdapterView#setOnItemSelectedListener(android.widget.AdapterView.OnItemSelectedListener)
          */
-        public Builder setOnItemSelectedListener(
-                final AdapterView.OnItemSelectedListener listener) {
+        public Builder setOnItemSelectedListener(final AdapterView.OnItemSelectedListener listener) {
             P.mOnItemSelectedListener = listener;
             return this;
         }
@@ -809,8 +820,8 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
          * resource will be inflated, adding all top-level views to the screen.
          *
          * @param layoutResId Resource ID to be inflated.
-         * @return This Builder object to allow for chaining of calls to set
-         * methods
+         * @return this Builder object to allow for chaining of calls to set
+         *         methods
          */
         public Builder setView(int layoutResId) {
             P.mView = null;
@@ -820,11 +831,18 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
         }
 
         /**
-         * Set a custom view to be the contents of the Dialog. If the supplied view is an instance
-         * of a {@link ListView} the light background will be used.
+         * Sets a custom view to be the contents of the alert dialog.
+         * <p>
+         * When using a pre-Holo theme, if the supplied view is an instance of
+         * a {@link ListView} then the light background will be used.
+         * <p>
+         * <strong>Note:</strong> To ensure consistent styling, the custom view
+         * should be inflated or constructed using the alert dialog's themed
+         * context obtained via {@link #getContext()}.
          *
-         * @param view The view to use as the contents of the Dialog.
-         * @return This Builder object to allow for chaining of calls to set methods
+         * @param view the view to use as the contents of the alert dialog
+         * @return this Builder object to allow for chaining of calls to set
+         *         methods
          */
         public Builder setView(View view) {
             P.mView = view;
@@ -834,46 +852,16 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
         }
 
         /**
-         * Set a custom view to be the contents of the Dialog, specifying the
-         * spacing to appear around that view. If the supplied view is an
-         * instance of a {@link ListView} the light background will be used.
-         *
-         * @param view              The view to use as the contents of the Dialog.
-         * @param viewSpacingLeft   Spacing between the left edge of the view and
-         *                          the dialog frame
-         * @param viewSpacingTop    Spacing between the top edge of the view and
-         *                          the dialog frame
-         * @param viewSpacingRight  Spacing between the right edge of the view
-         *                          and the dialog frame
-         * @param viewSpacingBottom Spacing between the bottom edge of the view
-         *                          and the dialog frame
-         * @return This Builder object to allow for chaining of calls to set
-         * methods
-         *
-         *
-         * This is currently hidden because it seems like people should just
-         * be able to put padding around the view.
-         * @hide
-         */
-        public Builder setView(View view, int viewSpacingLeft, int viewSpacingTop,
-                int viewSpacingRight, int viewSpacingBottom) {
-            P.mView = view;
-            P.mViewLayoutResId = 0;
-            P.mViewSpacingSpecified = true;
-            P.mViewSpacingLeft = viewSpacingLeft;
-            P.mViewSpacingTop = viewSpacingTop;
-            P.mViewSpacingRight = viewSpacingRight;
-            P.mViewSpacingBottom = viewSpacingBottom;
-            return this;
-        }
-
-        /**
          * Sets the Dialog to use the inverse background, regardless of what the
          * contents is.
          *
          * @param useInverseBackground Whether to use the inverse background
          * @return This Builder object to allow for chaining of calls to set methods
+         * @deprecated This flag is only used for pre-Material themes. Instead,
+         *             specify the window background using on the alert dialog
+         *             theme.
          */
+        @Deprecated
         public Builder setInverseBackgroundForced(boolean useInverseBackground) {
             P.mForceInverseBackground = useInverseBackground;
             return this;
@@ -889,13 +877,16 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
 
 
         /**
-         * Creates a {@link AlertDialog} with the arguments supplied to this builder. It does not
-         * {@link Dialog#show()} the dialog. This allows the user to do any extra processing
-         * before displaying the dialog. Use {@link #show()} if you don't have any other processing
-         * to do and want this to be created and displayed.
+         * Creates an {@link AlertDialog} with the arguments supplied to this
+         * builder.
+         * <p>
+         * Calling this method does not display the dialog. If no additional
+         * processing is needed, {@link #show()} may be called instead to both
+         * create and display the dialog.
          */
         public AlertDialog create() {
-            final AlertDialog dialog = new AlertDialog(P.mContext, mTheme, false);
+            // Context has already been wrapped with the appropriate theme.
+            final AlertDialog dialog = new AlertDialog(P.mContext, 0, false);
             P.apply(dialog.mAlert);
             dialog.setCancelable(P.mCancelable);
             if (P.mCancelable) {
@@ -910,11 +901,17 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
         }
 
         /**
-         * Creates a {@link AlertDialog} with the arguments supplied to this builder and
-         * {@link Dialog#show()}'s the dialog.
+         * Creates an {@link AlertDialog} with the arguments supplied to this
+         * builder and immediately displays the dialog.
+         * <p>
+         * Calling this method is functionally identical to:
+         * <pre>
+         *     AlertDialog dialog = builder.create();
+         *     dialog.show();
+         * </pre>
          */
         public AlertDialog show() {
-            AlertDialog dialog = create();
+            final AlertDialog dialog = create();
             dialog.show();
             return dialog;
         }
