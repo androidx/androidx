@@ -53,7 +53,7 @@ import android.util.Xml;
 import java.lang.ref.WeakReference;
 import java.util.WeakHashMap;
 
-import static android.support.v7.widget.ColorStateListUtils.getColorStateList;
+import static android.support.v7.content.res.AppCompatResources.getColorStateList;
 import static android.support.v7.widget.ThemeUtils.getDisabledThemeAttrColor;
 import static android.support.v7.widget.ThemeUtils.getThemeAttrColor;
 import static android.support.v7.widget.ThemeUtils.getThemeAttrColorStateList;
