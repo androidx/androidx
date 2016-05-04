@@ -14,27 +14,14 @@
  * limitations under the License.
  */
 
+package android.support.v4.view;
 
-package android.support.v4.os;
+import android.support.compat.test.R;
+import android.support.v4.BaseTestActivity;
 
-import android.os.Build.VERSION;
-
-/**
- * BuildCompat contains additional platform version checking methods for
- * testing compatibility with new features.
- */
-public class BuildCompat {
-    private BuildCompat() {
-    }
-
-    /**
-     * Check if the device is running on the Android N release or newer.
-     * This method is suitable for use with preview SDKs and associated
-     * prerelease device builds.
-     *
-     * @return true if N APIs are available for use
-     */
-    public static boolean isAtLeastN() {
-        return "N".equals(VERSION.CODENAME);
+public class VpaActivity extends BaseTestActivity {
+    @Override
+    protected int getContentViewLayoutResId() {
+        return R.layout.vpa_activity;
     }
 }

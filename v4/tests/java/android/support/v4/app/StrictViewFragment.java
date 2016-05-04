@@ -17,7 +17,7 @@
 
 package android.support.v4.app;
 
-import android.support.v4.test.R;
+import android.support.core.test.R;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;

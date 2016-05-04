@@ -16,8 +16,8 @@
 
 package android.support.v4.widget;
 
+import android.support.core.test.R;
 import android.support.v4.BaseTestActivity;
-import android.support.v4.test.R;
 
 public class ExploreByTouchHelperTestActivity extends BaseTestActivity {
     @Override

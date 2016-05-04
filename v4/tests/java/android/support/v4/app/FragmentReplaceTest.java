@@ -16,10 +16,10 @@
 package android.support.v4.app;
 
 import android.app.Fragment;
+import android.support.core.test.R;
 import android.support.test.filters.SdkSuppress;
 import android.support.v4.app.test.FragmentTestActivity;
 import android.support.v4.app.test.FragmentTestActivity.TestFragment;
-import android.support.v4.test.R;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.UiThreadTest;
 import android.view.KeyEvent;
