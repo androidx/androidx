@@ -618,22 +618,23 @@ abstract public class OnboardingSupportFragment extends Fragment {
             Animator navigatorFadeOutAnimator = AnimatorInflater.loadAnimator(getActivity(),
                     R.animator.lb_onboarding_page_indicator_fade_out);
             navigatorFadeOutAnimator.setTarget(mPageIndicator);
-            Animator buttonFadeInAnimator = AnimatorInflater.loadAnimator(getActivity(),
-                    R.animator.lb_onboarding_start_button_fade_in);
-            buttonFadeInAnimator.setTarget(mStartButton);
-            animators.add(navigatorFadeOutAnimator);
             navigatorFadeOutAnimator.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     mPageIndicator.setVisibility(View.GONE);
                 }
             });
+            animators.add(navigatorFadeOutAnimator);
+            Animator buttonFadeInAnimator = AnimatorInflater.loadAnimator(getActivity(),
+                    R.animator.lb_onboarding_start_button_fade_in);
+            buttonFadeInAnimator.setTarget(mStartButton);
             animators.add(buttonFadeInAnimator);
         } else if (previousPage == getPageCount() - 1) {
             mPageIndicator.setVisibility(View.VISIBLE);
             Animator navigatorFadeInAnimator = AnimatorInflater.loadAnimator(getActivity(),
                     R.animator.lb_onboarding_page_indicator_fade_in);
             navigatorFadeInAnimator.setTarget(mPageIndicator);
+            animators.add(navigatorFadeInAnimator);
             Animator buttonFadeOutAnimator = AnimatorInflater.loadAnimator(getActivity(),
                     R.animator.lb_onboarding_start_button_fade_out);
             buttonFadeOutAnimator.setTarget(mStartButton);
@@ -643,9 +644,7 @@ abstract public class OnboardingSupportFragment extends Fragment {
                     mStartButton.setVisibility(View.GONE);
                 }
             });
-            mAnimator = new AnimatorSet();
-            mAnimator.playTogether(navigatorFadeInAnimator, buttonFadeOutAnimator);
-            mAnimator.start();
+            animators.add(buttonFadeOutAnimator);
         }
         mAnimator = new AnimatorSet();
         mAnimator.playTogether(animators);
