@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.v7.widget;
+package android.support.v7.content.res;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -33,9 +33,11 @@ import android.util.Xml;
 
 import java.io.IOException;
 
-class AppCompatColorStateListInflater {
+final class AppCompatColorStateListInflater {
 
     private static final int DEFAULT_COLOR = Color.RED;
+
+    private AppCompatColorStateListInflater() {}
 
     /**
      * Creates a ColorStateList from an XML document using given a set of
