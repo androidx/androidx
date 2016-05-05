@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 'android-N'
-    buildToolsVersion "24.0.0 rc1"
+    buildToolsVersion "24.0.0 rc3"
 
     defaultConfig {
         applicationId "android.support.v17.leanback.supportleanbackshowcase"
@@ -31,6 +31,6 @@ dependencies {
     compile "com.android.support:preference-v14:${supportLibVersion}"
 
     compile "com.google.code.gson:gson:1.7.2"
-    compile "com.squareup.picasso:picasso:2.3.2"
+    compile "com.squareup.picasso:picasso:2.5.2"
     compile "com.android.support:palette-v7:${supportLibVersion}"
 }
