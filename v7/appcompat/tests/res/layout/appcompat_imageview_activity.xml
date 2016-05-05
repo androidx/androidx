@@ -54,6 +54,14 @@
             android:layout_height="wrap_content"
             android:src="@drawable/test_drawable_blue"
             android:background="@drawable/test_background_green" />
+
+        <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/view_android_src_srccompat"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/test_drawable_blue"
+                app:srcCompat="@drawable/test_drawable_red" />
+
     </LinearLayout>
 
 </ScrollView>
