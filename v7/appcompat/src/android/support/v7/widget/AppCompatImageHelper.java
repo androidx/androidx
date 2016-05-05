@@ -37,28 +37,32 @@ public class AppCompatImageHelper {
     }
 
     public void loadFromAttributes(AttributeSet attrs, int defStyleAttr) {
-        TintTypedArray a = TintTypedArray.obtainStyledAttributes(mView.getContext(), attrs,
-                R.styleable.AppCompatImageView, defStyleAttr, 0);
+        TintTypedArray a = null;
         try {
-            Drawable d = a.getDrawableIfKnown(R.styleable.AppCompatImageView_android_src);
-            if (d != null) {
-                mView.setImageDrawable(d);
-            }
+            Drawable drawable = mView.getDrawable();
 
-            final int id = a.getResourceId(R.styleable.AppCompatImageView_srcCompat, -1);
-            if (id != -1) {
-                d = mDrawableManager.getDrawable(mView.getContext(), id);
-                if (d != null) {
-                    mView.setImageDrawable(d);
+            if (drawable == null) {
+                a = TintTypedArray.obtainStyledAttributes(mView.getContext(), attrs,
+                        R.styleable.AppCompatImageView, defStyleAttr, 0);
+
+                // If the view doesn't already have a drawable (from android:src), try loading
+                // it from srcCompat
+                final int id = a.getResourceId(R.styleable.AppCompatImageView_srcCompat, -1);
+                if (id != -1) {
+                    drawable = mDrawableManager.getDrawable(mView.getContext(), id);
+                    if (drawable != null) {
+                        mView.setImageDrawable(drawable);
+                    }
                 }
             }
 
-            final Drawable drawable = mView.getDrawable();
             if (drawable != null) {
                 DrawableUtils.fixDrawable(drawable);
             }
         } finally {
-            a.recycle();
+            if (a != null) {
+                a.recycle();
+            }
         }
     }
 
