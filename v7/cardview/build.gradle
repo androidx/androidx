@@ -11,7 +11,7 @@ android {
     compileSdkVersion project.ext.currentSdk
 
     defaultConfig {
-        minSdkVersion 7
+        minSdkVersion 9
         // TODO: get target from branch
         //targetSdkVersion 19
     }

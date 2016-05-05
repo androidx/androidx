@@ -18,7 +18,7 @@ android {
     compileSdkVersion project.ext.currentSdk
 
     defaultConfig {
-        minSdkVersion 8
+        minSdkVersion 9
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }

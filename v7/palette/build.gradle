@@ -12,10 +12,10 @@ dependencies {
 }
 
 android {
-    compileSdkVersion 7
+    compileSdkVersion 9
 
     defaultConfig {
-        minSdkVersion 7
+        minSdkVersion 9
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 

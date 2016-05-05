@@ -21,10 +21,10 @@ targetCompatibility = JavaVersion.VERSION_1_7
 setApiModuleDependencies(project, dependencies, gradle.ext.studioCompat.modules.compat.dependencies)
 
 android {
-    compileSdkVersion 4
+    compileSdkVersion 9
 
     defaultConfig {
-        minSdkVersion 4
+        minSdkVersion 9
         // TODO: get target from branch
         //targetSdkVersion 19
 

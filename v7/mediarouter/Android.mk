@@ -86,7 +86,7 @@ support_module_src_files += $(LOCAL_SRC_FILES)
 include $(CLEAR_VARS)
 LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-v7-mediarouter
-LOCAL_SDK_VERSION := 7
+LOCAL_SDK_VERSION := 9
 LOCAL_SDK_RES_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := $(call all-java-files-under,src)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-mediarouter-api24
