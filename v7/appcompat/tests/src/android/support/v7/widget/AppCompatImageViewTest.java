@@ -15,6 +15,16 @@
  */
 package android.support.v7.widget;
 
+import org.junit.Test;
+
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.support.v7.appcompat.test.R;
+import android.support.v7.testutils.TestUtils;
+import android.widget.ImageView;
+
+import static org.junit.Assert.assertTrue;
+
 /**
  * In addition to all tinting-related tests done by the base class, this class provides
  * tests specific to {@link AppCompatImageView} class.
@@ -23,5 +33,17 @@ public class AppCompatImageViewTest
         extends AppCompatBaseViewTest<AppCompatImageViewActivity, AppCompatImageView> {
     public AppCompatImageViewTest() {
         super(AppCompatImageViewActivity.class);
+    }
+
+    @Test
+    public void testImageViewBothSrcCompatAndroidSrcSet() {
+        final int expectedColor = mContainer.getResources().getColor(R.color.test_blue);
+
+        final ImageView view = (ImageView) mContainer.findViewById(R.id.view_android_src_srccompat);
+        final Drawable drawable = view.getDrawable();
+
+        TestUtils.assertAllPixelsOfColor("ImageView drawable should be blue",
+                drawable, view.getWidth(), view.getHeight(), true,
+                expectedColor, 0, false);
     }
 }
