@@ -1576,6 +1576,12 @@ nScriptForEachClipped(JNIEnv *_env, jobject _this, jlong con, jlong incCon,
     sc.strategy = RS_FOR_EACH_STRATEGY_DONT_CARE;
     sc.arrayStart = 0;
     sc.arrayEnd = 0;
+    sc.array2Start = 0;
+    sc.array2End = 0;
+    sc.array3Start = 0;
+    sc.array3End = 0;
+    sc.array4Start = 0;
+    sc.array4End = 0;
     if (mUseInc) {
         dispatchTab.ContextFinish((RsContext)con);
         dispatchTabInc.ScriptForEach((RsContext)incCon, (RsScript)script, slot,
@@ -1607,6 +1613,12 @@ nScriptForEachClippedV(JNIEnv *_env, jobject _this, jlong con, jlong incCon,
     sc.strategy = RS_FOR_EACH_STRATEGY_DONT_CARE;
     sc.arrayStart = 0;
     sc.arrayEnd = 0;
+    sc.array2Start = 0;
+    sc.array2End = 0;
+    sc.array3Start = 0;
+    sc.array3End = 0;
+    sc.array4Start = 0;
+    sc.array4End = 0;
     if (mUseInc) {
         dispatchTab.ContextFinish((RsContext)con);
         dispatchTabInc.ScriptForEach((RsContext)incCon, (RsScript)script, slot,
