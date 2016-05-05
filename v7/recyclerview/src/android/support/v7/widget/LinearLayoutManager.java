@@ -1925,7 +1925,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
      */
     static class LayoutState {
 
-        final static String TAG = "LinearLayoutManager#LayoutState";
+        final static String TAG = "LLM#LayoutState";
 
         final static int LAYOUT_START = -1;
 
