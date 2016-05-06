@@ -1601,6 +1601,7 @@ package android.support.v7.appcompat {
     field public static final int[] PopupWindow;
     field public static final int[] PopupWindowBackgroundState;
     field public static int PopupWindowBackgroundState_state_above_anchor;
+    field public static int PopupWindow_android_popupAnimationStyle;
     field public static int PopupWindow_android_popupBackground;
     field public static int PopupWindow_overlapAnchor;
     field public static final int[] SearchView;
