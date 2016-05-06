@@ -63,66 +63,57 @@
     ]
   },
   {
-    "title": "Two Line Title",
+    "title": "Two Line Title + Icon",
     "cards": [
       {
         "type": "MOVIE_BASE",
         "title": "Deep Into The Deep Sleep",
-        "description": "$3.99",
         "localImageResource": "card_image_movie_01"
       },
       {
         "type": "MOVIE_BASE",
         "title": "We",
-        "description": "$3.99",
         "localImageResource": "card_image_movie_02"
       },
       {
         "type": "MOVIE_BASE",
         "title": "The Fairy Story Of A Legend",
-        "description": "$3.99",
         "localImageResource": "card_image_movie_03"
       },
       {
         "type": "MOVIE_BASE",
         "title": "Cursed",
-        "description": "$3.99",
         "localImageResource": "card_image_movie_04"
       },
       {
         "type": "MOVIE_BASE",
         "title": "My Crazy One",
-        "description": "$3.99",
         "localImageResource": "card_image_movie_05"
       },
       {
         "type": "MOVIE_BASE",
         "title": "Gone",
-        "description": "$3.99",
         "localImageResource": "card_image_movie_06"
       },
       {
         "type": "MOVIE_BASE",
         "title": "A Cold Night To Stay",
-        "description": "$3.99",
         "localImageResource": "card_image_movie_07"
       },
       {
         "type": "MOVIE_BASE",
         "title": "The Silence",
-        "description": "$3.99",
         "localImageResource": "card_image_movie_08"
       },
       {
         "type": "MOVIE_BASE",
         "title": "Hear The Roar",
-        "description": "$3.99",
         "localImageResource": "card_image_movie_09"
       }
     ]
   },
   {
-    "title": "Two Line Title + Icon",
+    "title": "Two Line Title + Description + Icon",
     "cards": [
       {
         "type": "MOVIE_COMPLETE",
