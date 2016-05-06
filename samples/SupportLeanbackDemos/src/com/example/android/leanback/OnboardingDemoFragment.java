@@ -17,11 +17,11 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.graphics.drawable.AnimationDrawable;
 import android.support.v17.leanback.app.OnboardingFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
@@ -29,18 +29,25 @@ import java.util.ArrayList;
 public class OnboardingDemoFragment extends OnboardingFragment {
     private static final long ANIMATION_DURATION = 1000;
 
-    private static final int[] CONTENT_IMAGES = {
-            R.drawable.gallery_photo_1,
-            R.drawable.gallery_photo_2,
-            R.drawable.gallery_photo_3
+    private static final int[] CONTENT_BACKGROUNDS = {
+            R.drawable.tv_bg,
+            R.drawable.gallery_photo_6,
+            R.drawable.gallery_photo_8
     };
+
+    private static final int[] CONTENT_ANIMATIONS = {
+            R.drawable.tv_content,
+            android.R.drawable.stat_sys_download,
+            android.R.drawable.ic_popup_sync
+    };
+
     private String[] mTitles;
     private String[] mDescriptions;
 
     private View mBackgroundView;
-    private ImageView mContentView;
-    private ImageView mImage1;
-    private ImageView mImage2;
+    private View mContentView;
+    private ImageView mContentBackgroundView;
+    private ImageView mContentAnimationView;
 
     private Animator mContentAnimator;
 
@@ -75,11 +82,9 @@ public class OnboardingDemoFragment extends OnboardingFragment {
 
     @Override
     protected View onCreateContentView(LayoutInflater layoutInflater, ViewGroup viewGroup) {
-        mContentView = (ImageView) layoutInflater.inflate(R.layout.onboarding_image, viewGroup,
-                false);
-        MarginLayoutParams layoutParams = ((MarginLayoutParams) mContentView.getLayoutParams());
-        layoutParams.topMargin = 30;
-        layoutParams.bottomMargin = 60;
+        mContentView = layoutInflater.inflate(R.layout.onboarding_content, viewGroup, false);
+        mContentBackgroundView = (ImageView) mContentView.findViewById(R.id.background_image);
+        mContentAnimationView = (ImageView) mContentView.findViewById(R.id.animation_image);
         return mContentView;
     }
 
@@ -92,31 +97,45 @@ public class OnboardingDemoFragment extends OnboardingFragment {
     protected Animator onCreateEnterAnimation() {
         ArrayList<Animator> animators = new ArrayList<>();
         animators.add(createFadeInAnimator(mBackgroundView));
-        mContentView.setImageResource(CONTENT_IMAGES[0]);
+        mContentBackgroundView.setImageResource(CONTENT_BACKGROUNDS[0]);
+        mContentAnimationView.setImageResource(CONTENT_ANIMATIONS[0]);
         mContentAnimator = createFadeInAnimator(mContentView);
         animators.add(mContentAnimator);
         AnimatorSet set = new AnimatorSet();
         set.playTogether(animators);
+        set.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                ((AnimationDrawable) mContentAnimationView.getDrawable()).start();
+            }
+        });
         return set;
     }
 
     @Override
     protected void onPageChanged(final int newPage, int previousPage) {
         if (mContentAnimator != null) {
-            mContentAnimator.end();
+            mContentAnimator.cancel();
         }
+        ((AnimationDrawable) mContentAnimationView.getDrawable()).stop();
         ArrayList<Animator> animators = new ArrayList<>();
         Animator fadeOut = createFadeOutAnimator(mContentView);
         fadeOut.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                mContentView.setImageResource(CONTENT_IMAGES[newPage]);
+                mContentBackgroundView.setImageResource(CONTENT_BACKGROUNDS[newPage]);
+                mContentAnimationView.setImageResource(CONTENT_ANIMATIONS[newPage]);
             }
         });
-        animators.add(fadeOut);
-        animators.add(createFadeInAnimator(mContentView));
+        Animator fadeIn = createFadeInAnimator(mContentView);
+        fadeIn.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                ((AnimationDrawable) mContentAnimationView.getDrawable()).start();
+            }
+        });
         AnimatorSet set = new AnimatorSet();
-        set.playSequentially(animators);
+        set.playSequentially(fadeOut, fadeIn);
         set.start();
         mContentAnimator = set;
     }
