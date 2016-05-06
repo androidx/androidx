@@ -224,20 +224,6 @@ public final class AppCompatDrawableManager {
                     getDrawable(context, R.drawable.abc_cab_background_internal_bg),
                     getDrawable(context, R.drawable.abc_cab_background_top_mtrl_alpha)
             });
-        } else if (resId == R.drawable.abc_btn_check_material) {
-            final StateListDrawable sld = new StateListDrawable();
-            sld.addState(ThemeUtils.CHECKED_STATE_SET,
-                    getDrawable(context, R.drawable.abc_btn_checkbox_checked_mtrl));
-            sld.addState(ThemeUtils.EMPTY_STATE_SET,
-                    getDrawable(context, R.drawable.abc_btn_checkbox_unchecked_mtrl));
-            dr = sld;
-        } else if (resId == R.drawable.abc_btn_radio_material) {
-            final StateListDrawable sld = new StateListDrawable();
-            sld.addState(ThemeUtils.CHECKED_STATE_SET,
-                    getDrawable(context, R.drawable.abc_btn_radio_on_mtrl));
-            sld.addState(ThemeUtils.EMPTY_STATE_SET,
-                    getDrawable(context, R.drawable.abc_btn_radio_off_mtrl));
-            dr = sld;
         }
 
         if (dr != null) {
