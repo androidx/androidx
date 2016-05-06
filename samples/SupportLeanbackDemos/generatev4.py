@@ -60,6 +60,7 @@ for line in file:
     line = line.replace('BrowseFragment', 'BrowseSupportFragment')
     line = line.replace('GuidedStepFragment', 'GuidedStepSupportFragment')
     line = line.replace('GuidedStepActivity', 'GuidedStepSupportActivity')
+    line = line.replace('getActivity().getFragmentManager()', 'getActivity().getSupportFragmentManager()')
     line = line.replace('BrowseActivity', 'BrowseSupportActivity')
     line = line.replace('DetailsActivity', 'DetailsSupportActivity')
     line = line.replace('SearchActivity', 'SearchSupportActivity')
