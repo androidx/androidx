@@ -3675,6 +3675,7 @@ package android.support.v4.widget {
     method public void setColorSchemeColors(int...);
     method public void setColorSchemeResources(int...);
     method public void setDistanceToTriggerSync(int);
+    method public void setOnChildScrollUpCallback(android.support.v4.widget.SwipeRefreshLayout.OnChildScrollUpCallback);
     method public void setOnRefreshListener(android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener);
     method public deprecated void setProgressBackgroundColor(int);
     method public void setProgressBackgroundColorSchemeColor(int);
@@ -3687,6 +3688,10 @@ package android.support.v4.widget {
     field public static final int LARGE = 0; // 0x0
     field protected int mFrom;
     field protected int mOriginalOffsetTop;
+  }
+
+  public static abstract interface SwipeRefreshLayout.OnChildScrollUpCallback {
+    method public abstract boolean canChildScrollUp(android.support.v4.widget.SwipeRefreshLayout, android.view.View);
   }
 
   public static abstract interface SwipeRefreshLayout.OnRefreshListener {

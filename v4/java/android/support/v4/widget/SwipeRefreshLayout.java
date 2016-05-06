@@ -21,6 +21,7 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
+import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.NestedScrollingChild;
@@ -167,6 +168,8 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
 
     // Whether the client has set a custom starting position;
     private boolean mUsingCustomStart;
+
+    private OnChildScrollUpCallback mChildScrollUpCallback;
 
     private Animation.AnimationListener mRefreshListener = new Animation.AnimationListener() {
         @Override
@@ -647,6 +650,9 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
      *         scroll up. Override this if the child view is a custom view.
      */
     public boolean canChildScrollUp() {
+        if (mChildScrollUpCallback != null) {
+            return mChildScrollUpCallback.canChildScrollUp(this, mTarget);
+        }
         if (android.os.Build.VERSION.SDK_INT < 14) {
             if (mTarget instanceof AbsListView) {
                 final AbsListView absListView = (AbsListView) mTarget;
@@ -659,6 +665,15 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         } else {
             return ViewCompat.canScrollVertically(mTarget, -1);
         }
+    }
+
+    /**
+     * Set a callback to override {@link SwipeRefreshLayout#canChildScrollUp()} method. Non-null
+     * callback will return the value provided by the callback and ignore all internal logic.
+     * @param callback Callback that should be called when canChildScrollUp() is called.
+     */
+    public void setOnChildScrollUpCallback(@Nullable OnChildScrollUpCallback callback) {
+        mChildScrollUpCallback = callback;
     }
 
     @Override
@@ -1160,5 +1175,22 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
      */
     public interface OnRefreshListener {
         public void onRefresh();
+    }
+
+    /**
+     * Classes that wish to override {@link SwipeRefreshLayout#canChildScrollUp()} method
+     * behavior should implement this interface.
+     */
+    public interface OnChildScrollUpCallback {
+        /**
+         * Callback that will be called when {@link SwipeRefreshLayout#canChildScrollUp()} method
+         * is called to allow the implementer to override its behavior.
+         *
+         * @param parent SwipeRefreshLayout that this callback is overriding.
+         * @param child The child view of SwipeRefreshLayout.
+         *
+         * @return Whether it is possible for the child view of parent layout to scroll up.
+         */
+        public boolean canChildScrollUp(SwipeRefreshLayout parent, @Nullable View child);
     }
 }
