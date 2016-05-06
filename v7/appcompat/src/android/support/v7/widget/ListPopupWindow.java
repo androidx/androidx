@@ -263,7 +263,11 @@ public class ListPopupWindow implements ShowableListMenu {
         }
         a.recycle();
 
-        mPopup = new AppCompatPopupWindow(context, attrs, defStyleAttr);
+        if (Build.VERSION.SDK_INT >= 11) {
+            mPopup = new AppCompatPopupWindow(context, attrs, defStyleAttr, defStyleRes);
+        } else {
+            mPopup = new AppCompatPopupWindow(context, attrs, defStyleAttr);
+        }
         mPopup.setInputMethodMode(PopupWindow.INPUT_METHOD_NEEDED);
     }
 
