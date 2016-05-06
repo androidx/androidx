@@ -74,13 +74,16 @@
         <!-- Attributes used for styling of a playback -->
         <item name="playbackPaddingStart">@dimen/lb_playback_controls_margin_start</item>
         <item name="playbackPaddingEnd">@dimen/lb_playback_controls_margin_end</item>
+        <item name="playbackMediaItemPaddingStart">@dimen/lb_playback_media_row_horizontal_padding</item>
 
         <item name="playbackMediaListHeaderStyle">@style/Widget.Leanback.PlaybackMediaListHeaderStyle</item>
-        <item name="playbackMediaItemStyle">@style/Widget.Leanback.PlaybackMediaItemStyle</item>
+        <item name="playbackMediaItemRowStyle">@style/Widget.Leanback.PlaybackMediaItemRowStyle</item>
+        <item name="playbackMediaItemSeparatorStyle">@style/Widget.Leanback.PlaybackMediaItemSeparatorStyle</item>
         <item name="playbackMediaListHeaderTitleStyle">@style/Widget.Leanback.PlaybackMediaListHeaderTitleStyle</item>
-        <item name="playbackMediaItemTrackNumberStyle">@style/Widget.Leanback.PlaybackMediaItemTrackNumberStyle</item>
-        <item name="playbackMediaItemTrackNameStyle">@style/Widget.Leanback.PlaybackMediaItemTrackNameStyle</item>
-        <item name="playbackMediaItemTrackDurationStyle">@style/Widget.Leanback.PlaybackMediaItemTrackDurationStyle</item>
+        <item name="playbackMediaItemDetailsStyle">@style/Widget.Leanback.PlaybackMediaItemDetailsStyle</item>
+        <item name="playbackMediaItemNumberStyle">@style/Widget.Leanback.PlaybackMediaItemNumberStyle</item>
+        <item name="playbackMediaItemNameStyle">@style/Widget.Leanback.PlaybackMediaItemNameStyle</item>
+        <item name="playbackMediaItemDurationStyle">@style/Widget.Leanback.PlaybackMediaItemDurationStyle</item>
 
         <item name="playbackControlsButtonStyle">@style/Widget.Leanback.PlaybackControlsButtonStyle</item>
         <item name="playbackControlButtonLabelStyle">@style/Widget.Leanback.PlaybackControlLabelStyle</item>

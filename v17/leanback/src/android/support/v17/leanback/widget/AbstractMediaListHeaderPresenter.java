@@ -24,12 +24,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 /**
- * Abstract presenter class for rendering the header for a list of tracks in a playlist.
+ * Abstract presenter class for rendering the header for a list of media items in a playlist.
  * The presenter creates a {@link ViewHolder} for the TextView holding the header text.
  * <p>
  *    Subclasses of this class must override {@link
  *    #onBindMediaListHeaderViewHolder(ViewHolder, Object)} in order to bind their header text to
- *    the tracklist header view.
+ *    the media list header view.
  * </p>
  * <p>
  * {@link AbstractMediaItemPresenter} can be used in conjunction with this presenter in order to
@@ -52,7 +52,7 @@ public abstract class AbstractMediaListHeaderPresenter extends RowPresenter{
 
         public ViewHolder(View view) {
             super(view);
-            mHeaderView = (TextView) view.findViewById(R.id.trackListHeader);
+            mHeaderView = (TextView) view.findViewById(R.id.mediaListHeader);
         }
 
         /**
@@ -92,7 +92,7 @@ public abstract class AbstractMediaListHeaderPresenter extends RowPresenter{
     @Override
     protected RowPresenter.ViewHolder createRowViewHolder(ViewGroup parent) {
         Context context = (mContext != null) ? mContext : parent.getContext();
-        View view = LayoutInflater.from(context).inflate(R.layout.lb_row_track_list_header,
+        View view = LayoutInflater.from(context).inflate(R.layout.lb_media_list_header,
                 parent, false);
         view.setFocusable(false);
         view.setFocusableInTouchMode(false);
