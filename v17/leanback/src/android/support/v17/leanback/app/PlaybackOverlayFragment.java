@@ -113,7 +113,7 @@ public class PlaybackOverlayFragment extends DetailsFragment {
     private static final int IN = 1;
     private static final int OUT = 2;
 
-    private int mAlignPosition;
+    private int mPaddingTop;
     private int mPaddingBottom;
     private View mRootView;
     private int mBackgroundType = BG_DARK;
@@ -599,29 +599,29 @@ public class PlaybackOverlayFragment extends DetailsFragment {
         }
         // Padding affects alignment when last row is focused
         // (last is first when there's only one row).
-        setBottomPadding(listview, mPaddingBottom);
+        setPadding(listview, mPaddingTop, mPaddingBottom);
 
         // Item alignment affects focused row that isn't the last.
-        listview.setItemAlignmentOffset(mAlignPosition);
-        listview.setItemAlignmentOffsetPercent(100);
+        listview.setItemAlignmentOffset(0);
+        listview.setItemAlignmentOffsetPercent(50);
 
         // Push rows to the bottom.
         listview.setWindowAlignmentOffset(0);
-        listview.setWindowAlignmentOffsetPercent(100);
-        listview.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_HIGH_EDGE);
+        listview.setWindowAlignmentOffsetPercent(50);
+        listview.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_BOTH_EDGE);
     }
 
-    private static void setBottomPadding(View view, int padding) {
-        view.setPadding(view.getPaddingLeft(), view.getPaddingTop(),
-                view.getPaddingRight(), padding);
+    private static void setPadding(View view, int paddingTop, int paddingBottom) {
+        view.setPadding(view.getPaddingLeft(), paddingTop,
+                view.getPaddingRight(), paddingBottom);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mAlignPosition =
-                getResources().getDimensionPixelSize(R.dimen.lb_playback_controls_align_bottom);
+        mPaddingTop =
+                getResources().getDimensionPixelSize(R.dimen.lb_playback_controls_padding_top);
         mPaddingBottom =
                 getResources().getDimensionPixelSize(R.dimen.lb_playback_controls_padding_bottom);
         mBgDarkColor =
@@ -774,5 +774,6 @@ public class PlaybackOverlayFragment extends DetailsFragment {
             mViews.clear();
         }
         abstract void getViews(ArrayList<View> views);
+
     };
 }
