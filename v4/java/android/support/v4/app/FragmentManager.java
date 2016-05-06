@@ -29,6 +29,7 @@ import android.os.Parcelable;
 import android.support.annotation.CallSuper;
 import android.support.annotation.IdRes;
 import android.support.annotation.StringRes;
+import android.support.v4.os.BuildCompat;
 import android.support.v4.util.DebugUtils;
 import android.support.v4.util.LogWriter;
 import android.support.v4.view.LayoutInflaterFactory;
@@ -425,9 +426,10 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
 
     static class AnimateOnHWLayerIfNeededListener implements AnimationListener {
-        private AnimationListener mOrignalListener = null;
-        private boolean mShouldRunOnHWLayer = false;
-        private View mView = null;
+        private AnimationListener mOrignalListener;
+        private boolean mShouldRunOnHWLayer;
+        private View mView;
+
         public AnimateOnHWLayerIfNeededListener(final View v, Animation anim) {
             if (v == null || anim == null) {
                 return;
@@ -442,22 +444,12 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             }
             mOrignalListener = listener;
             mView = v;
+            mShouldRunOnHWLayer = true;
         }
 
         @Override
         @CallSuper
         public void onAnimationStart(Animation animation) {
-            if (mView != null) {
-                mShouldRunOnHWLayer = shouldRunOnHWLayer(mView, animation);
-                if (mShouldRunOnHWLayer) {
-                    mView.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            ViewCompat.setLayerType(mView, ViewCompat.LAYER_TYPE_HARDWARE, null);
-                        }
-                    });
-                }
-            }
             if (mOrignalListener != null) {
                 mOrignalListener.onAnimationStart(animation);
             }
@@ -467,12 +459,26 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         @CallSuper
         public void onAnimationEnd(Animation animation) {
             if (mView != null && mShouldRunOnHWLayer) {
-                mView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        ViewCompat.setLayerType(mView, ViewCompat.LAYER_TYPE_NONE, null);
-                    }
-                });
+                // If we're attached to a window, assume we're in the normal performTraversals
+                // drawing path for Animations running. It's not safe to change the layer type
+                // during drawing, so post it to the View to run later. If we're not attached
+                // or we're running on N and above, post it to the view. If we're not on N and
+                // not attached, do it right now since existing platform versions don't run the
+                // hwui renderer for detached views off the UI thread making changing layer type
+                // safe, but posting may not be.
+                // Prior to N posting to a detached view from a non-Looper thread could cause
+                // leaks, since the thread-local run queue on a non-Looper thread would never
+                // be flushed.
+                if (ViewCompat.isAttachedToWindow(mView) || BuildCompat.isAtLeastN()) {
+                    mView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            ViewCompat.setLayerType(mView, ViewCompat.LAYER_TYPE_NONE, null);
+                        }
+                    });
+                } else {
+                    ViewCompat.setLayerType(mView, ViewCompat.LAYER_TYPE_NONE, null);
+                }
             }
             if (mOrignalListener != null) {
                 mOrignalListener.onAnimationEnd(animation);
@@ -964,6 +970,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             // If there's already a listener set on the animation, we need wrap the new listener
             // around the existing listener, so that they will both get animation listener
             // callbacks.
+            ViewCompat.setLayerType(v, ViewCompat.LAYER_TYPE_HARDWARE, null);
             anim.setAnimationListener(new AnimateOnHWLayerIfNeededListener(v, anim,
                     originalListener));
         }
