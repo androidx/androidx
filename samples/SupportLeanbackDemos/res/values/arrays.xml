@@ -27,7 +27,7 @@
     <!-- Descriptions in the onboarding page. -->
     <string-array name="onboarding_page_descriptions">
         <item>Announce your new features.</item>
-        <item>Just override OnbaordingFragment and provide the messages and images.</item>
+        <item>Just override OnboardingFragment and provide the messages and images.</item>
         <item>Customize your own logo image, splash animation and the contents animations.</item>
     </string-array>
 </resources>
