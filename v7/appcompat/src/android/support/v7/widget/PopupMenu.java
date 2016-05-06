@@ -17,7 +17,11 @@
 package android.support.v7.widget;
 
 import android.content.Context;
+import android.support.annotation.AttrRes;
 import android.support.annotation.MenuRes;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.StyleRes;
 import android.support.v7.appcompat.R;
 import android.support.v7.view.SupportMenuInflater;
 import android.support.v7.view.menu.MenuBuilder;
@@ -55,7 +59,7 @@ public class PopupMenu {
      * @param anchor Anchor view for this popup. The popup will appear below
      *        the anchor if there is room, or above it if there is not.
      */
-    public PopupMenu(Context context, View anchor) {
+    public PopupMenu(@NonNull Context context, @NonNull View anchor) {
         this(context, anchor, Gravity.NO_GRAVITY);
     }
 
@@ -70,7 +74,7 @@ public class PopupMenu {
      * @param gravity The {@link Gravity} value for aligning the popup with its
      *        anchor.
      */
-    public PopupMenu(Context context, View anchor, int gravity) {
+    public PopupMenu(@NonNull Context context, @NonNull View anchor, int gravity) {
         this(context, anchor, gravity, R.attr.popupMenuStyle, 0);
     }
 
@@ -91,8 +95,8 @@ public class PopupMenu {
      *        popupStyleAttr is 0 or can not be found in the theme. Can be 0
      *        to not look for defaults.
      */
-    public PopupMenu(Context context, View anchor, int gravity, int popupStyleAttr,
-            int popupStyleRes) {
+    public PopupMenu(@NonNull Context context, @NonNull View anchor, int gravity,
+            @AttrRes int popupStyleAttr, @StyleRes int popupStyleRes) {
         mContext = context;
         mAnchor = anchor;
 
@@ -160,6 +164,7 @@ public class PopupMenu {
      *
      * @return a touch listener that controls drag-to-open behavior
      */
+    @NonNull
     public View.OnTouchListener getDragToOpenListener() {
         if (mDragListener == null) {
             mDragListener = new ForwardingListener(mAnchor) {
@@ -194,6 +199,7 @@ public class PopupMenu {
      * @see #show()
      * @see #getMenuInflater()
      */
+    @NonNull
     public Menu getMenu() {
         return mMenu;
     }
@@ -203,6 +209,7 @@ public class PopupMenu {
      *         from XML into the menu returned by {@link #getMenu()}
      * @see #getMenu()
      */
+    @NonNull
     public MenuInflater getMenuInflater() {
         return new SupportMenuInflater(mContext);
     }
@@ -241,7 +248,7 @@ public class PopupMenu {
      *
      * @param listener the listener to notify
      */
-    public void setOnMenuItemClickListener(OnMenuItemClickListener listener) {
+    public void setOnMenuItemClickListener(@Nullable OnMenuItemClickListener listener) {
         mMenuItemClickListener = listener;
     }
 
@@ -250,7 +257,7 @@ public class PopupMenu {
      *
      * @param listener the listener to notify
      */
-    public void setOnDismissListener(OnDismissListener listener) {
+    public void setOnDismissListener(@Nullable OnDismissListener listener) {
         mOnDismissListener = listener;
     }
 
@@ -259,14 +266,14 @@ public class PopupMenu {
      * themselves do not have individual item click listeners.
      */
     public interface OnMenuItemClickListener {
-    /**
+        /**
          * This method will be invoked when a menu item is clicked if the item
          * itself did not already handle the event.
          *
          * @param item the menu item that was clicked
          * @return {@code true} if the event was handled, {@code false}
-         *         otherwise
-     */
+         * otherwise
+         */
         boolean onMenuItemClick(MenuItem item);
     }
 
@@ -274,11 +281,11 @@ public class PopupMenu {
      * Callback interface used to notify the application that the menu has closed.
      */
     public interface OnDismissListener {
-    /**
+        /**
          * Called when the associated menu has been dismissed.
          *
          * @param menu the popup menu that was dismissed
-     */
+         */
         void onDismiss(PopupMenu menu);
     }
 }

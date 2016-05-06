@@ -892,6 +892,7 @@
         <!-- Whether the popup window should overlap its anchor view. -->
         <attr name="overlapAnchor" format="boolean" />
         <attr name="android:popupBackground" />
+        <attr name="android:popupAnimationStyle"/>
     </declare-styleable>
 
     <declare-styleable name="DrawerArrowToggle">

@@ -19,6 +19,10 @@ package android.support.v7.widget;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
+import android.support.annotation.AttrRes;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.StyleRes;
 import android.support.v4.widget.PopupWindowCompat;
 import android.support.v7.appcompat.R;
 import android.util.AttributeSet;
@@ -30,26 +34,48 @@ import android.widget.PopupWindow;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 
-/**
- * @hide
- */
-public class AppCompatPopupWindow extends PopupWindow {
+class AppCompatPopupWindow extends PopupWindow {
 
     private static final String TAG = "AppCompatPopupWindow";
     private static final boolean COMPAT_OVERLAP_ANCHOR = Build.VERSION.SDK_INT < 21;
 
     private boolean mOverlapAnchor;
 
-    public AppCompatPopupWindow(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AppCompatPopupWindow(@NonNull Context context, @Nullable AttributeSet attrs,
+            @AttrRes int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init(context, attrs, defStyleAttr, 0);
+    }
 
+    @TargetApi(11)
+    public AppCompatPopupWindow(@NonNull Context context, @Nullable AttributeSet attrs,
+            @AttrRes int defStyleAttr, @StyleRes int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
+        init(context, attrs, defStyleAttr, defStyleRes);
+    }
+
+    private void init(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs,
-                R.styleable.PopupWindow, defStyleAttr, 0);
+                R.styleable.PopupWindow, defStyleAttr, defStyleRes);
         if (a.hasValue(R.styleable.PopupWindow_overlapAnchor)) {
             setSupportOverlapAnchor(a.getBoolean(R.styleable.PopupWindow_overlapAnchor, false));
         }
         // We re-set this for tinting purposes
         setBackgroundDrawable(a.getDrawable(R.styleable.PopupWindow_android_popupBackground));
+
+        final int sdk = Build.VERSION.SDK_INT;
+        if (defStyleRes != 0 && sdk < 11) {
+            // If we have a defStyleRes, but we're on < API 11, we need to manually set attributes
+            // from the style
+            if (sdk >= 9) {
+                // android:popupAnimationStyle was added in API 9
+                if (a.hasValue(R.styleable.PopupWindow_android_popupAnimationStyle)) {
+                    setAnimationStyle(a.getResourceId(
+                            R.styleable.PopupWindow_android_popupAnimationStyle, -1));
+                }
+            }
+        }
+
         a.recycle();
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
