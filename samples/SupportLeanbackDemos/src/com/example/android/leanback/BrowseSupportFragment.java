@@ -230,7 +230,7 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
         public Fragment createFragment(Object rowObj) {
             Row row = (Row) rowObj;
             if (row.getHeaderItem().getId() == HEADER_ID1) {
-                return new SampleFragment();
+                return new SampleRowsSupportFragment();
             } else if (row.getHeaderItem().getId() == HEADER_ID2) {
                 return new SampleRowsSupportFragment();
             } else if (row.getHeaderItem().getId() == HEADER_ID3) {
@@ -241,30 +241,31 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
         }
     }
 
-    public static class PageFragmentAdapterImpl extends MainFragmentAdapter<SampleFragment> {
-
-        public PageFragmentAdapterImpl(SampleFragment fragment) {
-            super(fragment);
-            setScalingEnabled(true);
-        }
-
-        @Override
-        public void setEntranceTransitionState(boolean state) {
-            getFragment().setEntranceTransitionState(state);
-        }
-    }
-
     public static class SampleRowsSupportFragment extends RowsSupportFragment {
         final CardPresenter mCardPresenter = new CardPresenter();
         final CardPresenter mCardPresenter2 = new CardPresenter(R.style.MyImageCardViewTheme);
 
-        public SampleRowsSupportFragment() {
-            ArrayObjectAdapter adapter = new ArrayObjectAdapter(new ListRowPresenter());
+        void loadFragmentData() {
+            ArrayObjectAdapter adapter = (ArrayObjectAdapter) getAdapter();
             for (int i = 0; i < 4; i++) {
                 ListRow row = new ListRow(new HeaderItem("Row " + i), createListRowAdapter(i));
                 adapter.add(row);
             }
+            if (getMainFragmentAdapter() != null) {
+                getMainFragmentAdapter().getFragmentHost()
+                        .notifyDataReady(getMainFragmentAdapter());
+            }
+        }
+
+        public SampleRowsSupportFragment() {
+            ArrayObjectAdapter adapter = new ArrayObjectAdapter(new ListRowPresenter());
             setAdapter(adapter);
+            // simulates late data loading:
+            new Handler().postDelayed(new Runnable() {
+                public void run() {
+                    loadFragmentData();
+                }
+            }, 500);
 
             setOnItemViewClickedListener(new OnItemViewClickedListener() {
                 @Override
@@ -276,12 +277,12 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
                     Intent intent;
                     Bundle bundle;
                     if (((PhotoItem) item).getImageResourceId() == R.drawable.gallery_photo_6) {
-                        GuidedStepSupportFragment.add(getFragmentManager(),
+                        GuidedStepSupportFragment.add(getActivity().getSupportFragmentManager(),
                                 new GuidedStepSupportHalfScreenActivity.FirstStepFragment(),
                                 R.id.lb_guidedstep_host);
                         return;
                     } else if (((PhotoItem) item).getImageResourceId() == R.drawable.gallery_photo_5) {
-                        GuidedStepSupportFragment.add(getFragmentManager(),
+                        GuidedStepSupportFragment.add(getActivity().getSupportFragmentManager(),
                                 new GuidedStepSupportActivity.FirstStepFragment(), R.id.lb_guidedstep_host);
                         return;
                     } else if (((PhotoItem) item).getImageResourceId() == R.drawable.gallery_photo_8) {
@@ -341,18 +342,25 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
         }
     }
 
+    public static class PageFragmentAdapterImpl extends MainFragmentAdapter<SampleFragment> {
+
+        public PageFragmentAdapterImpl(SampleFragment fragment) {
+            super(fragment);
+            setScalingEnabled(true);
+        }
+
+        @Override
+        public void setEntranceTransitionState(boolean state) {
+            getFragment().setEntranceTransitionState(state);
+        }
+    }
+
     public static class SampleFragment extends Fragment implements MainFragmentAdapterProvider {
 
         final PageFragmentAdapterImpl mMainFragmentAdapter = new PageFragmentAdapterImpl(this);
 
-        boolean mEntranceTransitionState = true;
-
         public void setEntranceTransitionState(boolean state) {
-            mEntranceTransitionState = state;
             final View view = getView();
-            if (view == null) {
-                return;
-            }
             int visibility = state ? View.VISIBLE : View.INVISIBLE;
             view.findViewById(R.id.tv1).setVisibility(visibility);
             view.findViewById(R.id.tv2).setVisibility(visibility);
@@ -375,14 +383,10 @@ public class BrowseSupportFragment extends android.support.v17.leanback.app.Brow
         }
 
         @Override
-        public void onStart() {
-            super.onStart();
-            mMainFragmentAdapter.getFragmentHost().notifyViewCreated(mMainFragmentAdapter);
-        }
-
-        @Override
         public void onViewCreated(View view, Bundle savedInstanceState) {
-            setEntranceTransitionState(mEntranceTransitionState);
+            // static layout has view and data ready immediately
+            mMainFragmentAdapter.getFragmentHost().notifyViewCreated(mMainFragmentAdapter);
+            mMainFragmentAdapter.getFragmentHost().notifyDataReady(mMainFragmentAdapter);
         }
 
         @Override
