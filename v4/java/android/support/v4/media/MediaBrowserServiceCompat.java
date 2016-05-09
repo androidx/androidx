@@ -33,6 +33,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.BundleCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.os.BuildCompat;
 import android.support.v4.os.ResultReceiver;
 import android.support.v4.util.ArrayMap;
 import android.support.v4.util.Pair;
@@ -201,7 +202,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
         @Override
         public void notifyChildrenChanged(final String parentId, final Bundle options) {
             if (mMessenger == null) {
-                // TODO: Support notifyChildrenChanged with options.
                 MediaBrowserServiceCompatApi21.notifyChildrenChanged(mServiceObj, parentId);
             } else {
                 mHandler.post(new Runnable() {
@@ -734,7 +734,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        if (Build.VERSION.SDK_INT >= 24) {
+        if (Build.VERSION.SDK_INT >= 24 || BuildCompat.isAtLeastN()) {
             mImpl = new MediaBrowserServiceImplApi24();
         } else if (Build.VERSION.SDK_INT >= 23) {
             mImpl = new MediaBrowserServiceImplApi23();
