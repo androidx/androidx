@@ -117,7 +117,12 @@ public final class AppCompatDrawableManager {
      */
     private static final int[] TINT_COLOR_CONTROL_NORMAL = {
             R.drawable.abc_ic_commit_search_api_mtrl_alpha,
-            R.drawable.abc_seekbar_tick_mark_material
+            R.drawable.abc_seekbar_tick_mark_material,
+            R.drawable.abc_ic_menu_share_mtrl_alpha,
+            R.drawable.abc_ic_menu_copy_mtrl_am_alpha,
+            R.drawable.abc_ic_menu_cut_mtrl_alpha,
+            R.drawable.abc_ic_menu_selectall_mtrl_alpha,
+            R.drawable.abc_ic_menu_paste_mtrl_am_alpha
     };
 
     /**
