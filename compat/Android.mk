@@ -17,7 +17,7 @@ LOCAL_PATH := $(call my-dir)
 # A helper sub-library that makes direct use of Donut APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-compat-donut
-LOCAL_SDK_VERSION := 4
+LOCAL_SDK_VERSION := 9
 LOCAL_SRC_FILES := $(call all-java-files-under, donut)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-annotations
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
@@ -28,64 +28,12 @@ support_module_java_libraries := android-support-annotations
 
 # -----------------------------------------------------------------------
 
-# A helper sub-library that makes direct use of Eclair APIs.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-compat-eclair
-LOCAL_SDK_VERSION := 5
-LOCAL_SRC_FILES := $(call all-java-files-under, eclair)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-compat-donut
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-support_module_src_files += $(LOCAL_SRC_FILES)
-
-# -----------------------------------------------------------------------
-
-# A helper sub-library that makes direct use of Eclair MR1 APIs.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-compat-eclair-mr1
-LOCAL_SDK_VERSION := 7
-LOCAL_SRC_FILES := $(call all-java-files-under, eclair-mr1)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-compat-eclair
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-support_module_src_files += $(LOCAL_SRC_FILES)
-
-# -----------------------------------------------------------------------
-
-# A helper sub-library that makes direct use of Froyo APIs.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-compat-froyo
-LOCAL_SDK_VERSION := 8
-LOCAL_SRC_FILES := $(call all-java-files-under, froyo)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-compat-eclair-mr1
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-support_module_src_files += $(LOCAL_SRC_FILES)
-
-# -----------------------------------------------------------------------
-
-# A helper sub-library that makes direct use of Gingerbread APIs.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-compat-gingerbread
-LOCAL_SDK_VERSION := 9
-LOCAL_SRC_FILES := $(call all-java-files-under, gingerbread)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-compat-froyo
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-support_module_src_files += $(LOCAL_SRC_FILES)
-
-# -----------------------------------------------------------------------
-
 # A helper sub-library that makes direct use of Honeycomb APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-compat-honeycomb
 LOCAL_SDK_VERSION := 11
 LOCAL_SRC_FILES := $(call all-java-files-under, honeycomb)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-compat-gingerbread
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-compat-donut
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
@@ -266,7 +214,7 @@ support_module_src_files += $(LOCAL_SRC_FILES)
 include $(CLEAR_VARS)
 LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-compat
-LOCAL_SDK_VERSION := 4
+LOCAL_SDK_VERSION := 9
 LOCAL_AIDL_INCLUDES := frameworks/support/v4/java
 LOCAL_SRC_FILES := $(call all-java-files-under, java) \
     $(call all-Iaidl-files-under, java)

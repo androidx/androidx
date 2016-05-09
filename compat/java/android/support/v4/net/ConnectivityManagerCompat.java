@@ -16,13 +16,18 @@
 
 package android.support.v4.net;
 
-import static android.net.ConnectivityManager.TYPE_MOBILE;
-import static android.net.ConnectivityManager.TYPE_WIFI;
-
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
+
+import static android.net.ConnectivityManager.TYPE_MOBILE;
+import static android.net.ConnectivityManager.TYPE_MOBILE_DUN;
+import static android.net.ConnectivityManager.TYPE_MOBILE_HIPRI;
+import static android.net.ConnectivityManager.TYPE_MOBILE_MMS;
+import static android.net.ConnectivityManager.TYPE_MOBILE_SUPL;
+import static android.net.ConnectivityManager.TYPE_WIFI;
+import static android.net.ConnectivityManager.TYPE_WIMAX;
 
 /**
  * Helper for accessing features in {@link ConnectivityManager} introduced after
@@ -46,6 +51,11 @@ public final class ConnectivityManagerCompat {
             final int type = info.getType();
             switch (type) {
                 case TYPE_MOBILE:
+                case TYPE_MOBILE_DUN:
+                case TYPE_MOBILE_HIPRI:
+                case TYPE_MOBILE_MMS:
+                case TYPE_MOBILE_SUPL:
+                case TYPE_WIMAX:
                     return true;
                 case TYPE_WIFI:
                     return false;
@@ -53,13 +63,6 @@ public final class ConnectivityManagerCompat {
                     // err on side of caution
                     return true;
             }
-        }
-    }
-
-    static class GingerbreadConnectivityManagerCompatImpl implements ConnectivityManagerCompatImpl {
-        @Override
-        public boolean isActiveNetworkMetered(ConnectivityManager cm) {
-            return ConnectivityManagerCompatGingerbread.isActiveNetworkMetered(cm);
         }
     }
 
@@ -85,8 +88,6 @@ public final class ConnectivityManagerCompat {
             IMPL = new JellyBeanConnectivityManagerCompatImpl();
         } else if (Build.VERSION.SDK_INT >= 13) {
             IMPL = new HoneycombMR2ConnectivityManagerCompatImpl();
-        } else if (Build.VERSION.SDK_INT >= 8) {
-            IMPL = new GingerbreadConnectivityManagerCompatImpl();
         } else {
             IMPL = new BaseConnectivityManagerCompatImpl();
         }

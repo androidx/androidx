@@ -42,10 +42,7 @@ public class ContextCompat {
     private static final String TAG = "ContextCompat";
 
     private static final String DIR_ANDROID = "Android";
-    private static final String DIR_DATA = "data";
     private static final String DIR_OBB = "obb";
-    private static final String DIR_FILES = "files";
-    private static final String DIR_CACHE = "cache";
 
     private static final Object sLock = new Object();
 
@@ -252,14 +249,7 @@ public class ContextCompat {
         if (version >= 19) {
             return ContextCompatKitKat.getExternalFilesDirs(context, type);
         } else {
-            final File single;
-            if (version >= 8) {
-                single = ContextCompatFroyo.getExternalFilesDir(context, type);
-            } else {
-                single = buildPath(Environment.getExternalStorageDirectory(), DIR_ANDROID, DIR_DATA,
-                        context.getPackageName(), DIR_FILES, type);
-            }
-            return new File[] { single };
+            return new File[] { context.getExternalFilesDir(type) };
         }
     }
 
@@ -312,14 +302,7 @@ public class ContextCompat {
         if (version >= 19) {
             return ContextCompatKitKat.getExternalCacheDirs(context);
         } else {
-            final File single;
-            if (version >= 8) {
-                single = ContextCompatFroyo.getExternalCacheDir(context);
-            } else {
-                single = buildPath(Environment.getExternalStorageDirectory(), DIR_ANDROID, DIR_DATA,
-                        context.getPackageName(), DIR_CACHE);
-            }
-            return new File[] { single };
+            return new File[] { context.getExternalCacheDir() };
         }
     }
 

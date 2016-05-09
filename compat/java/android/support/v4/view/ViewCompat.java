@@ -44,6 +44,7 @@ import android.view.accessibility.AccessibilityEvent;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.WeakHashMap;
 
@@ -363,8 +364,6 @@ public class ViewCompat {
     interface ViewCompatImpl {
         boolean canScrollHorizontally(View v, int direction);
         boolean canScrollVertically(View v, int direction);
-        int getOverScrollMode(View v);
-        void setOverScrollMode(View v, int mode);
         void onInitializeAccessibilityEvent(View v, AccessibilityEvent event);
         void onPopulateAccessibilityEvent(View v, AccessibilityEvent event);
         void onInitializeAccessibilityNodeInfo(View v, AccessibilityNodeInfoCompat info);
@@ -390,7 +389,6 @@ public class ViewCompat {
         int getLayoutDirection(View view);
         void setLayoutDirection(View view, int layoutDirection);
         ViewParent getParentForAccessibility(View view);
-        boolean isOpaque(View view);
         int resolveSizeAndState(int size, int measureSpec, int childMeasuredState);
         int getMeasuredWidthAndState(View view);
         int getMeasuredHeightAndState(View view);
@@ -489,7 +487,7 @@ public class ViewCompat {
         private Method mDispatchFinishTemporaryDetach;
         private boolean mTempDetachBound;
         WeakHashMap<View, ViewPropertyAnimatorCompat> mViewPropertyAnimatorCompatMap = null;
-
+        private static Method sChildrenDrawingOrderMethod;
 
         public boolean canScrollHorizontally(View v, int direction) {
             return (v instanceof ScrollingView) &&
@@ -499,12 +497,7 @@ public class ViewCompat {
             return (v instanceof ScrollingView) &&
                     canScrollingViewScrollVertically((ScrollingView) v, direction);
         }
-        public int getOverScrollMode(View v) {
-            return OVER_SCROLL_NEVER;
-        }
-        public void setOverScrollMode(View v, int mode) {
-            // Do nothing; API doesn't exist
-        }
+
         public void setAccessibilityDelegate(View v, AccessibilityDelegateCompat delegate) {
             // Do nothing; API doesn't exist
         }
@@ -592,15 +585,6 @@ public class ViewCompat {
         @Override
         public ViewParent getParentForAccessibility(View view) {
             return view.getParent();
-        }
-
-        @Override
-        public boolean isOpaque(View view) {
-            final Drawable bg = view.getBackground();
-            if (bg != null) {
-                return bg.getOpacity() == PixelFormat.OPAQUE;
-            }
-            return false;
         }
 
         public int resolveSizeAndState(int size, int measureSpec, int childMeasuredState) {
@@ -880,7 +864,24 @@ public class ViewCompat {
 
         @Override
         public void setChildrenDrawingOrderEnabled(ViewGroup viewGroup, boolean enabled) {
-            // noop
+            if (sChildrenDrawingOrderMethod == null) {
+                try {
+                    sChildrenDrawingOrderMethod = ViewGroup.class
+                            .getDeclaredMethod("setChildrenDrawingOrderEnabled", boolean.class);
+                } catch (NoSuchMethodException e) {
+                    Log.e(TAG, "Unable to find childrenDrawingOrderEnabled", e);
+                }
+                sChildrenDrawingOrderMethod.setAccessible(true);
+            }
+            try {
+                sChildrenDrawingOrderMethod.invoke(viewGroup, enabled);
+            } catch (IllegalAccessException e) {
+                Log.e(TAG, "Unable to invoke childrenDrawingOrderEnabled", e);
+            } catch (IllegalArgumentException e) {
+                Log.e(TAG, "Unable to invoke childrenDrawingOrderEnabled", e);
+            } catch (InvocationTargetException e) {
+                Log.e(TAG, "Unable to invoke childrenDrawingOrderEnabled", e);
+            }
         }
 
         @Override
@@ -1132,30 +1133,7 @@ public class ViewCompat {
         }
     }
 
-    static class EclairMr1ViewCompatImpl extends BaseViewCompatImpl {
-        @Override
-        public boolean isOpaque(View view) {
-            return ViewCompatEclairMr1.isOpaque(view);
-        }
-
-        @Override
-        public void setChildrenDrawingOrderEnabled(ViewGroup viewGroup, boolean enabled) {
-            ViewCompatEclairMr1.setChildrenDrawingOrderEnabled(viewGroup, enabled);
-        }
-    }
-
-    static class GBViewCompatImpl extends EclairMr1ViewCompatImpl {
-        @Override
-        public int getOverScrollMode(View v) {
-            return ViewCompatGingerbread.getOverScrollMode(v);
-        }
-        @Override
-        public void setOverScrollMode(View v, int mode) {
-            ViewCompatGingerbread.setOverScrollMode(v, mode);
-        }
-    }
-
-    static class HCViewCompatImpl extends GBViewCompatImpl {
+    static class HCViewCompatImpl extends BaseViewCompatImpl {
         @Override
         long getFrameTime() {
             return ViewCompatHC.getFrameTime();
@@ -1816,10 +1794,6 @@ public class ViewCompat {
             IMPL = new ICSViewCompatImpl();
         } else if (version >= 11) {
             IMPL = new HCViewCompatImpl();
-        } else if (version >= 9) {
-            IMPL = new GBViewCompatImpl();
-        } else if (version >= 7) {
-            IMPL = new EclairMr1ViewCompatImpl();
         } else {
             IMPL = new BaseViewCompatImpl();
         }
@@ -1855,11 +1829,13 @@ public class ViewCompat {
      *
      * @param v The View against which to invoke the method.
      * @return This view's over-scroll mode.
+     * @deprecated Call {@link View#getOverScrollMode()} directly.
      */
+    @Deprecated
     @OverScroll
     public static int getOverScrollMode(View v) {
         //noinspection ResourceType
-        return IMPL.getOverScrollMode(v);
+        return v.getOverScrollMode();
     }
 
     /**
@@ -1873,9 +1849,11 @@ public class ViewCompat {
      *
      * @param v The View against which to invoke the method.
      * @param overScrollMode The new over-scroll mode for this view.
+     * @deprecated Call {@link View#setOverScrollMode(int)} directly.
      */
+    @Deprecated
     public static void setOverScrollMode(View v, @OverScroll int overScrollMode) {
-        IMPL.setOverScrollMode(v, overScrollMode);
+        v.setOverScrollMode(overScrollMode);
     }
 
     /**
@@ -2359,13 +2337,12 @@ public class ViewCompat {
      * Indicates whether this View is opaque. An opaque View guarantees that it will
      * draw all the pixels overlapping its bounds using a fully opaque color.
      *
-     * On API 7 and above this will call View's true isOpaque method. On previous platform
-     * versions it will check the opacity of the view's background drawable if present.
-     *
      * @return True if this View is guaranteed to be fully opaque, false otherwise.
+     * @deprecated Use {@link View#isOpaque()} directly.
      */
+    @Deprecated
     public static boolean isOpaque(View view) {
-        return IMPL.isOpaque(view);
+        return view.isOpaque();
     }
 
     /**

@@ -198,9 +198,9 @@ public class ActivityCompat extends ContextCompat {
         if (Build.VERSION.SDK_INT >= 16) {
             ActivityCompatJB.startIntentSenderForResult(activity, intent, requestCode, fillInIntent,
                     flagsMask, flagsValues, extraFlags, options);
-        } else if (Build.VERSION.SDK_INT >= 5) {
-            ActivityCompatEclair.startIntentSenderForResult(activity, intent, requestCode,
-                    fillInIntent, flagsMask, flagsValues, extraFlags);
+        } else {
+            activity.startIntentSenderForResult(intent, requestCode, fillInIntent, flagsMask,
+                    flagsValues, extraFlags);
         }
     }
 

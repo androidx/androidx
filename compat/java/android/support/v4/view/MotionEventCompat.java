@@ -28,12 +28,6 @@ public final class MotionEventCompat {
      * Interface for the full API.
      */
     interface MotionEventVersionImpl {
-        public int findPointerIndex(MotionEvent event, int pointerId);
-        public int getPointerId(MotionEvent event, int pointerIndex);
-        public float getX(MotionEvent event, int pointerIndex);
-        public float getY(MotionEvent event, int pointerIndex);
-        public int getPointerCount(MotionEvent event);
-        public int getSource(MotionEvent event);
         float getAxisValue(MotionEvent event, int axis);
         float getAxisValue(MotionEvent event, int axis, int pointerIndex);
         int getButtonState(MotionEvent event);
@@ -43,46 +37,6 @@ public final class MotionEventCompat {
      * Interface implementation that doesn't use anything about v4 APIs.
      */
     static class BaseMotionEventVersionImpl implements MotionEventVersionImpl {
-        @Override
-        public int findPointerIndex(MotionEvent event, int pointerId) {
-            if (pointerId == 0) {
-                // id 0 == index 0 and vice versa.
-                return 0;
-            }
-            return -1;
-        }
-        @Override
-        public int getPointerId(MotionEvent event, int pointerIndex) {
-            if (pointerIndex == 0) {
-                // index 0 == id 0 and vice versa.
-                return 0;
-            }
-            throw new IndexOutOfBoundsException("Pre-Eclair does not support multiple pointers");
-        }
-        @Override
-        public float getX(MotionEvent event, int pointerIndex) {
-            if (pointerIndex == 0) {
-                return event.getX();
-            }
-            throw new IndexOutOfBoundsException("Pre-Eclair does not support multiple pointers");
-        }
-        @Override
-        public float getY(MotionEvent event, int pointerIndex) {
-            if (pointerIndex == 0) {
-                return event.getY();
-            }
-            throw new IndexOutOfBoundsException("Pre-Eclair does not support multiple pointers");
-        }
-        @Override
-        public int getPointerCount(MotionEvent event) {
-            return 1;
-        }
-
-        @Override
-        public int getSource(MotionEvent event) {
-            return InputDeviceCompat.SOURCE_UNKNOWN;
-        }
-
         @Override
         public float getAxisValue(MotionEvent event, int axis) {
             return 0;
@@ -100,45 +54,9 @@ public final class MotionEventCompat {
     }
 
     /**
-     * Interface implementation for devices with at least v5 APIs.
-     */
-    static class EclairMotionEventVersionImpl extends BaseMotionEventVersionImpl {
-        @Override
-        public int findPointerIndex(MotionEvent event, int pointerId) {
-            return MotionEventCompatEclair.findPointerIndex(event, pointerId);
-        }
-        @Override
-        public int getPointerId(MotionEvent event, int pointerIndex) {
-            return MotionEventCompatEclair.getPointerId(event, pointerIndex);
-        }
-        @Override
-        public float getX(MotionEvent event, int pointerIndex) {
-            return MotionEventCompatEclair.getX(event, pointerIndex);
-        }
-        @Override
-        public float getY(MotionEvent event, int pointerIndex) {
-            return MotionEventCompatEclair.getY(event, pointerIndex);
-        }
-        @Override
-        public int getPointerCount(MotionEvent event) {
-            return MotionEventCompatEclair.getPointerCount(event);
-        }
-    }
-
-    /**
-     * Interface implementation for devices with at least v8 APIs.
-     */
-    static class GingerbreadMotionEventVersionImpl extends EclairMotionEventVersionImpl {
-        @Override
-        public int getSource(MotionEvent event) {
-            return MotionEventCompatGingerbread.getSource(event);
-        }
-    }
-
-    /**
      * Interface implementation for devices with at least v12 APIs.
      */
-    static class HoneycombMr1MotionEventVersionImpl extends GingerbreadMotionEventVersionImpl {
+    static class HoneycombMr1MotionEventVersionImpl extends BaseMotionEventVersionImpl {
 
         @Override
         public float getAxisValue(MotionEvent event, int axis) {
@@ -171,10 +89,6 @@ public final class MotionEventCompat {
             IMPL = new ICSMotionEventVersionImpl();
         } else if (Build.VERSION.SDK_INT >= 12) {
             IMPL = new HoneycombMr1MotionEventVersionImpl();
-        } else if (Build.VERSION.SDK_INT >= 9) {
-            IMPL = new GingerbreadMotionEventVersionImpl();
-        } else if (Build.VERSION.SDK_INT >= 5) {
-            IMPL = new EclairMotionEventVersionImpl();
         } else {
             IMPL = new BaseMotionEventVersionImpl();
         }
@@ -471,55 +385,63 @@ public final class MotionEventCompat {
 
     /**
      * Call {@link MotionEvent#findPointerIndex(int)}.
-     * If running on a pre-{@link android.os.Build.VERSION_CODES#ECLAIR} device,
-     * does nothing and returns -1.
+     *
+     * @deprecated Call {@link MotionEvent#findPointerIndex(int)} directly.
      */
+    @Deprecated
     public static int findPointerIndex(MotionEvent event, int pointerId) {
-        return IMPL.findPointerIndex(event, pointerId);
+        return event.findPointerIndex(pointerId);
     }
 
     /**
      * Call {@link MotionEvent#getPointerId(int)}.
-     * If running on a pre-{@link android.os.Build.VERSION_CODES#ECLAIR} device,
-     * {@link IndexOutOfBoundsException} is thrown.
+     *
+     * @deprecated Call {@link MotionEvent#getPointerId(int)} directly.
      */
+    @Deprecated
     public static int getPointerId(MotionEvent event, int pointerIndex) {
-        return IMPL.getPointerId(event, pointerIndex);
+        return event.getPointerId(pointerIndex);
     }
 
     /**
      * Call {@link MotionEvent#getX(int)}.
-     * If running on a pre-{@link android.os.Build.VERSION_CODES#ECLAIR} device,
-     * {@link IndexOutOfBoundsException} is thrown.
+     *
+     * @deprecated Call {@link MotionEvent#getX()} directly.
      */
+    @Deprecated
     public static float getX(MotionEvent event, int pointerIndex) {
-        return IMPL.getX(event, pointerIndex);
+        return event.getX(pointerIndex);
     }
 
     /**
      * Call {@link MotionEvent#getY(int)}.
-     * If running on a pre-{@link android.os.Build.VERSION_CODES#ECLAIR} device,
-     * {@link IndexOutOfBoundsException} is thrown.
+     *
+     * @deprecated Call {@link MotionEvent#getY()} directly.
      */
+    @Deprecated
     public static float getY(MotionEvent event, int pointerIndex) {
-        return IMPL.getY(event, pointerIndex);
+        return event.getY(pointerIndex);
     }
 
     /**
      * The number of pointers of data contained in this event.  Always
-     * >= 1.
+     *
+     * @deprecated Call {@link MotionEvent#getPointerCount()} directly.
      */
+    @Deprecated
     public static int getPointerCount(MotionEvent event) {
-        return IMPL.getPointerCount(event);
+        return event.getPointerCount();
     }
 
     /**
      * Gets the source of the event.
      *
      * @return The event source or {@link InputDeviceCompat#SOURCE_UNKNOWN} if unknown.
+     * @deprecated Call {@link MotionEvent#getSource()} directly.
      */
+    @Deprecated
     public static int getSource(MotionEvent event) {
-        return IMPL.getSource(event);
+        return event.getSource();
     }
 
     /**

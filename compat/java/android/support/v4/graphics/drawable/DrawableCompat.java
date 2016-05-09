@@ -143,19 +143,9 @@ public final class DrawableCompat {
     }
 
     /**
-     * Interface implementation for devices with at least v5 APIs.
-     */
-    static class EclairDrawableImpl extends BaseDrawableImpl {
-        @Override
-        public Drawable wrap(Drawable drawable) {
-            return DrawableCompatEclair.wrapForTinting(drawable);
-        }
-    }
-
-    /**
      * Interface implementation for devices with at least v11 APIs.
      */
-    static class HoneycombDrawableImpl extends EclairDrawableImpl {
+    static class HoneycombDrawableImpl extends BaseDrawableImpl {
         @Override
         public void jumpToCurrentState(Drawable drawable) {
             DrawableCompatHoneycomb.jumpToCurrentState(drawable);
@@ -299,8 +289,6 @@ public final class DrawableCompat {
             IMPL = new JellybeanMr1DrawableImpl();
         } else if (version >= 11) {
             IMPL = new HoneycombDrawableImpl();
-        } else if (version >= 5) {
-            IMPL = new EclairDrawableImpl();
         } else {
             IMPL = new BaseDrawableImpl();
         }
