@@ -1425,7 +1425,8 @@ public class BrowseFragment extends BaseFragment {
 
     private void swapToMainFragment() {
         final VerticalGridView gridView = mHeadersFragment.getVerticalGridView();
-        if (isShowingHeaders() && gridView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE) {
+        if (isShowingHeaders() && gridView != null
+                && gridView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE) {
             // if user is scrolling HeadersFragment,  swap to empty fragment and wait scrolling
             // finishes.
             getChildFragmentManager().beginTransaction()
