@@ -769,12 +769,12 @@ package android.support.v7.appcompat {
     field public static int abc_ic_clear_material;
     field public static int abc_ic_commit_search_api_mtrl_alpha;
     field public static int abc_ic_go_search_api_material;
-    field public static int abc_ic_menu_copy_material;
-    field public static int abc_ic_menu_cut_material;
+    field public static int abc_ic_menu_copy_mtrl_am_alpha;
+    field public static int abc_ic_menu_cut_mtrl_alpha;
     field public static int abc_ic_menu_overflow_material;
-    field public static int abc_ic_menu_paste_material;
-    field public static int abc_ic_menu_selectall_material;
-    field public static int abc_ic_menu_share_material;
+    field public static int abc_ic_menu_paste_mtrl_am_alpha;
+    field public static int abc_ic_menu_selectall_mtrl_alpha;
+    field public static int abc_ic_menu_share_mtrl_alpha;
     field public static int abc_ic_search_api_material;
     field public static int abc_ic_star_black_16dp;
     field public static int abc_ic_star_black_36dp;
