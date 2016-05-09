@@ -843,16 +843,6 @@ package android.support.v4.app {
     field public static final java.lang.String EXTRA_USE_SIDE_CHANNEL = "android.support.useSideChannel";
   }
 
-  public class NotificationManagerCompatApi24 {
-    ctor public NotificationManagerCompatApi24();
-    method public static boolean areNotificationsEnabled(android.app.NotificationManager);
-  }
-
-  public class NotificationManagerCompatKitKat {
-    ctor public NotificationManagerCompatKitKat();
-    method public static boolean areNotificationsEnabled(android.content.Context);
-  }
-
   public final class RemoteInput extends android.support.v4.app.RemoteInputCompatBase.RemoteInput {
     method public static void addResultsToIntent(android.support.v4.app.RemoteInput[], android.content.Intent, android.os.Bundle);
     method public boolean getAllowFreeFormInput();
