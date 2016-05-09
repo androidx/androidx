@@ -13,8 +13,8 @@ buildscript {
     }
 }
 
-ext.supportVersion = '24.0.0-beta1'
-ext.extraVersion = 32
+ext.supportVersion = '24.0.0-SNAPSHOT'
+ext.extraVersion = 25
 ext.supportRepoOut = ''
 ext.buildToolsVersion = '23.0.2'
 ext.buildNumber = Integer.toString(ext.extraVersion)
