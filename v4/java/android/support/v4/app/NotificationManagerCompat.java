@@ -83,6 +83,7 @@ public final class NotificationManagerCompat {
     /** Hidden field Settings.Secure.ENABLED_NOTIFICATION_LISTENERS */
     private static final String SETTING_ENABLED_NOTIFICATION_LISTENERS =
             "enabled_notification_listeners";
+    private static final int IMPORTANCE_UNSPECIFIED = -1000;
     private static final int SIDE_CHANNEL_BIND_FLAGS;
 
     /** Cache of enabled notification listener components */
@@ -121,9 +122,12 @@ public final class NotificationManagerCompat {
         int getSideChannelBindFlags();
 
         boolean areNotificationsEnabled(Context context, NotificationManager notificationManager);
+
+        int getImportance(NotificationManager notificationManager);
     }
 
     static class ImplBase implements Impl {
+
         @Override
         public void cancelNotification(NotificationManager notificationManager, String tag,
                 int id) {
@@ -145,6 +149,11 @@ public final class NotificationManagerCompat {
         public boolean areNotificationsEnabled(Context context,
                 NotificationManager notificationManager) {
             return true;
+        }
+
+        @Override
+        public int getImportance(NotificationManager notificationManager) {
+            return IMPORTANCE_UNSPECIFIED;
         }
     }
 
@@ -183,6 +192,11 @@ public final class NotificationManagerCompat {
         public boolean areNotificationsEnabled(Context context,
                 NotificationManager notificationManager) {
             return NotificationManagerCompatApi24.areNotificationsEnabled(notificationManager);
+        }
+
+        @Override
+        public int getImportance(NotificationManager notificationManager) {
+            return NotificationManagerCompatApi24.getImportance(notificationManager);
         }
     }
 
@@ -260,6 +274,13 @@ public final class NotificationManagerCompat {
      */
     public boolean areNotificationsEnabled() {
         return IMPL.areNotificationsEnabled(mContext, mNotificationManager);
+    }
+
+    /**
+     * Returns the user specified importance for notifications from the calling package.
+     */
+    public int getImportance() {
+        return IMPL.getImportance(mNotificationManager);
     }
 
     /**
