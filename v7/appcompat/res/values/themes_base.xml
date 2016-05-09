@@ -157,11 +157,11 @@
         <item name="actionModeCloseDrawable">@drawable/abc_ic_ab_back_material</item>
         <item name="actionModeCloseButtonStyle">@style/Widget.AppCompat.ActionButton.CloseMode</item>
 
-        <item name="actionModeCutDrawable">@drawable/abc_ic_menu_cut_material</item>
-        <item name="actionModeCopyDrawable">@drawable/abc_ic_menu_copy_material</item>
-        <item name="actionModePasteDrawable">@drawable/abc_ic_menu_paste_material</item>
-        <item name="actionModeSelectAllDrawable">@drawable/abc_ic_menu_selectall_material</item>
-        <item name="actionModeShareDrawable">@drawable/abc_ic_menu_share_material</item>
+        <item name="actionModeCutDrawable">@drawable/abc_ic_menu_cut_mtrl_alpha</item>
+        <item name="actionModeCopyDrawable">@drawable/abc_ic_menu_copy_mtrl_am_alpha</item>
+        <item name="actionModePasteDrawable">@drawable/abc_ic_menu_paste_mtrl_am_alpha</item>
+        <item name="actionModeSelectAllDrawable">@drawable/abc_ic_menu_selectall_mtrl_alpha</item>
+        <item name="actionModeShareDrawable">@drawable/abc_ic_menu_share_mtrl_alpha</item>
 
         <!-- Panel attributes -->
         <item name="panelMenuListWidth">@dimen/abc_panel_menu_list_width</item>
@@ -315,11 +315,11 @@
         <item name="actionModeCloseDrawable">@drawable/abc_ic_ab_back_material</item>
         <item name="actionModeCloseButtonStyle">@style/Widget.AppCompat.ActionButton.CloseMode</item>
 
-        <item name="actionModeCutDrawable">@drawable/abc_ic_menu_cut_material</item>
-        <item name="actionModeCopyDrawable">@drawable/abc_ic_menu_copy_material</item>
-        <item name="actionModePasteDrawable">@drawable/abc_ic_menu_paste_material</item>
-        <item name="actionModeSelectAllDrawable">@drawable/abc_ic_menu_selectall_material</item>
-        <item name="actionModeShareDrawable">@drawable/abc_ic_menu_share_material</item>
+        <item name="actionModeCutDrawable">@drawable/abc_ic_menu_cut_mtrl_alpha</item>
+        <item name="actionModeCopyDrawable">@drawable/abc_ic_menu_copy_mtrl_am_alpha</item>
+        <item name="actionModePasteDrawable">@drawable/abc_ic_menu_paste_mtrl_am_alpha</item>
+        <item name="actionModeSelectAllDrawable">@drawable/abc_ic_menu_selectall_mtrl_alpha</item>
+        <item name="actionModeShareDrawable">@drawable/abc_ic_menu_share_mtrl_alpha</item>
 
         <!-- Dropdown Spinner Attributes -->
         <item name="actionDropDownStyle">@style/Widget.AppCompat.Light.Spinner.DropDown.ActionBar</item>
