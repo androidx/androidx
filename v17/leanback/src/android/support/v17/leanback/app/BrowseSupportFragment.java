@@ -1339,7 +1339,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
 
     private void expandMainFragment(boolean expand) {
         MarginLayoutParams params = (MarginLayoutParams) mScaleFrameLayout.getLayoutParams();
-        params.leftMargin = !expand ? mContainerListMarginStart : 0;
+        params.setMarginStart(!expand ? mContainerListMarginStart : 0);
         mScaleFrameLayout.setLayoutParams(params);
         mMainFragmentAdapter.setExpand(expand);
 
