@@ -300,9 +300,6 @@ public class PlaybackOverlayFragment extends DetailsFragment {
      * Fades out the playback overlay immediately.
      */
     public void fadeOut() {
-        if (!mFadingEnabled) {
-            return;
-        }
         mHandler.removeMessages(START_FADE_OUT);
         fade(false);
     }
