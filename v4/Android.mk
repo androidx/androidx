@@ -201,7 +201,7 @@ support_module_src_files += $(LOCAL_SRC_FILES)
 include $(CLEAR_VARS)
 LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-core
-LOCAL_SDK_VERSION := 4
+LOCAL_SDK_VERSION := 9
 LOCAL_AIDL_INCLUDES := frameworks/support/v4/java
 LOCAL_SRC_FILES := $(call all-java-files-under, java) \
     $(call all-Iaidl-files-under, java)

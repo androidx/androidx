@@ -23,6 +23,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.PopupWindow;
 
+import java.lang.reflect.Method;
+
 /**
  * Helper for accessing features in PopupWindow introduced after API level 4
  * in a backwards compatible fashion.
@@ -43,6 +45,11 @@ public final class PopupWindowCompat {
      * Interface implementation that doesn't use anything above v4 APIs.
      */
     static class BasePopupWindowImpl implements PopupWindowImpl {
+        private static Method sSetWindowLayoutTypeMethod;
+        private static boolean sSetWindowLayoutTypeMethodAttempted;
+        private static Method sGetWindowLayoutTypeMethod;
+        private static boolean sGetWindowLayoutTypeMethodAttempted;
+
         @Override
         public void showAsDropDown(PopupWindow popup, View anchor, int xoff, int yoff,
                 int gravity) {
@@ -68,34 +75,54 @@ public final class PopupWindowCompat {
 
         @Override
         public void setWindowLayoutType(PopupWindow popupWindow, int layoutType) {
-            // no-op
+            if (!sSetWindowLayoutTypeMethodAttempted) {
+                try {
+                    sSetWindowLayoutTypeMethod = PopupWindow.class.getDeclaredMethod(
+                            "setWindowLayoutType", int.class);
+                    sSetWindowLayoutTypeMethod.setAccessible(true);
+                } catch (Exception e) {
+                    // Reflection method fetch failed. Oh well.
+                }
+                sSetWindowLayoutTypeMethodAttempted = true;
+            }
+
+            if (sSetWindowLayoutTypeMethod != null) {
+                try {
+                    sSetWindowLayoutTypeMethod.invoke(popupWindow, layoutType);
+                } catch (Exception e) {
+                    // Reflection call failed. Oh well.
+                }
+            }
         }
 
         @Override
         public int getWindowLayoutType(PopupWindow popupWindow) {
+            if (!sGetWindowLayoutTypeMethodAttempted) {
+                try {
+                    sGetWindowLayoutTypeMethod = PopupWindow.class.getDeclaredMethod(
+                            "getWindowLayoutType");
+                    sGetWindowLayoutTypeMethod.setAccessible(true);
+                } catch (Exception e) {
+                    // Reflection method fetch failed. Oh well.
+                }
+                sGetWindowLayoutTypeMethodAttempted = true;
+            }
+
+            if (sGetWindowLayoutTypeMethod != null) {
+                try {
+                    return (Integer) sGetWindowLayoutTypeMethod.invoke(popupWindow);
+                } catch (Exception e) {
+                    // Reflection call failed. Oh well.
+                }
+            }
             return 0;
-        }
-    }
-
-    /**
-     * Interface implementation that doesn't use anything above v4 APIs.
-     */
-    static class GingerbreadPopupWindowImpl extends BasePopupWindowImpl {
-        @Override
-        public void setWindowLayoutType(PopupWindow popupWindow, int layoutType) {
-            PopupWindowCompatGingerbread.setWindowLayoutType(popupWindow, layoutType);
-        }
-
-        @Override
-        public int getWindowLayoutType(PopupWindow popupWindow) {
-            return PopupWindowCompatGingerbread.getWindowLayoutType(popupWindow);
         }
     }
 
     /**
      * Interface implementation for devices with at least KitKat APIs.
      */
-    static class KitKatPopupWindowImpl extends GingerbreadPopupWindowImpl {
+    static class KitKatPopupWindowImpl extends BasePopupWindowImpl {
         @Override
         public void showAsDropDown(PopupWindow popup, View anchor, int xoff, int yoff,
                 int gravity) {
@@ -149,8 +176,6 @@ public final class PopupWindowCompat {
             IMPL = new Api21PopupWindowImpl();
         } else if (version >= 19) {
             IMPL = new KitKatPopupWindowImpl();
-        } else if (version >= 9) {
-            IMPL = new GingerbreadPopupWindowImpl();
         } else {
             IMPL = new BasePopupWindowImpl();
         }

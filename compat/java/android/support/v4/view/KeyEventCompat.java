@@ -31,10 +31,6 @@ public final class KeyEventCompat {
         int normalizeMetaState(int metaState);
         boolean metaStateHasModifiers(int metaState, int modifiers);
         boolean metaStateHasNoModifiers(int metaState);
-        void startTracking(KeyEvent event);
-        boolean isTracking(KeyEvent event);
-        Object getKeyDispatcherState(View view);
-        boolean dispatch(KeyEvent event, KeyEvent.Callback receiver, Object state, Object target);
         boolean isCtrlPressed(KeyEvent event);
     }
 
@@ -95,58 +91,15 @@ public final class KeyEventCompat {
         }
 
         @Override
-        public void startTracking(KeyEvent event) {
-        }
-
-        @Override
-        public boolean isTracking(KeyEvent event) {
-            return false;
-        }
-
-        @Override
-        public Object getKeyDispatcherState(View view) {
-            return null;
-        }
-
-        @Override
-        public boolean dispatch(KeyEvent event, KeyEvent.Callback receiver, Object state,
-                    Object target) {
-            return event.dispatch(receiver);
-        }
-
-        @Override
         public boolean isCtrlPressed(KeyEvent event) {
             return false;
-        }
-    }
-
-    static class EclairKeyEventVersionImpl extends BaseKeyEventVersionImpl {
-        @Override
-        public void startTracking(KeyEvent event) {
-            KeyEventCompatEclair.startTracking(event);
-        }
-
-        @Override
-        public boolean isTracking(KeyEvent event) {
-            return KeyEventCompatEclair.isTracking(event);
-        }
-
-        @Override
-        public Object getKeyDispatcherState(View view) {
-            return KeyEventCompatEclair.getKeyDispatcherState(view);
-        }
-
-        @Override
-        public boolean dispatch(KeyEvent event, KeyEvent.Callback receiver, Object state,
-                    Object target) {
-            return KeyEventCompatEclair.dispatch(event, receiver, state, target);
         }
     }
 
     /**
      * Interface implementation for devices with at least v11 APIs.
      */
-    static class HoneycombKeyEventVersionImpl extends EclairKeyEventVersionImpl {
+    static class HoneycombKeyEventVersionImpl extends BaseKeyEventVersionImpl {
         @Override
         public int normalizeMetaState(int metaState) {
             return KeyEventCompatHoneycomb.normalizeMetaState(metaState);
@@ -202,21 +155,38 @@ public final class KeyEventCompat {
         return IMPL.metaStateHasNoModifiers(event.getMetaState());
     }
 
+    /**
+     * @deprecated Call {@link KeyEvent#startTracking()} directly.
+     */
+    @Deprecated
     public static void startTracking(KeyEvent event) {
-        IMPL.startTracking(event);
+        event.startTracking();
     }
 
+    /**
+     * @deprecated Call {@link KeyEvent#isTracking()} directly.
+     */
+    @Deprecated
     public static boolean isTracking(KeyEvent event) {
-        return IMPL.isTracking(event);
+        return event.isTracking();
     }
 
+    /**
+     * @deprecated Call {@link View#getKeyDispatcherState()} directly.
+     */
+    @Deprecated
     public static Object getKeyDispatcherState(View view) {
-        return IMPL.getKeyDispatcherState(view);
+        return view.getKeyDispatcherState();
     }
 
+    /**
+     * @deprecated Call
+     * {@link KeyEvent#dispatch(KeyEvent.Callback, KeyEvent.DispatcherState, Object)} directly.
+     */
+    @Deprecated
     public static boolean dispatch(KeyEvent event, KeyEvent.Callback receiver, Object state,
                 Object target) {
-        return IMPL.dispatch(event, receiver, state, target);
+        return event.dispatch(receiver, (KeyEvent.DispatcherState)state, target);
     }
 
     public static boolean isCtrlPressed(KeyEvent event) {

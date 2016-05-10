@@ -80,7 +80,7 @@ class DrawableWrapperDonut extends Drawable
      */
     protected Drawable newDrawableFromState(@NonNull Drawable.ConstantState state,
             @Nullable Resources res) {
-        return state.newDrawable();
+        return state.newDrawable(res);
     }
 
     @Override
@@ -227,7 +227,7 @@ class DrawableWrapperDonut extends Drawable
      */
     @NonNull
     DrawableWrapperState mutateConstantState() {
-        return new DrawableWrapperStateDonut(mState, null);
+        return new DrawableWrapperStateBase(mState, null);
     }
 
     /**
@@ -369,8 +369,8 @@ class DrawableWrapperDonut extends Drawable
         }
     }
 
-    private static class DrawableWrapperStateDonut extends DrawableWrapperState {
-        DrawableWrapperStateDonut(
+    private static class DrawableWrapperStateBase extends DrawableWrapperState {
+        DrawableWrapperStateBase(
                 @Nullable DrawableWrapperState orig, @Nullable Resources res) {
             super(orig, res);
         }
