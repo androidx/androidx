@@ -2288,16 +2288,16 @@ package android.support.v4.view {
   }
 
   public final class KeyEventCompat {
-    method public static boolean dispatch(android.view.KeyEvent, android.view.KeyEvent.Callback, java.lang.Object, java.lang.Object);
-    method public static java.lang.Object getKeyDispatcherState(android.view.View);
+    method public static deprecated boolean dispatch(android.view.KeyEvent, android.view.KeyEvent.Callback, java.lang.Object, java.lang.Object);
+    method public static deprecated java.lang.Object getKeyDispatcherState(android.view.View);
     method public static boolean hasModifiers(android.view.KeyEvent, int);
     method public static boolean hasNoModifiers(android.view.KeyEvent);
     method public static boolean isCtrlPressed(android.view.KeyEvent);
-    method public static boolean isTracking(android.view.KeyEvent);
+    method public static deprecated boolean isTracking(android.view.KeyEvent);
     method public static boolean metaStateHasModifiers(int, int);
     method public static boolean metaStateHasNoModifiers(int);
     method public static int normalizeMetaState(int);
-    method public static void startTracking(android.view.KeyEvent);
+    method public static deprecated void startTracking(android.view.KeyEvent);
   }
 
   public final class LayoutInflaterCompat {
@@ -2348,17 +2348,17 @@ package android.support.v4.view {
   }
 
   public final class MotionEventCompat {
-    method public static int findPointerIndex(android.view.MotionEvent, int);
+    method public static deprecated int findPointerIndex(android.view.MotionEvent, int);
     method public static int getActionIndex(android.view.MotionEvent);
     method public static int getActionMasked(android.view.MotionEvent);
     method public static float getAxisValue(android.view.MotionEvent, int);
     method public static float getAxisValue(android.view.MotionEvent, int, int);
     method public static int getButtonState(android.view.MotionEvent);
-    method public static int getPointerCount(android.view.MotionEvent);
-    method public static int getPointerId(android.view.MotionEvent, int);
-    method public static int getSource(android.view.MotionEvent);
-    method public static float getX(android.view.MotionEvent, int);
-    method public static float getY(android.view.MotionEvent, int);
+    method public static deprecated int getPointerCount(android.view.MotionEvent);
+    method public static deprecated int getPointerId(android.view.MotionEvent, int);
+    method public static deprecated int getSource(android.view.MotionEvent);
+    method public static deprecated float getX(android.view.MotionEvent, int);
+    method public static deprecated float getY(android.view.MotionEvent, int);
     method public static boolean isFromSource(android.view.MotionEvent, int);
     field public static final int ACTION_HOVER_ENTER = 9; // 0x9
     field public static final int ACTION_HOVER_EXIT = 10; // 0xa
@@ -2599,7 +2599,7 @@ package android.support.v4.view {
     method public static int getMeasuredWidthAndState(android.view.View);
     method public static int getMinimumHeight(android.view.View);
     method public static int getMinimumWidth(android.view.View);
-    method public static int getOverScrollMode(android.view.View);
+    method public static deprecated int getOverScrollMode(android.view.View);
     method public static int getPaddingEnd(android.view.View);
     method public static int getPaddingStart(android.view.View);
     method public static android.view.ViewParent getParentForAccessibility(android.view.View);
@@ -2630,7 +2630,7 @@ package android.support.v4.view {
     method public static boolean isLaidOut(android.view.View);
     method public static boolean isLayoutDirectionResolved(android.view.View);
     method public static boolean isNestedScrollingEnabled(android.view.View);
-    method public static boolean isOpaque(android.view.View);
+    method public static deprecated boolean isOpaque(android.view.View);
     method public static boolean isPaddingRelative(android.view.View);
     method public static void jumpDrawablesToCurrentState(android.view.View);
     method public static void offsetLeftAndRight(android.view.View, int);
@@ -2665,7 +2665,7 @@ package android.support.v4.view {
     method public static void setLayoutDirection(android.view.View, int);
     method public static void setNestedScrollingEnabled(android.view.View, boolean);
     method public static void setOnApplyWindowInsetsListener(android.view.View, android.support.v4.view.OnApplyWindowInsetsListener);
-    method public static void setOverScrollMode(android.view.View, int);
+    method public static deprecated void setOverScrollMode(android.view.View, int);
     method public static void setPaddingRelative(android.view.View, int, int, int, int);
     method public static void setPivotX(android.view.View, float);
     method public static void setPivotY(android.view.View, float);
@@ -2721,7 +2721,7 @@ package android.support.v4.view {
   }
 
   public final class ViewConfigurationCompat {
-    method public static int getScaledPagingTouchSlop(android.view.ViewConfiguration);
+    method public static deprecated int getScaledPagingTouchSlop(android.view.ViewConfiguration);
     method public static boolean hasPermanentMenuKey(android.view.ViewConfiguration);
   }
 
