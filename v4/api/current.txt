@@ -837,6 +837,7 @@ package android.support.v4.app {
     method public void cancelAll();
     method public static android.support.v4.app.NotificationManagerCompat from(android.content.Context);
     method public static java.util.Set<java.lang.String> getEnabledListenerPackages(android.content.Context);
+    method public int getImportance();
     method public void notify(int, android.app.Notification);
     method public void notify(java.lang.String, int, android.app.Notification);
     field public static final java.lang.String ACTION_BIND_SIDE_CHANNEL = "android.support.BIND_NOTIFICATION_SIDE_CHANNEL";
