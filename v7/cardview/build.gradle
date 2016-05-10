@@ -23,8 +23,8 @@ android {
 
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'
-        main.java.srcDirs = ['base', 'eclair-mr1', 'jellybean-mr1', 'api21', 'src']
-        main.aidl.srcDirs = ['base', 'eclair-mr1', 'jellybean-mr1', 'api21', 'src']
+        main.java.srcDirs = ['base', 'gingerbread', 'jellybean-mr1', 'api21', 'src']
+        main.aidl.srcDirs = ['base', 'gingerbread', 'jellybean-mr1', 'api21', 'src']
         main.res.srcDirs = ['res']
 
         androidTest.setRoot('tests')

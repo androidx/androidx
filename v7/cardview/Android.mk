@@ -42,11 +42,11 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
 
-# A helper sub-library that makes direct use of Eclair MR1 APIs
+# A helper sub-library that makes direct use of Gingerbread APIs
 include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-v7-cardview-eclair-mr1
+LOCAL_MODULE := android-support-v7-cardview-gingerbread
 LOCAL_SDK_VERSION := 7
-LOCAL_SRC_FILES := $(call all-java-files-under, eclair-mr1)
+LOCAL_SRC_FILES := $(call all-java-files-under, gingerbread)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-cardview-base
 LOCAL_JAVA_LIBRARIES := android-support-v7-cardview-res \
     android-support-annotations
@@ -60,7 +60,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v7-cardview-jellybean-mr1
 LOCAL_SDK_VERSION := 17
 LOCAL_SRC_FILES := $(call all-java-files-under, jellybean-mr1)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-cardview-eclair-mr1
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-cardview-gingerbread
 LOCAL_JAVA_LIBRARIES := android-support-v7-cardview-res \
     android-support-annotations
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7

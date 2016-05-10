@@ -19,7 +19,7 @@ LOCAL_PATH := $(call my-dir)
 #
 #   LOCAL_STATIC_ANDROID_LIBRARIES := \
 #       android-support-percent \
-#       android-support-v4
+#       android-support-compat
 #
 include $(CLEAR_VARS)
 LOCAL_USE_AAPT2 := true

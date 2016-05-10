@@ -25,7 +25,7 @@ import android.view.animation.Interpolator;
 /**
  * A 'fake' ValueAnimator implementation which uses a Runnable.
  */
-class ValueAnimatorCompatImplEclairMr1 extends ValueAnimatorCompat.Impl {
+class ValueAnimatorCompatImplGingerbread extends ValueAnimatorCompat.Impl {
 
     private static final int HANDLER_DELAY = 10;
     private static final int DEFAULT_DURATION = 200;
