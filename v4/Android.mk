@@ -60,25 +60,12 @@ support_module_src_files += $(LOCAL_SRC_FILES)
 
 # -----------------------------------------------------------------------
 
-# A helper sub-library that makes direct use of Gingerbread APIs.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-v4-gingerbread
-LOCAL_SDK_VERSION := 9
-LOCAL_SRC_FILES := $(call all-java-files-under, gingerbread)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-froyo
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-support_module_src_files += $(LOCAL_SRC_FILES)
-
-# -----------------------------------------------------------------------
-
 # A helper sub-library that makes direct use of Honeycomb APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v4-honeycomb
 LOCAL_SDK_VERSION := 11
 LOCAL_SRC_FILES := $(call all-java-files-under, honeycomb)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-gingerbread
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-v4-froyo
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 

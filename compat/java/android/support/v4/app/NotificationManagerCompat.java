@@ -131,13 +131,13 @@ public final class NotificationManagerCompat {
         @Override
         public void cancelNotification(NotificationManager notificationManager, String tag,
                 int id) {
-            notificationManager.cancel(id);
+            notificationManager.cancel(tag, id);
         }
 
         @Override
         public void postNotification(NotificationManager notificationManager, String tag, int id,
                 Notification notification) {
-            notificationManager.notify(id, notification);
+            notificationManager.notify(tag, id, notification);
         }
 
         @Override
@@ -157,22 +157,7 @@ public final class NotificationManagerCompat {
         }
     }
 
-    static class ImplEclair extends ImplBase {
-        @Override
-        public void cancelNotification(NotificationManager notificationManager, String tag,
-                int id) {
-            NotificationManagerCompatEclair.cancelNotification(notificationManager, tag, id);
-        }
-
-        @Override
-        public void postNotification(NotificationManager notificationManager, String tag, int id,
-                Notification notification) {
-            NotificationManagerCompatEclair.postNotification(notificationManager, tag, id,
-                    notification);
-        }
-    }
-
-    static class ImplIceCreamSandwich extends ImplEclair {
+    static class ImplIceCreamSandwich extends ImplBase {
         @Override
         public int getSideChannelBindFlags() {
             return NotificationManagerCompatIceCreamSandwich.SIDE_CHANNEL_BIND_FLAGS;
@@ -207,8 +192,6 @@ public final class NotificationManagerCompat {
             IMPL = new ImplKitKat();
         }  else if (Build.VERSION.SDK_INT >= 14) {
             IMPL = new ImplIceCreamSandwich();
-        } else if (Build.VERSION.SDK_INT >= 5) {
-            IMPL = new ImplEclair();
         } else {
             IMPL = new ImplBase();
         }

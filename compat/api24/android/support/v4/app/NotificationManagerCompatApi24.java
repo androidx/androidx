@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package android.support.v4.app;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 
-class NotificationManagerCompatEclair {
-    static void cancelNotification(NotificationManager notificationManager, String tag,
-            int id) {
-        notificationManager.cancel(tag, id);
+class NotificationManagerCompatApi24 {
+    public static boolean areNotificationsEnabled(NotificationManager notificationManager) {
+        return notificationManager.areNotificationsEnabled();
     }
 
-    public static void postNotification(NotificationManager notificationManager, String tag, int id,
-            Notification notification) {
-        notificationManager.notify(tag, id, notification);
+    public static int getImportance(NotificationManager notificationManager) {
+        return notificationManager.getImportance();
     }
 }
