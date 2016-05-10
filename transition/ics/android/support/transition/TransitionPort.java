@@ -23,12 +23,9 @@ import android.support.v4.util.ArrayMap;
 import android.support.v4.util.LongSparseArray;
 import android.util.Log;
 import android.util.SparseArray;
-import android.view.SurfaceView;
-import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import android.widget.Spinner;
 
 import java.util.ArrayList;
 import java.util.List;

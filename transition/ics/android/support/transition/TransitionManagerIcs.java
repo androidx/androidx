@@ -23,13 +23,13 @@ class TransitionManagerIcs extends TransitionManagerImpl {
     @Override
     public void setTransition(SceneImpl scene, TransitionImpl transition) {
         mTransitionManager.setTransition(((SceneIcs) scene).mScene,
-                ((TransitionIcs) transition).mTransition);
+                transition == null ? null : ((TransitionIcs) transition).mTransition);
     }
 
     @Override
     public void setTransition(SceneImpl fromScene, SceneImpl toScene, TransitionImpl transition) {
         mTransitionManager.setTransition(((SceneIcs) fromScene).mScene, ((SceneIcs) toScene).mScene,
-                ((TransitionIcs) transition).mTransition);
+                transition == null ? null : ((TransitionIcs) transition).mTransition);
     }
 
     @Override

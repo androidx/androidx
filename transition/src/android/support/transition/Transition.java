@@ -20,6 +20,8 @@ import android.animation.Animator;
 import android.animation.TimeInterpolator;
 import android.os.Build;
 import android.support.annotation.IdRes;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
@@ -82,7 +84,8 @@ public abstract class Transition implements TransitionInterface {
      *                 for this animation.
      * @return This transition object.
      */
-    public Transition addListener(TransitionListener listener) {
+    @NonNull
+    public Transition addListener(@NonNull TransitionListener listener) {
         mImpl.addListener(listener);
         return this;
     }
@@ -113,7 +116,8 @@ public abstract class Transition implements TransitionInterface {
      * <code>transitionSet.addTransitions(new Fade()).addTarget(someView);</code>
      * @see #addTarget(int)
      */
-    public Transition addTarget(View target) {
+    @NonNull
+    public Transition addTarget(@NonNull View target) {
         mImpl.addTarget(target);
         return this;
     }
@@ -136,6 +140,7 @@ public abstract class Transition implements TransitionInterface {
      * <code>transitionSet.addTransitions(new Fade()).addTarget(someId);</code>
      * @see View#getId()
      */
+    @NonNull
     public Transition addTarget(@IdRes int targetId) {
         mImpl.addTarget(targetId);
         return this;
@@ -168,7 +173,7 @@ public abstract class Transition implements TransitionInterface {
      * @see #captureStartValues(TransitionValues)
      * @see #createAnimator(ViewGroup, TransitionValues, TransitionValues)
      */
-    public abstract void captureEndValues(TransitionValues transitionValues);
+    public abstract void captureEndValues(@NonNull TransitionValues transitionValues);
 
     /**
      * Captures the values in the start scene for the properties that this
@@ -197,7 +202,7 @@ public abstract class Transition implements TransitionInterface {
      * @see #captureEndValues(TransitionValues)
      * @see #createAnimator(ViewGroup, TransitionValues, TransitionValues)
      */
-    public abstract void captureStartValues(TransitionValues transitionValues);
+    public abstract void captureStartValues(@NonNull TransitionValues transitionValues);
 
     /**
      * This method creates an animation that will be run for this transition
@@ -244,8 +249,9 @@ public abstract class Transition implements TransitionInterface {
      * overall transition for this scene change. A null value means no animation
      * should be run.
      */
-    public abstract Animator createAnimator(ViewGroup sceneRoot, TransitionValues startValues,
-            TransitionValues endValues);
+    @Nullable
+    public abstract Animator createAnimator(@NonNull ViewGroup sceneRoot,
+            @NonNull TransitionValues startValues, @NonNull TransitionValues endValues);
 
     /**
      * Whether to add the children of given target to the list of target children
@@ -267,7 +273,8 @@ public abstract class Transition implements TransitionInterface {
      * @see #excludeChildren(int, boolean)
      * @see #excludeChildren(Class, boolean)
      */
-    public Transition excludeChildren(View target, boolean exclude) {
+    @NonNull
+    public Transition excludeChildren(@NonNull View target, boolean exclude) {
         mImpl.excludeChildren(target, exclude);
         return this;
     }
@@ -296,6 +303,7 @@ public abstract class Transition implements TransitionInterface {
      * @see #excludeChildren(View, boolean)
      * @see #excludeChildren(Class, boolean)
      */
+    @NonNull
     public Transition excludeChildren(@IdRes int targetId, boolean exclude) {
         mImpl.excludeChildren(targetId, exclude);
         return this;
@@ -322,7 +330,8 @@ public abstract class Transition implements TransitionInterface {
      * @see #excludeChildren(int, boolean)
      * @see #excludeChildren(View, boolean)
      */
-    public Transition excludeChildren(Class type, boolean exclude) {
+    @NonNull
+    public Transition excludeChildren(@NonNull Class type, boolean exclude) {
         mImpl.excludeChildren(type, exclude);
         return this;
     }
@@ -347,7 +356,8 @@ public abstract class Transition implements TransitionInterface {
      * @see #excludeTarget(int, boolean)
      * @see #excludeTarget(Class, boolean)
      */
-    public Transition excludeTarget(View target, boolean exclude) {
+    @NonNull
+    public Transition excludeTarget(@NonNull View target, boolean exclude) {
         mImpl.excludeTarget(target, exclude);
         return this;
     }
@@ -372,6 +382,7 @@ public abstract class Transition implements TransitionInterface {
      * @see #excludeTarget(View, boolean)
      * @see #excludeTarget(Class, boolean)
      */
+    @NonNull
     public Transition excludeTarget(@IdRes int targetId, boolean exclude) {
         mImpl.excludeTarget(targetId, exclude);
         return this;
@@ -397,7 +408,8 @@ public abstract class Transition implements TransitionInterface {
      * @see #excludeTarget(int, boolean)
      * @see #excludeTarget(View, boolean)
      */
-    public Transition excludeTarget(Class type, boolean exclude) {
+    @NonNull
+    public Transition excludeTarget(@NonNull Class type, boolean exclude) {
         mImpl.excludeTarget(type, exclude);
         return this;
     }
@@ -424,6 +436,7 @@ public abstract class Transition implements TransitionInterface {
      * @return This transition object.
      * @attr ref android.R.styleable#Transition_duration
      */
+    @NonNull
     public Transition setDuration(long duration) {
         mImpl.setDuration(duration);
         return this;
@@ -437,6 +450,7 @@ public abstract class Transition implements TransitionInterface {
      * @return The interpolator set on this transition, if one has been set, otherwise
      * returns null.
      */
+    @Nullable
     public TimeInterpolator getInterpolator() {
         return mImpl.getInterpolator();
     }
@@ -451,7 +465,8 @@ public abstract class Transition implements TransitionInterface {
      * @return This transition object.
      * @attr ref android.R.styleable#Transition_interpolator
      */
-    public Transition setInterpolator(TimeInterpolator interpolator) {
+    @NonNull
+    public Transition setInterpolator(@Nullable TimeInterpolator interpolator) {
         mImpl.setInterpolator(interpolator);
         return this;
     }
@@ -468,6 +483,7 @@ public abstract class Transition implements TransitionInterface {
      *
      * @return The name of this transition.
      */
+    @NonNull
     public String getName() {
         return mImpl.getName();
     }
@@ -494,6 +510,7 @@ public abstract class Transition implements TransitionInterface {
      * @return This transition object.
      * @attr ref android.R.styleable#Transition_startDelay
      */
+    @NonNull
     public Transition setStartDelay(long startDelay) {
         mImpl.setStartDelay(startDelay);
         return this;
@@ -508,6 +525,7 @@ public abstract class Transition implements TransitionInterface {
      *
      * @return the list of target IDs
      */
+    @NonNull
     public List<Integer> getTargetIds() {
         return mImpl.getTargetIds();
     }
@@ -521,6 +539,7 @@ public abstract class Transition implements TransitionInterface {
      *
      * @return the list of target views
      */
+    @NonNull
     public List<View> getTargets() {
         return mImpl.getTargets();
     }
@@ -546,6 +565,7 @@ public abstract class Transition implements TransitionInterface {
      * @return An array of property names as described in the class documentation for
      * {@link TransitionValues}. The default implementation returns <code>null</code>.
      */
+    @Nullable
     public String[] getTransitionProperties() {
         return mImpl.getTransitionProperties();
     }
@@ -556,7 +576,8 @@ public abstract class Transition implements TransitionInterface {
      * necessary, for example, to query the before/after state of related views
      * for a given transition.
      */
-    public TransitionValues getTransitionValues(View view, boolean start) {
+    @NonNull
+    public TransitionValues getTransitionValues(@NonNull View view, boolean start) {
         return mImpl.getTransitionValues(view, start);
     }
 
@@ -567,7 +588,8 @@ public abstract class Transition implements TransitionInterface {
      *                 listeners for this transition.
      * @return This transition object.
      */
-    public Transition removeListener(TransitionListener listener) {
+    @NonNull
+    public Transition removeListener(@NonNull TransitionListener listener) {
         mImpl.removeListener(listener);
         return this;
     }
@@ -582,7 +604,8 @@ public abstract class Transition implements TransitionInterface {
      * construction, such as
      * <code>transitionSet.addTransitions(new Fade()).removeTarget(someView);</code>
      */
-    public Transition removeTarget(View target) {
+    @NonNull
+    public Transition removeTarget(@NonNull View target) {
         mImpl.removeTarget(target);
         return this;
     }
@@ -597,6 +620,7 @@ public abstract class Transition implements TransitionInterface {
      * construction, such as
      * <code>transitionSet.addTransitions(new Fade()).removeTargetId(someId);</code>
      */
+    @NonNull
     public Transition removeTarget(@IdRes int targetId) {
         mImpl.removeTarget(targetId);
         return this;
@@ -618,7 +642,7 @@ public abstract class Transition implements TransitionInterface {
          *
          * @param transition The started transition.
          */
-        void onTransitionStart(Transition transition);
+        void onTransitionStart(@NonNull Transition transition);
 
         /**
          * Notification about the end of the transition. Canceled transitions
@@ -629,7 +653,7 @@ public abstract class Transition implements TransitionInterface {
          *
          * @param transition The transition which reached its end.
          */
-        void onTransitionEnd(Transition transition);
+        void onTransitionEnd(@NonNull Transition transition);
 
         /**
          * Notification about the cancellation of the transition.
@@ -641,7 +665,7 @@ public abstract class Transition implements TransitionInterface {
          *
          * @param transition The transition which was canceled.
          */
-        void onTransitionCancel(Transition transition);
+        void onTransitionCancel(@NonNull Transition transition);
 
         /**
          * Notification when a transition is paused.
@@ -653,7 +677,7 @@ public abstract class Transition implements TransitionInterface {
          *
          * @param transition The transition which was paused.
          */
-        void onTransitionPause(Transition transition);
+        void onTransitionPause(@NonNull Transition transition);
 
         /**
          * Notification when a transition is resumed.
@@ -664,7 +688,7 @@ public abstract class Transition implements TransitionInterface {
          *
          * @param transition The transition which was resumed.
          */
-        void onTransitionResume(Transition transition);
+        void onTransitionResume(@NonNull Transition transition);
     }
 
 }

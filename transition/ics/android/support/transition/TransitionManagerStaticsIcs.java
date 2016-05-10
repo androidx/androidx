@@ -28,7 +28,7 @@ class TransitionManagerStaticsIcs extends TransitionManagerStaticsImpl {
     @Override
     public void go(SceneImpl scene, TransitionImpl transition) {
         TransitionManagerPort.go(((SceneIcs) scene).mScene,
-                ((TransitionIcs) transition).mTransition);
+                transition == null ? null : ((TransitionIcs) transition).mTransition);
     }
 
     @Override
@@ -39,7 +39,7 @@ class TransitionManagerStaticsIcs extends TransitionManagerStaticsImpl {
     @Override
     public void beginDelayedTransition(ViewGroup sceneRoot, TransitionImpl transition) {
         TransitionManagerPort.beginDelayedTransition(sceneRoot,
-                ((TransitionIcs) transition).mTransition);
+                transition == null ? null : ((TransitionIcs) transition).mTransition);
     }
 
 }

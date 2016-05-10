@@ -28,7 +28,7 @@ class TransitionManagerStaticsKitKat extends TransitionManagerStaticsImpl {
     @Override
     public void go(SceneImpl scene, TransitionImpl transition) {
         android.transition.TransitionManager.go(((SceneKitKat) scene).mScene,
-                ((TransitionKitKat) transition).mTransition);
+                transition == null ? null : ((TransitionKitKat) transition).mTransition);
     }
 
     @Override
@@ -39,7 +39,7 @@ class TransitionManagerStaticsKitKat extends TransitionManagerStaticsImpl {
     @Override
     public void beginDelayedTransition(ViewGroup sceneRoot, TransitionImpl transition) {
         android.transition.TransitionManager.beginDelayedTransition(sceneRoot,
-                ((TransitionKitKat) transition).mTransition);
+                transition == null ? null : ((TransitionKitKat) transition).mTransition);
     }
 
 }
