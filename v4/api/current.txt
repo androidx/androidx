@@ -105,9 +105,6 @@ package android.support.v4.app {
     field public static final int MODE_IGNORED = 1; // 0x1
   }
 
-   abstract class BaseFragmentActivityApi24 extends android.support.v4.app.BaseFragmentActivityJB {
-  }
-
    abstract class BaseFragmentActivityDonut extends android.app.Activity {
   }
 
@@ -258,7 +255,7 @@ package android.support.v4.app {
     field public static final android.os.Parcelable.Creator<android.support.v4.app.Fragment.SavedState> CREATOR;
   }
 
-  public class FragmentActivity extends android.support.v4.app.BaseFragmentActivityApi24 implements android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback {
+  public class FragmentActivity extends android.support.v4.app.BaseFragmentActivityJB implements android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback {
     ctor public FragmentActivity();
     method public java.lang.Object getLastCustomNonConfigurationInstance();
     method public android.support.v4.app.FragmentManager getSupportFragmentManager();
