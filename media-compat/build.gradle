@@ -1,11 +1,10 @@
 apply plugin: 'com.android.library'
-archivesBaseName = 'support-core'
+archivesBaseName = 'support-media-compat'
 
 
 createApiSourceSets(project, gradle.ext.studioCompat.modules.core.apiTargets)
 dependencies {
     compile project(':support-compat')
-    compile project(':support-media-compat')
     androidTestCompile ('com.android.support.test:runner:0.4.1') {
         exclude module: 'support-annotations'
     }
@@ -15,7 +14,6 @@ dependencies {
     androidTestCompile 'org.mockito:mockito-core:1.9.5'
     androidTestCompile 'com.google.dexmaker:dexmaker:1.2'
     androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.2'
-    testCompile 'junit:junit:4.12'
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_7
@@ -29,19 +27,12 @@ android {
         minSdkVersion 9
         // TODO: get target from branch
         //targetSdkVersion 19
-
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'
         main.java.srcDirs = ['java']
         main.aidl.srcDirs = ['java']
-
-        androidTest.setRoot('tests')
-        androidTest.java.srcDir 'tests/java'
-        androidTest.res.srcDir 'tests/res'
-        androidTest.manifest.srcFile 'tests/AndroidManifest.xml'
     }
 
     lintOptions {
@@ -49,18 +40,9 @@ android {
         abortOnError false
     }
 
-    buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
-    }
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
-    }
-
-    testOptions {
-        unitTests.returnDefaultValues = true
-        compileSdkVersion project.ext.currentSdk
     }
 }
 

@@ -5,6 +5,9 @@ project(':support-annotations').projectDir = new File(rootDir, 'annotations')
 include ':support-compat'
 project(':support-compat').projectDir = new File(rootDir, 'compat')
 
+include ':support-media-compat'
+project(':support-media-compat').projectDir = new File(rootDir, 'media-compat')
+
 include ':support-core'
 project(':support-core').projectDir = new File(rootDir, 'v4')
 

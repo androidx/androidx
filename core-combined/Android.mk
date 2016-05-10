@@ -27,6 +27,7 @@ LOCAL_MODULE := android-support-v4
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_STATIC_JAVA_LIBRARIES := \
     android-support-compat \
+    android-support-media-compat \
     android-support-core
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_JAR_EXCLUDE_FILES := none
