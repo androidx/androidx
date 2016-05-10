@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
+import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.media.session.MediaControllerCompat;
@@ -71,7 +72,7 @@ import java.io.PrintWriter;
  * state, this may be a snapshot slightly before what the user last saw.</p>
  * </ul>
  */
-public class FragmentActivity extends BaseFragmentActivityApi24 implements
+public class FragmentActivity extends BaseFragmentActivityJB implements
         ActivityCompat.OnRequestPermissionsResultCallback,
         ActivityCompatApi23.RequestPermissionsRequestCodeValidator {
     private static final String TAG = "FragmentActivity";
@@ -267,22 +268,30 @@ public class FragmentActivity extends BaseFragmentActivityApi24 implements
     }
 
     /**
-     * Dispatch multi-window mode change to all fragments.
+     * {@inheritDoc}
      *
-     * @see Activity#onMultiWindowModeChanged(boolean)
+     * <p><strong>Note:</strong> If you override this method you must call
+     * <code>super.onMultiWindowModeChanged</code> to correctly dispatch the event
+     * to support fragments attached to this activity.</p>
+     *
+     * @param isInMultiWindowMode True if the activity is in multi-window mode.
      */
-    @Override
-    void dispatchFragmentsOnMultiWindowModeChanged(boolean isInMultiWindowMode) {
+    @CallSuper
+    public void onMultiWindowModeChanged(boolean isInMultiWindowMode) {
         mFragments.dispatchMultiWindowModeChanged(isInMultiWindowMode);
     }
 
     /**
-     * Dispatch picture-in-picture mode change to all fragments.
+     * {@inheritDoc}
      *
-     * @see Activity#onPictureInPictureModeChanged(boolean)
+     * <p><strong>Note:</strong> If you override this method you must call
+     * <code>super.onPictureInPictureModeChanged</code> to correctly dispatch the event
+     * to support fragments attached to this activity.</p>
+     *
+     * @param isInPictureInPictureMode True if the activity is in picture-in-picture mode.
      */
-    @Override
-    void dispatchFragmentsOnPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
+    @CallSuper
+    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
         mFragments.dispatchPictureInPictureModeChanged(isInPictureInPictureMode);
     }
 
