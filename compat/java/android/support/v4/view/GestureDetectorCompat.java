@@ -234,11 +234,11 @@ public final class GestureDetectorCompat {
 
             // Determine focal point
             float sumX = 0, sumY = 0;
-            final int count = MotionEventCompat.getPointerCount(ev);
+            final int count = ev.getPointerCount();
             for (int i = 0; i < count; i++) {
                 if (skipIndex == i) continue;
-                sumX += MotionEventCompat.getX(ev, i);
-                sumY += MotionEventCompat.getY(ev, i);
+                sumX += ev.getX(i);
+                sumY += ev.getY(i);
             }
             final int div = pointerUp ? count - 1 : count;
             final float focusX = sumX / div;
@@ -262,13 +262,13 @@ public final class GestureDetectorCompat {
                 // If the pointer that left was opposing another velocity vector, clear.
                 mVelocityTracker.computeCurrentVelocity(1000, mMaximumFlingVelocity);
                 final int upIndex = MotionEventCompat.getActionIndex(ev);
-                final int id1 = MotionEventCompat.getPointerId(ev, upIndex);
+                final int id1 = ev.getPointerId(upIndex);
                 final float x1 = VelocityTrackerCompat.getXVelocity(mVelocityTracker, id1);
                 final float y1 = VelocityTrackerCompat.getYVelocity(mVelocityTracker, id1);
                 for (int i = 0; i < count; i++) {
                     if (i == upIndex) continue;
 
-                    final int id2 = MotionEventCompat.getPointerId(ev, i);
+                    final int id2 = ev.getPointerId(i);
                     final float x = x1 * VelocityTrackerCompat.getXVelocity(mVelocityTracker, id2);
                     final float y = y1 * VelocityTrackerCompat.getYVelocity(mVelocityTracker, id2);
 
@@ -368,7 +368,7 @@ public final class GestureDetectorCompat {
                 } else {
                     // A fling must travel the minimum tap distance
                     final VelocityTracker velocityTracker = mVelocityTracker;
-                    final int pointerId = MotionEventCompat.getPointerId(ev, 0);
+                    final int pointerId = ev.getPointerId(0);
                     velocityTracker.computeCurrentVelocity(1000, mMaximumFlingVelocity);
                     final float velocityY = VelocityTrackerCompat.getYVelocity(
                             velocityTracker, pointerId);

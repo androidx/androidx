@@ -450,7 +450,7 @@ public final class MotionEventCompat {
      * @return Whether the event is from the given source.
      */
     public static boolean isFromSource(MotionEvent event, int source) {
-        return (getSource(event) & source) == source;
+        return (event.getSource() & source) == source;
     }
 
     /**

@@ -404,7 +404,7 @@ public class ViewPager extends ViewGroup {
         final ViewConfiguration configuration = ViewConfiguration.get(context);
         final float density = context.getResources().getDisplayMetrics().density;
 
-        mTouchSlop = ViewConfigurationCompat.getScaledPagingTouchSlop(configuration);
+        mTouchSlop = configuration.getScaledPagingTouchSlop();
         mMinimumVelocity = (int) (MIN_FLING_VELOCITY * density);
         mMaximumVelocity = configuration.getScaledMaximumFlingVelocity();
         mLeftEdge = new EdgeEffectCompat(context);
@@ -2052,11 +2052,11 @@ public class ViewPager extends ViewGroup {
                     break;
                 }
 
-                final int pointerIndex = MotionEventCompat.findPointerIndex(ev, activePointerId);
-                final float x = MotionEventCompat.getX(ev, pointerIndex);
+                final int pointerIndex = ev.findPointerIndex(activePointerId);
+                final float x = ev.getX(pointerIndex);
                 final float dx = x - mLastMotionX;
                 final float xDiff = Math.abs(dx);
-                final float y = MotionEventCompat.getY(ev, pointerIndex);
+                final float y = ev.getY(pointerIndex);
                 final float yDiff = Math.abs(y - mInitialMotionY);
                 if (DEBUG) Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);
 
@@ -2101,7 +2101,7 @@ public class ViewPager extends ViewGroup {
                  */
                 mLastMotionX = mInitialMotionX = ev.getX();
                 mLastMotionY = mInitialMotionY = ev.getY();
-                mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
+                mActivePointerId = ev.getPointerId(0);
                 mIsUnableToDrag = false;
 
                 mIsScrollStarted = true;
@@ -2180,20 +2180,20 @@ public class ViewPager extends ViewGroup {
                 // Remember where the motion event started
                 mLastMotionX = mInitialMotionX = ev.getX();
                 mLastMotionY = mInitialMotionY = ev.getY();
-                mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
+                mActivePointerId = ev.getPointerId(0);
                 break;
             }
             case MotionEvent.ACTION_MOVE:
                 if (!mIsBeingDragged) {
-                    final int pointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
+                    final int pointerIndex = ev.findPointerIndex(mActivePointerId);
                     if (pointerIndex == -1) {
                         // A child has consumed some touch events and put us into an inconsistent state.
                         needsInvalidate = resetTouch();
                         break;
                     }
-                    final float x = MotionEventCompat.getX(ev, pointerIndex);
+                    final float x = ev.getX(pointerIndex);
                     final float xDiff = Math.abs(x - mLastMotionX);
-                    final float y = MotionEventCompat.getY(ev, pointerIndex);
+                    final float y = ev.getY(pointerIndex);
                     final float yDiff = Math.abs(y - mLastMotionY);
                     if (DEBUG) Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);
                     if (xDiff > mTouchSlop && xDiff > yDiff) {
@@ -2216,9 +2216,8 @@ public class ViewPager extends ViewGroup {
                 // Not else! Note that mIsBeingDragged can be set above.
                 if (mIsBeingDragged) {
                     // Scroll to follow the motion event
-                    final int activePointerIndex = MotionEventCompat.findPointerIndex(
-                            ev, mActivePointerId);
-                    final float x = MotionEventCompat.getX(ev, activePointerIndex);
+                    final int activePointerIndex = ev.findPointerIndex(mActivePointerId);
+                    final float x = ev.getX(activePointerIndex);
                     needsInvalidate |= performDrag(x);
                 }
                 break;
@@ -2236,9 +2235,8 @@ public class ViewPager extends ViewGroup {
                     final int currentPage = ii.position;
                     final float pageOffset = (((float) scrollX / width) - ii.offset)
                             / (ii.widthFactor + marginOffset);
-                    final int activePointerIndex =
-                            MotionEventCompat.findPointerIndex(ev, mActivePointerId);
-                    final float x = MotionEventCompat.getX(ev, activePointerIndex);
+                    final int activePointerIndex = ev.findPointerIndex(mActivePointerId);
+                    final float x = ev.getX(activePointerIndex);
                     final int totalDelta = (int) (x - mInitialMotionX);
                     int nextPage = determineTargetPage(currentPage, pageOffset, initialVelocity,
                             totalDelta);
@@ -2255,15 +2253,14 @@ public class ViewPager extends ViewGroup {
                 break;
             case MotionEventCompat.ACTION_POINTER_DOWN: {
                 final int index = MotionEventCompat.getActionIndex(ev);
-                final float x = MotionEventCompat.getX(ev, index);
+                final float x = ev.getX(index);
                 mLastMotionX = x;
-                mActivePointerId = MotionEventCompat.getPointerId(ev, index);
+                mActivePointerId = ev.getPointerId(index);
                 break;
             }
             case MotionEventCompat.ACTION_POINTER_UP:
                 onSecondaryPointerUp(ev);
-                mLastMotionX = MotionEventCompat.getX(ev,
-                        MotionEventCompat.findPointerIndex(ev, mActivePointerId));
+                mLastMotionX = ev.getX(ev.findPointerIndex(mActivePointerId));
                 break;
         }
         if (needsInvalidate) {
@@ -2622,13 +2619,13 @@ public class ViewPager extends ViewGroup {
 
     private void onSecondaryPointerUp(MotionEvent ev) {
         final int pointerIndex = MotionEventCompat.getActionIndex(ev);
-        final int pointerId = MotionEventCompat.getPointerId(ev, pointerIndex);
+        final int pointerId = ev.getPointerId(pointerIndex);
         if (pointerId == mActivePointerId) {
             // This was our active pointer going up. Choose a new
             // active pointer and adjust accordingly.
             final int newPointerIndex = pointerIndex == 0 ? 1 : 0;
-            mLastMotionX = MotionEventCompat.getX(ev, newPointerIndex);
-            mActivePointerId = MotionEventCompat.getPointerId(ev, newPointerIndex);
+            mLastMotionX = ev.getX(newPointerIndex);
+            mActivePointerId = ev.getPointerId(newPointerIndex);
             if (mVelocityTracker != null) {
                 mVelocityTracker.clear();
             }
