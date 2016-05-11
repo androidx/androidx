@@ -51,7 +51,7 @@ class DrawableCompatBase {
 
     public static Drawable wrapForTinting(Drawable drawable) {
         if (!(drawable instanceof TintAwareDrawable)) {
-            return new DrawableWrapperDonut(drawable);
+            return new DrawableWrapperGingerbread(drawable);
         }
         return drawable;
     }

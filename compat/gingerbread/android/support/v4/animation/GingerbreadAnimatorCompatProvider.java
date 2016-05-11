@@ -28,7 +28,7 @@ import java.util.List;
  *
  * @hide
  */
-class DonutAnimatorCompatProvider implements AnimatorProvider {
+class GingerbreadAnimatorCompatProvider implements AnimatorProvider {
 
     @Override
     public ValueAnimatorCompat emptyValueAnimator() {

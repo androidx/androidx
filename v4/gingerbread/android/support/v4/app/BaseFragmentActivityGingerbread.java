@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,20 @@
 
 package android.support.v4.app;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.AttributeSet;
+import android.view.View;
 
 /**
- * Base class for {@code FragmentActivity} to be able to use v5 APIs.
+ * Base class for {@code FragmentActivity} to be able to use Gingerbread APIs.
  */
-abstract class BaseFragmentActivityEclair extends BaseFragmentActivityDonut {
+abstract class BaseFragmentActivityGingerbread extends Activity {
 
     // We need to keep track of whether startIntentSenderForResult originated from a Fragment, so we
     // can conditionally check whether the requestCode collides with our reserved ID space for the
@@ -31,6 +37,30 @@ abstract class BaseFragmentActivityEclair extends BaseFragmentActivityDonut {
     // super.startIntentSenderForResult(...) to bypass the check when the call didn't come from a
     // fragment, since we need to use the ActivityCompat version for backward compatibility.
     boolean mStartedIntentSenderFromFragment;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        if (Build.VERSION.SDK_INT < 11 && getLayoutInflater().getFactory() == null) {
+            // On pre-HC devices we need to manually install ourselves as a Factory.
+            // On HC and above, we are automatically installed as a private factory
+            getLayoutInflater().setFactory(this);
+        }
+
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public View onCreateView(String name, Context context, AttributeSet attrs) {
+        final View v = dispatchFragmentsOnCreateView(null, name, context, attrs);
+        if (v == null) {
+            return super.onCreateView(name, context, attrs);
+        }
+        return v;
+    }
+
+    abstract View dispatchFragmentsOnCreateView(View parent, String name,
+            Context context, AttributeSet attrs);
+
 
     @Override
     public void startIntentSenderForResult(IntentSender intent, int requestCode,
@@ -45,12 +75,6 @@ abstract class BaseFragmentActivityEclair extends BaseFragmentActivityDonut {
         }
         super.startIntentSenderForResult(intent, requestCode, fillInIntent, flagsMask, flagsValues,
                 extraFlags);
-    }
-
-    @Override
-    void onBackPressedNotHandled() {
-        // On v5+, delegate to the framework impl of onBackPressed()
-        super.onBackPressed();
     }
 
     /**

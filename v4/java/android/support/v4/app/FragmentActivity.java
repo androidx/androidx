@@ -176,7 +176,7 @@ public class FragmentActivity extends BaseFragmentActivityJB implements
      */
     public void onBackPressed() {
         if (!mFragments.getSupportFragmentManager().popBackStackImmediate()) {
-            onBackPressedNotHandled();
+            super.onBackPressed();
         }
     }
 
@@ -193,6 +193,7 @@ public class FragmentActivity extends BaseFragmentActivityJB implements
      *
      * @param mediaController The controller for the session which should receive
      *     media keys and volume changes on API 21 and later.
+     * @see #getSupportMediaController()
      * @see #setMediaController(android.media.session.MediaController)
      */
     final public void setSupportMediaController(MediaControllerCompat mediaController) {
@@ -206,7 +207,7 @@ public class FragmentActivity extends BaseFragmentActivityJB implements
      * Retrieves the current {@link MediaControllerCompat} for sending media key and volume events.
      *
      * @return The controller which should receive events.
-     * @see #setSupportMediaController(android.support.v4.media.session.MediaController)
+     * @see #setSupportMediaController(MediaControllerCompat)
      * @see #getMediaController()
      */
     final public MediaControllerCompat getSupportMediaController() {
@@ -385,23 +386,6 @@ public class FragmentActivity extends BaseFragmentActivityJB implements
 
         mFragments.dispatchDestroy();
         mFragments.doLoaderDestroy();
-    }
-
-    /**
-     * Take care of calling onBackPressed() for pre-Eclair platforms.
-     */
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (android.os.Build.VERSION.SDK_INT < 5 /* ECLAIR */
-                && keyCode == KeyEvent.KEYCODE_BACK
-                && event.getRepeatCount() == 0) {
-            // Take care of calling this method on earlier versions of
-            // the platform where it doesn't exist.
-            onBackPressed();
-            return true;
-        }
-
-        return super.onKeyDown(keyCode, event);
     }
 
     /**

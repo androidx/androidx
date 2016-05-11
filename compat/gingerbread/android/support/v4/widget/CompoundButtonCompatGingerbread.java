@@ -24,9 +24,9 @@ import android.widget.CompoundButton;
 
 import java.lang.reflect.Field;
 
-class CompoundButtonCompatDonut {
+class CompoundButtonCompatGingerbread {
 
-    private static final String TAG = "CompoundButtonCompatDonut";
+    private static final String TAG = "CompoundButtonCompatGingerbread";
 
     private static Field sButtonDrawableField;
     private static boolean sButtonDrawableFieldFetched;

@@ -24,7 +24,7 @@ import android.view.View;
 /**
  * Base class for {@code FragmentActivity} to be able to use v11 APIs.
  */
-abstract class BaseFragmentActivityHoneycomb extends BaseFragmentActivityEclair {
+abstract class BaseFragmentActivityHoneycomb extends BaseFragmentActivityGingerbread {
 
     @Override
     public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {

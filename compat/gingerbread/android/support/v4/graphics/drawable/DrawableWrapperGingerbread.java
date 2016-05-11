@@ -33,7 +33,7 @@ import android.support.annotation.Nullable;
  * Also allows backward compatible tinting via a color or {@link ColorStateList}.
  * This functionality is accessed via static methods in {@code DrawableCompat}.
  */
-class DrawableWrapperDonut extends Drawable
+class DrawableWrapperGingerbread extends Drawable
         implements Drawable.Callback, DrawableWrapper, TintAwareDrawable {
 
     static final PorterDuff.Mode DEFAULT_TINT_MODE = PorterDuff.Mode.SRC_IN;
@@ -47,7 +47,7 @@ class DrawableWrapperDonut extends Drawable
 
     Drawable mDrawable;
 
-    DrawableWrapperDonut(@NonNull DrawableWrapperState state, @Nullable Resources res) {
+    DrawableWrapperGingerbread(@NonNull DrawableWrapperState state, @Nullable Resources res) {
         mState = state;
         updateLocalState(res);
     }
@@ -57,7 +57,7 @@ class DrawableWrapperDonut extends Drawable
      *
      * @param dr the drawable to wrap
      */
-    DrawableWrapperDonut(@Nullable Drawable dr) {
+    DrawableWrapperGingerbread(@Nullable Drawable dr) {
         mState = mutateConstantState();
         // Now set the drawable...
         setWrappedDrawable(dr);
@@ -377,7 +377,7 @@ class DrawableWrapperDonut extends Drawable
 
         @Override
         public Drawable newDrawable(@Nullable Resources res) {
-            return new DrawableWrapperDonut(this, res);
+            return new DrawableWrapperGingerbread(this, res);
         }
     }
 }

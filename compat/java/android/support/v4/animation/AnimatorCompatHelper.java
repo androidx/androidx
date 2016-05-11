@@ -30,7 +30,7 @@ public final class AnimatorCompatHelper {
         if (Build.VERSION.SDK_INT >= 12) {
             IMPL = new HoneycombMr1AnimatorCompatProvider();
         } else {
-            IMPL = new DonutAnimatorCompatProvider();
+            IMPL = new GingerbreadAnimatorCompatProvider();
         }
     }
 

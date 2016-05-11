@@ -51,22 +51,22 @@ public final class ConfigurationHelper {
     private static class DonutImpl implements ConfigurationHelperImpl {
         @Override
         public int getScreenHeightDp(@NonNull Resources resources) {
-            return ConfigurationHelperDonut.getScreenHeightDp(resources);
+            return ConfigurationHelperGingerbread.getScreenHeightDp(resources);
         }
 
         @Override
         public int getScreenWidthDp(@NonNull Resources resources) {
-            return ConfigurationHelperDonut.getScreenWidthDp(resources);
+            return ConfigurationHelperGingerbread.getScreenWidthDp(resources);
         }
 
         @Override
         public int getSmallestScreenWidthDp(@NonNull Resources resources) {
-            return ConfigurationHelperDonut.getSmallestScreenWidthDp(resources);
+            return ConfigurationHelperGingerbread.getSmallestScreenWidthDp(resources);
         }
 
         @Override
         public int getDensityDpi(@NonNull Resources resources) {
-            return ConfigurationHelperDonut.getDensityDpi(resources);
+            return ConfigurationHelperGingerbread.getDensityDpi(resources);
         }
     }
 

@@ -1520,30 +1520,30 @@ public class MediaSessionCompat {
         private boolean update() {
             boolean registeredRcc = false;
             if (mIsActive) {
-                // On API 8+ register a MBR if it's supported, unregister it
+                // Register a MBR if it's supported, unregister it
                 // if support was removed.
-                if (android.os.Build.VERSION.SDK_INT >= 8) {
-                    if (!mIsMbrRegistered && (mFlags & FLAG_HANDLES_MEDIA_BUTTONS) != 0) {
-                        if (android.os.Build.VERSION.SDK_INT >= 18) {
-                            MediaSessionCompatApi18.registerMediaButtonEventReceiver(mContext,
-                                    mMediaButtonReceiverIntent,
-                                    mMediaButtonReceiverComponentName);
-                        } else {
-                            MediaSessionCompatApi8.registerMediaButtonEventReceiver(mContext,
-                                    mMediaButtonReceiverComponentName);
-                        }
-                        mIsMbrRegistered = true;
-                    } else if (mIsMbrRegistered && (mFlags & FLAG_HANDLES_MEDIA_BUTTONS) == 0) {
-                        if (android.os.Build.VERSION.SDK_INT >= 18) {
-                            MediaSessionCompatApi18.unregisterMediaButtonEventReceiver(mContext,
-                                    mMediaButtonReceiverIntent,
-                                    mMediaButtonReceiverComponentName);
-                        } else {
-                            MediaSessionCompatApi8.unregisterMediaButtonEventReceiver(mContext,
-                                    mMediaButtonReceiverComponentName);
-                        }
-                        mIsMbrRegistered = false;
+                if (!mIsMbrRegistered && (mFlags & FLAG_HANDLES_MEDIA_BUTTONS) != 0) {
+                    if (android.os.Build.VERSION.SDK_INT >= 18) {
+                        MediaSessionCompatApi18.registerMediaButtonEventReceiver(mContext,
+                                mMediaButtonReceiverIntent,
+                                mMediaButtonReceiverComponentName);
+                    } else {
+                        AudioManager am = (AudioManager) mContext.getSystemService(
+                                Context.AUDIO_SERVICE);
+                        am.registerMediaButtonEventReceiver(mMediaButtonReceiverComponentName);
                     }
+                    mIsMbrRegistered = true;
+                } else if (mIsMbrRegistered && (mFlags & FLAG_HANDLES_MEDIA_BUTTONS) == 0) {
+                    if (android.os.Build.VERSION.SDK_INT >= 18) {
+                        MediaSessionCompatApi18.unregisterMediaButtonEventReceiver(mContext,
+                                mMediaButtonReceiverIntent,
+                                mMediaButtonReceiverComponentName);
+                    } else {
+                        AudioManager am = (AudioManager) mContext.getSystemService(
+                                Context.AUDIO_SERVICE);
+                        am.unregisterMediaButtonEventReceiver(mMediaButtonReceiverComponentName);
+                    }
+                    mIsMbrRegistered = false;
                 }
                 // On API 14+ register a RCC if it's supported, unregister it if
                 // not.
@@ -1569,8 +1569,9 @@ public class MediaSessionCompat {
                         MediaSessionCompatApi18.unregisterMediaButtonEventReceiver(mContext,
                                 mMediaButtonReceiverIntent, mMediaButtonReceiverComponentName);
                     } else {
-                        MediaSessionCompatApi8.unregisterMediaButtonEventReceiver(mContext,
-                                mMediaButtonReceiverComponentName);
+                        AudioManager am = (AudioManager) mContext.getSystemService(
+                                Context.AUDIO_SERVICE);
+                        am.unregisterMediaButtonEventReceiver(mMediaButtonReceiverComponentName);
                     }
                     mIsMbrRegistered = false;
                 }
