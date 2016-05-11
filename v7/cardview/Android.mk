@@ -34,7 +34,7 @@ support_module_src_files := $(LOCAL_SRC_FILES)
 # implementations
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v7-cardview-base
-LOCAL_SDK_VERSION := 7
+LOCAL_SDK_VERSION := 9
 LOCAL_SRC_FILES := $(call all-java-files-under, base)
 LOCAL_JAVA_LIBRARIES := android-support-annotations
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
@@ -45,7 +45,7 @@ support_module_src_files += $(LOCAL_SRC_FILES)
 # A helper sub-library that makes direct use of Gingerbread APIs
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v7-cardview-gingerbread
-LOCAL_SDK_VERSION := 7
+LOCAL_SDK_VERSION := 9
 LOCAL_SRC_FILES := $(call all-java-files-under, gingerbread)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-cardview-base
 LOCAL_JAVA_LIBRARIES := android-support-v7-cardview-res \
@@ -90,7 +90,7 @@ support_module_src_files += $(LOCAL_SRC_FILES)
 include $(CLEAR_VARS)
 LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-v7-cardview
-LOCAL_SDK_VERSION := 7
+LOCAL_SDK_VERSION := 9
 LOCAL_SDK_RES_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := $(call all-java-files-under,src)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-cardview-api21

@@ -41,7 +41,7 @@ support_module_src_files := $(LOCAL_SRC_FILES)
 # implementations
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-design-base
-LOCAL_SDK_VERSION := 7
+LOCAL_SDK_VERSION := 9
 LOCAL_SRC_FILES := $(call all-java-files-under, base)
 LOCAL_JAVA_LIBRARIES := \
     android-support-design-res \
@@ -56,7 +56,7 @@ support_module_src_files += $(LOCAL_SRC_FILES)
 # A helper sub-library that makes direct use of Gingerbread APIs
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-design-gingerbread
-LOCAL_SDK_VERSION := 7
+LOCAL_SDK_VERSION := 9
 LOCAL_SRC_FILES := $(call all-java-files-under, gingerbread)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-design-base
 LOCAL_JAVA_LIBRARIES := \
