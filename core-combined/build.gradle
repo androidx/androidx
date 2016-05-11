@@ -4,7 +4,9 @@ archivesBaseName = 'support-v4'
 dependencies {
     compile project(':support-compat')
     compile project(':support-media-compat')
-    compile project(':support-core')
+    compile project(':support-core-utils')
+    compile project(':support-core-ui')
+    compile project(':support-fragment')
 }
 
 android {

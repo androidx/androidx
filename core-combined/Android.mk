@@ -28,7 +28,9 @@ LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_STATIC_JAVA_LIBRARIES := \
     android-support-compat \
     android-support-media-compat \
-    android-support-core
+    android-support-core-utils \
+    android-support-core-ui \
+    android-support-fragment
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7

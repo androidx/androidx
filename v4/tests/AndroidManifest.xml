@@ -16,7 +16,7 @@
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
-          package="android.support.core.test">
+          package="android.support.coreutils.test">
     <uses-sdk
             android:minSdkVersion="9"
             android:targetSdkVersion="23"
@@ -28,26 +28,11 @@
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
     <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
 
-    <application
-            android:supportsRtl="true"
-            android:theme="@style/TestActivityTheme">
+    <application>
         <uses-library android:name="android.test.runner" />
-        <activity android:name="android.support.v4.widget.SwipeRefreshLayoutActivity"/>
-
-        <activity android:name="android.support.v4.widget.ExploreByTouchHelperTestActivity"/>
-
-        <activity android:name="android.support.v4.view.ViewPagerWithTitleStripActivity"/>
-
-        <activity android:name="android.support.v4.view.ViewPagerWithTabStripActivity"/>
-
-        <activity android:name="android.support.v4.app.test.FragmentTestActivity"/>
-
-        <activity android:name="android.support.v4.app.test.EmptyFragmentTestActivity" />
-
-        <activity android:name="android.support.v4.app.test.FragmentResultActivity" />
     </application>
 
     <instrumentation android:name="android.test.InstrumentationTestRunner"
-                     android:targetPackage="android.support.v4.test"
+                     android:targetPackage="android.support.coreutils.test"
                      />
 </manifest>

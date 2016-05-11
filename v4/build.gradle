@@ -1,11 +1,10 @@
 apply plugin: 'com.android.library'
-archivesBaseName = 'support-core'
+archivesBaseName = 'support-core-utils'
 
 
-createApiSourceSets(project, gradle.ext.studioCompat.modules.core.apiTargets)
+createApiSourceSets(project, gradle.ext.studioCompat.modules.coreutils.apiTargets)
 dependencies {
     compile project(':support-compat')
-    compile project(':support-media-compat')
     androidTestCompile ('com.android.support.test:runner:0.4.1') {
         exclude module: 'support-annotations'
     }
@@ -20,7 +19,7 @@ dependencies {
 
 sourceCompatibility = JavaVersion.VERSION_1_7
 targetCompatibility = JavaVersion.VERSION_1_7
-setApiModuleDependencies(project, dependencies, gradle.ext.studioCompat.modules.core.dependencies)
+setApiModuleDependencies(project, dependencies, gradle.ext.studioCompat.modules.coreutils.dependencies)
 
 android {
     compileSdkVersion 9
@@ -40,17 +39,12 @@ android {
 
         androidTest.setRoot('tests')
         androidTest.java.srcDir 'tests/java'
-        androidTest.res.srcDir 'tests/res'
         androidTest.manifest.srcFile 'tests/AndroidManifest.xml'
     }
 
     lintOptions {
         // TODO: fix errors and reenable.
         abortOnError false
-    }
-
-    buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
     }
 
     compileOptions {
