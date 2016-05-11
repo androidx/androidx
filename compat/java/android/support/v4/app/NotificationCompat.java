@@ -521,7 +521,7 @@ public class NotificationCompat {
         public Notification build(Builder b, BuilderExtender extender) {
             Notification result = b.mNotification;
             result = NotificationCompatBase.add(result, b.mContext,
-                    b.mContentTitle, b.mContentText, b.mContentIntent);
+                    b.mContentTitle, b.mContentText, b.mContentIntent, b.mFullScreenIntent);
             // translate high priority requests into legacy flag
             if (b.mPriority > PRIORITY_DEFAULT) {
                 result.flags |= FLAG_HIGH_PRIORITY;
@@ -590,20 +590,6 @@ public class NotificationCompat {
                 Bundle b, NotificationCompatBase.UnreadConversation.Factory factory,
                 RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
             return null;
-        }
-    }
-
-    static class NotificationCompatImplGingerbread extends NotificationCompatImplBase {
-        @Override
-        public Notification build(Builder b, BuilderExtender extender) {
-            Notification result = b.mNotification;
-            result = NotificationCompatGingerbread.add(result, b.mContext,
-                    b.mContentTitle, b.mContentText, b.mContentIntent, b.mFullScreenIntent);
-            // translate high priority requests into legacy flag
-            if (b.mPriority > PRIORITY_DEFAULT) {
-                result.flags |= FLAG_HIGH_PRIORITY;
-            }
-            return result;
         }
     }
 
@@ -945,8 +931,6 @@ public class NotificationCompat {
             IMPL = new NotificationCompatImplIceCreamSandwich();
         } else if (Build.VERSION.SDK_INT >= 11) {
             IMPL = new NotificationCompatImplHoneycomb();
-        } else if (Build.VERSION.SDK_INT >= 9) {
-            IMPL = new NotificationCompatImplGingerbread();
         } else {
             IMPL = new NotificationCompatImplBase();
         }

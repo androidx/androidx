@@ -215,7 +215,7 @@ include $(CLEAR_VARS)
 LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-compat
 LOCAL_SDK_VERSION := 9
-LOCAL_AIDL_INCLUDES := frameworks/support/v4/java
+LOCAL_AIDL_INCLUDES := frameworks/support/compat/java
 LOCAL_SRC_FILES := $(call all-java-files-under, java) \
     $(call all-Iaidl-files-under, java)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
