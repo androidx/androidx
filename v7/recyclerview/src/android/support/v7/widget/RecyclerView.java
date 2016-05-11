@@ -46,7 +46,6 @@ import android.support.v4.view.NestedScrollingChildHelper;
 import android.support.v4.view.ScrollingView;
 import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v4.view.ViewCompat;
-import android.support.v4.view.ViewConfigurationCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.view.accessibility.AccessibilityRecordCompat;
@@ -854,7 +853,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 break;
 
             case TOUCH_SLOP_PAGING:
-                mTouchSlop = ViewConfigurationCompat.getScaledPagingTouchSlop(vc);
+                mTouchSlop = vc.getScaledPagingTouchSlop();
                 break;
         }
     }
@@ -2441,7 +2440,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 if (mIgnoreMotionEventTillDown) {
                     mIgnoreMotionEventTillDown = false;
                 }
-                mScrollPointerId = MotionEventCompat.getPointerId(e, 0);
+                mScrollPointerId = e.getPointerId(0);
                 mInitialTouchX = mLastTouchX = (int) (e.getX() + 0.5f);
                 mInitialTouchY = mLastTouchY = (int) (e.getY() + 0.5f);
 
@@ -2464,21 +2463,21 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 break;
 
             case MotionEventCompat.ACTION_POINTER_DOWN:
-                mScrollPointerId = MotionEventCompat.getPointerId(e, actionIndex);
-                mInitialTouchX = mLastTouchX = (int) (MotionEventCompat.getX(e, actionIndex) + 0.5f);
-                mInitialTouchY = mLastTouchY = (int) (MotionEventCompat.getY(e, actionIndex) + 0.5f);
+                mScrollPointerId = e.getPointerId(actionIndex);
+                mInitialTouchX = mLastTouchX = (int) (e.getX(actionIndex) + 0.5f);
+                mInitialTouchY = mLastTouchY = (int) (e.getY(actionIndex) + 0.5f);
                 break;
 
             case MotionEvent.ACTION_MOVE: {
-                final int index = MotionEventCompat.findPointerIndex(e, mScrollPointerId);
+                final int index = e.findPointerIndex(mScrollPointerId);
                 if (index < 0) {
                     Log.e(TAG, "Error processing scroll; pointer index for id " +
                             mScrollPointerId + " not found. Did any MotionEvents get skipped?");
                     return false;
                 }
 
-                final int x = (int) (MotionEventCompat.getX(e, index) + 0.5f);
-                final int y = (int) (MotionEventCompat.getY(e, index) + 0.5f);
+                final int x = (int) (e.getX(index) + 0.5f);
+                final int y = (int) (e.getY(index) + 0.5f);
                 if (mScrollState != SCROLL_STATE_DRAGGING) {
                     final int dx = x - mInitialTouchX;
                     final int dy = y - mInitialTouchY;
@@ -2556,7 +2555,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
         switch (action) {
             case MotionEvent.ACTION_DOWN: {
-                mScrollPointerId = MotionEventCompat.getPointerId(e, 0);
+                mScrollPointerId = e.getPointerId(0);
                 mInitialTouchX = mLastTouchX = (int) (e.getX() + 0.5f);
                 mInitialTouchY = mLastTouchY = (int) (e.getY() + 0.5f);
 
@@ -2571,21 +2570,21 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             } break;
 
             case MotionEventCompat.ACTION_POINTER_DOWN: {
-                mScrollPointerId = MotionEventCompat.getPointerId(e, actionIndex);
-                mInitialTouchX = mLastTouchX = (int) (MotionEventCompat.getX(e, actionIndex) + 0.5f);
-                mInitialTouchY = mLastTouchY = (int) (MotionEventCompat.getY(e, actionIndex) + 0.5f);
+                mScrollPointerId = e.getPointerId(actionIndex);
+                mInitialTouchX = mLastTouchX = (int) (e.getX(actionIndex) + 0.5f);
+                mInitialTouchY = mLastTouchY = (int) (e.getY(actionIndex) + 0.5f);
             } break;
 
             case MotionEvent.ACTION_MOVE: {
-                final int index = MotionEventCompat.findPointerIndex(e, mScrollPointerId);
+                final int index = e.findPointerIndex(mScrollPointerId);
                 if (index < 0) {
                     Log.e(TAG, "Error processing scroll; pointer index for id " +
                             mScrollPointerId + " not found. Did any MotionEvents get skipped?");
                     return false;
                 }
 
-                final int x = (int) (MotionEventCompat.getX(e, index) + 0.5f);
-                final int y = (int) (MotionEventCompat.getY(e, index) + 0.5f);
+                final int x = (int) (e.getX(index) + 0.5f);
+                final int y = (int) (e.getY(index) + 0.5f);
                 int dx = mLastTouchX - x;
                 int dy = mLastTouchY - y;
 
@@ -2680,12 +2679,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
     private void onPointerUp(MotionEvent e) {
         final int actionIndex = MotionEventCompat.getActionIndex(e);
-        if (MotionEventCompat.getPointerId(e, actionIndex) == mScrollPointerId) {
+        if (e.getPointerId(actionIndex) == mScrollPointerId) {
             // Pick a new pointer to pick up the slack.
             final int newIndex = actionIndex == 0 ? 1 : 0;
-            mScrollPointerId = MotionEventCompat.getPointerId(e, newIndex);
-            mInitialTouchX = mLastTouchX = (int) (MotionEventCompat.getX(e, newIndex) + 0.5f);
-            mInitialTouchY = mLastTouchY = (int) (MotionEventCompat.getY(e, newIndex) + 0.5f);
+            mScrollPointerId = e.getPointerId(newIndex);
+            mInitialTouchX = mLastTouchX = (int) (e.getX(newIndex) + 0.5f);
+            mInitialTouchY = mLastTouchY = (int) (e.getY(newIndex) + 0.5f);
         }
     }
 
@@ -2697,7 +2696,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         if (mLayoutFrozen) {
             return false;
         }
-        if ((MotionEventCompat.getSource(event) & InputDeviceCompat.SOURCE_CLASS_POINTER) != 0) {
+        if ((event.getSource() & InputDeviceCompat.SOURCE_CLASS_POINTER) != 0) {
             if (event.getAction() == MotionEventCompat.ACTION_SCROLL) {
                 final float vScroll, hScroll;
                 if (mLayout.canScrollVertically()) {

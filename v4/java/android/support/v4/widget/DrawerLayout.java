@@ -1886,7 +1886,7 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && hasVisibleDrawer()) {
-            KeyEventCompat.startTracking(event);
+            event.startTracking();
             return true;
         }
         return super.onKeyDown(keyCode, event);

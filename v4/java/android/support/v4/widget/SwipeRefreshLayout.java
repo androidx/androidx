@@ -695,7 +695,7 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 setTargetOffsetTopAndBottom(mOriginalOffsetTop - mCircleView.getTop(), true);
-                mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
+                mActivePointerId = ev.getPointerId(0);
                 mIsBeingDragged = false;
                 final float initialDownY = getMotionEventY(ev, mActivePointerId);
                 if (initialDownY == -1) {
@@ -737,11 +737,11 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
     }
 
     private float getMotionEventY(MotionEvent ev, int activePointerId) {
-        final int index = MotionEventCompat.findPointerIndex(ev, activePointerId);
+        final int index = ev.findPointerIndex(activePointerId);
         if (index < 0) {
             return -1;
         }
-        return MotionEventCompat.getY(ev, index);
+        return ev.getY(index);
     }
 
     @Override
@@ -1008,18 +1008,18 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
 
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-                mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
+                mActivePointerId = ev.getPointerId(0);
                 mIsBeingDragged = false;
                 break;
 
             case MotionEvent.ACTION_MOVE: {
-                pointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
+                pointerIndex = ev.findPointerIndex(mActivePointerId);
                 if (pointerIndex < 0) {
                     Log.e(LOG_TAG, "Got ACTION_MOVE event but have an invalid active pointer id.");
                     return false;
                 }
 
-                final float y = MotionEventCompat.getY(ev, pointerIndex);
+                final float y = ev.getY(pointerIndex);
                 final float overscrollTop = (y - mInitialMotionY) * DRAG_RATE;
                 if (mIsBeingDragged) {
                     if (overscrollTop > 0) {
@@ -1036,7 +1036,7 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
                     Log.e(LOG_TAG, "Got ACTION_POINTER_DOWN event but have an invalid action index.");
                     return false;
                 }
-                mActivePointerId = MotionEventCompat.getPointerId(ev, pointerIndex);
+                mActivePointerId = ev.getPointerId(pointerIndex);
                 break;
             }
 
@@ -1045,13 +1045,13 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
                 break;
 
             case MotionEvent.ACTION_UP: {
-                pointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
+                pointerIndex = ev.findPointerIndex(mActivePointerId);
                 if (pointerIndex < 0) {
                     Log.e(LOG_TAG, "Got ACTION_UP event but don't have an active pointer id.");
                     return false;
                 }
 
-                final float y = MotionEventCompat.getY(ev, pointerIndex);
+                final float y = ev.getY(pointerIndex);
                 final float overscrollTop = (y - mInitialMotionY) * DRAG_RATE;
                 mIsBeingDragged = false;
                 finishSpinner(overscrollTop);
@@ -1160,12 +1160,12 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
 
     private void onSecondaryPointerUp(MotionEvent ev) {
         final int pointerIndex = MotionEventCompat.getActionIndex(ev);
-        final int pointerId = MotionEventCompat.getPointerId(ev, pointerIndex);
+        final int pointerId = ev.getPointerId(pointerIndex);
         if (pointerId == mActivePointerId) {
             // This was our active pointer going up. Choose a new
             // active pointer and adjust accordingly.
             final int newPointerIndex = pointerIndex == 0 ? 1 : 0;
-            mActivePointerId = MotionEventCompat.getPointerId(ev, newPointerIndex);
+            mActivePointerId = ev.getPointerId(newPointerIndex);
         }
     }
 
