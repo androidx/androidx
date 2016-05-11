@@ -50,6 +50,8 @@
         <activity android:name="android.support.v4.app.test.FragmentTestActivity"/>
 
         <activity android:name="android.support.v4.app.test.EmptyFragmentTestActivity" />
+
+        <activity android:name="android.support.v4.app.test.FragmentResultActivity" />
     </application>
 
     <instrumentation android:name="android.test.InstrumentationTestRunner"
