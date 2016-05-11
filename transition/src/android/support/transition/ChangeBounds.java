@@ -18,6 +18,8 @@ package android.support.transition;
 
 import android.animation.Animator;
 import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.ViewGroup;
 
 /**
@@ -38,18 +40,19 @@ public class ChangeBounds extends Transition {
     }
 
     @Override
-    public void captureEndValues(TransitionValues transitionValues) {
+    public void captureEndValues(@NonNull TransitionValues transitionValues) {
         mImpl.captureEndValues(transitionValues);
     }
 
     @Override
-    public void captureStartValues(TransitionValues transitionValues) {
+    public void captureStartValues(@NonNull TransitionValues transitionValues) {
         mImpl.captureStartValues(transitionValues);
     }
 
     @Override
-    public Animator createAnimator(ViewGroup sceneRoot, TransitionValues startValues,
-            TransitionValues endValues) {
+    @Nullable
+    public Animator createAnimator(@NonNull ViewGroup sceneRoot,
+            @NonNull TransitionValues startValues, @NonNull TransitionValues endValues) {
         return mImpl.createAnimator(sceneRoot, startValues, endValues);
     }
 

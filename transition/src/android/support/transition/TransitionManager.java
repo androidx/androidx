@@ -18,6 +18,7 @@ package android.support.transition;
 
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.ViewGroup;
 
 /**
@@ -79,8 +80,8 @@ public class TransitionManager {
      * @param transition The transition to use for this scene change. A
      *                   value of null causes the scene change to happen with no transition.
      */
-    public static void go(@NonNull Scene scene, Transition transition) {
-        sImpl.go(scene.mImpl, transition.mImpl);
+    public static void go(@NonNull Scene scene, @Nullable Transition transition) {
+        sImpl.go(scene.mImpl, transition == null ? null : transition.mImpl);
     }
 
     /**
@@ -92,7 +93,7 @@ public class TransitionManager {
      *
      * @param sceneRoot The root of the View hierarchy to run the transition on.
      */
-    public static void beginDelayedTransition(final ViewGroup sceneRoot) {
+    public static void beginDelayedTransition(@NonNull final ViewGroup sceneRoot) {
         sImpl.beginDelayedTransition(sceneRoot);
     }
 
@@ -119,8 +120,9 @@ public class TransitionManager {
      * @param transition The transition to use for this change. A
      *                   value of null causes the TransitionManager to use the default transition.
      */
-    public static void beginDelayedTransition(final ViewGroup sceneRoot, Transition transition) {
-        sImpl.beginDelayedTransition(sceneRoot, transition.mImpl);
+    public static void beginDelayedTransition(@NonNull final ViewGroup sceneRoot,
+            @Nullable Transition transition) {
+        sImpl.beginDelayedTransition(sceneRoot, transition == null ? null : transition.mImpl);
     }
 
     /**
@@ -132,8 +134,8 @@ public class TransitionManager {
      *                   entered. A value of null will result in the default behavior of
      *                   using the default transition instead.
      */
-    public void setTransition(Scene scene, Transition transition) {
-        mImpl.setTransition(scene.mImpl, transition.mImpl);
+    public void setTransition(@NonNull Scene scene, @Nullable Transition transition) {
+        mImpl.setTransition(scene.mImpl, transition == null ? null : transition.mImpl);
     }
 
     /**
@@ -148,8 +150,10 @@ public class TransitionManager {
      *                   entered. A value of null will result in the default behavior of
      *                   using the default transition instead.
      */
-    public void setTransition(Scene fromScene, Scene toScene, Transition transition) {
-        mImpl.setTransition(fromScene.mImpl, toScene.mImpl, transition.mImpl);
+    public void setTransition(@NonNull Scene fromScene, @NonNull Scene toScene,
+            @Nullable Transition transition) {
+        mImpl.setTransition(fromScene.mImpl, toScene.mImpl,
+                transition == null ? null : transition.mImpl);
     }
 
     /**
@@ -160,7 +164,7 @@ public class TransitionManager {
      *
      * @param scene The Scene to change to
      */
-    public void transitionTo(Scene scene) {
+    public void transitionTo(@NonNull Scene scene) {
         mImpl.transitionTo(scene.mImpl);
     }
 

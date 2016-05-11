@@ -87,8 +87,11 @@ class TransitionManagerPort {
 
         final ViewGroup sceneRoot = scene.getSceneRoot();
 
-        TransitionPort transitionClone = transition.clone();
-        transitionClone.setSceneRoot(sceneRoot);
+        TransitionPort transitionClone = null;
+        if (transition != null) {
+            transitionClone = transition.clone();
+            transitionClone.setSceneRoot(sceneRoot);
+        }
 
         ScenePort oldScene = ScenePort.getCurrentScene(sceneRoot);
         if (oldScene != null && oldScene.isCreatedFromLayoutResource()) {

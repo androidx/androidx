@@ -18,6 +18,9 @@ package android.support.transition;
 
 import android.content.Context;
 import android.os.Build;
+import android.support.annotation.LayoutRes;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,7 +56,7 @@ public class Scene {
      * @param sceneRoot The root of the hierarchy in which scene changes
      *                  and transitions will take place.
      */
-    public Scene(ViewGroup sceneRoot) {
+    public Scene(@NonNull ViewGroup sceneRoot) {
         mImpl = createSceneImpl();
         mImpl.init(sceneRoot);
     }
@@ -68,7 +71,7 @@ public class Scene {
      * @param layout    The view hierarchy of this scene, added as a child
      *                  of sceneRoot when this scene is entered.
      */
-    public Scene(ViewGroup sceneRoot, View layout) {
+    public Scene(@NonNull ViewGroup sceneRoot, @NonNull View layout) {
         mImpl = createSceneImpl();
         mImpl.init(sceneRoot, layout);
     }
@@ -92,7 +95,9 @@ public class Scene {
      *                  the layout resource.
      * @return The scene for the given root and layout id
      */
-    public static Scene getSceneForLayout(ViewGroup sceneRoot, int layoutId, Context context) {
+    @NonNull
+    public static Scene getSceneForLayout(@NonNull ViewGroup sceneRoot, @LayoutRes int layoutId,
+            @NonNull Context context) {
         @SuppressWarnings("unchecked")
         SparseArray<Scene> scenes =
                 (SparseArray<Scene>) sceneRoot.getTag(R.id.transition_scene_layoutid_cache);
@@ -125,6 +130,7 @@ public class Scene {
      *
      * @return The root of the view hierarchy affected by this scene.
      */
+    @NonNull
     public ViewGroup getSceneRoot() {
         return mImpl.getSceneRoot();
     }
@@ -171,7 +177,7 @@ public class Scene {
      * @see #setExitAction(Runnable)
      * @see android.support.transition.Scene(android.view.ViewGroup, android.view.ViewGroup)
      */
-    public void setEnterAction(Runnable action) {
+    public void setEnterAction(@Nullable Runnable action) {
         mImpl.setEnterAction(action);
     }
 
@@ -191,7 +197,7 @@ public class Scene {
      * @see #setEnterAction(Runnable)
      * @see android.support.transition.Scene(android.view.ViewGroup, android.view.ViewGroup)
      */
-    public void setExitAction(Runnable action) {
+    public void setExitAction(@Nullable Runnable action) {
         mImpl.setExitAction(action);
     }
 
