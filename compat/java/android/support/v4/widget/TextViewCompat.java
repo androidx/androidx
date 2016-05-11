@@ -19,7 +19,6 @@ package android.support.v4.widget;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.DrawableRes;
-import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StyleRes;
@@ -73,17 +72,17 @@ public final class TextViewCompat {
 
         @Override
         public int getMaxLines(TextView textView) {
-            return TextViewCompatDonut.getMaxLines(textView);
+            return TextViewCompatGingerbread.getMaxLines(textView);
         }
 
         @Override
         public int getMinLines(TextView textView) {
-            return TextViewCompatDonut.getMinLines(textView);
+            return TextViewCompatGingerbread.getMinLines(textView);
         }
 
         @Override
         public void setTextAppearance(TextView textView, @StyleRes int resId) {
-            TextViewCompatDonut.setTextAppearance(textView, resId);
+            TextViewCompatGingerbread.setTextAppearance(textView, resId);
         }
     }
 

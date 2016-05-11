@@ -121,10 +121,7 @@ public class DrawableUtils {
      * there is a known issue in the given drawable's implementation.
      */
     public static boolean canSafelyMutateDrawable(@NonNull Drawable drawable) {
-        if (Build.VERSION.SDK_INT < 8 && drawable instanceof StateListDrawable) {
-            // StateListDrawable has a bug in mutate() on API 7
-            return false;
-        } else if (Build.VERSION.SDK_INT < 15 && drawable instanceof InsetDrawable) {
+        if (Build.VERSION.SDK_INT < 15 && drawable instanceof InsetDrawable) {
             return false;
         }  else if (Build.VERSION.SDK_INT < 15 && drawable instanceof GradientDrawable) {
             // GradientDrawable has a bug pre-ICS which results in mutate() resulting

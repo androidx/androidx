@@ -91,9 +91,7 @@ public class ActionMenuItemView extends AppCompatTextView
     }
 
     public void onConfigurationChanged(Configuration newConfig) {
-        if (Build.VERSION.SDK_INT >= 8) {
-            super.onConfigurationChanged(newConfig);
-        }
+        super.onConfigurationChanged(newConfig);
 
         mAllowTextWithIcon = shouldAllowTextWithIcon();
         updateTextButtonVisibility();

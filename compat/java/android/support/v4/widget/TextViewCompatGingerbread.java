@@ -21,9 +21,9 @@ import android.widget.TextView;
 
 import java.lang.reflect.Field;
 
-class TextViewCompatDonut {
+class TextViewCompatGingerbread {
 
-    private static final String LOG_TAG = "TextViewCompatDonut";
+    private static final String LOG_TAG = "TextViewCompatGingerbread";
     private static final int LINES = 1;
 
     private static Field sMaximumField;

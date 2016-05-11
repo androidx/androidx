@@ -331,7 +331,7 @@ class DrawableWrapperGingerbread extends Drawable
     }
 
     protected boolean isCompatTintEnabled() {
-        // It's enabled by default on Donut
+        // It's enabled by default on Gingerbread
         return true;
     }
 

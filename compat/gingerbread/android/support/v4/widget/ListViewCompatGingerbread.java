@@ -20,7 +20,7 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListView;
 
-class ListViewCompatDonut {
+class ListViewCompatGingerbread {
     static void scrollListBy(final ListView listView, int y) {
         final int firstPosition = listView.getFirstVisiblePosition();
         if (firstPosition == ListView.INVALID_POSITION) {

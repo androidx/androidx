@@ -194,7 +194,7 @@ public abstract class AppCompatDelegate {
         } else if (sdk >= 11) {
             return new AppCompatDelegateImplV11(context, window, callback);
         } else {
-            return new AppCompatDelegateImplV7(context, window, callback);
+            return new AppCompatDelegateImplV9(context, window, callback);
         }
     }
 
