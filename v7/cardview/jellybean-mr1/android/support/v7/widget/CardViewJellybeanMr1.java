@@ -19,7 +19,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 
-class CardViewJellybeanMr1 extends CardViewEclairMr1 {
+class CardViewJellybeanMr1 extends CardViewGingerbread {
 
     @Override
     public void initStatic() {

@@ -24,7 +24,7 @@ import android.graphics.RectF;
 import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 
-class CardViewEclairMr1 implements CardViewImpl {
+class CardViewGingerbread implements CardViewImpl {
 
     final RectF sCornerRect = new RectF();
 

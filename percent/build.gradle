@@ -3,7 +3,7 @@ apply plugin: 'com.android.library'
 archivesBaseName = 'percent'
 
 dependencies {
-    compile project(':support-v4')
+    compile project(':support-compat')
 
     androidTestCompile ('com.android.support.test:runner:0.4.1') {
         exclude module: 'support-annotations'

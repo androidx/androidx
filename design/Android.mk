@@ -53,11 +53,11 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 
 support_module_src_files += $(LOCAL_SRC_FILES)
 
-# A helper sub-library that makes direct use of Eclair MR1 APIs
+# A helper sub-library that makes direct use of Gingerbread APIs
 include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-design-eclair-mr1
+LOCAL_MODULE := android-support-design-gingerbread
 LOCAL_SDK_VERSION := 7
-LOCAL_SRC_FILES := $(call all-java-files-under, eclair-mr1)
+LOCAL_SRC_FILES := $(call all-java-files-under, gingerbread)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-design-base
 LOCAL_JAVA_LIBRARIES := \
     android-support-design-res \
@@ -74,7 +74,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-design-honeycomb
 LOCAL_SDK_VERSION := 11
 LOCAL_SRC_FILES := $(call all-java-files-under, honeycomb)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-design-eclair-mr1
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-design-gingerbread
 LOCAL_JAVA_LIBRARIES := \
     android-support-design-res \
     android-support-v4 \

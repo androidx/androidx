@@ -22,7 +22,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
 import android.view.View;
 
-class FloatingActionButtonIcs extends FloatingActionButtonEclairMr1 {
+class FloatingActionButtonIcs extends FloatingActionButtonGingerbread {
 
     private boolean mIsHiding;
 

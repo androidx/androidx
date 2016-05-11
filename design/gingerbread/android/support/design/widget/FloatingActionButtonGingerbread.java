@@ -31,7 +31,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 
-class FloatingActionButtonEclairMr1 extends FloatingActionButtonImpl {
+class FloatingActionButtonGingerbread extends FloatingActionButtonImpl {
 
     private int mAnimationDuration;
     private StateListAnimator mStateListAnimator;
@@ -39,7 +39,7 @@ class FloatingActionButtonEclairMr1 extends FloatingActionButtonImpl {
 
     ShadowDrawableWrapper mShadowDrawable;
 
-    FloatingActionButtonEclairMr1(VisibilityAwareImageButton view,
+    FloatingActionButtonGingerbread(VisibilityAwareImageButton view,
             ShadowViewDelegate shadowViewDelegate) {
         super(view, shadowViewDelegate);
 

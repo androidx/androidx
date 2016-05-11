@@ -84,7 +84,7 @@ public class CardView extends FrameLayout {
         } else if (Build.VERSION.SDK_INT >= 17) {
             IMPL = new CardViewJellybeanMr1();
         } else {
-            IMPL = new CardViewEclairMr1();
+            IMPL = new CardViewGingerbread();
         }
         IMPL.initStatic();
     }

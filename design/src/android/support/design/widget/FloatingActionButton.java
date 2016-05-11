@@ -769,7 +769,7 @@ public class FloatingActionButton extends VisibilityAwareImageButton {
         } else if (sdk >= 14) {
             return new FloatingActionButtonIcs(this, new ShadowDelegateImpl());
         } else {
-            return new FloatingActionButtonEclairMr1(this, new ShadowDelegateImpl());
+            return new FloatingActionButtonGingerbread(this, new ShadowDelegateImpl());
         }
     }
 
