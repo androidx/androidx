@@ -14,7 +14,7 @@
 
 LOCAL_PATH := $(call my-dir)
 
-# A helper sub-library that makes direct use of Donut APIs.
+# A helper sub-library that makes direct use of Gingerbread APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-v4-gingerbread
 LOCAL_SDK_VERSION := 9

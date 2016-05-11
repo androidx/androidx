@@ -35,7 +35,7 @@ public final class ConfigurationHelper {
         } else if (sdk >= 13) {
             IMPL = new HoneycombMr2Impl();
         } else {
-            IMPL = new DonutImpl();
+            IMPL = new GingerbreadImpl();
         }
     }
 
@@ -48,7 +48,7 @@ public final class ConfigurationHelper {
         int getDensityDpi(@NonNull Resources resources);
     }
 
-    private static class DonutImpl implements ConfigurationHelperImpl {
+    private static class GingerbreadImpl implements ConfigurationHelperImpl {
         @Override
         public int getScreenHeightDp(@NonNull Resources resources) {
             return ConfigurationHelperGingerbread.getScreenHeightDp(resources);
@@ -70,7 +70,7 @@ public final class ConfigurationHelper {
         }
     }
 
-    private static class HoneycombMr2Impl extends DonutImpl {
+    private static class HoneycombMr2Impl extends GingerbreadImpl {
         @Override
         public int getScreenHeightDp(@NonNull Resources resources) {
             return ConfigurationHelperHoneycombMr2.getScreenHeightDp(resources);

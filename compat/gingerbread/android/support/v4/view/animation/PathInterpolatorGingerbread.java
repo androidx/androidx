@@ -21,9 +21,9 @@ import android.graphics.PathMeasure;
 import android.view.animation.Interpolator;
 
 /**
- * A path interpolator implementation compatible with API 4+.
+ * A path interpolator implementation compatible with API 9+.
  */
-class PathInterpolatorDonut implements Interpolator {
+class PathInterpolatorGingerbread implements Interpolator {
 
     /**
      * Governs the accuracy of the approximation of the {@link Path}.
@@ -33,7 +33,7 @@ class PathInterpolatorDonut implements Interpolator {
     private final float[] mX;
     private final float[] mY;
 
-    public PathInterpolatorDonut(Path path) {
+    public PathInterpolatorGingerbread(Path path) {
         final PathMeasure pathMeasure = new PathMeasure(path, false /* forceClosed */);
 
         final float pathLength = pathMeasure.getLength();
@@ -52,11 +52,11 @@ class PathInterpolatorDonut implements Interpolator {
         }
     }
 
-    public PathInterpolatorDonut(float controlX, float controlY) {
+    public PathInterpolatorGingerbread(float controlX, float controlY) {
         this(createQuad(controlX, controlY));
     }
 
-    public PathInterpolatorDonut(float controlX1, float controlY1,
+    public PathInterpolatorGingerbread(float controlX1, float controlY1,
             float controlX2, float controlY2) {
         this(createCubic(controlX1, controlY1, controlX2, controlY2));
     }

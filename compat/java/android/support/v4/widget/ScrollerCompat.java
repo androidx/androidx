@@ -31,25 +31,21 @@ import android.widget.Scroller;
  * the APIs from Scroller or OverScroller.</p>
  */
 public final class ScrollerCompat {
-    private static final String TAG = "ScrollerCompat";
-
     OverScroller mScroller;
-
-    static final int CHASE_FRAME_TIME = 16; // ms per target frame
 
     public static ScrollerCompat create(Context context) {
         return create(context, null);
     }
 
     public static ScrollerCompat create(Context context, Interpolator interpolator) {
-        return new ScrollerCompat(Build.VERSION.SDK_INT, context, interpolator);
+        return new ScrollerCompat(context, interpolator);
     }
 
     /**
      * Private constructer where API version can be provided.
      * Useful for unit testing.
      */
-    private ScrollerCompat(int apiVersion, Context context, Interpolator interpolator) {
+    private ScrollerCompat(Context context, Interpolator interpolator) {
         mScroller = interpolator != null ?
                 new OverScroller(context, interpolator) : new OverScroller(context);
     }

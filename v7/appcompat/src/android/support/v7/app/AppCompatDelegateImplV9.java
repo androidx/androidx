@@ -89,7 +89,7 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static android.view.Window.FEATURE_OPTIONS_PANEL;
 
-class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
+class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
         implements MenuBuilder.Callback, LayoutInflaterFactory {
 
     private DecorContentParent mDecorContentParent;
@@ -142,7 +142,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
 
     private AppCompatViewInflater mAppCompatViewInflater;
 
-    AppCompatDelegateImplV7(Context context, Window window, AppCompatCallback callback) {
+    AppCompatDelegateImplV9(Context context, Window window, AppCompatCallback callback) {
         super(context, window, callback);
     }
 
@@ -681,7 +681,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
             mActionMode.finish();
         }
 
-        final ActionMode.Callback wrappedCallback = new ActionModeCallbackWrapperV7(callback);
+        final ActionMode.Callback wrappedCallback = new ActionModeCallbackWrapperV9(callback);
 
         ActionBar ab = getSupportActionBar();
         if (ab != null) {
@@ -714,9 +714,9 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
             mActionMode.finish();
         }
 
-        if (!(callback instanceof ActionModeCallbackWrapperV7)) {
+        if (!(callback instanceof ActionModeCallbackWrapperV9)) {
             // If the callback hasn't been wrapped yet, wrap it
-            callback = new ActionModeCallbackWrapperV7(callback);
+            callback = new ActionModeCallbackWrapperV9(callback);
         }
 
         ActionMode mode = null;
@@ -1020,7 +1020,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
             LayoutInflaterCompat.setFactory(layoutInflater, this);
         } else {
             if (!(LayoutInflaterCompat.getFactory(layoutInflater)
-                    instanceof AppCompatDelegateImplV7)) {
+                    instanceof AppCompatDelegateImplV9)) {
                 Log.i(TAG, "The Activity's LayoutInflater already has a Factory installed"
                         + " so we can not install AppCompat's");
             }
@@ -1735,10 +1735,10 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
     /**
      * Clears out internal reference when the action mode is destroyed.
      */
-    class ActionModeCallbackWrapperV7 implements ActionMode.Callback {
+    class ActionModeCallbackWrapperV9 implements ActionMode.Callback {
         private ActionMode.Callback mWrapped;
 
-        public ActionModeCallbackWrapperV7(ActionMode.Callback wrapped) {
+        public ActionModeCallbackWrapperV9(ActionMode.Callback wrapped) {
             mWrapped = wrapped;
         }
 
@@ -2061,7 +2061,7 @@ class AppCompatDelegateImplV7 extends AppCompatDelegateImplBase
 
         @Override
         public boolean dispatchKeyEvent(KeyEvent event) {
-            return AppCompatDelegateImplV7.this.dispatchKeyEvent(event)
+            return AppCompatDelegateImplV9.this.dispatchKeyEvent(event)
                     || super.dispatchKeyEvent(event);
         }
 

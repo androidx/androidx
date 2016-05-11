@@ -32,10 +32,10 @@ class GingerbreadAnimatorCompatProvider implements AnimatorProvider {
 
     @Override
     public ValueAnimatorCompat emptyValueAnimator() {
-        return new DonutFloatValueAnimator();
+        return new GingerbreadFloatValueAnimator();
     }
 
-    private static class DonutFloatValueAnimator implements ValueAnimatorCompat {
+    private static class GingerbreadFloatValueAnimator implements ValueAnimatorCompat {
 
         List<AnimatorListenerCompat> mListeners = new ArrayList<AnimatorListenerCompat>();
         List<AnimatorUpdateListenerCompat> mUpdateListeners
@@ -48,7 +48,7 @@ class GingerbreadAnimatorCompatProvider implements AnimatorProvider {
         private boolean mStarted = false;
         private boolean mEnded = false;
 
-        public DonutFloatValueAnimator() {
+        public GingerbreadFloatValueAnimator() {
         }
 
         private Runnable mLoopRunnable = new Runnable() {

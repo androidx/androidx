@@ -36,7 +36,7 @@ public final class ListViewCompat {
         if (Build.VERSION.SDK_INT >= 19) {
             ListViewCompatKitKat.scrollListBy(listView, y);
         } else {
-            ListViewCompatDonut.scrollListBy(listView, y);
+            ListViewCompatGingerbread.scrollListBy(listView, y);
         }
     }
 
