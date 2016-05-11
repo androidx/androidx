@@ -21,7 +21,7 @@ import android.content.res.Resources;
 import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 
-class ConfigurationHelperDonut {
+class ConfigurationHelperGingerbread {
 
     static int getScreenHeightDp(@NonNull Resources resources) {
         final DisplayMetrics metrics = resources.getDisplayMetrics();

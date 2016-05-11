@@ -39,7 +39,7 @@ public final class BundleCompat {
         if (Build.VERSION.SDK_INT >= 18) {
             return BundleCompatJellybeanMR2.getBinder(bundle, key);
         } else {
-            return BundleCompatDonut.getBinder(bundle, key);
+            return BundleCompatGingerbread.getBinder(bundle, key);
         }
     }
 
@@ -54,7 +54,7 @@ public final class BundleCompat {
         if (Build.VERSION.SDK_INT >= 18) {
             BundleCompatJellybeanMR2.putBinder(bundle, key, binder);
         } else {
-            BundleCompatDonut.putBinder(bundle, key, binder);
+            BundleCompatGingerbread.putBinder(bundle, key, binder);
         }
     }
 }

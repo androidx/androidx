@@ -105,13 +105,10 @@ package android.support.v4.app {
     field public static final int MODE_IGNORED = 1; // 0x1
   }
 
-   abstract class BaseFragmentActivityDonut extends android.app.Activity {
+   abstract class BaseFragmentActivityGingerbread extends android.app.Activity {
   }
 
-   abstract class BaseFragmentActivityEclair extends android.support.v4.app.BaseFragmentActivityDonut {
-  }
-
-   abstract class BaseFragmentActivityHoneycomb extends android.support.v4.app.BaseFragmentActivityEclair {
+   abstract class BaseFragmentActivityHoneycomb extends android.support.v4.app.BaseFragmentActivityGingerbread {
   }
 
    abstract class BaseFragmentActivityJB extends android.support.v4.app.BaseFragmentActivityHoneycomb {

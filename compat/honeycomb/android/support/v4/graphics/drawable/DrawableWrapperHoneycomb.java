@@ -21,7 +21,7 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-class DrawableWrapperHoneycomb extends DrawableWrapperDonut {
+class DrawableWrapperHoneycomb extends DrawableWrapperGingerbread {
 
     DrawableWrapperHoneycomb(Drawable drawable) {
         super(drawable);

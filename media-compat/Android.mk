@@ -14,18 +14,6 @@
 
 LOCAL_PATH := $(call my-dir)
 
-# A helper sub-library that makes direct use of Froyo APIs.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-media-compat-froyo
-LOCAL_SDK_VERSION := 8
-LOCAL_SRC_FILES := $(call all-java-files-under, froyo)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-annotations android-support-compat
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-support_module_src_files := $(LOCAL_SRC_FILES)
-support_module_java_libraries := android-support-annotations android-support-compat
-
 # -----------------------------------------------------------------------
 
 # A helper sub-library that makes direct use of Ice Cream Sandwich APIs.
@@ -33,11 +21,12 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-media-compat-ics
 LOCAL_SDK_VERSION := 14
 LOCAL_SRC_FILES := $(call all-java-files-under, ics)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-media-compat-froyo
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-annotations android-support-compat
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
-support_module_src_files += $(LOCAL_SRC_FILES)
+support_module_src_files := $(LOCAL_SRC_FILES)
+support_module_java_libraries := android-support-annotations android-support-compat
 
 # -----------------------------------------------------------------------
 

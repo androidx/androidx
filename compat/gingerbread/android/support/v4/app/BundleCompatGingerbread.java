@@ -26,8 +26,8 @@ import java.lang.reflect.Method;
 /**
  * @hide
  */
-class BundleCompatDonut {
-    private static final String TAG = "BundleCompatDonut";
+class BundleCompatGingerbread {
+    private static final String TAG = "BundleCompatGingerbread";
 
     private static Method sGetIBinderMethod;
     private static boolean sGetIBinderMethodFetched;

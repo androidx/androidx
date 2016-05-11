@@ -14,11 +14,11 @@
 
 LOCAL_PATH := $(call my-dir)
 
-# A helper sub-library that makes direct use of Donut APIs.
+# A helper sub-library that makes direct use of Gingerbread APIs.
 include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-compat-donut
+LOCAL_MODULE := android-support-compat-gingerbread
 LOCAL_SDK_VERSION := 9
-LOCAL_SRC_FILES := $(call all-java-files-under, donut)
+LOCAL_SRC_FILES := $(call all-java-files-under, gingerbread)
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-annotations
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
@@ -33,7 +33,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-compat-honeycomb
 LOCAL_SDK_VERSION := 11
 LOCAL_SRC_FILES := $(call all-java-files-under, honeycomb)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-compat-donut
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-compat-gingerbread
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
