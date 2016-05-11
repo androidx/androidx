@@ -424,7 +424,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     static final String VIEW_STATE_TAG = "android:view_state";
     static final String USER_VISIBLE_HINT_TAG = "android:user_visible_hint";
 
-
     static class AnimateOnHWLayerIfNeededListener implements AnimationListener {
         private AnimationListener mOrignalListener;
         private boolean mShouldRunOnHWLayer;
@@ -974,6 +973,10 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             anim.setAnimationListener(new AnimateOnHWLayerIfNeededListener(v, anim,
                     originalListener));
         }
+    }
+
+    boolean isStateAtLeast(int state) {
+        return mCurState >= state;
     }
 
     void moveToState(Fragment f, int newState, int transit, int transitionStyle,
