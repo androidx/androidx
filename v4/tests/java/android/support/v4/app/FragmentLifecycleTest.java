@@ -17,6 +17,7 @@
 
 package android.support.v4.app;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -33,6 +34,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 
+import android.widget.TextView;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -417,6 +419,35 @@ public class FragmentLifecycleTest {
         shutdownFragmentController(fc);
     }
 
+    /**
+     * This test confirms that as long as a parent fragment has called super.onCreate,
+     * any child fragments added, committed and with transactions executed will be brought
+     * to at least the CREATED state by the time the parent fragment receives onCreateView.
+     * This means the child fragment will have received onAttach/onCreate.
+     */
+    @Test
+    @UiThreadTest
+    public void childFragmentManagerAttach() throws Throwable {
+        FragmentController fc = FragmentController.createController(
+                new HostCallbacks(mActivityRule.getActivity()));
+        fc.attachHost(null);
+        fc.dispatchCreate();
+
+        FragmentManager fm = fc.getSupportFragmentManager();
+
+        fm.beginTransaction()
+                .add(android.R.id.content, new ChildFragmentManagerFragment())
+                .commitNow();
+
+        fc.dispatchActivityCreated();
+
+        fc.dispatchStart();
+        fc.dispatchResume();
+        fc.dispatchStop();
+        fc.dispatchReallyStop();
+        fc.dispatchDestroy();
+    }
+
     private void assertAnimationsMatch(FragmentManager fm, int enter, int exit, int popEnter,
             int popExit) {
         FragmentManagerImpl fmImpl = (FragmentManagerImpl) fm;
@@ -502,6 +533,53 @@ public class FragmentLifecycleTest {
         public void onSaveInstanceState(Bundle outState) {
             super.onSaveInstanceState(outState);
             outState.putString(STATE_KEY, mSavedState);
+        }
+    }
+
+    public static class ChildFragmentManagerFragment extends StrictFragment {
+        private FragmentManager mSavedChildFragmentManager;
+
+        @Override
+        public void onAttach(Context context) {
+            super.onAttach(context);
+            mSavedChildFragmentManager = getChildFragmentManager();
+        }
+
+        @Nullable
+        @Override
+        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                @Nullable Bundle savedInstanceState) {
+            assertSame("child FragmentManagers not the same instance", mSavedChildFragmentManager,
+                    getChildFragmentManager());
+            ChildFragmentManagerChildFragment child = new ChildFragmentManagerChildFragment("foo");
+            mSavedChildFragmentManager.beginTransaction()
+                    .add(child, "tag")
+                    .commitNow();
+            assertEquals("argument strings don't match", "foo", child.getString());
+            return new TextView(container.getContext());
+        }
+    }
+
+    public static class ChildFragmentManagerChildFragment extends StrictFragment {
+        private String mString;
+
+        public ChildFragmentManagerChildFragment() {
+        }
+
+        public ChildFragmentManagerChildFragment(String arg) {
+            final Bundle b = new Bundle();
+            b.putString("string", arg);
+            setArguments(b);
+        }
+
+        @Override
+        public void onAttach(Context context) {
+            super.onAttach(context);
+            mString = getArguments().getString("string", "NO VALUE");
+        }
+
+        public String getString() {
+            return mString;
         }
     }
 

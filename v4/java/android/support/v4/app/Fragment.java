@@ -1237,6 +1237,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     public void onCreate(@Nullable Bundle savedInstanceState) {
         mCalled = true;
         restoreChildFragmentState(savedInstanceState);
+        if (mChildFragmentManager != null
+                && !mChildFragmentManager.isStateAtLeast(Fragment.CREATED)) {
+            mChildFragmentManager.dispatchCreate();
+        }
     }
 
     /**
