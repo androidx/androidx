@@ -55,6 +55,7 @@ public class VideoConsumptionExampleFragment extends PlaybackOverlayFragment imp
         metaData.setTitle("Diving with Sharks");
         mGlue.setMetaData(metaData);
         mGlue.setMediaSource(URL);
+        mGlue.prepareMediaForPlaying();
 
 
         Fragment videoSurfaceFragment = getFragmentManager()
