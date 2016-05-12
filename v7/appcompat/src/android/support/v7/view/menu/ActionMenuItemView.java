@@ -23,6 +23,7 @@ import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.Parcelable;
 import android.support.v4.content.res.ConfigurationHelper;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
@@ -88,6 +89,7 @@ public class ActionMenuItemView extends AppCompatTextView
         setOnLongClickListener(this);
 
         mSavedPaddingLeft = -1;
+        setSaveEnabled(false);
     }
 
     public void onConfigurationChanged(Configuration newConfig) {
@@ -332,6 +334,13 @@ public class ActionMenuItemView extends AppCompatTextView
         // dismissed and thus null'ed out before onForwardingStopped() has been called.
         // This messes up ActionMenuItemView's onForwardingStopped() impl since it will now
         // return false and make ListPopupWindow think it's still forwarding.
+    }
+
+    @Override
+    public void onRestoreInstanceState(Parcelable state) {
+        // This might get called with the state of ActionView since it shares the same ID with
+        // ActionMenuItemView. Do not restore this state as ActionMenuItemView never saved it.
+        super.onRestoreInstanceState(null);
     }
 
     public static abstract class PopupCallback {
