@@ -16,7 +16,7 @@
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_checked="true" android:state_enabled="true"
-            android:drawable="@drawable/ic_media_route_on_mono_dark" />
+            android:drawable="@drawable/mr_ic_media_route_on_mono_dark" />
     <item android:state_checkable="true" android:state_enabled="true"
             android:drawable="@drawable/mr_ic_media_route_connecting_mono_dark" />
     <item android:state_enabled="true"
