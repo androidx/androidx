@@ -83,7 +83,6 @@ public final class NotificationManagerCompat {
     /** Hidden field Settings.Secure.ENABLED_NOTIFICATION_LISTENERS */
     private static final String SETTING_ENABLED_NOTIFICATION_LISTENERS =
             "enabled_notification_listeners";
-    private static final int IMPORTANCE_UNSPECIFIED = -1000;
     private static final int SIDE_CHANNEL_BIND_FLAGS;
 
     /** Cache of enabled notification listener components */
@@ -99,6 +98,46 @@ public final class NotificationManagerCompat {
     private static final Object sLock = new Object();
     /** Guarded by {@link #sLock} */
     private static SideChannelManager sSideChannelManager;
+
+    /**
+     * Value signifying that the user has not expressed an importance.
+     *
+     * This value is for persisting preferences, and should never be associated with
+     * an actual notification.
+     */
+    public static final int IMPORTANCE_UNSPECIFIED = -1000;
+
+    /**
+     * A notification with no importance: shows nowhere, is blocked.
+     */
+    public static final int IMPORTANCE_NONE = 0;
+
+    /**
+     * Min notification importance: only shows in the shade, below the fold.
+     */
+    public static final int IMPORTANCE_MIN = 1;
+
+    /**
+     * Low notification importance: shows everywhere, but is not intrusive.
+     */
+    public static final int IMPORTANCE_LOW = 2;
+
+    /**
+     * Default notification importance: shows everywhere, allowed to makes noise,
+     * but does not visually intrude.
+     */
+    public static final int IMPORTANCE_DEFAULT = 3;
+
+    /**
+     * Higher notification importance: shows everywhere, allowed to makes noise and peek.
+     */
+    public static final int IMPORTANCE_HIGH = 4;
+
+    /**
+     * Highest notification importance: shows everywhere, allowed to makes noise, peek, and
+     * use full screen intents.
+     */
+    public static final int IMPORTANCE_MAX = 5;
 
     /** Get a {@link NotificationManagerCompat} instance for a provided context. */
     public static NotificationManagerCompat from(Context context) {
@@ -261,6 +300,8 @@ public final class NotificationManagerCompat {
 
     /**
      * Returns the user specified importance for notifications from the calling package.
+     *
+     * @return An importance level, such as {@link #IMPORTANCE_DEFAULT}.
      */
     public int getImportance() {
         return IMPL.getImportance(mNotificationManager);
