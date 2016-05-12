@@ -1665,7 +1665,6 @@ package android.support.v4.view.accessibility {
     method public java.lang.String getViewIdResourceName();
     method public android.support.v4.view.accessibility.AccessibilityWindowInfoCompat getWindow();
     method public int getWindowId();
-    method public boolean hasImage();
     method public boolean isAccessibilityFocused();
     method public boolean isCheckable();
     method public boolean isChecked();
@@ -1711,7 +1710,6 @@ package android.support.v4.view.accessibility {
     method public void setError(java.lang.CharSequence);
     method public void setFocusable(boolean);
     method public void setFocused(boolean);
-    method public void setHasImage(boolean);
     method public void setInputType(int);
     method public void setLabelFor(android.view.View);
     method public void setLabelFor(android.view.View, int);
