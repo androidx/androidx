@@ -3,7 +3,8 @@ apply plugin: 'com.android.library'
 archivesBaseName = 'gridlayout-v7'
 
 dependencies {
-    compile project(':support-v4')
+    compile project(':support-compat')
+    compile project(':support-core-ui')
 
     androidTestCompile ('com.android.support.test:runner:0.4.1') {
         exclude module: 'support-annotations'

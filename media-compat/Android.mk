@@ -56,25 +56,12 @@ support_module_src_files += $(LOCAL_SRC_FILES)
 
 # -----------------------------------------------------------------------
 
-# A helper sub-library that makes direct use of V20 APIs.
-include $(CLEAR_VARS)
-LOCAL_MODULE := android-support-media-compat-api20
-LOCAL_SDK_VERSION := 20
-LOCAL_SRC_FILES := $(call all-java-files-under, api20)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-media-compat-kitkat
-LOCAL_JAVA_LANGUAGE_VERSION := 1.7
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-support_module_src_files += $(LOCAL_SRC_FILES)
-
-# -----------------------------------------------------------------------
-
 # A helper sub-library that makes direct use of Lollipop APIs.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android-support-media-compat-api21
 LOCAL_SDK_VERSION := 21
 LOCAL_SRC_FILES := $(call all-java-files-under, api21)
-LOCAL_STATIC_JAVA_LIBRARIES := android-support-media-compat-api20
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-media-compat-kitkat
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
