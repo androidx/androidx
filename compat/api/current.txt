@@ -428,6 +428,13 @@ package android.support.v4.app {
     method public void notify(java.lang.String, int, android.app.Notification);
     field public static final java.lang.String ACTION_BIND_SIDE_CHANNEL = "android.support.BIND_NOTIFICATION_SIDE_CHANNEL";
     field public static final java.lang.String EXTRA_USE_SIDE_CHANNEL = "android.support.useSideChannel";
+    field public static final int IMPORTANCE_DEFAULT = 3; // 0x3
+    field public static final int IMPORTANCE_HIGH = 4; // 0x4
+    field public static final int IMPORTANCE_LOW = 2; // 0x2
+    field public static final int IMPORTANCE_MAX = 5; // 0x5
+    field public static final int IMPORTANCE_MIN = 1; // 0x1
+    field public static final int IMPORTANCE_NONE = 0; // 0x0
+    field public static final int IMPORTANCE_UNSPECIFIED = -1000; // 0xfffffc18
   }
 
   public final class RemoteInput extends android.support.v4.app.RemoteInputCompatBase.RemoteInput {
