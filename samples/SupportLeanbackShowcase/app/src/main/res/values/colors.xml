@@ -45,7 +45,7 @@
     <color name="song_row_favorite_color">#FF6E40</color>
 
     <color name="app_guidedstep_actions_background">#C03800</color>
-    <color name="app_guidedstep_subactions_background">#C03800</color>
+    <color name="app_guidedstep_subactions_background">#732200</color>
     <color name="app_guidedstep_dialog_actions_background">#263238</color>
     <color name="settings_card_background">#0277BD</color>
     <color name="settings_card_background_focussed">#01579B</color>

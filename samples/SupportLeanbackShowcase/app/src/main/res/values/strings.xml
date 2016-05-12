@@ -56,6 +56,7 @@
     <string name="wizard_example_watch_now">Watch now</string>
     <string name="wizard_example_later">Later</string>
     <string name="wizard_example_watch_now_clicked">\'Watch now\' clicked.</string>
+    <string name="wizard_example_later_clicked">\'Later\' clicked.</string>
     <string name="wizard_example_new_payment_guidance_title">New credit card</string>
     <string name="wizard_example_new_payment_guidance_description">Enter new credit card information here</string>
     <string name="wizard_example_input_credit">Input Payment Type</string>
