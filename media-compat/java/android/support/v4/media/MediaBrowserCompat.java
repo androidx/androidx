@@ -573,7 +573,7 @@ public final class MediaBrowserCompat {
         private class StubApi21 implements MediaBrowserCompatApi21.SubscriptionCallback {
             @Override
             public void onChildrenLoaded(@NonNull String parentId, List<Parcel> children) {
-                Subscription sub = mSubscriptionRef.get();
+                Subscription sub = mSubscriptionRef == null ? null : mSubscriptionRef.get();
                 if (sub == null) {
                     SubscriptionCallback.this.onChildrenLoaded(
                             parentId, parcelListToItemList(children));
