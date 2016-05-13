@@ -435,14 +435,20 @@ public class FragmentLifecycleTest {
 
         FragmentManager fm = fc.getSupportFragmentManager();
 
+        ChildFragmentManagerFragment fragment = new ChildFragmentManagerFragment();
         fm.beginTransaction()
-                .add(android.R.id.content, new ChildFragmentManagerFragment())
+                .add(android.R.id.content, fragment)
                 .commitNow();
 
         fc.dispatchActivityCreated();
 
         fc.dispatchStart();
         fc.dispatchResume();
+
+        // Confirm that the parent fragment received onAttachFragment
+        assertTrue("parent fragment did not receive onAttachFragment",
+                fragment.mCalledOnAttachFragment);
+
         fc.dispatchStop();
         fc.dispatchReallyStop();
         fc.dispatchDestroy();
