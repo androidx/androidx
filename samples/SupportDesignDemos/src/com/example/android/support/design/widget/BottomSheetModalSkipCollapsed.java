@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import android.support.design.widget.BottomSheetDialogFragment;
 
 /**
  * This demonstrates basic usage of {@link BottomSheetDialogFragment}.
+ *
+ * <p>This version has behavior_skipCollapsed="true" in its theme.</p>
  */
-public class BottomSheetModal extends BottomSheetModalBase {
+public class BottomSheetModalSkipCollapsed extends BottomSheetModalBase {
 }

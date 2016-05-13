@@ -289,5 +289,14 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".widget.BottomSheetModalSkipCollapsed"
+                  android:label="@string/design_bottomsheet_modal_skip_collapsed"
+                  android:theme="@style/Theme.BottomSheetModalSkipCollapsed">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.support.design.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
     </application>
 </manifest>

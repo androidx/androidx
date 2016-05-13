@@ -59,4 +59,16 @@
         <item name="android:layout_marginRight">@dimen/bottom_sheet_horizontal_margin</item>
     </style>
 
+    <style name="Theme.BottomSheetModalSkipCollapsed" parent="Theme.BottomSheetModal">
+        <item name="bottomSheetDialogTheme">@style/Theme.BottomSheetModal.BottomSheetDialogSkipCollapsed</item>
+    </style>
+
+    <style name="Theme.BottomSheetModal.BottomSheetDialogSkipCollapsed" parent="Theme.Design.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/BottomSheetStyleSkipCollapsed</item>
+    </style>
+
+    <style name="BottomSheetStyleSkipCollapsed" parent="BottomSheetStyle">
+        <item name="behavior_skipCollapsed">true</item>
+    </style>
+
 </resources>
