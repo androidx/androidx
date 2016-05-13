@@ -834,6 +834,10 @@ public class FragmentActivity extends BaseFragmentActivityJB implements
 
     /**
      * Called when a fragment is attached to the activity.
+     *
+     * <p>This is called after the attached fragment's <code>onAttach</code> and before
+     * the attached fragment's <code>onCreate</code> if the fragment has not yet had a previous
+     * call to <code>onCreate</code>.</p>
      */
     @SuppressWarnings("unused")
     public void onAttachFragment(Fragment fragment) {
