@@ -536,10 +536,13 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
 
         @Override
         public void setActionBarUpIndicator(Drawable themeImage, int contentDescRes) {
-            mActivity.getActionBar().setDisplayShowHomeEnabled(true);
-            mSetIndicatorInfo = ActionBarDrawerToggleHoneycomb.setActionBarUpIndicator(
-                    mSetIndicatorInfo, mActivity, themeImage, contentDescRes);
-            mActivity.getActionBar().setDisplayShowHomeEnabled(false);
+            final ActionBar actionBar = mActivity.getActionBar();
+            if (actionBar != null) {
+                actionBar.setDisplayShowHomeEnabled(true);
+                mSetIndicatorInfo = ActionBarDrawerToggleHoneycomb.setActionBarUpIndicator(
+                        mSetIndicatorInfo, mActivity, themeImage, contentDescRes);
+                actionBar.setDisplayShowHomeEnabled(false);
+            }
         }
 
         @Override
