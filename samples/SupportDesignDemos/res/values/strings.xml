@@ -30,6 +30,7 @@
     <string name="design_bottomsheet_scroll">BottomSheet/With ScrollView in background</string>
     <string name="design_bottomsheet_with_fragment">BottomSheet/With Fragment</string>
     <string name="design_bottomsheet_modal">BottomSheet/Modal</string>
+    <string name="design_bottomsheet_modal_skip_collapsed">BottomSheet/Modal (Skip collapsed)</string>
 
     <string name="fab_size_normal">Normal size</string>
     <string name="fab_size_mini">Mini size</string>
