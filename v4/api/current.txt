@@ -189,6 +189,7 @@ package android.support.v4.app {
     method public void onActivityResult(int, int, android.content.Intent);
     method public void onAttach(android.content.Context);
     method public deprecated void onAttach(android.app.Activity);
+    method public void onAttachFragment(android.support.v4.app.Fragment);
     method public void onConfigurationChanged(android.content.res.Configuration);
     method public boolean onContextItemSelected(android.view.MenuItem);
     method public void onCreate(android.os.Bundle);
