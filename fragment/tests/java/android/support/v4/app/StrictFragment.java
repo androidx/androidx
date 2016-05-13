@@ -36,7 +36,8 @@ public class StrictFragment extends Fragment {
 
     boolean mCalledOnAttach, mCalledOnCreate, mCalledOnActivityCreated,
             mCalledOnStart, mCalledOnResume, mCalledOnSaveInstanceState,
-            mCalledOnPause, mCalledOnStop, mCalledOnDestroy, mCalledOnDetach;
+            mCalledOnPause, mCalledOnStop, mCalledOnDestroy, mCalledOnDetach,
+            mCalledOnAttachFragment;
 
     static String stateToString(int state) {
         switch (state) {
@@ -78,6 +79,11 @@ public class StrictFragment extends Fragment {
             throw new IllegalStateException(caller + " called while fragment was "
                     + stateToString(mState) + "; expected at least " + stateToString(minState));
         }
+    }
+
+    @Override
+    public void onAttachFragment(Fragment childFragment) {
+        mCalledOnAttachFragment = true;
     }
 
     @Override

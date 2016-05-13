@@ -1043,6 +1043,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                     }
                     if (f.mParentFragment == null) {
                         mHost.onAttachFragment(f);
+                    } else {
+                        f.mParentFragment.onAttachFragment(f);
                     }
 
                     if (!f.mRetaining) {
