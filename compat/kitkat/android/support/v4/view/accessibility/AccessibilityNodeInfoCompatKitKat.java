@@ -113,19 +113,6 @@ class AccessibilityNodeInfoCompatKitKat {
         ((AccessibilityNodeInfo) info).setInputType(inputType);
     }
 
-    public static boolean hasImage(Object info) {
-        long traits = getTraits(info);
-        if (traits == TRAIT_UNSET) {
-            return AccessibilityNodeInfoCompatIcs.hasImage(info);
-        } else {
-            return (traits & TRAIT_HAS_IMAGE) != 0;
-        }
-    }
-
-    public static void setHasImage(Object info, boolean hasImage) {
-        setTrait(info, TRAIT_HAS_IMAGE);
-    }
-
     public static boolean isDismissable(Object info) {
         return ((AccessibilityNodeInfo) info).isDismissable();
     }

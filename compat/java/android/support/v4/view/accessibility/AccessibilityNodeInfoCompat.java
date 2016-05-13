@@ -520,8 +520,6 @@ public class AccessibilityNodeInfoCompat {
         public void setBoundsInParent(Object info, Rect bounds);
         public void getBoundsInScreen(Object info, Rect outBounds);
         public void setBoundsInScreen(Object info, Rect bounds);
-        public boolean hasImage(Object info);
-        public void setHasImage(Object info, boolean hasImage);
         public boolean isCheckable(Object info);
         public void setCheckable(Object info, boolean checkable);
         public boolean isChecked(Object info);
@@ -747,16 +745,6 @@ public class AccessibilityNodeInfoCompat {
         @Override
         public int getWindowId(Object info) {
             return 0;
-        }
-
-        @Override
-        public boolean hasImage(Object info) {
-            return false;
-        }
-
-        @Override
-        public void setHasImage(Object info, boolean hasImage) {
-
         }
 
         @Override
@@ -1328,11 +1316,6 @@ public class AccessibilityNodeInfoCompat {
         }
 
         @Override
-        public boolean hasImage(Object info) {
-            return AccessibilityNodeInfoCompatIcs.hasImage(info);
-        }
-
-        @Override
         public boolean isCheckable(Object info) {
             return AccessibilityNodeInfoCompatIcs.isCheckable(info);
         }
@@ -1395,10 +1378,6 @@ public class AccessibilityNodeInfoCompat {
         @Override
         public void setBoundsInScreen(Object info, Rect bounds) {
             AccessibilityNodeInfoCompatIcs.setBoundsInScreen(info, bounds);
-        }
-
-        @Override
-        public void setHasImage(Object info, boolean hasImage) {
         }
 
         @Override
@@ -1765,16 +1744,6 @@ public class AccessibilityNodeInfoCompat {
         @Override
         public void setInputType(Object info, int inputType) {
             AccessibilityNodeInfoCompatKitKat.setInputType(info, inputType);
-        }
-
-        @Override
-        public boolean hasImage(Object info) {
-            return AccessibilityNodeInfoCompatKitKat.hasImage(info);
-        }
-
-        @Override
-        public void setHasImage(Object info, boolean hasImage) {
-            AccessibilityNodeInfoCompatKitKat.setHasImage(info, hasImage);
         }
 
         @Override
@@ -2763,38 +2732,6 @@ public class AccessibilityNodeInfoCompat {
      */
     public void setBoundsInScreen(Rect bounds) {
         IMPL.setBoundsInScreen(mInfo, bounds);
-    }
-
-    /**
-     * Gets whether this node is has an image.
-     *
-     * If the platform support this trait natively, it will always return the
-     * value from the node.
-     * If it's not supported natively and the platform is KitKat or higher,
-     * it will return the value that was explicitely set.
-     * If the platform is pre-KitKat or the value has not been explicitely set,
-     * the value will be derived based on whether the classname is a framework
-     * class that is derived from android.widget.ImageView.
-     *
-     * @return True if the node has an image.
-     */
-    public boolean hasImage() {
-        return IMPL.hasImage(mInfo);
-    }
-
-    /**
-     * Sets whether this node has an image.
-     * <p>
-     * <strong>Note:</strong> Cannot be called from an
-     * {@link android.accessibilityservice.AccessibilityService}. This class is
-     * made immutable before being delivered to an AccessibilityService.
-     * </p>
-     *
-     * @param hasImage True if the node has an image.
-     * @throws IllegalStateException If called from an AccessibilityService.
-     */
-    public void setHasImage(boolean hasImage) {
-        IMPL.setHasImage(mInfo, hasImage);
     }
 
     /**
@@ -3935,7 +3872,6 @@ public class AccessibilityNodeInfoCompat {
         builder.append("; contentDescription: ").append(getContentDescription());
         builder.append("; viewId: ").append(getViewIdResourceName());
 
-        builder.append("; hasImage: ").append(hasImage());
         builder.append("; checkable: ").append(isCheckable());
         builder.append("; checked: ").append(isChecked());
         builder.append("; focusable: ").append(isFocusable());

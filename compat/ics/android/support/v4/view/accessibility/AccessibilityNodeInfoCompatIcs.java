@@ -98,13 +98,6 @@ class AccessibilityNodeInfoCompatIcs {
         return ((AccessibilityNodeInfo) info).getWindowId();
     }
 
-    public static boolean hasImage(Object info) {
-        CharSequence className = getClassName(info);
-        return (!TextUtils.isEmpty(className) &&
-                (className.equals("android.widget.ImageButton") ||
-                 className.equals("android.widget.ImageView")));
-    }
-
     public static boolean isCheckable(Object info) {
         return ((AccessibilityNodeInfo) info).isCheckable();
     }
