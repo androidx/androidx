@@ -3,8 +3,9 @@ apply plugin: 'com.android.library'
 archivesBaseName = 'recyclerview-v7'
 
 dependencies {
-    compile project(':support-v4')
     compile project(':support-annotations')
+    compile project(':support-compat')
+    compile project(':support-core-ui')
     androidTestCompile ('com.android.support.test:runner:0.4.1') {
         exclude module: 'support-annotations'
     }
