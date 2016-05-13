@@ -105,6 +105,7 @@ public class MusicConsumptionExampleFragment extends PlaybackOverlayFragment imp
         Uri uri = Utils.getResourceUri(getActivity(), song.getFileResource(getActivity()));
         mGlue.setMetaData(metaData);
         mGlue.setMediaSource(uri);
+        mGlue.prepareMediaForPlaying();
 
         addPlaybackControlsRow();
     }
@@ -149,11 +150,12 @@ public class MusicConsumptionExampleFragment extends PlaybackOverlayFragment imp
                 vh.getMediaItemNameView().setTextColor(favoriteTextColor);
                 vh.getMediaItemDurationView().setTextColor(favoriteTextColor);
             } else {
-                vh.getMediaItemNumberView().setTextAppearance(
+                Context context = vh.getMediaItemNumberView().getContext();
+                vh.getMediaItemNumberView().setTextAppearance(context,
                         R.style.TextAppearance_Leanback_PlaybackMediaItemNumber);
-                vh.getMediaItemNameView().setTextAppearance(
+                vh.getMediaItemNameView().setTextAppearance(context,
                         R.style.TextAppearance_Leanback_PlaybackMediaItemName);
-                vh.getMediaItemDurationView().setTextAppearance(
+                vh.getMediaItemDurationView().setTextAppearance(context,
                         R.style.TextAppearance_Leanback_PlaybackMediaItemDuration);
             }
         }
@@ -302,7 +304,10 @@ public class MusicConsumptionExampleFragment extends PlaybackOverlayFragment imp
 
         Uri uri = Utils.getResourceUri(getActivity(), song.getFileResource(getActivity()));
         mGlue.setMetaData(metaData);
-        mGlue.setMediaSource(uri);
+
+        if (mGlue.setMediaSource(uri)) {
+            mGlue.prepareMediaForPlaying();
+        }
         mGlue.startPlayback();
     }
 }

@@ -87,9 +87,9 @@
                 <Preference
                     android:selectable="false"
                     android:summary="Hier steht ein voelligst sinnfreier Text den ja sowieso niemandhier lesen kann. Deshalb macht es auch keinen Unterschied ob hier sinnvolles und nicht so sinnvolles Zeug steht. Hm... Sasha, du kannst das vielleicht lesen und denkst dir jetzt auch, dass ich voll haengen geblieben bin, oder?... ^_^"></Preference>
-                <Preference
-                    android:title="Force Stop"
-                    android:key="pref_force_stop"><!-- Start an Intent --></Preference>
+                <SwitchPreference
+                    android:title="Notifications"
+                    android:key="pref_force_stop"><!-- Start an Intent --></SwitchPreference>
                 <Preference
                     android:title="Uninstall"
                     android:key="pref_uninstall"><!-- Start an Intent --></Preference>

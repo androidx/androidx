@@ -133,8 +133,10 @@ public abstract class MediaPlayerGlue extends PlaybackControlGlue implements
      */
     public void setupControlsRowPresenter(PlaybackControlsRowPresenter presenter) {
         // TODO: hahnr@ move into resources
-        presenter.setProgressColor(getContext().getColor(R.color.player_progress_color));
-        presenter.setBackgroundColor(getContext().getColor(R.color.player_background_color));
+        presenter.setProgressColor(getContext().getResources().getColor(
+                R.color.player_progress_color));
+        presenter.setBackgroundColor(getContext().getResources().getColor(
+                R.color.player_background_color));
     }
 
     @Override public PlaybackControlsRowPresenter createControlsRowAndPresenter() {
@@ -284,13 +286,34 @@ public abstract class MediaPlayerGlue extends PlaybackControlGlue implements
     }
 
     /**
-     * @see MediaPlayer#setDataSource(Context, Uri)
+     * Sets the media source of the player witha given URI.
+     * @see MediaPlayer#setDataSource(String)
+     * @return Returns <code>true</code> if uri represents a new media; <code>false</code>
+     * otherwise.
      */
-    public void setMediaSource(Uri uri) {
+    public boolean setMediaSource(Uri uri) {
         if (mMediaSourceUri != null && mMediaSourceUri.equals(uri)) {
-            return;
+            return false;
         }
         mMediaSourceUri = uri;
+        return true;
+    }
+
+    /**
+     * Sets the media source of the player with a String path URL.
+     * @see MediaPlayer#setDataSource(String)
+     * @return Returns <code>true</code> if path represents a new media; <code>false</code>
+     * otherwise.
+     */
+    public boolean setMediaSource(String path) {
+        if (mMediaSourcePath != null && mMediaSourcePath.equals(mMediaSourcePath)) {
+            return false;
+        }
+        mMediaSourcePath = path;
+        return true;
+    }
+
+    public void prepareMediaForPlaying() {
         reset();
         try {
             if (mMediaSourceUri != null) mPlayer.setDataSource(getContext(), mMediaSourceUri);
@@ -321,13 +344,6 @@ public abstract class MediaPlayerGlue extends PlaybackControlGlue implements
         });
         mPlayer.prepareAsync();
         onStateChanged();
-    }
-
-    /**
-     * @see MediaPlayer#setDataSource(String)
-     */
-    public void setMediaSource(String path) {
-        mMediaSourcePath = path;
     }
 
     /**

@@ -14,11 +14,14 @@
 
 package android.support.v17.leanback.supportleanbackshowcase.app.wizard;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v17.leanback.supportleanbackshowcase.R;
+import android.support.v17.leanback.supportleanbackshowcase.app.media.VideoExampleActivity;
 import android.support.v17.leanback.widget.GuidanceStylist;
 import android.support.v17.leanback.widget.GuidedAction;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.widget.Toast;
 
 import java.util.List;
@@ -60,10 +63,15 @@ public class WizardExample4thStepFragment extends WizardExampleBaseStepFragment 
 
     @Override
     public void onGuidedActionClicked(GuidedAction action) {
-        if (ACTION_ID_WATCH == action.getId()) {
-            Toast.makeText(getActivity(), getString(R.string.wizard_example_watch_now_clicked),
+        if (action.getId() == ACTION_ID_WATCH) {
+            finishGuidedStepFragments();
+            Intent intent = new Intent(getActivity().getBaseContext(),
+                    VideoExampleActivity.class);
+            startActivity(intent);
+        } else if (action.getId() == ACTION_ID_LATER) {
+            Toast.makeText(getActivity(), getString(R.string.wizard_example_later_clicked),
                     Toast.LENGTH_SHORT).show();
+            finishGuidedStepFragments();
         }
-        getActivity().finish();
     }
 }
