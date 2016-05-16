@@ -22,6 +22,7 @@ LOCAL_SRC_FILES := $(call all-java-files-under, gingerbread)
 LOCAL_STATIC_JAVA_LIBRARIES := \
     android-support-annotations \
     android-support-compat \
+    android-support-core-utils \
     android-support-media-compat
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
