@@ -478,9 +478,6 @@ public class ViewCompat {
         int getScrollIndicators(View view);
         void offsetTopAndBottom(View view, int offset);
         void offsetLeftAndRight(View view, int offset);
-        void requestPointerCapture(View view);
-        boolean hasPointerCapture(View view);
-        void releasePointerCapture(View view);
         void setPointerIcon(View view, PointerIconCompat pointerIcon);
     }
 
@@ -1109,21 +1106,6 @@ public class ViewCompat {
         @Override
         public void offsetTopAndBottom(View view, int offset) {
             ViewCompatBase.offsetTopAndBottom(view, offset);
-        }
-
-        @Override
-        public void requestPointerCapture(View view) {
-            // no-op
-        }
-
-        @Override
-        public boolean hasPointerCapture(View view) {
-            return false;
-        }
-
-        @Override
-        public void releasePointerCapture(View view) {
-            // no-op
         }
 
         @Override
@@ -1772,21 +1754,6 @@ public class ViewCompat {
     }
 
     static class Api24ViewCompatImpl extends MarshmallowViewCompatImpl {
-        @Override
-        public void requestPointerCapture(View view) {
-            ViewCompatApi24.requestPointerCapture(view);
-        }
-
-        @Override
-        public boolean hasPointerCapture(View view) {
-            return ViewCompatApi24.hasPointerCapture(view);
-        }
-
-        @Override
-        public void releasePointerCapture(View view) {
-            ViewCompatApi24.releasePointerCapture(view);
-        }
-
         @Override
         public void setPointerIcon(View view, PointerIconCompat pointerIconCompat) {
             ViewCompatApi24.setPointerIcon(view, pointerIconCompat.getPointerIcon());
@@ -3484,49 +3451,6 @@ public class ViewCompat {
     public static int getScrollIndicators(@NonNull View view) {
         return IMPL.getScrollIndicators(view);
     }
-
-    /**
-     * Request capturing further mouse events.
-     *
-     * When the view captures, the pointer icon will disappear and will not change its
-     * position. Further pointer events will come to the capturing view, and the pointer movements
-     * will can be detected through {@link MotionEvent#AXIS_RELATIVE_X} and
-     * {@link MotionEvent#AXIS_RELATIVE_Y}. Non-mouse events (touchscreens, or stylus) will not
-     * be affected.
-     *
-     * The capture will be released through {@link #releasePointerCapture(View)}, or will be lost
-     * automatically when the view or containing window disappear.
-     *
-     * @return true when succeeds.
-     * @see #releasePointerCapture(View)
-     * @see #hasPointerCapture(View)
-     */
-    public static void requestPointerCapture(@NonNull View view) {
-        IMPL.requestPointerCapture(view);
-    }
-
-    /**
-     * Checks the capture status of mouse events.
-     *
-     * @return true if the view has the capture.
-     * @see #requestPointerCapture(View)
-     * @see #hasPointerCapture(View)
-     */
-    public static boolean hasPointerCapture(@NonNull View view) {
-        return IMPL.hasPointerCapture(view);
-    }
-
-    /**
-     * Release the current capture of mouse events.
-     *
-     * If the view does not have the capture, it will do nothing.
-     * @see #requestPointerCapture(View)
-     * @see #hasPointerCapture(View)
-     */
-    public static void releasePointerCapture(@NonNull View view) {
-        IMPL.releasePointerCapture(view);
-    }
-
 
     /**
      * Set the pointer icon for the current view.
