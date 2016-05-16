@@ -312,35 +312,35 @@ public final class RatingCompat implements Parcelable {
     /**
      * Creates an instance from a framework {@link android.media.Rating} object.
      * <p>
-     * This method is only supported on API 21+.
+     * This method is only supported on API 19+.
      * </p>
      *
      * @param ratingObj A {@link android.media.Rating} object, or null if none.
      * @return An equivalent {@link RatingCompat} object, or null if none.
      */
     public static RatingCompat fromRating(Object ratingObj) {
-        if (ratingObj == null || Build.VERSION.SDK_INT < 21) {
+        if (ratingObj == null || Build.VERSION.SDK_INT < 19) {
             return null;
         }
 
-        final int ratingStyle = RatingCompatApi21.getRatingStyle(ratingObj);
+        final int ratingStyle = RatingCompatKitkat.getRatingStyle(ratingObj);
         final RatingCompat rating;
-        if (RatingCompatApi21.isRated(ratingObj)) {
+        if (RatingCompatKitkat.isRated(ratingObj)) {
             switch (ratingStyle) {
                 case RATING_HEART:
-                    rating = newHeartRating(RatingCompatApi21.hasHeart(ratingObj));
+                    rating = newHeartRating(RatingCompatKitkat.hasHeart(ratingObj));
                     break;
                 case RATING_THUMB_UP_DOWN:
-                    rating = newThumbRating(RatingCompatApi21.isThumbUp(ratingObj));
+                    rating = newThumbRating(RatingCompatKitkat.isThumbUp(ratingObj));
                     break;
                 case RATING_3_STARS:
                 case RATING_4_STARS:
                 case RATING_5_STARS:
                     rating = newStarRating(ratingStyle,
-                            RatingCompatApi21.getStarRating(ratingObj));
+                            RatingCompatKitkat.getStarRating(ratingObj));
                     break;
                 case RATING_PERCENTAGE:
-                    rating = newPercentageRating(RatingCompatApi21.getPercentRating(ratingObj));
+                    rating = newPercentageRating(RatingCompatKitkat.getPercentRating(ratingObj));
                     break;
                 default:
                     return null;
@@ -355,36 +355,36 @@ public final class RatingCompat implements Parcelable {
     /**
      * Gets the underlying framework {@link android.media.Rating} object.
      * <p>
-     * This method is only supported on API 21+.
+     * This method is only supported on API 19+.
      * </p>
      *
      * @return An equivalent {@link android.media.Rating} object, or null if none.
      */
     public Object getRating() {
-        if (mRatingObj != null || Build.VERSION.SDK_INT < 21) {
+        if (mRatingObj != null || Build.VERSION.SDK_INT < 19) {
             return mRatingObj;
         }
 
         if (isRated()) {
             switch (mRatingStyle) {
                 case RATING_HEART:
-                    mRatingObj = RatingCompatApi21.newHeartRating(hasHeart());
+                    mRatingObj = RatingCompatKitkat.newHeartRating(hasHeart());
                     break;
                 case RATING_THUMB_UP_DOWN:
-                    mRatingObj = RatingCompatApi21.newThumbRating(isThumbUp());
+                    mRatingObj = RatingCompatKitkat.newThumbRating(isThumbUp());
                     break;
                 case RATING_3_STARS:
                 case RATING_4_STARS:
                 case RATING_5_STARS:
-                    mRatingObj = RatingCompatApi21.newStarRating(mRatingStyle, getStarRating());
+                    mRatingObj = RatingCompatKitkat.newStarRating(mRatingStyle, getStarRating());
                     break;
                 case RATING_PERCENTAGE:
-                    mRatingObj = RatingCompatApi21.newPercentageRating(getPercentRating());
+                    mRatingObj = RatingCompatKitkat.newPercentageRating(getPercentRating());
                 default:
                     return null;
             }
         } else {
-            mRatingObj = RatingCompatApi21.newUnratedRating(mRatingStyle);
+            mRatingObj = RatingCompatKitkat.newUnratedRating(mRatingStyle);
         }
         return mRatingObj;
     }
